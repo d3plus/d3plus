@@ -29,6 +29,8 @@ export interface BarSpan {
   end: number;
   /** The bar's center, where its rows are plotted and its label sits. */
   mid: number;
+  /** The merge of the bar's rows' data. */
+  data?: DataPoint;
 }
 
 /** A bar before layout: its category, width measure, and merged datum. */
@@ -109,18 +111,18 @@ export function measureBars(
 }
 
 /**
-    Lays bars end to end from zero, in order. Bars without a positive, finite
-    width are dropped.
+    Lays bars end to end from zero, in order, keeping each bar's merged
+    `data`. Bars without a positive, finite width are dropped.
 */
 export function layoutBarSpans(
-  bars: {value: unknown; size: number}[],
+  bars: {value: unknown; size: number; data?: DataPoint}[],
 ): BarSpan[] {
   let start = 0;
   return bars
     .filter(b => Number.isFinite(b.size) && b.size > 0)
-    .map(({value, size}) => {
-      const end = start + size;
-      const span = {value, size, start, end, mid: (start + end) / 2};
+    .map(bar => {
+      const end = start + bar.size;
+      const span = {...bar, start, end, mid: (start + end) / 2};
       start = end;
       return span;
     });
@@ -210,6 +212,43 @@ export function widthShareText(
     : "";
 }
 
+/** What `barWidthShareFormat` receives about a bar, after its merged datum. */
+export interface BarShareInfo {
+  /** The bar's share of the total width, from 0 to 1. */
+  share: number;
+  /** The bar's width measure. */
+  size: number;
+  /** Every bar's combined width (its own panel's, when faceted). */
+  total: number;
+  /** The default label: the share as a percentage, such as "23%". */
+  text: string;
+}
+
+/** A `barWidthShareFormat` function. */
+export type BarShareFormat = (d: DataPoint, info: BarShareInfo) => unknown;
+
+/**
+    A bar's width-share label: `barWidthShareFormat` called with the bar's
+    merged datum and its share, else the share as a percentage.
+*/
+export function shareText(
+  viz: VizInstance,
+  layout: BarSpanLayout,
+  span: BarSpan,
+): string {
+  const text = widthShareText(layout, span, viz.schema.locale);
+  const format = viz.schema.barWidthShareFormat as BarShareFormat | undefined;
+  if (typeof format !== "function" || !span.data) return text;
+  const share = layout.total ? span.size / layout.total : 0;
+  const label = format(span.data, {
+    share,
+    size: span.size,
+    total: layout.total,
+    text,
+  });
+  return label === undefined || label === null ? "" : String(label);
+}
+
 /**
     A category's axis label with its bar's width share: on a second line
     beneath the name along a horizontal axis, after it in parentheses along
@@ -226,10 +265,48 @@ export function shareLabel(
 }
 
 /**
+    The secondary axis that carries the width shares when `barWidthShare` is
+    "opposite": `x2` (above the bars) for bars along `x`, `y2` (right of them)
+    for bars along `y`. Undefined otherwise, or without variable widths.
+*/
+export function shareAxis(viz: VizInstance): "x2" | "y2" | undefined {
+  const layout = viz._barSpans;
+  if (!layout || viz.schema.barWidthShare !== "opposite") return undefined;
+  return layout.axis === "x" ? "x2" : "y2";
+}
+
+/**
+    Axis config for the axis opposite a variable-width discrete axis when
+    `barWidthShare` is "opposite": each bar's width share labeled at its
+    center, with no line, ticks, gridlines, or title. Empty for any other
+    axis.
+*/
+export function barShareAxisConfig(
+  viz: VizInstance,
+  axis: "x2" | "y2",
+): Record<string, unknown> {
+  const layout = viz._barSpans;
+  if (!layout || shareAxis(viz) !== axis) return {};
+  const mids = layout.spans.map(s => s.mid);
+  const shares = new Map(
+    layout.spans.map(s => [s.mid, shareText(viz, layout, s)]),
+  );
+  return {
+    barConfig: {"stroke-width": 0},
+    gridSize: 0,
+    labels: mids,
+    tickFormat: (v: number) => shares.get(v) ?? "",
+    tickSize: 0,
+    ticks: mids,
+    title: false,
+  };
+}
+
+/**
     Axis config for a variable-width discrete axis: each category ticked and
     labeled at its bar's center, and nowhere else, with its width share when
-    `barWidthShare` is on. Labels the axis rotates show the name alone. Empty
-    for any other axis.
+    `barWidthShare` is `true`. Labels the axis rotates show the name alone.
+    Empty for any other axis.
 */
 export function barSpanAxisConfig(
   viz: VizInstance,
@@ -237,20 +314,15 @@ export function barSpanAxisConfig(
 ): Record<string, unknown> {
   const layout = viz._barSpans;
   if (!layout || layout.axis !== axis) return {};
-  const locale = viz.schema.locale;
   const mids = layout.spans.map(s => s.mid);
   const names = new Map(layout.spans.map(s => [s.mid, categoryLabel(s.value)]));
   const name = (v: number) => names.get(v) ?? "";
-  if (!viz.schema.barWidthShare)
+  if (viz.schema.barWidthShare !== true)
     return {labels: mids, ticks: mids, tickFormat: name};
   const shared = new Map(
     layout.spans.map(s => [
       s.mid,
-      shareLabel(
-        categoryLabel(s.value),
-        widthShareText(layout, s, locale),
-        axis,
-      ),
+      shareLabel(categoryLabel(s.value), shareText(viz, layout, s), axis),
     ]),
   );
   return {

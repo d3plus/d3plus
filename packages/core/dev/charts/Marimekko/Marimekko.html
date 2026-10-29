@@ -5,7 +5,7 @@
     <title>Marimekko</title>
     <meta
       name="description"
-      content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, width-share labels that wrap, widen, or hide, horizontal bars, shared and independent small multiples, and variable-width BarCharts."
+      content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, width shares above the bars or beneath names that wrap, widen, or hide, custom share labels, horizontal bars, shared and independent small multiples, and variable-width BarCharts."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -37,8 +37,8 @@
     <div class="grid">
       <div>
         <h3>
-          Default (width = each region's total, segments stacked to 100%); a
-          label too long for its bar hides, its tooltip keeps the share
+          Default (width = each region's total, segments stacked to 100%): names
+          beneath, width shares above
         </h3>
         <div class="viz" id="basic"></div>
       </div>
@@ -52,7 +52,7 @@
       </div>
       <div>
         <h3>
-          Horizontal: discrete("y"), each region's width share after its name
+          Horizontal: discrete("y"), each region's width share right of its bar
         </h3>
         <div class="viz" id="horizontal"></div>
       </div>
@@ -69,6 +69,26 @@
       <div>
         <h3>barWidthShare(false): category names without width shares</h3>
         <div class="viz" id="noshare"></div>
+      </div>
+      <div>
+        <h3>
+          barWidthShare(true): each region's width share beneath its name; a
+          label too long for its bar hides, its tooltip keeps the share
+        </h3>
+        <div class="viz" id="beneath"></div>
+      </div>
+      <div>
+        <h3>
+          Horizontal with barWidthShare(true): each region's width share after
+          its name
+        </h3>
+        <div class="viz" id="beneathHorizontal"></div>
+      </div>
+      <div>
+        <h3>
+          barWidthShareFormat: each region's revenue beside its width share
+        </h3>
+        <div class="viz" id="shareFormat"></div>
       </div>
       <div>
         <h3>
@@ -223,6 +243,35 @@
       .x("Region")
       .y("Revenue")
       .barWidthShare(false)
+      .render();
+
+    new d3plus.Marimekko()
+      .select("#beneath")
+      .data(sales)
+      .groupBy("Brand")
+      .x("Region")
+      .y("Revenue")
+      .barWidthShare(true)
+      .render();
+
+    new d3plus.Marimekko()
+      .select("#beneathHorizontal")
+      .data(sales)
+      .groupBy("Brand")
+      .discrete("y")
+      .x("Revenue")
+      .y("Region")
+      .barWidthShare(true)
+      .render();
+
+    new d3plus.Marimekko()
+      .select("#shareFormat")
+      .data(sales)
+      .groupBy("Brand")
+      .x("Region")
+      .y("Revenue")
+      // Called with the region's merged row (brands' revenue summed) and its share.
+      .barWidthShareFormat((d, {text}) => `$${d.Revenue}B · ${text}`)
       .render();
 
     // Illustrative revenue ($B) by sector and year; width = employees (M), the same on every row.

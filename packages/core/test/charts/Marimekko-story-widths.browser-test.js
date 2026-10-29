@@ -5,9 +5,10 @@ import {render} from "~test/browser/render.js";
 /**
     The first Marimekko stories across the widths a Storybook docs page or
     canvas gives a chart (350px tall): every region's label lies flat,
-    wrapped within its own bar, with its share on a line beneath it in
-    BasicExample and BarWidthMeasure and its name alone in
-    WithoutWidthShares, and BarWidthMeasure's x axis sits below its bars.
+    wrapped within its own bar, with its share above the bar in BasicExample
+    and BarWidthMeasure, on a line beneath the name with
+    `barWidthShare(true)`, and its name alone in WithoutWidthShares, and
+    BarWidthMeasure's x axis sits below its bars.
 */
 
 // The stories' smartphone revenue ($B) and units sold (millions) by region.
@@ -39,8 +40,9 @@ const share = /^[\d.]+%$/;
 
 /**
     Renders a Marimekko and reads its painted scene back (either renderer):
-    the x axis's labels (lines, rotation, and top edge), its domain line, and
-    the bottom edge of the bars, all in the chart body's coordinates.
+    the x axis's labels (lines, rotation, and top edge), its domain line, the
+    x2 axis's width shares, and the bottom edge of the bars, all in the
+    chart body's coordinates.
 */
 const draw = ([config, rows]) =>
   new Promise(resolve => {
@@ -64,6 +66,7 @@ const draw = ([config, rows]) =>
     viz.render(() => {
       const out = {
         labels: [],
+        shares: [],
         domain: undefined,
         barBottom: -Infinity,
         rotated: viz._xAxis._labelRotation,
@@ -73,7 +76,15 @@ const draw = ([config, rows]) =>
           return;
         const x = dx + (node.transform?.x ?? 0),
           y = dy + (node.transform?.y ?? 0);
-        const inAxis = axis || /(?:^|\/)plot-x-axis$/.test(node.key || "");
+        const inAxis = axis || /(?:^|\/)plot-x2?-axis$/.test(node.key || "");
+        if (/(?:^|\/)plot-x2-axis$/.test(node.key || "")) {
+          const texts = n => {
+            if (n.type === "text")
+              out.shares.push(n.lines.map(l => l.text).join(" "));
+            (n.children || []).forEach(texts);
+          };
+          return texts(node);
+        }
         if (inAxis && node.type === "text")
           out.labels.push({
             lines: node.lines.map(l => l.text),
@@ -98,7 +109,7 @@ const draw = ([config, rows]) =>
 
 for (const renderer of ["svg", "canvas"]) {
   for (const width of [600, 750, 900, 1100]) {
-    it(`Marimekko stories at ${width} × 350: every region lies flat, with its share beneath its name unless barWidthShare(false) (${renderer})`, async function () {
+    it(`Marimekko stories at ${width} × 350: every region lies flat, its share above its bar, beneath its name with barWidthShare(true) (${renderer})`, async function () {
       const out = await render("", draw, [{renderer, width}, sales]);
       assert.strictEqual(out.rotated, false, "no label rotates");
       assert.ok(
@@ -106,11 +117,25 @@ for (const renderer of ["svg", "canvas"]) {
         "none painted rotated",
       );
       assert.deepStrictEqual(
-        out.labels.map(l => l.lines.slice(0, -1).join(" ")),
+        out.labels.map(l => l.lines.join(" ")),
+        names,
+        "every region, in order, by name alone",
+      );
+      assert.strictEqual(out.shares.length, names.length, `${out.shares}`);
+      out.shares.forEach(s => assert.ok(share.test(s), `share: ${s}`));
+
+      const beneath = await render("", draw, [
+        {renderer, width, barWidthShare: true},
+        sales,
+      ]);
+      assert.strictEqual(beneath.rotated, false, "no label rotates");
+      assert.deepStrictEqual(
+        beneath.labels.map(l => l.lines.slice(0, -1).join(" ")),
         names,
         "every region, in order",
       );
-      out.labels.forEach(l =>
+      assert.deepStrictEqual(beneath.shares, [], "no share axis");
+      beneath.labels.forEach(l =>
         assert.ok(
           share.test(l.lines[l.lines.length - 1]),
           `share line: ${l.lines}`,
@@ -129,7 +154,7 @@ for (const renderer of ["svg", "canvas"]) {
       );
     });
 
-    it(`Marimekko BarWidthMeasure story at ${width} × 350: flat labels with their shares, below every bar (${renderer})`, async function () {
+    it(`Marimekko BarWidthMeasure story at ${width} × 350: flat labels below every bar, shares above (${renderer})`, async function () {
       const out = await render("", draw, [
         {renderer, width, barWidth: "Units Sold", maxAggs: "Units Sold"},
         sales,
@@ -139,12 +164,8 @@ for (const renderer of ["svg", "canvas"]) {
         out.labels.length >= 4,
         `labels: ${JSON.stringify(out.labels)}`,
       );
-      out.labels.forEach(l =>
-        assert.ok(
-          share.test(l.lines[l.lines.length - 1]),
-          `share line: ${l.lines}`,
-        ),
-      );
+      assert.ok(out.shares.length >= 4, `shares: ${out.shares}`);
+      out.shares.forEach(s => assert.ok(share.test(s), `share: ${s}`));
       assert.ok(
         Math.abs(out.domain - out.barBottom) <= 0.5,
         `the domain line (${out.domain}) meets the bars' base (${out.barBottom})`,

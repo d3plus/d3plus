@@ -70,7 +70,7 @@ const draw = ([kind, config, rows, hoverKey]) =>
         [...el.querySelectorAll(`${selector} text`)].map(lines).filter(Boolean);
       const axes = {};
       el.querySelectorAll(
-        "[data-key$='plot-x-axis'], [data-key$='plot-y-axis']",
+        "[data-key$='plot-x-axis'], [data-key$='plot-y-axis'], [data-key$='plot-x2-axis'], [data-key$='plot-y2-axis']",
       ).forEach(a => {
         axes[a.getAttribute("data-key")] = [...a.querySelectorAll("text")]
           .map(lines)
@@ -102,7 +102,7 @@ const draw = ([kind, config, rows, hoverKey]) =>
       };
       const findAxes = node => {
         if (!node) return;
-        const match = /(?:^|\/)plot-([xy])-axis$/.exec(node.key || "");
+        const match = /(?:^|\/)plot-([xy]2?)-axis$/.exec(node.key || "");
         if (match) {
           const axis = (scene[node.key] = {
             labels: [],
@@ -141,6 +141,8 @@ const draw = ([kind, config, rows, hoverKey]) =>
         tickCenters,
         xLabels: text("[data-key$='plot-x-axis']"),
         yLabels: text("[data-key$='plot-y-axis']"),
+        x2Labels: text("[data-key$='plot-x2-axis']"),
+        y2Labels: text("[data-key$='plot-y2-axis']"),
         spans: viz._barSpans
           ? viz._barSpans.spans.map(s => [s.value, s.start, s.end])
           : null,
@@ -207,10 +209,11 @@ it("Marimekko: bars as wide as their totals, segments stacked to 100%", async fu
   const heights = a.segments.map(s => s.bottom - s.top).sort((x, y) => x - y);
   near(heights[1] / heights[0], 2, 0.1, "segment height ∝ share");
 
+  assert.deepStrictEqual(out.xLabels, ["A", "B"], "names alone beneath");
   assert.deepStrictEqual(
-    out.xLabels,
-    ["A\n75%", "B\n25%"],
-    "categories labeled with their width shares",
+    out.x2Labels,
+    ["75%", "25%"],
+    "width shares above the bars",
   );
   assert.ok(
     out.yLabels.includes("100%") && out.yLabels.includes("0%"),
@@ -285,10 +288,11 @@ it("Marimekko: horizontal bars span the y axis", async function () {
   assert.strictEqual(sizes.length, 2);
   near(sizes[1] / sizes[0], 3, 0.15, "height ∝ total");
   assert.ok(out.xLabels.includes("100%"), "percent value axis");
+  assert.deepStrictEqual(out.yLabels.slice().sort(), ["A", "B"]);
   assert.deepStrictEqual(
-    out.yLabels.slice().sort(),
-    ["A (75%)", "B (25%)"],
-    "shares follow the names",
+    out.y2Labels.slice().sort(),
+    ["25%", "75%"],
+    "shares right of the bars",
   );
 });
 
@@ -455,8 +459,8 @@ for (const renderer of ["svg", "canvas"]) {
     `Marimekko: at the dev page's sizes, category labels lie flat with their shares, hiding only the narrowest bar's (${renderer})`,
     {timeout: 120000},
     async function () {
-      // A dev-page grid cell is 618px wide.
-      const config = {width: 618, height: 400, renderer};
+      // A dev-page grid cell is 618px wide; shares beneath the names.
+      const config = {width: 618, height: 400, renderer, barWidthShare: true};
       const out = await render("", draw, ["Marimekko", config, sales]);
       const x = out.scene["plot-x-axis"];
       assert.strictEqual(
@@ -487,7 +491,11 @@ for (const renderer of ["svg", "canvas"]) {
       );
 
       // Left flat, a label keeps its share line.
-      const wide = await render("", draw, ["Marimekko", {renderer}, data]);
+      const wide = await render("", draw, [
+        "Marimekko",
+        {renderer, barWidthShare: true},
+        data,
+      ]);
       assert.strictEqual(wide.scene["plot-x-axis"].rotated, false);
       assert.deepStrictEqual(wide.scene["plot-x-axis"].labels, [
         "A\n75%",
@@ -545,6 +553,7 @@ it("Marimekko: the labels settle the same way on every render", async function (
           .x("cat")
           .y("v")
           .duration(0)
+          .barWidthShare(true)
           .width(618)
           .height(400);
         const labels = () =>
@@ -719,7 +728,9 @@ function facetPanels(out) {
   }
   for (const [key, {labels}] of Object.entries(out.scene)) {
     const [panel, axis] = key.split("/");
-    if (axis === "plot-x-axis" && panels[panel]) panels[panel].labels = labels;
+    if (!panels[panel]) continue;
+    if (axis === "plot-x-axis") panels[panel].labels = labels;
+    if (axis === "plot-x2-axis") panels[panel].shares = labels;
   }
   return panels;
 }
@@ -745,8 +756,10 @@ for (const renderer of ["svg", "canvas"]) {
       "the smaller panel draws a narrower mosaic",
     );
     // Each panel's shares are of its own total (40 and 80), so they add to 100% in both.
-    assert.deepStrictEqual(p1.labels, ["A\n75%", "B\n25%"]);
-    assert.deepStrictEqual(p2.labels, ["A\n75%", "B\n25%"]);
+    assert.deepStrictEqual(p1.labels, ["A", "B"]);
+    assert.deepStrictEqual(p1.shares, ["75%", "25%"]);
+    assert.deepStrictEqual(p2.labels, ["A", "B"]);
+    assert.deepStrictEqual(p2.shares, ["75%", "25%"]);
   });
 
   it(`Marimekko: facetConfig({scales: "independent"}) fills each panel's width (${renderer})`, async function () {
@@ -759,11 +772,11 @@ for (const renderer of ["svg", "canvas"]) {
     const {"facet-P1": p1, "facet-P2": p2} = facetPanels(out);
     near(p1.width / p2.width, 1, 0.05, "every panel fills its width");
     assert.deepStrictEqual(
-      p1.labels,
-      ["A\n75%", "B\n25%"],
+      p1.shares,
+      ["75%", "25%"],
       "shares of the panel's own total",
     );
-    assert.deepStrictEqual(p2.labels, ["A\n75%", "B\n25%"]);
+    assert.deepStrictEqual(p2.shares, ["75%", "25%"]);
   });
 }
 

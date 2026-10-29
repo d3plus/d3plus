@@ -4,6 +4,7 @@ import {
   applyBarWidths,
   barKey,
   barSeries,
+  barShareAxisConfig,
   barSpanAxisConfig,
   barWidthAccessor,
   barWidthLabel,
@@ -12,7 +13,9 @@ import {
   layoutBarSpans,
   measureBars,
   seriesSlot,
+  shareAxis,
   shareLabel,
+  shareText,
   widthShareText,
 } from "../../src/charts/Plot/barWidth.ts";
 import {plotAxisConfig} from "../../src/charts/Plot/baselineBreak.ts";
@@ -101,6 +104,12 @@ it("barWidth: layoutBarSpans lays bars end to end and drops empty ones", () => {
     {value: "C", size: 6, start: 2, end: 8, mid: 5},
   ]);
   assert.deepStrictEqual(layoutBarSpans([]), []);
+  const datum = {cat: "A"};
+  assert.strictEqual(
+    layoutBarSpans([{value: "A", size: 1, data: datum}])[0].data,
+    datum,
+    "each span keeps its bar's merged datum",
+  );
 });
 
 it("barWidth: applyBarWidths places rows at their bar centers and spans the axis", () => {
@@ -322,6 +331,115 @@ it("barWidth: barSpanAxisConfig adds width shares with barWidthShare, but not to
   const y = barSpanAxisConfig(vertical, "y");
   assert.strictEqual(y.tickFormat(0.5), "A (25%)");
   assert.deepStrictEqual(y.ticks, [0.5, 2.5]);
+});
+
+it('barWidth: shareAxis names the secondary axis only for barWidthShare("opposite") with variable widths', () => {
+  const data = () => [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
+  const viz = fakeViz({
+    barWidth: barWidthAccessor("v"),
+    barWidthShare: "opposite",
+  });
+  assert.strictEqual(shareAxis(viz), undefined, "no layout yet");
+  applyBarWidths(viz, data(), data());
+  assert.strictEqual(shareAxis(viz), "x2");
+
+  const vertical = fakeViz({
+    barWidth: barWidthAccessor("v"),
+    barWidthShare: "opposite",
+    discrete: "y",
+  });
+  const rows = [
+    {y: "A", data: {v: 1}},
+    {y: "B", data: {v: 3}},
+  ];
+  applyBarWidths(vertical, rows, rows);
+  assert.strictEqual(shareAxis(vertical), "y2");
+
+  const beneath = fakeViz({
+    barWidth: barWidthAccessor("v"),
+    barWidthShare: true,
+  });
+  applyBarWidths(beneath, data(), data());
+  assert.strictEqual(
+    shareAxis(beneath),
+    undefined,
+    "true keeps the share beneath the name",
+  );
+});
+
+it('barWidth: barWidthShare("opposite") labels names alone and shares on the opposite axis', () => {
+  const viz = fakeViz({
+    barWidth: barWidthAccessor("v"),
+    barWidthShare: "opposite",
+  });
+  const data = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
+  applyBarWidths(viz, data, data);
+  const names = barSpanAxisConfig(viz, "x");
+  assert.strictEqual(names.tickFormat(0.5), "A");
+  assert.strictEqual(names.tickFormat(2.5), "B");
+
+  const shares = barShareAxisConfig(viz, "x2");
+  assert.deepStrictEqual(shares.ticks, [0.5, 2.5]);
+  assert.deepStrictEqual(shares.labels, [0.5, 2.5]);
+  assert.strictEqual(shares.tickFormat(0.5), "25%");
+  assert.strictEqual(shares.tickFormat(2.5), "75%");
+  assert.strictEqual(shares.tickFormat(1), "", "nothing off the bar centers");
+  assert.strictEqual(shares.title, false);
+  assert.strictEqual(shares.gridSize, 0);
+  assert.deepStrictEqual(
+    barShareAxisConfig(viz, "y2"),
+    {},
+    "only the opposite axis",
+  );
+
+  const beneath = fakeViz({
+    barWidth: barWidthAccessor("v"),
+    barWidthShare: true,
+  });
+  applyBarWidths(beneath, data, data);
+  assert.deepStrictEqual(barShareAxisConfig(beneath, "x2"), {});
+});
+
+it("barWidth: shareText calls barWidthShareFormat with the bar's merged datum and share", () => {
+  const calls = [];
+  const viz = fakeViz({
+    barWidth: barWidthAccessor("v"),
+    barWidthShare: "opposite",
+    barWidthShareFormat: (d, info) => {
+      calls.push([d, info]);
+      return `$${d.v}B`;
+    },
+  });
+  const data = [
+    row("A", {g: "a", v: 1}),
+    row("A", {g: "b", v: 2}),
+    row("B", {g: "a", v: 1}),
+  ];
+  applyBarWidths(viz, data, data);
+  const [a, b] = viz._barSpans.spans;
+  assert.strictEqual(shareText(viz, viz._barSpans, a), "$3B", "rows merge");
+  assert.strictEqual(shareText(viz, viz._barSpans, b), "$1B");
+  assert.deepStrictEqual(calls[0][1], {
+    share: 0.75,
+    size: 3,
+    total: 4,
+    text: "75%",
+  });
+  assert.strictEqual(barShareAxisConfig(viz, "x2").tickFormat(a.mid), "$3B");
+
+  viz.schema.barWidthShare = true;
+  assert.strictEqual(
+    barSpanAxisConfig(viz, "x").tickFormat(a.mid),
+    "A\n$3B",
+    "beneath the name too",
+  );
+
+  viz.schema.barWidthShareFormat = (d, {text}) => `${d.v} · ${text}`;
+  assert.strictEqual(shareText(viz, viz._barSpans, a), "3 · 75%");
+  viz.schema.barWidthShareFormat = () => undefined;
+  assert.strictEqual(shareText(viz, viz._barSpans, a), "", "nothing shows");
+  viz.schema.barWidthShareFormat = undefined;
+  assert.strictEqual(shareText(viz, viz._barSpans, a), "75%", "the default");
 });
 
 it("barWidth: barSeries lists side-by-side series only when a bar holds more than one", () => {

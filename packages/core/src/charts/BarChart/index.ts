@@ -43,10 +43,21 @@ export const barChartDef: ChartDefinition = {
         a horizontal axis, a name wraps to fit a narrow bar, widening into
         room its neighbors leave; a label that still can't fit is left out,
         and the labels rotate, showing the name alone, only when half or
-        more can't fit. In small multiples, each panel's shares are of that
-        panel's own total width. Off (`false`) by default.
+        more can't fit. `"opposite"` puts the shares on the axis across the
+        bars from the names instead: above them along a horizontal axis
+        (`x2Config`), right of them along a vertical one (`y2Config`). In
+        small multiples, each panel's shares are of that panel's own total
+        width. Off (`false`) by default.
     */
     {key: "barWidthShare", default: false},
+    /**
+        With `barWidthShare`, returns each bar's width-share label in place
+        of its percentage. Called with the merge of the bar's rows' data
+        and `{share, size, total, text}`: the bar's share of the total width
+        (0–1), its width measure, every bar's combined width, and the
+        default label (such as "23%"). Unset by default.
+    */
+    {key: "barWidthShareFormat"},
     {key: "baseline", default: 0},
     {key: "baselineBreak", default: true},
     {key: "discrete", default: "x"},
