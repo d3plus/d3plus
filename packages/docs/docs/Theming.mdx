@@ -7,6 +7,59 @@ import {Meta} from '@storybook/addon-docs/blocks';
 D3plus assigns colors, fonts, and label styles automatically, but every visual
 detail is configurable.
 
+## Themes
+
+`theme` sets every chrome color at once: the background, the title, axes,
+gridlines, legend, timeline, tooltip, table view, and the overlays drawn over
+the chart (minimap, search count, attribution).
+
+```jsx
+<BarChart config={{data, groupBy: "region", x: "quarter", y: "revenue", theme: "dark"}} />
+```
+
+- **`"auto"`** (the default) paints no background and follows the page behind
+  the chart: its text contrasts with the page, its tooltip, table view, and
+  overlays turn dark on a dark page, and it redraws when the page flips between
+  light and dark (a theme class or `style` on `<html>` or `<body>`, or the
+  system theme under `color-scheme: light dark`).
+- **`"light"`** and **`"dark"`** paint the theme's background behind the chart,
+  so it reads the same on any page and in a saved PNG, JPG, SVG, or server
+  render.
+- **An object** sets your own tokens on top of the preset its `base` names
+  (`"light"` or `"dark"`; without one, a dark `background` picks the dark
+  preset):
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  theme: {
+    base: "dark",
+    background: "#14213d",
+    accent: "#fca311",
+    tooltip: {background: "#22345c", border: "#fca311"}
+  }
+}} />
+```
+
+| Token | Colors |
+| --- | --- |
+| `background` | Behind the chart (painted for every theme but `"auto"`) |
+| `text` | Title, subtitle, total, legend, and timeline labels |
+| `textMuted` | The table view's empty state, the crosshair, and axis hover marks |
+| `axis` | Axis lines, ticks, and tick labels |
+| `gridline` | Gridlines |
+| `accent` | The timeline's selection and handle |
+| `hidden` | Legend items hidden by a click (`hiddenColor`) |
+| `link` | Links between nodes (Network, Rings, Sankey; the dark preset draws Sankey's wide bands in a dimmer gray unless you set this) |
+| `tooltip` | `{background, text, border, shadow, divider}` |
+| `overlay` | `{background, text, border}` for the minimap, search count, and attribution |
+| `table` | `{background, text, header, border, rule}` for the table view |
+
+Colors you set elsewhere still win over the theme: an explicit
+`titleConfig.fontColor`, `tooltipConfig.background`, `minimapStyle`, and so on.
+The chart's data colors don't change with the theme; labels inside shapes
+already contrast with each shape's fill.
+
 ## Colors
 
 By default each group gets a distinct color from the `@d3plus/color` palette.

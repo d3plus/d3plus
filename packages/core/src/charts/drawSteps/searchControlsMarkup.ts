@@ -30,6 +30,8 @@ import {
   searchControlStyleDefault,
   searchControlStyleHoverDefault,
 } from "../viz/vizDefaults.js";
+import {themeOverlayStyle} from "../viz/vizTheme.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 /** Search-open state is per-chart, read/written via `viz._searchOpen`. */
 export function isSearchOpen(viz: Viz): boolean {
@@ -228,7 +230,16 @@ export function applySearchCount(
   index: number | undefined,
   total: number,
 ): void {
-  const style = hasTerm ? SEARCH_COUNT_STYLE_SHOWN : SEARCH_COUNT_STYLE_HIDDEN;
+  const style = themeOverlayStyle(
+    viz as unknown as VizInstance,
+    hasTerm ? SEARCH_COUNT_STYLE_SHOWN : SEARCH_COUNT_STYLE_HIDDEN,
+    SEARCH_COUNT_STYLE_SHOWN,
+    {
+      background: o => o.background,
+      border: o => `1px solid ${o.border}`,
+      color: o => o.text,
+    },
+  );
   for (const key in style) el.style.setProperty(kebab(key), style[key]);
   const {text, label} = formatMatchCount(viz, index, total);
   el.textContent = hasTerm ? text : "";

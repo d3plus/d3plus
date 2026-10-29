@@ -13,7 +13,6 @@ import {
   AxisRight,
   AxisTop,
 } from "../../components/index.js";
-import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {accessor, constant} from "../../utils/index.js";
 import {defaultBuffers} from "../plotBuffers/defaultBuffers.js";
 import {linkedColorDefaults} from "../viz/linkGroup.js";
@@ -29,6 +28,8 @@ import {
   stackOffsetDiverging,
   stackOrderTotalDescending,
 } from "./stackHelpers.js";
+import {chartGridline} from "../viz/backgroundInk.js";
+import {themed} from "../../utils/theme.js";
 
 /**
     Plot's identity-coerce accessor schema. `installFluent` installs it on
@@ -95,7 +96,7 @@ export function initPlotDefaults(viz: Plot): void {
     fillOpacity: constant(0.5),
   };
   viz._crosshairConfig = {
-    stroke: colorGray[500],
+    stroke: () => themed(viz._theme, t => t.textMuted, colorGray[500]),
     strokeDasharray: "4 3",
     strokeWidth: 1,
   };
@@ -159,7 +160,7 @@ export function initPlotAxes(viz: Plot): void {
         const range = viz._xAxis.range();
         const position = viz._xAxis._getPosition.bind(viz._xAxis)(d.id);
         if (range[0] === position) return "transparent";
-        return gridStroke(viz._select?.node(), viz.schema.colorDefaults);
+        return chartGridline(viz);
       },
     },
   };
@@ -182,7 +183,7 @@ export function initPlotAxes(viz: Plot): void {
         const range = viz._yAxis.range();
         const position = viz._yAxis._getPosition.bind(viz._yAxis)(d.id);
         if (range[range.length - 1] === position) return "transparent";
-        return gridStroke(viz._select?.node(), viz.schema.colorDefaults);
+        return chartGridline(viz);
       },
     },
   };

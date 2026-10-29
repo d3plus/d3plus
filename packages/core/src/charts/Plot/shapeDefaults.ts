@@ -9,9 +9,9 @@
 */
 import {max, min, range} from "d3-array";
 
-import {colorContrast, colorLegible} from "@d3plus/color";
+import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {backgroundColor, rtl} from "@d3plus/dom";
+import {rtl} from "@d3plus/dom";
 import {largestRect} from "@d3plus/math";
 
 import {isValidDate} from "../../components/Axis/timeValues.js";
@@ -20,6 +20,9 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {outsideBaselineBreak} from "./baselineBreak.js";
 import {defaultSize, growsBack, outside} from "./labelPlacement.js";
 import {axisValue} from "./sharedTooltip.js";
+import {chartBackground} from "../viz/backgroundInk.js";
+import {legibleOn} from "../../utils/themeInk.js";
+import {themed} from "../../utils/theme.js";
 
 /** Builds the `Area` shape config; `self` is the Plot instance. */
 function areaConfig(self: VizInstance) {
@@ -95,7 +98,7 @@ function barLabelConfig() {
       if (outside.bind(this)(d, i)) {
         const bg = (
           this._backgroundConfig!.fill === "transparent"
-            ? backgroundColor(this._select!.node())
+            ? chartBackground(this)
             : this._backgroundConfig!.fill
         ) as string;
         return colorContrast(bg, this.schema.colorDefaults);
@@ -111,7 +114,7 @@ function barLabelConfig() {
       if (outside.bind(this)(d, i)) {
         const bg = (
           this._backgroundConfig!.fill === "transparent"
-            ? backgroundColor(this._select!.node())
+            ? chartBackground(this)
             : this._backgroundConfig!.fill
         ) as string;
         return colorContrast(bg, this.schema.colorDefaults);
@@ -242,7 +245,9 @@ function lineConfig(self: VizInstance) {
           typeof self.schema.shapeConfig.Line.stroke === "function"
             ? self.schema.shapeConfig.Line.stroke(d, i)
             : self.schema.shapeConfig.Line.stroke;
-        return colorLegible(c);
+        // Without a Line stroke of its own, a label reads in the theme's text.
+        if (c == null) return themed(self._theme, t => t.text, "rgb(0, 0, 0)");
+        return legibleOn(c, Boolean(self._theme?.dark));
       },
       fontResize: false,
       padding: 5,

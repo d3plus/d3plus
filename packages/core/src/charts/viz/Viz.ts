@@ -37,6 +37,7 @@ import type {VizInstance} from "./vizTypes.js";
 import {handlerDatum, shapeClassTargets} from "./shapeClassTargets.js";
 import {reportHandlerError} from "./reportHandlerError.js";
 import {vizClassNameTargets} from "./vizClassName.js";
+import {themeBackground, unwatchPageTheme} from "./vizTheme.js";
 import {applyClassName, withRootClasses} from "../../utils/className.js";
 import {handleColorScaleHover} from "../features/colorScaleHover.js";
 import {
@@ -88,7 +89,7 @@ export default class Viz extends VizBase {
       - `_featurePanels` (from FeatureModule layouts) wrapped in viz-features
   */
   toScene(): Scene {
-    const children: SceneNode[] = [];
+    const children: SceneNode[] = themeBackground(this);
     // Chart cells stashed on _chartScene — via `chartDef.emit(ctx)` for
     // data-driven charts, or `Plot._paint` for the paint-driven Plot family.
     // Wraps in three groups:
@@ -795,6 +796,7 @@ export default class Viz extends VizBase {
   destroy(): this {
     unregisterLink(this as unknown as VizInstance);
     teardownKeyboardNav(this as unknown as VizInstance);
+    unwatchPageTheme(this as unknown as VizInstance);
     stopDataPolling(this);
     this._resizeObserver?.disconnect();
     this._fontsUnsubscribe?.();

@@ -7,7 +7,6 @@
 */
 
 import {pie as d3Pie} from "d3-shape";
-import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
@@ -21,6 +20,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {applyPieLayout} from "./applyLayout.js";
 import {pieEmit} from "./emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 
 export const pieDef: DataDrivenChartDefinition = {
   name: "Pie",
@@ -133,7 +133,7 @@ export const pieDef: DataDrivenChartDefinition = {
         // angular gap has nowhere left to taper from. Centered on each
         // wedge's outline (SVG's default), so half its width falls on each
         // side of an edge shared with a neighbor.
-        stroke: () => backgroundColor(viz._select?.node()),
+        stroke: () => chartBackground(viz),
         strokeWidth: 2,
       }),
     },

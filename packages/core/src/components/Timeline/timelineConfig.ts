@@ -1,10 +1,21 @@
-import {colorContrast} from "@d3plus/color";
-import {assign, backgroundColor} from "@d3plus/dom";
+import {assign} from "@d3plus/dom";
 
+import {inkBackground, inkText} from "../../utils/themeInk.js";
+import {themed} from "../../utils/theme.js";
 import TextBox from "../TextBox.js";
 import type Timeline from "./Timeline.js";
 
 const colorMid = "#bbb";
+const accentDefault = "#228be6";
+
+/** A button's fill: white, or the theme's background once it is forced or dark. */
+function buttonFill(tl: Timeline): string {
+  return tl._theme?.painted || tl._theme?.dark ? inkBackground(tl) : "#fff";
+}
+
+/** The selection and handle color: the theme's `accent`. */
+const accent = (tl: Timeline) => () =>
+  themed(tl._theme, t => t.accent, accentDefault);
 
 /**
     A copy of `values` (dates, years or pixel positions) in ascending order.
@@ -38,17 +49,13 @@ function timelineShapeConfig(tl: Timeline): Record<string, unknown> {
           }
         : d.labelBounds,
     labelConfig: {
-      fontColor: () => {
-        const bg = tl._select
-          ? backgroundColor(tl._select.node())
-          : "rgb(255, 255, 255)";
-        return colorContrast(bg, tl.schema.colorDefaults);
-      },
+      fontColor: () => inkText(tl),
       fontSize: () => 12,
       verticalAlign: () =>
         tl._buttonBehaviorCurrent === "buttons" ? "middle" : "top",
     },
-    fill: () => (tl._buttonBehaviorCurrent === "buttons" ? "#fff" : colorMid),
+    fill: () =>
+      tl._buttonBehaviorCurrent === "buttons" ? buttonFill(tl) : colorMid,
     stroke: () =>
       tl._buttonBehaviorCurrent === "buttons" ? colorMid : "transparent",
     height: (d: Record<string, unknown>) =>
@@ -101,7 +108,7 @@ export function initTimelineDefaults(tl: Timeline): void {
   tl.schema.gridSize = 0;
   tl.schema.handleConfig = {
     fill: () => tl.schema.colorDefaults.light,
-    stroke: "#228be6",
+    stroke: accent(tl),
     "stroke-width": 2,
     rx: 2,
     ry: 2,
@@ -113,14 +120,14 @@ export function initTimelineDefaults(tl: Timeline): void {
   tl.orient("bottom");
   tl._playButtonClass = buildPlayButton();
   tl.schema.playButtonConfig = {
-    fontColor: () => tl.schema.colorDefaults.dark,
+    fontColor: () => inkText(tl),
     fontSize: 15,
     text: () => (tl._playTimer ? "\u23F8" : "\u23F5"),
     textAnchor: "middle",
     verticalAlign: "middle",
   };
   tl.schema.selectionConfig = {
-    fill: "#228be6",
+    fill: accent(tl),
     "fill-opacity": () => (tl._buttonBehaviorCurrent === "buttons" ? 0.3 : 1),
     "stroke-width": 0,
   };

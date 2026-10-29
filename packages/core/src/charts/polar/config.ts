@@ -9,10 +9,9 @@ import {arcPath} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
-import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
-import {backgroundInk} from "../viz/backgroundInk.js";
+import {backgroundInk, chartGridline} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import type {PolarWedge} from "./wedgeLayout.js";
@@ -27,7 +26,7 @@ export function polarAxisConfig(viz: VizInstance): Record<string, unknown> {
   return {
     barConfig: {stroke: () => backgroundInk(viz), strokeWidth: 1},
     gridConfig: {
-      stroke: () => gridStroke(viz._select?.node(), viz.schema.colorDefaults),
+      stroke: () => chartGridline(viz),
       strokeWidth: 1,
     },
     shapeConfig: {

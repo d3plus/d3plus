@@ -16,7 +16,6 @@ import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
-import {backgroundColor} from "@d3plus/dom";
 import {rowLegend} from "../features/sharedFields.js";
 import {polarAxisConfig, polarValueRow} from "../polar/config.js";
 import {polarFacetHooks} from "../polar/polarFacet.js";
@@ -25,6 +24,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyPolarAreaLayout, polarAreaDomainValues} from "./applyLayout.js";
 import {polarAreaEmit} from "./emit.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 
 export const polarAreaDef: DataDrivenChartDefinition = {
   name: "PolarArea",
@@ -129,7 +129,7 @@ export const polarAreaDef: DataDrivenChartDefinition = {
       factory: (viz: VizInstance) => ({
         // A thin outline in the chart's background color separates
         // neighboring wedges by the same width everywhere.
-        stroke: () => backgroundColor(viz._select?.node()),
+        stroke: () => chartBackground(viz),
         strokeWidth: 1,
       }),
     },

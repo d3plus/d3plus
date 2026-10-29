@@ -37,6 +37,8 @@ import {
   tableViewControlStyleDefault,
   tableViewControlStyleHoverDefault,
 } from "../viz/vizDefaults.js";
+import {themeLight} from "../../utils/theme.js";
+import type {ThemeTableTokens} from "../../utils/theme.js";
 
 /** Table-view mode is per-chart state, read/written via `viz._tableView`. */
 export function isTableView(viz: Viz): boolean {
@@ -489,12 +491,20 @@ const OVERSCAN = 10;
 */
 const CELL_MAX_WIDTH = "320px";
 
+/** The table colors of the chart's theme. */
+const tableTheme = (viz: Viz): ThemeTableTokens =>
+  (viz._theme ?? themeLight).table;
+
+/** A header cell's inline style (sticky, on the theme's header fill). */
+const headerStyle = (viz: Viz): string =>
+  `position:sticky;top:0;background:${tableTheme(viz).header};text-align:left;padding:6px 10px;border-bottom:2px solid ${tableTheme(viz).border};white-space:nowrap;`;
+
 /** One data row's `<td>` cells. */
 function rowCellsHtml(viz: Viz, columns: string[], row: DataPoint): string {
   return columns
     .map(
       c =>
-        `<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;"><div class="d3plus-table-view-cell" style="max-width:${CELL_MAX_WIDTH};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(formatCell((row as Record<string, unknown>)[c], viz.schema.locale))}</div></td>`,
+        `<td style="padding:6px 10px;border-bottom:1px solid ${tableTheme(viz).rule};"><div class="d3plus-table-view-cell" style="max-width:${CELL_MAX_WIDTH};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(formatCell((row as Record<string, unknown>)[c], viz.schema.locale))}</div></td>`,
     )
     .join("");
 }
@@ -546,7 +556,7 @@ function headerCellHtml(
 ): string {
   const label = escapeHtml(column);
   if (!showsTableViewSort(viz)) {
-    return `<th style="position:sticky;top:0;background:#fff;text-align:left;padding:6px 10px;border-bottom:2px solid #ccc;white-space:nowrap;">${label}</th>`;
+    return `<th style="${headerStyle(viz)}">${label}</th>`;
   }
   const active = sort?.column === column;
   const ariaSort = active
@@ -559,7 +569,7 @@ function headerCellHtml(
       ? SORT_DESC_ICON
       : SORT_ASC_ICON
     : "";
-  return `<th class="tableview-sort-header" data-column="${escapeHtml(column)}" role="button" tabindex="0" aria-sort="${ariaSort}" style="position:sticky;top:0;background:#fff;text-align:left;padding:6px 10px;border-bottom:2px solid #ccc;white-space:nowrap;cursor:pointer;user-select:none;">${label}${arrow}</th>`;
+  return `<th class="tableview-sort-header" data-column="${escapeHtml(column)}" role="button" tabindex="0" aria-sort="${ariaSort}" style="${headerStyle(viz)}cursor:pointer;user-select:none;">${label}${arrow}</th>`;
 }
 
 /**
@@ -593,7 +603,7 @@ export function tableViewOverlayHtml(viz: Viz): string {
   // there would size the bottom spacer against rows that aren't even in
   // `slice`, well past its actual end.
   const bodyHtml = !total
-    ? `<tr><td style="padding:12px;color:#767676;" colspan="${Math.max(columns.length, 1)}">${viz.schema.translate("No Data Available")}</td></tr>`
+    ? `<tr><td style="padding:12px;color:${(viz._theme ?? themeLight).textMuted};" colspan="${Math.max(columns.length, 1)}">${viz.schema.translate("No Data Available")}</td></tr>`
     : tbodyRowsHtml(
         viz,
         columns,
@@ -607,7 +617,7 @@ export function tableViewOverlayHtml(viz: Viz): string {
 
   const paginationHtml =
     totalPages > 1
-      ? `<div class="d3plus-table-view-pagination" style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid #e0e0e0;font-size:12px;flex:0 0 auto;">
+      ? `<div class="d3plus-table-view-pagination" style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid ${tableTheme(viz).rule};font-size:12px;flex:0 0 auto;">
           <button type="button" class="tableview-page-prev"${page <= 0 ? " disabled" : ""}>‹ ${viz.schema.translate("Previous")}</button>
           <span>${total ? start + 1 : 0}–${end} / ${total}</span>
           <button type="button" class="tableview-page-next"${page >= totalPages - 1 ? " disabled" : ""}>${viz.schema.translate("Next")} ›</button>
@@ -632,7 +642,7 @@ export function tableViewOverlayHtml(viz: Viz): string {
   const tableLayout = virtualized ? "table-layout:fixed;" : "";
 
   return `
-    <div class="d3plus-table-view-frame" style="display:flex;flex-direction:column;width:100%;height:100%;box-sizing:border-box;background:#fff;font:12px/1.4 ${fontFamilyStringify(viz.schema.fontFamily || "sans-serif")};">
+    <div class="d3plus-table-view-frame" style="display:flex;flex-direction:column;width:100%;height:100%;box-sizing:border-box;background:${tableTheme(viz).background};color:${tableTheme(viz).text};font:12px/1.4 ${fontFamilyStringify(viz.schema.fontFamily || "sans-serif")};">
       <div class="d3plus-table-view-toolbar" style="flex:0 0 auto;display:flex;gap:4px;padding:4px;">${toolbarHtml}</div>
       <div class="d3plus-table-view-scroll"${virtualized ? ' data-tableview-virtual="1"' : ""} style="flex:1 1 auto;min-height:0;overflow:auto;">
         <table class="d3plus-table-view-table${extraClass}" style="border-collapse:collapse;width:100%;${tableLayout}">

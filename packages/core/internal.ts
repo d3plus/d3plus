@@ -1114,6 +1114,47 @@ export {
   computeTimeFilter,
 } from "./src/charts/pipeline/preDrawData.js";
 
+// ── Themes ───────────────────────────────────────────────────────────────────
+export {
+  isDarkColor,
+  resolveTheme,
+  themed,
+  themeDark,
+  themeLight,
+  themeStyle,
+  withOpacity,
+} from "./src/utils/theme.js";
+export {
+  cascadeTheme,
+  gridStroke,
+  inkAxis,
+  inkBackground,
+  inkGrid,
+  inkText,
+  legibleOn,
+} from "./src/utils/themeInk.js";
+export {
+  pageIsDark,
+  pageTheme,
+  unwatchPageTheme,
+  watchPage,
+  watchPageTheme,
+} from "./src/charts/viz/pageTheme.js";
+export {
+  applyOverlayColorScheme,
+  applyVizTheme,
+  themeBackground,
+  themeBackgroundNode,
+  themeColorScheme,
+  themeOverlayStyle,
+} from "./src/charts/viz/vizTheme.js";
+export {
+  backgroundInk,
+  chartBackground,
+  chartGridline,
+} from "./src/charts/viz/backgroundInk.js";
+export type {PageTheme, ResolvedTheme} from "./src/utils/theme.js";
+
 // ── Pipeline types ───────────────────────────────────────────────────────────
 export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";
 export type {VizContext} from "./src/charts/pipeline/stages.js";

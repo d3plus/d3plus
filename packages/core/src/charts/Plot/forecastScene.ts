@@ -3,9 +3,8 @@
     stretch with a rule at its start and a label, and the dash array that
     draws each line's forecast stretch dashed.
 */
-import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {backgroundColor, textWidth} from "@d3plus/dom";
+import {textWidth} from "@d3plus/dom";
 import type {
   LineNode,
   Paint,
@@ -22,6 +21,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {curvePolyline, splitDash, splitLength} from "./curveLength.js";
 import {lineCurve} from "./lineCurve.js";
 import {discreteRank, forecastStart, type ForecastStart} from "./forecast.js";
+import {backgroundInk} from "../viz/backgroundInk.js";
 
 /** Key of the forecast backdrop group. */
 export const FORECAST_KEY = "plot-forecast";
@@ -39,8 +39,7 @@ const num = (v: unknown, fallback: number): number =>
 
 /** The text color of the chart's background, which the backdrop, rule, and label default to. */
 function inkColor(viz: VizInstance): string {
-  const bg = backgroundColor(viz._select?.node() as Element | null | undefined);
-  return colorContrast(bg, viz.schema.colorDefaults);
+  return backgroundInk(viz);
 }
 
 /** The pixel position of a discrete-axis value. */

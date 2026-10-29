@@ -30,6 +30,7 @@ import {defaultPadding, initLabelDefaults} from "./labelDefaults.js";
 import {linkedColorDefaults} from "./linkGroup.js";
 import type Viz from "./Viz.js";
 import type {VizInstance} from "./vizTypes.js";
+import {themed} from "../../utils/theme.js";
 
 function debounce<A extends unknown[]>(
   func: (...args: A) => void,
@@ -84,6 +85,7 @@ function initBaseDefaults(viz: Viz): void {
   viz.schema.attributionIcon = undefined;
   viz.schema.attributionStyle = attributionStyleDefault;
   viz.schema.cache = true;
+  viz.schema.theme = "auto";
 }
 
 /**
@@ -163,7 +165,7 @@ function initDataDefaults(viz: Viz): void {
   viz.schema.reducedMotion = "auto";
   viz.schema.fontFamily = fontFamily;
   viz._hidden = [];
-  viz.schema.hiddenColor = constant("#aaa");
+  viz.schema.hiddenColor = () => themed(viz._theme, t => t.hidden, "#aaa");
   viz.schema.hiddenOpacity = constant(0.5);
   viz._history = [];
   viz.schema.groupBy = [accessor("id")];
@@ -373,31 +375,22 @@ function initShapeDefaults(viz: Viz): void {
 }
 
 /**
-    Default attribution styles: flush to the chart area's bottom-right corner
+    Default attribution style: flush to the chart area's bottom-right corner
     like the credit on a slippy map, in small type on a translucent backing
-    that keeps it legible over busy tiles without boxing it in. The dark
-    variant applies over a dark basemap while the style is still this
-    untouched default (compared by reference, like the zoom-control styles).
+    that keeps it legible over busy tiles without boxing it in. A dark theme
+    swaps its colors for the theme's overlay colors while they are still
+    these defaults.
     @private
 */
 const attributionLightBg = "rgba(255, 255, 255, 0.7)";
-const attributionDarkBg = "rgba(24, 25, 28, 0.7)";
-const attributionBase = {
+export const attributionStyleDefault = {
   "border-radius": "3px 0 0 0",
   display: "flex",
   "align-items": "center",
   gap: "4px",
   font: `400 10px/1.4 ${fontFamilyStringify(fontFamily)}`,
-};
-export const attributionStyleDefault = {
-  ...attributionBase,
   background: attributionLightBg,
   color: colorContrast(attributionLightBg),
-};
-export const attributionStyleDarkDefault = {
-  ...attributionBase,
-  background: attributionDarkBg,
-  color: colorContrast(attributionDarkBg),
 };
 
 /**

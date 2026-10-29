@@ -4,7 +4,6 @@
 */
 
 import {colorContrast, colorGray} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
 
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -13,15 +12,11 @@ import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {dumbbellEmit} from "./emit.js";
 import {syncGapSort, type GapSortState} from "./gapSort.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 
 /** The default connector color: a quiet gray that reads on light and dark pages. */
 export function connectorStroke(viz: VizInstance): string {
-  const node =
-    viz._select && typeof viz._select.node === "function"
-      ? viz._select.node()
-      : null;
-  const bg = node ? backgroundColor(node) : "rgb(255, 255, 255)";
-  return colorContrast(bg, viz.schema.colorDefaults) ===
+  return colorContrast(chartBackground(viz), viz.schema.colorDefaults) ===
     viz.schema.colorDefaults.dark
     ? colorGray[500]
     : colorGray[700];

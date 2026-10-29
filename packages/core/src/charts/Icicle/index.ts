@@ -14,8 +14,6 @@
         partition interaction.
 */
 
-import {backgroundColor} from "@d3plus/dom";
-
 import accessor from "../../utils/accessor.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -35,6 +33,7 @@ import {partitionShadeDefaults} from "../partition/shade.js";
 import {applyIcicleLayout} from "./applyLayout.js";
 import {icicleEmit} from "./emit.js";
 import {icicleInteraction} from "./interaction.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 
 export const icicleDef: DataDrivenChartDefinition = {
   name: "Icicle",
@@ -104,7 +103,7 @@ export const icicleDef: DataDrivenChartDefinition = {
         Rect: {labelConfig: {fontResize: true}},
         // A thin outline in the chart's background color separates
         // neighboring rectangles and levels by the same width everywhere.
-        stroke: () => backgroundColor(viz._select?.node()),
+        stroke: () => chartBackground(viz),
         strokeWidth: 1,
       }),
     },

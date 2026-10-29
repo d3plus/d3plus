@@ -121,6 +121,7 @@ const fields = {
   tableViewDownload: {},
   tableViewPageSize: {},
   tableViewSort: {},
+  theme: {},
   thresholdName: {coerce: "const"},
   timeFilter: {},
   timeline: {},

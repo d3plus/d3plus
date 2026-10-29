@@ -27,6 +27,7 @@ import {
   renderLegendTitle,
   wrapLegendRows,
 } from "./legendRender.js";
+import {inkText} from "../../utils/themeInk.js";
 
 /** Legend's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const legendSchema: ConfigField[] = [
@@ -86,6 +87,7 @@ export default class Legend extends BaseClass {
     this._shapes = [];
     this.schema.shapeConfig = buildLegendShapeConfig(this);
     this.schema.titleConfig = {
+      fontColor: () => inkText(this),
       fontSize: 12,
     };
     this._rtl = false;

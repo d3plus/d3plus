@@ -1,10 +1,9 @@
 import {max} from "d3-array";
 
-import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {backgroundColor} from "@d3plus/dom";
 
 import {accessor, constant} from "../../utils/index.js";
+import {inkText} from "../../utils/themeInk.js";
 
 import type Legend from "./Legend.js";
 
@@ -151,12 +150,7 @@ export function buildLegendShapeConfig(
       };
     },
     labelConfig: {
-      fontColor: () => {
-        const bg = legend._select
-          ? backgroundColor(legend._select.node())
-          : "rgb(255, 255, 255)";
-        return colorContrast(bg, legend.schema.colorDefaults);
-      },
+      fontColor: () => inkText(legend),
       fontFamily: legend._titleClass.fontFamily(),
       fontResize: false,
       fontSize: constant(10),

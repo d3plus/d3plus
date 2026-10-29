@@ -13,6 +13,10 @@ import {
   minimapViewportStyleDefault,
 } from "../viz/vizDefaults.js";
 import {kebab} from "./zoomControlsMarkup.js";
+import type {ThemeOverlayTokens} from "../../utils/theme.js";
+import {withOpacity} from "../../utils/theme.js";
+import {themeOverlayStyle} from "../viz/vizTheme.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 export type StyleObject = Record<
   string,
@@ -46,26 +50,49 @@ export function minimapStyles(viz: Viz): {
   viewportActive: StyleObject;
   label: StyleObject;
 } {
+  const v = viz as unknown as VizInstance;
+  // The viewport box shades the map with the overlay's text color.
+  const shade = (o: ThemeOverlayTokens, opacity: number) =>
+    withOpacity(o.text, opacity);
   return {
-    outer: resolveMinimapStyle(
-      viz,
-      viz.schema.minimapStyle,
+    outer: themeOverlayStyle(
+      v,
+      resolveMinimapStyle(viz, viz.schema.minimapStyle, minimapStyleDefault),
       minimapStyleDefault,
+      {background: o => o.background, border: o => `1px solid ${o.border}`},
     ),
-    viewport: resolveMinimapStyle(
-      viz,
-      viz.schema.minimapViewportStyle,
+    viewport: themeOverlayStyle(
+      v,
+      resolveMinimapStyle(
+        viz,
+        viz.schema.minimapViewportStyle,
+        minimapViewportStyleDefault,
+      ),
       minimapViewportStyleDefault,
+      {
+        background: o => shade(o, 0.15),
+        border: o => `1px solid ${shade(o, 0.5)}`,
+      },
     ),
-    viewportActive: resolveMinimapStyle(
-      viz,
-      viz.schema.minimapViewportStyleActive,
+    viewportActive: themeOverlayStyle(
+      v,
+      resolveMinimapStyle(
+        viz,
+        viz.schema.minimapViewportStyleActive,
+        minimapViewportStyleActiveDefault,
+      ),
       minimapViewportStyleActiveDefault,
+      {background: o => shade(o, 0.25)},
     ),
-    label: resolveMinimapStyle(
-      viz,
-      viz.schema.minimapLabelStyle,
+    label: themeOverlayStyle(
+      v,
+      resolveMinimapStyle(
+        viz,
+        viz.schema.minimapLabelStyle,
+        minimapLabelStyleDefault,
+      ),
       minimapLabelStyleDefault,
+      {color: o => o.text},
     ),
   };
 }

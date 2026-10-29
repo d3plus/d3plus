@@ -8,6 +8,7 @@ import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
 import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
 import type {AccessorFn} from "./AccessorFn.js";
+import type {ThemeSetting} from "./theme.js";
 import type {
   ConstOrAccessor,
   CssColor,
@@ -1370,8 +1371,8 @@ export interface D3plusConfig {
   noDataMessage?: boolean;
   /**
       Ocean color for geomaps (any CSS value including 'transparent'), or a
-      `{light, dark}` pair chosen by the chart's backdrop. Defaults to the
-      default basemap's own water colors.
+      `{light, dark}` pair chosen by the chart's `theme` (the page behind it
+      in `"auto"` mode). Defaults to the default basemap's own water colors.
   */
   ocean?: string | {light: string; dark: string};
   /** Event listeners keyed by event name. */
@@ -1671,6 +1672,20 @@ export interface D3plusConfig {
   /** Bullet: the target marker's `size` (a fraction of the band's thickness), `stroke`, and `strokeWidth`, each a value or a `(d, i)` accessor. */
   targetConfig?: Record<string, unknown>;
   /**
+      The chart's colors. `"auto"` (the default) paints no background and
+      follows the page behind the chart: its chrome text contrasts with the
+      page, its tooltip, table view, and overlays turn dark on a dark page,
+      and it redraws when the page flips between light and dark. `"light"` and
+      `"dark"` paint the theme's background behind the chart (so it reads the
+      same on any page, and in a saved image) and take every chrome color
+      from the theme. An object sets your own tokens on top of the preset its
+      `base` names (`"light"` or `"dark"`), for example
+      `{base: "dark", background: "#123", accent: "#ffd43b"}`. Colors you set
+      in the other config (`titleConfig.fontColor`, `tooltipConfig`, the
+      `*Style` options, …) win over the theme.
+  */
+  theme?: ThemeSetting;
+  /**
       Threshold value for grouping small slices, as a share of the total
       (`0.05` is 5%). On a stacked Plot (StackedArea, or an AreaPlot,
       BarChart, or LinePlot with `stacked`), the series whose summed value
@@ -1686,7 +1701,8 @@ export interface D3plusConfig {
   /**
       URL template for XYZ map tiles, with `{z}`, `{x}`, `{y}` (and optional
       `{s}` subdomain) placeholders — or a `{light, dark}` pair, chosen by the
-      chart's backdrop. Defaults to Esri's Light Gray and Dark Gray Canvas.
+      chart's `theme` (the page behind it in `"auto"` mode). Defaults to
+      Esri's Light Gray and Dark Gray Canvas.
   */
   tileUrl?: string | {light: string; dark: string};
   /** Whether to show map tiles. */

@@ -15,6 +15,7 @@ import {
   sankeyRight,
 } from "./sankeyLayout.js";
 
+import {colorGray} from "@d3plus/color";
 import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
@@ -28,6 +29,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {applySankeyLayout} from "./applyLayout.js";
 import {sankeyEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
+import {themeDark, themed} from "../../utils/theme.js";
 
 const sankeyAligns = {
   center: sankeyCenter,
@@ -274,7 +276,7 @@ export const sankeyDef: ChartDefinition = {
     {
       key: "shapeConfig",
       merge: true,
-      factory: () => {
+      factory: (viz: VizInstance) => {
         type SankeyLinkDatum = {
           source: {y0: number; y1: number; value: number};
           target: {y0: number; y1: number};
@@ -291,7 +293,14 @@ export const sankeyDef: ChartDefinition = {
             fill: "none",
             hoverStyle: {"stroke-width": linkStrokeWidth},
             label: false,
-            stroke: "#DBDBDB",
+            // Wide bands recede on dark as #DBDBDB does on white: the dark
+            // preset's link gray is for thin Network and Rings edges.
+            stroke: () =>
+              themed(
+                viz._theme,
+                t => (t.link === themeDark.link ? colorGray[800] : t.link),
+                "#DBDBDB",
+              ),
             strokeOpacity: 0.5,
             strokeWidth: linkStrokeWidth,
           },

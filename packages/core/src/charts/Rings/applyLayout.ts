@@ -8,7 +8,6 @@ import {extent, groups, max, min} from "d3-array";
 import * as scales from "d3-scale";
 
 import {colorContrast} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../features/chartGeometry.js";
@@ -25,6 +24,7 @@ import {
 import type {RingGeometry} from "./ringsSizing.js";
 import {buildRingsGraph} from "./ringsGraph.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
+import {backgroundInk} from "../viz/backgroundInk.js";
 
 interface RScale {
   (v: number): number;
@@ -341,10 +341,7 @@ function publishRingsCtx(
             v.schema.colorDefaults,
           );
         }
-        return colorContrast(
-          v._select ? backgroundColor(v._select.node()) : "rgb(255, 255, 255)",
-          v.schema.colorDefaults,
-        );
+        return backgroundInk(v);
       },
       fontResize: (d: RingsNode & {data?: RingsNode}) =>
         centerInside((d.data ?? d) as RingsNode),

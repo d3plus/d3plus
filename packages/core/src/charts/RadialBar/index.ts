@@ -12,7 +12,6 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
-import {backgroundColor} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
@@ -20,7 +19,6 @@ import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
-import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {mergeConfig} from "../../fluent.js";
 import {dialDefaults} from "../Gauge/emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
@@ -32,6 +30,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {applyRadialBarLayout, radialBarDomainValues} from "./applyLayout.js";
 import {radialBarEmit} from "./emit.js";
 import {radialBarTrackLabels} from "./trackLayout.js";
+import {chartGridline, chartBackground} from "../viz/backgroundInk.js";
 
 export const radialBarDef: DataDrivenChartDefinition = {
   name: "RadialBar",
@@ -171,8 +170,8 @@ export const radialBarDef: DataDrivenChartDefinition = {
           gridConfig: {
             stroke: () =>
               viz.schema.track === false
-                ? gridStroke(viz._select?.node(), viz.schema.colorDefaults)
-                : backgroundColor(viz._select?.node()),
+                ? chartGridline(viz)
+                : chartBackground(viz),
           },
         }),
     },
@@ -190,7 +189,7 @@ export const radialBarDef: DataDrivenChartDefinition = {
       key: "shapeConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
-        stroke: () => backgroundColor(viz._select?.node()),
+        stroke: () => chartBackground(viz),
         strokeWidth: 1,
       }),
     },

@@ -6,8 +6,6 @@
       - `emit.ts` — Path arc cells.
 */
 
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
@@ -23,6 +21,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRadialMatrixLayout} from "./applyLayout.js";
 import {radialMatrixEmit} from "./emit.js";
+import {backgroundInk} from "../viz/backgroundInk.js";
 
 const localeCompare = (
   a: DataPoint[keyof DataPoint],
@@ -152,12 +151,7 @@ export const radialMatrixDef: ChartDefinition = {
       factory: (viz: VizInstance) => ({
         shapeConfig: {
           labelConfig: {
-            fontColor: () => {
-              const bg = viz._select
-                ? backgroundColor(viz._select.node())
-                : "rgb(255, 255, 255)";
-              return colorContrast(bg, viz.schema.colorDefaults);
-            },
+            fontColor: () => backgroundInk(viz),
             padding: 5,
             textAnchor: (d: LabelDatum) =>
               [0, 180].includes(d.angle)

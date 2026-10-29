@@ -10,6 +10,8 @@ import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
 import {setUserClasses} from "../utils/className.js";
+import {themed, themeLight} from "../utils/theme.js";
+import type {ResolvedTheme, ThemeTooltipTokens} from "../utils/theme.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {
@@ -20,6 +22,24 @@ import {
   TOOLTIP_SELECTORS,
 } from "./tooltipDom.js";
 
+/** The tooltip colors of the theme of the chart showing it (light when shown alone). */
+const tokens = (t: {_theme?: ResolvedTheme}): ThemeTooltipTokens =>
+  (t._theme ?? themeLight).tooltip;
+
+/**
+    The tooltip's text: the theme's while the fill is the theme's own, and
+    otherwise whichever of `colorDefaults`' dark and light reads on the fill.
+*/
+function tooltipText(
+  t: Pick<BaseClass, "_theme" | "schema">,
+  background: string,
+): string {
+  const contrast = colorContrast(background, t.schema.colorDefaults);
+  return t._theme && background === t._theme.tooltip.background
+    ? themed(t._theme, x => x.tooltip.text, contrast)
+    : contrast;
+}
+
 /** Tooltip's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 /** Every tooltip element's fixed class; `className` adds classes beside it. */
 const TOOLTIP_CLASS = "d3plus-tooltip";
@@ -29,13 +49,14 @@ const tooltipSchema: ConfigField[] = [
   {
     key: "background",
     coerce: "const",
-    factory: t => () => t.schema.colorDefaults.light,
+    factory: t => () =>
+      themed(t._theme, x => x.tooltip.background, t.schema.colorDefaults.light),
   },
   {key: "body", coerce: "const", default: accessor("body", "")},
   {
     key: "border",
     coerce: "const",
-    default: constant("1px solid rgba(0, 0, 0, 0.25)"),
+    factory: t => () => `1px solid ${tokens(t).border}`,
   },
   {key: "borderRadius", coerce: "const", default: constant("4px")},
   {key: "footer", coerce: "const", default: accessor("footer", "")},
@@ -136,17 +157,17 @@ export default class Tooltip extends BaseClass {
       "text-align": "center",
     };
     this.schema.tooltipStyle = {
-      "box-shadow": "0 1px 5px rgba(0, 0, 0, 0.25)",
+      "box-shadow": (() => tokens(this).shadow) as unknown as string,
       color: ((d: DataPoint, i: number) =>
-        colorContrast(
+        tooltipText(
+          this,
           this.schema.background(d, i) as string,
-          this.schema.colorDefaults,
         )) as unknown as string,
       "font-family": fontFamilyStringify(fontFamily),
     };
     this.schema.trStyle = {
       "border-top": (d: unknown, i: number) =>
-        i ? "1px solid rgba(0, 0, 0, 0.1)" : "none",
+        i ? `1px solid ${tokens(this).divider}` : "none",
     };
     // First column (labels) left-aligned, value columns right-aligned.
     const cellAlign = (_d: unknown, i: number) => (i ? "right" : "left");

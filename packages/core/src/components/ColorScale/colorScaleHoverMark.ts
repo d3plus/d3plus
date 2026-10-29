@@ -8,10 +8,11 @@
     swatch stays lit and the rest dim instead (see `hoveredSwatch`).
 */
 import {colorContrast} from "@d3plus/color";
-import {backgroundColor, textWidth} from "@d3plus/dom";
+import {textWidth} from "@d3plus/dom";
 import type {Bounds} from "@d3plus/math";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
+import {inkText} from "../../utils/themeInk.js";
 import type ColorScale from "./ColorScale.js";
 
 /** A style value: a constant, or a function of the hovered value. */
@@ -408,14 +409,7 @@ export function addHoverMark(cs: ColorScale, group: GroupNode): void {
     !geometry
   )
     return;
-  const node =
-    cs._select && typeof cs._select.node === "function"
-      ? (cs._select.node() as Element | null)
-      : null;
-  const ink = colorContrast(
-    node ? backgroundColor(node) : "rgb(255, 255, 255)",
-    cs.schema.colorDefaults,
-  );
+  const ink = inkText(cs);
   const mark: MarkContext = {
     cs,
     key: `${group.key}-hover`,

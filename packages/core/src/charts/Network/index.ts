@@ -26,6 +26,7 @@ import {networkEmit} from "./emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {themed} from "../../utils/theme.js";
 
 function getNodeId(viz: VizInstance, d: Record<string, unknown>, i: number) {
   return `${viz._id(d as DataPoint, i) || viz.schema.nodeGroupBy[min([viz._drawDepth, viz.schema.nodeGroupBy.length - 1]) as number](d, i)}`;
@@ -498,7 +499,11 @@ export const networkDef: ChartDefinition = {
         },
         // Thin (1px) lines need more contrast than a wide flow-width stroke
         // (cf. Sankey's #DBDBDB) to read clearly against a white background.
-        Path: {fill: "none", label: false, stroke: "#adb5bd"},
+        Path: {
+          fill: "none",
+          label: false,
+          stroke: () => themed(viz._theme, t => t.link, "#adb5bd"),
+        },
       }),
     },
   ],

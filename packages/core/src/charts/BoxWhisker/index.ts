@@ -21,6 +21,7 @@ import {
 } from "./summary.js";
 import {boxAxisRows} from "./outliers.js";
 import {boxTooltipRows} from "./tooltip.js";
+import {themed} from "../../utils/theme.js";
 
 export const boxWhiskerDef: ChartDefinition = {
   name: "BoxWhisker",
@@ -75,6 +76,23 @@ export const boxWhiskerDef: ChartDefinition = {
     {key: "boxQ3", coerce: toStatAccessor},
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Box"), coerce: "const"},
+    {
+      // Whiskers and their caps take the theme's text color on a dark or
+      // custom theme.
+      key: "shapeConfig",
+      merge: true,
+      factory: (viz: VizInstance) => {
+        const ink = () => themed(viz._theme, t => t.text, "black");
+        return {
+          Box: {
+            whiskerConfig: {
+              lineConfig: {stroke: ink},
+              endpointConfig: {fill: ink},
+            },
+          },
+        };
+      },
+    },
     // A box summarizes a distribution; there is no single value to share.
     {key: "tooltipShared", default: false},
     {

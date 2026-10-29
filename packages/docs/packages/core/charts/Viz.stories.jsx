@@ -687,3 +687,43 @@ new LinePlot()
     },
   },
 };
+
+export const Themes = () => (
+  <div style={{display: "flex", flexWrap: "wrap", gap: 24}}>
+    {[
+      "light",
+      "dark",
+      {base: "dark", background: "#14213d", accent: "#fca311"},
+    ].map((theme, i) => (
+      <div key={i} style={{width: 420, height: 300}}>
+        <BarChart
+          config={{
+            ...revenueConfig,
+            theme,
+            title:
+              typeof theme === "string" ? `theme: "${theme}"` : "custom theme",
+          }}
+        />
+      </div>
+    ))}
+  </div>
+);
+Themes.parameters = {
+  docs: {
+    source: {
+      code: `new BarChart()
+  .select("#revenue")
+  .config({data, groupBy: "id", x: "year", y: "value", discrete: "x"})
+  .theme("dark") // "auto" (default) | "light" | "dark" | {base, ...tokens}
+  .render();
+
+// Your own colors, on top of the dark preset:
+chart.theme({base: "dark", background: "#14213d", accent: "#fca311"});`,
+      language: "jsx",
+    },
+    description: {
+      story:
+        '`theme` sets every chrome color at once. `"light"` and `"dark"` paint the theme\'s background behind the chart, so it reads the same on any page and in a saved image; the title, axes, gridlines, legend, timeline, tooltip, table view, and overlays all take the theme\'s colors. An object sets your own tokens over the preset its `base` names. The default, `"auto"`, paints no background and follows the page instead, redrawing when the page flips between light and dark. Colors set in other config (`titleConfig.fontColor`, `tooltipConfig`, the `*Style` options) still win.',
+    },
+  },
+};
