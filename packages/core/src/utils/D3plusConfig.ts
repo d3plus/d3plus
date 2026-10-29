@@ -590,6 +590,16 @@ export interface SaveControlConfig {
   [key: string]: unknown;
 }
 
+/** Styles the ring keyboard navigation draws around the focused mark. Each is a value or a `(d, i) => value` accessor of the focused data row. */
+export interface KeyboardNavConfig {
+  /** The ring's color. Defaults to the ink that reads against the chart's background (dark on a light page, light on a dark one). */
+  stroke?: string | ((d: DataPoint, i: number) => string);
+  /** The ring's width in pixels. Defaults to `2`. */
+  strokeWidth?: number | ((d: DataPoint, i: number) => number);
+  /** Space between the mark and a rectangular or circular ring, in pixels. Defaults to `2`. A path (a pie wedge, a map region) is outlined along its own edge. */
+  padding?: number | ((d: DataPoint, i: number) => number);
+}
+
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
@@ -1168,6 +1178,22 @@ export interface D3plusConfig {
     quartiles?: Record<string, unknown>;
     points?: Record<string, unknown>;
   };
+  /**
+      Lets keyboard users move between the chart's data marks. The chart is
+      one Tab stop (a focusable `role="application"` element laid over it,
+      named by `svgTitle` or the chart's `title`); once it has focus, the
+      arrow keys move to the nearest mark in that direction, Home and End
+      jump to the first and last mark, Enter or Space selects the focused
+      mark as a click would (drilling down, or toggling a legend item), and
+      Escape clears it. The focused mark shows its tooltip and hover
+      highlight, a ring outlines it (see `keyboardNavConfig`), and a live
+      region announces its label to screen readers. Legend items are
+      included after the chart's marks; Line and Area series are visited
+      point by point. On by default; `false` removes the Tab stop.
+  */
+  keyboardNav?: boolean;
+  /** Styles the focus ring around the mark keyboard navigation has focused (see `KeyboardNavConfig`). */
+  keyboardNavConfig?: KeyboardNavConfig;
   /**
       Accessor function, or a constant string applied to every data point's
       label (unlike `value`/`nodeId`/etc., a string here is not treated as a

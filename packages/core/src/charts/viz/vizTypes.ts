@@ -32,11 +32,13 @@ import type {AxisHoverState} from "../Plot/axisHover.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
+import type {KeyboardNavState} from "./keyboardNav.js";
 
 import type {DataPoint} from "@d3plus/data";
 import type {
   ClipShape,
   Scene,
+  SceneEvent,
   SceneNode,
   Transform,
   TransitionRect,
@@ -275,6 +277,8 @@ export interface VizInstance {
   _hoverDatum?: DataPoint | null;
   /** Epoch ms until which an animated transition is in flight (pointer routing pauses). */
   _transitionEndsAt?: number;
+  /** Keyboard navigation's host element and focused mark (see `keyboardNav.ts`). */
+  _keyboardNav?: KeyboardNavState;
   _userHover?: number;
   _userDuration?: number;
   _brushing?: boolean;
@@ -604,6 +608,8 @@ export interface VizInstance {
   /** Plot's paint phase: builds `_chartScene` from the measured context. */
   _paint?(pCtx: PlotPaintContext): VizInstance;
   _drawSceneToTarget(durationOverride?: number): void;
+  /** Routes a renderer pointer event (or a replayed one) to the chart's handlers. */
+  _routeSceneEvent?(event: SceneEvent): void;
   _scheduleSceneRepaint(): void;
   _sceneRepaintRAF?: number;
   _thresholdLegend?(legendData: DataPoint[]): DataPoint[];

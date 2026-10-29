@@ -1,6 +1,7 @@
 import type {ConfigField} from "../../fluent.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
+import {teardownKeyboardNav} from "./keyboardNav.js";
 import {registerLink} from "./linkGroup.js";
 import {onDataPollingIntervalSet} from "./vizDataPolling.js";
 import type Viz from "./Viz.js";
@@ -54,6 +55,13 @@ const fields = {
   height: {},
   hiddenColor: {coerce: "const"},
   hiddenOpacity: {coerce: "const"},
+  keyboardNav: {
+    default: true,
+    onSet: (viz: VizInstance, value: unknown) => {
+      if (!value) teardownKeyboardNav(viz);
+    },
+  },
+  keyboardNavConfig: {merge: true, default: {padding: 2, strokeWidth: 2}},
   label: {coerce: "const"},
   legend: {coerce: "const"},
   legendConfig: {merge: true},

@@ -219,6 +219,35 @@ new BarChart()
 
 The preference is read when the chart draws, so a change to the OS setting applies at the chart's next render. Server-side rendering counts as not reduced.
 
+## Keyboard Navigation
+
+Every chart is one Tab stop, so keyboard users can reach its data without a mouse. Once a chart has focus, these keys move between its data marks:
+
+| Key | Action |
+|---|---|
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves focus into the chart (onto its first mark) and on out of it. Focus is never trapped. |
+| <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> | Moves to the nearest mark in that direction. Line and area series are visited point by point, and the legend's items come after the chart's marks. |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Jumps to the first or last mark, reading left to right and then top to bottom. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Selects the focused mark, as a click would: it runs `click` handlers, drills down into nested data, and toggles a legend item (<kbd>Shift</kbd>+<kbd>Enter</kbd> acts as a shift-click). |
+| <kbd>Escape</kbd> | Clears the focused mark and its tooltip, leaving focus on the chart. |
+
+The focused mark behaves as if the pointer were over it: its tooltip opens, the other marks dim, and a ring outlines it. The chart's focusable element has `role="application"`, so screen readers pass the arrow keys through to it, and an `aria-roledescription` of "interactive chart". It is named by `svgTitle` (or the chart's `title`), described by short instructions, and holds a polite live region that announces each focused mark's `aria-label` (see [Shape aria-labels](#shape-aria-labels)). Every label is translated with the chart's `locale`.
+
+Keyboard navigation is on by default. `keyboardNavConfig` styles the focus ring, which defaults to a 2px ring in the color that contrasts with the chart's background, over a halo of the background color so it stands out against any mark. `keyboardNav(false)` removes the Tab stop entirely.
+
+```js
+new BarChart()
+  .config({
+    data,
+    groupBy: "id",
+    keyboardNavConfig: {stroke: "#005fcc", strokeWidth: 3, padding: 4},
+  })
+  .render();
+
+// No Tab stop, focus ring, or live region.
+new BarChart().config({data, groupBy: "id", keyboardNav: false}).render();
+```
+
 ## WCAG 2.1 AA Conformance
 
 Section 508 of the Rehabilitation Act requires federal agencies to ensure their electronic and information technology is accessible. The current Section 508 standards incorporate [WCAG 2.0 Level AA](https://www.w3.org/TR/WCAG20/) by reference, and federal guidance increasingly aligns with [WCAG 2.1 Level AA](https://www.w3.org/TR/WCAG21/).
@@ -240,11 +269,11 @@ The following table summarizes how D3plus addresses the WCAG success criteria mo
 
 | # | Criterion | Status | Notes |
 |---|---|---|---|
-| **2.1.1** | Keyboard | Planned | Mouse-driven interactions (tooltips, filtering) do not yet have full keyboard equivalents. |
+| **2.1.1** | Keyboard | Supported | `keyboardNav` (on by default) moves between data marks with the arrow keys, Home, and End, opens their tooltips, and selects them (click handlers, drill-down, legend toggles) with Enter or Space. See [Keyboard Navigation](#keyboard-navigation). |
 | **2.1.2** | No Keyboard Trap | Supported | Visualizations do not trap focus. |
 | **2.3.3** | Animation from Interactions | Supported | Charts skip their transitions when the viewer's OS asks for reduced motion (`reducedMotion: "auto"`, the default), and `reducedMotion: true` removes them for everyone. See [Reduced Motion](#reduced-motion). |
-| **2.4.3** | Focus Order | Partial | DOM order is logical, but individual data points are not yet focusable via keyboard. |
-| **2.4.7** | Focus Visible | Planned | Visible focus indicators on data points are not yet implemented. |
+| **2.4.3** | Focus Order | Supported | Each chart is a single Tab stop in DOM order; inside it, arrow keys move spatially and Home/End follow reading order. |
+| **2.4.7** | Focus Visible | Supported | The focused mark gets a ring in the color contrasting with the chart's background, over a halo of the background color (`keyboardNavConfig`); the chart itself is outlined while it has focus with no mark selected. |
 
 ### Understandable
 
@@ -256,13 +285,10 @@ The following table summarizes how D3plus addresses the WCAG success criteria mo
 
 | # | Criterion | Status | Notes |
 |---|---|---|---|
-| **4.1.2** | Name, Role, Value | Supported | All shapes expose name (via `aria-label`), role (via `role` attribute), and value information to assistive technology. |
+| **4.1.2** | Name, Role, Value | Supported | All shapes expose name (via `aria-label`), role (via `role` attribute), and value information to assistive technology. The keyboard-focusable chart has a role, name, and description, and announces the focused mark through a live region. |
 
 ## Roadmap
 
 D3plus is actively working to improve accessibility. The following enhancements are planned:
 
-- **Keyboard Navigation** — Add `tabindex` support and keyboard event handlers so users can navigate between data points using arrow keys, activate elements with Enter/Space, and exit with Escape.
-- **Visible Focus Indicators** — Render high-contrast focus rings on data points when they receive keyboard focus, meeting the WCAG 2.4.7 minimum 3:1 contrast requirement.
-- **ARIA Live Regions** — Announce data values to screen readers as users navigate between data points using keyboard controls.
 - **VPAT / Accessibility Conformance Report** — Publish a formal ACR using the VPAT 2.5 template to support federal procurement evaluation under Section 508.

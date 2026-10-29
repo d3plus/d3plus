@@ -626,3 +626,64 @@ ReducedMotion.parameters = {
     },
   },
 };
+
+export const KeyboardNavigation = () => (
+  <div>
+    <p style={note}>
+      Press Tab to focus a chart, the arrow keys to move between its marks (Home
+      and End for the first and last), Enter or Space to select one, and Escape
+      to clear.
+    </p>
+    <div style={linkedRow}>
+      <div style={linkedCell}>
+        <Treemap
+          config={{
+            data: linkedData,
+            groupBy: ["region", "country"],
+            depth: 0,
+            sum: "revenue",
+            title: "Revenue share",
+          }}
+        />
+      </div>
+      <div style={linkedCell}>
+        <LinePlot
+          config={{
+            ...revenueConfig,
+            keyboardNavConfig: {stroke: "#005fcc", strokeWidth: 3},
+          }}
+        />
+      </div>
+    </div>
+  </div>
+);
+KeyboardNavigation.parameters = {
+  docs: {
+    source: {
+      code: `import {LinePlot, Treemap} from "@d3plus/core";
+
+// Every chart is one Tab stop. Enter on a region drills into its countries.
+new Treemap()
+  .select("#share")
+  .data(data)
+  .groupBy(["region", "country"])
+  .depth(0)
+  .sum("revenue")
+  .title("Revenue share")
+  .render();
+
+// The arrow keys follow a series point by point; the ring is restyled here.
+new LinePlot()
+  .select("#revenue")
+  .config({data, groupBy: "id", x: "year", y: "value", discrete: "x"})
+  .title("Revenue by region")
+  .keyboardNavConfig({stroke: "#005fcc", strokeWidth: 3})
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story:
+        "With `keyboardNav` (on by default) each chart is a single Tab stop. The arrow keys move to the nearest mark in that direction, Home and End jump to the first and last, Enter or Space selects the focused mark as a click would (drilling down, or toggling a legend item), and Escape clears it. The focused mark shows its tooltip and hover highlight and a focus ring, and a live region announces it to screen readers. `keyboardNavConfig` styles the ring (`stroke`, `strokeWidth`, `padding`), and `keyboardNav: false` removes the Tab stop.",
+    },
+  },
+};

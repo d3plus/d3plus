@@ -7,6 +7,7 @@ export interface TranslationStrings {
   "Bar Total": string;
   "Brush Zoom": string;
   Change: string;
+  Chart: string;
   Clear: string;
   "Click to Expand": string;
   "Click to Hide": string;
@@ -27,6 +28,7 @@ export interface TranslationStrings {
   Forecast: string;
   High: string;
   Increase: string;
+  "interactive chart": string;
   "JPG image": string;
   Linear: string;
   "Loading Visualization": string;
@@ -70,6 +72,7 @@ export interface TranslationStrings {
   "Upper Bound": string;
   "Upper Quartile": string;
   "Upper Whisker": string;
+  "Use arrow keys to move between data points, Enter to select, and Escape to exit.": string;
   Value: string;
   Values: string;
   Volume: string;
@@ -95,6 +98,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Brush Zoom":
       "\u062a\u0643\u0628\u064a\u0631 \u0628\u0627\u0644\u062a\u062d\u062f\u064a\u062f",
     Change: "\u0627\u0644\u062a\u063a\u064a\u064a\u0631",
+    Chart: "\u0645\u062e\u0637\u0637",
     Clear: "\u0645\u0633\u062d",
     "Click to Expand":
       "\u0627\u0646\u0642\u0631 \u0644\u0644\u062a\u0648\u0633\u064a\u0639",
@@ -122,6 +126,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
     Increase: "\u0632\u064a\u0627\u062f\u0629",
+    "interactive chart":
+      "\u0645\u062e\u0637\u0637 \u062a\u0641\u0627\u0639\u0644\u064a",
     "JPG image": "\u0635\u0648\u0631\u0629 JPG",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
@@ -184,6 +190,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0644\u0631\u0628\u064a\u0639 \u0627\u0644\u0623\u0639\u0644\u0649",
     "Upper Whisker":
       "\u0627\u0644\u0634\u0627\u0631\u0628 \u0627\u0644\u0639\u0644\u0648\u064a",
+    "Use arrow keys to move between data points, Enter to select, and Escape to exit.":
+      "\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u0644\u062a\u0646\u0642\u0644 \u0628\u064a\u0646 \u0646\u0642\u0627\u0637 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a\u060c \u0648Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f\u060c \u0648Escape \u0644\u0644\u062e\u0631\u0648\u062c.",
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
@@ -200,6 +208,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Bar Total": "Total de la Barra",
     "Brush Zoom": "Zoom de Selecci\u00f3n",
     Change: "Variaci\u00f3n",
+    Chart: "Gr\u00e1fico",
     Clear: "Borrar",
     "Click to Expand": "Clic para Ampliar",
     "Click to Hide": "Clic para Ocultar",
@@ -220,6 +229,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "Pron\u00f3stico",
     High: "M\u00e1ximo",
     Increase: "Aumento",
+    "interactive chart": "gr\u00e1fico interactivo",
     "JPG image": "Imagen JPG",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
@@ -263,6 +273,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "L\u00edmite Superior",
     "Upper Quartile": "Cuartil Superior",
     "Upper Whisker": "Bigote Superior",
+    "Use arrow keys to move between data points, Enter to select, and Escape to exit.":
+      "Use las flechas para moverse entre los puntos de datos, Intro para seleccionar y Escape para salir.",
     Value: "Valor",
     Values: "Valores",
     Volume: "Volumen",
@@ -279,6 +291,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Bar Total": "Total da Barra",
     "Brush Zoom": "Zoom de Seleção",
     Change: "Varia\u00e7\u00e3o",
+    Chart: "Gr\u00e1fico",
     Clear: "Limpar",
     "Click to Expand": "Clique para Expandir",
     "Click to Hide": "Clique para Ocultar",
@@ -299,6 +312,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "Previs\u00e3o",
     High: "M\u00e1xima",
     Increase: "Aumento",
+    "interactive chart": "gr\u00e1fico interativo",
     "JPG image": "Imagem JPG",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
@@ -342,6 +356,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "Limite Superior",
     "Upper Quartile": "Quartil Superior",
     "Upper Whisker": "Bigode Superior",
+    "Use arrow keys to move between data points, Enter to select, and Escape to exit.":
+      "Use as setas para mover-se entre os pontos de dados, Enter para selecionar e Esc para sair.",
     Value: "Valor",
     Values: "Valores",
     Volume: "Volume",
@@ -360,6 +376,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Bar Total": "\u67f1\u603b\u8ba1",
     "Brush Zoom": "\u6846\u9009\u7f29\u653e",
     Change: "\u6da8\u8dcc\u5e45",
+    Chart: "\u56fe\u8868",
     Clear: "\u6e05\u9664",
     "Click to Expand": "\u5355\u51fb\u5c55\u5f00",
     "Click to Hide": "\u5355\u51fb\u9690\u85cf",
@@ -381,6 +398,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "\u9884\u6d4b",
     High: "\u6700\u9ad8",
     Increase: "\u589e\u52a0",
+    "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
     "JPG image": "JPG \u56fe\u7247",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
@@ -424,6 +442,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "\u4e0a\u9650",
     "Upper Quartile": "\u4e0a\u56db\u5206\u4f4d\u6570",
     "Upper Whisker": "\u4e0a\u987b",
+    "Use arrow keys to move between data points, Enter to select, and Escape to exit.":
+      "\u4f7f\u7528\u65b9\u5411\u952e\u5728\u6570\u636e\u70b9\u4e4b\u95f4\u79fb\u52a8\uff0c\u6309 Enter \u9009\u62e9\uff0c\u6309 Esc \u9000\u51fa\u3002",
     Value: "\u503c",
     Values: "\u503c",
     Volume: "\u6210\u4ea4\u91cf",

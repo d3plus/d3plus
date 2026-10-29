@@ -158,7 +158,7 @@ export interface TransitionRect {
 
 /**
     Accessibility metadata. The SVG backend applies these as role/aria-label
-    attributes natively; the Canvas backend mirrors them in a shadow tree.
+    attributes; the Canvas backend has no per-node DOM and ignores them.
 */
 export interface AriaSpec {
   role?: string;

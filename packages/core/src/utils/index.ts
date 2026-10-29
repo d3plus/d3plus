@@ -8,6 +8,7 @@ export type {
   ColorScaleConfig,
   ConfidenceBandSetting,
   ConfidenceBound,
+  KeyboardNavConfig,
   LegendConfig,
   SaveControlConfig,
   SaveFormat,

@@ -924,7 +924,12 @@ export {
   fitInset,
   sceneInsetRegion,
 } from "./src/charts/pipeline/insetPlacement.js";
-export {markBoxes} from "./src/charts/features/sceneBounds.js";
+export {
+  mapBox,
+  mapper,
+  markBoxes,
+  ownBoxes,
+} from "./src/charts/features/sceneBounds.js";
 export {
   backgroundImageNode,
   backgroundImageNodes,
@@ -982,6 +987,35 @@ export type {
   MotionHost,
   ReducedMotionSetting,
 } from "./src/charts/viz/reducedMotion.js";
+
+// ── Keyboard navigation (`keyboardNav`) ──────────────────────────────────────
+export {
+  focusTargets,
+  nextTarget,
+  readingOrder,
+} from "./src/charts/viz/focusTargets.js";
+export type {
+  FocusDirection,
+  FocusTarget,
+} from "./src/charts/viz/focusTargets.js";
+export {focusRingNode} from "./src/charts/viz/focusRing.js";
+export type {FocusRingStyle} from "./src/charts/viz/focusRing.js";
+export {
+  chartName,
+  createKeyboardNavHost,
+  KEYBOARD_NAV_INSTRUCTIONS,
+  plainText,
+  updateKeyboardNavHost,
+} from "./src/charts/viz/keyboardNavHost.js";
+export type {KeyboardNavHost} from "./src/charts/viz/keyboardNavHost.js";
+export {
+  appendFocusRing,
+  focusRingStyle,
+  syncKeyboardNav,
+  targetLabel,
+  teardownKeyboardNav,
+} from "./src/charts/viz/keyboardNav.js";
+export type {KeyboardNavState} from "./src/charts/viz/keyboardNav.js";
 
 // ── Small multiples (`facet` / `facetConfig`) ────────────────────────────────
 export {
