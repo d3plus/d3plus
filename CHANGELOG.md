@@ -6,7 +6,7 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 
 ### Added
 
-- **Sankey node labels.** Each Sankey node is labeled beside it: to its right, over its outgoing flows, or to its left in the last column. A label that has no room above and below its node, before it would reach a neighbor's, is hidden. `label` sets the text, `shapeConfig.Rect.labelConfig` styles it, and `shapeConfig: {Rect: {label: false}}` turns them off. [Example ↗](https://d3plus.org/?path=/docs/core-charts-sankey--d3plus#node-labels)
+- **Sankey node labels.** Each Sankey node is labeled beside it: to its right, over its outgoing flows, or to its left in the last column. A label that has no room above and below its node, before it would reach a neighbor's, is hidden. `label` sets the text, `shapeConfig.Rect.labelConfig` styles it, and `shapeConfig: {Rect: {label: false}}` turns them off. (#1035) [Example ↗](https://d3plus.org/?path=/docs/core-charts-sankey--d3plus#node-labels)
 
 ## 4.10.0
 
