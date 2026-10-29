@@ -6,12 +6,12 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 
 ### Added
 
-- **Width shares above Marimekko bars.** `barWidthShare("opposite")` draws each bar's share of the total width on an axis across the bars from the category names: above them, or to their right when the bars run along `y`. Style that axis with `x2Config` (or `y2Config`). It works on BarCharts with `barWidth` too. [Example ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus#basic-example)
-- **`barWidthShareFormat`** writes each bar's share label. It is called with the merge of the bar's rows and `{share, size, total, text}`, so a label can show the bar's value, such as `` (d, {text}) => `$${d.Revenue}B · ${text}` ``. [Example ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus#share-labels)
+- **Width shares above Marimekko bars.** `barWidthShare("opposite")` draws each bar's share of the total width on an axis across the bars from the category names: above them, or to their right when the bars run along `y`. Style that axis with `x2Config` (or `y2Config`). It works on BarCharts with `barWidth` too. (#1036) [Example ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus#basic-example)
+- **`barWidthShareFormat`** writes each bar's share label. It is called with the merge of the bar's rows and `{share, size, total, text}`, so a label can show the bar's value, such as `` (d, {text}) => `$${d.Revenue}B · ${text}` ``. (#1036) [Example ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus#share-labels)
 
 ### Breaking changes
 
-- **Marimekko draws its width shares above the bars**, leaving the category names alone beneath them, and the plot area moves down to make room. `barWidthShare: true` puts each share back beneath its name.
+- **Marimekko draws its width shares above the bars**, leaving the category names alone beneath them, and the plot area moves down to make room. `barWidthShare: true` puts each share back beneath its name. (#1036)
 
 ## 4.10.0
 
