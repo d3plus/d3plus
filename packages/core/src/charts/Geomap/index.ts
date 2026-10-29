@@ -42,6 +42,7 @@ import {
 import {projectionByName} from "./projections.js";
 import {geomapEmit} from "./emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 type GeomapFluent = {
   fitFilter: (_?: unknown) => unknown;
@@ -227,7 +228,7 @@ function setupGeomapDraw(viz: VizInstance): void {
       kind: "geomap",
       width,
       height,
-      duration: viz.schema.duration,
+      duration: effectiveDuration(viz),
       // On the canvas backend the ocean + tiles mount in an underlay beneath
       // the <canvas> (see `ensureZoomDom`), so they show through around the
       // geography on either backend. Small multiples paint each panel's

@@ -30,6 +30,7 @@ import {
   topLeftControlsInset as topLeftControlsInsetRaw,
   topLeftControlsReach,
 } from "../drawSteps/topLeftControlsMarkup.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -616,7 +617,7 @@ export const timelineFeature: FeatureModule = {
       condition: timelinePossible,
       enter: transform,
       parent: viz._select,
-      duration: viz.schema.duration,
+      duration: effectiveDuration(viz),
       update: transform,
     }).node();
 
@@ -625,7 +626,7 @@ export const timelineFeature: FeatureModule = {
     const timeline = viz._timelineClass
       .renderMode("compute")
       .domain(extent(ticks) as [Date, Date])
-      .duration(viz.schema.duration)
+      .duration(effectiveDuration(viz))
       .height(viz.schema.height - layoutMargin.bottom)
       .locale(viz.schema.locale)
       .select(timelineGroup)

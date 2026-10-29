@@ -297,15 +297,17 @@ export function setupBrush(
   tl._updateBrushLimit(selection);
 
   tl._brushGroup = elem("g.brushGroup", {parent: tl._group});
-  tl._brushGroup
+  const brushMove = tl._brushGroup
     .call(brush as never)
-    .transition(tl._transition)
-    .call(
-      brush.move as never,
-      tl._buttonBehaviorCurrent === "ticks"
-        ? tl._updateBrushLimit(selection)
-        : selection,
-    );
+    .transition(tl._transition);
+  // Without a duration (reduced motion), the brush jumps to the selection.
+  if (!tl.schema.duration) brushMove.duration(0);
+  brushMove.call(
+    brush.move as never,
+    tl._buttonBehaviorCurrent === "ticks"
+      ? tl._updateBrushLimit(selection)
+      : selection,
+  );
 
   tl._outerBounds.y -= tl.schema.handleSize / 2;
   tl._outerBounds.height += tl.schema.handleSize / 2;

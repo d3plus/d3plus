@@ -77,6 +77,7 @@ const fields = {
   minimapViewportStyleActive: {},
   noDataHTML: {coerce: "const"},
   noDataMessage: {},
+  reducedMotion: {},
   saveControl: {},
   saveControlClassName: {},
   saveControlConfig: {merge: true},

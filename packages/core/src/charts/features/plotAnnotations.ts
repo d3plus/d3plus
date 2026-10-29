@@ -11,6 +11,7 @@ import {markSharedConfig} from "../../utils/configWarnings.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {makeShape} from "./emitHelpers.js";
 import type {PlotAxisFn, PlotDatum} from "./plotPaint.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 /** A user annotation: a shape key plus its config, optionally z-layered. */
 export interface Annotation {
@@ -91,7 +92,7 @@ export function renderPlotAnnotation(
   delete config.layer;
   const inst = makeShape(annotation.shape)
     .renderMode("compute")
-    .duration(viz.schema.duration)
+    .duration(effectiveDuration(viz))
     .config(config)
     .config(
       markSharedConfig({

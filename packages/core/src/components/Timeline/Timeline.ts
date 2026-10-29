@@ -173,8 +173,9 @@ export default class Timeline extends Axis {
     // would animate from d3-brush's internal drag bounds (the anchored edge), so
     // the lone handle would jump back to where the drag began and slide to the
     // release point; duration 0 applies the final period on the first frame.
+    // A timeline without a duration (reduced motion) snaps too.
     const move = this._brushGroup.transition(this._transition);
-    if (!this.schema.brushing) move.duration(0);
+    if (!this.schema.brushing || !this.schema.duration) move.duration(0);
     move.call(this._brush.move as never, this._updateBrushLimit(domain));
 
     if (this.schema.on.end)

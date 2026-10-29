@@ -564,3 +564,65 @@ new BarChart()
     },
   },
 };
+
+const motionRegions = ["North", "South", "East", "West", "Central"];
+const motionData = seed =>
+  motionRegions.map((region, i) => ({
+    region,
+    value: Math.round(50 + 40 * Math.sin(seed * 1.3 + i * 1.7)),
+  }));
+
+export const ReducedMotion = () => {
+  const [seed, setSeed] = React.useState(0);
+  const config = {
+    data: motionData(seed),
+    groupBy: "region",
+    x: "region",
+    y: "value",
+    duration: 800,
+  };
+  return (
+    <div>
+      <button type="button" onClick={() => setSeed(seed + 1)}>
+        Change data
+      </button>
+      <div style={{display: "flex", flexWrap: "wrap", gap: 24, marginTop: 12}}>
+        <div style={{width: 420, height: 300}}>
+          <BarChart
+            config={{
+              ...config,
+              reducedMotion: true,
+              title: "reducedMotion: true",
+            }}
+          />
+        </div>
+        <div style={{width: 420, height: 300}}>
+          <BarChart
+            config={{
+              ...config,
+              reducedMotion: false,
+              title: "reducedMotion: false",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+ReducedMotion.parameters = {
+  docs: {
+    source: {
+      code: `new BarChart()
+  .select("#chart")
+  .config({data, groupBy: "region", x: "region", y: "value"})
+  .duration(800)
+  .reducedMotion("auto") // default: follow the OS setting; true or false forces it
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story:
+        'By default (`reducedMotion: "auto"`) a chart skips its transitions when the viewer\'s OS asks for reduced motion, read from the `(prefers-reduced-motion: reduce)` media query at each draw. `true` always draws without motion and `false` always animates; `duration` keeps its value either way. Change the data to compare: the left chart jumps to the new values, the right one animates.',
+    },
+  },
+};

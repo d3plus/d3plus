@@ -202,6 +202,23 @@ If `ariaHidden` is set to `"false"`, a visually hidden data table will be render
 </g>
 ```
 
+## Reduced Motion
+
+Charts honor the viewer's operating-system "reduce motion" setting. Under the default `reducedMotion: "auto"`, a chart reads the `(prefers-reduced-motion: reduce)` media query each time it draws; when it matches, the chart skips every animation: entering, updating, and exiting shapes, drill-down morphs, zooming, axis, legend, and timeline changes, and the fades of messages, map tiles, and controls all jump straight to their final state.
+
+Set `reducedMotion` to `true` to always draw without motion, or to `false` to always animate. `duration` keeps the value you gave it either way, so turning motion back on restores your timing.
+
+```js
+new BarChart()
+  .data(data)
+  .groupBy("id")
+  .duration(800)
+  .reducedMotion("auto") // default: follow the OS setting
+  .render();
+```
+
+The preference is read when the chart draws, so a change to the OS setting applies at the chart's next render. Server-side rendering counts as not reduced.
+
 ## WCAG 2.1 AA Conformance
 
 Section 508 of the Rehabilitation Act requires federal agencies to ensure their electronic and information technology is accessible. The current Section 508 standards incorporate [WCAG 2.0 Level AA](https://www.w3.org/TR/WCAG20/) by reference, and federal guidance increasingly aligns with [WCAG 2.1 Level AA](https://www.w3.org/TR/WCAG21/).
@@ -225,6 +242,7 @@ The following table summarizes how D3plus addresses the WCAG success criteria mo
 |---|---|---|---|
 | **2.1.1** | Keyboard | Planned | Mouse-driven interactions (tooltips, filtering) do not yet have full keyboard equivalents. |
 | **2.1.2** | No Keyboard Trap | Supported | Visualizations do not trap focus. |
+| **2.3.3** | Animation from Interactions | Supported | Charts skip their transitions when the viewer's OS asks for reduced motion (`reducedMotion: "auto"`, the default), and `reducedMotion: true` removes them for everyone. See [Reduced Motion](#reduced-motion). |
 | **2.4.3** | Focus Order | Partial | DOM order is logical, but individual data points are not yet focusable via keyboard. |
 | **2.4.7** | Focus Visible | Planned | Visible focus indicators on data points are not yet implemented. |
 

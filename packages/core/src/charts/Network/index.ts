@@ -25,6 +25,7 @@ import {applyNetworkLayout, networkSizeLegendScale} from "./applyLayout.js";
 import {networkEmit} from "./emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {simpleHover} from "../viz/simpleHover.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 function getNodeId(viz: VizInstance, d: Record<string, unknown>, i: number) {
   return `${viz._id(d as DataPoint, i) || viz.schema.nodeGroupBy[min([viz._drawDepth, viz.schema.nodeGroupBy.length - 1]) as number](d, i)}`;
@@ -400,7 +401,7 @@ export const networkDef: ChartDefinition = {
         kind: "network",
         width,
         height,
-        duration: viz.schema.duration,
+        duration: effectiveDuration(viz),
       });
       return result;
     };
