@@ -3,6 +3,10 @@
     Adds left/right padding to a point or time scale.
     @private
 */
+import {
+  scaleTimeShift,
+  scaleTimeStep,
+} from "../../components/Axis/brokenTimeScale.js";
 import type {D3Scale} from "../../utils/index.js";
 
 const discreteBuffer = (
@@ -21,15 +25,17 @@ const discreteBuffer = (
       (acc: number, curr: number, i: number, arr: number[]) => {
         if (!i) return acc;
         const prev = arr[i - 1];
-        if (!acc || curr - prev < acc) return curr - prev;
+        // On a time scale with hidden time, only the time it shows counts.
+        const step = scaleTimeStep(scale, prev, curr);
+        if (!acc || step < acc) return step;
         else return acc;
       },
       0,
     );
     const domain = scale.domain().slice() as (number | string | Date)[];
     if (discrete === "y") domain.reverse();
-    domain[0] = new Date(+domain[0] - closest / 2);
-    domain[1] = new Date(+domain[1] + closest / 2);
+    domain[0] = scaleTimeShift(scale, +domain[0], -closest / 2);
+    domain[1] = scaleTimeShift(scale, +domain[1], closest / 2);
     if (discrete === "y") domain.reverse();
     scale.domain(domain);
   }

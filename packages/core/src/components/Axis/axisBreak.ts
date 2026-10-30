@@ -57,7 +57,12 @@ export function breakStyle(
   axis: Axis,
   key: "breakConfig" | "baselineBreakConfig" = "breakConfig",
 ): BreakStyle {
-  const cfg = (axis.schema[key] || {}) as Record<string, unknown>;
+  return breakStyleOf(axis.schema[key]);
+}
+
+/** Reads break glyph settings from a break config object (see `breakStyle`). */
+export function breakStyleOf(config: unknown): BreakStyle {
+  const cfg = (config || {}) as Record<string, unknown>;
   return {
     angle: num(cfg.angle, 30),
     gap: Math.max(0, num(cfg.gap, 5)),

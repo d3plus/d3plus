@@ -6,6 +6,7 @@ import {dateFullFormatter, formatDateFull} from "@d3plus/format";
 import {locale, type TimeLocaleDefinition} from "@d3plus/locales";
 
 import type Axis from "./Axis.js";
+import {normalizeRangeBreaks, rangeBreakTest} from "./rangeBreaks.js";
 
 /**
     Parses a value (Date, timestamp, or date string) into a valid Date, or `undefined` when it does not parse.
@@ -31,11 +32,20 @@ export function parseTimeValues(values: readonly unknown[]): Date[] {
 */
 export function axisScaleData(axis: Axis): unknown[] {
   if (axis.schema.scale !== "time") return axis._data ?? [];
-  const data = parseTimeValues(axis._data ?? []);
+  const data = visibleDates(axis, parseTimeValues(axis._data ?? []));
   const domain = ((axis.schema.domain ?? []) as unknown[]).map(parseTime);
   if (domain.length < 2 || domain.some(d => d === undefined)) return data;
   const [lo, hi] = extent(domain as Date[]) as [Date, Date];
   return data.filter(d => d >= lo && d <= hi);
+}
+
+/** Dates a time axis's `rangeBreaks` leave shown. */
+function visibleDates(axis: Axis, dates: Date[]): Date[] {
+  const rules = normalizeRangeBreaks(axis.schema.rangeBreaks);
+  if (!rules.length || !dates.length) return dates;
+  const [lo, hi] = extent(dates, Number) as [number, number];
+  const hidden = rangeBreakTest(rules, lo, hi);
+  return dates.filter(d => !hidden(d));
 }
 
 /**

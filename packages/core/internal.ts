@@ -933,11 +933,50 @@ export type {
   ScaleSegment,
 } from "./src/components/Axis/brokenScale.js";
 export {
+  brokenTimeScale,
+  isBrokenTimeScale,
+} from "./src/components/Axis/brokenTimeScale.js";
+export type {
+  BrokenTimeScale,
+  BrokenTimeScaleOptions,
+  ScaleTimeGap,
+} from "./src/components/Axis/brokenTimeScale.js";
+export {
+  gapIndex,
+  hidesAllTime,
+  isHiddenTime,
+  isRangeBreakRule,
+  normalizeRangeBreaks,
+  offsetVisible,
+  rangeBreakGaps,
+  rangeBreakTest,
+  rangeBreakTime,
+  ruleMarker,
+  visibleBetween,
+} from "./src/components/Axis/rangeBreaks.js";
+export type {
+  RangeBreakRule,
+  RangeBreakTime,
+  TimeGap,
+} from "./src/components/Axis/rangeBreaks.js";
+export {
+  applyAxisRangeBreaks,
+  visibleTimeValues,
+} from "./src/components/Axis/axisRangeBreaks.js";
+export {
+  dropHiddenRows,
+  plotRangeBreaks,
+  plotTimeScale,
+  rangeBreaksTimeAxis,
+  timelineRangeBreaks,
+} from "./src/charts/Plot/plotRangeBreaks.js";
+export {
   applyAxisBreaks,
   axisBarNodes,
   baselineBreakStyle,
   breakGap,
   breakStyle,
+  breakStyleOf,
   breakTickValues,
   brokenBarScene,
   resolveBaselineBreak,

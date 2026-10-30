@@ -974,3 +974,99 @@ ConnectGaps.parameters = {
     },
   },
 };
+
+export const RangeBreaks = Template.bind({});
+RangeBreaks.args = {
+  data: (() => {
+    // Jan 15 and Feb 19 are market holidays.
+    const holidays = [14, 49];
+    const out = [];
+    let close = 180;
+    for (let i = 0; i < 90; i++) {
+      const date = new Date(2024, 0, 1 + i);
+      const weekend = date.getDay() === 0 || date.getDay() === 6;
+      if (weekend || holidays.includes(i)) continue;
+      close += Math.sin(i / 6) * 2.5 + Math.cos(i / 2.3) * 1.2;
+      out.push({ticker: "ACME", date, close: Math.round(close * 100) / 100});
+    }
+    return out;
+  })(),
+  groupBy: "ticker",
+  x: "date",
+  xConfig: {
+    rangeBreaks: ["weekends", {values: ["2024-01-15", "2024-02-19"]}],
+  },
+  y: "close",
+};
+RangeBreaks.parameters = {
+  controls: {include: ["xConfig"]},
+  docs: {
+    description: {
+      story:
+        "Daily closing prices only exist on trading days. `xConfig.rangeBreaks` hides weekends and the listed holidays from the time axis, so Friday sits next to Monday and the line never stretches across days with no trading. Ticks and labels stay on trading days, and hover and zoom read the broken axis. Add `{hours: [16, 9.5]}` for intraday data, or `{bounds: [start, end]}` to remove one range with a break marker.",
+    },
+  },
+};
+
+export const RangeBreaksTradingHours = Template.bind({});
+RangeBreaksTradingHours.args = {
+  data: (() => {
+    // Half-hourly prices from 9:30 to 15:30 on two weeks of trading days.
+    const out = [];
+    let price = 50;
+    for (let d = 0; d < 14; d++) {
+      const day = new Date(2024, 3, 1 + d);
+      if (day.getDay() === 0 || day.getDay() === 6) continue;
+      for (let h = 9.5; h < 16; h += 0.5) {
+        const date = new Date(day);
+        date.setHours(Math.floor(h), (h % 1) * 60);
+        price += Math.sin(d * 13 + h * 2) * 0.4;
+        out.push({ticker: "ACME", date, price: Math.round(price * 100) / 100});
+      }
+    }
+    return out;
+  })(),
+  groupBy: "ticker",
+  x: "date",
+  xConfig: {rangeBreaks: ["weekends", {hours: [16, 9.5]}]},
+  y: "price",
+};
+RangeBreaksTradingHours.parameters = {
+  controls: {include: ["xConfig"]},
+  docs: {
+    description: {
+      story:
+        '`{hours: [16, 9.5]}` hides 4pm to 9:30am every day (the window wraps past midnight), and `"weekends"` hides Saturday and Sunday, so only trading hours take up width. The first tick after each hidden night is labeled with its day.',
+    },
+  },
+};
+
+export const RangeBreaksMarkedRange = Template.bind({});
+RangeBreaksMarkedRange.args = {
+  data: (() => {
+    // Daily sensor readings with June missing.
+    const out = [];
+    for (let i = 0; i < 120; i++) {
+      const date = new Date(2024, 4, 1 + i);
+      if (date.getMonth() === 5) continue;
+      const value = 20 + Math.sin(i / 6) * 4;
+      out.push({sensor: "Sensor", date, value: Math.round(value * 100) / 100});
+    }
+    return out;
+  })(),
+  groupBy: "sensor",
+  x: "date",
+  xConfig: {
+    rangeBreaks: {bounds: [new Date(2024, 5, 1), new Date(2024, 6, 1)]},
+  },
+  y: "value",
+};
+RangeBreaksMarkedRange.parameters = {
+  controls: {include: ["xConfig"]},
+  docs: {
+    description: {
+      story:
+        "`{bounds: [start, end]}` removes one range, here a month with no readings, and draws the axis break marker where it was. Add `marker: false` to close the range without a marker. Other rules repeat too often to mark, so they default to no marker.",
+    },
+  },
+};

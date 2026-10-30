@@ -31,6 +31,7 @@ import type {
   ReferenceBandConfig,
   ReferenceLineConfig,
 } from "../charts/features/annotationTypes.js";
+import type {RangeBreakRule} from "../components/Axis/rangeBreaks.js";
 
 type Position = "top" | "right" | "bottom" | "left";
 /** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
@@ -151,6 +152,28 @@ export interface AxisConfig {
     string,
     string | number | boolean | Record<string, string | number>
   >;
+  /**
+      Stretches of time to hide from a time axis, so the data closes up
+      around them (like weekends and nights on a stock chart): one rule or a
+      list of them. `"weekends"` hides every Saturday and Sunday;
+      `{days: [5, 6]}` hides those days of the week (0 is Sunday);
+      `{hours: [17, 9]}` hides the same hours every day, wrapping past
+      midnight when the first is later (fractions are minutes, so `9.5` is
+      9:30); `{values: [date, …]}` hides each listed date's whole day, such
+      as holidays; and `{bounds: [start, end]}` hides one range, from `start`
+      up to `end`. Rules read the calendar in local time, as the axis's date
+      labels do. In a Plot, rules on an axis whose values are dates make it
+      a time axis even without `time`, and a chart's timeline takes the
+      rules of the axis that plots its `time` (see `timelineConfig`). Shown time keeps one shared scale, ticks and labels never
+      land in hidden time, lines and areas connect across it, and rows whose
+      time is hidden are not drawn. A rule's `marker` draws the `break`
+      marker where its time was removed, in a gap of `breakConfig.space`
+      pixels: on by default for `bounds`, off for the others, which recur
+      too often to mark.
+      @example
+{rangeBreaks: ["weekends", {hours: [16, 9.5]}, {values: ["2024-07-04"]}]}
+  */
+  rangeBreaks?: false | RangeBreakRule | RangeBreakRule[];
   /** Grid values of the axis. */
   grid?: unknown[];
   gridConfig?: Record<string, string | number>;
@@ -385,6 +408,13 @@ export interface TextBoxConfig {
 export interface TimelineConfig {
   /** Brush event filter. */
   brushFilter?: () => boolean;
+  /**
+      Stretches of time the timeline hides, as an axis config's
+      `rangeBreaks` takes them. By default the timeline takes the rules of
+      the axis that plots the chart's `time` values (such as
+      `xConfig.rangeBreaks`); set this to use others, or `false` for none.
+  */
+  rangeBreaks?: false | RangeBreakRule | RangeBreakRule[];
   /**
       The maximum number of ticks (or buttons) a selection can span; unlimited
       by default. A wider brush is pulled in to it on release, keeping the end

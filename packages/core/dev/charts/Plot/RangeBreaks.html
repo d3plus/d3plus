@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>RangeBreaks · Plot</title>
+    <meta
+      name="description"
+      content="Time-axis rangeBreaks: weekends, holidays, overnight hours and explicit ranges hidden so the data closes up around them, with zoom."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin: 16px;
+        font-family: sans-serif;
+      }
+      .chart {
+        height: 340px;
+      }
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+      p {
+        margin: 0 0 8px;
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>Daily closes, weekends shown (no rangeBreaks)</h3>
+      <p>Each weekend stretches the line two days between Friday and Monday.</p>
+      <div class="chart" id="plain"></div>
+    </div>
+    <div>
+      <h3>The same closes, weekends and holidays hidden</h3>
+      <p>
+        <code>rangeBreaks: ["weekends", {values: holidays}]</code>: Friday sits
+        next to Monday. Wheel or drag to zoom; the breaks hold.
+      </p>
+      <div class="chart" id="daily"></div>
+    </div>
+    <div>
+      <h3>Intraday prices, trading hours only</h3>
+      <p>
+        <code>["weekends", {hours: [16, 9.5]}]</code>: 9:30 to 16:00 on
+        weekdays, one price per half-hour period.
+      </p>
+      <div class="chart" id="intraday"></div>
+    </div>
+    <div>
+      <h3>An explicit range, marked</h3>
+      <p>
+        <code>{bounds: [start, end]}</code> removes a month of missing data and
+        draws the break marker where it was.
+      </p>
+      <div class="chart" id="bounds"></div>
+    </div>
+    <div>
+      <h3>Daily volume bars, weekends hidden</h3>
+      <p>Bars keep even spacing across every weekend.</p>
+      <div class="chart" id="bars"></div>
+    </div>
+    <div>
+      <h3>Stacked areas, weekends hidden</h3>
+      <p>Areas connect across the hidden time.</p>
+      <div class="chart" id="areas"></div>
+    </div>
+  </body>
+
+  <script>
+    const holidays = ["2024-01-15", "2024-02-19", "2024-03-29", "2024-05-27"];
+    const pad = n => String(n).padStart(2, "0");
+    const isHoliday = date =>
+      holidays.includes(
+        `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+      );
+    const weekday = date => date.getDay() !== 0 && date.getDay() !== 6;
+
+    // Deterministic prices, one per trading day.
+    const daily = [];
+    let close = 100;
+    for (let i = 0; i < 150; i++) {
+      const date = new Date(2024, 0, 2 + i);
+      if (!weekday(date) || isHoliday(date)) continue;
+      close += Math.sin(i / 7) * 1.6 + Math.cos(i / 3.1) * 0.9;
+      daily.push({id: "Close", date, close, volume: 40 + ((i * 37) % 29)});
+    }
+
+    // Half-hourly prices over two weeks of trading days, each period from
+    // 9:30 to 15:30 read at its start.
+    const intraday = [];
+    let price = 50;
+    for (let d = 0; d < 14; d++) {
+      const day = new Date(2024, 3, 1 + d);
+      if (!weekday(day)) continue;
+      for (let h = 9.5; h < 16; h += 0.5) {
+        const date = new Date(day);
+        date.setHours(Math.floor(h), (h % 1) * 60);
+        price += Math.sin(d * 13 + h * 2) * 0.4;
+        intraday.push({id: "Price", date, price});
+      }
+    }
+
+    // Daily readings with June missing.
+    const readings = [];
+    for (let i = 0; i < 120; i++) {
+      const date = new Date(2024, 4, 1 + i);
+      if (date.getMonth() === 5) continue;
+      readings.push({id: "Sensor", date, value: 20 + Math.sin(i / 6) * 4});
+    }
+
+    const sectors = [];
+    ["Energy", "Tech", "Utilities"].forEach((id, s) =>
+      daily.slice(0, 40).forEach((d, i) =>
+        sectors.push({
+          id,
+          date: d.date,
+          value: 10 + s * 4 + Math.sin(i / 4 + s) * 3,
+        }),
+      ),
+    );
+
+    const make = (Chart, select, config) =>
+      new d3plus[Chart]()
+        .select(select)
+        .config({timeline: false, legend: false, ...config})
+        .render();
+
+    const marketDays = ["weekends", {values: holidays}];
+
+    make("LinePlot", "#plain", {
+      data: daily.slice(0, 40),
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "close",
+    });
+
+    make("LinePlot", "#daily", {
+      data: daily.slice(0, 40),
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "close",
+      zoomMax: 32,
+      xConfig: {rangeBreaks: marketDays},
+    });
+
+    make("LinePlot", "#intraday", {
+      data: intraday,
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "price",
+      xConfig: {rangeBreaks: ["weekends", {hours: [16, 9.5]}]},
+    });
+
+    make("LinePlot", "#bounds", {
+      data: readings,
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      xConfig: {
+        rangeBreaks: {bounds: [new Date(2024, 5, 1), new Date(2024, 6, 1)]},
+      },
+    });
+
+    make("BarChart", "#bars", {
+      data: daily.slice(0, 30),
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "volume",
+      xConfig: {rangeBreaks: marketDays},
+    });
+
+    make("StackedArea", "#areas", {
+      data: sectors,
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      legend: true,
+      xConfig: {rangeBreaks: marketDays},
+    });
+  </script>
+</html>

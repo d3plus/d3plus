@@ -56,6 +56,7 @@ const axisSchema: ConfigField[] = [
   {key: "paddingInner", coerce: "identity", default: 0.1},
   {key: "paddingOuter", coerce: "identity", default: 0.1},
   {key: "range", coerce: "identity"},
+  {key: "rangeBreaks", coerce: "identity", default: false},
   {key: "renderMode", coerce: "identity", default: "full"},
   {key: "reverse", coerce: "identity", default: false},
   {key: "rotatedTickFormat", coerce: "identity"},

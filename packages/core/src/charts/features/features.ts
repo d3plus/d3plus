@@ -31,6 +31,7 @@ import {
   topLeftControlsReach,
 } from "../drawSteps/topLeftControlsMarkup.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {timelineRangeBreaks} from "../Plot/plotRangeBreaks.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -668,6 +669,10 @@ export const timelineFeature: FeatureModule = {
     // (e.g. a manual pause), so the play/pause glyph refreshes immediately.
     timeline._onPlayToggle = () => viz._scheduleSceneRepaint();
 
+    // The timeline hides what its time axis hides, unless `timelineConfig`
+    // sets its own `rangeBreaks`.
+    const inherited = timelineRangeBreaks(viz);
+    timeline.rangeBreaks(inherited.length ? inherited : false);
     const config = viz.schema.timelineConfig;
     timeline
       .config(config)
