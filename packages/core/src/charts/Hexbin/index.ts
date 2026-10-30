@@ -105,8 +105,9 @@ export const hexbinDef: ChartDefinition = {
     {key: "binShape", default: "hex"},
     /**
         The bin size in pixels: a hexagon's radius, or a square's side.
-        Bins keep this size at any zoom, and the observations are binned
-        again for each view. Defaults to 12.
+        Bins keep this size at any zoom: the observations are binned again
+        for each view, and the colorScale refits to the bins in view.
+        Defaults to 12.
     */
     {key: "binSize", default: BIN_SIZE},
     /**
@@ -148,6 +149,8 @@ export const hexbinDef: ChartDefinition = {
     */
     {key: "pointConfig", merge: true, default: POINT_DEFAULTS},
     {key: "colorScale", coerce: optionalAccessor, default: hexbinValue},
+    /** A continuous color scale: bins and contours shade smoothly by value. */
+    {key: "colorScaleConfig", merge: true, default: {scale: "linear"}},
     {key: "legend", default: false, coerce: "const"},
     {key: "shape", default: constant(HEXBIN_SHAPE), coerce: "const"},
     /**

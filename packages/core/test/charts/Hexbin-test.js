@@ -52,6 +52,19 @@ it("Hexbin — a Plot of observations drawn as bins, with a colorScale and no le
     strokeWidth: 1.5,
     fillOpacity: 0.8,
   });
+  assert.strictEqual(
+    viz.colorScaleConfig().scale,
+    "linear",
+    "a continuous colorScale",
+  );
+  assert.deepStrictEqual(viz.colorScaleConfig().axisConfig, {
+    rounding: "inside",
+  });
+  assert.strictEqual(
+    new Hexbin().colorScaleConfig({scale: "jenks"}).colorScaleConfig().scale,
+    "jenks",
+    "a user scale wins",
+  );
   viz.contourConfig({bandwidth: 10});
   assert.strictEqual(viz.contourConfig().bandwidth, 10, "merges");
   assert.strictEqual(viz.contourConfig().thresholds, 8);

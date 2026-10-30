@@ -5,6 +5,8 @@ import {useJsdom} from "~test/jsdom.js";
 import {Hexbin} from "../../index.ts";
 import {
   binAriaLabel,
+  binPoints,
+  binsInView,
   colorRows,
   colorScaleRows,
   contourAriaLabel,
@@ -48,6 +50,32 @@ it("plotFrame: the plot area in shape coordinates", () => {
     width: 50,
     height: 40,
   });
+});
+
+it("binsInView: the bins reaching into the plot area", () => {
+  const bins = binPoints([pt(5, 5), pt(55, 55), pt(250, 20), pt(-30, 20)], {
+    shape: "square",
+    size: 10,
+  });
+  const inView = binsInView(
+    bins,
+    {left: 0, top: 0, width: 100, height: 100},
+    {shape: "square", size: 10},
+  );
+  assert.deepStrictEqual(inView.map(b => b.key).sort(), ["s0_0", "s5_5"]);
+  // Row 1's hexagons sit at x = 8.66 ± 17.32k: one centered at -8.66
+  // reaches 8.66px right of its center, past a plot edge at -5.
+  const edge = binPoints([pt(-8.66, 15)], {shape: "hex", size: 10});
+  assert.strictEqual(edge[0].cx.toFixed(2), "-8.66");
+  assert.strictEqual(
+    binsInView(
+      edge,
+      {left: -5, top: 0, width: 100, height: 100},
+      {shape: "hex", size: 10},
+    ).length,
+    1,
+    "a hexagon centered outside still reaches in",
+  );
 });
 
 it("pointPath: one dot per placed point", () => {

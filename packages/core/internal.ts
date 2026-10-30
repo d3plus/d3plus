@@ -766,6 +766,7 @@ export type {
 } from "./src/charts/Hexbin/contours.js";
 export {
   binRows,
+  binsInView,
   colorRows,
   colorScaleRows,
   contourRows,

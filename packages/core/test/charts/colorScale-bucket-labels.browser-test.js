@@ -41,7 +41,8 @@ const labels = viz => {
 
 const charts = {
   hexbinMean: `new d3plus.Hexbin().data(arg.rows).x("x").y("y")
-    .binValue({value: "score", agg: "mean"})`,
+    .binValue({value: "score", agg: "mean"})
+    .colorScaleConfig({scale: "jenks"})`,
   scatterComputed: `new d3plus.Scatter()
     .data(Array.from({length: 38}, (_, i) => ({id: i, x: i, y: i % 5, v: -20 + (120 * i) / 37})))
     .groupBy("id").x("x").y("y").colorScale("v")`,

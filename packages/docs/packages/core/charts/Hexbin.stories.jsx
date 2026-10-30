@@ -56,7 +56,7 @@ BasicExample.parameters = {
   docs: {
     description: {
       story:
-        "Two thousand overlapping points are unreadable as a scatter. Hexbin groups them into hexagons `binSize` pixels across and colors each by how many observations it holds, on the colorScale. Empty hexagons aren't drawn. Hover a hexagon for its count and its height and weight ranges.",
+        "Two thousand overlapping points are unreadable as a scatter. Hexbin groups them into hexagons `binSize` pixels across and colors each by how many observations it holds, on a continuous colorScale. Empty hexagons aren't drawn. Zooming bins the observations again at the new scale and refits the colorScale to the bins in view. Hover a hexagon for its count and its height and weight ranges.",
     },
   },
 };

@@ -23,6 +23,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {binPoints, type PixelPoint} from "./binning.js";
 import {
   binRows,
+  binsInView,
   contourRows,
   hexbinState,
   plotFrame,
@@ -163,10 +164,10 @@ function gridOrigin(ctx: ShapeEmitContext, frame: PlotFrame): [number, number] {
 
 /**
     Emits a Hexbin's observations: the raw points (`points`), the bins
-    (`binShape`), then the density contours (`contours`). Outside a zoom,
-    the colorScale is refreshed with the bins (or contour levels) just
-    measured, so the scale and the fills agree; a zoom keeps the colorScale
-    as drawn, so a color always means what the colorScale says.
+    (`binShape`), then the density contours (`contours`). Each paint, zoomed
+    or not, refits the colorScale to the bins in view (or the contour
+    levels), so the fills and the colorScale agree and the densest bin in
+    view takes the top color.
 */
 export const hexbinEmit: ShapeEmitter = (ctx: ShapeEmitContext) => {
   const {viz} = ctx;
@@ -178,27 +179,26 @@ export const hexbinEmit: ShapeEmitter = (ctx: ShapeEmitContext) => {
     y: pixelInverse(viz, "y", ctx.x2Height ?? 0),
   };
   const origin = gridOrigin(ctx, frame);
-  const bins = settings.shape
-    ? binRows(
-        binPoints(points, {shape: settings.shape, size: settings.size, origin}),
-        settings,
-        invert,
-      )
+  const pixelBins = settings.shape
+    ? binPoints(points, {shape: settings.shape, size: settings.size, origin})
     : [];
+  const bins = binRows(pixelBins, settings, invert);
   const contours = settings.contours
     ? contourRows(points, frame, settings)
     : [];
-  if (!ctx.zoomRanges)
-    refreshColorScale(
-      viz,
-      sharedColorRows(
-        ctx,
-        settings.shape ? bins : contours,
-        frame,
-        origin,
-        settings,
-      ),
-    );
+  const inView = new Set(
+    binsInView(pixelBins, frame, settings).map(b => `bin-${b.key}`),
+  );
+  refreshColorScale(
+    viz,
+    sharedColorRows(
+      ctx,
+      settings.shape ? bins.filter(r => inView.has(String(r.id))) : contours,
+      frame,
+      origin,
+      settings,
+    ),
+  );
 
   const fillOf = (base: Record<string, unknown>) => {
     const fill = base.fill;

@@ -265,46 +265,90 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(r.light.line < 0.4, `light contour ink ${r.light.line}`);
   });
 
-  it(`[${renderer}] zooming bins the observations again at the new scale`, async () => {
+  it(`[${renderer}] zooming bins again and refits the colorScale to the bins in view`, async () => {
     const r = await page(
       `
       const chart = new d3plus.Hexbin().data(arg.data).x("x").y("y")
         .zoom(true).renderer(arg.renderer);
       await done(chart);
+      // The densest bin the colorScale reads, its fill, and the top color.
+      const view = () => {
+        const cs = chart._colorScaleClass;
+        const rows = cs._data;
+        const top = rows.reduce((a, b) => (d3plus.hexbinValue(b) > d3plus.hexbinValue(a) ? b : a));
+        let fill;
+        walk(chart._paintedScene.root.children, n => {
+          if (n.shapeType === "Hexbin" && n.datum === top) fill = n.paint.fill;
+        });
+        const domain = cs._colorScale.domain();
+        const labels = [];
+        walk(chart._paintedScene.root.children.filter(n => n.key === "viz-colorScale"), n => {
+          if (n.type === "text") labels.push(n.lines.map(l => l.text).join(" "));
+        });
+        return {
+          max: d3plus.hexbinValue(top),
+          fill,
+          topColor: String(cs._colorScale(Math.max(...domain))),
+          domain,
+          labels,
+          scale: cs._scaleType,
+        };
+      };
       const before = bins(chart);
-      const domain = chart._colorScaleClass._colorScale.domain();
-      const fills = before.map(m => m.fill);
-      const expected = before.map(m => colorOf(chart, m.value));
+      const unzoomed = view();
+      // Let the zoom's transition settle before reading the scene.
+      const settle = () => new Promise(res => setTimeout(res, 800));
       document.querySelector("#viz .zoom-in").click();
       document.querySelector("#viz .zoom-in").click();
-      await frames();
+      await settle();
       const after = bins(chart);
+      const zoomed = view();
       document.querySelector("#viz .zoom-reset").click();
-      await frames();
+      await settle();
       return {
         before: before.length,
         after: after.length,
         widths: after.map(m => Math.round(m.width)),
-        total: [before, after].map(b => b.reduce((s, m) => s + m.count, 0)),
-        max: [before, after].map(b => Math.max(...b.map(m => m.count))),
-        domain: [domain, chart._colorScaleClass._colorScale.domain()],
-        fills: [fills, expected],
+        views: [unzoomed, zoomed, view()],
+        fillsMatch: after.every(m => m.fill === colorOf(chart, m.value)) || JSON.stringify(after.filter(m => m.fill !== colorOf(chart, m.value)).slice(0, 3).map(m => [m.value, m.fill, colorOf(chart, m.value)])),
         reset: bins(chart).length,
       };
       `,
       {data: blob, renderer},
     );
+    const [unzoomed, zoomed, reset] = r.views;
     assert.ok(r.after > r.before, `${r.before} bins → ${r.after}`);
     assert.ok(
       r.widths.every(w => w === 21),
       "bins keep their pixel size",
     );
-    assert.ok(r.max[1] < r.max[0], "zoomed in, each bin holds fewer");
-    assert.deepStrictEqual(r.domain[1], r.domain[0], "the colorScale holds");
+    assert.strictEqual(unzoomed.scale, "linear", "a continuous colorScale");
+    assert.ok(zoomed.max < unzoomed.max, "zoomed in, each bin holds fewer");
+    assert.notDeepStrictEqual(
+      zoomed.domain,
+      unzoomed.domain,
+      "the colorScale refits to the bins in view",
+    );
+    assert.strictEqual(Math.max(...zoomed.domain), zoomed.max);
+    assert.notDeepStrictEqual(
+      zoomed.labels,
+      unzoomed.labels,
+      "the legend relabels",
+    );
+    for (const v of [unzoomed, zoomed])
+      assert.strictEqual(
+        v.fill,
+        v.topColor,
+        "the densest bin in view takes the top color",
+      );
     assert.deepStrictEqual(
-      r.fills[0],
-      r.fills[1],
-      "the drawn colorScale is the one the bins are filled from",
+      reset.domain,
+      unzoomed.domain,
+      "reset restores the colorScale",
+    );
+    assert.ok(
+      r.fillsMatch,
+      "zoomed bins are filled from the refitted colorScale",
     );
     assert.strictEqual(r.reset, r.before, "reset restores the bins");
   });

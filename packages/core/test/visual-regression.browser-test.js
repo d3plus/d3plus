@@ -613,7 +613,12 @@ const fingerprintFn = builderSrc =>
               y: r(b.top - svgBox.top),
               w: r(b.width),
               h: r(b.height),
-              f: el.getAttribute("fill") || "",
+              // Gradient ids count up across the page's charts; keep
+              // only what tells the gradients of one chart apart.
+              f: (el.getAttribute("fill") || "").replace(
+                /url\(#d3plus-gradient-\d+-/,
+                "url(#d3plus-gradient-",
+              ),
               s: el.getAttribute("stroke") || "",
             });
           }

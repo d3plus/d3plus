@@ -138,6 +138,24 @@ export function contourRows(
   );
 }
 
+/** The bins that reach into the plot area: the ones a zoomed view shows. */
+export function binsInView(
+  bins: PixelBin[],
+  frame: PlotFrame,
+  settings: Pick<HexbinSettings, "shape" | "size">,
+): PixelBin[] {
+  const shape = settings.shape || "hex";
+  return bins.filter(bin => {
+    const b = binBounds(bin, shape, settings.size);
+    return (
+      b.x1 > frame.left &&
+      b.x0 < frame.left + frame.width &&
+      b.y1 > frame.top &&
+      b.y0 < frame.top + frame.height
+    );
+  });
+}
+
 /** The points as one path of `r`-pixel dots. */
 export function pointPath(points: PixelPoint[], r: number): string {
   const round = (n: number) => Math.round(n * 10) / 10;
@@ -149,7 +167,10 @@ export function pointPath(points: PixelPoint[], r: number): string {
   return d;
 }
 
-/** The rows the colorScale reads for some points: their bins, or with no bins drawn, their contour levels. */
+/**
+    The rows the colorScale reads for some points: their bins in view, or
+    with no bins drawn, their contour levels.
+*/
 export function colorRows(
   points: PixelPoint[],
   frame: PlotFrame,
@@ -159,7 +180,11 @@ export function colorRows(
   const none = {x: () => NaN, y: () => NaN};
   if (settings.shape)
     return binRows(
-      binPoints(points, {shape: settings.shape, size: settings.size, origin}),
+      binsInView(
+        binPoints(points, {shape: settings.shape, size: settings.size, origin}),
+        frame,
+        settings,
+      ),
       settings,
       none,
     );

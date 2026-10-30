@@ -825,7 +825,8 @@ export interface D3plusConfig {
   /**
       Hexbin: the bin size in pixels, a hexagon's radius or a square's side.
       Bins keep this size at any zoom: the observations are binned again for
-      each view. Defaults to `12`.
+      each view, and the colorScale refits to the bins in view. Defaults to
+      `12`.
   */
   binSize?: number;
   /**
