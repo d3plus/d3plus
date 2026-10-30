@@ -164,6 +164,26 @@ function avoidLogZero(
 }
 
 /**
+    One plot axis's scale over `d` across `size` pixels. A time axis with
+    `rangeBreaks` hides the same time here as on the axis.
+*/
+function plotAxisScale(
+  viz: Parameters<TransformStage>[0]["viz"],
+  axis: AxisName,
+  type: string,
+  d: DomainValue[],
+  size: number,
+) {
+  return plotTimeScale(
+    viz,
+    axis,
+    scaleConstructors[`scale${type}`]()
+      .domain(d)
+      .range(range(0, size + 1, size / (d.length - 1))),
+  );
+}
+
+/**
     `computePlotScales` — fourth stage of Plot's pipeline. Takes the per-axis
     values + the chart's raw `domains` object (computed by the inline
     stacking/non-stacking branch) and produces the four configured d3 scale
@@ -262,20 +282,12 @@ export const computePlotScales: TransformStage = ({
 
   applyOppDomains(viz, domains, opps, {x: xConfigScale, y: yConfigScale}, user);
 
-  // A time axis with `rangeBreaks` hides the same time here as on the axis.
   const axisScale = (
     axis: AxisName,
     type: string,
     d: DomainValue[],
     size: number,
-  ) =>
-    plotTimeScale(
-      viz,
-      axis,
-      scaleConstructors[`scale${type}`]()
-        .domain(d)
-        .range(range(0, size + 1, size / (d.length - 1))),
-    );
+  ) => plotAxisScale(viz, axis, type, d, size);
   const x = axisScale("x", xScale, domains.x, width);
   const x2 = axisScale("x2", x2Scale, domains.x2, width);
   // `.slice().reverse()` so the domain object isn't mutated under us if
