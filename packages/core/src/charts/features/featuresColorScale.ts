@@ -124,7 +124,7 @@ function paintColorScale(
     ._colorScaleClass!.renderMode("compute")
     .align(frame.align)
     .duration(effectiveDuration(viz))
-    .data(colorScaleData(viz))
+    .data(viz._colorScaleRows ? viz._colorScaleRows() : colorScaleData(viz))
     .height(frame.height)
     .locale(viz.schema.locale)
     .orient(frame.orient)

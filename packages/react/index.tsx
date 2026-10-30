@@ -17,6 +17,7 @@ import {
   Funnel as FunnelClass,
   Gauge as GaugeClass,
   Geomap as GeomapClass,
+  Hexbin as HexbinClass,
   Histogram as HistogramClass,
   Icicle as IcicleClass,
   LinePlot as LinePlotClass,
@@ -141,6 +142,10 @@ export const Gauge = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Geomap visualization. */
 export const Geomap = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={GeomapClass} {...props} />
+);
+/** React component for rendering a d3plus Hexbin visualization. */
+export const Hexbin = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={HexbinClass} {...props} />
 );
 /** React component for rendering a d3plus Histogram visualization. */
 export const Histogram = (props: D3plusComponentProps) => (

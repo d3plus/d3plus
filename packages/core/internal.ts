@@ -719,6 +719,74 @@ export {
   volumeAriaLabel,
 } from "./src/charts/Candlestick/tooltip.js";
 export {
+  BIN_SIZE,
+  CONTOUR_DEFAULTS,
+  HEXBIN_META,
+  HEXBIN_SHAPE,
+  POINT_DEFAULTS,
+  hexbinMeta,
+  hexbinRow,
+  hexbinSettings,
+  hexbinValue,
+  resolveBinValue,
+  unwrapHexbinRow,
+} from "./src/charts/Hexbin/settings.js";
+export type {
+  BinMeta,
+  BinValueOption,
+  ContourConfig,
+  ContourMeta,
+  ContoursOption,
+  HexbinMeta,
+  HexbinSettings,
+  PointConfig,
+} from "./src/charts/Hexbin/settings.js";
+export {
+  binArea,
+  binBounds,
+  binMeasure,
+  binPath,
+  binPoints,
+} from "./src/charts/Hexbin/binning.js";
+export type {
+  BinAgg,
+  BinShape,
+  PixelBin,
+  PixelBounds,
+  PixelPoint,
+} from "./src/charts/Hexbin/binning.js";
+export {
+  contourLevels,
+  contourPath,
+  densityContours,
+} from "./src/charts/Hexbin/contours.js";
+export type {
+  ContourLevel,
+  ContourOptions,
+} from "./src/charts/Hexbin/contours.js";
+export {
+  binRows,
+  colorRows,
+  colorScaleRows,
+  contourRows,
+  estimatedColorRows,
+  hexbinState,
+  noteDrawRows,
+  plotFrame,
+  pointPath,
+  refreshColorScale,
+  sharedColorRows,
+} from "./src/charts/Hexbin/layers.js";
+export type {HexbinState, PlotFrame} from "./src/charts/Hexbin/layers.js";
+export {hexbinBuffer} from "./src/charts/Hexbin/buffer.js";
+export {hexbinEmit, pixelPoints} from "./src/charts/Hexbin/emit.js";
+export {
+  binAriaLabel,
+  contourAriaLabel,
+  hexbinTooltipRows,
+  hexbinTooltipTitle,
+} from "./src/charts/Hexbin/tooltip.js";
+export {
   isAggregatedBranch,
   mergeBranch,
   nestPartition,
@@ -844,6 +912,7 @@ export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {funnelDef} from "./src/charts/Funnel/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
+export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
 export {icicleDef} from "./src/charts/Icicle/index.js";
 export {lollipopDef} from "./src/charts/Lollipop/index.js";

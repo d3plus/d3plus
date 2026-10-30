@@ -32,6 +32,12 @@ import type {
   ReferenceLineConfig,
 } from "../charts/features/annotationTypes.js";
 import type {RangeBreakRule} from "../components/Axis/rangeBreaks.js";
+import type {
+  BinValueOption,
+  ContourConfig,
+  ContoursOption,
+  PointConfig,
+} from "../charts/Hexbin/settings.js";
 
 type Position = "top" | "right" | "bottom" | "left";
 /** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
@@ -811,6 +817,24 @@ export interface D3plusConfig {
         d: DataPoint,
         i: number,
       ) => (number | {min?: number; max?: number; color?: string})[]);
+  /**
+      Hexbin: the bin shape, `"hex"` (default) for hexagons or `"square"`
+      for squares, or `false` to draw no bins (for contours alone).
+  */
+  binShape?: "hex" | "square" | false;
+  /**
+      Hexbin: the bin size in pixels, a hexagon's radius or a square's side.
+      Bins keep this size at any zoom: the observations are binned again for
+      each view. Defaults to `12`.
+  */
+  binSize?: number;
+  /**
+      Hexbin: what each bin measures, which its color shows. `"count"`
+      (default) is the number of observations in the bin; `{value, agg,
+      label}` is the `"sum"` (default) or `"mean"` of `value` (a data key or
+      accessor) over the bin's observations, named `label` in the tooltip.
+  */
+  binValue?: BinValueOption;
   /** Candlestick: the share of each period's room its candle body (or OHLC ticks) spans, from 0 to 1. Defaults to `0.7`. */
   bodyWidth?: number;
   /** BoxWhisker: accessor or data key for each summary row's upper whisker end. See `boxMedian`. */
@@ -982,6 +1006,25 @@ export interface D3plusConfig {
       optionally a function of the row the connector leaves and its index.
   */
   connectorConfig?: Record<string, unknown>;
+  /**
+      Hexbin: contour options. `bandwidth` is the density kernel's standard
+      deviation in pixels (default `20`); `thresholds` is about how many
+      levels to draw (default `8`, rounded to nice values) or the levels
+      themselves, in observations per bin; `strokeWidth` is the outline
+      width of `"lines"` contours (default `1.5`); and `fillOpacity` is the
+      opacity of the highest `"filled"` level (default `0.8`). Merged into
+      the current config.
+  */
+  contourConfig?: ContourConfig;
+  /**
+      Hexbin: draws density contours. `"lines"` (or `true`) outlines each
+      density level in its color, and `"filled"` fills the levels with an
+      opacity ramp. Levels are in observations per bin (the count a bin
+      would hold there), so contours share the bins' colorScale. Over bins,
+      contour lines take the chart's text color and leave hover to the bins.
+      Defaults to `false`.
+  */
+  contours?: ContoursOption;
   /** Funnel: the conversion rates each stage's label shows: `"first"`, `"previous"`, `"both"` (or `true`), or `false`. */
   conversion?:
     boolean | "first" | "previous" | "both" | ("first" | "previous")[];
@@ -1526,6 +1569,13 @@ export interface D3plusConfig {
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /**
+      Hexbin: the style of the observations `points` draws: `r`, the dot
+      radius in pixels (default `1.5`); `fill` (defaults to the chart's text
+      color); and `fillOpacity` (default `0.35`). Merged into the current
+      config.
+  */
+  pointConfig?: PointConfig;
+  /**
       Fits and styles circle labels (see `labelPosition`): `fontMin` is the
       smallest font size a label may shrink to inside its circle before
       `"auto"` moves it beside the circle (default `10`, the size of the
@@ -1537,6 +1587,8 @@ export interface D3plusConfig {
       Merged into the current config.
   */
   pointLabelConfig?: PointLabelConfig;
+  /** Hexbin: draws the raw observations as small dots beneath the bins and contours. Defaults to `false`. */
+  points?: boolean;
   /** Point size accessor for geomaps. */
   pointSize?: string | ((d: DataPoint) => number);
   /** Minimum point size for geomaps. */

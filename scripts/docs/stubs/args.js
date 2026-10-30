@@ -79,6 +79,7 @@ const hiddenMethods = {
     "baselineBreak",
   ],
   FanChart: ["barPadding", "groupPadding", "swarm", "swarmConfig"],
+  Hexbin: ["shape", "discrete", "stacked"],
   Histogram: ["shape", "x", "x2", "y", "y2", "discrete"],
   Icicle: ["shape"],
   LinePlot: ["shape"],

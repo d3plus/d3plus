@@ -19,6 +19,7 @@ const charts = [
   ["Funnel", "funnel"],
   ["Gauge", "gauge"],
   ["Geomap", "geomap"],
+  ["Hexbin", "hexbin"],
   ["Histogram", "histogram"],
   ["Icicle", "icicle"],
   ["Line Plot", "lineplot"],

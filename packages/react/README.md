@@ -46,7 +46,7 @@ import {D3plusContext} from "@d3plus/react";
 
 Every d3plus class is exported as a React component:
 
-- **Charts** — `AreaPlot`, `BarChart`, `Beeswarm`, `BoxWhisker`, `BubbleChart`, `Bullet`, `BumpChart`, `Calendar`, `Candlestick`, `Chord`, `Donut`, `Dumbbell`, `FanChart`, `Funnel`, `Gauge`, `Geomap`, `Histogram`, `Icicle`, `LinePlot`, `Lollipop`, `Marimekko`, `Matrix`, `Network`, `Pack`, `ParallelCoordinates`, `Pie`, `Plot`, `PolarArea`, `Priestley`, `Pyramid`, `Radar`, `RadialBar`, `RadialMatrix`, `Ridgeline`, `Rings`, `Sankey`, `Scatter`, `StackedArea`, `Streamgraph`, `Sunburst`, `Tree`, `Treemap`, `Violin`, `Viz`, `Waffle`, `Waterfall`
+- **Charts** — `AreaPlot`, `BarChart`, `Beeswarm`, `BoxWhisker`, `BubbleChart`, `Bullet`, `BumpChart`, `Calendar`, `Candlestick`, `Chord`, `Donut`, `Dumbbell`, `FanChart`, `Funnel`, `Gauge`, `Geomap`, `Hexbin`, `Histogram`, `Icicle`, `LinePlot`, `Lollipop`, `Marimekko`, `Matrix`, `Network`, `Pack`, `ParallelCoordinates`, `Pie`, `Plot`, `PolarArea`, `Priestley`, `Pyramid`, `Radar`, `RadialBar`, `RadialMatrix`, `Ridgeline`, `Rings`, `Sankey`, `Scatter`, `StackedArea`, `Streamgraph`, `Sunburst`, `Tree`, `Treemap`, `Violin`, `Viz`, `Waffle`, `Waterfall`
 - **Components** — `Axis`, `AxisBottom`, `AxisLeft`, `AxisRight`, `AxisTop`, `ColorScale`, `Legend`, `Message`, `SizeLegend`, `TextBox`, `Timeline`, `Tooltip`
 - **Shapes** — `Area`, `Bar`, `Box`, `Circle`, `Image`, `Line`, `Path`, `Rect`, `Shape`, `Whisker`
 - **Utilities** — `BaseClass`

@@ -15,6 +15,7 @@ import {
   Funnel as FunnelClass,
   Gauge as GaugeClass,
   Geomap as GeomapClass,
+  Hexbin as HexbinClass,
   Histogram as HistogramClass,
   Icicle as IcicleClass,
   LinePlot as LinePlotClass,
@@ -105,6 +106,8 @@ export const Funnel = createD3plusComponent(FunnelClass, "chart");
 export const Gauge = createD3plusComponent(GaugeClass, "chart");
 /** Vue component for rendering a d3plus Geomap visualization. */
 export const Geomap = createD3plusComponent(GeomapClass, "chart");
+/** Vue component for rendering a d3plus Hexbin visualization. */
+export const Hexbin = createD3plusComponent(HexbinClass, "chart");
 /** Vue component for rendering a d3plus Histogram visualization. */
 export const Histogram = createD3plusComponent(HistogramClass, "chart");
 /** Vue component for rendering a d3plus Icicle visualization. */
