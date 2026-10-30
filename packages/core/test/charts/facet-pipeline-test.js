@@ -197,7 +197,10 @@ it("chart hooks: Plot shares scales; radial charts ask for square panels; others
   assert.strictEqual(bar.aspect, 4 / 3);
   for (const hook of ["share", "panel", "insets", "capture"])
     assert.strictEqual(typeof bar[hook], "function", `BarChart has ${hook}`);
-  assert.strictEqual(new Pie()._facetHooks().aspect, 1);
+  const pie = new Pie();
+  assert.strictEqual(pie._facetHooks().aspect(pie), 1);
+  pie.startAngle(-90).endAngle(90);
+  assert.strictEqual(pie._facetHooks().aspect(pie), 2, "a half ring is wide");
   assert.strictEqual(new Sunburst()._facetHooks().aspect, 1);
   assert.strictEqual(new Bullet()._facetHooks().aspect, 2);
   assert.strictEqual(new Waffle()._facetHooks().aspect, 1);

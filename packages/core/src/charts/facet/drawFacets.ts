@@ -309,7 +309,9 @@ function layoutGrid(
     rows: config.rows,
     padding: config.padding,
     titleHeight: 0,
-    aspect: hooks.aspect ?? FACET_ASPECT,
+    aspect:
+      (typeof hooks.aspect === "function" ? hooks.aspect(viz) : hooks.aspect) ??
+      FACET_ASPECT,
   };
   const titleHeight = facetTitleBand(
     viz,

@@ -497,14 +497,19 @@ export function collapse(node: SceneNode): SceneNode {
       // shrinks to zero while its radius stays constant throughout
       // (interpolateNode's "path" case lerps startAngle/endAngle directly
       // once both endpoints carry `arc`, rebuilding `d` every frame — see
-      // `ArcGeometry`). Falls back to the old scale-to-a-point behavior
+      // `ArcGeometry`). A partial or rotated ring (`PathNode.sweep`)
+      // collapses toward the nearer end of its own sweep instead.
+      // Falls back to scaling to a point
       // (mirrors how a plain circle collapses to r: 0) for a Pie-tagged
       // path with no `arc` params.
       if (node.shapeType === "Pie") {
         const f = node as PathNode;
         if (f.arc) {
           const mid = (f.arc.startAngle + f.arc.endAngle) / 2;
-          const targetAngle = mid > Math.PI ? FULL_TURN : 0;
+          const s0 = f.sweep?.startAngle ?? 0;
+          const s1 = f.sweep?.endAngle ?? FULL_TURN;
+          const targetAngle =
+            Math.abs(mid - s0) <= Math.abs(s1 - mid) ? s0 : s1;
           const collapsed: ArcGeometry = {
             ...f.arc,
             startAngle: targetAngle,

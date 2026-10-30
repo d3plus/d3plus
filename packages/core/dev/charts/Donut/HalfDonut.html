@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Half Donut</title>
+    <meta
+      name="description"
+      content="Partial rings from startAngle/endAngle: a half donut, a half pie opening upward, a 270° donut, a quarter pie, and a drillable half donut."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 20px;
+      }
+
+      .viz {
+        height: 360px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="viz" id="half"></div>
+    <div class="viz" id="upward"></div>
+    <div class="viz" id="dial"></div>
+    <div class="viz" id="quarter"></div>
+    <div class="viz" id="drill"></div>
+  </body>
+
+  <script>
+    var seats = [
+      {party: "Green", seats: 48},
+      {party: "Red", seats: 112},
+      {party: "Blue", seats: 96},
+      {party: "Yellow", seats: 31},
+      {party: "Independent", seats: 13},
+    ];
+
+    new d3plus.Donut()
+      .select("#half")
+      .config({
+        data: seats,
+        groupBy: "party",
+        value: "seats",
+        startAngle: -90,
+        endAngle: 90,
+        title: "Half donut (startAngle -90, endAngle 90)",
+      })
+      .render();
+
+    new d3plus.Pie()
+      .select("#upward")
+      .config({
+        data: seats,
+        groupBy: "party",
+        value: "seats",
+        startAngle: 90,
+        endAngle: 270,
+        title: "Half pie opening upward (90 to 270)",
+      })
+      .render();
+
+    new d3plus.Donut()
+      .select("#dial")
+      .config({
+        data: seats,
+        groupBy: "party",
+        value: "seats",
+        startAngle: -135,
+        endAngle: 135,
+        title: "270° donut (-135 to 135)",
+      })
+      .render();
+
+    new d3plus.Pie()
+      .select("#quarter")
+      .config({
+        data: seats,
+        groupBy: "party",
+        value: "seats",
+        startAngle: 0,
+        endAngle: 90,
+        title: "Quarter pie (0 to 90)",
+      })
+      .render();
+
+    new d3plus.Donut()
+      .select("#drill")
+      .config({
+        data: [
+          {category: "Fruit", id: "Apple", value: 30},
+          {category: "Fruit", id: "Banana", value: 22},
+          {category: "Fruit", id: "Cherry", value: 18},
+          {category: "Vegetable", id: "Carrot", value: 20},
+          {category: "Vegetable", id: "Pea", value: 12},
+          {category: "Vegetable", id: "Kale", value: 8},
+        ],
+        depth: 0,
+        groupBy: ["category", "id"],
+        value: "value",
+        startAngle: -90,
+        endAngle: 90,
+        title: "Click a wedge to drill in",
+      })
+      .render();
+  </script>
+</html>
