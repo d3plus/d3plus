@@ -108,6 +108,30 @@ export {
   splitLength,
 } from "./src/charts/Plot/curveLength.js";
 export {
+  GAP_DASH,
+  complementIntervals,
+  gapsAfter,
+  intersectIntervals,
+  intervalsDash,
+  patternIntervals,
+  pointLengths,
+  resolveConnectGaps,
+  runIndices,
+  runPath,
+} from "./src/charts/Plot/connectGaps.js";
+export type {
+  ConnectGaps,
+  ConnectGapsConfig,
+  GapBridge,
+  Interval,
+} from "./src/charts/Plot/connectGaps.js";
+export {
+  breakLines,
+  clipBands,
+  lineGaps,
+} from "./src/charts/Plot/connectGapsScene.js";
+export type {LineGaps, SeriesGaps} from "./src/charts/Plot/connectGapsScene.js";
+export {
   autoForecastStart,
   discreteOrder,
   discreteRank,

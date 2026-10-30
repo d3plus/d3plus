@@ -917,3 +917,31 @@ AxisBreak.parameters = {
     },
   },
 };
+
+export const ConnectGaps = Template.bind({});
+ConnectGaps.args = {
+  connectGaps: "dashed",
+  data: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].flatMap(
+    (year, k) => [
+      {
+        id: "Survey",
+        year,
+        value: [2017, 2018, 2021].includes(year) ? null : 40 + 6 * Math.sin(k),
+      },
+      {id: "Census", year, value: 30 + k * 2},
+    ],
+  ),
+  groupBy: "id",
+  lineMarkers: true,
+  x: "year",
+  y: "value",
+};
+ConnectGaps.parameters = {
+  controls: {include: ["connectGaps"]},
+  docs: {
+    description: {
+      story:
+        "A `null` value (or a step another line has and this one skips) is a gap. By default a line runs straight through it; `connectGaps(false)` leaves it empty, `\"dashed\"` bridges it with a short dash in the line's color, and an object (`{stroke, strokeDasharray, strokeWidth, opacity}`) styles the bridge. Bridges follow the line's curve and have no tooltip or keyboard focus; `lineMarkers` shows a lone point between two gaps.",
+    },
+  },
+};

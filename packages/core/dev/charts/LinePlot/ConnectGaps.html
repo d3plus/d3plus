@@ -1,0 +1,188 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Connect Gaps · LinePlot</title>
+    <meta
+      name="description"
+      content="LinePlot connectGaps: lines straight through missing values (the default), empty gaps, dashed and styled bridges, a step curve, a time axis with confidence bands, a vertical plot, small multiples, and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 320px;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      .dark {
+        background: #1a1b1e;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>connectGaps: true (default), straight through</h3>
+        <div class="viz" id="through"></div>
+      </div>
+      <div>
+        <h3>connectGaps: false, gaps left empty</h3>
+        <div class="viz" id="empty"></div>
+      </div>
+      <div>
+        <h3>connectGaps: "dashed"</h3>
+        <div class="viz" id="dashed"></div>
+      </div>
+      <div>
+        <h3>A styled bridge, with lineMarkers showing a lone point</h3>
+        <div class="viz" id="styled"></div>
+      </div>
+      <div>
+        <h3>A step curve: the bridge follows it</h3>
+        <div class="viz" id="curve"></div>
+      </div>
+      <div>
+        <h3>Time axis with skipped days and confidence bands</h3>
+        <div class="viz" id="time"></div>
+      </div>
+      <div>
+        <h3>Vertical plot (discrete y axis)</h3>
+        <div class="viz" id="vertical"></div>
+      </div>
+      <div class="dark">
+        <h3 style="color: #e9ecef">Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+      <div class="wide">
+        <h3>Small multiples</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // "Survey" has no value in 2017, 2018, and 2021 (null rows) or 2023 (no
+    // row); "Census" has every year.
+    const years = [];
+    for (let year = 2012; year <= 2024; year++) {
+      const t = year - 2012;
+      if (year !== 2023)
+        years.push({
+          id: "Survey",
+          year,
+          value: [2017, 2018, 2021].includes(year)
+            ? null
+            : Math.round(40 + 8 * Math.sin(t / 2)),
+        });
+      years.push({id: "Census", year, value: 30 + t * 2});
+    }
+
+    const lines = (id, setting, configure = v => v) =>
+      configure(
+        new d3plus.LinePlot()
+          .select(id)
+          .data(years)
+          .groupBy("id")
+          .x("year")
+          .y("value")
+          .connectGaps(setting),
+      ).render();
+
+    lines("#through", true);
+    lines("#empty", false);
+    lines("#dashed", "dashed");
+    lines(
+      "#styled",
+      {stroke: "#868e96", strokeDasharray: "1 3", strokeWidth: 1},
+      v => v.lineMarkers(true),
+    );
+    lines("#curve", "dashed", v => v.shapeConfig({Line: {curve: "step"}}));
+
+    // Two weeks of readings; "Sensor B" dropped out on the 5th–6th and 11th.
+    const daily = [];
+    for (let k = 0; k < 16; k++) {
+      const date = new Date(2024, 4, 1 + k);
+      const a = 50 + 10 * Math.sin(k / 3);
+      daily.push({id: "Sensor A", date, value: a, lo: a - 4, hi: a + 4});
+      if (![4, 5, 10].includes(k)) {
+        const b = 30 + k;
+        daily.push({id: "Sensor B", date, value: b, lo: b - 3, hi: b + 3});
+      }
+    }
+
+    new d3plus.LinePlot()
+      .select("#time")
+      .data(daily)
+      .groupBy("id")
+      .x("date")
+      .time("date")
+      .timeline(false)
+      .y("value")
+      .confidence(["lo", "hi"])
+      .connectGaps("dashed")
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#vertical")
+      .data(years)
+      .groupBy("id")
+      .y("year")
+      .x("value")
+      .discrete("y")
+      .connectGaps("dashed")
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#dark")
+      .data(years)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .theme("dark")
+      .connectGaps("dashed")
+      .render();
+
+    const regions = [];
+    ["North", "South", "East"].forEach((region, r) =>
+      ["Imports", "Exports"].forEach((id, s) => {
+        for (let year = 2015; year <= 2024; year++)
+          regions.push({
+            region,
+            id,
+            year,
+            value:
+              s === 0 && (year === 2017 + r * 2 || year === 2018 + r * 2)
+                ? null
+                : 20 + s * 15 + 5 * Math.sin(year / 2 + r),
+          });
+      }),
+    );
+
+    new d3plus.LinePlot()
+      .select("#facet")
+      .data(regions)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .facet("region")
+      .connectGaps("dashed")
+      .render();
+  </script>
+</html>

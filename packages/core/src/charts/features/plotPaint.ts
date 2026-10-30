@@ -181,6 +181,8 @@ export interface PlotPaintContext {
   zoomAxes?: Partial<Record<"x" | "x2" | "y" | "y2", Record<string, unknown>>>;
   /** Where a zoom repaint's unzoomed x/y plot ranges land (see `Plot/plotZoom.ts`). */
   zoomRanges?: Partial<Record<"x" | "y", number[]>>;
+  /** Line rows with no plottable value, where `connectGaps` breaks lines. */
+  missingRows?: PlotDatum[];
 }
 
 /**
@@ -374,6 +376,7 @@ function emitShapeLoop(
     insetBottom: mCtx.insetBottom ?? 0,
     x2Height: pCtx.x2Height,
     zoomRanges: pCtx.zoomRanges,
+    missingRows: pCtx.missingRows,
   };
   out.push(
     ...barHitsFirst(

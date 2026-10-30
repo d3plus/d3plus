@@ -94,6 +94,8 @@ export interface VizContext {
   */
   plotFormattedData?: Record<string, unknown>[];
   plotAxisData?: Record<string, unknown>[];
+  /** Line rows dropped for a value that can't be plotted (see `connectGaps`). */
+  plotMissingRows?: Record<string, unknown>[];
   x2Exists?: boolean;
   y2Exists?: boolean;
   /** Closure used by Plot's stacked branch to compute fillerPoint groups. */

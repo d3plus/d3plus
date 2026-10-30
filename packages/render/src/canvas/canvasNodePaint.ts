@@ -15,7 +15,7 @@ type Ctx = CanvasRenderingContext2D;
 */
 export function pathHit(
   ctx: Ctx,
-  node: {d: string; paint?: {strokeWidth?: number}},
+  node: {d: string; paint?: {strokeWidth?: number; strokeDasharray?: number[]}},
   lx: number,
   ly: number,
 ): boolean {
@@ -24,7 +24,11 @@ export function pathHit(
   const sw = node.paint?.strokeWidth;
   if (!sw) return false;
   ctx.lineWidth = sw;
-  return ctx.isPointInStroke(p, lx, ly);
+  // A dashed stroke hits only on its dashes, as it does in SVG.
+  ctx.setLineDash(validDash(node.paint?.strokeDasharray));
+  const hit = ctx.isPointInStroke(p, lx, ly);
+  ctx.setLineDash([]);
+  return hit;
 }
 
 /** Traces a rect with elliptical corners, radii clamped to half its sides as SVG does. */
