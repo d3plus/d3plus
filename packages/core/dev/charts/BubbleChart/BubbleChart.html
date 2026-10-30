@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BubbleChart</title>
+    <meta
+      name="description"
+      content="BubbleChart variants: bubbles sized by area with a size legend, drawn largest first with background outlines, a radius range with sizeZero off, no size accessor, and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Default: sized by area, largest drawn first</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>Radius range (sizeZero: false, sizeMin: 6, sizeMax: 30)</h3>
+        <div class="viz" id="range"></div>
+      </div>
+      <div>
+        <h3>Translucent fill, wider outline</h3>
+        <div class="viz" id="styled"></div>
+      </div>
+      <div>
+        <h3>No size accessor: every bubble at sizeMin</h3>
+        <div class="viz" id="unsized"></div>
+      </div>
+      <div>
+        <h3>Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const countries = [
+      ["Brazil", "Americas", 15.1, 75.9, 216],
+      ["Canada", "Americas", 53.4, 82.6, 39],
+      ["Mexico", "Americas", 21.5, 75.0, 128],
+      ["United States", "Americas", 74.6, 79.3, 335],
+      ["China", "Asia", 21.5, 78.6, 1410],
+      ["India", "Asia", 8.4, 72.0, 1429],
+      ["Indonesia", "Asia", 13.4, 71.7, 278],
+      ["Japan", "Asia", 45.6, 84.7, 124],
+      ["France", "Europe", 50.9, 83.3, 68],
+      ["Germany", "Europe", 58.9, 81.4, 84],
+      ["Italy", "Europe", 46.8, 83.7, 59],
+      ["Egypt", "Africa", 15.1, 70.2, 113],
+      ["Ethiopia", "Africa", 2.8, 67.3, 127],
+      ["Nigeria", "Africa", 5.6, 54.5, 224],
+      ["South Africa", "Africa", 14.0, 66.1, 60],
+    ].map(([country, region, gdp, life, pop]) => ({
+      country,
+      region,
+      gdp,
+      life,
+      pop,
+    }));
+
+    const bubbles = id =>
+      new d3plus.BubbleChart()
+        .select("#" + id)
+        .data(countries)
+        .groupBy(["region", "country"])
+        .x("gdp")
+        .y("life");
+
+    bubbles("basic").size("pop").render();
+    bubbles("range")
+      .size("pop")
+      .sizeZero(false)
+      .sizeMin(6)
+      .sizeMax(30)
+      .render();
+    bubbles("styled")
+      .size("pop")
+      .shapeConfig({Circle: {fillOpacity: 0.7, strokeWidth: 2}})
+      .render();
+    bubbles("unsized").render();
+    bubbles("dark").size("pop").theme("dark").render();
+  </script>
+</html>

@@ -26,6 +26,7 @@ const hiddenMethods = {
     "confidenceConfig",
   ],
   BoxWhisker: ["shape"],
+  BubbleChart: ["shape"],
   BumpChart: ["shape"],
   Candlestick: [
     "shape",
@@ -116,7 +117,9 @@ const hiddenMethods = {
     "barPadding",
     "discrete",
   ],
+  Scatter: ["shape"],
   StackedArea: ["shape"],
+  Streamgraph: ["shape", "stacked"],
   Sunburst: ["shape"],
   Treemap: ["shape"],
   Violin: [

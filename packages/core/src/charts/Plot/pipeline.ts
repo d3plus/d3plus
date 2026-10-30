@@ -85,23 +85,52 @@ function missingLineRows(
 /**
     The bubble radius scale: `sizeScale` over the extent of `sizes`, ranging
     from `sizeMin` (capped at half of `sizeMax`) to `sizeMax`. A single-value
-    extent maps everything to `sizeMax`.
+    extent maps everything to `sizeMax`. With `sizeZero`, the smallest value's
+    radius is where a scale anchored at zero puts it instead (see
+    `zeroAnchoredRadius`).
 */
 export function plotSizeScale(
   viz: Parameters<TransformStage>[0]["viz"],
   sizes: number[],
 ): D3Scale {
-  const rExtent = extent(sizes);
-  return scaleConstructors[
-    `scale${viz.schema.sizeScale.charAt(0).toUpperCase()}${viz.schema.sizeScale.slice(1)}`
-  ]()
-    .domain(rExtent as unknown as [number, number])
+  const rExtent = extent(sizes) as unknown as [number, number];
+  const {sizeMax, sizeMin, sizeScale, sizeZero} = viz.schema;
+  const make =
+    scaleConstructors[
+      `scale${sizeScale.charAt(0).toUpperCase()}${sizeScale.slice(1)}`
+    ];
+  const anchored = sizeZero ? zeroAnchoredRadius(make, rExtent, sizeMax) : NaN;
+  return make()
+    .domain(rExtent)
     .range([
       rExtent[0] === rExtent[1]
-        ? viz.schema.sizeMax
-        : min([viz.schema.sizeMax / 2, viz.schema.sizeMin]),
-      viz.schema.sizeMax,
+        ? sizeMax
+        : Number.isFinite(anchored)
+          ? anchored
+          : min([sizeMax / 2, sizeMin]),
+      sizeMax,
     ]);
+}
+
+/**
+    The radius a size scale anchored at zero (domain `[0, max]`, range
+    `[0, sizeMax]`) gives the smallest of `[min, max]`. A scale over
+    `[min, max]` starting at this radius draws every value where the anchored
+    one does: with a `"sqrt"` scale, each mark's area is proportional to its
+    value; with `"linear"`, its radius. NaN when the extent can't be anchored
+    at zero (a negative or non-positive extent, or a log scale).
+    @param make The size scale's constructor.
+    @param extent The size values' `[min, max]`.
+    @param sizeMax The largest radius.
+*/
+export function zeroAnchoredRadius(
+  make: () => D3Scale,
+  [lo, hi]: [number, number],
+  sizeMax: number,
+): number {
+  if (!(lo >= 0 && hi > 0)) return NaN;
+  const r = make().domain([0, hi]).range([0, sizeMax])(lo) as number;
+  return Number.isFinite(r) ? r : NaN;
 }
 
 /**

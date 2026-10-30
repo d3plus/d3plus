@@ -414,6 +414,8 @@ export type {
   StemPoint,
 } from "./src/charts/Lollipop/stemLayout.js";
 export {lollipopEmit} from "./src/charts/Lollipop/emit.js";
+export {bubbleEmit, largestFirst} from "./src/charts/BubbleChart/emit.js";
+export {zeroAnchoredRadius} from "./src/charts/Plot/pipeline.js";
 export {columnHighlight} from "./src/charts/Plot/columnHighlight.js";
 export {
   CONNECTOR_KEY_SUFFIX,
@@ -763,6 +765,7 @@ export type {RadialBarFrame} from "./src/charts/RadialBar/trackLayout.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
+export {bubbleChartDef} from "./src/charts/BubbleChart/index.js";
 export {bulletDef} from "./src/charts/Bullet/index.js";
 export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {candlestickDef} from "./src/charts/Candlestick/index.js";
@@ -780,6 +783,11 @@ export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
+export {scatterDef} from "./src/charts/Scatter/index.js";
+export {
+  streamgraphDef,
+  streamValueAxis,
+} from "./src/charts/Streamgraph/index.js";
 export {packDef} from "./src/charts/Pack/index.js";
 export {
   parallelCoordinatesDef,

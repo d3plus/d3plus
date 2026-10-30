@@ -339,6 +339,19 @@ const charts = [
     .x("value")`,
   ],
   [
+    "bubble-chart",
+    `lib => new lib.BubbleChart()
+    .data([
+      {id: "A", group: "x", gdp: 10, life: 60, pop: 4}, {id: "B", group: "y", gdp: 30, life: 70, pop: 25},
+      {id: "C", group: "x", gdp: 32, life: 71, pop: 100}, {id: "D", group: "y", gdp: 50, life: 65, pop: 1},
+      {id: "E", group: "x", gdp: 70, life: 75, pop: 64},
+    ])
+    .groupBy(["group", "id"])
+    .x("gdp")
+    .y("life")
+    .size("pop")`,
+  ],
+  [
     "bullet",
     `lib => new lib.Bullet()
     .data([
@@ -487,6 +500,26 @@ const charts = [
       Array.from({length: 30}, (_, i) => ({id, v: mean + ((i * 7) % 11 - 5) / 4}))))
     .groupBy("id")
     .value("v")`,
+  ],
+  [
+    "scatter",
+    `lib => new lib.Scatter()
+    .data([
+      {id: "a", x: 1.5, y: 40}, {id: "b", x: 4, y: 12}, {id: "c", x: 7.25, y: 33},
+      {id: "d", x: 9, y: 25}, {id: "e", x: 5.5, y: 18},
+    ])
+    .groupBy("id")
+    .x("x")
+    .y("y")`,
+  ],
+  [
+    "streamgraph",
+    `lib => new lib.Streamgraph()
+    .data(["Rock", "Pop", "Jazz", "Folk"].flatMap((genre, g) =>
+      [2000, 2001, 2002, 2003, 2004, 2005].map((year, t) => ({genre, year, sales: 10 + g * 4 + ((t * (g + 3)) % 7) * 2}))))
+    .groupBy("genre")
+    .x("year")
+    .y("sales")`,
   ],
   [
     "violin",
