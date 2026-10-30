@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PointLabels · Geomap</title>
+    <meta
+      name="description"
+      content="City points labeled beside each dot where there's room; crowded labels hide (labelPosition, issue #138)."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 20px;
+        grid-template-columns: repeat(2, 560px);
+        margin: 10px;
+      }
+
+      h3 {
+        font-size: 13px;
+        margin: 0 0 4px;
+      }
+
+      .viz {
+        height: 380px;
+        width: 560px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>labelPosition "auto" (default)</h3>
+      <div class="viz" id="auto"></div>
+    </div>
+    <div>
+      <h3>shapeConfig.Circle.label: false</h3>
+      <div class="viz" id="off"></div>
+    </div>
+  </body>
+
+  <script>
+    const cities = [
+      {city: "New York", lon: -74.01, lat: 40.71, pop: 8.3},
+      {city: "Los Angeles", lon: -118.24, lat: 34.05, pop: 3.9},
+      {city: "Chicago", lon: -87.63, lat: 41.88, pop: 2.7},
+      {city: "Houston", lon: -95.37, lat: 29.76, pop: 2.3},
+      {city: "Phoenix", lon: -112.07, lat: 33.45, pop: 1.6},
+      {city: "Philadelphia", lon: -75.17, lat: 39.95, pop: 1.6},
+      {city: "San Antonio", lon: -98.49, lat: 29.42, pop: 1.5},
+      {city: "San Diego", lon: -117.16, lat: 32.72, pop: 1.4},
+      {city: "Dallas", lon: -96.8, lat: 32.78, pop: 1.3},
+      {city: "Austin", lon: -97.74, lat: 30.27, pop: 1.0},
+      {city: "Seattle", lon: -122.33, lat: 47.61, pop: 0.75},
+      {city: "Denver", lon: -104.99, lat: 39.74, pop: 0.72},
+      {city: "Washington", lon: -77.04, lat: 38.91, pop: 0.69},
+      {city: "Boston", lon: -71.06, lat: 42.36, pop: 0.65},
+      {city: "Baltimore", lon: -76.61, lat: 39.29, pop: 0.57},
+      {city: "Newark", lon: -74.17, lat: 40.74, pop: 0.31},
+      {city: "Jersey City", lon: -74.08, lat: 40.73, pop: 0.29},
+      {city: "Providence", lon: -71.41, lat: 41.82, pop: 0.19},
+      {city: "Atlanta", lon: -84.39, lat: 33.75, pop: 0.5},
+      {city: "Miami", lon: -80.19, lat: 25.76, pop: 0.44},
+      {city: "Minneapolis", lon: -93.27, lat: 44.98, pop: 0.43},
+      {city: "New Orleans", lon: -90.07, lat: 29.95, pop: 0.38},
+      {city: "Portland", lon: -122.68, lat: 45.52, pop: 0.65},
+      {city: "Salt Lake City", lon: -111.89, lat: 40.76, pop: 0.2},
+    ];
+
+    const config = {
+      data: cities,
+      groupBy: "city",
+      legend: false,
+      point: d => [d.lon, d.lat],
+      pointSize: d => d.pop,
+      pointSizeMin: 3,
+      pointSizeMax: 14,
+      projection: "geoAlbersUsa",
+      tiles: false,
+      topojson: "./State.json",
+    };
+
+    new d3plus.Geomap().select("#auto").config(config).render();
+    new d3plus.Geomap()
+      .select("#off")
+      .config(config)
+      .shapeConfig({Circle: {label: false}})
+      .render();
+  </script>
+</html>

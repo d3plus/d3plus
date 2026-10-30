@@ -109,7 +109,6 @@ export function initPlotDefaults(viz: Plot): void {
   viz._labelConnectorConfig = {
     strokeDasharray: "1 1",
   };
-  viz._labelPosition = constant("auto");
   viz._lineMarkerConfig = {
     fill: (d: DataPoint, i: number) =>
       colorAssign(viz._id(d, i), linkedColorDefaults(viz)),

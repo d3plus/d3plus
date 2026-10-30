@@ -110,3 +110,19 @@ TrendLine.parameters = {
     },
   },
 };
+
+export const PointLabels = Template.bind({});
+PointLabels.args = {
+  ...BasicExample.args,
+  labelPosition: "auto",
+  pointLabelConfig: {fontSize: 11},
+};
+PointLabels.parameters = {
+  controls: {include: ["labelPosition", "pointLabelConfig"]},
+  docs: {
+    description: {
+      story:
+        'Points too small to hold their label get it beside them instead, on the side facing the most open room (the point\'s Voronoi cell), where it overlaps no other point or label and stays inside the plot. Where the points crowd together there is no such room, so those labels hide; hover a point for its name. `labelPosition: "inside"` keeps labels inside the points, and `pointLabelConfig` sets the size and style of the labels beside them.',
+    },
+  },
+};

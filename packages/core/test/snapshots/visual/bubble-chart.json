@@ -2,7 +2,7 @@
   "counts": {
     "path": 86,
     "circle": 10,
-    "text": 24,
+    "text": 26,
     "rect": 13
   },
   "shapes": [
@@ -1000,6 +1000,14 @@
     {
       "s": "E",
       "a": "middle"
+    },
+    {
+      "s": "A",
+      "a": "start"
+    },
+    {
+      "s": "D",
+      "a": "start"
     },
     {
       "s": "10",
