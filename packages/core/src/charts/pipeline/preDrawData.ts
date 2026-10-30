@@ -145,7 +145,10 @@ export function computeFilteredData(
           !viz._hidden.includes(localId) &&
           (!viz._solo.length || viz._solo.includes(localId))
         ) {
-          if (!viz.schema.discrete && shape === "Line")
+          if (
+            (!viz.schema.discrete && shape === "Line") ||
+            viz._unmergedShapes?.includes(shape)
+          )
             filteredData.push(...leaves);
           else filteredData.push(d);
         }

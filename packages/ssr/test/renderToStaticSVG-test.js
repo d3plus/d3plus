@@ -4,6 +4,7 @@ import {
   BarChart,
   BubbleChart,
   Donut,
+  Hexbin,
   LinePlot,
   Scatter,
   Streamgraph,
@@ -86,6 +87,21 @@ it("renderToStaticSVG renders Scatter, BubbleChart, and Streamgraph", async () =
     assert.ok(svg.startsWith("<svg"), `${name} is an svg`);
     assert.ok((svg.match(mark) || []).length >= 3, `${name} draws its marks`);
   }
+});
+
+it("renderToStaticSVG renders Hexbin bins", async () => {
+  const rows = [
+    [1, 1, 5],
+    [4, 6, 3],
+    [8, 2, 1],
+  ].flatMap(([x, y, n]) => Array.from({length: n}, () => ({x, y})));
+  const svg = await renderToStaticSVG(new Hexbin().data(rows).x("x").y("y"), {
+    width: 400,
+    height: 300,
+  });
+  assert.ok(svg.startsWith("<svg"));
+  const hexagons = svg.match(/<path[^>]*d="M[\d.]+,[\d.]+L[^"]*Z"/g) || [];
+  assert.ok(hexagons.length >= 3, `draws the bins (${hexagons.length})`);
 });
 
 it("renderToStaticSVG reads dimensions from the chart when omitted", async () => {

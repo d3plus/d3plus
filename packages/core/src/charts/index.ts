@@ -14,6 +14,7 @@ export {default as FanChart} from "./FanChart/index.js";
 export {default as Funnel} from "./Funnel/index.js";
 export {default as Gauge} from "./Gauge/index.js";
 export {default as Geomap} from "./Geomap/index.js";
+export {default as Hexbin} from "./Hexbin/index.js";
 export {default as Histogram} from "./Histogram/index.js";
 export {default as Icicle} from "./Icicle/index.js";
 export {default as LinePlot} from "./LinePlot/index.js";

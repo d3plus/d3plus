@@ -42,6 +42,7 @@ export interface TranslationStrings {
   Match: string;
   Matches: string;
   Maximum: string;
+  Mean: string;
   Median: string;
   Minimum: string;
   more: string;
@@ -155,6 +156,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Match: "\u062a\u0637\u0627\u0628\u0642",
     Matches: "\u062a\u0637\u0627\u0628\u0642\u0627\u062a",
     Maximum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649",
+    Mean: "\u0627\u0644\u0645\u062a\u0648\u0633\u0637",
     Median: "\u0627\u0644\u0648\u0633\u064a\u0637",
     Minimum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     more: "\u0623\u062e\u0631\u0649",
@@ -249,6 +251,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Match: "Coincidencia",
     Matches: "Coincidencias",
     Maximum: "M\u00e1ximo",
+    Mean: "Media",
     Median: "Mediana",
     Minimum: "M\u00ednimo",
     more: "m\u00e1s",
@@ -334,6 +337,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Match: "Correspond\u00eancia",
     Matches: "Correspond\u00eancias",
     Maximum: "M\u00e1ximo",
+    Mean: "M\u00e9dia",
     Median: "Mediana",
     Minimum: "M\u00ednimo",
     more: "mais",
@@ -422,6 +426,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Match: "\u5339\u914d\u9879",
     Matches: "\u5339\u914d\u9879",
     Maximum: "\u6700\u5927\u503c",
+    Mean: "\u5e73\u5747\u503c",
     Median: "\u4e2d\u4f4d\u6570",
     Minimum: "\u6700\u5c0f\u503c",
     more: "\u66f4\u591a",

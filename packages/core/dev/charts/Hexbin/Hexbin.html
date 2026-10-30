@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Hexbin</title>
+    <meta
+      name="description"
+      content="Hexbin variants on 5,000 bivariate-normal points: hexagon and square bins with a binSize slider, density contours, contours over points, summed values, small multiples, zoom, and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .controls {
+        padding: 16px 16px 0;
+        font-size: 13px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="controls">
+      <label>
+        binSize
+        <input id="size" type="range" min="4" max="30" value="12" />
+        <span id="sizeValue">12</span>px
+      </label>
+    </div>
+    <div class="grid">
+      <div>
+        <h3>Hexagon bins (default)</h3>
+        <div class="viz" id="hex"></div>
+      </div>
+      <div>
+        <h3>Square bins (binShape: "square")</h3>
+        <div class="viz" id="square"></div>
+      </div>
+      <div>
+        <h3>Density contours (binShape: false, contours: true)</h3>
+        <div class="viz" id="contours"></div>
+      </div>
+      <div>
+        <h3>Filled contours over the points</h3>
+        <div class="viz" id="overPoints"></div>
+      </div>
+      <div>
+        <h3>Contour lines over hexagon bins</h3>
+        <div class="viz" id="overBins"></div>
+      </div>
+      <div>
+        <h3>Mean of a value per bin (binValue)</h3>
+        <div class="viz" id="mean"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "group"), one colorScale</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3>Zoom re-bins and refits the colorScale to the bins in view</h3>
+        <div class="viz" id="zoom"></div>
+      </div>
+      <div>
+        <h3>Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // A seeded bivariate normal: x ~ N(50, 12), y correlated with x (ρ ≈ 0.6).
+    let seed = 42;
+    const random = () => {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+    const normal = () =>
+      Math.sqrt(-2 * Math.log(1 - random())) * Math.cos(2 * Math.PI * random());
+    const points = Array.from({length: 5000}, (_, i) => {
+      const a = normal();
+      const b = normal();
+      return {
+        id: i,
+        group: i % 2 ? "Group A" : "Group B",
+        x: 50 + 12 * a + (i % 2 ? 6 : -6),
+        y: 30 + 8 * (0.6 * a + 0.8 * b),
+        score: Math.round(50 + 20 * a + 10 * normal()),
+      };
+    });
+
+    const base = id =>
+      new d3plus.Hexbin()
+        .select("#" + id)
+        .data(points)
+        .x("x")
+        .y("y");
+
+    const charts = [
+      base("hex"),
+      base("square").binShape("square"),
+      base("contours").binShape(false).contours(true),
+      base("overPoints").binShape(false).contours("filled").points(true),
+      base("overBins").contours(true),
+      base("mean").binValue({value: "score", agg: "mean", label: "Mean score"}),
+      base("facet").facet("group"),
+      base("zoom").zoom(true),
+      base("dark").contours(true).theme("dark"),
+    ];
+    charts.forEach(chart => chart.render());
+
+    const size = document.getElementById("size");
+    size.addEventListener("input", () => {
+      document.getElementById("sizeValue").textContent = size.value;
+      charts.forEach(chart => chart.binSize(+size.value).render());
+    });
+  </script>
+</html>

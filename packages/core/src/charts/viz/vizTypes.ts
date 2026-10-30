@@ -177,6 +177,17 @@ export interface VizInstance {
       passes such rows without running `filter` on them again.
   */
   _filterApplied?: (d: DataPoint) => boolean;
+  /**
+      Shapes whose rows the pipeline keeps one by one instead of merging the
+      rows that share a group (Hexbin's observations, which it bins).
+  */
+  _unmergedShapes?: string[];
+  /**
+      The rows the colorScale lays out from, for a chart whose colored marks
+      aren't its rows (Hexbin's bins). The chart's rows rolled up by group
+      when unset.
+  */
+  _colorScaleRows?: () => DataPoint[];
   _timeFilter?: (d: DataPoint, i: number) => boolean;
 
   /* 3. Grouping & aggregation */

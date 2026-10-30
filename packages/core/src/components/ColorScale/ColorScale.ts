@@ -20,7 +20,7 @@ import {inkText} from "../../utils/themeInk.js";
 
 import Legend from "../Legend/Legend.js";
 import {formatYear, isYearLike} from "../Axis/yearValues.js";
-import {bucketBounds} from "./bucketBounds.js";
+import {bucketBounds, labelValue} from "./bucketBounds.js";
 import {computeColorScale} from "./colorScaleScale.js";
 import {renderGradient, renderLegendVariant} from "./colorScaleRender.js";
 import {isBucketScale} from "./colorScaleType.js";
@@ -129,7 +129,7 @@ export default class ColorScale extends BaseClass {
       const last = i === ticks.length - 1;
       if (tick === ticks[i + 1] || last) {
         const suffix = last && tick < max(allValues)! ? "+" : "";
-        return `${format(tick)}${suffix}`;
+        return `${format(labelValue(tick, allValues))}${suffix}`;
       }
       const [lower, upper] = bucketBounds(tick, i, ticks, allValues, format);
       return this.schema.bucketJoiner(format(lower), format(upper));

@@ -9,7 +9,7 @@ const wrappers = Object.entries(react).filter(
 );
 
 it("every component renders the d3plus class it is named after", () => {
-  assert.strictEqual(wrappers.length, 69);
+  assert.strictEqual(wrappers.length, 70);
   const config = {data: []};
   for (const [name, Component] of wrappers) {
     const element = Component({config});

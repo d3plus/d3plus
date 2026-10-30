@@ -426,6 +426,14 @@ const charts = [
     .bands([{value: 50, label: "Low"}, {value: 80, label: "Medium"}, {value: 100, label: "High"}])`,
   ],
   [
+    "hexbin",
+    `lib => new lib.Hexbin()
+    .data([[10, 10, 8], [30, 25, 4], [50, 15, 2], [70, 35, 6], [90, 5, 1], [60, 45, 3]]
+      .flatMap(([x, y, n]) => Array.from({length: n}, () => ({x, y}))))
+    .x("x")
+    .y("y")`,
+  ],
+  [
     "histogram",
     `lib => new lib.Histogram()
     .data(Array.from({length: 60}, (_, i) => ({id: i, group: ["Low", "High"][i % 2], value: (i * 37) % 23 + (i % 2) * 8})))
@@ -605,7 +613,12 @@ const fingerprintFn = builderSrc =>
               y: r(b.top - svgBox.top),
               w: r(b.width),
               h: r(b.height),
-              f: el.getAttribute("fill") || "",
+              // Gradient ids count up across the page's charts; keep
+              // only what tells the gradients of one chart apart.
+              f: (el.getAttribute("fill") || "").replace(
+                /url\(#d3plus-gradient-\d+-/,
+                "url(#d3plus-gradient-",
+              ),
               s: el.getAttribute("stroke") || "",
             });
           }

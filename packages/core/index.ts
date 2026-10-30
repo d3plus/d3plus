@@ -15,6 +15,7 @@ export {
   Funnel,
   Gauge,
   Geomap,
+  Hexbin,
   Histogram,
   Icicle,
   LinePlot,
