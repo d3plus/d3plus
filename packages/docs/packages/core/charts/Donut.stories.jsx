@@ -141,3 +141,27 @@ HalfDonut.parameters = {
     },
   },
 };
+
+export const ThreeQuarterDonut = Template.bind({});
+ThreeQuarterDonut.args = {
+  data: [
+    {Party: "Green", Seats: 48},
+    {Party: "Red", Seats: 112},
+    {Party: "Blue", Seats: 96},
+    {Party: "Yellow", Seats: 31},
+    {Party: "Independent", Seats: 13},
+  ],
+  groupBy: "Party",
+  value: "Seats",
+  startAngle: -135,
+  endAngle: 135,
+};
+ThreeQuarterDonut.parameters = {
+  controls: {include: ["startAngle", "endAngle", "innerRadius"]},
+  docs: {
+    description: {
+      story:
+        "From -135 to 135 degrees the ring sweeps 270°, leaving a gap at the bottom like a gauge. The slices still divide the sweep by `value`.",
+    },
+  },
+};
