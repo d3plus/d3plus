@@ -63,6 +63,26 @@ const isPlottableRow = (d: Record<string, unknown>): boolean =>
   (d.y2 === undefined || !isBadAxisValue(d.y2));
 
 /**
+    The Line rows `formatPlotData` drops for a value it can't plot, at a
+    discrete-axis position it can: the gaps `connectGaps` breaks lines at.
+*/
+function missingLineRows(
+  viz: PlotViz,
+  rows: Record<string, unknown>[],
+  categories: Set<unknown> | null,
+): Record<string, unknown>[] {
+  const discrete = viz.schema.discrete === "y" ? "y" : "x";
+  return rows.filter(
+    d =>
+      d.shape === "Line" &&
+      !isPlottableRow(d) &&
+      d[discrete] !== undefined &&
+      !isBadAxisValue(d[discrete]) &&
+      (!categories || categories.has(d[viz.schema.discrete])),
+  );
+}
+
+/**
     The bubble radius scale: `sizeScale` over the extent of `sizes`, ranging
     from `sizeMin` (capped at half of `sizeMax`) to `sizeMax`. A single-value
     extent maps everything to `sizeMax`.
@@ -239,6 +259,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
     return {
       plotFormattedData: [],
       plotAxisData: [],
+      plotMissingRows: [],
       x2Exists: false,
       y2Exists: false,
     };
@@ -250,7 +271,8 @@ export const formatPlotData: TransformStage = ({viz}) => {
   const keepRow = (d: Record<string, unknown>) =>
     isPlottableRow(d) &&
     (!categories || categories.has(d[viz.schema.discrete]));
-  const plotted = viz._filteredData.map(prepData).filter(keepRow);
+  const prepped = viz._filteredData.map(prepData);
+  const plotted = prepped.filter(keepRow);
   const [formattedData, axisData] = applyBarWidths(
     viz,
     plotted,
@@ -281,6 +303,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
     x2Exists,
     y2Exists,
     plotStackGroup: stackGroup,
+    plotMissingRows: missingLineRows(viz, prepped, categories),
   };
 };
 

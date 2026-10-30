@@ -111,6 +111,34 @@ selection:
 - `destroy()`, `dataPollingInterval: false` (the default), or new `data` stops
   it. Data passed as rows is never polled, and server-side rendering draws once.
 
+## Missing values
+
+A plot leaves out any row whose `x` or `y` is `null` or `NaN`, so it never
+draws a bar or point at a value it doesn't have. A line skips a missing value
+two ways: a row whose value is `null` or `NaN`, or a step of the discrete axis
+(a year, a date, a category) that another line has and this one doesn't.
+`connectGaps` sets how lines cross those gaps:
+
+| Value | Line across a gap |
+|---|---|
+| `true` (the default) or `"solid"` | Runs straight on through it. |
+| `false` | Breaks, leaving the gap empty. |
+| `"dashed"` | Breaks, with a short dashed bridge in the line's color. |
+| `{stroke, strokeDasharray, strokeWidth, opacity}` | Breaks, with a bridge in that style. |
+
+```jsx
+<LinePlot config={{
+  data, groupBy: "series", x: "year", y: "value",
+  connectGaps: "dashed"
+}} />
+```
+
+A bridge follows the line's curve and is decoration only: it has no tooltip,
+takes no keyboard focus, and the shared tooltip at a missing step lists no
+value for that line. Confidence bands stop at each gap. A value with a gap on
+both sides draws no line of its own, so add `lineMarkers: true` to show it.
+Areas are drawn as before.
+
 ## Transforming data with `@d3plus/data`
 
 The `@d3plus/data` package exposes the helpers D3plus uses internally — handy

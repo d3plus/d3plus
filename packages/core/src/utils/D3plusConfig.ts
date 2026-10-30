@@ -4,6 +4,7 @@ import type {DataPoint} from "@d3plus/data";
 import type VizBase from "../charts/viz/VizBase.js";
 import type {LinkOption} from "../charts/viz/linkGroup.js";
 import type {BarShareInfo} from "../charts/Plot/barWidth.js";
+import type {ConnectGaps} from "../charts/Plot/connectGaps.js";
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
 import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
@@ -904,6 +905,25 @@ export interface D3plusConfig {
       (Path keys and `capWidth`); any other key logs a warning.
   */
   confidenceConfig?: Record<string, unknown>;
+  /**
+      How a line crosses a missing value: a step of the discrete axis that
+      another line has and this one skips, or a row whose value is `null` or
+      `NaN`. `true` (the default) or `"solid"` draws the line straight on
+      through it. `false` breaks the line there, leaving the gap empty.
+      `"dashed"` breaks the line and bridges the gap with a short dash
+      (`"2 4"`) in the line's color, distinct from a forecast's longer dash.
+      An object styles the bridge: `stroke` (default the line's color),
+      `strokeDasharray` (default `"2 4"`; `false` for a solid bridge),
+      `strokeWidth` (default the line's width), and `opacity` (default `1`).
+      A bridge follows the line's curve, since it is drawn along the same
+      path, and is decoration only: it has no tooltip, takes no keyboard
+      focus, and a shared tooltip at a missing step lists no value for that
+      line. Confidence bands are clipped to the stretches between gaps. A
+      point with a gap on both sides draws no line of its own, so turn on
+      `lineMarkers` to show it. Areas, including stacked ones, are drawn as
+      before.
+  */
+  connectGaps?: ConnectGaps;
   /** Funnel: fills the gap between consecutive stages with a neck joining their widths. */
   connector?: boolean;
   /**

@@ -114,6 +114,10 @@ export type {
 export type {ColorScaleHoverMarkConfig} from "./src/components/ColorScale/colorScaleHoverMark.js";
 export type {BulletBandInput} from "./src/charts/Bullet/bulletGeometry.js";
 export type {
+  ConnectGaps,
+  ConnectGapsConfig,
+} from "./src/charts/Plot/connectGaps.js";
+export type {
   FunnelConversion,
   FunnelConversionOption,
 } from "./src/charts/Funnel/funnelLabels.js";

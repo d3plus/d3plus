@@ -75,6 +75,7 @@ function runPlotDataStages(viz: VizInstance) {
     yData: plotCtx.yData!,
     y2Data: plotCtx.y2Data!,
     stackGroup: plotCtx.plotStackGroup!,
+    missingRows: plotCtx.plotMissingRows ?? [],
   };
 }
 

@@ -29,6 +29,7 @@ import type {Shape} from "../../shapes/index.js";
 
 import {emitBarConfidence} from "../Plot/barConfidence.js";
 import {emitLineBands} from "../Plot/lineBands.js";
+import {breakLines, clipBands, lineGaps} from "../Plot/connectGapsScene.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {barSeries, seriesSlot} from "../Plot/barWidth.js";
 import {applyBarHitArea, hitColumn} from "../Plot/barHitArea.js";
@@ -95,6 +96,9 @@ export interface ShapeEmitContext {
 
   /** Where the unzoomed x/y plot ranges land in a zoom repaint (see `Plot/plotZoom.ts`). */
   zoomRanges?: Partial<Record<"x" | "y", number[]>>;
+
+  /** Line rows with no plottable value, where `connectGaps` breaks lines. */
+  missingRows?: PlotDatum[];
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -461,7 +465,12 @@ const lineEmit: ShapeEmitter = ctx => {
 
   s.duration(width * 1.5);
 
-  if (viz._confidence) out.push(...emitLineBands(ctx));
+  // `connectGaps` breaks each line, and clips its bands, where it skips a value.
+  const gaps = lineGaps(ctx);
+  if (viz._confidence) {
+    const bands = emitLineBands(ctx);
+    out.push(...(gaps ? clipBands(bands, gaps) : bands));
+  }
 
   s.config({
     discrete: ctx.shapeConfig.discrete || "x",
@@ -515,18 +524,17 @@ const lineEmit: ShapeEmitter = ctx => {
     ctx.shapeConfig,
     ctx,
   );
-  out.push(
-    ...finishShape(
-      ctx,
-      "Line",
-      s,
-      forecastDash
-        ? user => ({
-            strokeDasharray: forecastDashOr(forecastDash, user.strokeDasharray),
-          })
-        : undefined,
-    ),
+  const lines = finishShape(
+    ctx,
+    "Line",
+    s,
+    forecastDash
+      ? user => ({
+          strokeDasharray: forecastDashOr(forecastDash, user.strokeDasharray),
+        })
+      : undefined,
   );
+  out.push(...(gaps ? breakLines(lines, gaps) : lines));
 
   const markers = makeShape("Circle")
     .renderMode("compute")
