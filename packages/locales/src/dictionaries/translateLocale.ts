@@ -18,6 +18,8 @@ export interface TranslationStrings {
   Close: string;
   Comparison: string;
   Count: string;
+  "Cumulative Count": string;
+  "Cumulative Relative Frequency": string;
   Decrease: string;
   Density: string;
   "Double-click or Escape to Clear": string;
@@ -114,6 +116,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     Close: "\u0627\u0644\u0625\u063a\u0644\u0627\u0642",
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
     Count: "\u0627\u0644\u0639\u062f\u062f",
+    "Cumulative Count":
+      "\u0627\u0644\u0639\u062f\u062f \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
+    "Cumulative Relative Frequency":
+      "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     Decrease: "\u0627\u0646\u062e\u0641\u0627\u0636",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     "Double-click or Escape to Clear":
@@ -219,6 +225,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Close: "Cierre",
     Comparison: "Comparaci\u00f3n",
     Count: "Recuento",
+    "Cumulative Count": "Recuento Acumulado",
+    "Cumulative Relative Frequency": "Frecuencia Relativa Acumulada",
     Decrease: "Disminuci\u00f3n",
     Density: "Densidad",
     "Double-click or Escape to Clear": "Doble Clic o Escape para Borrar",
@@ -302,6 +310,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Close: "Fechamento",
     Comparison: "Compara\u00e7\u00e3o",
     Count: "Contagem",
+    "Cumulative Count": "Contagem Acumulada",
+    "Cumulative Relative Frequency": "Frequ\u00eancia Relativa Acumulada",
     Decrease: "Redu\u00e7\u00e3o",
     Density: "Densidade",
     "Double-click or Escape to Clear": "Clique Duplo ou Esc para Limpar",
@@ -387,6 +397,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Close: "\u6536\u76d8",
     Comparison: "\u5bf9\u6bd4",
     Count: "\u8ba1\u6570",
+    "Cumulative Count": "\u7d2f\u8ba1\u8ba1\u6570",
+    "Cumulative Relative Frequency": "\u7d2f\u8ba1\u76f8\u5bf9\u9891\u7387",
     Decrease: "\u51cf\u5c11",
     Density: "\u5bc6\u5ea6",
     "Double-click or Escape to Clear":
