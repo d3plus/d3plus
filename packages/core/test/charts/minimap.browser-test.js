@@ -260,6 +260,8 @@ it("arrow keys pan the chart when the viewport box is focused", async function (
           const vp = document.querySelector("#s .d3plus-minimap-viewport");
           resolve({
             focusable: vp.tabIndex === 0,
+            role: vp.getAttribute("role"),
+            label: vp.getAttribute("aria-label"),
             before,
             after: (() => {
               vp.dispatchEvent(
@@ -305,6 +307,12 @@ it("arrow keys pan the chart when the viewport box is focused", async function (
     true,
     "the viewport box is keyboard-focusable",
   );
+  assert.strictEqual(
+    out.role,
+    "application",
+    "the viewport box has a role, so its aria-label is allowed",
+  );
+  assert.ok(out.label, "the viewport box is labeled");
   assert.strictEqual(
     out.before.scale,
     out.after.scale,
