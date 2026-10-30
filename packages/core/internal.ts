@@ -1185,6 +1185,49 @@ export {
 } from "./src/charts/viz/pointTooltipAnchor.js";
 export type {ClientOrigin} from "./src/charts/viz/pointTooltipAnchor.js";
 export {pointVoronoi, polygonDistance} from "./src/charts/viz/pointVoronoi.js";
+export {
+  boxCoverage,
+  boxesOverlap,
+  boxHitsCircle,
+  placeCircleLabels,
+  ringCentroid,
+  sideBox,
+  sideOrder,
+} from "./src/charts/features/circleLabelPlacement.js";
+export type {
+  CircleLabelBox,
+  CircleLabelPlacement,
+  CircleLabelRequest,
+  LabelCircle,
+  LabelPosition,
+  LabelSide,
+  PlaceCircleLabelsOptions,
+} from "./src/charts/features/circleLabelPlacement.js";
+export {
+  emitOutsideLabels,
+  insideFontMin,
+  labelFitsInside,
+  labelPositionOf,
+  layoutCircleLabels,
+  measureLabel,
+  outsideLabels,
+  pointLabelSettings,
+  sideAnchor,
+} from "./src/charts/features/circleLabels.js";
+export type {
+  CircleLabelItem,
+  CircleLabelLayout,
+  InsideLabelBox,
+  LabelFont,
+  OutsideLabel,
+  PointLabelSettings,
+} from "./src/charts/features/circleLabels.js";
+export {
+  labelsOverCircles,
+  plotCircleLabels,
+} from "./src/charts/Plot/circleLabels.js";
+export {geomapPointLabels} from "./src/charts/Geomap/pointLabels.js";
+export type {GeomapPoints} from "./src/charts/Geomap/pointLabels.js";
 export type {
   PointVoronoi,
   VoronoiMatch,

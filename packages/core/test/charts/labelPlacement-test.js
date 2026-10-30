@@ -17,9 +17,9 @@ it("charts/labelPlacement outside forces inside labels for stacked plots", () =>
 });
 
 it("charts/labelPlacement outside honors an explicit inside/outside label position", () => {
-  const ctx = {schema: {stacked: false}, _labelPosition: () => "outside"};
+  const ctx = {schema: {stacked: false, labelPosition: () => "outside"}};
   assert.strictEqual(outside.call(ctx, {}, 0), true);
-  ctx._labelPosition = () => "inside";
+  ctx.schema.labelPosition = () => "inside";
   assert.strictEqual(outside.call(ctx, {}, 0), false);
 });
 
@@ -31,8 +31,7 @@ it("charts/labelPlacement outside auto-places labels by comparing bar size to sp
     _getPosition: v => 400 - v * 2,
   };
   const ctx = {
-    schema: {stacked: false, discrete: "x"},
-    _labelPosition: () => "auto",
+    schema: {stacked: false, discrete: "x", labelPosition: () => "auto"},
     _yAxis: yAxis,
     _y: d => d.y,
   };

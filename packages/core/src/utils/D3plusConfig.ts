@@ -636,6 +636,19 @@ export interface KeyboardNavConfig {
   padding?: number | ((d: DataPoint, i: number) => number);
 }
 
+/** Fits and styles circle labels (see `labelPosition`). The TextBox keys style labels drawn beside their circles. */
+export interface PointLabelConfig extends Omit<
+  TextBoxConfig,
+  "fontMin" | "fontSize" | "padding"
+> {
+  /** The smallest font size, in pixels, of a label inside its circle under `"auto"` (default `10`). */
+  fontMin?: number;
+  /** The font size, in pixels, of a label beside its circle (default `11`). */
+  fontSize?: number;
+  /** The space, in pixels, between a circle's edge and a label beside it (default `3`). */
+  padding?: number;
+}
+
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
@@ -1273,6 +1286,40 @@ export interface D3plusConfig {
   */
   label?: string | string[] | false | AccessorFn;
   /**
+      Where each shape's label goes, as a string for every shape or a
+      `(d, i) => string` accessor of the data row.
+
+      - Bars: `"inside"` or `"outside"` the bar, or `"auto"`, which goes
+        outside when the bar is shorter than half the room along its axis.
+        Stacked bars always label inside.
+      - Circles (scatter and bubble points, Beeswarm points given a `label`,
+        Network nodes, and Geomap coordinate points): `"auto"` keeps a label
+        inside its circle when it fits there at `pointLabelConfig.fontMin` or
+        larger, else moves it beside the circle, else hides it. A Network or
+        Geomap's labels beside their circles stay in the chart area, a
+        Plot's in its plot area. `"inside"` keeps every label
+        inside, shrinking it to fit (a label that can't fit is dropped).
+        `"outside"` always puts it beside the circle. A label goes beside its
+        circle on the side with the most open room: the side facing its
+        Voronoi cell's centroid first, then right, left, top, bottom, and the
+        diagonals. A side is taken only where the label lies mostly in the
+        circle's Voronoi cell, stays in that area, and overlaps no circle and
+        no label placed before it. Larger circles are
+        placed first. A label with no room is hidden; the circle's tooltip and
+        aria-label still name it. Geomap points are labeled by
+        `shapeConfig.Circle.label` when it is set (`false` turns their labels
+        off), else by `label`. Labels are placed when the chart draws: a
+        zoomed Plot places them again for its new scales, while a zoomed
+        Network or Geomap scales them with the picture.
+
+      Defaults to `"auto"`.
+  */
+  labelPosition?:
+    | "auto"
+    | "inside"
+    | "outside"
+    | ((d: DataPoint, i: number) => "auto" | "inside" | "outside");
+  /**
       Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
   */
   legend?: boolean | ((config: D3plusConfig, arr: DataPoint[]) => boolean);
@@ -1478,6 +1525,18 @@ export interface D3plusConfig {
   period?: "year" | "month";
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
+  /**
+      Fits and styles circle labels (see `labelPosition`): `fontMin` is the
+      smallest font size a label may shrink to inside its circle before
+      `"auto"` moves it beside the circle (default `10`, the size of the
+      chart's smallest text, its total); `fontSize` is the size of a label
+      beside its circle (default `11`); `padding` is the space between the
+      circle's edge and that label (default `3`). The other TextBox keys
+      (`fontColor`, `fontFamily`, `fontWeight`, `fontOpacity`, …) style the
+      labels beside their circles, which default to the chart's text color.
+      Merged into the current config.
+  */
+  pointLabelConfig?: PointLabelConfig;
   /** Point size accessor for geomaps. */
   pointSize?: string | ((d: DataPoint) => number);
   /** Minimum point size for geomaps. */
