@@ -30,6 +30,59 @@ export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
 export {applyNetworkLayout} from "./src/charts/Network/applyLayout.js";
+export {
+  graphNodeId,
+  resolveGraphLinks,
+  resolveGraphNodes,
+  zoomToNodeBounds,
+} from "./src/charts/Network/graph.js";
+export type {GraphLink, GraphNode} from "./src/charts/Network/graph.js";
+export {installGraphFluent} from "./src/charts/Network/graphFluent.js";
+export type {GraphFluent} from "./src/charts/Network/graphFluent.js";
+export {
+  applyArcDiagramLayout,
+  arcNodeGroup,
+  arcRadiusScale,
+  arcSizeLegendScale,
+} from "./src/charts/ArcDiagram/applyLayout.js";
+export type {
+  ArcCtx,
+  ArcLink,
+  ArcNode,
+} from "./src/charts/ArcDiagram/applyLayout.js";
+export {
+  arcApex,
+  arcBox,
+  arcEndTip,
+  arcPathD,
+  arcPoint,
+  arcScale,
+  arcSideOf,
+  naturalCompare,
+  nodeDegrees,
+  slotPositions,
+  sortArcNodes,
+} from "./src/charts/ArcDiagram/arcGeometry.js";
+export type {
+  ArcGeometry,
+  ArcOrient,
+  ArcSide,
+  NodeSort,
+} from "./src/charts/ArcDiagram/arcGeometry.js";
+export {
+  emitArcLabels,
+  fitLabels,
+  labelReach,
+  labelWidthLimit,
+  placeArcLabel,
+} from "./src/charts/ArcDiagram/arcLabels.js";
+export type {ArcLabel, LabelFit} from "./src/charts/ArcDiagram/arcLabels.js";
+export {arcAriaLabel, arcDiagramEmit} from "./src/charts/ArcDiagram/emit.js";
+export {
+  arcFocus,
+  isArcLink,
+  setupArcEvents,
+} from "./src/charts/ArcDiagram/events.js";
 export {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
 export {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
 export {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
@@ -1102,6 +1155,7 @@ export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {marimekkoDef} from "./src/charts/Marimekko/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";
+export {arcDiagramDef, arcTableData} from "./src/charts/ArcDiagram/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {scatterDef} from "./src/charts/Scatter/index.js";

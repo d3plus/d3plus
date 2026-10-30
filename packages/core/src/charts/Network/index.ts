@@ -6,10 +6,8 @@
         link stroke sizes.
       - `emit.ts` — link Paths + per-shape-type node groups.
 */
-import {mean, min} from "d3-array";
-import {zoomTransform} from "d3-zoom";
+import {mean} from "d3-array";
 
-import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
@@ -25,24 +23,19 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {applyNetworkLayout, networkSizeLegendScale} from "./applyLayout.js";
 import {networkEmit} from "./emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
-import {simpleHover} from "../viz/simpleHover.js";
+import {graphNodeId, zoomToNodeBounds} from "./graph.js";
+import {installGraphFluent} from "./graphFluent.js";
+import type {GraphFluent} from "./graphFluent.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {themed} from "../../utils/theme.js";
 
-function getNodeId(viz: VizInstance, d: Record<string, unknown>, i: number) {
-  return `${viz._id(d as DataPoint, i) || viz.schema.nodeGroupBy[min([viz._drawDepth, viz.schema.nodeGroupBy.length - 1]) as number](d, i)}`;
-}
+const getNodeId = graphNodeId;
 
 type NodeRecord = {id: string; x: number; y: number; r: number};
 type LinkDatum = {source?: DataPoint; target?: DataPoint};
 type Predicate = boolean | ((d: DataPoint, i: number) => boolean);
-type NetworkFluent = {
+type NetworkFluent = GraphFluent & {
   active: (predicate?: Predicate) => unknown;
-  hover: (predicate?: Predicate) => unknown;
-  links: (data?: DataPoint[], formatter?: unknown) => unknown;
-  nodes: (data?: DataPoint[], formatter?: unknown) => unknown;
-  nodeGroupBy: (keys?: unknown) => unknown;
-  size: (value?: unknown) => unknown;
   x: (accessor?: unknown) => unknown;
   y: (accessor?: unknown) => unknown;
 };
@@ -51,24 +44,6 @@ type NetworkFluent = {
 // accessor + the leaves; cast at the install site.
 type Aggregator = (leaves: DataPoint[]) => unknown;
 type NetworkViz = VizInstance & NetworkFluent;
-
-/**
-    Zooms to a node-space extent. Node coordinates sit under the chart's
-    margin-origin transform and the current zoom, so they're mapped to their
-    on-screen position first — the space `_zoomToBounds` expects.
-*/
-function zoomToNodeBounds(
-  viz: VizInstance,
-  xDomain: number[],
-  yDomain: number[],
-) {
-  const t = zoomTransform((viz._zoomEventTarget || viz._container)!.node());
-  const {x: cx = 0, y: cy = 0} = viz._chartTransform || {};
-  viz._zoomToBounds!([
-    [(xDomain[0] + cx) * t.k + t.x, (yDomain[0] + cy) * t.k + t.y],
-    [(xDomain[1] + cx) * t.k + t.x, (yDomain[1] + cy) * t.k + t.y],
-  ]);
-}
 
 /** Installs the `click.shape` handler that focuses/zooms a node + its links. */
 function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
@@ -228,96 +203,9 @@ function setupNetworkEvents(viz: VizInstance, v: NetworkViz) {
   setupNetworkMouse(viz, v);
 }
 
-/** Installs the per-instance fluent methods (links/nodes/nodeGroupBy/size/x/y/hover). */
+/** Installs the per-instance fluent methods (the shared graph ones, plus x/y). */
 function setupNetworkFluent(v: NetworkViz) {
-  /**
-      The edges that connect the `nodes`. The `source` and `target` of each
-      link refer to a node in one of three ways: its index in the `nodes`
-      array, the node object itself (matched by its `id`), or a string
-      matching the node's `id`.
-
-      Accepts an array of links, or a URL/filepath string to load them from.
-      An optional formatting function can be passed as a second argument; it
-      receives the loaded data and returns the final links array.
-      @type {object[] | string}
-  */
-  v.links = function (this: VizInstance, _: unknown, f?: unknown) {
-    if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
-        _,
-        f,
-        "links",
-      );
-      return this;
-    }
-    return this.schema.links;
-  };
-  /**
-      The nodes to draw. Accepts an array of node objects, or a URL/filepath
-      string to load them from. An optional formatting function can be passed
-      as a second argument; it receives the loaded data and returns the final
-      nodes array.
-      @type {object[] | string}
-  */
-  v.nodes = function (this: VizInstance, _: unknown, f?: unknown) {
-    if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
-        _,
-        f,
-        "nodes",
-      );
-      return this;
-    }
-    return this.schema.nodes;
-  };
-  /**
-      The key(s) or accessor(s) that identify each object passed to `nodes`,
-      one per `groupBy` depth, used in place of `groupBy` for nodes that the
-      data doesn't cover. Defaults to each node's `id`.
-      @type {string | function | (string | function)[]}
-  */
-  v.nodeGroupBy = function (this: VizInstance, _?: unknown) {
-    if (!arguments.length) return this.schema.nodeGroupBy;
-    const keys = (_ instanceof Array ? _ : [_]) as unknown[];
-    // `_nodeGroupBy` is typed as `(d: DataPoint, i: number) => string | number | Date` —
-    // we historically install (d) => d[k] returning broader types; cast.
-    this.schema.nodeGroupBy = keys.map(k => {
-      if (typeof k === "function")
-        return k as unknown as (
-          d: DataPoint,
-          i: number,
-        ) => string | number | Date;
-      const key = k as string;
-      if (!this.schema.aggs[key]) {
-        this.schema.aggs[key] = ((
-          a: DataPoint[],
-          c: (d: DataPoint) => unknown,
-        ) => {
-          const vv = Array.from(new Set(a.map(c)));
-          return vv.length === 1 ? vv[0] : vv;
-        }) as unknown as Aggregator;
-      }
-      return fieldAccessor(key) as unknown as (
-        d: DataPoint,
-        i: number,
-      ) => string | number | Date;
-    });
-    return this;
-  };
-  /**
-      Sizes each node: a data key or an accessor function whose values are
-      scaled between `sizeMin` and `sizeMax` (see `sizeScale`). When unset,
-      every node is drawn at the same size.
-      @type {string | function}
-  */
-  v.size = function (this: VizInstance, _?: unknown) {
-    if (!arguments.length) return this._size;
-    this._size = (
-      typeof _ === "function" || !_ ? _ : fieldAccessor(_ as string)
-    ) as ((d: DataPoint, i?: number) => number) | undefined;
-    this._sizeKey = typeof _ === "string" ? _ : undefined;
-    return this;
-  };
+  installGraphFluent(v);
   /**
       The x position of each node: a key in the data or `nodes`, or an
       accessor function. Defaults to `"x"`. When any node has no x/y
@@ -366,7 +254,6 @@ function setupNetworkFluent(v: NetworkViz) {
     }
     return this;
   };
-  v.hover = simpleHover;
 }
 
 export const networkDef: ChartDefinition = {

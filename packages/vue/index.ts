@@ -1,5 +1,6 @@
 import {
   Alluvial as AlluvialClass,
+  ArcDiagram as ArcDiagramClass,
   AreaPlot as AreaPlotClass,
   BarChart as BarChartClass,
   Beeswarm as BeeswarmClass,
@@ -79,6 +80,8 @@ export {createD3plusComponent, D3plusConfigKey} from "./src/createComponent.js";
 
 /** Vue component for rendering a d3plus Alluvial visualization. */
 export const Alluvial = createD3plusComponent(AlluvialClass, "chart");
+/** Vue component for rendering a d3plus ArcDiagram visualization. */
+export const ArcDiagram = createD3plusComponent(ArcDiagramClass, "chart");
 /** Vue component for rendering a d3plus AreaPlot visualization. */
 export const AreaPlot = createD3plusComponent(AreaPlotClass, "chart");
 /** Vue component for rendering a d3plus BarChart visualization. */

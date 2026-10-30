@@ -1,5 +1,6 @@
 import {
   Alluvial,
+  ArcDiagram,
   AreaPlot,
   BarChart,
   Beeswarm,
@@ -92,6 +93,7 @@ export {
 */
 export const CLASSES: Record<string, new (...args: any[]) => any> = {
   Alluvial,
+  ArcDiagram,
   AreaPlot,
   BarChart,
   Beeswarm,

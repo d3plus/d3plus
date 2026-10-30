@@ -17,6 +17,7 @@ export interface TranslationStrings {
   "Click to Zoom Out": string;
   Close: string;
   Comparison: string;
+  Connections: string;
   Count: string;
   "Cumulative Count": string;
   "Cumulative Relative Frequency": string;
@@ -32,6 +33,7 @@ export interface TranslationStrings {
   Equation: string;
   Exponential: string;
   Forecast: string;
+  From: string;
   High: string;
   Increase: string;
   "interactive chart": string;
@@ -77,6 +79,8 @@ export interface TranslationStrings {
   Start: string;
   "SVG vector": string;
   Target: string;
+  to: string;
+  To: string;
   Today: string;
   Total: string;
   "Trend Line": string;
@@ -124,6 +128,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0646\u0642\u0631 \u0644\u0644\u062a\u0635\u063a\u064a\u0631",
     Close: "\u0627\u0644\u0625\u063a\u0644\u0627\u0642",
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
+    Connections: "\u0627\u0644\u0627\u062a\u0635\u0627\u0644\u0627\u062a",
     Count: "\u0627\u0644\u0639\u062f\u062f",
     "Cumulative Count":
       "\u0627\u0644\u0639\u062f\u062f \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
@@ -143,6 +148,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
+    From: "\u0645\u0646",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
     Increase: "\u0632\u064a\u0627\u062f\u0629",
     "interactive chart":
@@ -205,6 +211,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Start: "\u0627\u0644\u0628\u062f\u0627\u064a\u0629",
     "SVG vector": "\u0631\u0633\u0645 \u0645\u062a\u062c\u0647 SVG",
     Target: "\u0627\u0644\u0647\u062f\u0641",
+    to: "\u0625\u0644\u0649",
+    To: "\u0625\u0644\u0649",
     Today: "\u0627\u0644\u064a\u0648\u0645",
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
     "Trend Line": "\u062e\u0637 \u0627\u0644\u0627\u062a\u062c\u0627\u0647",
@@ -242,6 +250,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "Clic para Alejar",
     Close: "Cierre",
     Comparison: "Comparaci\u00f3n",
+    Connections: "Conexiones",
     Count: "Recuento",
     "Cumulative Count": "Recuento Acumulado",
     "Cumulative Relative Frequency": "Frecuencia Relativa Acumulada",
@@ -257,6 +266,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
     Forecast: "Pron\u00f3stico",
+    From: "Origen",
     High: "M\u00e1ximo",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interactivo",
@@ -302,6 +312,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Start: "Inicio",
     "SVG vector": "Vector SVG",
     Target: "Objetivo",
+    to: "a",
+    To: "Destino",
     Today: "Hoy",
     Total: "Total",
     "Trend Line": "L\u00ednea de Tendencia",
@@ -336,6 +348,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "Clique para Afastar",
     Close: "Fechamento",
     Comparison: "Compara\u00e7\u00e3o",
+    Connections: "Conex\u00f5es",
     Count: "Contagem",
     "Cumulative Count": "Contagem Acumulada",
     "Cumulative Relative Frequency": "Frequ\u00eancia Relativa Acumulada",
@@ -351,6 +364,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
     Forecast: "Previs\u00e3o",
+    From: "Origem",
     High: "M\u00e1xima",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interativo",
@@ -396,6 +410,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Start: "In\u00edcio",
     "SVG vector": "Vetor SVG",
     Target: "Meta",
+    to: "para",
+    To: "Destino",
     Today: "Hoje",
     Total: "Total",
     "Trend Line": "Linha de Tend\u00eancia",
@@ -432,6 +448,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "\u5355\u51fb\u7f29\u5c0f",
     Close: "\u6536\u76d8",
     Comparison: "\u5bf9\u6bd4",
+    Connections: "\u8fde\u63a5\u6570",
     Count: "\u8ba1\u6570",
     "Cumulative Count": "\u7d2f\u8ba1\u8ba1\u6570",
     "Cumulative Relative Frequency": "\u7d2f\u8ba1\u76f8\u5bf9\u9891\u7387",
@@ -448,6 +465,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
     Forecast: "\u9884\u6d4b",
+    From: "\u8d77\u70b9",
     High: "\u6700\u9ad8",
     Increase: "\u589e\u52a0",
     "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
@@ -493,6 +511,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Start: "\u5f00\u59cb",
     "SVG vector": "SVG \u77e2\u91cf\u56fe",
     Target: "\u76ee\u6807",
+    to: "\u5230",
+    To: "\u7ec8\u70b9",
     Today: "\u4eca\u5929",
     Total: "\u603b",
     "Trend Line": "\u8d8b\u52bf\u7ebf",

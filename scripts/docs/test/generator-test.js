@@ -225,6 +225,51 @@ export default makeChart(def, Base);
   });
 });
 
+describe("parseChartDef accessors", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "d3plus-chartdef-"));
+  const file = path.join(dir, "index.ts");
+  fs.writeFileSync(
+    path.join(dir, "shared.ts"),
+    `
+export function install(v) {
+  /** Shared doc. @type {string} */
+  v.shared = function (_) {
+    return this;
+  };
+  /** Overridden doc. */
+  v.own = function (_) {
+    return this;
+  };
+}
+`,
+  );
+  fs.writeFileSync(
+    file,
+    `
+import {install} from "./shared.js";
+import type {Missing} from "./missing.js";
+const def = {
+  name: "Demo",
+  setup: viz => {
+    install(viz);
+    /** Own doc. */
+    viz.own = function (_) {
+      return this;
+    };
+  },
+};
+export default makeChart(def);
+`,
+  );
+  const parsed = parseChartDef(file);
+  fs.rmSync(dir, {recursive: true, force: true});
+
+  it("reads accessor docs from the modules the index imports, its own winning", () => {
+    assert.equal(parsed.accessors.shared.description, "Shared doc.");
+    assert.equal(parsed.accessors.own.description, "Own doc.");
+  });
+});
+
 describe("publicChartDefs", () => {
   class Demo {
     groupPadding() {}

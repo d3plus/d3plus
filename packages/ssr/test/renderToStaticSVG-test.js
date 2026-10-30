@@ -2,6 +2,7 @@ import {it} from "vitest";
 import assert from "assert";
 import {
   Alluvial,
+  ArcDiagram,
   BarChart,
   BubbleChart,
   Donut,
@@ -174,6 +175,25 @@ it("renderToStaticSVG renders an Alluvial", async () => {
   );
   for (const title of ["region", "product", "channel"])
     assert.ok(svg.includes(`>${title}<`), `titles the ${title} column`);
+});
+
+it("renderToStaticSVG renders an ArcDiagram's arcs, nodes, and labels", async () => {
+  const nodes = [{id: "a"}, {id: "b"}, {id: "c"}];
+  const viz = new ArcDiagram().nodes(nodes).links([
+    {source: "a", target: "b"},
+    {source: "a", target: "c"},
+    {source: "b", target: "c"},
+  ]);
+  const svg = await renderToStaticSVG(viz, {width: 400, height: 300});
+  assert.ok(svg.startsWith("<svg"));
+  assert.strictEqual(
+    (svg.match(/<path[^>]*d="M[^"]*A/g) || []).length >= 3,
+    true,
+    "arcs",
+  );
+  assert.ok((svg.match(/<circle/g) || []).length >= 3, "nodes");
+  for (const id of ["a", "b", "c"])
+    assert.ok(svg.includes(`>${id}<`), `label ${id}`);
 });
 
 it("renderToStaticSVG reads dimensions from the chart when omitted", async () => {

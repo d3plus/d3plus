@@ -32,6 +32,22 @@ const UPDATE = inject("updateSnapshots");
 // renders it, so geometry is final (no mid-transition values).
 const charts = [
   [
+    "arc-diagram",
+    `lib => new lib.ArcDiagram()
+    .data([
+      {id: "A", group: "x"}, {id: "B", group: "y"}, {id: "C", group: "x"},
+      {id: "D", group: "y"}, {id: "E", group: "x"},
+    ])
+    .nodes([{id: "A"}, {id: "B"}, {id: "C"}, {id: "D"}, {id: "E"}])
+    .links([
+      {source: "A", target: "B"}, {source: "A", target: "D"},
+      {source: "B", target: "C"}, {source: "C", target: "E"},
+      {source: "E", target: "A"},
+    ])
+    .color("group")
+    .nodeSort("group")`,
+  ],
+  [
     "bar-chart",
     `lib => new lib.BarChart()
     .groupBy("group")
