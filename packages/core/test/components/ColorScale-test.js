@@ -5,6 +5,9 @@ import {ColorScale} from "../../index.ts";
 import {
   bucketBounds,
   decimalPlaces,
+  labelPlaces,
+  labelValue,
+  significantDigits,
 } from "../../src/components/ColorScale/bucketBounds.ts";
 import {useJsdom} from "~test/jsdom.js";
 
@@ -130,6 +133,77 @@ it("bucketFormat — mixed magnitudes and negative values", () => {
     "-4 - 2",
     "3+",
   ]);
+});
+
+it("significantDigits / labelPlaces / labelValue — computed values step at display precision", () => {
+  assert.strictEqual(significantDigits(12), 2);
+  assert.strictEqual(significantDigits(-0.25), 2);
+  assert.strictEqual(significantDigits(0), 1);
+  assert.strictEqual(significantDigits(1 / 3), 15);
+  assert.strictEqual(labelPlaces([1, 2.5, 3]), 1, "written values: their own");
+  assert.strictEqual(labelPlaces([0.5, 3, 1200, 45000]), 1);
+  assert.strictEqual(
+    labelPlaces([-17.3, 1 / 3, 60]),
+    1,
+    "a computed value: three significant digits of the span",
+  );
+  assert.strictEqual(labelPlaces([0, 1 / 7, 0.4]), 3);
+  assert.strictEqual(
+    labelPlaces([-0.125, 1 / 3, 60]),
+    3,
+    "never below the written places",
+  );
+  assert.strictEqual(labelPlaces([]), 0);
+  assert.strictEqual(
+    labelPlaces([-17.3, -1.4e-14, 60]),
+    1,
+    "float noise around zero counts as zero",
+  );
+  assert.strictEqual(
+    labelValue(-1.4e-14, [-17.3, 1 / 3, 60]),
+    0,
+    "float noise around zero is zero",
+  );
+  assert.ok(Object.is(labelValue(-1e-14, [-17.3, 1 / 3, 60]), 0), "not -0");
+  assert.strictEqual(labelValue(12.571428571428571, [-17.3, 1 / 3, 60]), 12.6);
+});
+
+it("bucketFormat — a diverging scale of computed values has no float-noise bounds", () => {
+  // Means over bins: computed values, and a jenks break that should be 0
+  // landing at -1.4e-14.
+  const values = [
+    -17.3,
+    -12.4,
+    -9.5,
+    -3.142857142857143,
+    -1 / 3,
+    -1.4e-14,
+    2 / 7,
+    12.571428571428571,
+    39.2,
+    60.1,
+  ];
+  assert.deepStrictEqual(bucketLabels([-17.3, -9.5, 0, 39.2], values), [
+    "-17.3 - -9.6",
+    "-9.5 - -0.1",
+    "0 - 39.1",
+    "39.2+",
+  ]);
+  assert.deepStrictEqual(
+    bucketLabels([-17.3, -9.5, -1.4e-14, 39.2], values),
+    ["-17.3 - -9.6", "-9.5 - -0.1", "0 - 39.1", "39.2+"],
+    "a break at -1.4e-14 reads as 0",
+  );
+  assert.deepStrictEqual(
+    bucketLabels([-9.5, -1.4e-14], values),
+    ["-9.5 - -0.1", "0+"],
+    "a last break near zero reads as 0",
+  );
+  const labels = bucketLabels([-17.3, -9.5, -1.4e-14, 39.2], values);
+  assert.ok(
+    labels.every(l => !/\d[fpnµ]/.test(l)),
+    labels.join(", "),
+  );
 });
 
 it("bucketFormat — leaves the values array in its order", () => {
