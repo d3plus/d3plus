@@ -67,7 +67,9 @@ hours every day (wrapping past midnight), `{values: [...]}` whole days such as
 holidays, and `{bounds: [start, end]}` one explicit range, marked on the axis
 with the same break marker as `yBreak`. Rules read dates in local time, like
 the axis labels. Ticks never land in hidden time, lines connect across it, and
-rows inside it are left out.
+rows inside it are left out. An axis with `rangeBreaks` over dates is a time
+axis even without `time`, and the timeline hides the same time as the axis
+that plots `time` (set `timelineConfig.rangeBreaks` to change that).
 
 ## Loading from a URL
 

@@ -967,6 +967,8 @@ export {
   dropHiddenRows,
   plotRangeBreaks,
   plotTimeScale,
+  rangeBreaksTimeAxis,
+  timelineRangeBreaks,
 } from "./src/charts/Plot/plotRangeBreaks.js";
 export {
   applyAxisBreaks,

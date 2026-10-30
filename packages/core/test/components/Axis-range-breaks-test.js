@@ -10,6 +10,8 @@ import {
   isBrokenTimeScale,
   plotRangeBreaks,
   plotTimeScale,
+  rangeBreaksTimeAxis,
+  timelineRangeBreaks,
   visibleTimeValues,
 } from "../../internal.ts";
 import {
@@ -260,4 +262,52 @@ it("plotRangeBreaks, plotTimeScale and dropHiddenRows read a Plot's time axes", 
   } finally {
     console.warn = warn;
   }
+});
+
+it("rangeBreaksTimeAxis makes an axis with rules over dates a time axis", () => {
+  const viz = {_xConfig: {rangeBreaks: "weekends"}, _yConfig: {}};
+  assert.ok(rangeBreaksTimeAxis(viz, "x", jan(5)));
+  assert.ok(rangeBreaksTimeAxis(viz, "x", "2024-01-05"));
+  assert.ok(rangeBreaksTimeAxis(viz, "x", +jan(5)), "a timestamp");
+  assert.ok(!rangeBreaksTimeAxis(viz, "x", 2024), "a short number");
+  assert.ok(!rangeBreaksTimeAxis(viz, "x", "Apples"));
+  assert.ok(!rangeBreaksTimeAxis(viz, "x", new Date(NaN)));
+  assert.ok(!rangeBreaksTimeAxis(viz, "y", jan(5)), "no rules");
+  assert.ok(
+    !rangeBreaksTimeAxis({_xConfig: {rangeBreaks: [{nope: 1}]}}, "x", jan(5)),
+  );
+});
+
+it("timelineRangeBreaks takes the rules of the axis that plots the chart's time", () => {
+  const row = {date: jan(5), value: 3};
+  const read = key => d => d[key];
+  const viz = {
+    _data: [row],
+    schema: {time: read("date")},
+    _x: read("date"),
+    _y: read("value"),
+    _xConfig: {rangeBreaks: ["weekends"]},
+    _yConfig: {rangeBreaks: "weekends"},
+  };
+  assert.deepStrictEqual(timelineRangeBreaks(viz), ["weekends"]);
+  assert.deepStrictEqual(
+    timelineRangeBreaks({...viz, _xConfig: {}}),
+    [],
+    "the time axis has none",
+  );
+  assert.deepStrictEqual(
+    timelineRangeBreaks({...viz, _x: read("value"), _y: read("date")}),
+    ["weekends"],
+    "a time y axis",
+  );
+  assert.deepStrictEqual(
+    timelineRangeBreaks({...viz, schema: {}}),
+    [],
+    "no time",
+  );
+  assert.deepStrictEqual(
+    timelineRangeBreaks({...viz, _data: []}),
+    [],
+    "no data",
+  );
 });

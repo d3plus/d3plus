@@ -11,6 +11,7 @@ import {brokenTimeScale} from "../../components/Axis/brokenTimeScale.js";
 import {
   normalizeRangeBreaks,
   rangeBreakTest,
+  rangeBreakTime,
   type RangeBreakRule,
 } from "../../components/Axis/rangeBreaks.js";
 import type {D3Scale} from "../../utils/index.js";
@@ -33,6 +34,49 @@ export function plotRangeBreaks(
   const config = viz[`_${axis}Config`] as Record<string, unknown> | undefined;
   if (!viz[`_${axis}Time`] && config?.scale !== "time") return [];
   return normalizeRangeBreaks(config?.rangeBreaks);
+}
+
+/**
+    Whether an axis's `rangeBreaks` make it a time axis without `time`: the
+    axis config has rules, and `value` (the first row's) reads as a date — a
+    Date, a timestamp, or a date string.
+*/
+export function rangeBreaksTimeAxis(
+  viz: PlotViz,
+  axis: AxisName,
+  value: unknown,
+): boolean {
+  const config = viz[`_${axis}Config`] as Record<string, unknown> | undefined;
+  if (!normalizeRangeBreaks(config?.rangeBreaks).length) return false;
+  if (value instanceof Date) return !isNaN(+value);
+  if (typeof value === "number" && String(Math.abs(value)).length <= 5)
+    return false;
+  return (
+    (typeof value === "string" || typeof value === "number") &&
+    Number.isFinite(rangeBreakTime(value))
+  );
+}
+
+/**
+    The `rangeBreaks` a chart's timeline takes by default: those of the axis
+    that plots the chart's `time` values (the first row's time equals that
+    axis's value), else none.
+*/
+export function timelineRangeBreaks(viz: PlotViz): RangeBreakRule[] {
+  const row = viz._data?.[0];
+  const time = viz.schema.time as
+    ((d: unknown, i: number) => unknown) | undefined;
+  if (!row || typeof time !== "function") return [];
+  const value = time(row, 0);
+  for (const axis of AXES) {
+    const read = viz[`_${axis}`] as
+      ((d: unknown, i: number) => unknown) | undefined;
+    if (typeof read !== "function" || read(row, 0) !== value) continue;
+    const config = viz[`_${axis}Config`] as Record<string, unknown> | undefined;
+    const rules = normalizeRangeBreaks(config?.rangeBreaks);
+    if (rules.length) return rules;
+  }
+  return [];
 }
 
 /** A plotted time value as a timestamp (`NaN` when it isn't one). */

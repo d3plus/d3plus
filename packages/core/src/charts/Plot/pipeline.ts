@@ -20,7 +20,11 @@ import {discreteDomainCategories} from "./discreteDomain.js";
 import {extraBandValues} from "./confidenceBands.js";
 import {applySwarmLanes, resolveSwarm} from "./swarm.js";
 import {applyPaddedDomains} from "./facetScales.js";
-import {dropHiddenRows} from "./plotRangeBreaks.js";
+import {
+  dropHiddenRows,
+  rangeBreaksTimeAxis,
+  type AxisName,
+} from "./plotRangeBreaks.js";
 import {scaleConstructors} from "./pipelineScales.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -174,17 +178,20 @@ export function plotSizeLegendScale(
     `_x2Time`/`_xTime`/`_y2Time`/`_yTime`.
 */
 function detectTimeAxes(viz: PlotViz) {
-  const firstElemTime = viz.schema.time
-    ? viz.schema.time(viz._filteredData[0], 0)
-    : false;
-  const x2Time = (viz._x2Time =
-    firstElemTime && viz._x2(viz._filteredData[0], 0) === firstElemTime);
-  const xTime = (viz._xTime =
-    firstElemTime && viz._x(viz._filteredData[0], 0) === firstElemTime);
-  const y2Time = (viz._y2Time =
-    firstElemTime && viz._y2(viz._filteredData[0], 0) === firstElemTime);
-  const yTime = (viz._yTime =
-    firstElemTime && viz._y(viz._filteredData[0], 0) === firstElemTime);
+  const first = viz._filteredData[0];
+  const firstElemTime = viz.schema.time ? viz.schema.time(first, 0) : false;
+  // An axis with `rangeBreaks` over dates is a time axis without `time` too.
+  const isTime = (axis: AxisName) => {
+    const value = viz[`_${axis}`](first, 0);
+    return (
+      Boolean(firstElemTime && value === firstElemTime) ||
+      rangeBreaksTimeAxis(viz, axis, value)
+    );
+  };
+  const x2Time = (viz._x2Time = isTime("x2"));
+  const xTime = (viz._xTime = isTime("x"));
+  const y2Time = (viz._y2Time = isTime("y2"));
+  const yTime = (viz._yTime = isTime("y"));
 
   return {xTime, x2Time, yTime, y2Time};
 }

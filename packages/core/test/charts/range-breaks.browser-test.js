@@ -407,3 +407,140 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 }
+
+/** Daily readings, May to August 2024, with June missing. */
+const readings = () => {
+  const out = [];
+  for (let i = 0; i < 120; i++) {
+    const date = new Date(2024, 4, 1 + i);
+    if (date.getMonth() !== 5)
+      out.push({id: "Sensor", date, value: 20 + Math.sin(i / 6) * 4});
+  }
+  return out;
+};
+const june = {bounds: [new Date(2024, 5, 1), new Date(2024, 6, 1)]};
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`[${renderer}] rangeBreaks over dates make a time axis without \`time\`, and a bounds rule draws its marker`, async () => {
+    const out = await render(
+      box,
+      () =>
+        new Promise(resolve => {
+          const viz = new window.d3plus.LinePlot()
+            .config({
+              data: readings(),
+              groupBy: "id",
+              x: "date",
+              y: "value",
+              legend: false,
+              duration: 0,
+              xConfig: {rangeBreaks: june},
+            })
+            .renderer(renderer)
+            .select("#viz");
+          viz.render(() => {
+            const nodes = sceneNodes(viz._paintedScene.root);
+            resolve({
+              scale: viz._xAxis.scale(),
+              breaks: viz._xAxis._breaks.map(b => [
+                b.start,
+                b.end,
+                b.endPosition - b.startPosition,
+              ]),
+              marks: nodes.filter(n => /^break-0-[01]$/.test(String(n.key)))
+                .length,
+              lines: nodes.filter(n => String(n.key).startsWith("break-line-x"))
+                .length,
+              step:
+                viz._xAxis._getPosition(new Date(2024, 4, 31)) -
+                viz._xAxis._getPosition(new Date(2024, 4, 30)),
+              jump:
+                viz._xAxis._getPosition(new Date(2024, 6, 1)) -
+                viz._xAxis._getPosition(new Date(2024, 4, 31)),
+            });
+          });
+        }),
+    );
+    assert.strictEqual(out.scale, "time");
+    assert.deepStrictEqual(
+      out.breaks.map(b => b.slice(0, 2)),
+      [[+new Date(2024, 5, 1), +new Date(2024, 6, 1)]],
+    );
+    assert.ok(
+      out.breaks[0][2] > 20,
+      `the break takes its space (${out.breaks[0][2]})`,
+    );
+    assert.strictEqual(out.marks, 2, "two break marks on the axis");
+    assert.strictEqual(out.lines, 2, "two break lines across the plot");
+    assert.ok(
+      Math.abs(out.jump - out.step - out.breaks[0][2]) < 0.5,
+      "May 31 to July 1 spans a day plus the break",
+    );
+  });
+
+  it(`[${renderer}] the timeline hides what the time axis hides, unless timelineConfig sets its own`, async () => {
+    const out = await render(box, () => {
+      const data = readings().filter(d => d.date.getDay() % 6);
+      const rules = ["weekends", june];
+      const draw = timelineConfig =>
+        new Promise(resolve => {
+          document.querySelector("#viz").innerHTML = "";
+          const viz = new window.d3plus.LinePlot()
+            .config({
+              data,
+              groupBy: "id",
+              x: "date",
+              time: "date",
+              y: "value",
+              legend: false,
+              duration: 0,
+              xConfig: {rangeBreaks: rules},
+              timelineConfig: {buttonBehavior: "ticks", ...timelineConfig},
+            })
+            .renderer(renderer)
+            .select("#viz");
+          viz.render(() => {
+            const tl = viz._timelineClass;
+            const at = d => tl._d3Scale(d);
+            resolve({
+              broken: window.d3plus.isBrokenTimeScale(tl._d3Scale),
+              thu: at(new Date(2024, 4, 2)),
+              fri: at(new Date(2024, 4, 3)),
+              mon: at(new Date(2024, 4, 6)),
+              ticks: (tl._visibleTicks || []).map(Number),
+              breaks: tl._breaks.length,
+            });
+          });
+        });
+      return Promise.all([]).then(async () => ({
+        inherited: await draw({}),
+        none: await draw({rangeBreaks: false}),
+        own: await draw({rangeBreaks: "weekends"}),
+      }));
+    });
+    const {inherited, none, own} = out;
+    assert.ok(inherited.broken, "the timeline takes the x axis's rules");
+    const step = inherited.fri - inherited.thu;
+    assert.ok(
+      Math.abs(inherited.mon - inherited.fri - step) < 0.01,
+      "Friday sits next to Monday on the timeline",
+    );
+    assert.strictEqual(inherited.breaks, 1, "June is marked on the timeline");
+    inherited.ticks.forEach(t => {
+      const d = new Date(t);
+      assert.ok(
+        d.getDay() % 6 && d.getMonth() !== 5,
+        `timeline tick ${d} is shown time`,
+      );
+    });
+    assert.ok(!none.broken, "timelineConfig.rangeBreaks: false turns them off");
+    assert.ok(
+      Math.abs(none.mon - none.fri - 3 * (none.fri - none.thu)) < 0.01,
+      "a plain timeline spans the weekend",
+    );
+    assert.ok(
+      own.broken && own.breaks === 0,
+      "timelineConfig.rangeBreaks replaces the axis's rules",
+    );
+  });
+}
