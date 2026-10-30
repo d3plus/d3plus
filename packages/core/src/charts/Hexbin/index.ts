@@ -135,6 +135,7 @@ export const hexbinDef: ChartDefinition = {
         `strokeWidth`, the outline width of `"lines"` (default 1.5); and
         `fillOpacity`, the opacity of the highest `"filled"` level (default
         0.8).
+        @type {{bandwidth?: number, thresholds?: number | number[], strokeWidth?: number, fillOpacity?: number}}
     */
     {key: "contourConfig", merge: true, default: CONTOUR_DEFAULTS},
     /** Draws the raw observations as small dots beneath the bins and contours. Defaults to `false`. */
@@ -143,6 +144,7 @@ export const hexbinDef: ChartDefinition = {
         The raw observations' style: `r`, the dot radius in pixels (default
         1.5); `fill` (defaults to the chart's text color); and `fillOpacity`
         (default 0.35).
+        @type {{r?: number, fill?: string, fillOpacity?: number}}
     */
     {key: "pointConfig", merge: true, default: POINT_DEFAULTS},
     {key: "colorScale", coerce: optionalAccessor, default: hexbinValue},

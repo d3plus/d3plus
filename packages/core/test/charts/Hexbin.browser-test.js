@@ -115,6 +115,15 @@ for (const renderer of ["svg", "canvas"]) {
         domain: chart._colorScaleClass._colorScale.domain(),
         scale: chart._paintedScene.root.children.some(n => n.key === "viz-colorScale"),
         widths: b.map(m => Math.round(m.width)),
+        bounds: chart._paintedScene.root.children.length &&
+          (() => {
+            const out = [];
+            walk(chart._paintedScene.root.children, n => {
+              const meta = n.shapeType === "Hexbin" && n.datum && d3plus.hexbinMeta(n.datum);
+              if (meta && meta.kind === "bin") out.push(meta);
+            });
+            return out.map(m => ({count: m.count, x: [m.x0, m.x1], y: [m.y0, m.y1], rows: m.rows.length}));
+          })(),
       };
       `,
       {data: clusters, renderer},
@@ -137,6 +146,13 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(Math.min(...r.domain), 1);
     assert.strictEqual(Math.max(...r.domain), 10);
     assert.ok(r.scale, "the colorScale is drawn");
+    const at = {10: [10, 10], 5: [50, 40], 1: [90, 80]};
+    for (const b of r.bounds) {
+      const [x, y] = at[b.count];
+      assert.ok(b.x[0] < x && x < b.x[1], `x ${x} in ${b.x}`);
+      assert.ok(b.y[0] < y && y < b.y[1], `y ${y} in ${b.y}`);
+      assert.strictEqual(b.rows, b.count);
+    }
     assert.ok(
       r.widths.every(w => w === 21),
       `hexagons are √3 × 12px wide (${r.widths})`,
