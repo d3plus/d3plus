@@ -51,7 +51,7 @@ facetConfig: {
 
 ## Shared and independent scales
 
-In the Plot family (BarChart, LinePlot, AreaPlot, StackedArea, BoxWhisker, BumpChart, Beeswarm, Candlestick, Dumbbell, FanChart, Histogram, Lollipop, Marimekko, Pyramid, Ridgeline, Violin, Waterfall, and Plot itself), every panel uses the same x and y scales by default. Each axis spans every panel's values, including stacks, bubble sizes, and whiskers, so equal heights mean equal values in any panel, and a Histogram bins every panel with the same edges.
+In the Plot family (BarChart, LinePlot, AreaPlot, StackedArea, Streamgraph, Scatter, BubbleChart, BoxWhisker, BumpChart, Beeswarm, Candlestick, Dumbbell, FanChart, Histogram, Lollipop, Marimekko, Pyramid, Ridgeline, Violin, Waterfall, and Plot itself), every panel uses the same x and y scales by default. Each axis spans every panel's values, including stacks, bubble sizes, and whiskers, so equal heights mean equal values in any panel, and a Histogram bins every panel with the same edges.
 
 Because the scales match, axes are labeled only along the grid's edges. The left column labels the y axis and the bottom panels label the x axis, and those panels get extra room for their labels so every plot area is the same size. Set `axes: "all"` to label every panel, or pass an object to set each axis on its own: `{x: "all", y: "outer"}` labels every panel's x axis but only the left column's y axis. BumpChart labels every panel by default, since each panel ranks its own series. Marimekko labels its categories on every panel and its 0–100% share axis only along the outer edge, even with independent scales.
 

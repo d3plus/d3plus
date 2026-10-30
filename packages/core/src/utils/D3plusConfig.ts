@@ -646,7 +646,8 @@ export interface D3plusConfig {
       axis only. With a discrete axis, the shared tooltip's crosshair is that
       axis's guide, and the value axis follows the hovered series' point (or
       the one nearest the pointer). Defaults to `true` (`"x"` on BumpChart,
-      whose y axes label series rather than values).
+      whose y axes label series rather than values, and on Streamgraph, whose
+      y positions name no values).
   */
   axisHover?: boolean | "x" | "y";
   /**
@@ -1557,6 +1558,10 @@ export interface D3plusConfig {
       Which margin the size legend claims in the chart's bottom-right corner. `"right"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `"bottom"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.
   */
   sizeLegendPosition?: "right" | "bottom";
+  /**
+      Anchors a Plot's size scale at zero, so a mark's size is proportional to its value: with the default `sizeScale` of `"sqrt"`, each circle's area is (a value twice as large draws a circle with twice the area), and with `"linear"`, its radius. The largest value still draws at `sizeMax`, while `sizeMin` no longer sets the smallest mark's radius, so values near zero draw as small as they are. Off by default, except on BubbleChart. Ignored when any size is negative or `sizeScale` is `"log"`.
+  */
+  sizeZero?: boolean;
   /**
       With two groupBy levels, Violin places violins by the first and sets
       them side by side by the second. `split` draws a category holding

@@ -49,6 +49,7 @@ export const plotSchema = [
   {key: "sizeMax", coerce: "identity" as const},
   {key: "sizeMin", coerce: "identity" as const},
   {key: "sizeScale", coerce: "identity" as const},
+  {key: "sizeZero", coerce: "identity" as const, default: false},
   {key: "stacked", coerce: "identity" as const},
   {key: "swarm", coerce: "identity" as const, default: "auto"},
   {

@@ -70,7 +70,7 @@ BubbleChart.parameters = {
   docs: {
     description: {
       story:
-        "Map a third variable to point radius with `size`, turning the scatter into a bubble chart; `sizeMin` and `sizeMax` clamp the radius range so extreme values stay legible.",
+        "Map a third variable to point radius with `size`, turning the scatter into a bubble chart; `sizeMin` and `sizeMax` clamp the radius range so extreme values stay legible. BubbleChart sets this up for you, sizing bubbles by area.",
     },
   },
 };

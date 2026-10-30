@@ -5,6 +5,7 @@ import {
   BarChart as BarChartClass,
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
+  BubbleChart as BubbleChartClass,
   Bullet as BulletClass,
   BumpChart as BumpChartClass,
   Calendar as CalendarClass,
@@ -36,7 +37,9 @@ import {
   Ridgeline as RidgelineClass,
   Rings as RingsClass,
   Sankey as SankeyClass,
+  Scatter as ScatterClass,
   StackedArea as StackedAreaClass,
+  Streamgraph as StreamgraphClass,
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
@@ -90,6 +93,10 @@ export const Beeswarm = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus BoxWhisker visualization. */
 export const BoxWhisker = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BoxWhiskerClass} {...props} />
+);
+/** React component for rendering a d3plus BubbleChart visualization. */
+export const BubbleChart = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={BubbleChartClass} {...props} />
 );
 /** React component for rendering a d3plus Bullet visualization. */
 export const Bullet = (props: D3plusComponentProps) => (
@@ -219,9 +226,17 @@ export const Rings = (props: D3plusComponentProps) => (
 export const Sankey = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={SankeyClass} {...props} />
 );
+/** React component for rendering a d3plus Scatter visualization. */
+export const Scatter = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={ScatterClass} {...props} />
+);
 /** React component for rendering a d3plus StackedArea visualization. */
 export const StackedArea = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={StackedAreaClass} {...props} />
+);
+/** React component for rendering a d3plus Streamgraph visualization. */
+export const Streamgraph = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={StreamgraphClass} {...props} />
 );
 /** React component for rendering a d3plus Sunburst visualization. */
 export const Sunburst = (props: D3plusComponentProps) => (

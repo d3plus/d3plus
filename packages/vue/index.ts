@@ -3,6 +3,7 @@ import {
   BarChart as BarChartClass,
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
+  BubbleChart as BubbleChartClass,
   Bullet as BulletClass,
   BumpChart as BumpChartClass,
   Calendar as CalendarClass,
@@ -34,7 +35,9 @@ import {
   Ridgeline as RidgelineClass,
   Rings as RingsClass,
   Sankey as SankeyClass,
+  Scatter as ScatterClass,
   StackedArea as StackedAreaClass,
+  Streamgraph as StreamgraphClass,
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
@@ -78,6 +81,8 @@ export const BarChart = createD3plusComponent(BarChartClass, "chart");
 export const Beeswarm = createD3plusComponent(BeeswarmClass, "chart");
 /** Vue component for rendering a d3plus BoxWhisker visualization. */
 export const BoxWhisker = createD3plusComponent(BoxWhiskerClass, "chart");
+/** Vue component for rendering a d3plus BubbleChart visualization. */
+export const BubbleChart = createD3plusComponent(BubbleChartClass, "chart");
 /** Vue component for rendering a d3plus Bullet visualization. */
 export const Bullet = createD3plusComponent(BulletClass, "chart");
 /** Vue component for rendering a d3plus BumpChart visualization. */
@@ -143,8 +148,12 @@ export const Ridgeline = createD3plusComponent(RidgelineClass, "chart");
 export const Rings = createD3plusComponent(RingsClass, "chart");
 /** Vue component for rendering a d3plus Sankey visualization. */
 export const Sankey = createD3plusComponent(SankeyClass, "chart");
+/** Vue component for rendering a d3plus Scatter visualization. */
+export const Scatter = createD3plusComponent(ScatterClass, "chart");
 /** Vue component for rendering a d3plus StackedArea visualization. */
 export const StackedArea = createD3plusComponent(StackedAreaClass, "chart");
+/** Vue component for rendering a d3plus Streamgraph visualization. */
+export const Streamgraph = createD3plusComponent(StreamgraphClass, "chart");
 /** Vue component for rendering a d3plus Sunburst visualization. */
 export const Sunburst = createD3plusComponent(SunburstClass, "chart");
 /** Vue component for rendering a d3plus Tree visualization. */

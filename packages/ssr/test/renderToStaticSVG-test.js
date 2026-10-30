@@ -1,6 +1,14 @@
 import {it} from "vitest";
 import assert from "assert";
-import {BarChart, Donut, LinePlot, Treemap} from "@d3plus/core";
+import {
+  BarChart,
+  BubbleChart,
+  Donut,
+  LinePlot,
+  Scatter,
+  Streamgraph,
+  Treemap,
+} from "@d3plus/core";
 import {renderToStaticSVG} from "../index.ts";
 
 const data = [
@@ -44,6 +52,39 @@ it("renderToStaticSVG works across chart families", async () => {
     const svg = await renderToStaticSVG(viz, {width: 400, height: 300});
     assert.ok(svg.includes("<svg"), "is an svg");
     assert.ok(svg.length > 300, "non-trivial output");
+  }
+});
+
+it("renderToStaticSVG renders Scatter, BubbleChart, and Streamgraph", async () => {
+  const points = [
+    {id: "a", x: 1, y: 4, size: 10},
+    {id: "b", x: 2, y: 9, size: 40},
+    {id: "c", x: 3, y: 6, size: 90},
+  ];
+  const streams = ["a", "b", "c"].flatMap((id, g) =>
+    [2010, 2011, 2012].map((year, t) => ({id, year, value: 5 + g + t})),
+  );
+  const charts = [
+    [
+      "Scatter",
+      new Scatter().data(points).groupBy("id").x("x").y("y"),
+      /<circle/g,
+    ],
+    [
+      "BubbleChart",
+      new BubbleChart().data(points).groupBy("id").x("x").y("y").size("size"),
+      /<circle/g,
+    ],
+    [
+      "Streamgraph",
+      new Streamgraph().data(streams).groupBy("id").x("year").y("value"),
+      /<path[^>]*d="M/g,
+    ],
+  ];
+  for (const [name, viz, mark] of charts) {
+    const svg = await renderToStaticSVG(viz, {width: 400, height: 300});
+    assert.ok(svg.startsWith("<svg"), `${name} is an svg`);
+    assert.ok((svg.match(mark) || []).length >= 3, `${name} draws its marks`);
   }
 });
 

@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Streamgraph</title>
+    <meta
+      name="description"
+      content="Streamgraph variants: silhouette and wiggle offsets ordered inside out on smooth curves with a hidden value axis, a descending stack order, and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Default: silhouette offset, insideOut order</h3>
+        <div class="viz" id="silhouette"></div>
+      </div>
+      <div>
+        <h3>stackOffset: "wiggle"</h3>
+        <div class="viz" id="wiggle"></div>
+      </div>
+      <div>
+        <h3>stackOrder: "descending"</h3>
+        <div class="viz" id="descending"></div>
+      </div>
+      <div>
+        <h3>Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const genres = {
+      Rock: [38, 36, 33, 30, 27, 24, 21, 19, 17, 15, 14],
+      Pop: [22, 24, 27, 29, 30, 31, 30, 29, 28, 27, 26],
+      "Hip-Hop": [8, 10, 13, 16, 20, 24, 28, 31, 33, 34, 35],
+      Electronic: [4, 5, 6, 8, 11, 14, 16, 17, 17, 16, 15],
+      Country: [12, 12, 11, 11, 12, 12, 13, 13, 14, 14, 15],
+      Jazz: [6, 6, 5, 5, 5, 4, 4, 4, 4, 4, 4],
+    };
+    const data = Object.entries(genres).flatMap(([genre, shares]) =>
+      shares.map((share, i) => ({genre, year: 2014 + i, share})),
+    );
+
+    const stream = id =>
+      new d3plus.Streamgraph()
+        .select("#" + id)
+        .data(data)
+        .groupBy("genre")
+        .x("year")
+        .y("share");
+
+    stream("silhouette").render();
+    stream("wiggle").stackOffset("wiggle").render();
+    stream("descending").stackOrder("descending").render();
+    stream("dark").theme("dark").render();
+  </script>
+</html>

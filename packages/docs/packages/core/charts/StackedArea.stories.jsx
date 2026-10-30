@@ -214,7 +214,7 @@ Streamgraph.parameters = {
   docs: {
     description: {
       story:
-        'Combine a named order with a named offset for a streamgraph: `stackOrder: "insideOut"` keeps the largest series in the middle and pushes late-rising ones to the edges, while `stackOffset: "silhouette"` centers the stack around a free baseline instead of anchoring at zero. `stackOrder` also accepts d3\'s `"appearance"` and `"reverse"`; `stackOffset` also accepts `"wiggle"` (minimizes slope changes) and `"expand"`.',
+        'Combine a named order with a named offset for a streamgraph: `stackOrder: "insideOut"` keeps the largest series in the middle and pushes late-rising ones to the edges, while `stackOffset: "silhouette"` centers the stack around a free baseline instead of anchoring at zero. `stackOrder` also accepts d3\'s `"appearance"` and `"reverse"`; `stackOffset` also accepts `"wiggle"` (minimizes slope changes) and `"expand"`. Streamgraph sets this up for you, with smooth curves and a value axis that shows no values.',
     },
   },
 };
