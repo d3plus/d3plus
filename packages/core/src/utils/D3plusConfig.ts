@@ -26,6 +26,10 @@ import type {
 } from "../components/SizeLegend/sizeLegendLayout.js";
 import type {ColorScaleTypeSetting} from "../components/ColorScale/colorScaleType.js";
 import type {ColorScaleHoverMarkConfig} from "../components/ColorScale/colorScaleHoverMark.js";
+import type {
+  ReferenceBandConfig,
+  ReferenceLineConfig,
+} from "../charts/features/annotationTypes.js";
 
 type Position = "top" | "right" | "bottom" | "left";
 /** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
@@ -1433,6 +1437,47 @@ export interface D3plusConfig {
       the value you set either way.
   */
   reducedMotion?: "auto" | boolean;
+  /**
+      Plot: shaded spans across the plot between two values, such as a
+      recession or a target range. Give each entry `x` (a vertical band) or
+      `y` (a horizontal one) as `[start, end]` in data units (numbers, dates,
+      or categories; on a category axis the band covers each end category's
+      whole slot), or `x2`/`y2` for the secondary axes, or `ref: "plot"` for
+      fractions of the plot area. An optional `label` sits inside the band's
+      top-left corner (`labelPosition: "end"` for the top-right), with
+      `fontColor`, `fontFamily`, `fontSize`, `fontWeight`, `lineHeight`, and
+      `maxWidth`. The fill defaults to the chart's text color at `fillOpacity`
+      `0.08`, so it reads on light and dark themes; `stroke`, `strokeWidth`,
+      and `strokeOpacity` add edges. On a continuous or time axis the band's
+      ends count toward the axis domain, widening it to show the whole band
+      (an end set by `xDomain`/`yDomain`/`x2Domain`/`y2Domain` or the axis
+      config's `domain` stays put). Each entry expands into a
+      `"ReferenceBand"` annotation (see `annotations`) behind the data
+      (`layer: "front"` to draw it over; its label always draws above), which follows zoom and never
+      responds to the pointer or keyboard.
+  */
+  referenceBands?: ReferenceBandConfig[];
+  /**
+      Plot: lines across the whole plot at one value, such as a target or a
+      launch date. Give each entry `x` (a vertical line) or `y` (a horizontal
+      one) in data units (a number, a date, or a category), or `x2`/`y2` for
+      the secondary axes, or `ref: "plot"` for a fraction of the plot area.
+      An optional `label` sits at the line's `"end"` (the right of a
+      horizontal line, the top of a vertical one) or `"start"`
+      (`labelPosition`), with `fontColor`, `fontFamily`, `fontSize`,
+      `fontWeight`, `lineHeight`, and `maxWidth`. The line's `stroke`
+      defaults to the chart's text color at `strokeOpacity` `0.6`, `strokeWidth`
+      `1`; `dash: true` dashes it ("4 4"), or give a dash pattern. On a
+      continuous or time axis the value counts toward the axis domain,
+      widening it to show the line (an end set by `xDomain`/`yDomain`/
+      `x2Domain`/`y2Domain` or the axis config's `domain` stays put; a value
+      outside such a domain is not drawn). Each entry
+      expands into a `"ReferenceLine"` annotation (see `annotations`) behind
+      the data (`layer: "front"` to draw it over; its label always draws
+      above), which follows zoom and
+      never responds to the pointer or keyboard.
+  */
+  referenceLines?: ReferenceLineConfig[];
   /** Row key for matrix-style layouts. */
   row?: string;
   /** Shows a top-left download button that saves the chart, as the reader sees it, as a PNG, SVG, or JPG file. On by default for every chart. */

@@ -24,7 +24,8 @@ import {breakLineNodes, maskBreaks} from "../Plot/plotBreaks.js";
 import {clipToPlotArea} from "../Plot/domainClip.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
-import {collectAnnotationGroup, emitAnnotations} from "./plotAnnotations.js";
+import {emitAnnotations} from "./plotAnnotations.js";
+import {plotAnnotationFrame} from "./annotationFrame.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
 import {barHitsFirst} from "../Plot/barHitArea.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
@@ -503,17 +504,29 @@ export function plotEmit(
 
   out.push(...emitLineLabelConnectors(viz, labelWidths));
 
-  const frontAnnotationShapes = emitAnnotations(
+  const forecast = forecastRows(shapeData);
+  const frontAnnotations = emitAnnotations(
     viz,
     out,
-    x,
-    y,
+    {
+      x,
+      y,
+      frame: plotAnnotationFrame(viz, {
+        x,
+        y,
+        xRange,
+        yRange,
+        x2Height: pCtx.x2Height,
+        x2Exists: pCtx.x2Exists,
+        y2Exists: pCtx.y2Exists,
+        slots: forecast.slots,
+      }),
+    },
     domains,
     yOffset,
   );
 
   // The forecast backdrop, rule and label sit behind the data marks.
-  const forecast = forecastRows(shapeData);
   out.push(
     ...emitForecast(viz, forecast.rows, {x, y, xRange, yRange}, forecast.slots),
   );
@@ -556,12 +569,8 @@ export function plotEmit(
 
   emitShapeExits(viz, shapeData, shapeConfig);
 
-  // Absorb queued front annotations AFTER the shape loop so they render
-  // above shapes.
-  frontAnnotationShapes.forEach((inst, i) => {
-    const group = collectAnnotationGroup(inst, `annotation-front-${i}`);
-    if (group) out.push(group);
-  });
+  // Front annotations go AFTER the shape loop so they render above shapes.
+  out.push(...frontAnnotations);
 
   // A zoomable plot keeps everything but the axes in one stably-keyed group
   // that clips to the plot rect while zoomed (see `Plot/plotZoom.ts`), so

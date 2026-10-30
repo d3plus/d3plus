@@ -1,0 +1,276 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Annotation Callouts · Plot</title>
+    <meta
+      name="description"
+      content="Callout annotations, referenceLines, and referenceBands on line, bar, area, and scatter plots: linear, category, and time axes, y2, plot-fraction positions, zoom, overrides, and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 320px;
+      }
+      .dark {
+        background: #212529;
+        color: #f8f9fa;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>LinePlot: a target line, a shaded period, and callouts</h3>
+        <div class="viz" id="line"></div>
+      </div>
+      <div>
+        <h3>BarChart: a line at a category, a band across categories</h3>
+        <div class="viz" id="bar"></div>
+      </div>
+      <div>
+        <h3>Horizontal BarChart (discrete y axis)</h3>
+        <div class="viz" id="hbar"></div>
+      </div>
+      <div>
+        <h3>Time axis and y2 (scroll to zoom)</h3>
+        <div class="viz" id="time"></div>
+      </div>
+      <div>
+        <h3>Scatter: zoom moves every annotation with the axes</h3>
+        <div class="viz" id="scatter"></div>
+      </div>
+      <div>
+        <h3>AreaPlot: plot-fraction callouts and overrides</h3>
+        <div class="viz" id="area"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark theme defaults</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+      <div>
+        <h3>Clamping: callouts near every edge stay inside the plot</h3>
+        <div class="viz" id="clamp"></div>
+      </div>
+    </div>
+
+    <script>
+      const series = [];
+      for (let i = 0; i <= 20; i++) {
+        series.push({id: "Revenue", x: i * 5, y: 20 + i * 3 + (i % 4) * 4});
+        series.push({id: "Cost", x: i * 5, y: 15 + i * 2 + (i % 3) * 3});
+      }
+      const points = series.map((d, i) => ({...d, point: `P${i}`}));
+
+      new d3plus.LinePlot()
+        .select("#line")
+        .data(series)
+        .groupBy("id")
+        .referenceLines([{y: 60, label: "Target", dash: true}])
+        .referenceBands([{x: [25, 40], label: "Downturn"}])
+        .annotations([
+          {
+            shape: "Callout",
+            data: [
+              {
+                x: 100,
+                y: 80,
+                label: "Revenue peaks late in the year",
+                dx: -110,
+                dy: -20,
+              },
+              {x: 0, y: 15, label: "Start", dx: 30, dy: -30},
+            ],
+            maxWidth: 110,
+          },
+        ])
+        .render();
+
+      const sales = [
+        {region: "North", sales: 42},
+        {region: "South", sales: 52},
+        {region: "East", sales: 31},
+        {region: "West", sales: 51},
+        {region: "Central", sales: 47},
+      ];
+
+      new d3plus.BarChart()
+        .select("#bar")
+        .data(sales)
+        .groupBy("region")
+        .x("region")
+        .y("sales")
+        .legend(false)
+        .referenceLines([
+          {x: "East", label: "Pilot", labelPosition: "end"},
+          {y: 50, label: "Quota", dash: "6 3"},
+        ])
+        .referenceBands([{x: ["South", "West"], label: "Campaign"}])
+        .annotations([
+          {
+            shape: "Callout",
+            data: [{x: "South", y: 52, label: "Best region"}],
+            dx: 0,
+            dy: 60,
+          },
+        ])
+        .render();
+
+      new d3plus.BarChart()
+        .select("#hbar")
+        .data(sales)
+        .groupBy("region")
+        .discrete("y")
+        .x("sales")
+        .y("region")
+        .legend(false)
+        .referenceLines([{x: 45, label: "Average"}])
+        .referenceBands([{y: ["North", "South"], label: "Coastal"}])
+        .render();
+
+      const monthly = [];
+      for (let i = 0; i < 36; i++) {
+        const date = new Date(2021, i, 1);
+        monthly.push({
+          id: "Price",
+          date,
+          value: 100 + 30 * Math.sin(i / 4) + i,
+        });
+        monthly.push({id: "Volume", date, volume: 400 - i * 6});
+      }
+
+      new d3plus.LinePlot()
+        .select("#time")
+        .data(monthly)
+        .groupBy("id")
+        .x("date")
+        .time("date")
+        .y("value")
+        .y2("volume")
+        .timeline(false)
+        .referenceLines([
+          {x: "2022-03-01", label: "Launch"},
+          {y2: 250, label: "Volume floor", labelPosition: "start"},
+        ])
+        .referenceBands([{x: ["2022-07-01", "2022-12-01"], label: "Recession"}])
+        .annotations([
+          {
+            shape: "Callout",
+            data: [{x: new Date(2021, 4, 1), y: 129.24, label: "Spring high"}],
+          },
+        ])
+        .render();
+
+      new d3plus.Plot()
+        .select("#scatter")
+        .data(points)
+        .groupBy("point")
+        .legend(false)
+        .referenceLines([{x: 50, label: "Midpoint"}])
+        .referenceBands([{y: [40, 60], label: "Comfort zone"}])
+        .annotations([
+          {
+            shape: "Callout",
+            data: [{x: 75, y: 65, label: "Zoom in: I stay on this point"}],
+            marker: "dot",
+            dx: -60,
+            dy: -40,
+          },
+        ])
+        .render();
+
+      new d3plus.AreaPlot()
+        .select("#area")
+        .data(series)
+        .groupBy("id")
+        .legend(false)
+        .referenceLines([
+          {x: 0.5, ref: "plot", label: "Halfway", stroke: "#c92a2a"},
+        ])
+        .referenceBands([
+          {
+            y: [0.8, 1],
+            ref: "plot",
+            label: "Top fifth",
+            labelPosition: "end",
+            fill: "#4dabf7",
+            fillOpacity: 0.15,
+          },
+        ])
+        .annotations([
+          {
+            shape: "Callout",
+            xRef: "plot",
+            yRef: "plot",
+            data: [{x: 0.02, y: 0.98, label: "Plot-fraction note"}],
+            dx: 70,
+            dy: 14,
+            connector: false,
+            textAlign: "start",
+            fill: "#fff5f5",
+            stroke: "#c92a2a",
+            strokeOpacity: 1,
+            fontColor: "#c92a2a",
+          },
+          {
+            shape: "Callout",
+            data: [{x: 60, y: 62, label: "Custom connector"}],
+            connectorStroke: "#c92a2a",
+            connectorStrokeDasharray: "3 2",
+            dx: 70,
+            dy: 30,
+          },
+        ])
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#dark")
+        .theme("dark")
+        .data(series)
+        .groupBy("id")
+        .referenceLines([{y: 60, label: "Target", dash: true}])
+        .referenceBands([{x: [25, 40], label: "Downturn"}])
+        .annotations([
+          {
+            shape: "Callout",
+            data: [{x: 50, y: 50, label: "Defaults follow the theme"}],
+            dy: 50,
+          },
+        ])
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#clamp")
+        .data(series)
+        .groupBy("id")
+        .annotations([
+          {
+            shape: "Callout",
+            data: [
+              {x: 0, y: 20, label: "Left edge", dx: -80, dy: 0},
+              {x: 100, y: 80, label: "Top right", dx: 80, dy: -80},
+              {x: 50, y: 35, label: "Pushed down", dy: 200},
+            ],
+          },
+        ])
+        .render();
+    </script>
+  </body>
+</html>

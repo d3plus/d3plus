@@ -116,6 +116,75 @@ export {
 } from "./src/charts/Plot/forecastScene.js";
 export type {ForecastFrame} from "./src/charts/Plot/forecastScene.js";
 export {
+  anchorPoint,
+  axisPixel,
+  axisSpan,
+  categoryHalfStep,
+  clipSpan,
+  inPlot,
+  isVertical,
+  plotAnnotationFrame,
+} from "./src/charts/features/annotationFrame.js";
+export type {
+  AnnotationAxis,
+  AnnotationFrame,
+  AxisFrame,
+  PlotRect,
+} from "./src/charts/features/annotationFrame.js";
+export {
+  annotationTextNode,
+  annotationTextStyle,
+  wrapAnnotationText,
+} from "./src/charts/features/annotationText.js";
+export type {
+  AnnotationText,
+  TextAlign,
+  TextBlock,
+} from "./src/charts/features/annotationText.js";
+export {
+  arrowheadPoints,
+  clampBox,
+  connectorEndpoints,
+  offsetBox,
+  placeCalloutBox,
+  pullBack,
+} from "./src/charts/features/calloutLayout.js";
+export type {
+  Box as CalloutBox,
+  Point as CalloutPoint,
+} from "./src/charts/features/calloutLayout.js";
+export {
+  calloutNodes,
+  calloutPicker,
+  calloutRowNodes,
+} from "./src/charts/features/calloutScene.js";
+export {
+  expandReferenceBands,
+  expandReferenceLines,
+  REFERENCE_BAND,
+  REFERENCE_LINE,
+  referenceAxis,
+  referenceBandLabelAt,
+  referenceBandNodes,
+  referenceBandRect,
+  referenceLineLabelAt,
+  referenceLineNodes,
+  referenceLinePoints,
+} from "./src/charts/features/referenceAnnotations.js";
+export {
+  openDomainEnds,
+  referenceDomainValues,
+  widenReferenceDomains,
+  widenToValues,
+} from "./src/charts/Plot/referenceDomains.js";
+export {
+  annotationLayer,
+  collectAnnotationGroup,
+  emitAnnotations,
+  plotAnnotationList,
+  renderPlotAnnotation,
+} from "./src/charts/features/plotAnnotations.js";
+export {
   betweenPoints,
   emitFillBetween,
   fillBetweenDefaults,
