@@ -275,6 +275,10 @@ export function computeTextBoxDatum(
       widths: [],
     };
 
+  // Text is measured with the one family fontExists finds installed, never a
+  // list: a list would measure with whichever family the browser picks, which
+  // can change under the wrap as web fonts load. Only the drawn label (`fF`)
+  // names the families after it, as fallbacks for other machines.
   const style: Record<string, string | number> = {
     "font-family": fontExists(box.schema.fontFamily(d, i)) as string,
     "font-size": fS,
