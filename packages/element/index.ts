@@ -1,4 +1,5 @@
 import {
+  Alluvial,
   AreaPlot,
   BarChart,
   Beeswarm,
@@ -90,6 +91,7 @@ export {
     in their public types but expose the needed methods at runtime.
 */
 export const CLASSES: Record<string, new (...args: any[]) => any> = {
+  Alluvial,
   AreaPlot,
   BarChart,
   Beeswarm,

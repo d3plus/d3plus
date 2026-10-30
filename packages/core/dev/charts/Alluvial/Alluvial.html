@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Alluvial</title>
+    <meta
+      name="description"
+      content="Alluvial (parallel sets) of the Titanic's 2,201 passengers and crew by class, sex, age, and survival: bands colored by class, by survival with data-ordered nodes, counted raw rows with an accessor dimension ordered by value, and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 440px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Class → Sex → Age → Survived, summed counts, colored by class</h3>
+        <div class="viz" id="titanic"></div>
+      </div>
+      <div>
+        <h3>colorBy: "survived", nodeSort: "data"</h3>
+        <div class="viz" id="survival"></div>
+      </div>
+      <div>
+        <h3>Raw rows counted, an accessor dimension, nodeSort: "value"</h3>
+        <div class="viz" id="rows"></div>
+      </div>
+      <div>
+        <h3>Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const dimensions = [
+      {value: "class", title: "Class"},
+      {value: "sex", title: "Sex"},
+      {value: "age", title: "Age"},
+      {value: "survived", title: "Survived"},
+    ];
+
+    fetch("./titanic.json")
+      .then(r => r.json())
+      .then(titanic => {
+        const chart = id =>
+          new d3plus.Alluvial()
+            .select("#" + id)
+            .data(titanic)
+            .dimensions(dimensions)
+            .value("count");
+
+        chart("titanic").render();
+        chart("survival").colorBy("survived").nodeSort("data").render();
+        chart("dark").theme("dark").render();
+
+        // One row per person, with the age band computed from a number.
+        const people = titanic.flatMap(d =>
+          Array.from({length: d.count}, (_, i) => ({
+            class: d.class,
+            sex: d.sex,
+            years: d.age === "Child" ? 4 + (i % 12) : 18 + (i % 50),
+            survived: d.survived,
+          })),
+        );
+        new d3plus.Alluvial()
+          .select("#rows")
+          .data(people)
+          .dimensions([
+            "survived",
+            {value: d => (d.years < 16 ? "Child" : "Adult"), title: "age"},
+            "sex",
+            "class",
+          ])
+          .nodeSort("value")
+          .render();
+      });
+  </script>
+</html>

@@ -1,3 +1,4 @@
+export {default as Alluvial} from "./Alluvial/index.js";
 export {default as AreaPlot} from "./AreaPlot/index.js";
 export {default as BarChart} from "./BarChart/index.js";
 export {default as Beeswarm} from "./Beeswarm/index.js";

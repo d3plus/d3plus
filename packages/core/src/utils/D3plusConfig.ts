@@ -13,6 +13,7 @@ import type {
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
 import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
+import type {AlluvialDimensionInput} from "../charts/Alluvial/dimensions.js";
 import type {AccessorFn} from "./AccessorFn.js";
 import type {ThemeSetting} from "./theme.js";
 import type {
@@ -860,6 +861,8 @@ export interface D3plusConfig {
   boxMin?: string | ((d: DataPoint, i: number) => number);
   /** BoxWhisker: accessor or data key for each summary row's outliers, an array of values drawn as points past the whiskers. Used only with the other box statistics; see `boxMedian`. */
   boxOutliers?: string | ((d: DataPoint, i: number) => number[]);
+  /** Alluvial: the fill opacity of the bands between columns (default `0.5`). */
+  bandOpacity?: number;
   /** BoxWhisker: accessor or data key for each summary row's lower quartile, where its box starts. See `boxMedian`. */
   boxQ1?: string | ((d: DataPoint, i: number) => number);
   /** BoxWhisker: accessor or data key for each summary row's upper quartile, where its box ends. See `boxMedian`. */
@@ -911,6 +914,13 @@ export interface D3plusConfig {
   */
   color?:
     string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) | false;
+  /**
+      Alluvial: the column whose categories color the bands — a column index,
+      or a dimension's data key or title (default `0`, the first column). Each
+      row's band keeps its category's color through every column, and the
+      legend lists that column's categories.
+  */
+  colorBy?: number | string;
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
   colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
@@ -1127,12 +1137,20 @@ export interface D3plusConfig {
       and any Axis config (`tickFormat`, `ticks`, `scale`, …).
   */
   dimensionConfig?: Record<string, DimensionOptions>;
+  /** Alluvial: styles the column titles drawn above each column (any TextBox config). */
+  dimensionTitleConfig?: Record<string, unknown>;
   /**
       ParallelCoordinates: the data keys to draw an axis for, in order.
       Defaults to every numeric key except the `groupBy` keys and `id`; a key
       whose values aren't all numbers gets a categorical axis.
+
+      Alluvial: the categorical dimensions, one column each, left to right —
+      data keys, accessor functions `(d, i) => category`, or `{value, title}`
+      objects. A key is its column's title; a bare accessor has none. Rows
+      missing a category on any dimension (`undefined`, `null`, or `""`) are
+      left out.
   */
-  dimensions?: string[];
+  dimensions?: AlluvialDimensionInput[];
   /** Sets orientation of main category axis. */
   discrete?: "x" | "y" | "radius" | "angle";
   /** Candlestick: the color of periods that closed below their open, or an accessor of the row. Defaults to red. */

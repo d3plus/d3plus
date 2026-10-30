@@ -1,4 +1,5 @@
 export {
+  Alluvial,
   AreaPlot,
   BarChart,
   Beeswarm,

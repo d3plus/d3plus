@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 import {
+  Alluvial,
   BarChart,
   BubbleChart,
   Donut,
@@ -153,6 +154,26 @@ it("renderToStaticSVG renders a Gantt's bars, milestone, and dependency arrow", 
   assert.ok(/data-key="gantt-dependency-Plan-Build"/.test(svg), "arrow");
   for (const label of ["Plan", "Build", "Launch"])
     assert.ok(svg.includes(`>${label}<`), `labels ${label}`);
+});
+
+it("renderToStaticSVG renders an Alluvial", async () => {
+  const rows = [
+    {region: "West", product: "Chairs", channel: "Online"},
+    {region: "West", product: "Tables", channel: "Store"},
+    {region: "East", product: "Chairs", channel: "Store"},
+  ];
+  const svg = await renderToStaticSVG(
+    new Alluvial().data(rows).dimensions(["region", "product", "channel"]),
+    {width: 400, height: 300},
+  );
+  assert.ok(svg.startsWith("<svg"), "is an svg");
+  assert.ok((svg.match(/<rect/g) || []).length >= 6, "draws its nodes");
+  assert.ok(
+    (svg.match(/<path[^>]*d="M[^"]*C/g) || []).length >= 4,
+    "draws its bands",
+  );
+  for (const title of ["region", "product", "channel"])
+    assert.ok(svg.includes(`>${title}<`), `titles the ${title} column`);
 });
 
 it("renderToStaticSVG reads dimensions from the chart when omitted", async () => {
