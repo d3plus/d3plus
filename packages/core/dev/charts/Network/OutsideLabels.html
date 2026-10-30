@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>OutsideLabels · Network</title>
+    <meta
+      name="description"
+      content="Circle labels that don't fit inside move beside their circle where there's room, else hide (labelPosition, issue #138)."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 20px;
+        grid-template-columns: repeat(2, 560px);
+        margin: 10px;
+      }
+
+      h3 {
+        font-size: 13px;
+        margin: 0 0 4px;
+      }
+
+      .viz {
+        height: 380px;
+        width: 560px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>Network: labelPosition "auto" (default)</h3>
+      <div class="viz" id="network"></div>
+    </div>
+    <div>
+      <h3>Network: labelPosition "inside"</h3>
+      <div class="viz" id="network-inside"></div>
+    </div>
+    <div>
+      <h3>Scatter: dense points, "auto"</h3>
+      <div class="viz" id="scatter"></div>
+    </div>
+    <div>
+      <h3>Bubble: big bubbles keep their labels inside</h3>
+      <div class="viz" id="bubble"></div>
+    </div>
+    <div>
+      <h3>Scatter: labelPosition "outside" for every point</h3>
+      <div class="viz" id="outside"></div>
+    </div>
+  </body>
+
+  <script>
+    // A small seeded generator, so the page draws the same picture every load.
+    var seed = 7;
+    function rand() {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    }
+
+    var names = [
+      "Aurora",
+      "Basalt",
+      "Cobalt",
+      "Dune",
+      "Ember",
+      "Fjord",
+      "Garnet",
+      "Harbor",
+      "Indigo",
+      "Juniper",
+      "Kelp",
+      "Lagoon",
+      "Meadow",
+      "Nimbus",
+      "Onyx",
+      "Prairie",
+      "Quartz",
+      "Reef",
+      "Summit",
+      "Tundra",
+      "Umber",
+      "Vale",
+      "Willow",
+      "Xenon",
+      "Yarrow",
+      "Zephyr",
+      "Alder",
+      "Birch",
+      "Cedar",
+      "Delta",
+      "Estuary",
+      "Flint",
+      "Glacier",
+      "Heath",
+      "Isle",
+      "Jasper",
+    ];
+
+    // Two dense clusters and a ring of loners; "Summit" and "Harbor" are hubs.
+    var nodes = names.map(function (id, i) {
+      var cluster = i % 3;
+      var cx = cluster === 0 ? 2 : cluster === 1 ? 7 : 4.5;
+      var cy = cluster === 0 ? 3 : cluster === 1 ? 3.5 : 7;
+      var spread = cluster === 2 ? 3 : 1.4;
+      return {
+        id: id,
+        x: cx + (rand() - 0.5) * spread * 2,
+        y: cy + (rand() - 0.5) * spread * 2,
+        value: id === "Summit" || id === "Harbor" ? 60 : 1 + rand() * 6,
+      };
+    });
+    var links = [];
+    nodes.forEach(function (n, i) {
+      var next = nodes[(i + 3) % nodes.length];
+      links.push({source: n.id, target: next.id});
+      if (i % 4 === 0) links.push({source: n.id, target: "Summit"});
+    });
+
+    var networkConfig = {
+      links: links,
+      nodes: nodes,
+      size: "value",
+      sizeMin: 4,
+      sizeMax: 34,
+    };
+    new d3plus.Network().select("#network").config(networkConfig).render();
+    new d3plus.Network()
+      .select("#network-inside")
+      .config(networkConfig)
+      .labelPosition("inside")
+      .render();
+
+    var points = [];
+    for (var i = 0; i < 140; i++) {
+      var dense = i < 90;
+      points.push({
+        id: "P" + (i + 1),
+        x: dense ? 40 + rand() * 25 : rand() * 100,
+        y: dense ? 40 + rand() * 25 : rand() * 100,
+      });
+    }
+    new d3plus.Plot()
+      .select("#scatter")
+      .data(points)
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .legend(false)
+      .render();
+
+    var bubbles = names.slice(0, 20).map(function (id, i) {
+      return {
+        id: id,
+        x: rand() * 100,
+        y: rand() * 100,
+        value: i < 4 ? 400 : 5 + rand() * 40,
+      };
+    });
+    new d3plus.Plot()
+      .select("#bubble")
+      .data(bubbles)
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .size("value")
+      .sizeMax(40)
+      .legend(false)
+      .render();
+
+    new d3plus.Plot()
+      .select("#outside")
+      .data(bubbles)
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .size("value")
+      .sizeMax(40)
+      .labelPosition("outside")
+      .legend(false)
+      .render();
+  </script>
+</html>

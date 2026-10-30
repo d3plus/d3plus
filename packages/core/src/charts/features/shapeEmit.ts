@@ -28,6 +28,7 @@ import type {SceneNode} from "@d3plus/render";
 import type {Shape} from "../../shapes/index.js";
 
 import {emitBarConfidence} from "../Plot/barConfidence.js";
+import {labelsOverCircles, plotCircleLabels} from "../Plot/circleLabels.js";
 import {emitLineBands} from "../Plot/lineBands.js";
 import {breakLines, clipBands, lineGaps} from "../Plot/connectGapsScene.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
@@ -170,8 +171,12 @@ function finishShape(
   if (override) s.config(override(userConfig));
   if (key === "Bar" && ctx.barLabelsOnAxis) s.label(false);
   if (viz.schema.stacked && key === "Bar") applyStackShareLabels(viz, s);
+  const besideLabels =
+    key === "Circle" ? plotCircleLabels(ctx, s, userConfig) : null;
   s.render();
   const nodes = collectComputed(s);
+  if (key === "Circle")
+    return labelsOverCircles([...nodes, ...(besideLabels?.() ?? [])]);
   if (key !== "Bar") return nodes;
   // Error bars paint over their bars but under the bar labels. Stacked bars
   // grow in one stack level after another.

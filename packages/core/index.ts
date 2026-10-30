@@ -93,6 +93,7 @@ export type {
   ConfidenceBound,
   KeyboardNavConfig,
   LegendConfig,
+  PointLabelConfig,
   SaveControlConfig,
   SaveFormat,
   SizeLegendConfig,

@@ -450,7 +450,6 @@ export interface VizInstance {
   _groupPadding?: number;
   _annotations?: Record<string, unknown>[];
   _axisPersist?: boolean;
-  _labelPosition?: (d: DataPoint, i: number) => "auto" | "inside" | "outside";
   _labelConnectorConfig?: Record<string, unknown>;
   _lineMarkerConfig?: Record<string, unknown>;
   _confidenceConfig?: Record<string, unknown>;

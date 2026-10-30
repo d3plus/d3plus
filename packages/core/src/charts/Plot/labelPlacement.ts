@@ -41,7 +41,7 @@ export function outside(this: VizInstance, d: DataPoint, i: number): boolean {
   if (this.schema.stacked) return false;
 
   // Detect user "outside" or "inside" override.
-  const labelPosition = this._labelPosition!(d, i);
+  const labelPosition = this.schema.labelPosition(d, i);
   if (labelPosition === "outside") return true;
   else if (labelPosition === "inside") return false;
 

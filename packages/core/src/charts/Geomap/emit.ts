@@ -13,6 +13,7 @@ import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveThemed} from "./basemapTheme.js";
+import {geomapPointLabels} from "./pointLabels.js";
 import type {Themed} from "./basemapTheme.js";
 
 interface GeomapCtx {
@@ -170,6 +171,13 @@ export const geomapEmit: ChartEmit = ({viz}) => {
         points[k],
         k,
       ]),
+    );
+    out.push(
+      ...geomapPointLabels(
+        viz,
+        {points, pointR: c.pointR, pointX: c.pointX, pointY: c.pointY},
+        circleConfig,
+      ),
     );
   }
 

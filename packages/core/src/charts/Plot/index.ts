@@ -4,7 +4,6 @@ import {zoomTransform} from "d3-zoom";
 
 import {assign} from "@d3plus/dom";
 
-import {constant} from "../../utils/index.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import {baselineValue, setBaseline} from "./baselineDomain.js";
@@ -538,18 +537,6 @@ Three more kinds draw chart notes: `"Callout"` anchors wrapped text in a box at 
         )),
         this)
       : this._labelConnectorConfig;
-  }
-
-  /**
-      The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
-*/
-  labelPosition(
-    _?: string | ((d: DataPoint, i: number) => string),
-  ): this | ((d: DataPoint, i: number) => string) {
-    return arguments.length
-      ? ((this._labelPosition = typeof _ === "function" ? _ : constant(_)),
-        this)
-      : this._labelPosition;
   }
 
   /**

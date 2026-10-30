@@ -64,6 +64,7 @@ const fields = {
   },
   keyboardNavConfig: {merge: true, default: {padding: 2, strokeWidth: 2}},
   label: {coerce: "const"},
+  labelPosition: {coerce: "const", default: "auto"},
   legend: {coerce: "const"},
   legendConfig: {merge: true},
   legendFilterInvert: {coerce: "const"},
@@ -86,6 +87,10 @@ const fields = {
   minimapViewportStyleActive: {},
   noDataHTML: {coerce: "const"},
   noDataMessage: {},
+  pointLabelConfig: {
+    merge: true,
+    default: {fontMin: 10, fontSize: 11, padding: 3},
+  },
   reducedMotion: {},
   saveControl: {},
   saveControlClassName: {},
