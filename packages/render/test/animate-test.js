@@ -1383,3 +1383,32 @@ it("persistent trails grow forward in time, cap, and rewind on scrub-back", () =
     "final leg ends at the destination",
   );
 });
+
+it("collapse folds a Pie wedge with arc params into the nearer end of its ring's sweep", () => {
+  const wedge = (startAngle, endAngle, sweep) =>
+    collapse({
+      type: "path",
+      key: "w",
+      shapeType: "Pie",
+      d: "M0,0Z",
+      arc: {innerRadius: 0, outerRadius: 10, startAngle, endAngle},
+      sweep,
+    }).arc;
+  // One turn from 12 o'clock: 0 or a full turn, whichever is nearer.
+  assert.strictEqual(wedge(0.5, 1).startAngle, 0, "first half → 0");
+  assert.strictEqual(wedge(4, 5).endAngle, Math.PI * 2, "second half → 2π");
+  // A half ring opening upward, from 3 to 9 o'clock: never through the top.
+  const bottom = {startAngle: Math.PI / 2, endAngle: (Math.PI * 3) / 2};
+  const early = wedge(1.6, 2, bottom);
+  assert.strictEqual(early.startAngle, Math.PI / 2, "early wedge → start");
+  assert.strictEqual(early.endAngle, Math.PI / 2, "zero width");
+  assert.strictEqual(
+    wedge(4, 4.5, bottom).startAngle,
+    (Math.PI * 3) / 2,
+    "late wedge → end",
+  );
+  // A counter-clockwise half, from 3 o'clock back to 9 o'clock.
+  const ccw = {startAngle: Math.PI / 2, endAngle: -Math.PI / 2};
+  assert.strictEqual(wedge(1.4, 1, ccw).startAngle, Math.PI / 2, "ccw start");
+  assert.strictEqual(wedge(-1, -1.4, ccw).startAngle, -Math.PI / 2, "ccw end");
+});

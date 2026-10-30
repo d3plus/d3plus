@@ -34,7 +34,20 @@ export {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
 export {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
 export {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
 export {applyParallelLayout} from "./src/charts/ParallelCoordinates/applyLayout.js";
-export {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
+export {
+  applyPieLayout,
+  pieAspect,
+  pieBaseRadius,
+  pieSweepOf,
+} from "./src/charts/Pie/applyLayout.js";
+export {
+  fitRing,
+  isFullTurn,
+  pieSweep,
+  ringExtent,
+  sweepFraction,
+} from "./src/charts/Pie/arcFit.js";
+export type {ArcBox, PieSweep, RingFit} from "./src/charts/Pie/arcFit.js";
 export {applyPolarAreaLayout} from "./src/charts/PolarArea/applyLayout.js";
 export {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";

@@ -61,7 +61,7 @@ export function marginOriginTransform(viz: Viz): Transform {
 
     Width and height are the margin-adjusted chart-area dimensions —
     callers usually have them on hand from `chartBounds(viz)` or from
-    fields a stage stashed (e.g. `_pieWidth` / `_radialMatrixWidth`).
+    fields a stage stashed (e.g. `_radialMatrixWidth`).
 */
 export function centerChartTransform(
   viz: Viz,

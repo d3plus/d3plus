@@ -105,8 +105,8 @@ export interface FacetPanelContext {
     default panel aspect.
 */
 export interface FacetHooks {
-  /** The panel width/height ratio the chart reads best at, used to pick the grid shape. */
-  aspect?: number;
+  /** The panel width/height ratio the chart reads best at, used to pick the grid shape, or a function of the chart returning it. */
+  aspect?: number | ((viz: VizInstance) => number);
   /** The chart's default for `FacetConfig.scales` (`"shared"` when unset). */
   scales?: "shared" | "independent";
   /** The chart's default for `FacetConfig.axes` (`"outer"` when unset), or a function of the chart returning it. */

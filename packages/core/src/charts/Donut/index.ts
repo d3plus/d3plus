@@ -2,15 +2,14 @@
     Donut — Pie with a centered inner radius.
 
     Extends Pie; inherits its layout stage + emit. Only the inner-radius
-    closure and the default arc gap (`padPixel`) differ.
+    closure (half the ring's hole-less radius) and the default arc gap
+    (`padPixel`) differ.
 */
 
-import {min} from "d3-array";
-
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
-import {chartBounds} from "../features/chartGeometry.js";
 import {makeChart} from "../definition/makeChart.js";
 import Pie, {pieDef} from "../Pie/index.js";
+import {pieBaseRadius} from "../Pie/applyLayout.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 export const donutDef: ChartDefinition = {
@@ -27,10 +26,7 @@ export const donutDef: ChartDefinition = {
     {key: "padPixel", default: 2},
     {
       key: "innerRadius",
-      factory: (viz: VizInstance) => () => {
-        const {width, height} = chartBounds(viz);
-        return (min([width, height]) ?? 0) / 4;
-      },
+      factory: (viz: VizInstance) => () => pieBaseRadius(viz) / 2,
     },
   ],
 };

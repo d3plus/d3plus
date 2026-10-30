@@ -126,3 +126,27 @@ BackgroundImages.parameters = {
     },
   },
 };
+
+export const QuarterPie = Template.bind({});
+QuarterPie.args = {
+  data: [
+    {Type: "Apple pie", Percentage: 30},
+    {Type: "Butter pie", Percentage: 20},
+    {Type: "Cherry pie", Percentage: 25},
+    {Type: "Lemon pie", Percentage: 15},
+    {Type: "Sugar pie", Percentage: 10},
+  ],
+  groupBy: "Type",
+  value: "Percentage",
+  startAngle: 0,
+  endAngle: 90,
+};
+QuarterPie.parameters = {
+  controls: {include: ["startAngle", "endAngle"]},
+  docs: {
+    description: {
+      story:
+        "`startAngle: 0, endAngle: 90` draws a quarter pie from 12 to 3 o'clock. A partial ring is sized to the part it draws and centered in the chart, so the quarter fills the chart's height. An `endAngle` smaller than `startAngle` lays the slices out counter-clockwise.",
+    },
+  },
+};

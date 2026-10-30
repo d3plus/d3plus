@@ -117,3 +117,51 @@ DrillDown.parameters = {
     },
   },
 };
+
+export const HalfDonut = Template.bind({});
+HalfDonut.args = {
+  data: [
+    {Party: "Green", Seats: 48},
+    {Party: "Red", Seats: 112},
+    {Party: "Blue", Seats: 96},
+    {Party: "Yellow", Seats: 31},
+    {Party: "Independent", Seats: 13},
+  ],
+  groupBy: "Party",
+  value: "Seats",
+  startAngle: -90,
+  endAngle: 90,
+};
+HalfDonut.parameters = {
+  controls: {include: ["startAngle", "endAngle", "innerRadius"]},
+  docs: {
+    description: {
+      story:
+        "`startAngle` and `endAngle` (degrees clockwise from 12 o'clock) draw a partial ring: from -90 to 90 makes a half donut, like a parliament seat chart. The ring is sized to its own footprint, and centered, so a half ring fills the chart's width.",
+    },
+  },
+};
+
+export const ThreeQuarterDonut = Template.bind({});
+ThreeQuarterDonut.args = {
+  data: [
+    {Party: "Green", Seats: 48},
+    {Party: "Red", Seats: 112},
+    {Party: "Blue", Seats: 96},
+    {Party: "Yellow", Seats: 31},
+    {Party: "Independent", Seats: 13},
+  ],
+  groupBy: "Party",
+  value: "Seats",
+  startAngle: -135,
+  endAngle: 135,
+};
+ThreeQuarterDonut.parameters = {
+  controls: {include: ["startAngle", "endAngle", "innerRadius"]},
+  docs: {
+    description: {
+      story:
+        "From -135 to 135 degrees the ring sweeps 270°, leaving a gap at the bottom like a gauge. The slices still divide the sweep by `value`.",
+    },
+  },
+};

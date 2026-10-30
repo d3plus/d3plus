@@ -21,6 +21,11 @@ import {
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
+import {sweepFraction} from "./arcFit.js";
+import type {PieSweep} from "./arcFit.js";
+
+const isDefaultSweep = (s: PieSweep) => s.start === 0 && s.end === FULL_TURN;
+
 type Slice = PieArcDatum<DataPoint> & {
   __d3plus__?: true;
   i?: number;
@@ -41,6 +46,8 @@ interface PathNodeCtx {
   flipSource: {start: number; span: number} | undefined;
   /** Whether a Back click armed this draw (see `pieEmit`'s own comment on `isReunionDraw`). */
   isReunionDraw: boolean;
+  /** The angular range the slices fill. */
+  sweep: PieSweep;
 }
 
 /**
@@ -59,6 +66,7 @@ function buildPathNode(d: Slice, rank: number, ctx: PathNodeCtx): SceneNode {
     sharePct,
     flipSource,
     isReunionDraw,
+    sweep,
   } = ctx;
   const fill = resolveAccessor<string>(sc.fill, d.data as DataPoint, d.i ?? 0);
   const stroke = resolveAccessor<string>(
@@ -78,16 +86,18 @@ function buildPathNode(d: Slice, rank: number, ctx: PathNodeCtx): SceneNode {
     endAngle: d.endAngle,
     padAngle: d.padAngle,
   };
+  const span = sweep.end - sweep.start || FULL_TURN;
+  const confine = (a: number, src: {start: number; span: number}) =>
+    src.start + ((a - sweep.start) / span) * src.span;
   const flipFromArc: ArcGeometry | undefined = flipSource
     ? {
         ...arc,
-        startAngle:
-          flipSource.start + (d.startAngle / FULL_TURN) * flipSource.span,
-        endAngle: flipSource.start + (d.endAngle / FULL_TURN) * flipSource.span,
+        startAngle: confine(d.startAngle, flipSource),
+        endAngle: confine(d.endAngle, flipSource),
       }
     : undefined;
   const reunionFromArc: ArcGeometry | undefined = isReunionDraw
-    ? {...arc, startAngle: 0, endAngle: FULL_TURN}
+    ? {...arc, startAngle: sweep.start, endAngle: sweep.end}
     : undefined;
   return {
     type: "path",
@@ -96,6 +106,11 @@ function buildPathNode(d: Slice, rank: number, ctx: PathNodeCtx): SceneNode {
     arc,
     flipFromArc,
     reunionFromArc,
+    // A wedge entering or leaving without a drill shrinks toward the nearer
+    // end of a sweep other than the default full turn from 12 o'clock.
+    ...(isDefaultSweep(sweep)
+      ? {}
+      : {sweep: {startAngle: sweep.start, endAngle: sweep.end}}),
     // Lets the render layer's drill-down morph collapse this wedge to/from
     // an external box (isFlipEligible/collapseTo) — the same mechanism
     // StackedArea's shapeType: "Area" bands use.
@@ -151,6 +166,7 @@ function buildPathNode(d: Slice, rank: number, ctx: PathNodeCtx): SceneNode {
 function stampLabelFlip(
   labelNodes: SceneNode[],
   flipSource: {start: number; span: number} | undefined,
+  sweep: PieSweep,
 ): void {
   for (const n of labelNodes) {
     const tn = n as TextNode;
@@ -163,9 +179,8 @@ function stampLabelFlip(
     // d3's angle convention: 0 rad = straight up, increasing clockwise —
     // atan2(x, -y) inverts the x = r·sin(θ), y = -r·cos(θ) used below.
     const angle = Math.atan2(x, -y);
-    const normalized = angle < 0 ? angle + FULL_TURN : angle;
     const mapped =
-      flipSource.start + (normalized / FULL_TURN) * flipSource.span;
+      flipSource.start + sweepFraction(angle, sweep) * flipSource.span;
     tn.flipFromTransform = {
       x: radius * Math.sin(mapped),
       y: -radius * Math.cos(mapped),
@@ -204,6 +219,10 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   // to the one wedge resolveDrillMorph later resolves as the reunion match,
   // so there's no need to know which slice that'll be yet.
   const isReunionDraw = Boolean(viz._pendingExitReunion);
+  const sweep = (viz.ctx.pieSweep as PieSweep | undefined) ?? {
+    start: 0,
+    end: FULL_TURN,
+  };
 
   const value = viz.schema.value as (d: DataPoint, i: number) => number;
   const locale = viz.schema.locale;
@@ -219,6 +238,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     sharePct,
     flipSource,
     isReunionDraw,
+    sweep,
   };
   const pathNodes: SceneNode[] = slices.map((d, rank) =>
     buildPathNode(d, rank, pathCtx),
@@ -286,7 +306,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     },
   });
 
-  stampLabelFlip(labelNodes, flipSource);
+  stampLabelFlip(labelNodes, flipSource, sweep);
 
   const imageNodes = backgroundImageNodes(sc, pathNodes, k => [
     slices[k].data as DataPoint,

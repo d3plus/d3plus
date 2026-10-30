@@ -380,6 +380,12 @@ export interface PathNode extends NodeBase {
   */
   reunionFromArc?: ArcGeometry;
   /**
+      The full angular range this wedge's ring spans (Pie/Donut only), when it
+      isn't one turn from 12 o'clock: a wedge entering or exiting without a
+      drill grows from, or shrinks into, whichever end of it is nearer.
+  */
+  sweep?: {startAngle: number; endAngle: number};
+  /**
       Where this wedge starts whenever it enters: the chart's own collapsed
       start (e.g. a Sunburst arc sweeping back in from 0 or 2π on zoom-out).
       It grows from there at its own opacity, interpolated numerically against
