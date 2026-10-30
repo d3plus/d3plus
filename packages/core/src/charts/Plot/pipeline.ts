@@ -20,6 +20,7 @@ import {discreteDomainCategories} from "./discreteDomain.js";
 import {extraBandValues} from "./confidenceBands.js";
 import {applySwarmLanes, resolveSwarm} from "./swarm.js";
 import {applyPaddedDomains} from "./facetScales.js";
+import {dropHiddenRows} from "./plotRangeBreaks.js";
 import {scaleConstructors} from "./pipelineScales.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -301,11 +302,14 @@ export const formatPlotData: TransformStage = ({viz}) => {
     isPlottableRow(d) &&
     (!categories || categories.has(d[viz.schema.discrete]));
   const prepped = viz._filteredData.map(prepData);
-  const plotted = prepped.filter(keepRow);
+  // Rows a time axis's `rangeBreaks` hide are left out of the drawing.
+  const plotted = dropHiddenRows(viz, prepped.filter(keepRow));
   const [formattedData, axisData] = applyBarWidths(
     viz,
     plotted,
-    viz._axisPersist ? viz._data.map(prepData).filter(keepRow) : plotted,
+    viz._axisPersist
+      ? dropHiddenRows(viz, viz._data.map(prepData).filter(keepRow))
+      : plotted,
   );
   viz._formattedData = formattedData;
 

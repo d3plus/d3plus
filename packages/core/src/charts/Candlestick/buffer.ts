@@ -8,6 +8,10 @@
 
 import type {DataPoint} from "@d3plus/data";
 
+import {
+  scaleTimeShift,
+  scaleTimeStep,
+} from "../../components/Axis/brokenTimeScale.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {ohlcAccessors} from "./aggregate.js";
@@ -61,12 +65,16 @@ export function padPeriods(scale: D3Scale, times: number[]): void {
   const sorted = Array.from(new Set(times.filter(Number.isFinite))).sort(
     (a, b) => a - b,
   );
+  // A time scale with hidden time (`rangeBreaks`) counts only the time it shows.
   let gap = Infinity;
   for (let k = 1; k < sorted.length; k++)
-    gap = Math.min(gap, sorted[k] - sorted[k - 1]);
+    gap = Math.min(gap, scaleTimeStep(scale, sorted[k - 1], sorted[k]));
   if (!Number.isFinite(gap)) return;
   const [lo, hi] = (scale.domain() as (number | Date)[]).map(Number);
-  scale.domain([new Date(lo - gap), new Date(hi + gap)]);
+  scale.domain([
+    scaleTimeShift(scale, lo, -gap),
+    scaleTimeShift(scale, hi, gap),
+  ]);
 }
 
 /**

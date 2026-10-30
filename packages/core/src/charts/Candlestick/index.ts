@@ -244,7 +244,8 @@ export const candlestickDef: ChartDefinition = {
     /**
         Places periods one slot apart in date order (default `true`), so days
         without data (weekends, holidays) leave no gap; `false` places each
-        period at its date on a continuous time axis.
+        period at its date on a continuous time axis, where
+        `xConfig.rangeBreaks` can hide weekends, holidays, or off-hours.
     */
     {key: "skipGaps", default: true},
     {key: "discrete", default: "x"},

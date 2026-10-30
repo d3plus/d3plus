@@ -12,6 +12,7 @@ import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
 import {isSpanAxis} from "./discreteSpan.js";
 import {widenReferenceDomains} from "./referenceDomains.js";
+import {plotTimeScale, type AxisName} from "./plotRangeBreaks.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 
@@ -261,21 +262,27 @@ export const computePlotScales: TransformStage = ({
 
   applyOppDomains(viz, domains, opps, {x: xConfigScale, y: yConfigScale}, user);
 
-  const x = scaleConstructors[`scale${xScale}`]()
-    .domain(domains.x)
-    .range(range(0, width + 1, width / (domains.x.length - 1)));
-  const x2 = scaleConstructors[`scale${x2Scale}`]()
-    .domain(domains.x2)
-    .range(range(0, width + 1, width / (domains.x2.length - 1)));
+  // A time axis with `rangeBreaks` hides the same time here as on the axis.
+  const axisScale = (
+    axis: AxisName,
+    type: string,
+    d: DomainValue[],
+    size: number,
+  ) =>
+    plotTimeScale(
+      viz,
+      axis,
+      scaleConstructors[`scale${type}`]()
+        .domain(d)
+        .range(range(0, size + 1, size / (d.length - 1))),
+    );
+  const x = axisScale("x", xScale, domains.x, width);
+  const x2 = axisScale("x2", x2Scale, domains.x2, width);
   // `.slice().reverse()` so the domain object isn't mutated under us if
   // it came from user config (covered by the slice above) OR from
   // domains.y being aliased into the user config via the slice above.
-  const y = scaleConstructors[`scale${yScale}`]()
-    .domain(domains.y.slice().reverse())
-    .range(range(0, height + 1, height / (domains.y.length - 1)));
-  const y2 = scaleConstructors[`scale${y2Scale}`]()
-    .domain(domains.y2.slice().reverse())
-    .range(range(0, height + 1, height / (domains.y2.length - 1)));
+  const y = axisScale("y", yScale, domains.y.slice().reverse(), height);
+  const y2 = axisScale("y2", y2Scale, domains.y2.slice().reverse(), height);
 
   return {
     plotDomains: domains,

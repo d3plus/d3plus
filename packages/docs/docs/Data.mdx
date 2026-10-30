@@ -48,6 +48,27 @@ group's tiles below it; hovering a strip highlights the group and clicking it
 zooms in. Style the strips with `groupLabelConfig`, or turn them off with
 `groupLabels: false`.
 
+## Time axes
+
+When `x` (or `y`) reads dates and `time` points at the same field, a Plot draws
+a continuous time axis. Markets and offices don't run around the clock, so an
+axis config's `rangeBreaks` can hide the time with no data, and the rest
+closes up around it:
+
+```jsx
+<LinePlot config={{
+  data, groupBy: "ticker", x: "date", time: "date", y: "close",
+  xConfig: {rangeBreaks: ["weekends", {hours: [16, 9.5]}, {values: ["2024-07-04"]}]}
+}} />
+```
+
+`"weekends"` hides Saturdays and Sundays, `{hours: [start, end]}` the same
+hours every day (wrapping past midnight), `{values: [...]}` whole days such as
+holidays, and `{bounds: [start, end]}` one explicit range, marked on the axis
+with the same break marker as `yBreak`. Rules read dates in local time, like
+the axis labels. Ticks never land in hidden time, lines connect across it, and
+rows inside it are left out.
+
 ## Loading from a URL
 
 `data` accepts a URL string. D3plus fetches JSON (or CSV/TSV by extension) and

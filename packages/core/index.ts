@@ -113,6 +113,10 @@ export type {
   ReferenceStyle,
 } from "./src/charts/features/annotationTypes.js";
 export type {
+  RangeBreakRule,
+  RangeBreakTime,
+} from "./src/components/Axis/rangeBreaks.js";
+export type {
   ThemeConfig,
   ThemeOverlayTokens,
   ThemeSetting,

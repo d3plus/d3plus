@@ -974,3 +974,37 @@ ConnectGaps.parameters = {
     },
   },
 };
+
+export const RangeBreaks = Template.bind({});
+RangeBreaks.args = {
+  data: (() => {
+    // Jan 15 and Feb 19 are market holidays.
+    const holidays = [14, 49];
+    const out = [];
+    let close = 180;
+    for (let i = 0; i < 90; i++) {
+      const date = new Date(2024, 0, 1 + i);
+      const weekend = date.getDay() === 0 || date.getDay() === 6;
+      if (weekend || holidays.includes(i)) continue;
+      close += Math.sin(i / 6) * 2.5 + Math.cos(i / 2.3) * 1.2;
+      out.push({ticker: "ACME", date, close: Math.round(close * 100) / 100});
+    }
+    return out;
+  })(),
+  groupBy: "ticker",
+  time: "date",
+  x: "date",
+  xConfig: {
+    rangeBreaks: ["weekends", {values: ["2024-01-15", "2024-02-19"]}],
+  },
+  y: "close",
+};
+RangeBreaks.parameters = {
+  controls: {include: ["xConfig"]},
+  docs: {
+    description: {
+      story:
+        "Daily closing prices only exist on trading days. `xConfig.rangeBreaks` hides weekends and the listed holidays from the time axis, so Friday sits next to Monday and the line never stretches across days with no trading. Ticks and labels stay on trading days, and hover and zoom read the broken axis. Add `{hours: [16, 9.5]}` for intraday data, or `{bounds: [start, end]}` to remove one range with a break marker.",
+    },
+  },
+};

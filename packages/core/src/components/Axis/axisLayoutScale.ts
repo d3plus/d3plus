@@ -14,6 +14,11 @@ import {closest} from "@d3plus/math";
 
 import type Axis from "./Axis.js";
 import {applyAxisBreaks, breakTickValues} from "./axisBreak.js";
+import {
+  applyAxisRangeBreaks,
+  rangeBreakDayLabel,
+  visibleTimeValues,
+} from "./axisRangeBreaks.js";
 import type {TickGet} from "./axisLayoutLabels.js";
 import {
   axisDateCategories,
@@ -75,6 +80,7 @@ function baseTickFormat(
       .label(d, axisShownDates(axis))
       .replace(/^Q/g, timeLocaleObj.quarter);
   };
+  const dayLabel = rangeBreakDayLabel(axis);
   const format = axis.schema.tickFormat as
     ((this: Axis, d: unknown) => string) | undefined;
   // A tickFormat may read the axis it labels as `this` (such as which labels it shows).
@@ -89,7 +95,7 @@ function baseTickFormat(
         ) {
           return d as string;
         } else if (axis.schema.scale === "time") {
-          return dateLabel(axisTimeReference(axis), d as Date);
+          return dayLabel(d) ?? dateLabel(axisTimeReference(axis), d as Date);
         } else if (
           axis.schema.scale === "linear" &&
           axis.schema.tickSuffix === "smallest"
@@ -290,6 +296,8 @@ function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
     ticks = ticks.map(Number);
     labels = labels.map(Number);
   }
+  ticks = visibleTimeValues(axis, ticks);
+  labels = visibleTimeValues(axis, labels);
   if (axis._breaks.length) {
     ticks = breakTickValues(axis._breaks, ticks);
     // An explicit `labels` list labels just those values (an empty one, none).
@@ -409,6 +417,8 @@ export function setAxisScale(
   // Breaks (an automatic baseline break and any `break` ranges) swap the
   // linear scale for a broken one that skips the removed values.
   applyAxisBreaks(axis, range);
+  // A time axis's `rangeBreaks` swap its time scale for one that hides them.
+  applyAxisRangeBreaks(axis);
 
   const {ticks: rawTicks, labels} = resolveTicksLabels(axis);
   applyTickSuffixUnit(axis, labels);
