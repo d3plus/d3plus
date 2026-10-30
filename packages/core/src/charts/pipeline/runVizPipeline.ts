@@ -42,8 +42,11 @@ import {topLeftControlsFeature} from "../drawSteps/topLeftControls.js";
 import {bottomRightControlsFeature} from "../drawSteps/bottomRightControls.js";
 import {tableViewFeature} from "../drawSteps/tableView.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {applyOverlayColorScheme, applyVizTheme} from "../viz/vizTheme.js";
 
 export function runVizPipeline(viz: Viz): void {
+  // The theme resolves first, so every color default below reads this draw's.
+  applyVizTheme(viz);
   // Goes through `viz._preDraw()` / `viz._draw()` (not the free functions
   // directly) so subclass overrides (Plot._preDraw, Treemap._draw, Plot._draw,
   // Pack/Pie/Matrix/…) still run. The free functions `vizPreDraw` / `vizDraw`
@@ -80,6 +83,8 @@ export function runVizPipeline(viz: Viz): void {
   // one) now that this draw's _bodyRect/_chartScene are final.
   resolveDrillMorph(viz);
   viz._drawSceneToTarget();
+  // The overlay host exists once the scene has painted.
+  applyOverlayColorScheme(viz);
 }
 
 /**

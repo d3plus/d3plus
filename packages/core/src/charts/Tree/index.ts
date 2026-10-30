@@ -8,8 +8,6 @@
 
 import {tree} from "d3-hierarchy";
 
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import constant from "../../utils/constant.js";
@@ -22,6 +20,7 @@ import type Viz from "../viz/Viz.js";
 import {applyTreeLayout} from "./applyLayout.js";
 import {treeEmit} from "./emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
+import {backgroundInk} from "../viz/backgroundInk.js";
 
 export const treeDef: ChartDefinition = {
   name: "Tree",
@@ -68,12 +67,7 @@ export const treeDef: ChartDefinition = {
           return viz._drawLabel(d, i);
         },
         labelConfig: {
-          fontColor: () => {
-            const bg = viz._select
-              ? backgroundColor(viz._select.node())
-              : "rgb(255, 255, 255)";
-            return colorContrast(bg, viz.schema.colorDefaults);
-          },
+          fontColor: () => backgroundInk(viz),
         },
         Path: {
           fill: "none",

@@ -33,6 +33,7 @@ import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
 import type {KeyboardNavState} from "./keyboardNav.js";
+import type {ResolvedTheme} from "../../utils/theme.js";
 
 import type {DataPoint} from "@d3plus/data";
 import type {
@@ -570,8 +571,10 @@ export interface VizInstance {
   _zoomSet?: boolean;
   /** Whether a Geomap's themed basemap resolved dark on the latest draw. */
   _basemapDark?: boolean;
-  /** Whether a Geomap is watching its backdrop for theme changes. */
-  _themeWatch?: boolean;
+  /** The chart's theme, resolved on its latest draw (see `applyVizTheme`). */
+  _theme?: ResolvedTheme;
+  /** Stops the `"auto"` theme's page watcher, while one is installed. */
+  _themeWatch?: () => void;
   /** The attribution d3plus last set from the tile URL (vs. a user-set one). */
   _tileAttribution?: string | false;
   /** Whether a compact (ⓘ) attribution was clicked open. */

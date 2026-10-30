@@ -1,19 +1,13 @@
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor, rtl as detectRTL} from "@d3plus/dom";
+import {rtl as detectRTL} from "@d3plus/dom";
 
 import {constant} from "../../utils/index.js";
-import {gridStroke} from "./gridStroke.js";
+import {inkAxis, inkGrid} from "../../utils/themeInk.js";
 import {rotatedTextAnchor} from "./axisLabelAngle.js";
 import type Axis from "./Axis.js";
 
-/** A color that contrasts with the background behind the axis's container. */
+/** The axis color of the axis's chart theme, or one that contrasts with the background behind it. */
 function contrastInk(axis: Axis): () => string {
-  return () => {
-    const bg = axis._select
-      ? backgroundColor(axis._select.node())
-      : "rgb(255, 255, 255)";
-    return colorContrast(bg, axis.schema.colorDefaults);
-  };
+  return () => inkAxis(axis);
 }
 
 /** The default `barConfig` (the domain line). */
@@ -42,7 +36,7 @@ export function axisBreakConfig(axis: Axis): Record<string, unknown> {
 /** The default `gridConfig`. */
 export function axisGridConfig(axis: Axis): Record<string, unknown> {
   return {
-    stroke: () => gridStroke(axis._select?.node(), axis.schema.colorDefaults),
+    stroke: () => inkGrid(axis),
     "stroke-width": 1,
   };
 }

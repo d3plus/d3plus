@@ -25,11 +25,9 @@ import type {D3Selection} from "@d3plus/dom";
 
 import type {FeatureModule} from "./features.js";
 import {chartBounds} from "./chartGeometry.js";
-import {
-  attributionStyleDarkDefault,
-  attributionStyleDefault,
-} from "../viz/vizDefaults.js";
+import {attributionStyleDefault} from "../viz/vizDefaults.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {themeOverlayStyle} from "../viz/vizTheme.js";
 
 /** An "i" in a circle, drawn like the zoom-control icons (see `zoomControlsMarkup.ts`). */
 const INFO_ICON =
@@ -75,18 +73,6 @@ function setExpanded(node: HTMLElement, open: boolean): void {
   node.style.padding = open ? "4px 6px" : "2px";
 }
 
-/** Swaps each entry still at its light default for the dark default. */
-function darkAttributionStyle(
-  style: Record<string, unknown>,
-): Record<string, unknown> {
-  const light: Record<string, unknown> = attributionStyleDefault;
-  const dark: Record<string, unknown> = attributionStyleDarkDefault;
-  const out = {...style};
-  for (const key of Object.keys(dark))
-    if (out[key] === light[key]) out[key] = dark[key];
-  return out;
-}
-
 export const attributionFeature: FeatureModule = {
   name: "attribution",
   configFields: ["attribution", "attributionIcon", "attributionStyle"],
@@ -102,9 +88,12 @@ export const attributionFeature: FeatureModule = {
 
     attr.exit().remove();
 
-    const style = viz._basemapDark
-      ? darkAttributionStyle(viz.schema.attributionStyle)
-      : viz.schema.attributionStyle;
+    const style = themeOverlayStyle(
+      viz,
+      viz.schema.attributionStyle,
+      attributionStyleDefault,
+      {background: o => o.background, color: o => o.text},
+    );
 
     attr = attr
       .merge(attrEnter as never)

@@ -100,6 +100,14 @@ export type {
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
 export type {
+  ThemeConfig,
+  ThemeOverlayTokens,
+  ThemeSetting,
+  ThemeTableTokens,
+  ThemeTokens,
+  ThemeTooltipTokens,
+} from "./src/utils/theme.js";
+export type {
   ColorScaleType,
   ColorScaleTypeSetting,
 } from "./src/components/ColorScale/colorScaleType.js";

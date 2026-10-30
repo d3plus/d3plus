@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Theme · Viz</title>
+    <meta
+      name="description"
+      content="A bar chart with a legend, a line plot with a timeline, a treemap, a Sankey, and a box plot, switched between the auto, light, dark, and a custom theme on a light or dark page."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+        transition: background 0.2s;
+      }
+
+      body.dark-page {
+        background: #16171b;
+        color: #f1f3f5;
+      }
+
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      section {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+        gap: 24px;
+      }
+
+      h2 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: normal;
+      }
+
+      .viz {
+        height: 320px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <form>
+      <fieldset>
+        <legend>theme</legend>
+        <label
+          ><input type="radio" name="theme" value="auto" checked />auto</label
+        >
+        <label><input type="radio" name="theme" value="light" />light</label>
+        <label><input type="radio" name="theme" value="dark" />dark</label>
+        <label><input type="radio" name="theme" value="custom" />custom</label>
+      </fieldset>
+      <label><input type="checkbox" id="page" />dark page</label>
+    </form>
+    <section>
+      <div>
+        <h2>BarChart with a legend</h2>
+        <div class="viz" id="bar"></div>
+      </div>
+      <div>
+        <h2>LinePlot with a timeline</h2>
+        <div class="viz" id="line"></div>
+      </div>
+      <div>
+        <h2>Treemap</h2>
+        <div class="viz" id="treemap"></div>
+      </div>
+      <div>
+        <h2>Sankey</h2>
+        <div class="viz" id="sankey"></div>
+      </div>
+      <div>
+        <h2>BoxWhisker</h2>
+        <div class="viz" id="box"></div>
+      </div>
+    </section>
+  </body>
+
+  <script>
+    const custom = {
+      base: "dark",
+      background: "#14213d",
+      gridline: "#22345c",
+      accent: "#fca311",
+      tooltip: {background: "#22345c", border: "#fca311"},
+    };
+
+    const regions = ["North", "South", "East", "West"];
+    const years = [2019, 2020, 2021, 2022, 2023];
+    const series = [];
+    regions.forEach((id, r) =>
+      years.forEach((year, y) =>
+        series.push({id, year, value: 10 + r * 4 + ((y * 7 + r * 3) % 9)}),
+      ),
+    );
+
+    const charts = [
+      new d3plus.BarChart().select("#bar").config({
+        data: series.filter(d => d.year >= 2021),
+        groupBy: "id",
+        x: "year",
+        y: "value",
+        discrete: "x",
+        title: "Revenue by region",
+        legendConfig: {title: "Region"},
+      }),
+      new d3plus.LinePlot().select("#line").config({
+        data: series,
+        groupBy: "id",
+        x: "year",
+        y: "value",
+        time: "year",
+        lineLabels: true,
+        title: "Revenue over time",
+      }),
+      new d3plus.Treemap().select("#treemap").config({
+        data: series.filter(d => d.year === 2023),
+        groupBy: "id",
+        sum: "value",
+        title: "Share of 2023",
+      }),
+      new d3plus.Sankey().select("#sankey").config({
+        links: [
+          {source: "Coal", target: "Power", value: 30},
+          {source: "Gas", target: "Power", value: 20},
+          {source: "Gas", target: "Heat", value: 15},
+          {source: "Power", target: "Homes", value: 28},
+          {source: "Power", target: "Industry", value: 22},
+          {source: "Heat", target: "Homes", value: 15},
+        ],
+        value: d => d.value,
+        nodes: ["Coal", "Gas", "Power", "Heat", "Homes", "Industry"].map(
+          id => ({id}),
+        ),
+      }),
+      new d3plus.BoxWhisker().select("#box").config({
+        data: series,
+        groupBy: ["id", "year"],
+        x: "id",
+        y: "value",
+        legend: false,
+      }),
+    ];
+
+    const draw = () => {
+      const value = document.querySelector("input[name=theme]:checked").value;
+      const theme = value === "custom" ? custom : value;
+      charts.forEach(chart => chart.theme(theme).render());
+    };
+
+    document
+      .querySelectorAll("input[name=theme]")
+      .forEach(input => input.addEventListener("change", draw));
+    // The auto theme redraws on its own when the page flips.
+    document
+      .querySelector("#page")
+      .addEventListener("change", e =>
+        document.body.classList.toggle("dark-page", e.target.checked),
+      );
+
+    draw();
+  </script>
+</html>

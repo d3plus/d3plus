@@ -99,3 +99,18 @@ it("renderToStaticSVG keeps the chart's className on the root svg", async () => 
   const root = svg.slice(0, svg.indexOf(">") + 1);
   assert.ok(/class="[^"]*revenue-chart dark"/.test(root), root);
 });
+
+it("renderToStaticSVG paints a forced theme's background", async () => {
+  const dark = await renderToStaticSVG(
+    new Treemap().data(data).groupBy("id").theme("dark"),
+    {width: 300, height: 200},
+  );
+  const rect = /<rect[^>]*data-key="viz-background"[^>]*>/.exec(dark);
+  assert.ok(rect, "the background rect is in the markup");
+  assert.ok(/fill="(#212529|rgb\(33, 37, 41\))"/.test(rect[0]), rect[0]);
+  const auto = await renderToStaticSVG(new Treemap().data(data).groupBy("id"), {
+    width: 300,
+    height: 200,
+  });
+  assert.ok(!auto.includes('data-key="viz-background"'), "auto paints none");
+});

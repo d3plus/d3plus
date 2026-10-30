@@ -16,8 +16,7 @@ import constant from "../../utils/constant.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
-import {gridStroke} from "../../components/Axis/gridStroke.js";
-import {backgroundInk} from "../viz/backgroundInk.js";
+import {backgroundInk, chartGridline} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRadarLayout} from "./applyLayout.js";
@@ -85,8 +84,7 @@ export const radarDef: ChartDefinition = {
         barConfig: {stroke: () => backgroundInk(viz), strokeWidth: 1},
         // The inner rings: Plot's gridlines.
         gridConfig: {
-          stroke: () =>
-            gridStroke(viz._select?.node(), viz.schema.colorDefaults),
+          stroke: () => chartGridline(viz),
           strokeWidth: 1,
         },
         // The spokes and metric labels: Plot's ticks.

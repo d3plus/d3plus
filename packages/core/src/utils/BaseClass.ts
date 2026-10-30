@@ -9,6 +9,7 @@ import {
 
 import type {ColorDefaultsConfig, D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
+import type {ResolvedTheme} from "./theme.js";
 import {
   containsReset,
   isPlainObject,
@@ -119,6 +120,8 @@ export default class BaseClass {
 
   _uuid: string;
   _configDefault?: D3plusConfig;
+  /** The theme of the chart this instance draws in, for its latest draw. */
+  _theme?: ResolvedTheme;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.

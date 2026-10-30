@@ -25,6 +25,7 @@ import {applyRingsLayout, ringsSizeLegendScale} from "./applyLayout.js";
 import {ringsEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {themed} from "../../utils/theme.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
 
@@ -301,7 +302,12 @@ export const ringsDef: ChartDefinition = {
         },
         // Thin (1px) lines need more contrast than a wide flow-width stroke
         // (cf. Sankey's #DBDBDB) to read clearly against a white background.
-        Path: {fill: "none", label: false, stroke: "#adb5bd", strokeWidth: 1},
+        Path: {
+          fill: "none",
+          label: false,
+          stroke: () => themed(viz._theme, t => t.link, "#adb5bd"),
+          strokeWidth: 1,
+        },
       }),
     },
   ],

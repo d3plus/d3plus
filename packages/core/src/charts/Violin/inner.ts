@@ -3,7 +3,6 @@
     the quartiles, and/or the raw observations packed into a swarm.
 */
 import type {DataPoint} from "@d3plus/data";
-import {backgroundColor} from "@d3plus/dom";
 import type {SceneNode} from "@d3plus/render";
 
 import {densityAt} from "../helpers/densityData.js";
@@ -17,7 +16,7 @@ import {
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
 import type {PlotAxisFn} from "../features/plotPaint.js";
 import {fitSwarms} from "../Plot/swarmLayout.js";
-import {backgroundInk} from "../viz/backgroundInk.js";
+import {backgroundInk, chartBackground} from "../viz/backgroundInk.js";
 import {violinEdges, type ViolinSlot} from "./violinLayout.js";
 
 /** The overlays `inner` can name. */
@@ -82,11 +81,7 @@ function boxNodes(
   );
   const rectWidth = Math.max(3, Math.min(10, Math.min(...widths)));
   const vertical = frame.vertical;
-  const node =
-    viz._select && typeof viz._select.node === "function"
-      ? viz._select.node()
-      : null;
-  const background = node ? backgroundColor(node) : "#fff";
+  const background = chartBackground(viz);
   const nodes = placed.map(({row, meta, slot}): SceneNode => {
     const id = `density-box-${row.id}`;
     const center =

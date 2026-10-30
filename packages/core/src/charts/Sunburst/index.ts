@@ -11,8 +11,6 @@
       - `interaction.ts` — hover lineage, tooltip rows, and click-to-zoom.
 */
 
-import {backgroundColor} from "@d3plus/dom";
-
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
@@ -34,6 +32,7 @@ import {partitionShadeDefaults} from "../partition/shade.js";
 import {applySunburstLayout} from "./applyLayout.js";
 import {sunburstEmit} from "./emit.js";
 import {sunburstInteraction} from "./interaction.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 
 export const sunburstDef: DataDrivenChartDefinition = {
   name: "Sunburst",
@@ -139,7 +138,7 @@ export const sunburstDef: DataDrivenChartDefinition = {
         Path: {labelConfig: {fontResize: true}},
         // A thin outline in the chart's background color separates
         // neighboring arcs and rings by the same width everywhere.
-        stroke: () => backgroundColor(viz._select?.node()),
+        stroke: () => chartBackground(viz),
         strokeWidth: 1,
       }),
     },

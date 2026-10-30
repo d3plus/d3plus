@@ -2,8 +2,7 @@ import {max} from "d3-array";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor, elem} from "@d3plus/dom";
+import {elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
@@ -17,6 +16,7 @@ import {accessor, BaseClass, paintComponentScene} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
+import {inkText} from "../../utils/themeInk.js";
 
 import Legend from "../Legend/Legend.js";
 import {formatYear, isYearLike} from "../Axis/yearValues.js";
@@ -137,12 +137,7 @@ export default class ColorScale extends BaseClass {
     this._data = [];
     this._labelClass = new TextBox();
     this.schema.labelConfig = {
-      fontColor: () => {
-        const bg = this._select
-          ? backgroundColor(this._select.node())
-          : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
+      fontColor: () => inkText(this),
       fontSize: 12,
     };
     this._legendClass = new Legend();

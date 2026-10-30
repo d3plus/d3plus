@@ -12,6 +12,7 @@ import {parseDash} from "../../shapes/Shape.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {AxisHoverBadge, AxisHoverState} from "./axisHover.js";
 import type {AxisName} from "./axisHoverAnchors.js";
+import {themed} from "../../utils/theme.js";
 
 /** The plot area's edges in chart content space, where each axis line sits. */
 export interface PlotEdges {
@@ -239,7 +240,8 @@ export function axisHoverNodes(
   const area = viz._plotArea;
   if (!area) return {guides: [], badges: []};
   const edges = plotEdges(area);
-  const color = state.color || colorGray[500];
+  const color =
+    state.color || themed(viz._theme, t => t.textMuted, colorGray[500]);
   return {
     guides: guideNodes(viz, state, edges, color),
     badges: state.badges.map(b => badgeNode(viz, state, b, edges, color)),

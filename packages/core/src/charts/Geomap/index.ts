@@ -25,12 +25,10 @@ import {tileZoomTransform} from "../drawSteps/zoomControls.js";
 import {
   DEFAULT_OCEAN,
   DEFAULT_TILE_URL,
-  isThemed,
-  pageIsDark,
   resolveThemed,
-  watchPageTheme,
 } from "./basemapTheme.js";
 import type {Themed} from "./basemapTheme.js";
+import {pageIsDark} from "../viz/pageTheme.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -218,9 +216,8 @@ function setupGeomapDraw(viz: VizInstance): void {
   // Wrap _draw to ensure DOM zoom group + zoom wiring.
   const supDraw = viz._draw.bind(viz);
   viz._draw = function (callback?: () => void) {
-    // Resolve `{light, dark}` basemaps against the chart's backdrop.
-    viz._basemapDark = pageIsDark(viz);
-    if (isThemed(viz)) watchPageTheme(viz);
+    // Resolve `{light, dark}` basemaps against the chart's theme.
+    viz._basemapDark = viz._theme ? viz._theme.dark : pageIsDark(viz);
     syncTileAttribution(viz);
     const result = supDraw(callback);
     const {width, height} = chartBounds(viz);
