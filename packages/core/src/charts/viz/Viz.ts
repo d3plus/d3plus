@@ -47,6 +47,8 @@ import {
   teardownKeyboardNav,
 } from "./keyboardNav.js";
 import {mountTargetFor} from "./mountTarget.js";
+import {routePointerEvent} from "./nearestHover.js";
+import {nearestHoverSurface} from "./nearestHoverSurface.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -488,6 +490,7 @@ export default class Viz extends VizBase {
         .selectAll("g.d3plus-viz-timeline, g.d3plus-viz-brush")
         .style("pointer-events", "auto");
     if (kind === "canvas") bindCanvasZoom(this);
+    nearestHoverSurface(this as unknown as VizInstance);
     syncKeyboardNav(this as unknown as VizInstance);
 
     // The timeline brush (d3-brush DOM, mounted in `g.d3plus-viz-timeline` in
@@ -531,6 +534,16 @@ export default class Viz extends VizBase {
     _event: SceneEvent,
   ): {d: unknown; i: number; x: unknown} {
     return handlerDatum(pick.datum, pick.index ?? 0);
+  }
+
+  /**
+      Whether a painted scene node is a point mark that nearest-point hover
+      (`hoverDistance`) resolves the pointer to. None in the base chart;
+      charts drawn with points (Plot, Network, Geomap) accept theirs.
+      @private
+  */
+  _pointMark(_node: SceneNode): boolean {
+    return false;
   }
 
   /**
@@ -615,14 +628,13 @@ export default class Viz extends VizBase {
       // tooltips never fire on the v4 scene-rendered path because
       // `shape.on(evt, fn)` in plotPaint only wires d3-selection
       // listeners on DOM nodes the scene renderer doesn't create.
-      // Renderer events carry the picked scene node; the routing lives in
-      // `_routeSceneEvent` (kept out of this method so the mount path stays
-      // readable). `_lastScenePick` remembers the most recently hovered node
+      // Renderer events carry the picked scene node; `routePointerEvent`
+      // resolves nearest-point hover, then `_routeSceneEvent` routes them. `_lastScenePick` remembers the most recently hovered node
       // so `mouseleave` — fired with a null pick — can still tell the matching
       // handlers which shape/legend item was left (so the tooltip clears).
       this._lastScenePick = null;
       this._sceneRenderer.on((event: SceneEvent) =>
-        this._routeSceneEvent(event),
+        routePointerEvent(this as unknown as VizInstance, event),
       );
     } else {
       this._sceneRenderer.resize(w, h);
@@ -797,6 +809,7 @@ export default class Viz extends VizBase {
   destroy(): this {
     unregisterLink(this as unknown as VizInstance);
     teardownKeyboardNav(this as unknown as VizInstance);
+    nearestHoverSurface(this as unknown as VizInstance, true);
     unwatchPageTheme(this as unknown as VizInstance);
     stopDataPolling(this);
     this._resizeObserver?.disconnect();

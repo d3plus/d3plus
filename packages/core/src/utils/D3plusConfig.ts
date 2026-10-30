@@ -1178,6 +1178,22 @@ export interface D3plusConfig {
   hiddenOpacity?: number | ((d: DataPoint, i: number) => number);
   /** The hover callback function for highlighting shapes on mouseover. */
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
+  /**
+      How close, in pixels, the pointer has to come to a point mark for it to
+      count as hovering that point. Over empty space, or over something other
+      than a point (a gridline, a link), the pointer acts on the closest point
+      whose edge lies within this distance: its tooltip, hover highlight, and
+      axis guides show, and a click there clicks it. A point's tooltip points
+      at the top of the point (on it or near it) and holds still until
+      another point takes over. Applies to the point
+      marks of scatter and bubble plots (Circle and Rect shapes, Beeswarm
+      included), Network nodes, and Geomap points; bars, areas, lines, and
+      other area-filling marks keep exact hit-testing.
+      Plots with a discrete axis and `tooltipShared` on snap to the nearest
+      column instead. Defaults to `20`; `0` turns it off, along with the
+      anchored tooltip.
+  */
+  hoverDistance?: number;
   /** Candlestick: accessor or data key for each period's highest value (default `"high"`). */
   high?: string | ((d: DataPoint, i: number) => number);
   /** Persistently emphasizes matching marks (keep color) and grays the rest. */

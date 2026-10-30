@@ -1127,6 +1127,30 @@ export {
   updateKeyboardNavHost,
 } from "./src/charts/viz/keyboardNavHost.js";
 export type {KeyboardNavHost} from "./src/charts/viz/keyboardNavHost.js";
+
+// ── Nearest-point hover (`hoverDistance`) and point Voronoi diagrams ─────────
+export {
+  hoverReach,
+  isPointShape,
+  nearestPick,
+  pointMarkTargets,
+  pointTarget,
+  routePointerEvent,
+} from "./src/charts/viz/nearestHover.js";
+export type {NearestHoverState} from "./src/charts/viz/nearestHover.js";
+export {nearestHoverSurface} from "./src/charts/viz/nearestHoverSurface.js";
+export {
+  clientAnchor,
+  pointTooltipAnchor,
+  surfaceOrigin,
+} from "./src/charts/viz/pointTooltipAnchor.js";
+export type {ClientOrigin} from "./src/charts/viz/pointTooltipAnchor.js";
+export {pointVoronoi, polygonDistance} from "./src/charts/viz/pointVoronoi.js";
+export type {
+  PointVoronoi,
+  VoronoiMatch,
+  VoronoiPoint,
+} from "./src/charts/viz/pointVoronoi.js";
 export {
   appendFocusRing,
   focusRingStyle,

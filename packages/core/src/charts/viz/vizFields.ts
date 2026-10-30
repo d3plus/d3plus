@@ -55,6 +55,7 @@ const fields = {
   height: {},
   hiddenColor: {coerce: "const"},
   hiddenOpacity: {coerce: "const"},
+  hoverDistance: {default: 20},
   keyboardNav: {
     default: true,
     onSet: (viz: VizInstance, value: unknown) => {

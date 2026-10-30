@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>NearestHover · Viz</title>
+    <meta
+      name="description"
+      content="hoverDistance: hovering or clicking near a point acts on the closest one, on a dense scatter, a sparse bubble chart, a beeswarm and a small network, with a slider for the distance (0 turns it off)."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+      }
+
+      p,
+      label {
+        margin: 0 0 16px;
+        max-width: 720px;
+        font-size: 14px;
+      }
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      .viz {
+        width: 440px;
+        height: 320px;
+      }
+
+      #log {
+        margin-top: 16px;
+        font-size: 13px;
+        min-height: 1.4em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>
+      Move the pointer near a point: the closest point within the hover distance
+      shows its tooltip and highlight, and a click there clicks it. Bars, lines
+      and other area-filling marks keep exact hit-testing.
+    </p>
+    <label>
+      hoverDistance
+      <input id="distance" type="range" min="0" max="60" value="20" />
+      <output id="distanceValue">20px</output>
+    </label>
+    <section>
+      <div class="viz" id="dense"></div>
+      <div class="viz" id="bubbles"></div>
+      <div class="viz" id="swarm"></div>
+      <div class="viz" id="network"></div>
+    </section>
+    <div id="log" aria-hidden="true"></div>
+  </body>
+
+  <script>
+    const log = text => {
+      document.getElementById("log").textContent = text;
+    };
+
+    // A seeded generator, so every load draws the same points.
+    let seed = 7;
+    const random = () => {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    };
+    const normal = () =>
+      Math.sqrt(-2 * Math.log(random() || 1e-9)) *
+      Math.cos(2 * Math.PI * random());
+
+    const groups = ["North", "South", "East"];
+    const dense = Array.from({length: 400}, (_, i) => ({
+      id: `Point ${i + 1}`,
+      group: groups[i % 3],
+      x: 50 + normal() * 15 + (i % 3) * 10,
+      y: 50 + normal() * 15 - (i % 3) * 8,
+    }));
+
+    const bubbles = [
+      {id: "Brazil", gdp: 9, life: 75, pop: 214},
+      {id: "Chad", gdp: 1.5, life: 53, pop: 17},
+      {id: "Denmark", gdp: 60, life: 81, pop: 6},
+      {id: "Egypt", gdp: 14, life: 72, pop: 109},
+      {id: "India", gdp: 8, life: 70, pop: 1408},
+      {id: "Japan", gdp: 42, life: 84, pop: 125},
+      {id: "Mexico", gdp: 20, life: 70, pop: 127},
+      {id: "Norway", gdp: 65, life: 83, pop: 5},
+      {id: "Peru", gdp: 13, life: 73, pop: 34},
+    ];
+
+    const swarm = Array.from({length: 150}, (_, i) => ({
+      id: `Reading ${i + 1}`,
+      value: Math.round((40 + normal() * 12) * 10) / 10,
+    }));
+
+    const charts = [
+      new d3plus.Plot().select("#dense").config({
+        data: dense,
+        groupBy: ["group", "id"],
+        x: "x",
+        y: "y",
+        title: "Dense scatter, 400 points",
+        shapeConfig: {Circle: {r: 2.5}},
+      }),
+      new d3plus.Plot().select("#bubbles").config({
+        data: bubbles,
+        groupBy: "id",
+        x: "gdp",
+        y: "life",
+        size: "pop",
+        sizeMin: 4,
+        sizeMax: 30,
+        xConfig: {title: "GDP per capita (k$)"},
+        yConfig: {title: "Life expectancy"},
+        title: "Sparse bubbles",
+        legend: false,
+      }),
+      new d3plus.Beeswarm().select("#swarm").config({
+        data: swarm,
+        groupBy: "id",
+        x: "value",
+        title: "A beeswarm",
+        legend: false,
+      }),
+      new d3plus.Network().select("#network").config({
+        nodes: [
+          {id: "alpha", x: 1, y: 1},
+          {id: "beta", x: 2, y: 1},
+          {id: "gamma", x: 1, y: 2},
+          {id: "delta", x: 3, y: 2},
+          {id: "epsilon", x: 2, y: 3},
+          {id: "zeta", x: 3, y: 3},
+        ],
+        links: [
+          {source: "alpha", target: "beta"},
+          {source: "alpha", target: "gamma"},
+          {source: "beta", target: "delta"},
+          {source: "gamma", target: "epsilon"},
+          {source: "delta", target: "epsilon"},
+          {source: "delta", target: "zeta"},
+        ],
+        size: () => 1,
+        sizeMin: 4,
+        sizeMax: 4,
+        title: "A small network",
+        legend: false,
+      }),
+    ];
+
+    charts.forEach((chart, i) => {
+      if (i < 3) chart.on("click.shape", d => log(`Clicked ${d.id}`));
+      chart.render();
+    });
+
+    const input = document.getElementById("distance");
+    input.addEventListener("input", () => {
+      const value = Number(input.value);
+      document.getElementById("distanceValue").textContent = `${value}px`;
+      charts.forEach(chart => chart.hoverDistance(value));
+    });
+  </script>
+</html>

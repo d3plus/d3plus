@@ -298,7 +298,7 @@ export function bindTooltips(
       const position = that.schema.position(d, i);
       const reference: VirtualElement | HTMLElement = Array.isArray(position)
         ? generateReference(position)
-        : (position as HTMLElement);
+        : (position as VirtualElement | HTMLElement);
 
       that._tooltipRefs[id] = {
         reference,
@@ -326,7 +326,7 @@ export function bindTooltips(
       if (ref) {
         ref.reference = Array.isArray(position)
           ? generateReference(position as number[])
-          : (position as HTMLElement);
+          : (position as VirtualElement | HTMLElement);
         positionTooltip(
           ref.reference,
           ref.tooltip,

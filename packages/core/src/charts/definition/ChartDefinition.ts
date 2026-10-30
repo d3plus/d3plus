@@ -63,6 +63,13 @@ interface ChartDefinitionBase {
   */
   colorScaleShape?: (viz: VizInstance, d: DataPoint, i: number) => string;
   /**
+      Optional test for which painted scene nodes are point marks, the marks
+      nearest-point hover (`hoverDistance`) resolves the pointer to (see
+      `isPointShape`). Without one, the base chart's applies (none for a
+      data-driven chart; Circle and Rect shapes for the Plot family).
+  */
+  pointMark?: (viz: VizInstance, node: SceneNode) => boolean;
+  /**
       Optional small-multiples hooks (see `facet/facetConfig.ts`): the panel
       aspect the chart reads best at, and for charts with scales, how panels
       share them. A chart without any still draws as small multiples, each
