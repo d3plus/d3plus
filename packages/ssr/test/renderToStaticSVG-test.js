@@ -171,3 +171,33 @@ it("renderToStaticSVG paints a forced theme's background", async () => {
   });
   assert.ok(!auto.includes('data-key="viz-background"'), "auto paints none");
 });
+
+it("renderToStaticSVG labels fall back down the font list", async () => {
+  // The render measures with the first family installed on this machine; a
+  // browser opening the SVG may not have it, so each label names the
+  // families after it too, ending in a generic family.
+  const svg = await renderToStaticSVG(
+    new Treemap().data(data).groupBy(["parent", "id"]).title("Title"),
+    {width: 500, height: 350},
+  );
+  const families = [...svg.matchAll(/font-family="([^"]*)"/g)].map(m => m[1]);
+  assert.ok(families.length >= 4, "labels and title name a font");
+  for (const family of families)
+    assert.match(family, /(^|, )sans-serif$/, `"${family}" falls back`);
+
+  // `monospace` always counts as installed, so these labels measure with it
+  // on any machine and keep the rest of their list.
+  const mono = await renderToStaticSVG(
+    new Treemap()
+      .data(data)
+      .groupBy(["parent", "id"])
+      .shapeConfig({
+        labelConfig: {fontFamily: ["monospace", "Courier New", "sans-serif"]},
+      }),
+    {width: 500, height: 350},
+  );
+  assert.ok(
+    mono.includes(`font-family="monospace, 'Courier New', sans-serif"`),
+    "a label names the families after the one it measured",
+  );
+});
