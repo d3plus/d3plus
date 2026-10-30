@@ -65,7 +65,7 @@ function textBoxes(node: TextNode): Bounds[] {
 }
 
 /** Boxes of a node's own geometry, before its transform. Line/area series and paths contribute one box per outline point. */
-function ownBoxes(node: SceneNode): Bounds[] {
+export function ownBoxes(node: SceneNode): Bounds[] {
   switch (node.type) {
     case "rect":
     case "image":
@@ -97,12 +97,12 @@ function ownBoxes(node: SceneNode): Bounds[] {
 }
 
 /** Composes a chain of transforms (outermost first) into one point mapper. */
-function mapper(chain: Transform[]): (p: Point) => Point {
+export function mapper(chain: Transform[]): (p: Point) => Point {
   return p => chain.reduceRight<Point>((q, t) => applyTransform(q, t), p);
 }
 
 /** The axis-aligned box around a box mapped through `map`. */
-function mapBox(b: Bounds, map: (p: Point) => Point): Bounds {
+export function mapBox(b: Bounds, map: (p: Point) => Point): Bounds {
   const corners = [
     map([b.x, b.y]),
     map([b.x + b.width, b.y]),

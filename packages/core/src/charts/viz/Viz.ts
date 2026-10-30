@@ -39,6 +39,12 @@ import {reportHandlerError} from "./reportHandlerError.js";
 import {vizClassNameTargets} from "./vizClassName.js";
 import {applyClassName, withRootClasses} from "../../utils/className.js";
 import {handleColorScaleHover} from "../features/colorScaleHover.js";
+import {
+  appendFocusRing,
+  syncKeyboardNav,
+  teardownKeyboardNav,
+} from "./keyboardNav.js";
+import {mountTargetFor} from "./mountTarget.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -49,23 +55,6 @@ function tagInteractionGroup(node: SceneNode, group: string): void {
   (node as {interactionGroup?: string}).interactionGroup = group;
   const kids = (node as {children?: SceneNode[]}).children;
   if (kids) for (const child of kids) tagInteractionGroup(child, group);
-}
-
-/**
-    Resolves the element a renderer mounts into. A `<canvas>` cannot paint inside
-    an `<svg>`, so when the scene target is the compute svg, the canvas mounts
-    into that svg's parent (the user's element); the emptied, position:absolute
-    compute svg overlays the same top-left box. SVG mounts into the target as-is.
-*/
-function mountTargetFor(kind: string, target: Element): Element {
-  if (
-    kind === "canvas" &&
-    typeof Element !== "undefined" &&
-    target instanceof Element &&
-    target.tagName.toLowerCase() === "svg"
-  )
-    return (target.parentNode as Element | null) ?? target;
-  return target;
 }
 
 /**
@@ -221,6 +210,8 @@ export default class Viz extends VizBase {
         children: this._featurePanels,
       });
     }
+    // Keyboard navigation's focus ring, above everything else.
+    appendFocusRing(this as unknown as VizInstance, children);
     return {
       width: this.schema.width,
       height: this.schema.height,
@@ -495,6 +486,7 @@ export default class Viz extends VizBase {
         .selectAll("g.d3plus-viz-timeline, g.d3plus-viz-brush")
         .style("pointer-events", "auto");
     if (kind === "canvas") bindCanvasZoom(this);
+    syncKeyboardNav(this as unknown as VizInstance);
 
     // The timeline brush (d3-brush DOM, mounted in `g.d3plus-viz-timeline` in
     // the outer svg) must paint above the scene-rendered timeline buttons/ticks
@@ -802,6 +794,7 @@ export default class Viz extends VizBase {
   */
   destroy(): this {
     unregisterLink(this as unknown as VizInstance);
+    teardownKeyboardNav(this as unknown as VizInstance);
     stopDataPolling(this);
     this._resizeObserver?.disconnect();
     this._fontsUnsubscribe?.();

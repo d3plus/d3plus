@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>KeyboardNavigation · Viz</title>
+    <meta
+      name="description"
+      content="Tab into each chart, then use the arrow keys, Home/End, Enter and Escape to move between and select its marks: a bar chart with a legend, a line plot's points, a treemap that drills down, and a network."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+      }
+
+      p {
+        margin: 0 0 16px;
+        max-width: 720px;
+        font-size: 14px;
+      }
+
+      section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      .viz {
+        width: 440px;
+        height: 300px;
+      }
+
+      #log {
+        margin-top: 16px;
+        font-size: 13px;
+        min-height: 1.4em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>
+      Press Tab to reach a chart, then the arrow keys to move between its marks
+      (the legend comes after the chart's marks), Home and End for the first and
+      last, Enter or Space to select one, and Escape to clear. Tab moves on to
+      the next chart.
+    </p>
+    <section>
+      <div class="viz" id="bar"></div>
+      <div class="viz" id="line"></div>
+      <div class="viz" id="treemap"></div>
+      <div class="viz" id="network"></div>
+    </section>
+    <div id="log" aria-hidden="true"></div>
+  </body>
+
+  <script>
+    const log = text => {
+      document.getElementById("log").textContent = text;
+    };
+
+    const sales = [
+      {region: "North", year: 2021, sales: 42},
+      {region: "South", year: 2021, sales: 58},
+      {region: "East", year: 2021, sales: 30},
+      {region: "West", year: 2021, sales: 51},
+      {region: "North", year: 2022, sales: 47},
+      {region: "South", year: 2022, sales: 54},
+      {region: "East", year: 2022, sales: 36},
+      {region: "West", year: 2022, sales: 49},
+    ];
+
+    new d3plus.BarChart()
+      .select("#bar")
+      .config({
+        data: sales,
+        groupBy: "region",
+        x: "year",
+        y: "sales",
+        discrete: "x",
+        title: "Sales by region",
+      })
+      .on("click.Bar", d => log(`Selected ${d.region} ${d.year}`))
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#line")
+      .config({
+        data: [
+          {id: "Alpha", x: 1, y: 7},
+          {id: "Alpha", x: 2, y: 25},
+          {id: "Alpha", x: 3, y: 13},
+          {id: "Alpha", x: 4, y: 20},
+          {id: "Beta", x: 1, y: 12},
+          {id: "Beta", x: 2, y: 9},
+          {id: "Beta", x: 3, y: 16},
+          {id: "Beta", x: 4, y: 11},
+        ],
+        groupBy: "id",
+        title: "Two series, point by point",
+      })
+      .render();
+
+    new d3plus.Treemap()
+      .select("#treemap")
+      .config({
+        data: [
+          {group: "Fruit", id: "Apples", value: 30},
+          {group: "Fruit", id: "Pears", value: 18},
+          {group: "Fruit", id: "Plums", value: 9},
+          {group: "Vegetables", id: "Carrots", value: 24},
+          {group: "Vegetables", id: "Leeks", value: 12},
+          {group: "Grain", id: "Rice", value: 20},
+        ],
+        groupBy: ["group", "id"],
+        depth: 0,
+        sum: "value",
+        title: "Enter drills down",
+        legend: false,
+      })
+      .render();
+
+    new d3plus.Network()
+      .select("#network")
+      .config({
+        nodes: [
+          {id: "alpha", x: 1, y: 1},
+          {id: "beta", x: 2, y: 1},
+          {id: "gamma", x: 1, y: 2},
+          {id: "delta", x: 3, y: 2},
+          {id: "epsilon", x: 2, y: 3},
+        ],
+        links: [
+          {source: "alpha", target: "beta"},
+          {source: "alpha", target: "gamma"},
+          {source: "beta", target: "delta"},
+          {source: "gamma", target: "epsilon"},
+          {source: "delta", target: "epsilon"},
+        ],
+        title: "A network",
+        legend: false,
+      })
+      .render();
+  </script>
+</html>
