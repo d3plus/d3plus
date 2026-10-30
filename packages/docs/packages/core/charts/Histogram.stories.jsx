@@ -109,3 +109,20 @@ Density.parameters = {
     },
   },
 };
+
+export const Cumulative = Template.bind({});
+Cumulative.args = {
+  data: heights,
+  value: "Height (cm)",
+  binNormalize: "relative",
+  cumulative: true,
+};
+Cumulative.parameters = {
+  controls: {include: ["cumulative", "binNormalize"]},
+  docs: {
+    description: {
+      story:
+        '`cumulative(true)` stacks each bin on everything below it: a running count, or with `binNormalize("relative")` an empirical CDF that ends at 1. `cumulative("reverse")` counts from the top bin down instead, and grouped series each accumulate on their own.',
+    },
+  },
+};

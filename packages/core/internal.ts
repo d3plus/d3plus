@@ -53,7 +53,12 @@ export {
 } from "./src/charts/Waffle/applyLayout.js";
 export type {WaffleCell} from "./src/charts/Waffle/applyLayout.js";
 
-export {default as binData} from "./src/charts/Histogram/binData.js";
+export {
+  accumulate as binAccumulate,
+  cumulativeNormalize as binCumulativeNormalize,
+  default as binData,
+} from "./src/charts/Histogram/binData.js";
+export {heightLabel as histogramHeightLabel} from "./src/charts/Histogram/labels.js";
 export {bulletStack} from "./src/charts/Bullet/bulletLayout.js";
 export {
   fitAxis as bulletAxis,

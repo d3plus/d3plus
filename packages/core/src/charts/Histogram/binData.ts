@@ -16,6 +16,13 @@ export type ThresholdGenerator = (
 /** How bin heights are normalized. */
 export type BinNormalize = "count" | "density" | "relative";
 
+/**
+    Whether bin heights accumulate: `true` runs from the lowest bin up (values
+    below each bin's end), `"reverse"` from the highest bin down (values at or
+    above each bin's start).
+*/
+export type BinCumulative = boolean | "reverse";
+
 export interface BinOptions {
   /** Numeric observation accessor. */
   value: (d: DataPoint, i: number) => unknown;
@@ -36,9 +43,14 @@ export interface BinOptions {
   width?: number;
   /** `"count"` (default), `"density"` (area sums to 1), or `"relative"` (heights sum to 1). */
   normalize?: BinNormalize;
+  /** Accumulate each group's counts across its bins (see `BinCumulative`). */
+  cumulative?: BinCumulative;
 }
 
-/** One bin of one group. Carries the group's first row's fields. */
+/**
+    One bin of one group. Carries the group's first row's fields and, with
+    `cumulative`, a `cumulativeCount`: the group's running count through it.
+*/
 export interface BinRow extends DataPoint {
   /** Bin start (inclusive). */
   x0: number;
@@ -50,6 +62,34 @@ export interface BinRow extends DataPoint {
   count: number;
   /** The normalized height. */
   y: number;
+}
+
+/**
+    The normalization a cumulative histogram draws: the running sum of a
+    density is the share of observations so far, so `"density"` reads as
+    `"relative"` (an empirical CDF).
+*/
+export function cumulativeNormalize(
+  normalize: BinNormalize = "count",
+  cumulative: BinCumulative = false,
+): BinNormalize {
+  return cumulative && normalize === "density" ? "relative" : normalize;
+}
+
+/** Running sums of `counts`, from the first bin or, with `"reverse"`, the last. */
+export function accumulate(
+  counts: number[],
+  cumulative: BinCumulative,
+): number[] {
+  if (!cumulative) return counts.slice();
+  const reverse = cumulative === "reverse";
+  const out = new Array<number>(counts.length);
+  let total = 0;
+  for (let k = 0; k < counts.length; k++) {
+    const i = reverse ? counts.length - 1 - k : k;
+    out[i] = total += counts[i];
+  }
+  return out;
 }
 
 /** Evenly spaced edges of `width` covering `[lo, hi]`, anchored at multiples of `width`. */
@@ -88,13 +128,17 @@ function binEdges(values: number[], options: BinOptions): number[] {
   return [bins[0].x0!, ...bins.map(b => b.x1!)];
 }
 
-/** One row per group per bin for one panel's observations, normalized against the panel's total. */
+/**
+    One row per group per bin for one panel's observations, normalized against
+    the panel's total. With `cumulative`, each group accumulates its own counts.
+*/
 function binPanel(
   observations: Observation[],
   edges: number[],
   options: BinOptions,
 ): BinRow[] {
-  const {group = () => "", normalize = "count"} = options;
+  const {group = () => "", cumulative = false} = options;
+  const normalize = cumulativeNormalize(options.normalize, cumulative);
   const perGroup = bin()
     .domain([edges[0], edges[edges.length - 1]])
     .thresholds(edges.slice(1, -1));
@@ -103,17 +147,30 @@ function binPanel(
   for (const [, members] of groups(observations, o => group(o.d, o.i))) {
     const binned = perGroup(members.map(o => o.v));
     const first = members[0].d;
-    binned.forEach(b => {
+    const running = accumulate(
+      binned.map(b => b.length),
+      cumulative,
+    );
+    binned.forEach((b, i) => {
       const x0 = b.x0!,
         x1 = b.x1!;
       const count = b.length;
+      const height = running[i];
       const y =
         normalize === "density"
-          ? count / (total * (x1 - x0))
+          ? height / (total * (x1 - x0))
           : normalize === "relative"
-            ? count / total
-            : count;
-      out.push({...first, x0, x1, x: (x0 + x1) / 2, count, y});
+            ? height / total
+            : height;
+      out.push({
+        ...first,
+        x0,
+        x1,
+        x: (x0 + x1) / 2,
+        count,
+        ...(cumulative ? {cumulativeCount: height} : {}),
+        y,
+      });
     });
   }
   return out;

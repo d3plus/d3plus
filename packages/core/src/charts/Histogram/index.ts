@@ -17,7 +17,13 @@ import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {autoTitle, keyedAccessor, valueKeyOf} from "../helpers/valueTitle.js";
-import binData, {type BinNormalize, type BinRow} from "./binData.js";
+import binData, {
+  cumulativeNormalize,
+  type BinCumulative,
+  type BinNormalize,
+  type BinRow,
+} from "./binData.js";
+import {heightLabel} from "./labels.js";
 
 /** Per-instance binning state kept on `viz.ctx.histogram`. */
 interface HistogramState {
@@ -31,12 +37,6 @@ interface HistogramState {
   xTitle?: string;
   yTitle?: string;
 }
-
-const yTitles: Record<BinNormalize, string> = {
-  count: "Count",
-  density: "Density",
-  relative: "Relative Frequency",
-};
 
 /** Walks Plot's `__d3plus__` wrappers down to the bin row. */
 function binRow(d: DataPoint): BinRow {
@@ -99,6 +99,7 @@ function binBeforePreDraw(viz: VizInstance) {
     domain: viz.schema.binDomain,
     width: viz.schema.binWidth,
     normalize: viz.schema.binNormalize,
+    cumulative: viz.schema.cumulative,
   });
   // Ungrouped observations become one series named after the value, so it
   // colors and labels like any other series.
@@ -119,7 +120,7 @@ function binBeforePreDraw(viz: VizInstance) {
   state.binned = new Set(bins);
 
   const yTitle = viz.schema.translate(
-    yTitles[viz.schema.binNormalize as BinNormalize] ?? yTitles.count,
+    heightLabel(viz.schema.binNormalize, viz.schema.cumulative),
   );
   autoTitle(viz._yConfig!, state.yTitle, yTitle);
   state.yTitle = yTitle;
@@ -210,6 +211,17 @@ export const histogramDef: ChartDefinition = {
         @type {"count" | "density" | "relative"}
     */
     {key: "binNormalize", default: "count"},
+    /**
+        Accumulates each bar's height across the bins: `true` shows, at each
+        bin, everything up to that bin's end (a running count, or with
+        `binNormalize("relative")` an empirical CDF that ends at 1), and
+        `"reverse"` everything from that bin's start up (a survival curve).
+        A cumulative `"density"` is the running share of observations, so it
+        draws like `"relative"`. Each `groupBy` series accumulates its own
+        counts, so stacked bars show the running total of every series.
+        @type {boolean | "reverse"}
+    */
+    {key: "cumulative", default: false},
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Bar"), coerce: "const"},
     {key: "stacked", default: true},
@@ -232,15 +244,20 @@ export const histogramDef: ChartDefinition = {
             hasGroups(d, i) ? viz._drawLabel(binRow(d), i) : range(d),
           tbody: (d: DataPoint, i: number) => {
             const b = binRow(d);
+            const t = viz.schema.translate;
             const rows: [string, string][] = [];
-            if (isSeries(b))
-              return [[viz.schema.translate(yTitles.count), fmt(b.count)]];
-            if (hasGroups(d, i))
-              rows.push([viz.schema.translate("Range"), range(d)]);
-            rows.push([viz.schema.translate(yTitles.count), fmt(b.count)]);
+            if (isSeries(b)) return [[t("Count"), fmt(b.count)]];
+            if (hasGroups(d, i)) rows.push([t("Range"), range(d)]);
+            rows.push([t("Count"), fmt(b.count)]);
+            const cumulative = viz.schema.cumulative as BinCumulative;
+            if (cumulative)
+              rows.push([
+                t("Cumulative Count"),
+                fmt(Number(b.cumulativeCount)),
+              ]);
             const normalize = viz.schema.binNormalize as BinNormalize;
-            if (normalize !== "count")
-              rows.push([viz.schema.translate(yTitles[normalize]), fmt(b.y)]);
+            if (cumulativeNormalize(normalize, cumulative) !== "count")
+              rows.push([t(heightLabel(normalize, cumulative)), fmt(b.y)]);
             return rows;
           },
         };
@@ -266,7 +283,8 @@ export const histogramDef: ChartDefinition = {
 /**
     Creates a histogram from an array of raw observations: the `value` of each
     row is binned along a linear x axis, and bar heights show each bin's
-    count (or density / relative frequency via `binNormalize`). Series set by
-    `groupBy` share bin edges and are stacked.
+    count (or density / relative frequency via `binNormalize`, and running
+    totals via `cumulative`). Series set by `groupBy` share bin edges and are
+    stacked.
 */
 export default makeChart(histogramDef, Plot);

@@ -1,0 +1,131 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Histogram Cumulative</title>
+    <meta
+      name="description"
+      content="Histogram cumulative mode: running counts, an empirical CDF, a reverse (survival) curve, stacked groups, and the density fallback."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 360px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>cumulative(true): running count</h3>
+        <div class="viz" id="count"></div>
+      </div>
+      <div>
+        <h3>cumulative(true) + binNormalize("relative"): empirical CDF</h3>
+        <div class="viz" id="relative"></div>
+      </div>
+      <div>
+        <h3>cumulative("reverse"): values at or above each bin</h3>
+        <div class="viz" id="reverse"></div>
+      </div>
+      <div>
+        <h3>Stacked groups, each accumulating on its own</h3>
+        <div class="viz" id="stacked"></div>
+      </div>
+      <div>
+        <h3>binNormalize("density") draws as cumulative relative</h3>
+        <div class="viz" id="density"></div>
+      </div>
+      <div>
+        <h3>Default (not cumulative), for comparison</h3>
+        <div class="viz" id="default"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Seeded normal samples so the page renders identically every load.
+    let seed = 42;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const normal = (mu, sigma) =>
+      mu +
+      sigma *
+        Math.sqrt(-2 * Math.log(random())) *
+        Math.cos(2 * Math.PI * random());
+
+    const heights = Array.from({length: 1000}, () => ({
+      "Height (cm)": normal(170, 10),
+    }));
+    const bySex = [
+      ...Array.from({length: 600}, () => ({
+        Sex: "Male",
+        "Height (cm)": normal(176, 7),
+      })),
+      ...Array.from({length: 600}, () => ({
+        Sex: "Female",
+        "Height (cm)": normal(163, 6.5),
+      })),
+    ];
+
+    new d3plus.Histogram()
+      .select("#count")
+      .data(heights)
+      .value("Height (cm)")
+      .cumulative(true)
+      .render();
+
+    new d3plus.Histogram()
+      .select("#relative")
+      .data(heights)
+      .value("Height (cm)")
+      .binNormalize("relative")
+      .cumulative(true)
+      .render();
+
+    new d3plus.Histogram()
+      .select("#reverse")
+      .data(heights)
+      .value("Height (cm)")
+      .cumulative("reverse")
+      .render();
+
+    new d3plus.Histogram()
+      .select("#stacked")
+      .data(bySex)
+      .groupBy("Sex")
+      .value("Height (cm)")
+      .cumulative(true)
+      .render();
+
+    new d3plus.Histogram()
+      .select("#density")
+      .data(bySex)
+      .groupBy("Sex")
+      .value("Height (cm)")
+      .binNormalize("density")
+      .cumulative(true)
+      .render();
+
+    new d3plus.Histogram()
+      .select("#default")
+      .data(heights)
+      .value("Height (cm)")
+      .render();
+  </script>
+</html>
