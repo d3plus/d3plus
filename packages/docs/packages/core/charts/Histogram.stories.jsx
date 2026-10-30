@@ -126,3 +126,36 @@ Cumulative.parameters = {
     },
   },
 };
+
+export const CumulativeReverse = Template.bind({});
+CumulativeReverse.args = {
+  data: heights,
+  value: "Height (cm)",
+  cumulative: "reverse",
+};
+CumulativeReverse.parameters = {
+  controls: {include: ["cumulative", "binNormalize"]},
+  docs: {
+    description: {
+      story:
+        '`cumulative("reverse")` counts from the top bin down: each bar is the number of observations at or above the start of its bin, a survival-style curve.',
+    },
+  },
+};
+
+export const CumulativeGroups = Template.bind({});
+CumulativeGroups.args = {
+  data: bySex,
+  groupBy: "Sex",
+  value: "Height (cm)",
+  cumulative: true,
+};
+CumulativeGroups.parameters = {
+  controls: {include: ["cumulative", "binNormalize", "groupBy"]},
+  docs: {
+    description: {
+      story:
+        'Each `groupBy` series accumulates its own running count, and the stacked bars show the overall running total. With `binNormalize("relative")`, the top of the stack ends at 1.',
+    },
+  },
+};
