@@ -42,6 +42,48 @@ interface LineLabelCtx {
   yEstimate: (d: unknown) => number;
   /** The value text for a label's point, or `undefined` without one. */
   valueText: (value: unknown, d: Record<string, unknown>) => string | undefined;
+  /** The most room a label may take past its line's end, padding included. */
+  maxSpace?: number;
+}
+
+/**
+    Shortens a label to fit `maxWidth`: the name and value when both fit,
+    else the name alone, else the name cut short with an ellipsis, else
+    `null` (no room for even one letter).
+*/
+export function fitLineLabelText(
+  name: string,
+  value: string | undefined,
+  maxWidth: number,
+  measure: (text: string) => number,
+): {name: string; value?: string} | null {
+  if (
+    measure(value === undefined ? name : lineLabelText(name, value)) <= maxWidth
+  )
+    return value === undefined ? {name} : {name, value};
+  if (value !== undefined && measure(name) <= maxWidth) return {name};
+  const cut = (n: number) => `${name.slice(0, n).trimEnd()}\u2026`;
+  let lo = 1,
+    hi = name.length - 1,
+    best = 0;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (measure(cut(mid)) <= maxWidth) {
+      best = mid;
+      lo = mid + 1;
+    } else hi = mid - 1;
+  }
+  return best ? {name: cut(best)} : null;
+}
+
+/**
+    The most room the labels at one end of a line chart may take: a quarter
+    of its `width` past its y axis (`yWidth`), so labels at both ends leave
+    the plot at least half of that, and labels never crowd the plot out of a
+    narrow chart or a small-multiples panel.
+*/
+export function lineLabelCap(width: number, yWidth = 0): number {
+  return Math.max(0, width - yWidth) / 4;
 }
 
 /** Unwraps a formatted Plot row to its source datum and that datum's index. */
@@ -115,18 +157,40 @@ export function measureLineLabel(
     (d: Record<string, unknown>) => xEstimate(d.x) === edgeX,
   ) as Record<string, unknown>;
   const labelY = edgeRow.y;
-  const valueText = ctx.valueText(labelY, edgeRow);
-  const labelWidth = d3plusTextWidth(
+  let valueText = ctx.valueText(labelY, edgeRow);
+  const font = {
+    "font-size": fontSize,
+    "font-family": fontFamily,
+    "font-weight": fontWeight,
+  };
+  let labelWidth = d3plusTextWidth(
     valueText === undefined ? label : lineLabelText(label, valueText),
-    {
-      "font-size": fontSize,
-      "font-family": fontFamily,
-      "font-weight": fontWeight,
-    },
+    font,
   );
+  // A label wider than its room drops its value, then shortens its name.
+  let name: string | undefined;
+  if (
+    ctx.maxSpace !== undefined &&
+    labelWidth + labelPadding * 4 > ctx.maxSpace
+  ) {
+    const fit = fitLineLabelText(
+      `${label}`,
+      valueText,
+      ctx.maxSpace - labelPadding * 4,
+      text => d3plusTextWidth(text, font),
+    );
+    if (!fit) return null;
+    name = fit.name;
+    valueText = fit.value;
+    labelWidth = d3plusTextWidth(
+      valueText === undefined ? name : lineLabelText(name, valueText),
+      font,
+    );
+  }
   return {
     id: lineKey,
     side,
+    name,
     valueText,
     labelWidth: labelWidth + labelPadding * 2,
     spaceNeeded: labelWidth + labelPadding * 4,
@@ -144,7 +208,7 @@ export function measureLineLabel(
 }
 
 /** A measured line label (see `measureLineLabel`). */
-type LineLabel = ReturnType<typeof measureLineLabel>;
+type LineLabel = NonNullable<ReturnType<typeof measureLineLabel>>;
 
 /**
     Whether another line passes through the space `label` would occupy past
@@ -246,6 +310,7 @@ function measureSide(
 ): LineLabel[] {
   return lineData
     .map(entry => measureLineLabel(entry, ctx, side))
+    .filter((d): d is LineLabel => d !== null)
     .sort((a, b) =>
       (yDomain[1] as number) > (yDomain[0] as number)
         ? (a.value as number) - (b.value as number)
@@ -256,19 +321,19 @@ function measureSide(
 
 /**
     The room the labels at one end of the plot claim: the widest label among
-    the lines that end at the x range's `edge`, capped at a quarter of the
-    chart's `width`; 0 when no line reaches that edge.
+    the lines that end at the x range's `edge`, at most `cap`; 0 when no line
+    reaches that edge.
 */
 export function lineLabelSpace(
   labels: Pick<LineLabel, "edgeX" | "spaceNeeded">[],
   edge: number,
-  width: number,
+  cap: number,
 ): number {
   const spaceNeeded = max(
     labels.filter(d => d.edgeX === edge),
     d => d.spaceNeeded,
   );
-  return spaceNeeded ? min([spaceNeeded, width / 4])! : 0;
+  return spaceNeeded ? min([spaceNeeded, cap])! : 0;
 }
 
 const noLabels = () => ({
@@ -328,24 +393,26 @@ export const measurePlotLineLabels: TransformStage = ({
       const row = side === "end" ? values[values.length - 1] : values[0];
       return sidesOf(row).includes(side);
     });
-  const startLabels = measureSide(
-    sideLines("start"),
-    labelCtx,
-    "start",
-    yDomain,
+  const [startLines, endLines] = [sideLines("start"), sideLines("end")];
+  const yBounds = yTest.outerBounds() as {width: number};
+  const cap = lineLabelCap(
+    width,
+    yBounds.width ? yBounds.width + (yTest.padding() as number) : 0,
   );
-  const endLabels = measureSide(sideLines("end"), labelCtx, "end", yDomain);
+  const sideCtx = {...labelCtx, maxSpace: cap};
+  const startLabels = measureSide(startLines, sideCtx, "start", yDomain);
+  const endLabels = measureSide(endLines, sideCtx, "end", yDomain);
 
   const [rangeStart, rangeEnd] = xTest._getRange.bind(xTest)() as number[];
   const endSpace = lineLabelSpace(
     endLabels,
     max(endLabels, d => d.edgeX) as number,
-    width,
+    cap,
   );
   const startSpace = lineLabelSpace(
     startLabels,
     min(startLabels, d => d.edgeX) as number,
-    width,
+    cap,
   );
 
   return {
@@ -353,7 +420,8 @@ export const measurePlotLineLabels: TransformStage = ({
     plotLargestLabel: max(endLabels.map(d => d.labelWidth)),
     plotXRangeMax:
       endSpace && max(endLabels, d => d.edgeX) === rangeEnd
-        ? width - endSpace - viz._margin.right
+        ? // The test axis spans this chart's (or panel's) own width.
+          width - endSpace
         : undefined,
     plotStartLabelSpace:
       startSpace && min(startLabels, d => d.edgeX) === rangeStart

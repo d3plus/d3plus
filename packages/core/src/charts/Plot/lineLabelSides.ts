@@ -61,19 +61,6 @@ export function rowLineLabelSides(
 }
 
 /**
-    Whether a chart's line labels spread apart until none overlap, rather
-    than bump into the nearest free slot: a `lineLabels` that names its ends
-    (`"start"`, `"end"`, or `"both"`) spreads them, as does any chart with
-    labels at its lines' left ends.
-*/
-export function spreadsLineLabels(
-  setting: LineLabelsSetting | null | undefined,
-  labels: {side?: LineLabelSide}[],
-): boolean {
-  return typeof setting === "string" || labels.some(l => l.side === "start");
-}
-
-/**
     A line label's value text, or `undefined` when `config` leaves values
     off: `valueFormat` when set, else `format` (the y axis's own).
 */

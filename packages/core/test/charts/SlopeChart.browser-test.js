@@ -274,3 +274,119 @@ it("SlopeChart — hovering a line shows its values", async () => {
   assert.ok(tooltip.includes("Brazil"), tooltip);
   assert.ok(/47/.test(tooltip), tooltip);
 });
+
+/**
+    Each line's end x positions and every line label's box, in surface
+    pixels, plus the chart's size and its facet panels' areas.
+*/
+const layout = viz => {
+  const lines = {};
+  const labels = [];
+  const walk = (n, x, y) => {
+    if (
+      n.shapeType === "Line" &&
+      names.includes(n.datum?.id) &&
+      n.interactionPoints?.length &&
+      n.paint?.strokeWidth === 2
+    )
+      lines[n.datum.id] = n.interactionPoints.map(p => p.x + x);
+    const t = n.transform || {};
+    const nx = x + (t.x || 0);
+    const ny = y + (t.y || 0);
+    if (n.type === "text")
+      for (const line of n.lines || []) {
+        if (!names.some(name => line.text.startsWith(name.slice(0, 1))))
+          continue;
+        if (/^\d/.test(line.text)) continue;
+        const at = nx + (n.x || 0) + line.x;
+        const anchor = n.font?.anchor || "start";
+        const left =
+          anchor === "end"
+            ? at - line.width
+            : anchor === "middle"
+              ? at - line.width / 2
+              : at;
+        labels.push({text: line.text, left, right: left + line.width});
+      }
+    (n.children || []).forEach(c => walk(c, nx, ny));
+  };
+  walk(viz._paintedScene.root, 0, 0);
+  return {
+    lines,
+    labels,
+    width: viz.schema.width,
+    panels: (viz._facetPanels || []).map(p => ({...p.area})),
+  };
+};
+
+/** Asserts every label lies inside the chart, and inside its own panel. */
+function assertLabelsInside(out) {
+  for (const l of out.labels) {
+    assert.ok(l.left >= -0.5, `${l.text} starts at ${l.left}`);
+    assert.ok(l.right <= out.width + 0.5, `${l.text} ends at ${l.right}`);
+    const panel = out.panels.find(p => l.left < p.x + p.width && l.right > p.x);
+    if (panel)
+      assert.ok(
+        l.left >= panel.x - 0.5 && l.right <= panel.x + panel.width + 0.5,
+        `${l.text} (${l.left}–${l.right}) stays in its panel (${panel.x}–${panel.x + panel.width})`,
+      );
+  }
+}
+
+const regionOf = Object.fromEntries(
+  shares.map(([n], i) => [n, i % 3 ? "South" : "North"]),
+);
+const regional = data.map(d => ({...d, region: regionOf[d.country]}));
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`SlopeChart ${renderer} — every facet panel keeps 40% of its width for the plot`, async () => {
+    const out = await probeChart(
+      `${src({slopeColor: true})}.facet("region")`,
+      layout,
+      {
+        data: regional,
+        renderer,
+        html: '<div id="viz" style="width:600px;height:400px"></div>',
+      },
+    );
+    assert.strictEqual(out.panels.length, 2);
+    for (const panel of out.panels) {
+      const xs = Object.values(out.lines)
+        .filter(([x]) => x >= panel.x && x <= panel.x + panel.width)
+        .flat();
+      assert.ok(xs.length >= 4, "the panel draws its lines");
+      const periods = [...new Set(xs.map(Math.round))].sort((a, b) => a - b);
+      assert.strictEqual(periods.length, 2, `two periods: ${periods}`);
+      assert.ok(
+        periods[1] - periods[0] >= panel.width * 0.4 - 1,
+        `plot ${periods[1] - periods[0]}px of a ${panel.width}px panel`,
+      );
+    }
+    assertLabelsInside(out);
+  });
+
+  it(`SlopeChart ${renderer} — a narrow chart shortens or hides its labels`, async () => {
+    for (const width of [240, 160, 90]) {
+      const out = await probeChart(src({}), layout, {
+        data,
+        renderer,
+        html: `<div id="viz" style="width:${width}px;height:300px"></div>`,
+      });
+      const xs = Object.values(out.lines).flat();
+      const span = Math.max(...xs) - Math.min(...xs);
+      assert.ok(span >= width * 0.4 - 1, `${width}px: plot ${span}px wide`);
+      assertLabelsInside(out);
+      const full = shares.map(([n, a]) => `${n} ${a}`);
+      assert.ok(
+        out.labels.every(l => !full.includes(l.text) || width >= 240),
+        `${width}px: labels shortened: ${out.labels.map(l => l.text)}`,
+      );
+      if (width === 160)
+        assert.ok(
+          out.labels.some(l => l.text.endsWith("…")) ||
+            out.labels.every(l => !/\d/.test(l.text)),
+          `${width}px: names cut short or values dropped`,
+        );
+    }
+  });
+}

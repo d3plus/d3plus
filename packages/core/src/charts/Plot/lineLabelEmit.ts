@@ -48,8 +48,8 @@ interface LabelBox {
 
 /**
     The text one measured label shows: the series name (and its value), or,
-    where several labels were bumped onto the same spot, `"+N more"` on the
-    first of them and nothing on the rest.
+    where the plot had no room for every label, `"+N more"` on the last that
+    fit and nothing on the rest.
 */
 function entryText(
   inputs: LineLabelEmitInputs,
@@ -57,22 +57,19 @@ function entryText(
   d: PlotDatum,
   i: number,
 ): string | false {
-  const {viz, labelWidths} = inputs;
-  const side = measure.side ?? "end";
-  const yPos = measure.newY || measure.defaultY;
-  const allLabels = labelWidths.filter(
-    l => (l.side ?? "end") === side && l.newY === yPos,
-  );
-  if (allLabels.length > 1)
-    return allLabels[0].id !== d.id
-      ? false
-      : `+${formatAbbreviate(allLabels.length, viz.schema.locale)} ${viz.schema.translate("more")}`;
+  const {viz} = inputs;
+  if (measure.hidden) return false;
+  if (measure.collapsed)
+    return `+${formatAbbreviate(measure.collapsed, viz.schema.locale)} ${viz.schema.translate("more")}`;
+  // A label shortened to fit its room keeps its shortened name.
   const name =
-    inputs.name === undefined || inputs.name === null
-      ? viz._drawLabel(d as unknown as Parameters<Viz["_drawLabel"]>[0], i)
-      : typeof inputs.name === "function"
-        ? inputs.name(d, i)
-        : inputs.name;
+    measure.name !== undefined
+      ? measure.name
+      : inputs.name === undefined || inputs.name === null
+        ? viz._drawLabel(d as unknown as Parameters<Viz["_drawLabel"]>[0], i)
+        : typeof inputs.name === "function"
+          ? inputs.name(d, i)
+          : inputs.name;
   return measure.valueText === undefined
     ? name
     : lineLabelText(name, measure.valueText);

@@ -1464,10 +1464,13 @@ export interface D3plusConfig {
       line's ends: `true` or `"end"` labels the right end, `"start"` the left
       end, and `"both"` both ends. A function of each row returns any of
       these (or `false`) to choose per series. The plot leaves room for the
-      labels on the side they sit. Labels that would overlap are moved
-      apart, each side on its own, with a dotted connector back to their
-      line (with `true`, labels crowded onto one spot collapse into a single
-      "+N more"). `lineLabelConfig` adds each end's value to its label.
+      labels on the side they sit, at most a quarter of its width past the y
+      axis per side;
+      a label wider than that drops its value, then shortens its name with
+      an ellipsis, then hides. Labels that would overlap are moved apart,
+      each side on its own, with a dotted connector back to their line; when
+      the plot is too short for them all, the last that fits reads "+N more".
+      `lineLabelConfig` adds each end's value to its label.
   */
   lineLabels?: LineLabelsSetting;
   /**

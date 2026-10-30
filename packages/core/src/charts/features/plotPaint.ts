@@ -49,6 +49,12 @@ export interface LabelWidth {
   side?: LineLabelSide;
   /** The formatted value the label shows after the series name, if any. */
   valueText?: string;
+  /** The series name, shortened to fit the label's room; unset when it fits. */
+  name?: string;
+  /** The plot had no room for this label (see `collapsed`). */
+  hidden?: boolean;
+  /** How many labels this one stands for as "+N more", when the plot had no room for them all. */
+  collapsed?: number;
   /** The label's width, padding included. */
   labelWidth?: number;
   xValue: unknown;

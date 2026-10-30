@@ -83,7 +83,11 @@ function lineEnds(viz) {
 /** The line labels a chart drew, split by side, with every line's ends. */
 const lineLabelInfo = viz => {
   const texts = paintedTexts(viz).filter(t =>
-    names.some(n => t.text.startsWith(n)),
+    names.some(
+      n =>
+        t.text.startsWith(n) ||
+        (t.text.endsWith("\u2026") && n.startsWith(t.text.slice(0, -1))),
+    ),
   );
   return {
     start: texts.filter(t => t.anchor === "end"),
@@ -302,5 +306,66 @@ for (const renderer of ["svg", "canvas"]) {
     );
     assert.strictEqual(out.before.start.length, names.length);
     assert.ok(out.after.start.length + out.after.end.length > 0);
+  });
+}
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`LinePlot ${renderer} — narrow charts and panels keep the plot and the labels inside`, async () => {
+    const inside = viz => {
+      const info = lineLabelInfo(viz);
+      return {
+        ...info,
+        width: viz.schema.width,
+        panels: (viz._facetPanels || []).map(p => ({...p.area})),
+      };
+    };
+    for (const [width, extra] of [
+      [260, ""],
+      [600, '.facet("group")'],
+    ]) {
+      const rows = data.map(d => ({
+        ...d,
+        group: names.indexOf(d.id) % 2 ? "Odd" : "Even",
+      }));
+      const out = await probeChart(
+        `${src({lineLabels: "both", lineLabelConfig: {value: true}})}${extra}`,
+        inside,
+        {
+          data: rows,
+          renderer,
+          html: `<div id="viz" style="width:${width}px;height:360px"></div>`,
+        },
+      );
+      const labels = [...out.start, ...out.end];
+      assert.ok(labels.length > 0, `${width}px draws labels`);
+      for (const l of labels) {
+        assert.ok(l.left >= -0.5 && l.right <= out.width + 0.5, l.text);
+        const panel = out.panels.find(
+          p => l.left < p.x + p.width && l.right > p.x,
+        );
+        if (panel)
+          assert.ok(
+            l.left >= panel.x - 0.5 && l.right <= panel.x + panel.width + 0.5,
+            `${l.text} stays in its panel`,
+          );
+      }
+      const panelWidth = out.panels.length ? out.panels[0].width : width;
+      const spans = out.panels.length
+        ? out.panels.map(p => {
+            const xs = Object.values(out.ends)
+              .filter(e => e.first >= p.x && e.first <= p.x + p.width)
+              .flatMap(e => [e.first, e.last]);
+            return Math.max(...xs) - Math.min(...xs);
+          })
+        : [
+            Math.max(...Object.values(out.ends).map(e => e.last)) -
+              Math.min(...Object.values(out.ends).map(e => e.first)),
+          ];
+      for (const span of spans)
+        assert.ok(
+          span >= panelWidth * 0.35,
+          `${width}px: plot ${span}px of ${panelWidth}px`,
+        );
+    }
   });
 }

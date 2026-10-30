@@ -43,7 +43,6 @@ import {frozenAxis} from "./frozenAxis.js";
 
 import {alignAxisLine, placeEndLabels} from "./plotEndLabels.js";
 import {bumpLineLabels} from "./lineLabels.js";
-import {spreadsLineLabels} from "../Plot/lineLabelSides.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {PlotMeasureResult, PlotPaintContext} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -370,12 +369,7 @@ export function renderAxes(
     axisSceneQueue,
   );
 
-  const labelPositions = bumpLineLabels(
-    viz,
-    labelWidths,
-    yRange,
-    spreadsLineLabels(viz.schema.lineLabels, labelWidths),
-  );
+  const labelPositions = bumpLineLabels(viz, labelWidths, yRange);
 
   let yOffset = viz._xAxis!.barConfig()["stroke-width"] as number;
   if (yOffset) yOffset /= 2;

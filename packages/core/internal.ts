@@ -137,7 +137,6 @@ export {
   lineLabelText,
   lineLabelValue,
   rowLineLabelSides,
-  spreadsLineLabels,
 } from "./src/charts/Plot/lineLabelSides.js";
 export {spreadLabelPositions} from "./src/charts/Plot/lineLabelSpread.js";
 export type {
@@ -152,7 +151,9 @@ export {
   lineLabelConfig,
 } from "./src/charts/Plot/lineLabelEmit.js";
 export {
+  fitLineLabelText,
   labelOverlapsLine,
+  lineLabelCap,
   lineLabelSpace,
   measureLineLabel,
   measurePlotLineLabels,

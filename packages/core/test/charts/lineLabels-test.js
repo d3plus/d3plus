@@ -12,10 +12,11 @@ import {
   lineLabelSpace,
   lineLabelText,
   lineLabelValue,
+  fitLineLabelText,
+  lineLabelCap,
   measureLineLabel,
   rowLineLabelSides,
   spreadLabelPositions,
-  spreadsLineLabels,
 } from "../../internal.ts";
 
 useJsdom();
@@ -48,20 +49,6 @@ it("rowLineLabelSides — calls a function setting with the row", () => {
     [{id: "c"}, 2],
   ]);
   assert.deepStrictEqual(rowLineLabelSides("start", {id: "a"}, 0), ["start"]);
-});
-
-it("spreadsLineLabels — named ends and left-end labels spread", () => {
-  assert.strictEqual(spreadsLineLabels(true, [{side: "end"}]), false);
-  assert.strictEqual(
-    spreadsLineLabels(() => true, [{}]),
-    false,
-  );
-  assert.strictEqual(spreadsLineLabels("end", [{side: "end"}]), true);
-  assert.strictEqual(spreadsLineLabels("both", []), true);
-  assert.strictEqual(
-    spreadsLineLabels(() => "start", [{side: "start"}]),
-    true,
-  );
 });
 
 it("lineLabelValue — formats a label's value when values are on", () => {
@@ -184,14 +171,14 @@ it("lineLabelBox — sits past a line's right or left end", () => {
   assert.strictEqual(lineLabelBox(reversed, "start", 40, 400).x, -140);
 });
 
-it("lineLabelSpace — the widest label at the edge, capped at a quarter", () => {
+it("lineLabelSpace — the widest label at the edge, at most the cap", () => {
   const labels = [
     {edgeX: 100, spaceNeeded: 30},
     {edgeX: 100, spaceNeeded: 50},
     {edgeX: 80, spaceNeeded: 90},
   ];
-  assert.strictEqual(lineLabelSpace(labels, 100, 400), 50);
-  assert.strictEqual(lineLabelSpace(labels, 100, 120), 30);
+  assert.strictEqual(lineLabelSpace(labels, 100, 100), 50);
+  assert.strictEqual(lineLabelSpace(labels, 100, 30), 30);
   assert.strictEqual(lineLabelSpace(labels, 0, 400), 0);
   assert.strictEqual(lineLabelSpace([], 0, 400), 0);
 });
@@ -292,7 +279,7 @@ it("bumpLineLabels — spreads each end of the lines on its own", () => {
     {id: "a", side: "end", xValue: 2, value: 10, fontSize: 10, padding: 5},
     {id: "b", side: "end", xValue: 2, value: 90, fontSize: 10, padding: 5},
   ];
-  const positions = bumpLineLabels(fakeViz, labels, [0, 100], true);
+  const positions = bumpLineLabels(fakeViz, labels, [0, 100]);
   const [aStart, bStart, aEnd, bEnd] = labels;
   assert.ok(bStart.newY - aStart.newY >= 12 - 1e-9, "the start labels part");
   assert.strictEqual(aEnd.newY, undefined, "the end labels stay put");
@@ -306,20 +293,46 @@ it("bumpLineLabels — a start label at the same x as an end label stays apart",
     {id: "a", side: "start", xValue: 1, value: 50, fontSize: 10, padding: 5},
     {id: "b", side: "end", xValue: 1, value: 50, fontSize: 10, padding: 5},
   ];
-  bumpLineLabels(fakeViz, labels, [0, 100], true);
+  bumpLineLabels(fakeViz, labels, [0, 100]);
   assert.strictEqual(labels[0].newY, undefined);
   assert.strictEqual(labels[1].newY, undefined);
 });
 
-it("bumpLineLabels — bumps right-end labels into buckets without spread", () => {
+it("bumpLineLabels — spreads right-end labels from lineLabels: true", () => {
   const labels = [
     {id: "a", xValue: 2, value: 52, fontSize: 10, padding: 5},
     {id: "b", xValue: 2, value: 50, fontSize: 10, padding: 5},
   ];
   const positions = bumpLineLabels(fakeViz, labels, [0, 100]);
-  assert.strictEqual(labels[0].newY, 50, "into the bucket above it");
-  assert.strictEqual(labels[1].newY, undefined);
-  assert.deepStrictEqual(positions, {a: 50});
+  assert.deepStrictEqual(
+    labels.map(l => l.newY),
+    [57, 45],
+    "each moves 6px, 12px apart",
+  );
+  assert.deepStrictEqual(positions, {a: 57, b: 45});
+});
+
+it("bumpLineLabels — labels past the plot's room collapse into +N more", () => {
+  const labels = ["a", "b", "c", "d", "e"].map((id, i) => ({
+    id,
+    xValue: 2,
+    value: 10 + i,
+    fontSize: 10,
+    padding: 5,
+  }));
+  bumpLineLabels(fakeViz, labels, [0, 30]);
+  // 12px apart, three fit in 0–30: the third stands for itself and the rest.
+  assert.deepStrictEqual(
+    labels.map(l => [l.collapsed, l.hidden]),
+    [
+      [undefined, undefined],
+      [undefined, undefined],
+      [3, undefined],
+      [undefined, true],
+      [undefined, true],
+    ],
+  );
+  assert.strictEqual(labels[3].newY, undefined);
 });
 
 /** Line-label emit inputs for two lines, `a` labeled at both ends and `b` at its end. */
@@ -380,19 +393,76 @@ it("lineLabelConfig — names a series from `name`, and hides unlabeled rows", (
   assert.strictEqual(hidden.label({id: "z", data: {keep: true}}, 0), false);
 });
 
-it("lineLabelConfig — labels bumped onto one spot collapse into +N more", () => {
+it("lineLabelConfig — collapsed and hidden labels, and shortened names", () => {
   const config = lineLabelConfig(
     emitInputs({
       labelWidths: [
-        {id: "a", side: "end", newY: 5},
-        {id: "b", side: "end", newY: 5},
-        {id: "c", side: "start", newY: 5},
+        {id: "a", side: "end", collapsed: 2},
+        {id: "b", side: "end", hidden: true},
+        {id: "c", side: "start", name: "Ser\u2026"},
+        {id: "d", side: "end", name: "Serie", valueText: "4"},
       ],
     }),
   );
   assert.strictEqual(config.label({id: "a", data: {}}, 0), "+2 more");
   assert.strictEqual(config.label({id: "b", data: {}}, 0), false);
-  assert.strictEqual(config.label({id: "c", data: {}}, 0), "Series c");
+  assert.strictEqual(config.label({id: "c", data: {}}, 0), "Ser\u2026");
+  assert.strictEqual(config.label({id: "d", data: {}}, 0), "Serie 4");
+});
+
+it("fitLineLabelText — drops the value, then shortens the name, then hides", () => {
+  const measure = t => t.length * 10;
+  assert.deepStrictEqual(fitLineLabelText("Brazil", "37%", 100, measure), {
+    name: "Brazil",
+    value: "37%",
+  });
+  assert.deepStrictEqual(fitLineLabelText("Brazil", undefined, 60, measure), {
+    name: "Brazil",
+  });
+  assert.deepStrictEqual(fitLineLabelText("Brazil", "37%", 60, measure), {
+    name: "Brazil",
+  });
+  assert.deepStrictEqual(fitLineLabelText("Brazil", "37%", 40, measure), {
+    name: "Bra\u2026",
+  });
+  assert.deepStrictEqual(fitLineLabelText("New York", undefined, 50, measure), {
+    name: "New\u2026",
+  });
+  assert.deepStrictEqual(fitLineLabelText("Brazil", undefined, 20, measure), {
+    name: "B\u2026",
+  });
+  assert.strictEqual(fitLineLabelText("Brazil", "37%", 15, measure), null);
+});
+
+it("lineLabelCap — a quarter of the width past the y axis per end", () => {
+  assert.strictEqual(lineLabelCap(400), 100);
+  assert.strictEqual(lineLabelCap(400, 40), 90);
+  assert.strictEqual(lineLabelCap(0), 0);
+  assert.strictEqual(lineLabelCap(20, 40), 0);
+});
+
+it("measureLineLabel — shortens a label to its room, or drops it", () => {
+  const entry = line("Argentina", [
+    [1, 10],
+    [3, 30],
+  ]);
+  const ctx = {...measureCtx, labelFunction: d => d.id};
+  const full = measureLineLabel(entry, ctx, "end");
+  assert.strictEqual(full.name, undefined, "fits: no shortened name");
+  const roomy = measureLineLabel(entry, {...ctx, maxSpace: 1000}, "end");
+  assert.strictEqual(roomy.name, undefined);
+  const tight = measureLineLabel(
+    entry,
+    {...ctx, maxSpace: full.spaceNeeded - 1},
+    "end",
+  );
+  assert.strictEqual(tight.name, "Argentina", "the value goes first");
+  assert.strictEqual(tight.valueText, undefined);
+  assert.ok(tight.spaceNeeded <= full.spaceNeeded - 1);
+  const tighter = measureLineLabel(entry, {...ctx, maxSpace: 45}, "start");
+  assert.ok(tighter.name.endsWith("\u2026"), tighter.name);
+  assert.ok(tighter.spaceNeeded <= 45);
+  assert.strictEqual(measureLineLabel(entry, {...ctx, maxSpace: 21}), null);
 });
 
 it("LinePlot — lineLabels takes an end, and lineLabelConfig merges", () => {

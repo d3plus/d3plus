@@ -62,6 +62,14 @@ const charts = [
     .x("x").y("y")`,
   ],
   [
+    "line-plot-labels-crowded",
+    `lib => new lib.LinePlot()
+    .groupBy("group")
+    .lineLabels(true)
+    .data(["S1", "S2", "S3", "S4", "S5", "S6"].flatMap((group, k) => [1, 2, 3, 4].map(x => ({group, x, y: x * 3 + k * 0.4 + (k % 2)}))))
+    .x("x").y("y")`,
+  ],
+  [
     "line-plot-labels-both",
     `lib => new lib.LinePlot()
     .groupBy("group")
