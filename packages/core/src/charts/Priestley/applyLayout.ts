@@ -15,6 +15,7 @@ import {nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../pipeline/stages.js";
+import {measureTimeAxis, renderTimeAxis} from "./timeAxis.js";
 
 interface PriestleyDatum extends Record<string, unknown> {
   __d3plus__: true;
@@ -27,18 +28,6 @@ interface PriestleyDatum extends Record<string, unknown> {
 }
 
 type Branch = {values: PriestleyDatum[]} & Record<string, unknown>;
-
-type AxisLike = {
-  config: (c: unknown) => AxisLike;
-  measure: () => AxisLike;
-  renderMode: (m: string) => AxisLike;
-  select: (el: HTMLElement | undefined) => AxisLike;
-  render: () => AxisLike;
-  outerBounds: () => {height: number};
-  toScene: () => {children?: unknown[]} | undefined;
-  schema: {padding: number};
-  _d3Scale: (v: number | Date) => number;
-};
 
 /** Greedy first-fit lane packer; mutates `d.lane` and returns total lane count. */
 const packLanes = (nested: Branch[]): number => {
@@ -67,7 +56,7 @@ const runAxesAndScales = (
   data: PriestleyDatum[],
   maxLane: number,
 ): void => {
-  const cfg = {
+  const frame = {
     domain: [
       min(data, d => Number(d.start)) ?? 0,
       max(data, d => Number(d.end)) ?? 0,
@@ -75,27 +64,12 @@ const runAxesAndScales = (
     height: viz.schema.height - viz._margin.top - viz._margin.bottom,
     width: viz.schema.width - viz._margin.left - viz._margin.right,
   };
-
-  const axisTest = viz.ctx.axisTest as AxisLike;
-  const axis = viz.ctx.axis as AxisLike;
-
-  axisTest.config(cfg).config(viz.schema.axisConfig).measure();
-
-  axis
-    .config(cfg)
-    .config(viz.schema.axisConfig)
-    .renderMode("compute")
-    .select(undefined as unknown as HTMLElement)
-    .render();
-  const axisScene = axis.toScene();
-  if (axisScene) {
-    (viz._chartScene ||= []).push({
-      type: "group",
-      key: "priestley-axis",
-      transform: {x: viz._margin.left, y: viz._margin.top},
-      children: (axisScene.children ?? []) as unknown as never,
-    });
-  }
+  const axis = measureTimeAxis(viz, frame);
+  const xScale = renderTimeAxis(viz, {
+    ...frame,
+    transform: {x: viz._margin.left, y: viz._margin.top},
+    key: "priestley-axis",
+  });
 
   const yScale = (
     scales as unknown as {
@@ -115,14 +89,11 @@ const runAxesAndScales = (
     .paddingInner(viz.schema.paddingInner as number)
     .paddingOuter(viz.schema.paddingOuter as number)
     .rangeRound([
-      viz.schema.height -
-        viz._margin.bottom -
-        axisTest.outerBounds().height -
-        axisTest.schema.padding,
-      viz._margin.top + axisTest.schema.padding,
+      viz.schema.height - viz._margin.bottom - axis.height - axis.padding,
+      viz._margin.top + axis.padding,
     ]);
 
-  viz.ctx.xScale = axis._d3Scale;
+  viz.ctx.xScale = xScale;
   viz.ctx.yScale = yScale;
   viz.ctx.bandWidth = yScale.bandwidth();
 };

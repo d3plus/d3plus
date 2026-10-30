@@ -15,6 +15,7 @@ import {
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
   Funnel as FunnelClass,
+  Gantt as GanttClass,
   Gauge as GaugeClass,
   Geomap as GeomapClass,
   Hexbin as HexbinClass,
@@ -135,6 +136,10 @@ export const FanChart = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Funnel visualization. */
 export const Funnel = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={FunnelClass} {...props} />
+);
+/** React component for rendering a d3plus Gantt visualization. */
+export const Gantt = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={GanttClass} {...props} />
 );
 /** React component for rendering a d3plus Gauge visualization. */
 export const Gauge = (props: D3plusComponentProps) => (

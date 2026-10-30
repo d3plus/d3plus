@@ -13,6 +13,7 @@ export {
   Dumbbell,
   FanChart,
   Funnel,
+  Gantt,
   Gauge,
   Geomap,
   Hexbin,

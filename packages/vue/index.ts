@@ -13,6 +13,7 @@ import {
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
   Funnel as FunnelClass,
+  Gantt as GanttClass,
   Gauge as GaugeClass,
   Geomap as GeomapClass,
   Hexbin as HexbinClass,
@@ -103,6 +104,8 @@ export const Dumbbell = createD3plusComponent(DumbbellClass, "chart");
 export const FanChart = createD3plusComponent(FanChartClass, "chart");
 /** Vue component for rendering a d3plus Funnel visualization. */
 export const Funnel = createD3plusComponent(FunnelClass, "chart");
+/** Vue component for rendering a d3plus Gantt visualization. */
+export const Gantt = createD3plusComponent(GanttClass, "chart");
 /** Vue component for rendering a d3plus Gauge visualization. */
 export const Gauge = createD3plusComponent(GaugeClass, "chart");
 /** Vue component for rendering a d3plus Geomap visualization. */
