@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LineLabelsBoth · LinePlot</title>
+    <meta
+      name="description"
+      content="Line labels at both ends, or the start only, on multi-year lines, with values from lineLabelConfig, a time axis, zoom, small multiples, and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>lineLabels: "both" with values</h3>
+        <div class="viz" id="both"></div>
+      </div>
+      <div>
+        <h3>lineLabels: "start"</h3>
+        <div class="viz" id="start"></div>
+      </div>
+      <div>
+        <h3>Time axis with zoom</h3>
+        <div class="viz" id="time"></div>
+      </div>
+      <div>
+        <h3>Small multiples</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3>Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const renewables = {
+      Brazil: [41, 42, 43, 45, 44, 46, 47, 46, 48, 47],
+      Chile: [30, 31, 33, 34, 36, 35, 37, 38, 37, 36],
+      Peru: [31, 32, 31, 30, 31, 29, 30, 31, 30, 30],
+      Colombia: [28, 29, 28, 30, 29, 28, 27, 28, 27, 27],
+      Ecuador: [29, 30, 30, 31, 32, 31, 30, 29, 29, 29],
+      Mexico: [17, 18, 18, 19, 20, 20, 21, 21, 22, 22],
+    };
+    const data = Object.entries(renewables).flatMap(([country, values], k) =>
+      values.map((share, i) => ({
+        country,
+        group: k % 2 ? "Odd" : "Even",
+        year: 2015 + i,
+        date: `${2015 + i}-06-01`,
+        share,
+      })),
+    );
+
+    const plot = id =>
+      new d3plus.LinePlot()
+        .select("#" + id)
+        .data(data)
+        .groupBy("country")
+        .x("year")
+        .y("share")
+        .legend(false)
+        .lineLabels("both");
+
+    plot("both")
+      .lineLabelConfig({value: true})
+      .yConfig({tickFormat: d => `${d}%`})
+      .render();
+    plot("start").lineLabels("start").render();
+    plot("time").x("date").time("date").zoom(true).render();
+    plot("facet").facet("group").render();
+    plot("dark").theme("dark").lineLabelConfig({value: true}).render();
+  </script>
+</html>

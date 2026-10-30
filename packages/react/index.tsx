@@ -39,6 +39,7 @@ import {
   Rings as RingsClass,
   Sankey as SankeyClass,
   Scatter as ScatterClass,
+  SlopeChart as SlopeChartClass,
   StackedArea as StackedAreaClass,
   Streamgraph as StreamgraphClass,
   Sunburst as SunburstClass,
@@ -234,6 +235,10 @@ export const Sankey = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Scatter visualization. */
 export const Scatter = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={ScatterClass} {...props} />
+);
+/** React component for rendering a d3plus SlopeChart visualization. */
+export const SlopeChart = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={SlopeChartClass} {...props} />
 );
 /** React component for rendering a d3plus StackedArea visualization. */
 export const StackedArea = (props: D3plusComponentProps) => (

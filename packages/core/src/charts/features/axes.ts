@@ -43,6 +43,7 @@ import {frozenAxis} from "./frozenAxis.js";
 
 import {alignAxisLine, placeEndLabels} from "./plotEndLabels.js";
 import {bumpLineLabels} from "./lineLabels.js";
+import {spreadsLineLabels} from "../Plot/lineLabelSides.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {PlotMeasureResult, PlotPaintContext} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -94,8 +95,10 @@ function setupAxisTransforms(
   // `_chartScene` (the chart-cells group already applies `_chartTransform`).
   // Axes are scene-only: `renderMode("compute")` renders into a detached svg
   // and `axis.toScene()` produces the visible output.
+  // The y axis hugs the plot, or sits left of the lines' left-end labels.
   const yW = yWidth as number;
-  const xTrans = xOffsetLeft > yW ? xOffsetLeft - yW : 0;
+  const xTrans =
+    Math.max(0, xOffsetLeft - yW - (pCtx.startLabelSpace ?? 0)) || 0;
   const axisAbsoluteTransforms = {
     x: {x: viz._margin.left, y: viz._margin.top + x2Height + topOffset},
     x2: {x: viz._margin.left, y: viz._margin.top + topOffset},
@@ -367,7 +370,12 @@ export function renderAxes(
     axisSceneQueue,
   );
 
-  const labelPositions = bumpLineLabels(viz, labelWidths, yRange);
+  const labelPositions = bumpLineLabels(
+    viz,
+    labelWidths,
+    yRange,
+    spreadsLineLabels(viz.schema.lineLabels, labelWidths),
+  );
 
   let yOffset = viz._xAxis!.barConfig()["stroke-width"] as number;
   if (yOffset) yOffset /= 2;

@@ -54,6 +54,23 @@ const charts = [
     ]).x("x").y("y")`,
   ],
   [
+    "line-plot-labels",
+    `lib => new lib.LinePlot()
+    .groupBy("group")
+    .lineLabels(true)
+    .data(["S1", "S2", "S3", "S4"].flatMap((group, k) => [1, 2, 3, 4].map(x => ({group, x, y: 10 + x * (k + 2) + k}))))
+    .x("x").y("y")`,
+  ],
+  [
+    "line-plot-labels-both",
+    `lib => new lib.LinePlot()
+    .groupBy("group")
+    .lineLabels("both")
+    .lineLabelConfig({value: true})
+    .data(["S1", "S2", "S3", "S4"].flatMap((group, k) => [1, 2, 3, 4].map(x => ({group, x, y: 10 + x * (k + 2) + k}))))
+    .x("x").y("y")`,
+  ],
+  [
     "stacked-area",
     `lib => new lib.StackedArea()
     .groupBy("group")
@@ -528,6 +545,16 @@ const charts = [
     .groupBy("genre")
     .x("year")
     .y("sales")`,
+  ],
+  [
+    "slope-chart",
+    `lib => new lib.SlopeChart()
+    .data([["Brazil", 41, 47], ["Chile", 30, 36], ["Peru", 31, 30], ["Argentina", 10, 12], ["Colombia", 28, 27]]
+      .flatMap(([country, a, b]) => [{country, year: 2015, share: a}, {country, year: 2024, share: b}]))
+    .groupBy("country")
+    .x("year")
+    .y("share")
+    .slopeColor(true)`,
   ],
   [
     "violin",

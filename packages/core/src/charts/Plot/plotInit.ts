@@ -46,6 +46,7 @@ export const plotSchema = [
   {key: "forecast", coerce: "identity" as const},
   {key: "forecastConfig", merge: true, factory: forecastDefaults},
   {key: "lineLabels", coerce: "identity" as const},
+  {key: "lineLabelConfig", merge: true, factory: () => ({value: false})},
   {key: "referenceBands", coerce: "identity" as const, factory: () => []},
   {key: "referenceLines", coerce: "identity" as const, factory: () => []},
   {key: "shapeSort", coerce: "identity" as const},

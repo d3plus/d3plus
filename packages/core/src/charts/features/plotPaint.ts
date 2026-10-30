@@ -31,6 +31,7 @@ import {barHitsFirst} from "../Plot/barHitArea.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
 import {emitForecast, forecastRows} from "../Plot/forecastScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import type {LineLabelSide} from "../Plot/lineLabelSides.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 
@@ -44,6 +45,12 @@ export type PlotAxisFn = (d: unknown, axis?: string) => number;
 */
 export interface LabelWidth {
   id: string | number;
+  /** Which end of its line the label sits past (the right end when unset). */
+  side?: LineLabelSide;
+  /** The formatted value the label shows after the series name, if any. */
+  valueText?: string;
+  /** The label's width, padding included. */
+  labelWidth?: number;
   xValue: unknown;
   value: unknown;
   fontSize: number;
@@ -148,6 +155,8 @@ export interface PlotPaintContext {
   y2Ticks: unknown[];
   labelWidths: LabelWidth[];
   largestLabel: number;
+  /** The room left of the x range for the lines' left-end labels. */
+  startLabelSpace?: number;
   xRangeMax: number;
   xTest: Axis;
   yTest: Axis;

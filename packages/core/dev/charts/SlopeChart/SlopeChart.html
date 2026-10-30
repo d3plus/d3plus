@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SlopeChart</title>
+    <meta
+      name="description"
+      content="SlopeChart variants: two periods labeled at both ends with values, direction colors, many crowded series, string periods, a time axis, more than two periods, small multiples, and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Default: values from yConfig.tickFormat</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>slopeColor: true</h3>
+        <div class="viz" id="direction"></div>
+      </div>
+      <div>
+        <h3>Many crowded series, string periods, valueFormat</h3>
+        <div class="viz" id="crowded"></div>
+      </div>
+      <div>
+        <h3>Time axis, custom slopeColor</h3>
+        <div class="viz" id="time"></div>
+      </div>
+      <div>
+        <h3>Three periods (warns once, draws all)</h3>
+        <div class="viz" id="three"></div>
+      </div>
+      <div>
+        <h3>Small multiples</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3>Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const shares = [
+      ["Brazil", 41, 47, "South"],
+      ["Chile", 30, 36, "South"],
+      ["Peru", 31, 30, "South"],
+      ["Argentina", 10, 12, "South"],
+      ["Colombia", 28, 27, "North"],
+      ["Mexico", 17, 22, "North"],
+      ["Uruguay", 57, 58, "South"],
+      ["Ecuador", 29, 29, "North"],
+    ];
+    const data = shares.flatMap(([country, before, after, region]) => [
+      {country, region, year: 2015, share: before},
+      {country, region, year: 2024, share: after},
+    ]);
+    const percent = d => `${d}%`;
+
+    const slope = (id, rows = data) =>
+      new d3plus.SlopeChart()
+        .select("#" + id)
+        .data(rows)
+        .groupBy("country")
+        .x("year")
+        .y("share")
+        .yConfig({tickFormat: percent});
+
+    slope("basic").render();
+    slope("direction").slopeColor(true).render();
+
+    const regions = [
+      "Andes",
+      "Atlantic Coast",
+      "Caribbean",
+      "Central Plains",
+      "Gulf",
+      "Highlands",
+      "Lake District",
+      "Northern Forest",
+      "Pacific Coast",
+      "Pampas",
+      "Patagonia",
+      "River Delta",
+      "Southern Cone",
+      "Valley",
+    ];
+    new d3plus.SlopeChart()
+      .select("#crowded")
+      .data(
+        regions.flatMap((region, i) => [
+          {region, period: "Before", score: 50 + ((i * 7) % 9)},
+          {region, period: "After", score: 48 + ((i * 5) % 13)},
+        ]),
+      )
+      .groupBy("region")
+      .x("period")
+      .y("score")
+      .slopeColor(true)
+      .lineLabelConfig({valueFormat: v => v.toFixed(0)})
+      .render();
+
+    slope(
+      "time",
+      data.map(d => ({...d, date: `${d.year}-01-01`})),
+    )
+      .x("date")
+      .time("date")
+      .slopeColor({up: "#1971c2", down: "#e8590c"})
+      .render();
+
+    // Silence the expected "three periods" warning so the page logs nothing.
+    d3plus.configWarnings(false);
+    slope(
+      "three",
+      data.concat(
+        shares.map(([country, before, after]) => ({
+          country,
+          year: 2020,
+          share: Math.round((before + after) / 2 + 3),
+        })),
+      ),
+    ).render(() => d3plus.configWarnings(true));
+
+    slope("facet").facet("region").slopeColor(true).render();
+    slope("dark").theme("dark").slopeColor(true).render();
+  </script>
+</html>

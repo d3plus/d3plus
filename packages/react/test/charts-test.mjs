@@ -9,7 +9,7 @@ const wrappers = Object.entries(react).filter(
 );
 
 it("every component renders the d3plus class it is named after", () => {
-  assert.strictEqual(wrappers.length, 70);
+  assert.strictEqual(wrappers.length, 71);
   const config = {data: []};
   for (const [name, Component] of wrappers) {
     const element = Component({config});
@@ -23,8 +23,8 @@ it("every component renders the d3plus class it is named after", () => {
   }
 });
 
-it("Scatter, BubbleChart, and Streamgraph are chart components", () => {
-  for (const name of ["Scatter", "BubbleChart", "Streamgraph"]) {
+it("Scatter, BubbleChart, Streamgraph, and SlopeChart are chart components", () => {
+  for (const name of ["Scatter", "BubbleChart", "Streamgraph", "SlopeChart"]) {
     const element = react[name]({config: {}});
     assert.strictEqual(element.props.constructor, core[name]);
     assert.strictEqual(element.props.className, "chart");

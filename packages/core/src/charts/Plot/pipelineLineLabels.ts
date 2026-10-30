@@ -16,7 +16,17 @@ import type {Axis, TextBox} from "../../components/index.js";
 import type Shape from "../../shapes/Shape.js";
 
 import {shapeConfigFor} from "../features/emitHelpers.js";
+import type {DataPoint} from "@d3plus/data";
+
 import type {TransformStage} from "../pipeline/stages.js";
+import {axisValue} from "./sharedTooltip.js";
+import {
+  lineLabelText,
+  lineLabelValue,
+  rowLineLabelSides,
+  type LineLabelConfig,
+  type LineLabelSide,
+} from "./lineLabelSides.js";
 
 /** A d3plus config value: a constant or a `(datum, index)` accessor. */
 type ConfigAccessor<T> = T | ((d: Record<string, unknown>, i?: number) => T);
@@ -30,12 +40,32 @@ interface LineLabelCtx {
   paddingAccessor: ConfigAccessor<number>;
   xEstimate: (d: unknown) => number;
   yEstimate: (d: unknown) => number;
+  /** The value text for a label's point, or `undefined` without one. */
+  valueText: (value: unknown, d: Record<string, unknown>) => string | undefined;
 }
 
-/** Measures one line's label (width, position, overlap coords). */
-function measureLineLabel(
+/** Unwraps a formatted Plot row to its source datum and that datum's index. */
+function sourceRow(row: Record<string, unknown>): {
+  d: Record<string, unknown>;
+  i: number | undefined;
+} {
+  let d = row;
+  let i: number | undefined;
+  while (d.__d3plus__ && d.data) {
+    d = d.data as Record<string, unknown>;
+    i = d.i as number | undefined;
+  }
+  return {d, i};
+}
+
+/**
+    Measures one end of a line's label (width, position, overlap coords): its
+    right end (`"end"`, the last point across) or its left end (`"start"`).
+*/
+export function measureLineLabel(
   [lineKey, lineValues]: [unknown, Record<string, unknown>[]],
   ctx: LineLabelCtx,
+  side: LineLabelSide = "end",
 ) {
   const {
     labelFunction,
@@ -48,12 +78,8 @@ function measureLineLabel(
     yEstimate,
   } = ctx;
 
-  let d = lineValues[lineValues.length - 1] as Record<string, unknown>;
-  let i: number | undefined;
-  while (d.__d3plus__ && d.data) {
-    d = d.data as Record<string, unknown>;
-    i = d.i as number | undefined;
-  }
+  const end = side === "end";
+  const {d, i} = sourceRow(lineValues[end ? lineValues.length - 1 : 0]);
   const label =
     typeof labelFunction === "function" ? labelFunction(d, i) : labelFunction;
   const fontColor =
@@ -78,26 +104,30 @@ function measureLineLabel(
     typeof paddingAccessor === "function"
       ? paddingAccessor(d, i)
       : paddingAccessor;
-  const labelWidth = d3plusTextWidth(label, {
-    "font-size": fontSize,
-    "font-family": fontFamily,
-    "font-weight": fontWeight,
-  });
   const coords = lineValues.map((d: Record<string, unknown>) => [
     xEstimate(d.x),
     yEstimate(d.y),
   ]);
-  // A line always has values, so the max is defined.
-  const myMaxX = max(
-    lineValues.map((d: Record<string, unknown>) => xEstimate(d.x)),
-  ) as number;
-  const labelY = (
-    lineValues.find(
-      (d: Record<string, unknown>) => xEstimate(d.x) === myMaxX,
-    ) as Record<string, unknown>
-  ).y;
+  // A line always has values, so the extent is defined.
+  const xs = lineValues.map((d: Record<string, unknown>) => xEstimate(d.x));
+  const edgeX = (end ? max(xs) : min(xs)) as number;
+  const edgeRow = lineValues.find(
+    (d: Record<string, unknown>) => xEstimate(d.x) === edgeX,
+  ) as Record<string, unknown>;
+  const labelY = edgeRow.y;
+  const valueText = ctx.valueText(labelY, edgeRow);
+  const labelWidth = d3plusTextWidth(
+    valueText === undefined ? label : lineLabelText(label, valueText),
+    {
+      "font-size": fontSize,
+      "font-family": fontFamily,
+      "font-weight": fontWeight,
+    },
+  );
   return {
     id: lineKey,
+    side,
+    valueText,
     labelWidth: labelWidth + labelPadding * 2,
     spaceNeeded: labelWidth + labelPadding * 4,
     value: labelY,
@@ -105,8 +135,10 @@ function measureLineLabel(
     padding: labelPadding,
     fontSize,
     fontColor,
-    maxX: myMaxX,
-    xValue: max(lineValues, (d: Record<string, unknown>) => d.x as number),
+    edgeX,
+    // The x value at the labeled end, which the connectors and bumping
+    // group by: on a reversed or categorical axis, not the largest x.
+    xValue: edgeRow.x,
     coords,
   };
 }
@@ -115,18 +147,23 @@ function measureLineLabel(
 type LineLabel = ReturnType<typeof measureLineLabel>;
 
 /**
-    Whether another line passes through the space `label` would occupy to the
-    right of its line's last point.
+    Whether another line passes through the space `label` would occupy past
+    its line's end: right of its last point, or left of its first point for a
+    `"start"` label.
 */
-function labelOverlapsLine(label: LineLabel, labels: LineLabel[]): boolean {
-  const {fontSize, id, labelWidth, maxX, yEstimate} = label;
+export function labelOverlapsLine(
+  label: LineLabel,
+  labels: LineLabel[],
+): boolean {
+  const {fontSize, id, labelWidth, edgeX, side, yEstimate} = label;
+  const dir = side === "start" ? -1 : 1;
   const closeLabels = labels.filter(
     l =>
       l.id !== id &&
       l.coords.some(
         (c: number[]) =>
-          (c[0] > maxX || (c[0] === maxX && l.maxX !== maxX)) &&
-          c[0] <= maxX + labelWidth &&
+          ((c[0] - edgeX) * dir > 0 || (c[0] === edgeX && l.edgeX !== edgeX)) &&
+          (edgeX + labelWidth * dir - c[0]) * dir >= 0 &&
           c[1] <= yEstimate + fontSize * 0.75 &&
           c[1] >= yEstimate - fontSize * 0.75,
       ),
@@ -143,7 +180,7 @@ function lineLabelStyle(
   viz: Parameters<TransformStage>[0]["viz"],
   testLineShape: Shape,
   testTextBox: TextBox,
-): Omit<LineLabelCtx, "xEstimate" | "yEstimate"> {
+): Omit<LineLabelCtx, "xEstimate" | "yEstimate" | "valueText"> {
   const userConfig = shapeConfigFor(viz, "Line");
   testLineShape.config(userConfig);
   const lineLabelConfig = testLineShape.labelConfig();
@@ -200,6 +237,47 @@ function axisEstimate(
   };
 }
 
+/** The y-sorted labels for one end of every line, less those another line runs through. */
+function measureSide(
+  lineData: [unknown, Record<string, unknown>[]][],
+  ctx: LineLabelCtx,
+  side: LineLabelSide,
+  yDomain: unknown[],
+): LineLabel[] {
+  return lineData
+    .map(entry => measureLineLabel(entry, ctx, side))
+    .sort((a, b) =>
+      (yDomain[1] as number) > (yDomain[0] as number)
+        ? (a.value as number) - (b.value as number)
+        : (b.value as number) - (a.value as number),
+    )
+    .filter((d, _i, arr) => !labelOverlapsLine(d, arr));
+}
+
+/**
+    The room the labels at one end of the plot claim: the widest label among
+    the lines that end at the x range's `edge`, capped at a quarter of the
+    chart's `width`; 0 when no line reaches that edge.
+*/
+export function lineLabelSpace(
+  labels: Pick<LineLabel, "edgeX" | "spaceNeeded">[],
+  edge: number,
+  width: number,
+): number {
+  const spaceNeeded = max(
+    labels.filter(d => d.edgeX === edge),
+    d => d.spaceNeeded,
+  );
+  return spaceNeeded ? min([spaceNeeded, width / 4])! : 0;
+}
+
+const noLabels = () => ({
+  plotLabelWidths: [],
+  plotLargestLabel: undefined,
+  plotXRangeMax: undefined,
+  plotStartLabelSpace: 0,
+});
+
 export const measurePlotLineLabels: TransformStage = ({
   viz,
   plotFormattedData,
@@ -210,27 +288,15 @@ export const measurePlotLineLabels: TransformStage = ({
   y2Exists,
 }) => {
   const data = plotFormattedData || [];
-  if (!viz.schema.lineLabels || y2Exists) {
-    return {
-      plotLabelWidths: [],
-      plotLargestLabel: undefined,
-      plotXRangeMax: undefined,
-    };
-  }
-  const labelData = data.filter((d: Record<string, unknown>) => {
-    if (d.shape !== "Line") return false;
-    return typeof viz.schema.lineLabels === "function"
-      ? viz.schema.lineLabels(d.data, d.i)
-      : true;
-  });
+  const setting = viz.schema.lineLabels;
+  if (!setting || y2Exists) return noLabels();
+  const sidesOf = (d: Record<string, unknown>) =>
+    rowLineLabelSides(setting, d.data as DataPoint, d.i as number);
+  const labelData = data.filter(
+    (d: Record<string, unknown>) => d.shape === "Line" && sidesOf(d).length > 0,
+  );
   const lineData = groups(labelData, (d: Record<string, unknown>) => d.id);
-  if (!lineData.length) {
-    return {
-      plotLabelWidths: [],
-      plotLargestLabel: undefined,
-      plotXRangeMax: undefined,
-    };
-  }
+  if (!lineData.length) return noLabels();
 
   const {testLineShape, testTextBox} = plotLineLabelTest as {
     testLineShape: Shape;
@@ -242,42 +308,56 @@ export const measurePlotLineLabels: TransformStage = ({
   const xConfigScale = plotConfigScales!.xConfigScale;
   const yConfigScale = plotConfigScales!.yConfigScale;
   const width = viz.schema.width - viz._margin.left - viz._margin.right;
+  const config = viz.schema.lineLabelConfig as LineLabelConfig | undefined;
 
   const labelCtx: LineLabelCtx = {
     ...lineLabelStyle(viz, testLineShape, testTextBox),
     xEstimate: axisEstimate(xTest, xConfigScale, xDomain),
     yEstimate: axisEstimate(yTest, yConfigScale, yDomain),
+    valueText: (value, row) => {
+      const {d, i} = sourceRow(row);
+      return lineLabelValue(config, value, d as DataPoint, i as number, v =>
+        axisValue(viz, "y", v),
+      );
+    },
   };
 
-  const labelWidths = lineData
-    .map((entry: [unknown, Record<string, unknown>[]]) =>
-      measureLineLabel(entry, labelCtx),
-    )
-    .sort((a, b) =>
-      (yDomain[1] as number) > (yDomain[0] as number)
-        ? (a.value as number) - (b.value as number)
-        : (b.value as number) - (a.value as number),
-    )
-    .filter((d, _i, arr) => !labelOverlapsLine(d, arr));
+  // Each end labels the lines whose row at that end asks for it.
+  const sideLines = (side: LineLabelSide) =>
+    lineData.filter(([, values]) => {
+      const row = side === "end" ? values[values.length - 1] : values[0];
+      return sidesOf(row).includes(side);
+    });
+  const startLabels = measureSide(
+    sideLines("start"),
+    labelCtx,
+    "start",
+    yDomain,
+  );
+  const endLabels = measureSide(sideLines("end"), labelCtx, "end", yDomain);
 
-  const maxX = max(labelWidths, d => d.maxX);
-  const largestLabel = max(labelWidths.map(d => d.labelWidth));
-  let xRangeMax: number | undefined;
-  const spaceNeeded =
-    maxX === xTest._getRange.bind(xTest)()[1]
-      ? max(
-          labelWidths.filter(d => d.maxX === maxX),
-          d => d.spaceNeeded,
-        )
-      : 0;
-  if (spaceNeeded) {
-    const labelSpace = min([spaceNeeded, width / 4]);
-    xRangeMax = width - labelSpace! - viz._margin.right;
-  }
+  const [rangeStart, rangeEnd] = xTest._getRange.bind(xTest)() as number[];
+  const endSpace = lineLabelSpace(
+    endLabels,
+    max(endLabels, d => d.edgeX) as number,
+    width,
+  );
+  const startSpace = lineLabelSpace(
+    startLabels,
+    min(startLabels, d => d.edgeX) as number,
+    width,
+  );
 
   return {
-    plotLabelWidths: labelWidths,
-    plotLargestLabel: largestLabel,
-    plotXRangeMax: xRangeMax,
+    plotLabelWidths: [...startLabels, ...endLabels],
+    plotLargestLabel: max(endLabels.map(d => d.labelWidth)),
+    plotXRangeMax:
+      endSpace && max(endLabels, d => d.edgeX) === rangeEnd
+        ? width - endSpace - viz._margin.right
+        : undefined,
+    plotStartLabelSpace:
+      startSpace && min(startLabels, d => d.edgeX) === rangeStart
+        ? startSpace
+        : 0,
   };
 };

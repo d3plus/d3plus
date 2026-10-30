@@ -37,6 +37,7 @@ export {
   Rings,
   Sankey,
   Scatter,
+  SlopeChart,
   StackedArea,
   Streamgraph,
   Sunburst,

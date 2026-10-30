@@ -41,6 +41,7 @@ const charts = [
   ["Rings", "rings"],
   ["Sankey", "sankey"],
   ["Scatter", "scatter"],
+  ["Slope Chart", "slopechart"],
   ["Stacked Area", "stackedarea"],
   ["Streamgraph", "streamgraph"],
   ["Sunburst", "sunburst"],

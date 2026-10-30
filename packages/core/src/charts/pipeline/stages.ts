@@ -126,6 +126,8 @@ export interface VizContext {
   plotLabelWidths?: unknown[];
   plotLargestLabel?: number;
   plotXRangeMax?: number;
+  /** The room the lines' left-end labels claim before the x range (see `lineLabels: "start"`). */
+  plotStartLabelSpace?: number;
   /** Outputs of `preparePlotAxisLayout`. */
   plotDefaultConfig?: Record<string, unknown>;
   plotDefaultX2Config?: Record<string, unknown>;

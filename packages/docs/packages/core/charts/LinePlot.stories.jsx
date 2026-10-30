@@ -124,6 +124,40 @@ CustomLineLabels.parameters = {
   },
 };
 
+const renewables = {
+  Brazil: [41, 42, 43, 45, 44, 46, 47, 46, 48, 47],
+  Chile: [30, 31, 33, 34, 36, 35, 37, 38, 37, 36],
+  Peru: [31, 32, 31, 30, 31, 29, 30, 31, 30, 30],
+  Colombia: [28, 29, 28, 30, 29, 28, 27, 28, 27, 27],
+  Ecuador: [29, 30, 30, 31, 32, 31, 30, 29, 29, 29],
+  Mexico: [17, 18, 18, 19, 20, 20, 21, 21, 22, 22],
+};
+
+export const LineLabelsBoth = Template.bind({});
+LineLabelsBoth.args = {
+  data: Object.entries(renewables).flatMap(([country, shares]) =>
+    shares.map((share, i) => ({country, year: 2015 + i, share})),
+  ),
+  groupBy: "country",
+  legend: false,
+  lineLabels: "both",
+  lineLabelConfig: {value: true},
+  x: "year",
+  y: "share",
+  yConfig: {
+    tickFormat: funcify(d => `${d}%`, "d => `${d}%`"),
+  },
+};
+LineLabelsBoth.parameters = {
+  controls: {include: ["lineLabels", "lineLabelConfig"]},
+  docs: {
+    description: {
+      story:
+        'Set `lineLabels: "both"` to name each line at **both ends**, and `lineLabelConfig: {value: true}` to add each end\'s value, formatted like the y axis\'s ticks (set `valueFormat` to format it yourself). The plot makes room on the left for the first labels, and labels that would overlap are spread apart on each side, with a dotted connector back to their line. `"start"` labels only the left end, and `true` (or `"end"`) only the right.',
+    },
+  },
+};
+
 export const SecondaryYAxis = Template.bind({});
 SecondaryYAxis.args = {
   data: [
