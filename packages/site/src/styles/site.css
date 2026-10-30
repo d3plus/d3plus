@@ -1,0 +1,81 @@
+/*
+ * The d3plus brand blue, rgb(36, 114, 200), as Starlight's accent. Light
+ * pages color links with the accent itself, so it is a shade darker there to
+ * keep 4.5:1 contrast on code backgrounds.
+ */
+:root {
+  --sl-color-accent-low: #0f2a4a;
+  --sl-color-accent: #2472c8;
+  --sl-color-accent-high: #b5d3f3;
+}
+:root[data-theme="light"] {
+  --sl-color-accent-low: #cfe2f7;
+  --sl-color-accent: #1f66b5;
+  --sl-color-accent-high: #12396a;
+}
+
+.d3p-filter {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-3);
+}
+.d3p-filter input {
+  flex: 1;
+  max-width: 18rem;
+  font: inherit;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.25rem;
+  background: var(--sl-color-bg);
+  color: var(--sl-color-white);
+}
+.d3p-reference dl {
+  margin-top: 1rem;
+}
+.d3p-item {
+  padding-block: 0.75rem;
+  border-top: 1px solid var(--sl-color-hairline);
+}
+.d3p-item[hidden] {
+  display: none;
+}
+.d3p-item dt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  align-items: baseline;
+  font-weight: normal;
+}
+.d3p-item dt > a {
+  font-weight: 600;
+  text-decoration: none;
+}
+.d3p-item dd {
+  margin: 0.375rem 0 0;
+  font-size: var(--sl-text-sm);
+}
+.d3p-item dd p {
+  margin: 0;
+}
+.d3p-item dd p + p,
+.d3p-item dd pre {
+  margin-top: 0.5rem;
+}
+.d3p-type,
+.d3p-default,
+.d3p-required {
+  font-size: var(--sl-text-xs);
+  color: var(--sl-color-gray-3);
+}
+.d3p-required {
+  color: var(--sl-color-orange-high);
+}
+.d3p-default details {
+  display: inline;
+}
+.d3p-default summary {
+  display: inline;
+  cursor: pointer;
+}

@@ -1,0 +1,78 @@
+---
+title: D3plus
+description: Data visualization made easy. An open-source TypeScript library that extends D3 to create beautiful, interactive visualizations with minimal configuration.
+template: splash
+hero:
+  title: Data visualization made easy.
+  tagline: An open-source TypeScript library that extends D3 to create beautiful, interactive visualizations with minimal configuration. Tooltips, color assignments, label placements, and more, all handled automatically.
+  actions:
+    - text: Get started
+      link: /guides/frameworks/
+      icon: right-arrow
+    - text: Browse charts
+      link: /core/charts/treemap/
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/d3plus/d3plus
+      icon: external
+      variant: minimal
+---
+
+import {Tabs, TabItem} from "@astrojs/starlight/components";
+import Playground from "~/components/Playground/Playground.astro";
+import ChartGrid from "~/components/ChartGrid.astro";
+import BuiltWith from "~/components/BuiltWith.astro";
+import basic from "~/examples/core/charts/treemap/basic.js?raw";
+
+<Playground chart="Treemap" code={basic} layout="split" height={320} />
+
+## Install
+
+Pick your framework; the examples across the site follow your choice.
+
+<Tabs syncKey="flavor">
+  <TabItem label="JavaScript">
+    ```sh
+    npm install @d3plus/core
+    ```
+    Or load the bundle from a CDN, which defines a global `d3plus`:
+    ```html
+    <script src="https://cdn.jsdelivr.net/npm/@d3plus/core"></script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```sh
+    npm install @d3plus/react
+    ```
+  </TabItem>
+  <TabItem label="Vue">
+    ```sh
+    npm install @d3plus/vue
+    ```
+  </TabItem>
+  <TabItem label="Svelte">
+    ```sh
+    npm install @d3plus/svelte @d3plus/core
+    ```
+  </TabItem>
+  <TabItem label="Web Components">
+    ```sh
+    npm install @d3plus/element
+    ```
+  </TabItem>
+  <TabItem label="Angular">
+    ```sh
+    npm install @d3plus/angular @d3plus/core
+    ```
+  </TabItem>
+</Tabs>
+
+## Chart types
+
+Every chart takes the same kind of configuration object.
+
+<ChartGrid />
+
+## Built with D3plus
+
+<BuiltWith />

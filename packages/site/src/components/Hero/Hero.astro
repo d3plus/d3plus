@@ -1,0 +1,123 @@
+---
+/**
+ * Starlight's hero, with the home page's chart loop beside the copy in place
+ * of an image. Reads the page's `hero` frontmatter the way Starlight's does.
+ */
+import {LinkButton} from "@astrojs/starlight/components";
+
+import {entryId, findEntry} from "../../lib/api";
+import HeroShowcase from "./HeroShowcase";
+import {renderPoster} from "./poster";
+import {SCENES} from "./scenes";
+import "./showcase.css";
+
+const {data} = Astro.locals.starlightRoute.entry;
+const {title = data.title, tagline, actions = []} = data.hero || {};
+const poster = await renderPoster(SCENES[0]);
+const pages = Object.fromEntries(
+  SCENES.map(({chart}) => [chart, `/${entryId(findEntry(chart, "core"))}/`]),
+);
+---
+
+<div class="d3p-hero">
+  <div class="d3p-hero-copy">
+    <h1 id="_top" data-page-title set:html={title} />
+    {tagline && <div class="d3p-hero-tagline" set:html={tagline} />}
+    {
+      actions.length > 0 && (
+        <div class="d3p-hero-actions">
+          {actions.map(
+            ({
+              attrs: {class: className, ...attrs} = {},
+              icon,
+              link: href,
+              text,
+              variant,
+            }) => (
+              <LinkButton
+                {href}
+                {variant}
+                icon={icon?.name}
+                class:list={[className]}
+                {...attrs}
+              >
+                {text}
+                {icon?.html && <Fragment set:html={icon.html} />}
+              </LinkButton>
+            ),
+          )}
+        </div>
+      )
+    }
+  </div>
+  <HeroShowcase client:idle pages={pages}>
+    <Fragment set:html={poster} />
+  </HeroShowcase>
+</div>
+
+<style>
+  .d3p-hero {
+    position: relative;
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+    padding-block: 1.5rem 2.5rem;
+  }
+  /* A soft wash of the chart palette behind the loop. */
+  .d3p-hero::before {
+    content: "";
+    position: absolute;
+    inset: -4rem -20vw -2rem 20%;
+    z-index: -1;
+    background:
+      radial-gradient(
+        closest-side at 60% 45%,
+        color-mix(in srgb, #4a6cf1 22%, transparent),
+        transparent
+      ),
+      radial-gradient(
+        closest-side at 82% 70%,
+        color-mix(in srgb, #e57100 14%, transparent),
+        transparent
+      ),
+      radial-gradient(
+        closest-side at 40% 80%,
+        color-mix(in srgb, #2e9f45 12%, transparent),
+        transparent
+      );
+    filter: blur(24px);
+    pointer-events: none;
+  }
+  .d3p-hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(var(--sl-text-4xl), calc(0.5rem + 5vw), var(--sl-text-6xl));
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--sl-color-white);
+  }
+  .d3p-hero-tagline {
+    max-width: 34rem;
+    font-size: clamp(var(--sl-text-base), calc(0.25rem + 1.5vw), var(--sl-text-xl));
+    color: var(--sl-color-gray-2);
+  }
+  .d3p-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.75rem;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+  @media (min-width: 50rem) {
+    .d3p-hero {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: 2rem;
+      padding-block: clamp(2rem, calc(1rem + 6vmin), 5rem);
+    }
+  }
+</style>

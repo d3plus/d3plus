@@ -14,10 +14,23 @@ import {Application, Converter, ReflectionKind} from "typedoc";
 import Logger from "../utils/log.js";
 const log = Logger("documentation");
 const prune = process.argv.includes("--prune");
+// `--manifest=<dir>` writes only the site's API manifest (<dir>/api.json),
+// leaving the committed API.md, README, args, and stories untouched.
+const manifestDir = (
+  process.argv.find(arg => arg.startsWith("--manifest=")) || ""
+).slice("--manifest=".length);
+const manifestArgs = {};
+const manifestStories = [];
 
 import readmeHeader, {apiHeader} from "./stubs/README.js";
 import {injectConfigAccessors} from "./stubs/accessors.js";
-import argsStub from "./stubs/args.js";
+import argsStub, {buildArgTypes} from "./stubs/args.js";
+import {
+  flattenArgTypes,
+  lineage,
+  manifestEntry,
+  readWrappers,
+} from "./stubs/manifest.js";
 import storiesStub, {warning as storyMarker} from "./stubs/stories.js";
 import {
   chartDefMap,
@@ -411,9 +424,10 @@ async function generateMarkdown() {
       ...markdownOptions,
       // {path} is relative to the package; links are shown relative to src/.
       // @d3plus/types documents other packages' generated declarations, which
-      // aren't in the repo, so it names them without a link.
+      // aren't in the repo, so it names them without a link. Git stays on for
+      // it: with neither git nor a link template, TypeDoc logs an error.
       ...(name === "@d3plus/types"
-        ? {basePath: "packages"}
+        ? {basePath: "packages", disableGit: false}
         : {
             basePath: `${folder}/src`,
             sourceLinkTemplate: `https://github.com/d3plus/d3plus/blob/main/${folder}/{path}#L{line}`,
@@ -456,32 +470,15 @@ async function generateMarkdown() {
       continue;
     }
 
-    // Build a table of contents from the project's exports
-    const toc = buildTableOfContents(project);
-
-    // Inject the heading and TOC before the API reference
-    const header = apiHeader(packageJSON);
-    app.renderer.markdownHooks.on("index.page.begin", () => header + toc);
-
-    await app.generateOutputs(project);
-
-    // Post-process: replace "Default value" column with "Default" and
-    // mark required params with a dash instead of "undefined"
-    let readme = fs.readFileSync(path.join(tempDir, "README.md"), "utf8");
-    readme = readme.replace(/\| Default value \|/g, "| Default |");
-    readme = readme.replace(/\| `undefined` \|/g, "| *required* |");
-
-    // Charts are `makeChart(...)` values, so TypeDoc renders them as opaque
-    // `VizCtor` variables with no config. Read each chart's ChartDefinition and
-    // replace that useless type line with the base it extends + its declared
-    // config fields (full inherited config stays documented on the base class).
+    // Charts are `makeChart(...)` values, so TypeDoc sees opaque `VizCtor`
+    // variables with no config; each chart's ChartDefinition supplies the base
+    // it extends and its declared config fields.
     // @d3plus/types re-exports core's charts from their declaration files.
     const chartsFrom = name === "@d3plus/types" ? "packages/core" : folder;
     const chartDefs = publicChartDefs(
       chartDefMap(`${chartsFrom}/src/charts`),
       await loadChartModule(chartsFrom),
     );
-    readme = injectChartConfig(readme, chartDefs);
 
     const reflections = (project.children || []).filter(r => {
       if (
@@ -502,17 +499,39 @@ async function generateMarkdown() {
     // Types + descriptions for those accessors, borrowed from the config interfaces.
     const interfaceDocs = collectInterfaceDocs(project);
 
-    readme = injectConfigAccessors(readme, {
+    if (manifestDir) {
+      for (const story of stories) {
+        const where = documentedStory(story, folder);
+        if (!where) continue;
+        const {packageName, filePath} = where;
+        if (story.kind === "class")
+          manifestArgs[story.name] = buildArgTypes(
+            story,
+            publicDocs,
+            stories,
+            configDefaults,
+            interfaceDocs,
+          );
+        manifestStories.push({
+          story,
+          pkg: packageName,
+          category: filePath.slice(1),
+        });
+      }
+      fs.rmSync(tempDir, {recursive: true, force: true});
+      log.done();
+      continue;
+    }
+
+    await writeApiDocs(app, project, {
+      folder,
+      packageJSON,
+      tempDir,
+      chartDefs,
       stories,
       configDefaults,
       interfaceDocs,
     });
-
-    // The reference goes to API.md, which stays out of the published files;
-    // the README (always published to npm) only links to it.
-    await writeFormatted(`${folder}/API.md`, readme);
-    await writeFormatted(`${folder}/README.md`, readmeHeader(packageJSON));
-    fs.rmSync(tempDir, {recursive: true, force: true});
 
     // Generate Storybook args and stories from the same TypeDoc project
     log.timer(`writing TypeDoc comments to Storybook Args for ${name}`);
@@ -520,34 +539,10 @@ async function generateMarkdown() {
     const written = new Set();
     const writes = [];
     stories.forEach(story => {
-      const {meta, name} = story;
-      if (name === "default") {
-        log.warn(
-          `${meta.path}: anonymous default export reached the generator as "default"; re-export it by name from ${folder}/index.ts`,
-        );
-        return;
-      }
-      // Storybook stories are for the public chart/component/shape CLASSES and
-      // small utility FUNCTIONS — not the internal helpers (pipeline stages,
-      // feature modules, fluent installers, axis math, renderer internals) that
-      // @d3plus/core also exports for advanced use. Document those in the README
-      // only. The render package is an internal layer with no stories.
-      const src = meta.path || "";
-      if (/[/\\]packages[/\\]render[/\\]/.test(src)) return;
-      const isCore = /[/\\]packages[/\\]core[/\\]/.test(src);
-      const isUtil = /[/\\]utils([/\\]|$)/.test(src);
-      if (isCore && story.kind !== "class" && !isUtil) return;
-
-      const regex = new RegExp(/packages\/([a-z][^/]+)\/src(\/.*)?/g);
-      const match = regex.exec(meta.path);
-      if (!match) return;
-      const [, packageName, rawFilePath] = match;
-      // Charts/components live in per-export subfolders (charts/viz/Viz.ts),
-      // but the Storybook args/stories are flat by category. Collapse to the
-      // first path segment so output paths match the story import paths.
-      const filePath = rawFilePath
-        ? `/${rawFilePath.split("/").filter(Boolean)[0]}`
-        : "";
+      const where = documentedStory(story, folder);
+      if (!where) return;
+      const {name} = story;
+      const {packageName, filePath} = where;
 
       const argsPath = path.join(
         folder,
@@ -588,9 +583,102 @@ async function generateMarkdown() {
 
     log.done();
   }
+  if (manifestDir) writeManifest();
   log.exit();
   if (failed.length)
     throw new Error(`docs generation failed for ${failed.join(", ")}`);
+}
+
+/**
+ * Where a documented export's args and story go: its package folder name and
+ * category (`/charts`), or null when it gets none. Storybook stories are for
+ * the public chart/component/shape CLASSES and small utility FUNCTIONS — not
+ * the internal helpers (pipeline stages, feature modules, fluent installers,
+ * axis math, renderer internals) that @d3plus/core also exports for advanced
+ * use. Document those in the README only. The render package is an internal
+ * layer with no stories.
+ */
+function documentedStory(story, folder) {
+  const {meta, name} = story;
+  if (name === "default") {
+    log.warn(
+      `${meta.path}: anonymous default export reached the generator as "default"; re-export it by name from ${folder}/index.ts`,
+    );
+    return null;
+  }
+  const src = meta.path || "";
+  if (/[/\\]packages[/\\]render[/\\]/.test(src)) return null;
+  const isCore = /[/\\]packages[/\\]core[/\\]/.test(src);
+  const isUtil = /[/\\]utils([/\\]|$)/.test(src);
+  if (isCore && story.kind !== "class" && !isUtil) return null;
+
+  const regex = new RegExp(/packages\/([a-z][^/]+)\/src(\/.*)?/g);
+  const match = regex.exec(meta.path);
+  if (!match) return null;
+  const [, packageName, rawFilePath] = match;
+  // Charts/components live in per-export subfolders (charts/viz/Viz.ts),
+  // but the Storybook args/stories are flat by category. Collapse to the
+  // first path segment so output paths match the story import paths.
+  const filePath = rawFilePath
+    ? `/${rawFilePath.split("/").filter(Boolean)[0]}`
+    : "";
+  return {packageName, filePath};
+}
+
+/**
+ * Renders a package's TypeDoc project to API.md, with the chart configs and
+ * config accessors injected, and writes its README.
+ */
+async function writeApiDocs(app, project, options) {
+  const {folder, packageJSON, tempDir, chartDefs} = options;
+
+  // Inject the heading and TOC before the API reference
+  const toc = buildTableOfContents(project);
+  const header = apiHeader(packageJSON);
+  app.renderer.markdownHooks.on("index.page.begin", () => header + toc);
+
+  await app.generateOutputs(project);
+
+  // Post-process: replace "Default value" column with "Default" and
+  // mark required params with a dash instead of "undefined"
+  let readme = fs.readFileSync(path.join(tempDir, "README.md"), "utf8");
+  readme = readme.replace(/\| Default value \|/g, "| Default |");
+  readme = readme.replace(/\| `undefined` \|/g, "| *required* |");
+
+  // Replace each chart's useless `VizCtor` type line with the base it extends
+  // + its declared config fields (full inherited config stays documented on
+  // the base class).
+  readme = injectChartConfig(readme, chartDefs);
+  readme = injectConfigAccessors(readme, options);
+
+  // The reference goes to API.md, which stays out of the published files;
+  // the README (always published to npm) only links to it.
+  await writeFormatted(`${folder}/API.md`, readme);
+  await writeFormatted(`${folder}/README.md`, readmeHeader(packageJSON));
+  fs.rmSync(tempDir, {recursive: true, force: true});
+}
+
+/**
+ * Writes the site's API manifest: one entry per documented export, each class
+ * with its full config (inherited keys included) and the code-panel flavors
+ * that can render it.
+ */
+function writeManifest() {
+  log.timer("writing the site's API manifest");
+  const wrappers = readWrappers();
+  const entries = manifestStories.map(({story, pkg, category}) =>
+    manifestEntry(story, {
+      pkg,
+      category,
+      argTypes: flattenArgTypes(story.name, manifestArgs),
+      ancestors: lineage(story.name, manifestArgs),
+      wrappers,
+    }),
+  );
+  fs.mkdirSync(manifestDir, {recursive: true});
+  const file = path.join(manifestDir, "api.json");
+  fs.writeFileSync(file, `${JSON.stringify(entries, null, 2)}\n`);
+  log.done(`wrote ${entries.length} manifest entries to ${file}`);
 }
 
 /**

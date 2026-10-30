@@ -1,0 +1,48 @@
+---
+/** One tile per chart type, each linking to its page. */
+import {entryId, loadApi} from "../lib/api";
+
+const charts = loadApi()
+  .filter(d => d.package === "core" && d.category === "charts" && d.kind === "class")
+  .filter(d => !["Viz", "Plot"].includes(d.name))
+  .sort((a, b) => a.name.localeCompare(b.name));
+// Short names for tiles whose full name would wrap.
+const SHORT: Record<string, string> = {ParallelCoordinates: "Parallel Coords"};
+const label = (name: string) =>
+  SHORT[name] ?? name.replace(/([a-z])([A-Z])/g, "$1 $2");
+---
+
+<ul class="d3p-tiles not-content">
+  {
+    charts.map(d => (
+      <li>
+        <a href={`/${entryId(d)}/`}>{label(d.name)}</a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .d3p-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    gap: 0.5rem;
+    padding: 0;
+    margin: 1rem 0 2rem;
+    list-style: none;
+  }
+  .d3p-tiles a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+    text-align: center;
+    text-decoration: none;
+  }
+  .d3p-tiles a:hover {
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-text-accent);
+  }
+</style>

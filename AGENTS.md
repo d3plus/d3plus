@@ -23,6 +23,7 @@ d3plus is a JavaScript data visualization library that extends D3.js. It is orga
 | `@d3plus/text`    | Text measurement and wrapping                          |
 | `@d3plus/types`   | Unified TypeScript type definitions                    |
 | `@d3plus/docs`    | Storybook documentation site (private, not published)  |
+| `@d3plus/site`    | Astro Starlight docs site, trial replacement for docs  |
 
 ## Architecture (v4)
 

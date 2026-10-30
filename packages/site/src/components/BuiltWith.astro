@@ -1,0 +1,57 @@
+---
+/** Sites built with d3plus. */
+const sites = [
+  {name: "SlateData", url: "https://slatedata.ai/"},
+  {name: "OEC.world", url: "https://oec.world/"},
+  {name: "Data USA", url: "https://datausa.io/"},
+  {name: "DataSaudi", url: "https://datasaudi.sa/"},
+  {name: "Data Africa", url: "https://dataafrica.io/"},
+  {name: "CDC AR&PSP", url: "https://arpsp.cdc.gov/"},
+  {name: "Healthy Communities NC", url: "https://healthycommunitiesnc.org/"},
+  {name: "CNY Vitals Pro", url: "https://pro.cnyvitals.org/"},
+  {name: "DataMPE Brasil", url: "https://datampe.sebrae.com.br/"},
+  {name: "Estonia Statistics", url: "https://data.stat.ee/profile/country/ee/"},
+];
+---
+
+<ul class="d3p-sites not-content">
+  {
+    sites.map(site => (
+      <li>
+        <a href={site.url} rel="noopener">
+          {site.name}
+          <span>{site.url.replace(/^https:\/\/|\/$/g, "")}</span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .d3p-sites {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 0.5rem;
+    padding: 0;
+    margin: 1rem 0 2rem;
+    list-style: none;
+  }
+  .d3p-sites a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+    text-decoration: none;
+  }
+  .d3p-sites a:hover {
+    border-color: var(--sl-color-accent);
+  }
+  .d3p-sites span {
+    display: block;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+    overflow-wrap: anywhere;
+  }
+</style>

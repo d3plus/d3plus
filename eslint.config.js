@@ -7,8 +7,12 @@ import prettier from "eslint-config-prettier";
 export default [
   js.configs.recommended,
   {
-    // Build output and the manual dev pages.
-    ignores: ["**/{es,umd,types,dist,build,coverage}/**", "packages/*/dev/**"],
+    // Build output, the manual dev pages, and Astro's generated types.
+    ignores: [
+      "**/{es,umd,types,dist,build,coverage}/**",
+      "packages/*/dev/**",
+      "packages/site/.astro/**",
+    ],
   },
   {
     files: ["**/*.js", "**/*.mjs"],
@@ -128,6 +132,16 @@ export default [
       "storybook/no-renderer-packages": "error",
       "storybook/prefer-pascal-case": "error",
       "storybook/story-exports": "warn",
+    },
+  },
+  {
+    // The site's example code: each declares the `config` its playground
+    // reads, and runs with the d3plus helpers (`formatAbbreviate`, …) in
+    // scope, unimported.
+    files: ["packages/site/src/examples/**/*.js"],
+    rules: {
+      "no-undef": "off",
+      "no-unused-vars": ["error", {varsIgnorePattern: "^config$"}],
     },
   },
   {

@@ -18,3 +18,7 @@ packages/*/dev/index.html
 !packages/react/dev/index.html
 !packages/svelte/dev/index.html
 !packages/vue/dev/index.html
+
+# The site's generated API manifest and Astro's type cache.
+packages/site/src/data/
+packages/site/.astro/
