@@ -50,6 +50,30 @@ nearest the pointer); a bar is badged on its value axis only. Turn it off with
 
 See the [axis guides example](/docs/core-charts-plot--d3plus#axis-hover-guides).
 
+## Hovering near a point
+
+Small points are hard to land on, so charts made of points act on the point
+*closest* to the pointer. Over empty space, a gridline, or a link, the nearest
+point whose edge is within `hoverDistance` pixels (20 by default) shows its
+tooltip, hover highlight and axis guides, and a click there clicks it. The
+tooltip points at the top of the point rather than following the pointer, and
+holds still until a different point takes over. This
+applies to scatter and bubble Plots (and Beeswarm), Network nodes, and Geomap
+points; bars, areas, lines (which already follow the pointer's nearest point),
+and other area-filling marks keep exact hit-testing. A Plot with a discrete axis
+and the shared tooltip snaps to the nearest column instead. Set
+`hoverDistance: 0` to react only to the point under the pointer, with a tooltip
+that follows the pointer as on other marks:
+
+```jsx
+<Plot config={{
+  data, groupBy: "id", x: "income", y: "life",
+  hoverDistance: 30
+}} />
+```
+
+See the [nearest-point hover example](/docs/core-charts-plot--d3plus#nearest-point-hover).
+
 ## Pointer events
 
 Register handlers through the `on` config key. Event names mirror

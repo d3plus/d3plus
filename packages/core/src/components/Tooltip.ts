@@ -319,26 +319,31 @@ export default class Tooltip extends BaseClass {
   }
 
   /**
-      The position of each tooltip. Can be an HTMLElement to anchor to, a selection string, or coordinate points in reference to the client viewport (not the overall page).
+      The position of each tooltip. Can be an HTMLElement to anchor to, a virtual element (any object with a `getBoundingClientRect()` returning a box in client coordinates), a selection string, or coordinate points in reference to the client viewport (not the overall page). An element or box anchors the tooltip's arrow to the middle of its top edge (or its bottom edge when the tooltip flips below).
 
 @example <caption>default accessor</caption>
    function value(d) {
     return [d.x, d.y];
   }
 */
-  position(): (d: DataPoint, i?: number) => number[] | HTMLElement;
+  position(): (
+    d: DataPoint,
+    i?: number,
+  ) => number[] | HTMLElement | VirtualElement;
   position(
     _:
-      | ((d: DataPoint, i?: number) => number[] | HTMLElement)
+      | ((d: DataPoint, i?: number) => number[] | HTMLElement | VirtualElement)
       | number[]
       | HTMLElement
+      | VirtualElement
       | string,
   ): this;
   position(
     _?:
-      | ((d: DataPoint, i?: number) => number[] | HTMLElement)
+      | ((d: DataPoint, i?: number) => number[] | HTMLElement | VirtualElement)
       | number[]
       | HTMLElement
+      | VirtualElement
       | string,
   ): unknown {
     return arguments.length
@@ -347,13 +352,13 @@ export default class Tooltip extends BaseClass {
             ? (constant((select(_).node() || [0, 0]) as HTMLElement) as (
                 d: DataPoint,
                 i?: number,
-              ) => number[] | HTMLElement)
+              ) => number[] | HTMLElement | VirtualElement)
             : typeof _ === "function"
               ? _
               : (constant(_) as (
                   d: DataPoint,
                   i?: number,
-                ) => number[] | HTMLElement)),
+                ) => number[] | HTMLElement | VirtualElement)),
         this)
       : this.schema.position;
   }

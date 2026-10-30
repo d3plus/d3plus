@@ -18,6 +18,7 @@ import constant from "../../utils/constant.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {ensureZoomDom} from "../features/ensureZoomDom.js";
+import {isPointShape} from "../viz/nearestHover.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -410,6 +411,9 @@ export const networkDef: ChartDefinition = {
 
   // Small-multiple panels as close to square as the grid allows.
   facet: {aspect: 1},
+
+  // Nodes are points for `hoverDistance`; links keep exact hit-testing.
+  pointMark: (_viz, node) => isPointShape(node),
 
   ctx: {},
 

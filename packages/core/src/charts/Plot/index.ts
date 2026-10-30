@@ -47,6 +47,7 @@ import type {
 } from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {isPointShape} from "../viz/nearestHover.js";
 
 /** Accessor function or string key for a plotted value. */
 type PlotAccessor = (d: DataPoint, i: number) => number | Date | string;
@@ -263,6 +264,15 @@ export default class Plot extends Viz {
       }
     }
     return super._interactionDatum(pick, event);
+  }
+
+  /**
+      A Plot's point marks are its Circle and Rect shapes (scatter and
+      bubble points, Beeswarm circles), for `hoverDistance`.
+      @private
+*/
+  _pointMark(node: SceneNode): boolean {
+    return isPointShape(node);
   }
 
   /**

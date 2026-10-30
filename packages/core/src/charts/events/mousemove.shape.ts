@@ -5,6 +5,7 @@ import clickShape from "./click.shape.js";
 import {groupDepthOf, groupNarrows, groupPath} from "../viz/groupRow.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
+import {pointTooltipAnchor} from "../viz/pointTooltipAnchor.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -61,9 +62,16 @@ export default function (
     // Plot's snapped hover (shared or single) owns the tooltip while active.
     if (this._sharedHoverActive) return;
 
-    const position = event.touches
-      ? [event.touches[0].clientX, event.touches[0].clientY]
-      : [event.clientX, event.clientY];
+    // A point mark's tooltip points at the mark, wherever the pointer is
+    // within reach of it; anything else follows the pointer.
+    const position =
+      pointTooltipAnchor(
+        this as unknown as VizInstance,
+        this._lastScenePick?.node,
+      ) ??
+      (event.touches
+        ? [event.touches[0].clientX, event.touches[0].clientY]
+        : [event.clientX, event.clientY]);
 
     // Unwrap to the underlying source row so tooltip cell accessors (e.g.
     // the Treemap "share" column) resolve regardless of whether the hovered

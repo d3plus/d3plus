@@ -6,8 +6,9 @@
     `applyDefinition(this, def)`, its `_draw` runs the shared Viz pipeline
     then the chart's own layout stage via `runChartDraw`, and its
     `_thresholdFunction` / `_thresholdLegend` / `_sizeLegendScale` / `_insetRegion` /
-    `_colorScaleShape` delegate to `def.thresholdFunction` /
-    `def.sizeLegendScale` / `def.insetRegion` / `def.colorScaleShape` if
+    `_colorScaleShape` / `_pointMark` delegate to `def.thresholdFunction` /
+    `def.sizeLegendScale` / `def.insetRegion` / `def.colorScaleShape` /
+    `def.pointMark` if
     present (else to the base chart's), `_facetHooks` layers `def.facet` over the base chart's, and
     `toScene` passes the base chart's scene through `def.decorateScene`.
 
@@ -15,7 +16,7 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
-import type {Scene} from "@d3plus/render";
+import type {Scene, SceneNode} from "@d3plus/render";
 
 import {applyDefinition} from "./applyDefinition.js";
 import {runChartDraw} from "../pipeline/runChartDraw.js";
@@ -81,6 +82,12 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
       return def.colorScaleShape
         ? def.colorScaleShape(this as unknown as VizInstance, d, i)
         : super._colorScaleShape(d, i);
+    }
+
+    _pointMark(node: SceneNode) {
+      return def.pointMark
+        ? def.pointMark(this as unknown as VizInstance, node)
+        : super._pointMark(node);
     }
 
     _facetHooks() {

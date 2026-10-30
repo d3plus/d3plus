@@ -33,6 +33,7 @@ import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
 import type {KeyboardNavState} from "./keyboardNav.js";
+import type {NearestHoverState} from "./nearestHover.js";
 import type {ResolvedTheme} from "../../utils/theme.js";
 
 import type {DataPoint} from "@d3plus/data";
@@ -611,6 +612,10 @@ export interface VizInstance {
   /** Plot's paint phase: builds `_chartScene` from the measured context. */
   _paint?(pCtx: PlotPaintContext): VizInstance;
   _drawSceneToTarget(durationOverride?: number): void;
+  /** Whether a painted node is a point mark nearest-point hover resolves to (see `hoverDistance`). */
+  _pointMark?(node: SceneNode): boolean;
+  /** Nearest-point hover's cached diagrams and resolved mark (see `nearestHover.ts`). */
+  _nearestHover?: NearestHoverState;
   /** Routes a renderer pointer event (or a replayed one) to the chart's handlers. */
   _routeSceneEvent?(event: SceneEvent): void;
   _scheduleSceneRepaint(): void;

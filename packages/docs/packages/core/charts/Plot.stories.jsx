@@ -104,6 +104,30 @@ AxisHoverGuides.parameters = {
   },
 };
 
+export const NearestPointHover = Template.bind({});
+NearestPointHover.args = {
+  data: Array.from({length: 120}, (_, i) => ({
+    id: `Point ${i + 1}`,
+    x: Math.round((50 + 30 * Math.sin(i * 1.7) * Math.cos(i * 0.31)) * 10) / 10,
+    y: Math.round((50 + 30 * Math.cos(i * 2.3) * Math.sin(i * 0.17)) * 10) / 10,
+  })),
+  groupBy: "id",
+  x: "x",
+  y: "y",
+  legend: false,
+  hoverDistance: 20,
+  shapeConfig: {Circle: {r: 3}},
+};
+NearestPointHover.parameters = {
+  controls: {include: ["hoverDistance"]},
+  docs: {
+    description: {
+      story:
+        "Small points are hard to land on, so a scatter or bubble Plot acts on the closest point within `hoverDistance` pixels of the pointer (20 by default): its tooltip (pointing at the point itself, not the cursor), hover highlight and axis guides show, and a click there clicks it. Network nodes and Geomap points work the same way, while bars, areas and other area-filling marks keep exact hit-testing. Set `hoverDistance: 0` to only react to the point under the pointer, with a cursor-following tooltip.",
+    },
+  },
+};
+
 export const TimelineMotionTrails = Template.bind({});
 TimelineMotionTrails.args = {
   data: [

@@ -30,6 +30,7 @@ import {
 import type {Themed} from "./basemapTheme.js";
 import {pageIsDark} from "../viz/pageTheme.js";
 import {makeChart} from "../definition/makeChart.js";
+import {isPointShape} from "../viz/nearestHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {
@@ -533,6 +534,8 @@ export const geomapDef: ChartDefinition = {
   // A row without a coordinate point draws as its topojson Path.
   colorScaleShape: (viz, d, i) =>
     viz.schema.point(d, i) instanceof Array ? viz.schema.shape(d, i) : "Path",
+  // Coordinate points are points for `hoverDistance`; regions keep exact hit-testing.
+  pointMark: (_viz, node) => isPointShape(node),
 
   // Clip the geography to the map rectangle — the same box as the ocean rect and
   // the imperative inner <svg> viewport — so projected paths and points can't
