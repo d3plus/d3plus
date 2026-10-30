@@ -870,6 +870,35 @@ ForecastStart.parameters = {
   },
 };
 
+export const ReferenceLinesAndBands = Template.bind({});
+ReferenceLinesAndBands.args = {
+  data: DottedLinePredictions.args.data.filter(d => d.Type === "Observed"),
+  groupBy: "Flow",
+  time: "Year",
+  x: "Year",
+  y: "Trade Value",
+  referenceBands: [{x: [2018, 2019], label: "Tariff escalation"}],
+  referenceLines: [{y: 400e9, label: "$400B", dash: true}],
+  annotations: [
+    {
+      shape: "Callout",
+      data: [{x: 2020, y: 366314124058, label: "Imports fall 14% in 2020"}],
+      dx: -90,
+      dy: 30,
+      maxWidth: 100,
+    },
+  ],
+};
+ReferenceLinesAndBands.parameters = {
+  controls: {include: ["referenceLines", "referenceBands", "annotations"]},
+  docs: {
+    description: {
+      story:
+        'On a time axis, `referenceLines` and `referenceBands` take dates (a Date, a year, or a date string) and `"Callout"` annotations anchor at a date and value. Reference values widen the axis to stay in view (callouts do not), and everything zooms and pans with the axes.',
+    },
+  },
+};
+
 export const QuarterlyData = Template.bind({});
 QuarterlyData.args = {
   data: "https://api.datasaudi.sa/tesseract/data.jsonrecords?cube=gastat_gdp&drilldowns=Economic+Activity+Section,Quarter&measures=GDP&locale=en&Economic%20Activity%20Section=3",

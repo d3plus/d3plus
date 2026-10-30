@@ -654,6 +654,55 @@ Annotations.parameters = {
   },
 };
 
+export const CalloutsAndReferenceLines = Template.bind({});
+CalloutsAndReferenceLines.args = {
+  data: Annotations.args.data,
+  groupBy: "store",
+  x: "visitors",
+  y: "revenue",
+  legend: false,
+  referenceLines: [{y: 100, label: "Target: $100k", dash: true}],
+  referenceBands: [{x: [8, 10], label: "Weekend promotion"}],
+  annotations: [
+    {
+      shape: "Callout",
+      data: [
+        {
+          x: 9.0,
+          y: 182,
+          label: "Store 7: $182k from 9k visitors",
+        },
+      ],
+      dx: 90,
+      dy: 10,
+      maxWidth: 110,
+      marker: "dot",
+    },
+    {
+      shape: "Callout",
+      xRef: "plot",
+      yRef: "plot",
+      data: [{x: 0.02, y: 0.98, label: "Revenue by store"}],
+      dx: 60,
+      dy: 12,
+      connector: false,
+      fill: "none",
+      stroke: "none",
+      textAlign: "start",
+      fontWeight: 600,
+    },
+  ],
+};
+CalloutsAndReferenceLines.parameters = {
+  controls: {include: ["annotations", "referenceLines", "referenceBands"]},
+  docs: {
+    description: {
+      story:
+        'The same notes as above, without hand-built shapes. `referenceLines` draws a line across the plot at a value (`dash: true` dashes it) with a label at its end, and `referenceBands` shades the span between two values, labeled in its corner; both sit behind the data (their labels above it), and widen the axis to stay in view. A `"Callout"` annotation anchors wrapped text in a box at each row\'s `x`/`y`, offset by `dx`/`dy` pixels, with a connector ending in an arrowhead (or `marker: "dot"`), and stays inside the plot. `xRef`/`yRef: "plot"` position a callout by fractions of the plot area instead. Colors follow the chart\'s theme; every style can be overridden.',
+    },
+  },
+};
+
 export const TrendLine = Template.bind({});
 TrendLine.args = {
   data: [

@@ -103,6 +103,16 @@ export type {
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
 export type {
+  Annotation,
+  AnnotationRef,
+  AnnotationTextStyle,
+  AnnotationValue,
+  CalloutAnnotation,
+  ReferenceBandConfig,
+  ReferenceLineConfig,
+  ReferenceStyle,
+} from "./src/charts/features/annotationTypes.js";
+export type {
   ThemeConfig,
   ThemeOverlayTokens,
   ThemeSetting,

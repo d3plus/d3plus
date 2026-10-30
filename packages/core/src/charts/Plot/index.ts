@@ -379,7 +379,9 @@ export default class Plot extends Viz {
   /**
       Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
 
-Additionally, each config object can also contain an optional "layer" key, which defines whether the annotations will be displayed in "front" or in "back" of the primary visualization shapes. This value defaults to "back" if not present.
+Additionally, each config object can also contain an optional "layer" key, which defines whether the annotations will be displayed in "front" or in "back" of the primary visualization shapes. This value defaults to "back" if not present ("front" for callouts).
+
+Three more kinds draw chart notes: `"Callout"` anchors wrapped text in a box at each data row's `x`/`y` (in data units, or plot-area fractions with `xRef`/`yRef: "plot"`), offset by `dx`/`dy` pixels and joined to its anchor by a connector ending in an arrowhead or dot (see `CalloutAnnotation`); `"ReferenceLine"` and `"ReferenceBand"` draw what `referenceLines` and `referenceBands` entries expand into. All annotations follow zoom and never respond to the pointer or keyboard.
 */
   annotations(_?: unknown): this | unknown[] {
     return arguments.length

@@ -12,13 +12,20 @@ import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {makeShape} from "./emitHelpers.js";
 import type {PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import type {AnnotationFrame} from "./annotationFrame.js";
+import {calloutNodes} from "./calloutScene.js";
+import {
+  expandReferenceBands,
+  expandReferenceLines,
+  REFERENCE_BAND,
+  REFERENCE_LINE,
+  referenceBandNodes,
+  referenceLineNodes,
+} from "./referenceAnnotations.js";
 
-/** A user annotation: a shape key plus its config, optionally z-layered. */
-export interface Annotation {
-  shape: string;
-  layer?: string;
-  [key: string]: unknown;
-}
+import type {Annotation} from "./annotationTypes.js";
+
+export type {Annotation};
 
 /**
     Annotations are decorative chrome, not data marks. Stamp their scene nodes
@@ -120,41 +127,100 @@ export function renderPlotAnnotation(
   return inst;
 }
 
+/** The annotation kinds drawn straight into the scene rather than through a Shape class. */
+const SCENE_ANNOTATIONS: Record<
+  string,
+  (
+    viz: Viz,
+    annotation: Annotation,
+    frame: AnnotationFrame,
+    key: string,
+  ) => SceneNode[]
+> = {
+  Callout: calloutNodes,
+  [REFERENCE_BAND]: referenceBandNodes,
+  [REFERENCE_LINE]: referenceLineNodes,
+};
+
+/**
+    The layer an annotation draws in: its own `layer`, else `"front"` for a
+    callout and `"back"` for everything else.
+    @param annotation The annotation.
+*/
+export function annotationLayer(annotation: Annotation): string {
+  return (
+    annotation.layer || (annotation.shape === "Callout" ? "front" : "back")
+  );
+}
+
+/**
+    Every annotation a Plot draws: its `referenceBands`, then its
+    `referenceLines` (so lines draw over bands), then its own `annotations`.
+    @param viz The chart.
+*/
+export function plotAnnotationList(viz: Viz): Annotation[] {
+  const own = (viz._annotations || []) as unknown as Annotation[];
+  return [
+    ...expandReferenceBands(viz.schema.referenceBands),
+    ...expandReferenceLines(viz.schema.referenceLines),
+    ...own.filter(d => !!d && typeof d.shape === "string"),
+  ];
+}
+
 /**
     Renders back/front annotations, pushing back-layer scenes onto `out` and
-    returning the front-layer shape instances for later absorption.
+    returning the front-layer groups, which the caller places above the data
+    shapes. A back-layer reference line or band's label joins the front
+    groups, so the data never covers it.
 */
 export function emitAnnotations(
   viz: Viz,
   out: SceneNode[],
-  x: PlotAxisFn,
-  y: PlotAxisFn,
+  axes: {x: PlotAxisFn; y: PlotAxisFn; frame: AnnotationFrame},
   domains: Record<string, number[]>,
   yOffset: number,
-): shapes.Shape[] {
-  // Annotations run in `renderMode("compute")` and their scenes are
-  // absorbed into `_chartScene`. Layering: "back" annotations absorb here
-  // (before the main shape loop below); "front" annotations queue and
-  // absorb AFTER the shape loop, giving back → shapes → front.
-  const frontAnnotationShapes: shapes.Shape[] = [];
-  const renderAnnotation = (annotation: Annotation) =>
-    renderPlotAnnotation(viz, annotation, x, y, domains, yOffset);
+): SceneNode[] {
+  // Shape annotations run in `renderMode("compute")` and their scenes are
+  // absorbed into `_chartScene`; callouts and reference lines and bands
+  // build their nodes straight from the frame. Layering: "back" groups
+  // push here (before the main shape loop), "front" groups return to be
+  // pushed AFTER the shape loop, giving back → shapes → front.
+  const {x, y, frame} = axes;
+  const front: SceneNode[] = [];
+  const all = plotAnnotationList(viz);
 
   Object.keys(viz._previousAnnotations!).forEach(layer => {
-    const annotationData: Annotation[] = (
-      viz._annotations as unknown as Annotation[]
-    ).filter(
-      (d: Annotation) => (layer === "back" && !d.layer) || d.layer === layer,
-    );
-    const annotationShapes = annotationData.map(d => d.shape);
+    const annotationData = all.filter(d => annotationLayer(d) === layer);
     annotationData.forEach((annotation, i) => {
-      const inst = renderAnnotation(annotation);
-      if (layer === "front") frontAnnotationShapes.push(inst);
-      else {
-        const group = collectAnnotationGroup(inst, `annotation-${layer}-${i}`);
-        if (group) out.push(group);
+      const key = `annotation-${layer}-${i}`;
+      const sceneKind = SCENE_ANNOTATIONS[annotation.shape];
+      if (!sceneKind) {
+        const group = collectAnnotationGroup(
+          renderPlotAnnotation(viz, annotation, x, y, domains, yOffset),
+          key,
+        );
+        if (group) (layer === "front" ? front : out).push(group);
+        return;
       }
+      const nodes = sceneKind(viz, annotation, frame, key);
+      // A reference line or band behind the data keeps its label above it.
+      const lift = layer === "back" && annotation.shape !== "Callout";
+      const group = annotationSceneGroup(
+        lift ? nodes.filter(n => n.type !== "text") : nodes,
+        key,
+      );
+      if (group) (layer === "front" ? front : out).push(group);
+      const labels =
+        lift &&
+        annotationSceneGroup(
+          nodes.filter(n => n.type === "text"),
+          `${key}-labels`,
+        );
+      if (labels) front.push(labels);
     });
+    const annotationShapes = annotationData
+      .map(d => d.shape)
+      .filter(shape => !SCENE_ANNOTATIONS[shape]);
     // Exits: render with empty data in compute mode so their scenes go
     // empty; no DOM to clean up.
     const exitAnnotations = viz._previousAnnotations![layer].filter(
@@ -167,5 +233,16 @@ export function emitAnnotations(
     viz._previousAnnotations![layer] = annotationShapes;
   });
 
-  return frontAnnotationShapes;
+  return front;
+}
+
+/** Wraps scene-built annotation nodes in their own inert, stably-keyed group, or null when there are none. */
+function annotationSceneGroup(
+  children: SceneNode[],
+  key: string,
+): SceneNode | null {
+  if (!children.length) return null;
+  const group: SceneNode = {type: "group", key, children} as SceneNode;
+  markAnnotationsInert([group]);
+  return group;
 }

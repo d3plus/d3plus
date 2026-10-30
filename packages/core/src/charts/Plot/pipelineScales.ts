@@ -11,6 +11,7 @@ import {userDomainBreaksBaseline} from "./baselineBreak.js";
 import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
 import {isSpanAxis} from "./discreteSpan.js";
+import {widenReferenceDomains} from "./referenceDomains.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 
@@ -233,16 +234,28 @@ export const computePlotScales: TransformStage = ({
   const xConfigScale = autoScale(viz, axisData, "x", xScale).toLowerCase();
   const x2ConfigScale = autoScale(viz, axisData, "x2", x2Scale).toLowerCase();
 
+  const widened = widenReferenceDomains(
+    viz,
+    {x: xAutoDomain, y: yAutoDomain, x2: x2AutoDomain, y2: y2AutoDomain},
+    {
+      x: {type: xScale, config: xConfigScale},
+      y: {type: yScale, config: yConfigScale},
+      x2: {type: x2Scale, config: x2ConfigScale},
+      y2: {type: y2Scale, config: y2ConfigScale},
+    },
+    user,
+  );
+
   // `.slice()` the fallback so domains.x2 isn't ALIASED to domains.x
   // (and same for y2 ↔ y). Without the slice, later in this function
   // the baseline-extension loop does `domains[o][0] = b` — when `o`
   // is 'y2' aliased to y, that mutation hits domains.y too, silently
   // clobbering the y-axis bottom. Sibling of the d.reverse() fix.
   domains = {
-    x: xAutoDomain,
-    x2: x2AutoDomain || (xAutoDomain as unknown[]).slice(),
-    y: yAutoDomain,
-    y2: y2AutoDomain || (yAutoDomain as unknown[]).slice(),
+    x: widened.x!,
+    x2: widened.x2 || widened.x!.slice(),
+    y: widened.y!,
+    y2: widened.y2 || widened.y!.slice(),
   };
   avoidLogZero(viz, domains, data, axisData);
 
