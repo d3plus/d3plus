@@ -131,10 +131,11 @@ export function formatZoomLabel(k: number): string {
     `minimap.ts`), the same reason `zoomControlsHtml` bakes in everything
     that CAN change (locale, className) but nothing here changes per-tick.
     The viewport box is `tabindex="0"` so it's keyboard-focusable — arrow
-    keys nudge the pan, matching what the `aria-label` describes. No ARIA
-    `role`: a 2D pan target doesn't map onto any single widget role (a
-    `slider` is one-dimensional), so a plain focusable, labeled element is
-    the more honest choice over one implying unmet role semantics.
+    keys nudge the pan, matching what the `aria-label` describes. Its role
+    is `application`, like the chart's keyboard-nav host: a 2D pan target
+    has no widget role (a `slider` is one-dimensional), `aria-label` isn't
+    allowed on a div without a role, and `application` also has screen
+    readers pass the arrow keys through instead of reading the page.
 
     `minimapClassName` (documented as applying to all three elements — the
     outer box, viewport box, and label) is appended to the viewport/label
@@ -146,7 +147,7 @@ export function minimapHtml(viz: Viz): string {
     ? ` ${viz.schema.minimapClassName}`
     : "";
   return (
-    `<div class="d3plus-minimap-viewport${extraClass}" tabindex="0" aria-label="${viz.schema.translate("Pan viewport — drag or use arrow keys")}"></div>` +
+    `<div class="d3plus-minimap-viewport${extraClass}" tabindex="0" role="application" aria-label="${viz.schema.translate("Pan viewport — drag or use arrow keys")}"></div>` +
     `<div class="d3plus-minimap-label${extraClass}"></div>`
   );
 }
