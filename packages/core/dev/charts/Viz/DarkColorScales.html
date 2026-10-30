@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Dark Color Scales · Viz</title>
+    <meta
+      name="description"
+      content="A choropleth, a Matrix heatmap, a Calendar, a diverging scale, and a bucketed scale side by side on the light and dark themes, plus an auto chart on a dark page."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      h2 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: normal;
+      }
+
+      .viz {
+        height: 300px;
+      }
+
+      .dark-page {
+        background: #16171b;
+        color: #f1f3f5;
+        padding: 8px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="rows"></div>
+
+    <script>
+      // Deterministic pseudo-random values, so both panels show the same data.
+      var seed = 7;
+      function random() {
+        seed = (seed * 16807) % 2147483647;
+        return (seed - 1) / 2147483646;
+      }
+
+      // A 6×4 grid of square "regions"; two of them have no data.
+      var arcs = [];
+      var geometries = [];
+      var regions = [];
+      for (var r = 0; r < 4; r++) {
+        for (var c = 0; c < 6; c++) {
+          var id = "R" + r + "C" + c;
+          var x = c * 12;
+          var y = r * 12;
+          arcs.push([
+            [x, y],
+            [x, y + 10],
+            [x + 10, y + 10],
+            [x + 10, y],
+            [x, y],
+          ]);
+          geometries.push({type: "Polygon", id: id, arcs: [[arcs.length - 1]]});
+          if (id !== "R1C4" && id !== "R3C0")
+            regions.push({id: id, value: Math.round(random() * 1000)});
+        }
+      }
+      var topology = {
+        type: "Topology",
+        objects: {grid: {type: "GeometryCollection", geometries: geometries}},
+        arcs: arcs,
+      };
+
+      // A Matrix of positive values, and one of values around zero.
+      var cells = [];
+      var diverging = [];
+      var rowNames = ["North", "South", "East", "West", "Central"];
+      var colNames = ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"];
+      rowNames.forEach(function (row, i) {
+        colNames.forEach(function (col, j) {
+          cells.push({
+            id: row + col,
+            row: row,
+            column: col,
+            value: Math.round((i + 1) * (j + 1) * (5 + random() * 10)),
+          });
+          diverging.push({
+            id: row + col,
+            row: row,
+            column: col,
+            change: Math.round((random() - 0.5) * 80),
+          });
+        });
+      });
+
+      // A year of daily values with a weekly rhythm.
+      var days = [];
+      var day = new Date(2025, 0, 1);
+      while (day.getFullYear() === 2025) {
+        var weekend = day.getDay() === 0 || day.getDay() === 6;
+        if (random() > 0.12)
+          days.push({
+            date:
+              day.getFullYear() +
+              "-" +
+              String(day.getMonth() + 1).padStart(2, "0") +
+              "-" +
+              String(day.getDate()).padStart(2, "0"),
+            value: Math.round(random() * (weekend ? 4 : 20)),
+          });
+        day.setDate(day.getDate() + 1);
+      }
+
+      // Treemap tiles colored by a bucketed growth rate.
+      var tiles = [];
+      for (var t = 0; t < 24; t++)
+        tiles.push({
+          id: "Item " + (t + 1),
+          size: Math.round(10 + random() * 90),
+          growth: Math.round(random() * 100),
+        });
+
+      var charts = [
+        {
+          title: "Geomap choropleth (linear, two regions without data)",
+          make: function () {
+            return new d3plus.Geomap().config({
+              data: regions,
+              groupBy: "id",
+              colorScale: "value",
+              colorScaleConfig: {scale: "linear"},
+              topojson: topology,
+              tiles: false,
+              ocean: "transparent",
+              zoom: false,
+            });
+          },
+        },
+        {
+          title: "Matrix heatmap (jenks)",
+          make: function () {
+            return new d3plus.Matrix().config({
+              data: cells,
+              groupBy: "id",
+              row: "row",
+              column: "column",
+              colorScale: "value",
+              colorScaleConfig: {scale: "jenks"},
+            });
+          },
+        },
+        {
+          title: "Calendar",
+          make: function () {
+            return new d3plus.Calendar().config({data: days});
+          },
+        },
+        {
+          title: "Diverging Matrix (linear, centered on 0)",
+          make: function () {
+            return new d3plus.Matrix().config({
+              data: diverging,
+              groupBy: "id",
+              row: "row",
+              column: "column",
+              colorScale: "change",
+              colorScaleConfig: {scale: "linear"},
+            });
+          },
+        },
+        {
+          title: "Bucketed Treemap (5 buckets)",
+          make: function () {
+            return new d3plus.Treemap().config({
+              data: tiles,
+              groupBy: "id",
+              sum: "size",
+              colorScale: "growth",
+              colorScaleConfig: {scale: "buckets", buckets: 5},
+            });
+          },
+        },
+      ];
+
+      var root = document.getElementById("rows");
+      charts.forEach(function (chart, i) {
+        var row = document.createElement("div");
+        row.className = "row";
+        root.appendChild(row);
+        ["light", "dark"].forEach(function (theme) {
+          var cell = document.createElement("div");
+          var h = document.createElement("h2");
+          h.textContent = chart.title + ": " + theme;
+          var viz = document.createElement("div");
+          viz.className = "viz";
+          viz.id = "chart-" + i + "-" + theme;
+          cell.appendChild(h);
+          cell.appendChild(viz);
+          row.appendChild(cell);
+          chart
+            .make()
+            .theme(theme)
+            .select("#" + viz.id)
+            .render();
+        });
+      });
+
+      // An auto chart on a dark page follows it, and a custom theme sets its
+      // own color scale tokens.
+      var extra = document.createElement("div");
+      extra.className = "row";
+      extra.innerHTML =
+        '<div class="dark-page"><h2>Matrix heatmap: auto on a dark page</h2><div class="viz" id="auto"></div></div>' +
+        '<div><h2>Matrix heatmap: custom dark theme with a gold colorScale.max</h2><div class="viz" id="custom"></div></div>';
+      root.appendChild(extra);
+      charts[1].make().select("#auto").render();
+      charts[1]
+        .make()
+        .theme({base: "dark", colorScale: {max: "#ffd43b"}})
+        .select("#custom")
+        .render();
+    </script>
+  </body>
+</html>

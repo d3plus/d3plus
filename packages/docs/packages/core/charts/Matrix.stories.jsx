@@ -254,3 +254,66 @@ WithColorScale.parameters = {
     },
   },
 };
+
+const heatmapData = [];
+["North", "South", "East", "West", "Central"].forEach((row, i) => {
+  ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"].forEach((column, j) => {
+    heatmapData.push({
+      row,
+      column,
+      value: (i + 1) * (j + 1) * 10 + ((i * 7 + j * 13) % 9) * 4,
+      change: ((i * 17 + j * 29) % 61) - 30,
+    });
+  });
+});
+
+const heatmapConfig = {
+  data: heatmapData,
+  groupBy: ["row", "column"],
+  row: "row",
+  column: "column",
+  colorScalePosition: "right",
+};
+
+export const DarkThemeColorScales = () => (
+  <div style={{display: "flex", flexWrap: "wrap", gap: 24}}>
+    {[
+      ["light", "value", "jenks"],
+      ["dark", "value", "jenks"],
+      ["light", "change", "linear"],
+      ["dark", "change", "linear"],
+    ].map(([theme, colorScale, scale], i) => (
+      <div key={i} style={{width: 420, height: 300}}>
+        <Matrix
+          config={{
+            ...heatmapConfig,
+            theme,
+            colorScale,
+            colorScaleConfig: {scale},
+            title: `theme: "${theme}", ${colorScale === "change" ? "diverging" : "sequential"}`,
+          }}
+        />
+      </div>
+    ))}
+  </div>
+);
+DarkThemeColorScales.parameters = {
+  docs: {
+    source: {
+      code: `new Matrix()
+  .config({data, groupBy: ["row", "column"], row: "row", column: "column"})
+  .colorScale("value")
+  .theme("dark")
+  .render();
+
+// Your own ramp color on the dark preset, or per chart:
+chart.theme({base: "dark", colorScale: {max: "#ffd43b"}});
+chart.colorScaleConfig({colorMax: "#e8590c"});`,
+      language: "jsx",
+    },
+    description: {
+      story:
+        'On a dark theme (`"dark"`, or `"auto"` on a dark page) a color scale runs from a dim tint just above the background up to a bright blue, so low values recede and high values stand out, the mirror of the pale→dark ramp on light. Diverging scales meet at a dark neutral instead of near-white, with bright red and blue poles. The theme\'s `colorScale` tokens (`max`, `mid`, `min`, `missing`) set these colors, and `colorScaleConfig.colorMax`/`colorMid`/`colorMin` or a `color` array still win.',
+    },
+  },
+};

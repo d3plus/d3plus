@@ -54,11 +54,13 @@ the chart (minimap, search count, attribution).
 | `tooltip` | `{background, text, border, shadow, divider}` |
 | `overlay` | `{background, text, border}` for the minimap, search count, and attribution |
 | `table` | `{background, text, header, border, rule}` for the table view |
+| `colorScale` | `{max, mid, min, missing}` for color scales (see [Color scales on a dark theme](#color-scales-on-a-dark-theme)) |
 
 Colors you set elsewhere still win over the theme: an explicit
 `titleConfig.fontColor`, `tooltipConfig.background`, `minimapStyle`, and so on.
-The chart's data colors don't change with the theme; labels inside shapes
-already contrast with each shape's fill.
+The chart's categorical data colors don't change with the theme (color scales
+do; see below), and labels inside shapes already contrast with each shape's
+fill.
 
 ## Colors
 
@@ -97,6 +99,45 @@ strategy:
 By default a continuous scale steps through a single blue hue (darker = larger)
 and a diverging scale runs blue↔gray↔red; override either by passing a `color`
 array to `colorScaleConfig`.
+
+### Color scales on a dark theme
+
+A pale→dark ramp reads backwards on a dark background: the smallest values
+become the brightest marks. So on a dark theme (`"dark"`, or `"auto"` on a dark
+page) every color scale turns around. A sequential scale runs from a dim,
+low-chroma tint just above the background up to a bright blue, so low values
+recede and high values stand out. A diverging scale meets at a dark neutral
+instead of near-white, with bright red and blue poles of equal lightness. The
+ramps are stepped evenly in OKLab and stay in one hue, so they still read in
+grayscale and under color-vision deficiency. The legend's swatches or gradient,
+the hover mark, and `colorOrdinal` ramps follow suit. Light charts keep their
+pale→dark ramps.
+
+The theme's `colorScale` tokens set these colors:
+
+| Token | Light preset | Dark preset | Colors |
+| --- | --- | --- | --- |
+| `max` | `#1c7ed6` | `#4dabf7` | The high end of single-hue ramps and the positive pole of diverging scales |
+| `mid` | `#f8f9fa` | `#343a40` | The midpoint of diverging scales |
+| `min` | `#c92a2a` | `#ff6b6b` | The negative pole of diverging scales, and the hue of all-negative ramps |
+| `missing` | unset | unset | Marks without a value: Geomap regions and Calendar days (unset, each chart derives a quiet neutral from the background) |
+
+The light preset's values are the `colorDefaults` (`sequential`, `light`, and
+`off`), so a chart's own `colorDefaults` still apply on light. A custom theme
+can set any of them:
+
+```jsx
+<Geomap config={{
+  data, groupBy: "id", colorScale: "value",
+  theme: {base: "dark", colorScale: {max: "#ffd43b", missing: "#2b2d31"}}
+}} />
+```
+
+Colors set on the chart still win: `colorScaleConfig.colorMax`, `colorMid`,
+and `colorMin` replace the matching token (on a dark theme the ramp still runs
+dim→bright toward your `colorMax`), and a `color` array is used exactly as
+given. `@d3plus/color` exports the dark ramp as `colorRampDark(base, n,
+{background})`, next to `colorRamp`.
 
 ## Textures (non-color encoding)
 

@@ -118,6 +118,7 @@ export type {
   RangeBreakTime,
 } from "./src/components/Axis/rangeBreaks.js";
 export type {
+  ThemeColorScaleTokens,
   ThemeConfig,
   ThemeOverlayTokens,
   ThemeSetting,

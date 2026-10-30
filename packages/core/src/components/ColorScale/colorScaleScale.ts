@@ -2,12 +2,13 @@ import {deviation, extent, min, quantile, range} from "d3-array";
 import {interpolateRgb} from "d3-interpolate";
 import {scaleLinear, scaleThreshold} from "d3-scale";
 
-import {colorLighter, colorRamp} from "@d3plus/color";
+import {colorLighter} from "@d3plus/color";
 import {unique} from "@d3plus/data";
 import {ckmeans} from "@d3plus/math";
 
 import type ColorScale from "./ColorScale.js";
 import type {D3Scale} from "../../utils/index.js";
+import {themeRamp, themeScaleColor} from "../../utils/theme.js";
 import {resolveColorScaleType} from "./colorScaleType.js";
 import type {ColorScaleType} from "./colorScaleType.js";
 
@@ -44,13 +45,32 @@ interface ScaleResult {
   labels: number[] | undefined;
 }
 
-/** The scale's poles, with unset ones taken from its `colorDefaults`. */
+/**
+    The scale's poles: unset ones come from the theme's `colorScale` tokens on
+    a dark or custom theme, and from its `colorDefaults` otherwise.
+*/
 const colorMin = (cs: ColorScale): string =>
-  cs.schema.colorMin ?? cs.schema.colorDefaults.off;
+  cs.schema.colorMin ??
+  themeScaleColor(cs._theme, "min", cs.schema.colorDefaults.off);
 const colorMid = (cs: ColorScale): string =>
-  cs.schema.colorMid ?? cs.schema.colorDefaults.light;
+  cs.schema.colorMid ??
+  themeScaleColor(cs._theme, "mid", cs.schema.colorDefaults.light);
 const colorMax = (cs: ColorScale): string =>
-  cs.schema.colorMax ?? cs.schema.colorDefaults.sequential;
+  cs.schema.colorMax ??
+  themeScaleColor(cs._theme, "max", cs.schema.colorDefaults.sequential);
+
+/** A single-hue low→high ramp toward `base` that reads on the scale's theme. */
+const ramp = (cs: ColorScale, base: string, n: number): string[] =>
+  themeRamp(cs._theme, base, n);
+
+/**
+    Steps a diverging pole `t` of the way back toward the midpoint: lighter on
+    a light theme, and mixed into the dark midpoint on a dark one.
+*/
+const towardMid = (cs: ColorScale, pole: string, t: number): string =>
+  cs._theme?.dark
+    ? interpolateRgb.gamma(2.2)(pole, colorMid(cs))(t)
+    : colorLighter(pole, t);
 
 /** Builds the jenks (ckmeans) threshold scale and assigns it to the instance. */
 function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
@@ -125,18 +145,18 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
         .slice(0, buckets)
         .filter((d: number) => d > cs.schema.midpoint);
       const negativeColors = negatives.map((_d: number, i: number) =>
-        !i ? base[0] : colorLighter(base[0], i / negatives.length),
+        !i ? base[0] : towardMid(cs, base[0], i / negatives.length),
       );
       const spanningColors = spanning.map(() => base[1]);
       const positiveColors = positives.map((_d: number, i: number) =>
         i === positives.length - 1
           ? base[2]
-          : colorLighter(base[2], 1 - (i + 1) / positives.length),
+          : towardMid(cs, base[2], 1 - (i + 1) / positives.length),
       );
       colors = negativeColors.concat(spanningColors).concat(positiveColors);
     } else {
-      // Single-hue light→dark ramp, stepped in OKLab (see @d3plus/color).
-      colors = colorRamp(colorMax(cs), numBuckets);
+      // Single-hue low→high ramp, stepped in OKLab (see @d3plus/color).
+      colors = ramp(cs, colorMax(cs), numBuckets);
     }
   }
 
@@ -204,14 +224,15 @@ function resolveNonDivergingLinear(
     ctx;
   let {colors} = ctx;
   if (!colors) {
-    // Single-hue ramp of the relevant pole, stepped in OKLab (light→dark).
-    // Negative-only scales read dark→light, so the ramp is reversed.
+    // Single-hue ramp of the relevant pole, stepped in OKLab (low→high).
+    // Negative-only scales put the pole on the most negative value, so the
+    // ramp is reversed.
     const base = negative ? colorMin(cs) : colorMax(cs);
     if (scale === "buckets" || scale === "quantile") {
-      const ramp = colorRamp(base, numBuckets);
-      colors = positive ? ramp : ramp.slice().reverse();
+      const steps = ramp(cs, base, numBuckets);
+      colors = positive ? steps : steps.slice().reverse();
     } else {
-      const two = colorRamp(base, 2);
+      const two = ramp(cs, base, 2);
       colors = negative ? two.slice().reverse() : two;
     }
   }
@@ -352,8 +373,8 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
       : cs.schema.color;
 
   if (colors && !(colors instanceof Array)) {
-    // A single hue expands to a light→dark ramp, stepped in OKLab.
-    colors = colorRamp(colors, numBuckets);
+    // A single hue expands to a low→high ramp, stepped in OKLab.
+    colors = ramp(cs, colors, numBuckets);
   }
 
   const ctx: ScaleContext = {
