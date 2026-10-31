@@ -350,6 +350,68 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
+  it(`ArcDiagram ${renderer}: labels draw over a halo where arcs run on their side`, async () => {
+    const read = config =>
+      render(
+        box,
+        async args => {
+          await draw(args);
+          const viz = window.__viz;
+          const labels = [];
+          const walk = n => {
+            if (n.type === "text" && String(n.key).startsWith("arc-label-"))
+              labels.push({
+                halo: !!n.halo,
+                stroke: n.paint.stroke,
+                width: n.paint.strokeWidth,
+              });
+            (n.children || []).forEach(walk);
+          };
+          walk(viz._paintedScene.root);
+          const dom = [...document.querySelectorAll("#viz svg text")].filter(
+            t => t.getAttribute("paint-order") === "stroke",
+          ).length;
+          return {
+            labels,
+            dom,
+            background: viz._theme?.background ?? null,
+            below: viz.ctx.arcCtx.links.some(l => l.arc.side === "below"),
+          };
+        },
+        [config, renderer, {nodes, links}],
+      );
+    for (const theme of ["light", "dark"]) {
+      const both = await read({arcSide: "both", nodeSort: "label", theme});
+      assert.ok(both.below, "some arcs run below the line");
+      assert.ok(both.labels.length > 0, "labels draw");
+      for (const l of both.labels) {
+        assert.ok(l.halo, `${theme}: every label has a halo`);
+        assert.strictEqual(
+          l.stroke.toLowerCase(),
+          String(both.background).toLowerCase(),
+          `${theme}: the halo is the chart's background`,
+        );
+        assert.ok(l.width >= 2, "a visible halo");
+      }
+      if (renderer === "svg")
+        assert.strictEqual(
+          both.dom,
+          both.labels.length,
+          "the SVG paints each halo under its text",
+        );
+    }
+    const above = await read({arcSide: "above"});
+    assert.ok(
+      above.labels.every(l => !l.halo),
+      "no halo where the labels' side is clear",
+    );
+    const below = await read({arcSide: "below"});
+    assert.ok(
+      below.labels.every(l => !l.halo),
+      "arcs below put the labels above, clear of them",
+    );
+  });
+
   it(`ArcDiagram ${renderer}: keyboard focus reaches nodes and arcs`, async () => {
     const visited = await render(
       box,

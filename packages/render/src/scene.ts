@@ -464,6 +464,12 @@ export interface TextNode extends NodeBase {
       `fadeSwapOpacity`.
   */
   fadeSwap?: FadeSwap;
+  /**
+      Paints the text's stroke (`paint.stroke`, `paint.strokeWidth`) under its
+      fill with round joins, as a halo that keeps it readable over the marks
+      behind it.
+  */
+  halo?: boolean;
 }
 
 /** The fade-out and fade-in windows of a `TextNode.fadeSwap`, as shares (0–1) of a transition's eased progress. */

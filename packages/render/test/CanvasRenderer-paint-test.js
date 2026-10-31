@@ -363,6 +363,51 @@ it("headless CanvasRenderer draws text lines, runs and anchors", () =>
     renderer.destroy();
   }));
 
+it("headless CanvasRenderer strokes a text halo under its fill", () =>
+  headless(() => {
+    const renderer = mounted();
+    const draw = halo =>
+      renderer.drawScene(
+        scene([
+          {
+            type: "rect",
+            key: "bg",
+            x: 0,
+            y: 0,
+            width: 200,
+            height: 120,
+            paint: {fill: "#0000ff"},
+          },
+          {
+            type: "text",
+            key: "t",
+            x: 0,
+            y: 0,
+            lines: [{text: "HHHH", x: 20, y: 60, width: 80}],
+            font: {size: 40, baseline: "middle"},
+            paint: {fill: "#000000", stroke: "#ffffff", strokeWidth: 12},
+            halo,
+          },
+        ]),
+      );
+    const white = () =>
+      pixels(renderer, 10, 30, 120, 60).filter(
+        ([r, g, b]) => r > 200 && g > 200 && b > 200,
+      ).length;
+    draw(true);
+    assert.ok(white() > 50, "the halo paints around the glyphs");
+    const ctx = renderer.toCanvas().getContext("2d");
+    const [r, g, b] = Array.from(ctx.getImageData(5, 5, 1, 1).data);
+    assert.deepStrictEqual(
+      [r, g, b],
+      [0, 0, 255],
+      "the background stays clear of it",
+    );
+    draw(false);
+    assert.strictEqual(white(), 0, "no halo without the flag");
+    renderer.destroy();
+  }));
+
 it("headless CanvasRenderer draws images with each preserveAspectRatio mode", () =>
   headless(async () => {
     const href = solidPng("#ff0000", 4, 2);

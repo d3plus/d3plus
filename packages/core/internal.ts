@@ -382,6 +382,7 @@ export {
   referenceLineNodes,
   referenceLinePoints,
 } from "./src/charts/features/referenceAnnotations.js";
+export {textHalo} from "./src/charts/features/textHalo.js";
 export {
   labelSpotBox,
   pickLabelSpot,

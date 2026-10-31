@@ -65,6 +65,8 @@ export interface ArcCtx {
   nodes: ArcNode[];
   links: ArcLink[];
   labels: ArcLabel[];
+  /** Whether arcs run on the labels' side of the line, so the labels draw over a halo. */
+  labelHalo: boolean;
   linkConfig: Record<string, unknown>;
 }
 
@@ -359,6 +361,32 @@ function placeLinks(
   );
 }
 
+/** Each node's label with a shown width, placed on the labels' side of the line. */
+function placeLabels(
+  nodes: ArcNode[],
+  shown: number[],
+  positions: number[],
+  opts: Omit<
+    Parameters<typeof placeArcLabel>[0],
+    "id" | "datum" | "text" | "at" | "width"
+  >,
+): ArcLabel[] {
+  return nodes.flatMap((n, i) =>
+    shown[i] && n.label
+      ? [
+          placeArcLabel({
+            ...opts,
+            id: `arc-label-${n.id}`,
+            datum: n.data,
+            text: n.label,
+            at: positions[i],
+            width: shown[i],
+          }),
+        ]
+      : [],
+  );
+}
+
 /** Stashes the layout and the id lookups hover and click focus read. */
 function stashArcCtx(v: VizInstance, ctx: ArcCtx): void {
   v.ctx.arcCtx = ctx;
@@ -452,29 +480,24 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
     spans.sides,
     sizes,
   );
-  const labels: ArcLabel[] = [];
-  arcNodes.forEach((n, i) => {
-    if (!shown[i] || !n.label) return;
-    labels.push(
-      placeArcLabel({
-        id: `arc-label-${n.id}`,
-        datum: n.data,
-        text: n.label,
-        at: positions[i],
-        base,
-        gap: labelGap,
-        width: shown[i],
-        spacing,
-        lineHeight,
-        angle: line.fit.angle,
-        side: labelSide,
-        orient,
-      }),
-    );
+  const labels = placeLabels(arcNodes, shown, positions, {
+    base,
+    gap: labelGap,
+    spacing,
+    lineHeight,
+    angle: line.fit.angle,
+    side: labelSide,
+    orient,
   });
 
   const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");
   delete linkConfig.on;
-  stashArcCtx(v, {nodes: arcNodes, links: arcLinks, labels, linkConfig});
+  stashArcCtx(v, {
+    nodes: arcNodes,
+    links: arcLinks,
+    labels,
+    labelHalo: spans.sides.includes(labelSide),
+    linkConfig,
+  });
   return {shapeData: arcNodes as unknown as DataPoint[]};
 };

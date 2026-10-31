@@ -249,6 +249,31 @@ it("SvgRenderer renders styled text runs and switches lines between plain and st
   renderer.destroy();
 });
 
+it("SvgRenderer paints a text halo's stroke under its fill", () => {
+  const renderer = mounted();
+  const text = halo =>
+    scene([
+      {
+        type: "text",
+        key: "t",
+        x: 0,
+        y: 0,
+        font: {size: 12},
+        lines: [{text: "Halo", x: 0, y: 10, width: 20}],
+        paint: {fill: "#000", stroke: "#fff", strokeWidth: 3},
+        halo,
+      },
+    ]);
+  renderer.drawScene(text(true));
+  assert.strictEqual(byKey("t").getAttribute("paint-order"), "stroke");
+  assert.strictEqual(byKey("t").getAttribute("stroke-linejoin"), "round");
+  assert.strictEqual(byKey("t").getAttribute("stroke"), "#fff");
+  renderer.drawScene(text(undefined));
+  assert.strictEqual(byKey("t").getAttribute("paint-order"), null);
+  assert.strictEqual(byKey("t").getAttribute("stroke-linejoin"), null);
+  renderer.destroy();
+});
+
 it("SvgRenderer dispatches pointer events with hover enter/leave", () => {
   const renderer = mounted();
   renderer.drawScene(
