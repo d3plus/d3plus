@@ -35,6 +35,8 @@ export interface LineLabelMeasurement {
   labelWidths: LabelWidth[];
   largestLabel: number | undefined;
   xRangeMax: number | undefined;
+  /** The room left of the x range for the lines' left-end labels. */
+  startLabelSpace?: number;
 }
 
 /**
@@ -87,6 +89,8 @@ export interface AxisMeasureResult {
   xRangeMax: number | undefined;
   labelWidths: LabelWidth[];
   largestLabel: number | undefined;
+  /** The room left of the x range for the lines' left-end labels. */
+  startLabelSpace: number;
   xTestRange: number[];
   x2TestRange: number[];
   x2Height: number;
@@ -209,6 +213,7 @@ function measureXTestPasses(
     labelWidths,
     largestLabel,
     xRangeMax: measuredXRangeMax,
+    startLabelSpace = 0,
   } = measureLineLabels();
   if (measuredXRangeMax !== undefined) xRangeMax = measuredXRangeMax;
 
@@ -242,7 +247,7 @@ function measureXTestPasses(
       .measure();
   }
 
-  return {labelWidths, largestLabel, xRangeMax};
+  return {labelWidths, largestLabel, xRangeMax, startLabelSpace};
 }
 
 /**
@@ -269,13 +274,12 @@ function measureXTestAxes(
 > {
   const {xTest, x2Test, yTest, showX, showY, x2Exists, height, width} = inputs;
 
-  const {labelWidths, largestLabel, xRangeMax} = measureXTestPasses(
-    viz,
-    inputs,
-    xC,
-    measureLineLabels,
-    ends,
-  );
+  const {
+    labelWidths,
+    largestLabel,
+    xRangeMax,
+    startLabelSpace = 0,
+  } = measureXTestPasses(viz, inputs, xC, measureLineLabels, ends);
 
   const xTestRange = xTest._getRange() as number[];
   const x2TestRange = x2Test._getRange() as number[];
@@ -289,6 +293,7 @@ function measureXTestAxes(
     xTestRange[0],
     x2TestRange[0],
     viz._plotMinLeft?.(),
+    startLabelSpace && (yWidth ?? 0) + startLabelSpace,
   ] as number[])!;
 
   const yLabelConfig = yTest.shapeConfig().labelConfig as {
@@ -315,6 +320,7 @@ function measureXTestAxes(
     xRangeMax,
     labelWidths,
     largestLabel,
+    startLabelSpace,
     xTestRange,
     x2TestRange,
     x2Height,

@@ -36,6 +36,7 @@ export {default as Ridgeline} from "./Ridgeline/index.js";
 export {default as Rings} from "./Rings/index.js";
 export {default as Sankey} from "./Sankey/index.js";
 export {default as Scatter} from "./Scatter/index.js";
+export {default as SlopeChart} from "./SlopeChart/index.js";
 export {default as StackedArea} from "./StackedArea/index.js";
 export {default as Streamgraph} from "./Streamgraph/index.js";
 export {default as Sunburst} from "./Sunburst/index.js";

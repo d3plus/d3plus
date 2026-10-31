@@ -246,6 +246,11 @@ const charts = [
     "LinePlot",
     {...plot, lineLabels: true, lineMarkers: true, confidence: ["lci", "hci"]},
   ],
+  ["LinePlot", {...plot, lineLabels: "both", lineLabelConfig: {value: true}}],
+  [
+    "SlopeChart",
+    {...plot, data: series.filter(d => d.x !== 5), slopeColor: true},
+  ],
   [
     "LinePlot",
     {...faceted, facetConfig: {scales: "independent", sort: "descending"}},

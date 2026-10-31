@@ -7,6 +7,7 @@ import {
   Hexbin,
   LinePlot,
   Scatter,
+  SlopeChart,
   Streamgraph,
   Treemap,
 } from "@d3plus/core";
@@ -102,6 +103,25 @@ it("renderToStaticSVG renders Hexbin bins", async () => {
   assert.ok(svg.startsWith("<svg"));
   const hexagons = svg.match(/<path[^>]*d="M[\d.]+,[\d.]+L[^"]*Z"/g) || [];
   assert.ok(hexagons.length >= 3, `draws the bins (${hexagons.length})`);
+});
+
+it("renderToStaticSVG renders a SlopeChart with labels at both ends", async () => {
+  const rows = [
+    ["Brazil", 41, 47],
+    ["Chile", 30, 36],
+    ["Peru", 31, 30],
+  ].flatMap(([id, a, b]) => [
+    {id, year: 2015, value: a},
+    {id, year: 2024, value: b},
+  ]);
+  const svg = await renderToStaticSVG(
+    new SlopeChart().data(rows).groupBy("id").x("year").y("value"),
+    {width: 400, height: 300},
+  );
+  assert.ok(svg.startsWith("<svg"), "is an svg");
+  assert.strictEqual((svg.match(/<circle/g) || []).length, 6, "end markers");
+  for (const label of ["Brazil 41", "Brazil 47", "Peru 31", "Peru 30"])
+    assert.ok(svg.includes(label), `labels "${label}"`);
 });
 
 it("renderToStaticSVG reads dimensions from the chart when omitted", async () => {

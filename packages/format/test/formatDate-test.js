@@ -488,6 +488,8 @@ it("formatDateFull", () => {
   );
 });
 
+// Checks dateFormatter against formatDate on every probe (thousands of
+// formatDate calls), so it gets more than the default 5s on slow CI runners.
 it("dateFormatter labels every date as formatDate does", () => {
   const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
   const every = (dates, n) => dates.filter((_, i) => i % n === 0);
@@ -531,7 +533,7 @@ it("dateFormatter labels every date as formatDate does", () => {
       }
     }
   }
-});
+}, 30000);
 
 it("dateFullFormatter labels every date as formatDateFull does", () => {
   const range = (n, step) => Array.from({length: n}, (_, i) => step(i));

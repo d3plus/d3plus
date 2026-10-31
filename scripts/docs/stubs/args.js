@@ -119,6 +119,7 @@ const hiddenMethods = {
     "discrete",
   ],
   Scatter: ["shape"],
+  SlopeChart: ["shape"],
   StackedArea: ["shape"],
   Streamgraph: ["shape", "stacked"],
   Sunburst: ["shape"],

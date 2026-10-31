@@ -21,7 +21,6 @@ import {extent, groups, max, merge} from "d3-array";
 import * as scales from "d3-scale";
 
 import type {DataPoint} from "@d3plus/data";
-import {formatAbbreviate} from "@d3plus/format";
 
 import type {SceneNode} from "@d3plus/render";
 
@@ -30,6 +29,7 @@ import type {Shape} from "../../shapes/index.js";
 import {emitBarConfidence} from "../Plot/barConfidence.js";
 import {labelsOverCircles, plotCircleLabels} from "../Plot/circleLabels.js";
 import {emitLineBands} from "../Plot/lineBands.js";
+import {lineLabelConfig} from "../Plot/lineLabelEmit.js";
 import {breakLines, clipBands, lineGaps} from "../Plot/connectGapsScene.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {barSeries, seriesSlot} from "../Plot/barWidth.js";
@@ -477,49 +477,12 @@ const lineEmit: ShapeEmitter = ctx => {
     out.push(...(gaps ? clipBands(bands, gaps) : bands));
   }
 
+  const labelInputs = {viz, labelWidths, largestLabel, labelPositions};
+  const labels = showLineLabels ? lineLabelConfig(labelInputs) : undefined;
   s.config({
     discrete: ctx.shapeConfig.discrete || "x",
-    label: showLineLabels
-      ? (d: PlotDatum, i: number) => {
-          const visible =
-            typeof viz.schema.lineLabels === "function"
-              ? viz.schema.lineLabels(d.data, d.i)
-              : true;
-          if (!visible) return false;
-          const labelData = labelWidths.find(l => l.id === d.id);
-          if (labelData) {
-            const yPos = labelData.newY || labelData.defaultY;
-            const allLabels = labelWidths.filter(l => l.newY === yPos);
-            if (allLabels.length > 1)
-              return allLabels[0].id !== d.id
-                ? false
-                : `+${formatAbbreviate(
-                    allLabels.length,
-                    viz.schema.locale,
-                  )} ${viz.schema.translate("more")}`;
-            return viz._drawLabel(d as unknown as DataPoint, i);
-          }
-          return false;
-        }
-      : false,
-    labelBounds: showLineLabels
-      ? (d: PlotDatum, i: number, s: {points: number[][]}) => {
-          const [firstX, firstY] = s.points[0];
-          // The label sits past the line's right end (its first point when
-          // the x axis is reversed).
-          const [lastX, lastY] = s.points.reduce((a, b) =>
-            b[0] >= a[0] ? b : a,
-          );
-          const height = viz.schema.height / 4;
-          const mod = labelPositions[d.id] ? lastY - labelPositions[d.id] : 0;
-          return {
-            x: lastX - firstX,
-            y: lastY - firstY - height / 2 - mod,
-            width: largestLabel,
-            height,
-          };
-        }
-      : false,
+    label: labels ? labels.label : false,
+    labelBounds: labels ? labels.labelBounds : false,
   });
 
   // A forecast draws each line dashed from where its forecast starts.
@@ -529,13 +492,34 @@ const lineEmit: ShapeEmitter = ctx => {
     ctx.shapeConfig,
     ctx,
   );
+  // Labels at a line's left end, with values, or shortened to fit keep their own text,
+  // bounds, and anchor over the user's, taking only the series name from them.
+  const labelOverride =
+    labels &&
+    labelWidths.some(
+      l => l.side === "start" || l.valueText || l.name !== undefined,
+    )
+      ? (user: Record<string, unknown>) => {
+          const own = lineLabelConfig({...labelInputs, name: user.label});
+          return {
+            label: own.label,
+            labelBounds: own.labelBounds,
+            labelConfig: {
+              textAnchor: own.textAnchor(s.labelConfig().textAnchor),
+            },
+          };
+        }
+      : undefined;
   const lines = finishShape(
     ctx,
     "Line",
     s,
-    forecastDash
+    forecastDash || labelOverride
       ? user => ({
-          strokeDasharray: forecastDashOr(forecastDash, user.strokeDasharray),
+          ...(forecastDash && {
+            strokeDasharray: forecastDashOr(forecastDash, user.strokeDasharray),
+          }),
+          ...labelOverride?.(user),
         })
       : undefined,
   );

@@ -5,6 +5,11 @@ import type VizBase from "../charts/viz/VizBase.js";
 import type {LinkOption} from "../charts/viz/linkGroup.js";
 import type {BarShareInfo} from "../charts/Plot/barWidth.js";
 import type {ConnectGaps} from "../charts/Plot/connectGaps.js";
+import type {SlopeColorSetting} from "../charts/SlopeChart/slope.js";
+import type {
+  LineLabelConfig,
+  LineLabelsSetting,
+} from "../charts/Plot/lineLabelSides.js";
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
 import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
@@ -1454,8 +1459,28 @@ export interface D3plusConfig {
   levels?: number | number[];
   /** ParallelCoordinates: the lines' stroke opacity, or `"auto"` (default) to fade them as their number grows. */
   lineOpacity?: number | "auto";
-  /** Whether to show labels on line charts. */
-  lineLabels?: boolean;
+  /**
+      Labels each line of a line chart with its series name, just past the
+      line's ends: `true` or `"end"` labels the right end, `"start"` the left
+      end, and `"both"` both ends. A function of each row returns any of
+      these (or `false`) to choose per series. The plot leaves room for the
+      labels on the side they sit, at most a quarter of its width past the y
+      axis per side;
+      a label wider than that drops its value, then shortens its name with
+      an ellipsis, then hides. Labels that would overlap are moved apart,
+      each side on its own, with a dotted connector back to their line; when
+      the plot is too short for them all, the last that fits reads "+N more".
+      `lineLabelConfig` adds each end's value to its label.
+  */
+  lineLabels?: LineLabelsSetting;
+  /**
+      Options for `lineLabels`. `value: true` adds the line's value at each
+      labeled end after the series name (e.g. "Brazil 37%"), formatted as the
+      y axis formats its ticks (its `tickFormat` when set). `valueFormat`
+      formats it instead, as a function of the value, the row it belongs to,
+      and the row's index. Defaults to `{value: false}`.
+  */
+  lineLabelConfig?: LineLabelConfig;
   /**
       RadialBar's sweep, in degrees from `startAngle`. Defaults to 270 for
       tracks and 360 for the circular bar chart.
@@ -1785,6 +1810,14 @@ export interface D3plusConfig {
       Anchors a Plot's size scale at zero, so a mark's size is proportional to its value: with the default `sizeScale` of `"sqrt"`, each circle's area is (a value twice as large draws a circle with twice the area), and with `"linear"`, its radius. The largest value still draws at `sizeMax`, while `sizeMin` no longer sets the smallest mark's radius, so values near zero draw as small as they are. Off by default, except on BubbleChart. Ignored when any size is negative or `sizeScale` is `"log"`.
   */
   sizeZero?: boolean;
+  /**
+      SlopeChart: colors each line by its direction between its first and
+      last period. `true` draws rising lines green, falling lines red, and
+      flat lines in the theme's muted text color, in shades that suit a light
+      or dark theme; an object sets any of `up`, `down`, and `flat` itself.
+      The legend and markers follow.
+  */
+  slopeColor?: SlopeColorSetting;
   /**
       With two groupBy levels, Violin places violins by the first and sets
       them side by side by the second. `split` draws a category holding

@@ -30,6 +30,15 @@ Clicking a swatch hides that group, and shift-clicking it shows that group alone
 - **`legendTooltip`** configures the tooltip shown when hovering a swatch.
 - **`legendPadding`** lines the legend up with the chart's own padding, so a bottom legend centers under a plot's x-axis rather than under the whole chart. It's on for screens wider than 600 pixels.
 
+### Labeling lines directly
+
+Line charts can name each line where it ends instead, so readers don't have to match colors to a legend. `lineLabels: true` labels the right end of every line, `"start"` the left end, and `"both"` both ends; `lineLabelConfig: {value: true}` adds each end's value after the name (e.g. "Brazil 37%"). Labels that would overlap are moved apart on each side, with a dotted connector back to their line. [SlopeChart](/story/core-charts-slopechart--basic-example) labels both ends with values and hides its legend by default.
+
+```jsx
+<LinePlot config={{data, groupBy: "country", x: "year", y: "share", legend: false,
+  lineLabels: "both", lineLabelConfig: {value: true}}} />
+```
+
 ## ColorScale
 
 When `colorScale` maps a numeric value to color, a colorScale replaces the legend for those marks. It shows the range of values as a gradient or as a row of color buckets with an axis:

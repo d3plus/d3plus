@@ -87,12 +87,14 @@ function solveFinalYAxes(
 
   const yBounds = yTest.outerBounds() as AxisBounds;
   const yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
+  const {startLabelSpace} = pCtx;
   const xOffsetLeft = max([
     0,
     yWidth,
     xTestRange[0],
     x2TestRange[0],
     viz._plotMinLeft?.(),
+    startLabelSpace && (yWidth ?? 0) + startLabelSpace,
   ] as number[])!;
 
   if (y2Exists) {

@@ -132,6 +132,37 @@ export {
 } from "./src/charts/Plot/connectGapsScene.js";
 export type {LineGaps, SeriesGaps} from "./src/charts/Plot/connectGapsScene.js";
 export {
+  lineLabelKey,
+  lineLabelSides,
+  lineLabelText,
+  lineLabelValue,
+  rowLineLabelSides,
+} from "./src/charts/Plot/lineLabelSides.js";
+export {spreadLabelPositions} from "./src/charts/Plot/lineLabelSpread.js";
+export type {
+  LineLabelConfig,
+  LineLabelSide,
+  LineLabelsSetting,
+  LineLabelsValue,
+  LineLabelValueFormat,
+} from "./src/charts/Plot/lineLabelSides.js";
+export {
+  lineLabelBox,
+  lineLabelConfig,
+} from "./src/charts/Plot/lineLabelEmit.js";
+export {
+  fitLineLabelText,
+  labelOverlapsLine,
+  lineLabelCap,
+  lineLabelSpace,
+  measureLineLabel,
+  measurePlotLineLabels,
+} from "./src/charts/Plot/pipelineLineLabels.js";
+export {
+  bumpLineLabels,
+  emitLineLabelConnectors,
+} from "./src/charts/features/lineLabels.js";
+export {
   autoForecastStart,
   discreteOrder,
   discreteRank,
@@ -923,6 +954,25 @@ export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {scatterDef} from "./src/charts/Scatter/index.js";
+export {
+  prepareSlope,
+  slopeChartDef,
+  slopeFill,
+  slopeValueAxis,
+} from "./src/charts/SlopeChart/index.js";
+export {
+  slopeColors,
+  slopeColorsDark,
+  slopeColorsLight,
+  slopeDirection,
+  slopeDirections,
+  slopePeriods,
+} from "./src/charts/SlopeChart/slope.js";
+export type {
+  SlopeColors,
+  SlopeColorSetting,
+  SlopeDirection,
+} from "./src/charts/SlopeChart/slope.js";
 export {
   streamgraphDef,
   streamValueAxis,

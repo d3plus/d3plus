@@ -272,6 +272,7 @@ function makePlotLineLabelMeasure(
       labelWidths: lineLabelCtx.plotLabelWidths as LabelWidth[],
       largestLabel: lineLabelCtx.plotLargestLabel,
       xRangeMax: lineLabelCtx.plotXRangeMax,
+      startLabelSpace: lineLabelCtx.plotStartLabelSpace ?? 0,
     };
   };
 }
