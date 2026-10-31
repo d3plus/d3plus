@@ -1,7 +1,6 @@
 import * as core from "@d3plus/core";
 import {renderToStaticSVG} from "@d3plus/ssr";
 import type {RenderableViz} from "@d3plus/ssr";
-import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import type {Scene} from "./scenes.js";
 
@@ -28,19 +27,6 @@ export function fitSvg(svg: string): string {
   );
 }
 
-const STACK = fontFamilyStringify(fontFamily).replace(/"/g, "'");
-
-/**
- * Puts d3plus's whole font list back where the render wrote the one font it
- * found on the build machine, so each browser picks from the list the way a
- * live chart does instead of falling back to its default serif.
- */
-export function fontStack(svg: string): string {
-  return svg.replace(/font-family="([^"]*)"/g, (attr, family) =>
-    fontFamily.includes(family) ? `font-family="${STACK}"` : attr,
-  );
-}
-
 const posters = new Map<string, Promise<string>>();
 
 /**
@@ -54,7 +40,7 @@ export function renderPoster(scene: Scene): Promise<string> {
     posters.set(
       key,
       renderToStaticSVG(new Chart().config(scene.config), POSTER_SIZE).then(
-        svg => fontStack(fitSvg(svg)),
+        fitSvg,
       ),
     );
   }

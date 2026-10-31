@@ -4,7 +4,6 @@ import assert from "node:assert/strict";
 import {
   POSTER_SIZE,
   fitSvg,
-  fontStack,
   renderPoster,
 } from "../src/components/Hero/poster.ts";
 import {SCENES} from "../src/components/Hero/scenes.ts";
@@ -33,20 +32,6 @@ describe("fitSvg", () => {
   });
 });
 
-describe("fontStack", () => {
-  it("swaps a default font for the whole default list", () => {
-    assert.equal(
-      fontStack('<text font-family="Inter">a</text>'),
-      `<text font-family="'Inter', 'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif">a</text>`,
-    );
-  });
-
-  it("keeps a font the chart chose itself", () => {
-    const text = '<text font-family="Georgia">a</text>';
-    assert.equal(fontStack(text), text);
-  });
-});
-
 describe("renderPoster", () => {
   it("draws the first scene to a scalable svg, once", async () => {
     const poster = renderPoster(SCENES[0]);
@@ -59,6 +44,7 @@ describe("renderPoster", () => {
     assert.match(svg, /^<svg [^>]*width="100%"/);
     assert.ok(svg.includes("<rect"), "the treemap drew its cells");
     assert.ok(svg.includes("Solar"), "with their labels");
-    assert.ok(!svg.includes('font-family="Inter"'), "in the font list");
+    for (const [, family] of svg.matchAll(/font-family="([^"]*)"/g))
+      assert.match(family, /(^|, )sans-serif$/, "with fallback fonts");
   }, 60000);
 });
