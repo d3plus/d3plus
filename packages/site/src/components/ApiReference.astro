@@ -1,0 +1,22 @@
+---
+/**
+ * The generated API reference for one export, under its own heading: put it
+ * at the end of a hand-written page.
+ */
+import {findEntry} from "../lib/api";
+import {referenceHeading, renderReference} from "../lib/reference";
+
+interface Props {
+  /** The export's name, e.g. `Treemap`. */
+  name: string;
+  /** Its package, when the name alone is ambiguous. */
+  pkg?: string;
+}
+
+const {name, pkg} = Astro.props;
+const entry = findEntry(name, pkg);
+const heading = referenceHeading(entry);
+---
+
+<h2 id={heading.toLowerCase()}>{heading}</h2>
+<Fragment set:html={renderReference(entry)} />

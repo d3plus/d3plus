@@ -235,14 +235,20 @@ export function scopedDoc(doc, name, stories) {
   return kept.length ? {...doc, description: kept.join("\n\n")} : undefined;
 }
 
-export default function (
+/**
+ * Builds the argTypes a story declares itself (its parent's arrive through
+ * `assign` in the args file, or the manifest's flattening), plus what the
+ * args file needs to import them: the parent class, its relative path, and
+ * the inherited keys this story hides.
+ */
+export function buildArgTypes(
   story,
   allMethods,
   stories,
   configDefaults = {},
   interfaceDocs = {},
 ) {
-  const {kind, name, meta} = story;
+  const {name, meta} = story;
   const regex = new RegExp(/packages\/([a-z].+)\/src(\/.*)?/g);
   const [, moduleName, rawFilePath] = regex.exec(meta.path);
   const filePath = collapseCategory(rawFilePath);
@@ -328,8 +334,6 @@ export default function (
       }
     });
   }
-
-  const lower = str => str.charAt(0).toLowerCase() + str.slice(1);
 
   const disabledMethods = hiddenMethods[name] || [];
 
@@ -461,6 +465,30 @@ export default function (
       );
       formattedMethods[cleanKey] = configArgType(ownConfig[key], doc, cleanKey);
     }
+
+  return {
+    argTypes: formattedMethods,
+    parentClass,
+    parentRelativePath,
+    disabledMethods,
+  };
+}
+
+export default function (
+  story,
+  allMethods,
+  stories,
+  configDefaults = {},
+  interfaceDocs = {},
+) {
+  const {kind, name} = story;
+  const {
+    argTypes: formattedMethods,
+    parentClass,
+    parentRelativePath,
+    disabledMethods,
+  } = buildArgTypes(story, allMethods, stories, configDefaults, interfaceDocs);
+  const lower = str => str.charAt(0).toLowerCase() + str.slice(1);
 
   const methodJSON = JSONstringifyOrder(formattedMethods, 2).replace(
     /"([^"^.]+)":/g,

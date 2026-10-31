@@ -45,6 +45,7 @@ export default defineConfig({
         "svelte",
         "vue",
         "element",
+        "site",
       ].map(name => node(name)),
       // Server renders pay for transforming core on first use.
       node("ssr", {testTimeout: 20000}),

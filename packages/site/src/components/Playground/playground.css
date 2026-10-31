@@ -1,0 +1,480 @@
+/*
+  The playground's look comes from these tokens, which follow Starlight's
+  light and dark themes; override them on `.d3p` to restyle every playground.
+*/
+.d3p {
+  --d3p-border: var(--sl-color-gray-5);
+  --d3p-border-strong: var(--sl-color-gray-4);
+  --d3p-radius: 0.75rem;
+  --d3p-field-radius: 0.5rem;
+  --d3p-chrome: var(--sl-color-gray-7, var(--sl-color-gray-6));
+  --d3p-surface: var(--sl-color-bg);
+  --d3p-field: var(--sl-color-bg);
+  --d3p-text: var(--sl-color-white);
+  --d3p-muted: var(--sl-color-gray-3);
+  --d3p-accent: var(--sl-color-accent);
+  --d3p-accent-soft: color-mix(
+    in srgb,
+    var(--sl-color-accent) 16%,
+    transparent
+  );
+  --d3p-ring: 0 0 0 3px
+    color-mix(in srgb, var(--sl-color-accent) 30%, transparent);
+
+  margin-block: 1.5rem;
+  border: 1px solid var(--d3p-border);
+  border-radius: var(--d3p-radius);
+  overflow: hidden;
+  background: var(--d3p-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+/* Syntax colors, after GitHub's light and dark themes. */
+.d3p,
+:root[data-theme="dark"] .d3p {
+  --d3p-code-keyword: #ff7b72;
+  --d3p-code-string: #a5d6ff;
+  --d3p-code-number: #79c0ff;
+  --d3p-code-property: #7ee787;
+  --d3p-code-definition: #ffa657;
+  --d3p-code-function: #d2a8ff;
+  --d3p-code-comment: #8b949e;
+  --d3p-code-punctuation: var(--sl-color-gray-2);
+}
+:root[data-theme="light"] .d3p {
+  --d3p-code-keyword: #cf222e;
+  --d3p-code-string: #0a3069;
+  --d3p-code-number: #0550ae;
+  --d3p-code-property: #116329;
+  --d3p-code-definition: #953800;
+  --d3p-code-function: #8250df;
+  --d3p-code-comment: #6e7781;
+  --d3p-code-punctuation: var(--sl-color-gray-2);
+}
+
+/* Chart */
+.d3p-stage {
+  min-width: 0;
+}
+.d3p-chart {
+  position: relative;
+  padding: 0.75rem;
+}
+.d3p-chart > svg,
+.d3p-chart > canvas {
+  display: block;
+}
+.d3p-error {
+  margin: 0;
+  padding: 0.5rem 0.875rem;
+  font-family: var(--__sl-font-mono);
+  font-size: var(--sl-text-xs);
+  color: var(--sl-color-red-high);
+  background: var(--sl-color-red-low);
+}
+
+/* Toolbar */
+.d3p-side {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-top: 1px solid var(--d3p-border);
+}
+.d3p-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.625rem;
+  border-bottom: 1px solid var(--d3p-border);
+  background: var(--d3p-chrome);
+}
+.d3p-tabs,
+.d3p-actions,
+.d3p-segment,
+.d3p-flavors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+.d3p button {
+  font: inherit;
+  font-size: var(--sl-text-sm);
+  font-weight: 500;
+  padding: 0.3125rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--d3p-field-radius);
+  background: none;
+  color: var(--d3p-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+.d3p button:hover:not(:disabled) {
+  color: var(--d3p-text);
+  background: var(--d3p-accent-soft);
+}
+.d3p button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.d3p button:focus-visible {
+  outline: none;
+  box-shadow: var(--d3p-ring);
+}
+.d3p button[aria-selected="true"],
+.d3p button[aria-pressed="true"] {
+  color: var(--d3p-text);
+  background: var(--d3p-surface);
+  border-color: var(--d3p-border);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+}
+.d3p-segment {
+  gap: 0.125rem;
+  padding: 0.125rem;
+  border: 1px solid var(--d3p-border);
+  border-radius: calc(var(--d3p-field-radius) + 0.125rem);
+}
+.d3p-segment button {
+  padding-block: 0.1875rem;
+  font-size: var(--sl-text-xs);
+}
+.d3p-panel {
+  flex: 1;
+  background: var(--d3p-surface);
+}
+
+/* Controls: one per row, its name and description beside its input. */
+.d3p-controls {
+  display: flex;
+  flex-direction: column;
+  padding: 0 1.25rem;
+}
+.d3p-control {
+  display: grid;
+  grid-template-areas:
+    "key input"
+    "desc input";
+  grid-template-columns: minmax(0, 2fr) minmax(12rem, 1fr);
+  grid-template-rows: auto 1fr;
+  gap: 0.25rem 2rem;
+  min-width: 0;
+  padding-block: 1rem;
+}
+.d3p-control > :last-child {
+  grid-area: input;
+  align-self: center;
+}
+.d3p-control + .d3p-control {
+  border-top: 1px solid var(--d3p-border);
+}
+.d3p-control-key {
+  grid-area: key;
+  font-family: var(--__sl-font-mono);
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
+  color: var(--d3p-text);
+}
+.d3p-control-desc {
+  grid-area: desc;
+  font-size: var(--sl-text-sm);
+  line-height: 1.55;
+  color: var(--d3p-muted);
+}
+.d3p-control-desc > * {
+  margin: 0;
+}
+.d3p-control-desc > * + * {
+  margin-top: 0.5rem;
+}
+.d3p-control-desc code {
+  padding: 0.0625rem 0.3125rem;
+  font-size: 0.85em;
+  color: var(--d3p-text);
+  background: var(--d3p-chrome);
+  border: 1px solid var(--d3p-border);
+  border-radius: 0.3125rem;
+}
+.d3p-control-desc pre {
+  padding: 0.5rem 0.75rem;
+  overflow-x: auto;
+  background: var(--d3p-chrome);
+  border: 1px solid var(--d3p-border);
+  border-radius: var(--d3p-field-radius);
+}
+.d3p-control-desc pre code {
+  padding: 0;
+  background: none;
+  border: none;
+}
+.d3p-control-desc a {
+  color: var(--sl-color-text-accent);
+}
+.d3p-field {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 0.625rem;
+  font: inherit;
+  font-family: var(--__sl-font-mono);
+  font-size: var(--sl-text-sm);
+  color: var(--d3p-text);
+  background: var(--d3p-field);
+  border: 1px solid var(--d3p-border);
+  border-radius: var(--d3p-field-radius);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.d3p-field:hover {
+  border-color: var(--d3p-border-strong);
+}
+.d3p-field:focus,
+.d3p-field:focus-within {
+  outline: none;
+  border-color: var(--d3p-accent);
+  box-shadow: var(--d3p-ring);
+}
+select.d3p-field {
+  padding-inline-end: 2rem;
+  appearance: none;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--d3p-muted) 50%),
+    linear-gradient(135deg, var(--d3p-muted) 50%, transparent 50%);
+  background-position:
+    right 0.9rem center,
+    right 0.6rem center;
+  background-size: 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+}
+
+/* A switch for booleans: the checkbox sits invisibly over the track. */
+.d3p-switch {
+  position: relative;
+  display: inline-flex;
+  gap: 0.625rem;
+  align-items: center;
+  align-self: flex-start;
+}
+.d3p-switch input {
+  position: absolute;
+  z-index: 1;
+  inset: 0 auto 0 0;
+  width: 2.5rem;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.d3p-switch-track {
+  position: relative;
+  width: 2.5rem;
+  height: 1.375rem;
+  border-radius: 999px;
+  background: var(--sl-color-gray-5);
+  transition: background 0.2s ease;
+}
+.d3p-switch-track::after {
+  content: "";
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  transition: transform 0.2s ease;
+}
+.d3p-switch input:checked + .d3p-switch-track {
+  background: var(--d3p-accent);
+}
+.d3p-switch input:checked + .d3p-switch-track::after {
+  transform: translateX(1.125rem);
+}
+.d3p-switch input:focus-visible + .d3p-switch-track {
+  box-shadow: var(--d3p-ring);
+}
+.d3p-switch-state {
+  font-family: var(--__sl-font-mono);
+  font-size: var(--sl-text-xs);
+  color: var(--d3p-muted);
+}
+
+/* Short option lists: one button per option. */
+.d3p-choice {
+  display: flex;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  border: 1px solid var(--d3p-border);
+  border-radius: calc(var(--d3p-field-radius) + 0.125rem);
+  background: var(--d3p-chrome);
+}
+.d3p-choice label {
+  position: relative;
+  flex: 1 1 auto;
+  cursor: pointer;
+}
+.d3p-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.d3p-choice span {
+  display: block;
+  padding: 0.25rem 0.5rem;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: var(--d3p-field-radius);
+  font-family: var(--__sl-font-mono);
+  font-size: var(--sl-text-xs);
+  color: var(--d3p-muted);
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+.d3p-choice label:hover span {
+  color: var(--d3p-text);
+}
+.d3p-choice input:checked + span {
+  color: var(--d3p-text);
+  background: var(--d3p-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
+}
+.d3p-choice input:focus-visible + span {
+  box-shadow: var(--d3p-ring);
+}
+
+/* Color: a swatch beside the value as text. */
+.d3p-color {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding-inline: 0.375rem 0.625rem;
+}
+.d3p-color input[type="color"] {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 1px solid var(--d3p-border);
+  border-radius: 0.375rem;
+  background: none;
+  cursor: pointer;
+}
+.d3p-color input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.d3p-color input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.3125rem;
+}
+.d3p-color input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
+/* A value the controls can't set, such as an array or a function. */
+.d3p-coded {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+}
+.d3p-coded code {
+  padding: 0.375rem 0.625rem;
+  font-size: var(--sl-text-xs);
+  color: var(--d3p-text);
+  background: var(--d3p-chrome);
+  border: 1px dashed var(--d3p-border-strong);
+  border-radius: var(--d3p-field-radius);
+}
+.d3p-coded button {
+  font-size: var(--sl-text-xs);
+  color: var(--sl-color-text-accent);
+}
+.d3p-empty {
+  margin: 0;
+  padding: 1.125rem 1.25rem;
+  font-size: var(--sl-text-sm);
+  color: var(--d3p-muted);
+}
+
+/* Code */
+.d3p-code pre {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--__sl-font-mono);
+  font-size: 0.8125rem;
+  white-space: pre-wrap;
+}
+.d3p-code .cm-editor {
+  max-height: 28rem;
+}
+.d3p-flavors {
+  padding: 0.375rem 0.625rem;
+  border-bottom: 1px solid var(--d3p-border);
+}
+.d3p-flavors button {
+  padding-inline: 0.625rem;
+}
+.d3p-copy {
+  margin-inline-start: auto;
+}
+
+@media (max-width: 40rem) {
+  .d3p-control {
+    grid-template-areas: "key" "desc" "input";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+  .d3p-control > :last-child {
+    margin-top: 0.375rem;
+  }
+}
+
+/* Split: the code beside the chart. */
+@media (min-width: 50rem) {
+  .d3p.is-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .d3p.is-split .d3p-side {
+    border-top: none;
+    border-inline-end: 1px solid var(--d3p-border);
+  }
+  .d3p.is-split .d3p-panel {
+    display: flex;
+    flex-direction: column;
+  }
+  .d3p.is-split .d3p-code,
+  .d3p.is-split .d3p-snippet {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+  .d3p.is-split .d3p-code > * {
+    flex: 1;
+  }
+  .d3p.is-split .d3p-code .cm-editor {
+    height: 100%;
+    max-height: none;
+  }
+  .d3p.is-split .d3p-stage {
+    align-self: center;
+  }
+}
+@media (max-width: 49.99rem) {
+  .d3p.is-split .d3p-stage {
+    border-top: 1px solid var(--d3p-border);
+  }
+}

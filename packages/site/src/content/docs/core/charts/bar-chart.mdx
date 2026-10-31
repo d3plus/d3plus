@@ -1,0 +1,71 @@
+---
+title: BarChart
+description: Bars sized by value along a discrete axis, grouped or stacked by series.
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basic from "~/examples/core/charts/bar-chart/basic.js?raw";
+import sorting from "~/examples/core/charts/bar-chart/sorting.js?raw";
+import stacked from "~/examples/core/charts/bar-chart/stacked.js?raw";
+import horizontal from "~/examples/core/charts/bar-chart/horizontal.js?raw";
+import pyramid from "~/examples/core/charts/bar-chart/pyramid.js?raw";
+import tooltip from "~/examples/core/charts/bar-chart/tooltip.js?raw";
+
+A bar chart draws one bar per row along a discrete axis. When stacked, each
+bar's fraction of its stack total is available to tooltip accessors as `share`
+(unless the data has its own `share` field).
+
+## Basic example
+
+A minimal grouped bar chart: the two series in `groupBy` share each `x`
+position and sit side by side, with each bar's height read from `y`.
+
+<Playground chart="BarChart" code={basic} controls={["x", "y"]} />
+
+## Sorting bars
+
+The discrete `x` axis sorts alphabetically by default; pass an `xSort`
+comparator to order the bars by a different field. Here the travel-time
+buckets follow their numeric `"ID Travel Time"` instead of their labels.
+
+<Playground chart="BarChart" code={sorting} />
+
+## Stacked bars
+
+Set `stacked: true` to stack the series into one bar per `x` position rather
+than grouping them side by side, emphasizing the combined total over
+per-series comparison.
+
+<Playground
+  chart="BarChart"
+  code={stacked}
+  controls={["stacked", "barPadding", "groupPadding", "discrete"]}
+/>
+
+## Horizontal bars
+
+Run the bars horizontally by setting `discrete: "y"` so the category sits on
+the vertical axis and the measured length extends along `x`. Reach for this
+when category labels are long or numerous.
+
+<Playground chart="BarChart" code={horizontal} controls={["discrete"]} />
+
+## Population pyramid
+
+Age ranges run up the discrete `y` axis while the `x` accessor negates the
+female `Population` so the sexes mirror around zero, and `xConfig.tickFormat`
+restores absolute labels with `formatAbbreviate` from `@d3plus/format`. Use it
+to read a population's age-and-sex structure at a glance.
+
+<Playground chart="BarChart" code={pyramid} controls={["stacked"]} />
+
+## Custom tooltip
+
+Replace the default hover card with `tooltipConfig`: `title` builds the header
+from the datum and `tbody` lists label/value rows. Hover a bar to see the
+custom formatting.
+
+<Playground chart="BarChart" code={tooltip} />
+
+<ApiReference name="BarChart" />

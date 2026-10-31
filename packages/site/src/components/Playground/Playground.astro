@@ -1,0 +1,64 @@
+---
+/**
+ * A live, editable example of a d3plus class. `code` declares the chart's
+ * `const config = {…}` (with any `data` it needs above it); `controls` names
+ * the config keys to offer as a form, defaulting to the code's own simple keys.
+ */
+import {findEntry} from "../../lib/api";
+import {uniqueId} from "../../lib/ids";
+import {markdown} from "../../lib/markdown";
+import {configKeys} from "./patch";
+import PlaygroundIsland from "./PlaygroundIsland";
+import type {Panel} from "./PlaygroundIsland";
+import type {ControlSpec} from "./types";
+import {SCALAR_CONTROLS} from "./types";
+import "./playground.css";
+
+interface Props {
+  /** The class to render, e.g. `Treemap`. */
+  chart: string;
+  /** Its package, when the name alone is ambiguous. */
+  pkg?: string;
+  /** The example's code, ending in `const config = {…};`. */
+  code: string;
+  /** The config keys offered as controls. */
+  controls?: string[];
+  /** The chart's height in pixels. */
+  height?: number;
+  /** The panel shown first: `"controls"`, `"code"`, or `"snippet"` (the framework code). */
+  panel?: Panel;
+  /** `"split"` shows the code beside the chart instead of below it. */
+  layout?: "stacked" | "split";
+}
+
+const {chart, pkg, code, controls, height = 400, panel, layout} = Astro.props;
+const id = uniqueId("playground");
+const entry = findEntry(chart, pkg);
+const source = code.trim() + "\n";
+const keys = controls ?? configKeys(source);
+const specs = keys.flatMap(key => {
+  const field = entry.config?.[key];
+  if (!field || !field.control || !SCALAR_CONTROLS.has(field.control))
+    return [];
+  const spec: ControlSpec = {
+    key,
+    control: field.control as ControlSpec["control"],
+    description: markdown(field.description),
+  };
+  if (field.options) spec.options = field.options;
+  if (field.defaultValue !== undefined) spec.defaultValue = field.defaultValue;
+  return [spec];
+});
+---
+
+<PlaygroundIsland
+  client:visible
+  id={id}
+  name={entry.name}
+  code={source}
+  controls={specs}
+  flavors={entry.flavors}
+  height={height}
+  panel={panel}
+  layout={layout}
+/>
