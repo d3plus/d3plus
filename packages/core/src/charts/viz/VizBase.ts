@@ -19,6 +19,7 @@ import type {VizInstance} from "./vizTypes.js";
 import {isPlainObject, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {D3plusConfig} from "../../utils/index.js";
 import validateShapeConfig from "../../shapes/validateShapeConfig.js";
+import {displayName} from "../../utils/displayName.js";
 
 /** The accessors `vizFields` generates, typed from their `D3plusConfig` properties. */
 type VizFieldAccessors = {
@@ -40,6 +41,7 @@ interface VizBase extends VizFieldAccessors {}
     the render lifecycle.
 */
 class VizBase extends BaseClass {
+  static readonly _displayName: string = "VizBase";
   // installFluent generates the config accessors (data, sum, x, …) and the
   // pipeline stamps derived `_`-prefixed state at runtime; the index signature
   // lets the chart code reach both through the type (same rationale as the
@@ -307,7 +309,7 @@ Defaults to an empty array (`[]`).
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): this | D3plusConfig {
     if (!arguments.length) return this.schema.shapeConfig;
-    if (isPlainObject(_)) validateShapeConfig(this.constructor.name, _);
+    if (isPlainObject(_)) validateShapeConfig(displayName(this), _);
     this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _);
     return this;
   }

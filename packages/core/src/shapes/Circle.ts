@@ -29,6 +29,7 @@ const circleSchema: ConfigField[] = [
     Creates SVG circles based on an array of data.
 */
 export default class Circle extends Shape {
+  static readonly _displayName: string = "Circle";
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private

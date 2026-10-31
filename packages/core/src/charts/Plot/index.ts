@@ -54,6 +54,7 @@ type PlotAccessor = (d: DataPoint, i: number) => number | Date | string;
 type PlotAccessorArg = string | PlotAccessor;
 
 import {defaultBuffers} from "../plotBuffers/defaultBuffers.js";
+import {displayName} from "../../utils/displayName.js";
 
 /** A y-axis config patch with its `domain` array reversed (y scales run top-down). */
 function reverseDomain(patch: unknown): unknown {
@@ -67,6 +68,7 @@ function reverseDomain(patch: unknown): unknown {
     Creates an x/y plot based on an array of data.
 */
 export default class Plot extends Viz {
+  static readonly _displayName: string = "Plot";
   _trendLine: TrendLineType = plotDef.defaults!.trendLine as TrendLineType;
   _trendLineConfig: Record<string, unknown> = trendLineDefaults();
 
@@ -494,7 +496,7 @@ Three more kinds draw chart notes: `"Callout"` anchors wrapped text in a box at 
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
     if (!arguments.length) return this._confidenceConfig;
-    validateConfidenceConfig(this.constructor.name, _);
+    validateConfidenceConfig(displayName(this), _);
     this._confidenceConfig = mergeConfigBag(
       this,
       "confidenceConfig",

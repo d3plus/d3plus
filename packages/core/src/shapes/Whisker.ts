@@ -109,6 +109,7 @@ function whiskerEndpointData(whisker: Whisker, ids: string[]): DataPoint[] {
     Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint shape.
 */
 export default class Whisker extends BaseClass {
+  static readonly _displayName: string = "Whisker";
   // installFluent generates the config accessors (length, orient, x, …) at
   // runtime; the index signature lets callers reach them through the type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -43,6 +43,7 @@ const timelineSchema: ConfigField[] = [
     Creates an interactive timeline brush component for selecting time periods within a visualization.
 */
 export default class Timeline extends Axis {
+  static readonly _displayName: string = "Timeline";
   _buttonBehaviorCurrent!: string;
   _hiddenHandles!: boolean;
   _playButtonClass!: TextBox;

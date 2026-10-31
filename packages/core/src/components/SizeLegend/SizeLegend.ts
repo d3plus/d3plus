@@ -78,6 +78,7 @@ new SizeLegend()
   .render();
 */
 export default class SizeLegend extends BaseClass {
+  static readonly _displayName: string = "SizeLegend";
   // installFluent generates the config accessors at runtime; the index
   // signature lets callers reach them through the type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

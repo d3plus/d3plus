@@ -72,6 +72,7 @@ const colorScaleSchema: ConfigField[] = [
     Creates an SVG color scale based on an array of data.
 */
 export default class ColorScale extends BaseClass {
+  static readonly _displayName: string = "ColorScale";
   // installFluent generates the config accessors (align, buckets, …) at
   // runtime; the index signature lets callers reach them through the type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -25,6 +25,7 @@ const lineSchema: ConfigField[] = [
     Creates SVG lines based on an array of data.
 */
 export default class Line extends Shape {
+  static readonly _displayName: string = "Line";
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private

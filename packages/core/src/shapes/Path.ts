@@ -16,6 +16,7 @@ const pathSchema: ConfigField[] = [
     Creates SVG Paths based on an array of data.
 */
 export default class Path extends Shape {
+  static readonly _displayName: string = "Path";
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private

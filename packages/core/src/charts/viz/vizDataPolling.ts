@@ -5,6 +5,7 @@ import {warnConfig} from "../../utils/configWarnings.js";
 import {createDataPoller} from "./dataPoller.js";
 import type Viz from "./Viz.js";
 import {canObserveVisibility, observeVisibility} from "./vizVisibility.js";
+import {displayName} from "../../utils/displayName.js";
 
 type PollPath = string | Record<string, unknown> | DataPoint[];
 type Formatter = Parameters<typeof load>[1];
@@ -187,7 +188,7 @@ export function syncDataPolling(viz: Viz): void {
     typeof interval === "number" && interval > 0 && isFinite(interval);
   if (wanted && !isPollable(viz._userData)) {
     warnConfig(
-      `${viz.constructor.name}: dataPollingInterval only polls data loaded from a URL.`,
+      `${displayName(viz)}: dataPollingInterval only polls data loaded from a URL.`,
     );
   }
   if (!wanted || viz._ssr || !isPollable(viz._userData)) {

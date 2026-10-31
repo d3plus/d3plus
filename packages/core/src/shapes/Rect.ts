@@ -27,6 +27,7 @@ const rectSchema: ConfigField[] = [
     Creates SVG rectangles based on an array of data.
 */
 export default class Rect extends Shape {
+  static readonly _displayName: string = "Rect";
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private

@@ -78,6 +78,7 @@ const tooltipSchema: ConfigField[] = [
     Creates HTML tooltips in the body of a webpage.
 */
 export default class Tooltip extends BaseClass {
+  static readonly _displayName: string = "Tooltip";
   // installFluent generates the config accessors (arrow, background, …) at
   // runtime; the index signature lets callers reach them through the type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
