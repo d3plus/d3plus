@@ -1,0 +1,43 @@
+---
+title: Alluvial
+description: "Creates an alluvial (parallel sets) chart from plain data rows: one column per entry in dimensions, one node per category in each column, and bands between neighboring columns sized by how many rows (or how much value) flow between each pair of categories."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/alluvial/basic-example.js?raw";
+import summedValues from "~/examples/core/charts/alluvial/summed-values.js?raw";
+import colorBy from "~/examples/core/charts/alluvial/color-by.js?raw";
+import accessorDimension from "~/examples/core/charts/alluvial/accessor-dimension.js?raw";
+
+Creates an alluvial (parallel sets) chart from plain data rows: one
+column per entry in `dimensions`, one node per category in each column,
+and bands between neighboring columns sized by how many rows (or how
+much `value`) flow between each pair of categories. Each band keeps the
+color of its rows' category in the `colorBy` column across every column.
+
+## Basic example
+
+Each entry in `dimensions` is a column, and each category in it a node. With no `value`, every row counts once, so a band's width is the number of orders that share its two categories. Bands keep their region's color all the way across, so each region's orders can be followed from left to right.
+
+<Playground chart="Alluvial" code={basicExample} controls={["dimensions","nodeSort"]} />
+
+## Summed values
+
+When each row is already a count, `value` sums it. A `{value, title}` dimension names its column; here the Titanic's 2,201 passengers and crew flow from class to survival.
+
+<Playground chart="Alluvial" code={summedValues} controls={["value","dimensions"]} />
+
+## Color by
+
+`colorBy` picks the column whose categories color the bands (a key, a title, or a column index). Coloring by survival shows, in every column, how many survived. `nodeSort: "data"` keeps the categories in the order they appear in the data.
+
+<Playground chart="Alluvial" code={colorBy} controls={["colorBy","nodeSort"]} />
+
+## Accessor dimension
+
+A dimension can be computed with an accessor. `nodeSort: "value"` orders every column largest first, in place of the default `"crossings"`, which orders each column after the first by where its flows come from to untangle the bands.
+
+<Playground chart="Alluvial" code={accessorDimension} controls={["dimensions","nodeSort"]} />
+
+<ApiReference name="Alluvial" pkg="core" />

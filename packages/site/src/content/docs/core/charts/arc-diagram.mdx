@@ -1,0 +1,41 @@
+---
+title: ArcDiagram
+description: "Places a network's nodes in a row along one line and draws each link as an arc between its two nodes, which shows the network's structure without a force layout's tangle, in an order you choose."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/arc-diagram/basic-example.js?raw";
+import sortByGroup from "~/examples/core/charts/arc-diagram/sort-by-group.js?raw";
+import directedArrows from "~/examples/core/charts/arc-diagram/directed-arrows.js?raw";
+import bothSides from "~/examples/core/charts/arc-diagram/both-sides.js?raw";
+
+Places a network's nodes in a row along one line and draws each link as
+an arc between its two nodes, which shows the network's structure
+without a force layout's tangle, in an order you choose.
+
+## Basic example
+
+Takes the same `nodes` and `links` as Network. Nodes sit evenly along one line in their `nodes` order, and each link arcs between its two nodes: the farther apart the nodes, the taller the arc.
+
+<Playground chart="ArcDiagram" code={basicExample} controls={["nodes","links","orient","arcSide"]} />
+
+## Sort by group
+
+`nodeSort: "group"` gathers each team together (by the `color` value, then by label), so links within a team draw as small, low arcs and the few links between teams stand out as the tall ones. `"label"`, `"degree"` (most connected first), or a comparator reorder the line too. `linkSize` sets each arc's thickness from the number of meetings.
+
+<Playground chart="ArcDiagram" code={sortByGroup} controls={["nodeSort","color","linkSize"]} />
+
+## Directed arrows
+
+`arrows` draws an arrowhead where each arc meets its target node (`"source"`, `"both"`, or an accessor pick other ends), pointing along the arc.
+
+<Playground chart="ArcDiagram" code={directedArrows} controls={["arrows","arrowSize"]} />
+
+## Both sides
+
+`arcSide: "both"` arcs each link running forward along the line above it, and each link running back below it, so loops back to earlier steps read apart from the forward flow. `linkColor: "source"` colors every arc like the node it leaves.
+
+<Playground chart="ArcDiagram" code={bothSides} controls={["arcSide","arrows","linkColor"]} />
+
+<ApiReference name="ArcDiagram" pkg="core" />

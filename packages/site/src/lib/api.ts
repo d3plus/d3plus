@@ -49,8 +49,37 @@ export function loadApi(): ApiEntry[] {
     throw new Error(
       "src/data/api.json is missing: build the packages' ESM and types, then run `pnpm --filter @d3plus/site run manifest`.",
     );
-  cache = JSON.parse(fs.readFileSync(MANIFEST, "utf8")) as ApiEntry[];
+  cache = linkEntries(
+    JSON.parse(fs.readFileSync(MANIFEST, "utf8")) as ApiEntry[],
+  );
   return cache;
+}
+
+/**
+ * Points the descriptions' links to another export (`[formatDate](#formatDate)`,
+ * written for a single API page) at that export's own page.
+ */
+export function linkEntries(entries: ApiEntry[]): ApiEntry[] {
+  const pages = new Map(entries.map(e => [e.name, `/${entryId(e)}/`]));
+  const link = (text: string) =>
+    text.replace(/\]\(#([A-Za-z_$][\w$]*)\)/g, (all, name: string) =>
+      pages.has(name) ? `](${pages.get(name)})` : all,
+    );
+  return entries.map(entry => ({
+    ...entry,
+    description: link(entry.description),
+    ...(entry.config && {
+      config: Object.fromEntries(
+        Object.entries(entry.config).map(([key, field]) => [
+          key,
+          {...field, description: link(field.description)},
+        ]),
+      ),
+    }),
+    ...(entry.params && {
+      params: entry.params.map(p => ({...p, description: link(p.description)})),
+    }),
+  }));
 }
 
 /** Finds a documented export by name (and package, when names repeat). */

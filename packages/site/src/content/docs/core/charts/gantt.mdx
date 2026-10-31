@@ -1,0 +1,57 @@
+---
+title: Gantt
+description: "Creates a Gantt chart from an array of tasks: one labeled row per task, its bar running from start to end over a time axis."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/gantt/basic-example.js?raw";
+import dependencies from "~/examples/core/charts/gantt/dependencies.js?raw";
+import progress from "~/examples/core/charts/gantt/progress.js?raw";
+import phases from "~/examples/core/charts/gantt/phases.js?raw";
+import drillingIntoPhases from "~/examples/core/charts/gantt/drilling-into-phases.js?raw";
+import workingDays from "~/examples/core/charts/gantt/working-days.js?raw";
+
+Creates a Gantt chart from an array of tasks: one labeled row per task,
+its bar running from `start` to `end` over a time axis. Tasks can be
+grouped into phases (`group`), drawn as milestones (`milestone`), linked
+by dependency arrows (`dependencies`), and filled by their `progress`,
+with an optional `today` line.
+
+## Basic example
+
+Each task gets its own row, labeled in the column on the left, with a bar from its `start` to its `end` on the time axis along the top. A task that starts and ends on the same day is a milestone, drawn as a diamond.
+
+<Playground chart="Gantt" code={basicExample} controls={["start","end","taskSort","labelWidth"]} />
+
+## Dependencies
+
+Each task's `dependencies` lists the ids of the tasks it waits on. An arrow leaves each predecessor's end and turns into the dependent's start; when the dependent starts before there is room to turn, the arrow doubles back between the rows. Arrows take the chart's text color at reduced opacity, and stay lit when either end is hovered.
+
+<Playground chart="Gantt" code={dependencies} controls={["dependencies","dependencyConfig"]} />
+
+## Progress
+
+A task's `progress` (a fraction such as `0.6`, or a percent string such as `"60%"`) fills that share of its bar in the task's color, and leaves the rest in a paler shade. A milestone not yet reached draws pale and outlined. `today` marks a date with a labeled line; `today: true` marks the current time.
+
+<Playground chart="Gantt" code={progress} controls={["progress","today","todayConfig"]} />
+
+## Phases
+
+`group` gathers tasks under a header row for each phase, with a bracket spanning its tasks; the tasks indent beneath it. Groups appear in the order of their first task, so `taskSort: "start"` orders both.
+
+<Playground chart="Gantt" code={phases} controls={["group","taskSort","taskLabelConfig"]} />
+
+## Drilling into phases
+
+With two `groupBy` levels, the chart starts with one bar per phase, spanning its earliest start to its latest end with its tasks' average progress. Clicking a phase drills into its tasks, and Back steps out.
+
+<Playground chart="Gantt" code={drillingIntoPhases} controls={["groupBy","depth"]} />
+
+## Working days
+
+`axisConfig.rangeBreaks` hides time on the axis: `"weekends"` closes up Saturdays and Sundays, so bars show working days.
+
+<Playground chart="Gantt" code={workingDays} controls={["axisConfig"]} />
+
+<ApiReference name="Gantt" pkg="core" />

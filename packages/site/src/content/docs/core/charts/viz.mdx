@@ -62,6 +62,8 @@ only along the grid's left and bottom edges.
 
 <Playground chart="BarChart" code={smallMultiples} controls={["facet"]} height={520} />
 
+### Small multiples: line plot
+
 The grid sizes itself: the column count is the one that draws the panels
 largest for the chart's shape, so there is nothing to set.
 `facetConfig.padding` changes the space between panels. To pin the grid
@@ -71,11 +73,15 @@ pointer.
 
 <Playground chart="LinePlot" code={smallMultiplesLinePlot} controls={[]} height={520} />
 
+### Small multiples: independent scales
+
 With `scales: "independent"`, each panel fits its own rows, which shows the
 shape of small regions at the cost of comparing heights across panels. Every
 panel then labels its own axes.
 
 <Playground chart="BarChart" code={smallMultiplesIndependentScales} controls={[]} height={520} />
+
+### Small multiples: donut
 
 Any chart type can be faceted. `sort` orders the panels: `"ascending"` (the
 default), `"descending"`, `"data"` (first appearance), a comparator, or an
@@ -83,10 +89,14 @@ explicit list of values.
 
 <Playground chart="Donut" code={smallMultiplesDonut} controls={[]} height={520} />
 
+### Small multiples: treemap
+
 One timeline drives every panel. `title` formats each panel's title from its
 facet value and rows (or `false` hides them), and `titleConfig` styles them.
 
 <Playground chart="Treemap" code={smallMultiplesTreemap} controls={[]} height={520} />
+
+### Small multiples: matrix
 
 A colorScale is shared too: one scale, spanning the values every panel draws,
 colors all of them.
