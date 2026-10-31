@@ -149,6 +149,15 @@ export default [
     },
   },
   {
+    // A function's examples show how to call it, so a value they set up
+    // isn't always read again.
+    files: [
+      "packages/site/src/examples/{color,data,dom,format,locales,math,text}/**/*.js",
+      "packages/site/src/examples/core/utils/**/*.js",
+    ],
+    rules: {"no-unused-vars": "off"},
+  },
+  {
     // Test functions come from explicit `vitest` imports.
     files: ["**/test/**/*.js", "**/test/**/*.mjs"],
     rules: {

@@ -1,0 +1,36 @@
+---
+title: applyConfig
+description: "Merges the supplied config objects over a fresh {select: node} target, routes any <field> + <field>Format pairs to their loader methods, then applies whatever remains via instance.config()."
+---
+
+import ApiReference from "~/components/ApiReference.astro";
+
+Merges the supplied config objects over a fresh `{select: node}` target,
+routes any `<field>` + `<field>Format` pairs to their loader methods, then
+applies whatever remains via `instance.config()`. Shared by every d3plus
+framework wrapper so this routing lives in exactly one place.
+
+## Basic example
+
+What every framework wrapper does with the props it receives: merge the config objects left to right (later ones win, `undefined` entries are skipped) over `{select: container}`, then hand the result to the instance's `config()`.
+
+```js
+import {applyConfig} from "@d3plus/dom";
+
+applyConfig(viz, container, {width: 300, title: "Default title"}, undefined, {width: 400, legend: false});
+// viz.config({select: container, width: 400, title: "Default title", legend: false})
+```
+
+## Format routing
+
+A data-like field paired with its `<field>Format` function (`data`/`dataFormat`, and likewise `nodes`, `links`, and `topojson`) is routed to the matching loader method, which takes the formatter as its second argument, and both keys are removed before the rest goes through `config()`.
+
+```js
+import {applyConfig} from "@d3plus/dom";
+
+applyConfig(viz, container, {data: "/data/fruits.csv", dataFormat: rows => rows.slice(0, 3), groupBy: "name"});
+// viz.data("/data/fruits.csv", rows => rows.slice(0, 3))
+// viz.config({select: container, groupBy: "name"})
+```
+
+<ApiReference name="applyConfig" pkg="dom" />

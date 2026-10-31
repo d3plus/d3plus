@@ -1,0 +1,18 @@
+---
+title: addToQueue
+description: "Adds the provided value to the internal queue to be loaded, if necessary."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/add-to-queue/basic-example.js?raw";
+
+Adds the provided value to the internal queue to be loaded, if necessary. This is used internally in new d3plus visualizations that fold in additional data sources, like the nodes and links of Network or the topojson of Geomap.
+
+## Basic example
+
+Charts call this for every data-like config (`data`, `nodes`, `links`, `topojson`): a value that must be fetched is queued as a `[load, paths, formatter, key]` entry to run before the next draw, while an inline array is stored under `key` right away. Queuing the same key twice replaces the earlier entry.
+
+<Calls code={basicExample} label="addToQueue: Basic example" />
+
+<ApiReference name="addToQueue" pkg="data" />

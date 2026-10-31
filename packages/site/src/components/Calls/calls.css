@@ -1,0 +1,101 @@
+/* Each call beside its value, under the code. */
+.d3p-results {
+  display: grid;
+  grid-template-columns: fit-content(50%) auto minmax(0, 1fr);
+  gap: 0.5rem 0.75rem;
+  align-items: baseline;
+  padding: 0.875rem 1rem;
+  border-top: 1px solid var(--d3p-border);
+  font-family: var(--__sl-font-mono);
+  font-size: var(--sl-text-xs);
+}
+.d3p-results:empty {
+  display: none;
+}
+.d3p-result {
+  display: contents;
+}
+.d3p-call {
+  color: var(--d3p-muted);
+  overflow-wrap: anywhere;
+}
+.d3p-arrow {
+  color: var(--d3p-border-strong);
+}
+.d3p-value {
+  min-width: 0;
+  color: var(--d3p-text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.d3p-value pre {
+  margin: 0;
+  font: inherit;
+  white-space: pre-wrap;
+}
+.d3p-value.is-pending {
+  color: var(--d3p-muted);
+  font-weight: 400;
+}
+.d3p-value.is-error {
+  color: var(--sl-color-red-high);
+  font-weight: 400;
+}
+.d3p-results .d3p-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  border-radius: var(--d3p-field-radius);
+}
+.d3p-swatches {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-inline-end: 0.5rem;
+  vertical-align: -0.2em;
+}
+.d3p-swatch {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--d3p-border);
+  border-radius: 0.25rem;
+}
+/* What the code draws, for examples that draw into `container`. */
+.d3p-container {
+  margin: 0 1rem 1rem;
+  padding: 0.75rem;
+  min-height: 3rem;
+  border: 1px dashed var(--d3p-border-strong);
+  border-radius: var(--d3p-field-radius);
+  font-size: var(--sl-text-sm);
+}
+.d3p-container[hidden] {
+  display: none;
+}
+.d3p-calls-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1rem 0.75rem;
+}
+@media (max-width: 40rem) {
+  .d3p-results {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .d3p-arrow {
+    display: none;
+  }
+  .d3p-value {
+    margin-bottom: 0.5rem;
+  }
+}
+/* What the code logged while it ran, such as a config warning. */
+.d3p-log {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--d3p-field-radius);
+  color: var(--sl-color-orange-high);
+  background: var(--sl-color-orange-low);
+}
+.d3p-log.is-error {
+  color: var(--sl-color-red-high);
+  background: var(--sl-color-red-low);
+}

@@ -1,0 +1,18 @@
+---
+title: colorLegible
+description: "Darkens a color so that it will appear legible on a white background."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/color/color-legible/basic-example.js?raw";
+
+Darkens a color so that it will appear legible on a white background.
+
+## Basic example
+
+Each pale input is darkened (its lightness capped, saturation clamped) to a deeper shade of the same hue that stays readable as text on a white background.
+
+<Calls code={basicExample} label="colorLegible: Basic example" />
+
+<ApiReference name="colorLegible" pkg="color" />

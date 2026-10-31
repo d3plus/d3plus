@@ -1,0 +1,25 @@
+---
+title: linearConfidence
+description: "Builds the confidence band for the mean response of a simple linear regression of points: ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/linear-confidence/basic-example.js?raw";
+import confidenceLevel from "~/examples/math/linear-confidence/confidence-level.js?raw";
+
+Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)`. Returns a function mapping an x value to its `[lower, upper]` bounds, or `null` when there are fewer than three usable points or the x values do not vary.
+
+## Basic example
+
+Fits a straight line to the points and returns a function giving the `[lower, upper]` bounds of the 95% confidence band for the line at any x. The band is narrowest at the mean x and widens toward the ends, where the fit is least certain. Plot charts draw this behind a linear trend line.
+
+<Calls code={basicExample} label="linearConfidence: Basic example" />
+
+## Confidence level
+
+The second argument sets the confidence level: 80% gives a tighter band than the default, 99% a wider one. The result is `null` when fewer than three points are usable or the x values do not vary.
+
+<Calls code={confidenceLevel} label="linearConfidence: Confidence level" />
+
+<ApiReference name="linearConfidence" pkg="math" />

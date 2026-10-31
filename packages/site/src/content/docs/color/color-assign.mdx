@@ -1,0 +1,25 @@
+---
+title: colorAssign
+description: "Assigns a color to a value using a predefined set of defaults."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/color/color-assign/basic-example.js?raw";
+import overrides from "~/examples/color/color-assign/overrides.js?raw";
+
+Assigns a color to a value using a predefined set of defaults.
+
+## Basic example
+
+Turns any data value into a color using `colorDefaults`: `null` and `undefined` get the `missing` grey, `true` and `false` get the `on` green and `off` red, a valid CSS color is passed through unchanged, and any other value is fed to the ordinal `scale`, so the same string (`"Apples"`) always gets the same color.
+
+<Calls code={basicExample} label="colorAssign: Basic example" />
+
+## Overrides
+
+The second argument overrides any of the default slots for that call. Charts pass their `colorDefaults` config here, which is how a theme changes the missing, on, and off colors everywhere at once.
+
+<Calls code={overrides} label="colorAssign: Overrides" />
+
+<ApiReference name="colorAssign" pkg="color" />

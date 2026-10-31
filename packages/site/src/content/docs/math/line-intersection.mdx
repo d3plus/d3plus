@@ -1,0 +1,32 @@
+---
+title: lineIntersection
+description: "Finds the intersection point (if there is one) of the lines p1q1 and p2q2."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/line-intersection/basic-example.js?raw";
+import beyondTheSegments from "~/examples/math/line-intersection/beyond-the-segments.js?raw";
+import parallel from "~/examples/math/line-intersection/parallel.js?raw";
+
+Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
+
+## Basic example
+
+Each line is given by two `[x, y]` points. The result is where the two lines meet; here the segments themselves cross, so the point lies on both.
+
+<Calls code={basicExample} label="lineIntersection: Basic example" />
+
+## Beyond the segments
+
+The points define infinite lines, not bounded segments, so an intersection is returned even when it falls past the ends of both segments (dashed). Use `segmentsIntersect` when the segments themselves must cross.
+
+<Calls code={beyondTheSegments} label="lineIntersection: Beyond the segments" />
+
+## Parallel
+
+Parallel (or coincident) lines never meet, so the result is `null` instead of a point.
+
+<Calls code={parallel} label="lineIntersection: Parallel" />
+
+<ApiReference name="lineIntersection" pkg="math" />

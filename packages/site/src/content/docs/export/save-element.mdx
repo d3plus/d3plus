@@ -1,0 +1,35 @@
+---
+title: saveElement
+description: "Downloads an HTML or SVG element as a PNG, JPG, or SVG file."
+---
+
+import ApiReference from "~/components/ApiReference.astro";
+
+Downloads an HTML or SVG element as a PNG, JPG, or SVG file.
+
+## Basic example
+
+Captures a DOM element and downloads it as `png` (default), `jpg`, or `svg`, named by `filename` plus the matching extension. Here the target is the white container, so the padding around the badge is part of the image. `callback` runs once the file has been handed to the browser; the status line shows it firing.
+
+```js
+import {saveElement} from "@d3plus/export";
+
+const container = document.querySelector("#badge");
+
+saveElement(container, {type: "png", filename: "d3plus-demo", callback: () => console.log("saved")});
+saveElement(container, {type: "jpg", filename: "d3plus-demo"}, {backgroundColor: "#ffffff"});
+saveElement(container, {type: "svg", filename: "d3plus-demo"});
+```
+
+## Svg element target
+
+When the element passed is an `<svg>` and the type is `svg`, the markup is serialized directly instead of being wrapped in an HTML `<foreignObject>`, which is what vector editors such as Figma and Illustrator need to open the file. A chart's own `<svg>` is `viz.select().node()` once it has rendered.
+
+```js
+import {saveElement} from "@d3plus/export";
+
+// The element is itself an <svg>, so it is serialized as-is.
+saveElement(document.querySelector("#badge svg"), {type: "svg", filename: "d3plus-demo"});
+```
+
+<ApiReference name="saveElement" pkg="export" />

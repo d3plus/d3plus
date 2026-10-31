@@ -1,0 +1,39 @@
+---
+title: textWrap
+description: "Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/text/text-wrap/basic-example.js?raw";
+import circleShape from "~/examples/text/text-wrap/circle-shape.js?raw";
+import fontStyling from "~/examples/text/text-wrap/font-styling.js?raw";
+import maxLinesTruncation from "~/examples/text/text-wrap/max-lines-truncation.js?raw";
+
+Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
+
+## Basic example
+
+`textWrap()` returns a generator: configure it, then call it with a string. `width(200)` is the only setting here, so the sentence is broken into as many 200px lines as it needs at the default 10px font, and `widths` reports the measured pixel width of each line.
+
+<Calls code={basicExample} label="textWrap: Basic example" />
+
+## Circle shape
+
+`shape("circle")` limits each line to the chord of the circle at that line's height, so lines near the top and bottom are shorter than those through the middle. This is how labels fit inside Pack and Pie shapes.
+
+<Calls code={circleShape} label="textWrap: Circle shape" />
+
+## Font styling
+
+`fontSize`, `fontWeight`, and `fontFamily` feed the measurement, so a bold 18px Inter line holds fewer words than the 10px default. The result re-measures once the web font has loaded.
+
+<Calls code={fontStyling} label="textWrap: Font styling" />
+
+## Max lines truncation
+
+`maxLines(2)` keeps only the first two lines and sets `truncated: true` so a caller such as `TextBox` knows to add an ellipsis.
+
+<Calls code={maxLinesTruncation} label="textWrap: Max lines truncation" />
+
+<ApiReference name="textWrap" pkg="text" />

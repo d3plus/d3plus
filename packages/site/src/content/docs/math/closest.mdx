@@ -1,0 +1,18 @@
+---
+title: closest
+description: "Finds the closest numeric value in an array."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/closest/basic-example.js?raw";
+
+Finds the closest numeric value in an array.
+
+## Basic example
+
+Returns the array value nearest to `n`. Ties keep the earlier value (`2.5` against `[1, 2, 3, 4]` gives `2`), and an empty array gives `undefined`. Axes use it to snap a pointer position to the nearest tick or data value.
+
+<Calls code={basicExample} label="closest: Basic example" />
+
+<ApiReference name="closest" pkg="math" />

@@ -1,0 +1,18 @@
+---
+title: locale
+description: "d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when formatting dates on axes, timelines, and tooltips."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/locales/dictionaries/locale/basic-example.js?raw";
+
+d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when formatting dates on axes, timelines, and tooltips.
+
+## Basic example
+
+Date and time definitions in the shape `d3-time-format`'s `timeFormatLocale` expects: the `%x`/`%X`/`%c` patterns, AM/PM periods, and day and month names. Axes and timelines use the entry matching the chart's `locale`; the preview formats one date three ways with the chosen entry.
+
+<Calls code={basicExample} label="locale: Basic example" />
+
+<ApiReference name="locale" pkg="locales" />

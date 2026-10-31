@@ -1,0 +1,25 @@
+---
+title: colorSubtract
+description: "Subtracts one color from another."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/color/color-subtract/basic-example.js?raw";
+import withOpacity from "~/examples/color/color-subtract/with-opacity.js?raw";
+
+Subtracts one color from another.
+
+## Basic example
+
+The inverse of `colorAdd`: removes the second color's contribution from the first in HSL, pushing the hue away from it and un-averaging saturation and lightness. Taking blue out of magenta leaves red; taking yellow out of orange leaves a redder orange.
+
+<Calls code={basicExample} label="colorSubtract: Basic example" />
+
+## With opacity
+
+The weights work as in `colorAdd`, scaling the subtracted terms before they are applied, so a partial weight swings the hue rather than fading: magenta minus a quarter of blue lands on cyan, minus half on green, and only the full weight reaches red.
+
+<Calls code={withOpacity} label="colorSubtract: With opacity" />
+
+<ApiReference name="colorSubtract" pkg="color" />

@@ -1,0 +1,18 @@
+---
+title: fontExists
+description: "Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or false if none are installed on the user's machine."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/font-exists/basic-example.js?raw";
+
+Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine.
+
+## Basic example
+
+Returns the first family in a list that the browser can actually render, or `false` when none can. A family is judged by measuring a test string with it and comparing against the generic fallbacks, so the answers depend on the fonts installed on the viewing machine, and a web font that has not finished loading reads as missing until it arrives. Charts use this to pick a real font from a `fontFamily` stack.
+
+<Calls code={basicExample} label="fontExists: Basic example" />
+
+<ApiReference name="fontExists" pkg="dom" />

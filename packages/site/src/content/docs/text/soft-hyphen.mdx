@@ -1,0 +1,19 @@
+---
+title: softHyphen
+description: "The soft hyphen (U+00AD): textSplit ends each syllable of a hyphenated word with it, and textWrap draws it as a hyphen only where a line breaks."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/text/soft-hyphen/basic-example.js?raw";
+
+The soft hyphen (U+00AD): `textSplit` ends each syllable of a hyphenated
+word with it, and `textWrap` draws it as a hyphen only where a line breaks.
+
+## Basic example
+
+`textSplit` ends every syllable but the last with the soft hyphen (shown here as ‐). It is invisible in text, so `textWrap` draws a hyphen only where it breaks a line mid-word and strips the rest.
+
+<Calls code={basicExample} label="softHyphen: Basic example" />
+
+<ApiReference name="softHyphen" pkg="text" />

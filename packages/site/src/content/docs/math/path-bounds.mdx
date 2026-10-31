@@ -1,0 +1,28 @@
+---
+title: pathBounds
+description: "Computes the exact bounding box of an SVG path string with no DOM involved, evaluating the true extrema of each Bézier and arc segment (not a sampled approximation)."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import arcs from "~/examples/math/path-bounds/arcs.js?raw";
+import basicExample from "~/examples/math/path-bounds/basic-example.js?raw";
+
+Computes the exact bounding box of an SVG path string with no DOM involved,
+evaluating the true extrema of each Bézier and arc segment (not a sampled
+approximation). Returns `{x, y, width, height}`, or a zero-size box at the
+origin for an empty/unparseable path.
+
+## Arcs
+
+Arc commands are handled too: the box reaches the top of the semicircle even though neither endpoint is there. Server-side rendering uses this to size `<path>` output without a browser.
+
+<Calls code={arcs} label="pathBounds: Arcs" />
+
+## Basic example
+
+The exact bounding box of a path, computed from the true extrema of each curve rather than from its control points or a sampled approximation, with no DOM involved. The control points of this Bézier sit at y = 10, but the curve itself never gets that high, and the box reflects the curve.
+
+<Calls code={basicExample} label="pathBounds: Basic example" />
+
+<ApiReference name="pathBounds" pkg="math" />

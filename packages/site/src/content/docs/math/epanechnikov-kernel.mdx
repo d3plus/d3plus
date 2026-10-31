@@ -1,0 +1,21 @@
+---
+title: epanechnikovKernel
+description: "The Epanechnikov kernel, scaled to unit variance like the gaussian kernel so a bandwidth smooths about as much with either: 3 / (4√5) · (1 - u²/5) for |u| ≤ √5, otherwise 0."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/epanechnikov-kernel/basic-example.js?raw";
+
+The Epanechnikov kernel, scaled to unit variance like the gaussian kernel
+so a bandwidth smooths about as much with either:
+`3 / (4√5) · (1 - u²/5)` for `|u| ≤ √5`, otherwise 0. Its density reaches
+exactly zero √5 bandwidths past the outermost observations.
+
+## Basic example
+
+A parabola-shaped kernel scaled to unit variance, like `gaussianKernel`, so one bandwidth smooths about as much with either. Unlike the gaussian it reaches exactly zero √5 (about 2.24) bandwidths from an observation.
+
+<Calls code={basicExample} label="epanechnikovKernel: Basic example" />
+
+<ApiReference name="epanechnikovKernel" pkg="math" />

@@ -1,0 +1,32 @@
+---
+title: formatDateFull
+description: "Formats a date to be read on its own, such as in a tooltip: the same interval as formatDate picks from dataArray (year, quarter, month, day, hour, or finer), always with the year and, below a day, the time of day."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/format/format-date-full/basic-example.js?raw";
+import customFormatter from "~/examples/format/format-date-full/custom-formatter.js?raw";
+import intervalDetection from "~/examples/format/format-date-full/interval-detection.js?raw";
+
+Formats a date to be read on its own, such as in a tooltip: the same interval as [formatDate](#formatDate) picks from `dataArray` (year, quarter, month, day, hour, or finer), always with the year and, below a day, the time of day.
+
+## Basic example
+
+`formatDateFull` labels a date at the same interval `formatDate` picks from the whole series, but every label carries its year, so each one can be read alone (d3plus uses it for time values in tooltips). `formatDate` leaves the year off middle ticks, where the neighbouring labels supply it.
+
+<Calls code={basicExample} label="formatDateFull: Basic example" />
+
+## Custom formatter
+
+The third argument replaces d3's `timeFormat` with any function that turns a specifier into a formatter. Here a `timeFormatLocale` built from the `es-ES` dictionary in `@d3plus/locales` supplies Spanish month names.
+
+<Calls code={customFormatter} label="formatDateFull: Custom formatter" />
+
+## Interval detection
+
+The spacing between neighbouring dates picks the interval (year, quarter, month, day, hour, or finer). Below a day, the label adds the time of day.
+
+<Calls code={intervalDetection} label="formatDateFull: Interval detection" />
+
+<ApiReference name="formatDateFull" pkg="format" />

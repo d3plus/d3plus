@@ -1,0 +1,28 @@
+---
+title: path2polygon
+description: "Transforms a path string into an Array of points, with no DOM involved."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/path2polygon/basic-example.js?raw";
+import segmentLength from "~/examples/math/path2polygon/segment-length.js?raw";
+
+Transforms a path string into an Array of points, with no DOM involved.
+Straight segments contribute their endpoints; curves and arcs are flattened
+into line segments no longer than `segmentLength`. Higher `segmentLength`
+values lower computation time but yield more rigid curves.
+
+## Basic example
+
+Turns an SVG path string into an array of `[x, y]` points without touching the DOM: straight segments contribute their endpoints and curves are flattened into straight pieces no longer than `segmentLength` (50 by default). The grey curve is the path, the blue polyline its polygon.
+
+<Calls code={basicExample} label="path2polygon: Basic example" />
+
+## Segment length
+
+A shorter `segmentLength` follows the curve closely at the cost of more points; a longer one is faster but more angular. Shapes use the polygon for hit-testing and for fitting labels with `largestRect`.
+
+<Calls code={segmentLength} label="path2polygon: Segment length" />
+
+<ApiReference name="path2polygon" pkg="math" />

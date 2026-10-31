@@ -1,0 +1,18 @@
+---
+title: formatAbbreviate
+description: "Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/format/format-abbreviate/basic-example.js?raw";
+
+Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` to `"1.2M"`).
+
+## Basic example
+
+Rounds each number to about three significant digits and appends an SI-style suffix, so `1234` reads as `1.23k`, `1234567` as `1.23M`, and `1234567890` as `1.23B`, while a small fraction like `0.0042` is left unabbreviated.
+
+<Calls code={basicExample} label="formatAbbreviate: Basic example" />
+
+<ApiReference name="formatAbbreviate" pkg="format" />

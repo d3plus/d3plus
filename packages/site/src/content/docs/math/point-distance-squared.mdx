@@ -1,0 +1,18 @@
+---
+title: pointDistanceSquared
+description: "Returns the squared euclidean distance between two points."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/point-distance-squared/basic-example.js?raw";
+
+Returns the squared euclidean distance between two points.
+
+## Basic example
+
+The distance before the square root is taken. Comparing squared distances ranks points by distance just as well and skips the `Math.sqrt`, so the layout code uses this whenever it only needs to know which of several points is nearest.
+
+<Calls code={basicExample} label="pointDistanceSquared: Basic example" />
+
+<ApiReference name="pointDistanceSquared" pkg="math" />

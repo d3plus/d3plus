@@ -1,0 +1,19 @@
+---
+title: formatLocale
+description: "formatLocale A set of default locale formatters used when assigning suffixes and currency in numbers."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/locales/dictionaries/format-locale/basic-example.js?raw";
+
+formatLocale
+A set of default locale formatters used when assigning suffixes and currency in numbers.
+
+## Basic example
+
+Number-formatting rules per locale: the thousands and decimal delimiters, digit grouping, currency affixes, and the suffixes `formatAbbreviate` appends (k, M, B, …). Pick a locale to see the entry and the same three numbers formatted with it.
+
+<Calls code={basicExample} label="formatLocale: Basic example" />
+
+<ApiReference name="formatLocale" pkg="locales" />

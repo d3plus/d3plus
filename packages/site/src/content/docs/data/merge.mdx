@@ -1,0 +1,18 @@
+---
+title: merge
+description: "Combines an Array of Objects together and returns a new Object."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/merge/basic-example.js?raw";
+
+Combines an Array of Objects together and returns a new Object.
+
+## Basic example
+
+Collapses the two objects into one, applying the default aggregations: numeric `value` fields are summed to `30`, the differing `id` strings collect into an array, and the shared `group: "A"` collapses to a single value.
+
+<Calls code={basicExample} label="merge: Basic example" />
+
+<ApiReference name="merge" pkg="data" />

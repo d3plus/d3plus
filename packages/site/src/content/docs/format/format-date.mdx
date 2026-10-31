@@ -1,0 +1,34 @@
+---
+title: formatDate
+description: "A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/format/format-date/basic-example.js?raw";
+import customFormatter from "~/examples/format/format-date/custom-formatter.js?raw";
+import intervalDetection from "~/examples/format/format-date/interval-detection.js?raw";
+
+A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
+
+Without `shown`, the year rides on the first and last dates and on each January 1st. Given `shown` (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly steps, the date rides with the hour on the first shown date of each day. A label carrying the year at hourly steps reads its date, year, and hour.
+
+## Basic example
+
+Given a date and the full ordered array it belongs to, `formatDate` picks a label that fits the spacing of the whole series. Dates one year apart are labeled by year alone.
+
+<Calls code={basicExample} label="formatDate: Basic example" />
+
+## Custom formatter
+
+The third argument replaces d3's `timeFormat` with any function that turns a specifier into a formatter. Here a `timeFormatLocale` built from the `es-ES` dictionary in `@d3plus/locales` supplies Spanish month names.
+
+<Calls code={customFormatter} label="formatDate: Custom formatter" />
+
+## Interval detection
+
+The interval between neighbouring dates decides the base format (quarter, month, day, or hour), and the first and last dates, plus any date that starts a new year or month, get a fuller label so the strip can be read without an axis title. Arrays of five dates or fewer always use the fuller label.
+
+<Calls code={intervalDetection} label="formatDate: Interval detection" />
+
+<ApiReference name="formatDate" pkg="format" />

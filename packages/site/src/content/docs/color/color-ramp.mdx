@@ -1,0 +1,34 @@
+---
+title: colorRamp
+description: "Builds an n-step single-hue ramp from a pale tint to the given base color, stepped evenly in OKLab so each step looks equally far from the next."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/color/color-ramp/basic-example.js?raw";
+import ordinalRamp from "~/examples/color/color-ramp/ordinal-ramp.js?raw";
+
+Builds an `n`-step single-hue ramp from a pale tint to the given base color,
+stepped evenly in OKLab so each step looks equally far from the next.
+
+This replaces lightening in HSL (which desaturates toward pure white and
+shifts hue, so the pale end loses its identity and can render as white). In
+OKLab the hue is held fixed and lightness/chroma taper together, so the ramp
+reads as one hue getting lighter.
+
+Returned lightest→darkest; the darkest step is the base color itself for a
+continuous ramp.
+
+## Basic example
+
+Builds a six-step ramp from each of three base hues, returned lightest to darkest with the base color itself as the final step; the tint end holds its hue instead of washing out to white.
+
+<Calls code={basicExample} label="colorRamp: Basic example" />
+
+## Ordinal ramp
+
+With `{ordinal: true}` the palest step is held darker so every step still reads as a distinct mark against the surface — the ramp for ordered *discrete* categories, versus the default continuous ramp whose light end may fade into the background.
+
+<Calls code={ordinalRamp} label="colorRamp: Ordinal ramp" />
+
+<ApiReference name="colorRamp" pkg="color" />

@@ -1,0 +1,18 @@
+---
+title: isData
+description: "Returns true/false whether the argument provided to the function should be loaded using an internal XHR request."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/is-data/basic-example.js?raw";
+
+Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid data can either be a string URL or a request Object: a "url" plus any `fetch` request options (such as "headers" or "method"). An Object with any other key, like a data row that happens to have a "url" field, is not loaded.
+
+## Basic example
+
+Answers one question for a `data` config value: does it have to be fetched? A string is treated as a URL and an object with a `url` property (plus any `fetch` options such as `headers`) is a request; inline arrays and anything else are used as they are.
+
+<Calls code={basicExample} label="isData: Basic example" />
+
+<ApiReference name="isData" pkg="data" />

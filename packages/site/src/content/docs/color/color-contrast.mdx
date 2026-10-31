@@ -1,0 +1,18 @@
+---
+title: colorContrast
+description: "Based on the color provided, this function will return a \"white\" or \"black\" color that is suitable for text placed on top of that provided color."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/color/color-contrast/basic-example.js?raw";
+
+Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color. The choice maximizes the WCAG 2.x contrast ratio against the background, so the more legible of the two text tokens always wins.
+
+## Basic example
+
+For each background swatch, the higher-contrast of the two text tokens is returned — the dark token over the pale `#f8f9fa` and `#ffeb3b` fills, the light token over the darker ones.
+
+<Calls code={basicExample} label="colorContrast: Basic example" />
+
+<ApiReference name="colorContrast" pkg="color" />

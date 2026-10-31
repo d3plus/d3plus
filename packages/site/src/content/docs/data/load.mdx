@@ -1,0 +1,32 @@
+---
+title: load
+description: "Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/load/basic-example.js?raw";
+import csvCoercion from "~/examples/data/load/csv-coercion.js?raw";
+import multipleSources from "~/examples/data/load/multiple-sources.js?raw";
+
+Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
+
+## Basic example
+
+Fetches a URL, parses it by extension (`.json`, `.csv`, `.tsv`, or `.txt`), and passes the rows to the callback. This is what runs behind a chart's `data: "…"` config; called directly it only needs an object for `this`.
+
+<Calls code={basicExample} label="load: Basic example" />
+
+## Csv coercion
+
+CSV cells arrive as strings, so every value that parses as a number becomes a number and `"true"`/`"false"` become booleans before the rows are handed over. Here `sweet` and `calories` come back typed.
+
+<Calls code={csvCoercion} label="load: Csv coercion" />
+
+## Multiple sources
+
+An array can mix URLs and inline arrays. Everything that needs fetching is loaded, then the pieces are concatenated in the order given, so the inline Durian row lands after the five fetched fruits.
+
+<Calls code={multipleSources} label="load: Multiple sources" />
+
+<ApiReference name="load" pkg="data" />

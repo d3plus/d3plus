@@ -1,0 +1,25 @@
+---
+title: inViewport
+description: "Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/in-viewport/basic-example.js?raw";
+import withBuffer from "~/examples/dom/in-viewport/with-buffer.js?raw";
+
+Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer.
+
+## Basic example
+
+True while any part of the element's bounding box overlaps the browser viewport. Scroll this story partly out of view to see it flip. Charts with `detectVisible` use this to delay their first draw until they are on screen.
+
+<Calls code={basicExample} label="inViewport: Basic example" />
+
+## With buffer
+
+The second argument shrinks the viewport by that many pixels on every side, so the element has to be well inside the window, not just touching its edge, before this reports `true`.
+
+<Calls code={withBuffer} label="inViewport: With buffer" />
+
+<ApiReference name="inViewport" pkg="dom" />

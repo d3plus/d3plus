@@ -1,0 +1,25 @@
+---
+title: colorValidate
+description: "Validates a chart color palette against the computable accessibility checks."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import defaultPalette from "~/examples/color/color-validate/default-palette.js?raw";
+import ordinalRamp from "~/examples/color/color-validate/ordinal-ramp.js?raw";
+
+Validates a chart color palette against the computable accessibility checks.
+
+## Default palette
+
+Runs the categorical accessibility checks against the first eight swatches of the built-in `colorDefaults.scale`, reporting each check's pass/warn/fail state and whether the palette clears every hard requirement.
+
+<Calls code={defaultPalette} label="colorValidate: Default palette" />
+
+## Ordinal ramp
+
+Pass `{ordinal: true}` to validate an ordered single-hue ramp instead: it checks monotone lightness, visible step gaps, a light end that still clears the surface, and a single hue — the categorical checks would fail a correct ramp by design.
+
+<Calls code={ordinalRamp} label="colorValidate: Ordinal ramp" />
+
+<ApiReference name="colorValidate" pkg="color" />

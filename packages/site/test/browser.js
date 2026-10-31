@@ -55,6 +55,28 @@ export async function open(browser, origin, url, {timeout = 30000} = {}) {
 export const labels = playground =>
   playground.locator(".d3p-chart svg text").allTextContents();
 
+/** Waits for a function example's calls to settle; logs any that threw. */
+async function checkCalls(tab, block, i, problems, timeout) {
+  const ran = await block
+    .locator(".d3p-result")
+    .first()
+    .waitFor({state: "attached", timeout})
+    .then(() => true)
+    .catch(() => false);
+  if (!ran) return problems.push(`example ${i + 1} ran nothing`);
+  await tab
+    .waitForFunction(
+      el => !el.querySelector(".is-pending"),
+      await block.elementHandle(),
+      {
+        timeout,
+      },
+    )
+    .catch(() => problems.push(`example ${i + 1} never finished`));
+  for (const error of await block.locator(".d3p-value.is-error").all())
+    problems.push(`example ${i + 1}: ${await error.innerText()}`);
+}
+
 /** Opens one page and draws every playground on it. */
 export async function check(browser, origin, url, {timeout = 15000} = {}) {
   const {context, tab, problems} = await open(browser, origin, url, {
@@ -66,19 +88,25 @@ export async function check(browser, origin, url, {timeout = 15000} = {}) {
     for (let i = 0; i < count; i++) {
       const playground = playgrounds.nth(i);
       await playground.scrollIntoViewIfNeeded();
-      await playground
-        // Something drawn: an svg's shapes or a canvas, or a tooltip (which
-        // mounts outside the playground, so the box can't clip it).
-        .locator(".d3p-chart svg > *, .d3p-chart canvas")
-        .or(tab.locator(".d3plus-tooltip"))
-        .first()
-        .waitFor({state: "attached", timeout})
-        .catch(() => problems.push(`playground ${i + 1} drew nothing`));
+      if (await playground.evaluate(el => el.matches(".d3p-calls")))
+        await checkCalls(tab, playground, i, problems, timeout);
+      else
+        await playground
+          // Something drawn: an svg's shapes or a canvas, or a tooltip (which
+          // mounts outside the playground, so the box can't clip it).
+          .locator(".d3p-chart svg > *, .d3p-chart canvas")
+          .or(tab.locator(".d3plus-tooltip"))
+          .first()
+          .waitFor({state: "attached", timeout})
+          .catch(() => problems.push(`playground ${i + 1} drew nothing`));
       // An example whose code throws, or whose data came out empty.
       const error = playground.locator(".d3p-error");
       if (await error.count())
         problems.push(`playground ${i + 1}: ${await error.innerText()}`);
-      if ((await playground.innerText()).includes("No Data Available"))
+      if (
+        !(await playground.evaluate(el => el.matches(".d3p-calls"))) &&
+        (await playground.innerText()).includes("No Data Available")
+      )
         problems.push(`playground ${i + 1} has no data`);
     }
     await tab.waitForTimeout(count ? 1500 : 200);

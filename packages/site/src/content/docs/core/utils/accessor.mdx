@@ -1,0 +1,25 @@
+---
+title: accessor
+description: "Wraps an object key in a simple accessor function."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/utils/accessor/basic-example.js?raw";
+import defaultValue from "~/examples/core/utils/accessor/default-value.js?raw";
+
+Wraps an object key in a simple accessor function.
+
+## Basic example
+
+Turns a key into the function `d => d[key]`. Every chart config that accepts "a key or an accessor" (`groupBy`, `x`, `y`, `sum`, `label`, …) runs string values through this, so the rest of the pipeline only ever deals with functions.
+
+<Calls code={basicExample} label="accessor: Basic example" />
+
+## Default value
+
+A second argument is returned whenever the key is `undefined` on a row, which is how optional config such as `x` or `y` fall back to `0` for rows missing the field.
+
+<Calls code={defaultValue} label="accessor: Default value" />
+
+<ApiReference name="accessor" pkg="core" />

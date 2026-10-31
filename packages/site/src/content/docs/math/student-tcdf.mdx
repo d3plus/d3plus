@@ -1,0 +1,18 @@
+---
+title: studentTCdf
+description: "The cumulative distribution function of Student's t-distribution."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/student-tcdf/basic-example.js?raw";
+
+The cumulative distribution function of Student's t-distribution.
+
+## Basic example
+
+The cumulative distribution function of Student's t: the probability that a t statistic with `df` degrees of freedom falls below `t`. Zero always gives 0.5, and feeding a quantile back in returns its probability (`studentTCdf(2.57, 5)` is close to 0.975), since this is the inverse of `studentTQuantile`.
+
+<Calls code={basicExample} label="studentTCdf: Basic example" />
+
+<ApiReference name="studentTCdf" pkg="math" />

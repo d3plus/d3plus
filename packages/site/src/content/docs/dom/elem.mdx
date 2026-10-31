@@ -1,0 +1,34 @@
+---
+title: elem
+description: "Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/elem/basic-example.js?raw";
+
+Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.
+
+## Basic example
+
+Selects (or creates) exactly one element matching the selector under `parent`, applying `enter` attributes when it is first created and `update` attributes on every call. The tag and class come from the selector, so `div.demo-box` makes a `<div class="demo-box">`. Calling it again finds the same element instead of adding another; this is how charts keep one container per role across redraws.
+
+<Calls code={basicExample} label="elem: Basic example" />
+
+## Conditional removal
+
+`condition: false` runs the exit side of the pattern and removes the element; flipping it back creates it again. With a `duration`, enter, update, and exit attributes are applied through a transition instead of instantly.
+
+```js
+import {select} from "d3-selection";
+import {elem} from "@d3plus/dom";
+
+elem("p.demo-note", {
+  parent: select(container),
+  condition: showNote,   // false removes the element, applying `exit` first
+  enter: {"data-state": "entered"},
+  update: {"data-shown": String(showNote)},
+}).text("rendered while condition is true");
+```
+
+<ApiReference name="elem" pkg="dom" />

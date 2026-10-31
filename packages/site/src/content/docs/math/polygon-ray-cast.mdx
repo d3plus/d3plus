@@ -1,0 +1,25 @@
+---
+title: polygonRayCast
+description: "Gives the two closest intersection points between a ray cast from a point inside a polygon."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import angledRay from "~/examples/math/polygon-ray-cast/angled-ray.js?raw";
+import basicExample from "~/examples/math/polygon-ray-cast/basic-example.js?raw";
+
+Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on opposite sides of the origin.
+
+## Angled ray
+
+The third argument is the ray's angle in radians. At π/4 the two crossings sit on the diagonal through the origin.
+
+<Calls code={angledRay} label="polygonRayCast: Angled ray" />
+
+## Basic example
+
+Casts a line through a point inside the polygon and returns where it meets the edges on either side: the closest crossing to the left of the origin and the closest to the right. With the default angle of 0 the ray is horizontal, which is how a label's available width at a given height is found.
+
+<Calls code={basicExample} label="polygonRayCast: Basic example" />
+
+<ApiReference name="polygonRayCast" pkg="math" />

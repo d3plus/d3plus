@@ -1,0 +1,32 @@
+---
+title: format
+description: "An extension to d3's format function that adds more string formatting types and localizations."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import abbreviateSpecifier from "~/examples/format/format/abbreviate-specifier.js?raw";
+import basicExample from "~/examples/format/format/basic-example.js?raw";
+import reusableFormatter from "~/examples/format/format/reusable-formatter.js?raw";
+
+An extension to d3's [format](https://github.com/d3/d3-format#api-reference) function that adds more string formatting types and localizations.
+
+## Abbreviate specifier
+
+`".3~a"` is the d3plus extension: it routes to `formatAbbreviate`, so large numbers get the k/M/B suffixes charts use and small fractions keep their significant digits. Compare d3's own `".2s"`, which uses SI prefixes and rounds to two significant digits.
+
+<Calls code={abbreviateSpecifier} label="format: Abbreviate specifier" />
+
+## Basic example
+
+Takes a [d3-format specifier](https://github.com/d3/d3-format#locale_format) and returns a formatting function: `,` groups thousands, `.2f` fixes two decimals, `$` prefixes the locale currency, `%` scales by 100, `08` zero-pads to eight characters, and `e` switches to exponent notation.
+
+<Calls code={basicExample} label="format: Basic example" />
+
+## Reusable formatter
+
+The specifier is parsed once, so keep the returned function and apply it to every value, for instance as a chart's `tooltipConfig` or axis `tickFormat`.
+
+<Calls code={reusableFormatter} label="format: Reusable formatter" />
+
+<ApiReference name="format" pkg="format" />

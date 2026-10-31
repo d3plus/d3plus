@@ -1,0 +1,20 @@
+---
+/**
+ * A function's example as editable code: each top-level call shows its value
+ * beneath it, live. `code` is the example's source, imports included.
+ */
+import CallsIsland from "./CallsIsland";
+import "../Playground/playground.css";
+import "./calls.css";
+
+interface Props {
+  /** The example's code. */
+  code: string;
+  /** What the code shows, for the editor's accessible name. */
+  label?: string;
+}
+
+const {code, label = "Example code"} = Astro.props;
+---
+
+<CallsIsland client:visible code={code.trim() + "\n"} label={label} />

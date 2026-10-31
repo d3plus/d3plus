@@ -1,0 +1,19 @@
+---
+title: finite
+description: "Whether a value is a finite number: not NaN, ±Infinity, or a non-number such as a numeric string, null, or an array."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/finite/basic-example.js?raw";
+
+Whether a value is a finite number: not `NaN`, `±Infinity`, or a
+non-number such as a numeric string, `null`, or an array.
+
+## Basic example
+
+True only for a number that is not `NaN` or infinite. A numeric string is not a number, so `"3"` is false; in TypeScript it also narrows the value to `number`.
+
+<Calls code={basicExample} label="finite: Basic example" />
+
+<ApiReference name="finite" pkg="math" />

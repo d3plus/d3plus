@@ -1,0 +1,18 @@
+---
+title: polygonRotate
+description: "Rotates a polygon around a given origin."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/polygon-rotate/basic-example.js?raw";
+
+Rotates a polygon around a given origin.
+
+## Basic example
+
+Rotates every point of a polygon by the same angle (radians) around an origin, which defaults to `[0, 0]`. Here the dashed shape turns 30° about its own center into the solid one. `largestRect` tries candidate rectangles at many angles this way.
+
+<Calls code={basicExample} label="polygonRotate: Basic example" />
+
+<ApiReference name="polygonRotate" pkg="math" />

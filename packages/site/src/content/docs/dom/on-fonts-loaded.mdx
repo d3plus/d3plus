@@ -1,0 +1,18 @@
+---
+title: onFontsLoaded
+description: "Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/on-fonts-loaded/basic-example.js?raw";
+
+Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale. Returns a function that removes the callback.
+
+## Basic example
+
+Text measured before a web font finishes downloading uses the fallback font's metrics. `onFontsLoaded` runs its callback whenever the browser finishes loading a font that d3plus has already measured with, and returns a function that unsubscribes. Charts use it to redraw labels once their fonts arrive. Press the button to fetch a font from Google Fonts and watch the measured width change (this needs network access).
+
+<Calls code={basicExample} label="onFontsLoaded: Basic example" />
+
+<ApiReference name="onFontsLoaded" pkg="dom" />
