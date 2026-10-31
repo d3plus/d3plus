@@ -1,0 +1,32 @@
+---
+title: Legend
+description: "Creates an SVG legend based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/components/legend/basic-example.js?raw";
+import circleMarkers from "~/examples/core/components/legend/circle-markers.js?raw";
+import verticalOrientation from "~/examples/core/components/legend/vertical-orientation.js?raw";
+
+Creates an SVG legend based on an array of data.
+
+## Basic example
+
+Each datum becomes a labeled entry drawn with `Rect` markers whose `fill` is read per datum from `shapeConfig`; `label` sets the entry text and `title` the heading above them.
+
+<Playground chart="Legend" code={basicExample} controls={["shape","title"]} height={100} />
+
+## Circle markers
+
+Setting `shape` to `Circle` marks each entry with a filled dot sized by `shapeConfig.r` instead of a rectangle.
+
+<Playground chart="Legend" code={circleMarkers} controls={["shape","title"]} height={100} />
+
+## Vertical orientation
+
+Set `direction: "column"` to stack entries in a single vertical column instead of the default horizontal `"row"` — handy for a narrow sidebar where a wide legend won't fit. Flip `direction` in the controls to compare.
+
+<Playground chart="Legend" code={verticalOrientation} controls={["direction","title"]} height={240} />
+
+<ApiReference name="Legend" pkg="core" />

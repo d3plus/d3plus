@@ -67,7 +67,10 @@ export async function check(browser, origin, url, {timeout = 15000} = {}) {
       const playground = playgrounds.nth(i);
       await playground.scrollIntoViewIfNeeded();
       await playground
-        .locator(".d3p-chart svg, .d3p-chart canvas")
+        // Something drawn: an svg's shapes or a canvas, or a tooltip (which
+        // mounts outside the playground, so the box can't clip it).
+        .locator(".d3p-chart svg > *, .d3p-chart canvas")
+        .or(tab.locator(".d3plus-tooltip"))
         .first()
         .waitFor({state: "attached", timeout})
         .catch(() => problems.push(`playground ${i + 1} drew nothing`));

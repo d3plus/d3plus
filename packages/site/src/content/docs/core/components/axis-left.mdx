@@ -1,0 +1,18 @@
+---
+title: AxisLeft
+description: "Axis preset whose ticks are drawn to the left of the vertical domain path."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/components/axis-left/basic-example.js?raw";
+
+Axis preset whose ticks are drawn to the left of the vertical domain path. Accepts everything the base Axis class does.
+
+## Basic example
+
+The `[0, 100]` domain runs down the 400px height with its ticks and labels on the left of the path, the placement for a left-edge y-axis.
+
+<Playground chart="AxisLeft" code={basicExample} controls={["domain","ticks","title"]} height={400} />
+
+<ApiReference name="AxisLeft" pkg="core" />

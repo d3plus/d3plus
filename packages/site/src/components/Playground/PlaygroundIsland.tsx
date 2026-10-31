@@ -27,6 +27,8 @@ interface PlaygroundProps {
   panel?: Panel;
   /** `"split"` puts the code beside the chart, with no controls. */
   layout?: "stacked" | "split";
+  /** Whether the class draws with either renderer (charts do; components and shapes are SVG). */
+  renderers?: boolean;
 }
 
 /**
@@ -42,9 +44,12 @@ export default function PlaygroundIsland({
   height,
   panel: firstPanel,
   layout = "stacked",
+  renderers = true,
 }: PlaygroundProps) {
   const code = useCode(initialCode);
-  const [renderer, setRenderer] = useState<Renderer>("svg");
+  const [renderer, setRenderer] = useState<Renderer | null>(
+    renderers ? "svg" : null,
+  );
   const host = useChart(name, code.config, renderer, {
     onError: code.setError,
     redraw: code.redraw,

@@ -1,0 +1,25 @@
+---
+title: Image
+description: "Creates SVG images based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/shapes/image/basic-example.js?raw";
+import multipleImages from "~/examples/core/shapes/image/multiple-images.js?raw";
+
+Creates SVG images based on an array of data.
+
+## Basic example
+
+A single datum places one image at its `x`/`y` at the given `width`/`height`; the `url` accessor here points to an inline SVG data URI.
+
+<Playground chart="Image" code={basicExample} controls={["url"]} />
+
+## Multiple images
+
+One image per datum, each sized by its own `width` and `height` and centered on its `x`/`y`; `opacity` fades the third. Geomap and Network use this shape for icons and flags.
+
+<Playground chart="Image" code={multipleImages} controls={["width","height","opacity"]} />
+
+<ApiReference name="Image" pkg="core" />

@@ -1,0 +1,18 @@
+---
+title: AxisRight
+description: "Axis preset whose ticks are drawn to the right of the vertical domain path."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/components/axis-right/basic-example.js?raw";
+
+Axis preset whose ticks are drawn to the right of the vertical domain path. Accepts everything the base Axis class does.
+
+## Basic example
+
+The same vertical `[0, 100]` domain over 400px, but with ticks and labels drawn to the right, positioning it as a right-edge y-axis.
+
+<Playground chart="AxisRight" code={basicExample} controls={["domain","ticks","title"]} height={400} />
+
+<ApiReference name="AxisRight" pkg="core" />

@@ -84,6 +84,20 @@ describe("snippet helpers", () => {
 });
 
 describe("snippets", () => {
+  it("vanilla shows a Tooltip beside an element", () => {
+    const out = vanilla({
+      name: "Tooltip",
+      code: `const config = {data: [{title: "Alpha"}]};`,
+    });
+    assert.ok(out.startsWith(`import {Tooltip} from "@d3plus/core";`));
+    assert.ok(
+      out.includes(
+        `new Tooltip()\n  .parent(document.body)\n  .config(config)\n  .position(() => element)\n  .render();`,
+      ),
+    );
+    assert.ok(!out.includes("#chart"));
+    parses(out, "js");
+  });
   it("vanilla renders the core class into #chart", () => {
     const out = vanilla(input);
     assert.ok(

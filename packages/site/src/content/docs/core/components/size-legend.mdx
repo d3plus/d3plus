@@ -1,0 +1,38 @@
+---
+title: SizeLegend
+description: "A nested-circle legend for a size scale: concentric circles sharing a bottom tangent, each labeled with the value its radius encodes."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/components/size-legend/basic-example.js?raw";
+import customValues from "~/examples/core/components/size-legend/custom-values.js?raw";
+import styled from "~/examples/core/components/size-legend/styled.js?raw";
+
+A nested-circle legend for a size scale: concentric circles sharing a
+bottom tangent, each labeled with the value its radius encodes.
+
+Charts that size marks by a `size` accessor (bubble plots, Geomap points,
+Network, Rings) draw one automatically in their bottom-right corner (see
+`sizeLegend` and `sizeLegendConfig` on the chart). On its own, give it
+any d3 continuous scale that maps values to pixel radii.
+
+## Basic example
+
+Give `scale` any d3 continuous scale that maps values to pixel radii. By default the legend draws three concentric circles, for the domain's minimum, its maximum, and a round value in between. The circles share a bottom edge, and a short leader line runs from the top of each circle to its label, under a centered title.
+
+<Playground chart="SizeLegend" code={basicExample} controls={["title"]} />
+
+## Custom values
+
+`values` picks which circles to draw: an array of values, or a number for how many to pick automatically. `tickFormat` formats each label; by default labels use the locale's abbreviated number format. Labels that would overlap, like those of the two smallest circles here, are pushed apart.
+
+<Playground chart="SizeLegend" code={customValues} controls={["values","tickFormat","title"]} />
+
+## Styled
+
+`shapeConfig` styles the circles, `lineConfig` the leader lines, and `labelConfig`/`titleConfig` the text. Each object is merged into the defaults, so you only set what you want to change.
+
+<Playground chart="SizeLegend" code={styled} controls={["shapeConfig","lineConfig","labelConfig","titleConfig"]} />
+
+<ApiReference name="SizeLegend" pkg="core" />

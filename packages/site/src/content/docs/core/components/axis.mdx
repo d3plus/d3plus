@@ -1,0 +1,53 @@
+---
+title: Axis
+description: "Creates an SVG scale based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/components/axis/basic-example.js?raw";
+import logScale from "~/examples/core/components/axis/log-scale.js?raw";
+import powScale from "~/examples/core/components/axis/pow-scale.js?raw";
+import timeScale from "~/examples/core/components/axis/time-scale.js?raw";
+import ordinalScale from "~/examples/core/components/axis/ordinal-scale.js?raw";
+import ticksAndFormat from "~/examples/core/components/axis/ticks-and-format.js?raw";
+
+Creates an SVG scale based on an array of data.
+
+## Basic example
+
+A linear `[0, 100]` domain is spread across the 600px width with auto-generated ticks and a title; the base class defaults to `bottom` orientation.
+
+<Playground chart="Axis" code={basicExample} controls={["domain","ticks","title","grid"]} height={120} />
+
+## Log scale
+
+`scale: "log"` spaces the ticks by powers of ten, so a `[1, 10000]` domain gets a major tick per decade with minor ticks between them. Values must stay above zero on a log axis.
+
+<Playground chart="Axis" code={logScale} controls={["scale","domain","gridLog"]} height={120} />
+
+## Pow scale
+
+`scale: "pow"` with an `exponent` below 1 spreads the small values out and squeezes the large ones together, so values that span several orders of magnitude, including `0`, share one axis. The ticks are spaced evenly along it and rounded. Above 1 the effect reverses; the default of `1` draws like a linear axis.
+
+<Playground chart="Axis" code={powScale} controls={["scale","exponent","domain"]} height={120} />
+
+## Time scale
+
+`scale: "time"` takes a domain of dates and labels the ticks with the date format that suits their spacing, years here; `timeLocale` swaps in another language's month and day names.
+
+<Playground chart="Axis" code={timeScale} controls={["scale","domain","timeLocale"]} height={120} />
+
+## Ordinal scale
+
+`scale: "band"` (or `"point"`, or `"ordinal"`) treats the domain as a list of categories and gives each one an equal slot, with `paddingInner` and `paddingOuter` controlling the gaps. Bar charts place their bars on an axis like this.
+
+<Playground chart="Axis" code={ordinalScale} controls={["scale","domain","paddingInner","paddingOuter"]} height={120} />
+
+## Ticks and format
+
+`ticks` pins where the tick marks go and `labels` which of them get text (by default the axis thins labels to what fits, independently of `ticks`), `tickFormat` turns each value into its label, `tickSize` is the length of the tick marks, and `gridSize` extends grid lines from the ticks across the chart area.
+
+<Playground chart="Axis" code={ticksAndFormat} controls={["ticks","labels","tickFormat","tickSize","gridSize"]} height={160} />
+
+<ApiReference name="Axis" pkg="core" />

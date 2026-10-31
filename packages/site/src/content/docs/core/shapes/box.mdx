@@ -1,0 +1,32 @@
+---
+title: Box
+description: "Creates SVG box-and-whisker plots based on an array of data, one per group of values."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/shapes/box/basic-example.js?raw";
+import horizontal from "~/examples/core/shapes/box/horizontal.js?raw";
+import outlierStyling from "~/examples/core/shapes/box/outlier-styling.js?raw";
+
+Creates SVG box-and-whisker plots based on an array of data, one per group of values.
+
+## Basic example
+
+Points are grouped by their shared `x` category ("A" and "B"), which the `x` accessor maps to a horizontal pixel position, and each group's raw `y` values are reduced to a box-and-whisker summary of quartiles and whiskers; `orient` switches between vertical and horizontal boxes.
+
+<Playground chart="Box" code={basicExample} controls={["orient"]} />
+
+## Horizontal
+
+With `orient: "horizontal"` the roles swap: `x` carries the values that are summarized and `y` places each group's box, so the quartile boxes and whiskers run left to right.
+
+<Playground chart="Box" code={horizontal} controls={["orient","rectWidth"]} />
+
+## Outlier styling
+
+Each group has one value far outside its interquartile range. Under the default `whiskerMode` (Tukey's 1.5×IQR rule) those points are drawn as outliers beyond the whiskers, here as `Rect` markers instead of the default `Circle`; `rectWidth` widens the boxes.
+
+<Playground chart="Box" code={outlierStyling} controls={["outlier","whiskerMode","rectWidth"]} />
+
+<ApiReference name="Box" pkg="core" />
