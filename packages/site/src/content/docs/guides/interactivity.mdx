@@ -212,9 +212,9 @@ that ends after one selection), wheel zoom, and drag-to-pan.
 Charts leave page scrolling alone: Ctrl/⌘ + wheel (or a trackpad pinch)
 zooms, a plain wheel scrolls the page, and on touch screens one finger
 scrolls while two fingers pinch-zoom — one finger pans only once the chart is
-zoomed in. Geomap and Network are pan-and-zoom surfaces, so they zoom on any
-wheel. Set `zoomScroll` to `true` (any wheel), `"modifier"`, or `false` (no
-wheel zoom) to choose. A title,
+zoomed in. Every chart, Geomap and Network included, works this way by
+default. Set `zoomScroll` to `true` (any wheel, such as for a full-page map),
+`"modifier"`, or `false` (no wheel zoom) to choose. A title,
 subtitle, total, or top/right legend wraps or shifts to leave room for the
 controls. Set `zoom: false` to turn it all off. Zoom starts off where it
 doesn't help read the chart (Bullet, Calendar, Funnel, Gantt, Gauge, and Waffle) and
