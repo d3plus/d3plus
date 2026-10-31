@@ -680,6 +680,14 @@ export interface D3plusConfig {
   active?: ((d: DataPoint, i: number) => boolean) | false | null;
   /** Custom aggregation functions keyed by data property. */
   aggs?: {[k: string]: (d: DataPoint[]) => unknown};
+  /**
+      Which side of ArcDiagram's line the arcs take: `"above"` (the default),
+      `"below"`, or `"both"`, where a link running forward along the line
+      (its source before its target) arcs above and one running backward arcs
+      below. On a vertical line, "above" is its right side. Node labels sit
+      on the other side of the line (below it with `"both"`).
+  */
+  arcSide?: "above" | "below" | "both";
   /** Hides the SVG from assistive technology when true (`aria-hidden`). */
   ariaHidden?: boolean;
   /**
@@ -1538,6 +1546,12 @@ export interface D3plusConfig {
       tracks and 360 for the circular bar chart.
   */
   maxAngle?: number;
+  /**
+      Colors each of ArcDiagram's arcs like one of its nodes: `"source"` or
+      `"target"`. `false` (the default) draws every arc in the theme's `link`
+      gray.
+  */
+  linkColor?: false | "source" | "target";
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
   link?: LinkOption;
   /**
@@ -1614,6 +1628,20 @@ export interface D3plusConfig {
       Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
   */
   noDataMessage?: boolean;
+  /**
+      The order of ArcDiagram's nodes along its line: `"data"` (the default,
+      their order in `nodes`), `"label"` (alphabetical), `"group"` (by the
+      top `groupBy` or `nodeGroupBy` level when there are several, else by
+      the `color` value, then by label), `"degree"`
+      (most connected first), or a comparator function receiving two node
+      rows, as for `Array.prototype.sort`.
+  */
+  nodeSort?:
+    | "data"
+    | "label"
+    | "group"
+    | "degree"
+    | ((a: DataPoint, b: DataPoint) => number);
   /**
       Ocean color for geomaps (any CSS value including 'transparent'), or a
       `{light, dark}` pair chosen by the chart's `theme` (the page behind it

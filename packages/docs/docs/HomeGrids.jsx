@@ -4,6 +4,7 @@ import {useTheme} from "storybook/theming";
 
 const charts = [
   ["Alluvial", "alluvial"],
+  ["Arc Diagram", "arcdiagram"],
   ["Area Plot", "areaplot"],
   ["Bar Chart", "barchart"],
   ["Beeswarm", "beeswarm"],

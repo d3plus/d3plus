@@ -98,6 +98,7 @@ export function setTableViewDataSource(
     every repaint of a huge dataset.
 */
 function hasDistinctRawData(viz: Viz): boolean {
+  if (viz._tableData?.()) return false;
   const raw = viz._data as DataPoint[] | undefined;
   const aggregate = (viz._filteredData as DataPoint[] | undefined) || raw;
   if (!raw || !aggregate || raw === aggregate) return false;
@@ -375,7 +376,9 @@ function allColumns(rows: DataPoint[]): string[] {
     default, or `viz._data` (raw, untouched input) once the toggle picks
     "raw" — guarded by `hasDistinctRawData` so a stale `_tableViewDataSource`
     from a previous, genuinely-different dataset can't silently switch a
-    chart whose raw/aggregate happen to now coincide.
+    chart whose raw/aggregate happen to now coincide. A chart that supplies
+    its own rows (`ChartDefinition.tableData`) shows those instead, in its
+    order, with no raw toggle.
 
     Absent an explicit column sort, the AGGREGATE source is further
     reordered (`defaultRowOrder`) to match the chart's original `.data()`
@@ -386,9 +389,11 @@ export function sortedTableViewRows(viz: Viz): {
   rows: DataPoint[];
   columns: string[];
 } {
+  const custom = viz._tableData?.();
   const useRaw =
-    getTableViewDataSource(viz) === "raw" && hasDistinctRawData(viz);
-  const source = (useRaw ? viz._data : viz._filteredData || viz._data) as
+    !custom && getTableViewDataSource(viz) === "raw" && hasDistinctRawData(viz);
+  const source = (custom ??
+    (useRaw ? viz._data : viz._filteredData || viz._data)) as
     DataPoint[] | undefined;
   let rows = (source || []).slice();
   const columns = allColumns(rows);
@@ -405,7 +410,7 @@ export function sortedTableViewRows(viz: Viz): {
           viz.schema.locale,
         ),
     );
-  } else if (!useRaw) {
+  } else if (!useRaw && !custom) {
     rows = defaultRowOrder(viz, rows);
   }
   return {rows, columns};

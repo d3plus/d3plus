@@ -6,8 +6,8 @@
     `applyDefinition(this, def)`, its `_draw` runs the shared Viz pipeline
     then the chart's own layout stage via `runChartDraw`, and its
     `_thresholdFunction` / `_thresholdLegend` / `_sizeLegendScale` / `_insetRegion` /
-    `_colorScaleShape` / `_pointMark` delegate to `def.thresholdFunction` /
-    `def.sizeLegendScale` / `def.insetRegion` / `def.colorScaleShape` /
+    `_tableData` / `_colorScaleShape` / `_pointMark` delegate to `def.thresholdFunction` /
+    `def.sizeLegendScale` / `def.insetRegion` / `def.tableData` / `def.colorScaleShape` /
     `def.pointMark` if
     present (else to the base chart's), `_facetHooks` layers `def.facet` over the base chart's, and
     `toScene` passes the base chart's scene through `def.decorateScene`.
@@ -76,6 +76,12 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
       return def.insetRegion
         ? def.insetRegion(this as unknown as VizInstance)
         : super._insetRegion();
+    }
+
+    _tableData() {
+      return def.tableData
+        ? def.tableData(this as unknown as VizInstance)
+        : super._tableData();
     }
 
     _colorScaleShape(d: DataPoint, i: number) {

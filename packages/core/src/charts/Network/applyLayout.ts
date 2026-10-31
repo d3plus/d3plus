@@ -20,6 +20,8 @@ import {chartBounds} from "../features/chartGeometry.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
+import {resolveGraphLinks, resolveGraphNodes} from "./graph.js";
+import type {GraphLink, GraphNode} from "./graph.js";
 
 interface NetworkLayoutNode extends SimulationNodeDatum {
   id: string;
@@ -31,30 +33,8 @@ interface NetworkLayoutLink extends SimulationLinkDatum<NetworkLayoutNode> {
 }
 
 /** Single laid-out node — accreted across the layout's passes. */
-interface NetworkNode {
-  __d3plus__: true;
-  data: DataPoint;
-  i: number;
-  id: string;
-  fx: number;
-  fy: number;
-  node: DataPoint;
-  r: number;
-  shape: string;
-  vx?: number;
-  vy?: number;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-}
-
-/** Resolved link record consumed by the d3-force simulation + emit. */
-interface NetworkLink {
-  source: NetworkNode;
-  target: NetworkNode;
-  size: number;
-}
+type NetworkNode = GraphNode;
+type NetworkLink = GraphLink;
 
 interface RScale {
   (v: number): number;
@@ -62,120 +42,12 @@ interface RScale {
   range: ((r: [number, number]) => RScale) & (() => [number, number]);
 }
 
-type RawLink = {
-  source: string | number | DataPoint;
-  target: string | number | DataPoint;
-};
-
-/** Resolves filtered data + schema nodes into laid-out node records (pre-layout). */
-function buildNetworkNodes(
-  v: Parameters<TransformStage>[0]["viz"],
-): NetworkNode[] {
-  const nodeId = (d: Record<string, unknown>, i: number) =>
-    `${v._id(d, i) || v.schema.nodeGroupBy[min([v._drawDepth, v.schema.nodeGroupBy.length - 1])](d, i)}`;
-
-  const data = (v._filteredData as DataPoint[]).reduce(
-    (obj: Record<string, DataPoint>, d, i) => {
-      obj[v._id(d, i) as string] = d;
-      return obj;
-    },
-    {},
-  );
-
-  let rawNodes: Record<string, DataPoint> = (
-    v.schema.nodes as DataPoint[]
-  ).reduce((obj: Record<string, DataPoint>, d, i) => {
-    obj[nodeId(d as Record<string, unknown>, i)] = d;
-    return obj;
-  }, {});
-
-  const nodes: NetworkNode[] = Array.from(
-    new Set(Object.keys(data).concat(Object.keys(rawNodes))),
-  )
-    .map((id, i) => {
-      const d = data[id];
-      const n = rawNodes[id];
-      if (n === undefined) return false;
-      const pickFrom = <T>(
-        accessor: (x: DataPoint) => T,
-        validate: (x: T) => boolean = vv => vv !== undefined,
-      ): T =>
-        d !== undefined && validate(accessor(d)) ? accessor(d) : accessor(n);
-      return {
-        __d3plus__: true,
-        data: (d || n) as DataPoint,
-        i,
-        id,
-        fx: pickFrom(
-          v._x as (x: DataPoint) => number,
-          (val: number) => !isNaN(val),
-        ),
-        fy: pickFrom(
-          v._y as (x: DataPoint) => number,
-          (val: number) => !isNaN(val),
-        ),
-        node: n,
-        r: v._size
-          ? pickFrom(v._size as (x: DataPoint) => number)
-          : (v.schema.sizeMin as number),
-        shape: pickFrom(v.schema.shape) as string,
-      } as NetworkNode;
-    })
-    .filter((n): n is NetworkNode => !!n);
-  // rawNodes was used above; drop to avoid retention.
-  rawNodes = {};
-  void rawNodes;
-
-  return nodes;
-}
-
-/** Resolves schema links against nodes, stashing nodeLookup + linkLookup on ctx. */
-function buildNetworkLinks(
+const buildNetworkNodes = (v: Parameters<TransformStage>[0]["viz"]) =>
+  resolveGraphNodes(v) as NetworkNode[];
+const buildNetworkLinks = resolveGraphLinks as (
   v: Parameters<TransformStage>[0]["viz"],
   nodes: NetworkNode[],
-): NetworkLink[] {
-  const nodeLookup: Record<string, NetworkNode> = nodes.reduce(
-    (obj: Record<string, NetworkNode>, d) => {
-      obj[d.id] = d;
-      return obj;
-    },
-    {},
-  );
-  v.ctx.nodeLookup = nodeLookup;
-
-  const nodeByOriginal = new Map<DataPoint, NetworkNode>();
-  for (const n of nodes) nodeByOriginal.set(n.node, n);
-  const links: NetworkLink[] = (v.schema.links as RawLink[]).map(l => {
-    const referenceType = typeof l.source;
-    return {
-      size: v.schema.linkSize(l) as number,
-      source: (referenceType === "number"
-        ? nodeByOriginal.get(
-            (v.schema.nodes as DataPoint[])[l.source as number],
-          )
-        : referenceType === "string"
-          ? nodeLookup[l.source as string]
-          : nodeLookup[(l.source as DataPoint).id as string]) as NetworkNode,
-      target: (referenceType === "number"
-        ? nodeByOriginal.get(
-            (v.schema.nodes as DataPoint[])[l.target as number],
-          )
-        : referenceType === "string"
-          ? nodeLookup[l.target as string]
-          : nodeLookup[(l.target as DataPoint).id as string]) as NetworkNode,
-    };
-  });
-
-  v.ctx.linkLookup = links.reduce((obj: Record<string, NetworkNode[]>, d) => {
-    if (!obj[d.source.id]) obj[d.source.id] = [];
-    obj[d.source.id].push(d.target);
-    if (!obj[d.target.id]) obj[d.target.id] = [];
-    obj[d.target.id].push(d.source);
-    return obj;
-  }, {});
-
-  return links;
-}
+) => NetworkLink[];
 
 /** Runs the d3-force simulation, rotating results to the largest fitting rect. */
 function runForceLayout(nodes: NetworkNode[], links: NetworkLink[]): void {

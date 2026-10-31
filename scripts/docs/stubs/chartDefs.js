@@ -406,7 +406,44 @@ export function parseChartDef(filePath) {
         }
     }
   }
-  return {base, fields, accessors: accessorDocs(src)};
+  return {
+    base,
+    fields,
+    accessors: {...importedAccessorDocs(src, filePath), ...accessorDocs(src)},
+  };
+}
+
+/**
+ * Accessor docs from the modules a chart's index imports by relative path
+ * (one level deep), for setters a chart installs through a shared helper
+ * (Network and ArcDiagram share `installGraphFluent`).
+ */
+function importedAccessorDocs(src, filePath) {
+  const docs = {};
+  for (const stmt of src.statements) {
+    if (!ts.isImportDeclaration(stmt) || stmt.importClause?.isTypeOnly)
+      continue;
+    const spec = stmt.moduleSpecifier.text;
+    if (!spec.startsWith(".")) continue;
+    const file = path.resolve(
+      path.dirname(filePath),
+      spec.replace(/\.js$/, ".ts"),
+    );
+    let code;
+    try {
+      code = fs.readFileSync(file, "utf8");
+    } catch {
+      continue;
+    }
+    const imported = ts.createSourceFile(
+      file,
+      code,
+      ts.ScriptTarget.Latest,
+      true,
+    );
+    Object.assign(docs, accessorDocs(imported));
+  }
+  return docs;
 }
 
 /**
