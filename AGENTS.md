@@ -22,8 +22,7 @@ d3plus is a JavaScript data visualization library that extends D3.js. It is orga
 | `@d3plus/react`   | React component wrappers                               |
 | `@d3plus/text`    | Text measurement and wrapping                          |
 | `@d3plus/types`   | Unified TypeScript type definitions                    |
-| `@d3plus/docs`    | Storybook documentation site (private, not published)  |
-| `@d3plus/site`    | Astro Starlight docs site, trial replacement for docs  |
+| `@d3plus/site`    | The d3plus.org docs site (private, not published)      |
 
 ## Architecture (v4)
 
@@ -59,8 +58,8 @@ schema: every chart's shared ones are listed in `charts/viz/vizFields.ts`
 keeps only the setters with real logic. A generated accessor has no method for
 TypeDoc to read, so document it on its `D3plusConfig` property (or the
 component's own config interface): the docs generator takes its description
-and type from there for the API.md "Config accessors" tables and the Storybook
-args. A chart def field on a `vizFields` key must coerce and merge the same way
+and type from there for the API.md "Config accessors" tables and the site's
+configuration reference. A chart def field on a `vizFields` key must coerce and merge the same way
 (a test checks it).
 
 ### Charts are values: `ChartDefinition` + `makeChart`
@@ -199,7 +198,7 @@ Run from the repo root, targeting the package you want to work on:
 ```bash
 pnpm --filter @d3plus/core run dev    # dev server on :4000 + Rollup watch
 pnpm --filter @d3plus/react run dev   # Vite on :4000
-pnpm --filter @d3plus/docs run dev    # Storybook on :4000
+pnpm --filter @d3plus/site run dev    # the docs site on :4000 (see below)
 ```
 
 `scripts/dev.js` serves a package's `dev/` folder with Vite (`/umd/` is
@@ -285,18 +284,36 @@ one project per package (core has two). Tests import TypeScript source
 ### Documentation
 
 ```bash
-pnpm run docs      # Generates markdown docs + Storybook args from TypeDoc
+pnpm run docs      # Generates each package's API.md and README from TypeDoc
 ```
 
-The generated docs (each package's `API.md`, `packages/docs/args/`, and the
-generated top of each `*.stories.jsx`) are regenerated and committed by
-`pnpm run release`, and the Storybook site deploys only on a release. Don't
-regenerate them in a pull request: every PR that adds a config option touches
-the same tables, so committing them makes open PRs conflict with each other.
-The exception is a PR that adds a public class or function: run `pnpm run
-docs` and commit only the new `*.args.jsx` and `*.stories.jsx` files it
-creates, since the story imports its args file and the Storybook build fails
-without it.
+Each package's `API.md` is regenerated and committed by `pnpm run release`.
+Don't regenerate it in a pull request: every PR that adds a config option
+touches the same tables, so committing them makes open PRs conflict with each
+other.
+
+d3plus.org is `packages/site`, an Astro Starlight site (its README covers
+running it). Every documented export gets a page at
+`/<package>/<category>/<name>/` with its API reference, generated when the site
+builds from the same TypeDoc comments (`scripts/docs/docs.js --manifest`, via
+`pnpm --filter @d3plus/site run manifest`; never committed), so a new export
+needs nothing committed to appear. Examples are hand-written:
+
+- A page is an MDX file in `packages/site/src/content/docs/` named after its
+  export (`core/charts/treemap.mdx`); it replaces the generated page and ends
+  with `<ApiReference name="…" />`. Guides are in `src/content/docs/guides/`.
+- An example's code is a file in `packages/site/src/examples/` (the same path,
+  then one file per example): plain JavaScript ending in `const config =
+{…};`, imported with `?raw` into a `<Playground chart="…" code={…} />`
+  (`controls={[…]}` picks the keys offered as controls). A function's examples
+  are `<Calls code={…} />` blocks, which show each call's value beneath it.
+- `pnpm test:site` builds the site and loads every page in Chromium: it fails
+  on console errors, an example that draws nothing or shows an error, a broken
+  link or anchor, or a page wider than a phone.
+
+The site deploys from `.github/workflows/deploy-site.yml` when a release is
+published (or when the workflow is run by hand), so it documents the latest
+release.
 
 Pass `VERBOSE=1` to any build script for per-file output; by default piped
 (`pnpm -r`) and CI runs print one line per step.
@@ -334,7 +351,9 @@ false`. `pnpm format` rewrites the repo and `pnpm format:check` (run in CI)
 2. Export the class from `packages/core/src/charts/index.ts`.
 3. Export the class from `packages/core/index.ts`. Export any reusable
    stage/def from `packages/core/internal.ts` (not `index.ts`).
-4. Add a Storybook story under `packages/docs/`.
+4. Add its page to the docs site, `packages/site/src/content/docs/core/charts/my-chart.mdx`,
+   with examples in `packages/site/src/examples/core/charts/my-chart/` (see
+   Documentation).
 5. Add a Vitest test in `packages/core/test/` (`*-test.js`, or
    `*.browser-test.js` when it needs a real layout engine).
 

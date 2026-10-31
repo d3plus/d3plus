@@ -38,7 +38,7 @@ let blockedRanges: InstanceType<typeof net.BlockList> | undefined;
 // IPv4-compatible form (`::a.b.c.d`) — so those carrier ranges are blocked
 // outright below instead of extracting and re-checking the embedded address.
 // Built lazily (not at module scope) so importing this module has no side
-// effects — Storybook's browser build stubs `net` to nothing, and a plain
+// effects — a browser bundle stubs `net` to nothing, and a plain
 // `import` must not run node-only code.
 function getBlockedRanges(): InstanceType<typeof net.BlockList> {
   if (blockedRanges) return blockedRanges;

@@ -23,7 +23,6 @@ catalog:
 publicHoistPattern:
   - "*eslint*"
   - "*typescript*"
-  - "*storybook*"
 overrides:
   browserslist: ">=4.28.7"
 allowBuilds:

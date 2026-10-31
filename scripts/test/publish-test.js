@@ -35,7 +35,7 @@ describe("publishOrder", () => {
 
   it("leaves private packages out", () => {
     const order = publishOrder([
-      pkg("@d3plus/docs", {"@d3plus/core": "4.9.0"}, {private: true}),
+      pkg("@d3plus/site", {"@d3plus/core": "4.9.0"}, {private: true}),
       pkg("@d3plus/core"),
     ]).map(p => p.name);
     assert.deepStrictEqual(order, ["@d3plus/core"]);
@@ -46,7 +46,7 @@ describe("publishOrder", () => {
       workspacePackages(path.resolve(import.meta.dirname, "../..")),
     ).map(p => p.name);
     const at = name => order.indexOf(name);
-    assert.ok(!order.includes("@d3plus/docs"));
+    assert.ok(!order.includes("@d3plus/site"));
     for (const dep of ["@d3plus/color", "@d3plus/text", "@d3plus/render"])
       assert.ok(at(dep) < at("@d3plus/core"), dep);
     for (const wrapper of ["@d3plus/react", "@d3plus/vue", "@d3plus/ssr"])

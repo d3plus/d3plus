@@ -93,7 +93,7 @@ export function flattenArgTypes(name, own, seen = new Set()) {
   return merge(inherited, argTypes);
 }
 
-/** One config key as the site documents it, read from a Storybook argType. */
+/** One config key as the site documents it, read from its generated argType. */
 export function configField(arg) {
   const field = {
     type: (arg.type && arg.type.summary) || "",

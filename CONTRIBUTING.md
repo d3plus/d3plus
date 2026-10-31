@@ -7,26 +7,42 @@ Welcome to the contribution tutorials and guidelines for d3plus :wave: There are
 
 ## Website/Documentation
 
-D3plus uses Storybook to build live examples that show the underlying @d3plus/react code and let users modify config settings in the browser. The Storybook codebase lives in the `packages/docs` package: chart examples are `*.stories.jsx` files under `packages/docs/packages/<package>/` (e.g. `packages/docs/packages/core/charts/`, grouped by chart type), and the longer-form guide pages are MDX files in `packages/docs/docs/`.
+d3plus.org is an [Astro Starlight](https://starlight.astro.build) site in `packages/site` (its [README](packages/site/README.md) covers running it). Each chart, component, shape, and function has a page, and its examples are live: readers can edit the code, change settings with the controls, and copy it for their framework.
 
-Typically, they follow the following basic format:
+A page is an MDX file under `packages/site/src/content/docs/`, named after its export (`core/charts/treemap.mdx`); the guides are in `src/content/docs/guides/`. An example's code is its own file under `packages/site/src/examples/`, plain JavaScript that declares the chart's `config`, with any data or helpers it needs above it:
 
-```jsx
-export const NameOfExample = Template.bind({});
-NameOfExample.args = {
-  // config options go here
+```js
+const config = {
+  data: [
+    {id: "alpha", value: 29},
+    {id: "beta", value: 10},
+  ],
+  groupBy: "id",
+  sum: "value",
 };
-// The following line is optional, and is what allows UI
-// controls to be present underneath the source code.
-NameOfExample.parameters = {controls: {include: [/* method list */]}};
 ```
+
+The page imports it with `?raw` and shows it in a `<Playground>`, under a heading and a sentence or two on what it shows:
+
+```mdx
+import Playground from "~/components/Playground/Playground.astro";
+import basicExample from "~/examples/core/charts/treemap/basic-example.js?raw";
+
+## Basic example
+
+Each rectangle's area is proportional to its `sum`.
+
+<Playground chart="Treemap" code={basicExample} controls={["sum"]} />
+```
+
+`controls` lists the config keys to offer as controls (by default, the example's own simple settings). A function's examples use `<Calls code={…} />` instead, which shows each call's value beneath it; imports go at the top of their code. Every page ends with `<ApiReference name="…" />`, the generated configuration reference.
 
 When writing examples, please try to follow the following guidelines:
 
-- The name of the Component you create will become the name in the UI, so in this case "NameOfExample" will become "Name Of Example" (more information on Storybook's auto-titles can be found [here](https://storybook.js.org/docs/configure/user-interface/sidebar-and-urls#csf-30-auto-titles)).
-- Only include config methods that are pertanent to the example (ie. don't change things like the "legendPosition" because of personal preference).
-- If possible, do not use external API links for things like "data" and "topojson". Wherever you can, either use a simple/small inline data Array or reference a static file added to the `/static/data` directory.
-- When using accessor functions in your config, wrap them in the `funcify` helper function, which accepts 2 arguments: the _Function_ itself, and a _String_ representation of that Function. JavaScript does not have an ability to "stringify" Functions, which we need in order to show them in the code snippets, so this helper explicitly sets how they are to be displayed to the user. In most cases, the _String_ representation should just be a copy of your _Function_ surrounded by backticks (``).
+- Only include config methods that are pertinent to the example (ie. don't change things like the "legendPosition" because of personal preference).
+- If possible, do not use external API links for things like "data" and "topojson". Wherever you can, either use a simple/small inline data Array or reference a static file added to `packages/site/public/data/`.
+- Functions are written as plain functions in the example's code; it is shown exactly as written.
+- Run `pnpm test:site` before submitting: it builds the site and checks that every example draws without errors, every link works, and every page fits a phone screen.
 
 ### Submitting a Pull Request
 
@@ -97,13 +113,13 @@ The development server will recreate the `umd` directory any time the current pa
 
 ### Code Documentation
 
-All of the code documentation you see in each package's `API.md` file, and the Storybook controls, are generated automatically by [TypeDoc](https://typedoc.org/) from the documentation comments within each source file. To preview them, run:
+All of the code documentation you see in each package's `API.md` file, and the configuration reference and controls on d3plus.org, are generated automatically by [TypeDoc](https://typedoc.org/) from the documentation comments within each source file. To preview the `API.md` files, run:
 
 ```sh
 pnpm run docs
 ```
 
-> The release process regenerates and commits these files, so leave them out of pull requests. A pull request that adds a public class or function is the exception: commit the new `*.args.jsx` and `*.stories.jsx` files the command creates.
+> The release process regenerates and commits these files, so leave them out of pull requests. The site generates its reference when it builds, so nothing needs committing for it: a new public class or function gets a page automatically.
 
 ### Tests
 

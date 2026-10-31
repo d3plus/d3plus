@@ -3,8 +3,8 @@ import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
 
 /**
-    The first Marimekko stories across the widths a Storybook docs page or
-    canvas gives a chart (350px tall): every region's label lies flat,
+    The first Marimekko examples across the widths a docs page gives a chart
+    (350px tall): every region's label lies flat,
     wrapped within its own bar, with its share above the bar in BasicExample
     and BarWidthMeasure, on a line beneath the name with
     `barWidthShare(true)`, and its name alone in WithoutWidthShares, and

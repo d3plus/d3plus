@@ -1,5 +1,5 @@
 /**
-    Decides when a generated Storybook argType gets a color picker.
+    Decides when a config key's playground control is a color picker.
 
     A setting is a color when its source types it as `CssColor` (the alias in
     `@d3plus/core`'s shape config, also accepted inside a chart field's

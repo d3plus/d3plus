@@ -166,16 +166,7 @@ function staticDevPages(devDir) {
   };
 }
 
-if (name === "docs") {
-  log.timer(`running Storybook on port ${port}`);
-  pipeServer(
-    spawn(
-      "storybook",
-      ["dev", "--docs", "--ci", "--no-version-updates", `--port=${port}`],
-      {stdio: "pipe", shell: true},
-    ),
-  );
-} else if (fs.existsSync("vite.config.js")) {
+if (fs.existsSync("vite.config.js")) {
   // Framework wrappers (react, element, svelte, vue, angular) serve their
   // dev/ harness through Vite; each package's vite.config.js loads whatever
   // framework plugin it needs. `--config` is passed explicitly because the

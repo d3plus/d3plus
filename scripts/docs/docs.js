@@ -13,9 +13,8 @@ import {Application, Converter, ReflectionKind} from "typedoc";
 
 import Logger from "../utils/log.js";
 const log = Logger("documentation");
-const prune = process.argv.includes("--prune");
 // `--manifest=<dir>` writes only the site's API manifest (<dir>/api.json),
-// leaving the committed API.md, README, args, and stories untouched.
+// leaving the committed API.md and README untouched.
 const manifestDir = (
   process.argv.find(arg => arg.startsWith("--manifest=")) || ""
 ).slice("--manifest=".length);
@@ -24,14 +23,13 @@ const manifestStories = [];
 
 import readmeHeader, {apiHeader} from "./stubs/README.js";
 import {injectConfigAccessors} from "./stubs/accessors.js";
-import argsStub, {buildArgTypes} from "./stubs/args.js";
+import {buildArgTypes} from "./stubs/args.js";
 import {
   flattenArgTypes,
   lineage,
   manifestEntry,
   readWrappers,
 } from "./stubs/manifest.js";
-import storiesStub, {warning as storyMarker} from "./stubs/stories.js";
 import {
   chartDefMap,
   injectChartConfig,
@@ -47,7 +45,7 @@ import {
 /**
  * Documents each `makeChart(...)` chart as the class it constructs. TypeDoc
  * sees the export as a variable typed `VizCtor` (kind "member"), with no
- * members and no superclass, so it would get no Storybook args or story.
+ * members and no superclass, so it would get no config reference.
  * Marks it a class extending its ChartDefinition's base and attaches the def,
  * whose `fields` supply the chart's own config.
  */
@@ -85,61 +83,6 @@ function stubResizeObserver() {
       unobserve() {}
       disconnect() {}
     };
-}
-
-/**
- * Imports a package's built ESM entry and returns the Set of its export names,
- * or null when the build is missing. Node caches the import, so this is free
- * after collectConfigDefaults has loaded the same module.
- */
-async function loadPackageExports(folder) {
-  const entry = path.resolve(folder, "es/index.js");
-  if (!fs.existsSync(entry)) return null;
-  try {
-    const mod = await import(pathToFileURL(entry).href);
-    return new Set(Object.keys(mod));
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Flags args/stories files under packages/docs that this run did not write and
- * whose name is not a current export of the package (an export that was
- * removed or renamed). Hand-maintained files are safe: chart files are kept
- * because the chart is still exported, and a story file with hand-written
- * stories below the marker is only reported, never deleted. Orphans are
- * reported by default and removed with `--prune`.
- */
-function pruneOrphans(folder, written, exportedNames) {
-  if (!exportedNames) return;
-  const pkg = path.basename(folder);
-  const targets = [
-    [path.resolve(folder, `../docs/args/${pkg}`), ".args.jsx"],
-    [path.resolve(folder, `../docs/packages/${pkg}`), ".stories.jsx"],
-  ];
-  for (const [root, ext] of targets) {
-    if (!fs.existsSync(root)) continue;
-    for (const rel of fs.readdirSync(root, {recursive: true})) {
-      const file = path.join(root, rel);
-      if (!file.endsWith(ext) || written.has(file)) continue;
-      if (exportedNames.has(path.basename(file, ext))) continue;
-      const shown = path.relative(process.cwd(), file);
-      if (ext === ".stories.jsx") {
-        const body = fs.readFileSync(file, "utf8").split(storyMarker)[1];
-        if (body && body.trim()) {
-          log.warn(
-            `orphan story with hand-written stories, delete it manually: ${shown}`,
-          );
-          continue;
-        }
-      }
-      if (prune) {
-        fs.rmSync(file);
-        log.warn(`pruned orphan: ${shown}`);
-      } else log.warn(`orphan (run with --prune to delete): ${shown}`);
-    }
-  }
 }
 
 /**
@@ -272,9 +215,8 @@ function collectInterfaceDocs(project) {
 
 // Framework wrapper packages. These ship curated READMEs and are documented in
 // the Frameworks guide, so the generator skips them: a TypeDoc API dump doesn't
-// capture wrapper usage, and the non-React wrappers can't render in this
-// React-based Storybook anyway. (@d3plus/angular has no index.ts, so it is
-// skipped below regardless, but is listed here to make the intent explicit.)
+// capture wrapper usage. (@d3plus/angular has no index.ts, so it is skipped
+// below regardless, but is listed here to make the intent explicit.)
 const FRAMEWORK_WRAPPERS = new Set([
   "@d3plus/react",
   "@d3plus/vue",
@@ -400,8 +342,8 @@ async function generateMarkdown() {
     );
     const {name} = packageJSON;
 
-    // Skip this docs package and the framework wrappers (README + stories).
-    if (name === "@d3plus/docs" || FRAMEWORK_WRAPPERS.has(name)) continue;
+    // Skip the framework wrappers, whose READMEs are written by hand.
+    if (FRAMEWORK_WRAPPERS.has(name)) continue;
 
     // Find the entry point
     const indexFile = fs.existsSync(`${folder}/index.ts`)
@@ -436,7 +378,7 @@ async function generateMarkdown() {
 
     // Members named with a leading underscore are internal by convention
     // (see AGENTS.md), whatever their TypeScript visibility. Drop them before
-    // rendering so neither the README nor the Storybook args document them.
+    // rendering so neither the README nor the site documents them.
     app.converter.on(Converter.EVENT_RESOLVE_BEGIN, context => {
       for (const reflection of Object.values(context.project.reflections)) {
         if (
@@ -533,54 +475,6 @@ async function generateMarkdown() {
       interfaceDocs,
     });
 
-    // Generate Storybook args and stories from the same TypeDoc project
-    log.timer(`writing TypeDoc comments to Storybook Args for ${name}`);
-
-    const written = new Set();
-    const writes = [];
-    stories.forEach(story => {
-      const where = documentedStory(story, folder);
-      if (!where) return;
-      const {name} = story;
-      const {packageName, filePath} = where;
-
-      const argsPath = path.join(
-        folder,
-        `../docs/args/${packageName}${filePath || ""}/${name}.args.jsx`,
-      );
-      const argsContent = argsStub(
-        story,
-        publicDocs,
-        stories,
-        configDefaults,
-        interfaceDocs,
-      );
-      const argsFolder = path.dirname(argsPath);
-      fs.mkdirSync(argsFolder, {recursive: true});
-      writes.push(writeFormatted(argsPath, argsContent));
-      written.add(path.resolve(argsPath));
-
-      const storyPath = path.join(
-        folder,
-        `../docs/packages/${packageName}${filePath || ""}/${name}.stories.jsx`,
-      );
-      const existingContent = fs.existsSync(storyPath)
-        ? fs.readFileSync(storyPath, {encoding: "utf8"})
-        : "";
-      const storyContent = storiesStub(
-        story,
-        packageName,
-        filePath || "",
-        existingContent,
-      );
-      const storyFolder = path.dirname(storyPath);
-      fs.mkdirSync(storyFolder, {recursive: true});
-      writes.push(writeFormatted(storyPath, storyContent));
-      written.add(path.resolve(storyPath));
-    });
-    await Promise.all(writes);
-    pruneOrphans(folder, written, await loadPackageExports(folder));
-
     log.done();
   }
   if (manifestDir) writeManifest();
@@ -590,13 +484,13 @@ async function generateMarkdown() {
 }
 
 /**
- * Where a documented export's args and story go: its package folder name and
- * category (`/charts`), or null when it gets none. Storybook stories are for
+ * Where a documented export's page goes on the docs site: its package folder
+ * name and category (`/charts`), or null when it gets none. The site documents
  * the public chart/component/shape CLASSES and small utility FUNCTIONS — not
  * the internal helpers (pipeline stages, feature modules, fluent installers,
  * axis math, renderer internals) that @d3plus/core also exports for advanced
  * use. Document those in the README only. The render package is an internal
- * layer with no stories.
+ * layer with no pages.
  */
 function documentedStory(story, folder) {
   const {meta, name} = story;
@@ -617,8 +511,8 @@ function documentedStory(story, folder) {
   if (!match) return null;
   const [, packageName, rawFilePath] = match;
   // Charts/components live in per-export subfolders (charts/viz/Viz.ts),
-  // but the Storybook args/stories are flat by category. Collapse to the
-  // first path segment so output paths match the story import paths.
+  // but the site groups them by category alone. Collapse to the first path
+  // segment, the category.
   const filePath = rawFilePath
     ? `/${rawFilePath.split("/").filter(Boolean)[0]}`
     : "";

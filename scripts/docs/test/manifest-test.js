@@ -112,7 +112,7 @@ describe("flattenArgTypes and lineage", () => {
 });
 
 describe("configField", () => {
-  it("keeps a Storybook argType's type, control, options and defaults", () => {
+  it("keeps an argType's type, control, options and defaults", () => {
     const field = configField({
       type: {summary: "string | function"},
       control: {type: "radio"},
