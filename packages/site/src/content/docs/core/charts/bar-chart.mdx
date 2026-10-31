@@ -33,6 +33,7 @@ import errorBarsStacked from "~/examples/core/charts/bar-chart/error-bars-stacke
 import categoryLabels from "~/examples/core/charts/bar-chart/category-labels.js?raw";
 import hoverAreas from "~/examples/core/charts/bar-chart/hover-areas.js?raw";
 import angledAxisLabels from "~/examples/core/charts/bar-chart/angled-axis-labels.js?raw";
+import referenceLinesAndBands from "~/examples/core/charts/bar-chart/reference-lines-and-bands.js?raw";
 
 Creates a bar chart based on an array of data. When stacked, each bar's
 fraction of its stack total is available to tooltip accessors as `share`
@@ -193,6 +194,12 @@ On stacked bars, each segment's error bar sits at the segment's stacked end, kee
 Bars named by their own `groupBy` category carry that name inside the bar, and the category axis leaves its tick labels off. When the bars are too narrow for their names, as these 36 months are, the axis labels the categories instead (rotating or thinning them as any crowded axis does) and the bars drop theirs, so every bar stays named.
 
 <Playground chart="BarChart" code={categoryLabels} controls={["data","groupBy"]} />
+
+## Reference lines and bands
+
+On a category axis, `referenceLines` and `referenceBands` take categories: a line through a category's slot, or a band from one category's slot to another's. Their labels draw above the bars, clear of the bars' own labels: a label that would cover one moves to the band's other corner, the line's other side or end, or along it, staying inside the plot, and is hidden only when no spot is free. Here "Campaign" leaves its top corner, where South's label sits.
+
+<Playground chart="BarChart" code={referenceLinesAndBands} controls={["referenceLines","referenceBands"]} />
 
 ## Hover areas
 

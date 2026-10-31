@@ -84,7 +84,7 @@ Layer custom shapes over the data with `annotations`. Each entry names a `shape`
 
 ## Callouts and reference lines
 
-The same notes as above, without hand-built shapes. `referenceLines` draws a line across the plot at a value (`dash: true` dashes it) with a label at its end, and `referenceBands` shades the span between two values, labeled in its corner; both sit behind the data (their labels above it), and widen the axis to stay in view. A `"Callout"` annotation anchors wrapped text in a box at each row's `x`/`y`, offset by `dx`/`dy` pixels, with a connector ending in an arrowhead (or `marker: "dot"`), and stays inside the plot. `xRef`/`yRef: "plot"` position a callout by fractions of the plot area instead. Colors follow the chart's theme; every style can be overridden.
+The same notes as above, without hand-built shapes. `referenceLines` draws a line across the plot at a value (`dash: true` dashes it) with a label at its end, and `referenceBands` shades the span between two values, labeled in its corner; both sit behind the data (their labels above it, moved clear of the data's labels), and widen the axis to stay in view. A `"Callout"` annotation anchors wrapped text in a box at each row's `x`/`y`, offset by `dx`/`dy` pixels, with a connector ending in an arrowhead (or `marker: "dot"`), and stays inside the plot. `xRef`/`yRef: "plot"` position a callout by fractions of the plot area instead. Colors follow the chart's theme; every style can be overridden.
 
 <Playground chart="Plot" code={calloutsAndReferenceLines} controls={["annotations","referenceLines","referenceBands"]} />
 

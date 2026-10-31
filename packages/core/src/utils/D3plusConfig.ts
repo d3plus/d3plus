@@ -1756,7 +1756,9 @@ export interface D3plusConfig {
       config's `domain` stays put). Each entry expands into a
       `"ReferenceBand"` annotation (see `annotations`) behind the data
       (`layer: "front"` to draw it over; its label always draws above), which follows zoom and never
-      responds to the pointer or keyboard.
+      responds to the pointer or keyboard. A label that would cover a data
+      label or another reference label moves to the band's other corners or
+      along its length, inside the plot, and is hidden when no spot is free.
   */
   referenceBands?: ReferenceBandConfig[];
   /**
@@ -1777,7 +1779,10 @@ export interface D3plusConfig {
       expands into a `"ReferenceLine"` annotation (see `annotations`) behind
       the data (`layer: "front"` to draw it over; its label always draws
       above), which follows zoom and
-      never responds to the pointer or keyboard.
+      never responds to the pointer or keyboard. A label that would cover a
+      data label or another reference label moves to the line's other side
+      or end, or along it, inside the plot, and is hidden when no spot is
+      free.
   */
   referenceLines?: ReferenceLineConfig[];
   /** Row key for matrix-style layouts. */

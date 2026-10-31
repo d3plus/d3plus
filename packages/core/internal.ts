@@ -374,12 +374,22 @@ export {
   REFERENCE_LINE,
   referenceAxis,
   referenceBandLabelAt,
+  referenceBandLabelSpots,
   referenceBandNodes,
   referenceBandRect,
   referenceLineLabelAt,
+  referenceLineLabelSpots,
   referenceLineNodes,
   referenceLinePoints,
 } from "./src/charts/features/referenceAnnotations.js";
+export {
+  labelSpotBox,
+  pickLabelSpot,
+  placeReferenceLabels,
+  registerLabelSpots,
+  slideSteps,
+} from "./src/charts/features/referenceLabelPlacement.js";
+export type {LabelSpot} from "./src/charts/features/referenceLabelPlacement.js";
 export {
   openDomainEnds,
   referenceDomainValues,

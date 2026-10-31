@@ -3,7 +3,8 @@
     expand into `"ReferenceLine"`/`"ReferenceBand"` annotations, drawn as a
     line across the whole plot at one value, or a shaded span between two,
     with an optional label. Both sit behind the data unless `layer: "front"`;
-    their labels draw above it.
+    their labels draw above it, clear of the data labels (see
+    `placeReferenceLabels`).
 */
 import type {LineNode, Paint, RectNode, SceneNode} from "@d3plus/render";
 
@@ -26,14 +27,17 @@ import {
 } from "./annotationText.js";
 import type {Annotation, AnnotationRef} from "./annotationTypes.js";
 import type {Box} from "./calloutLayout.js";
+import {
+  LABEL_PAD as PAD,
+  registerLabelSpots,
+  slideSteps,
+  type LabelSpot,
+} from "./referenceLabelPlacement.js";
 
 /** The annotation shape a `referenceLines` entry expands into. */
 export const REFERENCE_LINE = "ReferenceLine";
 /** The annotation shape a `referenceBands` entry expands into. */
 export const REFERENCE_BAND = "ReferenceBand";
-
-/** Gap between a reference label and its line or band edge, in pixels. */
-const PAD = 4;
 
 const AXES: AnnotationAxis[] = ["x", "y", "x2", "y2"];
 
@@ -208,12 +212,122 @@ export function referenceBandLabelAt(
     : {x: box.x + PAD, y: box.y + PAD, align: "start"};
 }
 
-/** The label's text node, or null when the entry has no label. */
+/** Each spot of `firsts` crossed with each of `seconds`, `firsts` varying slowest. */
+const cross = <A, B>(firsts: A[], seconds: B[]): [A, B][] =>
+  firsts.flatMap(a => seconds.map(b => [a, b] as [A, B]));
+
+/**
+    Every spot a reference line's label may take, the one
+    `referenceLineLabelAt` picks first: then the other side of the line, then
+    the line's other end on either side, then along the line from the
+    preferred end on either side.
+    @param frame The plot area and its axes.
+    @param line The line's axis and pixel position.
+    @param block The wrapped label.
+    @param position Which end of the line is preferred.
+*/
+export function referenceLineLabelSpots(
+  frame: AnnotationFrame,
+  line: {axis: AnnotationAxis; at: number},
+  block: TextBlock,
+  position: "start" | "end" = "end",
+): LabelSpot[] {
+  const {plot} = frame;
+  const first = referenceLineLabelAt(frame, line, block, position);
+  const other = position === "start" ? "end" : "start";
+  if (isVertical(line.axis)) {
+    // A horizontal line: its ends are the plot's sides; its sides, above and below.
+    const sides = [
+      first.y,
+      first.y === line.at + PAD ? line.at - PAD - block.height : line.at + PAD,
+    ];
+    const ends: [number, TextAlign][] = [
+      [first.x, first.align],
+      other === "start" ? [plot.x0 + PAD, "start"] : [plot.x1 - PAD, "end"],
+    ];
+    const along = slideSteps(
+      first.align === "end" ? plot.x1 - PAD - block.width : plot.x0 + PAD,
+      first.align === "end" ? plot.x0 + PAD : plot.x1 - PAD - block.width,
+    );
+    return [
+      ...cross(ends, sides).map(([[x, align], y]) => ({x, y, align})),
+      ...cross(along, sides).map(([x, y]) => ({x, y, align: "start" as const})),
+    ];
+  }
+  // A vertical line: its ends are the plot's top and bottom; its sides, right and left.
+  const sides: [number, TextAlign][] = [
+    [first.x, first.align],
+    first.align === "start" ? [line.at - PAD, "end"] : [line.at + PAD, "start"],
+  ];
+  const top = plot.y0 + PAD,
+    bottom = plot.y1 - PAD - block.height;
+  const ends = [first.y, first.y === top ? bottom : top];
+  const along = slideSteps(first.y, first.y === top ? bottom : top);
+  return cross([...ends, ...along], sides).map(([y, [x, align]]) => ({
+    x,
+    y,
+    align,
+  }));
+}
+
+/**
+    Every spot a reference band's label may take, inside the band: the
+    corner `referenceBandLabelAt` picks first, then the other top corner,
+    then the bottom corners, then along the band's length from its top (or,
+    across the plot, from its preferred side).
+    @param box The band's rect.
+    @param axis The band's axis.
+    @param block The wrapped label.
+    @param position Which top corner is preferred.
+*/
+export function referenceBandLabelSpots(
+  box: Box,
+  axis: AnnotationAxis,
+  block: TextBlock,
+  position: "start" | "end" = "start",
+): LabelSpot[] {
+  const startX: [number, TextAlign] = [box.x + PAD, "start"],
+    endX: [number, TextAlign] = [box.x + box.width - PAD, "end"];
+  const xs = position === "end" ? [endX, startX] : [startX, endX];
+  const top = box.y + PAD,
+    bottom = box.y + box.height - PAD - block.height;
+  const corners = cross([top, bottom], xs).map(([y, [x, align]]) => ({
+    x,
+    y,
+    align,
+  }));
+  if (isVertical(axis)) {
+    const [[x0], [x1]] = xs;
+    const fromX = position === "end" ? x0 - block.width : x0;
+    const toX = position === "end" ? x1 : x1 - block.width;
+    return [
+      ...corners,
+      ...cross(slideSteps(fromX, toX), [top, bottom]).map(([x, y]) => ({
+        x,
+        y,
+        align: "start" as const,
+      })),
+    ];
+  }
+  return [
+    ...corners,
+    ...cross(slideSteps(top, bottom), xs).map(([y, [x, align]]) => ({
+      x,
+      y,
+      align,
+    })),
+  ];
+}
+
+/**
+    The label's text node at its preferred spot, registered with the rest of
+    its spots (see `placeReferenceLabels`), or null when the entry has no label.
+*/
 function labelNode(
   viz: VizInstance,
   annotation: Annotation,
   key: string,
-  place: (block: TextBlock) => {x: number; y: number; align: TextAlign},
+  spotsFor: (block: TextBlock) => LabelSpot[],
 ): SceneNode | null {
   const text = annotation.label;
   if (text === undefined || text === null || text === false || text === "")
@@ -221,7 +335,10 @@ function labelNode(
   const style = annotationTextStyle(viz, k => annotation[k]);
   const block = wrapAnnotationText(`${text}`, style);
   if (!block.lines.length) return null;
-  return annotationTextNode(block, style, {key, ...place(block)});
+  const spots = spotsFor(block);
+  const node = annotationTextNode(block, style, {key, ...spots[0]});
+  registerLabelSpots(node, block, spots);
+  return node;
 }
 
 /** A `dash` setting's pattern: `true` is "4 4". */
@@ -267,7 +384,7 @@ export function referenceLineNodes(
     } as LineNode,
   ];
   const label = labelNode(viz, annotation, `${key}-label`, block =>
-    referenceLineLabelAt(
+    referenceLineLabelSpots(
       frame,
       line,
       block,
@@ -312,9 +429,11 @@ export function referenceBandNodes(
       paint,
     } as RectNode,
   ];
-  const label = labelNode(viz, annotation, `${key}-label`, () =>
-    referenceBandLabelAt(
+  const label = labelNode(viz, annotation, `${key}-label`, block =>
+    referenceBandLabelSpots(
       band.box,
+      band.axis,
+      block,
       annotation.labelPosition === "end" ? "end" : "start",
     ),
   );
