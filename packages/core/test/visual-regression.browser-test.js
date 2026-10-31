@@ -371,6 +371,20 @@ const charts = [
     ])`,
   ],
   [
+    "alluvial",
+    `lib => new lib.Alluvial()
+    .data([
+      {region: "West", product: "Chairs", channel: "Online", units: 5},
+      {region: "West", product: "Chairs", channel: "Store", units: 3},
+      {region: "West", product: "Tables", channel: "Online", units: 2},
+      {region: "East", product: "Chairs", channel: "Online", units: 4},
+      {region: "East", product: "Tables", channel: "Store", units: 6},
+      {region: "North", product: "Desks", channel: "Store", units: 3},
+    ])
+    .dimensions(["region", "product", "channel"])
+    .value("units")`,
+  ],
+  [
     "beeswarm",
     `lib => new lib.Beeswarm()
     .groupBy("id")

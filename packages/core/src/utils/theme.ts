@@ -86,7 +86,8 @@ export interface ThemeTokens {
   hidden: string;
   /**
       Link strokes between nodes: Network, Rings, and Sankey (whose wide bands
-      take a dimmer gray in the dark preset unless this is set).
+      take a dimmer gray in the dark preset unless this is set). Also the
+      fill of Alluvial's nodes outside its `colorBy` column.
   */
   link: string;
   colorScale: ThemeColorScaleTokens;

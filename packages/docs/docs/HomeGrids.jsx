@@ -3,6 +3,7 @@ import {AnchorMdx} from "@storybook/addon-docs/blocks";
 import {useTheme} from "storybook/theming";
 
 const charts = [
+  ["Alluvial", "alluvial"],
   ["Area Plot", "areaplot"],
   ["Bar Chart", "barchart"],
   ["Beeswarm", "beeswarm"],

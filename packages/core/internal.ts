@@ -766,6 +766,72 @@ export {
   titleWidths,
 } from "./src/charts/ParallelCoordinates/titles.js";
 export {
+  aggregateAlluvial,
+  alluvialPathText,
+} from "./src/charts/Alluvial/aggregate.js";
+export type {
+  AlluvialBand,
+  AlluvialGraph,
+  AlluvialNode,
+  AlluvialPath,
+} from "./src/charts/Alluvial/aggregate.js";
+export {
+  alluvialNodeId,
+  alluvialPathRows,
+  alluvialValueTitle,
+  applyAlluvialLayout,
+  countRows,
+} from "./src/charts/Alluvial/applyLayout.js";
+export type {
+  AlluvialCtx,
+  AlluvialDrawnBand,
+  AlluvialDrawnNode,
+} from "./src/charts/Alluvial/applyLayout.js";
+export {
+  isMissingCategory,
+  resolveAlluvialDimensions,
+  resolveColorBy,
+} from "./src/charts/Alluvial/dimensions.js";
+export type {
+  AlluvialAccessor,
+  AlluvialDimension,
+  AlluvialDimensionInput,
+} from "./src/charts/Alluvial/dimensions.js";
+export {alluvialEmit, formatAlluvialValue} from "./src/charts/Alluvial/emit.js";
+export {
+  alluvialHighlight,
+  alluvialTooltipRows,
+  alluvialTooltipTitle,
+  installAlluvialHover,
+} from "./src/charts/Alluvial/hover.js";
+export {
+  alluvialColumns,
+  alluvialRibbon,
+  incomingBarycenters,
+  layoutAlluvial,
+  sortAlluvialColumns,
+} from "./src/charts/Alluvial/layout.js";
+export type {
+  AlluvialLayoutOptions,
+  AlluvialNodeSort,
+} from "./src/charts/Alluvial/layout.js";
+export {
+  alluvialDimensions,
+  alluvialGroupBy,
+  alluvialMeta,
+  setAlluvialMeta,
+  sourceRows,
+} from "./src/charts/Alluvial/meta.js";
+export type {AlluvialMeta} from "./src/charts/Alluvial/meta.js";
+export {
+  TITLE_GAP as ALLUVIAL_TITLE_GAP,
+  alluvialTitleBoxes,
+  alluvialTitleNodes,
+  alluvialTitleStyle,
+  sizeAlluvialTitles,
+} from "./src/charts/Alluvial/titles.js";
+export type {AlluvialTitle} from "./src/charts/Alluvial/titles.js";
+export {
   candleChange,
   candleDirection,
   candlePath,
@@ -1016,6 +1082,7 @@ export {
 export type {RadialBarFrame} from "./src/charts/RadialBar/trackLayout.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
+export {alluvialDef, alluvialValue} from "./src/charts/Alluvial/index.js";
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {bubbleChartDef} from "./src/charts/BubbleChart/index.js";
 export {bulletDef} from "./src/charts/Bullet/index.js";

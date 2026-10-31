@@ -396,6 +396,16 @@ const charts = [
   ],
   ["Rings", {links, center: "alpha"}],
   ["Sankey", {links}],
+  [
+    "Alluvial",
+    {
+      data: [
+        {region: "West", product: "Chairs", channel: "Online"},
+        {region: "East", product: "Tables", channel: "Store"},
+      ],
+      dimensions: ["region", "product", "channel"],
+    },
+  ],
   ["StackedArea", {...plot, ...titled}],
   ["Sunburst", {data: tree, groupBy: ["parent", "id"], sum: "value"}],
   [

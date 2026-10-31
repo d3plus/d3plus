@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Alluvial as AlluvialClass,
   AreaPlot as AreaPlotClass,
   BarChart as BarChartClass,
   Beeswarm as BeeswarmClass,
@@ -81,6 +82,10 @@ import type {RendererProps} from "./src/Renderer.jsx";
 /** Props for d3plus React wrapper components (omits the internal constructor prop). */
 export type D3plusComponentProps = Omit<RendererProps, "constructor">;
 
+/** React component for rendering a d3plus Alluvial visualization. */
+export const Alluvial = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={AlluvialClass} {...props} />
+);
 /** React component for rendering a d3plus AreaPlot visualization. */
 export const AreaPlot = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={AreaPlotClass} {...props} />
