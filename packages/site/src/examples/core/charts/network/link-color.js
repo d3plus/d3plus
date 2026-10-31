@@ -1,0 +1,26 @@
+const config = {
+  nodes: [
+    {id: "Lisbon", region: "West", x: 0, y: 3},
+    {id: "Madrid", region: "West", x: 2, y: 3},
+    {id: "Paris", region: "West", x: 3, y: 1},
+    {id: "Berlin", region: "Central", x: 6, y: 0},
+    {id: "Vienna", region: "Central", x: 6, y: 2},
+    {id: "Rome", region: "South", x: 5, y: 4},
+    {id: "Athens", region: "South", x: 8, y: 5},
+  ],
+  links: [
+    {source: "Lisbon", target: "Madrid", trips: 120},
+    {source: "Madrid", target: "Paris", trips: 340},
+    {source: "Paris", target: "Berlin", trips: 510},
+    {source: "Paris", target: "Rome", trips: 260},
+    {source: "Berlin", target: "Vienna", trips: 430},
+    {source: "Vienna", target: "Rome", trips: 180},
+    {source: "Rome", target: "Athens", trips: 90},
+    {source: "Madrid", target: "Rome", trips: 150},
+  ],
+  color: "region",
+  linkColor: "trips",
+  linkSize: d => d.trips,
+  colorScaleConfig: {color: ["#c9d7f2", "#1f4fb4"]},
+  sizeMax: 14,
+};

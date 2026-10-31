@@ -9,6 +9,7 @@ import basicExample from "~/examples/core/charts/arc-diagram/basic-example.js?ra
 import sortByGroup from "~/examples/core/charts/arc-diagram/sort-by-group.js?raw";
 import directedArrows from "~/examples/core/charts/arc-diagram/directed-arrows.js?raw";
 import bothSides from "~/examples/core/charts/arc-diagram/both-sides.js?raw";
+import linkLabels from "~/examples/core/charts/arc-diagram/link-labels.js?raw";
 
 Places a network's nodes in a row along one line and draws each link as
 an arc between its two nodes, which shows the network's structure
@@ -37,5 +38,11 @@ Takes the same `nodes` and `links` as Network. Nodes sit evenly along one line i
 `arcSide: "both"` arcs each link running forward along the line above it, and each link running back below it, so loops back to earlier steps read apart from the forward flow. The node labels sit under the line, where the backward arcs pass behind them, so each draws over a halo in the chart's background that keeps it readable; with `arcSide: "below"` the labels move above the line, clear of every arc. `linkColor: "source"` colors every arc like the node it leaves.
 
 <Playground chart="ArcDiagram" code={bothSides} controls={["arcSide","arrows","linkColor"]} />
+
+## Link color and labels
+
+`linkColor` also takes a key or accessor: numbers color the arcs on the colorScale, and strings are colors or categories (links with no value keep the theme's gray). Here the rework loops are drawn in orange. `linkLabel` writes a value at the top of each arc, hidden when it would cover a node or another label.
+
+<Playground chart="ArcDiagram" code={linkLabels} controls={["linkColor","linkLabel","linkLabelConfig"]} />
 
 <ApiReference name="ArcDiagram" pkg="core" />

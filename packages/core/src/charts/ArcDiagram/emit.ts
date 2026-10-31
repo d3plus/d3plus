@@ -15,7 +15,10 @@ import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import {linkAriaLabel, linkHitPath} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ArcCtx, ArcLink, ArcNode} from "./applyLayout.js";
-import {arcEndTip} from "./arcGeometry.js";
+import {linkColorResolver} from "../features/linkColor.js";
+import type {LinkAnchor} from "../features/linkLabelGeometry.js";
+import {emitLinkLabels} from "../features/linkLabels.js";
+import {arcApex, arcEndTip} from "./arcGeometry.js";
 import {emitArcLabels} from "./arcLabels.js";
 
 /** A node's paint, from the node shape's config. */
@@ -23,19 +26,30 @@ function nodePaint(config: Record<string, unknown>, n: ArcNode): Paint {
   return paintFromShapeConfig(config, n.data, n.i);
 }
 
-/** The arc stroke `linkColor` picks: an end node's fill, or none (the link config's). */
-function linkStroke(
-  viz: VizInstance,
-  link: ArcLink,
-  nodeConfig: Record<string, unknown>,
-): string | undefined {
-  const pick = viz.schema.linkColor;
-  const end =
-    pick === "source" ? link.source : pick === "target" ? link.target : null;
-  if (!end) return undefined;
-  const fill = nodePaint(nodeConfig, end).fill;
-  return typeof fill === "string" ? fill : undefined;
+/** Where an arc's label goes: its highest point, running with the line. */
+export function arcLabelAnchor(link: ArcLink): LinkAnchor {
+  const [x, y] = arcApex(link.arc);
+  return {x, y, angle: link.arc.orient === "vertical" ? Math.PI / 2 : 0};
 }
+
+/** The arc labels, at the top of each arc, clear of every node. */
+function arcLinkLabels(viz: VizInstance, c: ArcCtx): SceneNode[] {
+  return emitLinkLabels(
+    viz,
+    c.links.map((link, i) => ({
+      key: arcLinkKey(link),
+      link,
+      i,
+      anchor: arcLabelAnchor(link),
+      priority: link.size,
+    })),
+    {circles: c.nodes.map(n => ({x: n.x, y: n.y, r: n.r}))},
+  );
+}
+
+/** An arc's scene key. */
+const arcLinkKey = (link: ArcLink): string =>
+  `arc-link-${link.source.id}-${link.target.id}-${link.index}`;
 
 /** Arrowheads at an arc's selected ends, each pointing along the arc into its node. */
 function arcArrows(
@@ -69,7 +83,7 @@ function arcArrows(
 
 /** The arcs, their hit paths, and their arrowheads. */
 function emitArcs(viz: VizInstance, c: ArcCtx): SceneNode[] {
-  const nodeConfig = shapeConfigFor(viz, "Circle");
+  const linkColor = linkColorResolver(viz);
   const arcs: SceneNode[] = [];
   const hits: SceneNode[] = [];
   const arrows: SceneNode[] = [];
@@ -78,9 +92,9 @@ function emitArcs(viz: VizInstance, c: ArcCtx): SceneNode[] {
     const paint = paintFromShapeConfig(c.linkConfig, datum, link.index);
     paint.fill = "none";
     paint.strokeWidth = link.size;
-    const stroke = linkStroke(viz, link, nodeConfig);
+    const stroke = linkColor(datum, link);
     if (stroke) paint.stroke = stroke;
-    const key = `arc-link-${link.source.id}-${link.target.id}-${link.index}`;
+    const key = arcLinkKey(link);
     arcs.push({
       type: "path",
       key,
@@ -100,7 +114,7 @@ function emitArcs(viz: VizInstance, c: ArcCtx): SceneNode[] {
       ),
     );
   }
-  return [...arcs, ...hits, ...arrows];
+  return [...arcs, ...hits, ...arrows, ...arcLinkLabels(viz, c)];
 }
 
 /** One node's Circle (or Rect, with `shape: "Rect"`). */

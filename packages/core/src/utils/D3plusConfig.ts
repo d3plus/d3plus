@@ -6,6 +6,7 @@ import type {LinkOption} from "../charts/viz/linkGroup.js";
 import type {BarShareInfo} from "../charts/Plot/barWidth.js";
 import type {ConnectGaps} from "../charts/Plot/connectGaps.js";
 import type {SlopeColorSetting} from "../charts/SlopeChart/slope.js";
+import type {LinkLabelConfig} from "../charts/features/linkLabels.js";
 import type {
   LineLabelConfig,
   LineLabelsSetting,
@@ -1547,11 +1548,44 @@ export interface D3plusConfig {
   */
   maxAngle?: number;
   /**
-      Colors each of ArcDiagram's arcs like one of its nodes: `"source"` or
-      `"target"`. `false` (the default) draws every arc in the theme's `link`
+      Colors each link of a Network, Rings, Sankey, or ArcDiagram, and its
+      arrowheads: `"source"` or `"target"` takes that end node's color, and
+      a key or accessor function reads a value from each link (receiving the
+      link, with `source` and `target` set to the data of its nodes, and its
+      index in `links`). A number is colored on the chart's
+      colorScale, which then shows the links' values beside the nodes' color
+      legend (when the chart also has a `colorScale` for its nodes, nodes and
+      links share it, on one domain); a string is a color when it parses as
+      one, or else a category in the chart's palette, as `color` colors
+      nodes. `false` (the default) draws every link in the theme's `link`
       gray.
   */
-  linkColor?: false | "source" | "target";
+  linkColor?:
+    | false
+    | "source"
+    | "target"
+    | string
+    | ((d: DataPoint, i: number) => unknown);
+  /**
+      Text drawn at the middle of each link of a Network, Rings, Sankey, or
+      ArcDiagram: a key or accessor function (receiving the link, with
+      `source` and `target` set to the data of its nodes, and its index in
+      `links`). It sits halfway along a link's length, centered on
+      a Sankey band, and at the top of an ArcDiagram arc, on a pad of the
+      chart's background. Numbers are abbreviated in the chart's locale.
+      Labels that would cover a node or another label are hidden, the
+      widest links' labels kept first. Defaults to none.
+  */
+  linkLabel?: string | ((d: DataPoint, i: number) => unknown);
+  /**
+      Styles the link labels (see `linkLabel`): `rotate`, `"along"` (the
+      default) to run text along its link, kept upright, or `"horizontal"`;
+      `fontSize` (10); `padding`, the pad around the text (2);
+      `backgroundOpacity`, the opacity of that pad in the chart's background
+      color (0.85); and any other TextBox setting, such as `fontColor`
+      (defaults to the chart's text color), `fontFamily`, or `fontWeight`.
+  */
+  linkLabelConfig?: LinkLabelConfig;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
   link?: LinkOption;
   /**

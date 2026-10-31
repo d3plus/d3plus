@@ -36,6 +36,10 @@ import {
   linkMeta,
 } from "../features/linkInteraction.js";
 import type {LinkDatum} from "../features/linkInteraction.js";
+import {linkColorResolver} from "../features/linkColor.js";
+import type {LinkEnds} from "../features/linkColor.js";
+import {segmentMidpoint} from "../features/linkLabelGeometry.js";
+import {emitLinkLabels} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -94,6 +98,7 @@ function networkLinkArrows(
 */
 function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
   const out: SceneNode[] = [];
+  const linkColor = linkColorResolver(viz);
   for (const link of c.links) {
     const datum = link.datum;
     if (!datum) continue;
@@ -101,9 +106,11 @@ function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
     const paint = paintFromShapeConfig(c.linkConfig, datum, i);
     // Link's strokeWidth comes from the layout-injected `d.size`.
     if (typeof link.size === "number") paint.strokeWidth = link.size;
+    const stroke = linkColor(datum, link as unknown as LinkEnds);
+    if (stroke) paint.stroke = stroke;
     const srcId = (link.source as DataPoint).id ?? "";
     const tgtId = (link.target as DataPoint).id ?? "";
-    const key = `network-link-${srcId}-${tgtId}-${i}`;
+    const key = networkLinkKey(link, i);
     const d = c.linkD(link);
     out.push({
       type: "path",
@@ -130,6 +137,63 @@ function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
     );
   }
   return out;
+}
+
+/** A link's scene key. */
+const networkLinkKey = (link: NetworkLink, i: number): string =>
+  `network-link-${(link.source as DataPoint).id ?? ""}-${(link.target as DataPoint).id ?? ""}-${i}`;
+
+/**
+    The link labels, at the middle of each link's run between its nodes,
+    clear of every node and every node label placed beside its node.
+*/
+function networkLinkLabels(
+  viz: VizInstance,
+  c: NetworkCtx,
+  placed: Map<NetworkNode, CircleLabelLayout>,
+): SceneNode[] {
+  if (!c.links?.length) return [];
+  const beside = [...placed.values()].flatMap(p =>
+    p.position === "outside" ? [p.box] : [],
+  );
+  const nodes = c.nodeGroups.flatMap(([, values]) => values);
+  return emitLinkLabels(
+    viz,
+    c.links.flatMap(link => {
+      if (!link.datum) return [];
+      const i = linkMeta(link.datum)!.index;
+      return [
+        {
+          key: networkLinkKey(link, i),
+          link,
+          i,
+          anchor:
+            link.source && link.target
+              ? segmentMidpoint(
+                  [link.source.x, link.source.y],
+                  [link.target.x, link.target.y],
+                  (link.source as NetworkNode).r ?? 0,
+                  (link.target as NetworkNode).r ?? 0,
+                )
+              : null,
+          priority: link.size,
+        },
+      ];
+    }),
+    {
+      circles: nodes
+        .filter(n => n.shape !== "Rect")
+        .map(n => ({x: n.x, y: n.y, r: n.r})),
+      boxes: nodes
+        .filter(n => n.shape === "Rect")
+        .map(n => {
+          const w = n.width ?? n.r * 2;
+          const h = n.height ?? n.r * 2;
+          return {x: n.x - w / 2, y: n.y - h / 2, width: w, height: h};
+        })
+        .concat(beside),
+    },
+  );
 }
 
 /** One node's Circle or Rect SceneNode, or null for any other shape kind. */
@@ -307,10 +371,13 @@ export const networkEmit: ChartEmit = ({viz}) => {
   if (!c) return [];
   const out: SceneNode[] = [];
 
+  const placed = c.nodeGroups?.length
+    ? placeNetworkLabels(viz, c)
+    : new Map<NetworkNode, CircleLabelLayout>();
   if (c.links && c.links.length) out.push(...emitNetworkLinks(viz, c));
+  out.push(...networkLinkLabels(viz, c, placed));
 
   if (c.nodeGroups && c.nodeGroups.length) {
-    const placed = placeNetworkLabels(viz, c);
     for (const [shapeKind, values] of c.nodeGroups) {
       if (!values.length) continue;
       const vizCfg = shapeConfigFor(viz, shapeKind);

@@ -21,6 +21,7 @@ import type {InsetOrient} from "./insetState.js";
 import type {FacetAccessor} from "../facet/facetConfig.js";
 import {facetKey} from "../facet/facetData.js";
 import {colorScaleBucketRows} from "./colorScaleBucket.js";
+import {colorScaleValue, linkColorScaleRows} from "./colorScaleValue.js";
 import {resolveAccessor, shapeConfigFor} from "./emitHelpers.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 
@@ -38,9 +39,19 @@ interface ColorScaleFrame {
 /**
     The colorScale's data: the chart's data rolled up per time/id (and per
     small-multiples panel, the values the panels color by), keeping rows with
-    a colorScale value.
+    a colorScale value, then any links colored by number.
 */
-function colorScaleData(viz: VizInstance): MergedDataPoint[] {
+function colorScaleData(viz: VizInstance): DataPoint[] {
+  const links = linkColorScaleRows(viz);
+  if (typeof viz.schema.colorScale !== "function") return links;
+  const own = viz._colorScaleRows
+    ? viz._colorScaleRows()
+    : (dataRows(viz) as unknown as DataPoint[]);
+  return links.length ? [...own, ...links] : own;
+}
+
+/** The chart's data rolled up per time/id/panel, keeping rows with a colorScale value. */
+function dataRows(viz: VizInstance): MergedDataPoint[] {
   const facet = viz.schema.facet as FacetAccessor | undefined;
   const data = Array.from(
     rollup(
@@ -118,18 +129,19 @@ function paintColorScale(
     update: transform,
   }).node();
 
-  if (!viz.schema.colorScale) return;
+  const value = colorScaleValue(viz);
+  if (!value) return;
 
   viz
     ._colorScaleClass!.renderMode("compute")
     .align(frame.align)
     .duration(effectiveDuration(viz))
-    .data(viz._colorScaleRows ? viz._colorScaleRows() : colorScaleData(viz))
+    .data(colorScaleData(viz))
     .height(frame.height)
     .locale(viz.schema.locale)
     .orient(frame.orient)
     .select(scaleGroup)
-    .value(viz.schema.colorScale)
+    .value(value)
     .width(frame.width)
     .legendConfig({shapeConfig: bucketSwatchConfig(viz)})
     .config(viz.schema.colorScaleConfig)
@@ -159,7 +171,7 @@ export function paintColorScaleInset(
   area: {width: number; height: number},
 ): {width: number; height: number} | null {
   const show =
-    Boolean(viz.schema.colorScale) &&
+    Boolean(colorScaleValue(viz)) &&
     colorScalePosition(viz) !== false &&
     !viz.schema.colorScaleConfig.select;
   const frame = insetFrame(orient, area);
@@ -209,7 +221,7 @@ export const colorScaleFeature: FeatureModule = {
 
     const position = colorScalePosition(viz);
     const wide = ["top", "bottom"].includes(position as string);
-    const showColorScale = viz.schema.colorScale && position;
+    const showColorScale = colorScaleValue(viz) && position;
     const padding = viz.schema.colorScalePadding(viz)
       ? viz._padding
       : {top: 0, right: 0, bottom: 0, left: 0};

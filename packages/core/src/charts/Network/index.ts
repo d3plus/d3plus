@@ -39,6 +39,7 @@ import {
   linkMeta,
   linkTooltipConfig,
 } from "../features/linkInteraction.js";
+import {linkStyleFields} from "../features/linkFields.js";
 
 const getNodeId = graphNodeId;
 
@@ -338,6 +339,7 @@ export const networkDef: ChartDefinition = {
         @type {number | function}
     */
     {key: "arrowSize"},
+    ...linkStyleFields(),
     {key: "links", default: []},
     /**
         The thickness of each link: a pixel number used for every link, or an

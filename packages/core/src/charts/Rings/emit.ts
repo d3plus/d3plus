@@ -29,10 +29,17 @@ import {
   linkMeta,
 } from "../features/linkInteraction.js";
 import type {LinkDatum} from "../features/linkInteraction.js";
+import {linkColorResolver} from "../features/linkColor.js";
+import type {LinkEnds} from "../features/linkColor.js";
+import {cubicMidpoint, segmentMidpoint} from "../features/linkLabelGeometry.js";
+import type {LinkAnchor} from "../features/linkLabelGeometry.js";
+import {emitLinkLabels} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-interface RingsEdge {
+export interface RingsEdge {
+  /** The edge's index in `links`. */
+  index?: number;
   source: DataPoint & {id: string; x: number; y: number};
   target: DataPoint & {id: string; x: number; y: number};
   size?: number;
@@ -143,6 +150,50 @@ function ringsEdgeArrows(
   return out;
 }
 
+/** An edge's scene key. */
+const ringsLinkKey = (edge: RingsEdge): string =>
+  `rings-link-${edge.source.id}-${edge.target.id}`;
+
+/**
+    Where an edge's label goes: halfway along a spline edge's curve, or
+    along a straight edge's run between its nodes.
+*/
+export function ringsEdgeAnchor(edge: RingsEdge): LinkAnchor {
+  if (edge.spline && edge.sourceX != null && edge.targetX != null)
+    return cubicMidpoint(
+      [edge.sourceX, edge.sourceY!],
+      [edge.sourceBisectX!, edge.sourceBisectY!],
+      [edge.targetBisectX!, edge.targetBisectY!],
+      [edge.targetX, edge.targetY!],
+    );
+  const r = (n: DataPoint) => (typeof n.r === "number" ? n.r : 0);
+  return segmentMidpoint(
+    [edge.source.x, edge.source.y],
+    [edge.target.x, edge.target.y],
+    r(edge.source),
+    r(edge.target),
+  );
+}
+
+/** The edge labels, clear of every node. */
+function ringsLinkLabels(viz: VizInstance, c: RingsCtx): SceneNode[] {
+  return emitLinkLabels(
+    viz,
+    c.edges.map((edge, i) => ({
+      key: ringsLinkKey(edge),
+      link: edge,
+      i,
+      anchor: ringsEdgeAnchor(edge),
+      priority: edge.size,
+    })),
+    {
+      circles: c.nodeGroups.flatMap(([, values]) =>
+        values.map(n => ({x: n.x, y: n.y, r: n.r})),
+      ),
+    },
+  );
+}
+
 /** One node's Circle or Rect SceneNode (origin-centered, placed by `transform`), or null for any other shape kind. */
 function ringsNode(
   shapeKind: string,
@@ -185,12 +236,15 @@ export const ringsEmit: ChartEmit = ({viz}) => {
   const out: SceneNode[] = [];
 
   if (c.edges && c.edges.length) {
+    const linkColor = linkColorResolver(viz);
     for (const edge of c.edges) {
       const datum = edge.datum;
       const i = linkMeta(datum)?.index ?? 0;
       const paint = paintFromShapeConfig(c.linkConfig, datum, i);
       if (typeof edge.size === "number") paint.strokeWidth = edge.size;
-      const key = `rings-link-${edge.source.id}-${edge.target.id}`;
+      const stroke = linkColor(datum, edge as unknown as LinkEnds);
+      if (stroke) paint.stroke = stroke;
+      const key = ringsLinkKey(edge);
       const d = c.linkD(edge);
       out.push({
         type: "path",
@@ -215,6 +269,7 @@ export const ringsEmit: ChartEmit = ({viz}) => {
         ),
       );
     }
+    out.push(...ringsLinkLabels(viz, c));
   }
 
   if (c.nodeGroups && c.nodeGroups.length) {
