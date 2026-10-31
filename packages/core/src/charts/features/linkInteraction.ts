@@ -14,6 +14,7 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
+import {rtl} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -147,16 +148,38 @@ export function linkNodeOf(
   return nodeEntries.get(viz)?.get(d);
 }
 
+/** Languages written right to left, by their primary language subtag. */
+const RTL_LANGUAGES = new Set(["ar", "dv", "fa", "he", "ps", "ur", "yi"]);
+
+/** Whether a locale code (`"ar-SA"`) names a language written right to left. */
+export function rtlLocale(locale: unknown): boolean {
+  const language = `${locale ?? ""}`.split(/[-_]/)[0].toLowerCase();
+  return RTL_LANGUAGES.has(language);
+}
+
+/**
+    The arrows a chart's tooltips point from a link's source to its target
+    with: `["→", "←"]`, mirrored to `["←", "→"]` when the chart's locale is
+    written right to left or the page's direction is (see `rtl`).
+*/
+export function linkArrows(viz: VizInstance): [string, string] {
+  const mirrored =
+    rtlLocale(viz.schema.locale) ||
+    (typeof document !== "undefined" && !!document.body && rtl());
+  return mirrored ? ["←", "→"] : ["→", "←"];
+}
+
 /** A link end's label, as its node's tooltip titles it. */
 export function linkEndLabel(viz: VizInstance, end: LinkEnd): string {
   return `${viz._drawLabel(end.data, end.i) ?? end.id}`;
 }
 
-/** A link's tooltip title: "Source → Target". */
+/** A link's tooltip title: "Source → Target" ("Source ← Target" right to left). */
 export function linkTooltipTitle(viz: VizInstance, d: LinkDatum): string {
   const meta = linkMeta(d);
   if (!meta) return "";
-  return `${linkEndLabel(viz, meta.source)} → ${linkEndLabel(viz, meta.target)}`;
+  const [forward] = linkArrows(viz);
+  return `${linkEndLabel(viz, meta.source)} ${forward} ${linkEndLabel(viz, meta.target)}`;
 }
 
 /** A tooltip cell's text for one field value, or null for a value it skips. */
@@ -295,7 +318,8 @@ export function nodeTooltipLinkLimit(
 /**
     A node's tooltip rows: its number of connections, then its strongest
     links ("→ Target" or "← Source", with the link's value when the links
-    differ in value), up to `nodeTooltipLinkLimit`.
+    differ in value), up to `nodeTooltipLinkLimit`. The arrows mirror right
+    to left (see `linkArrows`).
 */
 export function nodeConnectionRows(viz: VizInstance, d: DataPoint): Row[] {
   const entry = linkNodeOf(viz, d);
@@ -305,11 +329,12 @@ export function nodeConnectionRows(viz: VizInstance, d: DataPoint): Row[] {
   const rows: Row[] = [
     [viz.schema.translate("Connections") as string, `${connections.length}`],
   ];
+  const [forward, back] = linkArrows(viz);
   for (const c of connections.slice(0, nodeTooltipLinkLimit(viz, graph))) {
     const value =
       graph.sized && c.value !== undefined ? linkCellText(viz, c.value)! : "";
     rows.push([
-      `${c.outgoing ? "→" : "←"} ${linkEndLabel(viz, c.other)}`,
+      `${c.outgoing ? forward : back} ${linkEndLabel(viz, c.other)}`,
       value,
     ]);
   }

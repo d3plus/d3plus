@@ -27,6 +27,11 @@ import {simpleHover} from "../viz/simpleHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {themed} from "../../utils/theme.js";
 import {
+  clearLinkFocus,
+  focusLink,
+  installFocusBackgroundClick,
+} from "../features/linkFocus.js";
+import {
   isLinkDatum,
   linkHighlight,
   linkMeta,
@@ -213,9 +218,16 @@ export const ringsDef: ChartDefinition = {
         return filterIds.includes(nodeKey(h, x));
       });
     };
+    installFocusBackgroundClick(viz);
     viz.schema.on["click.shape"] = (d: DataPoint) => {
-      // A link has no node to center on.
-      if (isLinkDatum(d)) return;
+      // A link focuses; a node re-centers the chart on it.
+      if (isLinkDatum(d)) {
+        focusLink(viz, d, {
+          nodeKey: (h, hi) => `${viz._ids(h, hi)[viz._drawDepth]}`,
+        });
+        return;
+      }
+      clearLinkFocus(viz);
       // Clear the hover/tooltip before re-centering: the clicked node's shapes
       // move out from under the pointer, so a lingering tooltip would hang over
       // unrelated content (the shared click.shape drill handler does the same).

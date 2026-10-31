@@ -4,6 +4,7 @@ import assert from "assert";
 import {
   isLinkDatum,
   LINK_HIT_WIDTH,
+  linkArrows,
   linkAriaLabel,
   linkCellText,
   linkEndLabel,
@@ -20,6 +21,7 @@ import {
   nodeHighlight,
   nodeTooltipLinkLimit,
   publishLinkGraph,
+  rtlLocale,
   setLinkValue,
 } from "../../src/charts/features/linkInteraction.ts";
 
@@ -326,4 +328,28 @@ it("linkHitPath is a transparent path wider than the link", () => {
   });
   assert.strictEqual(linkHitPath("k", "", d, 20).paint.strokeWidth, 24);
   assert.strictEqual(linkHitPath("k", "", d, "2").paint.strokeWidth, 8);
+});
+
+it("rtlLocale reads the locale's language", () => {
+  assert.strictEqual(rtlLocale("ar-SA"), true);
+  assert.strictEqual(rtlLocale("he"), true);
+  assert.strictEqual(rtlLocale("fa_IR"), true);
+  assert.strictEqual(rtlLocale("es-ES"), false);
+  assert.strictEqual(rtlLocale("en-US"), false);
+  assert.strictEqual(rtlLocale(undefined), false);
+});
+
+it("linkArrows mirror for a right-to-left locale", () => {
+  assert.deepStrictEqual(linkArrows(fakeViz()), ["→", "←"]);
+  assert.deepStrictEqual(linkArrows(fakeViz({locale: "ar-SA"})), ["←", "→"]);
+});
+
+it("ar-SA node tooltips and link titles point their arrows right to left", () => {
+  const {viz, links} = graphFixture(fakeViz({locale: "ar-SA"}));
+  assert.deepStrictEqual(nodeConnectionRows(viz, nodeData[0]).slice(1), [
+    ["← Charlie", "9"],
+    ["← Bravo", "4"],
+    ["→ Charlie", "1"],
+  ]);
+  assert.strictEqual(linkTooltipTitle(viz, links[0]), "Alpha ← Bravo");
 });

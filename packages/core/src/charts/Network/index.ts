@@ -29,6 +29,11 @@ import type {GraphFluent} from "./graphFluent.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {themed} from "../../utils/theme.js";
 import {
+  focusLink,
+  installFocusBackgroundClick,
+  linkEndsBox,
+} from "../features/linkFocus.js";
+import {
   isLinkDatum,
   linkHighlight,
   linkMeta,
@@ -59,8 +64,13 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
     event: MouseEvent,
   ) => {
     viz._tooltipClass!.data([]).render();
-    // A link has no node to focus.
-    if (isLinkDatum(d)) return;
+    if (isLinkDatum(d)) {
+      focusLink(viz, d, {
+        nodeKey: (h, hi) => `${viz._ids(h, hi)[viz._drawDepth]}`,
+        box: linkEndsBox(viz, d),
+      });
+      return;
+    }
 
     if (viz._drawDepth >= viz.schema.groupBy.length - 1) {
       const id = getNodeId(viz, d, i);
@@ -206,6 +216,7 @@ function setupNetworkMouse(viz: VizInstance, v: NetworkViz) {
 
 /** Installs the shape/legend/mouse event handlers that drive Network focus + hover. */
 function setupNetworkEvents(viz: VizInstance, v: NetworkViz) {
+  installFocusBackgroundClick(viz);
   setupNetworkClickShape(viz, v);
   setupNetworkClickLegend(viz, v);
   setupNetworkMouse(viz, v);

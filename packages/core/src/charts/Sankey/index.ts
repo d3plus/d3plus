@@ -26,6 +26,7 @@ import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+import {focusLink, installFocusBackgroundClick} from "../features/linkFocus.js";
 import {
   isLinkDatum,
   linkHighlight,
@@ -88,6 +89,32 @@ function installSankeyHover(viz: VizInstance & SankeyFluent): void {
   };
 }
 
+/**
+    Wire Sankey's link click: it keeps the link and its two ends highlighted
+    until the link or the background is clicked again. Sankey doesn't zoom,
+    so the focus stays in place. Node clicks keep the default handler.
+*/
+function installSankeyLinkFocus(viz: VizInstance): void {
+  installFocusBackgroundClick(viz);
+  const defaultClick = viz.schema.on["click.shape"];
+  viz.schema.on["click.shape"] = function (
+    this: unknown,
+    d: DataPoint,
+    i: number,
+    x: unknown,
+    event: MouseEvent,
+  ) {
+    if (isLinkDatum(d)) {
+      focusLink(viz, d, {
+        nodeKey: (h, hi) => `${viz.schema.nodeId(h, hi)}`,
+      });
+      return;
+    }
+    if (typeof defaultClick === "function")
+      defaultClick.call(this, d, i, x, event);
+  };
+}
+
 export const sankeyDef: ChartDefinition = {
   name: "Sankey",
 
@@ -97,6 +124,7 @@ export const sankeyDef: ChartDefinition = {
   setup: (viz: VizInstance) => {
     const v = viz as VizInstance & SankeyFluent;
     installSankeyHover(v);
+    installSankeyLinkFocus(viz);
 
     /**
         The flows between `nodes`. Each link's `linksSource` and `linksTarget`

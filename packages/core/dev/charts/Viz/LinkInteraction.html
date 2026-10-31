@@ -5,7 +5,7 @@
     <title>LinkInteraction · Viz</title>
     <meta
       name="description"
-      content="Link tooltips, link hover, node connection lists, and node data in link accessors on Network, Rings, Sankey, and ArcDiagram."
+      content="Link tooltips, link hover and click focus, node connection lists, and node data in link accessors on Network, Rings, Sankey, and ArcDiagram."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -37,7 +37,8 @@
 
   <script>
     // Hover a link for its "Source → Target" tooltip and fields, and a node
-    // for its connections. Each link accessor and link shapeConfig function
+    // for its connections. Click a link to focus it (Network also zooms);
+    // click it again, or the background, to clear. Each link accessor and link shapeConfig function
     // receives the link with `source` and `target` set to node data.
     var nodes = [
       {id: "usa", name: "United States", region: "Americas"},

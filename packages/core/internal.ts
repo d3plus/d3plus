@@ -81,8 +81,18 @@ export type {ArcLabel, LabelFit} from "./src/charts/ArcDiagram/arcLabels.js";
 export {arcDiagramEmit} from "./src/charts/ArcDiagram/emit.js";
 export {arcFocus, setupArcEvents} from "./src/charts/ArcDiagram/events.js";
 export {
+  bindSvgBackgroundClick,
+  clearLinkFocus,
+  focusLink,
+  installFocusBackgroundClick,
+  linkEndsBox,
+  linkFocusId,
+} from "./src/charts/features/linkFocus.js";
+export type {FocusBox} from "./src/charts/features/linkFocus.js";
+export {
   isLinkDatum,
   LINK_HIT_WIDTH,
+  linkArrows,
   linkAriaLabel,
   linkCellText,
   linkEndLabel,
@@ -99,6 +109,7 @@ export {
   nodeHighlight,
   nodeTooltipLinkLimit,
   publishLinkGraph,
+  rtlLocale,
   setLinkValue,
 } from "./src/charts/features/linkInteraction.js";
 export type {

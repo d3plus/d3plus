@@ -60,7 +60,7 @@ A node's label stays inside it when it fits there at a readable size (`pointLabe
 
 ## Link tooltips
 
-Hovering a link highlights it and the two nodes it connects, and its tooltip names them ("alpha → beta") above the link's own fields. Hovering a node lists its number of connections and, when `linkSize` gives the links different values, its strongest links with their values; `nodeTooltipLinks` sets how many (`false` for none). `linkSize`, link `shapeConfig` functions, and tooltip accessors all receive each link with `source` and `target` set to the data of its nodes, so here a link between two nodes in the same `group` draws darker.
+Hovering a link highlights it and the two nodes it connects, and its tooltip names them ("alpha → beta") above the link's own fields. Hovering a node lists its number of connections and, when `linkSize` gives the links different values, its strongest links with their values; `nodeTooltipLinks` sets how many (`false` for none). `linkSize`, link `shapeConfig` functions, and tooltip accessors all receive each link with `source` and `target` set to the data of its nodes, so here a link between two nodes in the same `group` draws darker. Click a link to focus and zoom to it and its nodes; click it again, or the background, to reset.
 
 <Playground chart="Network" code={linkTooltips} controls={["nodeTooltipLinks"]} />
 
