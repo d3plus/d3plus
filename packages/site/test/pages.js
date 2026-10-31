@@ -166,6 +166,52 @@ it(
 );
 
 it(
+  "every page fits a phone screen, scrolling wide code sideways",
+  {timeout: 10 * 60 * 1000},
+  async () => {
+    const server = await serve();
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    const browser = await chromium.launch();
+    try {
+      const context = await browser.newContext({
+        viewport: {width: 390, height: 844},
+        isMobile: true,
+      });
+      const tab = await context.newPage();
+      const wide = [];
+      for (const url of pages()) {
+        await tab.goto(`${origin}${url}`, {waitUntil: "load"});
+        // What sticks out past the screen's edge, other than content inside
+        // something that scrolls or clips it.
+        const overflow = await tab.evaluate(() => {
+          const width = document.documentElement.clientWidth;
+          if (document.documentElement.scrollWidth <= width) return [];
+          const contained = el => {
+            for (let a = el.parentElement; a; a = a.parentElement)
+              if (/auto|hidden|scroll|clip/.test(getComputedStyle(a).overflowX))
+                return true;
+            return false;
+          };
+          return [...document.querySelectorAll("body *")]
+            .filter(
+              el =>
+                el.getBoundingClientRect().right > width + 1 && !contained(el),
+            )
+            .map(el => `${el.tagName.toLowerCase()}.${el.className}`);
+        });
+        if (overflow.length)
+          wide.push(`${url}: ${[...new Set(overflow)].join(", ")}`);
+      }
+      await context.close();
+      assert.deepEqual(wide, []);
+    } finally {
+      await browser.close();
+      server.close();
+    }
+  },
+);
+
+it(
   "every page renders without errors or warnings",
   {timeout: 10 * 60 * 1000},
   async () => {

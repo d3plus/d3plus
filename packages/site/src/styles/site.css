@@ -79,3 +79,10 @@
   display: inline;
   cursor: pointer;
 }
+
+/* Code in the API reference scrolls sideways on a narrow screen rather than
+   widening the page. */
+pre.d3p-import,
+.d3p-item pre {
+  overflow-x: auto;
+}

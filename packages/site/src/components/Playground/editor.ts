@@ -94,7 +94,6 @@ export function createEditor(options: EditorOptions): Editor {
     languageSupport(language),
     syntaxHighlighting(highlight),
     theme,
-    EditorView.lineWrapping,
     EditorView.contentAttributes.of({"aria-label": label}),
     EditorState.readOnly.of(readOnly),
     EditorView.editable.of(!readOnly),

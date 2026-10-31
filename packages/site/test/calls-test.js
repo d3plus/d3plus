@@ -1,7 +1,7 @@
 import {describe, it} from "vitest";
 import assert from "node:assert/strict";
 
-import {display, isColor} from "../src/components/Calls/display.ts";
+import {colorsIn, display, isColor} from "../src/components/Calls/display.ts";
 import {MODULES, load} from "../src/components/Calls/modules.ts";
 import {prepare, run} from "../src/components/Calls/prepare.ts";
 import {useJsdom} from "~test/jsdom.js";
@@ -171,5 +171,20 @@ describe("load", () => {
   it("refuses a module that can't run in the browser", async () => {
     assert.ok(!("@d3plus/ssr" in MODULES));
     await assert.rejects(load(["@d3plus/ssr"]), /Can't load @d3plus\/ssr/);
+  });
+});
+
+describe("colorsIn", () => {
+  it("finds the colors a call passes in", () => {
+    assert.deepEqual(colorsIn('colorLegible("#aaddff")'), ["#aaddff"]);
+    assert.deepEqual(colorsIn(`colorAdd('#f00', "rgb(0, 0, 255)", 0.5)`), [
+      "#f00",
+      "rgb(0, 0, 255)",
+    ]);
+  });
+
+  it("skips strings that aren't colors", () => {
+    assert.deepEqual(colorsIn('formatAbbreviate("1234")'), []);
+    assert.deepEqual(colorsIn('assign({fill: "red"})'), []);
   });
 });
