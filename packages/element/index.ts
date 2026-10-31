@@ -1,4 +1,6 @@
 import {
+  Alluvial,
+  ArcDiagram,
   AreaPlot,
   BarChart,
   Beeswarm,
@@ -13,6 +15,7 @@ import {
   Dumbbell,
   FanChart,
   Funnel,
+  Gantt,
   Gauge,
   Geomap,
   Hexbin,
@@ -89,6 +92,8 @@ export {
     in their public types but expose the needed methods at runtime.
 */
 export const CLASSES: Record<string, new (...args: any[]) => any> = {
+  Alluvial,
+  ArcDiagram,
   AreaPlot,
   BarChart,
   Beeswarm,
@@ -103,6 +108,7 @@ export const CLASSES: Record<string, new (...args: any[]) => any> = {
   Dumbbell,
   FanChart,
   Funnel,
+  Gantt,
   Gauge,
   Geomap,
   Hexbin,

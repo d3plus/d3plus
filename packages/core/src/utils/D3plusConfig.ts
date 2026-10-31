@@ -13,6 +13,7 @@ import type {
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
 import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
+import type {AlluvialDimensionInput} from "../charts/Alluvial/dimensions.js";
 import type {AccessorFn} from "./AccessorFn.js";
 import type {ThemeSetting} from "./theme.js";
 import type {
@@ -679,6 +680,14 @@ export interface D3plusConfig {
   active?: ((d: DataPoint, i: number) => boolean) | false | null;
   /** Custom aggregation functions keyed by data property. */
   aggs?: {[k: string]: (d: DataPoint[]) => unknown};
+  /**
+      Which side of ArcDiagram's line the arcs take: `"above"` (the default),
+      `"below"`, or `"both"`, where a link running forward along the line
+      (its source before its target) arcs above and one running backward arcs
+      below. On a vertical line, "above" is its right side. Node labels sit
+      on the other side of the line (below it with `"both"`).
+  */
+  arcSide?: "above" | "below" | "both";
   /** Hides the SVG from assistive technology when true (`aria-hidden`). */
   ariaHidden?: boolean;
   /**
@@ -860,6 +869,8 @@ export interface D3plusConfig {
   boxMin?: string | ((d: DataPoint, i: number) => number);
   /** BoxWhisker: accessor or data key for each summary row's outliers, an array of values drawn as points past the whiskers. Used only with the other box statistics; see `boxMedian`. */
   boxOutliers?: string | ((d: DataPoint, i: number) => number[]);
+  /** Alluvial: the fill opacity of the bands between columns (default `0.5`). */
+  bandOpacity?: number;
   /** BoxWhisker: accessor or data key for each summary row's lower quartile, where its box starts. See `boxMedian`. */
   boxQ1?: string | ((d: DataPoint, i: number) => number);
   /** BoxWhisker: accessor or data key for each summary row's upper quartile, where its box ends. See `boxMedian`. */
@@ -911,6 +922,13 @@ export interface D3plusConfig {
   */
   color?:
     string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) | false;
+  /**
+      Alluvial: the column whose categories color the bands — a column index,
+      or a dimension's data key or title (default `0`, the first column). Each
+      row's band keeps its category's color through every column, and the
+      legend lists that column's categories.
+  */
+  colorBy?: number | string;
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
   colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
@@ -925,8 +943,11 @@ export interface D3plusConfig {
     axisConfig?: AxisConfig;
     centered?: boolean;
     colors?: string[];
+    /** The negative pole of a diverging scale, and the hue of an all-negative ramp. Defaults to `colorDefaults.off`, or the theme's `colorScale.min` on a dark or custom theme. */
     colorMin?: CssColor;
+    /** The midpoint of a diverging scale. Defaults to `colorDefaults.light`, or the theme's `colorScale.mid` on a dark or custom theme. */
     colorMid?: CssColor;
+    /** The high end of a single-hue ramp and the positive pole of a diverging scale. Defaults to `colorDefaults.sequential`, or the theme's `colorScale.max` on a dark or custom theme. On a dark theme every ramp runs from a dim tint near the background up to this color. */
     colorMax?: CssColor;
     /** The kind of scale, or a function that picks one from the colorScale values on each render (see `ColorScaleConfig.scale`). Defaults to `"jenks"`. */
     scale?: ColorScaleTypeSetting;
@@ -1082,6 +1103,20 @@ export interface D3plusConfig {
       shape to the full width (Violin) or height (Ridgeline).
   */
   densityScale?: "area" | "count" | "width";
+  /**
+      Gantt: accessor or data key for each task's predecessors, the ids (by
+      `groupBy`) of the tasks it waits on, as an array or a comma-separated
+      string (default `"dependencies"`). Each draws an elbow arrow from the
+      predecessor's end to the task's start.
+  */
+  dependencies?: string | ((d: DataPoint, i: number) => unknown) | false;
+  /** Gantt: styles the dependency arrows: `stroke` (the chart's text color by default), `strokeWidth` (1), `strokeOpacity` (0.55), and `arrowSize` (6, in pixels). */
+  dependencyConfig?: {
+    stroke?: string;
+    strokeWidth?: number;
+    strokeOpacity?: number;
+    arrowSize?: number;
+  };
   /** Active depth level for nested groupings. */
   depth?: number;
   /**
@@ -1110,19 +1145,32 @@ export interface D3plusConfig {
       and any Axis config (`tickFormat`, `ticks`, `scale`, …).
   */
   dimensionConfig?: Record<string, DimensionOptions>;
+  /** Alluvial: styles the column titles drawn above each column (any TextBox config). */
+  dimensionTitleConfig?: Record<string, unknown>;
   /**
       ParallelCoordinates: the data keys to draw an axis for, in order.
       Defaults to every numeric key except the `groupBy` keys and `id`; a key
       whose values aren't all numbers gets a categorical axis.
+
+      Alluvial: the categorical dimensions, one column each, left to right —
+      data keys, accessor functions `(d, i) => category`, or `{value, title}`
+      objects. A key is its column's title; a bare accessor has none. Rows
+      missing a category on any dimension (`undefined`, `null`, or `""`) are
+      left out.
   */
-  dimensions?: string[];
+  dimensions?: AlluvialDimensionInput[];
   /** Sets orientation of main category axis. */
   discrete?: "x" | "y" | "radius" | "angle";
   /** Candlestick: the color of periods that closed below their open, or an accessor of the row. Defaults to red. */
   downColor?: string | ((d: DataPoint, i: number) => string);
   /** Default duration of transitions, in milliseconds. */
   duration?: number;
-  /** Calendar: the fill of days without a value. Defaults to a faint tint of the chart's text color, legible on light and dark backgrounds. */
+  /**
+      Priestley and Gantt: accessor or data key for each row's end (default
+      `"end"`). A key also aggregates grouped rows by their latest end.
+  */
+  end?: string | ((d: DataPoint, i: number) => unknown);
+  /** Calendar: the fill of days without a value. Defaults to the theme's `colorScale.missing` when it sets one, else a faint tint of the chart's text color, legible on light and dark backgrounds. */
   emptyFill?: string;
   /** Splits the chart into small multiples: one equally sized panel per distinct value of this data key or accessor, sharing one legend, color scale, title, and timeline. `false` draws a single chart. */
   facet?: string | ((d: DataPoint, i: number) => unknown) | false;
@@ -1215,6 +1263,12 @@ export interface D3plusConfig {
       order. A `ySort`/`xSort` comparator on the category axis takes precedence.
   */
   gapSort?: false | "ascending" | "descending";
+  /**
+      Gantt: accessor or data key for each task's group, such as its project
+      phase. Grouped tasks sit under a header row naming the group, with a
+      bracket spanning its tasks.
+  */
+  group?: string | ((d: DataPoint, i: number) => unknown) | false;
   /** Grouping key(s) or accessor function(s). */
   groupBy?:
     | string
@@ -1334,6 +1388,12 @@ export interface D3plusConfig {
       per-datum object key — pass a function for that).
   */
   label?: string | string[] | false | AccessorFn;
+  /**
+      Gantt: the most the task label column may take: a share of the chart's
+      width when 1 or below (default `0.3`), else pixels. The column fits the
+      widest label up to it, wrapping or truncating longer ones; `0` hides it.
+  */
+  labelWidth?: number;
   /**
       Where each shape's label goes, as a string for every shape or a
       `(d, i) => string` accessor of the data row.
@@ -1486,6 +1546,12 @@ export interface D3plusConfig {
       tracks and 360 for the circular bar chart.
   */
   maxAngle?: number;
+  /**
+      Colors each of ArcDiagram's arcs like one of its nodes: `"source"` or
+      `"target"`. `false` (the default) draws every arc in the theme's `link`
+      gray.
+  */
+  linkColor?: false | "source" | "target";
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
   link?: LinkOption;
   /**
@@ -1502,6 +1568,12 @@ export interface D3plusConfig {
   measureSize?: number;
   /** Orders Violin and Ridgeline categories by median: `false` (default; data order), `"ascending"`, or `"descending"`. */
   medianSort?: false | "ascending" | "descending";
+  /**
+      Gantt: accessor or data key for whether a task is a milestone, drawn as
+      a diamond at its `end` (default `"milestone"`). Without one, a task that
+      starts and ends at the same time is a milestone.
+  */
+  milestone?: string | ((d: DataPoint, i: number) => unknown) | false;
   /**
       The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.
   */
@@ -1557,6 +1629,20 @@ export interface D3plusConfig {
   */
   noDataMessage?: boolean;
   /**
+      The order of ArcDiagram's nodes along its line: `"data"` (the default,
+      their order in `nodes`), `"label"` (alphabetical), `"group"` (by the
+      top `groupBy` or `nodeGroupBy` level when there are several, else by
+      the `color` value, then by label), `"degree"`
+      (most connected first), or a comparator function receiving two node
+      rows, as for `Array.prototype.sort`.
+  */
+  nodeSort?:
+    | "data"
+    | "label"
+    | "group"
+    | "degree"
+    | ((a: DataPoint, b: DataPoint) => number);
+  /**
       Ocean color for geomaps (any CSS value including 'transparent'), or a
       `{light, dark}` pair chosen by the chart's `theme` (the page behind it
       in `"auto"` mode). Defaults to the default basemap's own water colors.
@@ -1588,6 +1674,10 @@ export interface D3plusConfig {
       reserves exactly that much room and wraps labels to that width.
   */
   outerPadding?: number | "auto";
+  /** Priestley and Gantt: the space between neighboring bars, as a share of each row (d3's band `paddingInner`). */
+  paddingInner?: number;
+  /** Priestley and Gantt: the space before the first row and after the last, as a share of a row (d3's band `paddingOuter`). */
+  paddingOuter?: number;
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
   /** Calendar: what each block covers — `"year"` (the default; whole years, stacked) or `"month"` (whole months, as a grid of small calendars). */
@@ -1621,6 +1711,14 @@ export interface D3plusConfig {
   pointSizeMin?: number;
   /** Maximum point size for geomaps. */
   pointSizeMax?: number;
+  /**
+      Gantt: accessor or data key for each task's progress, a fraction from 0
+      to 1 (`0.6`) or a percent string (`"60%"`); default `"progress"`. The
+      done part of the bar fills in the task's color and the rest in a paler
+      shade, and the tooltip lists it. A milestone below 100% draws pale and
+      outlined. A key also averages grouped rows' progress.
+  */
+  progress?: string | ((d: DataPoint, i: number) => unknown) | false;
   /** Map projection name or function. */
   projection?: string | ((x: number, y: number) => [number, number]);
   /** Outer padding between the visualization edge and map shapes. */
@@ -1824,6 +1922,11 @@ export interface D3plusConfig {
       exactly two violins as the two halves of one shape instead.
   */
   split?: boolean;
+  /**
+      Priestley and Gantt: accessor or data key for each row's start (default
+      `"start"`). A key also aggregates grouped rows by their earliest start.
+  */
+  start?: string | ((d: DataPoint, i: number) => unknown);
   /** Funnel: the gap between consecutive stages, as a fraction (0–1) of each stage's slot. */
   stagePadding?: number;
   /** Whether to stack series. */
@@ -1928,6 +2031,18 @@ export interface D3plusConfig {
   tableViewSort?: boolean;
   /** Funnel: narrows each stage toward the next stage's width, drawing a continuous funnel instead of flat bars. */
   taper?: boolean;
+  /** Gantt: styles the task label column: `fontColor` (the chart's text color by default), `fontFamily`, and `fontSize` (12). */
+  taskLabelConfig?: {
+    fontColor?: string;
+    fontFamily?: string | string[];
+    fontSize?: number;
+  };
+  /**
+      Gantt: the order of the tasks: `"data"` (the default) keeps the data's
+      order, `"start"` sorts by start, and a function compares two data rows.
+      Groups follow their first task.
+  */
+  taskSort?: "data" | "start" | ((a: DataPoint, b: DataPoint) => number);
   /** Bullet: each row's target, drawn as a marker across the band: a data key, an accessor, a number shared by every row, or `false`. */
   target?: string | number | ((d: DataPoint, i: number) => number) | false;
   /** Bullet: the target marker's `size` (a fraction of the band's thickness), `stroke`, and `strokeWidth`, each a value or a `(d, i)` accessor. */
@@ -1941,9 +2056,12 @@ export interface D3plusConfig {
       same on any page, and in a saved image) and take every chrome color
       from the theme. An object sets your own tokens on top of the preset its
       `base` names (`"light"` or `"dark"`), for example
-      `{base: "dark", background: "#123", accent: "#ffd43b"}`. Colors you set
-      in the other config (`titleConfig.fontColor`, `tooltipConfig`, the
-      `*Style` options, …) win over the theme.
+      `{base: "dark", background: "#123", accent: "#ffd43b"}`. A dark theme
+      also turns color scale ramps around, from a dim tint near the background
+      up to a bright pole (see the `colorScale` tokens). Colors you set in the
+      other config (`titleConfig.fontColor`, `tooltipConfig`,
+      `colorScaleConfig.colorMax`, the `*Style` options, …) win over the
+      theme.
   */
   theme?: ThemeSetting;
   /**
@@ -1988,6 +2106,19 @@ export interface D3plusConfig {
       Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
   */
   titlePadding?: boolean | ((viz: VizBase) => boolean);
+  /**
+      Gantt: draws a "today" line across the rows: `true` at the current
+      time, or a date (or anything the axis parses) to mark that time. Off
+      (`false`) by default; it only draws inside the time axis.
+  */
+  today?: boolean | Date | string | number;
+  /**
+      Gantt: styles the "today" line like a `referenceLines` entry: `stroke`,
+      `strokeWidth` (1.5), `strokeOpacity` (0.85), `dash`, and its `label`
+      (the translated "Today"; `false` for none), with the label's font and
+      `labelPosition`.
+  */
+  todayConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2" | "ref">;
   /** Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. */
   tooltip?: boolean | ((d: DataPoint, i: number) => boolean);
   /** Configuration for the tooltip component. */
@@ -2026,7 +2157,7 @@ export interface D3plusConfig {
   trendLineConfig?: TrendLineConfig;
   /** Path or object for the topojson data. */
   topojson?: string | object;
-  /** CSS color to fill the map shapes. */
+  /** Geomap: the fill of shapes without data (or without a `colorScale` value). Defaults to the theme's `colorScale.missing` when it sets one, else a quiet gray that suits the basemap. */
   topojsonFill?: CssColor;
   /** Accessor function for topojson feature IDs. */
   topojsonId?: (obj: Record<string, unknown>) => string;

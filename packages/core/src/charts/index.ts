@@ -1,3 +1,5 @@
+export {default as Alluvial} from "./Alluvial/index.js";
+export {default as ArcDiagram} from "./ArcDiagram/index.js";
 export {default as AreaPlot} from "./AreaPlot/index.js";
 export {default as BarChart} from "./BarChart/index.js";
 export {default as Beeswarm} from "./Beeswarm/index.js";
@@ -12,6 +14,7 @@ export {default as Donut} from "./Donut/index.js";
 export {default as Dumbbell} from "./Dumbbell/index.js";
 export {default as FanChart} from "./FanChart/index.js";
 export {default as Funnel} from "./Funnel/index.js";
+export {default as Gantt} from "./Gantt/index.js";
 export {default as Gauge} from "./Gauge/index.js";
 export {default as Geomap} from "./Geomap/index.js";
 export {default as Hexbin} from "./Hexbin/index.js";

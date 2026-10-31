@@ -1,0 +1,71 @@
+---
+title: Waterfall
+description: "Creates a waterfall chart: one bar per category (x, or y with discrete(\"y\") for horizontal bars) whose value is the change it makes to a running total."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/waterfall/basic-example.js?raw";
+import horizontal from "~/examples/core/charts/waterfall/horizontal.js?raw";
+import cashFlow from "~/examples/core/charts/waterfall/cash-flow.js?raw";
+import brokenAxis from "~/examples/core/charts/waterfall/broken-axis.js?raw";
+import sideBySideSeries from "~/examples/core/charts/waterfall/side-by-side-series.js?raw";
+import smallMultiples from "~/examples/core/charts/waterfall/small-multiples.js?raw";
+import customColors from "~/examples/core/charts/waterfall/custom-colors.js?raw";
+
+Creates a waterfall chart: one bar per category (`x`, or `y` with
+`discrete("y")` for horizontal bars) whose value is the change it makes
+to a running total. Each bar floats from where the previous bar ended;
+rows marked by `subtotal` draw from zero to the running total. Bars are
+colored as increases, decreases, or totals, and labeled with their change.
+Each `groupBy` series keeps its own running total, drawn side by side.
+
+The value axis includes zero by default. To zoom in on a bridge between
+large totals (say 1,000 to 1,020), set a `yDomain` (`xDomain` for
+horizontal bars) that stops short of zero, e.g. `yDomain([980])`: the
+axis keeps zero behind a break, as BarChart does, and subtotal bars rise
+from zero through it.
+
+## Basic example
+
+Each row's value is a change: its bar floats from where the running total stood to where it ends, green when it rises and red when it falls. Rows marked by `subtotal` draw from zero to the running total; a subtotal with its own value (here Revenue) sets the running total to it, and one without (Gross Profit, Operating Income, Net Income) shows the running total. Thin connectors carry each bar's end across to the next.
+
+<Playground chart="Waterfall" code={basicExample} controls={["subtotal","connectors","connectorConfig"]} />
+
+## Horizontal
+
+`discrete("y")` lays the bars along the y axis, reading from the top down, with each change labeled past the end of its bar.
+
+<Playground chart="Waterfall" code={horizontal} controls={["discrete","x","y"]} />
+
+## Cash flow
+
+A month-by-month cash flow between an opening and a closing balance, with dashed connectors from `connectorConfig`.
+
+<Playground chart="Waterfall" code={cashFlow} controls={["connectorConfig"]} />
+
+## Broken axis
+
+The value axis includes zero by default, which flattens a bridge between large totals. A `yDomain` (`xDomain` for horizontal bars) that stops short of zero zooms in: the axis starts at `980`, keeps a `0` tick behind a break, and the subtotal bars rise from that `0` through the break. As in BarChart, the break's gap is cut out of every bar, totals included; `yConfig({baselineBreakConfig: {mask: false}})` lets the bars run solid through it. Turn `baselineBreak` off and the axis stretches back down to `0`.
+
+<Playground chart="Waterfall" code={brokenAxis} controls={["yDomain","baselineBreak"]} />
+
+## Side by side series
+
+Each `groupBy` series keeps its own running total, drawn side by side within each category. Bars stay colored by increase, decrease, and total, so name the series in the tooltip, or use `facet` to give each series its own panel.
+
+<Playground chart="Waterfall" code={sideBySideSeries} controls={["groupBy"]} />
+
+## Small multiples
+
+`facet` draws one waterfall per value, each with its own running total, on a shared value axis.
+
+<Playground chart="Waterfall" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+## Custom colors
+
+`increaseColor`, `decreaseColor`, and `totalColor` set each kind's fill, and the legend follows. `connectors(false)` drops the connector lines.
+
+<Playground chart="Waterfall" code={customColors} controls={["increaseColor","decreaseColor","totalColor","connectors"]} />
+
+<ApiReference name="Waterfall" pkg="core" />

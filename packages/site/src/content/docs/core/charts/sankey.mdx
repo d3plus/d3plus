@@ -1,0 +1,46 @@
+---
+title: Sankey
+description: "Creates a Sankey visualization based on a defined set of nodes and links."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/sankey/basic-example.js?raw";
+import dataDrivenLinkWidth from "~/examples/core/charts/sankey/data-driven-link-width.js?raw";
+import nodeSpacing from "~/examples/core/charts/sankey/node-spacing.js?raw";
+import directionalArrows from "~/examples/core/charts/sankey/directional-arrows.js?raw";
+import nodeLabels from "~/examples/core/charts/sankey/node-labels.js?raw";
+
+Creates a Sankey visualization based on a defined set of nodes and links.
+
+## Basic example
+
+Supplying only `links` lets the layout infer every node from the `source`/`target` ids and route the flows between them.
+
+<Playground chart="Sankey" code={basicExample} controls={["links"]} />
+
+## Data driven link width
+
+Each link's `value` sets its thickness, so flows are weighted by magnitude.
+
+<Playground chart="Sankey" code={dataDrivenLinkWidth} controls={["value"]} />
+
+## Node spacing
+
+`nodeWidth` sets how thick each node bar is drawn and `nodePadding` the vertical gap between nodes in a column—raise `nodePadding` to spread crowded columns apart.
+
+<Playground chart="Sankey" code={nodeSpacing} controls={["nodeWidth","nodePadding"]} />
+
+## Directional arrows
+
+`arrows` adds an arrowhead where each flow enters its target node, reinforcing the left-to-right direction. Use `"both"` for bi-directional flows or a per-link accessor.
+
+<Playground chart="Sankey" code={directionalArrows} controls={["arrows","arrowSize"]} />
+
+## Node labels
+
+Each node is labeled beside it, over its outgoing flows, or over its incoming flows in the last column. A node too thin for a line of text, like Geothermal here, goes unlabeled. `label` sets the text, `shapeConfig.Rect.labelConfig` styles it, and `shapeConfig: {Rect: {label: false}}` turns the labels off.
+
+<Playground chart="Sankey" code={nodeLabels} controls={["shapeConfig"]} />
+
+<ApiReference name="Sankey" pkg="core" />

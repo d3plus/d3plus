@@ -1,0 +1,39 @@
+---
+title: AreaPlot
+description: "Creates an area plot based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/area-plot/basic-example.js?raw";
+import changingAreaOpacity from "~/examples/core/charts/area-plot/changing-area-opacity.js?raw";
+import stackedSeries from "~/examples/core/charts/area-plot/stacked-series.js?raw";
+import timeAxis from "~/examples/core/charts/area-plot/time-axis.js?raw";
+
+Creates an area plot based on an array of data.
+
+## Basic example
+
+A single-series area chart: `groupBy` defines the series and the region fills from the baseline up to each `y` value.
+
+<Playground chart="AreaPlot" code={basicExample} />
+
+## Changing area opacity
+
+Set `shapeConfig.Area.fillOpacity` to 0.5 so that where the two series overlap you can still see both areas through each other rather than one occluding the other.
+
+<Playground chart="AreaPlot" code={changingAreaOpacity} controls={["shapeConfig"]} />
+
+## Stacked series
+
+`stacked: true` piles the series on top of one another so the outline of the whole is the total at each `x`, with `stackOrder` and `stackOffset` controlling which series sits at the bottom and how the stack is normalized. Compare the overlapping, translucent areas above.
+
+<Playground chart="AreaPlot" code={stackedSeries} controls={["stacked","stackOrder","stackOffset"]} />
+
+## Time axis
+
+Pointing `x` and `time` at a field of date strings makes the x axis a time scale: the `2024-01-01` style values are parsed into dates, ticks are labeled by month, and the areas flow across the calendar instead of across category positions.
+
+<Playground chart="AreaPlot" code={timeAxis} controls={["time","x"]} />
+
+<ApiReference name="AreaPlot" pkg="core" />

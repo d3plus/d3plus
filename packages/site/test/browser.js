@@ -1,10 +1,30 @@
 /** Browser helpers shared by the site's page checks. */
 
-/** Answers a request that leaves the site with an empty stand-in. */
+/**
+ * Hosts some examples load their data from, as a reader's browser would: the
+ * check fetches these for real, so those pages need the network.
+ */
+const DATA_HOSTS = new Set([
+  "datausa.io",
+  "api.datausa.io",
+  "api.datasaudi.sa",
+]);
+
+/** A transparent 1×1 PNG, standing in for map tiles and remote icons. */
+const PIXEL = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+  "base64",
+);
+
+/** Answers a request that leaves the site with a stand-in. */
 function stub(route) {
-  const type = route.request().resourceType();
+  const request = route.request();
+  if (DATA_HOSTS.has(new URL(request.url()).host)) return route.continue();
+  const type = request.resourceType();
   if (type === "fetch" || type === "xhr")
     return route.fulfill({contentType: "application/json", body: "[]"});
+  if (type === "image")
+    return route.fulfill({contentType: "image/png", body: PIXEL});
   return route.abort();
 }
 
@@ -51,6 +71,12 @@ export async function check(browser, origin, url, {timeout = 15000} = {}) {
         .first()
         .waitFor({state: "attached", timeout})
         .catch(() => problems.push(`playground ${i + 1} drew nothing`));
+      // An example whose code throws, or whose data came out empty.
+      const error = playground.locator(".d3p-error");
+      if (await error.count())
+        problems.push(`playground ${i + 1}: ${await error.innerText()}`);
+      if ((await playground.innerText()).includes("No Data Available"))
+        problems.push(`playground ${i + 1} has no data`);
     }
     await tab.waitForTimeout(count ? 1500 : 200);
   } catch (err) {

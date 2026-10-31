@@ -1,0 +1,50 @@
+---
+title: Beeswarm
+description: "Creates a beeswarm from an array of data: each circle sits at its value along the axis set by x (or y), packed beside its neighbors so none overlap."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/beeswarm/basic-example.js?raw";
+import categoryLanes from "~/examples/core/charts/beeswarm/category-lanes.js?raw";
+import verticalLanes from "~/examples/core/charts/beeswarm/vertical-lanes.js?raw";
+import sizedCircles from "~/examples/core/charts/beeswarm/sized-circles.js?raw";
+import scatterToSwarm from "~/examples/core/charts/beeswarm/scatter-to-swarm.js?raw";
+
+Creates a beeswarm from an array of data: each circle sits at its value
+along the axis set by `x` (or `y`), packed beside its neighbors so none
+overlap. Set the other axis to a categorical key to draw one swarm per
+category. Any Plot can switch between a scatter and a beeswarm with
+`swarm`; see `swarmConfig` for spacing and overflow.
+
+## Basic example
+
+Each circle sits at its value along `x` and is nudged up or down just far enough to clear its neighbors, so dense values pile up into a shape that reads like a distribution while every point stays visible. The layout is deterministic: the same data always draws the same swarm.
+
+<Playground chart="Beeswarm" code={basicExample} controls={["x","swarmConfig"]} />
+
+## Category lanes
+
+Set the other axis to a categorical key and each category gets its own swarm, centered on its band. Swap `x` and `y` for vertical swarms.
+
+<Playground chart="Beeswarm" code={categoryLanes} controls={["x","y","color"]} />
+
+## Vertical lanes
+
+With a numeric `y` and a categorical `x`, the swarms run vertically.
+
+<Playground chart="Beeswarm" code={verticalLanes} controls={["x","y"]} />
+
+## Sized circles
+
+A `size` accessor scales each circle, and the packing respects every radius. When a swarm is too tall for its band, `swarmConfig.overflow` decides what gives: `"shrink"` (default) scales all circles down together, `"clamp"` keeps their sizes and holds the outliers at the band's edge, and `"visible"` lets the swarm spill over.
+
+<Playground chart="Beeswarm" code={sizedCircles} controls={["size","sizeMin","sizeMax","swarmConfig"]} />
+
+## Scatter to swarm
+
+`swarm` is a Plot option, so one chart can switch between a scatter and a beeswarm: set `swarm` to `true` and back. Each circle keeps its id, so it glides from its scatter position into the swarm and back. With `swarm` on, the y values are ignored and the y axis steps aside. Plot circles leave motion trails when they move; `shapeConfig.Circle.trail: false` turns them off for a clean glide.
+
+<Playground chart="Plot" code={scatterToSwarm} controls={["swarm"]} />
+
+<ApiReference name="Beeswarm" pkg="core" />

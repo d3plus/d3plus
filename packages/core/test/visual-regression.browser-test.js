@@ -32,6 +32,22 @@ const UPDATE = inject("updateSnapshots");
 // renders it, so geometry is final (no mid-transition values).
 const charts = [
   [
+    "arc-diagram",
+    `lib => new lib.ArcDiagram()
+    .data([
+      {id: "A", group: "x"}, {id: "B", group: "y"}, {id: "C", group: "x"},
+      {id: "D", group: "y"}, {id: "E", group: "x"},
+    ])
+    .nodes([{id: "A"}, {id: "B"}, {id: "C"}, {id: "D"}, {id: "E"}])
+    .links([
+      {source: "A", target: "B"}, {source: "A", target: "D"},
+      {source: "B", target: "C"}, {source: "C", target: "E"},
+      {source: "E", target: "A"},
+    ])
+    .color("group")
+    .nodeSort("group")`,
+  ],
+  [
     "bar-chart",
     `lib => new lib.BarChart()
     .groupBy("group")
@@ -315,6 +331,21 @@ const charts = [
     ])`,
   ],
   [
+    "gantt",
+    `lib => new lib.Gantt()
+    .groupBy("task")
+    .group("phase")
+    .color("phase")
+    .today("2024-03-20")
+    .data([
+      {task: "Kickoff", phase: "Plan", start: "2024-03-04", end: "2024-03-04", progress: 1},
+      {task: "Research", phase: "Plan", start: "2024-03-04", end: "2024-03-15", progress: 1, dependencies: ["Kickoff"]},
+      {task: "Design", phase: "Build", start: "2024-03-18", end: "2024-03-29", progress: 0.4, dependencies: ["Research"]},
+      {task: "Develop", phase: "Build", start: "2024-03-25", end: "2024-04-12", progress: 0.1, dependencies: ["Design"]},
+      {task: "Launch", phase: "Build", start: "2024-04-15", end: "2024-04-15", dependencies: ["Develop"]},
+    ])`,
+  ],
+  [
     "radial-matrix",
     `lib => new lib.RadialMatrix()
     .groupBy(["row", "column"])
@@ -354,6 +385,20 @@ const charts = [
     .links([
       {source: "A", target: "B"}, {source: "A", target: "C"}, {source: "B", target: "C"},
     ])`,
+  ],
+  [
+    "alluvial",
+    `lib => new lib.Alluvial()
+    .data([
+      {region: "West", product: "Chairs", channel: "Online", units: 5},
+      {region: "West", product: "Chairs", channel: "Store", units: 3},
+      {region: "West", product: "Tables", channel: "Online", units: 2},
+      {region: "East", product: "Chairs", channel: "Online", units: 4},
+      {region: "East", product: "Tables", channel: "Store", units: 6},
+      {region: "North", product: "Desks", channel: "Store", units: 3},
+    ])
+    .dimensions(["region", "product", "channel"])
+    .value("units")`,
   ],
   [
     "beeswarm",

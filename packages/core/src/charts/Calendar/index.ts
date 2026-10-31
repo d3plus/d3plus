@@ -85,8 +85,9 @@ export const calendarDef: DataDrivenChartDefinition = {
     },
     /**
         The fill of days without a value: days missing from the data, and rows
-        whose `colorScale` value isn't a number. Defaults to a faint tint of
-        the chart's text color, legible on light and dark backgrounds.
+        whose `colorScale` value isn't a number. Defaults to the theme's
+        `colorScale.missing` when it sets one, else a faint tint of the
+        chart's text color, legible on light and dark backgrounds.
     */
     {key: "emptyFill"},
     /**

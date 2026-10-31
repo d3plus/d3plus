@@ -1,0 +1,38 @@
+---
+title: BubbleChart
+description: "Creates a bubble chart from an array of data: each row draws as a circle at its x and y values, sized by its size value."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/bubble-chart/basic-example.js?raw";
+import radiusRange from "~/examples/core/charts/bubble-chart/radius-range.js?raw";
+import overlapStyle from "~/examples/core/charts/bubble-chart/overlap-style.js?raw";
+
+Creates a bubble chart from an array of data: each row draws as a circle
+at its `x` and `y` values, sized by its `size` value. Bubbles are sized by
+area (`sizeZero` with a `"sqrt"` `sizeScale`): a value twice as large
+draws a bubble with twice the area, and the largest draws at `sizeMax`
+pixels in radius. A size legend keys the sizes, larger bubbles are drawn
+first so smaller ones stay on top, and each bubble is outlined in the
+chart's background color so overlapping bubbles stay distinct.
+
+## Basic example
+
+Each row draws as a bubble at its `x` and `y` values, sized by its `size` value. Bubbles are sized by area: India's bubble has about five times the area of Indonesia's, as its population is about five times larger. The size legend in the bottom-right corner keys the sizes, larger bubbles are drawn first so smaller ones stay on top, and each bubble is outlined in the chart's background color.
+
+<Playground chart="BubbleChart" code={basicExample} controls={["size","sizeMax","x","y"]} />
+
+## Radius range
+
+Set `sizeZero` to `false` to spread the radii between `sizeMin` and `sizeMax` instead. The smallest bubble grows to `sizeMin`, which keeps small values easy to see and hover, but areas no longer compare as values do.
+
+<Playground chart="BubbleChart" code={radiusRange} controls={["sizeZero","sizeMin","sizeMax","sizeScale"]} />
+
+## Overlap style
+
+`shapeConfig.Circle` styles the bubbles. A translucent fill shows the bubbles hidden behind others, and a wider outline separates them further.
+
+<Playground chart="BubbleChart" code={overlapStyle} controls={["shapeConfig"]} />
+
+<ApiReference name="BubbleChart" pkg="core" />

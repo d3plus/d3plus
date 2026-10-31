@@ -83,7 +83,7 @@ export function axisTimeLocale(axis: Axis): TimeLocaleDefinition {
 }
 
 /**
-    The ordered Dates a time axis picks its label interval from: its parsed `data`, else its domain.
+    The ordered Dates a time axis picks its label interval from: its parsed `data`, else the labels its scale offers (when two or more), else its domain.
     @private
 */
 export function axisTimeReference(axis: Axis): Date[] {
@@ -91,10 +91,18 @@ export function axisTimeReference(axis: Axis): Date[] {
     _scaleData: data,
     schema: {domain},
   } = axis;
-  return axisMemo(axis, "timeReference", [data, domain], () =>
-    parseTimeValues(data.length ? data : domain).sort(
-      (a: Date, b: Date) => +a - +b,
-    ),
+  const scale = axis._d3Scale as {range?: () => unknown[]} | null;
+  const range = scale?.range ? scale.range() : [];
+  return axisMemo(
+    axis,
+    "timeReference",
+    [data, domain, scale, ...range],
+    () => {
+      const offered = !data.length && scale ? axis._getLabels() : [];
+      return parseTimeValues(
+        data.length ? data : offered.length > 1 ? offered : domain,
+      ).sort((a: Date, b: Date) => +a - +b);
+    },
   );
 }
 

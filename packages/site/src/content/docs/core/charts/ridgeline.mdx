@@ -1,0 +1,50 @@
+---
+title: Ridgeline
+description: "Creates a ridgeline (joyplot) from an array of raw observations: the value of each row is summarized per group as a kernel density estimate, and each group's curve rises from its own baseline down the y axis, sharing the x axis."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/ridgeline/basic-example.js?raw";
+import sortedByMedian from "~/examples/core/charts/ridgeline/sorted-by-median.js?raw";
+import lowOverlap from "~/examples/core/charts/ridgeline/low-overlap.js?raw";
+import twoSeriesPerRow from "~/examples/core/charts/ridgeline/two-series-per-row.js?raw";
+import smallMultiples from "~/examples/core/charts/ridgeline/small-multiples.js?raw";
+
+Creates a ridgeline (joyplot) from an array of raw observations: the
+`value` of each row is summarized per group as a kernel density estimate,
+and each group's curve rises from its own baseline down the y axis,
+sharing the x axis. `overlap` sets how far ridges rise into the ones
+above; `medianSort` orders them by median.
+
+## Basic example
+
+Each group's `value`s become a kernel density estimate rising from the group's baseline, the first group on top. Ridges share the x axis, so a year of daily temperatures reads as one shifting shape. Hover a ridge for its observation count and quartiles.
+
+<Playground chart="Ridgeline" code={basicExample} controls={["value","overlap","densityScale","densityConfig"]} />
+
+## Sorted by median
+
+`medianSort` orders the ridges by median, `"descending"` putting the longest tracks on top. Genres that mix two formats show two peaks.
+
+<Playground chart="Ridgeline" code={sortedByMedian} controls={["medianSort"]} />
+
+## Low overlap
+
+`overlap` is how far the tallest ridge rises, in rows: below 1 every ridge stays in its own row. `densityScale: "width"` scales each ridge to its own peak, so every ridge reaches the same height.
+
+<Playground chart="Ridgeline" code={lowOverlap} controls={["overlap","densityScale"]} />
+
+## Two series per row
+
+With two `groupBy` levels, the first picks the row and the second overlays one ridge per series within it. Lower `fillOpacity` keeps both visible.
+
+<Playground chart="Ridgeline" code={twoSeriesPerRow} controls={["groupBy","color","shapeConfig"]} />
+
+## Small multiples
+
+`facet` draws one panel per city, sharing the temperature axis so the panels compare directly.
+
+<Playground chart="Ridgeline" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="Ridgeline" pkg="core" />

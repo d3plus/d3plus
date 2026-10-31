@@ -1,0 +1,60 @@
+---
+title: Network
+description: "Creates a network visualization based on a defined set of nodes and edges."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/network/basic-example.js?raw";
+import forceDirectedLayout from "~/examples/core/charts/network/force-directed-layout.js?raw";
+import dataDrivenLinkSize from "~/examples/core/charts/network/data-driven-link-size.js?raw";
+import directionalArrows from "~/examples/core/charts/network/directional-arrows.js?raw";
+import sizeLegend from "~/examples/core/charts/network/size-legend.js?raw";
+import legendInset from "~/examples/core/charts/network/legend-inset.js?raw";
+import labelPlacement from "~/examples/core/charts/network/label-placement.js?raw";
+
+Creates a network visualization based on a defined set of nodes and edges.
+
+## Basic example
+
+Each node supplies its own `x`/`y` coordinates, so d3plus places nodes exactly rather than solving a layout for them.
+
+<Playground chart="Network" code={basicExample} controls={["nodes","links"]} />
+
+## Force directed layout
+
+Omitting `x`/`y` from the nodes lets a force simulation position them automatically—reach for this when connections matter but there's no meaningful spatial layout.
+
+<Playground chart="Network" code={forceDirectedLayout} controls={["nodes","links"]} />
+
+## Data driven link size
+
+`linkSize` takes an accessor returning each link's `weight`, which d3plus runs through a linear scale to set stroke thickness—heavier links render thicker.
+
+<Playground chart="Network" code={dataDrivenLinkSize} controls={["linkSize"]} />
+
+## Directional arrows
+
+`arrows` draws an arrowhead at the node boundary to show edge direction. Use `"target"`, `"source"`, `"both"`, or a per-link accessor for bi-directional edges. `arrowSize` overrides the automatic size.
+
+<Playground chart="Network" code={directionalArrows} controls={["arrows","arrowSize"]} />
+
+## Size legend
+
+Sizing nodes with `size` adds a size legend. When there's room it is drawn in the open space around the nodes (see `legendInset`), otherwise in the bottom-right corner. It is drawn with the chart's own radius scale, which Network fits to the space between nodes. Zoom in and the circles keep their size while the labels change to the values those circles now represent on screen.
+
+<Playground chart="Network" code={sizeLegend} controls={["size","sizeMin","sizeMax","sizeLegend"]} height={500} />
+
+## Legend inset
+
+A network gathered in the middle of a wide chart leaves its corners empty, so the legend is drawn in one of them, over a translucent box, instead of taking a margin. Zoom in and the nodes slide under the box while the legend stays readable. Set `legendInset` to `false` to keep the legend in its margin.
+
+<Playground chart="Network" code={legendInset} controls={["legendInset","legendInsetConfig"]} height={500} />
+
+## Label placement
+
+A node's label stays inside it when it fits there at a readable size (`pointLabelConfig.fontMin`, 10px by default). Otherwise it moves beside the node, on the side with the most open room, as long as it overlaps no other node or label; a label with no room is hidden, and the node's tooltip still names it. Bigger nodes are labeled first. Set `labelPosition` to `"inside"` to keep every label inside its node, shrinking it to fit, or `"outside"` to put every label beside its node.
+
+<Playground chart="Network" code={labelPlacement} controls={["labelPosition","pointLabelConfig"]} height={500} />
+
+<ApiReference name="Network" pkg="core" />

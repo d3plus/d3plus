@@ -1,0 +1,27 @@
+const config = {
+  data: [
+    {id: "alpha", year: 2019, x: 2, y: 3, value: 180},
+    {id: "alpha", year: 2020, x: 5, y: 8, value: 180},
+    {id: "alpha", year: 2021, x: 9, y: 5, value: 180},
+    {id: "alpha", year: 2022, x: 12, y: 11, value: 180},
+    {id: "beta", year: 2019, x: 11, y: 12, value: 120},
+    {id: "beta", year: 2020, x: 8, y: 6, value: 120},
+    {id: "beta", year: 2021, x: 4, y: 9, value: 120},
+    {id: "beta", year: 2022, x: 2, y: 2, value: 120},
+    {id: "gamma", year: 2019, x: 6, y: 1, value: 240},
+    {id: "gamma", year: 2020, x: 3, y: 10, value: 240},
+    {id: "gamma", year: 2021, x: 10, y: 8, value: 240},
+    {id: "gamma", year: 2022, x: 7, y: 4, value: 240},
+  ],
+  // duration: 2000,
+  groupBy: "id",
+  time: "year",
+  shapeConfig: {
+    trail: true,
+  },
+  size: "value",
+  sizeMax: 40,
+  sizeMin: 24,
+  x: "x",
+  y: "y",
+};

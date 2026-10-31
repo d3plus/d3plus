@@ -1,0 +1,56 @@
+---
+title: PolarArea
+description: "Creates a polar area chart (Nightingale rose or coxcomb) from an array of data: every category gets an equal slice of the circle, and each wedge's radius shows its value."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/polar-area/basic-example.js?raw";
+import nightingaleRose from "~/examples/core/charts/polar-area/nightingale-rose.js?raw";
+import linearScale from "~/examples/core/charts/polar-area/linear-scale.js?raw";
+import crowdedCategories from "~/examples/core/charts/polar-area/crowded-categories.js?raw";
+import smallMultiples from "~/examples/core/charts/polar-area/small-multiples.js?raw";
+import sharedValueDomain from "~/examples/core/charts/polar-area/shared-value-domain.js?raw";
+
+Creates a polar area chart (Nightingale rose or coxcomb) from an array of
+data: every category gets an equal slice of the circle, and each wedge's
+radius shows its value. With a `metric`, each category stacks its
+`groupBy` groups outward from the center.
+
+## Basic example
+
+Every row gets an equal slice of the circle, and its wedge's radius shows its value. The radius uses a square-root scale by default, so each wedge's area — what the eye compares — stays proportional to its value. The labels around the circle name every wedge, so the legend steps aside.
+
+<Playground chart="PolarArea" code={basicExample} controls={["groupBy","value","radialScale","startAngle"]} />
+
+## Nightingale rose
+
+With a `metric`, every metric value is one slice of the circle and its `groupBy` groups stack outward from the center — Florence Nightingale's diagram of the causes of death in the Crimean War. The value rings sit on nice values and are labeled along `levelLabelAngle`.
+
+<Playground chart="PolarArea" code={nightingaleRose} controls={["metric","groupBy","levels","levelLabelAngle"]} />
+
+## Linear scale
+
+`radialScale: "linear"` makes each wedge's length, rather than its area, proportional to its value. `innerRadius` opens an empty center, `padPixel` an even gap between wedges, and an array of `levels` sets the exact value rings.
+
+<Playground chart="PolarArea" code={linearScale} controls={["radialScale","innerRadius","padPixel","padAngle","levels"]} />
+
+## Crowded categories
+
+When the category labels would overlap reading horizontally, each one turns to run along its wedge's spoke instead, and the circle shrinks just enough for them to fit.
+
+<Playground chart="PolarArea" code={crowdedCategories} controls={["outerPadding"]} />
+
+## Small multiples
+
+`facet` draws one rose per region, side by side and sharing one legend. By default each panel's rings fit its own values.
+
+<Playground chart="PolarArea" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+## Shared value domain
+
+With `facetConfig: {scales: "shared"}`, every panel uses one value domain across all panels, so a smaller region draws a smaller rose.
+
+<Playground chart="PolarArea" code={sharedValueDomain} controls={["facet","facetConfig"]} />
+
+<ApiReference name="PolarArea" pkg="core" />

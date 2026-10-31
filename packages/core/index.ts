@@ -1,4 +1,6 @@
 export {
+  Alluvial,
+  ArcDiagram,
   AreaPlot,
   BarChart,
   Beeswarm,
@@ -13,6 +15,7 @@ export {
   Dumbbell,
   FanChart,
   Funnel,
+  Gantt,
   Gauge,
   Geomap,
   Hexbin,
@@ -120,6 +123,7 @@ export type {
   RangeBreakTime,
 } from "./src/components/Axis/rangeBreaks.js";
 export type {
+  ThemeColorScaleTokens,
   ThemeConfig,
   ThemeOverlayTokens,
   ThemeSetting,

@@ -1,0 +1,84 @@
+---
+title: Bullet
+description: "Creates a bullet graph from an array of data: one compact bar per row reading its value against qualitative bands, with a target marker, an optional forecast bar, and a value axis."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/bullet/basic-example.js?raw";
+import keyPerformanceIndicators from "~/examples/core/charts/bullet/key-performance-indicators.js?raw";
+import sharedDomainWithForecast from "~/examples/core/charts/bullet/shared-domain-with-forecast.js?raw";
+import vertical from "~/examples/core/charts/bullet/vertical.js?raw";
+import coloredBands from "~/examples/core/charts/bullet/colored-bands.js?raw";
+import smallMultiples from "~/examples/core/charts/bullet/small-multiples.js?raw";
+import compact from "~/examples/core/charts/bullet/compact.js?raw";
+import classicFewStyle from "~/examples/core/charts/bullet/classic-few-style.js?raw";
+import tallBullet from "~/examples/core/charts/bullet/tall-bullet.js?raw";
+import texturesAndImages from "~/examples/core/charts/bullet/textures-and-images.js?raw";
+
+Creates a bullet graph from an array of data: one compact bar per row
+reading its `value` against qualitative `bands`, with a `target` marker,
+an optional `forecast` bar, and a value axis. Rows stack top to bottom,
+or side by side with `orient("vertical")`.
+
+## Basic example
+
+Each row becomes a bullet: its `value` as a bar, its `target` as a marker across the band, and `bands` as shades behind them. Threshold values split the domain into bands that step from the strongest shade to the lightest.
+
+<Playground chart="Bullet" code={basicExample} controls={["bands","domain","bulletSize","measureSize"]} />
+
+## Key performance indicators
+
+Stephen Few's classic set of KPIs. `bands` and `domain` can be functions of the row, so each measure gets its own qualitative ranges and scale, and `subLabel` adds the unit under each name.
+
+<Playground chart="Bullet" code={keyPerformanceIndicators} controls={["bands","domain","subLabel","ticks"]} />
+
+## Shared domain with forecast
+
+`sharedDomain` reads every bullet against one scale, labeled by a single axis. A `forecast` (or any comparative measure) draws as a wider, paler bar behind the measure.
+
+<Playground chart="Bullet" code={sharedDomainWithForecast} controls={["sharedDomain","forecast","forecastConfig"]} />
+
+## Vertical
+
+`orient("vertical")` lines the bullets up as columns, with values growing upward and each name above its bullet.
+
+<Playground chart="Bullet" code={vertical} controls={["orient","bulletSize"]} />
+
+## Colored bands
+
+Bands take the same `{min, max, color}` objects as Gauge's. With colored bands, a neutral measure and a dark target read best; each measure is outlined in the background color so it separates from the band behind it.
+
+<Playground chart="Bullet" code={coloredBands} controls={["bands","shapeConfig","targetConfig"]} />
+
+## Small multiples
+
+With `facet`, each panel draws its own stack of bullets, and each measure reads against the same domain in every panel, so Revenue in one region compares directly with Revenue in another.
+
+<Playground chart="Bullet" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+## Compact
+
+`ticks(false)` drops the axes for a compact sparkline-style list, and a number for `target` gives every row the same goal.
+
+<Playground chart="Bullet" code={compact} controls={["bulletSize","target","ticks"]} />
+
+## Classic (Few) style
+
+Measures take the palette's colors by row by default. Stephen Few's original design draws every measure in one dark neutral over gray bands: a single `shapeConfig.fill` gives that look.
+
+<Playground chart="Bullet" code={classicFewStyle} controls={["shapeConfig","bands","targetConfig"]} />
+
+## Tall bullet
+
+Bullets are at most `bulletSize` pixels thick (40 by default) and centered in the space they're given, so a chart with few rows keeps them compact. Raise `bulletSize` to let a bullet fill more of a tall chart; the measure, forecast, and target scale with it.
+
+<Playground chart="Bullet" code={tallBullet} controls={["bulletSize","measureSize","forecastConfig","targetConfig"]} />
+
+## Textures and images
+
+Measure bars take `shapeConfig.texture` and `shapeConfig.backgroundImage` like any other Rect. The forecast bar follows the measure's texture unless `forecastConfig.texture` sets its own, and takes its own `forecastConfig.backgroundImage`.
+
+<Playground chart="Bullet" code={texturesAndImages} controls={["shapeConfig","forecastConfig","measureSize"]} />
+
+<ApiReference name="Bullet" pkg="core" />

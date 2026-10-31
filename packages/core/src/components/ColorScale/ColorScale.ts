@@ -48,7 +48,8 @@ const colorScaleSchema: ConfigField[] = [
   {key: "color", coerce: "identity"},
   // Unset poles fall back to `colorDefaults` at draw time: `sequential` (blue)
   // high, `light` midpoint, `off` (red) low — warm/cool poles that stay
-  // distinct under color-vision deficiency.
+  // distinct under color-vision deficiency. A dark or custom theme supplies
+  // its `colorScale` tokens instead.
   {key: "colorMax", coerce: "identity"},
   {key: "colorMid", coerce: "identity"},
   {key: "colorMin", coerce: "identity"},

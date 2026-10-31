@@ -1,0 +1,39 @@
+---
+title: Pack
+description: "Uses the d3 pack layout to create a Circle Packing chart based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/pack/basic-example.js?raw";
+import nestedGroups from "~/examples/core/charts/pack/nested-groups.js?raw";
+import layoutPadding from "~/examples/core/charts/pack/layout-padding.js?raw";
+import packOpacity from "~/examples/core/charts/pack/pack-opacity.js?raw";
+
+Uses the d3 pack layout to create a Circle Packing chart based on an array of data.
+
+## Basic example
+
+`sum` sizes each leaf circle by its `value`, and the two-level `groupBy` nests those leaves inside one bubble per parent group.
+
+<Playground chart="Pack" code={basicExample} controls={["sum"]} />
+
+## Nested groups
+
+An array `groupBy` packs leaf circles inside a circle for each parent group.
+
+<Playground chart="Pack" code={nestedGroups} controls={["groupBy"]} />
+
+## Layout padding
+
+`layoutPadding` is the gap d3's pack layout keeps between touching circles, so a larger value spreads the leaves apart and leaves room for their labels at the cost of some area.
+
+<Playground chart="Pack" code={layoutPadding} controls={["layoutPadding"]} />
+
+## Pack opacity
+
+`packOpacity` sets how solid the enclosing parent circles are drawn. Lowering it from the default keeps the grouping visible while letting the leaf circles stand out.
+
+<Playground chart="Pack" code={packOpacity} controls={["packOpacity"]} />
+
+<ApiReference name="Pack" pkg="core" />

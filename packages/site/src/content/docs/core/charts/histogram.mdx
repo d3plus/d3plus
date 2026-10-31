@@ -1,0 +1,64 @@
+---
+title: Histogram
+description: "Creates a histogram from an array of raw observations: the value of each row is binned along a linear x axis, and bar heights show each bin's count (or density / relative frequency via binNormalize, and running totals via cumulative)."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/histogram/basic-example.js?raw";
+import stackedGroups from "~/examples/core/charts/histogram/stacked-groups.js?raw";
+import binWidth from "~/examples/core/charts/histogram/bin-width.js?raw";
+import density from "~/examples/core/charts/histogram/density.js?raw";
+import cumulative from "~/examples/core/charts/histogram/cumulative.js?raw";
+import cumulativeReverse from "~/examples/core/charts/histogram/cumulative-reverse.js?raw";
+import cumulativeGroups from "~/examples/core/charts/histogram/cumulative-groups.js?raw";
+
+Creates a histogram from an array of raw observations: the `value` of each
+row is binned along a linear x axis, and bar heights show each bin's
+count (or density / relative frequency via `binNormalize`, and running
+totals via `cumulative`). Series set by `groupBy` share bin edges and are
+stacked.
+
+## Basic example
+
+Pass raw observations and name the numeric field with `value`. The values are binned along a linear x axis (Sturges' rule by default) and each bar's height is the number of observations in its bin.
+
+<Playground chart="Histogram" code={basicExample} controls={["value","binThresholds"]} />
+
+## Stacked groups
+
+Every `groupBy` series is binned on the same edges and stacked within each bin, so the full bar is the overall distribution.
+
+<Playground chart="Histogram" code={stackedGroups} controls={["groupBy","stackOrder"]} />
+
+## Bin width
+
+`binWidth` sets a uniform bin size, with edges at multiples of the width. `binThresholds` (a count, an array of edges, or a d3-array threshold function) and `binDomain` give finer control.
+
+<Playground chart="Histogram" code={binWidth} controls={["binWidth","binDomain"]} />
+
+## Density
+
+`binNormalize("density")` scales heights so the bars' total area is 1, making the histogram comparable to a probability density curve; `"relative"` makes the heights sum to 1 instead.
+
+<Playground chart="Histogram" code={density} controls={["binNormalize"]} />
+
+## Cumulative
+
+`cumulative(true)` stacks each bin on everything below it: a running count, or with `binNormalize("relative")` an empirical CDF that ends at 1. `cumulative("reverse")` counts from the top bin down instead, and grouped series each accumulate on their own.
+
+<Playground chart="Histogram" code={cumulative} controls={["cumulative","binNormalize"]} />
+
+## Cumulative reverse
+
+`cumulative("reverse")` counts from the top bin down: each bar is the number of observations at or above the start of its bin, a survival-style curve.
+
+<Playground chart="Histogram" code={cumulativeReverse} controls={["cumulative","binNormalize"]} />
+
+## Cumulative groups
+
+Each `groupBy` series accumulates its own running count, and the stacked bars show the overall running total. With `binNormalize("relative")`, the top of the stack ends at 1.
+
+<Playground chart="Histogram" code={cumulativeGroups} controls={["cumulative","binNormalize","groupBy"]} />
+
+<ApiReference name="Histogram" pkg="core" />

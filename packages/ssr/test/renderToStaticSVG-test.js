@@ -1,9 +1,12 @@
 import {it} from "vitest";
 import assert from "assert";
 import {
+  Alluvial,
+  ArcDiagram,
   BarChart,
   BubbleChart,
   Donut,
+  Gantt,
   Hexbin,
   LinePlot,
   Scatter,
@@ -122,6 +125,75 @@ it("renderToStaticSVG renders a SlopeChart with labels at both ends", async () =
   assert.strictEqual((svg.match(/<circle/g) || []).length, 6, "end markers");
   for (const label of ["Brazil 41", "Brazil 47", "Peru 31", "Peru 30"])
     assert.ok(svg.includes(label), `labels "${label}"`);
+});
+
+it("renderToStaticSVG renders a Gantt's bars, milestone, and dependency arrow", async () => {
+  const viz = new Gantt()
+    .data([
+      {id: "Plan", start: "2024-03-04", end: "2024-03-08", progress: 0.5},
+      {
+        id: "Build",
+        start: "2024-03-11",
+        end: "2024-03-22",
+        dependencies: ["Plan"],
+      },
+      {
+        id: "Launch",
+        start: "2024-03-25",
+        end: "2024-03-25",
+        dependencies: ["Build"],
+      },
+    ])
+    .groupBy("id");
+  const svg = await renderToStaticSVG(viz, {width: 500, height: 240});
+  assert.ok(svg.startsWith("<svg"));
+  assert.ok(
+    (svg.match(/<rect[^>]*data-key="gantt-task-/g) || []).length >= 3,
+    "bars",
+  );
+  assert.ok(/data-key="gantt-milestone-Launch"/.test(svg), "milestone");
+  assert.ok(/data-key="gantt-dependency-Plan-Build"/.test(svg), "arrow");
+  for (const label of ["Plan", "Build", "Launch"])
+    assert.ok(svg.includes(`>${label}<`), `labels ${label}`);
+});
+
+it("renderToStaticSVG renders an Alluvial", async () => {
+  const rows = [
+    {region: "West", product: "Chairs", channel: "Online"},
+    {region: "West", product: "Tables", channel: "Store"},
+    {region: "East", product: "Chairs", channel: "Store"},
+  ];
+  const svg = await renderToStaticSVG(
+    new Alluvial().data(rows).dimensions(["region", "product", "channel"]),
+    {width: 400, height: 300},
+  );
+  assert.ok(svg.startsWith("<svg"), "is an svg");
+  assert.ok((svg.match(/<rect/g) || []).length >= 6, "draws its nodes");
+  assert.ok(
+    (svg.match(/<path[^>]*d="M[^"]*C/g) || []).length >= 4,
+    "draws its bands",
+  );
+  for (const title of ["region", "product", "channel"])
+    assert.ok(svg.includes(`>${title}<`), `titles the ${title} column`);
+});
+
+it("renderToStaticSVG renders an ArcDiagram's arcs, nodes, and labels", async () => {
+  const nodes = [{id: "a"}, {id: "b"}, {id: "c"}];
+  const viz = new ArcDiagram().nodes(nodes).links([
+    {source: "a", target: "b"},
+    {source: "a", target: "c"},
+    {source: "b", target: "c"},
+  ]);
+  const svg = await renderToStaticSVG(viz, {width: 400, height: 300});
+  assert.ok(svg.startsWith("<svg"));
+  assert.strictEqual(
+    (svg.match(/<path[^>]*d="M[^"]*A/g) || []).length >= 3,
+    true,
+    "arcs",
+  );
+  assert.ok((svg.match(/<circle/g) || []).length >= 3, "nodes");
+  for (const id of ["a", "b", "c"])
+    assert.ok(svg.includes(`>${id}<`), `label ${id}`);
 });
 
 it("renderToStaticSVG reads dimensions from the chart when omitted", async () => {

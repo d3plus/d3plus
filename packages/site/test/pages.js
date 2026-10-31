@@ -123,8 +123,18 @@ it(
         origin,
         "/core/charts/bar-chart/",
       );
-      // The "Stacked bars" example, the page's third.
-      const playground = tab.locator(".d3p").nth(2);
+      // The "Stacked bars" example: the first with a `stacked` control. Found
+      // once, by index, since its controls unmount when the code tab opens.
+      const index = await tab
+        .locator(".d3p")
+        .evaluateAll(els =>
+          els.findIndex(el =>
+            [...el.querySelectorAll(".d3p-control-key")].some(
+              key => key.textContent === "stacked",
+            ),
+          ),
+        );
+      const playground = tab.locator(".d3p").nth(index);
       await playground.scrollIntoViewIfNeeded();
       await playground
         .locator(".d3p-chart svg rect")

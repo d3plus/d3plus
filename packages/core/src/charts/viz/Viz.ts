@@ -254,6 +254,15 @@ export default class Viz extends VizBase {
   }
 
   /**
+      The table view's rows, when the chart shows more than its data (see
+      `ChartDefinition.tableData`). The base chart shows its data.
+      @private
+  */
+  _tableData(): DataPoint[] | null {
+    return null;
+  }
+
+  /**
       The shape a colorScale row draws as (see
       `ChartDefinition.colorScaleShape`): the row's `shape`, unless the chart
       draws it as something else.

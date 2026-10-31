@@ -16,7 +16,7 @@ The common accessors across charts:
 |---|---|
 | `groupBy` | The property (or array of properties for nesting) that defines each series/group. |
 | `x`, `y` | Positional accessors for plot-based charts. |
-| `sum` / `value` / `size` | The magnitude accessor: `sum` for Treemap, Pack, Sunburst, Icicle, and Waffle; `value` for Pie, Funnel, Gauge, Bullet, PolarArea, RadialBar, and Histogram; and `size` for Plot, Network, and Rings. |
+| `sum` / `value` / `size` | The magnitude accessor: `sum` for Treemap, Pack, Sunburst, Icicle, and Waffle; `value` for Pie, Funnel, Gauge, Bullet, PolarArea, RadialBar, and Histogram; and `size` for Plot, Network, ArcDiagram, and Rings. |
 | `time` | Enables the timeline and time-filtering (see **Guides → Interactivity**). |
 | `id` | Unique identifier for a datum (defaults to `groupBy`). |
 
@@ -70,6 +70,9 @@ the axis labels. Ticks never land in hidden time, lines connect across it, and
 rows inside it are left out. An axis with `rangeBreaks` over dates is a time
 axis even without `time`, and the timeline hides the same time as the axis
 that plots `time` (set `timelineConfig.rangeBreaks` to change that).
+
+A Gantt's time axis takes the same rules in `axisConfig`, so
+`axisConfig: {rangeBreaks: "weekends"}` draws a schedule of working days.
 
 ## Loading from a URL
 

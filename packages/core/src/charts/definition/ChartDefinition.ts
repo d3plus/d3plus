@@ -57,6 +57,12 @@ interface ChartDefinitionBase {
   */
   insetRegion?: (viz: VizInstance) => InsetRegion | null;
   /**
+      Optional rows for the table view, in place of the chart's data: for a
+      chart whose marks come from more than its data (ArcDiagram's nodes and
+      links). Return null to show the data.
+  */
+  tableData?: (viz: VizInstance) => DataPoint[] | null;
+  /**
       Optional shape a colorScale row draws as, when it isn't the row's
       `shape`: the `shapeConfig` key the colorScale's bucket swatches take
       their stroke and opacity from (a Geomap row drawn as a topojson Path).

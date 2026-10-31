@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ArcDiagram</title>
+    <meta
+      name="description"
+      content="Arc diagrams of an illustrative Les Misérables co-occurrence network: nodeSort, arcSide, orient, and arrows controls, arcs colored by source on a dark background, and a small directed graph with arcs on both sides."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 24px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 20px;
+      }
+
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 12px;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+
+      .controls button[aria-pressed="true"] {
+        font-weight: 600;
+      }
+
+      .viz {
+        height: 420px;
+      }
+
+      .dark {
+        background: #1f2328;
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wide">
+      <h3>Les Misérables co-occurrence (illustrative), colored by group</h3>
+      <div class="controls">
+        <span data-option="nodeSort">
+          nodeSort:
+          <button value="data">data</button>
+          <button value="label">label</button>
+          <button value="group" aria-pressed="true">group</button>
+          <button value="degree">degree</button>
+        </span>
+        <span data-option="arcSide">
+          arcSide:
+          <button value="above" aria-pressed="true">above</button>
+          <button value="below">below</button>
+          <button value="both">both</button>
+        </span>
+        <span data-option="orient">
+          orient:
+          <button value="horizontal" aria-pressed="true">horizontal</button>
+          <button value="vertical">vertical</button>
+        </span>
+        <span data-option="arrows">
+          arrows:
+          <button value="false" aria-pressed="true">off</button>
+          <button value="true">target</button>
+        </span>
+      </div>
+      <div class="viz" id="main"></div>
+    </div>
+    <div>
+      <h3>Dark theme: arcs below, colored by their source</h3>
+      <div class="viz dark" id="dark"></div>
+    </div>
+    <div>
+      <h3>A directed graph: forward links above, backward below</h3>
+      <div class="viz" id="directed"></div>
+    </div>
+  </body>
+
+  <script>
+    fetch("./lesmis.json")
+      .then(resp => resp.json())
+      .then(function (graph) {
+        var main = new d3plus.ArcDiagram()
+          .select("#main")
+          .data(graph.nodes)
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .color("group")
+          .linkSize(d => d.value)
+          .nodeSort("group")
+          .render();
+
+        document.querySelectorAll("[data-option]").forEach(function (group) {
+          var key = group.dataset.option;
+          group.querySelectorAll("button").forEach(function (button) {
+            button.addEventListener("click", function () {
+              group.querySelectorAll("button").forEach(function (b) {
+                b.setAttribute("aria-pressed", String(b === button));
+              });
+              var value = button.value;
+              if (value === "true" || value === "false")
+                value = value === "true";
+              main[key](value).render();
+            });
+          });
+        });
+
+        new d3plus.ArcDiagram()
+          .select("#dark")
+          .theme("dark")
+          .data(graph.nodes)
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .color("group")
+          .linkColor("source")
+          .arcSide("below")
+          .nodeSort("degree")
+          .legend(false)
+          .render();
+      });
+
+    var steps = [
+      {id: "Plan"},
+      {id: "Design"},
+      {id: "Build"},
+      {id: "Test"},
+      {id: "Review"},
+      {id: "Release"},
+    ];
+    new d3plus.ArcDiagram()
+      .select("#directed")
+      .nodes(steps)
+      .links([
+        {source: "Plan", target: "Design"},
+        {source: "Design", target: "Build"},
+        {source: "Build", target: "Test"},
+        {source: "Test", target: "Review"},
+        {source: "Review", target: "Release"},
+        {source: "Test", target: "Build"},
+        {source: "Review", target: "Design"},
+        {source: "Release", target: "Plan"},
+      ])
+      .arcSide("both")
+      .arrows(true)
+      .render();
+  </script>
+</html>

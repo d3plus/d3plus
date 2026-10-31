@@ -30,6 +30,59 @@ export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
 export {applyNetworkLayout} from "./src/charts/Network/applyLayout.js";
+export {
+  graphNodeId,
+  resolveGraphLinks,
+  resolveGraphNodes,
+  zoomToNodeBounds,
+} from "./src/charts/Network/graph.js";
+export type {GraphLink, GraphNode} from "./src/charts/Network/graph.js";
+export {installGraphFluent} from "./src/charts/Network/graphFluent.js";
+export type {GraphFluent} from "./src/charts/Network/graphFluent.js";
+export {
+  applyArcDiagramLayout,
+  arcNodeGroup,
+  arcRadiusScale,
+  arcSizeLegendScale,
+} from "./src/charts/ArcDiagram/applyLayout.js";
+export type {
+  ArcCtx,
+  ArcLink,
+  ArcNode,
+} from "./src/charts/ArcDiagram/applyLayout.js";
+export {
+  arcApex,
+  arcBox,
+  arcEndTip,
+  arcPathD,
+  arcPoint,
+  arcScale,
+  arcSideOf,
+  naturalCompare,
+  nodeDegrees,
+  slotPositions,
+  sortArcNodes,
+} from "./src/charts/ArcDiagram/arcGeometry.js";
+export type {
+  ArcGeometry,
+  ArcOrient,
+  ArcSide,
+  NodeSort,
+} from "./src/charts/ArcDiagram/arcGeometry.js";
+export {
+  emitArcLabels,
+  fitLabels,
+  labelReach,
+  labelWidthLimit,
+  placeArcLabel,
+} from "./src/charts/ArcDiagram/arcLabels.js";
+export type {ArcLabel, LabelFit} from "./src/charts/ArcDiagram/arcLabels.js";
+export {arcAriaLabel, arcDiagramEmit} from "./src/charts/ArcDiagram/emit.js";
+export {
+  arcFocus,
+  isArcLink,
+  setupArcEvents,
+} from "./src/charts/ArcDiagram/events.js";
 export {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
 export {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
 export {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
@@ -50,6 +103,89 @@ export {
 export type {ArcBox, PieSweep, RingFit} from "./src/charts/Pie/arcFit.js";
 export {applyPolarAreaLayout} from "./src/charts/PolarArea/applyLayout.js";
 export {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
+export {
+  isTimeAxis,
+  measureTimeAxis,
+  parseTime,
+  renderTimeAxis,
+  rowTime,
+  seedTimeAggs,
+  timeFields,
+} from "./src/charts/Priestley/timeAxis.js";
+export type {
+  TimeAxisFrame,
+  TimeAxisSize,
+  TimeValue,
+} from "./src/charts/Priestley/timeAxis.js";
+export {
+  applyGanttLayout,
+  ganttDomain,
+  ganttTasks,
+  LABEL_INDENT,
+  LABEL_PADDING,
+  MAX_ROW_STEP,
+} from "./src/charts/Gantt/applyLayout.js";
+export type {GanttLayout, GanttMark} from "./src/charts/Gantt/applyLayout.js";
+export {
+  ganttEmit,
+  milestoneRadius,
+  remainingShade,
+  REMAINING_MIX,
+} from "./src/charts/Gantt/emit.js";
+export {
+  dependencyNodes,
+  dependencyStyle,
+  groupNodes,
+  labelNodes,
+  taskEnd,
+  taskStart,
+  todayNodes,
+  todayValue,
+} from "./src/charts/Gantt/ganttDecor.js";
+export type {DependencyStyle} from "./src/charts/Gantt/ganttDecor.js";
+export {
+  bracketPath,
+  diamondPath,
+  elbowRoute,
+  labelColumnWidth,
+  progressSplit,
+} from "./src/charts/Gantt/ganttGeometry.js";
+export type {Point, Span} from "./src/charts/Gantt/ganttGeometry.js";
+export {
+  ellipsize,
+  fitLabel,
+  ganttLabelFont,
+  LABEL_FONT_SIZE,
+  labelWidth,
+} from "./src/charts/Gantt/ganttLabels.js";
+export type {
+  FittedLabel,
+  GanttLabelFont,
+} from "./src/charts/Gantt/ganttLabels.js";
+export {
+  dependencyIds,
+  ganttRows,
+  isMilestone,
+  normalizeProgress,
+  sortTasks,
+} from "./src/charts/Gantt/ganttRows.js";
+export type {
+  GanttGroupRow,
+  GanttRow,
+  GanttTask,
+  GanttTaskRow,
+  TaskSort,
+} from "./src/charts/Gantt/ganttRows.js";
+export {
+  dayCount,
+  ganttAriaLabel,
+  ganttDuration,
+  ganttTooltipRows,
+  percent,
+  taskTimes,
+  timeFormatter,
+} from "./src/charts/Gantt/ganttTooltip.js";
+export type {TaskTimes} from "./src/charts/Gantt/ganttTooltip.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
 export {applyRadialBarLayout} from "./src/charts/RadialBar/applyLayout.js";
 export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
@@ -683,6 +819,72 @@ export {
   titleWidths,
 } from "./src/charts/ParallelCoordinates/titles.js";
 export {
+  aggregateAlluvial,
+  alluvialPathText,
+} from "./src/charts/Alluvial/aggregate.js";
+export type {
+  AlluvialBand,
+  AlluvialGraph,
+  AlluvialNode,
+  AlluvialPath,
+} from "./src/charts/Alluvial/aggregate.js";
+export {
+  alluvialNodeId,
+  alluvialPathRows,
+  alluvialValueTitle,
+  applyAlluvialLayout,
+  countRows,
+} from "./src/charts/Alluvial/applyLayout.js";
+export type {
+  AlluvialCtx,
+  AlluvialDrawnBand,
+  AlluvialDrawnNode,
+} from "./src/charts/Alluvial/applyLayout.js";
+export {
+  isMissingCategory,
+  resolveAlluvialDimensions,
+  resolveColorBy,
+} from "./src/charts/Alluvial/dimensions.js";
+export type {
+  AlluvialAccessor,
+  AlluvialDimension,
+  AlluvialDimensionInput,
+} from "./src/charts/Alluvial/dimensions.js";
+export {alluvialEmit, formatAlluvialValue} from "./src/charts/Alluvial/emit.js";
+export {
+  alluvialHighlight,
+  alluvialTooltipRows,
+  alluvialTooltipTitle,
+  installAlluvialHover,
+} from "./src/charts/Alluvial/hover.js";
+export {
+  alluvialColumns,
+  alluvialRibbon,
+  incomingBarycenters,
+  layoutAlluvial,
+  sortAlluvialColumns,
+} from "./src/charts/Alluvial/layout.js";
+export type {
+  AlluvialLayoutOptions,
+  AlluvialNodeSort,
+} from "./src/charts/Alluvial/layout.js";
+export {
+  alluvialDimensions,
+  alluvialGroupBy,
+  alluvialMeta,
+  setAlluvialMeta,
+  sourceRows,
+} from "./src/charts/Alluvial/meta.js";
+export type {AlluvialMeta} from "./src/charts/Alluvial/meta.js";
+export {
+  TITLE_GAP as ALLUVIAL_TITLE_GAP,
+  alluvialTitleBoxes,
+  alluvialTitleNodes,
+  alluvialTitleStyle,
+  sizeAlluvialTitles,
+} from "./src/charts/Alluvial/titles.js";
+export type {AlluvialTitle} from "./src/charts/Alluvial/titles.js";
+export {
   candleChange,
   candleDirection,
   candlePath,
@@ -933,6 +1135,7 @@ export {
 export type {RadialBarFrame} from "./src/charts/RadialBar/trackLayout.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
+export {alluvialDef, alluvialValue} from "./src/charts/Alluvial/index.js";
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {bubbleChartDef} from "./src/charts/BubbleChart/index.js";
 export {bulletDef} from "./src/charts/Bullet/index.js";
@@ -942,6 +1145,7 @@ export {chordDef} from "./src/charts/Chord/index.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {funnelDef} from "./src/charts/Funnel/index.js";
+export {ganttDef, progressAgg, taskAccessor} from "./src/charts/Gantt/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
@@ -951,6 +1155,7 @@ export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {marimekkoDef} from "./src/charts/Marimekko/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";
+export {arcDiagramDef, arcTableData} from "./src/charts/ArcDiagram/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {scatterDef} from "./src/charts/Scatter/index.js";
@@ -1466,6 +1671,8 @@ export {
   themed,
   themeDark,
   themeLight,
+  themeRamp,
+  themeScaleColor,
   themeStyle,
   withOpacity,
 } from "./src/utils/theme.js";

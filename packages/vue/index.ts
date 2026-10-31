@@ -1,4 +1,6 @@
 import {
+  Alluvial as AlluvialClass,
+  ArcDiagram as ArcDiagramClass,
   AreaPlot as AreaPlotClass,
   BarChart as BarChartClass,
   Beeswarm as BeeswarmClass,
@@ -13,6 +15,7 @@ import {
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
   Funnel as FunnelClass,
+  Gantt as GanttClass,
   Gauge as GaugeClass,
   Geomap as GeomapClass,
   Hexbin as HexbinClass,
@@ -75,6 +78,10 @@ import {createD3plusComponent} from "./src/createComponent.js";
 
 export {createD3plusComponent, D3plusConfigKey} from "./src/createComponent.js";
 
+/** Vue component for rendering a d3plus Alluvial visualization. */
+export const Alluvial = createD3plusComponent(AlluvialClass, "chart");
+/** Vue component for rendering a d3plus ArcDiagram visualization. */
+export const ArcDiagram = createD3plusComponent(ArcDiagramClass, "chart");
 /** Vue component for rendering a d3plus AreaPlot visualization. */
 export const AreaPlot = createD3plusComponent(AreaPlotClass, "chart");
 /** Vue component for rendering a d3plus BarChart visualization. */
@@ -103,6 +110,8 @@ export const Dumbbell = createD3plusComponent(DumbbellClass, "chart");
 export const FanChart = createD3plusComponent(FanChartClass, "chart");
 /** Vue component for rendering a d3plus Funnel visualization. */
 export const Funnel = createD3plusComponent(FunnelClass, "chart");
+/** Vue component for rendering a d3plus Gantt visualization. */
+export const Gantt = createD3plusComponent(GanttClass, "chart");
 /** Vue component for rendering a d3plus Gauge visualization. */
 export const Gauge = createD3plusComponent(GaugeClass, "chart");
 /** Vue component for rendering a d3plus Geomap visualization. */

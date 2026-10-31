@@ -17,17 +17,23 @@ export interface TranslationStrings {
   "Click to Zoom Out": string;
   Close: string;
   Comparison: string;
+  Connections: string;
   Count: string;
   "Cumulative Count": string;
   "Cumulative Relative Frequency": string;
+  day: string;
+  days: string;
   Decrease: string;
   Density: string;
   "Double-click or Escape to Clear": string;
   Download: string;
   "Drag to Filter": string;
+  Duration: string;
+  End: string;
   Equation: string;
   Exponential: string;
   Forecast: string;
+  From: string;
   High: string;
   Increase: string;
   "interactive chart": string;
@@ -44,6 +50,7 @@ export interface TranslationStrings {
   Maximum: string;
   Mean: string;
   Median: string;
+  Milestone: string;
   Minimum: string;
   more: string;
   "No Data": string;
@@ -58,6 +65,7 @@ export interface TranslationStrings {
   Polynomial: string;
   Power: string;
   "Powered by D3plus": string;
+  Progress: string;
   Projected: string;
   Range: string;
   "Relative Frequency": string;
@@ -68,8 +76,12 @@ export interface TranslationStrings {
   "Share of Parent": string;
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
+  Start: string;
   "SVG vector": string;
   Target: string;
+  to: string;
+  To: string;
+  Today: string;
   Total: string;
   "Trend Line": string;
   "Upper Bound": string;
@@ -116,11 +128,14 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0646\u0642\u0631 \u0644\u0644\u062a\u0635\u063a\u064a\u0631",
     Close: "\u0627\u0644\u0625\u063a\u0644\u0627\u0642",
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
+    Connections: "\u0627\u0644\u0627\u062a\u0635\u0627\u0644\u0627\u062a",
     Count: "\u0627\u0644\u0639\u062f\u062f",
     "Cumulative Count":
       "\u0627\u0644\u0639\u062f\u062f \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     "Cumulative Relative Frequency":
       "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
+    day: "\u064a\u0648\u0645",
+    days: "\u0623\u064a\u0627\u0645",
     Decrease: "\u0627\u0646\u062e\u0641\u0627\u0636",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     "Double-click or Escape to Clear":
@@ -128,9 +143,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "\u062a\u062d\u0645\u064a\u0644",
     "Drag to Filter":
       "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
+    Duration: "\u0627\u0644\u0645\u062f\u0629",
+    End: "\u0627\u0644\u0646\u0647\u0627\u064a\u0629",
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
+    From: "\u0645\u0646",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
     Increase: "\u0632\u064a\u0627\u062f\u0629",
     "interactive chart":
@@ -158,6 +176,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649",
     Mean: "\u0627\u0644\u0645\u062a\u0648\u0633\u0637",
     Median: "\u0627\u0644\u0648\u0633\u064a\u0637",
+    Milestone: "\u0645\u0639\u0644\u0645",
     Minimum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     more: "\u0623\u062e\u0631\u0649",
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
@@ -172,6 +191,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Power: "\u0642\u0648\u0629",
     "Powered by D3plus":
       "\u0645\u062f\u0639\u0648\u0645 \u0628\u0648\u0627\u0633\u0637\u0629 D3plus",
+    Progress: "\u0627\u0644\u062a\u0642\u062f\u0645",
     Projected: "\u0645\u062a\u0648\u0642\u0639",
     Range: "\u0627\u0644\u0646\u0637\u0627\u0642",
     "Relative Frequency":
@@ -188,8 +208,12 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift+\u0627\u0646\u0642\u0631 \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Click to Highlight":
       "Shift + \u0644\u0644\u062a\u062d\u062f\u064a\u062f \u0627\u0636\u063a\u0637",
+    Start: "\u0627\u0644\u0628\u062f\u0627\u064a\u0629",
     "SVG vector": "\u0631\u0633\u0645 \u0645\u062a\u062c\u0647 SVG",
     Target: "\u0627\u0644\u0647\u062f\u0641",
+    to: "\u0625\u0644\u0649",
+    To: "\u0625\u0644\u0649",
+    Today: "\u0627\u0644\u064a\u0648\u0645",
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
     "Trend Line": "\u062e\u0637 \u0627\u0644\u0627\u062a\u062c\u0627\u0647",
     "Upper Bound":
@@ -226,17 +250,23 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "Clic para Alejar",
     Close: "Cierre",
     Comparison: "Comparaci\u00f3n",
+    Connections: "Conexiones",
     Count: "Recuento",
     "Cumulative Count": "Recuento Acumulado",
     "Cumulative Relative Frequency": "Frecuencia Relativa Acumulada",
+    day: "d\u00eda",
+    days: "d\u00edas",
     Decrease: "Disminuci\u00f3n",
     Density: "Densidad",
     "Double-click or Escape to Clear": "Doble Clic o Escape para Borrar",
     Download: "Descargar",
     "Drag to Filter": "Arrastrar para Filtrar",
+    Duration: "Duraci\u00f3n",
+    End: "Fin",
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
     Forecast: "Pron\u00f3stico",
+    From: "Origen",
     High: "M\u00e1ximo",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interactivo",
@@ -253,6 +283,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "M\u00e1ximo",
     Mean: "Media",
     Median: "Mediana",
+    Milestone: "Hito",
     Minimum: "M\u00ednimo",
     more: "m\u00e1s",
     "No Data": "Sin Datos",
@@ -267,6 +298,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Polynomial: "Polin\u00f3mica",
     Power: "Potencial",
     "Powered by D3plus": "Funciona con D3plus",
+    Progress: "Progreso",
     Projected: "Proyectado",
     Range: "Rango",
     "Relative Frequency": "Frecuencia Relativa",
@@ -277,8 +309,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentaje del Nivel Superior",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
+    Start: "Inicio",
     "SVG vector": "Vector SVG",
     Target: "Objetivo",
+    to: "a",
+    To: "Destino",
+    Today: "Hoy",
     Total: "Total",
     "Trend Line": "L\u00ednea de Tendencia",
     "Upper Bound": "L\u00edmite Superior",
@@ -312,17 +348,23 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "Clique para Afastar",
     Close: "Fechamento",
     Comparison: "Compara\u00e7\u00e3o",
+    Connections: "Conex\u00f5es",
     Count: "Contagem",
     "Cumulative Count": "Contagem Acumulada",
     "Cumulative Relative Frequency": "Frequ\u00eancia Relativa Acumulada",
+    day: "dia",
+    days: "dias",
     Decrease: "Redu\u00e7\u00e3o",
     Density: "Densidade",
     "Double-click or Escape to Clear": "Clique Duplo ou Esc para Limpar",
     Download: "Baixar",
     "Drag to Filter": "Arraste para Filtrar",
+    Duration: "Dura\u00e7\u00e3o",
+    End: "Fim",
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
     Forecast: "Previs\u00e3o",
+    From: "Origem",
     High: "M\u00e1xima",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interativo",
@@ -339,6 +381,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "M\u00e1ximo",
     Mean: "M\u00e9dia",
     Median: "Mediana",
+    Milestone: "Marco",
     Minimum: "M\u00ednimo",
     more: "mais",
     "No Data": "Sem Dados",
@@ -353,6 +396,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Polynomial: "Polinomial",
     Power: "Pot\u00eancia",
     "Powered by D3plus": "Funciona com D3plus",
+    Progress: "Progresso",
     Projected: "Projetado",
     Range: "Intervalo",
     "Relative Frequency": "Frequ\u00eancia Relativa",
@@ -363,8 +407,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentagem do N\u00edvel Superior",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
+    Start: "In\u00edcio",
     "SVG vector": "Vetor SVG",
     Target: "Meta",
+    to: "para",
+    To: "Destino",
+    Today: "Hoje",
     Total: "Total",
     "Trend Line": "Linha de Tend\u00eancia",
     "Upper Bound": "Limite Superior",
@@ -400,18 +448,24 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "\u5355\u51fb\u7f29\u5c0f",
     Close: "\u6536\u76d8",
     Comparison: "\u5bf9\u6bd4",
+    Connections: "\u8fde\u63a5\u6570",
     Count: "\u8ba1\u6570",
     "Cumulative Count": "\u7d2f\u8ba1\u8ba1\u6570",
     "Cumulative Relative Frequency": "\u7d2f\u8ba1\u76f8\u5bf9\u9891\u7387",
+    day: "\u5929",
+    days: "\u5929",
     Decrease: "\u51cf\u5c11",
     Density: "\u5bc6\u5ea6",
     "Double-click or Escape to Clear":
       "\u53cc\u51fb\u6216\u6309 Esc \u6e05\u9664",
     Download: "\u4e0b\u8f7d",
     "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
+    Duration: "\u6301\u7eed\u65f6\u95f4",
+    End: "\u7ed3\u675f",
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
     Forecast: "\u9884\u6d4b",
+    From: "\u8d77\u70b9",
     High: "\u6700\u9ad8",
     Increase: "\u589e\u52a0",
     "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
@@ -428,6 +482,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "\u6700\u5927\u503c",
     Mean: "\u5e73\u5747\u503c",
     Median: "\u4e2d\u4f4d\u6570",
+    Milestone: "\u91cc\u7a0b\u7891",
     Minimum: "\u6700\u5c0f\u503c",
     more: "\u66f4\u591a",
     "No Data": "\u65e0\u6570\u636e",
@@ -442,6 +497,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Polynomial: "\u591a\u9879\u5f0f",
     Power: "\u5e42",
     "Powered by D3plus": "\u7531 D3plus \u63d0\u4f9b\u652f\u6301",
+    Progress: "\u8fdb\u5ea6",
     Projected: "\u9884\u6d4b",
     Range: "\u8303\u56f4",
     "Relative Frequency": "\u76f8\u5bf9\u9891\u7387",
@@ -452,8 +508,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
+    Start: "\u5f00\u59cb",
     "SVG vector": "SVG \u77e2\u91cf\u56fe",
     Target: "\u76ee\u6807",
+    to: "\u5230",
+    To: "\u7ec8\u70b9",
+    Today: "\u4eca\u5929",
     Total: "\u603b",
     "Trend Line": "\u8d8b\u52bf\u7ebf",
     "Upper Bound": "\u4e0a\u9650",

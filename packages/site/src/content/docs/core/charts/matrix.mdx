@@ -1,0 +1,32 @@
+---
+title: Matrix
+description: "Creates a simple rows/columns Matrix view of any dataset."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/matrix/basic-example.js?raw";
+import withColorScale from "~/examples/core/charts/matrix/with-color-scale.js?raw";
+import darkThemeColorScales from "~/examples/core/charts/matrix/dark-theme-color-scales.js?raw";
+
+Creates a simple rows/columns Matrix view of any dataset.
+
+## Basic example
+
+Draws a cell at every `row` × `column` intersection (exporter vs. importer continent); `groupBy` supplies both dimensions and `colorScale` shades each cell by Trade Value.
+
+<Playground chart="Matrix" code={basicExample} controls={["column","row"]} />
+
+## With color scale
+
+Shades cells with a `colorScaleConfig` `scale: "jenks"` (natural-breaks) classification and moves the legend to the right via `colorScalePosition`.
+
+<Playground chart="Matrix" code={withColorScale} controls={["colorScale","colorScaleConfig","colorScalePosition"]} />
+
+## Dark theme color scales
+
+On a dark theme (`"dark"`, or `"auto"` on a dark page) a color scale runs from a dim tint just above the background up to a bright blue, so low values recede and high values stand out, the mirror of the pale→dark ramp on light. Set `theme` to `"light"` to compare. With `colorScale: "change"`, a diverging scale, the two poles meet at a dark neutral instead of near-white, with bright red and blue at the ends. The theme's `colorScale` tokens (`max`, `mid`, `min`, `missing`) set these colors, and `colorScaleConfig.colorMax`/`colorMid`/`colorMin` or a `color` array still win.
+
+<Playground chart="Matrix" code={darkThemeColorScales} controls={["theme","colorScale"]} />
+
+<ApiReference name="Matrix" pkg="core" />

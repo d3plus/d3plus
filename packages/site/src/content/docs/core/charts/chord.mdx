@@ -1,0 +1,74 @@
+---
+title: Chord
+description: "Creates a Chord diagram based on a defined set of nodes and links."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/chord/basic-example.js?raw";
+import weightedFlows from "~/examples/core/charts/chord/weighted-flows.js?raw";
+import undirected from "~/examples/core/charts/chord/undirected.js?raw";
+import withArrows from "~/examples/core/charts/chord/with-arrows.js?raw";
+import selfLoop from "~/examples/core/charts/chord/self-loop.js?raw";
+import arcThickness from "~/examples/core/charts/chord/arc-thickness.js?raw";
+import ribbonOpacity from "~/examples/core/charts/chord/ribbon-opacity.js?raw";
+import groupSpacing from "~/examples/core/charts/chord/group-spacing.js?raw";
+import customNodeIdentifiers from "~/examples/core/charts/chord/custom-node-identifiers.js?raw";
+
+Creates a Chord diagram based on a defined set of nodes and links.
+
+## Basic example
+
+Supplying only `links` lets the layout infer every node from the `source`/`target` ids and draw a ribbon for each directed flow.
+
+<Playground chart="Chord" code={basicExample} controls={["links"]} />
+
+## Weighted flows
+
+Each link's `value` sizes its ribbon and the arcs it attaches to, so flows are weighted by magnitude.
+
+<Playground chart="Chord" code={weightedFlows} controls={["value"]} />
+
+## Undirected
+
+`directed(false)` uses the classic `d3.chord` layout, merging both directions of a pair into a single ribbon — best for symmetric or co-occurrence matrices. Note: an undirected group's arc size is its *outgoing* total only (`d3.chord`'s own convention) — a node with links only ever pointing *into* it gets a zero-width arc, so give every node at least one outgoing entry.
+
+<Playground chart="Chord" code={undirected} controls={["directed"]} />
+
+## With arrows
+
+`arrows` adds a `d3.ribbonArrow` head to the target end of every ribbon, making flow direction explicit. Unlike Network/Sankey, Chord can't put an arrowhead on the source end alone — `arrows("source")` is a no-op; use `true`, `"target"`, or `"both"`.
+
+<Playground chart="Chord" code={withArrows} controls={["arrows","arrowSize"]} />
+
+## Self loop
+
+A link whose `source` and `target` are the same node writes to the diagonal of the flow matrix, drawing a ribbon that leaves and re-enters its own arc — useful for a group's within-group (reflexive) flow alongside its flows to other groups.
+
+<Playground chart="Chord" code={selfLoop} controls={["links"]} />
+
+## Arc thickness
+
+`arcThickness` sets the pixel width of the group arcs (default `20`); the ribbons' inner radius follows automatically, so a thicker band leaves less room for the chords.
+
+<Playground chart="Chord" code={arcThickness} controls={["arcThickness"]} />
+
+## Ribbon opacity
+
+`chordOpacity` sets the fill opacity of every ribbon (default `0.6`). Lowering it helps a dense diagram stay readable where many ribbons overlap near the center.
+
+<Playground chart="Chord" code={ribbonOpacity} controls={["chordOpacity"]} />
+
+## Group spacing
+
+`padAngle` sets a fixed radian gap between adjacent group arcs, overriding the automatic gap `padPixel` (default `2`) would otherwise derive from the chart's radius — useful for a consistent gap across charts of different sizes.
+
+<Playground chart="Chord" code={groupSpacing} controls={["padAngle","padPixel"]} />
+
+## Custom node identifiers
+
+`nodeId` points at whatever key identifies a node — here `"key"` instead of the default `"id"` — so `links` can reference nodes by that same value. It only governs matching, though: the drawn label still defaults to reading `id`, so a custom `nodeId` needs an explicit `label` accessor (here `d => d.name`) alongside it. Supplying `nodes` explicitly (rather than letting them be inferred from `links`) also lets a node with no flows at all, like `"Operations"`, still get drawn as an empty arc.
+
+<Playground chart="Chord" code={customNodeIdentifiers} controls={["nodes","nodeId"]} />
+
+<ApiReference name="Chord" pkg="core" />

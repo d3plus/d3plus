@@ -643,6 +643,8 @@ export interface VizInstance {
   }): SizeLegendScale | null;
   /** The region chart chrome may be drawn inside, with the chart's marks as obstacles (see `ChartDefinition.insetRegion`). */
   _insetRegion?(): InsetRegion | null;
+  /** The table view's rows in place of the chart's data (see `ChartDefinition.tableData`). */
+  _tableData?(): DataPoint[] | null;
   /** The shape a colorScale row draws as (see `ChartDefinition.colorScaleShape`). */
   _colorScaleShape?(d: DataPoint, i: number): string;
   /** The chart's small-multiple hooks (see `ChartDefinition.facet`). */

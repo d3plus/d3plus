@@ -1,0 +1,55 @@
+---
+title: Sunburst
+description: "Draws a hierarchy as concentric rings, one per groupBy level, where each node's arc angle is proportional to its summed value."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/sunburst/basic-example.js?raw";
+import multiLevel from "~/examples/core/charts/sunburst/multi-level.js?raw";
+import drillDown from "~/examples/core/charts/sunburst/drill-down.js?raw";
+import styling from "~/examples/core/charts/sunburst/styling.js?raw";
+import smallDataThreshold from "~/examples/core/charts/sunburst/small-data-threshold.js?raw";
+import shading from "~/examples/core/charts/sunburst/shading.js?raw";
+
+Draws a hierarchy as concentric rings, one per `groupBy` level, where each
+node's arc angle is proportional to its summed value. Click an arc to zoom
+into it; click the center (or Back) to zoom out.
+
+## Basic example
+
+Each `groupBy` level is a ring, from the center out. An arc's angle is proportional to its `sum`, so a parent's arc spans exactly its children, and children inherit their top-level group's color.
+
+<Playground chart="Sunburst" code={basicExample} controls={["groupBy","sum"]} />
+
+## Multi level
+
+A three-level `groupBy` draws three rings. Each branch keeps its top-level color, a step lighter per ring. Labels appear only where their whole words fit, running along the ring or along the radius, whichever fits them larger. Hover an arc to highlight it with its ancestors.
+
+<Playground chart="Sunburst" code={multiLevel} controls={["groupBy","depth"]} />
+
+## Drill down
+
+Click an arc to zoom into it: it moves to the center and its descendants fill the full circle. Click the center, or the Back button, to zoom out. With `depth` limiting the visible rings, zooming slides that window outward, so deeper levels come into view.
+
+<Playground chart="Sunburst" code={drillDown} controls={["depth"]} />
+
+## Styling
+
+`ringSize: "area"` gives every ring the same area instead of the same thickness, `padPixel` opens an even gap between arcs, and `innerRadius: 0` closes the hollow center.
+
+<Playground chart="Sunburst" code={styling} controls={["ringSize","padPixel","padAngle","innerRadius"]} />
+
+## Small data threshold
+
+`threshold: 0.03` merges the files below 3% of the total within each module into one bucket labeled by `thresholdName`, keeping slivers from cluttering the outer ring. A module with only one such file keeps it as itself, and hovering a bucket lists the files it holds.
+
+<Playground chart="Sunburst" code={smallDataThreshold} controls={["threshold","thresholdName"]} />
+
+## Shading
+
+`shadeConfig` sets how much each ring lightens (`step`), up to `max`; `shade: false` draws every arc in its branch's flat color. Shading applies only to the default colors, so a custom `color` or `colorScale` is drawn as given.
+
+<Playground chart="Sunburst" code={shading} controls={["shade","shadeConfig"]} />
+
+<ApiReference name="Sunburst" pkg="core" />

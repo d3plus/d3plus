@@ -1,0 +1,39 @@
+---
+title: Rings
+description: "Creates a ring visualization based on a defined set of nodes and edges."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/rings/basic-example.js?raw";
+import largerNetwork from "~/examples/core/charts/rings/larger-network.js?raw";
+import directionalArrows from "~/examples/core/charts/rings/directional-arrows.js?raw";
+import sizedNodes from "~/examples/core/charts/rings/sized-nodes.js?raw";
+
+Creates a ring visualization based on a defined set of nodes and edges.
+
+## Basic example
+
+`center` names the focal node by id; the rest of the nodes are inferred from the `links`, with the center's direct connections forming the inner ring and the others radiating outward.
+
+<Playground chart="Rings" code={basicExample} controls={["center","links"]} />
+
+## Larger network
+
+Nodes one hop from the center sit on the inner ring; their neighbors fan out to an outer ring.
+
+<Playground chart="Rings" code={largerNetwork} controls={["center"]} />
+
+## Directional arrows
+
+`arrows` draws an arrowhead at each edge's endpoint — following the bezier's tangent for the curved outer-ring links and insetting to the node for the straight center links. Use `"both"` or a per-link accessor for bi-directional edges.
+
+<Playground chart="Rings" code={directionalArrows} controls={["arrows","arrowSize"]} />
+
+## Sized nodes
+
+`size` sizes every node, including the center, with one scale (square-root by default; see `sizeScale`), kept between `sizeMin` and `sizeMax`. A size legend in the corner shows what each radius means.
+
+<Playground chart="Rings" code={sizedNodes} controls={["size","sizeMin","sizeMax","sizeScale","sizeLegend"]} height={500} />
+
+<ApiReference name="Rings" pkg="core" />

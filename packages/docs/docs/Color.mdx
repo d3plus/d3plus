@@ -51,6 +51,17 @@ import { colorRamp } from "@d3plus/color";
 colorRamp("#4269d0", 6); // six evenly-spaced steps from light to dark blue
 ```
 
+`colorRampDark` is its mirror for a dark background: from a dim tint just above
+the `background` up to the bright base color, so low values recede and high
+values stand out. Charts use it for their color scales on a dark theme (see
+**Guides → Theming**):
+
+```js
+import { colorRampDark } from "@d3plus/color";
+
+colorRampDark("#4dabf7", 6, {background: "#212529"}); // dim → bright blue
+```
+
 ## colorValidate
 
 `colorValidate` checks a palette against the same accessibility criteria the

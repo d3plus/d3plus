@@ -1,0 +1,51 @@
+---
+title: FanChart
+description: "Creates a fan chart from an array of data: a line per series with nested confidence bands around it, outermost first, shaded from the widest (lightest) to the narrowest (darkest)."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/fan-chart/basic-example.js?raw";
+import severalSeries from "~/examples/core/charts/fan-chart/several-series.js?raw";
+import explicitForecastStart from "~/examples/core/charts/fan-chart/explicit-forecast-start.js?raw";
+import opacityRamp from "~/examples/core/charts/fan-chart/opacity-ramp.js?raw";
+import smallMultiples from "~/examples/core/charts/fan-chart/small-multiples.js?raw";
+
+Creates a fan chart from an array of data: a line per series with nested
+`confidence` bands around it, outermost first, shaded from the widest
+(lightest) to the narrowest (darkest). The bands open from the last point
+before they spread away from the line, and the stretch after it is marked
+as a forecast: a shaded backdrop, a rule at its start, a "Forecast" label,
+and a dashed line (see `forecast` and `forecastConfig`).
+
+## Basic example
+
+Pass `confidence` a list of `[lower, upper, label]` bands, outermost first. Each band fans out from the last actual point, the widest drawn lightest and the narrowest darkest. The forecast stretch gets a shaded backdrop, a rule at its start, and a dashed line, and hovering a forecast point lists every band's range under its label.
+
+<Playground chart="FanChart" code={basicExample} controls={["confidence","confidenceConfig","forecast"]} />
+
+## Several series
+
+Every series draws its own fan in its own color. The shared tooltip follows each series' value with the range of its outermost band.
+
+<Playground chart="FanChart" code={severalSeries} controls={["confidence"]} />
+
+## Explicit forecast start
+
+A single `[lower, upper]` pair draws one band, exactly as it does on a LinePlot. Set `forecast` to a value on the discrete axis (here a date) to start the forecast there instead of where the bands open, and `forecastConfig.lineDasharray: false` keeps the line solid.
+
+<Playground chart="FanChart" code={explicitForecastStart} controls={["confidence","forecast","forecastConfig"]} />
+
+## Opacity ramp
+
+`confidenceConfig.bandOpacity` sets the ramp: how dark each band looks where it is the innermost band drawn, from the outermost band to the innermost. A number gives every band the same opacity. `forecastConfig` styles the backdrop, the rule, the label, and the dash of each line's forecast stretch.
+
+<Playground chart="FanChart" code={opacityRamp} controls={["confidenceConfig","forecastConfig"]} />
+
+## Small multiples
+
+With `facet`, each panel draws its own fan and forecast backdrop on a shared value axis.
+
+<Playground chart="FanChart" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="FanChart" pkg="core" />

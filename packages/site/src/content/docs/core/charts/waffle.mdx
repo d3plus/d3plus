@@ -1,0 +1,56 @@
+---
+title: Waffle
+description: "Draws a grid of unit cells filled in order by category, each category getting cells in proportion to its value."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/waffle/basic-example.js?raw";
+import cellShapes from "~/examples/core/charts/waffle/cell-shapes.js?raw";
+import fillDirection from "~/examples/core/charts/waffle/fill-direction.js?raw";
+import unitCounts from "~/examples/core/charts/waffle/unit-counts.js?raw";
+import pictogram from "~/examples/core/charts/waffle/pictogram.js?raw";
+import smallMultiples from "~/examples/core/charts/waffle/small-multiples.js?raw";
+
+Draws a grid of unit cells filled in order by category, each category
+getting cells in proportion to its value. By default the grid is 10 × 10,
+so each cell is 1% of the total; set `unit` to make each cell a fixed
+amount instead. Hover a cell to highlight its whole category.
+
+## Basic example
+
+Each of the 100 cells is 1% of the total, filled largest category first. Shares are rounded with the largest-remainder method, so the cells always add up to exactly 100. Hover a cell to highlight its whole category; the tooltip shows the category's value and share.
+
+<Playground chart="Waffle" code={basicExample} controls={["groupBy","sum","rows","columns"]} />
+
+## Cell shapes
+
+`cellShape` draws each cell as a `"square"`, a `"rounded"` square, or a `"circle"`, and `cellPadding` sets the gap between cells. `sort: false` fills in data order, keeping the answers on their scale.
+
+<Playground chart="Waffle" code={cellShapes} controls={["cellShape","cellPadding","sort"]} />
+
+## Fill direction
+
+`fillDirection: "column"` fills each column before moving to the next, and `fillStart` picks the corner the first cell sits in. A 5 × 20 grid still holds 100 cells, so each is still 1%.
+
+<Playground chart="Waffle" code={fillDirection} controls={["fillDirection","fillStart","rows","columns"]} />
+
+## Unit counts
+
+`unit: 500` makes each cell 500 attendees instead of a share of the total. The grid keeps its 12 `columns` and adds rows until every cell fits, so a larger total draws a taller waffle.
+
+<Playground chart="Waffle" code={unitCounts} controls={["unit","columns"]} />
+
+## Pictogram
+
+`icon` turns the waffle into a pictogram: every cell draws the image its accessor returns (here, `person` builds a silhouette SVG in each category's color) in place of the fill. With `unit: 1`, each icon is one person.
+
+<Playground chart="Waffle" code={pictogram} controls={["icon","unit"]} />
+
+## Small multiples
+
+`facet` draws one waffle per age group, side by side, with one shared legend. Each panel's cells are that group's own shares, so the panels compare at a glance.
+
+<Playground chart="Waffle" code={smallMultiples} controls={["facet","cellShape"]} />
+
+<ApiReference name="Waffle" pkg="core" />

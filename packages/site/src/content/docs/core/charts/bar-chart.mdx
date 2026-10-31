@@ -1,71 +1,209 @@
 ---
 title: BarChart
-description: Bars sized by value along a discrete axis, grouped or stacked by series.
+description: "Creates a bar chart based on an array of data."
 ---
 
 import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
-import basic from "~/examples/core/charts/bar-chart/basic.js?raw";
-import sorting from "~/examples/core/charts/bar-chart/sorting.js?raw";
-import stacked from "~/examples/core/charts/bar-chart/stacked.js?raw";
-import horizontal from "~/examples/core/charts/bar-chart/horizontal.js?raw";
-import pyramid from "~/examples/core/charts/bar-chart/pyramid.js?raw";
-import tooltip from "~/examples/core/charts/bar-chart/tooltip.js?raw";
+import basicExample from "~/examples/core/charts/bar-chart/basic-example.js?raw";
+import sortingBars from "~/examples/core/charts/bar-chart/sorting-bars.js?raw";
+import customBarPadding from "~/examples/core/charts/bar-chart/custom-bar-padding.js?raw";
+import stackedBars from "~/examples/core/charts/bar-chart/stacked-bars.js?raw";
+import horizontalBars from "~/examples/core/charts/bar-chart/horizontal-bars.js?raw";
+import reversedAxis from "~/examples/core/charts/bar-chart/reversed-axis.js?raw";
+import trendLine from "~/examples/core/charts/bar-chart/trend-line.js?raw";
+import trendLineProjection from "~/examples/core/charts/bar-chart/trend-line-projection.js?raw";
+import texturedBars from "~/examples/core/charts/bar-chart/textured-bars.js?raw";
+import populationPyramid from "~/examples/core/charts/bar-chart/population-pyramid.js?raw";
+import renderingToCanvas from "~/examples/core/charts/bar-chart/rendering-to-canvas.js?raw";
+import clickAndHoverEvents from "~/examples/core/charts/bar-chart/click-and-hover-events.js?raw";
+import customTooltip from "~/examples/core/charts/bar-chart/custom-tooltip.js?raw";
+import localized from "~/examples/core/charts/bar-chart/localized.js?raw";
+import highlightingASeries from "~/examples/core/charts/bar-chart/highlighting-a-series.js?raw";
+import ordinalColor from "~/examples/core/charts/bar-chart/ordinal-color.js?raw";
+import stackOrderByValue from "~/examples/core/charts/bar-chart/stack-order-by-value.js?raw";
+import stackOrderByField from "~/examples/core/charts/bar-chart/stack-order-by-field.js?raw";
+import baselineBreak from "~/examples/core/charts/bar-chart/baseline-break.js?raw";
+import horizontalBaselineBreak from "~/examples/core/charts/bar-chart/horizontal-baseline-break.js?raw";
+import baseline from "~/examples/core/charts/bar-chart/baseline.js?raw";
+import outlierBarBreak from "~/examples/core/charts/bar-chart/outlier-bar-break.js?raw";
+import errorBars from "~/examples/core/charts/bar-chart/error-bars.js?raw";
+import errorBarsHorizontal from "~/examples/core/charts/bar-chart/error-bars-horizontal.js?raw";
+import errorBarsStacked from "~/examples/core/charts/bar-chart/error-bars-stacked.js?raw";
+import categoryLabels from "~/examples/core/charts/bar-chart/category-labels.js?raw";
+import hoverAreas from "~/examples/core/charts/bar-chart/hover-areas.js?raw";
+import angledAxisLabels from "~/examples/core/charts/bar-chart/angled-axis-labels.js?raw";
 
-A bar chart draws one bar per row along a discrete axis. When stacked, each
-bar's fraction of its stack total is available to tooltip accessors as `share`
+Creates a bar chart based on an array of data. When stacked, each bar's
+fraction of its stack total is available to tooltip accessors as `share`
 (unless the data has its own `share` field).
 
 ## Basic example
 
-A minimal grouped bar chart: the two series in `groupBy` share each `x`
-position and sit side by side, with each bar's height read from `y`.
+A minimal grouped bar chart: the two series in `groupBy` share each `x` position and sit side by side, with each bar's height read from `y`.
 
-<Playground chart="BarChart" code={basic} controls={["x", "y"]} />
+<Playground chart="BarChart" code={basicExample} controls={["x","y"]} />
 
 ## Sorting bars
 
-The discrete `x` axis sorts alphabetically by default; pass an `xSort`
-comparator to order the bars by a different field. Here the travel-time
-buckets follow their numeric `"ID Travel Time"` instead of their labels.
+The discrete `x` axis sorts alphabetically by default; pass an `xSort` comparator to order the bars by a different field — here the travel-time buckets follow their numeric `"ID Travel Time"` instead of their labels.
 
-<Playground chart="BarChart" code={sorting} />
+<Playground chart="BarChart" code={sortingBars} controls={["xSort"]} />
+
+## Custom bar padding
+
+`barPadding` sets the pixel gap between bars within a group, while `groupPadding` sets the gap between adjacent groups — raise the latter to visually separate each `x` cluster.
+
+<Playground chart="BarChart" code={customBarPadding} controls={["barPadding","groupPadding"]} />
 
 ## Stacked bars
 
-Set `stacked: true` to stack the series into one bar per `x` position rather
-than grouping them side by side, emphasizing the combined total over
-per-series comparison.
+Set `stacked: true` to stack the series into one bar per `x` position rather than grouping them side by side, emphasizing the combined total over per-series comparison.
 
-<Playground
-  chart="BarChart"
-  code={stacked}
-  controls={["stacked", "barPadding", "groupPadding", "discrete"]}
-/>
+<Playground chart="BarChart" code={stackedBars} controls={["stacked","barPadding","groupPadding","discrete"]} />
 
 ## Horizontal bars
 
-Run the bars horizontally by setting `discrete: "y"` so the category sits on
-the vertical axis and the measured length extends along `x`. Reach for this
-when category labels are long or numerous.
+Run the bars horizontally by setting `discrete: "y"` so the category sits on the vertical axis and the measured length extends along `x`. Reach for this when category labels are long or numerous.
 
-<Playground chart="BarChart" code={horizontal} controls={["discrete"]} />
+<Playground chart="BarChart" code={horizontalBars} controls={["discrete","x","y"]} />
+
+## Reversed axis
+
+Any axis config takes `reverse: true` to flip that axis. A horizontal bar chart's categories run up from the bottom, so the latest year would sit on top; reversing the y axis reads the years down from the earliest, like a table. The bars, labels, and tooltips all follow the reversed axis.
+
+<Playground chart="BarChart" code={reversedAxis} controls={["yConfig"]} />
+
+## Trend line
+
+`trendLine` works on the discrete axis too: each series gets a line fit across its bars, sampled at every category and drawn behind them. Categories that aren't numbers or dates are fit by their order along the axis.
+
+<Playground chart="BarChart" code={trendLine} controls={["trendLine","trendLineConfig"]} />
+
+## Trend line projection
+
+On a numeric or time axis, `trendLineConfig.projection` adds future slots to the axis and carries each series' trend line across them. Categories that aren't numbers or dates have no next value, so they ignore it. The projected slots are marked as a forecast, shaded from the edge of the first one; set `forecast: false` to leave them unmarked.
+
+<Playground chart="BarChart" code={trendLineProjection} controls={["trendLine","trendLineConfig"]} />
+
+## Textured bars
+
+Overlay a repeating pattern on the bars via `shapeConfig.texture` (here `"nylon"`), with `textureDefault` tuning its size and stroke — useful for keeping series distinguishable in print or grayscale.
+
+<Playground chart="BarChart" code={texturedBars} controls={["shapeConfig"]} />
 
 ## Population pyramid
 
-Age ranges run up the discrete `y` axis while the `x` accessor negates the
-female `Population` so the sexes mirror around zero, and `xConfig.tickFormat`
-restores absolute labels with `formatAbbreviate` from `@d3plus/format`. Use it
-to read a population's age-and-sex structure at a glance.
+A population pyramid: age ranges run up the discrete `y` axis while the `x` accessor negates the female `Population` so the sexes mirror around zero, and `xConfig.tickFormat` restores absolute labels. Use it to read a population's age-and-sex structure at a glance.
 
-<Playground chart="BarChart" code={pyramid} controls={["stacked"]} />
+<Playground chart="BarChart" code={populationPyramid} controls={["stacked","xConfig","yConfig"]} height={400} />
+
+## Rendering to canvas
+
+Set `renderer: "canvas"` to paint to a `<canvas>` element instead of SVG. Useful for charts with very large numbers of shapes; hover, tooltips, and pointer events still work. SVG is the default.
+
+<Playground chart="BarChart" code={renderingToCanvas} controls={["renderer"]} />
+
+## Click and hover events
+
+Register pointer handlers via `on`. Open the browser console, then click or hover a bar. Event names mirror d3-selection; the `.shape` namespace scopes the handler to data marks (use `.legend` for legend entries, or a shape class like `.Bar`). The handler receives the datum.
+
+<Playground chart="BarChart" code={clickAndHoverEvents} controls={["on"]} />
 
 ## Custom tooltip
 
-Replace the default hover card with `tooltipConfig`: `title` builds the header
-from the datum and `tbody` lists label/value rows. Hover a bar to see the
-custom formatting.
+Replace the default hover card with `tooltipConfig`: `title` builds the header from the datum and `tbody` lists label/value rows. Hover a bar to see the custom formatting.
 
-<Playground chart="BarChart" code={tooltip} />
+<Playground chart="BarChart" code={customTooltip} controls={["tooltipConfig"]} />
 
-<ApiReference name="BarChart" />
+## Localized
+
+Pass a `locale` (here `"ar-SA"`) to translate built-in UI text and format numbers for that region. Right-to-left locales also flip layout. Dictionaries live in `@d3plus/locales`.
+
+<Playground chart="BarChart" code={localized} controls={["locale"]} />
+
+## Highlighting a series
+
+`highlight` keeps the matching marks in color and de-emphasizes the rest to a neutral gray — the "emphasis" pattern for pointing at one series without hiding the others. Unlike `hover`/`active` (transient, opacity-based) it is a standing state, so it persists until cleared with `false`.
+
+<Playground chart="BarChart" code={highlightingASeries} controls={["highlight"]} />
+
+## Ordinal color
+
+Set `colorOrdinal: true` to color an *ordered* discrete field with a single-hue light→dark ramp instead of unrelated categorical hues, so the color itself carries the order. The ramp follows the data order (numeric values sort ascending); here the tiers run XS→XL from light to dark.
+
+<Playground chart="BarChart" code={ordinalColor} controls={["colorOrdinal"]} />
+
+## Stack order by value
+
+`stackOrder` accepts named value orders that rank series by their summed total. `"descending"` (the default) anchors the largest series — Enterprise — on the baseline with the smallest on top; switch to `"ascending"` to flip that and put the largest on top. Unlike the old alphabetical default, this reads by magnitude and works the same whether `x` is a string or a number (see [#527](https://github.com/d3plus/d3plus/issues/527)).
+
+<Playground chart="BarChart" code={stackOrderByValue} controls={["stackOrder"]} />
+
+## Stack order by field
+
+Pass an accessor (or a `{value, order}` config) to order the stack by *any* field, not just the plotted one. Here bar height is `units`, but the stack is ordered by total `profit` — so low-volume, high-profit Gadgets sinks to the baseline while the tall Widgets band rides on top. Series are ranked by the summed accessor value, descending by default; use `{value: "profit", order: "ascending"}` to reverse.
+
+<Playground chart="BarChart" code={stackOrderByField} controls={["stackOrder"]} />
+
+## Baseline break
+
+When a `yDomain` (or `yConfig.domain`) stops short of zero, the axis still ends at a `0` tick, then breaks — two short tilted marks with a gap in the axis line — and resumes at the domain's minimum. Bars start at the `0` tick, so they never spill past the axis, and the break's gap is cut straight across them, as with a `yBreak`. Turn `baselineBreak` off and a `yDomain` stretches back down to `0` (a `yConfig.domain` is kept, with the bars cut off at the axis); style the break with `yConfig.baselineBreakConfig` (`space`, `gap`, `size`, `angle`, `stroke`, and `mask: false` to leave the bars whole). See [#645](https://github.com/d3plus/d3plus/issues/645).
+
+<Playground chart="BarChart" code={baselineBreak} controls={["baselineBreak","yDomain"]} />
+
+## Horizontal baseline break
+
+Horizontal bars break their x axis the same way, here with a steeper, wider break glyph set through `xConfig.baselineBreakConfig`.
+
+<Playground chart="BarChart" code={horizontalBaselineBreak} controls={["xConfig"]} />
+
+## Baseline
+
+`baseline(1200)` renders exactly like `yDomain([1200])`: the y axis starts at exactly `1200` (its top is still rounded, just as it is with no domain set), then breaks back to a `0` tick, and the bars still grow from that `0` through the break, which cuts its gap across them. Turn `baselineBreak` off and the axis stretches down to `0`, just as a `yDomain` minimum does. A `yDomain` bound wins over the baseline, and when every value sits below the baseline it ends the axis instead, like `yDomain([undefined, n])`.
+
+<Playground chart="BarChart" code={baseline} controls={["baseline","baselineBreak"]} />
+
+## Outlier bar break
+
+One outlier would flatten every other bar. `yBreak` removes a value range from the y axis — here 80 to 900 — so the small bars keep a readable scale while the outlier still reaches its real value. The axis shows the break with two short marks and labels both of its edges; a line runs across the plot from each mark, and the gap between the two lines is cut straight across the bar that crosses it. Pass a list of ranges (`[[80, 400], [500, 900]]`) for several breaks, and style them with `yConfig.breakConfig` (`lineConfig` styles the lines, `lines: false` hides them, and `mask: false` leaves the shapes whole). See [#766](https://github.com/d3plus/d3plus/issues/766) and [#767](https://github.com/d3plus/d3plus/issues/767).
+
+<Playground chart="BarChart" code={outlierBarBreak} controls={["yBreak"]} />
+
+## Error bars
+
+Supply `confidence` as a `[lower, upper]` pair of data keys (or accessors) to draw an error bar on every bar: a line from the lower to the upper bound, capped at each end and centered on its bar. The value axis widens to fit the bounds, and a bar's tooltip (hover its bar or its error bar) lists its Lower and Upper Bound; set `confidenceConfig.tooltip` to `false` to leave them out, or `confidence` to `false` to turn the interval off.
+
+<Playground chart="BarChart" code={errorBars} controls={["confidence","confidenceConfig"]} />
+
+## Error bars horizontal
+
+Error bars follow the bars' orientation. `confidenceConfig` styles them: `stroke` and `strokeWidth` paint the line (by default a shade darker than its bar, 2px wide), and `capWidth` sets the end caps' length, in pixels or as a percentage of the bar's thickness (default `"50%"`).
+
+<Playground chart="BarChart" code={errorBarsHorizontal} controls={["confidence","confidenceConfig","discrete"]} />
+
+## Error bars stacked
+
+On stacked bars, each segment's error bar sits at the segment's stacked end, keeping its bounds' distance from the segment's own value — so it shows that segment's uncertainty, not the stack total's. The shared tooltip lists each segment's own bounds after its value.
+
+<Playground chart="BarChart" code={errorBarsStacked} controls={["confidence","confidenceConfig","stacked"]} />
+
+## Category labels
+
+Bars named by their own `groupBy` category carry that name inside the bar, and the category axis leaves its tick labels off. When the bars are too narrow for their names, as these 36 months are, the axis labels the categories instead (rotating or thinning them as any crowded axis does) and the bars drop theirs, so every bar stays named.
+
+<Playground chart="BarChart" code={categoryLabels} controls={["data","groupBy"]} />
+
+## Hover areas
+
+Side-by-side bars answer the pointer anywhere in their slot, from one edge of the plot to the other, so East's tiny bar shows its tooltip and takes clicks when you hover high above it. Grouped bars each own their column of the slot; stacked bars already fill theirs. `shapeConfig: {Bar: {hitArea: false}}` limits hovering to the bars themselves.
+
+<Playground chart="BarChart" code={hoverAreas} controls={["shapeConfig"]} />
+
+## Angled axis labels
+
+An axis config's `labelRotation` takes a number of degrees as well as `true` (-90) or `false`. At `-45` each long category name rises to the right and ends at its bar's tick; a positive angle falls to the right from its tick instead. The axis claims the room the slanted labels need, and thins them when their text would touch.
+
+<Playground chart="BarChart" code={angledAxisLabels} controls={["xConfig"]} />
+
+<ApiReference name="BarChart" pkg="core" />

@@ -58,7 +58,7 @@ point whose edge is within `hoverDistance` pixels (20 by default) shows its
 tooltip, hover highlight and axis guides, and a click there clicks it. The
 tooltip points at the top of the point rather than following the pointer, and
 holds still until a different point takes over. This
-applies to scatter and bubble Plots (and Beeswarm), Network nodes, and Geomap
+applies to scatter and bubble Plots (and Beeswarm), Network and ArcDiagram nodes, and Geomap
 points; bars, areas, lines (which already follow the pointer's nearest point),
 and other area-filling marks keep exact hit-testing. A Plot with a discrete axis
 and the shared tooltip snaps to the nearest column instead. Set
@@ -217,7 +217,7 @@ wheel. Set `zoomScroll` to `true` (any wheel), `"modifier"`, or `false` (no
 wheel zoom) to choose. A title,
 subtitle, total, or top/right legend wraps or shifts to leave room for the
 controls. Set `zoom: false` to turn it all off. Zoom starts off where it
-doesn't help read the chart (Bullet, Calendar, Funnel, Gauge, and Waffle) and
+doesn't help read the chart (Bullet, Calendar, Funnel, Gantt, Gauge, and Waffle) and
 on ParallelCoordinates, where it would slide the axes out from under their
 brushes; set `zoom: true` to turn it on. Zoomed content is clipped to
 the chart area, so the legend, title, and timeline stay put.

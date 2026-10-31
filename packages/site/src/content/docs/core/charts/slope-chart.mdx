@@ -1,0 +1,49 @@
+---
+title: SlopeChart
+description: "Creates a slope chart from an array of data: a LinePlot comparing each series between two periods, with a line from its first value to its second."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/slope-chart/basic-example.js?raw";
+import directionColors from "~/examples/core/charts/slope-chart/direction-colors.js?raw";
+import manySeries from "~/examples/core/charts/slope-chart/many-series.js?raw";
+import ranksWithBumpChart from "~/examples/core/charts/slope-chart/ranks-with-bump-chart.js?raw";
+
+Creates a slope chart from an array of data: a LinePlot comparing each
+series between two periods, with a line from its first value to its
+second. Each line is labeled at both ends with its series name and value
+(`lineLabels: "both"` with `lineLabelConfig: {value: true}`), labels that
+would overlap are nudged apart on each side, and the value axis hides its
+labels, ticks, and gridlines, since the labels carry the values (tooltips
+still show them). The x axis shows the periods in the data; with more
+than two, every period is drawn and a warning suggests filtering to two.
+Markers sit at each end of every line. `slopeColor` colors each line by
+whether it rose, fell, or stayed flat. For ranks rather than values, use
+a two-period BumpChart, which labels its rank axes with the series names.
+
+## Basic example
+
+Each `groupBy` series is a line from its value in the first period to its value in the second, named at both ends with its value. The values take the y axis's `tickFormat`, here a percent sign, while the axis itself stays hidden; hover a line for its values. Labels that would overlap are spread apart on each side.
+
+<Playground chart="SlopeChart" code={basicExample} controls={["groupBy","x","y","lineLabels","lineLabelConfig"]} />
+
+## Direction colors
+
+Set `slopeColor: true` to color each line by its direction: green where the value rose, red where it fell, and gray where it held steady, in shades that suit a light or dark theme. Pass an object to pick any of the colors, e.g. `{up: "#1971c2", down: "#e8590c"}`.
+
+<Playground chart="SlopeChart" code={directionColors} controls={["slopeColor"]} />
+
+## Many series
+
+Many series that start and end close together: the labels on each side spread apart until none overlap, each staying as close to its line as the others allow, with a dotted connector back to the line when it moves. The periods here are strings, drawn in the order they first appear, and `lineLabelConfig.valueFormat` formats the values.
+
+<Playground chart="SlopeChart" code={manySeries} controls={["lineLabelConfig","slopeColor"]} />
+
+## Ranks with bump chart
+
+Set `lineLabelConfig: {value: false}` to name the lines without their values. To compare ranks rather than values, use a BumpChart with two periods: its axes name each series at its rank on both sides.
+
+<Playground chart="SlopeChart" code={ranksWithBumpChart} controls={["lineLabelConfig"]} />
+
+<ApiReference name="SlopeChart" pkg="core" />

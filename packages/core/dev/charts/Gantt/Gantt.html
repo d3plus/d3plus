@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Gantt</title>
+    <meta
+      name="description"
+      content="Gantt schedule with phases, milestones, dependencies, progress, and a today line, light and dark."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .panel {
+        padding: 16px;
+      }
+      .dark {
+        background: #1a1b1e;
+      }
+      .viz {
+        height: 560px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="panel">
+      <div id="light" class="viz"></div>
+    </div>
+    <div class="panel dark">
+      <div id="dark" class="viz"></div>
+    </div>
+  </body>
+
+  <script>
+    var tasks = [
+      {
+        task: "Kickoff",
+        phase: "Discovery",
+        start: "2024-03-04",
+        end: "2024-03-04",
+        progress: 1,
+      },
+      {
+        task: "Stakeholder interviews",
+        phase: "Discovery",
+        start: "2024-03-04",
+        end: "2024-03-13",
+        progress: 1,
+        dependencies: ["Kickoff"],
+      },
+      {
+        task: "Requirements document",
+        phase: "Discovery",
+        start: "2024-03-11",
+        end: "2024-03-22",
+        progress: 1,
+        dependencies: ["Stakeholder interviews"],
+      },
+      {
+        task: "Requirements sign-off",
+        phase: "Discovery",
+        start: "2024-03-22",
+        end: "2024-03-22",
+        progress: 1,
+        dependencies: ["Requirements document"],
+      },
+      {
+        task: "Information architecture",
+        phase: "Design",
+        start: "2024-03-25",
+        end: "2024-04-03",
+        progress: 1,
+        dependencies: ["Requirements sign-off"],
+      },
+      {
+        task: "Wireframes",
+        phase: "Design",
+        start: "2024-04-01",
+        end: "2024-04-12",
+        progress: 0.9,
+        dependencies: ["Information architecture"],
+      },
+      {
+        task: "Visual design and component library",
+        phase: "Design",
+        start: "2024-04-08",
+        end: "2024-04-26",
+        progress: 0.6,
+        dependencies: ["Wireframes"],
+      },
+      {
+        task: "Design review",
+        phase: "Design",
+        start: "2024-04-26",
+        end: "2024-04-26",
+        progress: 0,
+        dependencies: ["Visual design and component library"],
+      },
+      {
+        task: "API development",
+        phase: "Build",
+        start: "2024-04-01",
+        end: "2024-05-03",
+        progress: 0.45,
+        dependencies: ["Requirements sign-off"],
+      },
+      {
+        task: "Front-end development",
+        phase: "Build",
+        start: "2024-04-22",
+        end: "2024-05-24",
+        progress: 0.15,
+        dependencies: ["Wireframes", "API development"],
+      },
+      {
+        task: "Data migration",
+        phase: "Build",
+        start: "2024-05-06",
+        end: "2024-05-17",
+        progress: 0,
+        dependencies: ["API development"],
+      },
+      {
+        task: "Integration testing",
+        phase: "Launch",
+        start: "2024-05-20",
+        end: "2024-05-31",
+        progress: 0,
+        dependencies: ["Front-end development", "Data migration"],
+      },
+      {
+        task: "User acceptance testing",
+        phase: "Launch",
+        start: "2024-05-27",
+        end: "2024-06-07",
+        progress: 0,
+        dependencies: ["Integration testing"],
+      },
+      {
+        task: "Training",
+        phase: "Launch",
+        start: "2024-06-03",
+        end: "2024-06-07",
+        progress: 0,
+      },
+      {
+        task: "Go live",
+        phase: "Launch",
+        start: "2024-06-10",
+        end: "2024-06-10",
+        dependencies: ["User acceptance testing", "Training"],
+      },
+    ];
+
+    function gantt(selector, theme) {
+      return new d3plus.Gantt()
+        .select(selector)
+        .data(tasks)
+        .groupBy("task")
+        .group("phase")
+        .color("phase")
+        .today("2024-04-17")
+        .theme(theme)
+        .title("Website relaunch")
+        .render();
+    }
+
+    gantt("#light", "light");
+    gantt("#dark", "dark");
+  </script>
+</html>
