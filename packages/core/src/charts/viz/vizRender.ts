@@ -71,12 +71,13 @@ function scopeTooltip(viz: Viz): void {
 /**
     Calculates the width and/or height of the Viz from `_select` when either has
     not been defined.
+    @param visible Whether the chart counts as on-screen for this render.
     @private
 */
-function autoSize(viz: Viz): void {
+function autoSize(viz: Viz, visible: boolean): void {
   if (
     (!viz.schema.width || !viz.schema.height) &&
-    (!viz.schema.detectVisible || isVisible(viz))
+    (!viz.schema.detectVisible || visible)
   ) {
     // A size this function measured on an earlier render stays automatic: a
     // RESET height re-enters here with the measured width still in `schema`.
@@ -193,9 +194,14 @@ function resetPolls(viz: Viz): void {
     Installs the visibility/scroll detection that defers rendering until the
     chart is on-screen. Returns true when a detection branch took ownership of
     the render (so the caller skips the immediate draw).
+    @param visible Whether the chart counts as on-screen for this render.
     @private
 */
-function setupDetection(viz: Viz, callback?: () => void): boolean {
+function setupDetection(
+  viz: Viz,
+  visible: boolean,
+  callback?: () => void,
+): boolean {
   if (
     viz.schema.detectVisible &&
     viz._select.style("visibility") === "hidden"
@@ -218,7 +224,7 @@ function setupDetection(viz: Viz, callback?: () => void): boolean {
       }
     }, viz.schema.detectVisibleInterval);
     return true;
-  } else if (viz.schema.detectVisible && !isVisible(viz)) {
+  } else if (viz.schema.detectVisible && !visible) {
     if (canObserveVisibility()) {
       viz._visibleUnobserve = observeVisibility(
         viz._select.node(),
@@ -449,14 +455,17 @@ export function vizRender(viz: Viz, callback?: () => void): Viz {
   // prop the container open to that size; again after, once autoSize has
   // settled which dimensions are measured.
   reserveContainerSize(viz);
-  autoSize(viz);
+  // Read once: sizing the root svg below can move it into or out of view, and
+  // measuring and drawing have to agree on whether this render draws.
+  const visible = isVisible(viz);
+  autoSize(viz, visible);
   reserveContainerSize(viz);
 
   const parent = select(viz._select.node().parentNode);
   applyRootAttributes(viz, parent);
 
   resetPolls(viz);
-  if (!setupDetection(viz, callback)) loadAndDraw(viz, callback);
+  if (!setupDetection(viz, visible, callback)) loadAndDraw(viz, callback);
   viz._forceVisible = false;
 
   // Attaches touchstart event listener to the BODY to hide the tooltip when the user touches any element without data
