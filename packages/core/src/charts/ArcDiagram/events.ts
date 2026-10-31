@@ -8,6 +8,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 
+import {isLinkDatum, linkMeta} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {graphNodeId, zoomToNodeBounds} from "../Network/graph.js";
 import type {ArcCtx, ArcLink, ArcNode} from "./applyLayout.js";
@@ -17,14 +18,6 @@ type Predicate = (d: DataPoint, i: number) => boolean;
 type Toggle = (predicate?: Predicate | false) => unknown;
 /** The chart's hover and active setters. */
 export type ArcViz = VizInstance & {hover: Toggle; active: Toggle};
-
-/** Whether a row is one of ArcDiagram's links (it has resolved ends). */
-export const isArcLink = (d: unknown): d is ArcLink =>
-  !!d &&
-  typeof d === "object" &&
-  !!(d as ArcLink).source &&
-  !!(d as ArcLink).target &&
-  typeof (d as ArcLink).source === "object";
 
 /**
     What hovering (or focusing) `d` highlights, and the box around it: for a
@@ -43,10 +36,11 @@ export function arcFocus(
   let ids: Set<string>;
   let arcs: ArcLink[];
   let match: (l: ArcLink) => boolean;
-  if (isArcLink(d)) {
-    ids = new Set([d.source.id, d.target.id]);
-    arcs = c.links.filter(l => l === d);
-    match = l => l === d;
+  const meta = linkMeta(d);
+  if (meta) {
+    ids = new Set([meta.source.id, meta.target.id]);
+    match = l => l.index === meta.index;
+    arcs = c.links.filter(match);
   } else {
     const id = nodeId(d, i);
     const lookup = viz.ctx.nodeLookup as Record<string, ArcNode> | undefined;
@@ -55,8 +49,11 @@ export function arcFocus(
     arcs = c.links.filter(match);
     ids = new Set([id, ...arcs.flatMap(l => [l.source.id, l.target.id])]);
   }
-  const predicate: Predicate = (h, hi) =>
-    isArcLink(h) ? match(h) : ids.has(nodeId(h, hi));
+  const indices = new Set(arcs.map(l => l.index));
+  const predicate: Predicate = (h, hi) => {
+    const m = linkMeta(h);
+    return m ? indices.has(m.index) : ids.has(nodeId(h, hi));
+  };
   return {predicate, box: focusBox(c, ids, arcs)};
 }
 
@@ -94,8 +91,8 @@ const zoomTo = (viz: VizInstance, box: [[number, number], [number, number]]) =>
 
 /** A stable id for a focused row, so a second click on it resets. */
 const focusId = (viz: VizInstance, d: DataPoint, i: number): string =>
-  isArcLink(d)
-    ? `link:${d.index}`
+  isLinkDatum(d)
+    ? `link:${linkMeta(d)!.index}`
     : graphNodeId(viz, d as Record<string, unknown>, i);
 
 /** Installs ArcDiagram's hover, click, and legend-click handlers. */
@@ -158,10 +155,12 @@ export function setupArcEvents(viz: VizInstance): void {
     const arcs = c.links.filter(
       l => ids.has(l.source.id) && ids.has(l.target.id),
     );
+    const indices = new Set(arcs.map(l => l.index));
     v.hover(false);
-    v.active((h: DataPoint, hi: number) =>
-      isArcLink(h) ? arcs.includes(h) : key(h, hi) === want,
-    );
+    v.active((h: DataPoint, hi: number) => {
+      const m = linkMeta(h);
+      return m ? indices.has(m.index) : key(h, hi) === want;
+    });
     viz._focus = id;
     zoomTo(viz, focusBox(c, ids, arcs));
   };

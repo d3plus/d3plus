@@ -20,7 +20,8 @@ import {chartBounds} from "../features/chartGeometry.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
-import {resolveGraphLinks, resolveGraphNodes} from "./graph.js";
+import {publishLinkGraph} from "../features/linkInteraction.js";
+import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import type {GraphLink, GraphNode} from "./graph.js";
 
 interface NetworkLayoutNode extends SimulationNodeDatum {
@@ -298,6 +299,11 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
 
   const nodes = buildNetworkNodes(v);
   const links = buildNetworkLinks(v, nodes);
+  publishLinkGraph(
+    v,
+    links.flatMap(l => (l.datum ? [l.datum] : [])),
+    nodes.map(graphLinkEnd),
+  );
 
   positionNetworkNodes(v, nodes, links);
 

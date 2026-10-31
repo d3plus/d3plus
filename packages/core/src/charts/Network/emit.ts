@@ -30,6 +30,12 @@ import {
   userLabelConfig,
 } from "../features/emitHelpers.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
+import {
+  linkAriaLabel,
+  linkHitPath,
+  linkMeta,
+} from "../features/linkInteraction.js";
+import type {LinkDatum} from "../features/linkInteraction.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -37,6 +43,7 @@ interface NetworkLink {
   source: DataPoint & {x: number; y: number};
   target: DataPoint & {x: number; y: number};
   size?: number;
+  datum?: LinkDatum;
 }
 type NetworkNode = DataPoint & {
   __d3plus__?: true;
@@ -81,28 +88,33 @@ function networkLinkArrows(
   });
 }
 
-/** Link Paths, one per `c.links` entry — split out to keep `networkEmit` under the line budget. */
+/**
+    Link Paths, one per resolved `c.links` entry, each followed by a wider
+    transparent hit path over it and its arrowheads.
+*/
 function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
   const out: SceneNode[] = [];
-  for (let i = 0; i < c.links.length; i++) {
-    const link = c.links[i];
-    const datum = link as unknown as DataPoint;
+  for (const link of c.links) {
+    const datum = link.datum;
+    if (!datum) continue;
+    const i = linkMeta(datum)!.index;
     const paint = paintFromShapeConfig(c.linkConfig, datum, i);
     // Link's strokeWidth comes from the layout-injected `d.size`.
     if (typeof link.size === "number") paint.strokeWidth = link.size;
-    const sizeLabel = typeof link.size === "number" ? `, ${link.size}` : "";
     const srcId = (link.source as DataPoint).id ?? "";
     const tgtId = (link.target as DataPoint).id ?? "";
+    const key = `network-link-${srcId}-${tgtId}-${i}`;
+    const d = c.linkD(link);
     out.push({
       type: "path",
-      key: `network-link-${srcId}-${tgtId}-${i}`,
-      d: c.linkD(link),
+      key,
+      d,
       datum,
+      index: i,
       paint,
-      aria: {
-        label: `${drawNodeLabel(viz, link.source, 0)} to ${drawNodeLabel(viz, link.target, 0)}${sizeLabel}.`,
-      },
+      aria: {label: linkAriaLabel(viz, datum)},
     } as SceneNode);
+    out.push(linkHitPath(key, d, datum, paint.strokeWidth) as SceneNode);
 
     // Optional directional arrowheads at the node boundary.
     out.push(

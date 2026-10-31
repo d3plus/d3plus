@@ -28,11 +28,16 @@ import {installGraphFluent} from "./graphFluent.js";
 import type {GraphFluent} from "./graphFluent.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {themed} from "../../utils/theme.js";
+import {
+  isLinkDatum,
+  linkHighlight,
+  linkMeta,
+  linkTooltipConfig,
+} from "../features/linkInteraction.js";
 
 const getNodeId = graphNodeId;
 
 type NodeRecord = {id: string; x: number; y: number; r: number};
-type LinkDatum = {source?: DataPoint; target?: DataPoint};
 type Predicate = boolean | ((d: DataPoint, i: number) => boolean);
 type NetworkFluent = GraphFluent & {
   active: (predicate?: Predicate) => unknown;
@@ -54,6 +59,8 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
     event: MouseEvent,
   ) => {
     viz._tooltipClass!.data([]).render();
+    // A link has no node to focus.
+    if (isLinkDatum(d)) return;
 
     if (viz._drawDepth >= viz.schema.groupBy.length - 1) {
       const id = getNodeId(viz, d, i);
@@ -82,12 +89,9 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
           if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
         });
 
-        v.active((h: DataPoint & LinkDatum, hi: number) => {
-          if (h.source && h.target)
-            return (
-              (h.source as DataPoint).id === id ||
-              (h.target as DataPoint).id === id
-            );
+        v.active((h: DataPoint, hi: number) => {
+          const m = linkMeta(h);
+          if (m) return m.source.id === id || m.target.id === id;
           return filterIds.includes(getNodeId(viz, h, hi));
         });
 
@@ -134,11 +138,11 @@ function setupNetworkClickLegend(viz: VizInstance, v: NetworkViz) {
           if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
         });
 
-        v.active((h: DataPoint & LinkDatum, hi: number) => {
-          if (h.source && h.target)
+        v.active((h: DataPoint, hi: number) => {
+          const m = linkMeta(h);
+          if (m)
             return (
-              filterIds.includes((h.source as DataPoint).id as string) &&
-              filterIds.includes((h.target as DataPoint).id as string)
+              filterIds.includes(m.source.id) && filterIds.includes(m.target.id)
             );
           const myIds = viz._ids(h, hi);
           return filterIds.includes(`${myIds[myIds.length - 1]}`);
@@ -168,6 +172,12 @@ function setupNetworkMouse(viz: VizInstance, v: NetworkViz) {
     event: MouseEvent,
   ) => {
     defaultMouseMove(d, i, x, event);
+    const nodeKey = (h: DataPoint, hi: number) =>
+      `${viz._ids(h, hi)[viz._drawDepth]}`;
+    if (isLinkDatum(d)) {
+      v.hover(linkHighlight(viz, d, nodeKey));
+      return;
+    }
     const id = getNodeId(viz, d, i);
     const links =
       (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
@@ -186,12 +196,10 @@ function setupNetworkMouse(viz: VizInstance, v: NetworkViz) {
       if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
     });
 
-    v.hover((h: DataPoint & LinkDatum, hi: number) => {
-      if (h.source && h.target)
-        return (
-          (h.source as DataPoint).id === id || (h.target as DataPoint).id === id
-        );
-      return filterIds.includes(`${viz._ids(h, hi)[viz._drawDepth]}`);
+    v.hover((h: DataPoint, hi: number) => {
+      const m = linkMeta(h);
+      if (m) return m.source.id === id || m.target.id === id;
+      return filterIds.includes(nodeKey(h, hi));
     });
   };
 }
@@ -323,7 +331,9 @@ export const networkDef: ChartDefinition = {
     /**
         The thickness of each link: a pixel number used for every link, or an
         accessor function whose values are scaled between `linkSizeMin` and
-        the smallest node radius (see `linkSizeScale`).
+        the smallest node radius (see `linkSizeScale`). The function receives
+        each link, with `source` and `target` set to the data of the nodes at
+        its ends, and its index in `links`.
         @type {number | function}
     */
     {
@@ -340,21 +350,17 @@ export const networkDef: ChartDefinition = {
     {key: "linkSizeScale", default: "sqrt"},
     {key: "noDataMessage", default: false},
     {key: "nodeGroupBy", default: [accessor("id")]},
+    /**
+        How many links a node's tooltip lists under its number of
+        connections, strongest first: a number, or `false` for none. Defaults
+        to 3 when the links differ in `linkSize`, and none otherwise.
+        @type {number | false}
+    */
+    {key: "nodeTooltipLinks"},
     {
       key: "tooltipConfig",
       merge: true,
-      factory: (viz: VizInstance) => ({
-        title: (
-          d: DataPoint & {
-            source?: {id: string | number};
-            target?: {id: string | number};
-            i?: number;
-          },
-        ) =>
-          d && d.source && d.target
-            ? `${d.source.id} → ${d.target.id}`
-            : viz._drawLabel(d, typeof d.i === "number" ? d.i : 0),
-      }),
+      factory: (viz: VizInstance) => linkTooltipConfig(viz),
     },
     {key: "nodes", default: []},
     /**

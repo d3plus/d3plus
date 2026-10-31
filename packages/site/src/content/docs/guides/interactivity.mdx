@@ -137,6 +137,34 @@ for drawing attention to one series:
 Pass `false` or `null` to clear the highlight. See the
 [BarChart highlight example](/core/charts/bar-chart/).
 
+## Links in node-link charts
+
+Network, Rings, Sankey, and ArcDiagram treat links as first-class marks.
+Hovering a link highlights it and the two nodes it connects, and dims the rest;
+its tooltip is titled "Source → Target" and lists the link's own fields. Thin
+links have a wider invisible hit area, so they are easy to point at, and
+keyboard navigation reads each link as "Source to Target". Hovering a node
+lists its number of connections and, when the links differ in value, its
+strongest links (`nodeTooltipLinks` sets how many, `false` for none).
+
+Every link accessor (`linkSize`, Sankey's `value`, link `shapeConfig`
+functions, `arrows`, and tooltip accessors) receives the link with `source`
+and `target` set to the data of the nodes at its ends, so it can read their
+fields directly:
+
+```jsx
+<Network config={{
+  nodes, links,
+  linkSize: d => d.weight,
+  nodeTooltipLinks: 5,
+  shapeConfig: {
+    Path: {stroke: d => d.source.region === d.target.region ? "#495057" : "#adb5bd"}
+  }
+}} />
+```
+
+See the [Network link tooltips example](/core/charts/network/#link-tooltips).
+
 ## Legend
 
 A legend is shown automatically for grouped data. Clicking an entry toggles that

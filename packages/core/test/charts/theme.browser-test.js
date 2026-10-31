@@ -211,7 +211,9 @@ const sankeyLinkStrokes = theme =>
     viz.render(() => {
       const strokes = [];
       const walk = n => {
-        if (n.type === "path" && n.datum?.source) strokes.push(n.paint.stroke);
+        const hit = String(n.key).endsWith("::hit");
+        if (n.type === "path" && n.datum?.source && !hit)
+          strokes.push(n.paint.stroke);
         (n.children || []).forEach(walk);
       };
       walk(viz.toScene().root);

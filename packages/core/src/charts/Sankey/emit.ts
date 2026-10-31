@@ -15,15 +15,22 @@ import {
   shapeConfigFor,
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {
+  linkAriaLabel,
+  linkHitPath,
+  linkMeta,
+} from "../features/linkInteraction.js";
+import type {LinkDatum} from "../features/linkInteraction.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {sankeyLabels} from "./labels.js";
 
-interface SankeyLink {
+export interface SankeyLink {
   source: SankeyNode;
   target: SankeyNode;
   value: number;
+  datum: LinkDatum;
   // Added by the layout: link thickness + per-end y-centers.
   width?: number;
   y0?: number;
@@ -40,7 +47,7 @@ type SankeyNode = DataPoint & {
   x1: number;
   y1: number;
 };
-interface SankeyCtx {
+export interface SankeyCtx {
   links: SankeyLink[];
   nodeGroups: [string, SankeyNode[]][];
   pathFn: (d: SankeyLink) => string;
@@ -106,26 +113,31 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
   const out: SceneNode[] = [];
 
   // Sankey's link config is the raw `viz.schema.shapeConfig.Path` (no
-  // configPrep wrap) because links are raw `{source, target, value}`
-  // records — not d3plus-wrapped.
+  // configPrep wrap): each link's datum is a plain resolved link, not
+  // d3plus-wrapped.
   const linkConfig = ((
     viz.schema.shapeConfig as Record<string, unknown> | undefined
   )?.Path ?? {}) as Record<string, unknown>;
   if (c.links && c.links.length) {
-    for (let i = 0; i < c.links.length; i++) {
-      const link = c.links[i];
-      const datum = link as unknown as DataPoint;
+    for (const link of c.links) {
+      const datum = link.datum;
+      const i = linkMeta(datum)?.index ?? 0;
       const paint = paintFromShapeConfig(linkConfig, datum, i);
+      const key = `sankey-link-${link.source.id ?? ""}-${link.target.id ?? ""}`;
+      const d = c.pathFn(link);
       out.push({
         type: "path",
         shapeType: "Link",
-        key: `sankey-link-${link.source.id ?? ""}-${link.target.id ?? ""}`,
-        d: c.pathFn(link),
+        key,
+        d,
         datum,
+        index: i,
         paint,
-        aria: {
-          label: `${drawNodeLabel(viz, link.source, 0)} to ${drawNodeLabel(viz, link.target, 0)}, ${link.value}.`,
-        },
+        aria: {label: linkAriaLabel(viz, datum)},
+      } as SceneNode);
+      out.push({
+        ...linkHitPath(key, d, datum, paint.strokeWidth),
+        shapeType: "Link",
       } as SceneNode);
 
       out.push(...emitSankeyArrows(viz, link, datum, i, paint));

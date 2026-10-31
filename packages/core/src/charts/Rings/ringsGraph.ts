@@ -6,6 +6,8 @@
 */
 import type {DataPoint} from "@d3plus/data";
 
+import {makeLinkDatum, setLinkValue} from "../features/linkInteraction.js";
+import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
@@ -47,6 +49,8 @@ export interface RingsEdge {
   source: RingsNode;
   target: RingsNode;
   size: number;
+  /** The datum the link is drawn with (see `makeLinkDatum`). */
+  datum: LinkDatum;
   spline?: boolean;
   sourceX?: number;
   sourceY?: number;
@@ -57,6 +61,13 @@ export interface RingsEdge {
   targetBisectX?: number;
   targetBisectY?: number;
 }
+
+/** A node record as a link end. */
+export const ringsLinkEnd = (n: RingsNode): LinkEnd => ({
+  data: n.data,
+  i: n.i,
+  id: n.id,
+});
 
 type RawLink = {
   source: string | number | DataPoint;
@@ -172,15 +183,23 @@ export function buildRingsGraph(
   );
   v.ctx.nodeLookup = nodeLookup;
 
-  const links: RingsEdge[] = (v.schema.links as RawLink[])
-    .map(link => ({
-      source: resolveRingsLinkEnd(v, nodeLookup, link.source),
-      target: resolveRingsLinkEnd(v, nodeLookup, link.target),
-      size: v.schema.linkSize(link) as number,
-    }))
-    // A link can name a node id that isn't in the nodes set; that endpoint
-    // resolves to undefined and can't be placed, so drop the whole link.
-    .filter(link => link.source && link.target);
+  // A link can name a node id that isn't in the nodes set; that endpoint
+  // resolves to undefined and can't be placed, so the whole link is dropped.
+  const links: RingsEdge[] = (v.schema.links as RawLink[]).flatMap(
+    (link, i) => {
+      const source = resolveRingsLinkEnd(v, nodeLookup, link.source);
+      const target = resolveRingsLinkEnd(v, nodeLookup, link.target);
+      if (!source || !target) return [];
+      const datum = makeLinkDatum(
+        link as unknown as DataPoint,
+        ringsLinkEnd(source),
+        ringsLinkEnd(target),
+        i,
+      );
+      const size = setLinkValue(datum, v.schema.linkSize(datum, i)) as number;
+      return [{source, target, size, datum}];
+    },
+  );
 
   const linkMap: Record<string, RingsEdge[]> = links.reduce(
     (map: Record<string, RingsEdge[]>, link) => {

@@ -22,7 +22,8 @@ import {
   sizeRingsNodes,
 } from "./ringsSizing.js";
 import type {RingGeometry} from "./ringsSizing.js";
-import {buildRingsGraph} from "./ringsGraph.js";
+import {publishLinkGraph} from "../features/linkInteraction.js";
+import {buildRingsGraph, ringsLinkEnd} from "./ringsGraph.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 
@@ -456,9 +457,14 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     return {viz};
   }
   const {
-    graph: {nodeLookup, links, linkMap},
+    graph: {nodes: graphNodes, nodeLookup, links, linkMap},
     center,
   } = prepared;
+  publishLinkGraph(
+    v,
+    links.map(l => l.datum),
+    graphNodes.map(ringsLinkEnd),
+  );
   if (!center) {
     v.ctx.ringsCtx = emptyRingsCtx();
     return {viz};

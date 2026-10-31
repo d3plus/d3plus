@@ -17,7 +17,13 @@ import {shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
-import {resolveGraphLinks, resolveGraphNodes} from "../Network/graph.js";
+import {publishLinkGraph} from "../features/linkInteraction.js";
+import type {LinkDatum} from "../features/linkInteraction.js";
+import {
+  graphLinkEnd,
+  resolveGraphLinks,
+  resolveGraphNodes,
+} from "../Network/graph.js";
 import type {GraphNode} from "../Network/graph.js";
 import {
   arcPathD,
@@ -47,9 +53,9 @@ export interface ArcNode extends GraphNode {
   degree: number;
 }
 
-/** A laid-out link: the link's own fields, its resolved ends, and its arc. */
+/** A laid-out link: the datum it is drawn with, its resolved ends, and its arc. */
 export interface ArcLink {
-  [key: string]: unknown;
+  datum: LinkDatum;
   source: ArcNode;
   target: ArcNode;
   /** Stroke width, in pixels. */
@@ -328,14 +334,17 @@ function placeNodes(
 
 /** The laid-out links, longest first so shorter arcs draw (and hit-test) over them. */
 function placeLinks(
-  v: VizInstance,
-  placed: {index: number; source: RankedNode; target: RankedNode}[],
+  placed: {
+    index: number;
+    datum: LinkDatum;
+    source: RankedNode;
+    target: RankedNode;
+  }[],
   nodes: ArcNode[],
   geometry: {base: number; scale: number; orient: ArcOrient},
   sides: ("above" | "below")[],
   sizes: number[],
 ): ArcLink[] {
-  const raw = v.schema.links as DataPoint[];
   const nodeById = new Map(nodes.map(n => [n.id, n]));
   const links: ArcLink[] = placed.map((l, i) => {
     const arc: ArcGeometry = {
@@ -345,7 +354,7 @@ function placeLinks(
       side: sides[i],
     };
     return {
-      ...(raw[l.index] as Record<string, unknown>),
+      datum: l.datum,
       source: nodeById.get(l.source.id)!,
       target: nodeById.get(l.target.id)!,
       size: sizes[i],
@@ -387,8 +396,13 @@ function placeLabels(
   );
 }
 
-/** Stashes the layout and the id lookups hover and click focus read. */
+/** Stashes the layout, the id lookups hover and click focus read, and the link graph tooltips read. */
 function stashArcCtx(v: VizInstance, ctx: ArcCtx): void {
+  publishLinkGraph(
+    v,
+    [...ctx.links].sort((a, b) => a.index - b.index).map(l => l.datum),
+    ctx.nodes.map(graphLinkEnd),
+  );
   v.ctx.arcCtx = ctx;
   v.ctx.nodeLookup = Object.fromEntries(ctx.nodes.map(n => [n.id, n]));
   const neighbors: Record<string, ArcNode[]> = {};
@@ -441,6 +455,7 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
   const byId = new Map(ranked.map(n => [n.id, n]));
   const placed = links.map(l => ({
     index: l.index,
+    datum: l.datum!,
     size: l.size,
     source: byId.get(l.source.id)!,
     target: byId.get(l.target.id)!,
@@ -473,7 +488,6 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
 
   const arcNodes = placeNodes(ranked, radii, base, orient);
   const arcLinks = placeLinks(
-    v,
     placed,
     arcNodes,
     {base, scale, orient},
