@@ -384,6 +384,10 @@ export {
 } from "./src/charts/features/referenceAnnotations.js";
 export {textHalo} from "./src/charts/features/textHalo.js";
 export {
+  clearGraphFocus,
+  withinArea,
+} from "./src/charts/features/ensureZoomDom.js";
+export {
   labelSpotBox,
   pickLabelSpot,
   placeReferenceLabels,

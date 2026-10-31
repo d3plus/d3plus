@@ -222,6 +222,9 @@ on ParallelCoordinates, where it would slide the axes out from under their
 brushes; set `zoom: true` to turn it on. Zoomed content is clipped to
 the chart area, so the legend, title, and timeline stay put.
 
+Clicking a node in a Network or ArcDiagram focuses it and its neighbors and
+zooms to them; clicking it again, or the empty background, clears the focus.
+
 The control buttons are real `<button>`s: the brush toggle carries
 `aria-pressed` and an `.active` class while on, and by default paints the OS
 accent color. Set `zoomControlClassName` to style them with your own CSS.
