@@ -144,6 +144,9 @@ function paintColorScale(
     .value(value)
     .width(frame.width)
     .legendConfig({shapeConfig: bucketSwatchConfig(viz)})
+    // Links colored by number are thin lines: keep the ramp's low end
+    // visible against a light background.
+    .ordinalRamp(linkColorScaleRows(viz).length > 0)
     .config(viz.schema.colorScaleConfig)
     .hover(false)
     .render();

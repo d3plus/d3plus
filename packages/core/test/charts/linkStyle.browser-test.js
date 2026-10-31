@@ -3,6 +3,10 @@ import assert from "~test/browser/assert.js";
 import {openPage} from "~test/browser/page.js";
 import {render} from "~test/browser/render.js";
 import {sceneNodes} from "~test/browser/helpers.js";
+import {textLineBoxes} from "../../src/charts/features/linkLabels.ts";
+
+window.__textLineBoxes = textLineBoxes;
+import {contrastRatio} from "../../../color/src/oklab.ts";
 import {themeDark} from "../../src/utils/theme.ts";
 
 /**
@@ -121,6 +125,9 @@ const draw = ([chart, config, renderer, hover]) =>
             target: n.datum.target.id,
           };
         });
+      const nodeLabelBoxes = all
+        .filter(n => n.type === "text" && /^rings-label-/.test(String(n.key)))
+        .flatMap(n => window.__textLineBoxes([n]));
       const colorScale = all.some(
         n => String(n.key) === "viz-colorScale" && n.children?.length,
       );
@@ -136,6 +143,7 @@ const draw = ([chart, config, renderer, hover]) =>
         links: linksOut,
         fills,
         pos,
+        nodeLabelBoxes,
         arrows,
         labels,
         colorScale,
@@ -351,6 +359,57 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(l.y < y0, "above the line");
       assert.strictEqual(l.rotate, 0);
     }
+  });
+
+  it(`Rings ${renderer}: link labels keep clear of the node labels`, async () => {
+    const {labels, nodeLabelBoxes} = await render(box, draw, [
+      "Rings",
+      {...graph, center: "Bravo", linkLabel: "kind"},
+      renderer,
+    ]);
+    assert.ok(nodeLabelBoxes.length >= nodes.length - 1, "node labels drawn");
+    assert.ok(labels.length > 0, "some link labels fit");
+    for (const l of labels)
+      for (const b of nodeLabelBoxes)
+        assert.ok(
+          !overlap(corners(l), corners({...b, rotate: b.angle})),
+          `${l.key} clear of a node label`,
+        );
+  });
+
+  it(`Network ${renderer}: the lowest numeric link still reads as a line`, async () => {
+    for (const theme of ["light", "dark"]) {
+      const {links: drawn, buckets} = await render(box, draw, [
+        "Network",
+        {...graph, theme, linkColor: "volume", sizeMax: 8},
+        renderer,
+      ]);
+      const low = drawn.find(l => l.source === "Bravo" && l.target === "Echo");
+      const bg = theme === "dark" ? themeDark.background : "#ffffff";
+      const ratio = contrastRatio(low.stroke, bg);
+      assert.ok(ratio >= 1.5, `${theme}: ${low.stroke} on ${bg} is ${ratio}`);
+      assert.ok(buckets.includes(low.stroke), `${theme}: the legend matches`);
+    }
+  });
+
+  it(`Network ${renderer}: nodes sharing the colorScale with links match its legend`, async () => {
+    const {
+      fills,
+      buckets,
+      links: drawn,
+    } = await render(box, draw, [
+      "Network",
+      {
+        ...graph,
+        data: nodes.map((n, i) => ({...n, score: i * 10})),
+        colorScale: "score",
+        linkColor: "volume",
+        sizeMax: 8,
+      },
+      renderer,
+    ]);
+    for (const f of Object.values(fills)) assert.ok(buckets.includes(f));
+    for (const l of drawn) assert.ok(buckets.includes(l.stroke));
   });
 
   it(`Rings ${renderer}: labels sit on their edges, clear of the nodes`, async () => {

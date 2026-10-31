@@ -66,7 +66,7 @@ On Network, Rings, Sankey, and ArcDiagram, `linkColor` set to a key or accessor 
 <Network config={{nodes, links, color: "region", linkColor: "trips"}} />
 ```
 
-When the chart also sets `colorScale` for its nodes, nodes and links share the one scale, its domain spanning both. Hovering a link marks its value on the colorScale.
+When the chart also sets `colorScale` for its nodes, nodes and links share the one scale, its domain spanning both. On a light theme, a scale that colors links starts its ramp at a mid-tone instead of a near-white tint (`colorScaleConfig.ordinalRamp`), so the lowest-valued links still read as lines; the legend shows the same colors. Hovering a link marks its value on the colorScale.
 
 ## Size legend
 

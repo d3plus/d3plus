@@ -212,10 +212,12 @@ export function labelHitsBox(box: LinkLabelBox, rect: CircleLabelBox): boolean {
   ]);
 }
 
-/** The nodes link labels must stay clear of. */
+/** The nodes (and node labels) link labels must stay clear of. */
 export interface LabelObstacles {
   circles?: LabelCircle[];
   boxes?: CircleLabelBox[];
+  /** Other labels' boxes, which may be rotated. */
+  labels?: LinkLabelBox[];
 }
 
 /**
@@ -228,12 +230,14 @@ export function placeLinkLabels<T extends {box: LinkLabelBox}>(
 ): T[] {
   const circles = obstacles.circles ?? [];
   const boxes = obstacles.boxes ?? [];
+  const others = obstacles.labels ?? [];
   const kept: T[] = [];
   for (const label of labels) {
     const {box} = label;
     if (!(box.width > 0 && box.height > 0)) continue;
     if (circles.some(c => labelHitsCircle(box, c))) continue;
     if (boxes.some(b => labelHitsBox(box, b))) continue;
+    if (others.some(o => labelsOverlap(box, o))) continue;
     if (kept.some(k => labelsOverlap(box, k.box))) continue;
     kept.push(label);
   }

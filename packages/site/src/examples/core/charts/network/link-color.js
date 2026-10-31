@@ -21,6 +21,5 @@ const config = {
   color: "region",
   linkColor: "trips",
   linkSize: d => d.trips,
-  colorScaleConfig: {color: ["#c9d7f2", "#1f4fb4"]},
   sizeMax: 14,
 };

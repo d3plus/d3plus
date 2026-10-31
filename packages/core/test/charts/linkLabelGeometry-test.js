@@ -179,6 +179,14 @@ it("placeLinkLabels — keeps labels clear of nodes and earlier labels", () => {
     ["first", "free"],
   );
   assert.deepStrictEqual(placeLinkLabels([label("a", 0, 0)], {}).length, 1);
+  const turned = {x: 0, y: 0, width: 4, height: 40, angle: 30};
+  assert.deepStrictEqual(
+    placeLinkLabels([label("a", 0, 0), label("b", 0, 30)], {
+      labels: [turned],
+    }).map(l => l.id),
+    ["b"],
+    "other labels' boxes are obstacles too",
+  );
 });
 
 it("ringsEdgeAnchor — a spline's curve midpoint, or a straight edge's run", () => {

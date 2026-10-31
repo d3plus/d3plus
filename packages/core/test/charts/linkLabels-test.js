@@ -9,6 +9,7 @@ import {
   makeLinkDatum,
   linkLabelSettings,
   linkLabelText,
+  textLineBoxes,
 } from "../../internal.ts";
 import {
   backgroundInk,
@@ -184,3 +185,66 @@ it("emitLinkLabels — the pad takes the chart's background, the text its ink or
 function near0(n) {
   assert.ok(Math.abs(n) < 1e-9, `${n} ≈ 0`);
 }
+
+it("textLineBoxes — each line's glyph box, rotated with its node", () => {
+  const text = (anchor, transform, lines) => ({
+    type: "text",
+    key: "t",
+    x: 0,
+    y: 0,
+    lines,
+    font: {size: 10, anchor},
+    transform,
+  });
+  const [start] = textLineBoxes([
+    text("start", {x: 100, y: 50}, [{text: "ab", x: 0, y: 8, width: 20}]),
+  ]);
+  assert.deepStrictEqual(start, {
+    x: 110,
+    y: 55,
+    width: 20,
+    height: 10,
+    angle: 0,
+  });
+  const [end] = textLineBoxes([
+    text("end", {x: 0, y: 0}, [{text: "ab", x: 30, y: 8, width: 20}]),
+  ]);
+  assert.strictEqual(end.x, 20);
+  const [middle] = textLineBoxes([
+    {
+      type: "group",
+      key: "g",
+      children: [text("middle", {}, [{text: "ab", x: 5, y: 8, width: 20}])],
+    },
+  ]);
+  assert.strictEqual(middle.x, 5, "inside a group");
+  // Rotated 90° about the node origin (0, 0): the line's center (10, 5)
+  // swings to (-5, 10).
+  const [turned] = textLineBoxes([
+    text("start", {x: 0, y: 0, rotate: 90, rotateAnchor: [0, 0]}, [
+      {text: "ab", x: 0, y: 8, width: 20},
+    ]),
+  ]);
+  assert.ok(Math.abs(turned.x + 5) < 1e-9 && Math.abs(turned.y - 10) < 1e-9);
+  assert.strictEqual(turned.angle, 90);
+  const [measured] = textLineBoxes([
+    text("start", {}, [{text: "abc", x: 0, y: 8, width: 0}]),
+  ]);
+  assert.ok(measured.width > 0, "an unmeasured line is measured");
+  assert.deepStrictEqual(
+    textLineBoxes([text("start", {}, [{text: "", x: 0, y: 0, width: 5}])]),
+    [],
+  );
+  assert.deepStrictEqual(textLineBoxes([{type: "rect", key: "r"}]), []);
+});
+
+it("emitLinkLabels — hides a label over another label's box", () => {
+  const {viz, requests} = setup();
+  const groups = emitLinkLabels(viz, requests.slice(0, 2), {
+    labels: [{x: 150, y: 0, width: 10, height: 10, angle: 45}],
+  });
+  assert.deepStrictEqual(
+    groups.map(g => g.key),
+    ["l0-label-group"],
+  );
+});

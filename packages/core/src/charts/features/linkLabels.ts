@@ -86,6 +86,57 @@ export function linkLabelText(value: unknown, locale?: string): string {
   return "";
 }
 
+/**
+    The boxes the lines of text scene nodes (such as a chart's node labels)
+    cover, each rotated with its node: about a line's glyphs, from 0.8em
+    above its baseline to 0.2em below.
+    @param nodes Scene nodes; text nodes inside groups are included.
+*/
+export function textLineBoxes(nodes: readonly SceneNode[]): LinkLabelBox[] {
+  const out: LinkLabelBox[] = [];
+  const visit = (node: SceneNode) => {
+    const kids = (node as {children?: SceneNode[]}).children;
+    if (kids) kids.forEach(visit);
+    if (node.type !== "text") return;
+    const size = node.font?.size ?? 0;
+    const tr = node.transform ?? {};
+    const [ax, ay] = tr.rotateAnchor ?? [0, 0];
+    const angle = tr.rotate ?? 0;
+    const rad = (angle * Math.PI) / 180;
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+    for (const line of node.lines ?? []) {
+      if (!line.text || !size) continue;
+      const width =
+        line.width ||
+        measureLabel(line.text, {
+          family: node.font.family,
+          size,
+          weight: node.font.weight,
+        }).width;
+      const anchor = node.font.anchor;
+      const left =
+        anchor === "middle"
+          ? line.x - width / 2
+          : anchor === "end"
+            ? line.x - width
+            : line.x;
+      // The line's center in the node's frame, then rotated about its anchor.
+      const cx = left + width / 2 - ax;
+      const cy = line.y - size * 0.3 - ay;
+      out.push({
+        x: (tr.x ?? 0) + ax + cx * cos - cy * sin,
+        y: (tr.y ?? 0) + ay + cx * sin + cy * cos,
+        width,
+        height: size,
+        angle,
+      });
+    }
+  };
+  nodes.forEach(visit);
+  return out;
+}
+
 /** One drawn link a label may go on. */
 export interface LinkLabelRequest {
   /** The link's scene key; the label's is built from it. */

@@ -3,7 +3,10 @@ import assert from "assert";
 import {scaleLinear} from "d3-scale";
 import {useJsdom} from "~test/jsdom.js";
 
-import {ArcDiagram, Network, Rings, Sankey} from "../../index.ts";
+import {ArcDiagram, ColorScale, Network, Rings, Sankey} from "../../index.ts";
+import {contrastRatio} from "../../../color/src/oklab.ts";
+import {computeColorScale} from "../../src/components/ColorScale/colorScaleScale.ts";
+import {resolveTheme} from "../../src/utils/theme.ts";
 import {
   coerceLinkColor,
   colorScaleColor,
@@ -228,4 +231,21 @@ it("linkStyleFields — linkColor, linkLabel, and linkLabelConfig on every node-
       "merged over the defaults",
     );
   }
+});
+
+it("ColorScale ordinalRamp — holds a light ramp's palest step darker", () => {
+  const lowest = (ordinal, theme) => {
+    const cs = new ColorScale()
+      .data([{value: 1}, {value: 5}, {value: 9}, {value: 20}, {value: 40}])
+      .scale("jenks")
+      .ordinalRamp(ordinal);
+    if (theme) cs._theme = theme;
+    return computeColorScale(cs).colors[0];
+  };
+  const plain = lowest(false);
+  const strong = lowest(true);
+  assert.ok(contrastRatio(plain, "#ffffff") < 1.5, `${plain} fades out`);
+  assert.ok(contrastRatio(strong, "#ffffff") >= 1.5, `${strong} reads`);
+  const dark = resolveTheme("dark");
+  assert.strictEqual(lowest(true, dark), lowest(false, dark), "dark unchanged");
 });

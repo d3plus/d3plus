@@ -68,7 +68,7 @@ Hovering a link highlights it and the two nodes it connects, and its tooltip nam
 
 ## Link color
 
-`linkColor` colors each link. A key or accessor whose values are numbers colors the links on the chart's colorScale, which then shows the links' values beside the legend for the nodes' colors. Strings are used as colors when they parse as one, or else as categories in the chart's palette, the way `color` colors nodes. `"source"` or `"target"` colors each link like one of its nodes. Arrowheads take their link's color. When the chart also sets `colorScale` for its nodes, nodes and links share that one scale. Thin lines need the low end of the scale to stand out from the background, so this example passes `colorScaleConfig.color` a ramp that starts at a mid-tone.
+`linkColor` colors each link. A key or accessor whose values are numbers colors the links on the chart's colorScale, which then shows the links' values beside the legend for the nodes' colors. Strings are used as colors when they parse as one, or else as categories in the chart's palette, the way `color` colors nodes. `"source"` or `"target"` colors each link like one of its nodes. Arrowheads take their link's color. When the chart also sets `colorScale` for its nodes, nodes and links share that one scale. Because links are thin lines, a light theme's ramp starts at a mid-tone rather than a near-white tint, so the lowest values still show (`colorScaleConfig.ordinalRamp`).
 
 <Playground chart="Network" code={linkColor} controls={["linkColor","colorScaleConfig"]} height={500} />
 

@@ -591,6 +591,13 @@ export interface ColorScaleConfig {
   */
   hoverMark?: boolean;
   /**
+      Holds the palest step of a single-hue ramp darker on a light theme
+      (`colorRamp`'s `ordinal` option), so the lowest values still read as
+      thin lines against the background instead of fading into it. Dark
+      themes keep their ramps. Defaults to `false`.
+  */
+  ordinalRamp?: boolean;
+  /**
       Styles the `hoverMark`. `tickConfig` takes `stroke` and `strokeWidth`
       (the axis ticks' own by default) and `length` (the axis's `tickSize`
       by default); the badge starts where the tick ends. `badgeConfig` takes `fill`
@@ -956,6 +963,8 @@ export interface D3plusConfig {
     hoverMark?: boolean;
     /** Styles the hover mark (see `ColorScaleConfig.hoverMarkConfig`). */
     hoverMarkConfig?: ColorScaleHoverMarkConfig;
+    /** Holds the palest step of a light theme's single-hue ramp darker (see `ColorScaleConfig.ordinalRamp`). Defaults to `true` when links are colored by number (`linkColor`), so the lowest-valued links still read as lines, and `false` otherwise. */
+    ordinalRamp?: boolean;
   };
   /**
       The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.

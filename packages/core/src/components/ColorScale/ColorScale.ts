@@ -59,6 +59,9 @@ const colorScaleSchema: ConfigField[] = [
   {key: "hoverMark", coerce: "identity", default: true},
   {key: "hoverMarkConfig", merge: true, factory: hoverMarkDefaults},
   {key: "midpoint", coerce: "identity", default: 0},
+  // Holds a single-hue light-theme ramp's palest step darker (colorRamp's
+  // `ordinal` option), so the lowest values still read as thin lines.
+  {key: "ordinalRamp", coerce: "identity", default: false},
   {key: "orient", coerce: "identity", default: "bottom"},
   {key: "padding", coerce: "identity", default: 5},
   {key: "renderMode", coerce: "identity", default: "full"},

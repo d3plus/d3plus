@@ -1642,6 +1642,7 @@ export {
   LINK_LABEL_DEFAULTS,
   linkLabelSettings,
   linkLabelText,
+  textLineBoxes,
 } from "./src/charts/features/linkLabels.js";
 export type {
   LinkLabelConfig,
