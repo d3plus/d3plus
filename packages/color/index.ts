@@ -7,10 +7,12 @@ export {default as colorGrayscale} from "./src/grayscale.js";
 export {default as colorLegible} from "./src/legible.js";
 export {default as colorLighter} from "./src/lighter.js";
 export {default as colorRamp} from "./src/ramp.js";
+export {default as colorRampDark} from "./src/rampDark.js";
 export {default as colorSubtract} from "./src/subtract.js";
 export {default as colorValidate} from "./src/validate.js";
 export type {ColorDefaults} from "./src/defaults.js";
 export type {ColorRampOptions} from "./src/ramp.js";
+export type {ColorRampDarkOptions} from "./src/rampDark.js";
 export type {
   CheckState,
   ColorCheck,

@@ -217,7 +217,10 @@ export const calendarEmit: ChartEmit = ({viz, shapeData}) => {
   const context: CellContext = {
     viz,
     sc,
-    emptyFill: (viz.schema.emptyFill as string | undefined) ?? palette.empty,
+    emptyFill:
+      (viz.schema.emptyFill as string | undefined) ??
+      viz._theme?.colorScale.missing ??
+      palette.empty,
     padding,
     side,
     radius: cellCornerRadius(Number(viz.schema.cellRadius) || 0, side),

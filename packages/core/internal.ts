@@ -1466,6 +1466,8 @@ export {
   themed,
   themeDark,
   themeLight,
+  themeRamp,
+  themeScaleColor,
   themeStyle,
   withOpacity,
 } from "./src/utils/theme.js";

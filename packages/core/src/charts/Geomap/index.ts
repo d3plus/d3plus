@@ -452,8 +452,9 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
   };
   /**
       The fill for topojson shapes that have no data (or no `colorScale` value):
-      a CSS color or a function of the feature. Defaults to a quiet light gray, or
-      its dark counterpart over a dark basemap.
+      a CSS color or a function of the feature. Defaults to the theme's
+      `colorScale.missing` when it sets one, else a quiet light gray, or its
+      dark counterpart over a dark basemap.
       @type {CssColor | function}
   */
   v.topojsonFill = function (this: VizInstance, _?: unknown) {
@@ -556,9 +557,12 @@ export const geomapDef: ChartDefinition = {
 
     // Seed the default tile URL through the wrapped accessor so attribution is set.
     v.tileUrl(DEFAULT_TILE_URL);
-    // Regions with no data: a quiet light fill, or its dark counterpart over a
-    // dark basemap (`topojsonFill` replaces both).
-    viz.schema.topojsonFill = () => (viz._basemapDark ? "#3d3e44" : "#f5f5f3");
+    // Regions with no data: the theme's `colorScale.missing`, else a quiet
+    // light fill or its dark counterpart over a dark basemap (`topojsonFill`
+    // replaces all three).
+    viz.schema.topojsonFill = () =>
+      viz._theme?.colorScale.missing ??
+      (viz._basemapDark ? "#3d3e44" : "#f5f5f3");
   },
 
   ctx: {},

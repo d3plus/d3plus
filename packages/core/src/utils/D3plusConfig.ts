@@ -925,8 +925,11 @@ export interface D3plusConfig {
     axisConfig?: AxisConfig;
     centered?: boolean;
     colors?: string[];
+    /** The negative pole of a diverging scale, and the hue of an all-negative ramp. Defaults to `colorDefaults.off`, or the theme's `colorScale.min` on a dark or custom theme. */
     colorMin?: CssColor;
+    /** The midpoint of a diverging scale. Defaults to `colorDefaults.light`, or the theme's `colorScale.mid` on a dark or custom theme. */
     colorMid?: CssColor;
+    /** The high end of a single-hue ramp and the positive pole of a diverging scale. Defaults to `colorDefaults.sequential`, or the theme's `colorScale.max` on a dark or custom theme. On a dark theme every ramp runs from a dim tint near the background up to this color. */
     colorMax?: CssColor;
     /** The kind of scale, or a function that picks one from the colorScale values on each render (see `ColorScaleConfig.scale`). Defaults to `"jenks"`. */
     scale?: ColorScaleTypeSetting;
@@ -1122,7 +1125,7 @@ export interface D3plusConfig {
   downColor?: string | ((d: DataPoint, i: number) => string);
   /** Default duration of transitions, in milliseconds. */
   duration?: number;
-  /** Calendar: the fill of days without a value. Defaults to a faint tint of the chart's text color, legible on light and dark backgrounds. */
+  /** Calendar: the fill of days without a value. Defaults to the theme's `colorScale.missing` when it sets one, else a faint tint of the chart's text color, legible on light and dark backgrounds. */
   emptyFill?: string;
   /** Splits the chart into small multiples: one equally sized panel per distinct value of this data key or accessor, sharing one legend, color scale, title, and timeline. `false` draws a single chart. */
   facet?: string | ((d: DataPoint, i: number) => unknown) | false;
@@ -1941,9 +1944,12 @@ export interface D3plusConfig {
       same on any page, and in a saved image) and take every chrome color
       from the theme. An object sets your own tokens on top of the preset its
       `base` names (`"light"` or `"dark"`), for example
-      `{base: "dark", background: "#123", accent: "#ffd43b"}`. Colors you set
-      in the other config (`titleConfig.fontColor`, `tooltipConfig`, the
-      `*Style` options, …) win over the theme.
+      `{base: "dark", background: "#123", accent: "#ffd43b"}`. A dark theme
+      also turns color scale ramps around, from a dim tint near the background
+      up to a bright pole (see the `colorScale` tokens). Colors you set in the
+      other config (`titleConfig.fontColor`, `tooltipConfig`,
+      `colorScaleConfig.colorMax`, the `*Style` options, …) win over the
+      theme.
   */
   theme?: ThemeSetting;
   /**
@@ -2026,7 +2032,7 @@ export interface D3plusConfig {
   trendLineConfig?: TrendLineConfig;
   /** Path or object for the topojson data. */
   topojson?: string | object;
-  /** CSS color to fill the map shapes. */
+  /** Geomap: the fill of shapes without data (or without a `colorScale` value). Defaults to the theme's `colorScale.missing` when it sets one, else a quiet gray that suits the basemap. */
   topojsonFill?: CssColor;
   /** Accessor function for topojson feature IDs. */
   topojsonId?: (obj: Record<string, unknown>) => string;

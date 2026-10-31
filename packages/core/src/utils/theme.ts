@@ -1,6 +1,12 @@
 import {lab, rgb} from "d3-color";
 
-import {colorContrast, colorDefaults, colorGray} from "@d3plus/color";
+import {
+  colorContrast,
+  colorDefaults,
+  colorGray,
+  colorRamp,
+  colorRampDark,
+} from "@d3plus/color";
 import type {ColorDefaults} from "@d3plus/color";
 
 /** The tooltip's colors. */
@@ -41,6 +47,27 @@ export interface ThemeTableTokens {
   rule: string;
 }
 
+/**
+    The colors a chart's color scale (`colorScale`) and ordinal ramps
+    (`colorOrdinal`) take when `colorScaleConfig` doesn't set them. On a dark
+    theme every ramp runs from a dim tint near the background up to its bright
+    pole, so low values recede and high values stand out.
+*/
+export interface ThemeColorScaleTokens {
+  /** The high end of single-hue ramps and the positive pole of diverging scales (`colorMax`). */
+  max: string;
+  /** The midpoint of diverging scales (`colorMid`). */
+  mid: string;
+  /** The negative pole of diverging scales, and the hue of all-negative ramps (`colorMin`). */
+  min: string;
+  /**
+      The fill of marks without a value: Geomap regions and Calendar days.
+      Unset in both presets, where each chart derives a quiet neutral from
+      the background.
+  */
+  missing?: string;
+}
+
 /** Every color a chart theme sets. */
 export interface ThemeTokens {
   /** The chart's background, painted behind it when the theme is forced. */
@@ -62,6 +89,7 @@ export interface ThemeTokens {
       take a dimmer gray in the dark preset unless this is set).
   */
   link: string;
+  colorScale: ThemeColorScaleTokens;
   tooltip: ThemeTooltipTokens;
   overlay: ThemeOverlayTokens;
   table: ThemeTableTokens;
@@ -73,9 +101,10 @@ export interface ThemeTokens {
     as dark selects the dark preset.
 */
 export interface ThemeConfig extends Partial<
-  Omit<ThemeTokens, "tooltip" | "overlay" | "table">
+  Omit<ThemeTokens, "colorScale" | "tooltip" | "overlay" | "table">
 > {
   base?: "light" | "dark";
+  colorScale?: Partial<ThemeColorScaleTokens>;
   tooltip?: Partial<ThemeTooltipTokens>;
   overlay?: Partial<ThemeOverlayTokens>;
   table?: Partial<ThemeTableTokens>;
@@ -102,6 +131,11 @@ export const themeLight: ThemeTokens = Object.freeze({
   accent: "#228be6",
   hidden: "#aaa",
   link: colorGray[500],
+  colorScale: Object.freeze({
+    max: colorDefaults.sequential,
+    mid: colorDefaults.light,
+    min: colorDefaults.off,
+  }),
   tooltip: Object.freeze({
     background: colorDefaults.light,
     text: colorDefaults.dark,
@@ -133,6 +167,11 @@ export const themeDark: ThemeTokens = Object.freeze({
   accent: "#4dabf7",
   hidden: colorGray[600],
   link: colorGray[700],
+  colorScale: Object.freeze({
+    max: "#4dabf7", // blue 400
+    mid: colorGray[800],
+    min: "#ff6b6b", // red 500
+  }),
   tooltip: Object.freeze({
     background: colorGray[800],
     text: colorDefaults.light,
@@ -207,11 +246,12 @@ export function resolveTheme(
         typeof custom.background === "string" &&
         isDarkColor(custom.background));
     const preset = dark ? themeDark : themeLight;
-    const {tooltip, overlay, table, ...flat} = custom;
+    const {colorScale, tooltip, overlay, table, ...flat} = custom;
     delete flat.base;
     return Object.freeze({
       ...preset,
       ...flat,
+      colorScale: {...preset.colorScale, ...colorScale},
       tooltip: {...preset.tooltip, ...tooltip},
       overlay: {...preset.overlay, ...overlay},
       table: {...preset.table, ...table},
@@ -250,6 +290,42 @@ export function themed<T>(
   if (!theme) return fallback;
   const value = pick(theme);
   return value === pick(themeLight) ? fallback : value;
+}
+
+/**
+    A color scale pole (`max`, `mid`, or `min`): the chart's own default (from
+    its `colorDefaults`) on the light preset, and the theme's `colorScale`
+    token once a dark or custom theme changes it.
+    @param theme The resolved theme, when the chart has drawn.
+    @param pole Which pole.
+    @param fallback The chart's own default.
+*/
+export function themeScaleColor(
+  theme: ResolvedTheme | undefined,
+  pole: "max" | "mid" | "min",
+  fallback: string,
+): string {
+  return themed(theme, t => t.colorScale[pole], fallback);
+}
+
+/**
+    An `n`-step single-hue ramp toward `base` that reads on the theme's
+    background, ordered low→high: pale→dark (`colorRamp`) on a light theme,
+    dim→bright (`colorRampDark`) on a dark one.
+    @param theme The resolved theme, when the chart has drawn.
+    @param base The ramp's high-value color.
+    @param n How many steps to produce.
+    @param ordinal Whether the steps are discrete marks (see `colorRamp`).
+*/
+export function themeRamp(
+  theme: ResolvedTheme | undefined,
+  base: string,
+  n: number,
+  ordinal = false,
+): string[] {
+  return theme?.dark
+    ? colorRampDark(base, n, {background: theme.background, ordinal})
+    : colorRamp(base, n, {ordinal});
 }
 
 /**
