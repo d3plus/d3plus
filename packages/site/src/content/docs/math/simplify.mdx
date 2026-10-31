@@ -1,0 +1,32 @@
+---
+title: simplify
+description: "Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/simplify/basic-example.js?raw";
+import highestQuality from "~/examples/math/simplify/highest-quality.js?raw";
+import tolerance from "~/examples/math/simplify/tolerance.js?raw";
+
+Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).
+
+## Basic example
+
+Removes points that do not change the shape by more than `tolerance` (in coordinate units) using the Ramer–Douglas–Peucker algorithm: the dashed line is the original, the solid one keeps only the points that matter at a tolerance of 4. Geomap simplifies polygons this way before drawing.
+
+<Calls code={basicExample} label="simplify: Basic example" />
+
+## Highest quality
+
+By default a quick radial-distance pass drops near-duplicate points before the main algorithm runs. `highestQuality: true` skips that pass, which can keep a few more points at the same tolerance and runs noticeably slower on large polygons.
+
+<Calls code={highestQuality} label="simplify: Highest quality" />
+
+## Tolerance
+
+A small tolerance keeps almost every point; a large one keeps only the turns, trading detail for far fewer vertices.
+
+<Calls code={tolerance} label="simplify: Tolerance" />
+
+<ApiReference name="simplify" pkg="math" />

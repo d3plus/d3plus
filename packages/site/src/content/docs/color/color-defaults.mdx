@@ -1,0 +1,35 @@
+---
+title: colorDefaults
+description: "A set of default color values used when assigning colors based on data."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/color/color-defaults/basic-example.js?raw";
+import categoricalScale from "~/examples/color/color-defaults/categorical-scale.js?raw";
+
+A set of default color values used when assigning colors based on data.
+
+The categorical `scale` is CVD-checked: its first eight slots (the identity
+tier) are [open-color](https://yeun.github.io/open-color/) steps chosen to sit inside the OKLCH lightness band,
+clear the chroma floor, and stay distinguishable under protanopia and
+deuteranopia — validate them with `colorValidate`. The slot order is the
+colorblind-safety mechanism and should not be reshuffled. Slots nine and up
+are a lighter second ring of the same hues, for high-cardinality fallback
+(past ~8 series, prefer grouping the tail into "Other").
+
+`sequential` is the default single-hue anchor for magnitude ramps (blue).
+
+## Basic example
+
+The named slots every chart starts from: `dark` and `light` for text and backgrounds, `missing` for values with no data, `on` and `off` for booleans, and `sequential` as the single hue that magnitude color scales ramp toward. Override any of them through a chart's `colorDefaults` config.
+
+<Calls code={basicExample} label="colorDefaults: Basic example" />
+
+## Categorical scale
+
+`scale` is the ordinal scale categories are assigned from, in order. The first eight are the identity tier, chosen and ordered so neighbouring series stay distinguishable under the common forms of color-vision deficiency (check them with `colorValidate`); the next eight are a lighter ring of the same hues for charts with more series than that.
+
+<Calls code={categoricalScale} label="colorDefaults: Categorical scale" />
+
+<ApiReference name="colorDefaults" pkg="color" />

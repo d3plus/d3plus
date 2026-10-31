@@ -1,0 +1,18 @@
+---
+title: BaseClass
+description: "Provides shared configuration, event handling, and locale management inherited by all d3plus classes."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import reference from "~/examples/core/utils/base-class/reference.js?raw";
+
+Provides shared configuration, event handling, and locale management inherited by all d3plus classes.
+
+## Reference
+
+`BaseClass` supplies the fluent API shared by every class: `config()` for deep-merging a settings object (with `RESET` to restore defaults), `on()` for event handlers, `locale()` for translations and number formats, and `translate()` for localized strings. A subclass only has to define getter/setter methods; `config()` discovers and calls them.
+
+<Calls code={reference} label="BaseClass: Reference" />
+
+<ApiReference name="BaseClass" pkg="core" />

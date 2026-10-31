@@ -1,0 +1,42 @@
+---
+title: renderToStaticSVG
+description: "Renders a d3plus chart to a standalone SVG string in Node, with no browser."
+---
+
+import ApiReference from "~/components/ApiReference.astro";
+
+Renders a d3plus chart to a standalone SVG string in Node, with no browser.
+
+Works for every non-map chart out of the box, and for `Geomap` in vector-only
+mode (`.tiles(false)`); to include basemap tiles use renderToStaticSVG
+with a tiled Geomap, which fetches + inlines them (see the Geomap helper).
+
+The chart is rendered into a throwaway headless DOM that is fully torn down
+before this resolves — no globals are left mutated.
+
+## Example
+
+Renders any chart to a standalone `<svg>` string in Node, with no browser. The chart is configured exactly as in the browser; `width` and `height` are required because there is no container to measure. A temporary headless DOM is installed for the render and torn down before the promise resolves. This package runs in Node only, so the snippet is not executed here; the [Server-Side Rendering guide](?path=/docs/guides-server-side-rendering--docs) covers setup, fonts, and maps.
+
+```js
+import {writeFileSync} from "node:fs";
+import {BarChart} from "@d3plus/core";
+import {renderToStaticSVG} from "@d3plus/ssr";
+
+const data = [
+  {region: "North", quarter: "Q1", revenue: 120},
+  {region: "North", quarter: "Q2", revenue: 140},
+  {region: "South", quarter: "Q1", revenue: 90},
+  {region: "South", quarter: "Q2", revenue: 110},
+];
+
+const svg = await renderToStaticSVG(
+  new BarChart().data(data).groupBy("region").x("quarter").y("revenue"),
+  {width: 800, height: 500},
+);
+// '<svg xmlns="http://www.w3.org/2000/svg" …>…</svg>'
+
+writeFileSync("revenue.svg", svg);
+```
+
+<ApiReference name="renderToStaticSVG" pkg="ssr" />

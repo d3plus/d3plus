@@ -1,0 +1,18 @@
+---
+title: clamp
+description: "Constrains a number to the range from min to max, inclusive."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/clamp/basic-example.js?raw";
+
+Constrains a number to the range from `min` to `max`, inclusive.
+
+## Basic example
+
+Values inside the range come back unchanged, and values past either end come back as that end. Charts use it to keep font sizes, radii, and pixel positions within their bounds.
+
+<Calls code={basicExample} label="clamp: Basic example" />
+
+<ApiReference name="clamp" pkg="math" />

@@ -1,0 +1,18 @@
+---
+title: parseSides
+description: "Converts a string of directional CSS shorthand values into an object with the values expanded."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/parse-sides/basic-example.js?raw";
+
+Converts a string of directional CSS shorthand values into an object with the values expanded.
+
+## Basic example
+
+Expands CSS shorthand the way `margin` and `padding` do: one value applies to all sides, two mean vertical then horizontal, three mean top, horizontal, bottom, and four go clockwise from the top. Units are ignored and anything that is not a number becomes 0. Config such as `padding` and `labelPadding` accepts this shorthand.
+
+<Calls code={basicExample} label="parseSides: Basic example" />
+
+<ApiReference name="parseSides" pkg="dom" />

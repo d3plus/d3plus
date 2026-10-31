@@ -1,0 +1,18 @@
+---
+title: formatDefaultLocale
+description: "An extension to d3's formatDefaultLocale function that allows setting the locale globally for formatters."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/format/format-default-locale/basic-example.js?raw";
+
+An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters.
+
+## Basic example
+
+Sets the decimal mark, thousands separator, digit grouping, and currency affixes that every subsequent `format` call uses, the same way d3's `formatDefaultLocale` does. It is global state: the German definition flips the separators for all formatters until another definition replaces it.
+
+<Calls code={basicExample} label="formatDefaultLocale: Basic example" />
+
+<ApiReference name="formatDefaultLocale" pkg="format" />

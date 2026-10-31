@@ -1,0 +1,18 @@
+---
+title: fold
+description: "Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/fold/basic-example.js?raw";
+
+Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects.
+
+## Basic example
+
+Zips the flat `headers` array against each row of `data`, emitting one object per row keyed by header — the first row becomes `{year: 2020, apples: 5, bananas: 8}`.
+
+<Calls code={basicExample} label="fold: Basic example" />
+
+<ApiReference name="fold" pkg="data" />

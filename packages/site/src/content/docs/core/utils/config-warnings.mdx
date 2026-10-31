@@ -1,0 +1,36 @@
+---
+title: configWarnings
+description: "Toggles the console warnings d3plus logs when a class receives a config property it does not support (like a misspelled key passed to .config() or shapeConfig), or a config key names a data field that no row of the chart's data has (like y: \"vlaue\")."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/utils/config-warnings/basic-example.js?raw";
+
+Toggles the console warnings d3plus logs when a class receives a config
+property it does not support (like a misspelled key passed to `.config()`
+or `shapeConfig`), or a config key names a data field that no row of the
+chart's data has (like `y: "vlaue"`). Warnings are on by default and the
+setting applies to every chart on the page. With no argument, returns the
+current setting.
+
+## Basic example
+
+Every class checks the keys handed to `config()` and warns once about any it does not support, which catches misspellings such as `titel`. Press the button to trigger a warning, then untick the box to turn the check off page-wide; with no argument the function reports the current setting.
+
+<Calls code={basicExample} label="configWarnings: Basic example" />
+
+## Missing field warning
+
+A config key given a data field's name (such as `x`, `y`, `time`, `groupBy`, `sum`, `size`, or `color`) warns when no row of the chart's data has that field, naming the key, the field, and the fields the data does have. Each chart warns once per key and field, so redraws stay quiet; a key set to a function is never checked. Pick a key to see the warning for each misspelling.
+
+```js
+import {LinePlot} from "@d3plus/core";
+
+new LinePlot()
+  .config({data, groupBy: "region", x: "year", y: "vlaue"})
+  .render();
+// console: LinePlot y: no rows have 'vlaue'; fields are: year, value, region
+```
+
+<ApiReference name="configWarnings" pkg="core" />

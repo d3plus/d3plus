@@ -1,8 +1,3 @@
-/**
-    @namespace {Object} formatLocale
-    A set of default locale formatters used when assigning suffixes and currency in numbers.
-*/
-
 export interface FormatLocaleDefinition {
   separator?: string;
   suffixes: string[];
@@ -14,6 +9,10 @@ export interface FormatLocaleDefinition {
   currency: [string, string];
 }
 
+/**
+    @namespace {Object} formatLocale
+    A set of default locale formatters used when assigning suffixes and currency in numbers.
+*/
 const formatLocale: Record<string, FormatLocaleDefinition> = {
   "ar-SA": {
     separator: "",

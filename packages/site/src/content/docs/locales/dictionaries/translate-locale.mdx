@@ -1,0 +1,18 @@
+---
+title: translateLocale
+description: "Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as en-US or es-ES."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/locales/dictionaries/translate-locale/basic-example.js?raw";
+
+Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as `en-US` or `es-ES`. Each entry maps the English string to its translation.
+
+## Basic example
+
+Every string a chart renders in its own interface (the back button, legend and zoom controls, the table view, tooltip hints) keyed by the English original. Setting a chart's `locale` picks the matching dictionary; add your own entry to support another language.
+
+<Calls code={basicExample} label="translateLocale: Basic example" />
+
+<ApiReference name="translateLocale" pkg="locales" />

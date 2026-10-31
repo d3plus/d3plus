@@ -1,0 +1,25 @@
+---
+title: segmentsIntersect
+description: "Checks whether the line segments p1q1 && p2q2 intersect."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/segments-intersect/basic-example.js?raw";
+import disjoint from "~/examples/math/segments-intersect/disjoint.js?raw";
+
+Checks whether the line segments p1q1 && p2q2 intersect.
+
+## Basic example
+
+True when the two segments share a point. Unlike `lineIntersection`, the crossing has to fall within both segments' extents.
+
+<Calls code={basicExample} label="segmentsIntersect: Basic example" />
+
+## Disjoint
+
+These segments lie on lines that do meet, but past their ends, so they do not intersect. Network and Sankey layouts use this check to detect overlapping links.
+
+<Calls code={disjoint} label="segmentsIntersect: Disjoint" />
+
+<ApiReference name="segmentsIntersect" pkg="math" />

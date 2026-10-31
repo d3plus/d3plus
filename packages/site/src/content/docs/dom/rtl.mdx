@@ -1,0 +1,18 @@
+---
+title: rtl
+description: "Returns true if the HTML or body element has either the \"dir\" HTML attribute or the \"direction\" CSS property set to \"rtl\"."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/rtl/basic-example.js?raw";
+
+Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "rtl".
+
+## Basic example
+
+True when the document is right-to-left, judged by the `dir` attribute or the computed `direction` of `<html>` or `<body>`. Charts read it to mirror legends, timelines, and text alignment. Tick the box to flip this page and watch the value change.
+
+<Calls code={basicExample} label="rtl: Basic example" />
+
+<ApiReference name="rtl" pkg="dom" />

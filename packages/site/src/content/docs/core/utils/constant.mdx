@@ -1,0 +1,18 @@
+---
+title: constant
+description: "Wraps non-function variables in a simple return function."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/utils/constant/basic-example.js?raw";
+
+Wraps non-function variables in a simple return function.
+
+## Basic example
+
+Wraps a plain value in a function that ignores its arguments and returns the value. Config such as `fill: "#f03e3e"` or `width: 10` is normalized this way, so shapes can call every setting as an accessor without checking whether it was given as a value or a function.
+
+<Calls code={basicExample} label="constant: Basic example" />
+
+<ApiReference name="constant" pkg="core" />

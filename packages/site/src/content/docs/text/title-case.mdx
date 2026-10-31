@@ -1,0 +1,46 @@
+---
+title: titleCase
+description: "Capitalizes each significant word of a phrase, normalizing case in both directions: the locale's minor words (articles, short conjunctions/ prepositions) are forced lowercase in the middle and known acronyms are forced uppercase — so \"SOUTH BY SOUTHWEST\" becomes \"South by Southwest\" and \"jack smith, ceo\" becomes \"Jack Smith, CEO\"."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import acronyms from "~/examples/text/title-case/acronyms.js?raw";
+import basicExample from "~/examples/text/title-case/basic-example.js?raw";
+import caseNormalization from "~/examples/text/title-case/case-normalization.js?raw";
+import localized from "~/examples/text/title-case/localized.js?raw";
+
+Capitalizes each significant word of a phrase, normalizing case in both
+directions: the locale's minor words (articles, short conjunctions/
+prepositions) are forced lowercase in the middle and known acronyms are
+forced uppercase — so "SOUTH BY SOUTHWEST" becomes "South by Southwest" and
+"jack smith, ceo" becomes "Jack Smith, CEO". The first and last words are
+always capitalized. The locale supplies the minor-word and acronym lists
+(e.g. "le"/"de"/"par" for French); pass an explicit rules object for full
+control, including `{style: "sentence"}` to capitalize only the first word.
+
+## Acronyms
+
+Recognized acronyms are forced to their canonical casing no matter how they were typed — `ceo`→`CEO`, `gdp`→`GDP`, `sql`→`SQL` — including mixed-case forms like `iOS` and `SaaS`.
+
+<Calls code={acronyms} label="titleCase: Acronyms" />
+
+## Basic example
+
+Capitalizes each word of a plain phrase; the minor word `of` stays lowercase in the middle, while `the` and `a` are capitalized here because they lead the string.
+
+<Calls code={basicExample} label="titleCase: Basic example" />
+
+## Case normalization
+
+Case is fixed in both directions: the all-caps `SOUTH BY SOUTHWEST` is lowered to `South by Southwest`, the lowercase `ceo` is raised to `CEO`, and a trailing minor word like `for` is capitalized because it ends the phrase.
+
+<Calls code={caseNormalization} label="titleCase: Case normalization" />
+
+## Localized
+
+Passing a locale (`es-ES`, `fr-FR`, `de-DE`, `it-IT`) swaps in that language's minor-word list, so words such as `y`, `de`, `la`, `über`, and `di` stay lowercase mid-title.
+
+<Calls code={localized} label="titleCase: Localized" />
+
+<ApiReference name="titleCase" pkg="text" />

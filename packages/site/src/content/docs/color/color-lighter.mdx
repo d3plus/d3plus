@@ -1,0 +1,25 @@
+---
+title: colorLighter
+description: "Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/color/color-lighter/basic-example.js?raw";
+import strength from "~/examples/color/color-lighter/strength.js?raw";
+
+Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon.
+
+## Basic example
+
+Lightens a color by moving its HSL lightness halfway toward white while taking the same amount off its saturation, so the result reads as a tint rather than the neon that plain brightening produces. Charts use it for hover states and the lighter second ring of the categorical palette.
+
+<Calls code={basicExample} label="colorLighter: Basic example" />
+
+## Strength
+
+The second argument sets how far toward white to go, from 0 (unchanged) to 1 (white). It is scaled by the room the color has left, so a strength of 0.5 always lands halfway between the color and white.
+
+<Calls code={strength} label="colorLighter: Strength" />
+
+<ApiReference name="colorLighter" pkg="color" />

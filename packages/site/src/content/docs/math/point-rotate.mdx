@@ -1,0 +1,25 @@
+---
+title: pointRotate
+description: "Rotates a point around a given origin."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/point-rotate/basic-example.js?raw";
+import customOrigin from "~/examples/math/point-rotate/custom-origin.js?raw";
+
+Rotates a point around a given origin.
+
+## Basic example
+
+Rotates a point by an angle in radians around the origin `[0, 0]` by default. A quarter turn (π/2) moves `[100, 0]` onto the y axis; the tiny residue on x is ordinary floating-point error.
+
+<Calls code={basicExample} label="pointRotate: Basic example" />
+
+## Custom origin
+
+The third argument sets the center of rotation, so the point swings around `[40, 40]` instead of the origin. Radial layouts rotate label anchors this way.
+
+<Calls code={customOrigin} label="pointRotate: Custom origin" />
+
+<ApiReference name="pointRotate" pkg="math" />

@@ -1,0 +1,18 @@
+---
+title: gaussianKernel
+description: "The standard normal (gaussian) kernel: e^(-u²/2) / √(2π)."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/gaussian-kernel/basic-example.js?raw";
+
+The standard normal (gaussian) kernel: `e^(-u²/2) / √(2π)`.
+
+## Basic example
+
+The standard normal density, `kernelDensity`'s default kernel. It takes the distance from an observation in bandwidths, peaks at about 0.3989, and never quite reaches zero.
+
+<Calls code={basicExample} label="gaussianKernel: Basic example" />
+
+<ApiReference name="gaussianKernel" pkg="math" />

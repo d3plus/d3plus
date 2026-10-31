@@ -1,0 +1,25 @@
+---
+title: date
+description: "Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/date/basic-example.js?raw";
+import negativeYears from "~/examples/dom/date/negative-years.js?raw";
+
+Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats.
+
+## Basic example
+
+Turns the loose date values found in data files into `Date` objects: a bare year, a quarter in either order (`Q3 2019` or `2019 Q3`), a year-month, a `MM/DD/YYYY` string, an ISO string, or a millisecond timestamp (any integer longer than five digits). Charts run every time value through this before building a time axis.
+
+<Calls code={basicExample} label="date: Basic example" />
+
+## Negative years
+
+Years before zero are kept rather than being mangled by the native `Date` parser, so BCE timelines work: the year is read out of the string and set explicitly after parsing.
+
+<Calls code={negativeYears} label="date: Negative years" />
+
+<ApiReference name="date" pkg="dom" />

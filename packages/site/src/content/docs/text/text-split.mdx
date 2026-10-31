@@ -1,0 +1,32 @@
+---
+title: textSplit
+description: "Splits a given sentence into an array of words."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/text/text-split/basic-example.js?raw";
+import cjkAndEmoji from "~/examples/text/text-split/cjk-and-emoji.js?raw";
+import hyphenation from "~/examples/text/text-split/hyphenation.js?raw";
+
+Splits a given sentence into an array of words.
+
+## Basic example
+
+Each word keeps the whitespace that follows it (shown as `␣`), so joining the tokens back together reproduces the original sentence exactly. That is what lets `textWrap` measure and re-flow text without losing spacing.
+
+<Calls code={basicExample} label="textSplit: Basic example" />
+
+## Cjk and emoji
+
+Chinese, Japanese, and Korean characters and emoji have no spaces to break on, so each one becomes its own token and a line can wrap between any pair of them.
+
+<Calls code={cjkAndEmoji} label="textSplit: Cjk and emoji" />
+
+## Hyphenation
+
+Words of eight or more lowercase letters are split into syllables, each ending in a soft hyphen (`‧` here, `\u00ad` in the snippet). A line can break at any of them and the hyphen only becomes visible when it does.
+
+<Calls code={hyphenation} label="textSplit: Hyphenation" />
+
+<ApiReference name="textSplit" pkg="text" />

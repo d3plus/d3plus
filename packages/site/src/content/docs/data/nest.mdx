@@ -1,0 +1,18 @@
+---
+title: nest
+description: "Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/nest/basic-example.js?raw";
+
+Groups a flat array of data by one or more key accessors into nested \{key, values\} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.
+
+## Basic example
+
+The hierarchy builder charts such as Tree use: like `nestGroups`, but a single accessor can be passed without wrapping it in an array, and rows whose keys run out before the last level are collapsed into leaves instead of leaving an empty level behind.
+
+<Calls code={basicExample} label="nest: Basic example" />
+
+<ApiReference name="nest" pkg="data" />

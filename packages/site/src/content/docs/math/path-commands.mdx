@@ -1,0 +1,22 @@
+---
+title: pathCommands
+description: "Tokenizes an SVG path d string into its commands as written, without resolving them to absolute coordinates."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/path-commands/basic-example.js?raw";
+
+Tokenizes an SVG path `d` string into its commands as written, without
+resolving them to absolute coordinates. Arc
+flags are read as single `0`/`1` characters, so compact arcs such as
+`a1 1 0 011 1` tokenize correctly. Stops at the first character that is
+not a path command.
+
+## Basic example
+
+Each command keeps its letter, so relative commands stay relative, and its numbers are grouped by segment when the command repeats. The arc's flags are read as single digits, so a compact arc like `a1 1 0 011 1` gives flags `0` and `1` and the endpoint `1, 1`.
+
+<Calls code={basicExample} label="pathCommands: Basic example" />
+
+<ApiReference name="pathCommands" pkg="math" />

@@ -1,0 +1,39 @@
+---
+title: negativeSpace
+description: "Finds the open, axis-aligned rectangles inside bounds that lie entirely outside the marks described by obstacles."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/negative-space/basic-example.js?raw";
+import exclude from "~/examples/math/negative-space/exclude.js?raw";
+import padding from "~/examples/math/negative-space/padding.js?raw";
+
+Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
+outside the marks described by `obstacles`. The marks are treated as a single
+solid region — the convex hull of every (padded) obstacle box — so a hole in
+the middle of a ring of points is never returned, only the space around them.
+Boxes in `options.exclude` are kept clear too, each on its own. Each
+returned box is maximal (it cannot grow in any direction without leaving
+`bounds` or touching the hull or an excluded box). Results are sorted largest area first, and the
+output is deterministic for a given input.
+
+## Basic example
+
+Finds the empty rectangles inside `bounds` that avoid the marks (blue). The marks are treated as one solid region, their convex hull, so only the space around them is returned, never a pocket between them. Every box is maximal and the list is sorted largest first; the three largest are shown in orange. Charts use this to tuck a legend into unused plot area.
+
+<Calls code={basicExample} label="negativeSpace: Basic example" />
+
+## Exclude
+
+`exclude` lists extra boxes to keep clear of on their own, outside the hull, such as controls overlaid in a corner (grey). The free boxes now avoid that corner as well.
+
+<Calls code={exclude} label="negativeSpace: Exclude" />
+
+## Padding
+
+`padding` keeps that many pixels clear around every mark, so the free boxes stop short of the hull. `minWidth` and `minHeight` drop boxes too small to be useful.
+
+<Calls code={padding} label="negativeSpace: Padding" />
+
+<ApiReference name="negativeSpace" pkg="math" />

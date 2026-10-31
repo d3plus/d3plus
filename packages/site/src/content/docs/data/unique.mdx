@@ -1,0 +1,19 @@
+---
+title: unique
+description: "Reduces an Array of values to unique instances, keeping the first of each."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/unique/basic-example.js?raw";
+
+Reduces an Array of values to unique instances, keeping the first of each.
+Dates compare by time.
+
+## Basic example
+
+Reduces `[1, 2, 2, 3, 3, 3, 4]` to `[1, 2, 3, 4]`, keeping the first occurrence of each value and dropping later duplicates.
+
+<Calls code={basicExample} label="unique: Basic example" />
+
+<ApiReference name="unique" pkg="data" />

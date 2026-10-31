@@ -1,0 +1,32 @@
+---
+title: ckmeans
+description: "Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/ckmeans/basic-example.js?raw";
+import clusterCount from "~/examples/math/ckmeans/cluster-count.js?raw";
+import outliers from "~/examples/math/ckmeans/outliers.js?raw";
+
+Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.
+
+## Basic example
+
+Splits a list of numbers into `k` groups so that values within a group are as close together as possible (the Ckmeans algorithm, an exact 1-D k-means). Three obvious clumps come back as three clusters. This is the "jenks" option of a chart's `colorScale`.
+
+<Calls code={basicExample} label="ckmeans: Basic example" />
+
+## Cluster count
+
+The number of clusters is yours to choose; the algorithm finds the best split for that count. Asking for two merges the nearest clumps, asking for four splits one of them. `k` cannot exceed the number of values.
+
+<Calls code={clusterCount} label="ckmeans: Cluster count" />
+
+## Outliers
+
+Because the criterion is within-cluster variance, a lone extreme value gets a cluster of its own rather than dragging a boundary toward it, which keeps color-scale breaks sensible on skewed data.
+
+<Calls code={outliers} label="ckmeans: Outliers" />
+
+<ApiReference name="ckmeans" pkg="math" />

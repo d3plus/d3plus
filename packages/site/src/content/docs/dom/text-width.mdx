@@ -1,0 +1,32 @@
+---
+title: textWidth
+description: "Given a text string, returns the predicted pixel width of the string when placed into DOM."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import arrayInput from "~/examples/dom/text-width/array-input.js?raw";
+import basicExample from "~/examples/dom/text-width/basic-example.js?raw";
+import fontStyles from "~/examples/dom/text-width/font-styles.js?raw";
+
+Given a text string, returns the predicted pixel width of the string when placed into DOM.
+
+## Array input
+
+Pass an array to measure many strings at once and get an array of widths back in the same order, which is how `textWrap` sizes every word of a sentence in one call.
+
+<Calls code={arrayInput} label="textWidth: Array input" />
+
+## Basic example
+
+Predicts the pixel width a string will occupy at a given font without rendering it, using the font's actual glyph metrics, which is why `WWW` and `iii` differ so much. Every label, axis tick, and legend entry is measured this way before it is placed.
+
+<Calls code={basicExample} label="textWidth: Basic example" />
+
+## Font styles
+
+The style object takes CSS property names: `font-size` (a number means pixels), `font-weight`, and `font-family` all change the result, and a family list falls through to the first installed font just as CSS would.
+
+<Calls code={fontStyles} label="textWidth: Font styles" />
+
+<ApiReference name="textWidth" pkg="dom" />

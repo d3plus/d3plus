@@ -1,0 +1,18 @@
+---
+title: segmentBoxContains
+description: "Checks whether a point is inside the bounding box of a line segment."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/segment-box-contains/basic-example.js?raw";
+
+Checks whether a point is inside the bounding box of a line segment.
+
+## Basic example
+
+Tests whether a point falls within the axis-aligned bounding box of a segment (dashed), not whether it lies on the segment itself. `segmentsIntersect` combines this with `lineIntersection` to confirm that a crossing point is actually on both segments.
+
+<Calls code={basicExample} label="segmentBoxContains: Basic example" />
+
+<ApiReference name="segmentBoxContains" pkg="math" />

@@ -1,0 +1,18 @@
+---
+title: attrize
+description: "Applies each key/value in an object as an attr."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/attrize/basic-example.js?raw";
+
+Applies each key/value in an object as an attr.
+
+## Basic example
+
+Applies every key of an object as an attribute on a d3 selection, one `.attr()` call per entry. `elem` uses it for its `enter`, `update`, and `exit` attribute sets; `stylize` is the same idea for inline styles.
+
+<Calls code={basicExample} label="attrize: Basic example" />
+
+<ApiReference name="attrize" pkg="dom" />

@@ -1,0 +1,20 @@
+---
+title: findWeekStart
+description: "Returns the first day of the week (0 = Sunday … 6 = Saturday) in a locale's region, per CLDR: \"en-US\" → 0, \"de-DE\" → 1, \"ar-EG\" → 6."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/locales/find-week-start/basic-example.js?raw";
+
+Returns the first day of the week (0 = Sunday … 6 = Saturday) in a locale's region, per CLDR: `"en-US"` → 0, `"de-DE"` → 1, `"ar-EG"` → 6. Accepts the same forms as the rest of d3plus: `"en-US"`, `"en_US"`, script tags like `"sr-Latn-RS"`, and 2-letter language codes, which resolve to their default region through `findLocale` (`"en"` → `"en-US"` → 0, `"ar"` → `"ar-SA"` → 0). A locale whose region can't be found, or anything that isn't a string, starts on Monday (1).
+
+The region table is static on purpose: `Intl.Locale` week info differs across Node 22, Node 24, and browsers, so reading it at runtime would make server-side and browser renders of the same chart disagree.
+
+## Basic example
+
+Looks up the first day of the week (`0` = Sunday … `6` = Saturday) for a locale's region from a static CLDR table. Dashes and underscores both work, script subtags are skipped, and a bare language code resolves to its default region through `findLocale` first (`en` → `en-US` → Sunday). Anything without a known region starts on Monday.
+
+<Calls code={basicExample} label="findWeekStart: Basic example" />
+
+<ApiReference name="findWeekStart" pkg="locales" />

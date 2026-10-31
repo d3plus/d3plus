@@ -1,0 +1,25 @@
+---
+title: colorAdd
+description: "Adds two colors together."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/color/color-add/basic-example.js?raw";
+import withOpacity from "~/examples/color/color-add/with-opacity.js?raw";
+
+Adds two colors together.
+
+## Basic example
+
+Mixes two colors by meeting halfway in HSL: the hue lands between the two along the shorter way around the wheel, and saturation and lightness are averaged. Red and blue give purple, red and yellow give orange.
+
+<Calls code={basicExample} label="colorAdd: Basic example" />
+
+## With opacity
+
+The optional third and fourth arguments weight each color from 0 to 1. The weights scale the hue, saturation, and lightness terms before they are averaged, so a partial weight is not a simple fade: at `o2: 0.25` red and blue mix to a dark brown, at `0.5` to an olive, and only at `1` to the full purple.
+
+<Calls code={withOpacity} label="colorAdd: With opacity" />
+
+<ApiReference name="colorAdd" pkg="color" />

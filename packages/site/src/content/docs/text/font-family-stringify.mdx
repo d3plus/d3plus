@@ -1,0 +1,18 @@
+---
+title: fontFamilyStringify
+description: "Converts an Array of font-family names into a CSS font-family string."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/text/font-family-stringify/basic-example.js?raw";
+
+Converts an Array of font-family names into a CSS font-family string.
+
+## Basic example
+
+Joins a font list into the comma-separated string CSS expects. Names that are not a single lowercase word (so anything with spaces or capitals) are wrapped in single quotes, while generic families such as `sans-serif` and `monospace` are left bare. A plain string is treated as a one-item list.
+
+<Calls code={basicExample} label="fontFamilyStringify: Basic example" />
+
+<ApiReference name="fontFamilyStringify" pkg="text" />

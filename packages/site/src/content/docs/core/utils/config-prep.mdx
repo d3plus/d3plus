@@ -1,0 +1,30 @@
+---
+title: configPrep
+description: "Preps a config object for d3plus data, and optionally bubbles up a specific nested type."
+---
+
+import ApiReference from "~/components/ApiReference.astro";
+
+Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you must bind a d3plus class' `this` context.
+
+## Basic example
+
+Prepares a `shapeConfig` for the shapes a chart draws: it copies in the chart's `duration`, keeps only the events that are global (`mouseenter`) or namespaced to the requested type (`click.shape`, not `click.legend`), and wraps every accessor so that when a shape hands it a wrapped datum, the function receives the original data row underneath. Charts call it with `this` bound; a plain object with a `schema` works the same way here.
+
+```js
+import {configPrep} from "@d3plus/core";
+
+const config = {
+  fill: d => d.color,
+  on: {"click.shape": onShapeClick, mouseenter: onEnter, "click.legend": onLegendClick},
+};
+
+// Bound to a chart (`this`), for the "shape" event namespace:
+const prepped = configPrep.call(viz, config, "shape");
+Object.keys(prepped); // ["duration","on","fill"]
+prepped.duration; // 600
+Object.keys(prepped.on); // ["click.shape","mouseenter"]
+prepped.fill({__d3plus__: true, data: {color: "#c92a2a"}, i: 0}); // "#c92a2a"
+```
+
+<ApiReference name="configPrep" pkg="core" />

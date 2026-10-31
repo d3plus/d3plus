@@ -1,0 +1,32 @@
+---
+title: assign
+description: "A deeply recursive version of Object.assign."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import arraysReplaced from "~/examples/dom/assign/arrays-replaced.js?raw";
+import basicExample from "~/examples/dom/assign/basic-example.js?raw";
+import multipleSources from "~/examples/dom/assign/multiple-sources.js?raw";
+
+A deeply recursive version of `Object.assign`.
+
+## Arrays replaced
+
+Arrays are copied, not merged: a source array replaces the target's array at that key wholesale, which is what you want for a new `data` or `groupBy` list.
+
+<Calls code={arraysReplaced} label="assign: Arrays replaced" />
+
+## Basic example
+
+A deep `Object.assign`: later sources win for plain values, but nested objects are merged rather than replaced, so `deep.group` survives alongside the new `deep.value`. This is how every d3plus `config()` call layers over the existing configuration.
+
+<Calls code={basicExample} label="assign: Basic example" />
+
+## Multiple sources
+
+Any number of sources can be passed and they are applied left to right. Starting from an empty object leaves `defaults` untouched for the next call.
+
+<Calls code={multipleSources} label="assign: Multiple sources" />
+
+<ApiReference name="assign" pkg="dom" />

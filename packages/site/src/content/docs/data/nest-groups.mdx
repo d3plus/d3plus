@@ -1,0 +1,32 @@
+---
+title: nestGroups
+description: "Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/nest-groups/basic-example.js?raw";
+import emptyKeys from "~/examples/data/nest-groups/empty-keys.js?raw";
+import multiLevel from "~/examples/data/nest-groups/multi-level.js?raw";
+
+Recursively groups data by each key function, producing \{key, values\} objects compatible with d3-hierarchy.
+
+## Basic example
+
+Groups rows by the value each accessor returns, producing `{key, values}` entries in first-seen order. One accessor gives one level.
+
+<Calls code={basicExample} label="nestGroups: Basic example" />
+
+## Empty keys
+
+With no accessors the rows come back untouched, so a caller can pass whatever depth of `groupBy` it has without special-casing zero.
+
+<Calls code={emptyKeys} label="nestGroups: Empty keys" />
+
+## Multi level
+
+Each additional accessor nests another level inside the previous one, which is the shape `d3-hierarchy` expects and what a chart builds from a multi-key `groupBy`.
+
+<Calls code={multiLevel} label="nestGroups: Multi level" />
+
+<ApiReference name="nestGroups" pkg="data" />

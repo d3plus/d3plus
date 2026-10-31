@@ -1,0 +1,25 @@
+---
+title: polygonInside
+description: "Checks if one polygon is inside another polygon."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/polygon-inside/basic-example.js?raw";
+import overlapping from "~/examples/math/polygon-inside/overlapping.js?raw";
+
+Checks if one polygon is inside another polygon.
+
+## Basic example
+
+True when every point of the first polygon lies inside the second and none of their edges cross. The layout uses this to decide whether a label's box fits within a shape.
+
+<Calls code={basicExample} label="polygonInside: Basic example" />
+
+## Overlapping
+
+A polygon that pokes out of the container is not inside it, even though most of its area overlaps.
+
+<Calls code={overlapping} label="polygonInside: Overlapping" />
+
+<ApiReference name="polygonInside" pkg="math" />

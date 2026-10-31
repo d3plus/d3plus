@@ -1,0 +1,18 @@
+---
+title: stylize
+description: "Applies each key/value in an object as a style."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/stylize/basic-example.js?raw";
+
+Applies each key/value in an object as a style.
+
+## Basic example
+
+Applies every key of an object as an inline style on a d3 selection, one `.style()` call per entry, which is how a chart's `shapeConfig` styles reach the drawn elements. Keys are CSS property names (`stroke-width`, not `strokeWidth`).
+
+<Calls code={basicExample} label="stylize: Basic example" />
+
+<ApiReference name="stylize" pkg="dom" />

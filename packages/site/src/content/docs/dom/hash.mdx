@@ -1,0 +1,22 @@
+---
+title: hash
+description: "Stable hash that serializes functions by their source, so function-valued config props (accessors, formatters) still register as changed when their body changes."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/dom/hash/basic-example.js?raw";
+
+Stable hash that serializes functions by their source, so function-valued
+config props (accessors, formatters) still register as changed when their
+body changes. Wrappers use this to diff config across a framework's render
+cycles — two structurally identical config objects hash equal, so an
+unchanged config skips a re-render.
+
+## Basic example
+
+A stable string for a config object. Functions are serialized by their source, so two configs built separately but with the same accessors hash the same, while changing an accessor's body (`d.year` → `d.month`) changes the hash. The framework wrappers compare hashes between renders to skip redrawing when nothing changed. Circular references are tolerated.
+
+<Calls code={basicExample} label="hash: Basic example" />
+
+<ApiReference name="hash" pkg="dom" />

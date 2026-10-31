@@ -1,0 +1,32 @@
+---
+title: colorRampDark
+description: "Builds an n-step single-hue ramp for a dark background: from a deep, low-chroma tint of the base just above the background up to the bright base color, stepped evenly in OKLab."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/color/color-ramp-dark/basic-example.js?raw";
+import ordinalRamp from "~/examples/color/color-ramp-dark/ordinal-ramp.js?raw";
+
+Builds an `n`-step single-hue ramp for a dark background: from a deep,
+low-chroma tint of the base just above the background up to the bright base
+color, stepped evenly in OKLab. Low values recede into the background and
+high values glow, the mirror of colorRamp on a light background.
+
+Returned dimmest→brightest (low→high), so it swaps in for `colorRamp`
+wherever a ramp maps low values to its first step. The brightest step is
+the base color itself for a continuous ramp.
+
+## Basic example
+
+Builds a six-step ramp from each of three bright base hues on a dark background, returned dimmest to brightest with the base color itself as the final step. The dim end is a low-chroma tint just above the background, so the lowest step still reads as a mark.
+
+<Calls code={basicExample} label="colorRampDark: Basic example" />
+
+## Ordinal ramp
+
+With `{ordinal: true}` the dim end is lifted further off the background and keeps more chroma, so every step reads as a distinct mark: the ramp for ordered *discrete* categories on a dark surface.
+
+<Calls code={ordinalRamp} label="colorRampDark: Ordinal ramp" />
+
+<ApiReference name="colorRampDark" pkg="color" />

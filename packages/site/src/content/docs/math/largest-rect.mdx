@@ -1,0 +1,41 @@
+---
+title: largestRect
+description: "Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/largest-rect/basic-example.js?raw";
+import fixedAngle from "~/examples/math/largest-rect/fixed-angle.js?raw";
+import fixedOrigin from "~/examples/math/largest-rect/fixed-origin.js?raw";
+import squareAspect from "~/examples/math/largest-rect/square-aspect.js?raw";
+
+Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios.
+
+An angle of zero means that the longer side of the polygon (the width) will be aligned with the x axis. An angle of 90 and/or -90 means that the longer side of the polygon (the width) will be aligned with the y axis. The value can be a number between -90 and 90 specifying the angle of rotation of the polygon, a string which is parsed to a number, or an array of numbers specifying the possible rotations of the polygon.
+
+## Basic example
+
+Searches for the largest rectangle that fits inside a polygon, trying a range of angles and aspect ratios from several starting points. The result carries the rectangle's `points`, center, `angle`, and `area`. Treemap and Geomap use it to find room for a label inside an irregular shape. The search starts from random origins, so repeated runs can land on slightly different rectangles.
+
+<Calls code={basicExample} label="largestRect: Basic example" />
+
+## Fixed angle
+
+`angle` restricts the candidate orientations, here to horizontal only, which is what text labels need. It accepts a single angle in degrees or an array of them.
+
+<Calls code={fixedAngle} label="largestRect: Fixed angle" />
+
+## Fixed origin
+
+`origin` makes the rectangle grow from a specific point instead of random starting points, which makes the result deterministic and lets a label be centered on a chosen spot.
+
+<Calls code={fixedOrigin} label="largestRect: Fixed origin" />
+
+## Square aspect
+
+`aspectRatio` fixes width over height, so the search returns the largest square instead of the largest rectangle. `minAspectRatio` and `maxAspectRatio` bound the search instead of pinning it.
+
+<Calls code={squareAspect} label="largestRect: Square aspect" />
+
+<ApiReference name="largestRect" pkg="math" />

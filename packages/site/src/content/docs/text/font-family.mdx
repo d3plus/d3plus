@@ -1,0 +1,18 @@
+---
+title: fontFamily
+description: "The default fallback font list used for all text labels as an Array of Strings."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/text/font-family/basic-example.js?raw";
+
+The default fallback font list used for all text labels as an Array of Strings.
+
+## Basic example
+
+The fallback stack every chart uses for its text, from Inter down to the generic `sans-serif`. Pass your own array to a chart's `fontFamily` config, or use this one as the base when you only want to prepend a brand font.
+
+<Calls code={basicExample} label="fontFamily: Basic example" />
+
+<ApiReference name="fontFamily" pkg="text" />

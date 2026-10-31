@@ -1,0 +1,32 @@
+---
+title: strip
+description: "Removes all non ASCII characters from a string."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import arabicPreserved from "~/examples/text/strip/arabic-preserved.js?raw";
+import basicExample from "~/examples/text/strip/basic-example.js?raw";
+import customSpacer from "~/examples/text/strip/custom-spacer.js?raw";
+
+Removes all non ASCII characters from a string.
+
+## Arabic preserved
+
+Arabic letters are kept alongside ASCII, so right-to-left labels survive the same treatment: spaces still become the spacer and punctuation is still removed.
+
+<Calls code={arabicPreserved} label="strip: Arabic preserved" />
+
+## Basic example
+
+Accented letters are folded to their plain ASCII equivalent, every space becomes the spacer (`-` by default), and anything else that is not a letter, digit, hyphen, or underscore is dropped, which makes the result safe for ids, class names, and file names.
+
+<Calls code={basicExample} label="strip: Basic example" />
+
+## Custom spacer
+
+The second argument replaces each space: an underscore for snake_case style ids, a plus sign for query strings, or an empty string to run the words together.
+
+<Calls code={customSpacer} label="strip: Custom spacer" />
+
+<ApiReference name="strip" pkg="text" />

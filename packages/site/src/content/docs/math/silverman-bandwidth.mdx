@@ -1,0 +1,22 @@
+---
+title: silvermanBandwidth
+description: "Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate: 0.9 · min(σ, IQR / 1.34) · n^(-1/5)."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/math/silverman-bandwidth/basic-example.js?raw";
+
+Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate:
+`0.9 · min(σ, IQR / 1.34) · n^(-1/5)`. When one of the two spreads is zero
+the other is used; when the values don't vary at all (including a single
+value) the spread falls back to a tenth of their magnitude, or 1 for zeros.
+Non-finite values are ignored. Returns NaN when there are no values.
+
+## Basic example
+
+Silverman's rule of thumb, `0.9 · min(σ, IQR / 1.34) · n^(-1/5)`: the default `kernelDensity` bandwidth. Taking the smaller of the standard deviation and the scaled interquartile range keeps one outlier (the second call) from oversmoothing the rest. Values that don't vary fall back to a tenth of their magnitude.
+
+<Calls code={basicExample} label="silvermanBandwidth: Basic example" />
+
+<ApiReference name="silvermanBandwidth" pkg="math" />

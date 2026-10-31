@@ -1,0 +1,41 @@
+---
+title: renderToCanvas
+description: "Renders a d3plus chart to a native canvas in Node using @napi-rs/canvas, with no browser."
+---
+
+import ApiReference from "~/components/ApiReference.astro";
+
+Renders a d3plus chart to a native canvas in Node using `@napi-rs/canvas`,
+with no browser. Returns the canvas so callers can encode to any supported
+format (`canvas.encode("png")`, `.toBuffer("image/jpeg")`, …) or pipe it.
+
+Prefer renderToStaticPNG when you just want PNG bytes.
+
+## Example
+
+The step beneath `renderToStaticPNG`: renders the chart onto a native canvas and returns it, so you can encode to JPEG, WebP, or AVIF (with a quality setting), get a synchronous buffer, or draw more onto the surface before saving. Takes the same options as `renderToStaticPNG`. Node only; the snippet is not executed here.
+
+```js
+import {writeFileSync} from "node:fs";
+import {LinePlot} from "@d3plus/core";
+import {renderToCanvas} from "@d3plus/ssr";
+
+const data = [
+  {city: "Boston", year: 2000, population: 589},
+  {city: "Boston", year: 2010, population: 617},
+  {city: "Denver", year: 2000, population: 555},
+  {city: "Denver", year: 2010, population: 600},
+];
+
+const canvas = await renderToCanvas(
+  new LinePlot().data(data).groupBy("city").x("year").y("population"),
+  {width: 800, height: 500},
+);
+
+// Encode the same surface to whatever format you need.
+writeFileSync("plot.jpg", await canvas.encode("jpeg", 90));
+writeFileSync("plot.webp", await canvas.encode("webp"));
+const png = canvas.toBuffer("image/png"); // synchronous
+```
+
+<ApiReference name="renderToCanvas" pkg="ssr" />

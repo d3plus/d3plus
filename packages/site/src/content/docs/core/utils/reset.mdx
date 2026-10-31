@@ -1,0 +1,25 @@
+---
+title: RESET
+description: "String constant used to reset an individual config property."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/utils/reset/basic-example.js?raw";
+import liveExample from "~/examples/core/utils/reset/live-example.js?raw";
+
+String constant used to reset an individual config property.
+
+## Basic example
+
+A sentinel string that any config value can be set to. `config()` treats it as "restore the default", which matters because a chart keeps every setting it was ever given; passing `undefined` would leave the old value in place. It works at any depth, so `shapeConfig: {fill: RESET}` resets just the fill.
+
+<Calls code={basicExample} label="RESET: Basic example" />
+
+## Live example
+
+The same Legend instance is told to draw circles, then given `RESET` for that one key. Tick the box to watch the swatches return to the default rectangles while the data, colors, and size stay as configured.
+
+<Calls code={liveExample} label="RESET: Live example" />
+
+<ApiReference name="RESET" pkg="core" />

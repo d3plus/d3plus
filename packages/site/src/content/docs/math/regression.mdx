@@ -1,0 +1,39 @@
+---
+title: regression
+description: "Fits a regression model to a set of [x, y] points."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import exponential from "~/examples/math/regression/exponential.js?raw";
+import linear from "~/examples/math/regression/linear.js?raw";
+import logarithmic from "~/examples/math/regression/logarithmic.js?raw";
+import polynomial from "~/examples/math/regression/polynomial.js?raw";
+
+Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domain (y ≤ 0 for exponential, x ≤ 0 for logarithmic, either for power), are ignored. Returns `null` when there are too few usable points or the x values do not vary.
+
+## Exponential
+
+`"exponential"` fits `y = a·e^(b·x)`; points with `y ≤ 0` cannot be log-transformed and are left out of the fit.
+
+<Calls code={exponential} label="regression: Exponential" />
+
+## Linear
+
+Least-squares fit of `y = c0 + c1·x`. The result holds the `coefficients`, a `predict(x)` function for drawing the line, the coefficient of determination `r2`, and the number of points `n` used. Plot charts expose this as a trend line.
+
+<Calls code={linear} label="regression: Linear" />
+
+## Logarithmic
+
+`"logarithmic"` fits `y = a + b·ln(x)`, so points with `x ≤ 0` are ignored. A `"power"` type (`y = a·x^b`) is also available with the same rules on both axes.
+
+<Calls code={logarithmic} label="regression: Logarithmic" />
+
+## Polynomial
+
+`"polynomial"` fits `y = c0 + c1·x + c2·x² …` up to the `order` option (default 2). Coefficients are reported in original units, lowest power first.
+
+<Calls code={polynomial} label="regression: Polynomial" />
+
+<ApiReference name="regression" pkg="math" />

@@ -1,0 +1,32 @@
+---
+title: concat
+description: "Reduce and concat all the elements included in arrayOfArrays if they are arrays."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/concat/basic-example.js?raw";
+import customKey from "~/examples/data/concat/custom-key.js?raw";
+import objectsWithDataKey from "~/examples/data/concat/objects-with-data-key.js?raw";
+
+Reduce and concat all the elements included in arrayOfArrays if they are arrays. If it is a JSON object try to concat the array under given key data. If the key doesn't exists in object item, a warning message is lauched to the console. You need to implement DataFormat callback to concat the arrays manually.
+
+## Basic example
+
+Flattens an array of arrays into one array of rows, in order. This is what a chart does when its `data` config lists several sources.
+
+<Calls code={basicExample} label="concat: Basic example" />
+
+## Custom key
+
+The second argument names the property to read when a response nests its rows under something other than `data`.
+
+<Calls code={customKey} label="concat: Custom key" />
+
+## Objects with data key
+
+An element can also be an object whose `data` property holds the rows, the shape many APIs respond with, and the two forms can be mixed in one call.
+
+<Calls code={objectsWithDataKey} label="concat: Objects with data key" />
+
+<ApiReference name="concat" pkg="data" />
