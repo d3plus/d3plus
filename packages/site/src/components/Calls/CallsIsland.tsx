@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "preact/hooks";
 
 import CodeBlock from "../Playground/CodeBlock.js";
-import {display} from "./display.js";
+import {colorsIn, display} from "./display.js";
 import {load} from "./modules.js";
 import {prepare, run} from "./prepare.js";
 import type {Call, Logged, Outcome} from "./prepare.js";
@@ -16,6 +16,18 @@ interface CallsProps {
 /** How long typing pauses before the code runs again, in milliseconds. */
 const DEBOUNCE = 300;
 
+/** A swatch per color, as a row of small squares. */
+function Swatches({colors}: {colors?: string[]}) {
+  if (!colors?.length) return null;
+  return (
+    <span class="d3p-swatches" aria-hidden="true">
+      {colors.map((color, i) => (
+        <span key={i} class="d3p-swatch" style={{background: color}} />
+      ))}
+    </span>
+  );
+}
+
 function Result({outcome}: {outcome: Outcome | undefined}) {
   if (!outcome) return <output class="d3p-value is-pending">…</output>;
   if ("error" in outcome)
@@ -23,15 +35,49 @@ function Result({outcome}: {outcome: Outcome | undefined}) {
   const shown = display(outcome.value);
   return (
     <output class="d3p-value">
-      {shown.swatches && (
-        <span class="d3p-swatches" aria-hidden="true">
-          {shown.swatches.map((color, i) => (
-            <span key={i} class="d3p-swatch" style={{background: color}} />
-          ))}
-        </span>
-      )}
+      <Swatches colors={shown.swatches} />
       {shown.text.includes("\n") ? <pre>{shown.text}</pre> : shown.text}
     </output>
+  );
+}
+
+/** Each call beside its value, then what the code logged, then any error. */
+function Results({
+  calls,
+  outcomes,
+  logs,
+  error,
+}: {
+  calls: Call[];
+  outcomes: (Outcome | undefined)[];
+  logs: Logged[];
+  error: string | undefined;
+}) {
+  return (
+    <div class="d3p-results" aria-live="polite">
+      {calls.map((call, i) => (
+        <div class="d3p-result" key={`${i}-${call.source}`}>
+          <code class="d3p-call">
+            <Swatches colors={colorsIn(call.source)} />
+            {call.source}
+          </code>
+          <span class="d3p-arrow" aria-hidden="true">
+            →
+          </span>
+          <Result outcome={outcomes[i]} />
+        </div>
+      ))}
+      {logs.map((entry, i) => (
+        <p class={`d3p-log is-${entry.level}`} key={i}>
+          <span aria-hidden="true">⚠</span> {entry.message}
+        </p>
+      ))}
+      {error && (
+        <p class="d3p-error" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -111,27 +157,7 @@ export default function CallsIsland({code: initial, label}: CallsProps) {
         label={label}
         onChange={setCode}
       />
-      <div class="d3p-results" aria-live="polite">
-        {calls.map((call, i) => (
-          <div class="d3p-result" key={`${i}-${call.source}`}>
-            <code class="d3p-call">{call.source}</code>
-            <span class="d3p-arrow" aria-hidden="true">
-              →
-            </span>
-            <Result outcome={outcomes[i]} />
-          </div>
-        ))}
-        {logs.map((entry, i) => (
-          <p class={`d3p-log is-${entry.level}`} key={i}>
-            <span aria-hidden="true">⚠</span> {entry.message}
-          </p>
-        ))}
-        {error && (
-          <p class="d3p-error" role="alert">
-            {error}
-          </p>
-        )}
-      </div>
+      <Results calls={calls} outcomes={outcomes} logs={logs} error={error} />
       <div class="d3p-container" ref={container} hidden={!usesContainer} />
       {code !== initial && (
         <div class="d3p-calls-actions">

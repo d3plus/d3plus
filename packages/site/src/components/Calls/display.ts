@@ -12,6 +12,17 @@ const COLOR =
 export const isColor = (value: unknown): value is string =>
   typeof value === "string" && COLOR.test(value.trim());
 
+/**
+ * The colors a call's code passes in, from its string literals:
+ * `colorLegible("#aaddff")` passes `#aaddff`. Shown beside the call, they
+ * set the input against the color it returns.
+ */
+export function colorsIn(source: string): string[] {
+  return [...source.matchAll(/(["'])((?:\\.|(?!\1).)*)\1/g)]
+    .map(match => match[2])
+    .filter(isColor);
+}
+
 /** Collections this short, of plain values, print on one line. */
 const INLINE = 72;
 
