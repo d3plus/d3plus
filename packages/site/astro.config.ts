@@ -7,6 +7,7 @@ import starlight from "@astrojs/starlight";
 import {defineConfig} from "astro/config";
 
 import {apiSidebar, loadApi} from "./src/lib/api";
+import {legacyTarget} from "./src/lib/legacy";
 
 const packagesDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -35,6 +36,19 @@ const filterScript = `document.addEventListener("input", e => {
   const items = input.closest(".d3p-reference").querySelectorAll(".d3p-item");
   for (const item of items) item.hidden = q !== "" && !item.textContent.toLowerCase().includes(q);
 });`;
+
+// Forwards a link to the old Storybook site (`/?path=/docs/…`, or its
+// iframe's `?id=…`) to the page it moved to. Static hosting can't redirect a
+// query string, so the page does, using the ids in /legacy-redirects.json.
+const legacyScript = `if (/[?&](path|id)=/.test(location.search)) {
+  const target = ${legacyTarget.toString()};
+  fetch("/legacy-redirects.json")
+    .then(response => response.json())
+    .then(pages => {
+      const to = target(location.search, pages);
+      if (to) location.replace(to);
+    });
+}`;
 
 export default defineConfig({
   site: "https://d3plus.org",
@@ -67,6 +81,7 @@ export default defineConfig({
           },
         },
         {tag: "script", attrs: {type: "module"}, content: filterScript},
+        {tag: "script", content: legacyScript},
       ],
       sidebar: [
         {label: "Guides", items: [{autogenerate: {directory: "guides"}}]},

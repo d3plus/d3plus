@@ -42,15 +42,18 @@ const mime = {
   ".xml": "application/xml",
 };
 
-/** Serves dist/ as a static host would, folders by their index.html. */
+/**
+ * Serves dist/ as GitHub Pages does: folders by their index.html, and a
+ * missing file with 404.html.
+ */
 function serve() {
   const server = http.createServer((req, res) => {
     let file = path.join(distDir, decodeURIComponent(req.url.split("?")[0]));
     if (fs.existsSync(file) && fs.statSync(file).isDirectory())
       file = path.join(file, "index.html");
     if (!file.startsWith(distDir) || !fs.existsSync(file)) {
-      res.writeHead(404);
-      return res.end();
+      res.writeHead(404, {"Content-Type": "text/html"});
+      return res.end(fs.readFileSync(path.join(distDir, "404.html")));
     }
     res.writeHead(200, {
       "Content-Type": mime[path.extname(file)] || "application/octet-stream",
@@ -115,6 +118,52 @@ it("every internal link leads to a page, and its #anchor to an element there", (
     }
   assert.deepEqual([...broken], []);
 });
+
+it(
+  "links to the old Storybook site land on their new pages",
+  {timeout: 2 * 60 * 1000},
+  async () => {
+    const server = await serve();
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    const browser = await chromium.launch();
+    try {
+      const tab = await browser.newPage();
+      for (const [from, to] of [
+        ["/?path=/docs/core-charts-treemap--docs", "/core/charts/treemap/"],
+        ["/?path=/docs/guides-legends--docs", "/guides/legends/"],
+        [
+          "/?path=/story/core-charts-barchart--stacked-bars",
+          "/core/charts/bar-chart/#stacked-bars",
+        ],
+        [
+          "/?path=/docs/guides-migration-v3-%E2%86%92-v4--docs",
+          "/guides/migration/",
+        ],
+        [
+          "/iframe.html?id=core-charts-treemap--basic-example&viewMode=story",
+          "/core/charts/treemap/#basic-example",
+        ],
+        [
+          "/?path=/docs/format-formatabbreviate--docs",
+          "/format/format-abbreviate/",
+        ],
+      ]) {
+        await tab.goto(`${origin}${from}`);
+        await tab.waitForURL(`${origin}${to}`, {timeout: 10000});
+        if (to.includes("#")) {
+          const id = decodeURIComponent(to.split("#")[1]);
+          assert.ok(
+            await tab.locator(`[id="${id}"]`).count(),
+            `${to} has its heading`,
+          );
+        }
+      }
+    } finally {
+      await browser.close();
+      server.close();
+    }
+  },
+);
 
 it(
   "every page renders without errors or warnings",

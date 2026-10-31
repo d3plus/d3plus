@@ -33,8 +33,10 @@ jobs:
         run: pnpm format:check
       - name: Typecheck (build types)
         run: pnpm -r --if-present run build:types
-      - name: Build docs site (Storybook)
-        run: pnpm --filter @d3plus/docs build
+      - name: Build docs site
+        run: |
+          pnpm --filter @d3plus/site run manifest
+          pnpm --filter @d3plus/site build
 
   test:
     runs-on: ubuntu-latest
