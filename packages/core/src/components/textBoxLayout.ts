@@ -9,6 +9,7 @@ import type {DataPoint} from "@d3plus/data";
 import {fontExists, parseSides, textWidth} from "@d3plus/dom";
 import {textWrap} from "@d3plus/text";
 
+import {fontStack} from "./fontStack.js";
 import type TextBox from "./TextBox.js";
 
 /** A parsed inline run (segment of a wrapped line with optional bold/italic). */
@@ -28,6 +29,7 @@ export interface TextBoxDatum {
   fC: string;
   fStroke: string;
   fSW: number;
+  /** The CSS font-family to draw with: the measured family, then its fallbacks. */
   fF: string;
   fO: number;
   fW: number | string;
@@ -224,7 +226,10 @@ function assembleTextBoxDatum(
     fC: box.schema.fontColor(d, i),
     fStroke: box.schema.fontStroke(d, i),
     fSW: box.schema.fontStrokeWidth(d, i),
-    fF: style["font-family"] as string,
+    fF: fontStack(
+      box.schema.fontFamily(d, i) as string | string[],
+      style["font-family"] as string | false,
+    ),
     fO: box.schema.fontOpacity(d, i),
     fW: style["font-weight"],
     id: box.schema.id(d, i),
@@ -270,6 +275,10 @@ export function computeTextBoxDatum(
       widths: [],
     };
 
+  // Text is measured with the one family fontExists finds installed, never a
+  // list: a list would measure with whichever family the browser picks, which
+  // can change under the wrap as web fonts load. Only the drawn label (`fF`)
+  // names the families after it, as fallbacks for other machines.
   const style: Record<string, string | number> = {
     "font-family": fontExists(box.schema.fontFamily(d, i)) as string,
     "font-size": fS,
