@@ -24,6 +24,7 @@ import {
   rendererSurfaces,
   type ElementsSource,
 } from "./className.js";
+import {displayName} from "./displayName.js";
 
 /**
     Swaps every nested `RESET` in a config value for the matching entry of
@@ -106,6 +107,12 @@ function cascadeColorDefaults(
 */
 export default class BaseClass {
   /**
+      The class's name as written in the source, for messages that name it:
+      a minifier renames classes (a Legend can become `Ch`). Every class
+      states its own; see `displayName`.
+  */
+  static readonly _displayName: string = "BaseClass";
+  /**
       Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is
       deliberate and load-bearing: `installFluent` coerces accessor/const
       fields into functions, so call sites invoke `schema.fill(d, i)` and
@@ -164,7 +171,7 @@ export default class BaseClass {
             else if (v === RESET) setter.call(this, defaults[k]);
             else setter.call(this, nestedReset(v, defaults[k]));
           } else if (!isSharedConfig(_)) {
-            warnUnknownConfig(`${this.constructor.name}.config()`, k);
+            warnUnknownConfig(`${displayName(this)}.config()`, k);
           }
         }
       }

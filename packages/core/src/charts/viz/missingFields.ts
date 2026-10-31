@@ -11,6 +11,7 @@ import type {DataPoint} from "@d3plus/data";
 import {canWarnOnce, warnConfigOnce} from "../../utils/configWarnings.js";
 import {fieldNameOf} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "./vizTypes.js";
+import {displayName} from "../../utils/displayName.js";
 
 /** A config key and the data field it names. */
 export interface FieldUse {
@@ -143,7 +144,7 @@ export function warnMissingFields(viz: VizInstance): void {
     warnConfigOnce(
       viz,
       id(use),
-      missingFieldMessage(viz.constructor.name, use, fields),
+      missingFieldMessage(displayName(viz), use, fields),
     );
   }
 }

@@ -49,6 +49,7 @@ const legendSchema: ConfigField[] = [
     Creates an SVG legend based on an array of data.
 */
 export default class Legend extends BaseClass {
+  static readonly _displayName: string = "Legend";
   // installFluent generates the config accessors (align, width, …) at
   // runtime; the index signature lets callers reach them through the type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -23,6 +23,7 @@ const areaSchema: ConfigField[] = [
     Creates SVG areas based on an array of data.
 */
 export default class Area extends Shape {
+  static readonly _displayName: string = "Area";
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from Shape.
       @private

@@ -121,6 +121,7 @@ const shapeSchema: ConfigField[] = [
     An abstracted class for generating shapes.
 */
 export default class Shape extends BaseClass {
+  static readonly _displayName: string = "Shape";
   // installFluent generates the config accessors (fill, x, id, …) at runtime;
   // the index signature lets callers reach them through the type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

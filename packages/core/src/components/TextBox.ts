@@ -84,6 +84,7 @@ const textBoxSchema: ConfigField[] = [
     Creates a wrapped text box for each point in an array of data.
 */
 export default class TextBox extends BaseClass {
+  static readonly _displayName: string = "TextBox";
   // installFluent generates the config accessors (text, fontSize, x, …) at
   // runtime; the index signature lets callers reach them through the type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

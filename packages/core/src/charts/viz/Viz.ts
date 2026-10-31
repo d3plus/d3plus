@@ -65,6 +65,7 @@ function tagInteractionGroup(node: SceneNode, group: string): void {
     The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessors, title, legend, tooltip, timeline, zoom, table view) and the render lifecycle that each chart type's definition plugs its layout into. Not used directly; see the chart classes (BarChart, Treemap, …).
 */
 export default class Viz extends VizBase {
+  static readonly _displayName: string = "Viz";
   /**
       Invoked when creating a new class instance, and sets any default parameters.
       @private

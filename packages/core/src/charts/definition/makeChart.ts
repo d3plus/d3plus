@@ -40,6 +40,8 @@ type VizCtor = new () => AnyViz;
 */
 export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
   class Chart extends (Base as VizCtor) {
+    static readonly _displayName: string = def.name;
+
     constructor() {
       super();
       applyDefinition(this as unknown as VizInstance, def);

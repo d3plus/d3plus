@@ -82,6 +82,7 @@ const axisSchema: ConfigField[] = [
     Creates an SVG scale based on an array of data.
 */
 export default class Axis extends BaseClass {
+  static readonly _displayName: string = "Axis";
   // installFluent generates the config accessors (scale, domain, ticks, …) at
   // runtime; the index signature lets callers reach them through the type.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
