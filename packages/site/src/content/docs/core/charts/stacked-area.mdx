@@ -1,0 +1,62 @@
+---
+title: StackedArea
+description: "Creates a stacked area plot based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/stacked-area/basic-example.js?raw";
+import horizontalChart from "~/examples/core/charts/stacked-area/horizontal-chart.js?raw";
+import sharePercentages from "~/examples/core/charts/stacked-area/share-percentages.js?raw";
+import shapeBackgroundImages from "~/examples/core/charts/stacked-area/shape-background-images.js?raw";
+import sortingAreas from "~/examples/core/charts/stacked-area/sorting-areas.js?raw";
+import streamgraph from "~/examples/core/charts/stacked-area/streamgraph.js?raw";
+import groupingSmallSeries from "~/examples/core/charts/stacked-area/grouping-small-series.js?raw";
+
+Creates a stacked area plot based on an array of data. Each point's
+fraction of its stack total is available to tooltip accessors as `share`
+(unless the data has its own `share` field).
+
+## Basic example
+
+Series stack on top of one another, so the total height at each `x` is the sum of all groups while each band shows its individual contribution.
+
+<Playground chart="StackedArea" code={basicExample} controls={["x","y"]} />
+
+## Horizontal chart
+
+Switch the discrete axis to `"y"` to render the stack horizontally, with the areas extending along `x` instead of building upward.
+
+<Playground chart="StackedArea" code={horizontalChart} controls={["discrete"]} />
+
+## Share percentages
+
+Set `stackOffset: "expand"` to normalize every `x` position to 100%, turning the chart into a share-of-total view; `yConfig.tickFormat` then labels the axis as percentages.
+
+<Playground chart="StackedArea" code={sharePercentages} controls={["stackOffset","yConfig"]} />
+
+## Shape background images
+
+Set `shapeConfig.Area.backgroundImage` to a per-series URL to place an image on each stacked band. Here `backgroundImageFit: "contain"` fits each icon inside the band's largest inscribed rectangle — centered, fully visible, and aspect-preserved. Omit `backgroundImageFit` (or set `"cover"`) to instead fill the band's bounding box and clip the image to the band's outline.
+
+<Playground chart="StackedArea" code={shapeBackgroundImages} controls={["shapeConfig"]} />
+
+## Sorting areas
+
+Pass an explicit array to `stackOrder` to fix the bottom-to-top stacking sequence of the series rather than letting d3plus derive it.
+
+<Playground chart="StackedArea" code={sortingAreas} controls={["stackOrder"]} />
+
+## Streamgraph
+
+Combine a named order with a named offset for a streamgraph: `stackOrder: "insideOut"` keeps the largest series in the middle and pushes late-rising ones to the edges, while `stackOffset: "silhouette"` centers the stack around a free baseline instead of anchoring at zero. `stackOrder` also accepts d3's `"appearance"` and `"reverse"`; `stackOffset` also accepts `"wiggle"` (minimizes slope changes) and `"expand"`. Streamgraph sets this up for you, with smooth curves and a value axis that shows no values.
+
+<Playground chart="StackedArea" code={streamgraph} controls={["stackOrder","stackOffset"]} />
+
+## Grouping small series
+
+Set `threshold` to merge the series too small to read into one band. Each series whose summed value, across every year, is under that share of the whole chart's total (here 5%) joins the bucket, so a series is in it at every year or at none. The bucket stacks on top, labelled by `thresholdName` ("Values &lt; 5%"), with one legend entry that highlights and hides it. Its tooltips list the series it holds with their values, and a lone small series is never grouped.
+
+<Playground chart="StackedArea" code={groupingSmallSeries} controls={["threshold","thresholdName"]} />
+
+<ApiReference name="StackedArea" pkg="core" />

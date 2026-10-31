@@ -1,0 +1,67 @@
+---
+title: BoxWhisker
+description: "Creates a simple box and whisker based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/box-whisker/basic-example.js?raw";
+import showingOutliers from "~/examples/core/charts/box-whisker/showing-outliers.js?raw";
+import hidingOutliers from "~/examples/core/charts/box-whisker/hiding-outliers.js?raw";
+import changingEndpointShapes from "~/examples/core/charts/box-whisker/changing-endpoint-shapes.js?raw";
+import changingOutlierStyles from "~/examples/core/charts/box-whisker/changing-outlier-styles.js?raw";
+import horizontalChart from "~/examples/core/charts/box-whisker/horizontal-chart.js?raw";
+import coloringBoxes from "~/examples/core/charts/box-whisker/coloring-boxes.js?raw";
+import precomputedStatistics from "~/examples/core/charts/box-whisker/precomputed-statistics.js?raw";
+
+Creates a simple box and whisker based on an array of data.
+
+## Basic example
+
+One box per category summarizes its distribution: the box spans the interquartile range with a line at the median, and the whiskers reach out toward the extent of the values.
+
+<Playground chart="BoxWhisker" code={basicExample} />
+
+## Showing outliers
+
+With the default Tukey whiskers, values beyond 1.5× the interquartile range fall outside the whiskers and are plotted as individual outlier points — no extra config required; this data carries several extreme highs and lows to trigger them.
+
+<Playground chart="BoxWhisker" code={showingOutliers} />
+
+## Hiding outliers
+
+Set `shapeConfig.Box.outlier` to `false` to draw no outlier points. The value axis then leaves those values out and reaches only as far as the whiskers, so a few extreme values no longer squeeze the boxes; the tooltip still lists each box's statistics. `outlier` can also be an accessor, returning `false` for the outliers to hide and `"Circle"` or `"Rect"` for the rest.
+
+<Playground chart="BoxWhisker" code={hidingOutliers} />
+
+## Changing endpoint shapes
+
+Change the cap drawn at each whisker's end through `shapeConfig.whiskerConfig.endpoint` — here a function gives the `alpha` group `Rect` caps and `beta` `Circle` caps.
+
+<Playground chart="BoxWhisker" code={changingEndpointShapes} controls={["shapeConfig"]} />
+
+## Changing outlier styles
+
+Restyle the outlier marks with `shapeConfig.outlier`, which picks `Circle` versus `Rect` per group, and `outlierConfig`, which sets a `fill` per shape — red circles for `alpha`, green rects for `beta`.
+
+<Playground chart="BoxWhisker" code={changingOutlierStyles} controls={["shapeConfig"]} />
+
+## Horizontal chart
+
+Lay the boxes out horizontally by setting `discrete: "y"` together with `shapeConfig.Box.orient: "horizontal"`, so categories stack down the `y` axis and each distribution spreads along `x`.
+
+<Playground chart="BoxWhisker" code={horizontalChart} controls={["discrete","shapeConfig"]} />
+
+## Coloring boxes
+
+Boxes fill with the chart's color like any other shape, so `color` (or `shapeConfig.fill`) colors them to match the legend, and their outliers take the same color. The median line turns white over a dark fill; set `shapeConfig.Box.rectConfig.fill` to color the boxes on their own.
+
+<Playground chart="BoxWhisker" code={coloringBoxes} controls={["color","shapeConfig"]} />
+
+## Precomputed statistics
+
+When your data already holds each box's summary (as many analytics APIs return it), name its fields with `boxMin`, `boxQ1`, `boxMedian`, `boxQ3`, and `boxMax`, plus `boxOutliers` for an array of outlying values. Each row then draws one box from those values with nothing computed, the value axis spans every whisker and outlier, and the tooltip lists the statistics.
+
+<Playground chart="BoxWhisker" code={precomputedStatistics} controls={["boxMin","boxQ1","boxMedian","boxQ3","boxMax","boxOutliers"]} />
+
+<ApiReference name="BoxWhisker" pkg="core" />

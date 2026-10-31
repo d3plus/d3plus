@@ -1,0 +1,23 @@
+const config = {
+  links: [
+    {source: "Coal", target: "Electricity", value: 30},
+    {source: "Natural Gas", target: "Electricity", value: 25},
+    {source: "Natural Gas", target: "Industrial", value: 14},
+    {source: "Nuclear", target: "Electricity", value: 18},
+    {source: "Geothermal", target: "Electricity", value: 0.4},
+    {source: "Petroleum", target: "Transportation", value: 35},
+    {source: "Electricity", target: "Residential", value: 20},
+    {source: "Electricity", target: "Commercial", value: 18},
+    {source: "Electricity", target: "Industrial", value: 12},
+    {source: "Residential", target: "Energy Services", value: 14},
+    {source: "Residential", target: "Rejected Energy", value: 6},
+    {source: "Commercial", target: "Energy Services", value: 12},
+    {source: "Commercial", target: "Rejected Energy", value: 6},
+    {source: "Industrial", target: "Energy Services", value: 18},
+    {source: "Industrial", target: "Rejected Energy", value: 8},
+    {source: "Transportation", target: "Energy Services", value: 8},
+    {source: "Transportation", target: "Rejected Energy", value: 27},
+  ],
+  value: "value",
+  shapeConfig: {Rect: {labelConfig: {fontWeight: 600}}},
+};

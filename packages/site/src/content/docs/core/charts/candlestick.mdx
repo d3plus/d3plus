@@ -1,0 +1,69 @@
+---
+title: Candlestick
+description: "Creates a candlestick (or OHLC bar) chart of financial periods, from rows with a date and open, high, low, and close values."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/candlestick/basic-example.js?raw";
+import oHLCBars from "~/examples/core/charts/candlestick/ohlc-bars.js?raw";
+import customAccessors from "~/examples/core/charts/candlestick/custom-accessors.js?raw";
+import withVolume from "~/examples/core/charts/candlestick/with-volume.js?raw";
+import intradayRollup from "~/examples/core/charts/candlestick/intraday-rollup.js?raw";
+import calendarGaps from "~/examples/core/charts/candlestick/calendar-gaps.js?raw";
+import manyPeriods from "~/examples/core/charts/candlestick/many-periods.js?raw";
+import smallMultiples from "~/examples/core/charts/candlestick/small-multiples.js?raw";
+
+Creates a candlestick (or OHLC bar) chart of financial periods, from rows
+with a date and open, high, low, and close values. Each row's date is read
+by `x` (default `"date"`): a Date, a timestamp, or a date string.
+
+## Basic example
+
+Each row is one period with a `date`, `open`, `high`, `low`, and `close` (the default keys). The wick runs from the high to the low and the body from the open to the close. Periods that closed at or above their open are drawn as green outlines, and periods that fell are filled red, so direction reads from the fill as well as the color. Hover anywhere over the plot to see the nearest period's values and its change from open to close.
+
+<Playground chart="Candlestick" code={basicExample} controls={["variant","hollow","upColor","downColor","bodyWidth"]} />
+
+## OHLC bars
+
+`variant: "ohlc"` draws each period as an OHLC bar: a line from the high to the low, with the open ticked to the left and the close ticked to the right.
+
+<Playground chart="Candlestick" code={oHLCBars} controls={["variant","bodyWidth"]} />
+
+## Custom accessors
+
+Point `x`, `open`, `high`, `low`, and `close` at your own keys (or accessor functions). `hollow: false` fills every candle, and `upColor`/`downColor` swap the palette, here for a blue/orange pair that stays distinct for red-green color blindness. A `yConfig.tickFormat` formats the prices in the tooltip as well as on the axis.
+
+<Playground chart="Candlestick" code={customAccessors} controls={["x","open","high","low","close","hollow","upColor","downColor"]} />
+
+## With volume
+
+`volume` draws a strip of volume bars under the candles, one per candle in its up or down color, on its own small axis with abbreviated ticks (e.g. 1.2M). The price axis shrinks to make room, the x axis sits under the strip, and the tooltip adds a Volume row. Bars stay filled when candles are hollow, so short bars remain easy to read. `volumeConfig` sets the strip's `height` (a share of the plot, default `0.2`), the `gap` above it, and `axisConfig`/`shapeConfig` for its axis and bars. When rows merge, volumes add up; `aggs` overrides it.
+
+<Playground chart="Candlestick" code={withVolume} controls={["volume","volumeConfig","variant","hollow"]} />
+
+## Intraday rollup
+
+Rows that share a series and a period merge into one candle: the first row's open, the highest high, the lowest low, and the last row's close. Rows merge in data order, so sort them oldest first. Here seven hourly rows a day, with `x` pointed at their `day`, roll up to daily candles. An `aggs` entry overrides any of the four, keyed by the data key (or, for a function accessor, by the field name: `aggs: {close: (rows, value) => ...}`).
+
+<Playground chart="Candlestick" code={intradayRollup} controls={["x","aggs"]} />
+
+## Calendar gaps
+
+By default periods are spaced evenly in date order, so weekends and holidays leave no gaps, and the axis ticks the first period of each week, month, quarter, or year. `skipGaps: false` places each period at its date on a continuous time axis instead, which shows the gaps.
+
+<Playground chart="Candlestick" code={calendarGaps} controls={["skipGaps"]} />
+
+## Many periods
+
+Two years of daily candles. The Canvas renderer draws dense charts quickly while keeping the snapped tooltip; candles narrow to fit, down to a single pixel.
+
+<Playground chart="Candlestick" code={manyPeriods} controls={["renderer","skipGaps","bodyWidth"]} />
+
+## Small multiples
+
+`facet` draws one panel per ticker. With `facetConfig.scales: "independent"`, each panel's value axis fits its own price range.
+
+<Playground chart="Candlestick" code={smallMultiples} controls={["facet","facetConfig"]} height={600} />
+
+<ApiReference name="Candlestick" pkg="core" />

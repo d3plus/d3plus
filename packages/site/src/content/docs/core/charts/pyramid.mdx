@@ -1,0 +1,52 @@
+---
+title: Pyramid
+description: "Creates a population pyramid: horizontal bars for two groups (the first groupBy level, e.g."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/pyramid/basic-example.js?raw";
+import leftLabels from "~/examples/core/charts/pyramid/left-labels.js?raw";
+import stackedSides from "~/examples/core/charts/pyramid/stacked-sides.js?raw";
+import percentAndComparison from "~/examples/core/charts/pyramid/percent-and-comparison.js?raw";
+import timeline from "~/examples/core/charts/pyramid/timeline.js?raw";
+
+Creates a population pyramid: horizontal bars for two groups (the first
+`groupBy` level, e.g. Male / Female) extending in opposite directions
+from a shared center line, one row per `y` category (e.g. age band).
+Values stay positive — the left side is mirrored internally and the value
+axis reads magnitudes on both halves. The category labels run down a
+gutter between the halves (or beside the chart, with `categoryPosition`).
+Deeper `groupBy` levels stack within each side.
+
+## Basic example
+
+Pass positive values: the first `groupBy` level splits the rows into two sides, the first side (here Male) is mirrored to the left, and the value axis reads magnitudes outward from zero on both halves. The `y` categories (age bands) run down a gutter between the halves, bottom to top in data order, and each side is named above its half.
+
+<Playground chart="Pyramid" code={basicExample} controls={["categoryPosition","sides","sideTitles","symmetric"]} />
+
+## Left labels
+
+`categoryPosition("left")` moves the categories onto a regular axis beside the chart, so the two halves meet on a single zero line.
+
+<Playground chart="Pyramid" code={leftLabels} controls={["categoryPosition","yConfig"]} />
+
+## Stacked sides
+
+Deeper `groupBy` levels stack within each side. A sub-group keeps one color and one legend entry on both sides, and is stacked at the same distance from the center line on each, largest nearest the center.
+
+<Playground chart="Pyramid" code={stackedSides} controls={["groupBy","stackOrder"]} />
+
+## Percent and comparison
+
+`percent(true)` draws every bar as a share of the whole population, so pyramids of different sizes compare by shape. `comparison` traces a second value for each row as an outline around each side — here the same population in 2000, scaled to its own total.
+
+<Playground chart="Pyramid" code={percentAndComparison} controls={["percent","comparison","comparisonConfig"]} />
+
+## Timeline
+
+With `time`, the timeline steps (or plays) through the years. `axisPersist(true)` keeps one symmetric axis sized to every year, so the pyramid's shape change reads directly.
+
+<Playground chart="Pyramid" code={timeline} controls={["time","axisPersist"]} />
+
+<ApiReference name="Pyramid" pkg="core" />

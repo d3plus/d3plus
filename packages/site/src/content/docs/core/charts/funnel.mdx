@@ -1,0 +1,78 @@
+---
+title: Funnel
+description: "Creates a funnel chart from an array of data: one stage per row, in data order unless sort reorders them, drawn as a centered bar whose width encodes its value, with necks joining consecutive stages."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/funnel/basic-example.js?raw";
+import conversionRates from "~/examples/core/charts/funnel/conversion-rates.js?raw";
+import straightSided from "~/examples/core/charts/funnel/straight-sided.js?raw";
+import smoothFunnel from "~/examples/core/charts/funnel/smooth-funnel.js?raw";
+import horizontal from "~/examples/core/charts/funnel/horizontal.js?raw";
+import coloredByPhase from "~/examples/core/charts/funnel/colored-by-phase.js?raw";
+import smallMultiples from "~/examples/core/charts/funnel/small-multiples.js?raw";
+import sharedWidthScale from "~/examples/core/charts/funnel/shared-width-scale.js?raw";
+import sortedStages from "~/examples/core/charts/funnel/sorted-stages.js?raw";
+
+Creates a funnel chart from an array of data: one stage per row, in data
+order unless `sort` reorders them, drawn as a centered bar whose width encodes its value, with necks
+joining consecutive stages. Labels show each stage's name and value, plus
+any conversion rates `conversion` asks for; tooltips show the conversion
+from the first and the previous stage.
+
+## Basic example
+
+Each row is a stage, drawn in data order as a centered bar whose width encodes its value. Necks join consecutive stages; a label goes inside its stage when it fits, otherwise beside it.
+
+<Playground chart="Funnel" code={basicExample} controls={["stagePadding","connector","orient"]} />
+
+## Conversion rates
+
+`conversion` adds each stage's conversion rate to its label: `"first"` (its share of the first stage), `"previous"` (its share of the stage before it), or `"both"`. Tooltips always show both rates.
+
+<Playground chart="Funnel" code={conversionRates} controls={["conversion","valueFormat"]} />
+
+## Straight sided
+
+`taper` narrows each stage from its own width to the next stage's, drawing a continuous straight-sided funnel instead of flat bars.
+
+<Playground chart="Funnel" code={straightSided} controls={["taper","stagePadding","connector"]} />
+
+## Smooth funnel
+
+`curve("smooth")` bends the funnel's sides through each stage's width without overshooting. Without `taper`, it curves only the necks between stages.
+
+<Playground chart="Funnel" code={smoothFunnel} controls={["curve","taper","stagePadding"]} />
+
+## Horizontal
+
+`orient("horizontal")` runs the stages left to right, with each stage's height encoding its value. Labels that don't fit inside a stage go below it.
+
+<Playground chart="Funnel" code={horizontal} controls={["orient","conversion"]} />
+
+## Colored by phase
+
+With several `groupBy` levels, each row of the last level is a stage and the stages take their color from the first level, which the legend names. `connectorConfig` paints the necks.
+
+<Playground chart="Funnel" code={coloredByPhase} controls={["groupBy","connectorConfig"]} />
+
+## Small multiples
+
+`facet` draws one funnel per channel. By default each panel is sized to its own first stage, so conversion reads the same way in every panel.
+
+<Playground chart="Funnel" code={smallMultiples} controls={["facet","facetConfig","conversion"]} />
+
+## Shared width scale
+
+With `facetConfig: {scales: "shared"}`, every panel measures its stages against the widest stage across all panels, so the panels compare volume as well as shape.
+
+<Playground chart="Funnel" code={sharedWidthScale} controls={["facet","facetConfig"]} />
+
+## Sorted stages
+
+Stages draw in data order unless `sort` orders them, as a comparator over two rows. Conversion rates follow the drawn order, so "% of previous" compares each stage with the one above it.
+
+<Playground chart="Funnel" code={sortedStages} controls={["sort","conversion"]} />
+
+<ApiReference name="Funnel" pkg="core" />

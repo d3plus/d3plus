@@ -1,0 +1,55 @@
+---
+title: Calendar
+description: "Draws one square cell per day in a calendar grid, each colored by its colorScale value: weekdays down the side and weeks across, one block per year, with month outlines and localized weekday, month, and year labels."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/calendar/basic-example.js?raw";
+import weekStartAndOrientation from "~/examples/core/charts/calendar/week-start-and-orientation.js?raw";
+import monthGrid from "~/examples/core/charts/calendar/month-grid.js?raw";
+import localized from "~/examples/core/charts/calendar/localized.js?raw";
+import customStyling from "~/examples/core/charts/calendar/custom-styling.js?raw";
+import smallMultiples from "~/examples/core/charts/calendar/small-multiples.js?raw";
+
+Draws one square cell per day in a calendar grid, each colored by its
+`colorScale` value: weekdays down the side and weeks across, one block per
+year, with month outlines and localized weekday, month, and year labels.
+
+## Basic example
+
+Each row's `date` (a `Date`, timestamp, or `"YYYY-MM-DD"` string) places it in a cell, colored by its `colorScale` value. Every whole year the data touches gets its own block, stacked, with each month outlined. Days without data are drawn in a neutral fill.
+
+<Playground chart="Calendar" code={basicExample} controls={["colorScale","date","cellPadding","cellRadius"]} />
+
+## Week start and orientation
+
+`orient: "vertical"` runs weeks down the page with weekdays across the top, and `weekStart: "monday"` begins each week on Monday. Without `weekStart`, weeks begin on the first day of the week in the `locale`'s region.
+
+<Playground chart="Calendar" code={weekStartAndOrientation} controls={["orient","weekStart"]} height={700} />
+
+## Month grid
+
+`period: "month"` draws each month as its own small wall calendar, arranged in whichever grid gives the largest cells. Titles use `"%B %Y"`, shortening when a block is too narrow.
+
+<Playground chart="Calendar" code={monthGrid} controls={["period","orient","monthFormat"]} />
+
+## Localized
+
+Weekday, month, and date names come from the `locale`, and so does the first day of the week: Monday in Spain. `weekdayFormat`, `monthFormat`, and `yearFormat` take any d3-time-format specifier, read in that locale.
+
+<Playground chart="Calendar" code={localized} controls={["locale","weekdayFormat","monthFormat","yearFormat"]} />
+
+## Custom styling
+
+Square cells with wider gaps, a fixed `emptyFill`, a four-step green `colorScaleConfig`, and the month outlines and weekday names turned off.
+
+<Playground chart="Calendar" code={customStyling} controls={["cellPadding","cellRadius","emptyFill","monthOutline","weekdayFormat"]} />
+
+## Small multiples
+
+`facet` draws one calendar per repo. The panels share one date range, so a day sits in the same cell in each, and one color scale.
+
+<Playground chart="Calendar" code={smallMultiples} controls={["facet","facetConfig"]} height={600} />
+
+<ApiReference name="Calendar" pkg="core" />

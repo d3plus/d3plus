@@ -1,0 +1,27 @@
+---
+/**
+ * Answers `/demo/live-sales.json` in the page itself, with a new reading on
+ * every request, for the data-polling example: the site is static, so there
+ * is no server to poll. Other requests pass through untouched.
+ */
+---
+
+<script>
+  const PATH = "/demo/live-sales.json";
+  const nativeFetch = window.fetch.bind(window);
+  let reading = 0;
+  window.fetch = (input, init) => {
+    const url = input instanceof Request ? input.url : String(input);
+    if (!url.endsWith(PATH)) return nativeFetch(input, init);
+    reading++;
+    const rows = ["North", "South", "East", "West"].map((region, i) => ({
+      region,
+      sales: Math.round(50 + 40 * Math.sin(reading * 0.7 + i * 1.7)),
+    }));
+    return Promise.resolve(
+      new Response(JSON.stringify(rows), {
+        headers: {"Content-Type": "application/json"},
+      }),
+    );
+  };
+</script>

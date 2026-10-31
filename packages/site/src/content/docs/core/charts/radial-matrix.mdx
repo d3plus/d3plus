@@ -1,0 +1,25 @@
+---
+title: RadialMatrix
+description: "Creates a radial layout of a rows/columns Matrix of any dataset."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/radial-matrix/basic-example.js?raw";
+import withColorScale from "~/examples/core/charts/radial-matrix/with-color-scale.js?raw";
+
+Creates a radial layout of a rows/columns Matrix of any dataset.
+
+## Basic example
+
+The row × column grid wrapped into a polar layout: `row` values become concentric rings and `column` values become angular segments, each cell shaded by `colorScale`.
+
+<Playground chart="RadialMatrix" code={basicExample} controls={["column","row"]} />
+
+## With color scale
+
+Applies a `colorScaleConfig` `scale: "jenks"` natural-breaks classification, so cell colors group by data clusters rather than an even linear ramp.
+
+<Playground chart="RadialMatrix" code={withColorScale} controls={["colorScale","colorScaleConfig"]} />
+
+<ApiReference name="RadialMatrix" pkg="core" />

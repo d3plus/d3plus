@@ -1,0 +1,32 @@
+---
+title: Tree
+description: "Uses d3's tree layout to create a tidy tree chart based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/tree/basic-example.js?raw";
+import horizontalOrientation from "~/examples/core/charts/tree/horizontal-orientation.js?raw";
+import changingShapes from "~/examples/core/charts/tree/changing-shapes.js?raw";
+
+Uses d3's tree layout to create a tidy tree chart based on an array of data.
+
+## Basic example
+
+The two-level `groupBy` (`parent` then `id`) defines the hierarchy that the tidy-tree layout arranges top-down, one row per depth.
+
+<Playground chart="Tree" code={basicExample} controls={["groupBy"]} />
+
+## Horizontal orientation
+
+Set `orient` to `"horizontal"` to grow the tree left-to-right instead of top-down—handy for deep hierarchies or long node labels.
+
+<Playground chart="Tree" code={horizontalOrientation} controls={["orient"]} />
+
+## Changing shapes
+
+A `shape` accessor returns `Rect` for one branch and `Circle` for the rest, letting node shape encode a categorical attribute.
+
+<Playground chart="Tree" code={changingShapes} controls={["shape"]} />
+
+<ApiReference name="Tree" pkg="core" />

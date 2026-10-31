@@ -1,0 +1,53 @@
+---
+title: Dumbbell
+description: "Creates a dumbbell (range dot) chart from an array of data with one row per category and series, such as a country's value in 2010 and in 2020."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/dumbbell/basic-example.js?raw";
+import sortedByGap from "~/examples/core/charts/dumbbell/sorted-by-gap.js?raw";
+import styledConnectors from "~/examples/core/charts/dumbbell/styled-connectors.js?raw";
+import verticalRanges from "~/examples/core/charts/dumbbell/vertical-ranges.js?raw";
+import smallMultiples from "~/examples/core/charts/dumbbell/small-multiples.js?raw";
+
+Creates a dumbbell (range dot) chart from an array of data with one row per
+category and series, such as a country's value in 2010 and in 2020. Each
+category, read from the axis named by `discrete` (`"y"` by default, for
+horizontal dumbbells), draws a circle per row at its value, colored by
+`groupBy`, with a connector between the category's smallest and largest
+values. Circles are styled by `shapeConfig.Circle` and connectors by
+`shapeConfig.Line`; `gapSort` orders the categories by the size of their
+gap.
+
+## Basic example
+
+Give the chart one row per category and series: here a country's life expectancy in 2000 and in 2021. `groupBy` names the series, which color the dots and fill the legend, and a connector spans each country's two values. Hover a country to compare both years in one tooltip.
+
+<Playground chart="Dumbbell" code={basicExample} controls={["groupBy","x","y"]} />
+
+## Sorted by gap
+
+`gapSort` orders the categories by their gap, the distance between each one's smallest and largest value. `"descending"` puts the widest gap at the top; `"ascending"` the narrowest.
+
+<Playground chart="Dumbbell" code={sortedByGap} controls={["gapSort"]} />
+
+## Styled connectors
+
+Connectors are styled through `shapeConfig.Line` and dots through `shapeConfig.Circle`.
+
+<Playground chart="Dumbbell" code={styledConnectors} controls={["shapeConfig"]} />
+
+## Vertical ranges
+
+Set `discrete` to `"x"` for vertical dumbbells. A category can hold any number of points; the connector spans its lowest to its highest.
+
+<Playground chart="Dumbbell" code={verticalRanges} controls={["discrete"]} />
+
+## Small multiples
+
+`facet` draws a panel per continent. With independent scales, each panel lists only its own countries, sorted by its own gaps.
+
+<Playground chart="Dumbbell" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="Dumbbell" pkg="core" />

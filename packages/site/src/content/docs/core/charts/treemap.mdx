@@ -1,105 +1,67 @@
 ---
 title: Treemap
-description: Nested rectangles sized by value, for showing how a whole divides into parts.
+description: "Uses the d3 treemap layout to create SVG rectangles based on an array of data."
 ---
 
 import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
-import basic from "~/examples/core/charts/treemap/basic.js?raw";
-import nested from "~/examples/core/charts/treemap/nested.js?raw";
+import basicExample from "~/examples/core/charts/treemap/basic-example.js?raw";
+import nestedData from "~/examples/core/charts/treemap/nested-data.js?raw";
 import groupHeaders from "~/examples/core/charts/treemap/group-headers.js?raw";
-import tile from "~/examples/core/charts/treemap/tile.js?raw";
-import threshold from "~/examples/core/charts/treemap/threshold.js?raw";
+import changingTilingMethod from "~/examples/core/charts/treemap/changing-tiling-method.js?raw";
+import smallDataThreshold from "~/examples/core/charts/treemap/small-data-threshold.js?raw";
 import backgroundImages from "~/examples/core/charts/treemap/background-images.js?raw";
-import clickLinks from "~/examples/core/charts/treemap/click-links.js?raw";
-import colorScale from "~/examples/core/charts/treemap/color-scale.js?raw";
+import clickToOpenLink from "~/examples/core/charts/treemap/click-to-open-link.js?raw";
+import colorScaleHoverMark from "~/examples/core/charts/treemap/color-scale-hover-mark.js?raw";
 
-A Treemap uses the d3 treemap layout to draw rectangles whose areas are
-proportional to a value. Nested `groupBy` levels nest the rectangles inside
-their parents.
+Uses the d3 treemap layout to create SVG rectangles based on an array of data.
 
 ## Basic example
 
-Each rectangle's area is proportional to its `sum` of the `value` field,
-giving one tile per `groupBy` id.
+Each rectangle's area is proportional to its `sum` of the `value` field, giving one tile per `groupBy` id.
 
-<Playground
-  chart="Treemap"
-  code={basic}
-  controls={["sum", "tile", "layoutPadding", "legend"]}
-/>
+<Playground chart="Treemap" code={basicExample} controls={["sum","tile","layoutPadding","legend"]} />
 
 ## Nested data
 
-A two-level `groupBy` (`["parent", "id"]`) nests child rectangles inside their
-parent groups, so each group occupies its own region of the layout, named in a
-header strip across its top. Hover a strip to highlight its group, or click it
-to zoom in.
+A two-level `groupBy` (["parent", "id"]) nests child rectangles inside their parent groups, so each group occupies its own region of the layout, named in a header strip across its top. Hover a strip to highlight its group, or click it to zoom in.
 
-<Playground chart="Treemap" code={nested} />
+<Playground chart="Treemap" code={nestedData} controls={["groupBy"]} />
 
 ## Group headers
 
-With a three-level `groupBy`, every level above the tiles gets its own header
-strip, nested like a market map: sectors, then industries inside them.
-`groupLabelConfig` styles the strips (here a dark `fill` and a 12px font); a
-group too small for a strip simply gets none. Set `groupLabels: false` to draw
-the tiles alone.
+With a three-level `groupBy`, every level above the tiles gets its own header strip, nested like a market map: sectors, then industries inside them. `groupLabelConfig` styles the strips (here a dark `fill` and a 12px font); a group too small for a strip simply gets none. Set `groupLabels: false` to draw the tiles alone.
 
-<Playground chart="Treemap" code={groupHeaders} controls={["groupLabels"]} />
+<Playground chart="Treemap" code={groupHeaders} controls={["groupLabels","groupLabelConfig"]} />
 
-## Changing the tiling method
+## Changing tiling method
 
-`tile: "slice"` arranges children as parallel strips instead of the default
-squarified layout that favors square-ish tiles; use it when preserving order
-along one axis matters more than aspect ratio.
+`tile: "slice"` arranges children as parallel strips instead of the default squarified layout that favors square-ish tiles; use it when preserving order along one axis matters more than aspect ratio.
 
-<Playground chart="Treemap" code={tile} controls={["tile"]} />
+<Playground chart="Treemap" code={changingTilingMethod} controls={["tile"]} />
 
-## Grouping small values
+## Small data threshold
 
-`threshold: 0.0025` merges every state below 0.25% of the total sum into one
-catch-all rectangle labeled by `thresholdName` ("States"), keeping tiny slivers
-from cluttering the layout. Hover it to see the states it holds, largest first.
-A bucket needs at least two states: a lone small state stays as itself.
+`threshold: 0.0025` merges every state below 0.25% of the total sum into one catch-all rectangle labeled by `thresholdName` ("States"), keeping tiny slivers from cluttering the layout. Hover it to see the states it holds, largest first. A bucket needs at least two states: a lone small state stays as itself.
 
-<Playground
-  chart="Treemap"
-  code={threshold}
-  controls={["threshold", "thresholdName"]}
-/>
+<Playground chart="Treemap" code={smallDataThreshold} controls={["threshold","thresholdName"]} />
 
 ## Background images
 
-`shapeConfig.backgroundImage` draws an image inside each shape: here an
-accessor returns a flag per country (`flag` builds a small SVG data URI). The
-image covers the rectangle, is clipped to it, and sits under the labels. Set
-`backgroundImageFit: "contain"` to show the whole image instead.
+`shapeConfig.backgroundImage` draws an image inside each shape: here an accessor returns a flag per country (`flag` builds a small SVG data URI). The image covers the rectangle, is clipped to it, and sits under the labels. Set `backgroundImageFit: "contain"` to show the whole image instead.
 
-<Playground chart="Treemap" code={backgroundImages} />
+<Playground chart="Treemap" code={backgroundImages} controls={["shapeConfig"]} />
 
-## Click to open a link
+## Click to open link
 
-Click a tile to open its site. `on` maps event names to handlers:
-`"click.shape"` runs for clicks on the chart's tiles (`"click.legend"` for
-legend entries), with the clicked row as its first argument, so each row's
-`url` field opens in a new tab.
+Click a tile to open its site. `on` maps event names to handlers: `"click.shape"` runs for clicks on the chart's tiles (`"click.legend"` for legend entries), with the clicked row as its first argument, so each row's `url` field opens in a new tab.
 
-<Playground chart="Treemap" code={clickLinks} />
+<Playground chart="Treemap" code={clickToOpenLink} controls={["on"]} />
 
-## Marking the hovered value on the color scale
+## Color scale hover mark
 
-Hover a tile to mark its value on the colorScale: an extra axis tick marks the
-value on the color bar and a badge reads it where the tick's label would sit.
-With a bucketed scale drawn as swatches (`jenks`, `buckets`, `quantile`), the
-hover highlight already keeps the value's swatch lit, so no mark is drawn. Turn
-it off with `colorScaleConfig: {hoverMark: false}`, and style it with
-`colorScaleConfig.hoverMarkConfig`.
+Hover a tile to mark its value on the colorScale: an extra axis tick marks the value on the color bar and a badge reads it where the tick's label would sit. With a bucketed scale drawn as swatches (`jenks`, `buckets`, `quantile`), the hover highlight already keeps the value's swatch lit, so no mark is drawn. Turn it off with `colorScaleConfig: {hoverMark: false}`, and style it with `colorScaleConfig.hoverMarkConfig`.
 
-<Playground
-  chart="Treemap"
-  code={colorScale}
-  controls={["colorScalePosition"]}
-/>
+<Playground chart="Treemap" code={colorScaleHoverMark} controls={["colorScaleConfig"]} />
 
-<ApiReference name="Treemap" />
+<ApiReference name="Treemap" pkg="core" />

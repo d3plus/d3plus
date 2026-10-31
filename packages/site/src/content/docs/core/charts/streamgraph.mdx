@@ -1,0 +1,34 @@
+---
+title: Streamgraph
+description: "Creates a streamgraph from an array of data: a StackedArea whose layers flow around a central baseline instead of rising from zero."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/streamgraph/basic-example.js?raw";
+import wiggle from "~/examples/core/charts/streamgraph/wiggle.js?raw";
+
+Creates a streamgraph from an array of data: a StackedArea whose layers
+flow around a central baseline instead of rising from zero. Layers stack
+with `stackOffset: "silhouette"`, which centers every stack on the same
+line, ordered `"insideOut"` (the largest layers in the middle) along
+smooth `monotoneX` curves. The value axis hides its labels and gridlines,
+since a moving baseline has no zero to read them from; each layer's
+thickness carries its value, and tooltips show each value and its share
+of the stack. Set `stackOffset("wiggle")` to keep each layer's slope as
+steady as it can instead, at the cost of a stream that drifts up or down
+as its total changes.
+
+## Basic example
+
+Each `groupBy` series is a layer, stacked around a central baseline instead of rising from zero. The thickest layers sit in the middle, and each layer's thickness at a year is its value. The value axis shows no numbers, since the baseline moves; hover a layer for its value and its share of the stack.
+
+<Playground chart="Streamgraph" code={basicExample} controls={["groupBy","x","y"]} />
+
+## Wiggle
+
+The default `stackOffset` of `"silhouette"` centers every year's stack on the same line, so the stream stays symmetric as its total changes. `"wiggle"` shifts the baseline to keep each layer's slope as steady as it can instead, which makes single layers easier to follow, while the stream drifts up or down as its total grows or shrinks.
+
+<Playground chart="Streamgraph" code={wiggle} controls={["stackOffset","stackOrder"]} />
+
+<ApiReference name="Streamgraph" pkg="core" />

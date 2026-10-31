@@ -1,0 +1,26 @@
+const config = {
+  data: [
+    {id: "Solar", year: 2017, value: 12},
+    {id: "Solar", year: 2018, value: 15},
+    {id: "Solar", year: 2019, value: 19},
+    {id: "Solar", year: 2020, value: 22},
+    {id: "Solar", year: 2021, value: 28},
+    {id: "Solar", year: 2022, value: 34},
+    {id: "Solar", year: 2023, value: 41},
+    {id: "Wind", year: 2017, value: 30},
+    {id: "Wind", year: 2018, value: 32},
+    {id: "Wind", year: 2019, value: 33},
+    {id: "Wind", year: 2020, value: 37},
+    {id: "Wind", year: 2021, value: 38},
+    {id: "Wind", year: 2022, value: 41},
+    {id: "Wind", year: 2023, value: 42},
+  ],
+  groupBy: "id",
+  x: "year",
+  y: "value",
+  trendLine: "exponential",
+  trendLineConfig: {
+    projection: 5,
+    projectionConfig: {strokeDasharray: "1 4", strokeWidth: 3},
+  },
+};

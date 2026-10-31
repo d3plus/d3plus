@@ -1,0 +1,46 @@
+---
+title: Pie
+description: "Uses the d3 pie layout to create SVG arcs based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/pie/basic-example.js?raw";
+import paddedSlices from "~/examples/core/charts/pie/padded-slices.js?raw";
+import drillDownOnClick from "~/examples/core/charts/pie/drill-down-on-click.js?raw";
+import backgroundImages from "~/examples/core/charts/pie/background-images.js?raw";
+import quarterPie from "~/examples/core/charts/pie/quarter-pie.js?raw";
+
+Uses the d3 pie layout to create SVG arcs based on an array of data.
+
+## Basic example
+
+Each slice's angle is proportional to its `value` (Percentage), with one arc per `groupBy` category.
+
+<Playground chart="Pie" code={basicExample} controls={["value"]} />
+
+## Padded slices
+
+`padPixel: 4` inserts a 4px gap between slices (converted to an angle from the radius); `padAngle` sets the same spacing directly in radians.
+
+<Playground chart="Pie" code={paddedSlices} controls={["padPixel","padAngle"]} />
+
+## Drill down on click
+
+A hierarchical `groupBy` (["category", "id"]) renders the top level first; click a slice to drill into its children. A back button appears automatically to return.
+
+<Playground chart="Pie" code={drillDownOnClick} controls={["depth","groupBy"]} />
+
+## Background images
+
+Set under a shape's name (`shapeConfig.Path.backgroundImage`), the image applies to that shape kind only. Each flag covers its wedge's bounding box and is clipped to the wedge's outline.
+
+<Playground chart="Pie" code={backgroundImages} controls={["shapeConfig"]} />
+
+## Quarter pie
+
+`startAngle: 0, endAngle: 90` draws a quarter pie from 12 to 3 o'clock. A partial ring is sized to the part it draws and centered in the chart, so the quarter fills the chart's height. An `endAngle` smaller than `startAngle` lays the slices out counter-clockwise.
+
+<Playground chart="Pie" code={quarterPie} controls={["startAngle","endAngle"]} />
+
+<ApiReference name="Pie" pkg="core" />

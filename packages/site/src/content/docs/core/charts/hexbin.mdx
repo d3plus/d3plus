@@ -1,0 +1,53 @@
+---
+title: Hexbin
+description: "Creates a 2D binned density chart from raw observations: each row is a point at its x and y values (rows without numeric values are skipped), and the points are grouped into hexagons (binShape) of binSize pixels, colored on the colorScale by how many each holds (or by binValue)."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/hexbin/basic-example.js?raw";
+import squareBins from "~/examples/core/charts/hexbin/square-bins.js?raw";
+import densityContours from "~/examples/core/charts/hexbin/density-contours.js?raw";
+import contoursOverBins from "~/examples/core/charts/hexbin/contours-over-bins.js?raw";
+import meanPerBin from "~/examples/core/charts/hexbin/mean-per-bin.js?raw";
+
+Creates a 2D binned density chart from raw observations: each row is a
+point at its `x` and `y` values (rows without numeric values are
+skipped), and the points are grouped into hexagons (`binShape`) of
+`binSize` pixels, colored on the colorScale by how many each holds (or by
+`binValue`). Empty bins aren't drawn. `contours` adds density contours,
+and `points` draws the observations beneath. `groupBy` names the
+observations for `filter` and the legend (off by default), and `facet`
+bins each panel on its own, on one shared colorScale.
+
+## Basic example
+
+Two thousand overlapping points are unreadable as a scatter. Hexbin groups them into hexagons `binSize` pixels across and colors each by how many observations it holds, on a continuous colorScale. Empty hexagons aren't drawn. Zooming bins the observations again at the new scale and refits the colorScale to the bins in view. Hover a hexagon for its count and its height and weight ranges.
+
+<Playground chart="Hexbin" code={basicExample} controls={["binShape","binSize","x","y"]} />
+
+## Square bins
+
+Set `binShape` to `"square"` for a grid of squares, `binSize` pixels on a side. Like hexagons, squares are binned on screen, so they stay square whatever the axes' ranges, and keep their size when the chart zooms.
+
+<Playground chart="Hexbin" code={squareBins} controls={["binShape","binSize"]} />
+
+## Density contours
+
+With `binShape(false)` and `contours`, the observations are summarized as density contours instead: `"filled"` shades each level with an opacity ramp, and `"lines"` outlines them. `points` draws the observations beneath. `contourConfig` sets the kernel's `bandwidth` (in pixels) and how many levels (`thresholds`) to draw.
+
+<Playground chart="Hexbin" code={densityContours} controls={["contours","contourConfig","points","pointConfig"]} />
+
+## Contours over bins
+
+Contours can be drawn over the bins. Contour levels are in observations per bin, the count a bin would hold there, so both share one colorScale; over bins, the contour lines take the chart's text color and leave hover to the bins.
+
+<Playground chart="Hexbin" code={contoursOverBins} controls={["contours","contourConfig","binSize"]} />
+
+## Mean per bin
+
+`binValue` colors each bin by the `"sum"` or `"mean"` of a field over its observations instead of their count. Here each hexagon shows the mean age of the people in it, and its tooltip adds their count.
+
+<Playground chart="Hexbin" code={meanPerBin} controls={["binValue"]} />
+
+<ApiReference name="Hexbin" pkg="core" />

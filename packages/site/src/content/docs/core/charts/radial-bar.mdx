@@ -1,0 +1,69 @@
+---
+title: RadialBar
+description: "Creates a radial bar chart from an array of data: each row is a concentric track whose arc length shows its value, or, with discrete(\"angle\"), a bar radiating out from an inner circle."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/radial-bar/basic-example.js?raw";
+import halfCircle from "~/examples/core/charts/radial-bar/half-circle.js?raw";
+import circularBarChart from "~/examples/core/charts/radial-bar/circular-bar-chart.js?raw";
+import openCircularBars from "~/examples/core/charts/radial-bar/open-circular-bars.js?raw";
+import styledTracks from "~/examples/core/charts/radial-bar/styled-tracks.js?raw";
+import smallMultiples from "~/examples/core/charts/radial-bar/small-multiples.js?raw";
+import sharedValueDomain from "~/examples/core/charts/radial-bar/shared-value-domain.js?raw";
+import fullCircle from "~/examples/core/charts/radial-bar/full-circle.js?raw";
+
+Creates a radial bar chart from an array of data: each row is a
+concentric track whose arc length shows its value, or, with
+`discrete("angle")`, a bar radiating out from an inner circle.
+
+## Basic example
+
+Each row is a concentric track, the largest value outermost, and its bar's arc length shows its value along a 270° sweep. Every track's label sits in the open quarter before its start, and the value ticks run around the outside.
+
+<Playground chart="RadialBar" code={basicExample} controls={["groupBy","value","maxAngle","trackPadding"]} />
+
+## Half circle
+
+`startAngle` and `maxAngle` set the sweep — here a half circle, which the chart moves down to fill the space. A fixed `domain` reads every bar as progress toward 100, against explicit `ticks`.
+
+<Playground chart="RadialBar" code={halfCircle} controls={["startAngle","maxAngle","domain","ticks"]} />
+
+## Circular bar chart
+
+`discrete: "angle"` gives every row an equal slice of the circle instead, with a bar rising from the inner circle whose length shows its value. Value rings mark the scale, and crowded labels turn along their spokes.
+
+<Playground chart="RadialBar" code={circularBarChart} controls={["discrete","innerRadius","trackPadding","levels"]} />
+
+## Open circular bars
+
+A 300° sweep leaves a gap at the top, `sort: null` keeps the data's order, and `track: false` drops the background tracks so the value rings show through.
+
+<Playground chart="RadialBar" code={openCircularBars} controls={["maxAngle","sort","track","padPixel"]} />
+
+## Styled tracks
+
+`trackPadding` thins each track, `innerRadius` sizes the hollow center, and `trackConfig` paints the background tracks.
+
+<Playground chart="RadialBar" code={styledTracks} controls={["innerRadius","trackPadding","trackConfig"]} />
+
+## Small multiples
+
+`facet` draws one chart per year, side by side, each sorted by its own values. By default each panel's ticks fit its own values, so every panel's largest bar spans the sweep.
+
+<Playground chart="RadialBar" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+## Shared value domain
+
+With `facetConfig: {scales: "shared"}`, every panel uses one value domain across all panels, so bars compare from panel to panel.
+
+<Playground chart="RadialBar" code={sharedValueDomain} controls={["facet","facetConfig","discrete"]} />
+
+## Full circle
+
+A sweep within 30° of a full circle leaves no room before the tracks' start for their labels, so the legend names the tracks instead.
+
+<Playground chart="RadialBar" code={fullCircle} controls={["maxAngle"]} />
+
+<ApiReference name="RadialBar" pkg="core" />

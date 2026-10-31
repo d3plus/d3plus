@@ -1,0 +1,59 @@
+---
+title: Lollipop
+description: "Creates a lollipop chart from an array of data: each row draws a thin stem from the baseline (or the value axis's break) to a circle at its value, with a category axis set by discrete (\"x\" draws vertical stems, \"y\" horizontal ones)."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/lollipop/basic-example.js?raw";
+import horizontal from "~/examples/core/charts/lollipop/horizontal.js?raw";
+import groupedSeries from "~/examples/core/charts/lollipop/grouped-series.js?raw";
+import negativeValues from "~/examples/core/charts/lollipop/negative-values.js?raw";
+import styledStems from "~/examples/core/charts/lollipop/styled-stems.js?raw";
+import smallMultiples from "~/examples/core/charts/lollipop/small-multiples.js?raw";
+
+Creates a lollipop chart from an array of data: each row draws a thin stem
+from the baseline (or the value axis's break) to a circle at its value,
+with a category axis set by `discrete` (`"x"` draws vertical stems, `"y"`
+horizontal ones). Rows sharing a category but differing in `groupBy` sit
+side by side, as grouped bars do. Stems are styled by `shapeConfig.Line`
+(`stroke`, `strokeWidth`, …) and heads by `shapeConfig.Circle` (`r`,
+`fill`, …); a `size` accessor scales the heads and adds a size legend.
+
+## Basic example
+
+Each row draws a stem from the baseline to a circle at its value. A lollipop reads like a bar chart with far less ink, which helps when many categories have similar, large values.
+
+<Playground chart="Lollipop" code={basicExample} controls={["x","y","shapeConfig"]} />
+
+## Horizontal
+
+Set `discrete` to `"y"` for horizontal stems, which leave room for long category names. A `ySort` comparator orders the categories; the first sorts to the bottom, so sorting ascending puts the largest value on top.
+
+<Playground chart="Lollipop" code={horizontal} controls={["discrete","ySort"]} />
+
+## Grouped series
+
+Rows that share a category but differ in `groupBy` sit side by side, the way grouped bars do, colored by series. Hover a category to compare every series there in one tooltip.
+
+<Playground chart="Lollipop" code={groupedSeries} controls={["groupBy","groupPadding","barPadding"]} />
+
+## Negative values
+
+Stems always start at the `baseline` (0 by default), so negative values hang below it.
+
+<Playground chart="Lollipop" code={negativeValues} controls={["baseline","color"]} />
+
+## Styled stems
+
+Stems are styled through `shapeConfig.Line` and heads through `shapeConfig.Circle`. A `size` accessor scales the heads, here by annual growth, and adds a size legend whose circles match the heads.
+
+<Playground chart="Lollipop" code={styledStems} controls={["size","sizeMin","sizeMax","sizeScale","sizeLegend","shapeConfig"]} />
+
+## Small multiples
+
+`facet` splits the chart into one panel per region, sharing the value axis so panels compare directly.
+
+<Playground chart="Lollipop" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="Lollipop" pkg="core" />
