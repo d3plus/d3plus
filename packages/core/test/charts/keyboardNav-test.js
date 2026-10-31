@@ -1,4 +1,4 @@
-import {describe, it} from "vitest";
+import {describe, it, vi} from "vitest";
 import assert from "assert";
 import {colorDefaults} from "@d3plus/color";
 
@@ -535,20 +535,29 @@ describe("host lifecycle", () => {
     teardownKeyboardNav(viz);
   });
 
-  jsdomit("replayed events wait for a running transition", async () => {
-    const div = document.createElement("div");
-    document.body.appendChild(div);
-    const {viz, events} = fakeViz(div);
-    syncKeyboardNav(viz);
-    viz._transitionEndsAt = Date.now() + 30;
-    div.querySelector(".d3plus-keyboard-nav").focus();
-    assert.deepStrictEqual(events, []);
-    await new Promise(r => setTimeout(r, 80));
-    assert.deepStrictEqual(
-      events.map(e => e.type),
-      ["mouseenter", "mousemove", "repaint"],
-    );
-    teardownKeyboardNav(viz);
+  jsdomit("replayed events wait for a running transition", () => {
+    // Fake timers freeze Date.now(), so a slow runner can't let the
+    // transition end before focus is replayed.
+    vi.useFakeTimers({toFake: ["Date", "setTimeout", "clearTimeout"]});
+    try {
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+      const {viz, events} = fakeViz(div);
+      syncKeyboardNav(viz);
+      viz._transitionEndsAt = Date.now() + 30;
+      div.querySelector(".d3plus-keyboard-nav").focus();
+      assert.deepStrictEqual(events, []);
+      vi.advanceTimersByTime(20);
+      assert.deepStrictEqual(events, [], "still waiting mid-transition");
+      vi.advanceTimersByTime(20);
+      assert.deepStrictEqual(
+        events.map(e => e.type),
+        ["mouseenter", "mousemove", "repaint"],
+      );
+      teardownKeyboardNav(viz);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   jsdomit(
