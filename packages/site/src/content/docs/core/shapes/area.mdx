@@ -1,0 +1,32 @@
+---
+title: Area
+description: "Creates SVG areas based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/shapes/area/basic-example.js?raw";
+import band from "~/examples/core/shapes/area/band.js?raw";
+import curveAndSeries from "~/examples/core/shapes/area/curve-and-series.js?raw";
+
+Creates SVG areas based on an array of data.
+
+## Basic example
+
+The six points share one `id`, so they join into a single filled area; `fillOpacity` renders it as a translucent band, and the `curve` control changes how the vertices are interpolated.
+
+<Playground chart="Area" code={basicExample} controls={["curve"]} />
+
+## Band
+
+Setting both `y0` and `y1` draws a band between two edges instead of filling down to a baseline, which is how confidence intervals and min/max envelopes are drawn behind a line.
+
+<Playground chart="Area" code={band} controls={["y0","y1"]} />
+
+## Curve and series
+
+Each distinct `id` becomes its own area, and `curve` picks the d3 interpolation between points; `monotoneX` rounds the corners without overshooting the data.
+
+<Playground chart="Area" code={curveAndSeries} controls={["curve","fill"]} />
+
+<ApiReference name="Area" pkg="core" />

@@ -1,0 +1,32 @@
+---
+title: Line
+description: "Creates SVG lines based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/shapes/line/basic-example.js?raw";
+import multipleSeries from "~/examples/core/shapes/line/multiple-series.js?raw";
+import curves from "~/examples/core/shapes/line/curves.js?raw";
+
+Creates SVG lines based on an array of data.
+
+## Basic example
+
+Points sharing the same `id` connect into one continuous line, with `x`/`y` placing each vertex.
+
+<Playground chart="Line" code={basicExample} controls={["x","y"]} />
+
+## Multiple series
+
+Points are grouped into lines by `id`, so three ids give three lines from one data array; `stroke` and `strokeWidth` read per-datum values like any other accessor.
+
+<Playground chart="Line" code={multipleSeries} controls={["stroke","strokeWidth"]} />
+
+## Curves
+
+`curve` names a d3 curve: `linear` (the default) joins points with straight segments, `monotoneX` smooths between them without overshooting, and `step`, `basis`, `cardinal`, and the rest are available by name.
+
+<Playground chart="Line" code={curves} controls={["curve"]} />
+
+<ApiReference name="Line" pkg="core" />

@@ -1,0 +1,25 @@
+---
+title: Rect
+description: "Creates SVG rectangles based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/shapes/rect/basic-example.js?raw";
+import labels from "~/examples/core/shapes/rect/labels.js?raw";
+
+Creates SVG rectangles based on an array of data.
+
+## Basic example
+
+Three rectangles centered on their `x`/`y` with data-bound `width`/`height` and a per-datum `fill`.
+
+<Playground chart="Rect" code={basicExample} controls={["width","height"]} />
+
+## Labels
+
+`label` returns the text drawn inside each rectangle (a newline splits it into lines) and `labelConfig` is a TextBox configuration for it, so font size, color, and alignment follow the same keys as a standalone TextBox. Labels that do not fit are hidden rather than overflowing.
+
+<Playground chart="Rect" code={labels} controls={["label","labelConfig"]} />
+
+<ApiReference name="Rect" pkg="core" />

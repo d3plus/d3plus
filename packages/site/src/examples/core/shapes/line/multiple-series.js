@@ -1,0 +1,21 @@
+const config = {
+  data: [
+    {id: "a", x: 50, y: 220, color: "#3a7ca5"},
+    {id: "a", x: 230, y: 120, color: "#3a7ca5"},
+    {id: "a", x: 410, y: 180, color: "#3a7ca5"},
+    {id: "a", x: 590, y: 70, color: "#3a7ca5"},
+    {id: "b", x: 50, y: 100, color: "#cc4b4b"},
+    {id: "b", x: 230, y: 200, color: "#cc4b4b"},
+    {id: "b", x: 410, y: 90, color: "#cc4b4b"},
+    {id: "b", x: 590, y: 160, color: "#cc4b4b"},
+    {id: "c", x: 50, y: 160, color: "#5d6d7e"},
+    {id: "c", x: 230, y: 60, color: "#5d6d7e"},
+    {id: "c", x: 410, y: 240, color: "#5d6d7e"},
+    {id: "c", x: 590, y: 200, color: "#5d6d7e"},
+  ],
+  id: "id",
+  stroke: d => d.color,
+  strokeWidth: 3,
+  x: "x",
+  y: "y",
+};

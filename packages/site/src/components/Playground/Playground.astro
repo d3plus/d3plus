@@ -9,6 +9,7 @@ import {uniqueId} from "../../lib/ids";
 import {markdown} from "../../lib/markdown";
 import {choiceOptions} from "./options";
 import {configKeys} from "./patch";
+import {STAGES} from "./stages";
 import PlaygroundIsland from "./PlaygroundIsland";
 import type {Panel} from "./PlaygroundIsland";
 import type {ControlSpec} from "./types";
@@ -58,8 +59,9 @@ const specs = keys.flatMap(key => {
   name={entry.name}
   code={source}
   controls={specs}
-  flavors={entry.flavors}
+  flavors={STAGES[entry.name] ? ["javascript"] : entry.flavors}
   height={height}
   panel={panel}
   layout={layout}
+  renderers={entry.category === "charts"}
 />

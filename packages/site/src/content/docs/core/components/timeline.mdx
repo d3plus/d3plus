@@ -1,0 +1,46 @@
+---
+title: Timeline
+description: "Creates an interactive timeline brush component for selecting time periods within a visualization."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/components/timeline/basic-example.js?raw";
+import rangeSelection from "~/examples/core/components/timeline/range-selection.js?raw";
+import tickFormat from "~/examples/core/components/timeline/tick-format.js?raw";
+import initialSelection from "~/examples/core/components/timeline/initial-selection.js?raw";
+import limitingTheSelection from "~/examples/core/components/timeline/limiting-the-selection.js?raw";
+
+Creates an interactive timeline brush component for selecting time periods within a visualization.
+
+## Basic example
+
+With `brushing: false`, the timeline selects a single period across the `domain`; enabling `playButton` adds controls to step through the periods automatically.
+
+<Playground chart="Timeline" code={basicExample} controls={["domain","playButton"]} height={100} />
+
+## Range selection
+
+With `brushing: true`, viewers can drag to select a time range instead of a single period.
+
+<Playground chart="Timeline" code={rangeSelection} controls={["domain","brushing"]} height={100} />
+
+## Tick format
+
+The timeline is an Axis, so `ticks` chooses which periods get a mark and `tickFormat` rewrites their labels; abbreviating the years keeps a long range readable at a narrow width.
+
+<Playground chart="Timeline" code={tickFormat} controls={["ticks","tickFormat"]} height={100} />
+
+## Initial selection
+
+`selection` sets the range (or single period) that is highlighted before the viewer touches anything, and `snapping: false` lets the brush handles rest between ticks instead of jumping to the nearest period.
+
+<Playground chart="Timeline" code={initialSelection} controls={["selection","snapping","brushMin"]} height={100} />
+
+## Limiting the selection
+
+`brushMax` caps how many ticks a selection can span. Drag across more and the brush is pulled in on release, keeping the end you dragged; a wider starting `selection` keeps its latest periods. `brushMin` sets the fewest the same way, with ticks or buttons: a narrower brush widens, and a click selects that many periods from the one clicked. On a chart, pass both through `timelineConfig`. When `brushMin` is larger, `brushMin` wins.
+
+<Playground chart="Timeline" code={limitingTheSelection} controls={["brushMax","brushMin","selection"]} height={100} />
+
+<ApiReference name="Timeline" pkg="core" />

@@ -1,0 +1,25 @@
+---
+title: Circle
+description: "Creates SVG circles based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/shapes/circle/basic-example.js?raw";
+import textWrapping from "~/examples/core/shapes/circle/text-wrapping.js?raw";
+
+Creates SVG circles based on an array of data.
+
+## Basic example
+
+Three circles positioned by `x`/`y`, each sized by its data-bound `r` and filled from a per-datum `fill`.
+
+<Playground chart="Circle" code={basicExample} controls={["r"]} />
+
+## Text wrapping
+
+A `label` on a Circle now wraps to the circle's interior: each line is only as wide as the circle is at that height, so text fills the round shape — widest through the middle, shorter at the top and bottom — and auto-sizes to fit. Previously labels were confined to a square inscribed in the circle, wasting the rounded sides. Just set a `label` accessor; d3plus handles the rest.
+
+<Playground chart="Circle" code={textWrapping} controls={["r"]} />
+
+<ApiReference name="Circle" pkg="core" />

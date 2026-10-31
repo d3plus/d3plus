@@ -1,0 +1,25 @@
+---
+title: Bar
+description: "Creates SVG bars based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/shapes/bar/basic-example.js?raw";
+import horizontal from "~/examples/core/shapes/bar/horizontal.js?raw";
+
+Creates SVG bars based on an array of data.
+
+## Basic example
+
+In its default vertical mode each bar spans from the baseline `y` (250) up to its per-datum `y1` value, so the bar height is `|y1 - y|`. Bars are placed horizontally by `x`, sized by a data-bound `width`, and colored from a per-datum `fill`.
+
+<Playground chart="Bar" code={basicExample} controls={["width"]} />
+
+## Horizontal
+
+Giving each datum an `x1` instead of a `y1` switches the bar to horizontal: it runs from the shared `x` baseline (80) to its own `x1`, and `height` replaces `width` as the bar's thickness.
+
+<Playground chart="Bar" code={horizontal} controls={["height"]} height={50} />
+
+<ApiReference name="Bar" pkg="core" />

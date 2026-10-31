@@ -1,0 +1,28 @@
+---
+title: Tooltip
+description: "Creates HTML tooltips in the body of a webpage."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/components/tooltip/basic-example.js?raw";
+import tableContent from "~/examples/core/components/tooltip/table-content.js?raw";
+import styling from "~/examples/core/components/tooltip/styling.js?raw";
+
+Creates HTML tooltips in the body of a webpage.
+
+## Basic example
+
+A tooltip is a small HTML panel positioned next to an element or a point. Give it `data` (one datum per tooltip), a `position` (a function returning an element, or `[x, y]` viewport coordinates), and call `render()`; render with empty data to hide it. By default the `title`, `body`, and `footer` sections read the fields of the same name from the datum. Here it points at the box in the middle; with coordinates, calling `render()` again moves the panel, and it keeps itself on screen, flipping below the point when there is no room above. Charts create one of these for you and expose its settings as `tooltipConfig`.
+
+<Playground chart="Tooltip" code={basicExample} controls={[]} height={240} />
+
+## Table content
+
+<Playground chart="Tooltip" code={tableContent} controls={[]} height={300} />
+
+## Styling
+
+<Playground chart="Tooltip" code={styling} controls={["background","padding","borderRadius"]} height={240} />
+
+<ApiReference name="Tooltip" pkg="core" />

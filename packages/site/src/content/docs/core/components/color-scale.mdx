@@ -1,0 +1,67 @@
+---
+title: ColorScale
+description: "Creates an SVG color scale based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import linearScale from "~/examples/core/components/color-scale/linear-scale.js?raw";
+import jenksScale from "~/examples/core/components/color-scale/jenks-scale.js?raw";
+import bucketsScale from "~/examples/core/components/color-scale/buckets-scale.js?raw";
+import quantileScale from "~/examples/core/components/color-scale/quantile-scale.js?raw";
+import logScale from "~/examples/core/components/color-scale/log-scale.js?raw";
+import divergingScale from "~/examples/core/components/color-scale/diverging-scale.js?raw";
+import scaleFunction from "~/examples/core/components/color-scale/scale-function.js?raw";
+import hoverMark from "~/examples/core/components/color-scale/hover-mark.js?raw";
+
+Creates an SVG color scale based on an array of data.
+
+## Linear scale
+
+The default `scale: "linear"` maps values to a continuous single-hue gradient (blue). A smooth ramp is best when every value matters equally and you want to read magnitude by eye.
+
+<Playground chart="ColorScale" code={linearScale} controls={["scale"]} height={100} />
+
+## Jenks scale
+
+`scale: "jenks"` splits the data into natural-breaks (ckmeans) buckets — discrete steps placed where the data clusters, minimizing within-bucket variance. This is the default for charts (Geomap choropleths) because it reveals grouping in skewed data that a linear ramp flattens.
+
+<Playground chart="ColorScale" code={jenksScale} controls={["scale","buckets"]} height={100} />
+
+## Buckets scale
+
+`scale: "buckets"` divides the domain into equal-width steps — the breakpoints are evenly spaced by value (unlike jenks, which follows the data). Set the count with `buckets`.
+
+<Playground chart="ColorScale" code={bucketsScale} controls={["scale","buckets"]} height={100} />
+
+## Quantile scale
+
+`scale: "quantile"` puts an equal *count* of data points in each bucket, so every color represents the same share of the data. Breakpoints bunch up where values are dense.
+
+<Playground chart="ColorScale" code={quantileScale} controls={["scale","buckets"]} height={100} />
+
+## Log scale
+
+`scale: "log"` spaces the gradient logarithmically, so each order of magnitude gets comparable color range. Use it when values span several powers of ten (all values must share a sign).
+
+<Playground chart="ColorScale" code={logScale} controls={["scale"]} height={100} />
+
+## Diverging scale
+
+When the data spans both sides of the midpoint (default `0`), the scale becomes **diverging** automatically: red (low) → neutral gray → blue (high), so the two directions read as opposites around the center. Move the center with `midpoint`.
+
+<Playground chart="ColorScale" code={divergingScale} controls={["midpoint"]} height={100} />
+
+## Scale function
+
+`scale` also accepts a function that picks the scale on every render. It receives the numeric values the scale is built from (sorted, without null or NaN) and their `[min, max]` extent, and returns a scale name. Here a range wider than 5 gets jenks buckets and a narrower one gets a linear gradient, so new data (from a timeline or a filter) can switch between them.
+
+<Playground chart="ColorScale" code={scaleFunction} controls={["scale","data"]} height={100} />
+
+## Hover mark
+
+`hover` marks a value on the scale, as a chart does while one of its shapes is hovered: an extra axis tick marks the value on the bar, and a badge reads it where that tick's label would sit. A bucketed bar (`bucketAxis`) also outlines the value's bucket; a scale drawn as swatches draws no mark. `hoverMark(false)` turns it off; `hoverMarkConfig` styles the `tickConfig`, `badgeConfig`, and `outlineConfig`.
+
+<Playground chart="ColorScale" code={hoverMark} controls={["hover","hoverMark","hoverMarkConfig","scale"]} height={100} />
+
+<ApiReference name="ColorScale" pkg="core" />

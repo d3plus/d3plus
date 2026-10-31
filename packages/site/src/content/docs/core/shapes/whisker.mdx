@@ -1,0 +1,25 @@
+---
+title: Whisker
+description: "Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint shape."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/shapes/whisker/basic-example.js?raw";
+import endpoints from "~/examples/core/shapes/whisker/endpoints.js?raw";
+
+Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint shape.
+
+## Basic example
+
+A single whisker drawn from `x`/`y`, extended `length` pixels in the `orient` direction and capped with an endpoint marker.
+
+<Playground chart="Whisker" code={basicExample} controls={["orient","length","endpoint"]} />
+
+## Endpoints
+
+`endpoint` names the shape drawn at the far end of each whisker (`Rect` or `Circle`, per datum here) and `endpointConfig` styles each kind; `orient` takes `top`, `right`, `bottom`, or `left`. Box plots build their whiskers from exactly these settings.
+
+<Playground chart="Whisker" code={endpoints} controls={["endpoint","endpointConfig","orient","length"]} />
+
+<ApiReference name="Whisker" pkg="core" />

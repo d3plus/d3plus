@@ -1,0 +1,18 @@
+---
+title: AxisBottom
+description: "Axis preset whose ticks are drawn below the horizontal domain path."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/components/axis-bottom/basic-example.js?raw";
+
+Axis preset whose ticks are drawn below the horizontal domain path. Accepts everything the base Axis class does.
+
+## Basic example
+
+A horizontal `[0, 100]` domain across the 600px width with ticks and labels below the path, the usual placement for a chart's x-axis.
+
+<Playground chart="AxisBottom" code={basicExample} controls={["domain","ticks","title"]} height={120} />
+
+<ApiReference name="AxisBottom" pkg="core" />

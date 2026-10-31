@@ -13,7 +13,8 @@ interface ToolbarProps {
   panels: Panel[];
   panel: Panel;
   onPanel: (panel: Panel) => void;
-  renderer: Renderer;
+  /** The chart's renderer, or null for a class drawn in SVG only (no switch). */
+  renderer: Renderer | null;
   onRenderer: (renderer: Renderer) => void;
   /** Resets the code, or null when it is unchanged. */
   onReset: (() => void) | null;
@@ -40,18 +41,20 @@ export default function Toolbar(props: ToolbarProps) {
         ))}
       </div>
       <div class="d3p-actions">
-        <div class="d3p-segment" role="group" aria-label="Renderer">
-          {(["svg", "canvas"] as Renderer[]).map(r => (
-            <button
-              key={r}
-              type="button"
-              aria-pressed={renderer === r}
-              onClick={() => onRenderer(r)}
-            >
-              {r === "svg" ? "SVG" : "Canvas"}
-            </button>
-          ))}
-        </div>
+        {renderer && (
+          <div class="d3p-segment" role="group" aria-label="Renderer">
+            {(["svg", "canvas"] as Renderer[]).map(r => (
+              <button
+                key={r}
+                type="button"
+                aria-pressed={renderer === r}
+                onClick={() => onRenderer(r)}
+              >
+                {r === "svg" ? "SVG" : "Canvas"}
+              </button>
+            ))}
+          </div>
+        )}
         <button
           type="button"
           class="d3p-reset"
