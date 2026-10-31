@@ -30,6 +30,7 @@ import {
 } from "../../src/charts/Gantt/ganttLabels.ts";
 import {
   ganttAriaLabel,
+  ganttDayBreaks,
   ganttDuration,
   ganttTooltipRows,
   taskTimes,
@@ -321,6 +322,51 @@ it("Gantt: timeFormatter and ganttDuration read dates and days, or numbers", () 
   viz.axisConfig({scale: "linear"});
   assert.strictEqual(timeFormatter(viz, [1, 2])(1500), "1.5k");
   assert.strictEqual(ganttDuration(viz, 2, 9), "7");
+});
+
+it("Gantt: ganttDayBreaks reads the axis's whole-day rangeBreaks", () => {
+  const viz = gantt();
+  assert.deepStrictEqual(ganttDayBreaks(viz), []);
+  viz.axisConfig({rangeBreaks: "weekends"});
+  assert.deepStrictEqual(ganttDayBreaks(viz), ["weekends"]);
+  viz.axisConfig({rangeBreaks: ["weekends", {values: ["2024-03-06"]}]});
+  assert.strictEqual(ganttDayBreaks(viz).length, 2);
+  viz.axisConfig({rangeBreaks: ["weekends", {hours: [18, 8]}]});
+  assert.deepStrictEqual(
+    ganttDayBreaks(viz),
+    [],
+    "a rule hiding hours leaves no whole days to count",
+  );
+});
+
+it("Gantt: ganttDuration counts only the working days the axis shows", () => {
+  const viz = gantt().axisConfig({rangeBreaks: "weekends"});
+  // Monday, March 4 to Wednesday, March 13: nine calendar days, seven working.
+  const mon = new Date(2024, 2, 4);
+  assert.strictEqual(
+    ganttDuration(viz, mon, new Date(2024, 2, 13)),
+    "7 working days",
+  );
+  assert.strictEqual(
+    ganttDuration(viz, mon, new Date(2024, 2, 5)),
+    "1 working day",
+  );
+  assert.strictEqual(
+    ganttDuration(viz, new Date(2024, 2, 9), new Date(2024, 2, 11)),
+    "0 working days",
+    "a weekend alone",
+  );
+  viz.locale("es-ES");
+  assert.strictEqual(
+    ganttDuration(viz, mon, new Date(2024, 2, 13)),
+    "7 días laborables",
+  );
+  viz.locale("en-US").axisConfig({rangeBreaks: {hours: [18, 8]}});
+  assert.strictEqual(
+    ganttDuration(viz, mon, new Date(2024, 2, 13)),
+    "9 days",
+    "calendar days when the breaks hide hours",
+  );
 });
 
 it("Gantt: ganttTooltipRows lists start, end, duration, and progress, translated", () => {

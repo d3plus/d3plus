@@ -10,6 +10,11 @@ import type {TimeLocaleDefinition as D3TimeLocale} from "d3-time-format";
 import type {DataPoint} from "@d3plus/data";
 import {dateFullFormatter, formatAbbreviate} from "@d3plus/format";
 
+import {
+  normalizeRangeBreaks,
+  visibleBetween,
+} from "../../components/Axis/rangeBreaks.js";
+import type {RangeBreakRule} from "../../components/Axis/rangeBreaks.js";
 import {calendarTimeLocale} from "../Calendar/calendarFormat.js";
 import {isTimeAxis, parseTime, rowTime} from "../Priestley/timeAxis.js";
 import type {TimeValue} from "../Priestley/timeAxis.js";
@@ -44,8 +49,22 @@ export function timeFormatter(
 }
 
 /**
+    The time axis's `rangeBreaks` rules (from `axisConfig`) when they hide
+    whole days (weekends, weekdays, dates, or explicit ranges), else none: a
+    rule hiding hours of every day leaves no whole days to count.
+    @param viz The chart.
+*/
+export function ganttDayBreaks(viz: VizInstance): RangeBreakRule[] {
+  const config = viz.schema.axisConfig as {rangeBreaks?: unknown} | undefined;
+  const rules = normalizeRangeBreaks(config?.rangeBreaks);
+  return rules.some(r => typeof r === "object" && "hours" in r) ? [] : rules;
+}
+
+/**
     A task's duration: whole (or tenths of) days on a time axis, translated
-    ("12 days"), else the difference of its end and start.
+    ("12 days"), else the difference of its end and start. When the axis's
+    `rangeBreaks` hide whole days (see `ganttDayBreaks`), only the days left
+    showing count ("8 working days").
 */
 export function ganttDuration(
   viz: VizInstance,
@@ -54,8 +73,12 @@ export function ganttDuration(
 ): string {
   const span = +end - +start;
   if (!isTimeAxis(viz)) return formatAbbreviate(span, viz.schema.locale);
-  const days = Math.round((span / DAY) * 10) / 10;
-  const unit = viz.schema.translate(days === 1 ? "day" : "days");
+  const rules = ganttDayBreaks(viz);
+  const shown = rules.length ? visibleBetween(rules, +start, +end) : span;
+  const days = Math.round((shown / DAY) * 10) / 10;
+  const unit = viz.schema.translate(
+    `${rules.length ? "working " : ""}${days === 1 ? "day" : "days"}`,
+  );
   return `${dayCount(days, viz.schema.locale)} ${unit}`;
 }
 
