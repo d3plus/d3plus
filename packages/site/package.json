@@ -34,7 +34,6 @@
     "@d3plus/dom": "workspace:*",
     "@d3plus/format": "workspace:*",
     "@d3plus/ssr": "workspace:*",
-    "@d3plus/text": "workspace:*",
     "@lezer/highlight": "^1.2.5",
     "@napi-rs/canvas": "^1.0.11",
     "acorn": "^8.19.0",
