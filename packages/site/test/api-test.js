@@ -88,11 +88,49 @@ vi.mock("../src/lib/api.ts", async importOriginal => ({
   loadApi: () => entries,
 }));
 
-const {apiSidebar, entryId, kebab} = await import("../src/lib/api.ts");
+const {apiSidebar, entryId, kebab, linkEntries} =
+  await import("../src/lib/api.ts");
 const {referenceHeading, renderReference} =
   await import("../src/lib/reference.ts");
 
 describe("api", () => {
+  it("points a description's link to another export at that export's page", () => {
+    const [linked] = linkEntries([
+      {
+        name: "formatDateFull",
+        package: "format",
+        category: "",
+        kind: "function",
+        description: "Like [formatDate](#formatDate), unlike [x](#nope).",
+        params: [
+          {
+            name: "d",
+            type: "Date",
+            optional: false,
+            description: "See [formatDate](#formatDate).",
+          },
+        ],
+        flavors: [],
+      },
+      {
+        name: "formatDate",
+        package: "format",
+        category: "",
+        kind: "function",
+        description: "",
+        flavors: [],
+      },
+    ]);
+    assert.equal(
+      linked.description,
+      "Like [formatDate](/format/format-date/), unlike [x](#nope).",
+    );
+    assert.equal(
+      linked.params[0].description,
+      "See [formatDate](/format/format-date/).",
+    );
+  });
+
   it("kebab-cases names", () => {
     assert.equal(kebab("BarChart"), "bar-chart");
     assert.equal(kebab("formatAbbreviate"), "format-abbreviate");

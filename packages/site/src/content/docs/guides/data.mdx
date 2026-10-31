@@ -1,0 +1,192 @@
+---
+title: "Data"
+description: "Every D3plus visualization is driven by an array of objects."
+sidebar:
+  order: 4
+---
+Every D3plus visualization is driven by an **array of objects**. You tell the
+chart how to read each object with accessor config keys, and D3plus handles
+grouping, aggregation, color assignment, and layout.
+
+## Accessors
+
+The common accessors across charts:
+
+| Key | Role |
+|---|---|
+| `groupBy` | The property (or array of properties for nesting) that defines each series/group. |
+| `x`, `y` | Positional accessors for plot-based charts. |
+| `sum` / `value` / `size` | The magnitude accessor: `sum` for Treemap, Pack, Sunburst, Icicle, and Waffle; `value` for Pie, Funnel, Gauge, Bullet, PolarArea, RadialBar, and Histogram; and `size` for Plot, Network, ArcDiagram, and Rings. |
+| `time` | Enables the timeline and time-filtering (see **Guides → Interactivity**). |
+| `id` | Unique identifier for a datum (defaults to `groupBy`). |
+
+```jsx
+<BarChart config={{
+  data: [
+    {region: "North", quarter: "Q1", revenue: 35},
+    {region: "North", quarter: "Q2", revenue: 50},
+    {region: "South", quarter: "Q1", revenue: 20},
+    {region: "South", quarter: "Q2", revenue: 30}
+  ],
+  groupBy: "region",
+  x: "quarter",
+  y: "revenue"
+}} />
+```
+
+### Nesting with an array
+
+Pass an array to `groupBy` to build a hierarchy. The first key is the top level;
+deeper keys drive drill-down and nested layouts:
+
+```jsx
+<Treemap config={{data, groupBy: ["sector", "company"], sum: "value"}} />
+```
+
+A nested Treemap names each group in a header strip across its top, with the
+group's tiles below it; hovering a strip highlights the group and clicking it
+zooms in. Style the strips with `groupLabelConfig`, or turn them off with
+`groupLabels: false`.
+
+## Time axes
+
+When `x` (or `y`) reads dates and `time` points at the same field, a Plot draws
+a continuous time axis. Markets and offices don't run around the clock, so an
+axis config's `rangeBreaks` can hide the time with no data, and the rest
+closes up around it:
+
+```jsx
+<LinePlot config={{
+  data, groupBy: "ticker", x: "date", time: "date", y: "close",
+  xConfig: {rangeBreaks: ["weekends", {hours: [16, 9.5]}, {values: ["2024-07-04"]}]}
+}} />
+```
+
+`"weekends"` hides Saturdays and Sundays, `{hours: [start, end]}` the same
+hours every day (wrapping past midnight), `{values: [...]}` whole days such as
+holidays, and `{bounds: [start, end]}` one explicit range, marked on the axis
+with the same break marker as `yBreak`. Rules read dates in local time, like
+the axis labels. Ticks never land in hidden time, lines connect across it, and
+rows inside it are left out. An axis with `rangeBreaks` over dates is a time
+axis even without `time`, and the timeline hides the same time as the axis
+that plots `time` (set `timelineConfig.rangeBreaks` to change that).
+
+A Gantt's time axis takes the same rules in `axisConfig`, so
+`axisConfig: {rangeBreaks: "weekends"}` draws a schedule of working days.
+
+## Loading from a URL
+
+`data` accepts a URL string. D3plus fetches JSON (or CSV/TSV by extension) and
+renders when it arrives:
+
+```jsx
+<LinePlot config={{
+  data: "https://example.com/api/data.json",
+  groupBy: "series",
+  x: "year",
+  y: "value"
+}} />
+```
+
+When the request needs headers or other `fetch` options, pass an object with a
+`url` and those options:
+
+```jsx
+<LinePlot config={{
+  data: {url: "https://example.com/api/data.json", headers: {Authorization: token}},
+  groupBy: "series",
+  x: "year",
+  y: "value"
+}} />
+```
+
+Only an object holding nothing but `url` and `fetch` options (`headers`,
+`method`, `body`, `credentials`, …) is fetched. Data rows with a `url` field,
+like `{id: "alpha", value: 29, url: "https://…"}`, are drawn as data.
+
+Use `dataFormat` to reshape a non-standard response before the chart reads it:
+
+```jsx
+<LinePlot config={{
+  data: "https://example.com/api/data.json",
+  dataFormat: json => json.results,
+  groupBy: "series", x: "year", y: "value"
+}} />
+```
+
+## Live data
+
+Set `dataPollingInterval` (in milliseconds) to re-fetch a URL on a schedule.
+Each poll repeats the same request and `dataFormat`, and the chart transitions
+to the new values while keeping hover, zoom, legend toggles, and the timeline
+selection:
+
+```jsx
+<BarChart config={{
+  data: "https://example.com/api/sales.json",
+  dataPollingInterval: 5000,
+  groupBy: "region", x: "region", y: "sales"
+}} />
+```
+
+- A response identical to the drawn data is not redrawn.
+- A failed request keeps the last data, logs one warning, and retries on the
+  next tick.
+- Polling waits while the browser tab is hidden or, with `detectVisible`, while
+  the chart is scrolled out of view, and fetches as soon as it is visible again.
+- `destroy()`, `dataPollingInterval: false` (the default), or new `data` stops
+  it. Data passed as rows is never polled, and server-side rendering draws once.
+
+## Missing values
+
+A plot leaves out any row whose `x` or `y` is `null` or `NaN`, so it never
+draws a bar or point at a value it doesn't have. A line skips a missing value
+two ways: a row whose value is `null` or `NaN`, or a step of the discrete axis
+(a year, a date, a category) that another line has and this one doesn't.
+`connectGaps` sets how lines cross those gaps:
+
+| Value | Line across a gap |
+|---|---|
+| `true` (the default) or `"solid"` | Runs straight on through it. |
+| `false` | Breaks, leaving the gap empty. |
+| `"dashed"` | Breaks, with a short dashed bridge in the line's color. |
+| `{stroke, strokeDasharray, strokeWidth, opacity}` | Breaks, with a bridge in that style. |
+
+```jsx
+<LinePlot config={{
+  data, groupBy: "series", x: "year", y: "value",
+  connectGaps: "dashed"
+}} />
+```
+
+A bridge follows the line's curve and is decoration only: it has no tooltip,
+takes no keyboard focus, and the shared tooltip at a missing step lists no
+value for that line. Confidence bands stop at each gap. A value with a gap on
+both sides draws no line of its own, so add `lineMarkers: true` to show it.
+Areas are drawn as before.
+
+## Transforming data with `@d3plus/data`
+
+The `@d3plus/data` package exposes the helpers D3plus uses internally — handy
+for preparing data before it reaches a chart:
+
+```js
+import {fold, nest, merge, concat, unique} from "@d3plus/data";
+```
+
+| Function | Purpose |
+|---|---|
+| `fold` | Combine a columnar `{headers, data}` response (separate header and value arrays) into an array of objects. |
+| `nest` / `nestGroups` | Group rows into a `{key, values}` hierarchy. |
+| `merge` | Combine an array of objects into one aggregated record. |
+| `concat` | Flatten/append arrays of data. |
+| `unique` | De-duplicate values, optionally by accessor. |
+
+```js
+// columnar response → array of objects
+fold({
+  headers: ["year", "apples", "bananas"],
+  data: [[2020, 5, 8], [2021, 7, 6]]
+});
+// → [{year: 2020, apples: 5, bananas: 8}, {year: 2021, apples: 7, bananas: 6}]
+```

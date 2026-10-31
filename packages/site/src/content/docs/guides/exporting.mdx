@@ -1,0 +1,211 @@
+---
+title: "Exporting"
+description: "A rendered chart can leave the page three ways: saved from the browser as a PNG, JPG, or SVG file; downloaded as a CSV of the data behind it; or rendered to SVG or PNG on a server with no browser at all."
+sidebar:
+  order: 13
+---
+A rendered chart can leave the page three ways: saved from the browser as a
+PNG, JPG, or SVG file; downloaded as a CSV of the data behind it; or rendered
+to SVG or PNG on a server with no browser at all. The first two are covered
+here. The third has its own guide,
+[Server-Side Rendering](/guides/server-side-rendering/).
+
+## The download button
+
+Every chart has a download button in its top-left corner, beside the table
+view and search buttons. It opens a menu of file types: PNG image, SVG vector,
+and JPG image. Choosing one saves the chart as the reader sees it, with its
+title, legend, and color scale, but without the control buttons, the open
+menu, or a tooltip. The file is named after the chart's title, or `download`
+when it has none.
+
+| Config | Default | Description |
+| --- | --- | --- |
+| `saveControl` | `true` | Shows the download button. |
+| `saveControlConfig` | `{}` | Options for the saved file, below. |
+| `saveControlClassName` | — | Extra class name(s) for the button, for your own styling. Setting it drops the built-in inline styles. |
+| `saveControlStyle` | structural | Inline styles for the button; `saveControlStyleActive` applies while its menu is open, `saveControlStyleHover` on hover. |
+| `saveControlMenuClassName` | — | Extra class name(s) for the menu (its items have the `save-menu-item` class). Setting it drops the menu's built-in inline theme. |
+| `saveControlMenuStyle` | light panel | Inline styles for the menu: background, border, shadow, spacing. |
+| `saveControlMenuItemStyle` | plain text row | Inline styles for each menu item; `saveControlMenuItemStyleHover` applies to the item under the pointer or keyboard focus. |
+
+`saveControlConfig` takes:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `filename` | the title, else `"download"` | Name of the saved file, without its extension. |
+| `formats` | `["png", "svg", "jpg"]` | The file types offered, in menu order. With a single format the button saves it in one click, with no menu. |
+| `background` | the page color behind the chart | Color painted behind the chart, so a JPG never comes out black. `false` keeps PNG and SVG files transparent. |
+| `callback` | — | Called once the file is handed to the browser, or with the `Error` when it could not be saved. Without it, errors are logged to the console. |
+
+Any other option goes to html-to-image when saving a PNG or JPG, such as
+`pixelRatio` for a sharper image or `quality` for a JPG:
+
+```js
+new BarChart()
+  .select("#chart")
+  .data(data)
+  .groupBy("region")
+  .x("quarter")
+  .y("revenue")
+  .title("Quarterly revenue")
+  .saveControlConfig({formats: ["png", "svg"], pixelRatio: 2})
+  .render();
+```
+
+On the SVG backend a PNG or JPG is drawn from the chart's `<svg>`, and an SVG
+file is a copy of it. On the Canvas backend an SVG file re-renders the chart's
+scene through the SVG backend, so it is a true vector file there too. A PNG or
+JPG comes straight from the `<canvas>` while its pixels are dense enough for
+the requested `pixelRatio` (the screen's density by default). Above that, as
+with `pixelRatio: 2` on a standard-density screen, the scene is re-rendered as
+SVG and rasterized from that, so the image stays sharp. That costs more on a
+dense chart, the kind the Canvas backend is for, since every mark becomes an
+SVG element for the moment it takes to save.
+
+The button and its menu are translated with the chart's `locale`. The React,
+Vue, Svelte, Angular, and custom-element wrappers render the same button,
+since it is part of the chart, and `saveControl: false` in their `config`
+removes it.
+
+## Saving an image or SVG yourself
+
+The download button saves through `saveElement` from
+[`@d3plus/export`](https://www.npmjs.com/package/@d3plus/export), which you
+can call from your own buttons. `@d3plus/core` depends on it, and the
+rasterizer behind it loads only the first time something is rasterized, so
+a chart nobody saves never downloads it. Install it to import it directly:
+
+```bash
+npm install @d3plus/export
+```
+
+`saveElement` captures a DOM element with
+[html-to-image](https://github.com/bubkoo/html-to-image) and hands the result
+to the browser's download flow:
+
+```js
+import {saveElement} from "@d3plus/export";
+
+saveElement(document.querySelector("#chart"), {filename: "revenue", type: "png"});
+```
+
+### Options
+
+`saveElement(element, options, renderOptions)`
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `filename` | `"download"` | Name of the saved file. The extension comes from `type`. |
+| `type` | `"png"` | `"png"`, `"jpg"`, or `"svg"`. |
+| `callback` | — | Called once the file has been handed to the browser. If the element can't be rendered, it is called with the `Error` instead; without a callback, the error is logged to the console. |
+
+The third argument is passed straight through to html-to-image. The one to
+know is `backgroundColor`: a chart with a transparent background comes out
+black as a JPG unless you set one.
+
+```js
+saveElement(node, {filename: "revenue", type: "jpg"}, {backgroundColor: "#ffffff"});
+```
+
+When `type` is `"svg"` and the element is itself an `<svg>`, it is serialized
+as-is instead of being wrapped in a `<foreignObject>`. Vector editors such as
+Figma or Illustrator need that plain form to open the file.
+
+### Which element to pass
+
+A chart draws into the element you select it into. If that element is not an
+`<svg>`, the chart appends one inside it. On the SVG backend the picture is an
+`<svg>` nested in there; on the Canvas backend it is a `<canvas>` placed beside
+it. Passing the container you rendered into works for both backends and also
+captures any HTML the chart lays over the drawing. Tooltips are never
+captured, since they are attached outside the chart.
+
+```js
+import {Treemap} from "@d3plus/core";
+import {saveElement} from "@d3plus/export";
+
+const viz = new Treemap()
+  .select("#chart")
+  .data(data)
+  .groupBy("id")
+  .sum("value")
+  .render();
+
+document.querySelector("#save").addEventListener("click", () => {
+  saveElement(document.querySelector("#chart"), {filename: "treemap"});
+});
+```
+
+For a standalone SVG file, pass the chart's own `<svg>`, which `select()`
+returns once the chart has rendered:
+
+```js
+saveElement(viz.select().node(), {filename: "treemap", type: "svg"});
+```
+
+The same markup is available as a string from `toSVGString()` on either
+backend, if you would rather upload it or build the file yourself:
+
+```js
+const svg = viz.toSVGString();
+const blob = new Blob([svg], {type: "image/svg+xml;charset=utf-8"});
+```
+
+### In React
+
+The `Renderer` behind every component in `@d3plus/react` renders a `<div>`
+holding the chart's `<svg>`. Wrap it in an element you hold a ref to and pass
+that:
+
+```jsx
+import {useRef} from "react";
+import {BarChart} from "@d3plus/react";
+import {saveElement} from "@d3plus/export";
+
+function Report({data}) {
+  const chart = useRef(null);
+  return (
+    <>
+      <div ref={chart} style={{height: 400}}>
+        <BarChart config={{data, groupBy: "region", x: "quarter", y: "revenue"}} />
+      </div>
+      <button onClick={() => saveElement(chart.current, {filename: "revenue"})}>
+        Save as PNG
+      </button>
+    </>
+  );
+}
+```
+
+## Downloading the data as CSV
+
+Every chart has a table view: a button in its top-left corner swaps the drawing
+for a scrollable `<table>` of the data it was given. The table carries a
+"download CSV" button that exports every row, sorted as displayed and ignoring
+pagination, as `table-view.csv`. Both are on by default and need no extra
+package.
+
+| Config | Default | Description |
+| --- | --- | --- |
+| `tableView` | `true` | Shows the table-view toggle. |
+| `tableViewDownload` | `true` | Shows the CSV download button inside the table view. |
+| `tableViewPageSize` | — | Rows per page in the table; `false` shows every row on one page. |
+| `tableViewControlClassName` | — | Extra class name(s) for the toggle button, for your own styling. |
+
+```jsx
+<LinePlot config={{
+  data, groupBy: "city", x: "year", y: "population",
+  tableViewPageSize: 25
+}} />
+```
+
+The table doubles as the chart's screen-reader representation; the
+[Accessibility](/guides/accessibility/) guide covers that side
+of it.
+
+## On a server
+
+`renderToStaticSVG` and `renderToStaticPNG` from `@d3plus/ssr` produce the
+same output as the browser without one, for reports, emails, and social
+cards. See [Server-Side Rendering](/guides/server-side-rendering/).

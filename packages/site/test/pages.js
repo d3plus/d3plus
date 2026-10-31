@@ -85,6 +85,37 @@ async function pool(items, limit, fn) {
   return results;
 }
 
+/** The ids on a built page, which its `#…` links can land on. */
+const ids = html =>
+  new Set([...html.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]));
+
+it("every internal link leads to a page, and its #anchor to an element there", () => {
+  const html = new Map(
+    pages().map(url => [
+      url,
+      fs.readFileSync(path.join(distDir, url, "index.html"), "utf8"),
+    ]),
+  );
+  const anchors = new Map([...html].map(([url, text]) => [url, ids(text)]));
+  const broken = new Set();
+  for (const [url, text] of html)
+    for (const [, href] of text.matchAll(/\shref="(\/[^"]*|#[^"]*)"/g)) {
+      const [target, hash] = href.startsWith("#")
+        ? [url, href.slice(1)]
+        : href.split("#");
+      const pathname = target.split("?")[0];
+      if (pathname.startsWith("//")) continue;
+      const known =
+        anchors.has(pathname) ||
+        fs.existsSync(path.join(distDir, decodeURIComponent(pathname)));
+      if (!known) broken.add(`${url} → ${href}`);
+      else if (hash && anchors.has(pathname))
+        if (!anchors.get(pathname).has(decodeURIComponent(hash)))
+          broken.add(`${url} → ${href} (no #${hash})`);
+    }
+  assert.deepEqual([...broken], []);
+});
+
 it(
   "every page renders without errors or warnings",
   {timeout: 10 * 60 * 1000},

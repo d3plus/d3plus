@@ -16,7 +16,7 @@ before this resolves — no globals are left mutated.
 
 ## Example
 
-Renders any chart to a standalone `<svg>` string in Node, with no browser. The chart is configured exactly as in the browser; `width` and `height` are required because there is no container to measure. A temporary headless DOM is installed for the render and torn down before the promise resolves. This package runs in Node only, so the snippet is not executed here; the [Server-Side Rendering guide](?path=/docs/guides-server-side-rendering--docs) covers setup, fonts, and maps.
+Renders any chart to a standalone `<svg>` string in Node, with no browser. The chart is configured exactly as in the browser; `width` and `height` are required because there is no container to measure. A temporary headless DOM is installed for the render and torn down before the promise resolves. This package runs in Node only, so the snippet is not executed here; the [Server-Side Rendering guide](/guides/server-side-rendering/) covers setup, fonts, and maps.
 
 ```js
 import {writeFileSync} from "node:fs";

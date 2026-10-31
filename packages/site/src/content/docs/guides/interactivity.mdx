@@ -1,0 +1,255 @@
+---
+title: "Interactivity"
+description: "D3plus charts are interactive out of the box: hovering a shape highlights it and shows a tooltip, and a legend lets viewers toggle series."
+sidebar:
+  order: 5
+---
+D3plus charts are interactive out of the box: hovering a shape highlights it and
+shows a tooltip, and a legend lets viewers toggle series. Everything below works
+identically on the SVG and Canvas backends.
+
+## Tooltips
+
+Tooltips are on by default. Turn them off with `tooltip: false`, or customize
+their contents and styling with `tooltipConfig` (a
+[Tooltip](/core/components/tooltip/) configuration):
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  tooltipConfig: {
+    title: d => d.region,
+    tbody: [
+      ["Quarter", d => d.quarter],
+      ["Revenue", d => `$${d.revenue}M`]
+    ]
+  }
+}} />
+```
+
+## Axis guides
+
+Hovering a mark on a Plot chart (LinePlot, BarChart, AreaPlot, a scatter or
+bubble Plot, and the rest of the family) draws a dashed guide from its point to
+each axis, with a badge on the axis showing the point's value there in the
+mark's color. On a chart with a discrete axis, the shared tooltip's crosshair is
+that axis's guide, and the value axis follows the hovered series (or the one
+nearest the pointer); a bar is badged on its value axis only. Turn it off with
+`axisHover: false`, keep one direction with `"x"` or `"y"`, and style it with
+`axisHoverConfig`:
+
+```jsx
+<LinePlot config={{
+  data, groupBy: "region", x: "year", y: "revenue",
+  axisHoverConfig: {
+    guideConfig: {stroke: "#999", strokeDasharray: "2 2"},
+    badgeConfig: {fontSize: 11, padding: 3}
+  }
+}} />
+```
+
+See the [axis guides example](/core/charts/plot/#axis-hover-guides).
+
+## Hovering near a point
+
+Small points are hard to land on, so charts made of points act on the point
+*closest* to the pointer. Over empty space, a gridline, or a link, the nearest
+point whose edge is within `hoverDistance` pixels (20 by default) shows its
+tooltip, hover highlight and axis guides, and a click there clicks it. The
+tooltip points at the top of the point rather than following the pointer, and
+holds still until a different point takes over. This
+applies to scatter and bubble Plots (and Beeswarm), Network and ArcDiagram nodes, and Geomap
+points; bars, areas, lines (which already follow the pointer's nearest point),
+and other area-filling marks keep exact hit-testing. A Plot with a discrete axis
+and the shared tooltip snaps to the nearest column instead. Set
+`hoverDistance: 0` to react only to the point under the pointer, with a tooltip
+that follows the pointer as on other marks:
+
+```jsx
+<Plot config={{
+  data, groupBy: "id", x: "income", y: "life",
+  hoverDistance: 30
+}} />
+```
+
+See the [nearest-point hover example](/core/charts/plot/#nearest-point-hover).
+
+## Pointer events
+
+Register handlers through the `on` config key. Event names mirror
+[d3-selection](https://github.com/d3/d3-selection#selection_on) and may carry a
+namespace to scope the handler — `.shape` for data marks, `.legend` for legend
+entries:
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  on: {
+    "click.shape": d => console.log("clicked", d),
+    "mouseenter.shape": d => console.log("hover", d)
+  }
+}} />
+```
+
+Supported events include `click`, `mouseenter`, `mouseleave`, and `mousemove`.
+A handler is called as `(d, i, x, event)`: the hovered or clicked data row, its
+index, the shape's own datum (with the layout values d3plus added), and the
+browser's pointer event. `this` is the chart, so a handler can reconfigure and
+redraw it. An error a handler throws shows in the console as an uncaught error,
+and the chart's other handlers for that event still run. An unscoped name
+(`"click"`) fires for both shapes and legend entries. A shape type scopes a
+handler to one kind of mark: `"click.Rect"` for a Treemap tile, `"click.Bar"`
+and `"click.Circle"` for a Plot's bars and points, `"click.Path"` for a Geomap
+region, or `"click.Box"` for a BoxWhisker's box, median, and whiskers.
+
+A common use is opening a page for the clicked mark:
+
+```jsx
+<Treemap config={{
+  data: [
+    {id: "Wikipedia", value: 60, url: "https://www.wikipedia.org"},
+    {id: "OpenStreetMap", value: 25, url: "https://www.openstreetmap.org"},
+  ],
+  groupBy: "id",
+  sum: "value",
+  on: {
+    "click.shape": d => window.open(d.url, "_blank", "noopener")
+  }
+}} />
+```
+
+See the [Treemap click example](/core/charts/treemap/#click-to-open-link).
+
+## Highlighting a series
+
+`highlight` applies a *standing* emphasis: pass a predicate and every matching
+mark keeps its color while the rest fade to a neutral gray. Unlike `hover` or
+`active`, it persists — it doesn't clear when the pointer moves — so it's ideal
+for drawing attention to one series:
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  highlight: d => d.region === "North"   // North stays colored; others gray out
+}} />
+```
+
+Pass `false` or `null` to clear the highlight. See the
+[BarChart highlight example](/core/charts/bar-chart/).
+
+## Legend
+
+A legend is shown automatically for grouped data. Clicking an entry toggles that
+series; hovering highlights it. Control it with `legend` and `legendConfig`:
+
+```jsx
+<BarChart config={{
+  data, groupBy: "region", x: "quarter", y: "revenue",
+  legend: true,                 // false to hide
+  legendConfig: {title: "Region"}
+}} />
+```
+
+## Linked charts
+
+Give several charts the same `link` group and they move together: hovering,
+`active`, `highlight` (including the search box), and legend hide/solo clicks in
+one are mirrored in every other chart in the group. It's plain config, so it
+works the same from vanilla JS, React, or a serialized `config` object:
+
+```jsx
+<Treemap config={{data, groupBy: ["region", "country"], sum: "revenue", link: "dashboard"}} />
+<BarChart config={{data, groupBy: "country", x: "country", y: "revenue", link: "dashboard"}} />
+```
+
+Charts match rows by **value**, not by position. By default each chart uses its
+own id (its current `groupBy` level). Use the object form to choose another key,
+which can be named differently in each chart:
+
+```js
+link: {group: "dashboard", by: "country_id"}   // a data key or (d, i) => value
+```
+
+Because matching goes by value, a coarse chart can drive a finer one. Hovering a
+region tile lights up every bar whose row carries that `region`. A chart with no
+row for the hovered value dims all of its marks. Legend toggles follow the same
+rule: a legend entry is solo'd when any of its values is solo'd elsewhere, and
+hidden once all of its values are hidden.
+
+To stop mirroring one interaction, set it to `false`:
+`link: {group: "dashboard", hover: false}` still shares legend toggles and
+highlights. See the
+[linked charts example](/core/charts/viz/#linked-charts).
+
+## Timeline
+
+Adding a `time` accessor enables a timeline beneath the chart. Viewers can scrub
+or play through time periods, and the chart filters to the selected window:
+
+```jsx
+<LinePlot config={{
+  data,                          // rows that include a "year" field
+  groupBy: "series",
+  x: "year", y: "value",
+  time: "year",
+  timelineConfig: {playButton: true}
+}} />
+```
+
+Set `timeline: false` to keep the `time` filtering behavior without rendering the
+timeline control.
+
+When points move between periods as the timeline plays, they leave **motion
+trails** by default, and `trailPersist` can keep the whole path visible. See
+**Guides → Animation**.
+
+## Zoom & pan
+
+Charts zoom and pan their content by default, with controls in the
+chart's top-right corner (zoom in, zoom out, reset, and a drag-to-zoom brush
+that ends after one selection), wheel zoom, and drag-to-pan.
+
+Charts leave page scrolling alone: Ctrl/⌘ + wheel (or a trackpad pinch)
+zooms, a plain wheel scrolls the page, and on touch screens one finger
+scrolls while two fingers pinch-zoom — one finger pans only once the chart is
+zoomed in. Geomap and Network are pan-and-zoom surfaces, so they zoom on any
+wheel. Set `zoomScroll` to `true` (any wheel), `"modifier"`, or `false` (no
+wheel zoom) to choose. A title,
+subtitle, total, or top/right legend wraps or shifts to leave room for the
+controls. Set `zoom: false` to turn it all off. Zoom starts off where it
+doesn't help read the chart (Bullet, Calendar, Funnel, Gantt, Gauge, and Waffle) and
+on ParallelCoordinates, where it would slide the axes out from under their
+brushes; set `zoom: true` to turn it on. Zoomed content is clipped to
+the chart area, so the legend, title, and timeline stay put.
+
+The control buttons are real `<button>`s: the brush toggle carries
+`aria-pressed` and an `.active` class while on, and by default paints the OS
+accent color. Set `zoomControlClassName` to style them with your own CSS.
+
+The four control icons render as inline SVGs by default; `zoomControlIcons`
+overrides any of them — pass a raw HTML string, or a mount function
+(`(el) => void | (() => void)`) that receives the button's reserved icon
+element to render into imperatively. That's the escape hatch for a live
+component: a brand icon from a React tree (`createRoot(el).render(<Icon/>)`),
+a Vue app, anything. The function runs once per button element — an ordinary
+redraw (pan, zoom, a data update) leaves a mounted icon alone; only something
+that changes the buttons' own markup (the brush toggling, a locale change, a
+new `zoomControlClassName`) tears it down first, calling the cleanup function
+your mount function returned, if any. The attribution credit's "ⓘ" badge (see
+`attribution`) takes the same treatment via `attributionIcon`.
+
+Plot-based charts (BarChart, LinePlot, AreaPlot, StackedArea, BoxWhisker,
+BumpChart, Plot itself, and the other charts built on Plot) zoom their data
+instead of the picture: each linear or time axis stays in place and rescales
+its domain, re-ticking for the window it shows, while category and log axes
+stay fixed. A bar chart of categories zooms and pans along its value axis
+only; a scatter plot with two linear axes zooms in both directions.
+
+How far you can zoom in adapts to what's drawn:
+by default, the limit is the scale at which the chart's smallest shape fills
+the chart area (a line or area series counts each segment between points), so
+a few large shapes allow little zoom while a detailed map zooms all the way
+into its smallest path. Set `zoomMax` to fix the limit instead. Tune the rest
+with `zoomFactor`, `zoomScroll`, `zoomPan`, and `zoomPadding` — see the
+[Geomap](/core/charts/geomap/) examples for custom zoom,
+disabling zoom, and zoom limits.
