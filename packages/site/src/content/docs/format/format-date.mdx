@@ -8,10 +8,11 @@ import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/format/format-date/basic-example.js?raw";
 import customFormatter from "~/examples/format/format-date/custom-formatter.js?raw";
 import intervalDetection from "~/examples/format/format-date/interval-detection.js?raw";
+import timeOfDay from "~/examples/format/format-date/time-of-day.js?raw";
 
 A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
 
-Without `shown`, the year rides on the first and last dates and on each January 1st. Given `shown` (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly steps, the date rides with the hour on the first shown date of each day. A label carrying the year at hourly steps reads its date, year, and hour.
+Without `shown`, the year rides on the first and last dates and on each January 1st. Given `shown` (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly and finer steps, the date rides with the time on the first shown date of each day. A label carrying the year at these steps reads its date, year, and time. Times of day follow the formatter's locale: "3 PM" and "3:30 PM" on a 12-hour clock, "15:00" and "15:30" on a 24-hour one.
 
 ## Basic example
 
@@ -30,5 +31,11 @@ The third argument replaces d3's `timeFormat` with any function that turns a spe
 The interval between neighbouring dates decides the base format (quarter, month, day, or hour), and the first and last dates, plus any date that starts a new year or month, get a fuller label so the strip can be read without an axis title. Arrays of five dates or fewer always use the fuller label.
 
 <Calls code={intervalDetection} label="formatDate: Interval detection" />
+
+## Time of day
+
+Below a day, labels read the time on the formatter's clock. A locale whose time format is 12-hour, such as en-US, reads "3:30 PM" with no leading zero; a 24-hour locale, such as es-ES, reads "15:30". The first date carries its day and year, and a date at midnight reads as its day.
+
+<Calls code={timeOfDay} label="formatDate: Time of day" />
 
 <ApiReference name="formatDate" pkg="format" />

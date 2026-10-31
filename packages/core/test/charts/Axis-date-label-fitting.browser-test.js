@@ -128,7 +128,7 @@ function assertFit(r, context, hourly) {
       );
       assert.match(
         l.lines[0],
-        /\d\d [AP]M$/,
+        /\b(?:[1-9]|1[0-2]) [AP]M$/,
         `${context}: "${l.lines[0]}" reads its hour`,
       );
     }
@@ -173,12 +173,12 @@ for (const renderer of ["svg", "canvas"]) {
       const texts = r.labels.map(l => l.lines.join(" "));
       assert.strictEqual(
         texts[0],
-        "Mar 3, 2026, 06 AM",
+        "Mar 3, 2026, 6 AM",
         `the first label (got ${texts})`,
       );
       assert.match(
         texts[texts.length - 1],
-        /^\d\d [AP]M$/,
+        /^\b(?:[1-9]|1[0-2]) [AP]M$/,
         `the last label reads its hour (got ${texts})`,
       );
     }
@@ -263,7 +263,7 @@ it("Axis — date labels rotate only when even the first can't lie flat on one l
   );
   assert.strictEqual(wide.rotated, false);
   for (const {shown, width} of r) {
-    assert.strictEqual(shown[0].text, "Mar 3, 2026, 06 AM", `${width}px`);
+    assert.strictEqual(shown[0].text, "Mar 3, 2026, 6 AM", `${width}px`);
     shown.forEach(({text, lines}) =>
       assert.deepStrictEqual(
         lines,
@@ -274,7 +274,7 @@ it("Axis — date labels rotate only when even the first can't lie flat on one l
   }
   assert.deepStrictEqual(
     flat.shown.map(s => s.text),
-    ["Mar 3, 2026, 06 AM"],
+    ["Mar 3, 2026, 6 AM"],
     "thinned to the first label",
   );
 });

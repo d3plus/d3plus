@@ -353,7 +353,7 @@ it("time axis: hourly labels read their hour, with the date on the first drawn e
   const painted = axis._shownLabels.map(axis._labelFormat);
   assert.strictEqual(
     painted[0],
-    "Mar 3, 2026, 06 AM",
+    "Mar 3, 2026, 6 AM",
     `the first label reads its date and hour (got ${painted})`,
   );
   painted
@@ -361,7 +361,7 @@ it("time axis: hourly labels read their hour, with the date on the first drawn e
     .forEach(l =>
       assert.match(
         l,
-        /^\d\d [AP]M$/,
+        /^\b(?:[1-9]|1[0-2]) [AP]M$/,
         `the rest read their hour (got ${painted})`,
       ),
     );
@@ -372,8 +372,34 @@ it("time axis: hourly labels read their hour, with the date on the first drawn e
     const label = multi._labelFormat(d);
     const opens = !i || shown[i - 1].getDate() !== d.getDate();
     assert.strictEqual(/^Mar \d/.test(label), opens, `"${label}"`);
-    assert.match(label, /\d\d [AP]M$/);
+    assert.match(label, /\b(?:[1-9]|1[0-2]) [AP]M$/);
   });
+});
+
+it("time axis: half-hourly labels read their clock in the axis's locale", () => {
+  const halfHours = Array.from(
+    {length: 16},
+    (_, i) => new Date(2026, 2, 3, 12, i * 30),
+  );
+  const labelsIn = locale => {
+    const {axis} = draw({
+      data: halfHours,
+      domain: ends(halfHours),
+      width: 1200,
+      locale,
+    });
+    return axis._shownLabels.map(axis._labelFormat);
+  };
+  const en = labelsIn("en-US");
+  assert.ok(en.includes("3:30 PM"), `en-US reads 3:30 PM (got ${en})`);
+  assert.ok(
+    en.every(l => /[AP]M$/.test(l)),
+    `en-US labels read AM or PM (got ${en})`,
+  );
+  assert.ok(!en.some(l => /\b0\d:/.test(l)), `no leading zero (got ${en})`);
+  const es = labelsIn("es-ES");
+  assert.ok(es.includes("15:30"), `es-ES reads 15:30 (got ${es})`);
+  assert.ok(!es.some(l => /[AP]M/.test(l)), `es-ES has no AM/PM (got ${es})`);
 });
 
 it("Timeline: string data with unparseable values draws without NaN", async () => {

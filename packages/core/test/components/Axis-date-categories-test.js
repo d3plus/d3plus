@@ -203,10 +203,10 @@ it("band axis: quarterly Dates label as quarters in the axis's locale", () => {
 
 it("point axis: hourly Dates label the time of day, with the date and hour on the first", () => {
   const {labels} = draw(hours);
-  assert.strictEqual(labels[0], "Mar 3, 2026, 06 AM");
-  assert.strictEqual(labels[1], "07 AM");
+  assert.strictEqual(labels[0], "Mar 3, 2026, 6 AM");
+  assert.strictEqual(labels[1], "7 AM");
   assert.strictEqual(labels[6], "12 PM");
-  assert.strictEqual(labels[11], "05 PM", "the last hour reads as its hour");
+  assert.strictEqual(labels[11], "5 PM", "the last hour reads as its hour");
 });
 
 it("point axis: thinned hourly Dates name the day on the first label drawn each day", () => {
@@ -219,9 +219,13 @@ it("point axis: thinned hourly Dates name the day on the first label drawn each 
       pattern: /^Mar \d/,
     });
     painted.forEach(l =>
-      assert.match(l, /\d\d [AP]M$/, `every label reads its hour (got ${l})`),
+      assert.match(
+        l,
+        /\b(?:[1-9]|1[0-2]) [AP]M$/,
+        `every label reads its hour (got ${l})`,
+      ),
     );
-    assert.match(painted[0], /^Mar 3, 2026, 06 AM$/);
+    assert.match(painted[0], /^Mar 3, 2026, 6 AM$/);
   }
 });
 
