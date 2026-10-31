@@ -1,0 +1,21 @@
+const config = {
+  data: [
+    {id: "alpha", year: 2019, value: 42},
+    {id: "alpha", year: 2020, value: 38},
+    {id: "alpha", year: 2021, value: 51},
+    {id: "alpha", year: 2022, value: 57},
+    {id: "alpha", year: 2023, value: 55},
+    {id: "alpha", year: 2024, value: 66},
+    {id: "beta", year: 2019, value: 61},
+    {id: "beta", year: 2020, value: 63},
+    {id: "beta", year: 2021, value: 56},
+    {id: "beta", year: 2022, value: 54},
+    {id: "beta", year: 2023, value: 49},
+    {id: "beta", year: 2024, value: 47},
+  ],
+  groupBy: "id",
+  x: "year",
+  y: "value",
+  trendLine: true,
+  trendLineConfig: {projection: 3},
+};

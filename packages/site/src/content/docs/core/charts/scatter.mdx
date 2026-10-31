@@ -1,0 +1,44 @@
+---
+title: Scatter
+description: "Creates a scatter plot from an array of data: each row draws as a point at its x and y values, on continuous axes (set discrete to place points along a category axis)."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/scatter/basic-example.js?raw";
+import sizedPoints from "~/examples/core/charts/scatter/sized-points.js?raw";
+import trendLine from "~/examples/core/charts/scatter/trend-line.js?raw";
+import pointLabels from "~/examples/core/charts/scatter/point-labels.js?raw";
+
+Creates a scatter plot from an array of data: each row draws as a point at
+its `x` and `y` values, on continuous axes (set `discrete` to place points
+along a category axis). Points are `sizeMin` pixels in radius; a `size`
+accessor scales them between `sizeMin` and `sizeMax` and adds a size
+legend (see BubbleChart for bubbles sized by area). Hover any point for
+its values.
+
+## Basic example
+
+Each row draws as a point at its `x` and `y` values, on two continuous axes. Grouping by `species` first colors the points by species and adds a legend; hover any point for its values.
+
+<Playground chart="Scatter" code={basicExample} controls={["x","y","groupBy"]} />
+
+## Sized points
+
+A `size` accessor scales each point's radius between `sizeMin` and `sizeMax` and adds a size legend. To size points by area, so a value twice as large draws twice the area, use BubbleChart.
+
+<Playground chart="Scatter" code={sizedPoints} controls={["size","sizeMin","sizeMax"]} />
+
+## Trend line
+
+Set `trendLine: true` to fit a least-squares line to each series (here each `species`), drawn behind the points. Hover a line for its equation and R².
+
+<Playground chart="Scatter" code={trendLine} controls={["trendLine","trendLineConfig"]} />
+
+## Point labels
+
+Points too small to hold their label get it beside them instead, on the side facing the most open room (the point's Voronoi cell), where it overlaps no other point or label and stays inside the plot. Where the points crowd together there is no such room, so those labels hide; hover a point for its name. `labelPosition: "inside"` keeps labels inside the points, and `pointLabelConfig` sets the size and style of the labels beside them.
+
+<Playground chart="Scatter" code={pointLabels} controls={["labelPosition","pointLabelConfig"]} />
+
+<ApiReference name="Scatter" pkg="core" />

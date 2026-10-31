@@ -1,0 +1,35 @@
+const countryRegions = [
+  ["Kenya", "Africa", 3.1, 62],
+  ["Nigeria", "Africa", 2.4, 53],
+  ["Egypt", "Africa", 4.2, 71],
+  ["Ghana", "Africa", 2.9, 64],
+  ["Brazil", "Americas", 5.6, 76],
+  ["Canada", "Americas", 8.9, 82],
+  ["Chile", "Americas", 6.3, 80],
+  ["Mexico", "Americas", 5.2, 75],
+  ["China", "Asia", 6.1, 78],
+  ["India", "Asia", 3.4, 70],
+  ["Japan", "Asia", 8.1, 84],
+  ["Vietnam", "Asia", 4.6, 74],
+  ["France", "Europe", 8.4, 83],
+  ["Germany", "Europe", 8.8, 81],
+  ["Poland", "Europe", 7.2, 78],
+  ["Spain", "Europe", 7.8, 83],
+  ["Australia", "Oceania", 8.7, 83],
+  ["Fiji", "Oceania", 4.9, 68],
+  ["New Zealand", "Oceania", 8.3, 82],
+  ["Samoa", "Oceania", 4.4, 73],
+];
+
+const config = {
+  data: countryRegions.map(([country, region, income, life]) => ({
+    country,
+    region,
+    income,
+    life,
+  })),
+  groupBy: "country",
+  color: "region",
+  x: "income",
+  y: "life",
+};

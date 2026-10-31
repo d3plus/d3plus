@@ -1,0 +1,151 @@
+---
+title: Plot
+description: "Creates an x/y plot based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/plot/basic-example.js?raw";
+import bubbleChart from "~/examples/core/charts/plot/bubble-chart.js?raw";
+import axisHoverGuides from "~/examples/core/charts/plot/axis-hover-guides.js?raw";
+import nearestPointHover from "~/examples/core/charts/plot/nearest-point-hover.js?raw";
+import timelineMotionTrails from "~/examples/core/charts/plot/timeline-motion-trails.js?raw";
+import squareMotionTrails from "~/examples/core/charts/plot/square-motion-trails.js?raw";
+import persistentMotionTrails from "~/examples/core/charts/plot/persistent-motion-trails.js?raw";
+import shapeBackgroundImages from "~/examples/core/charts/plot/shape-background-images.js?raw";
+import annotations from "~/examples/core/charts/plot/annotations.js?raw";
+import calloutsAndReferenceLines from "~/examples/core/charts/plot/callouts-and-reference-lines.js?raw";
+import trendLine from "~/examples/core/charts/plot/trend-line.js?raw";
+import trendLineConfidence from "~/examples/core/charts/plot/trend-line-confidence.js?raw";
+import trendLineTypes from "~/examples/core/charts/plot/trend-line-types.js?raw";
+import trendLineProjection from "~/examples/core/charts/plot/trend-line-projection.js?raw";
+import multipleShapes from "~/examples/core/charts/plot/multiple-shapes.js?raw";
+import sortingShapes from "~/examples/core/charts/plot/sorting-shapes.js?raw";
+import sizeLegend from "~/examples/core/charts/plot/size-legend.js?raw";
+import sizeLegendConfig from "~/examples/core/charts/plot/size-legend-config.js?raw";
+import legendInset from "~/examples/core/charts/plot/legend-inset.js?raw";
+import colorByCategory from "~/examples/core/charts/plot/color-by-category.js?raw";
+
+Creates an x/y plot based on an array of data.
+
+## Basic example
+
+The simplest scatter plot: each row becomes a point positioned by its `x` and `y` values, with `groupBy` giving every id its own color.
+
+<Playground chart="Plot" code={basicExample} controls={["x","y"]} />
+
+## Bubble chart
+
+Map a third variable to point radius with `size`, turning the scatter into a bubble chart; `sizeMin` and `sizeMax` clamp the radius range so extreme values stay legible. BubbleChart sets this up for you, sizing bubbles by area.
+
+<Playground chart="Plot" code={bubbleChart} controls={["size","sizeMax","sizeMin"]} />
+
+## Axis hover guides
+
+Hover a bubble: a dashed guide runs from its center to each axis, and a badge in the bubble's color shows its value where the guide meets the axis, formatted as the tooltip formats that axis. **On by default** on every Plot chart — on a chart with a discrete axis the shared tooltip's crosshair is that axis's guide, and a bar is badged on its value axis only. Set `axisHover: false` to turn it off (or `"x"`/`"y"` for one direction), and style the guides and badges with `axisHoverConfig.guideConfig` and `axisHoverConfig.badgeConfig`.
+
+<Playground chart="Plot" code={axisHoverGuides} controls={["axisHover","axisHoverConfig"]} />
+
+## Nearest point hover
+
+Small points are hard to land on, so a scatter or bubble Plot acts on the closest point within `hoverDistance` pixels of the pointer (20 by default): its tooltip (pointing at the point itself, not the cursor), hover highlight and axis guides show, and a click there clicks it. Network nodes and Geomap points work the same way, while bars, areas and other area-filling marks keep exact hit-testing. Set `hoverDistance: 0` to only react to the point under the pointer, with a cursor-following tooltip.
+
+<Playground chart="Plot" code={nearestPointHover} controls={["hoverDistance"]} />
+
+## Timeline motion trails
+
+Press **play** on the timeline: each point trails a tapering cone from its previous year's position to its current one, colored with a gradient that fades to transparent at the tail (which narrows to the point's pre-move size) and fading out as it arrives. **On by default** for scatter points — opt out with `shapeConfig.Circle.trail: false`. Works on both the SVG and Canvas backends — toggle `renderer` to compare.
+
+<Playground chart="Plot" code={timelineMotionTrails} controls={["duration","shapeConfig"]} />
+
+## Square motion trails
+
+Trails aren't circle-only: `Rect` marks trail too, and the cone is sized to the square's silhouette *perpendicular to travel* — so a square moving diagonally reaches corner-to-corner rather than edge-to-edge, matching what the eye sees. Also on by default for scatter squares; opt out with `shapeConfig.Rect.trail: false`.
+
+<Playground chart="Plot" code={squareMotionTrails} controls={["renderer","shape"]} />
+
+## Persistent motion trails
+
+A Hans Rosling-style health-and-wealth view: press **play** and each nation's bubble ebbs and flows but trends from the poor, short-lived bottom-left toward the rich, long-lived top-right, leaving a persistent trail of its path. By default a trail shows only the current move and fades on arrival; `shapeConfig.Circle.trailPersist` keeps past moves too — a **number** keeps that many step-segments, **`true`** a long slowly-fading tail. Trails follow the timeline's direction: they grow **forward** and **rewind** (the newest segment retracting) when you step back. The whole trail draws as one shape, so overlapping turns don't darken. Setting `trailPersist` is all you need — it switches the chart to fixed axes and a single-period timeline internally (the conditions a persistent trail needs).
+
+<Playground chart="Plot" code={persistentMotionTrails} controls={["renderer","shapeConfig"]} />
+
+## Shape background images
+
+Render each circle as an image by setting `shapeConfig.Circle.backgroundImage` to a per-datum URL (and blanking the `label`) — here country icons stand in for the bubbles on a GDP-versus-complexity plot.
+
+<Playground chart="Plot" code={shapeBackgroundImages} controls={["shapeConfig","size","sizeMax"]} />
+
+## Annotations
+
+Layer custom shapes over the data with `annotations`. Each entry names a `shape`, brings its own `data` in the same `x`/`y` units as the marks, and sits `"back"` (default) or `"front"` of them via `layer`. Here a dashed `Line` with a `Rect` text label marks a revenue target, and a pull-out label calls out one store: a `Circle` ring around the point, a `Line` leader, and a `Rect` callout carrying a `label`. Width, height and radius are in pixels. To draw a fitted trend line, use `trendLine` instead.
+
+<Playground chart="Plot" code={annotations} controls={["annotations"]} />
+
+## Callouts and reference lines
+
+The same notes as above, without hand-built shapes. `referenceLines` draws a line across the plot at a value (`dash: true` dashes it) with a label at its end, and `referenceBands` shades the span between two values, labeled in its corner; both sit behind the data (their labels above it), and widen the axis to stay in view. A `"Callout"` annotation anchors wrapped text in a box at each row's `x`/`y`, offset by `dx`/`dy` pixels, with a connector ending in an arrowhead (or `marker: "dot"`), and stays inside the plot. `xRef`/`yRef: "plot"` position a callout by fractions of the plot area instead. Colors follow the chart's theme; every style can be overridden.
+
+<Playground chart="Plot" code={calloutsAndReferenceLines} controls={["annotations","referenceLines","referenceBands"]} />
+
+## Trend line
+
+Set `trendLine: true` to fit a least-squares line to the plotted data. Each series (here the parent `region` of each point) gets its own dashed line in its color, drawn behind the marks. Hover a line for its equation, R² and number of observations.
+
+<Playground chart="Plot" code={trendLine} controls={["trendLine","trendLineConfig"]} />
+
+## Trend line confidence
+
+`trendLineConfig.group: "all"` fits one line to every point instead of one per series, and `confidence: true` shades the 95% confidence band for the line (set `confidenceLevel` to change it, and `confidenceConfig` to style it). Bands are drawn for linear fits only.
+
+<Playground chart="Plot" code={trendLineConfidence} controls={["trendLine","trendLineConfig"]} />
+
+## Trend line types
+
+Besides `"linear"`, `trendLine` accepts `"exponential"`, `"logarithmic"`, `"power"` and `"polynomial"` (with `trendLineConfig.order` setting the degree). Other `trendLineConfig` keys style the line: here a solid red cubic fit. Points with a single `groupBy` level are each their own series, so they share one trend line.
+
+<Playground chart="Plot" code={trendLineTypes} controls={["trendLine","trendLineConfig"]} />
+
+## Trend line projection
+
+On a continuous axis, `trendLineConfig.projection` with `{to}` extends the fit to that value; the x axis widens to fit it. A number would step that many times past the last value, by the median gap between values. With `confidence`, the band beyond the data is a prediction interval, wider than the confidence band, since it covers where individual new points could fall.
+
+<Playground chart="Plot" code={trendLineProjection} controls={["trendLine","trendLineConfig"]} />
+
+## Multiple shapes
+
+Pass a function to `shape` to choose a mark type per datum — some points draw as `Rect`, the rest as `Circle` — letting one plot encode a category through shape.
+
+<Playground chart="Plot" code={multipleShapes} controls={["shape"]} />
+
+## Sorting shapes
+
+When a plot mixes shape types, `shapeSort` sets the order they are drawn — the comparator here renders `Line` marks before `Circle`s so the points sit on top of the connecting line.
+
+<Playground chart="Plot" code={sortingShapes} controls={["shapeSort"]} />
+
+## Size legend
+
+When `size` sizes the bubbles by more than one value, a size legend appears in the chart's bottom-right corner. Its circles are drawn at the same radii as the chart's bubbles, so the largest circle matches the largest bubble exactly. When `size` is a data key, that key becomes the legend's title. By default the legend takes room from the right margin, so the chart keeps its full height. Set `sizeLegendPosition` to `"bottom"` to take room from the bottom instead, or `sizeLegend` to `false` to hide it.
+
+<Playground chart="Plot" code={sizeLegend} controls={["size","sizeLegend","sizeLegendPosition","sizeLegendConfig","legendPosition"]} />
+
+## Size legend config
+
+`sizeLegendConfig` customizes the size legend: `title`, `values` (the circles to draw), `tickFormat`, and styling through `shapeConfig`, `lineConfig`, `labelConfig`, and `titleConfig`. A colorScale on the right shares the right column, shortening so it ends above the size legend.
+
+<Playground chart="Plot" code={sizeLegendConfig} controls={["sizeLegendConfig","colorScalePosition"]} />
+
+## Legend inset
+
+When the points leave a corner of the plot empty, the legend is drawn there, over a translucent box, instead of taking a margin. If the chart also sizes its points, the size legend gets the first try at that space and the legend goes back to its margin. Points that enclose an empty area never get a legend placed inside them.
+
+<Playground chart="Plot" code={legendInset} controls={["legendInset","legendInsetConfig","size"]} />
+
+## Color by category
+
+When `color` is a category that isn't one of the `groupBy` levels, here each country's point is colored by its region, the legend shows one entry per category, labelled by the category. Click an entry to hide every point in that region (click again to bring them back), shift+click it to show only that region, or hover it to highlight the region's points. When `color` returns actual CSS colors there is no category to name, so the legend stays hidden.
+
+<Playground chart="Plot" code={colorByCategory} controls={["color","groupBy","legend","legendPosition"]} />
+
+<ApiReference name="Plot" pkg="core" />

@@ -1,0 +1,165 @@
+---
+title: Viz
+description: "The base class every d3plus chart extends."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import LiveSales from "~/components/demos/LiveSales.astro";
+import linkedTreemap from "~/examples/core/charts/viz/linked-treemap.js?raw";
+import linkedBarChart from "~/examples/core/charts/viz/linked-bar-chart.js?raw";
+import smallMultiples from "~/examples/core/charts/viz/small-multiples.js?raw";
+import smallMultiplesLinePlot from "~/examples/core/charts/viz/small-multiples-line-plot.js?raw";
+import smallMultiplesIndependentScales from "~/examples/core/charts/viz/small-multiples-independent-scales.js?raw";
+import smallMultiplesDonut from "~/examples/core/charts/viz/small-multiples-donut.js?raw";
+import smallMultiplesTreemap from "~/examples/core/charts/viz/small-multiples-treemap.js?raw";
+import smallMultiplesMatrix from "~/examples/core/charts/viz/small-multiples-matrix.js?raw";
+import saveControl from "~/examples/core/charts/viz/save-control.js?raw";
+import dataPolling from "~/examples/core/charts/viz/data-polling.js?raw";
+import className from "~/examples/core/charts/viz/class-name.js?raw";
+import reducedMotion from "~/examples/core/charts/viz/reduced-motion.js?raw";
+import keyboardNavigation from "~/examples/core/charts/viz/keyboard-navigation.js?raw";
+import themes from "~/examples/core/charts/viz/themes.js?raw";
+
+<LiveSales />
+
+<style>{`
+.dark-chart { background: #1e1f26; border-radius: 6px; }
+.dark-chart text { fill: #f1f3f5; }
+`}</style>
+
+The base class every d3plus chart extends. It is not used directly: the
+configuration on this page applies to every chart, and each chart's own page
+documents what it adds.
+
+`Viz` owns the shared surface of every chart: loading and filtering `data`,
+`groupBy` hierarchies, color and size accessors, the title, legend, color
+scale, timeline, tooltip, zoom and table-view controls, and the render
+lifecycle. A chart definition plugs its layout into this pipeline, which is why
+the same `config` keys work on a Treemap and a LinePlot alike.
+
+## Linked charts
+
+Hover a tile, search, or click a legend entry in either chart and the other
+follows. `link` takes a group name, or `{group, by}` to choose the value rows
+match on (default: each chart's own id). Matching is by value, so a region tile
+in the Treemap lights up every country bar in that region. Set `hover`,
+`active`, `highlight`, or `legend` to `false` in the object form to stop
+mirroring that interaction.
+
+<Playground chart="Treemap" code={linkedTreemap} controls={[]} height={320} />
+
+<Playground chart="BarChart" code={linkedBarChart} controls={[]} height={320} />
+
+## Small multiples
+
+`facet` splits a chart into a grid of equally sized panels, one per distinct
+value of a data key (or accessor). Every panel is the same chart drawn from its
+own rows, sharing one legend, title, timeline, and set of controls. Hover a bar
+to highlight its series in every panel, or click a legend entry to hide it
+everywhere. Panels share their x/y scales by default, so the axes are labeled
+only along the grid's left and bottom edges.
+
+<Playground chart="BarChart" code={smallMultiples} controls={["facet"]} height={520} />
+
+The grid sizes itself: the column count is the one that draws the panels
+largest for the chart's shape, so there is nothing to set.
+`facetConfig.padding` changes the space between panels. To pin the grid
+instead, set `columns` and/or `rows` (`facetConfig: {columns: 5}` puts every
+region in one row). The shared tooltip and crosshair follow the panel under the
+pointer.
+
+<Playground chart="LinePlot" code={smallMultiplesLinePlot} controls={[]} height={520} />
+
+With `scales: "independent"`, each panel fits its own rows, which shows the
+shape of small regions at the cost of comparing heights across panels. Every
+panel then labels its own axes.
+
+<Playground chart="BarChart" code={smallMultiplesIndependentScales} controls={[]} height={520} />
+
+Any chart type can be faceted. `sort` orders the panels: `"ascending"` (the
+default), `"descending"`, `"data"` (first appearance), a comparator, or an
+explicit list of values.
+
+<Playground chart="Donut" code={smallMultiplesDonut} controls={[]} height={520} />
+
+One timeline drives every panel. `title` formats each panel's title from its
+facet value and rows (or `false` hides them), and `titleConfig` styles them.
+
+<Playground chart="Treemap" code={smallMultiplesTreemap} controls={[]} height={520} />
+
+A colorScale is shared too: one scale, spanning the values every panel draws,
+colors all of them.
+
+<Playground chart="Matrix" code={smallMultiplesMatrix} controls={[]} height={520} />
+
+## Saving a chart
+
+The download button in each chart's top-left corner saves the chart as the
+reader sees it, title and legend included, without the controls or tooltip.
+With several `formats` it opens a menu; with one, it saves straight away.
+`filename` defaults to the title, `background` to the page color behind the
+chart, and `saveControl: false` removes the button.
+
+<Playground chart="BarChart" code={saveControl} controls={["saveControl"]} />
+
+## Polling for data
+
+With a URL as `data`, `dataPollingInterval` re-fetches it every that many
+milliseconds and transitions to the new values, keeping hover, zoom, legend
+toggles, and the timeline selection. An unchanged response is not redrawn, a
+failed one keeps the last data and retries, and polling waits while the tab is
+hidden or the chart is scrolled out of view. This page answers the example's
+URL itself, with a new reading on every request.
+
+<Playground chart="BarChart" code={dataPolling} controls={["dataPollingInterval"]} />
+
+## Styling with a class name
+
+`className` adds classes to the element a chart draws on (its root
+`<svg class="d3plus-viz">`, or its `<canvas>` with the Canvas renderer) next to
+the fixed classes, so page CSS can style one chart: this page's CSS gives
+`.dark-chart` a dark background and light text. It takes a space-separated
+string or an array, and a new value replaces the classes the last one added.
+Components drawn on their own (Axis, Legend, TextBox, …) take it on their
+`<svg>`, and `tooltipConfig.className` adds classes to a chart's tooltips.
+
+<Playground chart="BarChart" code={className} controls={["className"]} />
+
+## Reduced motion
+
+By default (`reducedMotion: "auto"`) a chart skips its transitions when the
+viewer's OS asks for reduced motion, read from the
+`(prefers-reduced-motion: reduce)` media query at each draw. `true` always
+draws without motion and `false` always animates; `duration` keeps its value
+either way. Change a value in the code to compare: with `true` the bars jump to
+the new values, with `false` they animate.
+
+<Playground chart="BarChart" code={reducedMotion} controls={["reducedMotion"]} />
+
+## Keyboard navigation
+
+With `keyboardNav` (on by default) each chart is a single Tab stop. The arrow
+keys move to the nearest mark in that direction, Home and End jump to the first
+and last, Enter or Space selects the focused mark as a click would (drilling
+down, or toggling a legend item), and Escape clears it. The focused mark shows
+its tooltip and hover highlight and a focus ring, and a live region announces
+it to screen readers. `keyboardNavConfig` styles the ring (`stroke`,
+`strokeWidth`, `padding`), and `keyboardNav: false` removes the Tab stop.
+
+<Playground chart="LinePlot" code={keyboardNavigation} controls={["keyboardNav"]} />
+
+## Themes
+
+`theme` sets every chrome color at once. `"light"` and `"dark"` paint the
+theme's background behind the chart, so it reads the same on any page and in a
+saved image; the title, axes, gridlines, legend, timeline, tooltip, table view,
+and overlays all take the theme's colors. An object sets your own tokens over
+the preset its `base` names. The default, `"auto"`, paints no background and
+follows the page instead, redrawing when the page flips between light and
+dark. Colors set in other config (`titleConfig.fontColor`, `tooltipConfig`, the
+`*Style` options) still win.
+
+<Playground chart="BarChart" code={themes} controls={["theme"]} />
+
+<ApiReference name="Viz" pkg="core" />

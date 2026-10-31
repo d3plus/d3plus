@@ -1,0 +1,56 @@
+---
+title: Gauge
+description: "Creates a gauge (speedometer) from an array of data: a single dial that reads each row's value against its domain."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/gauge/basic-example.js?raw";
+import bands from "~/examples/core/charts/gauge/bands.js?raw";
+import progressArc from "~/examples/core/charts/gauge/progress-arc.js?raw";
+import multipleNeedles from "~/examples/core/charts/gauge/multiple-needles.js?raw";
+import concentricTracks from "~/examples/core/charts/gauge/concentric-tracks.js?raw";
+import semicircle from "~/examples/core/charts/gauge/semicircle.js?raw";
+
+Creates a gauge (speedometer) from an array of data: a single dial that
+reads each row's `value` against its `domain`. One row shows its value
+under the hub; several rows each get a needle (or a progress track),
+identified by the legend and tooltips.
+
+## Basic example
+
+Each row becomes a dial that reads its `value` against `domain`. The default 240° sweep (`startAngle` -120 to `endAngle` 120) leaves room for the value under the needle's hub.
+
+<Playground chart="Gauge" code={basicExample} controls={["domain","startAngle","endAngle","thickness"]} />
+
+## Bands
+
+`bands` paints colored zones along the track. Each band ends at its `max` and starts where the previous one ended, so a list of thresholds is enough.
+
+<Playground chart="Gauge" code={bands} controls={["bands","ticks","minorTicks"]} />
+
+## Progress arc
+
+`indicator("progress")` fills the track up to the value instead of pointing a needle at it; bands move to a thin strip inside the track.
+
+<Playground chart="Gauge" code={progressArc} controls={["indicator","valueFormat","thickness"]} />
+
+## Multiple needles
+
+Several rows share one dial, with a needle per row in the row's color. The legend names each needle and its tooltip gives the value. Values outside the domain pin the needle to the nearest end.
+
+<Playground chart="Gauge" code={multipleNeedles} controls={["domain","color"]} />
+
+## Concentric tracks
+
+With `indicator("progress")`, each row gets its own track, stepping inward from the outer edge in data order.
+
+<Playground chart="Gauge" code={concentricTracks} controls={["indicator","thickness"]} />
+
+## Semicircle
+
+`startAngle` and `endAngle` set the sweep in degrees clockwise from 12 o'clock. Without a `domain`, the range comes from the data, rounded out to line up with the ticks.
+
+<Playground chart="Gauge" code={semicircle} controls={["startAngle","endAngle","ticks"]} />
+
+<ApiReference name="Gauge" pkg="core" />

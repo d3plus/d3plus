@@ -1,0 +1,46 @@
+---
+title: BumpChart
+description: "Creates a bump chart based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/bump-chart/basic-example.js?raw";
+import twoPeriods from "~/examples/core/charts/bump-chart/two-periods.js?raw";
+import expandedRanking from "~/examples/core/charts/bump-chart/expanded-ranking.js?raw";
+import manyPeriods from "~/examples/core/charts/bump-chart/many-periods.js?raw";
+import lineStyling from "~/examples/core/charts/bump-chart/line-styling.js?raw";
+
+Creates a bump chart based on an array of data.
+
+## Basic example
+
+Each `groupBy` series traces its `rank` (`y`) across the `discrete` `x` years, and lines swap vertical position wherever ranks change.
+
+<Playground chart="BumpChart" code={basicExample} />
+
+## Two periods
+
+With two periods, a BumpChart is a slope chart of ranks: the axes on both sides name each series at its rank. To compare values rather than ranks, use a SlopeChart, which labels each line's ends with its name and value.
+
+<Playground chart="BumpChart" code={twoPeriods} />
+
+## Expanded ranking
+
+Four competitors tracked across four years; lines cross as ranks change.
+
+<Playground chart="BumpChart" code={expandedRanking} controls={["x","y"]} />
+
+## Many periods
+
+Five teams over six seasons: every series is present at every `x` period, which is what a bump chart needs, since each column is a complete ranking from first to last.
+
+<Playground chart="BumpChart" code={manyPeriods} controls={["x","y"]} />
+
+## Line styling
+
+The lines and the points at each period are separate shapes, so `shapeConfig.Line` and `shapeConfig.Circle` style them independently; thicker lines with round caps and larger points make rank swaps easier to follow, and `label` names each series at its ends.
+
+<Playground chart="BumpChart" code={lineStyling} controls={["shapeConfig","label"]} />
+
+<ApiReference name="BumpChart" pkg="core" />

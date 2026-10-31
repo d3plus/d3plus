@@ -9,3 +9,4 @@ packages/*/dev/**/*.json
 packages/*/dev/index.html
 packages/core/test/snapshots/
 packages/docs/static/
+packages/site/public/data/

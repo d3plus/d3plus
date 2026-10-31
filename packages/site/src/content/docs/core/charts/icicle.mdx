@@ -1,0 +1,63 @@
+---
+title: Icicle
+description: "Draws a hierarchy as nested rectangles, one band per groupBy level from the root edge out, where each node's breadth is proportional to its summed value."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/icicle/basic-example.js?raw";
+import multiLevel from "~/examples/core/charts/icicle/multi-level.js?raw";
+import vertical from "~/examples/core/charts/icicle/vertical.js?raw";
+import drillDown from "~/examples/core/charts/icicle/drill-down.js?raw";
+import smallDataThreshold from "~/examples/core/charts/icicle/small-data-threshold.js?raw";
+import shading from "~/examples/core/charts/icicle/shading.js?raw";
+import smallMultiples from "~/examples/core/charts/icicle/small-multiples.js?raw";
+
+Draws a hierarchy as nested rectangles, one band per `groupBy` level from
+the root edge out, where each node's breadth is proportional to its summed
+value. Click a rectangle to zoom into it; click the root band (or Back) to
+zoom out.
+
+## Basic example
+
+Each `groupBy` level is a band of rectangles, from the root edge out. A rectangle's breadth is proportional to its `sum`, so a parent spans exactly its children, and children inherit their top-level group's color.
+
+<Playground chart="Icicle" code={basicExample} controls={["groupBy","sum"]} />
+
+## Multi level
+
+A three-level `groupBy` draws three bands. Each branch keeps its top-level color, a step lighter per level. Labels appear only where their whole words fit, upright or turned to run up a tall, narrow rectangle. Hover a rectangle to highlight it with its ancestors.
+
+<Playground chart="Icicle" code={multiLevel} controls={["groupBy","depth"]} />
+
+## Vertical
+
+`orient: "vertical"` puts the root on top, with each level below it. Narrow columns turn their labels to read upward.
+
+<Playground chart="Icicle" code={vertical} controls={["orient"]} />
+
+## Drill down
+
+Click a rectangle to zoom into it: it moves into the root band and its descendants fill the full breadth. Click the root band, or the Back button, to zoom out. With `depth` limiting the visible levels, zooming slides that window outward, so deeper levels come into view.
+
+<Playground chart="Icicle" code={drillDown} controls={["depth"]} />
+
+## Small data threshold
+
+`threshold: 0.03` merges the files below 3% of the total within each module into one bucket labeled by `thresholdName`, keeping slivers from cluttering the last level. A module with only one such file keeps it as itself, and hovering a bucket lists the files it holds.
+
+<Playground chart="Icicle" code={smallDataThreshold} controls={["threshold","thresholdName"]} />
+
+## Shading
+
+`shadeConfig` sets how much each level lightens (`step`), up to `max`; `shade: false` draws every rectangle in its branch's flat color. Shading applies only to the default colors, so a custom `color` or `colorScale` is drawn as given.
+
+<Playground chart="Icicle" code={shading} controls={["shade","shadeConfig"]} />
+
+## Small multiples
+
+`facet: "area"` draws one Icicle per area as small multiples, each laid out the way the whole chart is.
+
+<Playground chart="Icicle" code={smallMultiples} controls={["facet"]} />
+
+<ApiReference name="Icicle" pkg="core" />

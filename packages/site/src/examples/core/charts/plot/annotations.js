@@ -1,0 +1,83 @@
+const config = {
+  data: [
+    {store: "Store 1", visitors: 4.2, revenue: 48},
+    {store: "Store 2", visitors: 5.1, revenue: 61},
+    {store: "Store 3", visitors: 6.0, revenue: 66},
+    {store: "Store 4", visitors: 6.8, revenue: 79},
+    {store: "Store 5", visitors: 7.5, revenue: 84},
+    {store: "Store 6", visitors: 8.3, revenue: 97},
+    {store: "Store 7", visitors: 9.0, revenue: 182},
+    {store: "Store 8", visitors: 9.6, revenue: 108},
+    {store: "Store 9", visitors: 10.4, revenue: 121},
+    {store: "Store 10", visitors: 11.2, revenue: 126},
+    {store: "Store 11", visitors: 12.1, revenue: 139},
+    {store: "Store 12", visitors: 13.0, revenue: 150},
+  ],
+  groupBy: "store",
+  x: "visitors",
+  y: "revenue",
+  legend: false,
+  shapeConfig: {Circle: {fill: "#4dabf7"}},
+  annotations: [
+    // A dashed reference line across the plot, with a small text label above it.
+    {
+      shape: "Line",
+      data: [
+        {id: "target", x: 4, y: 100},
+        {id: "target", x: 13.4, y: 100},
+      ],
+      stroke: "#adb5bd",
+      strokeDasharray: "6 4",
+      strokeWidth: 1.5,
+    },
+    {
+      shape: "Rect",
+      data: [{id: "target-label", x: 4.9, y: 106, width: 84, height: 18}],
+      fill: "transparent",
+      label: "Target: $100k",
+      labelConfig: {
+        fontColor: "#868e96",
+        fontSize: 11,
+        padding: 0,
+        textAnchor: "start",
+        verticalAlign: "middle",
+      },
+    },
+    // A pull-out label for one data point: a ring around it, a leader line, and a callout box,
+    // all drawn in front of the marks.
+    {
+      shape: "Circle",
+      layer: "front",
+      data: [{id: "ring", x: 9.0, y: 182, r: 13}],
+      fill: "transparent",
+      stroke: "#c92a2a",
+      strokeWidth: 2,
+    },
+    {
+      shape: "Line",
+      layer: "front",
+      data: [
+        {id: "leader", x: 9.35, y: 180},
+        {id: "leader", x: 10.6, y: 172},
+      ],
+      stroke: "#c92a2a",
+      strokeWidth: 1.5,
+    },
+    {
+      shape: "Rect",
+      layer: "front",
+      data: [{id: "callout", x: 11.8, y: 172, width: 150, height: 40}],
+      fill: "#fff5f5",
+      stroke: "#c92a2a",
+      strokeWidth: 1.5,
+      label: "Store 7\n$182k from 9k visitors",
+      labelConfig: {
+        fontColor: "#c92a2a",
+        fontSize: 12,
+        padding: 4,
+        textAnchor: "middle",
+        verticalAlign: "middle",
+      },
+    },
+  ],
+};

@@ -1,0 +1,64 @@
+---
+title: Violin
+description: "Creates a violin plot from an array of raw observations: the value of each row is summarized per group as a kernel density estimate, drawn as a mirrored curve around the group's category."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/violin/basic-example.js?raw";
+import horizontal from "~/examples/core/charts/violin/horizontal.js?raw";
+import swarmedPoints from "~/examples/core/charts/violin/swarmed-points.js?raw";
+import sideBySide from "~/examples/core/charts/violin/side-by-side.js?raw";
+import splitViolins from "~/examples/core/charts/violin/split-violins.js?raw";
+import countScaled from "~/examples/core/charts/violin/count-scaled.js?raw";
+import smallMultiples from "~/examples/core/charts/violin/small-multiples.js?raw";
+
+Creates a violin plot from an array of raw observations: the `value` of
+each row is summarized per group as a kernel density estimate, drawn as a
+mirrored curve around the group's category. Set `discrete("y")` for
+horizontal violins, `inner` for the overlay inside each violin, and
+`densityScale` for how widths compare across violins.
+
+## Basic example
+
+Each group's `value`s become a kernel density estimate, mirrored around the group's category: the violin is widest where observations are densest. A narrow box plot inside marks the quartiles, the median (the light line), and the whiskers. Hover a violin for its observation count and quartiles.
+
+<Playground chart="Violin" code={basicExample} controls={["value","inner","densityScale","densityConfig"]} />
+
+## Horizontal
+
+`discrete: "y"` lays the categories down the y axis for horizontal violins. `inner: "quartiles"` swaps the box plot for a solid line at each median and dashed lines at the quartiles.
+
+<Playground chart="Violin" code={horizontal} controls={["discrete","inner"]} />
+
+## Swarmed points
+
+`inner: "points"` packs every observation into a swarm along the violin's center, each point hoverable on its own. By default (`densityScale: "area"`) every violin has the same area, so a tight distribution draws narrow and tall; `"width"` stretches every violin to the full width so their shapes are easier to compare.
+
+<Playground chart="Violin" code={swarmedPoints} controls={["inner","innerConfig","densityScale"]} />
+
+## Side by side
+
+With two `groupBy` levels, the first places each violin along the axis and the second sets violins side by side within it. The weekend's two humps (lunch and dinner) show up in the curves where a box plot would hide them.
+
+<Playground chart="Violin" code={sideBySide} controls={["groupBy","color"]} />
+
+## Split violins
+
+`split: true` draws a category holding exactly two groups as the two halves of one violin, putting the distributions back to back.
+
+<Playground chart="Violin" code={splitViolins} controls={["split","inner"]} />
+
+## Count scaled
+
+`densityScale: "count"` weights each violin by its number of observations. `densityConfig` picks the kernel (`"gaussian"` or `"epanechnikov"`), the `bandwidth` (Silverman's rule of thumb by default), how many `points` each curve samples, and how far it runs past the data (`cut`, in bandwidths). `medianSort` orders the violins by median.
+
+<Playground chart="Violin" code={countScaled} controls={["densityScale","densityConfig","medianSort"]} />
+
+## Small multiples
+
+`facet` draws one panel per region, with every panel sharing the value axis and the violins sharing one width scale.
+
+<Playground chart="Violin" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="Violin" pkg="core" />

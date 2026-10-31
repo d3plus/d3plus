@@ -1,0 +1,39 @@
+---
+title: Priestley
+description: "Creates a Priestley timeline based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/priestley/basic-example.js?raw";
+import groupingBarsIntoLanes from "~/examples/core/charts/priestley/grouping-bars-into-lanes.js?raw";
+import missionTimeline from "~/examples/core/charts/priestley/mission-timeline.js?raw";
+import lanePadding from "~/examples/core/charts/priestley/lane-padding.js?raw";
+
+Creates a Priestley timeline based on an array of data.
+
+## Basic example
+
+Each bar spans from its `start` to its `end`, so bar length encodes duration and horizontal position shows when each element existed.
+
+<Playground chart="Priestley" code={basicExample} controls={["end","start"]} />
+
+## Grouping bars into lanes
+
+Passing `["parent", "id"]` to `groupBy` nests the bars into lanes by `parent`; the `shapeConfig.fill` function then colors each bar by its parent group.
+
+<Playground chart="Priestley" code={groupingBarsIntoLanes} controls={["groupBy","shapeConfig"]} />
+
+## Mission timeline
+
+Rover missions as lifespans: each bar runs from its landing year (`start`) to its final year (`end`), bars that overlap in time are stacked into separate lanes automatically, and a mission that started and ended in the same year still gets a visible sliver.
+
+<Playground chart="Priestley" code={missionTimeline} controls={["start","end"]} />
+
+## Lane padding
+
+`paddingInner` is the fraction of each lane left empty between bars and `paddingOuter` the space above the first and below the last lane, the same meaning they have for a d3 band scale.
+
+<Playground chart="Priestley" code={lanePadding} controls={["paddingInner","paddingOuter"]} />
+
+<ApiReference name="Priestley" pkg="core" />

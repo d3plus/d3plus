@@ -7,6 +7,7 @@
 import {findEntry} from "../../lib/api";
 import {uniqueId} from "../../lib/ids";
 import {markdown} from "../../lib/markdown";
+import {choiceOptions} from "./options";
 import {configKeys} from "./patch";
 import PlaygroundIsland from "./PlaygroundIsland";
 import type {Panel} from "./PlaygroundIsland";
@@ -45,7 +46,7 @@ const specs = keys.flatMap(key => {
     control: field.control as ControlSpec["control"],
     description: markdown(field.description),
   };
-  if (field.options) spec.options = field.options;
+  if (field.options) spec.options = choiceOptions(field.type, field.options);
   if (field.defaultValue !== undefined) spec.defaultValue = field.defaultValue;
   return [spec];
 });

@@ -1,0 +1,21 @@
+const config = {
+  data: [
+    {city: "Tokyo", region: "Asia", population: 37.4, growth: 0.2},
+    {city: "Delhi", region: "Asia", population: 31.0, growth: 3.1},
+    {city: "Shanghai", region: "Asia", population: 27.1, growth: 2.9},
+    {city: "São Paulo", region: "Americas", population: 22.0, growth: 0.9},
+    {city: "Mexico City", region: "Americas", population: 21.8, growth: 0.6},
+    {city: "Cairo", region: "Africa", population: 21.3, growth: 2.0},
+    {city: "Lagos", region: "Africa", population: 14.9, growth: 3.5},
+    {city: "Kinshasa", region: "Africa", population: 14.3, growth: 4.4},
+  ],
+  groupBy: "city",
+  color: "region",
+  discrete: "y",
+  x: "population",
+  y: "city",
+  size: "growth",
+  sizeMin: 4,
+  sizeMax: 12,
+  shapeConfig: {Line: {strokeWidth: 1, strokeDasharray: "3 2"}},
+};

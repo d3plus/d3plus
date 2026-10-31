@@ -1,0 +1,27 @@
+const config = {
+  center: "alpha",
+  data: [
+    {id: "alpha", value: 50},
+    {id: "beta", value: 100},
+    {id: "gamma", value: 10},
+    {id: "delta", value: 400},
+    {id: "epsilon", value: 25},
+    {id: "zeta", value: 800},
+    {id: "eta", value: 60},
+    {id: "theta", value: 150},
+    {id: "iota", value: 5},
+    {id: "kappa", value: 300},
+  ],
+  links: [
+    {source: "alpha", target: "beta"},
+    {source: "alpha", target: "gamma"},
+    {source: "alpha", target: "delta"},
+    {source: "beta", target: "epsilon"},
+    {source: "beta", target: "zeta"},
+    {source: "gamma", target: "eta"},
+    {source: "delta", target: "theta"},
+    {source: "delta", target: "iota"},
+    {source: "gamma", target: "kappa"},
+  ],
+  size: "value",
+};

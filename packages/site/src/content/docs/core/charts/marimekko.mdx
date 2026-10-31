@@ -1,0 +1,102 @@
+---
+title: Marimekko
+description: "Creates a Marimekko (mosaic) chart from an array of data: one bar per discrete value (x), as wide as its barWidth (by default its total), with the bar's groupBy segments stacked to 100% of its height."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/marimekko/basic-example.js?raw";
+import withoutWidthShares from "~/examples/core/charts/marimekko/without-width-shares.js?raw";
+import sharesBeneathNames from "~/examples/core/charts/marimekko/shares-beneath-names.js?raw";
+import shareLabels from "~/examples/core/charts/marimekko/share-labels.js?raw";
+import barWidthMeasure from "~/examples/core/charts/marimekko/bar-width-measure.js?raw";
+import absoluteHeights from "~/examples/core/charts/marimekko/absolute-heights.js?raw";
+import horizontal from "~/examples/core/charts/marimekko/horizontal.js?raw";
+import gapsAndOrder from "~/examples/core/charts/marimekko/gaps-and-order.js?raw";
+import smallMultiples from "~/examples/core/charts/marimekko/small-multiples.js?raw";
+import smallMultiplesIndependent from "~/examples/core/charts/marimekko/small-multiples-independent.js?raw";
+import variableWidthBarChart from "~/examples/core/charts/marimekko/variable-width-bar-chart.js?raw";
+import sideBySideSeries from "~/examples/core/charts/marimekko/side-by-side-series.js?raw";
+
+Creates a Marimekko (mosaic) chart from an array of data: one bar per
+discrete value (`x`), as wide as its `barWidth` (by default its total),
+with the bar's `groupBy` segments stacked to 100% of its height. Each
+category is named beneath its bar, with the bar's share of the total
+width above it (see `barWidthShare`), and tooltips
+show each segment's value, its share of the bar, and the bar's width and
+share of the total width. Set `stackOffset("none")` to stack absolute
+values instead.
+
+## Basic example
+
+Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region is named beneath its bar, with its share of the market above it. A name wraps to fit a narrow bar and can widen into room its neighbors leave; a label that still can't fit is left out, and the names rotate only when half or more can't fit. Hover a segment for its revenue, its share of the region, and the region's total and share of the market.
+
+<Playground chart="Marimekko" code={basicExample} controls={["groupBy","x","y"]} />
+
+## Without width shares
+
+`barWidthShare(false)` labels each region by name alone, leaving each bar's share of the total width to its tooltip.
+
+<Playground chart="Marimekko" code={withoutWidthShares} controls={["barWidthShare"]} />
+
+## Shares beneath names
+
+`barWidthShare(true)` moves each region's share of the market from above its bar to a line beneath its name ("Retail" over "50%"). The default, `"opposite"`, keeps the names alone along the bottom and draws the shares on an axis above the bars (to their right when the bars run along `y`), styled with `x2Config` (or `y2Config`).
+
+<Playground chart="Marimekko" code={sharesBeneathNames} controls={["barWidthShare"]} />
+
+## Share labels
+
+`barWidthShareFormat` writes each bar's share label. It is called with the merge of the bar's rows (here, the region with its brands' revenue summed) and the bar's `{share, size, total, text}`: its share of the total width from 0 to 1, its width measure, every bar's combined width, and the default label. Here each region shows its revenue next to its share of the market.
+
+<Playground chart="Marimekko" code={shareLabels} controls={["barWidthShareFormat"]} />
+
+## Bar width measure
+
+`barWidth` sizes each bar by its own measure instead of its total: here each region is as wide as its phones sold, so Latin America and the Middle East & Africa, which sell many low-priced phones, widen, and North America narrows. Each label's share is of the units sold. The measure is read off the merge of the bar's rows, which sums numbers; when every row repeats its bar's value, as `"Units Sold"` does here, merge it with `aggs` instead.
+
+<Playground chart="Marimekko" code={barWidthMeasure} controls={["barWidth","aggs"]} />
+
+## Absolute heights
+
+`stackOffset("none")` stacks absolute values, so each bar's height is its total too.
+
+<Playground chart="Marimekko" code={absoluteHeights} controls={["stackOffset"]} />
+
+## Horizontal
+
+With `discrete("y")` the bars run horizontally: each region's row is as tall as its total, and its segments fill the width. Each region is named on the left, with its share of the market on an axis to the right of its row.
+
+<Playground chart="Marimekko" code={horizontal} controls={["discrete","x","y"]} />
+
+## Gaps and order
+
+`groupPadding` opens a pixel gap between bars, and `xSort` orders the bars, receiving each bar's merged data (here, widest first).
+
+<Playground chart="Marimekko" code={gapsAndOrder} controls={["groupPadding","xSort"]} />
+
+## Small multiples
+
+`facet` draws one mosaic per year on a shared width scale, so a narrower panel is a smaller market, while each region's label and tooltip show its share of that year's own total, so every year's shares add to 100%. Every panel labels its own regions, but the 0–100% axis is the same in each, so only the left column draws it, leaving the other panels' bars its room.
+
+<Playground chart="Marimekko" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+## Small multiples independent
+
+`facetConfig({scales: "independent"})` fits each year's mosaic to its own panel, so every panel fills its width and each region's label shows its share of that year's total. The 0–100% axis still reads the same in every panel, so it stays on the left column alone; `facetConfig({axes: "all"})` gives every panel its own.
+
+<Playground chart="Marimekko" code={smallMultiplesIndependent} controls={["facet","facetConfig"]} />
+
+## Variable width bar chart
+
+Any BarChart takes `barWidth`. Here each country's bar is as wide as its population and as tall as its GDP per capita, so its area is its total GDP.
+
+<Playground chart="BarChart" code={variableWidthBarChart} controls={["barWidth"]} />
+
+## Side by side series
+
+Unstacked series split each variable-width bar side by side, spaced by `barPadding`, the way grouped bars split a category. Each sector's bar is as wide as its employees, and `barWidthShare` adds each sector's share of them to its label.
+
+<Playground chart="BarChart" code={sideBySideSeries} controls={["barWidth","barWidthShare","barPadding","groupPadding"]} />
+
+<ApiReference name="Marimekko" pkg="core" />

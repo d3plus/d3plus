@@ -1,0 +1,130 @@
+---
+title: Geomap
+description: "Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import choroplethMap from "~/examples/core/charts/geomap/choropleth-map.js?raw";
+import coordinatePointMap from "~/examples/core/charts/geomap/coordinate-point-map.js?raw";
+import changingProjection from "~/examples/core/charts/geomap/changing-projection.js?raw";
+import onlyAreasWithData from "~/examples/core/charts/geomap/only-areas-with-data.js?raw";
+import changingTileset from "~/examples/core/charts/geomap/changing-tileset.js?raw";
+import lightAndDarkTiles from "~/examples/core/charts/geomap/light-and-dark-tiles.js?raw";
+import changingNoDataColor from "~/examples/core/charts/geomap/changing-no-data-color.js?raw";
+import customColors from "~/examples/core/charts/geomap/custom-colors.js?raw";
+import customZoom from "~/examples/core/charts/geomap/custom-zoom.js?raw";
+import disableZooming from "~/examples/core/charts/geomap/disable-zooming.js?raw";
+import hidingTheColorScale from "~/examples/core/charts/geomap/hiding-the-color-scale.js?raw";
+import overridingColorscaleBehavior from "~/examples/core/charts/geomap/overriding-colorscale-behavior.js?raw";
+import removingOceanAndTiles from "~/examples/core/charts/geomap/removing-ocean-and-tiles.js?raw";
+import renderingToCanvas from "~/examples/core/charts/geomap/rendering-to-canvas.js?raw";
+import pointMotionTrails from "~/examples/core/charts/geomap/point-motion-trails.js?raw";
+import pointSizeLegend from "~/examples/core/charts/geomap/point-size-legend.js?raw";
+import sideColorScale from "~/examples/core/charts/geomap/side-color-scale.js?raw";
+
+Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.
+
+## Choropleth map
+
+Joins data to the `topojson` shapes via `groupBy` and fills each region by its `colorScale` value; `colorScaleConfig`'s `tickFormat` renders the legend ticks as percentages.
+
+<Playground chart="Geomap" code={choroplethMap} controls={["colorScale","colorScaleConfig","ocean","projection","tiles","topojson"]} />
+
+## Coordinate point map
+
+Rather than shading regions, this drops a marker per datum: `point` returns each row's `[longitude, latitude]`, and `pointSize` scales the radius between `pointSizeMin` and `pointSizeMax` by `dma_code`.
+
+<Playground chart="Geomap" code={coordinatePointMap} controls={["point","pointSize","pointSizeMin","pointSizeMax"]} />
+
+## Changing projection
+
+Any d3-geo projection name can be passed to `projection`; `"geoMercator"` gives the familiar cylindrical world view, while `topojsonFilter` drops Antarctica (`id !== "010"`).
+
+<Playground chart="Geomap" code={changingProjection} controls={["projection","topojson","topojsonFilter"]} />
+
+## Only areas with data
+
+An array of ids passed to `topojsonFilter` keeps only those features, so the map draws just the areas with data and zooms to fit them. For data that changes, pass a function over the features instead: `const ids = new Set(data.map(d => d.id))`, then `topojsonFilter: f => ids.has(f.id)`.
+
+<Playground chart="Geomap" code={onlyAreasWithData} controls={["topojsonFilter"]} />
+
+## Changing the tileset
+
+Point `tileUrl` at any XYZ tile server to swap the background imagery. `noKeyTilesets` lists every server that needs no account or API key: change the name in the code to try another. Esri's Canvas layers are the default, Light Gray on a light page and Dark Gray on a dark one. The credit in the corner updates to match, and any other `{z}/{x}/{y}` template works too (Esri's services order it `{z}/{y}/{x}`).
+
+<Playground chart="Geomap" code={changingTileset} controls={[]} />
+
+## Light and dark tiles
+
+`tileUrl` and `ocean` also accept a `{light, dark}` pair, and the defaults are one: Esri Light Gray Canvas on a light backdrop and Dark Gray Canvas on a dark one, with a matching ocean and no-data fill. Geomap reads the backdrop from the page (the nearest background color, or a dark `color-scheme` on a dark system) and redraws when it changes: switch this site between light and dark to see it.
+
+<Playground chart="Geomap" code={lightAndDarkTiles} controls={[]} />
+
+## Changing no data color
+
+`topojsonFill` sets the color for shapes with no matching data (here light pink), so empty regions read differently from those on the `colorScale`.
+
+<Playground chart="Geomap" code={changingNoDataColor} controls={["topojsonFill"]} />
+
+## Custom colors
+
+Override the default color interpolation by passing an explicit ramp to `colorScaleConfig`'s `color` array — here red → orange → yellow → green → blue across the range.
+
+<Playground chart="Geomap" code={customColors} controls={["colorScaleConfig"]} />
+
+## Custom zoom
+
+`fitObject` frames the initial view to a custom TopoJSON object; the two `MultiPoint` corners here define the bounding box the map zooms to fit.
+
+<Playground chart="Geomap" code={customZoom} controls={["fitObject"]} />
+
+## Disable zooming
+
+`zoom: false` turns off panning and scroll-to-zoom, locking the map at its initial extent.
+
+<Playground chart="Geomap" code={disableZooming} controls={["zoom"]} />
+
+## Hiding the color scale
+
+`colorScalePosition: false` hides the legend while regions stay shaded by `colorScale` — useful when the scale is documented elsewhere.
+
+<Playground chart="Geomap" code={hidingTheColorScale} controls={["colorScalePosition"]} />
+
+## Overriding colorscale behavior
+
+The color scale normally auto-detects its type from the data; setting `colorScaleConfig`'s `scale: "linear"` forces a plain linear ramp instead of the automatic choice.
+
+<Playground chart="Geomap" code={overridingColorscaleBehavior} controls={["colorScaleConfig"]} />
+
+## Removing ocean and tiles
+
+Set `ocean: "transparent"` and `tiles: false` to strip the water fill and background map tiles, leaving just the choropleth shapes.
+
+<Playground chart="Geomap" code={removingOceanAndTiles} controls={["ocean","tiles"]} />
+
+## Rendering to canvas
+
+The same choropleth painted with the Canvas backend (`renderer: "canvas"`). Geography, color scale, tooltips, and zoom all work; SVG remains the default.
+
+<Playground chart="Geomap" code={renderingToCanvas} controls={["renderer"]} />
+
+## Point motion trails
+
+Motion trails aren't just for scatter plots — Geomap coordinate points trail too, and are **on by default**. Press **play**: each storm track sweeps a tapering cone from its previous position to the next as the timeline advances, tracing its path across the map. Toggle `renderer` to compare the SVG and Canvas backends.
+
+<Playground chart="Geomap" code={pointMotionTrails} controls={["renderer","time"]} />
+
+## Point size legend
+
+Coordinate points sized by `pointSize` get a size legend in the corner, drawn with the same `pointSizeScale` as the points. The points scale with the map as you zoom in, so the legend keeps its circles the same size and relabels them: at 4× zoom, the largest circle represents a much smaller population than it does unzoomed.
+
+<Playground chart="Geomap" code={pointSizeLegend} controls={["pointSize","pointSizeMin","pointSizeMax","pointSizeScale","sizeLegendConfig"]} />
+
+## Side color scale
+
+A left or right `colorScalePosition` fits the scale between everything above and below the map (a title, a top legend, a timeline), and starts it below the control buttons in the corner on its side, so the buttons never cover the scale's top label.
+
+<Playground chart="Geomap" code={sideColorScale} controls={["colorScalePosition","title"]} />
+
+<ApiReference name="Geomap" pkg="core" />

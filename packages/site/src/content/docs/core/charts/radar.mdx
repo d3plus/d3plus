@@ -1,0 +1,67 @@
+---
+title: Radar
+description: "Creates a radar visualization based on an array of data."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/radar/basic-example.js?raw";
+import multipleSeries from "~/examples/core/charts/radar/multiple-series.js?raw";
+import moreMetrics from "~/examples/core/charts/radar/more-metrics.js?raw";
+import levelsAndPadding from "~/examples/core/charts/radar/levels-and-padding.js?raw";
+import levelLabels from "~/examples/core/charts/radar/level-labels.js?raw";
+import levelLabelStyling from "~/examples/core/charts/radar/level-label-styling.js?raw";
+import longMetricLabels from "~/examples/core/charts/radar/long-metric-labels.js?raw";
+import axisStyles from "~/examples/core/charts/radar/axis-styles.js?raw";
+
+Creates a radar visualization based on an array of data.
+
+## Basic example
+
+`metric` names the field that becomes each spoke of the web while `value` sets how far along a spoke each point reaches; the two `groupBy` ids draw as separate polygons.
+
+<Playground chart="Radar" code={basicExample} controls={["metric","value"]} />
+
+## Multiple series
+
+Two series overlaid on the same axes, one filled polygon per group.
+
+<Playground chart="Radar" code={multipleSeries} controls={["metric","value"]} />
+
+## More metrics
+
+Eight `metric` values make eight evenly spaced spokes, and three `groupBy` series become three overlaid polygons, which is the typical skills-profile use of a radar.
+
+<Playground chart="Radar" code={moreMetrics} controls={["metric","value"]} />
+
+## Levels and padding
+
+`levels` sets roughly how many concentric rings are drawn behind the polygons (three here instead of the default six). Like axis ticks, the rings land on round values, so the count is a target rather than an exact number. By default the web is sized to fit its metric labels; a number for `outerPadding` (90 here) reserves exactly that many pixels around the web for them instead.
+
+<Playground chart="Radar" code={levelsAndPadding} controls={["levels","outerPadding"]} />
+
+## Level labels
+
+Each ring is labeled with its value along the vertical axis. Passing an array to `levels` sets the exact ring values (here a 0–100 scale), and `levelFormat` formats each label. Set `levelLabels` to `false` to hide them.
+
+<Playground chart="Radar" code={levelLabels} controls={["levels","levelFormat","levelLabels"]} />
+
+## Level label styling
+
+`levelLabelAngle` turns the labels to any direction, in degrees clockwise from 12 o'clock — 22.5 runs them between the top two spokes instead of along one. `levelLabelConfig` styles the label text. The labels sit beneath the polygons, so data drawn over a ring covers its label.
+
+<Playground chart="Radar" code={levelLabelStyling} controls={["levelLabelAngle","levelLabelConfig","levels"]} />
+
+## Long metric labels
+
+With the default `outerPadding: "auto"`, the web takes the largest radius at which every metric label fits inside the chart. A label too long for that wraps onto two lines (truncating only if it still doesn't fit) instead of shrinking the web below half its largest possible size.
+
+<Playground chart="Radar" code={longMetricLabels} controls={["outerPadding"]} />
+
+## Axis styles
+
+The rings and spokes are styled like a Plot axis: `axisConfig.gridConfig` styles the inner rings (faint gridlines by default), `axisConfig.barConfig` the outer ring (the axis line), and `axisConfig.shapeConfig` the spokes and their labels.
+
+<Playground chart="Radar" code={axisStyles} controls={["axisConfig"]} />
+
+<ApiReference name="Radar" pkg="core" />

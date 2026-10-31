@@ -1,0 +1,53 @@
+---
+title: Donut
+description: "Extends the Pie visualization to create a donut chart."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/donut/basic-example.js?raw";
+import customHoleSize from "~/examples/core/charts/donut/custom-hole-size.js?raw";
+import sortedWithLegend from "~/examples/core/charts/donut/sorted-with-legend.js?raw";
+import drillDown from "~/examples/core/charts/donut/drill-down.js?raw";
+import halfDonut from "~/examples/core/charts/donut/half-donut.js?raw";
+import threeQuarterDonut from "~/examples/core/charts/donut/three-quarter-donut.js?raw";
+
+Extends the Pie visualization to create a donut chart.
+
+## Basic example
+
+Each arc's angle is proportional to its `value` (Sold); the default `innerRadius` leaves the center hole that sets a donut apart from a pie.
+
+<Playground chart="Donut" code={basicExample} controls={["value"]} />
+
+## Custom hole size
+
+Raise `innerRadius` (here 120px) to enlarge the center hole, thinning the ring into a narrow band.
+
+<Playground chart="Donut" code={customHoleSize} controls={["innerRadius"]} />
+
+## Sorted with legend
+
+`sort` orders the arcs clockwise from the top, here largest first, and `legendPosition: "right"` moves the legend beside the ring so the labels and the arcs read in the same order.
+
+<Playground chart="Donut" code={sortedWithLegend} controls={["sort","legendPosition"]} />
+
+## Drill down
+
+A two-level `groupBy` with `depth: 0` shows one arc per category; clicking an arc drills into its children and a back button returns. The ring behaves exactly like the Pie it extends.
+
+<Playground chart="Donut" code={drillDown} controls={["depth","groupBy"]} />
+
+## Half donut
+
+`startAngle` and `endAngle` (degrees clockwise from 12 o'clock) draw a partial ring: from -90 to 90 makes a half donut, like a parliament seat chart. The ring is sized to its own footprint, and centered, so a half ring fills the chart's width.
+
+<Playground chart="Donut" code={halfDonut} controls={["startAngle","endAngle","innerRadius"]} />
+
+## Three quarter donut
+
+From -135 to 135 degrees the ring sweeps 270°, leaving a gap at the bottom like a gauge. The slices still divide the sweep by `value`.
+
+<Playground chart="Donut" code={threeQuarterDonut} controls={["startAngle","endAngle","innerRadius"]} />
+
+<ApiReference name="Donut" pkg="core" />

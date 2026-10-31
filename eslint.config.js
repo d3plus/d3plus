@@ -141,7 +141,11 @@ export default [
     files: ["packages/site/src/examples/**/*.js"],
     rules: {
       "no-undef": "off",
-      "no-unused-vars": ["error", {varsIgnorePattern: "^config$"}],
+      // Callbacks keep the full signature d3plus calls them with.
+      "no-unused-vars": [
+        "error",
+        {varsIgnorePattern: "^config$", args: "none"},
+      ],
     },
   },
   {
