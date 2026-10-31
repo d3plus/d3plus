@@ -4,6 +4,7 @@ import {
   BarChart,
   BubbleChart,
   Donut,
+  Gantt,
   Hexbin,
   LinePlot,
   Scatter,
@@ -122,6 +123,36 @@ it("renderToStaticSVG renders a SlopeChart with labels at both ends", async () =
   assert.strictEqual((svg.match(/<circle/g) || []).length, 6, "end markers");
   for (const label of ["Brazil 41", "Brazil 47", "Peru 31", "Peru 30"])
     assert.ok(svg.includes(label), `labels "${label}"`);
+});
+
+it("renderToStaticSVG renders a Gantt's bars, milestone, and dependency arrow", async () => {
+  const viz = new Gantt()
+    .data([
+      {id: "Plan", start: "2024-03-04", end: "2024-03-08", progress: 0.5},
+      {
+        id: "Build",
+        start: "2024-03-11",
+        end: "2024-03-22",
+        dependencies: ["Plan"],
+      },
+      {
+        id: "Launch",
+        start: "2024-03-25",
+        end: "2024-03-25",
+        dependencies: ["Build"],
+      },
+    ])
+    .groupBy("id");
+  const svg = await renderToStaticSVG(viz, {width: 500, height: 240});
+  assert.ok(svg.startsWith("<svg"));
+  assert.ok(
+    (svg.match(/<rect[^>]*data-key="gantt-task-/g) || []).length >= 3,
+    "bars",
+  );
+  assert.ok(/data-key="gantt-milestone-Launch"/.test(svg), "milestone");
+  assert.ok(/data-key="gantt-dependency-Plan-Build"/.test(svg), "arrow");
+  for (const label of ["Plan", "Build", "Launch"])
+    assert.ok(svg.includes(`>${label}<`), `labels ${label}`);
 });
 
 it("renderToStaticSVG reads dimensions from the chart when omitted", async () => {

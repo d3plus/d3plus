@@ -6,10 +6,6 @@
       - `emit.ts` — Rect + label scene nodes per band.
 */
 
-import {min, max} from "d3-array";
-
-import accessor from "../../utils/accessor.js";
-import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {Axis} from "../../components/index.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {DataPoint} from "@d3plus/data";
@@ -18,6 +14,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyPriestleyLayout} from "./applyLayout.js";
 import {priestleyEmit} from "./emit.js";
+import {seedTimeAggs, timeFields} from "./timeAxis.js";
 
 export const priestleyDef: ChartDefinition = {
   name: "Priestley",
@@ -31,10 +28,7 @@ export const priestleyDef: ChartDefinition = {
   // The default start/end accessors are functions, so the fields' `onSet`
   // can't infer a data key to register. Seed the band-edge reducers here so
   // the time domain spans min(start)…max(end) instead of summing them.
-  setup: viz => {
-    if (!viz.schema.aggs.start) viz.schema.aggs.start = min;
-    if (!viz.schema.aggs.end) viz.schema.aggs.end = max;
-  },
+  setup: seedTimeAggs,
 
   ctx: {
     axis: new Axis().align("end").orient("bottom"),
@@ -59,35 +53,7 @@ export const priestleyDef: ChartDefinition = {
       merge: true,
       default: {scale: "time"},
     },
-    /**
-        Accessor function or string key for the end date of each data point. A
-        key also aggregates grouped rows by their latest end.
-        @type {string | function}
-    */
-    {
-      key: "end",
-      default: accessor("end"),
-      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
-      onSet: (viz, v) => {
-        // String accessor → also seed a default aggregation (max) for that key.
-        const key = typeof v === "function" ? null : (v as string);
-        if (key && !viz.schema.aggs[key]) viz.schema.aggs[key] = max;
-      },
-    },
-    /**
-        Accessor function or string key for the start date of each data point. A
-        key also aggregates grouped rows by their earliest start.
-        @type {string | function}
-    */
-    {
-      key: "start",
-      default: accessor("start"),
-      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
-      onSet: (viz, v) => {
-        const key = typeof v === "function" ? null : (v as string);
-        if (key && !viz.schema.aggs[key]) viz.schema.aggs[key] = min;
-      },
-    },
+    ...timeFields(),
     {
       key: "shapeConfig",
       merge: true,

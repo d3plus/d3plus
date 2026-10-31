@@ -50,6 +50,89 @@ export {
 export type {ArcBox, PieSweep, RingFit} from "./src/charts/Pie/arcFit.js";
 export {applyPolarAreaLayout} from "./src/charts/PolarArea/applyLayout.js";
 export {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
+export {
+  isTimeAxis,
+  measureTimeAxis,
+  parseTime,
+  renderTimeAxis,
+  rowTime,
+  seedTimeAggs,
+  timeFields,
+} from "./src/charts/Priestley/timeAxis.js";
+export type {
+  TimeAxisFrame,
+  TimeAxisSize,
+  TimeValue,
+} from "./src/charts/Priestley/timeAxis.js";
+export {
+  applyGanttLayout,
+  ganttDomain,
+  ganttTasks,
+  LABEL_INDENT,
+  LABEL_PADDING,
+  MAX_ROW_STEP,
+} from "./src/charts/Gantt/applyLayout.js";
+export type {GanttLayout, GanttMark} from "./src/charts/Gantt/applyLayout.js";
+export {
+  ganttEmit,
+  milestoneRadius,
+  remainingShade,
+  REMAINING_MIX,
+} from "./src/charts/Gantt/emit.js";
+export {
+  dependencyNodes,
+  dependencyStyle,
+  groupNodes,
+  labelNodes,
+  taskEnd,
+  taskStart,
+  todayNodes,
+  todayValue,
+} from "./src/charts/Gantt/ganttDecor.js";
+export type {DependencyStyle} from "./src/charts/Gantt/ganttDecor.js";
+export {
+  bracketPath,
+  diamondPath,
+  elbowRoute,
+  labelColumnWidth,
+  progressSplit,
+} from "./src/charts/Gantt/ganttGeometry.js";
+export type {Point, Span} from "./src/charts/Gantt/ganttGeometry.js";
+export {
+  ellipsize,
+  fitLabel,
+  ganttLabelFont,
+  LABEL_FONT_SIZE,
+  labelWidth,
+} from "./src/charts/Gantt/ganttLabels.js";
+export type {
+  FittedLabel,
+  GanttLabelFont,
+} from "./src/charts/Gantt/ganttLabels.js";
+export {
+  dependencyIds,
+  ganttRows,
+  isMilestone,
+  normalizeProgress,
+  sortTasks,
+} from "./src/charts/Gantt/ganttRows.js";
+export type {
+  GanttGroupRow,
+  GanttRow,
+  GanttTask,
+  GanttTaskRow,
+  TaskSort,
+} from "./src/charts/Gantt/ganttRows.js";
+export {
+  dayCount,
+  ganttAriaLabel,
+  ganttDuration,
+  ganttTooltipRows,
+  percent,
+  taskTimes,
+  timeFormatter,
+} from "./src/charts/Gantt/ganttTooltip.js";
+export type {TaskTimes} from "./src/charts/Gantt/ganttTooltip.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
 export {applyRadialBarLayout} from "./src/charts/RadialBar/applyLayout.js";
 export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
@@ -942,6 +1025,7 @@ export {chordDef} from "./src/charts/Chord/index.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {funnelDef} from "./src/charts/Funnel/index.js";
+export {ganttDef, progressAgg, taskAccessor} from "./src/charts/Gantt/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";

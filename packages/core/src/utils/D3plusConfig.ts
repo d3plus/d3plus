@@ -1085,6 +1085,20 @@ export interface D3plusConfig {
       shape to the full width (Violin) or height (Ridgeline).
   */
   densityScale?: "area" | "count" | "width";
+  /**
+      Gantt: accessor or data key for each task's predecessors, the ids (by
+      `groupBy`) of the tasks it waits on, as an array or a comma-separated
+      string (default `"dependencies"`). Each draws an elbow arrow from the
+      predecessor's end to the task's start.
+  */
+  dependencies?: string | ((d: DataPoint, i: number) => unknown) | false;
+  /** Gantt: styles the dependency arrows: `stroke` (the chart's text color by default), `strokeWidth` (1), `strokeOpacity` (0.55), and `arrowSize` (6, in pixels). */
+  dependencyConfig?: {
+    stroke?: string;
+    strokeWidth?: number;
+    strokeOpacity?: number;
+    arrowSize?: number;
+  };
   /** Active depth level for nested groupings. */
   depth?: number;
   /**
@@ -1125,6 +1139,11 @@ export interface D3plusConfig {
   downColor?: string | ((d: DataPoint, i: number) => string);
   /** Default duration of transitions, in milliseconds. */
   duration?: number;
+  /**
+      Priestley and Gantt: accessor or data key for each row's end (default
+      `"end"`). A key also aggregates grouped rows by their latest end.
+  */
+  end?: string | ((d: DataPoint, i: number) => unknown);
   /** Calendar: the fill of days without a value. Defaults to the theme's `colorScale.missing` when it sets one, else a faint tint of the chart's text color, legible on light and dark backgrounds. */
   emptyFill?: string;
   /** Splits the chart into small multiples: one equally sized panel per distinct value of this data key or accessor, sharing one legend, color scale, title, and timeline. `false` draws a single chart. */
@@ -1218,6 +1237,12 @@ export interface D3plusConfig {
       order. A `ySort`/`xSort` comparator on the category axis takes precedence.
   */
   gapSort?: false | "ascending" | "descending";
+  /**
+      Gantt: accessor or data key for each task's group, such as its project
+      phase. Grouped tasks sit under a header row naming the group, with a
+      bracket spanning its tasks.
+  */
+  group?: string | ((d: DataPoint, i: number) => unknown) | false;
   /** Grouping key(s) or accessor function(s). */
   groupBy?:
     | string
@@ -1337,6 +1362,12 @@ export interface D3plusConfig {
       per-datum object key — pass a function for that).
   */
   label?: string | string[] | false | AccessorFn;
+  /**
+      Gantt: the most the task label column may take: a share of the chart's
+      width when 1 or below (default `0.3`), else pixels. The column fits the
+      widest label up to it, wrapping or truncating longer ones; `0` hides it.
+  */
+  labelWidth?: number;
   /**
       Where each shape's label goes, as a string for every shape or a
       `(d, i) => string` accessor of the data row.
@@ -1506,6 +1537,12 @@ export interface D3plusConfig {
   /** Orders Violin and Ridgeline categories by median: `false` (default; data order), `"ascending"`, or `"descending"`. */
   medianSort?: false | "ascending" | "descending";
   /**
+      Gantt: accessor or data key for whether a task is a milestone, drawn as
+      a diamond at its `end` (default `"milestone"`). Without one, a task that
+      starts and ends at the same time is a milestone.
+  */
+  milestone?: string | ((d: DataPoint, i: number) => unknown) | false;
+  /**
       The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.
   */
   messageMask?: string | boolean;
@@ -1591,6 +1628,10 @@ export interface D3plusConfig {
       reserves exactly that much room and wraps labels to that width.
   */
   outerPadding?: number | "auto";
+  /** Priestley and Gantt: the space between neighboring bars, as a share of each row (d3's band `paddingInner`). */
+  paddingInner?: number;
+  /** Priestley and Gantt: the space before the first row and after the last, as a share of a row (d3's band `paddingOuter`). */
+  paddingOuter?: number;
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
   /** Calendar: what each block covers — `"year"` (the default; whole years, stacked) or `"month"` (whole months, as a grid of small calendars). */
@@ -1624,6 +1665,14 @@ export interface D3plusConfig {
   pointSizeMin?: number;
   /** Maximum point size for geomaps. */
   pointSizeMax?: number;
+  /**
+      Gantt: accessor or data key for each task's progress, a fraction from 0
+      to 1 (`0.6`) or a percent string (`"60%"`); default `"progress"`. The
+      done part of the bar fills in the task's color and the rest in a paler
+      shade, and the tooltip lists it. A milestone below 100% draws pale and
+      outlined. A key also averages grouped rows' progress.
+  */
+  progress?: string | ((d: DataPoint, i: number) => unknown) | false;
   /** Map projection name or function. */
   projection?: string | ((x: number, y: number) => [number, number]);
   /** Outer padding between the visualization edge and map shapes. */
@@ -1827,6 +1876,11 @@ export interface D3plusConfig {
       exactly two violins as the two halves of one shape instead.
   */
   split?: boolean;
+  /**
+      Priestley and Gantt: accessor or data key for each row's start (default
+      `"start"`). A key also aggregates grouped rows by their earliest start.
+  */
+  start?: string | ((d: DataPoint, i: number) => unknown);
   /** Funnel: the gap between consecutive stages, as a fraction (0–1) of each stage's slot. */
   stagePadding?: number;
   /** Whether to stack series. */
@@ -1931,6 +1985,18 @@ export interface D3plusConfig {
   tableViewSort?: boolean;
   /** Funnel: narrows each stage toward the next stage's width, drawing a continuous funnel instead of flat bars. */
   taper?: boolean;
+  /** Gantt: styles the task label column: `fontColor` (the chart's text color by default), `fontFamily`, and `fontSize` (12). */
+  taskLabelConfig?: {
+    fontColor?: string;
+    fontFamily?: string | string[];
+    fontSize?: number;
+  };
+  /**
+      Gantt: the order of the tasks: `"data"` (the default) keeps the data's
+      order, `"start"` sorts by start, and a function compares two data rows.
+      Groups follow their first task.
+  */
+  taskSort?: "data" | "start" | ((a: DataPoint, b: DataPoint) => number);
   /** Bullet: each row's target, drawn as a marker across the band: a data key, an accessor, a number shared by every row, or `false`. */
   target?: string | number | ((d: DataPoint, i: number) => number) | false;
   /** Bullet: the target marker's `size` (a fraction of the band's thickness), `stroke`, and `strokeWidth`, each a value or a `(d, i)` accessor. */
@@ -1994,6 +2060,19 @@ export interface D3plusConfig {
       Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
   */
   titlePadding?: boolean | ((viz: VizBase) => boolean);
+  /**
+      Gantt: draws a "today" line across the rows: `true` at the current
+      time, or a date (or anything the axis parses) to mark that time. Off
+      (`false`) by default; it only draws inside the time axis.
+  */
+  today?: boolean | Date | string | number;
+  /**
+      Gantt: styles the "today" line like a `referenceLines` entry: `stroke`,
+      `strokeWidth` (1.5), `strokeOpacity` (0.85), `dash`, and its `label`
+      (the translated "Today"; `false` for none), with the label's font and
+      `labelPosition`.
+  */
+  todayConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2" | "ref">;
   /** Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. */
   tooltip?: boolean | ((d: DataPoint, i: number) => boolean);
   /** Configuration for the tooltip component. */

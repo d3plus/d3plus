@@ -17,6 +17,7 @@ const charts = [
   ["Dumbbell", "dumbbell"],
   ["Fan Chart", "fanchart"],
   ["Funnel", "funnel"],
+  ["Gantt", "gantt"],
   ["Gauge", "gauge"],
   ["Geomap", "geomap"],
   ["Hexbin", "hexbin"],

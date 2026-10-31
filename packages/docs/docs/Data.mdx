@@ -71,6 +71,9 @@ rows inside it are left out. An axis with `rangeBreaks` over dates is a time
 axis even without `time`, and the timeline hides the same time as the axis
 that plots `time` (set `timelineConfig.rangeBreaks` to change that).
 
+A Gantt's time axis takes the same rules in `axisConfig`, so
+`axisConfig: {rangeBreaks: "weekends"}` draws a schedule of working days.
+
 ## Loading from a URL
 
 `data` accepts a URL string. D3plus fetches JSON (or CSV/TSV by extension) and

@@ -256,7 +256,7 @@ it("axisTimeLocale: the axis's timeLocale, else its locale's, else en-US", () =>
   );
 });
 
-it("axisTimeReference: a time axis's parsed data in order, else its domain", () => {
+it("axisTimeReference: a time axis's parsed data in order, else the labels its scale offers", () => {
   const data = draw({
     data: ["2026-03-01", "2026-01-01", "2026-02-01"],
     domain: ["2026-01-01", "2026-03-01"],
@@ -268,7 +268,27 @@ it("axisTimeReference: a time axis's parsed data in order, else its domain", () 
   const domain = draw({domain: ["2024-01-01", "2020-01-01"]});
   assert.deepStrictEqual(
     axisTimeReference(domain.axis).map(Number),
-    ["2020-01-01", "2024-01-01"].map(d => +date(d)),
+    domain.axis
+      ._getLabels()
+      .map(Number)
+      .sort((a, b) => a - b),
+  );
+  assert.ok(
+    axisTimeReference(domain.axis).every(d => d.getMonth() === 0),
+    "yearly",
+  );
+});
+
+it("axisTimeReference: without data, labels read the tick interval rather than the domain's ends", () => {
+  // Three months apart, the domain's ends alone would read as quarters.
+  const {labels} = draw({
+    domain: [new Date(2024, 2, 4), new Date(2024, 5, 10)],
+  });
+  assert.ok(labels.length > 2);
+  assert.ok(
+    labels.every(l => !/^Q/.test(l)) &&
+      labels.some(l => /^[A-Z][a-z]{2} \d/.test(l)),
+    `labels name days (got ${labels})`,
   );
 });
 

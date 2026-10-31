@@ -315,6 +315,21 @@ const charts = [
     ])`,
   ],
   [
+    "gantt",
+    `lib => new lib.Gantt()
+    .groupBy("task")
+    .group("phase")
+    .color("phase")
+    .today("2024-03-20")
+    .data([
+      {task: "Kickoff", phase: "Plan", start: "2024-03-04", end: "2024-03-04", progress: 1},
+      {task: "Research", phase: "Plan", start: "2024-03-04", end: "2024-03-15", progress: 1, dependencies: ["Kickoff"]},
+      {task: "Design", phase: "Build", start: "2024-03-18", end: "2024-03-29", progress: 0.4, dependencies: ["Research"]},
+      {task: "Develop", phase: "Build", start: "2024-03-25", end: "2024-04-12", progress: 0.1, dependencies: ["Design"]},
+      {task: "Launch", phase: "Build", start: "2024-04-15", end: "2024-04-15", dependencies: ["Develop"]},
+    ])`,
+  ],
+  [
     "radial-matrix",
     `lib => new lib.RadialMatrix()
     .groupBy(["row", "column"])
