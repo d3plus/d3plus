@@ -5,7 +5,7 @@ import {fitOwnSpaces} from "../../src/components/Axis/axisLabelThinning.ts";
 import {ownLabelSpaces} from "../../src/components/Axis/axisLayoutLabels.ts";
 
 /**
-    Marimekko's category labels at the Storybook canvas size (958 × 350), with
+    Marimekko's category labels at a wide docs example's size (958 × 350), with
     each bar's share beneath its name (`barWidthShare(true)`): each label
     wraps within its own bar's share of the axis, so the share line shows
     beneath every name. A label that can't fit, even widened into its

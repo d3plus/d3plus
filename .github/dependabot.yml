@@ -22,8 +22,6 @@ updates:
     groups:
       d3:
         patterns: ["d3-*", "@types/d3-*"]
-      storybook:
-        patterns: ["storybook", "@storybook/*", "eslint-plugin-storybook"]
       dev-tooling:
         dependency-type: development
       runtime:

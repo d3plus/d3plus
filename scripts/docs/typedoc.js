@@ -108,7 +108,7 @@ export function typeToNames(type) {
   // `Accessor<T>` — d3plus's "constant value or `(datum, index)` accessor"
   // config alias (utils/D3plusConfig.ts). TypeDoc leaves the alias unexpanded,
   // so expand it here to the value type + Function; that lets the value type
-  // (number/string/boolean/…) drive the Storybook control.
+  // (number/string/boolean/…) drive the playground control.
   if (
     type.type === "reference" &&
     type.name === "Accessor" &&

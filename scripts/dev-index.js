@@ -185,8 +185,7 @@ export function staticDevPackages() {
     .filter(
       dir =>
         fs.existsSync(path.join(dir, "dev")) &&
-        !fs.existsSync(path.join(dir, "vite.config.js")) &&
-        path.basename(dir) !== "docs",
+        !fs.existsSync(path.join(dir, "vite.config.js")),
     );
 }
 

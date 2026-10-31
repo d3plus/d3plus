@@ -1,12 +1,11 @@
 # Build output and files under .gitignore are skipped already.
 pnpm-lock.yaml
 
-# Prettier parses MDX 1 only; the Storybook docs are MDX 3.
+# Prettier parses MDX 1 only; the site's pages are MDX 3.
 *.mdx
 
 # Data and snapshots written by scripts and tests.
 packages/*/dev/**/*.json
 packages/*/dev/index.html
 packages/core/test/snapshots/
-packages/docs/static/
 packages/site/public/data/
