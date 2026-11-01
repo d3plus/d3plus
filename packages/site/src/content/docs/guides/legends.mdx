@@ -58,6 +58,16 @@ When `colorScale` maps a numeric value to color, a colorScale replaces the legen
 
 See **Guides → Color** for how the default sequential and diverging palettes are built.
 
+### Link values
+
+On Network, Rings, Sankey, and ArcDiagram, `linkColor` set to a key or accessor whose values are numbers colors the links on the colorScale, so a chart can show a legend for its nodes' colors and a colorScale for its links' values:
+
+```jsx
+<Network config={{nodes, links, color: "region", linkColor: "trips"}} />
+```
+
+When the chart also sets `colorScale` for its nodes, nodes and links share the one scale, its domain spanning both. On a light theme, a scale that colors links starts its ramp at a mid-tone instead of a near-white tint (`colorScaleConfig.ordinalRamp`), so the lowest-valued links still read as lines; the legend shows the same colors. Hovering a link marks its value on the colorScale.
+
 ## Size legend
 
 When a chart sizes its marks by a value, such as bubbles in a scatter plot, points on a map, or nodes in a network, a **size legend** shows what those sizes mean. It draws a set of concentric circles that share a bottom edge, under a centered title, with a short leader line from the top of each circle to a label giving the value it represents.

@@ -4,7 +4,7 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
-import type {SceneNode} from "@d3plus/render";
+import type {Paint, SceneNode} from "@d3plus/render";
 
 import {arrowEnds, arrowNode} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
@@ -21,6 +21,11 @@ import {
   linkMeta,
 } from "../features/linkInteraction.js";
 import type {LinkDatum} from "../features/linkInteraction.js";
+import {linkColorResolver} from "../features/linkColor.js";
+import type {LinkEnds} from "../features/linkColor.js";
+import {cubicMidpoint} from "../features/linkLabelGeometry.js";
+import type {LinkAnchor} from "../features/linkLabelGeometry.js";
+import {emitLinkLabels} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -36,7 +41,7 @@ export interface SankeyLink {
   y0?: number;
   y1?: number;
 }
-type SankeyNode = DataPoint & {
+export type SankeyNode = DataPoint & {
   __d3plus__?: true;
   data?: DataPoint;
   i?: number;
@@ -65,7 +70,7 @@ function emitSankeyArrows(
   link: SankeyLink,
   datum: DataPoint,
   i: number,
-  paint: ReturnType<typeof paintFromShapeConfig>,
+  paint: Paint,
 ): SceneNode[] {
   const arrows: SceneNode[] = [];
   const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, i);
@@ -107,6 +112,52 @@ function emitSankeyArrows(
   return arrows;
 }
 
+/** A link's scene key. */
+const sankeyLinkKey = (link: SankeyLink): string =>
+  `sankey-link-${link.source.id ?? ""}-${link.target.id ?? ""}`;
+
+/**
+    Where a link's label goes: the middle of its band, which runs as a
+    horizontal link curve from where it leaves its source to where it enters
+    its target.
+*/
+export function sankeyLinkAnchor(link: SankeyLink): LinkAnchor | null {
+  if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return null;
+  const x0 = link.source.x1;
+  const x1 = link.target.x0;
+  const xm = (x0 + x1) / 2;
+  return cubicMidpoint(
+    [x0, link.y0],
+    [xm, link.y0],
+    [xm, link.y1],
+    [x1, link.y1],
+  );
+}
+
+/** The link labels, centered on their bands, clear of every node. */
+function sankeyLinkLabels(viz: VizInstance, c: SankeyCtx): SceneNode[] {
+  return emitLinkLabels(
+    viz,
+    c.links.map((link, i) => ({
+      key: sankeyLinkKey(link),
+      link,
+      i,
+      anchor: sankeyLinkAnchor(link),
+      priority: link.value,
+    })),
+    {
+      boxes: c.nodeGroups.flatMap(([, values]) =>
+        values.map(n => ({
+          x: n.x0,
+          y: n.y0,
+          width: n.x1 - n.x0,
+          height: n.y1 - n.y0,
+        })),
+      ),
+    },
+  );
+}
+
 export const sankeyEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.sankeyCtx as SankeyCtx | undefined;
   if (!c) return [];
@@ -119,11 +170,19 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
     viz.schema.shapeConfig as Record<string, unknown> | undefined
   )?.Path ?? {}) as Record<string, unknown>;
   if (c.links && c.links.length) {
+    const linkColor = linkColorResolver(viz);
     for (const link of c.links) {
       const datum = link.datum;
       const i = linkMeta(datum)?.index ?? 0;
-      const paint = paintFromShapeConfig(linkConfig, datum, i);
-      const key = `sankey-link-${link.source.id ?? ""}-${link.target.id ?? ""}`;
+      const paint: Paint = paintFromShapeConfig(linkConfig, datum, i);
+      const stroke = linkColor(datum, link as unknown as LinkEnds);
+      if (stroke) {
+        // A colored band is see-through, so the flows it crosses show.
+        paint.stroke = stroke;
+        paint.strokeOpacity =
+          resolveAccessor<number>(linkConfig.strokeOpacity, datum, i) ?? 0.5;
+      }
+      const key = sankeyLinkKey(link);
       const d = c.pathFn(link);
       out.push({
         type: "path",
@@ -142,6 +201,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
 
       out.push(...emitSankeyArrows(viz, link, datum, i, paint));
     }
+    out.push(...sankeyLinkLabels(viz, c));
   }
 
   if (c.nodeGroups && c.nodeGroups.length) {

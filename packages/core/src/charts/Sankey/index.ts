@@ -37,6 +37,7 @@ import {applySankeyLayout, sankeyLinkStrokeWidth} from "./applyLayout.js";
 import {sankeyEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import {themeDark, themed} from "../../utils/theme.js";
+import {linkStyleFields} from "../features/linkFields.js";
 
 const sankeyAligns = {
   center: sankeyCenter,
@@ -239,6 +240,7 @@ export const sankeyDef: ChartDefinition = {
         nodes (see its [iterations](https://github.com/d3/d3-sankey#sankey_iterations)).
     */
     {key: "iterations", default: 6},
+    ...linkStyleFields(),
     {key: "links", default: accessor("links")},
     /**
         A comparator that orders the links at each node, passed to d3-sankey's

@@ -59,9 +59,17 @@ const colorMax = (cs: ColorScale): string =>
   cs.schema.colorMax ??
   themeScaleColor(cs._theme, "max", cs.schema.colorDefaults.sequential);
 
-/** A single-hue low→high ramp toward `base` that reads on the scale's theme. */
+/**
+    A single-hue low→high ramp toward `base` that reads on the scale's theme,
+    its palest step held darker on a light theme with `ordinalRamp`.
+*/
 const ramp = (cs: ColorScale, base: string, n: number): string[] =>
-  themeRamp(cs._theme, base, n);
+  themeRamp(
+    cs._theme,
+    base,
+    n,
+    Boolean(cs.schema.ordinalRamp) && !cs._theme?.dark,
+  );
 
 /**
     Steps a diverging pole `t` of the way back toward the midpoint: lighter on

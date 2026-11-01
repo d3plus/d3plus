@@ -78,7 +78,7 @@ export {
   placeArcLabel,
 } from "./src/charts/ArcDiagram/arcLabels.js";
 export type {ArcLabel, LabelFit} from "./src/charts/ArcDiagram/arcLabels.js";
-export {arcDiagramEmit} from "./src/charts/ArcDiagram/emit.js";
+export {arcDiagramEmit, arcLabelAnchor} from "./src/charts/ArcDiagram/emit.js";
 export {arcFocus, setupArcEvents} from "./src/charts/ArcDiagram/events.js";
 export {
   bindSvgBackgroundClick,
@@ -1601,6 +1601,57 @@ export {
   labelsOverCircles,
   plotCircleLabels,
 } from "./src/charts/Plot/circleLabels.js";
+export {
+  colorScaleColor,
+  colorScaleValue,
+  isScaleValue,
+  linkColorScaleRows,
+  noteLinkValue,
+} from "./src/charts/features/colorScaleValue.js";
+export {
+  coerceLinkColor,
+  linkColorResolver,
+  linkRow,
+  linkValueColor,
+} from "./src/charts/features/linkColor.js";
+export type {
+  LinkColorSetting,
+  DrawnLinkEnd,
+  LinkEnds,
+} from "./src/charts/features/linkColor.js";
+export {linkStyleFields} from "./src/charts/features/linkFields.js";
+export {
+  cubicAngle,
+  cubicMidpoint,
+  cubicPoint,
+  labelCorners,
+  labelHitsBox,
+  labelHitsCircle,
+  labelsOverlap,
+  placeLinkLabels,
+  segmentMidpoint,
+  uprightAngle,
+} from "./src/charts/features/linkLabelGeometry.js";
+export type {
+  LabelObstacles,
+  LinkAnchor,
+  LinkLabelBox,
+} from "./src/charts/features/linkLabelGeometry.js";
+export {
+  emitLinkLabels,
+  LINK_LABEL_DEFAULTS,
+  linkLabelSettings,
+  linkLabelText,
+  textLineBoxes,
+} from "./src/charts/features/linkLabels.js";
+export type {
+  LinkLabelRequest,
+  LinkLabelSettings,
+} from "./src/charts/features/linkLabels.js";
+export type {LinkLabelConfig} from "./src/utils/D3plusConfig.js";
+export {ringsEdgeAnchor} from "./src/charts/Rings/emit.js";
+export {sankeyLinkAnchor} from "./src/charts/Sankey/emit.js";
+
 export {geomapPointLabels} from "./src/charts/Geomap/pointLabels.js";
 export type {GeomapPoints} from "./src/charts/Geomap/pointLabels.js";
 export type {

@@ -9,6 +9,7 @@ import basicExample from "~/examples/core/charts/rings/basic-example.js?raw";
 import largerNetwork from "~/examples/core/charts/rings/larger-network.js?raw";
 import directionalArrows from "~/examples/core/charts/rings/directional-arrows.js?raw";
 import sizedNodes from "~/examples/core/charts/rings/sized-nodes.js?raw";
+import linkColor from "~/examples/core/charts/rings/link-color.js?raw";
 
 Creates a ring visualization based on a defined set of nodes and edges.
 
@@ -35,5 +36,11 @@ Nodes one hop from the center sit on the inner ring; their neighbors fan out to 
 `size` sizes every node, including the center, with one scale (square-root by default; see `sizeScale`), kept between `sizeMin` and `sizeMax`. A size legend in the corner shows what each radius means.
 
 <Playground chart="Rings" code={sizedNodes} controls={["size","sizeMin","sizeMax","sizeScale","sizeLegend"]} height={500} />
+
+## Link color and labels
+
+`linkColor: "source"` colors each link and its arrowhead like the node it leaves (`"target"` like the node it enters, or a key or accessor to color links by a value). `linkLabel` writes a value halfway along each link, on its curve for the links between the rings; a label that would cover a node or another label is hidden.
+
+<Playground chart="Rings" code={linkColor} controls={["linkColor","linkLabel","linkLabelConfig"]} />
 
 <ApiReference name="Rings" pkg="core" />

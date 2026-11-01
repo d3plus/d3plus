@@ -20,6 +20,7 @@ import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {ensureZoomDom} from "../features/ensureZoomDom.js";
+import {linkStyleFields} from "../features/linkFields.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {isPointShape} from "../viz/nearestHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
@@ -112,11 +113,7 @@ export const arcDiagramDef: ChartDefinition = {
         per link. Defaults to three times the arc's stroke width (at least 6).
     */
     {key: "arrowSize"},
-    /**
-        Colors each arc like one of its nodes: `"source"` or `"target"`.
-        `false` (the default) draws every arc in the theme's link gray.
-    */
-    {key: "linkColor", default: false},
+    ...linkStyleFields(),
     {key: "links", default: []},
     /**
         The thickness of each arc: a pixel number used for every link, or an

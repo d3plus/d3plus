@@ -25,6 +25,7 @@ import mouseleave from "../events/mouseleave.js";
 import mousemoveLegend from "../events/mousemove.legend.js";
 import mousemoveShape from "../events/mousemove.shape.js";
 
+import {colorScaleColor} from "../features/colorScaleValue.js";
 import {backgroundInk} from "./backgroundInk.js";
 import {defaultPadding, initLabelDefaults} from "./labelDefaults.js";
 import {linkedColorDefaults} from "./linkGroup.js";
@@ -326,15 +327,8 @@ function initShapeDefaults(viz: Viz): void {
       }
       if (viz.schema.colorScale) {
         const c = viz.schema.colorScale(d, i);
-        if (c !== undefined && c !== null) {
-          const scale = viz._colorScaleClass._colorScale;
-          const colors = viz._colorScaleClass.color();
-          if (!scale)
-            return colors instanceof Array ? colors[colors.length - 1] : colors;
-          else if (!scale.domain().length)
-            return scale.range()[scale.range().length - 1];
-          return scale(c);
-        }
+        if (c !== undefined && c !== null)
+          return colorScaleColor(viz as unknown as VizInstance, c);
       }
       const c = viz.schema.color(d, i);
       if (color(c)) return c;

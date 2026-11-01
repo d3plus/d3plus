@@ -13,6 +13,8 @@ import sizeLegend from "~/examples/core/charts/network/size-legend.js?raw";
 import legendInset from "~/examples/core/charts/network/legend-inset.js?raw";
 import labelPlacement from "~/examples/core/charts/network/label-placement.js?raw";
 import linkTooltips from "~/examples/core/charts/network/link-tooltips.js?raw";
+import linkColor from "~/examples/core/charts/network/link-color.js?raw";
+import linkLabels from "~/examples/core/charts/network/link-labels.js?raw";
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -63,5 +65,17 @@ A node's label stays inside it when it fits there at a readable size (`pointLabe
 Hovering a link highlights it and the two nodes it connects, and its tooltip names them ("alpha → beta") above the link's own fields. Hovering a node lists its number of connections and, when `linkSize` gives the links different values, its strongest links with their values; `nodeTooltipLinks` sets how many (`false` for none). `linkSize`, link `shapeConfig` functions, and tooltip accessors all receive each link with `source` and `target` set to the data of its nodes, so here a link between two nodes in the same `group` draws darker. Click a link to focus and zoom to it and its nodes; click it again, or the background, to reset.
 
 <Playground chart="Network" code={linkTooltips} controls={["nodeTooltipLinks"]} />
+
+## Link color
+
+`linkColor` colors each link. A key or accessor whose values are numbers colors the links on the chart's colorScale, which then shows the links' values beside the legend for the nodes' colors. Strings are used as colors when they parse as one, or else as categories in the chart's palette, the way `color` colors nodes. `"source"` or `"target"` colors each link like one of its nodes. Arrowheads take their link's color. When the chart also sets `colorScale` for its nodes, nodes and links share that one scale. Because links are thin lines, a light theme's ramp starts at a mid-tone rather than a near-white tint, so the lowest values still show (`colorScaleConfig.ordinalRamp`).
+
+<Playground chart="Network" code={linkColor} controls={["linkColor","colorScaleConfig"]} height={500} />
+
+## Link labels
+
+`linkLabel` writes a key or accessor's value at the middle of each link, between the nodes it joins, on a pad of the chart's background so it reads over the line. `linkLabelConfig.rotate` runs the text along each link (`"along"`, the default, kept upright) or keeps it level (`"horizontal"`), and takes font settings such as `fontSize` and `fontColor`. A label that would cover a node, a node's label, or another link's label is hidden, the thickest links' labels kept first.
+
+<Playground chart="Network" code={linkLabels} controls={["linkLabel","linkLabelConfig"]} />
 
 <ApiReference name="Network" pkg="core" />

@@ -544,6 +544,19 @@ export interface TrendLineConfig {
   [key: string]: unknown;
 }
 
+/** The `linkLabelConfig` options. */
+export interface LinkLabelConfig {
+  /** `"along"` runs text along its link, kept upright; `"horizontal"` keeps it level. */
+  rotate?: "along" | "horizontal";
+  fontSize?: number;
+  /** The pad around the text, in pixels. */
+  padding?: number;
+  /** The opacity of the pad, which takes the chart's background color. */
+  backgroundOpacity?: number;
+  /** Any other TextBox setting, such as `fontColor`, `fontFamily`, or `fontWeight`. */
+  [key: string]: unknown;
+}
+
 export interface ColorScaleConfig {
   /** The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through. */
   color?: string | string[];
@@ -589,6 +602,13 @@ export interface ColorScaleConfig {
       `false` turns it off there. Defaults to `true`.
   */
   hoverMark?: boolean;
+  /**
+      Holds the palest step of a single-hue ramp darker on a light theme
+      (`colorRamp`'s `ordinal` option), so the lowest values still read as
+      thin lines against the background instead of fading into it. Dark
+      themes keep their ramps. Defaults to `false`.
+  */
+  ordinalRamp?: boolean;
   /**
       Styles the `hoverMark`. `tickConfig` takes `stroke` and `strokeWidth`
       (the axis ticks' own by default) and `length` (the axis's `tickSize`
@@ -955,6 +975,8 @@ export interface D3plusConfig {
     hoverMark?: boolean;
     /** Styles the hover mark (see `ColorScaleConfig.hoverMarkConfig`). */
     hoverMarkConfig?: ColorScaleHoverMarkConfig;
+    /** Holds the palest step of a light theme's single-hue ramp darker (see `ColorScaleConfig.ordinalRamp`). Defaults to `true` when links are colored by number (`linkColor`), so the lowest-valued links still read as lines, and `false` otherwise. */
+    ordinalRamp?: boolean;
   };
   /**
       The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
@@ -1547,11 +1569,44 @@ export interface D3plusConfig {
   */
   maxAngle?: number;
   /**
-      Colors each of ArcDiagram's arcs like one of its nodes: `"source"` or
-      `"target"`. `false` (the default) draws every arc in the theme's `link`
+      Colors each link of a Network, Rings, Sankey, or ArcDiagram, and its
+      arrowheads: `"source"` or `"target"` takes that end node's color, and
+      a key or accessor function reads a value from each link (receiving the
+      link, with `source` and `target` set to the data of its nodes, and its
+      index in `links`). A number is colored on the chart's
+      colorScale, which then shows the links' values beside the nodes' color
+      legend (when the chart also has a `colorScale` for its nodes, nodes and
+      links share it, on one domain); a string is a color when it parses as
+      one, or else a category in the chart's palette, as `color` colors
+      nodes. `false` (the default) draws every link in the theme's `link`
       gray.
   */
-  linkColor?: false | "source" | "target";
+  linkColor?:
+    | false
+    | "source"
+    | "target"
+    | string
+    | ((d: DataPoint, i: number) => unknown);
+  /**
+      Text drawn at the middle of each link of a Network, Rings, Sankey, or
+      ArcDiagram: a key or accessor function (receiving the link, with
+      `source` and `target` set to the data of its nodes, and its index in
+      `links`). It sits halfway along a link's length, centered on
+      a Sankey band, and at the top of an ArcDiagram arc, on a pad of the
+      chart's background. Numbers are abbreviated in the chart's locale.
+      Labels that would cover a node or another label are hidden, the
+      widest links' labels kept first. Defaults to none.
+  */
+  linkLabel?: string | ((d: DataPoint, i: number) => unknown);
+  /**
+      Styles the link labels (see `linkLabel`): `rotate`, `"along"` (the
+      default) to run text along its link, kept upright, or `"horizontal"`;
+      `fontSize` (10); `padding`, the pad around the text (2);
+      `backgroundOpacity`, the opacity of that pad in the chart's background
+      color (0.85); and any other TextBox setting, such as `fontColor`
+      (defaults to the chart's text color), `fontFamily`, or `fontWeight`.
+  */
+  linkLabelConfig?: LinkLabelConfig;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
   link?: LinkOption;
   /**

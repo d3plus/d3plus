@@ -29,10 +29,17 @@ import {
   linkMeta,
 } from "../features/linkInteraction.js";
 import type {LinkDatum} from "../features/linkInteraction.js";
+import {linkColorResolver} from "../features/linkColor.js";
+import type {LinkEnds} from "../features/linkColor.js";
+import {cubicMidpoint, segmentMidpoint} from "../features/linkLabelGeometry.js";
+import type {LinkAnchor} from "../features/linkLabelGeometry.js";
+import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-interface RingsEdge {
+export interface RingsEdge {
+  /** The edge's index in `links`. */
+  index?: number;
   source: DataPoint & {id: string; x: number; y: number};
   target: DataPoint & {id: string; x: number; y: number};
   size?: number;
@@ -143,6 +150,90 @@ function ringsEdgeArrows(
   return out;
 }
 
+/** An edge's scene key. */
+const ringsLinkKey = (edge: RingsEdge): string =>
+  `rings-link-${edge.source.id}-${edge.target.id}`;
+
+/**
+    Where an edge's label goes: halfway along a spline edge's curve, or
+    along a straight edge's run between its nodes.
+*/
+export function ringsEdgeAnchor(edge: RingsEdge): LinkAnchor {
+  if (edge.spline && edge.sourceX != null && edge.targetX != null)
+    return cubicMidpoint(
+      [edge.sourceX, edge.sourceY!],
+      [edge.sourceBisectX!, edge.sourceBisectY!],
+      [edge.targetBisectX!, edge.targetBisectY!],
+      [edge.targetX, edge.targetY!],
+    );
+  const r = (n: DataPoint) => (typeof n.r === "number" ? n.r : 0);
+  return segmentMidpoint(
+    [edge.source.x, edge.source.y],
+    [edge.target.x, edge.target.y],
+    r(edge.source),
+    r(edge.target),
+  );
+}
+
+/** How Rings draws its node labels. */
+interface RingsNodeConfig {
+  label?: (d: RingsNode, i: number) => unknown;
+  labelBounds?: (d: RingsNode) => Record<string, number>;
+  labelConfig?: Record<string, unknown>;
+  rotate?: (d: RingsNode) => number;
+}
+
+/** One node group's labels, each rotated out from the center along its ring. */
+function ringsNodeLabels(
+  viz: VizInstance,
+  c: RingsCtx,
+  shapeKind: string,
+  values: RingsNode[],
+): SceneNode[] {
+  const nodeCfg = c.nodeShapeConfig as RingsNodeConfig;
+  if (!values.length || !nodeCfg.label || !nodeCfg.labelBounds) return [];
+  const labelFn = nodeCfg.label;
+  const boundsFn = nodeCfg.labelBounds;
+  return emitLabels({
+    data: values as DataPoint[],
+    label: (d, i) => labelFn(d as RingsNode, i),
+    x: d => (d as RingsNode).x,
+    y: d => (d as RingsNode).y,
+    aes: d => ({r: (d as RingsNode).r}),
+    rotate: d => (nodeCfg.rotate ? nodeCfg.rotate(d as RingsNode) : 0),
+    id: d => `rings-label-${(d as RingsNode).id}`,
+    labelBounds: (d, _i) => boundsFn(d as RingsNode),
+    labelConfig: {
+      ...userLabelConfig(viz, shapeKind),
+      ...nodeCfg.labelConfig,
+    },
+  });
+}
+
+/** The edge labels, clear of every node and node label. */
+function ringsLinkLabels(
+  viz: VizInstance,
+  c: RingsCtx,
+  nodeLabels: SceneNode[],
+): SceneNode[] {
+  return emitLinkLabels(
+    viz,
+    c.edges.map((edge, i) => ({
+      key: ringsLinkKey(edge),
+      link: edge,
+      i,
+      anchor: ringsEdgeAnchor(edge),
+      priority: edge.size,
+    })),
+    {
+      circles: c.nodeGroups.flatMap(([, values]) =>
+        values.map(n => ({x: n.x, y: n.y, r: n.r})),
+      ),
+      labels: textLineBoxes(nodeLabels),
+    },
+  );
+}
+
 /** One node's Circle or Rect SceneNode (origin-centered, placed by `transform`), or null for any other shape kind. */
 function ringsNode(
   shapeKind: string,
@@ -183,14 +274,24 @@ export const ringsEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.ringsCtx as RingsCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];
+  // Node labels first, so link labels can keep clear of them.
+  const nodeLabels = new Map(
+    (c.nodeGroups ?? []).map(([shapeKind, values]) => [
+      shapeKind,
+      ringsNodeLabels(viz, c, shapeKind, values),
+    ]),
+  );
 
   if (c.edges && c.edges.length) {
+    const linkColor = linkColorResolver(viz);
     for (const edge of c.edges) {
       const datum = edge.datum;
       const i = linkMeta(datum)?.index ?? 0;
       const paint = paintFromShapeConfig(c.linkConfig, datum, i);
       if (typeof edge.size === "number") paint.strokeWidth = edge.size;
-      const key = `rings-link-${edge.source.id}-${edge.target.id}`;
+      const stroke = linkColor(datum, edge as unknown as LinkEnds);
+      if (stroke) paint.stroke = stroke;
+      const key = ringsLinkKey(edge);
       const d = c.linkD(edge);
       out.push({
         type: "path",
@@ -215,15 +316,11 @@ export const ringsEmit: ChartEmit = ({viz}) => {
         ),
       );
     }
+    out.push(...ringsLinkLabels(viz, c, [...nodeLabels.values()].flat()));
   }
 
   if (c.nodeGroups && c.nodeGroups.length) {
-    const nodeCfg = c.nodeShapeConfig as {
-      label?: (d: RingsNode, i: number) => unknown;
-      labelBounds?: (d: RingsNode) => Record<string, number>;
-      labelConfig?: Record<string, unknown>;
-      rotate?: (d: RingsNode) => number;
-    };
+    const nodeCfg = c.nodeShapeConfig as RingsNodeConfig;
     for (const [shapeKind, values] of c.nodeGroups) {
       if (!values.length) continue;
       const vizCfg = shapeConfigFor(viz, shapeKind);
@@ -259,25 +356,7 @@ export const ringsEmit: ChartEmit = ({viz}) => {
       }
       out.push(...images);
 
-      if (nodeCfg.label && nodeCfg.labelBounds) {
-        const labelFn = nodeCfg.label;
-        const boundsFn = nodeCfg.labelBounds;
-        const labelNodes = emitLabels({
-          data: values as DataPoint[],
-          label: (d, i) => labelFn(d as RingsNode, i),
-          x: d => (d as RingsNode).x,
-          y: d => (d as RingsNode).y,
-          aes: d => ({r: (d as RingsNode).r}),
-          rotate: d => (nodeCfg.rotate ? nodeCfg.rotate(d as RingsNode) : 0),
-          id: d => `rings-label-${(d as RingsNode).id}`,
-          labelBounds: (d, _i) => boundsFn(d as RingsNode),
-          labelConfig: {
-            ...userLabelConfig(viz, shapeKind),
-            ...nodeCfg.labelConfig,
-          },
-        });
-        out.push(...labelNodes);
-      }
+      out.push(...(nodeLabels.get(shapeKind) ?? []));
     }
   }
 

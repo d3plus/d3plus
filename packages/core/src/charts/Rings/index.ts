@@ -37,6 +37,7 @@ import {
   linkMeta,
   linkTooltipConfig,
 } from "../features/linkInteraction.js";
+import {linkStyleFields} from "../features/linkFields.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
 
@@ -279,6 +280,7 @@ export const ringsDef: ChartDefinition = {
       merge: true,
       factory: (viz: VizInstance) => linkTooltipConfig(viz),
     },
+    ...linkStyleFields(),
     {key: "links", default: []},
     {key: "linkSize", default: constant(1)},
     /** The minimum pixel stroke width used when sizing links. */

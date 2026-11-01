@@ -1,6 +1,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {colorScaleValue} from "./colorScaleValue.js";
 
 interface BucketCtx {
   /** The colorScale's own data (one row per merged group). */
@@ -17,8 +18,7 @@ interface BucketCtx {
 function bucketCtx(viz: VizInstance): BucketCtx | null {
   const cs = viz._colorScaleClass as unknown as
     {_data?: DataPoint[]; _colorScale?: (v: unknown) => unknown} | undefined;
-  const value = viz.schema.colorScale as
-    ((d: DataPoint, i: number) => unknown) | undefined;
+  const value = colorScaleValue(viz);
   if (!cs || typeof cs._colorScale !== "function" || !value) return null;
   const colorScale = cs._colorScale;
   const colorOf = (d: DataPoint, i: number): unknown => {

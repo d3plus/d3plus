@@ -8,6 +8,7 @@ import type {SceneEvent, SceneNode} from "@d3plus/render";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 import {colorScaleBucketOf} from "./colorScaleBucket.js";
+import {colorScaleValue} from "./colorScaleValue.js";
 
 type Wrapped = DataPoint & {__d3plus__?: boolean; data?: DataPoint};
 
@@ -23,8 +24,7 @@ export function colorScaleHoverValue(
   viz: VizInstance,
   node: SceneNode | undefined,
 ): number | null {
-  const colorScale = viz.schema.colorScale as
-    ((d: DataPoint, i: number) => unknown) | false | undefined;
+  const colorScale = colorScaleValue(viz);
   if (!node || typeof colorScale !== "function") return null;
   if ((node as {interactionGroup?: string}).interactionGroup) return null;
   if (colorScaleBucketOf(node.datum)) return null;
@@ -54,7 +54,7 @@ export function handleColorScaleHover(
   event: SceneEvent,
 ): void {
   const cs = viz._colorScaleClass;
-  if (!cs || !viz.schema.colorScale) return;
+  if (!cs || !colorScaleValue(viz)) return;
   let next: number | false = false;
   if (event.type === "mousemove" || event.type === "mouseenter") {
     if (viz._transitionEndsAt && Date.now() < viz._transitionEndsAt) return;

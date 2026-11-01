@@ -23,6 +23,7 @@ import type {Bounds} from "@d3plus/math";
 import type {SceneNode} from "@d3plus/render";
 
 import {chartBounds} from "../features/chartGeometry.js";
+import {colorScaleValue} from "../features/colorScaleValue.js";
 import {paintColorScaleInset} from "../features/featuresColorScale.js";
 import {buildLegendData, paintLegendInset} from "../features/featuresLegend.js";
 import {sanitizePosition} from "../features/features.js";
@@ -129,7 +130,7 @@ function isShowing(viz: VizInstance, key: InsetKey): boolean {
   if (key === "sizeLegend") return Boolean(bottomRightControlsBox(viz)?.inset);
   if (key === "legend") return Boolean(viz._legendClass?._data?.length);
   return (
-    Boolean(viz.schema.colorScale) &&
+    Boolean(colorScaleValue(viz)) &&
     sanitizePosition(
       viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)),
       viz,

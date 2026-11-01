@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Link Color and Labels · Viz</title>
+    <meta
+      name="description"
+      content="linkColor and linkLabel on a Network, Rings, Sankey, and ArcDiagram: links colored by a numeric value on the colorScale, by category, and by their source node, labels along or level with their links, arrowheads, and the dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 24px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 20px;
+      }
+
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 12px;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+
+      .controls button[aria-pressed="true"] {
+        font-weight: 600;
+      }
+
+      .viz {
+        height: 420px;
+      }
+
+      .dark {
+        background: #1f2328;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>Network: links colored by trade volume, labeled with it</h3>
+      <div class="controls">
+        <span data-option="linkColor">
+          linkColor:
+          <button value="volume" aria-pressed="true">volume</button>
+          <button value="kind">kind</button>
+          <button value="source">source</button>
+          <button value="target">target</button>
+          <button value="false">off</button>
+        </span>
+        <span data-option="rotate">
+          rotate:
+          <button value="along" aria-pressed="true">along</button>
+          <button value="horizontal">horizontal</button>
+        </span>
+      </div>
+      <div class="viz" id="network"></div>
+    </div>
+    <div>
+      <h3>Rings: links colored by their source, with arrows and labels</h3>
+      <div class="viz" id="rings"></div>
+    </div>
+    <div>
+      <h3>Sankey: bands colored by their source, labeled with their value</h3>
+      <div class="viz" id="sankey"></div>
+    </div>
+    <div>
+      <h3>ArcDiagram: arcs colored by a literal color, labeled at the top</h3>
+      <div class="viz" id="arc"></div>
+    </div>
+    <div>
+      <h3>Dark theme: Network links by volume</h3>
+      <div class="viz dark" id="dark"></div>
+    </div>
+    <div>
+      <h3>Dark theme: Sankey bands by their target</h3>
+      <div class="viz dark" id="darkSankey"></div>
+    </div>
+  </body>
+
+  <script>
+    var nodes = [
+      {id: "Alpha", region: "North", x: 0, y: 0},
+      {id: "Bravo", region: "North", x: 3, y: 1},
+      {id: "Charlie", region: "South", x: 1, y: 3},
+      {id: "Delta", region: "South", x: 4, y: 4},
+      {id: "Echo", region: "East", x: 6, y: 2},
+      {id: "Foxtrot", region: "East", x: 7, y: 5},
+    ];
+    var links = [
+      {source: "Alpha", target: "Bravo", volume: 12, kind: "road"},
+      {source: "Alpha", target: "Charlie", volume: 40, kind: "rail"},
+      {source: "Bravo", target: "Delta", volume: 25, kind: "road"},
+      {source: "Bravo", target: "Echo", volume: 8, kind: "air"},
+      {source: "Charlie", target: "Delta", volume: 33, kind: "rail"},
+      {source: "Delta", target: "Foxtrot", volume: 18, kind: "road"},
+      {source: "Echo", target: "Foxtrot", volume: 50, kind: "air"},
+    ];
+
+    var network = new d3plus.Network()
+      .select("#network")
+      .data(nodes)
+      .nodes(nodes)
+      .links(links)
+      .color("region")
+      .linkColor("volume")
+      .linkLabel("volume")
+      .arrows(true)
+      .sizeMax(14)
+      .render();
+
+    document.querySelectorAll("[data-option]").forEach(function (group) {
+      var key = group.dataset.option;
+      group.querySelectorAll("button").forEach(function (button) {
+        button.addEventListener("click", function () {
+          group.querySelectorAll("button").forEach(function (b) {
+            b.setAttribute("aria-pressed", String(b === button));
+          });
+          var value = button.value === "false" ? false : button.value;
+          if (key === "rotate") network.linkLabelConfig({rotate: value});
+          else network.linkColor(value).linkLabel(value ? value : "volume");
+          network.render();
+        });
+      });
+    });
+
+    new d3plus.Rings()
+      .select("#rings")
+      .data(nodes)
+      .nodes(nodes)
+      .links(links)
+      .center("Bravo")
+      .color("region")
+      .linkColor("source")
+      .linkLabel("kind")
+      .arrows(true)
+      .render();
+
+    var flows = [
+      {source: "Coal", target: "Power", value: 40},
+      {source: "Gas", target: "Power", value: 25},
+      {source: "Gas", target: "Heat", value: 15},
+      {source: "Solar", target: "Power", value: 12},
+      {source: "Power", target: "Homes", value: 45},
+      {source: "Power", target: "Industry", value: 32},
+      {source: "Heat", target: "Homes", value: 15},
+    ];
+
+    new d3plus.Sankey()
+      .select("#sankey")
+      .links(flows)
+      .linkColor("source")
+      .linkLabel("value")
+      .render();
+
+    new d3plus.ArcDiagram()
+      .select("#arc")
+      .data(nodes)
+      .nodes(nodes)
+      .links(
+        links.map(function (l) {
+          return Object.assign({}, l, {
+            hue: l.kind === "air" ? "#7b4fd8" : "#2f8f6b",
+          });
+        }),
+      )
+      .linkColor("hue")
+      .linkLabel("kind")
+      .linkSize(function (d) {
+        return d.volume;
+      })
+      .render();
+
+    new d3plus.Network()
+      .select("#dark")
+      .theme("dark")
+      .data(nodes)
+      .nodes(nodes)
+      .links(links)
+      .color("region")
+      .linkColor("volume")
+      .linkLabel("volume")
+      .sizeMax(14)
+      .render();
+
+    new d3plus.Sankey()
+      .select("#darkSankey")
+      .theme("dark")
+      .links(flows)
+      .linkColor("target")
+      .linkLabel("value")
+      .linkLabelConfig({rotate: "horizontal"})
+      .render();
+  </script>
+</html>
