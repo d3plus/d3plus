@@ -188,7 +188,9 @@ export function applyText(sel: SvgSelection, node: TextNode): void {
     .attr("font-style", f.style ?? null)
     .attr("text-anchor", f.anchor ?? null)
     .attr("dominant-baseline", f.baseline ?? null)
-    .attr("dir", f.dir ?? null);
+    .attr("dir", f.dir ?? null)
+    .attr("paint-order", node.halo ? "stroke" : null)
+    .attr("stroke-linejoin", node.halo ? "round" : null);
 
   const lines = sel
     .selectAll(function (this: Element) {

@@ -164,7 +164,8 @@ export function nearestPick(
 
 /**
     The renderer's pointer bridge: resolves each event's pick through
-    `nearestPick` and hands it to `viz._routeSceneEvent`, firing
+    `nearestPick` and hands it to `viz._routeSceneEvent` (a click that
+    resolves to nothing also runs `viz._backgroundClick`), firing
     mouseleave/mouseenter whenever the mark the pointer resolves to changes
     (in place of the renderer's own, which follow the raw pick). Events that
     don't come from the renderer's pointer listeners pass through unchanged
@@ -196,6 +197,10 @@ export function routePointerEvent(viz: VizInstance, event: SceneEvent): void {
   }
   const pick = nearestPick(viz, event.pick, event.point);
   const resolved = pick === event.pick ? event : {...event, pick};
+  // A click on no mark reaches the chart's background (on SVG, a Network's
+  // background rect takes it before the renderer does).
+  if (event.type === "click" && !pick && event.point)
+    viz._backgroundClick?.(event.point);
   if (event.type === "mousemove" && fromMove) {
     const key = pick ? String(pick.node.key) : null;
     if (key !== state.key) {

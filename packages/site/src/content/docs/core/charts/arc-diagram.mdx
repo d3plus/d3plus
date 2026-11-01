@@ -34,7 +34,7 @@ Takes the same `nodes` and `links` as Network. Nodes sit evenly along one line i
 
 ## Both sides
 
-`arcSide: "both"` arcs each link running forward along the line above it, and each link running back below it, so loops back to earlier steps read apart from the forward flow. `linkColor: "source"` colors every arc like the node it leaves.
+`arcSide: "both"` arcs each link running forward along the line above it, and each link running back below it, so loops back to earlier steps read apart from the forward flow. The node labels sit under the line, where the backward arcs pass behind them, so each draws over a halo in the chart's background that keeps it readable; with `arcSide: "below"` the labels move above the line, clear of every arc. `linkColor: "source"` colors every arc like the node it leaves.
 
 <Playground chart="ArcDiagram" code={bothSides} controls={["arcSide","arrows","linkColor"]} />
 

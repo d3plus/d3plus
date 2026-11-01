@@ -309,6 +309,25 @@ describe("routePointerEvent", () => {
     assert.deepStrictEqual(log, ["click:a"]);
   });
 
+  it("runs the background click on a click that resolves to no mark", () => {
+    const {viz, log} = fakeViz([a]);
+    const clicked = [];
+    viz._backgroundClick = point => clicked.push(point);
+    const click = (point, pick = null) =>
+      routePointerEvent(viz, {
+        type: "click",
+        point,
+        pick,
+        nativeEvent: {type: "click"},
+      });
+    click([90, 105]);
+    click([400, 300]);
+    click([400, 300], {node: b, datum: b.datum});
+    routePointerEvent(viz, move([400, 300]));
+    assert.deepStrictEqual(clicked, [[400, 300]], "only the empty click");
+    assert.deepStrictEqual(log.slice(0, 1), ["click:a"]);
+  });
+
   it("passes events from other sources through", () => {
     const {viz, log} = fakeViz([a], {hoverDistance: 0});
     const bar = {type: "rect", key: "bar", shapeType: "Bar", datum: {}};

@@ -50,7 +50,7 @@ With two `groupBy` levels, the chart starts with one bar per phase, spanning its
 
 ## Working days
 
-`axisConfig.rangeBreaks` hides time on the axis: `"weekends"` closes up Saturdays and Sundays, so bars show working days.
+`axisConfig.rangeBreaks` hides time on the axis: `"weekends"` closes up Saturdays and Sundays, so bars show working days. A task's tooltip counts the same way, giving its Duration in working days ("8 working days"); rules that hide hours of each day leave it in calendar days.
 
 <Playground chart="Gantt" code={workingDays} controls={["axisConfig"]} />
 

@@ -5,6 +5,7 @@ import {
   dateFormatter,
   dateFullFormatter,
   formatDateFull,
+  uses24Hour,
 } from "../src/formatDate.ts";
 import {
   timeFormat,
@@ -56,6 +57,52 @@ const spanish = {
     "nov",
     "dic",
   ],
+};
+
+const english = {
+  dateTime: "%x, %X",
+  date: "%-m/%-d/%Y",
+  time: "%-I:%M:%S %p",
+  periods: ["AM", "PM"],
+  days: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ],
+  shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  months: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ],
+  shortMonths: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ],
+  quarter: "Q",
 };
 
 it("formatDate", () => {
@@ -149,51 +196,7 @@ it("formatDate", () => {
   for (let i = 0; i < 10; i++) {
     hours.push(new Date(2020, 0, 1, i));
   }
-  timeFormatDefaultLocale({
-    dateTime: "%x, %X",
-    date: "%-m/%-d/%Y",
-    time: "%-I:%M:%S %p",
-    periods: ["AM", "PM"],
-    days: [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ],
-    shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    months: [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ],
-    shortMonths: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-    quarter: "Q",
-  });
+  timeFormatDefaultLocale(english);
   const hourFirst = formatDate(hours[0], hours);
   assert.ok(hourFirst.length > 0, "hourly data first element formatted");
   const hourMid = formatDate(hours[5], hours);
@@ -250,12 +253,12 @@ it("formatDate", () => {
   ];
   assert.strictEqual(
     formatDate(halfHours[1], halfHours),
-    "11:30",
+    "11:30 PM",
     "a half hour reads as its time",
   );
   assert.strictEqual(
     formatDate(halfHours[4], halfHours),
-    "01 AM",
+    "1 AM",
     "an hour reads as its hour",
   );
   assert.strictEqual(
@@ -265,8 +268,8 @@ it("formatDate", () => {
   );
   assert.strictEqual(
     formatDate(halfHours[0], halfHours),
-    "11 PM",
-    "the first date on the hour reads as its hour",
+    "Jan 1, 2020, 11 PM",
+    "the first date reads as its date, year, and hour",
   );
 });
 
@@ -355,20 +358,20 @@ it("formatDate: the shown dates decide which labels carry the year", () => {
   assert.deepStrictEqual(
     label(hours, every(hours, 6)),
     [
-      "Mar 3, 2026, 06 AM",
+      "Mar 3, 2026, 6 AM",
       "12 PM",
-      "06 PM",
+      "6 PM",
       "Mar 4, 12 AM",
-      "06 AM",
+      "6 AM",
       "12 PM",
-      "06 PM",
+      "6 PM",
       "Mar 5, 12 AM",
     ],
     "hours: the first label of each day shown names the day, with its hour",
   );
   assert.deepStrictEqual(
     label(hours, every(hours, 5)).slice(0, 5),
-    ["Mar 3, 2026, 06 AM", "11 AM", "04 PM", "09 PM", "Mar 4, 02 AM"],
+    ["Mar 3, 2026, 6 AM", "11 AM", "4 PM", "9 PM", "Mar 4, 2 AM"],
     "hours: the day rides on the first label shown after midnight",
   );
   const newYear = range(12, i => new Date(2025, 11, 31, 18 + i));
@@ -397,12 +400,12 @@ it("formatDate: the shown dates decide which labels carry the year", () => {
 
 it("formatDate: hourly ends read their hour", () => {
   const hours = Array.from({length: 12}, (_, i) => new Date(2026, 2, 3, 6 + i));
-  assert.strictEqual(formatDate(hours[0], hours), "Mar 3, 2026, 06 AM");
-  assert.strictEqual(formatDate(hours[11], hours), "Mar 3, 2026, 05 PM");
+  assert.strictEqual(formatDate(hours[0], hours), "Mar 3, 2026, 6 AM");
+  assert.strictEqual(formatDate(hours[11], hours), "Mar 3, 2026, 5 PM");
   assert.strictEqual(formatDate(hours[5], hours), "11 AM");
   assert.strictEqual(
     formatDate(hours[11], hours, timeFormat, hours),
-    "05 PM",
+    "5 PM",
     "the last shown hour, on the first's day",
   );
 });
@@ -555,4 +558,62 @@ it("dateFullFormatter labels every date as formatDateFull does", () => {
       );
     }
   }
+});
+
+it("uses24Hour reads the clock from the formatter's locale", () => {
+  assert.strictEqual(uses24Hour(timeFormatLocale(english).format), false);
+  assert.strictEqual(uses24Hour(timeFormatLocale(spanish).format), true);
+  assert.strictEqual(
+    uses24Hour(() => () => {
+      throw new Error("unsupported");
+    }),
+    false,
+    "a formatter that fails reads as 12-hour",
+  );
+});
+
+it("formatDate: times below an hour read their clock", () => {
+  const halfHours = Array.from(
+    {length: 12},
+    (_, i) => new Date(2026, 2, 3, 13, i * 30),
+  );
+  const en = timeFormatLocale(english).format;
+  const es = timeFormatLocale(spanish).format;
+  assert.strictEqual(formatDate(halfHours[5], halfHours, en), "3:30 PM");
+  assert.strictEqual(formatDate(halfHours[4], halfHours, en), "3 PM");
+  assert.strictEqual(formatDate(halfHours[5], halfHours, es), "15:30");
+  assert.strictEqual(formatDate(halfHours[4], halfHours, es), "15:00");
+  assert.strictEqual(
+    formatDate(halfHours[0], halfHours, en),
+    "Mar 3, 2026, 1 PM",
+    "the first date reads its date",
+  );
+  const shown = halfHours.filter((_, i) => i % 2);
+  assert.deepStrictEqual(
+    shown.slice(0, 3).map(d => formatDate(d, halfHours, en, shown)),
+    ["Mar 3, 2026, 1:30 PM", "2:30 PM", "3:30 PM"],
+    "the first shown date of the day reads its date",
+  );
+  const overnight = Array.from(
+    {length: 8},
+    (_, i) => new Date(2026, 2, 3, 22, i * 30),
+  );
+  assert.deepStrictEqual(
+    overnight.slice(3, 6).map(d => formatDate(d, overnight, es, overnight)),
+    ["23:30", "mar 4", "00:30"],
+    "midnight reads as its day",
+  );
+  const hours = Array.from({length: 12}, (_, i) => new Date(2026, 2, 3, i));
+  assert.strictEqual(formatDate(hours[3], hours, es), "03:00");
+  assert.strictEqual(formatDate(hours[3], hours, en), "3 AM");
+  assert.strictEqual(
+    formatDateFull(halfHours[5], halfHours, es),
+    "mar 3, 2026 15:30",
+    "a full date on a 24-hour clock",
+  );
+  assert.strictEqual(
+    formatDateFull(halfHours[5], halfHours, en),
+    "Mar 3, 2026 3:30 PM",
+  );
+  assert.strictEqual(formatDateFull(hours[3], hours, es), "mar 3, 2026 03:00");
 });

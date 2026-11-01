@@ -264,6 +264,12 @@ export interface VizInstance {
   _duration: number;
   _renderer?: "svg" | "canvas";
   _focus?: string | number | undefined;
+  /**
+      Runs when a click lands on no mark, given its point on the chart's
+      surface (see `routePointerEvent`): a Network or ArcDiagram clears its
+      focus there.
+  */
+  _backgroundClick?: (point: [number, number]) => void;
   _active?: ((d: DataPoint, i?: number) => boolean) | false;
   _hover?: ((d: DataPoint, i?: number) => boolean) | false;
   /** True while the current hover came from a colorScale bucket swatch. */

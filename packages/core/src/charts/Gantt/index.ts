@@ -79,7 +79,8 @@ export const ganttDef: DataDrivenChartDefinition = {
     /**
         The time axis along the top of the rows (`orient: "bottom"` moves it
         under them). It reads dates by default (`scale: "time"`); a
-        `rangeBreaks` setting such as `"weekends"` hides those times.
+        `rangeBreaks` setting such as `"weekends"` hides those times, and a
+        task's Duration then counts only the working days left showing.
     */
     {key: "axisConfig", merge: true, default: {scale: "time"}},
     /**

@@ -92,6 +92,8 @@ export interface TranslationStrings {
   Values: string;
   Volume: string;
   Width: string;
+  "working day": string;
+  "working days": string;
   "Zoom In": string;
   "Zoom Out": string;
 }
@@ -228,6 +230,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Values: "\u0627\u0644\u0642\u064a\u0645",
     Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
     Width: "\u0627\u0644\u0639\u0631\u0636",
+    "working day": "\u064a\u0648\u0645 \u0639\u0645\u0644",
+    "working days": "\u0623\u064a\u0627\u0645 \u0639\u0645\u0644",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
   },
@@ -326,6 +330,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Values: "Valores",
     Volume: "Volumen",
     Width: "Ancho",
+    "working day": "d\u00eda laborable",
+    "working days": "d\u00edas laborables",
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
   },
@@ -424,6 +430,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Values: "Valores",
     Volume: "Volume",
     Width: "Largura",
+    "working day": "dia \u00fatil",
+    "working days": "dias \u00fateis",
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
   },
@@ -525,6 +533,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Values: "\u503c",
     Volume: "\u6210\u4ea4\u91cf",
     Width: "\u5bbd\u5ea6",
+    "working day": "\u5de5\u4f5c\u65e5",
+    "working days": "\u5de5\u4f5c\u65e5",
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
   },

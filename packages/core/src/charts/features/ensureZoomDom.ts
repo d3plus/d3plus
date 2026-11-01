@@ -13,7 +13,8 @@
 
     Idempotent: calling it again returns the existing nodes. Mutates the
     viz instance with `_container` / `_zoomGroup` (and the Network
-    variant also wires the hitArea click handler).
+    variant also wires the hitArea click handler, and `_backgroundClick` for
+    the Canvas renderer).
 
     The helper stays as long as d3-zoom owns event binding and Geomap's
     tile-loading mounts `<g>` elements directly. An eventual fully
@@ -98,6 +99,36 @@ function removeTileUnderlay(viz: Viz): void {
   if (host) host.querySelector(":scope > svg.d3plus-geomap-underlay")?.remove();
 }
 
+/**
+    Clears a Network or ArcDiagram's click focus: its active nodes and its
+    zoom. Returns whether there was a focus to clear.
+    @param viz The chart.
+*/
+export function clearGraphFocus(viz: Viz): boolean {
+  if (!viz._focus) return false;
+  viz.active!(false);
+  viz._focus = undefined;
+  viz._zoomToBounds!(null);
+  return true;
+}
+
+/**
+    Whether a point lies within an area, edges included.
+    @param point The point.
+    @param area The area.
+*/
+export function withinArea(
+  [x, y]: [number, number],
+  area: {x: number; y: number; width: number; height: number},
+): boolean {
+  return (
+    x >= area.x &&
+    x <= area.x + area.width &&
+    y >= area.y &&
+    y <= area.y + area.height
+  );
+}
+
 export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
   const {kind, width, height, duration, ocean} = opts;
   const cls = `d3plus-${kind === "generic" ? "zoom" : kind}`;
@@ -158,13 +189,14 @@ export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
       .attr("width", width)
       .attr("height", height)
       .attr("fill", "transparent")
-      .on("click", () => {
-        if (viz._focus) {
-          viz.active!(false);
-          viz._focus = undefined;
-          viz._zoomToBounds!(null);
-        }
-      });
+      .on("click", () => clearGraphFocus(viz));
+    // The Canvas renderer's surface takes every click: one on no mark
+    // within the chart area clears the focus too.
+    const {left, top} = viz._margin;
+    viz._backgroundClick = point => {
+      if (withinArea(point, {x: left, y: top, width, height}))
+        clearGraphFocus(viz);
+    };
 
     let zoomGroup = container.selectAll(`g.${cls}-zoomGroup`).data([0]);
     zoomGroup = zoomGroup

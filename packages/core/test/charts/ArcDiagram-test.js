@@ -4,6 +4,7 @@ import {near} from "~test/helpers.js";
 import {useJsdom} from "~test/jsdom.js";
 import {path2polygon} from "@d3plus/math";
 import {ArcDiagram, Network} from "../../index.ts";
+import {chartBackground} from "../../src/charts/viz/backgroundInk.ts";
 import {
   arcApex,
   arcBox,
@@ -15,6 +16,7 @@ import {
   arcRadiusScale,
   arcScale,
   arcSideOf,
+  emitArcLabels,
   fitLabels,
   graphNodeId,
   isArcLink,
@@ -27,6 +29,7 @@ import {
   resolveGraphNodes,
   slotPositions,
   sortArcNodes,
+  textHalo,
 } from "../../internal.ts";
 
 useJsdom();
@@ -462,4 +465,66 @@ it("ArcDiagram takes Network's data accessors plus its own options", () => {
     ["degree", "both", "source"],
   );
   assert.strictEqual(viz.shapeConfig().Path.fill, "none");
+});
+
+it("textHalo strokes every text node in the halo color, under its fill", () => {
+  const text = {
+    type: "text",
+    key: "t",
+    x: 0,
+    y: 0,
+    lines: [],
+    font: {},
+    paint: {fill: "#000", opacity: 0.5},
+  };
+  const rect = {type: "rect", key: "r", x: 0, y: 0, width: 1, height: 1};
+  const [group, plain] = textHalo(
+    [{type: "group", key: "g", children: [text]}, rect],
+    "#fff",
+    3,
+  );
+  assert.deepStrictEqual(group.children[0].paint, {
+    fill: "#000",
+    opacity: 0.5,
+    stroke: "#fff",
+    strokeWidth: 3,
+    strokeOpacity: 1,
+  });
+  assert.strictEqual(group.children[0].halo, true);
+  assert.strictEqual(plain, rect, "other nodes pass through");
+  assert.strictEqual(text.halo, undefined, "the input is untouched");
+});
+
+it("emitArcLabels draws its labels over a halo in the chart's background on request", () => {
+  const viz = new ArcDiagram();
+  const label = {
+    id: "arc-label-a",
+    datum: {id: "a"},
+    text: "Alpha",
+    x: 50,
+    y: 50,
+    angle: 0,
+    box: {x: -30, y: 0, width: 60, height: 14},
+    anchor: "middle",
+    verticalAlign: "top",
+  };
+  const texts = nodes => {
+    const out = [];
+    const walk = n => {
+      if (n.type === "text") out.push(n);
+      (n.children || []).forEach(walk);
+    };
+    nodes.forEach(walk);
+    return out;
+  };
+  const plain = texts(emitArcLabels(viz, [label]));
+  assert.ok(plain.length && plain.every(t => !t.halo), "no halo by default");
+  const haloed = texts(emitArcLabels(viz, [label], true));
+  assert.ok(haloed.length);
+  for (const t of haloed) {
+    assert.strictEqual(t.halo, true);
+    assert.strictEqual(t.paint.stroke, chartBackground(viz));
+    assert.ok(t.paint.strokeWidth >= 2);
+  }
+  assert.deepStrictEqual(emitArcLabels(viz, [], true), []);
 });

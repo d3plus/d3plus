@@ -15,11 +15,11 @@ type DateIntervalName =
 /**
     A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
 
-    Without `shown`, the year rides on the first and last dates and on each January 1st. Given `shown` (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly steps, the date rides with the hour on the first shown date of each day. A label carrying the year at hourly steps reads its date, year, and hour.
+    Without `shown`, the year rides on the first and last dates and on each January 1st. Given `shown` (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly and finer steps, the date rides with the time on the first shown date of each day. A label carrying the year at these steps reads its date, year, and time. Times of day follow the formatter's locale: "3 PM" and "3:30 PM" on a 12-hour clock, "15:00" and "15:30" on a 24-hour one.
     @param d The date to format.
     @param dataArray The full array of ordered Date Objects.
     @param formatter Optional custom format string or function.
-    @param shown Optional dates drawn alongside `d`, which decide which labels carry the year (and, at hourly steps, the date).
+    @param shown Optional dates drawn alongside `d`, which decide which labels carry the year (and, at hourly and finer steps, the date).
 */
 export default function formatDate(
   d: Date,
@@ -37,6 +37,7 @@ export default function formatDate(
     withDay,
     !!shown,
     formatter,
+    uses24Hour(formatter),
   )(d);
 }
 
@@ -58,6 +59,7 @@ export function dateFormatter(
     if (!isNaN(t) && !firstIndex.has(t)) firstIndex.set(t, i);
   });
   const format = cachedFormatter(formatter);
+  const hour24 = uses24Hour(formatter);
   // The shown dates in time order, and the one before each of them.
   let shownArray: Date[] | undefined,
     shownSorted: Date[] = [];
@@ -87,6 +89,7 @@ export function dateFormatter(
       withDay,
       !!shown,
       format,
+      hour24,
     )(d);
   };
 }
@@ -102,7 +105,14 @@ function pickFormat(
   withDay: boolean,
   shown: boolean,
   formatter: DateFormatter,
+  hour24: boolean,
 ): (date: Date) => string {
+  const day = year ? "%b %-d, %Y" : "%b %-d";
+  // A time of day, with the date when it opens the year or (among shown dates) the day.
+  const time = (t: string) =>
+    year ? `${day}, ${t}` : withDay && shown ? `${day}, ${t}` : t;
+  const hour = hour24 ? "%H:%M" : "%-I %p";
+  const minute = hour24 ? "%H:%M" : "%-I:%M %p";
   return formatter(
     interval === "year"
       ? "%Y"
@@ -115,29 +125,41 @@ function pickFormat(
             ? "%b %Y"
             : "%b"
           : interval === "day"
-            ? year
-              ? "%b %-d, %Y"
-              : "%b %-d"
+            ? day
             : interval === "hour"
-              ? year
-                ? "%b %-d, %Y, %I %p"
-                : withDay
-                  ? shown
-                    ? "%b %-d, %I %p"
-                    : "%b %-d"
-                  : "%I %p"
+              ? !year && withDay && !shown
+                ? day
+                : time(hour)
               : timeSecond(d) < d
                 ? ".%L"
                 : timeMinute(d) < d
                   ? ":%S"
                   : timeHour(d) < d
-                    ? "%I:%M"
+                    ? time(minute)
                     : timeDay(d) < d
-                      ? "%I %p"
-                      : year
-                        ? "%b %-d, %Y"
-                        : "%b %-d",
+                      ? time(hour)
+                      : day,
   );
+}
+
+const hourCycles = new WeakMap<DateFormatter, boolean>();
+
+/**
+    Whether `formatter` writes the time of day on a 24-hour clock, read from how its locale's time format (`%X`) writes 3 PM. Formatters that fail to format it read as 12-hour.
+    @param formatter A function that turns a specifier into a formatter, such as d3's `timeFormat` or a locale's `format`.
+    @private
+*/
+export function uses24Hour(formatter: DateFormatter): boolean {
+  let hour24 = hourCycles.get(formatter);
+  if (hour24 === undefined) {
+    try {
+      hour24 = String(formatter("%X")(new Date(2000, 0, 1, 15))).includes("15");
+    } catch {
+      hour24 = false;
+    }
+    hourCycles.set(formatter, hour24);
+  }
+  return hour24;
 }
 
 /**
@@ -228,7 +250,9 @@ export function formatDateFull(
   dataArray: Date[],
   formatter: DateFormatter = timeFormat,
 ): string {
-  return formatter(fullSpecifier(d, dateInterval(dataArray)))(d);
+  return formatter(
+    fullSpecifier(d, dateInterval(dataArray), uses24Hour(formatter)),
+  )(d);
 }
 
 /**
@@ -242,7 +266,8 @@ export function dateFullFormatter(
 ): (d: Date) => string {
   const interval = dateInterval(dataArray);
   const format = cachedFormatter(formatter);
-  return (d: Date): string => format(fullSpecifier(d, interval))(d);
+  const hour24 = uses24Hour(formatter);
+  return (d: Date): string => format(fullSpecifier(d, interval, hour24))(d);
 }
 
 /**
@@ -262,7 +287,13 @@ function cachedFormatter(formatter: DateFormatter): DateFormatter {
     The format specifier [formatDateFull](#formatDateFull) labels `d` with at the given interval.
     @private
 */
-function fullSpecifier(d: Date, interval: DateIntervalName): string {
+function fullSpecifier(
+  d: Date,
+  interval: DateIntervalName,
+  hour24: boolean,
+): string {
+  const time = (t: string) =>
+    `%b %-d, %Y ${hour24 ? `%H:${t}` : `%-I${t ? `:${t}` : ""} %p`}`;
   return interval === "year"
     ? "%Y"
     : interval === "quarter"
@@ -272,12 +303,12 @@ function fullSpecifier(d: Date, interval: DateIntervalName): string {
         : interval === "day"
           ? "%b %-d, %Y"
           : interval === "hour"
-            ? "%b %-d, %Y %-I %p"
+            ? time(hour24 ? "%M" : "")
             : timeSecond(d) < d
-              ? "%b %-d, %Y %-I:%M:%S.%L %p"
+              ? time("%M:%S.%L")
               : timeMinute(d) < d
-                ? "%b %-d, %Y %-I:%M:%S %p"
-                : "%b %-d, %Y %-I:%M %p";
+                ? time("%M:%S")
+                : time("%M");
 }
 
 /**

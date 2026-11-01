@@ -26,6 +26,8 @@ import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitAnnotations} from "./plotAnnotations.js";
 import {plotAnnotationFrame} from "./annotationFrame.js";
+import {placeReferenceLabels} from "./referenceLabelPlacement.js";
+import {markBoxes} from "./sceneBounds.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
 import {barHitsFirst} from "../Plot/barHitArea.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
@@ -523,23 +525,20 @@ export function plotEmit(
   out.push(...emitLineLabelConnectors(viz, labelWidths));
 
   const forecast = forecastRows(shapeData);
+  const frame = plotAnnotationFrame(viz, {
+    x,
+    y,
+    xRange,
+    yRange,
+    x2Height: pCtx.x2Height,
+    x2Exists: pCtx.x2Exists,
+    y2Exists: pCtx.y2Exists,
+    slots: forecast.slots,
+  });
   const frontAnnotations = emitAnnotations(
     viz,
     out,
-    {
-      x,
-      y,
-      frame: plotAnnotationFrame(viz, {
-        x,
-        y,
-        xRange,
-        yRange,
-        x2Height: pCtx.x2Height,
-        x2Exists: pCtx.x2Exists,
-        y2Exists: pCtx.y2Exists,
-        slots: forecast.slots,
-      }),
-    },
+    {x, y, frame},
     domains,
     yOffset,
   );
@@ -587,8 +586,15 @@ export function plotEmit(
 
   emitShapeExits(viz, shapeData, shapeConfig);
 
-  // Front annotations go AFTER the shape loop so they render above shapes.
-  out.push(...frontAnnotations);
+  // Front annotations go AFTER the shape loop so they render above shapes,
+  // with reference labels moved clear of the data labels.
+  out.push(
+    ...placeReferenceLabels(
+      frontAnnotations,
+      markBoxes(marks, undefined, notText, true),
+      frame.plot,
+    ),
+  );
 
   // A zoomable plot keeps everything but the axes in one stably-keyed group
   // that clips to the plot rect while zoomed (see `Plot/plotZoom.ts`), so
@@ -623,6 +629,10 @@ export function plotEmit(
     ...(endLabels ? [endLabels] : []),
   ];
 }
+
+/** Whether a node is neither a group nor text, so `markBoxes` skips it when collecting label boxes. */
+const notText = (node: SceneNode): boolean =>
+  node.type !== "group" && node.type !== "text";
 
 /** Removes the axis-tagged nodes from `nodes` (from index `start` on) and returns them. */
 function takeAxisNodes(nodes: SceneNode[], start: number): SceneNode[] {

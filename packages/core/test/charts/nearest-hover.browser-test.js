@@ -272,7 +272,7 @@ for (const renderer of ["svg", "canvas"]) {
     });
   });
 
-  it(`Network ${renderer}: a click near a node focuses it`, async () => {
+  it(`Network ${renderer}: a click near a node focuses it, and one on the background clears it`, async () => {
     await run(
       "Network",
       {...network, ownClick: true},
@@ -284,9 +284,7 @@ for (const renderer of ["svg", "canvas"]) {
         await page.mouse.click(x, y - 15);
         await page.waitForTimeout(700);
         assert.strictEqual(await focus(), "gamma");
-        // The Canvas renderer's surface takes every click, so only SVG
-        // reaches the Network's background (which clears the focus).
-        if (renderer !== "svg") return;
+        // A click on the background clears the focus, on either renderer.
         const after = await page.evaluate(() => window.__points());
         const [ax, ay] = after.alpha;
         // Far below the alpha–beta link, away from every node.

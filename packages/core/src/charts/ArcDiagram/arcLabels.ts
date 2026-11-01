@@ -1,9 +1,10 @@
 /**
     ArcDiagram's node labels: one line each, on the side of the line away
-    from the arcs. Labels that are too wide for their slot turn to -45°, then
-    to -90° when even that crowds, and when neighbors are closer than a line
-    of text only every few labels draw. Rotating keeps every label directly
-    under its node, in node order, which reads better along a dense line than
+    from the arcs (under it when arcs take both sides, over a halo). Labels
+    that are too wide for their slot turn to -45°, then to -90° when even
+    that crowds, and when neighbors are closer than a line of text only
+    every few labels draw. Rotating keeps every label directly under its
+    node, in node order, which reads better along a dense line than
     scattering labels into free space around each circle.
 */
 
@@ -13,7 +14,8 @@ import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
 import constant from "../../utils/constant.js";
-import {backgroundInk} from "../viz/backgroundInk.js";
+import {backgroundInk, chartBackground} from "../viz/backgroundInk.js";
+import {textHalo} from "../features/textHalo.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {pointLabelSettings} from "../features/circleLabels.js";
 import type {ArcOrient} from "./arcGeometry.js";
@@ -182,17 +184,20 @@ const textAnchor = (anchor: ArcLabel["anchor"]): ArcLabel["anchor"] =>
 
 /**
     Text nodes for placed labels: one line each in the chart's ink at
-    `pointLabelConfig.fontSize`, inert to the pointer.
+    `pointLabelConfig.fontSize`, inert to the pointer. With `halo`, each
+    draws over a halo in the chart's background (see `textHalo`), which
+    keeps it readable where arcs pass behind it.
 */
 export function emitArcLabels(
   viz: VizInstance,
   labels: readonly ArcLabel[],
+  halo = false,
 ): SceneNode[] {
   if (!labels.length) return [];
   const settings = pointLabelSettings(viz);
   const byId = new Map(labels.map(l => [`${l.id}_0`, l]));
   const of = (rec: DataPoint): ArcLabel | undefined => byId.get(String(rec.id));
-  return emitLabels({
+  const nodes = emitLabels({
     data: labels as unknown as DataPoint[],
     label: d => (d as unknown as ArcLabel).text,
     labelBounds: d => ({...(d as unknown as ArcLabel).box}),
@@ -214,4 +219,11 @@ export function emitArcLabels(
       ...settings.text,
     },
   });
+  return halo
+    ? textHalo(
+        nodes,
+        chartBackground(viz),
+        Math.max(2, Math.round(settings.fontSize / 4)),
+      )
+    : nodes;
 }

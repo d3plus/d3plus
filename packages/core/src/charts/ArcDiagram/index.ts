@@ -114,7 +114,9 @@ export const arcDiagramDef: ChartDefinition = {
     /**
         Which side of the line the arcs take: `"above"` (the default),
         `"below"`, or `"both"`, where links running forward along the line
-        arc above and links running backward arc below.
+        arc above and links running backward arc below. Node labels take the
+        side without arcs (above the line for `"below"`); with `"both"` they
+        sit below it, each over a halo in the chart's background.
     */
     {key: "arcSide", default: "above"},
     /**

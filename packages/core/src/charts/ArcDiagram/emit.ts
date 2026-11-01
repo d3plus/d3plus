@@ -185,6 +185,6 @@ export const arcDiagramEmit: ChartEmit = ({viz}) => {
     const image = backgroundImageNode(config, node, n.data, n.i);
     if (image) images.push(image);
   }
-  out.push(...images, ...emitArcLabels(viz, c.labels));
+  out.push(...images, ...emitArcLabels(viz, c.labels, c.labelHalo));
   return out;
 };

@@ -3,8 +3,27 @@ import {solidFill} from "./canvasNodePaint.js";
 
 type Ctx = CanvasRenderingContext2D;
 
-/** Paints a text node's laid-out lines, run by run where a line carries styled runs. */
+/** Paints a text node's laid-out lines, run by run where a line carries styled runs, over its halo when it has one. */
 export function drawText(ctx: Ctx, node: TextNode, alpha: number): void {
+  const p = node.paint || {};
+  if (node.halo && p.stroke && (p.strokeWidth ?? 1) > 0) {
+    ctx.globalAlpha = alpha * (p.strokeOpacity ?? 1);
+    ctx.strokeStyle = solidFill(p.stroke) ?? "#000";
+    ctx.lineWidth = p.strokeWidth ?? 1;
+    ctx.lineJoin = "round";
+    paintLines(ctx, node, (text, x, y) => ctx.strokeText(text, x, y));
+  }
+  ctx.globalAlpha = alpha * (p.fillOpacity ?? 1);
+  ctx.fillStyle = solidFill(p.fill) ?? "#000";
+  paintLines(ctx, node, (text, x, y) => ctx.fillText(text, x, y));
+}
+
+/** Sets a text node's font and alignment, then paints each line (or styled run) with `paint`. */
+function paintLines(
+  ctx: Ctx,
+  node: TextNode,
+  paint: (text: string, x: number, y: number) => void,
+): void {
   const f = node.font || {};
   const baseStyle = f.style ?? "normal";
   const baseWeight = f.weight ?? "normal";
@@ -19,9 +38,6 @@ export function drawText(ctx: Ctx, node: TextNode, alpha: number): void {
       : f.baseline === "hanging"
         ? "hanging"
         : "alphabetic";
-  const p = node.paint || {};
-  ctx.globalAlpha = alpha * (p.fillOpacity ?? 1);
-  ctx.fillStyle = solidFill(p.fill) ?? "#000";
   for (const ln of node.lines) {
     if (ln.runs && ln.runs.length) {
       // Paint runs left-to-right with per-run weight/style. textAlign is
@@ -34,13 +50,13 @@ export function drawText(ctx: Ctx, node: TextNode, alpha: number): void {
         const w = run.style?.weight ?? baseWeight;
         const s = run.style?.style ?? baseStyle;
         ctx.font = `${s} ${w} ${size}px ${family}`;
-        ctx.fillText(run.text, cursor, ln.y);
+        paint(run.text, cursor, ln.y);
         cursor += ctx.measureText(run.text).width;
       }
       ctx.font = `${baseStyle} ${baseWeight} ${size}px ${family}`;
       ctx.textAlign = prevAlign;
     } else {
-      ctx.fillText(ln.text, ln.x, ln.y);
+      paint(ln.text, ln.x, ln.y);
     }
   }
 }
