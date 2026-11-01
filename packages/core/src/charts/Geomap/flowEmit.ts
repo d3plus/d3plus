@@ -19,7 +19,11 @@ import {emitLinkLabels} from "../features/linkLabels.js";
 import type {LabelCircle} from "../features/circleLabelPlacement.js";
 import {backgroundInk, chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {polylineEndTip, polylineMidpoint} from "./flowGeometry.js";
+import {
+  flowArrowSize,
+  polylineEndTip,
+  polylineMidpoint,
+} from "./flowGeometry.js";
 import type {FlowLink} from "./flowLinks.js";
 
 /** A link's scene key. */
@@ -60,7 +64,13 @@ function flowArrows(
   const datum = link.datum;
   const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, link.index);
   if (!ends.source && !ends.target) return [];
-  const size = arrowSizeFor(viz.schema.arrowSize, datum, link.index, link.size);
+  // An explicit `arrowSize` wins; the default is held down on wide links.
+  const size = arrowSizeFor(
+    viz.schema.arrowSize ?? flowArrowSize(link.size),
+    datum,
+    link.index,
+    link.size,
+  );
   const out: SceneNode[] = [];
   for (const end of ["target", "source"] as const) {
     const run = end === "target" ? link.targetRun : link.sourceRun;

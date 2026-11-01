@@ -1575,7 +1575,8 @@ export interface D3plusConfig {
       of its direction (a negative value bows to the right), so links
       running both ways between two places stay apart. A link the
       projection cuts (across the antimeridian, or past the projection's
-      edge) is drawn without the lift.
+      edge) is drawn without the lift, as is every link on a projection that
+      clips to a circle (a globe such as `"geoOrthographic"`).
   */
   linkCurve?: number;
   /** Geomap: the widest link, in pixels, when `linkSize` values differ (default `10`). */

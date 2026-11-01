@@ -22,7 +22,9 @@ export function geomapLinkFields(): ConfigField[] {
     {key: "arrows", default: false},
     /**
         The arrowhead size in pixels, or an accessor function returning one
-        per link. Defaults to three times the link's stroke width (at least 6).
+        per link. Defaults to three times the link's stroke width (at least
+        6), held to 12 pixels on wide links but never under one and a half
+        times the stroke, so the head stays wider than its line.
         @type {number | function}
     */
     {key: "arrowSize"},
@@ -35,7 +37,9 @@ export function geomapLinkFields(): ConfigField[] {
         left of the link's direction (a negative value bows to the right),
         so links running both ways between two places stay apart. A link
         the projection cuts (across the antimeridian, or past the edge of
-        the projection) is drawn without the lift.
+        the projection) is drawn without the lift, and so is every link on
+        a projection that clips to a circle (a globe, such as
+        `"geoOrthographic"`), where an arc would leave the sphere.
         @type {number}
     */
     {key: "linkCurve", default: 0.2},

@@ -4,7 +4,11 @@ import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {Geomap} from "../../index.ts";
 import {themeDark, themeLight} from "../../src/utils/theme.ts";
-import {applyGeomapLayout} from "../../src/charts/Geomap/applyLayout.ts";
+import {
+  applyGeomapLayout,
+  visiblePointData,
+} from "../../src/charts/Geomap/applyLayout.ts";
+import {geoPath} from "d3-geo";
 import {
   coordinateLabel,
   flowEndResolver,
@@ -472,4 +476,69 @@ it("setupGeomapLinks hovers and focuses links, and clears the focus on another c
   const fresh = new Geomap();
   setupGeomapLinks(fresh);
   assert.deepStrictEqual(fresh.links(), []);
+});
+
+it("emitFlowLinks holds default arrowheads down on wide links, and arrowSize wins", () => {
+  const viz = laidOut(
+    [
+      {source: "NYC", target: "LON", n: 1},
+      {source: "LON", target: "NYC", n: 100},
+    ],
+    {linkSize: d => d.n, linkSizeMin: 1, linkSizeMax: 10, arrows: true},
+  );
+  const links = viz.ctx.geomapCtx.flowLinks;
+  /** An arrowhead's tip-to-base length, from its path's three points. */
+  const length = node => {
+    const n = node.d.match(/-?[\d.]+/g).map(Number);
+    const base = [(n[2] + n[4]) / 2, (n[3] + n[5]) / 2];
+    return Math.hypot(n[0] - base[0], n[1] - base[1]);
+  };
+  const arrows = key =>
+    emitFlowLinks(viz, links).find(n => n.key === `${key}-arrow-t`);
+  const wide = arrows("geomap-link-LON-NYC-1");
+  const thin = arrows("geomap-link-NYC-LON-0");
+  assert.ok(Math.abs(length(wide) - 15) < 0.1, `wide: ${length(wide)}`);
+  assert.ok(Math.abs(length(thin) - 6) < 0.1, `thin: ${length(thin)}`);
+  viz.arrowSize(20);
+  assert.ok(Math.abs(length(arrows("geomap-link-NYC-LON-0")) - 20) < 0.1);
+});
+
+it("geomapFlowLinks draws links unbowed on a globe", () => {
+  const viz = laidOut([{source: "NYC", target: "LON"}], {
+    projection: "geoOrthographic",
+    linkCurve: 0.4,
+  });
+  const [link] = viz.ctx.geomapCtx.flowLinks;
+  const {projection} = viz.schema;
+  const path = geoPath(projection);
+  assert.strictEqual(
+    link.d,
+    path({type: "LineString", coordinates: [cities[0].point, cities[1].point]}),
+    "the great circle, as the globe clips it",
+  );
+});
+
+it("visiblePointData drops the points a globe hides, and the layout draws only those", () => {
+  const far = {id: "TYO", name: "Tokyo", point: ["139.7", "35.7"], pop: 5};
+  const viz = geomap({projection: "geoOrthographic", topojson: false});
+  viz._filteredData = [...cities, far];
+  viz.projectionRotate([60, -30]);
+  applyGeomapLayout({viz});
+  const path = geoPath(viz.schema.projection);
+  assert.deepStrictEqual(
+    visiblePointData(viz, [...cities, far], path).map(d => d.id),
+    ["NYC", "LON"],
+  );
+  assert.deepStrictEqual(
+    viz.ctx.geomapCtx.pointData.map(d => d.id),
+    ["NYC", "LON"],
+  );
+  // Turned to face Tokyo, it shows and New York and London hide.
+  viz.projectionRotate([-150, -20]);
+  viz._zoomSet = false;
+  applyGeomapLayout({viz});
+  assert.deepStrictEqual(
+    viz.ctx.geomapCtx.pointData.map(d => d.id),
+    ["TYO"],
+  );
 });

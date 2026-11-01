@@ -3,8 +3,11 @@ import assert from "assert";
 import {geoAlbersUsa, geoMercator, geoOrthographic, geoPath} from "d3-geo";
 
 import {
+  clipsToCircle,
+  coordinateVisible,
   featureAnchor,
   flowArc,
+  flowArrowSize,
   greatCircle,
   isLonLat,
   liftPolyline,
@@ -15,6 +18,7 @@ import {
   polylineMidpoint,
   polylinePath,
   splitRuns,
+  toLonLat,
   unbrokenPath,
 } from "../../src/charts/Geomap/flowGeometry.ts";
 
@@ -286,4 +290,50 @@ it("flowArc drops the end hidden behind a globe, and returns null for nothing to
   });
   // Both ends outside the projection's lower-48/Alaska/Hawaii insets.
   assert.strictEqual(flowArc([10, 50], [20, 45], usa, geoPath(usa), 0.2), null);
+});
+
+it("toLonLat reads a point's coordinate, numeric strings included", () => {
+  assert.deepStrictEqual(toLonLat([-74, 40.7]), [-74, 40.7]);
+  assert.deepStrictEqual(toLonLat(["-74", "40.7"]), [-74, 40.7]);
+  assert.strictEqual(toLonLat(["x", 1]), null);
+  assert.strictEqual(toLonLat([1]), null);
+  assert.strictEqual(toLonLat("1,2"), null);
+});
+
+it("flowArrowSize is three times the width, held between 6 and 12 unless the line is wider", () => {
+  assert.strictEqual(flowArrowSize(1), 6);
+  assert.strictEqual(flowArrowSize(3), 9);
+  assert.strictEqual(flowArrowSize(4), 12);
+  assert.strictEqual(flowArrowSize(6), 12);
+  assert.strictEqual(
+    flowArrowSize(10),
+    15,
+    "1.5× a wide line, so the head shows",
+  );
+  assert.strictEqual(flowArrowSize(NaN), 6);
+  // The head's base (1.2× its size) is always wider than the line.
+  for (const w of [1, 2, 5, 8, 10, 20, 40])
+    assert.ok(flowArrowSize(w) * 1.2 > w, `width ${w}`);
+});
+
+it("clipsToCircle recognizes globes and other clip-angle projections", () => {
+  assert.ok(clipsToCircle(geoOrthographic()));
+  assert.ok(!clipsToCircle(geoMercator()));
+  assert.ok(!clipsToCircle(geoAlbersUsa()), "no clipAngle at all");
+  assert.ok(clipsToCircle(geoMercator().clipAngle(80)));
+  assert.ok(!clipsToCircle(null));
+});
+
+it("coordinateVisible reads the projection's clipping, which projecting alone ignores", () => {
+  const globe = geoOrthographic().rotate([0, 0]);
+  const path = geoPath(globe);
+  assert.ok(coordinateVisible(path, [10, 10]));
+  assert.ok(globe([170, 10]), "a far-side point still projects…");
+  assert.ok(!coordinateVisible(path, [170, 10]), "…but isn't drawn");
+  globe.rotate([-170, 0]);
+  assert.ok(coordinateVisible(path, [170, 10]), "until the globe turns");
+  assert.ok(!coordinateVisible(path, [10, 10]));
+  const usa = geoPath(geoAlbersUsa());
+  assert.ok(coordinateVisible(usa, [-100, 40]));
+  assert.ok(!coordinateVisible(usa, [10, 50]), "outside the insets");
 });

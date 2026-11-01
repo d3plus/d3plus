@@ -17,7 +17,8 @@ import type {TransformStage, VizContext} from "../pipeline/stages.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import {flowLinkCoordinates, geomapFlowLinks} from "./flowLinks.js";
 import type {FlowLayoutInput} from "./flowLinks.js";
-import type {LonLat} from "./flowGeometry.js";
+import {coordinateVisible, toLonLat} from "./flowGeometry.js";
+import type {GeoPathFn, LonLat} from "./flowGeometry.js";
 
 type GeomapViz = VizContext["viz"];
 
@@ -209,6 +210,23 @@ export function geomapPointSizeScale(
 }
 
 /**
+    The coordinate points the fitted projection draws: those its clipping
+    keeps, read through d3-geo's path of each point (a projection alone
+    places points on the far side of a globe, or outside geoAlbersUsa's
+    insets, as if they were visible).
+*/
+export function visiblePointData(
+  v: GeomapViz,
+  pointData: DataPoint[],
+  path: GeoPathFn,
+): DataPoint[] {
+  return pointData.filter((d: DataPoint, i: number) => {
+    const coord = toLonLat(v.schema.point(d, i));
+    return coord !== null && coordinateVisible(path, coord);
+  });
+}
+
+/**
     Picks the features (or, without any, the coordinate points and the
     coordinate ends of `links`) the projection fits, onto `ctx.extentBounds`.
 */
@@ -328,7 +346,11 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     }),
     topoData,
     pathFn: (d: Record<string, unknown>) => path(d.feature),
-    pointData,
+    pointData: visiblePointData(
+      v,
+      pointData,
+      path as unknown as FlowLayoutInput["path"],
+    ),
     pointR,
     pointSort: (a: DataPoint, b: DataPoint) =>
       v.schema.pointSize(b) - v.schema.pointSize(a),

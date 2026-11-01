@@ -166,6 +166,57 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
+  it(`Geomap ${renderer}: a globe hides the points on its far side, as it turns`, async () => {
+    const {page, errors, close} = await openPage(box);
+    try {
+      const globe = {
+        ...config,
+        data: [
+          ...config.data,
+          {id: "TYO", name: "Tokyo", point: [139.7, 35.7]},
+        ],
+        links: [...config.links, {source: "LON", target: "TYO"}],
+        projection: "geoOrthographic",
+        projectionRotate: [74, -40],
+        linkCurve: 0.4,
+      };
+      await page.evaluate(draw, [JSON.stringify(globe), renderer]);
+      let keys = await page.evaluate(paintOrder);
+      assert.ok(keys.includes(POINT), "New York faces the viewer");
+      assert.ok(
+        !keys.includes("geomap-point-TYO"),
+        "Tokyo is behind the globe",
+      );
+      assert.ok(
+        !keys.some(k => k.includes("TYO") && !k.startsWith("geomap-link-")),
+        "and so are its label and hit area",
+      );
+      assert.ok(
+        !keys.includes("geomap-link-LON-TYO-2-arrow-t"),
+        "no arrowhead at a hidden end",
+      );
+      keys = await page.evaluate(
+        () =>
+          new Promise(resolve => {
+            window.__viz.projectionRotate([-150, -20]).render(() => {
+              const out = [];
+              const walk = n => {
+                out.push(String(n.key));
+                (n.children || []).forEach(walk);
+              };
+              walk(window.__viz._paintedScene.root);
+              resolve(out);
+            });
+          }),
+      );
+      assert.ok(keys.includes("geomap-point-TYO"), "Tokyo shows once it turns");
+      assert.ok(!keys.includes(POINT), "and New York hides");
+      assert.deepStrictEqual(errors, [], "no page errors");
+    } finally {
+      await close();
+    }
+  });
+
   it(`Geomap ${renderer}: links move with the map as it zooms`, async () => {
     const {page, errors, close} = await openPage(box);
     try {

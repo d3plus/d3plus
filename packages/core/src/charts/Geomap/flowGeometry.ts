@@ -47,6 +47,16 @@ export function isLonLat(v: unknown): v is LonLat {
 }
 
 /**
+    A row's `point` value as a coordinate: a pair whose two entries read as
+    finite numbers (CSV data gives strings), or null.
+*/
+export function toLonLat(v: unknown): LonLat | null {
+  if (!Array.isArray(v) || v.length < 2) return null;
+  const c: LonLat = [Number(v[0]), Number(v[1])];
+  return isLonLat(c) ? c : null;
+}
+
+/**
     The point a link to a geographic feature ends at: the centroid of the
     feature's largest polygon (so a country's link meets its mainland, not a
     point between its islands), or of the whole geometry when it isn't a
@@ -302,4 +312,33 @@ export function polylineBox(points: Point[]): [Point, Point] {
     [Math.min(...xs), Math.min(...ys)],
     [Math.max(...xs), Math.max(...ys)],
   ];
+}
+
+/**
+    The default arrowhead size for a link `width` pixels wide: three times
+    the width (at least 6), held to 12 pixels so wide links don't carry
+    oversized heads, but never under 1.5 times the width, so the head's base
+    (1.2 times its size) stays wider than the line it ends.
+*/
+export function flowArrowSize(width: number): number {
+  const w = Number.isFinite(width) && width > 0 ? width : 1;
+  return Math.max(6, Math.min(w * 3, Math.max(12, w * 1.5)));
+}
+
+/**
+    Whether a projection clips the sphere to a circle (a globe, or any
+    projection with a `clipAngle`), where a bowed arc would leave the disc.
+*/
+export function clipsToCircle(projection: unknown): boolean {
+  const clipAngle = (projection as {clipAngle?: () => unknown} | null)
+    ?.clipAngle;
+  if (typeof clipAngle !== "function") return false;
+  const angle = clipAngle.call(projection);
+  // An unset clip angle reads as 0 (clipping only at the antimeridian).
+  return typeof angle === "number" && Number.isFinite(angle) && angle > 0;
+}
+
+/** Whether the projection draws a coordinate, read through its clipping stream. */
+export function coordinateVisible(path: GeoPathFn, coord: LonLat): boolean {
+  return !!path({type: "Point", coordinates: coord});
 }

@@ -23,7 +23,14 @@ import {
 } from "../features/linkInteraction.js";
 import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {featureAnchor, flowArc, isLonLat, polylineBox} from "./flowGeometry.js";
+import {
+  clipsToCircle,
+  featureAnchor,
+  flowArc,
+  isLonLat,
+  polylineBox,
+  toLonLat,
+} from "./flowGeometry.js";
 import type {GeoPathFn, LonLat, Point, Projector} from "./flowGeometry.js";
 
 /** One end of a drawn link: the place it names, and the mark drawn there. */
@@ -109,8 +116,8 @@ export function flowEndResolver(
 ): (ref: unknown) => FlowEnd | null {
   const points = new Map<string, FlowEnd>();
   input.pointData.forEach((d, i) => {
-    const coord = v.schema.point(d, i) as unknown;
-    if (!isLonLat(coord)) return;
+    const coord = toLonLat(v.schema.point(d, i));
+    if (!coord) return;
     const id = `${v._id(d, i)}`;
     if (points.has(id)) return;
     const r = input.pointR(d, i);
@@ -248,7 +255,8 @@ export function geomapFlowLinks(
     : [];
   const resolve = flowEndResolver(v, input);
   const projection = v.schema.projection as Projector;
-  const curve = Number(v.schema.linkCurve) || 0;
+  // On a globe a bowed arc would leave the disc, so links follow the sphere.
+  const curve = clipsToCircle(projection) ? 0 : Number(v.schema.linkCurve) || 0;
   const drawn: (Omit<FlowLink, "size" | "box"> & {box: FlowLink["box"]})[] = [];
   raw.forEach((row, index) => {
     if (!row || typeof row !== "object") return;

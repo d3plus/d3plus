@@ -320,7 +320,9 @@ function setupGeomapFitFluent(viz: VizInstance): void {
       Accessor function for each data point's coordinates, as
       `[longitude, latitude]` (d3's coordinate order), or one coordinate for
       every point. Defaults to each row's `point` key. Rows with a coordinate are
-      drawn as points; the rest are matched to `topojson` shapes.
+      drawn as points; the rest are matched to `topojson` shapes. A point the
+      projection clips (on the far side of a globe, or outside
+      `"geoAlbersUsa"`'s insets) is not drawn.
       @type {number[] | function}
   */
   v.point = function (this: VizInstance, _?: unknown) {

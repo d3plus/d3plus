@@ -1893,8 +1893,11 @@ export type {Contribution} from "./src/charts/drawSteps/topLeftControlsMarkup.js
 // ── Geomap links ─────────────────────────────────────────────────────────────
 export {forgetLinkNodes} from "./src/charts/features/linkInteraction.js";
 export {
+  clipsToCircle,
+  coordinateVisible,
   featureAnchor,
   flowArc,
+  flowArrowSize,
   greatCircle,
   isLonLat,
   liftPolyline,
@@ -1905,8 +1908,10 @@ export {
   polylineMidpoint,
   polylinePath,
   splitRuns,
+  toLonLat,
   unbrokenPath,
 } from "./src/charts/Geomap/flowGeometry.js";
+export {visiblePointData} from "./src/charts/Geomap/applyLayout.js";
 export type {
   FlowArc,
   GeoPathFn,
