@@ -135,6 +135,24 @@ it("never ticks inside a gap", () => {
   assert.ok(month.ticks(4).every(t => t.getDay() !== 0 && t.getDay() !== 6));
 });
 
+it("keeps plain ticks a half step or more from a moved tick", () => {
+  // Every other day: Sunday the 7th and 21st move to Monday, beside the
+  // Friday before and the Tuesday after; those give way.
+  const x = brokenTimeScale(["weekends"])
+    .domain([new Date(2024, 3, 1), new Date(2024, 3, 26)])
+    .range([0, 960]);
+  const ticks = x.ticks(10);
+  const day = 864e5;
+  ticks.slice(1).forEach((t, i) => {
+    assert.ok(
+      x.visible(ticks[i], t) > day,
+      `${ticks[i].toDateString()} and ${t.toDateString()} a day apart`,
+    );
+  });
+  assert.ok(ticks.some(t => +t === +new Date(2024, 3, 8)));
+  assert.ok(ticks.some(t => +t === +new Date(2024, 3, 22)));
+});
+
 it("tickFormat formats like d3's time scale over the domain", () => {
   const x = weekdays();
   assert.strictEqual(

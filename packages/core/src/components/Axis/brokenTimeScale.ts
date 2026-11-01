@@ -204,13 +204,14 @@ function layoutTicks(
     if (t <= hi) ticks.set(t, moved || ticks.get(t) === true);
   }
   // A moved tick opens a stretch of shown time (a day after a night, a
-  // week after a weekend), so a plain tick crowding it gives way.
+  // week after a weekend), so a plain tick within half a step of it gives
+  // way.
   const steps = base.slice(1).map((t, k) => t - base[k]);
   const half = steps.length ? quantile(steps, 0.5)! / 2 : 0;
   const moved = [...ticks].filter(([, m]) => m).map(([t]) => t);
   return [...ticks]
     .filter(
-      ([t, m]) => m || !moved.some(o => Math.abs(scale.visible(o, t)) < half),
+      ([t, m]) => m || !moved.some(o => Math.abs(scale.visible(o, t)) <= half),
     )
     .map(([t]) => t)
     .sort((a, b) => a - b);
