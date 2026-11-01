@@ -1,6 +1,6 @@
 {
   "counts": {
-    "path": 7,
+    "path": 14,
     "circle": 8,
     "text": 8,
     "rect": 10
@@ -17,7 +17,34 @@
     },
     {
       "t": "path",
+      "x": 300,
+      "y": 150,
+      "w": 0,
+      "h": 63,
+      "f": "none",
+      "s": "transparent"
+    },
+    {
+      "t": "path",
       "x": 229,
+      "y": 115,
+      "w": 71,
+      "h": 29,
+      "f": "none",
+      "s": "#adb5bd"
+    },
+    {
+      "t": "path",
+      "x": 229,
+      "y": 115,
+      "w": 71,
+      "h": 29,
+      "f": "none",
+      "s": "transparent"
+    },
+    {
+      "t": "path",
+      "x": 300,
       "y": 115,
       "w": 71,
       "h": 29,
@@ -31,7 +58,7 @@
       "w": 71,
       "h": 29,
       "f": "none",
-      "s": "#adb5bd"
+      "s": "transparent"
     },
     {
       "t": "path",
@@ -45,11 +72,29 @@
     {
       "t": "path",
       "x": 300,
+      "y": 213,
+      "w": 0,
+      "h": 63,
+      "f": "none",
+      "s": "transparent"
+    },
+    {
+      "t": "path",
+      "x": 300,
       "y": 249,
       "w": 114,
       "h": 38,
       "f": "none",
       "s": "#adb5bd"
+    },
+    {
+      "t": "path",
+      "x": 300,
+      "y": 249,
+      "w": 114,
+      "h": 38,
+      "f": "none",
+      "s": "transparent"
     },
     {
       "t": "path",
@@ -62,12 +107,30 @@
     },
     {
       "t": "path",
+      "x": 300,
+      "y": 281,
+      "w": 0,
+      "h": 52,
+      "f": "none",
+      "s": "transparent"
+    },
+    {
+      "t": "path",
       "x": 186,
       "y": 249,
       "w": 114,
       "h": 38,
       "f": "none",
       "s": "#adb5bd"
+    },
+    {
+      "t": "path",
+      "x": 186,
+      "y": 249,
+      "w": 114,
+      "h": 38,
+      "f": "none",
+      "s": "transparent"
     },
     {
       "t": "circle",

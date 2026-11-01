@@ -26,7 +26,14 @@ import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applySankeyLayout} from "./applyLayout.js";
+import {focusLink, installFocusBackgroundClick} from "../features/linkFocus.js";
+import {
+  isLinkDatum,
+  linkHighlight,
+  linkTooltipConfig,
+  nodeHighlight,
+} from "../features/linkInteraction.js";
+import {applySankeyLayout, sankeyLinkStrokeWidth} from "./applyLayout.js";
 import {sankeyEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import {themeDark, themed} from "../../utils/theme.js";
@@ -74,51 +81,37 @@ function installSankeyHover(viz: VizInstance & SankeyFluent): void {
       viz._focus = undefined;
       return;
     }
-    // An edge datum is a `{source, target}` link, not a node — highlight the
-    // hovered link plus its two endpoint nodes.
-    const edge = d as DataPoint & {
-      source?: {id: string | number};
-      target?: {id: string | number};
-    };
-    if (edge.source && edge.target) {
-      const sourceId = edge.source.id;
-      const targetId = edge.target.id;
-      viz.hover(
-        (
-          h: DataPoint & {
-            source?: {id: string | number};
-            target?: {id: string | number};
-          },
-          hi: number,
-        ) => {
-          if (h.source && h.target)
-            return h.source.id === sourceId && h.target.id === targetId;
-          const hid = viz.schema.nodeId(h, hi) as string | number;
-          return hid === sourceId || hid === targetId;
-        },
-      );
+    const nodeKey = (h: DataPoint, hi: number) => `${viz.schema.nodeId(h, hi)}`;
+    const predicate = isLinkDatum(d)
+      ? linkHighlight(viz, d, nodeKey)
+      : nodeHighlight(viz, d, nodeKey);
+    if (predicate) viz.hover(predicate);
+  };
+}
+
+/**
+    Wire Sankey's link click: it keeps the link and its two ends highlighted
+    until the link or the background is clicked again. Sankey doesn't zoom,
+    so the focus stays in place. Node clicks keep the default handler.
+*/
+function installSankeyLinkFocus(viz: VizInstance): void {
+  installFocusBackgroundClick(viz);
+  const defaultClick = viz.schema.on["click.shape"];
+  viz.schema.on["click.shape"] = function (
+    this: unknown,
+    d: DataPoint,
+    i: number,
+    x: unknown,
+    event: MouseEvent,
+  ) {
+    if (isLinkDatum(d)) {
+      focusLink(viz, d, {
+        nodeKey: (h, hi) => `${viz.schema.nodeId(h, hi)}`,
+      });
       return;
     }
-    const id = viz.schema.nodeId(d, i) as string | number;
-    const node = (viz.ctx.nodeLookup as Record<string, number>)[String(id)];
-    const lookup = viz.ctx.nodeLookup as Record<string, number>;
-    const nodeLookup = Object.keys(lookup).reduce(
-      (all: Record<number, string | number>, item: string) => {
-        all[lookup[item]] = !isNaN(Number(item)) ? parseInt(item, 10) : item;
-        return all;
-      },
-      {},
-    );
-    const links = (viz.ctx.linkLookup as Record<number, number[]>)[node] ?? [];
-    const filterIds: (string | number)[] = [id];
-    links.forEach(l => filterIds.push(nodeLookup[l]));
-    viz.hover(
-      (h: DataPoint & {source?: DataPoint; target?: DataPoint}, hi: number) => {
-        if (h.source && h.target)
-          return h.source.id === id || h.target.id === id;
-        return filterIds.includes(viz.schema.nodeId(h, hi) as string | number);
-      },
-    );
+    if (typeof defaultClick === "function")
+      defaultClick.call(this, d, i, x, event);
   };
 }
 
@@ -131,6 +124,7 @@ export const sankeyDef: ChartDefinition = {
   setup: (viz: VizInstance) => {
     const v = viz as VizInstance & SankeyFluent;
     installSankeyHover(v);
+    installSankeyLinkFocus(viz);
 
     /**
         The flows between `nodes`. Each link's `linksSource` and `linksTarget`
@@ -203,8 +197,9 @@ export const sankeyDef: ChartDefinition = {
     };
     /**
         The value of each link, which sets its width: a key or an accessor
-        function that receives the link and its index. Defaults to `1` for
-        every link.
+        function that receives the link, with `source` and `target` set to the
+        data of the nodes at its ends, and its index in `links`. Defaults to
+        `1` for every link.
         @type {string | function}
     */
     v.value = function (this: VizInstance, _: unknown) {
@@ -269,6 +264,13 @@ export const sankeyDef: ChartDefinition = {
         @type {function}
     */
     {key: "nodeSort"},
+    /**
+        How many links a node's tooltip lists under its number of
+        connections, strongest first: a number, or `false` for none. Defaults
+        to 3 when the links differ in `value`, and none otherwise.
+        @type {number | false}
+    */
+    {key: "nodeTooltipLinks"},
     /** The width of each node, in pixels. */
     {key: "nodeWidth", default: 30},
     {key: "value", default: constant(1)},
@@ -277,17 +279,7 @@ export const sankeyDef: ChartDefinition = {
       key: "shapeConfig",
       merge: true,
       factory: (viz: VizInstance) => {
-        type SankeyLinkDatum = {
-          source: {y0: number; y1: number; value: number};
-          target: {y0: number; y1: number};
-          value: number;
-        };
-        const linkStrokeWidth = (d: SankeyLinkDatum) =>
-          Math.max(
-            1,
-            Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) -
-              2,
-          );
+        const linkStrokeWidth = sankeyLinkStrokeWidth;
         return {
           Path: {
             fill: "none",
@@ -311,18 +303,7 @@ export const sankeyDef: ChartDefinition = {
     {
       key: "tooltipConfig",
       merge: true,
-      factory: (viz: VizInstance) => ({
-        title: (
-          d: DataPoint & {
-            source?: {id: string | number};
-            target?: {id: string | number};
-            i?: number;
-          },
-        ) =>
-          d && d.source && d.target
-            ? `${d.source.id} → ${d.target.id}`
-            : viz._drawLabel(d, typeof d.i === "number" ? d.i : 0),
-      }),
+      factory: (viz: VizInstance) => linkTooltipConfig(viz),
     },
   ],
 };

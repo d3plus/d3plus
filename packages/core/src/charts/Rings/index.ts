@@ -26,6 +26,17 @@ import {ringsEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {themed} from "../../utils/theme.js";
+import {
+  clearLinkFocus,
+  focusLink,
+  installFocusBackgroundClick,
+} from "../features/linkFocus.js";
+import {
+  isLinkDatum,
+  linkHighlight,
+  linkMeta,
+  linkTooltipConfig,
+} from "../features/linkInteraction.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
 
@@ -89,7 +100,9 @@ function installRingsAccessors(viz: VizInstance): void {
   /**
       The thickness of each link: a pixel number used for every link, or an
       accessor function whose values are scaled between `linkSizeMin` and the
-      smallest node radius (see `linkSizeScale`).
+      smallest node radius (see `linkSizeScale`). The function receives each
+      link, with `source` and `target` set to the data of the nodes at its
+      ends, and its index in `links`.
       @type {number | function}
   */
   v.linkSize = function (this: VizInstance, _?: RingsAccessor) {
@@ -167,6 +180,12 @@ export const ringsDef: ChartDefinition = {
       event: MouseEvent,
     ) => {
       defaultMouseMove(d, i, x, event);
+      const nodeKey = (h: DataPoint, hi: number) =>
+        `${viz._ids(h, hi)[viz._drawDepth]}`;
+      if (isLinkDatum(d)) {
+        v.hover(linkHighlight(viz, d, nodeKey));
+        return;
+      }
       if (viz._focus && viz._focus === d.id) {
         v.hover(false);
         viz.schema.on.mouseenter.bind(viz)(d, i, x, event);
@@ -194,13 +213,21 @@ export const ringsDef: ChartDefinition = {
         if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
       });
       v.hover((h: DataPoint, x: number) => {
-        const edge = h as {source?: {id: string}; target?: {id: string}};
-        if (edge.source && edge.target)
-          return edge.source.id === node.id || edge.target.id === node.id;
-        return filterIds.includes(viz._ids(h, x)[viz._drawDepth] as string);
+        const m = linkMeta(h);
+        if (m) return m.source.id === node.id || m.target.id === node.id;
+        return filterIds.includes(nodeKey(h, x));
       });
     };
+    installFocusBackgroundClick(viz);
     viz.schema.on["click.shape"] = (d: DataPoint) => {
+      // A link focuses; a node re-centers the chart on it.
+      if (isLinkDatum(d)) {
+        focusLink(viz, d, {
+          nodeKey: (h, hi) => `${viz._ids(h, hi)[viz._drawDepth]}`,
+        });
+        return;
+      }
+      clearLinkFocus(viz);
       // Clear the hover/tooltip before re-centering: the clicked node's shapes
       // move out from under the pointer, so a lingering tooltip would hang over
       // unrelated content (the shared click.shape drill handler does the same).
@@ -250,14 +277,7 @@ export const ringsDef: ChartDefinition = {
     {
       key: "tooltipConfig",
       merge: true,
-      factory: (viz: VizInstance) => ({
-        title: (d: DataPoint) => {
-          const edge = d as {source?: {id: string}; target?: {id: string}};
-          return d && edge.source && edge.target
-            ? `${edge.source.id} → ${edge.target.id}`
-            : viz._drawLabel(d, typeof d.i === "number" ? d.i : 0);
-        },
-      }),
+      factory: (viz: VizInstance) => linkTooltipConfig(viz),
     },
     {key: "links", default: []},
     {key: "linkSize", default: constant(1)},
@@ -270,6 +290,13 @@ export const ringsDef: ChartDefinition = {
     {key: "linkSizeScale", default: "sqrt"},
     {key: "noDataMessage", default: false},
     {key: "nodes", default: []},
+    /**
+        How many links a node's tooltip lists under its number of
+        connections, strongest first: a number, or `false` for none. Defaults
+        to 3 when the links differ in `linkSize`, and none otherwise.
+        @type {number | false}
+    */
+    {key: "nodeTooltipLinks"},
     /**
         The maximum pixel radius of a node. Defaults to the largest radius
         that keeps neighboring nodes from overlapping.

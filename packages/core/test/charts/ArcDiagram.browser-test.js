@@ -59,12 +59,18 @@ const draw = ([config, renderer, data]) =>
             stroke: n.paint.stroke,
             source: n.datum.source.id,
             target: n.datum.target.id,
-            side: n.datum.arc.side,
+            datum: n.datum,
           });
         if (key.startsWith("arc-arrow-")) arrows++;
         (n.children || []).forEach(walk);
       };
       walk(viz._paintedScene.root);
+      // Each arc's side, from the layout behind its datum.
+      const sides = new Map(
+        viz.ctx.arcCtx.links.map(l => [l.datum, l.arc.side]),
+      );
+      arcs.forEach(a => (a.side = sides.get(a.datum)));
+      arcs.forEach(a => delete a.datum);
       const m = viz._margin;
       const height = viz.schema.height - m.top - m.bottom;
       resolve({circles, arcs, arrows, height});
@@ -227,7 +233,9 @@ for (const renderer of ["svg", "canvas"]) {
         return {
           tip: tip ? tip.textContent : "",
           nodes: c.nodes.filter(n => viz._hover(n.data, n.i)).map(n => n.id),
-          links: c.links.filter(l => viz._hover(l, l.index)).map(l => l.index),
+          links: c.links
+            .filter(l => viz._hover(l.datum, l.index))
+            .map(l => l.index),
         };
       });
       assert.ok(state.tip.includes("Delta → Echo"), `got "${state.tip}"`);
@@ -463,7 +471,7 @@ for (const renderer of ["svg", "canvas"]) {
         viz.schema.on["click.shape"](echo.data, echo.i);
         const cleared = active();
         const link = c.links.find(l => l.index === 0);
-        viz.schema.on["click.shape"](link, link.index);
+        viz.schema.on["click.shape"](link.datum, link.index);
         const arc = active();
         viz.schema.on["click.legend"]({id: "Alpha", group: "a"}, 0);
         const legend = active();

@@ -23,6 +23,12 @@ import {
   userLabelConfig,
 } from "../features/emitHelpers.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
+import {
+  linkAriaLabel,
+  linkHitPath,
+  linkMeta,
+} from "../features/linkInteraction.js";
+import type {LinkDatum} from "../features/linkInteraction.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -30,6 +36,7 @@ interface RingsEdge {
   source: DataPoint & {id: string; x: number; y: number};
   target: DataPoint & {id: string; x: number; y: number};
   size?: number;
+  datum: LinkDatum;
   spline?: boolean;
   sourceX?: number;
   sourceY?: number;
@@ -178,22 +185,23 @@ export const ringsEmit: ChartEmit = ({viz}) => {
   const out: SceneNode[] = [];
 
   if (c.edges && c.edges.length) {
-    for (let i = 0; i < c.edges.length; i++) {
-      const edge = c.edges[i];
-      const datum = edge as unknown as DataPoint;
+    for (const edge of c.edges) {
+      const datum = edge.datum;
+      const i = linkMeta(datum)?.index ?? 0;
       const paint = paintFromShapeConfig(c.linkConfig, datum, i);
       if (typeof edge.size === "number") paint.strokeWidth = edge.size;
-      const sizeLabel = typeof edge.size === "number" ? `, ${edge.size}` : "";
+      const key = `rings-link-${edge.source.id}-${edge.target.id}`;
+      const d = c.linkD(edge);
       out.push({
         type: "path",
-        key: `rings-link-${edge.source.id}-${edge.target.id}`,
-        d: c.linkD(edge),
+        key,
+        d,
         datum,
+        index: i,
         paint,
-        aria: {
-          label: `${drawNodeLabel(viz, edge.source, 0)} to ${drawNodeLabel(viz, edge.target, 0)}${sizeLabel}.`,
-        },
+        aria: {label: linkAriaLabel(viz, datum)},
       } as SceneNode);
+      out.push(linkHitPath(key, d, datum, paint.strokeWidth) as SceneNode);
 
       // Optional directional arrowheads.
       out.push(

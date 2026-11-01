@@ -24,13 +24,13 @@ import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {isPointShape} from "../viz/nearestHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {graphNodeId} from "../Network/graph.js";
+import {linkMeta, linkTooltipConfig} from "../features/linkInteraction.js";
 import {installGraphFluent} from "../Network/graphFluent.js";
 import type {GraphFluent} from "../Network/graphFluent.js";
 import {applyArcDiagramLayout, arcSizeLegendScale} from "./applyLayout.js";
-import type {ArcCtx, ArcNode} from "./applyLayout.js";
+import type {ArcCtx} from "./applyLayout.js";
 import {arcDiagramEmit} from "./emit.js";
-import {isArcLink, setupArcEvents} from "./events.js";
+import {setupArcEvents} from "./events.js";
 
 /**
     The table view's rows: every node's row with its number of connections,
@@ -44,35 +44,17 @@ export function arcTableData(viz: VizInstance): DataPoint[] | null {
   const links = [...c.links]
     .sort((a, b) => a.index - b.index)
     .map(l => {
-      const {source, target, size: _s, index: _i, arc: _a, d: _d, ...rest} = l;
-      void [_s, _i, _a, _d];
+      const {raw, endKeys} = linkMeta(l.datum)!;
+      const rest = Object.fromEntries(
+        Object.entries(raw).filter(([k]) => !endKeys.includes(k)),
+      );
       return {
-        [t("From")]: source.label,
-        [t("To")]: target.label,
+        [t("From")]: l.source.label,
+        [t("To")]: l.target.label,
         ...rest,
       } as DataPoint;
     });
   return [...nodes, ...links];
-}
-
-/** The tooltip's title: a node's label, or a link's "Source → Target". */
-function tooltipTitle(viz: VizInstance) {
-  return (d: DataPoint & {i?: number}, i: number) =>
-    isArcLink(d)
-      ? `${d.source.label} → ${d.target.label}`
-      : viz._drawLabel(d, typeof d.i === "number" ? d.i : i);
-}
-
-/** The tooltip's body: a node's number of connections. */
-function tooltipBody(viz: VizInstance) {
-  return (d: DataPoint, i: number) => {
-    if (isArcLink(d)) return [];
-    const lookup = viz.ctx.nodeLookup as Record<string, ArcNode> | undefined;
-    const node = lookup?.[graphNodeId(viz, d as Record<string, unknown>, i)];
-    return node
-      ? [[viz.schema.translate("Connections"), `${node.degree}`]]
-      : [];
-  };
 }
 
 export const arcDiagramDef: ChartDefinition = {
@@ -139,7 +121,9 @@ export const arcDiagramDef: ChartDefinition = {
     /**
         The thickness of each arc: a pixel number used for every link, or an
         accessor function whose values are scaled between `linkSizeMin` and
-        the smallest node's radius (see `linkSizeScale`).
+        the smallest node's radius (see `linkSizeScale`). The function
+        receives each link, with `source` and `target` set to the data of the
+        nodes at its ends, and its index in `links`.
     */
     {
       key: "linkSize",
@@ -153,6 +137,12 @@ export const arcDiagramDef: ChartDefinition = {
     {key: "noDataMessage", default: false},
     {key: "nodeGroupBy", default: [accessor("id")]},
     {key: "nodes", default: []},
+    /**
+        How many links a node's tooltip lists under its number of
+        connections, strongest first: a number, or `false` for none. Defaults
+        to 3 when the links differ in `linkSize`, and none otherwise.
+    */
+    {key: "nodeTooltipLinks"},
     /**
         The order of the nodes along the line: `"data"` (the default, their
         order in `nodes`), `"label"`, `"group"`, `"degree"` (most connected
@@ -185,10 +175,7 @@ export const arcDiagramDef: ChartDefinition = {
     {
       key: "tooltipConfig",
       merge: true,
-      factory: (viz: VizInstance) => ({
-        title: tooltipTitle(viz),
-        tbody: tooltipBody(viz),
-      }),
+      factory: (viz: VizInstance) => linkTooltipConfig(viz),
     },
   ],
 };

@@ -12,6 +12,8 @@ import {zoomTransform} from "d3-zoom";
 import type {DataPoint} from "@d3plus/data";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {makeLinkDatum, setLinkValue} from "../features/linkInteraction.js";
+import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 
 /** One resolved node: its merged row, its `nodes` entry, and its sizing inputs. */
 export interface GraphNode extends SimulationNodeDatum {
@@ -36,7 +38,16 @@ export interface GraphLink {
   source: GraphNode;
   target: GraphNode;
   size: number;
+  /** The datum the link is drawn with, when both its ends resolve (see `makeLinkDatum`). */
+  datum?: LinkDatum;
 }
+
+/** A node record as a link end. */
+export const graphLinkEnd = (n: GraphNode): LinkEnd => ({
+  data: n.data,
+  i: n.i,
+  id: n.id,
+});
 
 type RawLink = {
   source: string | number | DataPoint;
@@ -113,7 +124,8 @@ export function resolveGraphNodes(v: VizInstance): GraphNode[] {
 
 /**
     Resolves `links` against `nodes`, index-aligned with `links`: an endpoint
-    that matches no node is undefined. Stashes the id → node lookup on
+    that matches no node is undefined. A link whose ends both resolve gets its
+    datum, which `linkSize` receives (with the link's index). Stashes the id → node lookup on
     `v.ctx.nodeLookup` and the id → neighbor nodes lookup on
     `v.ctx.linkLookup`.
 */
@@ -138,13 +150,20 @@ export function resolveGraphLinks(
       : referenceType === "string"
         ? nodeLookup[ref as string]
         : nodeLookup[(ref as DataPoint).id as string]) as GraphNode;
-  const links: GraphLink[] = (v.schema.links as RawLink[]).map(l => {
+  const links: GraphLink[] = (v.schema.links as RawLink[]).map((l, i) => {
     const referenceType = typeof l.source;
-    return {
-      size: v.schema.linkSize(l) as number,
-      source: endpoint(l.source, referenceType),
-      target: endpoint(l.target, referenceType),
-    };
+    const source = endpoint(l.source, referenceType);
+    const target = endpoint(l.target, referenceType);
+    if (!source || !target)
+      return {size: v.schema.linkSize(l, i) as number, source, target};
+    const datum = makeLinkDatum(
+      l as unknown as DataPoint,
+      graphLinkEnd(source),
+      graphLinkEnd(target),
+      i,
+    );
+    const size = setLinkValue(datum, v.schema.linkSize(datum, i)) as number;
+    return {size, source, target, datum};
   });
 
   v.ctx.linkLookup = links.reduce((obj: Record<string, GraphNode[]>, d) => {

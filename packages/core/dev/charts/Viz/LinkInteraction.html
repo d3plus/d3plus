@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LinkInteraction · Viz</title>
+    <meta
+      name="description"
+      content="Link tooltips, link hover and click focus, node connection lists, and node data in link accessors on Network, Rings, Sankey, and ArcDiagram."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      }
+
+      .grid > div {
+        height: 360px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div id="network"></div>
+      <div id="rings"></div>
+      <div id="sankey"></div>
+      <div id="arc"></div>
+    </div>
+  </body>
+
+  <script>
+    // Hover a link for its "Source → Target" tooltip and fields, and a node
+    // for its connections. Click a link to focus it (Network also zooms);
+    // click it again, or the background, to clear. Each link accessor and link shapeConfig function
+    // receives the link with `source` and `target` set to node data.
+    var nodes = [
+      {id: "usa", name: "United States", region: "Americas"},
+      {id: "can", name: "Canada", region: "Americas"},
+      {id: "mex", name: "Mexico", region: "Americas"},
+      {id: "deu", name: "Germany", region: "Europe"},
+      {id: "fra", name: "France", region: "Europe"},
+      {id: "chn", name: "China", region: "Asia"},
+      {id: "jpn", name: "Japan", region: "Asia"},
+    ];
+
+    var links = [
+      {source: "usa", target: "can", trade: 780, partners: "USMCA"},
+      {source: "usa", target: "mex", trade: 800, partners: "USMCA"},
+      {source: "usa", target: "chn", trade: 580, partners: "none"},
+      {source: "deu", target: "fra", trade: 190, partners: "EU"},
+      {source: "chn", target: "jpn", trade: 320, partners: "RCEP"},
+      {source: "usa", target: "jpn", trade: 230, partners: "none"},
+      {source: "deu", target: "chn", trade: 270, partners: "none"},
+    ];
+
+    function label(d) {
+      return d.name;
+    }
+
+    function linkStroke(d) {
+      // Links within a region take a darker gray than links between them.
+      return d.source.region === d.target.region ? "#868e96" : "#ced4da";
+    }
+
+    new d3plus.Network()
+      .select("#network")
+      .config({
+        color: "region",
+        label: label,
+        links: links,
+        linkSize: function (d) {
+          return d.trade;
+        },
+        nodes: nodes,
+        shapeConfig: {Path: {stroke: linkStroke}},
+        title: "Network",
+      })
+      .render();
+
+    new d3plus.Rings()
+      .select("#rings")
+      .config({
+        center: "usa",
+        color: "region",
+        label: label,
+        links: links,
+        linkSize: function (d) {
+          return d.trade;
+        },
+        nodes: nodes,
+        title: "Rings",
+      })
+      .render();
+
+    new d3plus.Sankey()
+      .select("#sankey")
+      .config({
+        label: label,
+        links: [
+          {source: "usa", target: "can", trade: 780},
+          {source: "usa", target: "mex", trade: 800},
+          {source: "chn", target: "mex", trade: 120},
+          {source: "chn", target: "jpn", trade: 320},
+          {source: "deu", target: "fra", trade: 190},
+          {source: "deu", target: "jpn", trade: 40},
+        ],
+        nodes: nodes,
+        title: "Sankey",
+        value: function (d) {
+          return d.trade;
+        },
+      })
+      .render();
+
+    new d3plus.ArcDiagram()
+      .select("#arc")
+      .config({
+        color: "region",
+        label: label,
+        links: links,
+        linkSize: function (d) {
+          return d.trade;
+        },
+        nodeTooltipLinks: 2,
+        nodes: nodes,
+        title: "ArcDiagram",
+      })
+      .render();
+  </script>
+</html>

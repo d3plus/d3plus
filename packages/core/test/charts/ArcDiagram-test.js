@@ -19,7 +19,6 @@ import {
   emitArcLabels,
   fitLabels,
   graphNodeId,
-  isArcLink,
   labelReach,
   labelWidthLimit,
   naturalCompare,
@@ -414,6 +413,34 @@ it("resolveGraphLinks resolves index, id, and object ends and builds lookups", (
     ["b", "c"],
     "neighbors, skipping unresolved links",
   );
+  const datum = links[0].datum;
+  assert.strictEqual(datum.source, nodes[0], "the datum's ends are node data");
+  assert.strictEqual(datum.target, nodes[1]);
+  assert.strictEqual(datum.w, 3, "with the link's own fields");
+  assert.strictEqual(
+    links[3].datum,
+    undefined,
+    "no datum for an unresolved link",
+  );
+});
+
+it("resolveGraphLinks hands linkSize the resolved link and its index", () => {
+  const nodes = [
+    {id: "a", weight: 2},
+    {id: "b", weight: 5},
+  ];
+  const seen = [];
+  const viz = graphViz({
+    nodes,
+    links: [{source: "a", target: "b", w: 3}],
+    linkSize: (d, i) => {
+      seen.push([d.source, d.target, d.w, i]);
+      return d.w * d.target.weight;
+    },
+  });
+  const links = resolveGraphLinks(viz, resolveGraphNodes(viz));
+  assert.deepStrictEqual(seen, [[nodes[0], nodes[1], 3, 0]]);
+  assert.strictEqual(links[0].size, 15);
 });
 
 it("arcNodeGroup reads the top groupBy level, then nodeGroupBy, then color", () => {
@@ -429,13 +456,6 @@ it("arcNodeGroup reads the top groupBy level, then nodeGroupBy, then color", () 
   );
   assert.strictEqual(arcNodeGroup(graphViz({color: d => d.c}), node), "red");
   assert.strictEqual(arcNodeGroup(graphViz(), node), undefined);
-});
-
-it("isArcLink tells links from node rows", () => {
-  assert.strictEqual(isArcLink({source: {id: "a"}, target: {id: "b"}}), true);
-  assert.strictEqual(isArcLink({source: "a", target: "b"}), false);
-  assert.strictEqual(isArcLink({id: "a"}), false);
-  assert.strictEqual(isArcLink(null), false);
 });
 
 it("ArcDiagram takes Network's data accessors plus its own options", () => {

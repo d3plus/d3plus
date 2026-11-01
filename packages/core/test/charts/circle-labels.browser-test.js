@@ -402,7 +402,9 @@ for (const renderer of ["svg", "canvas"]) {
       '<div id="viz" style="width:600px;height:400px"></div>',
     );
     try {
-      const {nodes, links} = networkData();
+      // No links: a link's hit area beside a node would take the pointer.
+      const {nodes} = networkData();
+      const links = [];
       const found = await page.evaluate(
         ([renderer, nodes, links]) =>
           new Promise(resolve => {

@@ -137,6 +137,53 @@ for drawing attention to one series:
 Pass `false` or `null` to clear the highlight. See the
 [BarChart highlight example](/core/charts/bar-chart/).
 
+## Links in node-link charts
+
+Network, Rings, Sankey, and ArcDiagram treat links as first-class marks.
+Hovering a link highlights it and the two nodes it connects, and dims the rest;
+its tooltip is titled "Source → Target" and lists the link's own fields. Thin
+links have a wider invisible hit area, so they are easy to point at, and
+keyboard navigation reads each link as "Source to Target". Hovering a node
+lists its number of connections and, when the links differ in value, its
+strongest links (`nodeTooltipLinks` sets how many, `false` for none).
+
+Clicking a link (or pressing Enter on it with keyboard navigation) focuses it:
+the link and its two nodes stay bright and the rest dims, and Network zooms to
+fit them. Click it again, or click the chart's empty background, to clear the
+focus. Rings and Sankey don't zoom, so their focus stays in place; clicking a
+Rings node still re-centers the chart on it.
+
+Every link accessor (`linkSize`, Sankey's `value`, link `shapeConfig`
+functions, `arrows`, and tooltip accessors) receives the link with `source`
+and `target` set to the data of the nodes at its ends, so it can read their
+fields directly:
+
+```jsx
+<Network config={{
+  nodes, links,
+  linkSize: d => d.weight,
+  nodeTooltipLinks: 5,
+  shapeConfig: {
+    Path: {stroke: d => d.source.region === d.target.region ? "#495057" : "#adb5bd"}
+  }
+}} />
+```
+
+If you are upgrading, note that these accessors used to receive `source` and
+`target` as the ids or indices from your `links` (or the chart's internal
+layout records). They now receive the node data, so read a node's id with
+`d.source.id` and its fields with `d.source.<field>`. Layout positions (`x`,
+`y`, Sankey's `width`, `y0`, `y1`) are no longer on the datum:
+
+```js
+// Before: linkSize: d => lookup[d.source].weight
+linkSize: d => d.source.weight,
+// Before: tooltipConfig: {title: d => `${d.source} to ${d.target}`}
+tooltipConfig: {title: d => `${d.source.id} to ${d.target.id}`}
+```
+
+See the [Network link tooltips example](/core/charts/network/#link-tooltips).
+
 ## Legend
 
 A legend is shown automatically for grouped data. Clicking an entry toggles that

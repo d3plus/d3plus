@@ -12,28 +12,11 @@ import {arrowEnds, arrowNode, arrowSizeFor} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
+import {linkAriaLabel, linkHitPath} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ArcCtx, ArcLink, ArcNode} from "./applyLayout.js";
 import {arcEndTip} from "./arcGeometry.js";
 import {emitArcLabels} from "./arcLabels.js";
-
-/** The smallest stroke width an arc's hit path takes, in pixels. */
-const HIT_WIDTH = 8;
-
-/**
-    A link's spoken label: "Source to Target." When link sizes vary, its
-    `linkSize` value follows: "Source to Target, 4."
-*/
-export function arcAriaLabel(
-  viz: VizInstance,
-  link: ArcLink,
-  sized: boolean,
-): string {
-  const size = viz.schema.linkSize as (d: DataPoint, i: number) => unknown;
-  const value = sized ? size(link as unknown as DataPoint, link.index) : null;
-  const suffix = typeof value === "number" ? `, ${value}` : "";
-  return `${link.source.label} ${viz.schema.translate("to")} ${link.target.label}${suffix}.`;
-}
 
 /** A node's paint, from the node shape's config. */
 function nodePaint(config: Record<string, unknown>, n: ArcNode): Paint {
@@ -61,7 +44,7 @@ function arcArrows(
   stroke: string | undefined,
   key: string,
 ): SceneNode[] {
-  const datum = link as unknown as DataPoint;
+  const datum = link.datum;
   const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, link.index);
   if (!ends.source && !ends.target) return [];
   const size = arrowSizeFor(viz.schema.arrowSize, datum, link.index, link.size);
@@ -90,9 +73,8 @@ function emitArcs(viz: VizInstance, c: ArcCtx): SceneNode[] {
   const arcs: SceneNode[] = [];
   const hits: SceneNode[] = [];
   const arrows: SceneNode[] = [];
-  const sized = new Set(c.links.map(l => l.size)).size > 1;
   for (const link of c.links) {
-    const datum = link as unknown as DataPoint;
+    const datum = link.datum;
     const paint = paintFromShapeConfig(c.linkConfig, datum, link.index);
     paint.fill = "none";
     paint.strokeWidth = link.size;
@@ -106,20 +88,9 @@ function emitArcs(viz: VizInstance, c: ArcCtx): SceneNode[] {
       datum,
       index: link.index,
       paint,
-      aria: {label: arcAriaLabel(viz, link, sized)},
+      aria: {label: linkAriaLabel(viz, datum)},
     } as SceneNode);
-    hits.push({
-      type: "path",
-      key: `${key}::hit`,
-      d: link.d,
-      datum,
-      index: link.index,
-      paint: {
-        fill: "none",
-        stroke: "transparent",
-        strokeWidth: Math.max(HIT_WIDTH, link.size + 4),
-      },
-    } as SceneNode);
+    hits.push(linkHitPath(key, link.d, datum, link.size) as SceneNode);
     arrows.push(
       ...arcArrows(
         viz,

@@ -12,6 +12,7 @@ import directionalArrows from "~/examples/core/charts/network/directional-arrows
 import sizeLegend from "~/examples/core/charts/network/size-legend.js?raw";
 import legendInset from "~/examples/core/charts/network/legend-inset.js?raw";
 import labelPlacement from "~/examples/core/charts/network/label-placement.js?raw";
+import linkTooltips from "~/examples/core/charts/network/link-tooltips.js?raw";
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -56,5 +57,11 @@ A network gathered in the middle of a wide chart leaves its corners empty, so th
 A node's label stays inside it when it fits there at a readable size (`pointLabelConfig.fontMin`, 10px by default). Otherwise it moves beside the node, on the side with the most open room, as long as it overlaps no other node or label; a label with no room is hidden, and the node's tooltip still names it. Bigger nodes are labeled first. Set `labelPosition` to `"inside"` to keep every label inside its node, shrinking it to fit, or `"outside"` to put every label beside its node.
 
 <Playground chart="Network" code={labelPlacement} controls={["labelPosition","pointLabelConfig"]} height={500} />
+
+## Link tooltips
+
+Hovering a link highlights it and the two nodes it connects, and its tooltip names them ("alpha → beta") above the link's own fields. Hovering a node lists its number of connections and, when `linkSize` gives the links different values, its strongest links with their values; `nodeTooltipLinks` sets how many (`false` for none). `linkSize`, link `shapeConfig` functions, and tooltip accessors all receive each link with `source` and `target` set to the data of its nodes, so here a link between two nodes in the same `group` draws darker. Click a link to focus and zoom to it and its nodes; click it again, or the background, to reset.
+
+<Playground chart="Network" code={linkTooltips} controls={["nodeTooltipLinks"]} />
 
 <ApiReference name="Network" pkg="core" />

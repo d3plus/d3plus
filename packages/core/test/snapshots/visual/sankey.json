@@ -1,6 +1,6 @@
 {
   "counts": {
-    "path": 7,
+    "path": 14,
     "rect": 18,
     "text": 8
   },
@@ -17,11 +17,29 @@
     {
       "t": "path",
       "x": 30,
+      "y": 118,
+      "w": 255,
+      "h": 9,
+      "f": "none",
+      "s": "transparent"
+    },
+    {
+      "t": "path",
+      "x": 30,
       "y": 59,
       "w": 540,
       "h": 0,
       "f": "none",
       "s": "#DBDBDB"
+    },
+    {
+      "t": "path",
+      "x": 30,
+      "y": 59,
+      "w": 540,
+      "h": 0,
+      "f": "none",
+      "s": "transparent"
     },
     {
       "t": "path",
@@ -35,11 +53,29 @@
     {
       "t": "path",
       "x": 315,
+      "y": 127,
+      "w": 255,
+      "h": 176,
+      "f": "none",
+      "s": "transparent"
+    },
+    {
+      "t": "path",
+      "x": 315,
       "y": 186,
       "w": 255,
       "h": 184,
       "f": "none",
       "s": "#DBDBDB"
+    },
+    {
+      "t": "path",
+      "x": 315,
+      "y": 186,
+      "w": 255,
+      "h": 184,
+      "f": "none",
+      "s": "transparent"
     },
     {
       "t": "path",
@@ -53,9 +89,36 @@
     {
       "t": "path",
       "x": 30,
+      "y": 118,
+      "w": 540,
+      "h": 67,
+      "f": "none",
+      "s": "transparent"
+    },
+    {
+      "t": "path",
+      "x": 30,
       "y": 177,
       "w": 540,
       "h": 75,
+      "f": "none",
+      "s": "#DBDBDB"
+    },
+    {
+      "t": "path",
+      "x": 30,
+      "y": 177,
+      "w": 540,
+      "h": 75,
+      "f": "none",
+      "s": "transparent"
+    },
+    {
+      "t": "path",
+      "x": 30,
+      "y": 236,
+      "w": 540,
+      "h": 83,
       "f": "none",
       "s": "#DBDBDB"
     },
@@ -66,7 +129,7 @@
       "w": 540,
       "h": 83,
       "f": "none",
-      "s": "#DBDBDB"
+      "s": "transparent"
     },
     {
       "t": "rect",

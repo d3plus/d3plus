@@ -11,6 +11,12 @@ import type {DataPoint} from "@d3plus/data";
 import type {SankeyGenerator} from "./sankeyLayout.js";
 
 import {chartBounds} from "../features/chartGeometry.js";
+import {
+  makeLinkDatum,
+  publishLinkGraph,
+  setLinkValue,
+} from "../features/linkInteraction.js";
+import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {TransformStage} from "../pipeline/stages.js";
 
 interface SankeyRawLink {
@@ -32,7 +38,29 @@ interface SankeyResolvedLink {
   source: number;
   target: number;
   value: number;
+  /** The datum the link is drawn with (see `makeLinkDatum`). */
+  datum: LinkDatum;
 }
+
+const layoutLinks = new WeakMap<object, {width?: number}>();
+
+/**
+    A link's drawn band width, less a pixel each side (at least 1): its
+    default `strokeWidth`. Zero-width bands draw 1px wide.
+    @param d The link's datum.
+*/
+export function sankeyLinkStrokeWidth(d: unknown): number {
+  const link = d && typeof d === "object" ? layoutLinks.get(d) : undefined;
+  const width = typeof link?.width === "number" ? link.width : 0;
+  return Math.max(1, width - 2);
+}
+
+/** A node as a link end. */
+const sankeyLinkEnd = (n: SankeyWrappedNode): LinkEnd => ({
+  data: n.data,
+  i: n.i,
+  id: String(n.id),
+});
 
 export const applySankeyLayout: TransformStage = ({viz}) => {
   const v = viz;
@@ -85,13 +113,27 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
   );
   v.ctx.nodeLookup = nodeLookup;
 
+  const endKeys = [v.schema.linksSource, v.schema.linksTarget] as string[];
   const links: SankeyResolvedLink[] = hasLinks
-    ? (v.schema.links as SankeyRawLink[]).map((link, i) => ({
-        source: nodeLookup[String(link[v.schema.linksSource as string])],
-        target: nodeLookup[String(link[v.schema.linksTarget as string])],
-        value: v.schema.value(link, i) as number,
-      }))
+    ? (v.schema.links as SankeyRawLink[]).map((link, i) => {
+        const source = nodeLookup[String(link[endKeys[0]])];
+        const target = nodeLookup[String(link[endKeys[1]])];
+        const datum = makeLinkDatum(
+          link as DataPoint,
+          sankeyLinkEnd(nodes[source]),
+          sankeyLinkEnd(nodes[target]),
+          i,
+          endKeys,
+        );
+        const value = setLinkValue(datum, v.schema.value(datum, i)) as number;
+        return {source, target, value, datum};
+      })
     : [];
+  publishLinkGraph(
+    v,
+    links.map(l => l.datum),
+    nodes.map(sankeyLinkEnd),
+  );
 
   v.ctx.linkLookup = links.reduce((obj: Record<string, number[]>, d) => {
     if (!obj[d.source]) obj[d.source] = [];
@@ -111,6 +153,9 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     .linkSort(v.schema.linkSort)
     .iterations(v.schema.iterations)
     .size([width, height])();
+  // The layout gives each link its band `width`.
+  for (const link of links)
+    layoutLinks.set(link.datum, link as unknown as {width?: number});
 
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
   v.ctx.sankeyCtx = {links, nodeGroups, pathFn: v.ctx.path, width, height};

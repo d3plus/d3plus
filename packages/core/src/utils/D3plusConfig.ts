@@ -1555,6 +1555,21 @@ export interface D3plusConfig {
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
   link?: LinkOption;
   /**
+      Network, Rings, and ArcDiagram: the thickness of each link, as a pixel
+      number used for every link, or an accessor function whose values are
+      scaled between `linkSizeMin` and the smallest node's radius. The
+      function receives each link with its own fields, with `source` and
+      `target` set to the data of the nodes at its ends (not their ids or
+      indices), and its index in `links`. Link `shapeConfig` functions, arrow
+      accessors, and tooltip accessors receive the same object.
+  */
+  linkSize?:
+    | number
+    | ((
+        d: DataPoint & {source: DataPoint; target: DataPoint},
+        i: number,
+      ) => number);
+  /**
       Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
   */
   loadingMessage?: boolean;
@@ -1642,6 +1657,14 @@ export interface D3plusConfig {
     | "group"
     | "degree"
     | ((a: DataPoint, b: DataPoint) => number);
+  /**
+      Network, Rings, Sankey, and ArcDiagram: how many links a node's tooltip
+      lists below its number of connections, strongest first, each as the
+      node at its other end ("→ Target" or "← Source") and its value. A
+      number, or `false` to list none. Defaults to 3 when the links differ
+      in value (`linkSize`, or Sankey's `value`), and none when they don't.
+  */
+  nodeTooltipLinks?: number | false;
   /**
       Ocean color for geomaps (any CSS value including 'transparent'), or a
       `{light, dark}` pair chosen by the chart's `theme` (the page behind it

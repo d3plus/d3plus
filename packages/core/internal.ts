@@ -31,6 +31,7 @@ export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
 export {applyNetworkLayout} from "./src/charts/Network/applyLayout.js";
 export {
+  graphLinkEnd,
   graphNodeId,
   resolveGraphLinks,
   resolveGraphNodes,
@@ -77,12 +78,46 @@ export {
   placeArcLabel,
 } from "./src/charts/ArcDiagram/arcLabels.js";
 export type {ArcLabel, LabelFit} from "./src/charts/ArcDiagram/arcLabels.js";
-export {arcAriaLabel, arcDiagramEmit} from "./src/charts/ArcDiagram/emit.js";
+export {arcDiagramEmit} from "./src/charts/ArcDiagram/emit.js";
+export {arcFocus, setupArcEvents} from "./src/charts/ArcDiagram/events.js";
 export {
-  arcFocus,
-  isArcLink,
-  setupArcEvents,
-} from "./src/charts/ArcDiagram/events.js";
+  bindSvgBackgroundClick,
+  clearLinkFocus,
+  focusLink,
+  installFocusBackgroundClick,
+  linkEndsBox,
+  linkFocusId,
+} from "./src/charts/features/linkFocus.js";
+export type {FocusBox} from "./src/charts/features/linkFocus.js";
+export {
+  isLinkDatum,
+  LINK_HIT_WIDTH,
+  linkArrows,
+  linkAriaLabel,
+  linkCellText,
+  linkEndLabel,
+  linkHighlight,
+  linkHitPath,
+  linkMeta,
+  linkNodeOf,
+  linkTooltipConfig,
+  linkTooltipRows,
+  linkTooltipTitle,
+  makeLinkDatum,
+  nodeConnectionRows,
+  nodeConnections,
+  nodeHighlight,
+  nodeTooltipLinkLimit,
+  publishLinkGraph,
+  rtlLocale,
+  setLinkValue,
+} from "./src/charts/features/linkInteraction.js";
+export type {
+  LinkDatum,
+  LinkEnd,
+  LinkGraph,
+  LinkMeta,
+} from "./src/charts/features/linkInteraction.js";
 export {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
 export {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
 export {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
