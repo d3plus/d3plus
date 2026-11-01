@@ -70,6 +70,23 @@ function fakeFonts() {
   return fonts;
 }
 
+it("textWidth quotes family names a font string can't take bare", () => {
+  const style = family => ({"font-family": family, "font-size": 20});
+  const serif = textWidth("Quoted", style("serif"));
+  for (const family of [
+    "1nvalid?Face",
+    "1nvalid?Face, serif",
+    '"1nvalid?Face", serif',
+    "Open Sans, 1nvalid?Face",
+  ])
+    assert.ok(textWidth("Quoted", style(family)) > 0, `measures ${family}`);
+  assert.strictEqual(
+    textWidth("Quoted", style("1nvalid?Face, serif")),
+    serif,
+    "falls back past the quoted name",
+  );
+});
+
 it("textWidth records the families it measures", () => {
   const fonts = fakeFonts();
   let calls = 0;

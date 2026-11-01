@@ -97,8 +97,28 @@ function buildFont(styleObj: Record<string, string | number>): string {
     typeof styleObj["font-size"] === "string"
       ? styleObj["font-size"]
       : `${styleObj["font-size"] || 10}px`;
-  const family = styleObj["font-family"] || "sans-serif";
+  const family = cssFamilies(String(styleObj["font-family"] || "sans-serif"));
   return `${style} ${variant} ${weight} ${size} ${family}`;
+}
+
+/**
+ * Quotes each family in a font-family list that a font string can't take bare
+ * (one that isn't a run of CSS identifiers, such as `1nvalid?Face`): a canvas,
+ * like a browser, ignores a font string with an unquoted name like that.
+ * @param {String} families
+ */
+function cssFamilies(families: string): string {
+  const names = families.match(/\s*"[^"]*"|\s*'[^']*'|[^,]+/g) || [];
+  return names
+    .map(name => name.trim())
+    .filter(Boolean)
+    .map(name =>
+      /^["']/.test(name) ||
+      /^-?[_a-zA-Z][-_a-zA-Z0-9]*(\s+-?[_a-zA-Z][-_a-zA-Z0-9]*)*$/.test(name)
+        ? name
+        : `"${name.replace(/["\\]/g, "\\$&")}"`,
+    )
+    .join(", ");
 }
 
 /**

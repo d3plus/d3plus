@@ -3,6 +3,22 @@ import {default as textWidth} from "./textWidth.js";
 
 const alpha: string = "abcdefghiABCDEFGHI_!@#$%^&*()_+1234567890",
   checked: Record<string, boolean> = {},
+  // CSS generic families always resolve to an installed face.
+  generic = new Set([
+    "serif",
+    "sans-serif",
+    "monospace",
+    "cursive",
+    "fantasy",
+    "system-ui",
+    "ui-serif",
+    "ui-sans-serif",
+    "ui-monospace",
+    "ui-rounded",
+    "math",
+    "emoji",
+    "fangsong",
+  ]),
   height: number = 32;
 
 let dejavu: number, macos: number, monospace: number, proportional: number;
@@ -58,7 +74,8 @@ const fontExists = (font: string | string[]): string | false => {
     const fam = font[i];
     if (
       checked[fam] ||
-      ["-apple-system", "monospace", "sans-serif", "DejaVuSans"].includes(fam)
+      generic.has(fam.toLowerCase()) ||
+      ["-apple-system", "DejaVuSans"].includes(fam)
     )
       return fam;
     else if (checked[fam] === false) continue;
