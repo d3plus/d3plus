@@ -7,7 +7,9 @@ import {useJsdom} from "~test/jsdom.js";
 useJsdom({augment: false});
 
 it("textWrap", () => {
-  const font = "Verdana";
+  // Verdana is missing on Linux, where a canvas falls back to a serif face;
+  // list the sans-serif faces it ships instead.
+  const font = "Verdana, DejaVu Sans, Liberation Sans";
 
   const sentence = "Hello D3plus, please wrap this sentence for me.",
     testWrap = textWrap().fontFamily(font).fontSize(14)(sentence);
@@ -140,7 +142,7 @@ it("textWrap", () => {
 });
 
 it("textWrap circle", () => {
-  const font = "Verdana";
+  const font = "Verdana, DejaVu Sans, Liberation Sans";
 
   // The chord of a circle of `radius` at the vertical center of line `line`
   // (1-based) in a centered block of `total` lines — the same geometry the
@@ -270,7 +272,7 @@ it("textWrap circle", () => {
 });
 
 it("textWrap keeps every line within the configured width", () => {
-  const font = "Verdana";
+  const font = "Verdana, DejaVu Sans, Liberation Sans";
   const style = {"font-family": font, "font-size": 14};
   const sentences = [
     "Hello D3plus, please wrap this sentence for me.",
@@ -302,7 +304,7 @@ it("textWrap keeps every line within the configured width", () => {
 });
 
 it("textWrap counts the spaces between words, not the one after the last", () => {
-  const font = "Verdana";
+  const font = "Verdana, DejaVu Sans, Liberation Sans";
   const style = {"font-family": font, "font-size": 14};
   const words = ["alpha", "beta", "gamma"];
   const widths = words.map(word => textWidth(word, style));

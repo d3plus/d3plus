@@ -10,6 +10,8 @@ it("fontExists", () => {
     valid = "serif";
 
   assert.strictEqual(valid, fontExists(valid), "single - exists");
+  for (const generic of ["sans-serif", "monospace", "cursive", "system-ui"])
+    assert.strictEqual(generic, fontExists(generic), `generic - ${generic}`);
   assert.strictEqual(false, fontExists(missing), "single - missing");
   assert.strictEqual(
     valid,
