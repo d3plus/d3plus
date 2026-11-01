@@ -1645,10 +1645,10 @@ export {
   textLineBoxes,
 } from "./src/charts/features/linkLabels.js";
 export type {
-  LinkLabelConfig,
   LinkLabelRequest,
   LinkLabelSettings,
 } from "./src/charts/features/linkLabels.js";
+export type {LinkLabelConfig} from "./src/utils/D3plusConfig.js";
 export {ringsEdgeAnchor} from "./src/charts/Rings/emit.js";
 export {sankeyLinkAnchor} from "./src/charts/Sankey/emit.js";
 

@@ -6,7 +6,6 @@ import type {LinkOption} from "../charts/viz/linkGroup.js";
 import type {BarShareInfo} from "../charts/Plot/barWidth.js";
 import type {ConnectGaps} from "../charts/Plot/connectGaps.js";
 import type {SlopeColorSetting} from "../charts/SlopeChart/slope.js";
-import type {LinkLabelConfig} from "../charts/features/linkLabels.js";
 import type {
   LineLabelConfig,
   LineLabelsSetting,
@@ -542,6 +541,19 @@ export interface TrendLineConfig {
   /** Line dash pattern. Defaults to `"6 4"`. */
   strokeDasharray?: string;
   /** Other Line shape config. */
+  [key: string]: unknown;
+}
+
+/** The `linkLabelConfig` options. */
+export interface LinkLabelConfig {
+  /** `"along"` runs text along its link, kept upright; `"horizontal"` keeps it level. */
+  rotate?: "along" | "horizontal";
+  fontSize?: number;
+  /** The pad around the text, in pixels. */
+  padding?: number;
+  /** The opacity of the pad, which takes the chart's background color. */
+  backgroundOpacity?: number;
+  /** Any other TextBox setting, such as `fontColor`, `fontFamily`, or `fontWeight`. */
   [key: string]: unknown;
 }
 
