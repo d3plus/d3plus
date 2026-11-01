@@ -11,7 +11,6 @@
       - `emit.ts` — ribbon Paths + arc Paths + rotated group labels.
 */
 
-import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
@@ -21,6 +20,7 @@ import {centerChartTransform} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
 
 import {applyChordLayout} from "./applyLayout.js";
 import {chordEmit} from "./emit.js";
@@ -119,24 +119,18 @@ export const chordDef: ChartDefinition = {
       });
     };
 
-    v.links = function (this: VizInstance, _: unknown, f?: unknown) {
+    v.links = function (this: VizInstance) {
       if (arguments.length) {
-        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
-          _,
-          f,
-          "links",
-        );
+        // eslint-disable-next-line prefer-rest-params
+        setLoaderValue(this, "links", arguments);
         return this;
       }
       return this.schema.links;
     };
-    v.nodes = function (this: VizInstance, _: unknown, f?: unknown) {
+    v.nodes = function (this: VizInstance) {
       if (arguments.length) {
-        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
-          _,
-          f,
-          "nodes",
-        );
+        // eslint-disable-next-line prefer-rest-params
+        setLoaderValue(this, "nodes", arguments);
         return this;
       }
       return this.schema.nodes;
@@ -168,6 +162,7 @@ export const chordDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    ...loaderFormatFields("links", "nodes"),
     /** The pixel thickness of the group arcs around the circle. */
     {key: "arcThickness", default: 20},
     /**
@@ -197,8 +192,8 @@ export const chordDef: ChartDefinition = {
     /**
         The edges that connect the nodes. The `source` and `target` keys in
         each link (see `linksSource`/`linksTarget`) map to node ids. Accepts an
-        *Array* of data or a *String* filepath or URL to load; an optional
-        formatting function can be passed as a second argument.
+        *Array* of data or a *String* filepath or URL to load. `linksFormat`
+        transforms them; a function passed as a second argument sets it.
         @type {DataPoint[] | string}
     */
     {key: "links", default: accessor("links")},
@@ -210,8 +205,9 @@ export const chordDef: ChartDefinition = {
     /**
         The nodes (groups) drawn as arcs around the circle. When omitted, the
         nodes are inferred from the unique `source`/`target` ids in `links`.
-        Accepts an *Array* of data or a *String* filepath or URL to load; an
-        optional formatting function can be passed as a second argument.
+        Accepts an *Array* of data or a *String* filepath or URL to load.
+        `nodesFormat` transforms them; a function passed as a second argument
+        sets it.
         @type {DataPoint[] | string}
     */
     {key: "nodes", default: accessor("nodes")},

@@ -39,6 +39,7 @@ const fields = {
   colorScalePadding: {coerce: "const"},
   colorScalePosition: {coerce: "const"},
   dataCutoff: {},
+  dataFormat: {},
   dataPollingInterval: {
     onSet: (viz: VizInstance) =>
       onDataPollingIntervalSet(viz as unknown as Viz),

@@ -104,13 +104,57 @@ Only an object holding nothing but `url` and `fetch` options (`headers`,
 `method`, `body`, `credentials`, …) is fetched. Data rows with a `url` field,
 like `{id: "alpha", value: 29, url: "https://…"}`, are drawn as data.
 
-Use `dataFormat` to reshape a non-standard response before the chart reads it:
+## Formatting loaded data
+
+Set `dataFormat` to reshape a non-standard response before the chart reads it.
+It receives the parsed file (or, when `data` lists several URLs, an Array of
+them) and returns the rows to draw:
 
 ```jsx
 <LinePlot config={{
   data: "https://example.com/api/data.json",
   dataFormat: json => json.results,
   groupBy: "series", x: "year", y: "value"
+}} />
+```
+
+`dataFormat` is an ordinary config key:
+
+- It runs when the chart renders, so it doesn't matter whether `data` or
+  `dataFormat` is set first, in one `config()` call or in separate ones.
+- It runs on rows passed as `data` too, not only on fetched files.
+- Setting a new `dataFormat` re-runs it on the next render, fetching a URL
+  again. Setting `data` alone keeps the current `dataFormat`.
+- Every `dataPollingInterval` poll runs it.
+
+A formatter can also return a config object holding the rows as its `data`
+key. The rest of the object is applied to the chart, so a response can set
+options from what it contains:
+
+```js
+new LinePlot()
+  .config({
+    data: "https://example.com/api/data.json",
+    dataFormat: json => ({data: json.results, title: json.name}),
+    groupBy: "series", x: "year", y: "value"
+  })
+  .render();
+```
+
+The fluent form takes the formatter as a second argument, which sets
+`dataFormat`: `viz.data(url, json => json.results)` is the same as
+`viz.data(url).dataFormat(json => json.results)`.
+
+The other loaders have their own formatters, which work the same way:
+`linksFormat` and `nodesFormat` on Network, Rings, Sankey, Chord, and
+ArcDiagram, and `topojsonFormat` on Geomap.
+
+```jsx
+<Network config={{
+  links: "https://example.com/api/graph.json",
+  linksFormat: json => json.edges,
+  nodes: "https://example.com/api/graph.json",
+  nodesFormat: json => json.vertices
 }} />
 ```
 

@@ -9,7 +9,6 @@
       - `ringsSizing.ts` — ring geometry + node sizing.
 */
 
-import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
@@ -20,6 +19,7 @@ import {runPostDrawFeatures} from "../pipeline/runVizPipeline.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {drawChart} from "../facet/drawFacets.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
 
 import {applyRingsLayout, ringsSizeLegendScale} from "./applyLayout.js";
 import {ringsEmit} from "./emit.js";
@@ -58,17 +58,6 @@ interface RingsFluent {
 /** Installs Rings' nodes/links/size/hover fluent accessors onto the instance. */
 function installRingsAccessors(viz: VizInstance): void {
   const v = viz as VizInstance & RingsFluent;
-  const queue = (
-    that: VizInstance,
-    _?: DataPoint[],
-    f?: unknown,
-    key?: string,
-  ) =>
-    addToQueue.bind(that as unknown as ThisParameterType<typeof addToQueue>)(
-      _!,
-      f as Parameters<typeof addToQueue>[1],
-      key!,
-    );
   /**
       The edges that connect the `nodes`. The `source` and `target` of each
       link refer to a node by its `id`, by the node object itself (matched by
@@ -77,26 +66,27 @@ function installRingsAccessors(viz: VizInstance): void {
       same node draws as a loop on that node.
 
       Accepts an array of links, or a URL/filepath string to load them from.
-      An optional formatting function can be passed as a second argument; it
-      receives the loaded data and returns the final links array.
+      `linksFormat` transforms them; a function passed as a second argument
+      sets it.
       @type {object[] | string}
   */
-  v.links = function (this: VizInstance, _?: DataPoint[], f?: unknown) {
+  v.links = function (this: VizInstance) {
     if (!arguments.length) return this.schema.links;
-    queue(this, _, f, "links");
+    // eslint-disable-next-line prefer-rest-params
+    setLoaderValue(this, "links", arguments);
     return this;
   };
   /**
       The nodes to draw. When empty, the nodes are the unique `source` and
       `target` values in `links`. Accepts an array of node objects, or a
-      URL/filepath string to load them from. An optional formatting function
-      can be passed as a second argument; it receives the loaded data and
-      returns the final nodes array.
+      URL/filepath string to load them from. `nodesFormat` transforms them; a
+      function passed as a second argument sets it.
       @type {object[] | string}
   */
-  v.nodes = function (this: VizInstance, _?: DataPoint[], f?: unknown) {
+  v.nodes = function (this: VizInstance) {
     if (!arguments.length) return this.schema.nodes;
-    queue(this, _, f, "nodes");
+    // eslint-disable-next-line prefer-rest-params
+    setLoaderValue(this, "nodes", arguments);
     return this;
   };
   /**
@@ -284,6 +274,7 @@ export const ringsDef: ChartDefinition = {
       factory: (viz: VizInstance) => linkTooltipConfig(viz),
     },
     ...linkStyleFields(),
+    ...loaderFormatFields("links", "nodes"),
     {key: "links", default: []},
     {key: "linkSize", default: constant(1)},
     /** The minimum pixel stroke width used when sizing links. */

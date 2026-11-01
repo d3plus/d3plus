@@ -1,0 +1,10 @@
+{
+  "source": "Regional sales survey",
+  "results": [
+    {"region": "North", "sales": 42},
+    {"region": "South", "sales": 27},
+    {"region": "East", "sales": 35},
+    {"region": "West", "sales": 18},
+    {"region": "Central", "sales": 23}
+  ]
+}

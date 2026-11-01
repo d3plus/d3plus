@@ -18,6 +18,13 @@ import {
   observeVisibility,
   syncUnloadObserver,
 } from "./vizVisibility.js";
+import {
+  formatPayload,
+  isFormatKey,
+  queuedFormatter,
+  storePayload,
+  syncLoaderFormats,
+} from "./loaderFormat.js";
 import {recordDataSignature, syncDataPolling} from "./vizDataPolling.js";
 
 /**
@@ -271,13 +278,14 @@ function queuePromises(viz: Viz): Promise<void>[] {
         string,
       ],
     ) => {
+      const formatter = queuedFormatter(viz, p[3], p[2]);
       const cache = viz.schema.cache
         ? viz._lrucache.get(`${p[3]}_${p[1]}`)
         : undefined;
       if (!cache) {
         promises.push(
           new Promise<void>(resolve => {
-            p[0](p[1], p[2], p[3], (err: unknown, data: unknown) => {
+            p[0](p[1], formatter, p[3], (err: unknown, data: unknown) => {
               if (err) console.error(err);
               else if (p[3] === "data") recordDataSignature(viz, data);
               resolve();
@@ -285,9 +293,12 @@ function queuePromises(viz: Viz): Promise<void>[] {
           }),
         );
       } else {
-        const val = p[2] ? p[2](cache) : cache;
-        if (`_${p[3]}` in viz) viz[`_${p[3]}`] = val;
-        else viz.schema[p[3]] = val;
+        const val = isFormatKey(p[3])
+          ? formatPayload(viz, p[3], cache, formatter)
+          : formatter
+            ? formatter(cache)
+            : cache;
+        storePayload(viz, p[3], val);
       }
     },
   );
@@ -414,6 +425,7 @@ function finishDraw(viz: Viz, callback?: () => void): void {
     @private
 */
 function loadAndDraw(viz: Viz, callback?: () => void): void {
+  syncLoaderFormats(viz);
   const promises = queuePromises(viz);
 
   if (viz.schema.loadingMessage && promises.length) {

@@ -15,6 +15,7 @@ import smallMultiplesDonut from "~/examples/core/charts/viz/small-multiples-donu
 import smallMultiplesTreemap from "~/examples/core/charts/viz/small-multiples-treemap.js?raw";
 import smallMultiplesMatrix from "~/examples/core/charts/viz/small-multiples-matrix.js?raw";
 import saveControl from "~/examples/core/charts/viz/save-control.js?raw";
+import dataFormat from "~/examples/core/charts/viz/data-format.js?raw";
 import dataPolling from "~/examples/core/charts/viz/data-polling.js?raw";
 import className from "~/examples/core/charts/viz/class-name.js?raw";
 import reducedMotion from "~/examples/core/charts/viz/reduced-motion.js?raw";
@@ -112,6 +113,17 @@ With several `formats` it opens a menu; with one, it saves straight away.
 chart, and `saveControl: false` removes the button.
 
 <Playground chart="BarChart" code={saveControl} controls={["saveControl"]} />
+
+## Formatting loaded data
+
+`dataFormat` transforms `data` before it is drawn, whether the rows were
+fetched from a URL or passed in. It can return the rows, or a config object
+holding them as `data`, whose other keys are applied to the chart. It runs
+when the chart renders, so `data` and `dataFormat` can be set in either order,
+and a new `dataFormat` re-runs on the next render. `data(url, format)` sets it
+too.
+
+<Playground chart="BarChart" code={dataFormat} controls={[]} />
 
 ## Polling for data
 

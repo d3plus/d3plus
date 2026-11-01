@@ -105,12 +105,18 @@ export function stopDataPolling(viz: Viz): void {
   viz._dataPollFor = undefined;
 }
 
+/** The chart's `dataFormat`, which every poll runs. */
+function dataFormatter(viz: Viz): Formatter | undefined {
+  const f = viz.schema.dataFormat;
+  return typeof f === "function" ? (f as Formatter) : undefined;
+}
+
 /** What a running poll was started for; a change restarts it. */
 function pollKey(viz: Viz): unknown[] {
   return [
     viz.schema.dataPollingInterval,
     viz._userData,
-    viz._userDataFormat,
+    dataFormatter(viz),
     viz.schema.detectVisible,
     viz.schema.scrollContainer,
   ];
@@ -131,7 +137,7 @@ function applyPoll(viz: Viz, {data, config}: PollResult): void {
 /** Starts polling `viz._userData` every `interval` ms. */
 function startDataPolling(viz: Viz, interval: number): void {
   const source = viz._userData;
-  const formatter = viz._userDataFormat as Formatter | undefined;
+  const formatter = dataFormatter(viz);
   const doc = viz._select?.node()?.ownerDocument as Document | undefined;
   let offscreen = false;
   const poller = createDataPoller<PollResult>({
