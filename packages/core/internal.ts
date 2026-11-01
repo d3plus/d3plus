@@ -1889,3 +1889,52 @@ export type {ShapeLike, VizLike} from "./src/charts/features/emitHelpers.js";
 export type {VizInstance, VizRenderer} from "./src/charts/viz/vizTypes.js";
 export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis/Axis.js";
 export type {Contribution} from "./src/charts/drawSteps/topLeftControlsMarkup.js";
+
+// ── Geomap links ─────────────────────────────────────────────────────────────
+export {forgetLinkNodes} from "./src/charts/features/linkInteraction.js";
+export {
+  featureAnchor,
+  flowArc,
+  greatCircle,
+  isLonLat,
+  liftPolyline,
+  polylineAt,
+  polylineBox,
+  polylineEndTip,
+  polylineLength,
+  polylineMidpoint,
+  polylinePath,
+  splitRuns,
+  unbrokenPath,
+} from "./src/charts/Geomap/flowGeometry.js";
+export type {
+  FlowArc,
+  GeoPathFn,
+  LonLat,
+  Projector,
+} from "./src/charts/Geomap/flowGeometry.js";
+export {
+  coordinateLabel,
+  flowEndResolver,
+  flowLinkCoordinates,
+  flowLinkWidths,
+  geomapFlowLinks,
+  linkEndRef,
+} from "./src/charts/Geomap/flowLinks.js";
+export type {
+  FlowEnd,
+  FlowLayoutInput,
+  FlowLink,
+} from "./src/charts/Geomap/flowLinks.js";
+export {
+  emitFlowLabels,
+  emitFlowLinks,
+  flowLinkGray,
+  flowLinkKey,
+} from "./src/charts/Geomap/flowEmit.js";
+export {
+  flowHoverPredicate,
+  flowLinkBox,
+  setupGeomapLinks,
+} from "./src/charts/Geomap/flowEvents.js";
+export {geomapLinkFields} from "./src/charts/Geomap/flowFields.js";

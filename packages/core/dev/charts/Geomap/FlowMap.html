@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Flow Map · Geomap</title>
+    <meta
+      name="description"
+      content="Curved great-circle links between cities and a country, sized by passengers, with arrowheads."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      #controls {
+        font: 13px sans-serif;
+        padding: 6px 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <label
+        >linkCurve
+        <select id="curve">
+          <option value="0">0</option>
+          <option value="0.2" selected>0.2</option>
+          <option value="0.4">0.4</option>
+          <option value="-0.2">-0.2</option>
+        </select>
+      </label>
+      <label
+        >arrows
+        <select id="arrows">
+          <option value="false">false</option>
+          <option value="target" selected>target</option>
+          <option value="both">both</option>
+        </select>
+      </label>
+      <label
+        >projection
+        <select id="projection">
+          <option value="geoMercator" selected>geoMercator</option>
+          <option value="geoEqualEarth">geoEqualEarth</option>
+          <option value="geoOrthographic">geoOrthographic</option>
+        </select>
+      </label>
+      <label><input id="labels" type="checkbox" /> linkLabel</label>
+    </div>
+    <div id="viz" style="height: 560px"></div>
+  </body>
+
+  <script>
+    const cities = [
+      {id: "NYC", name: "New York", region: "Americas", point: [-74.0, 40.71]},
+      {id: "LON", name: "London", region: "Europe", point: [-0.13, 51.51]},
+      {id: "PAR", name: "Paris", region: "Europe", point: [2.35, 48.86]},
+      {id: "DXB", name: "Dubai", region: "Asia", point: [55.27, 25.2]},
+      {id: "TYO", name: "Tokyo", region: "Asia", point: [139.69, 35.69]},
+      {id: "SYD", name: "Sydney", region: "Oceania", point: [151.21, -33.87]},
+      {
+        id: "LAX",
+        name: "Los Angeles",
+        region: "Americas",
+        point: [-118.24, 34.05],
+      },
+      {
+        id: "JNB",
+        name: "Johannesburg",
+        region: "Africa",
+        point: [28.05, -26.2],
+      },
+    ];
+
+    const links = [
+      {source: "NYC", target: "LON", passengers: 3200},
+      {source: "LON", target: "NYC", passengers: 2900},
+      {source: "NYC", target: "PAR", passengers: 1500},
+      {source: "LON", target: "DXB", passengers: 1800},
+      {source: "DXB", target: "SYD", passengers: 900},
+      {source: "DXB", target: "JNB", passengers: 700},
+      {source: "LAX", target: "TYO", passengers: 1400},
+      {source: "SYD", target: "LAX", passengers: 800},
+      {source: "PAR", target: "TYO", passengers: 600},
+      // A topojson shape's id: the link ends at Brazil's centroid.
+      {source: "NYC", target: "bra", passengers: 1100},
+      // A bare [longitude, latitude] coordinate.
+      {source: "JNB", target: [-58.38, -34.6], passengers: 300},
+    ];
+
+    const chart = new d3plus.Geomap().select("#viz").config({
+      data: cities,
+      color: "region",
+      label: d => d.name,
+      point: d => d.point,
+      links,
+      linkSize: d => d.passengers,
+      linkColor: "source",
+      arrows: "target",
+      topojson: "./countries.json",
+      topojsonKey: "countries",
+      topojsonFilter: d => d.id !== "ata",
+      tiles: false,
+    });
+    chart.render();
+
+    const value = id => document.getElementById(id).value;
+    document.getElementById("controls").addEventListener("change", () => {
+      const arrows = value("arrows");
+      chart
+        .config({
+          linkCurve: +value("curve"),
+          arrows: arrows === "false" ? false : arrows,
+          projection: value("projection"),
+          linkLabel: document.getElementById("labels").checked
+            ? "passengers"
+            : false,
+        })
+        .render();
+    });
+  </script>
+</html>

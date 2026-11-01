@@ -1,12 +1,13 @@
 /**
-    `geomapEmit` — country Paths + point Circles using `geomapCtx`
-    stashed on `viz.ctx`. Emits flat SceneNodes directly (no transient
+    `geomapEmit` — country Paths, links, and point Circles using
+    `geomapCtx` stashed on `viz.ctx`. Emits flat SceneNodes directly (no transient
     Shape compute pass).
 */
 
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
+import type {LabelCircle} from "../features/circleLabelPlacement.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
@@ -15,8 +16,11 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveThemed} from "./basemapTheme.js";
 import {geomapPointLabels} from "./pointLabels.js";
 import type {Themed} from "./basemapTheme.js";
+import {emitFlowLabels, emitFlowLinks} from "./flowEmit.js";
+import type {FlowLink} from "./flowLinks.js";
 
 interface GeomapCtx {
+  flowLinks?: FlowLink[];
   topoData: Array<{
     __d3plus__?: true;
     data?: DataPoint;
@@ -128,6 +132,10 @@ export const geomapEmit: ChartEmit = ({viz}) => {
     );
   }
 
+  const links = c.flowLinks ?? [];
+  out.push(...emitFlowLinks(viz, links));
+
+  const circles: LabelCircle[] = [];
   if (c.pointData && c.pointData.length) {
     const circleConfig = shapeConfigFor(viz, "Circle");
     const points = c.pointSort
@@ -137,6 +145,7 @@ export const geomapEmit: ChartEmit = ({viz}) => {
     for (let i = 0; i < points.length; i++) {
       const d = points[i];
       const paint = paintFromShapeConfig(circleConfig, d, i);
+      circles.push({x: c.pointX(d, i), y: c.pointY(d, i), r: c.pointR(d, i)});
       // Origin-centered geometry with the projected position in `transform`,
       // matching how Shape-emitted Circle marks are placed (cx/cy = 0, group
       // transform positions the mark). The motion-trail layer reads a mark's
@@ -181,5 +190,6 @@ export const geomapEmit: ChartEmit = ({viz}) => {
     );
   }
 
+  out.push(...emitFlowLabels(viz, links, circles));
   return out;
 };

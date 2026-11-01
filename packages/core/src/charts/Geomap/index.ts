@@ -4,6 +4,9 @@
     Implementation files in this folder:
       - `applyLayout.ts` — topojson + projection + path/point compute.
       - `emit.ts` — country Paths + point Circles.
+      - `flowLinks.ts` / `flowGeometry.ts` — `links`: their ends, widths,
+        and great-circle paths; `flowEmit.ts` draws them, `flowEvents.ts`
+        wires their hover and click, and `flowFields.ts` declares their config.
 */
 
 import {color} from "d3-color";
@@ -40,6 +43,8 @@ import {
 } from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
 import {geomapEmit} from "./emit.js";
+import {setupGeomapLinks} from "./flowEvents.js";
+import {geomapLinkFields} from "./flowFields.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 
@@ -554,6 +559,7 @@ export const geomapDef: ChartDefinition = {
     setupGeomapRenderTiles(viz);
     setupGeomapDraw(viz);
     setupGeomapFluent(viz);
+    setupGeomapLinks(viz);
 
     // Seed the default tile URL through the wrapped accessor so attribution is set.
     v.tileUrl(DEFAULT_TILE_URL);
@@ -569,6 +575,7 @@ export const geomapDef: ChartDefinition = {
 
   fields: [
     {key: "fitObject", default: false},
+    ...geomapLinkFields(),
     {key: "noDataMessage", default: false},
     /**
         The color behind the map's shapes and tiles: any CSS color (including

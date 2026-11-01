@@ -30,6 +30,8 @@ export interface LinkEnd {
   data: DataPoint;
   i: number;
   id: string;
+  /** The end's name, for an end with no row of its own to label it (a bare coordinate). */
+  label?: string;
 }
 
 /** The links of a chart, and each node's links by node id. */
@@ -139,6 +141,14 @@ export function publishLinkGraph(
   return graph;
 }
 
+/**
+    Forgets every node `publishLinkGraph` recorded for a chart, so rows that
+    no longer end a link stop reading as nodes.
+*/
+export function forgetLinkNodes(viz: VizInstance): void {
+  nodeEntries.delete(viz);
+}
+
 /** The node id and graph recorded for a node datum, if `d` is one. */
 export function linkNodeOf(
   viz: VizInstance,
@@ -171,6 +181,7 @@ export function linkArrows(viz: VizInstance): [string, string] {
 
 /** A link end's label, as its node's tooltip titles it. */
 export function linkEndLabel(viz: VizInstance, end: LinkEnd): string {
+  if (end.label !== undefined) return end.label;
   return `${viz._drawLabel(end.data, end.i) ?? end.id}`;
 }
 

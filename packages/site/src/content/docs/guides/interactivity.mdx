@@ -191,6 +191,14 @@ tooltipConfig: {title: d => `${d.source.id} to ${d.target.id}`}
 
 See the [Network link tooltips example](/core/charts/network/#link-tooltips).
 
+Geomap's `links` work the same way: a link's tooltip, spoken label, hit area,
+and click focus (which zooms the map to the link) match the node-link charts,
+and a coordinate point or shape at a link's end lists its connections. Geomap
+keeps its regions from dimming on hover, so hovering a link outlines it and
+the marks at its ends instead; clicking it dims the rest of the map. Its links
+are styled by `linkColor` rather than `shapeConfig.Path`, which styles the map's
+shapes. See the [Geomap flow map example](/core/charts/geomap/#flow-map).
+
 ## Legend
 
 A legend is shown automatically for grouped data. Clicking an entry toggles that
