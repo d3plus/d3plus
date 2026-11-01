@@ -40,6 +40,10 @@ import {
   linkTooltipConfig,
 } from "../features/linkInteraction.js";
 import {linkStyleFields} from "../features/linkFields.js";
+import {isSelfLoopMark, unionBox} from "../features/selfLoops.js";
+import type {FocusBox} from "../features/linkFocus.js";
+import type {LinkDatum} from "../features/linkInteraction.js";
+import type {GraphLink} from "./graph.js";
 
 const getNodeId = graphNodeId;
 
@@ -56,6 +60,35 @@ type NetworkFluent = GraphFluent & {
 type Aggregator = (leaves: DataPoint[]) => unknown;
 type NetworkViz = VizInstance & NetworkFluent;
 
+/** The laid-out links, from the last layout. */
+const networkLinks = (viz: VizInstance): GraphLink[] =>
+  ((viz.ctx.networkCtx as {links?: GraphLink[]} | undefined)?.links ??
+    []) as GraphLink[];
+
+/** The box a link's focus zooms to: its two ends, and its loop when it has one. */
+function networkLinkBox(viz: VizInstance, d: LinkDatum): FocusBox | null {
+  const box = linkEndsBox(viz, d);
+  const loop = networkLinks(viz).find(l => l.datum === d)?.loop;
+  return box && loop ? unionBox(box, loop.box) : box;
+}
+
+/** Grows a node focus's `[x0, x1]`/`[y0, y1]` domains around the node's loops. */
+function includeNodeLoops(
+  viz: VizInstance,
+  id: string,
+  xDomain: number[],
+  yDomain: number[],
+): void {
+  for (const l of networkLinks(viz)) {
+    if (!l.loop || l.source?.id !== id) continue;
+    const [[x0, y0], [x1, y1]] = l.loop.box;
+    xDomain[0] = Math.min(xDomain[0], x0);
+    xDomain[1] = Math.max(xDomain[1], x1);
+    yDomain[0] = Math.min(yDomain[0], y0);
+    yDomain[1] = Math.max(yDomain[1], y1);
+  }
+}
+
 /** Installs the `click.shape` handler that focuses/zooms a node + its links. */
 function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
   viz.schema.on["click.shape"] = (
@@ -68,7 +101,7 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
     if (isLinkDatum(d)) {
       focusLink(viz, d, {
         nodeKey: (h, hi) => `${viz._ids(h, hi)[viz._drawDepth]}`,
-        box: linkEndsBox(viz, d),
+        box: networkLinkBox(viz, d),
       });
       return;
     }
@@ -99,6 +132,7 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
           if (l.y - l.r < yDomain[0]) yDomain[0] = l.y - l.r;
           if (l.y + l.r > yDomain[1]) yDomain[1] = l.y + l.r;
         });
+        includeNodeLoops(viz, id, xDomain, yDomain);
 
         v.active((h: DataPoint, hi: number) => {
           const m = linkMeta(h);
@@ -319,8 +353,9 @@ export const networkDef: ChartDefinition = {
   // Small-multiple panels as close to square as the grid allows.
   facet: {aspect: 1},
 
-  // Nodes are points for `hoverDistance`; links keep exact hit-testing.
-  pointMark: (_viz, node) => isPointShape(node),
+  // Nodes (and loops, which sit within reach of their node) are points for
+  // `hoverDistance`; links keep exact hit-testing.
+  pointMark: (_viz, node) => isPointShape(node) || isSelfLoopMark(node),
 
   ctx: {},
 

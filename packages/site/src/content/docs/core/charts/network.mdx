@@ -15,6 +15,7 @@ import labelPlacement from "~/examples/core/charts/network/label-placement.js?ra
 import linkTooltips from "~/examples/core/charts/network/link-tooltips.js?raw";
 import linkColor from "~/examples/core/charts/network/link-color.js?raw";
 import linkLabels from "~/examples/core/charts/network/link-labels.js?raw";
+import selfLoops from "~/examples/core/charts/network/self-loops.js?raw";
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -77,5 +78,11 @@ Hovering a link highlights it and the two nodes it connects, and its tooltip nam
 `linkLabel` writes a key or accessor's value at the middle of each link, between the nodes it joins, on a pad of the chart's background so it reads over the line. `linkLabelConfig.rotate` runs the text along each link (`"along"`, the default, kept upright) or keeps it level (`"horizontal"`), and takes font settings such as `fontSize` and `fontColor`. A label that would cover a node, a node's label, or another link's label is hidden, the thickest links' labels kept first.
 
 <Playground chart="Network" code={linkLabels} controls={["linkLabel","linkLabelConfig"]} />
+
+## Self-loops
+
+A link whose `source` and `target` are the same node draws as a loop outside the node, pointing into the widest gap between the node's other links (or away from the middle of the network when it has none). Its thickness comes from `linkSize`, its label from `linkLabel` (at the loop's far point), and `arrows` draws its arrowhead where it comes back into the node. Several loops on one node fan out side by side, the heaviest in the middle. A loop has the same tooltip, hover, click focus, and keyboard focus as any other link, and a node's tooltip lists it as "↻ node".
+
+<Playground chart="Network" code={selfLoops} controls={["linkSize","linkLabel","arrows"]} />
 
 <ApiReference name="Network" pkg="core" />

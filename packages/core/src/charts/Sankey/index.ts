@@ -147,8 +147,9 @@ export const sankeyDef: ChartDefinition = {
       return this.schema.links;
     };
     /**
-        The nodes to draw. When empty, the nodes are the unique source and
-        target values in `links`. Accepts an array of node objects, or a
+        The nodes to draw, including any that no link touches (see
+        `value`). When empty, the nodes are the unique source and target
+        values in `links`. Accepts an array of node objects, or a
         URL/filepath string to load them from. An optional formatting function
         can be passed as a second argument; it receives the loaded data and
         returns the final nodes array.
@@ -169,6 +170,8 @@ export const sankeyDef: ChartDefinition = {
         How nodes are aligned horizontally: `"justify"` (default), `"left"`,
         `"right"`, or `"center"`, or a custom d3-sankey
         [alignment function](https://github.com/d3/d3-sankey#sankey_nodeAlign).
+        A node no link touches sits in the first column, except with
+        `"right"`, which puts it in the last.
         @type {"justify" | "left" | "right" | "center" | function}
     */
     v.nodeAlign = function (this: VizInstance, _: unknown) {
@@ -200,7 +203,11 @@ export const sankeyDef: ChartDefinition = {
         The value of each link, which sets its width: a key or an accessor
         function that receives the link, with `source` and `target` set to the
         data of the nodes at its ends, and its index in `links`. Defaults to
-        `1` for every link.
+        `1` for every link. A node no link touches is sized by `value` read
+        from its own row in `nodes` when that is a positive number, and
+        otherwise by the smallest link value. A link from a node to itself
+        is left out, with a warning: a flow can't return to the node it
+        leaves.
         @type {string | function}
     */
     v.value = function (this: VizInstance, _: unknown) {

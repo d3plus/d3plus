@@ -1651,6 +1651,40 @@ export type {
 export type {LinkLabelConfig} from "./src/utils/D3plusConfig.js";
 export {ringsEdgeAnchor} from "./src/charts/Rings/emit.js";
 export {sankeyLinkAnchor} from "./src/charts/Sankey/emit.js";
+export {
+  awayFromAngle,
+  fanOrder,
+  isSelfLoop,
+  isSelfLoopMark,
+  layoutSelfLoops,
+  selfLoopAngles,
+  selfLoopArrows,
+  selfLoopGeometry,
+  selfLoopReach,
+  selfLoopSpread,
+  unionBox,
+  widestGapAngle,
+} from "./src/charts/features/selfLoops.js";
+export type {
+  LoopNode,
+  LoopPoint,
+  SelfLoopGeometry,
+} from "./src/charts/features/selfLoops.js";
+export {LOOP_ARROW} from "./src/charts/features/linkInteraction.js";
+export {crossLayout} from "./src/charts/ArcDiagram/arcGeometry.js";
+export {
+  arcLoopReach,
+  arcLoopRoom,
+  loopAngle,
+  loopSide,
+  placeLoops,
+} from "./src/charts/ArcDiagram/arcLoops.js";
+export {ringsLoops} from "./src/charts/Rings/ringsLoops.js";
+export {
+  sankeyDrawableLinks,
+  sankeySelfLinkWarning,
+  unlinkedNodeValue,
+} from "./src/charts/Sankey/sankeyLinks.js";
 
 export {geomapPointLabels} from "./src/charts/Geomap/pointLabels.js";
 export type {GeomapPoints} from "./src/charts/Geomap/pointLabels.js";

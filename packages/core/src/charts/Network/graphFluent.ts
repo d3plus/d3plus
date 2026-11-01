@@ -31,7 +31,8 @@ export function installGraphFluent(v: VizInstance & GraphFluent): void {
       The edges that connect the `nodes`. The `source` and `target` of each
       link refer to a node in one of three ways: its index in the `nodes`
       array, the node object itself (matched by its `id`), or a string
-      matching the node's `id`.
+      matching the node's `id`. A link whose `source` and `target` are the
+      same node draws as a loop beside it.
 
       Accepts an array of links, or a URL/filepath string to load them from.
       An optional formatting function can be passed as a second argument; it

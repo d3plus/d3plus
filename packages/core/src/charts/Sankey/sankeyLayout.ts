@@ -60,8 +60,12 @@ export const sankeyLeft: SankeyAlign = node => node.depth;
 
 export const sankeyRight: SankeyAlign = (node, n) => n - 1 - node.height;
 
+/**
+    Sources at the left, sinks at the right edge, and the rest by depth. A
+    node with no links at all sits at the left, with the sources.
+*/
 export const sankeyJustify: SankeyAlign = (node, n) =>
-  node.sourceLinks.length ? node.depth : n - 1;
+  node.sourceLinks.length || !node.targetLinks.length ? node.depth : n - 1;
 
 export const sankeyCenter: SankeyAlign = node =>
   node.targetLinks.length
@@ -218,7 +222,8 @@ function computeNodeLayers(
   nodes: SankeyNode[],
 ): SankeyNode[][] {
   const x = (max(nodes, d => d.depth) as number) + 1;
-  const kx = (s.x1 - s.x0 - s.dx) / (x - 1);
+  // A single column (no node links to another) sits at the left.
+  const kx = x > 1 ? (s.x1 - s.x0 - s.dx) / (x - 1) : 0;
   const columns: SankeyNode[][] = new Array(x);
   for (const node of nodes) {
     const i = Math.max(0, Math.min(x - 1, Math.floor(s.align(node, x))));

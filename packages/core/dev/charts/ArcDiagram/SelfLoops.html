@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Self-Loops</title>
+    <meta
+      name="description"
+      content="ArcDiagram links from a node to itself drawn as small loops on the arcs' side of the line, horizontal and vertical."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: 2fr 1fr;
+        margin: 20px;
+      }
+
+      .viz {
+        height: 420px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="viz" id="horizontal"></div>
+    <div class="viz" id="vertical"></div>
+  </body>
+
+  <script>
+    // A link from a node to itself draws as a loop on the arcs' side of the
+    // line. "b" has two loops, which fan out side by side.
+    var nodes = [
+      {id: "a"},
+      {id: "b"},
+      {id: "c"},
+      {id: "d"},
+      {id: "e"},
+      {id: "f"},
+    ];
+
+    var links = [
+      {source: "a", target: "c", value: 3},
+      {source: "b", target: "e", value: 1},
+      {source: "c", target: "f", value: 2},
+      {source: "d", target: "a", value: 4},
+      {source: "b", target: "b", value: 5},
+      {source: "b", target: "b", value: 2},
+      {source: "e", target: "e", value: 3},
+      {source: "f", target: "f", value: 1},
+    ];
+
+    new d3plus.ArcDiagram()
+      .select("#horizontal")
+      .nodes(nodes)
+      .links(links)
+      .linkSize(d => d.value)
+      .linkLabel(d => d.value)
+      .arcSide("both")
+      .arrows(true)
+      .render();
+
+    new d3plus.ArcDiagram()
+      .select("#vertical")
+      .nodes(nodes)
+      .links(links)
+      .linkSize(d => d.value)
+      .orient("vertical")
+      .arcSide("below")
+      .render();
+  </script>
+</html>

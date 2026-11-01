@@ -20,14 +20,16 @@ import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
 import {arcApex, arcEndTip} from "./arcGeometry.js";
 import {emitArcLabels} from "./arcLabels.js";
+import {selfLoopArrows} from "../features/selfLoops.js";
 
 /** A node's paint, from the node shape's config. */
 function nodePaint(config: Record<string, unknown>, n: ArcNode): Paint {
   return paintFromShapeConfig(config, n.data, n.i);
 }
 
-/** Where an arc's label goes: its highest point, running with the line. */
+/** Where an arc's label goes: its highest point (a loop's far point), running with the line. */
 export function arcLabelAnchor(link: ArcLink): LinkAnchor {
+  if (link.loop) return link.loop.apex;
   const [x, y] = arcApex(link.arc);
   return {x, y, angle: link.arc.orient === "vertical" ? Math.PI / 2 : 0};
 }
@@ -51,7 +53,7 @@ function arcLinkLabels(viz: VizInstance, c: ArcCtx): SceneNode[] {
 const arcLinkKey = (link: ArcLink): string =>
   `arc-link-${link.source.id}-${link.target.id}-${link.index}`;
 
-/** Arrowheads at an arc's selected ends, each pointing along the arc into its node. */
+/** Arrowheads at an arc's (or loop's) selected ends, each pointing along it into its node. */
 function arcArrows(
   viz: VizInstance,
   link: ArcLink,
@@ -59,6 +61,17 @@ function arcArrows(
   key: string,
 ): SceneNode[] {
   const datum = link.datum;
+  if (link.loop)
+    return selfLoopArrows({
+      arrows: viz.schema.arrows as ArrowValue,
+      arrowSize: viz.schema.arrowSize,
+      strokeWidth: link.size,
+      datum,
+      i: link.index,
+      keyPrefix: key,
+      fill: stroke,
+      loop: link.loop,
+    });
   const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, link.index);
   if (!ends.source && !ends.target) return [];
   const size = arrowSizeFor(viz.schema.arrowSize, datum, link.index, link.size);

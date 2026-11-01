@@ -15,6 +15,7 @@ import {
   linkTooltipConfig,
   linkTooltipRows,
   linkTooltipTitle,
+  LOOP_ARROW,
   makeLinkDatum,
   nodeConnectionRows,
   nodeConnections,
@@ -352,4 +353,38 @@ it("ar-SA node tooltips and link titles point their arrows right to left", () =>
     ["→ Charlie", "1"],
   ]);
   assert.strictEqual(linkTooltipTitle(viz, links[0]), "Alpha ← Bravo");
+});
+
+it("a link from a node to itself counts once and reads as a loop", () => {
+  const viz = fakeViz();
+  const rows = [
+    {source: "a", target: "b", w: 2},
+    {source: "a", target: "a", w: 5},
+  ];
+  const at = id => ends.find(e => e.id === id);
+  const links = rows.map((row, i) => {
+    const d = makeLinkDatum(row, at(row.source), at(row.target), i);
+    setLinkValue(d, row.w);
+    return d;
+  });
+  const graph = publishLinkGraph(viz, links, ends);
+  const out = nodeConnections(graph, "a");
+  assert.deepStrictEqual(
+    out.map(c => [c.other.id, c.outgoing, c.loop]),
+    [
+      ["a", true, true],
+      ["b", true, false],
+    ],
+  );
+  assert.deepStrictEqual(nodeConnectionRows(viz, nodeData[0]), [
+    ["Connections", "2"],
+    [`${LOOP_ARROW} Alpha`, "5"],
+    ["→ Bravo", "2"],
+  ]);
+  assert.strictEqual(linkTooltipTitle(viz, links[1]), "Alpha → Alpha");
+  assert.strictEqual(linkAriaLabel(viz, links[1]), "Alpha to Alpha, 5.");
+  const hover = linkHighlight(viz, links[1]);
+  assert.strictEqual(hover(nodeData[0], 0), true);
+  assert.strictEqual(hover(nodeData[1], 1), false);
+  assert.strictEqual(hover(links[0], 0), false);
 });

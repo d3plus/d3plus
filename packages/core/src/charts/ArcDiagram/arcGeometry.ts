@@ -229,3 +229,40 @@ export function arcBox(arc: ArcGeometry): [[number, number], [number, number]] {
     [Math.max(...xs), Math.max(...ys)],
   ];
 }
+
+/** The cross-axis layout: how far arcs flatten, and where the line sits. */
+export function crossLayout(opts: {
+  cross: number;
+  spans: {above: number; below: number};
+  labelSide: "above" | "below";
+  labelBand: number;
+  rMax: number;
+  strokePad: number;
+  orient: ArcOrient;
+  /** How far loops reach out from the line, on each side. */
+  loops?: {above: number; below: number};
+}): {scale: number; base: number} {
+  const {cross, spans, labelSide, labelBand, rMax, strokePad} = opts;
+  const loops = opts.loops ?? {above: 0, below: 0};
+  const room = Math.max(0, cross - strokePad * 2);
+  const [labelArcs, otherArcs] =
+    labelSide === "above"
+      ? [spans.above, spans.below]
+      : [spans.below, spans.above];
+  const scale = Math.min(
+    arcScale(otherArcs, labelArcs, room).scale,
+    arcScale(otherArcs, 0, room - labelBand).scale,
+  );
+  const region = (span: number, labeled: boolean, loop: number) =>
+    Math.max((scale * span) / 2, labeled ? labelBand : rMax, loop);
+  const regionAbove = region(spans.above, labelSide === "above", loops.above);
+  const regionBelow = region(spans.below, labelSide === "below", loops.below);
+  // The region first along the cross axis: above a horizontal line (the top),
+  // or below a vertical one (its left, where "below" arcs and labels go).
+  const [first, second] =
+    opts.orient === "horizontal"
+      ? [regionAbove, regionBelow]
+      : [regionBelow, regionAbove];
+  const offset = Math.max(0, (cross - first - second - strokePad * 2) / 2);
+  return {scale, base: offset + strokePad + first};
+}

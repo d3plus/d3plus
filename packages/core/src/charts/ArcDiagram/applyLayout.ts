@@ -27,8 +27,8 @@ import {
 import type {GraphNode} from "../Network/graph.js";
 import {
   arcPathD,
-  arcScale,
   arcSideOf,
+  crossLayout,
   nodeDegrees,
   slotPositions,
   sortArcNodes,
@@ -41,6 +41,9 @@ import {
   placeArcLabel,
 } from "./arcLabels.js";
 import type {ArcLabel, LabelFit} from "./arcLabels.js";
+import {isSelfLoop} from "../features/selfLoops.js";
+import type {SelfLoopGeometry} from "../features/selfLoops.js";
+import {arcLoopRoom, loopSide, placeLoops} from "./arcLoops.js";
 
 /** A laid-out node. `r` is its final radius. */
 export interface ArcNode extends GraphNode {
@@ -64,6 +67,8 @@ export interface ArcLink {
   index: number;
   arc: ArcGeometry;
   d: string;
+  /** The loop a link from a node to itself draws as, instead of an arc. */
+  loop?: SelfLoopGeometry;
 }
 
 /** Everything the emit needs. */
@@ -142,8 +147,8 @@ function resolveArcGraph(v: VizInstance) {
   const graph = resolveGraphNodes(v);
   const links = resolveGraphLinks(v, graph)
     .map((l, index) => ({...l, index}))
-    // Unresolved ends and self-links draw no arc.
-    .filter(l => l.source && l.target && l.source !== l.target);
+    // Unresolved ends draw nothing.
+    .filter(l => l.source && l.target);
   const degrees = nodeDegrees(links);
   const order = new Map((v.schema.nodes as DataPoint[]).map((d, i) => [d, i]));
   const sortable = graph.map(n => ({
@@ -155,7 +160,11 @@ function resolveArcGraph(v: VizInstance) {
     order: order.get(n.node) ?? n.i,
   }));
   const nodes = sortArcNodes(sortable, v.schema.nodeSort as NodeSort);
-  return {nodes, links};
+  return {
+    nodes,
+    links: links.filter(l => !isSelfLoop(l)),
+    loops: links.filter(l => isSelfLoop(l)),
+  };
 }
 
 /** The radius scale for the chart's nodes along a line `length` pixels long. */
@@ -173,6 +182,18 @@ function radiusFor(v: VizInstance, nodes: GraphNode[], length: number) {
 function labelsOn(v: VizInstance): boolean {
   const cfg = shapeConfigFor(v, "Circle");
   return cfg.label !== false;
+}
+
+/** The node label settings, their line height, and each node's label width (0 when labels are off). */
+function measureNodeLabels(v: VizInstance, nodes: {label: string}[]) {
+  const settings = pointLabelSettings(v);
+  const lineHeight = Math.ceil(settings.fontSize * 1.2) + 1;
+  const font = {size: settings.fontSize, lineHeight: settings.fontSize * 1.2};
+  const showLabels = labelsOn(v);
+  const widths = nodes.map(n =>
+    showLabels && n.label ? measureLabel(n.label, font).width : 0,
+  );
+  return {settings, lineHeight, widths};
 }
 
 /** Fits the labels and the line's extent along its axis, leaving room for slanted labels at the ends. */
@@ -244,6 +265,30 @@ function linkWidths(v: VizInstance, sizes: number[], rMin: number): number[] {
   return sizes.map(s => scale(s));
 }
 
+/**
+    The arcs' and loops' stroke widths, on one scale: every width, the arcs'
+    widths, and each loop with its width.
+*/
+function sizeLinks(
+  v: VizInstance,
+  arcs: {size: number}[],
+  loops: ReturnType<typeof resolveArcGraph>["loops"],
+  rMin: number,
+) {
+  const allSizes = linkWidths(
+    v,
+    [...arcs, ...loops].map(l => l.size),
+    rMin,
+  );
+  const loopItems = loops.map((l, i) => ({
+    index: l.index,
+    datum: l.datum!,
+    size: allSizes[arcs.length + i],
+    id: l.source.id,
+  }));
+  return {allSizes, sizes: allSizes.slice(0, arcs.length), loopItems};
+}
+
 /** ArcDiagram's size-legend scale for a chart area of `width` × `height`. */
 export function arcSizeLegendScale(
   v: VizInstance,
@@ -260,40 +305,6 @@ export function arcSizeLegendScale(
   if (!nodes.length) return null;
   const length = v.schema.orient === "vertical" ? height : width;
   return radiusFor(v, nodes, length) as unknown as SizeLegendScale;
-}
-
-/** The cross-axis layout: how far arcs flatten, and where the line sits. */
-function crossLayout(opts: {
-  cross: number;
-  spans: {above: number; below: number};
-  labelSide: "above" | "below";
-  labelBand: number;
-  rMax: number;
-  strokePad: number;
-  orient: ArcOrient;
-}): {scale: number; base: number} {
-  const {cross, spans, labelSide, labelBand, rMax, strokePad} = opts;
-  const room = Math.max(0, cross - strokePad * 2);
-  const [labelArcs, otherArcs] =
-    labelSide === "above"
-      ? [spans.above, spans.below]
-      : [spans.below, spans.above];
-  const scale = Math.min(
-    arcScale(otherArcs, labelArcs, room).scale,
-    arcScale(otherArcs, 0, room - labelBand).scale,
-  );
-  const region = (span: number, labeled: boolean) =>
-    Math.max((scale * span) / 2, labeled ? labelBand : rMax);
-  const regionAbove = region(spans.above, labelSide === "above");
-  const regionBelow = region(spans.below, labelSide === "below");
-  // The region first along the cross axis: above a horizontal line (the top),
-  // or below a vertical one (its left, where "below" arcs and labels go).
-  const [first, second] =
-    opts.orient === "horizontal"
-      ? [regionAbove, regionBelow]
-      : [regionBelow, regionAbove];
-  const offset = Math.max(0, (cross - first - second - strokePad * 2) / 2);
-  return {scale, base: offset + strokePad + first};
 }
 
 type RankedNode = ReturnType<typeof resolveArcGraph>["nodes"][number] & {
@@ -370,6 +381,23 @@ function placeLinks(
   );
 }
 
+/** Each label's shown width (0 for a label skipped to fit), and how deep the widest reaches. */
+function shownLabels(
+  widths: number[],
+  line: {fit: LabelFit; widthCap: number},
+  lineHeight: number,
+  orient: ArcOrient,
+): {shown: number[]; depth: number} {
+  const shown = widths.map((w, i) =>
+    i % line.fit.step ? 0 : Math.min(w, line.widthCap),
+  );
+  const widest = max(shown) ?? 0;
+  const depth = widest
+    ? labelReach(line.fit.angle, widest, lineHeight, orient).depth
+    : 0;
+  return {shown, depth};
+}
+
 /** Each node's label with a shown width, placed on the labels' side of the line. */
 function placeLabels(
   nodes: ArcNode[],
@@ -407,6 +435,7 @@ function stashArcCtx(v: VizInstance, ctx: ArcCtx): void {
   v.ctx.nodeLookup = Object.fromEntries(ctx.nodes.map(n => [n.id, n]));
   const neighbors: Record<string, ArcNode[]> = {};
   for (const l of ctx.links) {
+    if (l.loop) continue;
     (neighbors[l.source.id] ??= []).push(l.target);
     (neighbors[l.target.id] ??= []).push(l.source);
   }
@@ -424,17 +453,11 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
     v.schema.orient === "vertical" ? "vertical" : "horizontal";
   const side = (v.schema.arcSide as ArcSide) || "above";
   const labelSide = side === "below" ? "above" : "below";
-  const {nodes, links} = resolveArcGraph(v);
+  const {nodes, links, loops} = resolveArcGraph(v);
   const along = orient === "horizontal" ? width : height;
   const cross = orient === "horizontal" ? height : width;
 
-  const settings = pointLabelSettings(v);
-  const lineHeight = Math.ceil(settings.fontSize * 1.2) + 1;
-  const font = {size: settings.fontSize, lineHeight: settings.fontSize * 1.2};
-  const showLabels = labelsOn(v);
-  const widths = nodes.map(n =>
-    showLabels && n.label ? measureLabel(n.label, font).width : 0,
-  );
+  const {settings, lineHeight, widths} = measureNodeLabels(v, nodes);
   const line = fitAlong(
     widths,
     along,
@@ -464,17 +487,18 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
 
   // Labels claim the room past the nodes on their side of the line.
   const labelGap = rMax + settings.padding;
-  const shown = widths.map((w, i) =>
-    i % line.fit.step ? 0 : Math.min(w, line.widthCap),
-  );
-  const widest = max(shown) ?? 0;
-  const depth = widest
-    ? labelReach(line.fit.angle, widest, lineHeight, orient).depth
-    : 0;
-  const sizes = linkWidths(
+  const {shown, depth} = shownLabels(widths, line, lineHeight, orient);
+  const {allSizes, sizes, loopItems} = sizeLinks(
     v,
-    placed.map(l => l.size),
+    placed,
+    loops,
     min(radii) ?? 1,
+  );
+  const loopRoom = arcLoopRoom(
+    loopItems,
+    new Map(ranked.map((n, i) => [n.id, radii[i]])),
+    spacing,
+    side,
   );
   const {scale, base} = crossLayout({
     cross,
@@ -482,8 +506,9 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
     labelSide,
     labelBand: depth ? labelGap + depth : rMax,
     rMax,
-    strokePad: (max(sizes) ?? 1) / 2 + 2,
+    strokePad: (max(allSizes) ?? 1) / 2 + 2,
     orient,
+    loops: loopRoom,
   });
 
   const arcNodes = placeNodes(ranked, radii, base, orient);
@@ -493,6 +518,14 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
     {base, scale, orient},
     spans.sides,
     sizes,
+  ).concat(
+    placeLoops(loopItems, arcNodes, {
+      base,
+      scale,
+      orient,
+      side: loopSide(side),
+      spacing,
+    }),
   );
   const labels = placeLabels(arcNodes, shown, positions, {
     base,

@@ -18,6 +18,12 @@ import {
 } from "../features/linkInteraction.js";
 import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {TransformStage} from "../pipeline/stages.js";
+import {warnConfigOnce} from "../../utils/configWarnings.js";
+import {
+  sankeyDrawableLinks,
+  sankeySelfLinkWarning,
+  unlinkedNodeValue,
+} from "./sankeyLinks.js";
 
 interface SankeyRawLink {
   [key: string]: unknown;
@@ -29,6 +35,8 @@ interface SankeyWrappedNode {
   id: string | number;
   node: DataPoint;
   shape: string;
+  /** The value a node without links is sized by (see `unlinkedNodeValue`). */
+  fixedValue?: number;
   x0?: number;
   y0?: number;
   x1?: number;
@@ -62,6 +70,40 @@ const sankeyLinkEnd = (n: SankeyWrappedNode): LinkEnd => ({
   id: String(n.id),
 });
 
+/** One node per distinct source or target value in `links`, in order. */
+function nodesFromLinks(
+  links: SankeyRawLink[],
+  endKeys: [string, string],
+): DataPoint[] {
+  const ids = new Set<unknown>();
+  for (const d of links) for (const key of endKeys) ids.add(d[key]);
+  return Array.from(ids, id => ({id}) as DataPoint);
+}
+
+/**
+    Gives each node no drawn link touches a `fixedValue` (see
+    `unlinkedNodeValue`), so it draws with a height like the rest.
+*/
+function sizeUnlinkedNodes(
+  v: Parameters<TransformStage>[0]["viz"],
+  nodes: SankeyWrappedNode[],
+  links: SankeyResolvedLink[],
+): void {
+  const linked = new Set(links.flatMap(l => [l.source, l.target]));
+  const values = links.map(l => Number(l.value));
+  nodes.forEach((n, i) => {
+    if (linked.has(i)) return;
+    let own: unknown;
+    try {
+      own = v.schema.value(n.data, n.i);
+    } catch {
+      // An accessor written for links may not read a node's row.
+      own = undefined;
+    }
+    n.fixedValue = unlinkedNodeValue(own, values);
+  });
+}
+
 export const applySankeyLayout: TransformStage = ({viz}) => {
   const v = viz;
   const {width, height} = chartBounds(v);
@@ -74,26 +116,12 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     return {viz};
   }
 
-  let _nodes: DataPoint[];
-  if (hasNodes) {
-    _nodes = v.schema.nodes as DataPoint[];
-  } else {
-    const seen = new Set<unknown>();
-    const ids: unknown[] = [];
-    for (const d of v.schema.links as SankeyRawLink[]) {
-      const src = d[v.schema.linksSource as string];
-      if (!seen.has(src)) {
-        seen.add(src);
-        ids.push(src);
-      }
-      const tgt = d[v.schema.linksTarget as string];
-      if (!seen.has(tgt)) {
-        seen.add(tgt);
-        ids.push(tgt);
-      }
-    }
-    _nodes = ids.map(id => ({id}) as DataPoint);
-  }
+  const _nodes = hasNodes
+    ? (v.schema.nodes as DataPoint[])
+    : nodesFromLinks(v.schema.links as SankeyRawLink[], [
+        v.schema.linksSource as string,
+        v.schema.linksTarget as string,
+      ]);
 
   const nodes: SankeyWrappedNode[] = _nodes.map((n, i) => ({
     __d3plus__: true,
@@ -114,26 +142,39 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
   v.ctx.nodeLookup = nodeLookup;
 
   const endKeys = [v.schema.linksSource, v.schema.linksTarget] as string[];
-  const links: SankeyResolvedLink[] = hasLinks
-    ? (v.schema.links as SankeyRawLink[]).map((link, i) => {
-        const source = nodeLookup[String(link[endKeys[0]])];
-        const target = nodeLookup[String(link[endKeys[1]])];
-        const datum = makeLinkDatum(
-          link as DataPoint,
-          sankeyLinkEnd(nodes[source]),
-          sankeyLinkEnd(nodes[target]),
+  const {drawn, selfLinks} = sankeyDrawableLinks(
+    hasLinks
+      ? (v.schema.links as SankeyRawLink[]).map((link, i) => ({
+          link,
           i,
-          endKeys,
-        );
-        const value = setLinkValue(datum, v.schema.value(datum, i)) as number;
-        return {source, target, value, datum};
-      })
-    : [];
+          source: nodeLookup[String(link[endKeys[0]])] as number | undefined,
+          target: nodeLookup[String(link[endKeys[1]])] as number | undefined,
+        }))
+      : [],
+  );
+  if (selfLinks.length)
+    warnConfigOnce(
+      v,
+      "sankeySelfLinks",
+      sankeySelfLinkWarning(selfLinks.map(l => nodes[l.source!].id)),
+    );
+  const links: SankeyResolvedLink[] = drawn.map(({link, i, source, target}) => {
+    const datum = makeLinkDatum(
+      link as DataPoint,
+      sankeyLinkEnd(nodes[source]),
+      sankeyLinkEnd(nodes[target]),
+      i,
+      endKeys,
+    );
+    const value = setLinkValue(datum, v.schema.value(datum, i)) as number;
+    return {source, target, value, datum};
+  });
   publishLinkGraph(
     v,
     links.map(l => l.datum),
     nodes.map(sankeyLinkEnd),
   );
+  sizeUnlinkedNodes(v, nodes, links);
 
   v.ctx.linkLookup = links.reduce((obj: Record<string, number[]>, d) => {
     if (!obj[d.source]) obj[d.source] = [];

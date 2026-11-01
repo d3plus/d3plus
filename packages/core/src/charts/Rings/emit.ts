@@ -34,6 +34,8 @@ import type {LinkEnds} from "../features/linkColor.js";
 import {cubicMidpoint, segmentMidpoint} from "../features/linkLabelGeometry.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
+import {selfLoopArrows} from "../features/selfLoops.js";
+import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -53,6 +55,7 @@ export interface RingsEdge {
   targetY?: number;
   targetBisectX?: number;
   targetBisectY?: number;
+  loop?: SelfLoopGeometry;
 }
 type RingsNode = DataPoint & {
   __d3plus__?: true;
@@ -91,6 +94,17 @@ function ringsEdgeArrows(
   const arrows = viz.schema.arrows as ArrowValue;
   const baseKey = `${edge.source.id}-${edge.target.id}-${i}`;
   const fill = typeof stroke === "string" ? stroke : undefined;
+  if (edge.loop)
+    return selfLoopArrows({
+      arrows,
+      arrowSize: viz.schema.arrowSize,
+      strokeWidth,
+      datum,
+      i,
+      keyPrefix: `rings-arrow-${baseKey}`,
+      fill,
+      loop: edge.loop,
+    });
   if (!edge.spline) {
     return straightEdgeArrows({
       arrows,
@@ -150,15 +164,16 @@ function ringsEdgeArrows(
   return out;
 }
 
-/** An edge's scene key. */
+/** An edge's scene key (a loop's names its index, as a node can have several). */
 const ringsLinkKey = (edge: RingsEdge): string =>
-  `rings-link-${edge.source.id}-${edge.target.id}`;
+  `rings-link-${edge.source.id}-${edge.target.id}${edge.loop ? `-${linkMeta(edge.datum)?.index ?? 0}` : ""}`;
 
 /**
-    Where an edge's label goes: halfway along a spline edge's curve, or
-    along a straight edge's run between its nodes.
+    Where an edge's label goes: halfway along a spline edge's curve, along
+    a straight edge's run between its nodes, or at a loop's far point.
 */
 export function ringsEdgeAnchor(edge: RingsEdge): LinkAnchor {
+  if (edge.loop) return edge.loop.apex;
   if (edge.spline && edge.sourceX != null && edge.targetX != null)
     return cubicMidpoint(
       [edge.sourceX, edge.sourceY!],

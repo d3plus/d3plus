@@ -26,6 +26,7 @@ import {isPointShape} from "../viz/nearestHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {linkMeta, linkTooltipConfig} from "../features/linkInteraction.js";
+import {isSelfLoopMark} from "../features/selfLoops.js";
 import {installGraphFluent} from "../Network/graphFluent.js";
 import type {GraphFluent} from "../Network/graphFluent.js";
 import {applyArcDiagramLayout, arcSizeLegendScale} from "./applyLayout.js";
@@ -88,8 +89,9 @@ export const arcDiagramDef: ChartDefinition = {
     };
   },
 
-  // Nodes are points for `hoverDistance`; arcs keep exact hit-testing.
-  pointMark: (_viz, node) => isPointShape(node),
+  // Nodes (and loops, which sit within reach of their node) are points for
+  // `hoverDistance`; arcs keep exact hit-testing.
+  pointMark: (_viz, node) => isPointShape(node) || isSelfLoopMark(node),
 
   ctx: {},
 

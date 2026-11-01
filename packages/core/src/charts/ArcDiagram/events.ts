@@ -72,7 +72,7 @@ function focusBox(
           [n.x + n.r, n.y + n.r],
         ] as [[number, number], [number, number]],
     )
-    .concat(arcs.map(l => arcBox(l.arc)));
+    .concat(arcs.map(l => (l.loop ? l.loop.box : arcBox(l.arc))));
   return [
     [
       Math.min(...boxes.map(b => b[0][0])),

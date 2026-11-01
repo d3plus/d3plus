@@ -251,11 +251,21 @@ export function linkHighlight(
   };
 }
 
-/** A node's links in `graph`, the other end of each, and its direction, strongest first. */
+/**
+    A node's links in `graph`, the other end of each, and its direction,
+    strongest first. A link from the node to itself is `loop`, with the node
+    as its other end.
+*/
 export function nodeConnections(
   graph: LinkGraph,
   id: string,
-): {link: LinkDatum; other: LinkEnd; outgoing: boolean; value?: number}[] {
+): {
+  link: LinkDatum;
+  other: LinkEnd;
+  outgoing: boolean;
+  loop: boolean;
+  value?: number;
+}[] {
   return (graph.byNode.get(id) ?? [])
     .map(link => {
       const meta = linkMeta(link)!;
@@ -264,6 +274,7 @@ export function nodeConnections(
         link,
         other: outgoing ? meta.target : meta.source,
         outgoing,
+        loop: meta.source.id === meta.target.id,
         value: meta.value,
         index: meta.index,
       };
@@ -272,7 +283,13 @@ export function nodeConnections(
       (a, b) =>
         (b.value ?? -Infinity) - (a.value ?? -Infinity) || a.index - b.index,
     )
-    .map(({link, other, outgoing, value}) => ({link, other, outgoing, value}));
+    .map(({link, other, outgoing, loop, value}) => ({
+      link,
+      other,
+      outgoing,
+      loop,
+      value,
+    }));
 }
 
 /**
@@ -315,11 +332,15 @@ export function nodeTooltipLinkLimit(
   return graph.sized ? 3 : 0;
 }
 
+/** The arrow a node's tooltip marks a link from the node to itself with. */
+export const LOOP_ARROW = "↻";
+
 /**
     A node's tooltip rows: its number of connections, then its strongest
-    links ("→ Target" or "← Source", with the link's value when the links
-    differ in value), up to `nodeTooltipLinkLimit`. The arrows mirror right
-    to left (see `linkArrows`).
+    links ("→ Target" or "← Source", or "↻ Node" for a link to itself, with
+    the link's value when the links differ in value), up to
+    `nodeTooltipLinkLimit`. The arrows mirror right to left (see
+    `linkArrows`).
 */
 export function nodeConnectionRows(viz: VizInstance, d: DataPoint): Row[] {
   const entry = linkNodeOf(viz, d);
@@ -334,7 +355,7 @@ export function nodeConnectionRows(viz: VizInstance, d: DataPoint): Row[] {
     const value =
       graph.sized && c.value !== undefined ? linkCellText(viz, c.value)! : "";
     rows.push([
-      `${c.outgoing ? forward : back} ${linkEndLabel(viz, c.other)}`,
+      `${c.loop ? LOOP_ARROW : c.outgoing ? forward : back} ${linkEndLabel(viz, c.other)}`,
       value,
     ]);
   }

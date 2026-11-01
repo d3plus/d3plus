@@ -111,3 +111,26 @@ it("sankeyLinkHorizontal draws from the source's right edge to the target's left
     "M20,125.418C155,125.418,155,121.875,290,121.875",
   );
 });
+
+it("sankey puts a node with no links at the left, sized by its fixed value", () => {
+  const nodes = [{}, {}, {}, {fixedValue: 2}];
+  const links = [
+    {source: 0, target: 1, value: 2},
+    {source: 1, target: 2, value: 2},
+  ];
+  sankey().nodes(nodes).links(links).size([300, 100])();
+  assert.strictEqual(nodes[3].layer, 0, "justify: with the sources");
+  assert.strictEqual(nodes[3].value, 2);
+  assert.ok(nodes[3].y1 - nodes[3].y0 > 0, "it has a height");
+  assert.strictEqual(sankeyJustify(nodes[3], 3), 0);
+});
+
+it("sankey lays out nodes without any links in a single column", () => {
+  const nodes = [{fixedValue: 1}, {fixedValue: 3}];
+  sankey().nodePadding(10).nodes(nodes).links([]).size([300, 100])();
+  for (const n of nodes) {
+    assert.strictEqual(n.x0, 0);
+    assert.ok([n.x1, n.y0, n.y1].every(Number.isFinite));
+  }
+  assert.strictEqual(round(nodes[1].y1 - nodes[1].y0), 67.5);
+});

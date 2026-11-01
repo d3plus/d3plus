@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Unlinked Nodes</title>
+    <meta
+      name="description"
+      content="Sankey nodes that no link touches, sized by their own value and drawn in the first column."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // "reserve" and "pending" have no links. A node no link touches is sized
+    // by `value` read from its own row ("reserve" has a value of 4), else by
+    // the smallest link value ("pending"), and sits in the first column.
+    var nodes = [
+      {id: "budget"},
+      {id: "salaries"},
+      {id: "equipment"},
+      {id: "research"},
+      {id: "travel"},
+      {id: "reserve", value: 4},
+      {id: "pending"},
+    ];
+
+    var links = [
+      {source: "budget", target: "salaries", value: 10},
+      {source: "budget", target: "equipment", value: 3},
+      {source: "budget", target: "research", value: 6},
+      {source: "research", target: "travel", value: 2},
+    ];
+
+    new d3plus.Sankey().links(links).nodes(nodes).value("value").render();
+  </script>
+</html>
