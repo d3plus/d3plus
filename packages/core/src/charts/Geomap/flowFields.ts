@@ -35,11 +35,14 @@ export function geomapLinkFields(): ConfigField[] {
         between its ends: `0` draws the plain great-circle path, and the
         default `0.2` lifts its middle by a fifth of that distance, to the
         left of the link's direction (a negative value bows to the right),
-        so links running both ways between two places stay apart. A link
-        the projection cuts (across the antimeridian, or past the edge of
-        the projection) is drawn without the lift, and so is every link on
-        a projection that clips to a circle (a globe, such as
-        `"geoOrthographic"`), where an arc would leave the sphere.
+        so links running both ways between two places stay apart. On a
+        flat map, a link whose great circle the projection cuts (across the
+        antimeridian, or between `"geoAlbersUsa"`'s insets) is drawn on the
+        screen between its two ends instead, bowed the same way, so it
+        crosses the map rather than leaving by one edge. On a projection that
+        clips to a circle (a globe, such as `"geoOrthographic"`), links
+        follow the great circle without the lift, which would leave the
+        sphere.
         @type {number}
     */
     {key: "linkCurve", default: 0.2},

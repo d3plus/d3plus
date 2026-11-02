@@ -152,11 +152,54 @@ export function polylinePath(points: Point[]): string {
 }
 
 /**
+    Whether the projection cuts the great circle from `a` to `b` (across
+    the antimeridian, between geoAlbersUsa's insets, past a globe's horizon,
+    or anywhere else it breaks or shortens the line), so it isn't drawn as
+    one run from one end to the other.
+*/
+export function greatCircleCut(
+  a: LonLat,
+  b: LonLat,
+  projection: Projector,
+  path: GeoPathFn,
+): boolean {
+  const straight = path({type: "LineString", coordinates: [a, b]});
+  const pa = finitePoint(projection(a));
+  const pb = finitePoint(projection(b));
+  return !straight || !pa || !pb || !unbrokenPath(straight, pa, pb);
+}
+
+/**
+    A link drawn on the screen between two projected points: the straight
+    line between them, bowed by `curve` the way `liftPolyline` bows it.
+*/
+export function screenArc(pa: Point, pb: Point, curve = 0): FlowArc {
+  const chord = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]);
+  const count = Math.min(128, Math.max(16, Math.ceil(chord / 4)));
+  const line: Point[] = Array.from({length: count + 1}, (_, k) => {
+    const t = k / count;
+    return [pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t];
+  });
+  const drawn = liftPolyline(line, curve);
+  return {
+    d: polylinePath(drawn),
+    points: drawn,
+    sourceRun: drawn,
+    targetRun: drawn,
+  };
+}
+
+/**
     A link's path between two coordinates: the great circle between them
     through the map's projection, lifted into an arc by `curve` (see
-    `liftPolyline`) when the projection draws it unbroken. A path the
-    projection cuts is drawn as d3-geo clips it, without the lift. Null when
-    the two places are the same or the projection hides the whole path.
+    `liftPolyline`) when the projection draws it unbroken.
+
+    When the projection cuts the great circle, a flat map draws the link on
+    the screen between its two ends instead (see `screenArc`), so it
+    crosses the map rather than leaving by one edge and coming back by the
+    other. A globe (see `clipsToCircle`), or a flat map hiding one of the
+    ends, draws it as d3-geo clips it, without the lift. Null when the two
+    places are the same or the projection hides the whole path.
 */
 export function flowArc(
   a: LonLat,
@@ -170,14 +213,19 @@ export function flowArc(
   if (!straight) return null;
   const pa = finitePoint(projection(a));
   const pb = finitePoint(projection(b));
+  const flat = !clipsToCircle(projection);
+  const shown = (p: LonLat) => coordinateVisible(path, p);
+  const onScreen = () =>
+    flat && pa && pb && shown(a) && shown(b) ? screenArc(pa, pb, curve) : null;
   const chord = pa && pb ? Math.hypot(pb[0] - pa[0], pb[1] - pa[1]) : 0;
   const count = Math.min(128, Math.max(16, Math.ceil(chord / 4)));
   const samples = greatCircle(a, b, count);
   if (!pa || !pb || !unbrokenPath(straight, pa, pb)) {
+    const fallback = onScreen();
+    if (fallback) return fallback;
     // Keep the runs the projection draws, for the arrowheads at the ends.
-    const visible = (p: LonLat) => !!path({type: "Point", coordinates: p});
     const runs = splitRuns(
-      samples.map(p => (visible(p) ? finitePoint(projection(p)) : null)),
+      samples.map(p => (shown(p) ? finitePoint(projection(p)) : null)),
     );
     return {d: straight, points: null, ...runs};
   }
@@ -185,7 +233,14 @@ export function flowArc(
   for (const p of samples) {
     const q = finitePoint(projection(p));
     if (!q)
-      return {d: straight, points: null, sourceRun: null, targetRun: null};
+      return (
+        onScreen() ?? {
+          d: straight,
+          points: null,
+          sourceRun: null,
+          targetRun: null,
+        }
+      );
     points.push(q);
   }
   const drawn = curve ? liftPolyline(points, curve) : points;

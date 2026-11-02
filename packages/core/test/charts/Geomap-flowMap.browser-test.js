@@ -217,6 +217,73 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
+  it(`Geomap ${renderer}: a route the antimeridian cuts crosses the map in one path`, async () => {
+    const {page, errors, close} = await openPage(box);
+    try {
+      const pacific = {
+        data: [
+          {id: "SYD", name: "Sydney", point: [151.2, -33.9]},
+          {id: "LAX", name: "Los Angeles", point: [-118.2, 34]},
+          {id: "NYC", name: "New York", point: [-74, 40.7]},
+        ],
+        links: [
+          {source: "SYD", target: "LAX", passengers: 800},
+          {source: "LAX", target: "NYC", passengers: 400},
+        ],
+        arrows: true,
+        legend: false,
+        tiles: false,
+        linkLabel: "passengers",
+      };
+      await page.evaluate(draw, [JSON.stringify(pacific), renderer]);
+      const found = await page.evaluate(() => {
+        const viz = window.__viz;
+        let link = null;
+        const keys = [];
+        const walk = n => {
+          keys.push(String(n.key));
+          if (n.key === "geomap-link-SYD-LAX-0") link = n;
+          (n.children || []).forEach(walk);
+        };
+        walk(viz._paintedScene.root);
+        const n = link.d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi).map(Number);
+        const points = [];
+        for (let k = 0; k + 1 < n.length; k += 2) points.push([n[k], n[k + 1]]);
+        const {left, right, top, bottom} = viz._margin;
+        return {
+          moves: (link.d.match(/M/g) || []).length,
+          points,
+          first: points[0],
+          last: points[points.length - 1],
+          width: viz.schema.width - left - right,
+          height: viz.schema.height - top - bottom,
+          syd: viz.schema.projection([151.2, -33.9]),
+          lax: viz.schema.projection([-118.2, 34]),
+          keys,
+        };
+      });
+      assert.strictEqual(found.moves, 1, "one continuous path");
+      near(found.first, found.syd, 0.5, "from Sydney");
+      near(found.last, found.lax, 0.5, "to Los Angeles");
+      for (const [x, y] of found.points)
+        assert.ok(
+          x >= 0 && x <= found.width && y >= 0 && y <= found.height,
+          `inside the map: ${x},${y}`,
+        );
+      assert.ok(
+        found.keys.includes("geomap-link-SYD-LAX-0-arrow-t"),
+        "with its arrowhead",
+      );
+      assert.ok(
+        found.keys.includes("geomap-link-SYD-LAX-0-label-group"),
+        "and its label",
+      );
+      assert.deepStrictEqual(errors, [], "no page errors");
+    } finally {
+      await close();
+    }
+  });
+
   it(`Geomap ${renderer}: links move with the map as it zooms`, async () => {
     const {page, errors, close} = await openPage(box);
     try {

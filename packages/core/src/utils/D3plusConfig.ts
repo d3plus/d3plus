@@ -1573,10 +1573,12 @@ export interface D3plusConfig {
       between its ends. `0` draws the plain great-circle path; the default
       `0.2` lifts a link's middle by a fifth of that distance, to the left
       of its direction (a negative value bows to the right), so links
-      running both ways between two places stay apart. A link the
-      projection cuts (across the antimeridian, or past the projection's
-      edge) is drawn without the lift, as is every link on a projection that
-      clips to a circle (a globe such as `"geoOrthographic"`).
+      running both ways between two places stay apart. On a flat map, a
+      link whose great circle the projection cuts (across the antimeridian,
+      or between `"geoAlbersUsa"`'s insets) is drawn on the screen between
+      its ends, bowed the same way, so it crosses the map instead of leaving
+      by one edge. On a projection that clips to a circle (a globe such as
+      `"geoOrthographic"`), links follow the great circle without the lift.
   */
   linkCurve?: number;
   /** Geomap: the widest link, in pixels, when `linkSize` values differ (default `10`). */

@@ -9,6 +9,7 @@ import {
   flowArc,
   flowArrowSize,
   greatCircle,
+  greatCircleCut,
   isLonLat,
   liftPolyline,
   polylineAt,
@@ -17,6 +18,7 @@ import {
   polylineLength,
   polylineMidpoint,
   polylinePath,
+  screenArc,
   splitRuns,
   toLonLat,
   unbrokenPath,
@@ -257,16 +259,66 @@ it("flowArc follows the great circle, lifted into an arc", () => {
   close(arc.points[0][0], flat.points[0][0]);
 });
 
-it("flowArc leaves a path the projection cuts unlifted, keeping its end runs", () => {
+it("greatCircleCut spots a route the projection breaks", () => {
   const {projection, path} = mercator();
-  // Sydney to Los Angeles crosses the antimeridian.
-  const arc = flowArc([151.2, -33.9], [-118.2, 34], projection, path, 0.3);
-  assert.strictEqual((arc.d.match(/M/g) || []).length, 2);
-  assert.strictEqual(arc.points, null);
-  const end = arc.targetRun[arc.targetRun.length - 1];
-  close(end[0], projection([-118.2, 34])[0], 1e-6);
-  const start = arc.sourceRun[0];
-  close(start[0], projection([151.2, -33.9])[0], 1e-6);
+  const syd = [151.2, -33.9],
+    lax = [-118.2, 34],
+    nyc = [-74, 40.7],
+    lon = [-0.13, 51.5];
+  assert.ok(
+    greatCircleCut(syd, lax, projection, path),
+    "across the antimeridian",
+  );
+  assert.ok(!greatCircleCut(nyc, lon, projection, path));
+  const usa = geoAlbersUsa().fitSize([400, 300], {type: "Sphere"});
+  const usaPath = geoPath(usa);
+  assert.ok(
+    greatCircleCut([-118.2, 34], [-157.9, 21.3], usa, usaPath),
+    "between geoAlbersUsa's insets",
+  );
+  assert.ok(!greatCircleCut([-118.2, 34], [-74, 40.7], usa, usaPath));
+});
+
+it("screenArc runs straight between two points, or bowed like liftPolyline", () => {
+  const flat = screenArc([0, 0], [100, 0], 0);
+  assert.strictEqual(flat.points.length, 26);
+  assert.ok(flat.points.every(p => p[1] === 0));
+  assert.strictEqual(flat.d.split("M").length, 2, "one run");
+  assert.strictEqual(flat.sourceRun, flat.points);
+  assert.strictEqual(flat.targetRun, flat.points);
+  const bowed = screenArc([0, 0], [100, 0], 0.2);
+  const mid = bowed.points[Math.floor(bowed.points.length / 2)];
+  close(mid[1], -20, 0.1, `bows left of travel: ${mid[1]}`);
+  assert.deepStrictEqual(bowed.points[0], [0, 0]);
+  assert.deepStrictEqual(bowed.points[bowed.points.length - 1], [100, 0]);
+});
+
+it("flowArc draws a cut route across a flat map instead of off its edges", () => {
+  const {projection, path} = mercator();
+  const syd = [151.2, -33.9],
+    lax = [-118.2, 34];
+  for (const curve of [0, 0.3]) {
+    const arc = flowArc(syd, lax, projection, path, curve);
+    assert.strictEqual((arc.d.match(/M/g) || []).length, 1, "one path");
+    assert.deepStrictEqual(
+      arc,
+      screenArc(projection(syd), projection(lax), curve),
+    );
+    for (const [x, y] of arc.points)
+      assert.ok(x >= 0 && x <= 400 && y >= 0 && y <= 300, `inside: ${x},${y}`);
+  }
+  // The great circle still wins where it isn't cut.
+  const nyc = [-74, 40.7],
+    lon = [-0.13, 51.5];
+  assert.strictEqual(
+    flowArc(nyc, lon, projection, path, 0).d,
+    path({type: "LineString", coordinates: [nyc, lon]}),
+  );
+  // Between geoAlbersUsa's insets, too.
+  const usa = geoAlbersUsa().fitSize([400, 300], {type: "Sphere"});
+  const hawaii = flowArc([-118.2, 34], [-157.9, 21.3], usa, geoPath(usa), 0.2);
+  assert.strictEqual((hawaii.d.match(/M/g) || []).length, 1);
+  assert.ok(hawaii.points);
 });
 
 it("flowArc drops the end hidden behind a globe, and returns null for nothing to draw", () => {
