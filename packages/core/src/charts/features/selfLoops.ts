@@ -9,7 +9,13 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import {arrowEnds, arrowNode, arrowSizeFor} from "./edgeArrows.js";
+import {
+  arrowEnds,
+  arrowNode,
+  arrowSizeFor,
+  cubicPathD,
+  trimCubic,
+} from "./edgeArrows.js";
 import type {ArrowValue} from "./edgeArrows.js";
 import type {FocusBox} from "./linkFocus.js";
 import {linkMeta} from "./linkInteraction.js";
@@ -46,6 +52,8 @@ export interface SelfLoopGeometry {
   box: FocusBox;
   /** The direction the loop points out from its node, in radians. */
   angle: number;
+  /** The loop's Bézier points, from its source end to its target end. */
+  points: [Point, Point, Point, Point];
 }
 
 /** Whether a link's two ends are the same node. */
@@ -84,8 +92,6 @@ export function selfLoopReach(r: number, strokeWidth = 1): number {
   const sw = Number.isFinite(strokeWidth) ? Math.max(0, strokeWidth) : 1;
   return Math.max((Number.isFinite(r) ? r : 0) * 1.25, 10) + sw * 1.5;
 }
-
-const round = (n: number): number => Math.round(n * 100) / 100;
 
 /** The loop's four Bézier points, pointing along `angle` from `node`. */
 function loopPoints(
@@ -143,7 +149,7 @@ export function selfLoopGeometry(
   const xs = samples.map(p => p[0]);
   const ys = samples.map(p => p[1]);
   return {
-    d: `M${round(p0[0])},${round(p0[1])}C${round(p1[0])},${round(p1[1])} ${round(p2[0])},${round(p2[1])} ${round(p3[0])},${round(p3[1])}`,
+    d: cubicPathD([p0, p1, p2, p3]),
     apex: {x: apexPoint[0], y: apexPoint[1], angle: angle + Math.PI / 2},
     source: end(p1, p0),
     target: end(p2, p3),
@@ -152,7 +158,27 @@ export function selfLoopGeometry(
       [Math.max(...xs), Math.max(...ys)],
     ],
     angle,
+    points: [p0, p1, p2, p3],
   };
+}
+
+/**
+    A loop's visible stroke: cut short along the loop inside the arrowhead
+    at each end that has one (`trims`, see `edgeArrowTrims`; each tip sits a
+    pixel off the node's edge). The full loop stays its hit area.
+*/
+export function selfLoopD(
+  loop: SelfLoopGeometry,
+  trims: {source: number; target: number},
+): string {
+  if (!trims.source && !trims.target) return loop.d;
+  return cubicPathD(
+    trimCubic(
+      loop.points,
+      trims.source ? 1 + trims.source : 0,
+      trims.target ? 1 + trims.target : 0,
+    ),
+  );
 }
 
 /**
@@ -328,11 +354,7 @@ export function selfLoopArrows(opts: {
   const ends = arrowEnds(opts.arrows, opts.datum, opts.i);
   if (!ends.source && !ends.target) return [];
   const sw = typeof opts.strokeWidth === "number" ? opts.strokeWidth : 1;
-  // The loop is short: keep its arrowheads smaller than a straight link's.
-  const size = Math.min(
-    arrowSizeFor(opts.arrowSize, opts.datum, opts.i, sw),
-    typeof opts.arrowSize === "undefined" ? Math.max(6, sw * 1.5) : Infinity,
-  );
+  const size = arrowSizeFor(opts.arrowSize, opts.datum, opts.i, sw);
   const out: SceneNode[] = [];
   for (const end of ["target", "source"] as const) {
     if (!ends[end]) continue;

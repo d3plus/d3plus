@@ -1681,6 +1681,24 @@ export {
 } from "./src/charts/ArcDiagram/arcLoops.js";
 export {ringsLoops} from "./src/charts/Rings/ringsLoops.js";
 export {
+  arrowTrim,
+  cubicPathD,
+  defaultArrowSize,
+  edgeArrowTrims,
+  straightEdgeD,
+  trimCubic,
+  trimSegment,
+} from "./src/charts/features/edgeArrows.js";
+export type {EdgeArrowTrims} from "./src/charts/features/edgeArrows.js";
+export {selfLoopD} from "./src/charts/features/selfLoops.js";
+export {
+  arcPointAlong,
+  arcTrimmedPathD,
+} from "./src/charts/ArcDiagram/arcGeometry.js";
+export {arcVisibleD} from "./src/charts/ArcDiagram/emit.js";
+export {ringsVisibleD} from "./src/charts/Rings/emit.js";
+export {sankeyVisibleD} from "./src/charts/Sankey/emit.js";
+export {
   sankeyDrawableLinks,
   sankeySelfLinkWarning,
   unlinkedNodeValue,

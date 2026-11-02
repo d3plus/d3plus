@@ -17,6 +17,8 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
+import {cubicPoint} from "./linkLabelGeometry.js";
+
 /** Which end(s) of an edge carry an arrowhead. `true` is equivalent to `"target"`. */
 export type ArrowEndValue = boolean | "target" | "source" | "both";
 
@@ -86,8 +88,19 @@ export function straightArrowTip(
 }
 
 /**
+    The arrowhead size for an edge drawn `strokeWidth` pixels wide when
+    `arrowSize` isn't set: three times the stroke for thin edges, growing no
+    larger than 12 pixels from a 4px stroke on, but never under 1.5 times the
+    stroke (so the head stays wider than its line), and at least 6 pixels.
+*/
+export function defaultArrowSize(strokeWidth: number): number {
+  const sw = Number.isFinite(strokeWidth) ? Math.max(0, strokeWidth) : 1;
+  return Math.max(6, Math.min(sw * 3, Math.max(12, sw * 1.5)));
+}
+
+/**
     Resolve the arrowhead size from the `arrowSize` config (a number or per-edge
-    accessor), falling back to a size derived from the edge's stroke width.
+    accessor), falling back to `defaultArrowSize` for the edge's stroke width.
 */
 export function arrowSizeFor(
   arrowSize: unknown,
@@ -99,7 +112,175 @@ export function arrowSizeFor(
     typeof arrowSize === "function"
       ? (arrowSize as (d: DataPoint, i: number) => unknown)(d, i)
       : arrowSize;
-  return typeof cfg === "number" ? cfg : Math.max(6, strokeWidth * 3);
+  return typeof cfg === "number" ? cfg : defaultArrowSize(strokeWidth);
+}
+
+/**
+    How far back from an arrowhead's tip its edge's stroke ends, so the
+    stroke's square (butt) end sits inside the head: the head is `1.2 × d`
+    wide at `d` pixels from its tip, so this is where it is as wide as the
+    stroke, at least halfway along the head and at most its base.
+*/
+export function arrowTrim(size: number, strokeWidth: number): number {
+  const s = Number.isFinite(size) ? Math.max(0, size) : 0;
+  const sw = Number.isFinite(strokeWidth) ? Math.max(0, strokeWidth) : 0;
+  return Math.min(s, Math.max(s / 2, sw / 1.2));
+}
+
+/** An edge's arrowheads: which ends carry one, their size, and the stroke trim at each. */
+export interface EdgeArrowTrims {
+  ends: ArrowEnds;
+  size: number;
+  /** How far the stroke ends back from each end's arrow tip (0 without an arrow). */
+  source: number;
+  target: number;
+}
+
+/** Resolves an edge's `arrows`/`arrowSize` into its arrowhead ends, size, and stroke trims. */
+export function edgeArrowTrims(opts: {
+  arrows: ArrowValue;
+  arrowSize: unknown;
+  strokeWidth?: number;
+  datum: DataPoint;
+  i: number;
+}): EdgeArrowTrims {
+  const ends = arrowEnds(opts.arrows, opts.datum, opts.i);
+  const sw = typeof opts.strokeWidth === "number" ? opts.strokeWidth : 1;
+  const size =
+    ends.source || ends.target
+      ? arrowSizeFor(opts.arrowSize, opts.datum, opts.i, sw)
+      : 0;
+  const trim = arrowTrim(size, sw);
+  return {
+    ends,
+    size,
+    source: ends.source ? trim : 0,
+    target: ends.target ? trim : 0,
+  };
+}
+
+type Point = [number, number];
+
+/**
+    A straight segment from `a` to `b`, shortened by `start` pixels at `a`
+    and `end` pixels at `b`. When the two overlap, it collapses to the point
+    between them.
+*/
+export function trimSegment(
+  a: Point,
+  b: Point,
+  start: number,
+  end: number,
+): [Point, Point] {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const length = Math.hypot(dx, dy);
+  const s = Math.max(0, start);
+  const e = Math.max(0, end);
+  if (!length) return [a, b];
+  if (s + e >= length) {
+    const t = Math.min(1, s / (s + e || 1));
+    const m: Point = [a[0] + dx * t, a[1] + dy * t];
+    return [m, m];
+  }
+  const p = (t: number): Point => [a[0] + dx * t, a[1] + dy * t];
+  return [p(s / length), p(1 - e / length)];
+}
+
+/** Splits a cubic Bézier curve at `t`, returning its two halves. */
+function splitCubic(
+  [p0, p1, p2, p3]: [Point, Point, Point, Point],
+  t: number,
+): [[Point, Point, Point, Point], [Point, Point, Point, Point]] {
+  const lerp = (a: Point, b: Point): Point => [
+    a[0] + (b[0] - a[0]) * t,
+    a[1] + (b[1] - a[1]) * t,
+  ];
+  const a = lerp(p0, p1);
+  const b = lerp(p1, p2);
+  const c = lerp(p2, p3);
+  const d = lerp(a, b);
+  const e = lerp(b, c);
+  const f = lerp(d, e);
+  return [
+    [p0, a, d, f],
+    [f, e, c, p3],
+  ];
+}
+
+/**
+    A cubic Bézier curve shortened along its own length by `start` pixels at
+    its first end and `end` pixels at its last: the same curve, cut short,
+    so the ends keep their direction. When the two cuts meet, it collapses
+    to the point where they do.
+    @param steps The number of chords the curve's length is measured in.
+*/
+export function trimCubic(
+  curve: [Point, Point, Point, Point],
+  start: number,
+  end: number,
+  steps = 64,
+): [Point, Point, Point, Point] {
+  const s = Math.max(0, start);
+  const e = Math.max(0, end);
+  if (!s && !e) return curve;
+  const [p0, p1, p2, p3] = curve;
+  const lengths = [0];
+  let prev = p0;
+  for (let k = 1; k <= steps; k++) {
+    const p = cubicPoint(p0, p1, p2, p3, k / steps);
+    lengths.push(lengths[k - 1] + Math.hypot(p[0] - prev[0], p[1] - prev[1]));
+    prev = p;
+  }
+  const total = lengths[steps];
+  // The parameter at `len` along the curve.
+  const at = (len: number): number => {
+    if (len <= 0) return 0;
+    if (len >= total) return 1;
+    let k = 1;
+    while (k < steps && lengths[k] < len) k++;
+    const span = lengths[k] - lengths[k - 1];
+    return (k - 1 + (span ? (len - lengths[k - 1]) / span : 0)) / steps;
+  };
+  if (s + e >= total) {
+    const point = cubicPoint(p0, p1, p2, p3, at((total * s) / (s + e || 1)));
+    return [point, point, point, point];
+  }
+  const t0 = at(s);
+  const t1 = at(total - e);
+  // Cut the end off first, then the start, rescaling its parameter.
+  const head = t1 < 1 ? splitCubic(curve, t1)[0] : curve;
+  return t0 > 0 ? splitCubic(head, t0 / t1)[1] : head;
+}
+
+/** A cubic Bézier curve's SVG path. */
+export function cubicPathD([p0, p1, p2, p3]: [
+  Point,
+  Point,
+  Point,
+  Point,
+]): string {
+  return `M${round(p0[0])},${round(p0[1])}C${round(p1[0])},${round(p1[1])} ${round(p2[0])},${round(p2[1])} ${round(p3[0])},${round(p3[1])}`;
+}
+
+/**
+    The visible stroke of a straight, center-to-center edge between nodes
+    of radius `source.r` and `target.r`: cut short inside each arrowhead
+    (whose tip sits a pixel off the node's edge, see `straightArrowTip`).
+    The full center-to-center path stays the edge's hit area.
+*/
+export function straightEdgeD(
+  source: {x: number; y: number; r?: number},
+  target: {x: number; y: number; r?: number},
+  trims: {source: number; target: number},
+): string {
+  const [a, b] = trimSegment(
+    [source.x, source.y],
+    [target.x, target.y],
+    trims.source ? (source.r ?? 0) + 1 + trims.source : 0,
+    trims.target ? (target.r ?? 0) + 1 + trims.target : 0,
+  );
+  return `M${a[0]},${a[1]} ${b[0]},${b[1]}`;
 }
 
 /**

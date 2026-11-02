@@ -6,7 +6,13 @@
 import type {DataPoint} from "@d3plus/data";
 import type {Paint, SceneNode} from "@d3plus/render";
 
-import {arrowEnds, arrowNode} from "../features/edgeArrows.js";
+import {
+  arrowEnds,
+  arrowNode,
+  arrowTrim,
+  cubicPathD,
+  trimCubic,
+} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
@@ -60,6 +66,57 @@ export interface SankeyCtx {
   height: number;
 }
 
+/** A link's arrowhead size: `arrowSize`, else its band's width, kept between 8 and 28. */
+function sankeyArrowSize(
+  viz: VizInstance,
+  link: SankeyLink,
+  datum: DataPoint,
+  i: number,
+): number {
+  const width = typeof link.width === "number" ? link.width : 2;
+  const sizeCfg = resolveAccessor<number>(viz.schema.arrowSize, datum, i);
+  return typeof sizeCfg === "number"
+    ? sizeCfg
+    : Math.max(8, Math.min(width, 28));
+}
+
+/**
+    A link's visible band: its horizontal link curve, cut short along the
+    curve inside the arrowhead at each end that has one (see `arrowTrim`;
+    the tips sit on the nodes' edges, where the band ends). The full band
+    stays its hit area.
+*/
+export function sankeyVisibleD(
+  viz: VizInstance,
+  link: SankeyLink,
+  i: number,
+  strokeWidth: unknown,
+  d: string,
+): string {
+  const ends = arrowEnds(viz.schema.arrows as ArrowValue, link.datum, i);
+  if (!ends.source && !ends.target) return d;
+  if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return d;
+  const trim = arrowTrim(
+    sankeyArrowSize(viz, link, link.datum, i),
+    typeof strokeWidth === "number" ? strokeWidth : 1,
+  );
+  const x0 = link.source.x1;
+  const x1 = link.target.x0;
+  const xm = (x0 + x1) / 2;
+  return cubicPathD(
+    trimCubic(
+      [
+        [x0, link.y0],
+        [xm, link.y0],
+        [xm, link.y1],
+        [x1, link.y1],
+      ],
+      ends.source ? trim : 0,
+      ends.target ? trim : 0,
+    ),
+  );
+}
+
 /**
     Optional directional arrowheads for one link. Flow runs source(left) →
     target(right): the target arrow points right into the target, the source
@@ -75,10 +132,7 @@ function emitSankeyArrows(
   const arrows: SceneNode[] = [];
   const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, i);
   if (ends.source || ends.target) {
-    const width = typeof link.width === "number" ? link.width : 2;
-    const sizeCfg = resolveAccessor<number>(viz.schema.arrowSize, datum, i);
-    const size =
-      typeof sizeCfg === "number" ? sizeCfg : Math.max(8, Math.min(width, 28));
+    const size = sankeyArrowSize(viz, link, datum, i);
     const fill = typeof paint.stroke === "string" ? paint.stroke : undefined;
     if (ends.target && typeof link.y1 === "number") {
       arrows.push(
@@ -188,7 +242,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
         type: "path",
         shapeType: "Link",
         key,
-        d,
+        d: sankeyVisibleD(viz, link, i, paint.strokeWidth, d),
         datum,
         index: i,
         paint,

@@ -55,8 +55,10 @@ it("arrowSizeFor honors a number, an accessor, and the stroke-width fallback", (
     arrowSizeFor(d => d.s, {s: 9}, 0, 1),
     9,
   );
-  assert.strictEqual(arrowSizeFor(undefined, {}, 0, 4), 12); // max(6, 4*3)
-  assert.strictEqual(arrowSizeFor(undefined, {}, 0, 1), 6); // max(6, 3)
+  assert.strictEqual(arrowSizeFor(undefined, {}, 0, 4), 12); // 4 * 3
+  assert.strictEqual(arrowSizeFor(undefined, {}, 0, 1), 6); // at least 6
+  assert.strictEqual(arrowSizeFor(undefined, {}, 0, 6), 12); // capped at 12
+  assert.strictEqual(arrowSizeFor(undefined, {}, 0, 10), 15); // 1.5 * 10
 });
 
 it("straightArrowTip insets the tip to the node boundary and points at the target", () => {

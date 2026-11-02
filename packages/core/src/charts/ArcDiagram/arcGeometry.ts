@@ -215,6 +215,73 @@ export function arcEndTip(
   return {x, y, angle: Math.atan2(dy, dx)};
 }
 
+/**
+    The point on an arc's ellipse `length` pixels along it from where it
+    stands `inset` pixels out from the line at `end` (where `arcEndTip` puts
+    that end's arrow tip), toward the arc's top. It stops at the top.
+*/
+export function arcPointAlong(
+  arc: ArcGeometry,
+  end: "source" | "target",
+  inset: number,
+  length: number,
+): [number, number] {
+  const [endU, otherU] =
+    end === "target" ? [arc.to, arc.from] : [arc.from, arc.to];
+  const a = Math.abs(endU - otherU) / 2;
+  const b = a * arc.scale;
+  const center = (endU + otherU) / 2;
+  const toward = endU >= otherU ? 1 : -1;
+  let theta = b > 0 ? Math.asin(Math.min(1, Math.max(0, inset) / b)) : 0;
+  const steps = 512;
+  const dt = Math.PI / 2 / steps;
+  let left = Math.max(0, length);
+  while (left > 0 && theta < Math.PI / 2) {
+    const next = Math.min(Math.PI / 2, theta + dt);
+    const mid = (theta + next) / 2;
+    const ds =
+      Math.hypot(a * Math.sin(mid), b * Math.cos(mid)) * (next - theta);
+    if (ds >= left) {
+      theta += (next - theta) * (ds ? left / ds : 0);
+      left = 0;
+    } else {
+      left -= ds;
+      theta = next;
+    }
+  }
+  return arcPoint(
+    arc,
+    center + toward * a * Math.cos(theta),
+    b * Math.sin(theta),
+  );
+}
+
+/**
+    An arc's visible stroke: its path, cut short along the arc inside the
+    arrowhead at each end `trims` gives (see `edgeArrowTrims`). `insets` are
+    how far out from the line each end's arrow tip sits. The full arc stays
+    its hit area.
+*/
+export function arcTrimmedPathD(
+  arc: ArcGeometry,
+  trims: {source: number; target: number},
+  insets: {source: number; target: number},
+): string {
+  if (!trims.source && !trims.target) return arcPathD(arc);
+  const half = Math.abs(arc.to - arc.from) / 2;
+  const height = half * arc.scale;
+  const endAt = (end: "source" | "target"): [number, number] =>
+    trims[end]
+      ? arcPointAlong(arc, end, insets[end], trims[end])
+      : arcPoint(arc, end === "source" ? arc.from : arc.to, 0);
+  const [x1, y1] = endAt("source");
+  const [x2, y2] = endAt("target");
+  const forward = arc.to > arc.from;
+  const sweep = forward === (arc.side === "above") ? 1 : 0;
+  const [rx, ry] = arc.orient === "vertical" ? [height, half] : [half, height];
+  return `M${round(x1)},${round(y1)}A${round(rx)},${round(ry)} 0 0,${sweep} ${round(x2)},${round(y2)}`;
+}
+
 /** The box an arc covers: its two ends and its highest point, as `[[x0, y0], [x1, y1]]`. */
 export function arcBox(arc: ArcGeometry): [[number, number], [number, number]] {
   const points = [

@@ -20,7 +20,11 @@ import type {
   CircleLabelItem,
   CircleLabelLayout,
 } from "../features/circleLabels.js";
-import {straightEdgeArrows} from "../features/edgeArrows.js";
+import {
+  edgeArrowTrims,
+  straightEdgeArrows,
+  straightEdgeD,
+} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
@@ -39,7 +43,7 @@ import type {LinkDatum} from "../features/linkInteraction.js";
 import {linkColorResolver} from "../features/linkColor.js";
 import type {LinkEnds} from "../features/linkColor.js";
 import {segmentMidpoint} from "../features/linkLabelGeometry.js";
-import {selfLoopArrows} from "../features/selfLoops.js";
+import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
@@ -100,6 +104,34 @@ function networkLinkArrows(
 }
 
 /**
+    A link's visible stroke: `d`, cut short inside its arrowheads (see
+    `edgeArrowTrims`) so the line doesn't show past their sides.
+*/
+function networkVisibleD(
+  viz: VizInstance,
+  link: NetworkLink,
+  datum: DataPoint,
+  i: number,
+  strokeWidth: unknown,
+  d: string,
+): string {
+  const trims = edgeArrowTrims({
+    arrows: viz.schema.arrows as ArrowValue,
+    arrowSize: viz.schema.arrowSize,
+    strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
+    datum,
+    i,
+  });
+  if (!trims.source && !trims.target) return d;
+  if (link.loop) return selfLoopD(link.loop, trims);
+  return straightEdgeD(
+    link.source as NetworkNode,
+    link.target as NetworkNode,
+    trims,
+  );
+}
+
+/**
     Link Paths, one per resolved `c.links` entry, each followed by a wider
     transparent hit path over it and its arrowheads.
 */
@@ -122,7 +154,7 @@ function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
     out.push({
       type: "path",
       key,
-      d,
+      d: networkVisibleD(viz, link, datum, i, paint.strokeWidth, d),
       datum,
       index: i,
       paint,

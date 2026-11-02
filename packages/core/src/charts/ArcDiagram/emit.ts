@@ -8,7 +8,12 @@ import type {DataPoint} from "@d3plus/data";
 import type {Paint, SceneNode} from "@d3plus/render";
 
 import type {ChartEmit} from "../definition/ChartDefinition.js";
-import {arrowEnds, arrowNode, arrowSizeFor} from "../features/edgeArrows.js";
+import {
+  arrowEnds,
+  arrowNode,
+  arrowSizeFor,
+  edgeArrowTrims,
+} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
@@ -18,9 +23,9 @@ import type {ArcCtx, ArcLink, ArcNode} from "./applyLayout.js";
 import {linkColorResolver} from "../features/linkColor.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
-import {arcApex, arcEndTip} from "./arcGeometry.js";
+import {arcApex, arcEndTip, arcTrimmedPathD} from "./arcGeometry.js";
 import {emitArcLabels} from "./arcLabels.js";
-import {selfLoopArrows} from "../features/selfLoops.js";
+import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 
 /** A node's paint, from the node shape's config. */
 function nodePaint(config: Record<string, unknown>, n: ArcNode): Paint {
@@ -94,6 +99,27 @@ function arcArrows(
   return out;
 }
 
+/**
+    An arc's (or loop's) visible stroke: cut short along it inside its
+    arrowheads (see `edgeArrowTrims`), whose tips sit a pixel out past the
+    nodes.
+*/
+export function arcVisibleD(viz: VizInstance, link: ArcLink): string {
+  const trims = edgeArrowTrims({
+    arrows: viz.schema.arrows as ArrowValue,
+    arrowSize: viz.schema.arrowSize,
+    strokeWidth: link.size,
+    datum: link.datum,
+    i: link.index,
+  });
+  if (!trims.source && !trims.target) return link.d;
+  if (link.loop) return selfLoopD(link.loop, trims);
+  return arcTrimmedPathD(link.arc, trims, {
+    source: link.source.r + 1,
+    target: link.target.r + 1,
+  });
+}
+
 /** The arcs, their hit paths, and their arrowheads. */
 function emitArcs(viz: VizInstance, c: ArcCtx): SceneNode[] {
   const linkColor = linkColorResolver(viz);
@@ -111,7 +137,7 @@ function emitArcs(viz: VizInstance, c: ArcCtx): SceneNode[] {
     arcs.push({
       type: "path",
       key,
-      d: link.d,
+      d: arcVisibleD(viz, link),
       datum,
       index: link.index,
       paint,

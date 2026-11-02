@@ -12,7 +12,11 @@ import {
   arrowEnds,
   arrowNode,
   arrowSizeFor,
+  cubicPathD,
+  edgeArrowTrims,
   straightEdgeArrows,
+  straightEdgeD,
+  trimCubic,
 } from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {
@@ -34,7 +38,7 @@ import type {LinkEnds} from "../features/linkColor.js";
 import {cubicMidpoint, segmentMidpoint} from "../features/linkLabelGeometry.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
-import {selfLoopArrows} from "../features/selfLoops.js";
+import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -162,6 +166,47 @@ function ringsEdgeArrows(
     );
   }
   return out;
+}
+
+/**
+    An edge's visible stroke: `d`, cut short inside its arrowheads (see
+    `edgeArrowTrims`), along the curve for a spline edge or a loop. A
+    spline's arrow tips sit on the node's edge, where the curve ends.
+*/
+export function ringsVisibleD(
+  viz: VizInstance,
+  edge: RingsEdge,
+  i: number,
+  strokeWidth: unknown,
+  d: string,
+): string {
+  const trims = edgeArrowTrims({
+    arrows: viz.schema.arrows as ArrowValue,
+    arrowSize: viz.schema.arrowSize,
+    strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
+    datum: edge.datum,
+    i,
+  });
+  if (!trims.source && !trims.target) return d;
+  if (edge.loop) return selfLoopD(edge.loop, trims);
+  if (edge.spline && edge.sourceX != null && edge.targetX != null)
+    return cubicPathD(
+      trimCubic(
+        [
+          [edge.sourceX, edge.sourceY!],
+          [edge.sourceBisectX!, edge.sourceBisectY!],
+          [edge.targetBisectX!, edge.targetBisectY!],
+          [edge.targetX, edge.targetY!],
+        ],
+        trims.source,
+        trims.target,
+      ),
+    );
+  return straightEdgeD(
+    edge.source as unknown as {x: number; y: number; r?: number},
+    edge.target as unknown as {x: number; y: number; r?: number},
+    trims,
+  );
 }
 
 /** An edge's scene key (a loop's names its index, as a node can have several). */
@@ -311,7 +356,7 @@ export const ringsEmit: ChartEmit = ({viz}) => {
       out.push({
         type: "path",
         key,
-        d,
+        d: ringsVisibleD(viz, edge, i, paint.strokeWidth, d),
         datum,
         index: i,
         paint,
