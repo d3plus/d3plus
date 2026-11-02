@@ -20,6 +20,7 @@ import {
 import {
   emitFlowLabels,
   emitFlowLinks,
+  flowArrowEdge,
   flowLinkGray,
   flowLinkKey,
 } from "../../src/charts/Geomap/flowEmit.ts";
@@ -32,6 +33,8 @@ import {
   linkMeta,
   linkNodeOf,
 } from "../../src/charts/features/linkInteraction.ts";
+import {arrowTrim} from "../../src/charts/features/edgeArrows.ts";
+import {pathRuns} from "../../src/charts/Geomap/flowGeometry.ts";
 
 useJsdom();
 
@@ -478,7 +481,7 @@ it("setupGeomapLinks hovers and focuses links, and clears the focus on another c
   assert.deepStrictEqual(fresh.links(), []);
 });
 
-it("emitFlowLinks holds default arrowheads down on wide links, and arrowSize wins", () => {
+it("emitFlowLinks sizes arrowheads by the shared default, and arrowSize wins", () => {
   const viz = laidOut(
     [
       {source: "NYC", target: "LON", n: 1},
@@ -541,4 +544,85 @@ it("visiblePointData drops the points a globe hides, and the layout draws only t
     viz.ctx.geomapCtx.pointData.map(d => d.id),
     ["TYO"],
   );
+});
+
+/** An arrowhead path's tip, base corners, and axis (tip to base midpoint). */
+function headOf(node) {
+  const n = node.d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi).map(Number);
+  const tip = [n[0], n[1]];
+  const base = [(n[2] + n[4]) / 2, (n[3] + n[5]) / 2];
+  return {tip, base, corners: [tip, [n[2], n[3]], [n[4], n[5]]]};
+}
+
+/** How far `p` is from the line through `a` and `b`. */
+const offAxis = (p, a, b) =>
+  Math.abs((b[0] - a[0]) * (a[1] - p[1]) - (a[0] - p[0]) * (b[1] - a[1])) /
+  Math.hypot(b[0] - a[0], b[1] - a[1]);
+
+it("flowArrowEdge ends the stroke inside each head, on its axis", () => {
+  const viz = laidOut([{source: "NYC", target: "LON"}], {
+    arrows: "both",
+    linkSize: 4,
+  });
+  const [link] = viz.ctx.geomapCtx.flowLinks;
+  const {d, arrows} = flowArrowEdge(viz, link, "#123456");
+  assert.deepStrictEqual(
+    arrows.map(n => n.key),
+    ["geomap-link-NYC-LON-0-arrow-t", "geomap-link-NYC-LON-0-arrow-s"],
+  );
+  const runs = pathRuns(d);
+  const stroke = runs.flat();
+  const ends = {t: stroke[stroke.length - 1], s: stroke[0]};
+  for (const node of arrows) {
+    const {tip, base} = headOf(node);
+    const end = node.key.endsWith("-t") ? ends.t : ends.s;
+    assert.ok(offAxis(end, tip, base) < 0.01, "on the head's axis");
+    const back = Math.hypot(end[0] - tip[0], end[1] - tip[1]);
+    const size = Math.hypot(base[0] - tip[0], base[1] - tip[1]);
+    assert.ok(
+      Math.abs(back - arrowTrim(size, 4)) < 0.01,
+      `trimmed back from the tip: ${back}`,
+    );
+    assert.strictEqual(node.paint.fill, "#123456");
+  }
+  // The tip clears the point at its end.
+  const lon = [link.targetAt, link.target.r];
+  const {tip} = headOf(arrows[0]);
+  assert.ok(
+    Math.abs(
+      Math.hypot(tip[0] - lon[0][0], tip[1] - lon[0][1]) - (lon[1] + 1),
+    ) < 0.5,
+  );
+
+  viz.arrows(false);
+  assert.deepStrictEqual(flowArrowEdge(viz, link, "#000"), {
+    d: link.d,
+    arrows: [],
+  });
+});
+
+it("flowArrowEdge puts a head only on the end a globe draws, and the hit path keeps the whole link", () => {
+  const far = {id: "TYO", name: "Tokyo", point: [139.7, 35.7], pop: 5};
+  const viz = geomap({
+    projection: "geoOrthographic",
+    topojson: false,
+    arrows: "both",
+    links: [{source: "LON", target: "TYO"}],
+  });
+  viz._filteredData = [...cities, far];
+  viz.projectionRotate([60, -30]);
+  applyGeomapLayout({viz});
+  const [link] = viz.ctx.geomapCtx.flowLinks;
+  assert.strictEqual(link.targetAt, null, "Tokyo is behind the globe");
+  const {arrows} = flowArrowEdge(viz, link, "#000");
+  assert.deepStrictEqual(
+    arrows.map(n => n.key),
+    ["geomap-link-LON-TYO-0-arrow-s"],
+  );
+  const nodes = emitFlowLinks(viz, [link]);
+  const hit = nodes.find(n => n.key.endsWith("::hit"));
+  assert.strictEqual(hit.d, link.d);
+  const stroke = nodes.find(n => n.key === "geomap-link-LON-TYO-0");
+  assert.notStrictEqual(stroke.d, link.d, "the stroke is trimmed");
+  assert.strictEqual(stroke.paint.strokeLinecap, "butt");
 });

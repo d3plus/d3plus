@@ -1897,20 +1897,19 @@ export {
   coordinateVisible,
   featureAnchor,
   flowArc,
-  flowArrowSize,
   greatCircle,
   greatCircleCut,
   isLonLat,
   liftPolyline,
   polylineAt,
   polylineBox,
-  polylineEndTip,
   polylineLength,
   polylineMidpoint,
+  pathRuns,
   polylinePath,
   screenArc,
-  splitRuns,
   toLonLat,
+  trimPolyline,
   unbrokenPath,
 } from "./src/charts/Geomap/flowGeometry.js";
 export {visiblePointData} from "./src/charts/Geomap/applyLayout.js";
@@ -1936,6 +1935,7 @@ export type {
 export {
   emitFlowLabels,
   emitFlowLinks,
+  flowArrowEdge,
   flowLinkGray,
   flowLinkKey,
 } from "./src/charts/Geomap/flowEmit.js";

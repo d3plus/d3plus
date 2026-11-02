@@ -7,20 +7,19 @@ import {
   coordinateVisible,
   featureAnchor,
   flowArc,
-  flowArrowSize,
   greatCircle,
   greatCircleCut,
   isLonLat,
   liftPolyline,
   polylineAt,
   polylineBox,
-  polylineEndTip,
   polylineLength,
   polylineMidpoint,
+  pathRuns,
   polylinePath,
   screenArc,
-  splitRuns,
   toLonLat,
+  trimPolyline,
   unbrokenPath,
 } from "../../src/charts/Geomap/flowGeometry.ts";
 
@@ -173,21 +172,6 @@ it("polylineLength, polylineAt, and polylineMidpoint measure along a polyline", 
   assert.deepStrictEqual([mid.x, mid.y], [30, 5]);
 });
 
-it("polylineEndTip sits inset from an end, pointing into it", () => {
-  const line = [
-    [0, 0],
-    [100, 0],
-  ];
-  const target = polylineEndTip(line, "target", 10);
-  assert.deepStrictEqual([target.x, target.y], [90, 0]);
-  close(target.angle, 0);
-  const source = polylineEndTip(line, "source", 10);
-  assert.deepStrictEqual([source.x, source.y], [10, 0]);
-  close(Math.abs(source.angle), Math.PI, 1e-9, "points back to the source");
-  const short = polylineEndTip(line, "target", 80);
-  assert.strictEqual(short.x, 50, "never past the middle");
-});
-
 it("polylineBox bounds a polyline", () => {
   assert.deepStrictEqual(
     polylineBox([
@@ -200,36 +184,6 @@ it("polylineBox bounds a polyline", () => {
       [7, 9],
     ],
   );
-});
-
-it("splitRuns breaks at missing points and wrap-around jumps", () => {
-  const runs = splitRuns([
-    [0, 0],
-    [2, 0],
-    [4, 0],
-    [396, 0],
-    [398, 0],
-    [400, 0],
-  ]);
-  assert.deepStrictEqual(runs.sourceRun, [
-    [0, 0],
-    [2, 0],
-    [4, 0],
-  ]);
-  assert.deepStrictEqual(runs.targetRun, [
-    [396, 0],
-    [398, 0],
-    [400, 0],
-  ]);
-  const hidden = splitRuns([[0, 0], [2, 0], null, null]);
-  assert.deepStrictEqual(hidden.sourceRun, [
-    [0, 0],
-    [2, 0],
-  ]);
-  assert.strictEqual(hidden.targetRun, null, "the target is hidden");
-  const lone = splitRuns([null, [3, 3], null]);
-  assert.strictEqual(lone.sourceRun, null);
-  assert.strictEqual(lone.targetRun, null);
 });
 
 it("flowArc follows the great circle, lifted into an arc", () => {
@@ -246,8 +200,6 @@ it("flowArc follows the great circle, lifted into an arc", () => {
   close(flat.points[0][0], projection(nyc)[0], 1e-6);
   const last = flat.points[flat.points.length - 1];
   close(last[0], projection(lon)[0], 1e-6);
-  assert.strictEqual(flat.sourceRun, flat.points);
-  assert.strictEqual(flat.targetRun, flat.points);
 
   const arc = flowArc(nyc, lon, projection, path, 0.3);
   assert.notStrictEqual(arc.d, flat.d);
@@ -284,8 +236,6 @@ it("screenArc runs straight between two points, or bowed like liftPolyline", () 
   assert.strictEqual(flat.points.length, 26);
   assert.ok(flat.points.every(p => p[1] === 0));
   assert.strictEqual(flat.d.split("M").length, 2, "one run");
-  assert.strictEqual(flat.sourceRun, flat.points);
-  assert.strictEqual(flat.targetRun, flat.points);
   const bowed = screenArc([0, 0], [100, 0], 0.2);
   const mid = bowed.points[Math.floor(bowed.points.length / 2)];
   close(mid[1], -20, 0.1, `bows left of travel: ${mid[1]}`);
@@ -330,8 +280,14 @@ it("flowArc drops the end hidden behind a globe, and returns null for nothing to
   const arc = flowArc([0, 10], [170, 10], projection, path, 0.2);
   assert.ok(arc, "the near part draws");
   assert.strictEqual(arc.points, null);
-  assert.ok(arc.sourceRun && arc.sourceRun.length > 1);
-  assert.strictEqual(arc.targetRun, null);
+  const runs = pathRuns(arc.d);
+  assert.strictEqual(
+    runs.length,
+    1,
+    "one run, from the near end to the horizon",
+  );
+  const start = projection([0, 10]);
+  assert.ok(Math.hypot(runs[0][0][0] - start[0], runs[0][0][1] - start[1]) < 1);
   assert.strictEqual(flowArc([5, 5], [5, 5], projection, path, 0.2), null);
   const usa = geoAlbersUsa().fitSize([300, 200], {
     type: "MultiPoint",
@@ -350,22 +306,6 @@ it("toLonLat reads a point's coordinate, numeric strings included", () => {
   assert.strictEqual(toLonLat(["x", 1]), null);
   assert.strictEqual(toLonLat([1]), null);
   assert.strictEqual(toLonLat("1,2"), null);
-});
-
-it("flowArrowSize is three times the width, held between 6 and 12 unless the line is wider", () => {
-  assert.strictEqual(flowArrowSize(1), 6);
-  assert.strictEqual(flowArrowSize(3), 9);
-  assert.strictEqual(flowArrowSize(4), 12);
-  assert.strictEqual(flowArrowSize(6), 12);
-  assert.strictEqual(
-    flowArrowSize(10),
-    15,
-    "1.5× a wide line, so the head shows",
-  );
-  assert.strictEqual(flowArrowSize(NaN), 6);
-  // The head's base (1.2× its size) is always wider than the line.
-  for (const w of [1, 2, 5, 8, 10, 20, 40])
-    assert.ok(flowArrowSize(w) * 1.2 > w, `width ${w}`);
 });
 
 it("clipsToCircle recognizes globes and other clip-angle projections", () => {
@@ -388,4 +328,60 @@ it("coordinateVisible reads the projection's clipping, which projecting alone ig
   const usa = geoPath(geoAlbersUsa());
   assert.ok(coordinateVisible(usa, [-100, 40]));
   assert.ok(!coordinateVisible(usa, [10, 50]), "outside the insets");
+});
+
+it("pathRuns reads a path's moves and lines as polylines", () => {
+  assert.deepStrictEqual(pathRuns("M0,0L10,0L10,5M20,20L30,30"), [
+    [
+      [0, 0],
+      [10, 0],
+      [10, 5],
+    ],
+    [
+      [20, 20],
+      [30, 30],
+    ],
+  ]);
+  assert.deepStrictEqual(pathRuns("M1e1,-2.5L.5,3"), [
+    [
+      [10, -2.5],
+      [0.5, 3],
+    ],
+  ]);
+  assert.deepStrictEqual(pathRuns("M5,5"), [], "a lone move draws nothing");
+});
+
+it("trimPolyline shortens a polyline along its length at either end", () => {
+  const line = [
+    [0, 0],
+    [10, 0],
+    [10, 10],
+  ];
+  assert.deepStrictEqual(trimPolyline(line, 0, 0), line);
+  assert.deepStrictEqual(trimPolyline(line, 5, 0), [
+    [5, 0],
+    [10, 0],
+    [10, 10],
+  ]);
+  assert.deepStrictEqual(trimPolyline(line, 0, 4), [
+    [0, 0],
+    [10, 0],
+    [10, 6],
+  ]);
+  assert.deepStrictEqual(
+    trimPolyline(line, 12, 0),
+    [
+      [10, 2],
+      [10, 10],
+    ],
+    "past a corner drops it",
+  );
+  assert.deepStrictEqual(
+    trimPolyline(line, 15, 15),
+    [
+      [10, 0],
+      [10, 0],
+    ],
+    "cuts that meet collapse to where they do",
+  );
 });

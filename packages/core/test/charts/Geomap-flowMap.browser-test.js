@@ -135,6 +135,63 @@ const tooltipText = () =>
     .map(el => el.textContent.replace(/\s+/g, ""))
     .join("|");
 
+/**
+    Runs in the page: for each keyed link, where its painted stroke ends at
+    each arrowed end, and that end's head (its tip and base corners).
+*/
+const strokeEnds = keys => {
+  const out = {};
+  const nodes = {};
+  const walk = n => {
+    nodes[n.key] = n;
+    (n.children || []).forEach(walk);
+  };
+  walk(window.__viz._paintedScene.root);
+  const nums = d => d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi).map(Number);
+  for (const key of keys) {
+    const link = nodes[key];
+    if (!link) continue;
+    const n = nums(link.d);
+    const ends = {s: [n[0], n[1]], t: [n[n.length - 2], n[n.length - 1]]};
+    out[key] = {};
+    for (const end of ["s", "t"]) {
+      const head = nodes[`${key}-arrow-${end}`];
+      if (!head) continue;
+      const h = nums(head.d);
+      out[key][end] = {
+        stroke: ends[end],
+        tip: [h[0], h[1]],
+        corners: [
+          [h[2], h[3]],
+          [h[4], h[5]],
+        ],
+      };
+    }
+  }
+  return out;
+};
+
+/** Asserts a stroke end lies inside its head and within 0.5px of its axis. */
+function assertInHead({stroke, tip, corners}, msg) {
+  const [b, c] = corners;
+  const cross = (p, q, r) =>
+    (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+  const s1 = cross(tip, b, stroke),
+    s2 = cross(b, c, stroke),
+    s3 = cross(c, tip, stroke);
+  assert.ok(
+    (s1 >= 0 && s2 >= 0 && s3 >= 0) || (s1 <= 0 && s2 <= 0 && s3 <= 0),
+    `${msg}: the stroke ends inside the head`,
+  );
+  const mid = [(b[0] + c[0]) / 2, (b[1] + c[1]) / 2];
+  const off =
+    Math.abs(
+      (mid[0] - tip[0]) * (tip[1] - stroke[1]) -
+        (tip[0] - stroke[0]) * (mid[1] - tip[1]),
+    ) / Math.hypot(mid[0] - tip[0], mid[1] - tip[1]);
+  assert.ok(off <= 0.5, `${msg}: ${off.toFixed(3)}px off the head's axis`);
+}
+
 const LINK = "geomap-link-NYC-LON-0";
 const POINT = "geomap-point-NYC";
 
@@ -239,14 +296,17 @@ for (const renderer of ["svg", "canvas"]) {
       const found = await page.evaluate(() => {
         const viz = window.__viz;
         let link = null;
+        let hit = null;
         const keys = [];
         const walk = n => {
           keys.push(String(n.key));
           if (n.key === "geomap-link-SYD-LAX-0") link = n;
+          // The hit path covers the whole link; the stroke stops in its head.
+          if (n.key === "geomap-link-SYD-LAX-0::hit") hit = n;
           (n.children || []).forEach(walk);
         };
         walk(viz._paintedScene.root);
-        const n = link.d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi).map(Number);
+        const n = hit.d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi).map(Number);
         const points = [];
         for (let k = 0; k + 1 < n.length; k += 2) points.push([n[k], n[k + 1]]);
         const {left, right, top, bottom} = viz._margin;
@@ -278,6 +338,63 @@ for (const renderer of ["svg", "canvas"]) {
         found.keys.includes("geomap-link-SYD-LAX-0-label-group"),
         "and its label",
       );
+      assert.deepStrictEqual(errors, [], "no page errors");
+    } finally {
+      await close();
+    }
+  });
+
+  it(`Geomap ${renderer}: each link's stroke ends inside its arrowhead, on its axis`, async () => {
+    const {page, errors, close} = await openPage(box);
+    try {
+      const flat = {
+        data: [
+          {id: "SYD", name: "Sydney", point: [151.2, -33.9]},
+          {id: "LAX", name: "Los Angeles", point: [-118.2, 34]},
+          {id: "NYC", name: "New York", point: [-74, 40.7]},
+          {id: "LON", name: "London", point: [-0.13, 51.5]},
+        ],
+        links: [
+          {source: "NYC", target: "LON", passengers: 3200},
+          {source: "SYD", target: "LAX", passengers: 800},
+        ],
+        arrows: "both",
+        legend: false,
+        tiles: false,
+      };
+      await page.evaluate(draw, [JSON.stringify(flat), renderer]);
+      const keys = ["geomap-link-NYC-LON-0", "geomap-link-SYD-LAX-1"];
+      let ends = await page.evaluate(strokeEnds, keys);
+      for (const key of keys)
+        for (const end of ["s", "t"]) {
+          assert.ok(ends[key]?.[end], `${key} has a head at ${end}`);
+          assertInHead(ends[key][end], `Mercator ${key} ${end}`);
+        }
+
+      const globe = {
+        ...flat,
+        links: [
+          {source: "NYC", target: "LON", passengers: 3200},
+          {source: "LON", target: "SYD", passengers: 800},
+        ],
+        projection: "geoOrthographic",
+        projectionRotate: [40, -40],
+      };
+      await page.evaluate(draw, [JSON.stringify(globe), renderer]);
+      ends = await page.evaluate(strokeEnds, [
+        "geomap-link-NYC-LON-0",
+        "geomap-link-LON-SYD-1",
+      ]);
+      for (const end of ["s", "t"])
+        assertInHead(
+          ends["geomap-link-NYC-LON-0"][end],
+          `globe NYC-LON ${end}`,
+        );
+      assert.ok(
+        !ends["geomap-link-LON-SYD-1"].t,
+        "no head at Sydney, behind the globe",
+      );
+      assertInHead(ends["geomap-link-LON-SYD-1"].s, "globe LON-SYD s");
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {
       await close();

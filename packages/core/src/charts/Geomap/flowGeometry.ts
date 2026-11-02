@@ -18,19 +18,15 @@ export type Projector = (p: LonLat) => Point | null | undefined;
 /** d3-geo's path generator for the map's projection. */
 export type GeoPathFn = (object: GeoPermissibleObjects) => string | null;
 
-/** A link's drawn path and the polylines its arrowheads and label follow. */
+/** A link's drawn path and the polyline its label follows. */
 export interface FlowArc {
-  /** The path's `d`. */
+  /** The path's `d`, from source to target (see `pathRuns` for its runs). */
   d: string;
   /**
       The path as projected points, from source to target, or null when the
-      projection cuts the path (at the antimeridian, or past its clip edge).
+      projection cuts the path (past a globe's horizon, or a clip edge).
   */
   points: Point[] | null;
-  /** The drawn run of the path leaving its source, or null when the source is hidden. */
-  sourceRun: Point[] | null;
-  /** The drawn run of the path reaching its target, or null when the target is hidden. */
-  targetRun: Point[] | null;
 }
 
 /** Whether `v` is a `[longitude, latitude]` pair of finite numbers. */
@@ -181,12 +177,7 @@ export function screenArc(pa: Point, pb: Point, curve = 0): FlowArc {
     return [pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t];
   });
   const drawn = liftPolyline(line, curve);
-  return {
-    d: polylinePath(drawn),
-    points: drawn,
-    sourceRun: drawn,
-    targetRun: drawn,
-  };
+  return {d: polylinePath(drawn), points: drawn};
 }
 
 /**
@@ -217,39 +208,18 @@ export function flowArc(
   const shown = (p: LonLat) => coordinateVisible(path, p);
   const onScreen = () =>
     flat && pa && pb && shown(a) && shown(b) ? screenArc(pa, pb, curve) : null;
-  const chord = pa && pb ? Math.hypot(pb[0] - pa[0], pb[1] - pa[1]) : 0;
+  if (!pa || !pb || !unbrokenPath(straight, pa, pb))
+    return onScreen() ?? {d: straight, points: null};
+  const chord = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]);
   const count = Math.min(128, Math.max(16, Math.ceil(chord / 4)));
-  const samples = greatCircle(a, b, count);
-  if (!pa || !pb || !unbrokenPath(straight, pa, pb)) {
-    const fallback = onScreen();
-    if (fallback) return fallback;
-    // Keep the runs the projection draws, for the arrowheads at the ends.
-    const runs = splitRuns(
-      samples.map(p => (shown(p) ? finitePoint(projection(p)) : null)),
-    );
-    return {d: straight, points: null, ...runs};
-  }
   const points: Point[] = [];
-  for (const p of samples) {
+  for (const p of greatCircle(a, b, count)) {
     const q = finitePoint(projection(p));
-    if (!q)
-      return (
-        onScreen() ?? {
-          d: straight,
-          points: null,
-          sourceRun: null,
-          targetRun: null,
-        }
-      );
+    if (!q) return onScreen() ?? {d: straight, points: null};
     points.push(q);
   }
   const drawn = curve ? liftPolyline(points, curve) : points;
-  return {
-    d: curve ? polylinePath(drawn) : straight,
-    points: drawn,
-    sourceRun: drawn,
-    targetRun: drawn,
-  };
+  return {d: curve ? polylinePath(drawn) : straight, points: drawn};
 }
 
 /** A projected point as a pair of finite numbers, or null. */
@@ -260,48 +230,57 @@ function finitePoint(q: Point | null | undefined): Point | null {
 }
 
 /**
-    Splits a projected polyline into the runs drawn unbroken: it breaks at
-    each missing point and at each jump far longer than the polyline's
-    typical step (where the projection wraps it across the map). Returns the
-    run leaving the first point and the run reaching the last, each null
-    when that point is missing or its run is a single point.
+    The runs of a path's `d` made of moves and lines (as d3-geo draws a
+    line, and `polylinePath` writes one): one polyline per `M`.
 */
-export function splitRuns(points: (Point | null)[]): {
-  sourceRun: Point[] | null;
-  targetRun: Point[] | null;
-} {
-  const steps: number[] = [];
-  for (let k = 1; k < points.length; k++) {
-    const p = points[k - 1];
-    const q = points[k];
-    if (p && q) steps.push(Math.hypot(q[0] - p[0], q[1] - p[1]));
+export function pathRuns(d: string): Point[][] {
+  const runs: Point[][] = [];
+  for (const [, command, args] of d.matchAll(/([ML])([^ML]*)/gi)) {
+    const n = (args.match(/-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi) ?? []).map(
+      Number,
+    );
+    if (command.toUpperCase() === "M" || !runs.length) runs.push([]);
+    const run = runs[runs.length - 1];
+    for (let k = 0; k + 1 < n.length; k += 2) run.push([n[k], n[k + 1]]);
   }
-  const sorted = [...steps].sort((x, y) => x - y);
-  const typical = sorted[Math.floor(sorted.length / 2)] ?? 0;
-  const jump = Math.max(50, typical * 10);
-  const runs: {start: number; points: Point[]}[] = [];
-  let run: {start: number; points: Point[]} | null = null;
-  points.forEach((p, k) => {
-    const prev = run?.points[run.points.length - 1];
-    if (!p || (prev && Math.hypot(p[0] - prev[0], p[1] - prev[1]) > jump)) {
-      if (run) runs.push(run);
-      run = p ? {start: k, points: [p]} : null;
-      return;
-    }
-    if (!run) run = {start: k, points: []};
-    run.points.push(p);
-  });
-  if (run) runs.push(run);
-  const first = runs[0];
-  const last = runs[runs.length - 1];
-  const ok = (r: {points: Point[]} | undefined) => !!r && r.points.length > 1;
-  return {
-    sourceRun: ok(first) && first.start === 0 ? first.points : null,
-    targetRun:
-      ok(last) && last.start + last.points.length === points.length
-        ? last.points
-        : null,
-  };
+  return runs.filter(run => run.length > 1);
+}
+
+/**
+    A polyline shortened along its length by `start` pixels at its first
+    end and `end` at its last. When the cuts meet, it collapses to the
+    point where they do.
+*/
+export function trimPolyline(
+  points: Point[],
+  start: number,
+  end: number,
+): Point[] {
+  const length = polylineLength(points);
+  const s = Math.max(0, start);
+  const e = Math.max(0, end);
+  if (!s && !e) return points.slice();
+  if (s + e >= length) {
+    const at = polylineAt(points, (length * s) / (s + e || 1));
+    return [
+      [at.x, at.y],
+      [at.x, at.y],
+    ];
+  }
+  const out: Point[] = [];
+  let walked = 0;
+  const first = polylineAt(points, s);
+  const last = polylineAt(points, length - e);
+  out.push([first.x, first.y]);
+  for (let k = 1; k < points.length - 1; k++) {
+    walked += Math.hypot(
+      points[k][0] - points[k - 1][0],
+      points[k][1] - points[k - 1][1],
+    );
+    if (walked > s && walked < length - e) out.push(points[k]);
+  }
+  out.push([last.x, last.y]);
+  return out;
 }
 
 /** A polyline's length. */
@@ -343,22 +322,6 @@ export function polylineMidpoint(points: Point[]): LinkAnchor {
   return polylineAt(points, polylineLength(points) / 2);
 }
 
-/**
-    Where an arrowhead at one end of a polyline goes: `inset` back from that
-    end (to clear the mark there), pointing into the end.
-*/
-export function polylineEndTip(
-  points: Point[],
-  end: "source" | "target",
-  inset = 0,
-): LinkAnchor {
-  const length = polylineLength(points);
-  const room = Math.min(Math.max(0, inset), length / 2);
-  if (end === "target") return polylineAt(points, length - room);
-  const at = polylineAt(points, room);
-  return {...at, angle: at.angle + Math.PI};
-}
-
 /** The box around a polyline, as `[[x0, y0], [x1, y1]]`. */
 export function polylineBox(points: Point[]): [Point, Point] {
   const xs = points.map(p => p[0]);
@@ -367,17 +330,6 @@ export function polylineBox(points: Point[]): [Point, Point] {
     [Math.min(...xs), Math.min(...ys)],
     [Math.max(...xs), Math.max(...ys)],
   ];
-}
-
-/**
-    The default arrowhead size for a link `width` pixels wide: three times
-    the width (at least 6), held to 12 pixels so wide links don't carry
-    oversized heads, but never under 1.5 times the width, so the head's base
-    (1.2 times its size) stays wider than the line it ends.
-*/
-export function flowArrowSize(width: number): number {
-  const w = Number.isFinite(width) && width > 0 ? width : 1;
-  return Math.max(6, Math.min(w * 3, Math.max(12, w * 1.5)));
 }
 
 /**

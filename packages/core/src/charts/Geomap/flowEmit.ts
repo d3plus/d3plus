@@ -1,7 +1,7 @@
 /**
-    Geomap's links as scene nodes: each link's path, a wider transparent hit
-    path over it so thin links are easy to point at, its arrowheads, and its
-    label. The links sit above the topojson shapes and below the coordinate
+    Geomap's links as scene nodes: each link's path (ending inside its
+    arrowheads), a wider transparent hit path over the whole path so thin
+    links are easy to point at, its arrowheads, and its label. The links sit above the topojson shapes and below the coordinate
     points, so a link runs into the point at its end and the points stay on
     top to hover.
 */
@@ -11,7 +11,14 @@ import type {Paint, SceneNode} from "@d3plus/render";
 
 import {interpolateRgb} from "d3-interpolate";
 
-import {arrowEnds, arrowNode, arrowSizeFor} from "../features/edgeArrows.js";
+import {
+  arrowAlongChord,
+  chordArrowNodes,
+  chordEndsPathD,
+  pathPointBack,
+} from "../features/curvedArrows.js";
+import type {ArrowedEnd} from "../features/curvedArrows.js";
+import {edgeArrowTrims} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {linkColorResolver} from "../features/linkColor.js";
 import {linkAriaLabel, linkHitPath} from "../features/linkInteraction.js";
@@ -20,10 +27,12 @@ import type {LabelCircle} from "../features/circleLabelPlacement.js";
 import {backgroundInk, chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
-  flowArrowSize,
-  polylineEndTip,
+  pathRuns,
   polylineMidpoint,
+  polylinePath,
+  trimPolyline,
 } from "./flowGeometry.js";
+import type {Point} from "./flowGeometry.js";
 import type {FlowLink} from "./flowLinks.js";
 
 /** A link's scene key. */
@@ -55,41 +64,73 @@ function flowLinkPaint(
   };
 }
 
-/** Arrowheads at a link's selected ends, each pointing into its end's mark. */
-function flowArrows(
+/** Whether the run starts (within a pixel) at `at`. */
+const startsAt = (run: Point[] | undefined, at: Point | null): boolean =>
+  !!run && !!at && Math.hypot(run[0][0] - at[0], run[0][1] - at[1]) <= 1;
+
+/**
+    A link's visible stroke and its arrowheads. Each head's tip sits on the
+    path, clear of the point at its end, and is aimed along the chord from
+    its base (`size` further back along the path) to its tip; the stroke
+    follows the path to each base, then runs straight along that chord to
+    end inside the head (see `arrowTrim`). A head goes only on an end the
+    projection draws.
+*/
+export function flowArrowEdge(
   viz: VizInstance,
   link: FlowLink,
   fill: string | undefined,
-): SceneNode[] {
-  const datum = link.datum;
-  const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, link.index);
-  if (!ends.source && !ends.target) return [];
-  // An explicit `arrowSize` wins; the default is held down on wide links.
-  const size = arrowSizeFor(
-    viz.schema.arrowSize ?? flowArrowSize(link.size),
-    datum,
-    link.index,
-    link.size,
-  );
-  const out: SceneNode[] = [];
-  for (const end of ["target", "source"] as const) {
-    const run = end === "target" ? link.targetRun : link.sourceRun;
-    if (!ends[end] || !run) continue;
-    const r = link[end].r;
-    const tip = polylineEndTip(run, end, r ? r + 1 : 0);
-    out.push(
-      arrowNode({
-        key: `${flowLinkKey(link)}-arrow-${end === "target" ? "t" : "s"}`,
-        datum,
-        x: tip.x,
-        y: tip.y,
-        angle: tip.angle,
-        size,
-        fill,
-      }),
+): {d: string; arrows: SceneNode[]} {
+  const trims = edgeArrowTrims({
+    arrows: viz.schema.arrows as ArrowValue,
+    arrowSize: viz.schema.arrowSize,
+    strokeWidth: link.size,
+    datum: link.datum,
+    i: link.index,
+  });
+  if (!trims.ends.source && !trims.ends.target) return {d: link.d, arrows: []};
+  const runs = pathRuns(link.d);
+  const first = runs[0];
+  const last = runs[runs.length - 1];
+  const lastReversed = last ? [...last].reverse() : undefined;
+  const inset = (r: number) => (r ? r + 1 : 0);
+  const head = (run: Point[], back: number, trim: number): ArrowedEnd =>
+    arrowAlongChord(
+      pathPointBack(run, back),
+      pathPointBack(run, back + trims.size),
+      trim,
     );
-  }
-  return out;
+  // The first run leaves the source and the last reaches the target, when
+  // the projection draws them.
+  const sourceRun =
+    trims.ends.source && startsAt(first, link.sourceAt) ? first : undefined;
+  const targetRun =
+    trims.ends.target && startsAt(lastReversed, link.targetAt)
+      ? last
+      : undefined;
+  const backS = inset(link.source.r);
+  const backT = inset(link.target.r);
+  const source = sourceRun
+    ? head([...sourceRun].reverse(), backS, trims.source)
+    : undefined;
+  const target = targetRun ? head(targetRun, backT, trims.target) : undefined;
+  const body = runs.map((run, k) =>
+    trimPolyline(
+      run,
+      k === 0 && source ? backS + trims.size : 0,
+      k === runs.length - 1 && target ? backT + trims.size : 0,
+    ),
+  );
+  return {
+    d: chordEndsPathD(body.map(polylinePath).join(""), source, target),
+    arrows: chordArrowNodes({
+      ends: {source, target},
+      size: trims.size,
+      datum: link.datum,
+      keyPrefix: `${flowLinkKey(link)}-arrow`,
+      fill,
+    }),
+  };
 }
 
 /** The links, their hit paths, and their arrowheads, in that order. */
@@ -108,23 +149,24 @@ export function emitFlowLinks(
   for (const link of order) {
     const paint = flowLinkPaint(viz, link, color, gray);
     const key = flowLinkKey(link);
+    const edge = flowArrowEdge(
+      viz,
+      link,
+      typeof paint.stroke === "string" ? paint.stroke : undefined,
+    );
+    // A stroke ending inside its head ends square, so no cap pokes past it.
+    if (edge.arrows.length) paint.strokeLinecap = "butt";
     paths.push({
       type: "path",
       key,
-      d: link.d,
+      d: edge.d,
       datum: link.datum as DataPoint,
       index: link.index,
       paint,
       aria: {label: linkAriaLabel(viz, link.datum)},
     } as SceneNode);
     hits.push(linkHitPath(key, link.d, link.datum, link.size) as SceneNode);
-    arrows.push(
-      ...flowArrows(
-        viz,
-        link,
-        typeof paint.stroke === "string" ? paint.stroke : undefined,
-      ),
-    );
+    arrows.push(...edge.arrows);
   }
   return [...paths, ...hits, ...arrows];
 }

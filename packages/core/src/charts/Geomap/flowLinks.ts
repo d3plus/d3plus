@@ -25,6 +25,7 @@ import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   clipsToCircle,
+  coordinateVisible,
   featureAnchor,
   flowArc,
   isLonLat,
@@ -54,10 +55,10 @@ export interface FlowLink {
   d: string;
   /** The path as projected points, or null where the projection cuts it. */
   points: Point[] | null;
-  /** The drawn run leaving the source, or null when the source is hidden. */
-  sourceRun: Point[] | null;
-  /** The drawn run reaching the target, or null when the target is hidden. */
-  targetRun: Point[] | null;
+  /** Where the source is drawn, or null when the projection hides it. */
+  sourceAt: Point | null;
+  /** Where the target is drawn, or null when the projection hides it. */
+  targetAt: Point | null;
   /** The box around the drawn path. */
   box: [Point, Point];
 }
@@ -256,6 +257,10 @@ export function geomapFlowLinks(
   const resolve = flowEndResolver(v, input);
   const projection = v.schema.projection as Projector;
   // On a globe a bowed arc would leave the disc, so links follow the sphere.
+  const drawnAt = (coord: LonLat): Point | null => {
+    const p = coordinateVisible(input.path, coord) ? projection(coord) : null;
+    return p && Number.isFinite(p[0]) && Number.isFinite(p[1]) ? p : null;
+  };
   const curve = clipsToCircle(projection) ? 0 : Number(v.schema.linkCurve) || 0;
   const drawn: (Omit<FlowLink, "size" | "box"> & {box: FlowLink["box"]})[] = [];
   raw.forEach((row, index) => {
@@ -277,6 +282,8 @@ export function geomapFlowLinks(
       source,
       target,
       ...arc,
+      sourceAt: drawnAt(source.coord),
+      targetAt: drawnAt(target.coord),
       box: arc.points ? polylineBox(arc.points) : pathBox(arc.d),
     });
   });
