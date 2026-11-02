@@ -22,7 +22,7 @@
 */
 
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
-import type {ZoomGesture} from "../drawSteps/zoomGesture.js";
+import type {GestureHoverState, ZoomGesture} from "../drawSteps/zoomGesture.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
@@ -256,6 +256,8 @@ export interface VizInstance {
   _zoomRescale?: (t: ZoomState, duration?: number) => boolean;
   /** Chart-specific handling of zoom gestures (Geomap turns a globe on a drag). */
   _zoomGesture?: ZoomGesture;
+  /** The zoom gesture holding off tooltips and hover, while one is in progress. */
+  _gestureHover?: GestureHoverState;
   /** Whether a globe drag is turning the map (Geomap skips refitting meanwhile). */
   _globeDragging?: boolean;
   /** The rotation a Geomap globe had before it was first dragged, with its projection. */
