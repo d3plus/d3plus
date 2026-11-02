@@ -21,6 +21,7 @@ import {
 } from "./zoomControlsMarkup.js";
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 import {startsOnBrush} from "./zoomGesture.js";
+import type {ZoomGestureEvent} from "./zoomGesture.js";
 import {forgetTransform, recordTransform, showsTransform} from "./zoomShown.js";
 import {effectiveDuration, motionReduced} from "../viz/reducedMotion.js";
 
@@ -141,10 +142,14 @@ export const zoomFeature: FeatureModule = {
       .extent(area)
       .scaleExtent([1, zoomMax(viz, width, height)])
       .translateExtent(area)
-      .on("zoom", (event: {transform: unknown}) => {
+      .on("start", (event: ZoomGestureEvent) => viz._zoomGesture?.start(event))
+      .on("zoom", (event: ZoomGestureEvent) => {
+        // A chart can take the gesture itself (a Geomap globe rotates).
+        if (viz._zoomGesture?.zoom(event)) return;
         if (!showsTransform(viz, event.transform))
           zoomed.bind(viz)(event.transform);
-      });
+      })
+      .on("end", (event: ZoomGestureEvent) => viz._zoomGesture?.end(event));
 
     viz._zoomToBounds = zoomToBounds.bind(viz);
 
@@ -486,7 +491,10 @@ function zoomMath(this: Viz, factor: number = 0): void {
     cy = (y0 + y1) / 2,
     t = zoomTransform((this._zoomEventTarget || this._container).node());
 
-  if (!factor) return zoomTo(this, 1, 0, 0);
+  if (!factor) {
+    this._zoomGesture?.reset();
+    return zoomTo(this, 1, 0, 0);
+  }
   // Scale about the chart area's center: keep the content point currently at
   // the center fixed on screen.
   const k = t.k * factor;

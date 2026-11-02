@@ -4,6 +4,8 @@
     @module
 */
 
+import type {ZoomTransform} from "d3-zoom";
+
 /** The groups inside the zoom surface that hold a d3-brush: the timeline's and the zoom brush. */
 export const BRUSH_GROUPS = "g.d3plus-viz-timeline, g.d3plus-zoom-brush";
 
@@ -23,4 +25,27 @@ export function startsOnBrush(event: Pick<Event, "target">): boolean {
     typeof target.closest === "function" &&
     target.closest(BRUSH_GROUPS),
   );
+}
+
+/** A d3-zoom gesture event, as `ZoomGesture` reads it. */
+export interface ZoomGestureEvent {
+  /** The zoom transform the event carries. */
+  transform: ZoomTransform;
+  /** The pointer or wheel event behind it, or null for a programmatic zoom. */
+  sourceEvent: Event | null;
+}
+
+/**
+    A chart's own handling of the zoom behavior's gestures, consulted before
+    the zoom transform changes (Geomap turns a globe on a drag).
+*/
+export interface ZoomGesture {
+  /** A gesture begins. */
+  start(event: ZoomGestureEvent): void;
+  /** A gesture moves; true when the chart handled it, so the zoom transform is left alone. */
+  zoom(event: ZoomGestureEvent): boolean;
+  /** A gesture ends. */
+  end(event: ZoomGestureEvent): void;
+  /** The zoom controls' reset was pressed, just before the zoom resets. */
+  reset(): void;
 }

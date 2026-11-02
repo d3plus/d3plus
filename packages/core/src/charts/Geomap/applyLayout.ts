@@ -17,7 +17,8 @@ import type {TransformStage, VizContext} from "../pipeline/stages.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import {flowLinkCoordinates, geomapFlowLinks} from "./flowLinks.js";
 import type {FlowLayoutInput} from "./flowLinks.js";
-import {coordinateVisible, toLonLat} from "./flowGeometry.js";
+import {clipsToCircle, coordinateVisible, toLonLat} from "./flowGeometry.js";
+import {globeHome} from "./globeRotate.js";
 import type {GeoPathFn, LonLat} from "./flowGeometry.js";
 
 type GeomapViz = VizContext["viz"];
@@ -265,6 +266,37 @@ function fitExtentBounds(
   }
 }
 
+/**
+    Fits the projection to `ctx.extentBounds` (or the whole sphere)
+    within the chart area, less its padding. A globe the user has turned is
+    fitted at its home rotation (see `globeHome`) and turned back, so its
+    scale doesn't change with the side it shows.
+*/
+function fitProjection(
+  v: GeomapViz,
+  ctx: GeomapCtx,
+  width: number,
+  height: number,
+): void {
+  const effectivePadding = ctx.effectivePadding || v.schema.projectionPadding;
+  const home = clipsToCircle(v.schema.projection) ? globeHome(v) : undefined;
+  const live = home ? v.schema.projection.rotate() : undefined;
+  if (home) v.schema.projection.rotate(home);
+  v.schema.projection = v.schema.projection.fitExtent(
+    ctx.extentBounds.features.length
+      ? [
+          [effectivePadding.left, effectivePadding.top],
+          [width - effectivePadding.right, height - effectivePadding.bottom],
+        ]
+      : [
+          [0, 0],
+          [width, height],
+        ],
+    ctx.extentBounds.features.length ? ctx.extentBounds : {type: "Sphere"},
+  );
+  if (live) v.schema.projection.rotate(live);
+}
+
 export const applyGeomapLayout: TransformStage = ({viz}) => {
   const v = viz;
   const ctx = viz.ctx as unknown as GeomapCtx;
@@ -318,20 +350,8 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   if (!v._zoomSet || !ctx.extentBounds)
     fitExtentBounds(v, ctx, coordData, path, pointData, r);
 
-  const effectivePadding = ctx.effectivePadding || v.schema.projectionPadding;
-
-  v.schema.projection = v.schema.projection.fitExtent(
-    ctx.extentBounds.features.length
-      ? [
-          [effectivePadding.left, effectivePadding.top],
-          [width - effectivePadding.right, height - effectivePadding.bottom],
-        ]
-      : [
-          [0, 0],
-          [width, height],
-        ],
-    ctx.extentBounds.features.length ? ctx.extentBounds : {type: "Sphere"},
-  );
+  // A globe being dragged keeps the scale it was fitted at.
+  if (!v._globeDragging) fitProjection(v, ctx, width, height);
 
   ctx.geomapWidth = width;
   ctx.geomapHeight = height;

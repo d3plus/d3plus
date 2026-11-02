@@ -8,6 +8,7 @@ import ApiReference from "~/components/ApiReference.astro";
 import choroplethMap from "~/examples/core/charts/geomap/choropleth-map.js?raw";
 import coordinatePointMap from "~/examples/core/charts/geomap/coordinate-point-map.js?raw";
 import flowMap from "~/examples/core/charts/geomap/flow-map.js?raw";
+import globe from "~/examples/core/charts/geomap/globe.js?raw";
 import changingProjection from "~/examples/core/charts/geomap/changing-projection.js?raw";
 import onlyAreasWithData from "~/examples/core/charts/geomap/only-areas-with-data.js?raw";
 import changingTileset from "~/examples/core/charts/geomap/changing-tileset.js?raw";
@@ -43,6 +44,12 @@ Rather than shading regions, this drops a marker per datum: `point` returns each
 `links` draws a line between two places for each row, along the great circle between them, so it follows the map's projection. Each link's `source` and `target` is a `[longitude, latitude]` pair or an id: a row with a coordinate `point` links from that point, and any other id (such as a topojson feature's) from the centroid of its shape. `linkSize` sets each link's width, scaled between `linkSizeMin` and `linkSizeMax`; `linkCurve` bows each link into an arc, to the left of its direction, so the flows each way between New York and London stay apart; and `arrows` points each one at its target. Links color by `linkColor` (here the color of the point they leave), take `linkLabel` text, and show a "Source → Target" tooltip. They sit above the shapes and below the points, and pan and zoom with the map.
 
 <Playground chart="Geomap" code={flowMap} controls={["linkCurve","linkSize","linkSizeMax","linkColor","arrows","linkLabel","projection"]} />
+
+## Globe
+
+A projection that clips to a circle, such as `"geoOrthographic"`, draws a globe. Dragging it turns the globe under the pointer, keeping the place you grabbed beneath it, while the wheel, a pinch, and the zoom buttons zoom; the reset button turns it back to `projectionRotate`. Points on the far side are hidden, and links follow the shortest great circle, without `linkCurve`'s lift, so they stay on the sphere.
+
+<Playground chart="Geomap" code={globe} controls={["projectionRotate","renderer"]} />
 
 ## Changing projection
 

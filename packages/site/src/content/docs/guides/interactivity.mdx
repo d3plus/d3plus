@@ -287,6 +287,13 @@ the chart area, so the legend, title, and timeline stay put.
 Clicking a node in a Network or ArcDiagram focuses it and its neighbors and
 zooms to them; clicking it again, or the empty background, clears the focus.
 
+On a Geomap globe (a projection that clips to a circle, such as
+`"geoOrthographic"`), dragging turns the globe instead of panning it, keeping
+the place under the pointer as it goes; the wheel, a pinch, and the zoom
+buttons still zoom, and reset turns it back to `projectionRotate`. A drag
+never counts as a click, so one that ends on a link or a point doesn't
+focus it. See the [Geomap globe example](/core/charts/geomap/#globe).
+
 The control buttons are real `<button>`s: the brush toggle carries
 `aria-pressed` and an `.active` class while on, and by default paints the OS
 accent color. Set `zoomControlClassName` to style them with your own CSS.

@@ -5,7 +5,7 @@
     <title>Flow Map · Geomap</title>
     <meta
       name="description"
-      content="Curved great-circle links between cities and a country, sized by passengers, with arrowheads."
+      content="Curved great-circle links between cities and a country, sized by passengers, with arrowheads; the globe option turns on a drag."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -41,7 +41,9 @@
         <select id="projection">
           <option value="geoMercator" selected>geoMercator</option>
           <option value="geoEqualEarth">geoEqualEarth</option>
-          <option value="geoOrthographic">geoOrthographic</option>
+          <option value="geoOrthographic">
+            geoOrthographic (drag to rotate)
+          </option>
         </select>
       </label>
       <label><input id="labels" type="checkbox" /> linkLabel</label>
@@ -82,7 +84,7 @@
       {source: "SYD", target: "LAX", passengers: 800},
       {source: "PAR", target: "TYO", passengers: 600},
       // A topojson shape's id: the link ends at Brazil's centroid.
-      {source: "NYC", target: "bra", passengers: 1100},
+      {source: "NYC", target: "076", passengers: 1100},
       // A bare [longitude, latitude] coordinate.
       {source: "JNB", target: [-58.38, -34.6], passengers: 300},
     ];
@@ -90,27 +92,33 @@
     const chart = new d3plus.Geomap().select("#viz").config({
       data: cities,
       color: "region",
-      label: d => d.name,
+      label: d => d.name || d.id,
       point: d => d.point,
       links,
       linkSize: d => d.passengers,
       linkColor: "source",
       arrows: "target",
-      topojson: "./countries.json",
-      topojsonKey: "countries",
-      topojsonFilter: d => d.id !== "ata",
+      topojson: "./countries-110m.json",
+      topojsonFilter: d => d.id !== "010",
       tiles: false,
     });
     chart.render();
 
     const value = id => document.getElementById(id).value;
+    let shown = "geoMercator";
     document.getElementById("controls").addEventListener("change", () => {
       const arrows = value("arrows");
+      // A new projection resets a dragged globe, so only set it when it changes.
+      const projection = value("projection");
+      if (projection !== shown) {
+        shown = projection;
+        chart.projection(projection);
+        if (projection === "geoOrthographic") chart.projectionRotate([40, -30]);
+      }
       chart
         .config({
           linkCurve: +value("curve"),
           arrows: arrows === "false" ? false : arrows,
-          projection: value("projection"),
           linkLabel: document.getElementById("labels").checked
             ? "passengers"
             : false,

@@ -1945,3 +1945,24 @@ export {
   setupGeomapLinks,
 } from "./src/charts/Geomap/flowEvents.js";
 export {geomapLinkFields} from "./src/charts/Geomap/flowFields.js";
+export {
+  cartesian,
+  dragRotation,
+  globeHome,
+  globeRotates,
+  installGlobeRotation,
+  surfaceToMap,
+  versor,
+  versorDelta,
+  versorMultiply,
+  versorRotation,
+} from "./src/charts/Geomap/globeRotate.js";
+export type {
+  RotatingProjection,
+  Rotation,
+  Versor,
+} from "./src/charts/Geomap/globeRotate.js";
+export type {
+  ZoomGesture,
+  ZoomGestureEvent,
+} from "./src/charts/drawSteps/zoomGesture.js";
