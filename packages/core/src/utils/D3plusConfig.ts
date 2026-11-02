@@ -1092,7 +1092,22 @@ export interface D3plusConfig {
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
   /**
-      When `data` is loaded from a URL (or a request object, or an Array holding one), re-fetches it every this many milliseconds and redraws with a transition when it changes, keeping hover, zoom, legend toggles, and the timeline selection. Each poll uses the same request and `data` formatter as the first load, and a response identical to the drawn data is not redrawn. Polling waits while the browser tab is hidden or, with `detectVisible`, while the chart is scrolled out of view, and catches up as soon as it is visible again. A failed request keeps the last data, logs one warning per run of failures, and tries again on the next tick. `destroy()`, setting this to `false`, or passing new `data` stops polling. Only `data` is polled, not `links`, `nodes`, or `topojson`. Defaults to `false` (load once).
+      Transforms `data` before it is drawn. The function receives the loaded
+      file (or the parsed JSON response, or an Array of them when `data` lists
+      several URLs), or the Array passed as `data`, and returns the rows to
+      draw. It may instead return a config object holding the rows as its
+      `data` key, and the rest of that object is applied to the chart, so a
+      response can set options such as `title` from what it contains.
+
+      It runs when the chart renders, whichever order `data` and `dataFormat`
+      are set in, and setting it again re-runs it on the next render (a URL is
+      fetched again). Every `dataPollingInterval` poll runs it too. Passing a
+      formatter as the second argument of `data(url, format)` sets it, and
+      setting `data` alone keeps it.
+  */
+  dataFormat?: (data: DataPoint[]) => DataPoint[] | Record<string, unknown>;
+  /**
+      When `data` is loaded from a URL (or a request object, or an Array holding one), re-fetches it every this many milliseconds and redraws with a transition when it changes, keeping hover, zoom, legend toggles, and the timeline selection. Each poll uses the same request and `dataFormat` as the first load, and a response identical to the drawn data is not redrawn. Polling waits while the browser tab is hidden or, with `detectVisible`, while the chart is scrolled out of view, and catches up as soon as it is visible again. A failed request keeps the last data, logs one warning per run of failures, and tries again on the next tick. `destroy()`, setting this to `false`, or passing new `data` stops polling. Only `data` is polled, not `links`, `nodes`, or `topojson`. Defaults to `false` (load once).
   */
   dataPollingInterval?: number | false;
   /**
@@ -1642,6 +1657,17 @@ export interface D3plusConfig {
         i: number,
       ) => number);
   /**
+      Network, Rings, Sankey, Chord, ArcDiagram, and Geomap: transforms
+      `links`
+      before they are drawn. The function receives the loaded file (or the
+      Array passed as `links`) and returns the links Array. It runs when the
+      chart renders, whichever order `links` and `linksFormat` are set in,
+      and setting it again re-runs it on the next render. Passing a formatter
+      as the second argument of `links(url, format)` sets it, and setting
+      `links` alone keeps it.
+  */
+  linksFormat?: (data: DataPoint[]) => DataPoint[];
+  /**
       Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
   */
   loadingMessage?: boolean;
@@ -1729,6 +1755,16 @@ export interface D3plusConfig {
     | "group"
     | "degree"
     | ((a: DataPoint, b: DataPoint) => number);
+  /**
+      Network, Rings, Sankey, Chord, and ArcDiagram: transforms `nodes`
+      before they are drawn. The function receives the loaded file (or the
+      Array passed as `nodes`) and returns the nodes Array. It runs when the
+      chart renders, whichever order `nodes` and `nodesFormat` are set in,
+      and setting it again re-runs it on the next render. Passing a formatter
+      as the second argument of `nodes(url, format)` sets it, and setting
+      `nodes` alone keeps it.
+  */
+  nodesFormat?: (data: DataPoint[]) => DataPoint[];
   /**
       Network, Rings, Sankey, ArcDiagram, and Geomap: how many links a node's tooltip
       lists below its number of connections, strongest first, each as the
@@ -2257,6 +2293,15 @@ export interface D3plusConfig {
   trendLineConfig?: TrendLineConfig;
   /** Path or object for the topojson data. */
   topojson?: string | object;
+  /**
+      Geomap: transforms `topojson` before it is drawn. The function receives
+      the loaded file (or the object passed as `topojson`) and returns the
+      topojson to draw. It runs when the chart renders, whichever order
+      `topojson` and `topojsonFormat` are set in, and setting it again re-runs
+      it on the next render. Passing a formatter as the second argument of
+      `topojson(url, format)` sets it, and setting `topojson` alone keeps it.
+  */
+  topojsonFormat?: (data: Record<string, unknown>) => object;
   /** Geomap: the fill of shapes without data (or without a `colorScale` value). Defaults to the theme's `colorScale.missing` when it sets one, else a quiet gray that suits the basemap. */
   topojsonFill?: CssColor;
   /** Accessor function for topojson feature IDs. */

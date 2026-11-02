@@ -228,38 +228,6 @@ describe("Renderer", function () {
     assert.ok(renderCount >= 1, "renders at least once with forceUpdate");
   });
 
-  it("handles dataFormat config by calling data() method", async function () {
-    let dataCalled = false;
-    let dataFormatValue = null;
-    class DataViz {
-      config() {
-        return this;
-      }
-      render() {
-        return this;
-      }
-      data(d, fmt) {
-        dataCalled = true;
-        dataFormatValue = fmt;
-      }
-    }
-    const formatter = d => d;
-    await act(async () => {
-      root.render(
-        React.createElement(Renderer, {
-          constructor: DataViz,
-          config: {data: [1, 2, 3], dataFormat: formatter},
-        }),
-      );
-    });
-    assert.ok(dataCalled, "data() was called when dataFormat is present");
-    assert.strictEqual(
-      dataFormatValue,
-      formatter,
-      "dataFormat was passed to data()",
-    );
-  });
-
   it("handles config with function values", async function () {
     let configReceived = null;
     class ConfigViz {
@@ -444,9 +412,9 @@ describe("Renderer", function () {
     );
   });
 
-  it("strips data/dataFormat from the config() payload (they are routed to data())", async function () {
+  it("passes data + dataFormat through config()", async function () {
     let configReceived = null,
-      dataArgs = null;
+      dataCalled = false;
     class DataViz {
       config(c) {
         configReceived = c;
@@ -455,8 +423,8 @@ describe("Renderer", function () {
       render() {
         return this;
       }
-      data(d, fmt) {
-        dataArgs = [d, fmt];
+      data() {
+        dataCalled = true;
       }
     }
     const fmt = d => d;
@@ -468,17 +436,9 @@ describe("Renderer", function () {
         }),
       );
     });
-    assert.deepStrictEqual(
-      dataArgs,
-      [[1, 2], fmt],
-      "data() receives the data array + formatter",
-    );
-    assert.ok(
-      configReceived &&
-        !("data" in configReceived) &&
-        !("dataFormat" in configReceived),
-      "data/dataFormat are removed from the config() payload",
-    );
+    assert.strictEqual(dataCalled, false, "data() is not called directly");
+    assert.deepStrictEqual(configReceived.data, [1, 2]);
+    assert.strictEqual(configReceived.dataFormat, fmt);
     assert.strictEqual(
       configReceived.other,
       "keep",

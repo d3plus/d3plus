@@ -21,6 +21,7 @@ import {makeChart} from "../definition/makeChart.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {ensureZoomDom} from "../features/ensureZoomDom.js";
 import {linkStyleFields} from "../features/linkFields.js";
+import {loaderFormatFields} from "../viz/loaderFormat.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {isPointShape} from "../viz/nearestHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
@@ -118,6 +119,7 @@ export const arcDiagramDef: ChartDefinition = {
     */
     {key: "arrowSize"},
     ...linkStyleFields(),
+    ...loaderFormatFields("links", "nodes"),
     {key: "links", default: []},
     /**
         The thickness of each arc: a pixel number used for every link, or an

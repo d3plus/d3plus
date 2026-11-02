@@ -43,7 +43,7 @@ export default function Renderer({
   // instance (and its scene renderer) PERSISTS across these updates, so the
   // chart tweens between states instead of starting over each time.
   // `applyConfig` (from @d3plus/dom) merges the global + local config onto the
-  // container's <svg> and routes the data/links/nodes/topojson loader fields.
+  // container's <svg> and applies it with `config()`.
   useEffect(
     () => {
       if (container.current) {

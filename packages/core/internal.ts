@@ -1621,6 +1621,22 @@ export type {
 } from "./src/charts/features/linkColor.js";
 export {linkStyleFields} from "./src/charts/features/linkFields.js";
 export {
+  FORMAT_KEYS,
+  formatPayload,
+  formatterFor,
+  isFormatKey,
+  loaderFormatFields,
+  queuedFormatter,
+  setLoaderValue,
+  storePayload,
+  syncLoaderFormats,
+} from "./src/charts/viz/loaderFormat.js";
+export type {
+  FormatKey,
+  LoadFormatter,
+  LoaderState,
+} from "./src/charts/viz/loaderFormat.js";
+export {
   cubicAngle,
   cubicMidpoint,
   cubicPoint,

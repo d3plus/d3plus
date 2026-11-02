@@ -6,7 +6,6 @@
     focus. Also installs `links`, which loads its rows like `topojson`.
 */
 
-import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import {
@@ -22,6 +21,7 @@ import {
   nodeHighlight,
 } from "../features/linkInteraction.js";
 import type {LinkDatum} from "../features/linkInteraction.js";
+import {setLoaderValue} from "../viz/loaderFormat.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {FlowLink} from "./flowLinks.js";
@@ -64,17 +64,14 @@ export function setupGeomapLinks(viz: VizInstance): void {
       id of a row in the data (or of a topojson feature): a row with a
       coordinate `point` links from that point, and any other id from the
       centroid of its topojson shape. Accepts an array of links, or a
-      URL/filepath to load them from, with an optional formatting function
-      as a second argument.
+      URL/filepath to load them from. `linksFormat` transforms them; a
+      function passed as a second argument sets it.
       @type {object[] | string}
   */
-  v.links = function (this: VizInstance, _?: unknown, f?: unknown) {
+  v.links = function (this: VizInstance) {
     if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
-        _,
-        f,
-        "links",
-      );
+      // eslint-disable-next-line prefer-rest-params
+      setLoaderValue(this, "links", arguments);
       return this;
     }
     return this.schema.links;

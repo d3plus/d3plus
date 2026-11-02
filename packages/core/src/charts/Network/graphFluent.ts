@@ -4,12 +4,12 @@
     `size`, and `hover`. They need imperative bodies (queue loading, `aggs`
     side effects), so they are installed per instance rather than as fields.
 */
-import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {setLoaderValue} from "../viz/loaderFormat.js";
 
 type Predicate = boolean | ((d: DataPoint, i: number) => boolean);
 /** The fluent methods `installGraphFluent` adds. */
@@ -35,35 +35,28 @@ export function installGraphFluent(v: VizInstance & GraphFluent): void {
       same node draws as a loop beside it.
 
       Accepts an array of links, or a URL/filepath string to load them from.
-      An optional formatting function can be passed as a second argument; it
-      receives the loaded data and returns the final links array.
+      `linksFormat` transforms them; a function passed as a second argument
+      sets it.
       @type {object[] | string}
   */
-  v.links = function (this: VizInstance, _: unknown, f?: unknown) {
+  v.links = function (this: VizInstance) {
     if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
-        _,
-        f,
-        "links",
-      );
+      // eslint-disable-next-line prefer-rest-params
+      setLoaderValue(this, "links", arguments);
       return this;
     }
     return this.schema.links;
   };
   /**
       The nodes to draw. Accepts an array of node objects, or a URL/filepath
-      string to load them from. An optional formatting function can be passed
-      as a second argument; it receives the loaded data and returns the final
-      nodes array.
+      string to load them from. `nodesFormat` transforms them; a function
+      passed as a second argument sets it.
       @type {object[] | string}
   */
-  v.nodes = function (this: VizInstance, _: unknown, f?: unknown) {
+  v.nodes = function (this: VizInstance) {
     if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
-        _,
-        f,
-        "nodes",
-      );
+      // eslint-disable-next-line prefer-rest-params
+      setLoaderValue(this, "nodes", arguments);
       return this;
     }
     return this.schema.nodes;

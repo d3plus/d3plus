@@ -1,0 +1,16 @@
+{
+  "edges": [
+    {"source": "alpha", "target": "beta"},
+    {"source": "alpha", "target": "gamma"},
+    {"source": "beta", "target": "delta"},
+    {"source": "gamma", "target": "delta"},
+    {"source": "delta", "target": "epsilon"}
+  ],
+  "vertices": [
+    {"id": "alpha", "x": 0, "y": 1},
+    {"id": "beta", "x": 1, "y": 0},
+    {"id": "gamma", "x": 1, "y": 2},
+    {"id": "delta", "x": 2, "y": 1},
+    {"id": "epsilon", "x": 3, "y": 1}
+  ]
+}

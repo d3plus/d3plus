@@ -1,6 +1,6 @@
 import {select} from "d3-selection";
 
-import {addToQueue, unique} from "@d3plus/data";
+import {unique} from "@d3plus/data";
 import {fontFamilyStringify} from "@d3plus/text";
 import type {DataPoint} from "@d3plus/data";
 import {date} from "@d3plus/dom";
@@ -12,6 +12,7 @@ import type {FacetConfig} from "../facet/facetConfig.js";
 import {groupDepthOf} from "./groupRow.js";
 import {broadcastLink} from "./linkGroup.js";
 import {shapeHoverEnabled} from "./shapeHover.js";
+import {setLoaderValue} from "./loaderFormat.js";
 import {stopDataPolling} from "./vizDataPolling.js";
 import type Viz from "./Viz.js";
 import type {VizFieldKey} from "./vizFields.js";
@@ -74,25 +75,20 @@ class VizBase extends BaseClass {
 
 If your data URL needs specific headers to be set, an Object with a "url" and "headers" (or any other `fetch` request option) may also be passed. An Object with any other key is a data row, not a request.
 
-Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.
+To transform the data before it is drawn (for example, a JSON API that returns its headers split from its values), set `dataFormat`. Passing a formatter as a second argument to this method sets `dataFormat`; calling it with only data keeps the current `dataFormat`.
 
-If you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).
-
-To re-fetch a URL on an interval and redraw when its data changes, set `dataPollingInterval`; each poll runs the same formatter.
+To re-fetch a URL on an interval and redraw when its data changes, set `dataPollingInterval`; each poll runs `dataFormat`.
 
 Defaults to an empty array (`[]`).
-    @param f The data array or a URL string to load data from.
+    @param _ The data array or a URL string to load data from.
+    @param f Sets `dataFormat`.
   */
   data(
     _?: DataPoint[] | string | {url: string; headers: Record<string, string>},
     f?: (data: DataPoint[]) => DataPoint[] | Record<string, unknown>,
   ): this | DataPoint[] {
     if (arguments.length) {
-      addToQueue.bind(this as unknown as ThisParameterType<typeof addToQueue>)(
-        _!,
-        f,
-        "data",
-      );
+      setLoaderValue(this, "data", arguments.length > 1 ? [_, f] : [_]);
       this._hidden = [];
       this._solo = [];
       if (
@@ -103,7 +99,6 @@ Defaults to an empty array (`[]`).
         this._timelineSelection = false;
       }
       this._userData = _;
-      this._userDataFormat = f;
       this._dataSignature = undefined;
       stopDataPolling(this as unknown as Viz);
       return this;

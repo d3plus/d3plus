@@ -35,6 +35,7 @@ import {pageIsDark} from "../viz/pageTheme.js";
 import {makeChart} from "../definition/makeChart.js";
 import {isPointShape} from "../viz/nearestHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
 
 import {
   applyGeomapLayout,
@@ -450,17 +451,14 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
   const v = viz as VizInstance & GeomapFluent;
   /**
       The topojson to draw as geographic paths: a topojson object, or a filepath
-      or URL to load. An optional formatting function, passed as a second
-      argument, receives the loaded data and returns the final topojson object.
+      or URL to load. `topojsonFormat` transforms it; a function passed as a
+      second argument sets it.
       @type {string | object | false}
   */
-  v.topojson = function (this: VizInstance, _?: unknown, f?: unknown) {
+  v.topojson = function (this: VizInstance) {
     if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
-        _,
-        f,
-        "topojson",
-      );
+      // eslint-disable-next-line prefer-rest-params
+      setLoaderValue(this, "topojson", arguments);
       this._zoomSet = false;
       return this;
     }
@@ -589,6 +587,7 @@ export const geomapDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    ...loaderFormatFields("topojson", "links"),
     {key: "fitObject", default: false},
     ...geomapLinkFields(),
     {key: "noDataMessage", default: false},

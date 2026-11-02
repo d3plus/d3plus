@@ -136,7 +136,7 @@ it("destroys the instance on unmount", () => {
   assert.strictEqual(state.destroys, 1, "destroy() called on unmount");
 });
 
-it("routes data + dataFormat to data() and strips them from config", () => {
+it("passes data + dataFormat through config()", () => {
   const {MockViz, state} = makeViz();
   const Comp = createD3plusComponent(MockViz);
   const fmt = d => d;
@@ -144,16 +144,10 @@ it("routes data + dataFormat to data() and strips them from config", () => {
     render: () =>
       h(Comp, {config: {data: [1, 2], dataFormat: fmt, keep: "yes"}}),
   });
-  assert.deepStrictEqual(
-    state.dataArgs,
-    [[1, 2], fmt],
-    "data() got the data + formatter",
-  );
+  assert.strictEqual(state.dataArgs, null, "data() is not called directly");
   const cfg = state.configs[0];
-  assert.ok(
-    !("data" in cfg) && !("dataFormat" in cfg),
-    "data/dataFormat stripped",
-  );
+  assert.deepStrictEqual(cfg.data, [1, 2]);
+  assert.strictEqual(cfg.dataFormat, fmt);
   assert.strictEqual(cfg.keep, "yes", "unrelated keys preserved");
   app.unmount();
 });

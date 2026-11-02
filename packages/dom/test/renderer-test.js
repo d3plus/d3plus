@@ -39,90 +39,68 @@ it("applyConfig ignores undefined config arguments", () => {
   assert.strictEqual(received.a, 1, "defined config still applied");
 });
 
-it("applyConfig routes data + dataFormat to data() and strips them from config()", () => {
+it("applyConfig passes every loader and its *Format through config()", () => {
   const node = document.createElement("svg");
-  let cfg = null,
-    dataArgs = null;
-  const fmt = d => d;
-  const inst = {
-    config(c) {
-      cfg = c;
-      return this;
-    },
-    data(d, f) {
-      dataArgs = [d, f];
-    },
-  };
-  applyConfig(inst, node, {data: [1, 2], dataFormat: fmt, keep: "yes"});
-  assert.deepStrictEqual(
-    dataArgs,
-    [[1, 2], fmt],
-    "data() receives the data array + formatter",
-  );
-  assert.ok(
-    cfg && !("data" in cfg) && !("dataFormat" in cfg),
-    "data/dataFormat removed from config payload",
-  );
-  assert.strictEqual(cfg.keep, "yes", "unrelated config keys preserved");
-});
-
-it("applyConfig routes every field/format pair (links, nodes, topojson)", () => {
-  const node = document.createElement("svg");
-  const seen = {};
-  const inst = {
-    config() {
-      return this;
-    },
-    links(d, f) {
-      seen.links = [d, f];
-    },
-    nodes(d, f) {
-      seen.nodes = [d, f];
-    },
-    topojson(d, f) {
-      seen.topojson = [d, f];
-    },
-  };
-  const lf = d => d,
-    nf = d => d,
-    tf = d => d;
-  applyConfig(inst, node, {
-    links: [1],
-    linksFormat: lf,
-    nodes: [2],
-    nodesFormat: nf,
-    topojson: {},
-    topojsonFormat: tf,
-  });
-  assert.deepStrictEqual(seen.links, [[1], lf], "links() routed");
-  assert.deepStrictEqual(seen.nodes, [[2], nf], "nodes() routed");
-  assert.deepStrictEqual(seen.topojson, [{}, tf], "topojson() routed");
-});
-
-it("applyConfig leaves a field alone when its formatter is absent", () => {
-  const node = document.createElement("svg");
-  let cfg = null,
-    dataCalled = false;
+  let cfg = null;
+  const called = [];
   const inst = {
     config(c) {
       cfg = c;
       return this;
     },
     data() {
-      dataCalled = true;
+      called.push("data");
+    },
+    links() {
+      called.push("links");
+    },
+    nodes() {
+      called.push("nodes");
+    },
+    topojson() {
+      called.push("topojson");
     },
   };
-  applyConfig(inst, node, {data: [1, 2, 3]});
-  assert.strictEqual(
-    dataCalled,
-    false,
-    "data() is not called without a formatter",
-  );
-  assert.deepStrictEqual(
-    cfg.data,
-    [1, 2, 3],
-    "data stays in the config payload",
-  );
+  const df = d => d,
+    lf = d => d,
+    nf = d => d,
+    tf = d => d;
+  applyConfig(inst, node, {
+    data: [1, 2],
+    dataFormat: df,
+    links: [1],
+    linksFormat: lf,
+    nodes: [2],
+    nodesFormat: nf,
+    topojson: {},
+    topojsonFormat: tf,
+    keep: "yes",
+  });
+  assert.deepStrictEqual(called, [], "no loader is called directly");
+  assert.deepStrictEqual(cfg.data, [1, 2]);
+  assert.strictEqual(cfg.dataFormat, df);
+  assert.deepStrictEqual(cfg.links, [1]);
+  assert.strictEqual(cfg.linksFormat, lf);
+  assert.deepStrictEqual(cfg.nodes, [2]);
+  assert.strictEqual(cfg.nodesFormat, nf);
+  assert.deepStrictEqual(cfg.topojson, {});
+  assert.strictEqual(cfg.topojsonFormat, tf);
+  assert.strictEqual(cfg.keep, "yes");
+});
+
+it("applyConfig passes a *Format through even without its loader", () => {
+  const node = document.createElement("svg");
+  let cfg = null;
+  const fmt = d => d;
+  const inst = {
+    config(c) {
+      cfg = c;
+      return this;
+    },
+  };
+  applyConfig(inst, node, {dataFormat: fmt});
+  assert.strictEqual(cfg.dataFormat, fmt);
+  assert.ok(!("data" in cfg));
 });
 
 it("hash serializes functions by source", () => {

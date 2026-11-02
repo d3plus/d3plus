@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DataFormat · Viz</title>
+    <meta
+      name="description"
+      content="dataFormat, linksFormat and nodesFormat as config keys: local JSON responses reshaped before drawing, with buttons that swap the formatter on a loaded chart."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 16px;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .viz {
+        height: 360px;
+        margin-bottom: 24px;
+        max-width: 800px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>BarChart: config({data, dataFormat})</h3>
+    <div class="controls">
+      <button id="all">All regions</button>
+      <button id="top">Top 3 regions</button>
+      <span id="requests"></span>
+    </div>
+    <div id="bar" class="viz"></div>
+
+    <h3>Network: links(url, format) and config({nodes, nodesFormat})</h3>
+    <div id="network" class="viz"></div>
+
+    <script>
+      // Counts requests for the local files, to show a new formatter
+      // re-fetching its URL.
+      let requests = 0;
+      const nativeFetch = window.fetch.bind(window);
+      window.fetch = (input, init) => {
+        if (String(input).endsWith("dataFormat.json")) {
+          requests++;
+          document.getElementById("requests").textContent =
+            `Requests: ${requests}`;
+        }
+        return nativeFetch(input, init);
+      };
+
+      // The formatter may return the rows, or a config object holding them
+      // as `data`, whose other keys (here, the title) are applied too.
+      const allRegions = json => ({
+        data: json.results,
+        title: `${json.source}: all regions`,
+      });
+      const topRegions = json => ({
+        data: json.results.sort((a, b) => b.sales - a.sales).slice(0, 3),
+        title: `${json.source}: top 3 regions`,
+      });
+
+      const bar = new d3plus.BarChart()
+        .select("#bar")
+        .config({
+          data: "dataFormat.json",
+          dataFormat: allRegions,
+          groupBy: "region",
+          x: "region",
+          y: "sales",
+        })
+        .render();
+
+      document.getElementById("all").addEventListener("click", () => {
+        bar.dataFormat(allRegions).render();
+      });
+      document.getElementById("top").addEventListener("click", () => {
+        bar.dataFormat(topRegions).render();
+      });
+
+      new d3plus.Network()
+        .select("#network")
+        .links("dataFormatGraph.json", json => json.edges)
+        .config({
+          nodes: "dataFormatGraph.json",
+          nodesFormat: json => json.vertices,
+        })
+        .render();
+    </script>
+  </body>
+</html>

@@ -44,6 +44,7 @@ import {isSelfLoopMark, unionBox} from "../features/selfLoops.js";
 import type {FocusBox} from "../features/linkFocus.js";
 import type {LinkDatum} from "../features/linkInteraction.js";
 import type {GraphLink} from "./graph.js";
+import {loaderFormatFields} from "../viz/loaderFormat.js";
 
 const getNodeId = graphNodeId;
 
@@ -377,6 +378,7 @@ export const networkDef: ChartDefinition = {
     */
     {key: "arrowSize"},
     ...linkStyleFields(),
+    ...loaderFormatFields("links", "nodes"),
     {key: "links", default: []},
     /**
         The thickness of each link: a pixel number used for every link, or an

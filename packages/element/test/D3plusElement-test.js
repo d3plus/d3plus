@@ -147,21 +147,15 @@ it("forceUpdate bypasses config diffing", () => {
   );
 });
 
-it("routes data + dataFormat to data() and strips them from the config payload", () => {
+it("passes data + dataFormat through config()", () => {
   const {el, state} = makeElement({data: true});
   const fmt = d => d;
   el.config = {data: [1, 2], dataFormat: fmt, keep: "yes"};
   document.body.appendChild(el);
-  assert.deepStrictEqual(
-    state.dataArgs,
-    [[1, 2], fmt],
-    "data() receives the data + formatter",
-  );
+  assert.strictEqual(state.dataArgs, null, "data() is not called directly");
   const cfg = state.configs[0];
-  assert.ok(
-    !("data" in cfg) && !("dataFormat" in cfg),
-    "data/dataFormat stripped",
-  );
+  assert.deepStrictEqual(cfg.data, [1, 2]);
+  assert.strictEqual(cfg.dataFormat, fmt);
   assert.strictEqual(cfg.keep, "yes", "unrelated keys preserved");
 });
 
