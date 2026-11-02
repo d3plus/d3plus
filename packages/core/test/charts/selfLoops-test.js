@@ -191,9 +191,10 @@ it("selfLoopArrows draws an arrowhead at each end `arrows` selects", () => {
   assert.strictEqual(target[0].key, "k-t");
   assert.strictEqual(target[0].paint.fill, "red");
   assert.strictEqual(target[0].interactive, false);
+  // The tip sits a pixel back along the loop from where it meets the node.
   const tip = numbers(target[0].d).slice(0, 2);
-  close(tip[0], Math.round(loop.target.x * 100) / 100, 0.01);
-  close(tip[1], Math.round(loop.target.y * 100) / 100, 0.01);
+  close(tip[0], loop.target.x, 0.1);
+  close(tip[1], loop.target.y, 0.1);
   const both = selfLoopArrows({...opts, arrows: "both"});
   assert.deepStrictEqual(
     both.map(n => n.key),

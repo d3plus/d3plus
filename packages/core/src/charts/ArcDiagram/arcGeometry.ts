@@ -6,6 +6,10 @@
 
 import type {DataPoint} from "@d3plus/data";
 
+import {arrowAlongChord, chordEndsPathD} from "../features/curvedArrows.js";
+import type {ArrowedEnd} from "../features/curvedArrows.js";
+import type {EdgeArrowTrims} from "../features/edgeArrows.js";
+
 /** How ArcDiagram orders its nodes along the line. */
 export type NodeSort =
   | "data"
@@ -257,29 +261,40 @@ export function arcPointAlong(
 }
 
 /**
-    An arc's visible stroke: its path, cut short along the arc inside the
-    arrowhead at each end `trims` gives (see `edgeArrowTrims`). `insets` are
-    how far out from the line each end's arrow tip sits. The full arc stays
+    An arc's visible stroke and arrowed ends. Each head's tip sits on the
+    arc `insets` pixels out from the line (see `arcEndTip`), its base `size`
+    further along the arc, and it is aimed along the chord from base to tip.
+    The stroke follows the arc between the bases, then runs along each
+    head's axis to end inside it (see `cubicArrowEdge`). The full arc stays
     its hit area.
 */
-export function arcTrimmedPathD(
+export function arcArrowEdge(
   arc: ArcGeometry,
-  trims: {source: number; target: number},
+  trims: EdgeArrowTrims,
   insets: {source: number; target: number},
-): string {
-  if (!trims.source && !trims.target) return arcPathD(arc);
+): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
+  const {ends, size} = trims;
+  if (!ends.source && !ends.target) return {d: arcPathD(arc)};
+  const arrowed = (end: "source" | "target"): ArrowedEnd | undefined => {
+    if (!ends[end]) return undefined;
+    const tip = arcEndTip(arc, end, insets[end]);
+    return arrowAlongChord(
+      [tip.x, tip.y],
+      arcPointAlong(arc, end, insets[end], size),
+      trims[end],
+    );
+  };
+  const source = arrowed("source");
+  const target = arrowed("target");
   const half = Math.abs(arc.to - arc.from) / 2;
   const height = half * arc.scale;
-  const endAt = (end: "source" | "target"): [number, number] =>
-    trims[end]
-      ? arcPointAlong(arc, end, insets[end], trims[end])
-      : arcPoint(arc, end === "source" ? arc.from : arc.to, 0);
-  const [x1, y1] = endAt("source");
-  const [x2, y2] = endAt("target");
+  const [x1, y1] = source ? source.base : arcPoint(arc, arc.from, 0);
+  const [x2, y2] = target ? target.base : arcPoint(arc, arc.to, 0);
   const forward = arc.to > arc.from;
   const sweep = forward === (arc.side === "above") ? 1 : 0;
   const [rx, ry] = arc.orient === "vertical" ? [height, half] : [half, height];
-  return `M${round(x1)},${round(y1)}A${round(rx)},${round(ry)} 0 0,${sweep} ${round(x2)},${round(y2)}`;
+  const body = `M${round(x1)},${round(y1)}A${round(rx)},${round(ry)} 0 0,${sweep} ${round(x2)},${round(y2)}`;
+  return {d: chordEndsPathD(body, source, target), source, target};
 }
 
 /** The box an arc covers: its two ends and its highest point, as `[[x0, y0], [x1, y1]]`. */

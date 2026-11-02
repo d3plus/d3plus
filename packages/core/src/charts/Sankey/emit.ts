@@ -6,13 +6,8 @@
 import type {DataPoint} from "@d3plus/data";
 import type {Paint, SceneNode} from "@d3plus/render";
 
-import {
-  arrowEnds,
-  arrowNode,
-  arrowTrim,
-  cubicPathD,
-  trimCubic,
-} from "../features/edgeArrows.js";
+import {arrowEnds, arrowTrim} from "../features/edgeArrows.js";
+import {chordArrowNodes, cubicArrowEdge} from "../features/curvedArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
@@ -81,11 +76,46 @@ function sankeyArrowSize(
 }
 
 /**
-    A link's visible band: its horizontal link curve, cut short along the
-    curve inside the arrowhead at each end that has one (see `arrowTrim`;
-    the tips sit on the nodes' edges, where the band ends). The full band
-    stays its hit area.
+    A link's arrowed ends and visible band (see `cubicArrowEdge`): the band
+    follows its horizontal link curve up to each head's base, then runs
+    along the head's axis to end inside it. The tips sit on the nodes'
+    edges, where the band ends. Null when the link has no arrows.
 */
+function sankeyArrowEdge(
+  viz: VizInstance,
+  link: SankeyLink,
+  i: number,
+  strokeWidth: unknown,
+): (ReturnType<typeof cubicArrowEdge> & {size: number}) | null {
+  const ends = arrowEnds(viz.schema.arrows as ArrowValue, link.datum, i);
+  if (!ends.source && !ends.target) return null;
+  if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return null;
+  const size = sankeyArrowSize(viz, link, link.datum, i);
+  const trim = arrowTrim(
+    size,
+    typeof strokeWidth === "number" ? strokeWidth : 1,
+  );
+  const x0 = link.source.x1;
+  const x1 = link.target.x0;
+  const xm = (x0 + x1) / 2;
+  const edge = cubicArrowEdge(
+    [
+      [x0, link.y0],
+      [xm, link.y0],
+      [xm, link.y1],
+      [x1, link.y1],
+    ],
+    {
+      ends,
+      size,
+      source: ends.source ? trim : 0,
+      target: ends.target ? trim : 0,
+    },
+  );
+  return {...edge, size};
+}
+
+/** A link's visible band: `d`, or cut short inside its arrowheads (see `sankeyArrowEdge`). The full band stays its hit area. */
 export function sankeyVisibleD(
   viz: VizInstance,
   link: SankeyLink,
@@ -93,34 +123,13 @@ export function sankeyVisibleD(
   strokeWidth: unknown,
   d: string,
 ): string {
-  const ends = arrowEnds(viz.schema.arrows as ArrowValue, link.datum, i);
-  if (!ends.source && !ends.target) return d;
-  if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return d;
-  const trim = arrowTrim(
-    sankeyArrowSize(viz, link, link.datum, i),
-    typeof strokeWidth === "number" ? strokeWidth : 1,
-  );
-  const x0 = link.source.x1;
-  const x1 = link.target.x0;
-  const xm = (x0 + x1) / 2;
-  return cubicPathD(
-    trimCubic(
-      [
-        [x0, link.y0],
-        [xm, link.y0],
-        [xm, link.y1],
-        [x1, link.y1],
-      ],
-      ends.source ? trim : 0,
-      ends.target ? trim : 0,
-    ),
-  );
+  return sankeyArrowEdge(viz, link, i, strokeWidth)?.d ?? d;
 }
 
 /**
-    Optional directional arrowheads for one link. Flow runs source(left) →
-    target(right): the target arrow points right into the target, the source
-    arrow points left into the source (bidirectional when both are set).
+    Optional directional arrowheads for one link, aimed along the band's
+    chord from each head's base to its tip: the target arrow points into the
+    target, the source arrow back into the source.
 */
 function emitSankeyArrows(
   viz: VizInstance,
@@ -129,41 +138,18 @@ function emitSankeyArrows(
   i: number,
   paint: Paint,
 ): SceneNode[] {
-  const arrows: SceneNode[] = [];
-  const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, i);
-  if (ends.source || ends.target) {
-    const size = sankeyArrowSize(viz, link, datum, i);
-    const fill = typeof paint.stroke === "string" ? paint.stroke : undefined;
-    if (ends.target && typeof link.y1 === "number") {
-      arrows.push(
-        arrowNode({
-          key: `sankey-arrow-t-${link.source.id}-${link.target.id}`,
-          datum,
-          x: link.target.x0,
-          y: link.y1,
-          angle: 0,
-          size,
-          fill,
-          opacity: 1,
-        }),
-      );
-    }
-    if (ends.source && typeof link.y0 === "number") {
-      arrows.push(
-        arrowNode({
-          key: `sankey-arrow-s-${link.source.id}-${link.target.id}`,
-          datum,
-          x: link.source.x1,
-          y: link.y0,
-          angle: Math.PI,
-          size,
-          fill,
-          opacity: 1,
-        }),
-      );
-    }
-  }
-  return arrows;
+  const edge = sankeyArrowEdge(viz, link, i, paint.strokeWidth);
+  if (!edge) return [];
+  const ids = `${link.source.id}-${link.target.id}`;
+  return chordArrowNodes({
+    ends: edge,
+    size: edge.size,
+    datum,
+    keyPrefix: "sankey-arrow",
+    keys: {source: `sankey-arrow-s-${ids}`, target: `sankey-arrow-t-${ids}`},
+    fill: typeof paint.stroke === "string" ? paint.stroke : undefined,
+    opacity: 1,
+  });
 }
 
 /** A link's scene key. */

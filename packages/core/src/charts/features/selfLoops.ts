@@ -9,14 +9,9 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import {
-  arrowEnds,
-  arrowNode,
-  arrowSizeFor,
-  cubicPathD,
-  trimCubic,
-} from "./edgeArrows.js";
-import type {ArrowValue} from "./edgeArrows.js";
+import {cubicPathD, edgeArrowTrims} from "./edgeArrows.js";
+import type {ArrowValue, EdgeArrowTrims} from "./edgeArrows.js";
+import {chordArrowNodes, cubicArrowEdge} from "./curvedArrows.js";
 import type {FocusBox} from "./linkFocus.js";
 import {linkMeta} from "./linkInteraction.js";
 import {cubicPoint} from "./linkLabelGeometry.js";
@@ -162,23 +157,21 @@ export function selfLoopGeometry(
   };
 }
 
+/** How far back along a loop from its end each arrow tip sits: a pixel off the node's edge. */
+const LOOP_TIP_BACK = {source: 1, target: 1};
+
 /**
-    A loop's visible stroke: cut short along the loop inside the arrowhead
-    at each end that has one (`trims`, see `edgeArrowTrims`; each tip sits a
-    pixel off the node's edge). The full loop stays its hit area.
+    A loop's visible stroke: along the loop up to the base of the arrowhead
+    at each end that has one (`trims`, see `edgeArrowTrims`), then straight
+    along the head's axis to end inside it (see `cubicArrowEdge`). The full
+    loop stays its hit area.
 */
 export function selfLoopD(
   loop: SelfLoopGeometry,
-  trims: {source: number; target: number},
+  trims: EdgeArrowTrims,
 ): string {
-  if (!trims.source && !trims.target) return loop.d;
-  return cubicPathD(
-    trimCubic(
-      loop.points,
-      trims.source ? 1 + trims.source : 0,
-      trims.target ? 1 + trims.target : 0,
-    ),
-  );
+  if (!trims.ends.source && !trims.ends.target) return loop.d;
+  return cubicArrowEdge(loop.points, trims, LOOP_TIP_BACK).d;
 }
 
 /**
@@ -339,7 +332,8 @@ export function unionBox(a: FocusBox, b: FocusBox): FocusBox {
 
 /**
     Arrowheads for a loop at the ends `arrows` selects: at its target end
-    where it comes back into the node, at its source end where it leaves.
+    where it comes back into the node, at its source end where it leaves,
+    each aimed along the loop's chord from its base to its tip.
 */
 export function selfLoopArrows(opts: {
   arrows: ArrowValue;
@@ -351,25 +345,13 @@ export function selfLoopArrows(opts: {
   fill?: string;
   loop: SelfLoopGeometry;
 }): SceneNode[] {
-  const ends = arrowEnds(opts.arrows, opts.datum, opts.i);
-  if (!ends.source && !ends.target) return [];
-  const sw = typeof opts.strokeWidth === "number" ? opts.strokeWidth : 1;
-  const size = arrowSizeFor(opts.arrowSize, opts.datum, opts.i, sw);
-  const out: SceneNode[] = [];
-  for (const end of ["target", "source"] as const) {
-    if (!ends[end]) continue;
-    const tip = opts.loop[end];
-    out.push(
-      arrowNode({
-        key: `${opts.keyPrefix}-${end === "target" ? "t" : "s"}`,
-        datum: opts.datum,
-        x: tip.x,
-        y: tip.y,
-        angle: tip.angle,
-        size,
-        fill: opts.fill,
-      }),
-    );
-  }
-  return out;
+  const trims = edgeArrowTrims(opts);
+  if (!trims.ends.source && !trims.ends.target) return [];
+  return chordArrowNodes({
+    ends: cubicArrowEdge(opts.loop.points, trims, LOOP_TIP_BACK),
+    size: trims.size,
+    datum: opts.datum,
+    keyPrefix: opts.keyPrefix,
+    fill: opts.fill,
+  });
 }

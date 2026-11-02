@@ -1692,9 +1692,19 @@ export {
 export type {EdgeArrowTrims} from "./src/charts/features/edgeArrows.js";
 export {selfLoopD} from "./src/charts/features/selfLoops.js";
 export {
+  arcArrowEdge,
   arcPointAlong,
-  arcTrimmedPathD,
 } from "./src/charts/ArcDiagram/arcGeometry.js";
+export {
+  arrowAlongChord,
+  chordAngle,
+  chordArrowNodes,
+  chordEndsPathD,
+  cubicArrowEdge,
+  cubicPolyline,
+  pathPointBack,
+} from "./src/charts/features/curvedArrows.js";
+export type {ArrowedEnd} from "./src/charts/features/curvedArrows.js";
 export {arcVisibleD} from "./src/charts/ArcDiagram/emit.js";
 export {ringsVisibleD} from "./src/charts/Rings/emit.js";
 export {sankeyVisibleD} from "./src/charts/Sankey/emit.js";
