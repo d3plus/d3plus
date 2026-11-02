@@ -28,6 +28,8 @@ import {
   selfLoopReach,
   widestGapAngle,
 } from "../features/selfLoops.js";
+import type {LoopNode, SelfLoopGeometry} from "../features/selfLoops.js";
+import type {FocusBox} from "../features/linkFocus.js";
 import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import type {GraphLink, GraphNode} from "./graph.js";
 
@@ -174,25 +176,70 @@ export function networkSizeLegendScale(
     nodes,
     width,
     height,
-    loopedNodeIds(links),
+    links,
   ) as unknown as SizeLegendScale;
 }
 
-/** The ids of the nodes with a link to themselves. */
-function loopedNodeIds(links: NetworkLink[]): Set<string> {
-  return new Set(links.filter(l => isSelfLoop(l)).map(l => l.source.id));
+/**
+    The scale from a link's `size` to its stroke width, on the
+    linkSizeScale from `linkSizeMin` to `widest`, or none when every link
+    is the same size (and keeps it).
+*/
+function linkStrokeScale(
+  v: Parameters<TransformStage>[0]["viz"],
+  links: NetworkLink[],
+  widest: number,
+): RScale | null {
+  const strokeExtent = extent(links, (d: NetworkLink) => d.size);
+  if (strokeExtent[0] === strokeExtent[1]) return null;
+  return (scales as unknown as Record<string, () => RScale>)
+    [
+      `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
+    ]()
+    .domain(strokeExtent as [number, number])
+    .range([v.schema.linkSizeMin as number, widest]);
+}
+
+/**
+    The boxes (in pixels, at the radii `r` gives) the nodes and their loops
+    cover. Loops are laid out as they will draw, at the widest their strokes
+    can be before the nodes shrink to fit.
+*/
+function nodeBoxes(
+  v: Parameters<TransformStage>[0]["viz"],
+  nodes: NetworkNode[],
+  links: NetworkLink[],
+  r: RScale,
+): FocusBox[] {
+  const sized = new Map(
+    nodes.map(n => [n.id, {id: n.id, x: n.x ?? 0, y: n.y ?? 0, r: r(n.r)}]),
+  );
+  const boxes: FocusBox[] = [...sized.values()].map(n => [
+    [n.x - n.r, n.y - n.r],
+    [n.x + n.r, n.y + n.r],
+  ]);
+  const stroke = linkStrokeScale(v, links, r.range()[0]);
+  const loops = networkLoops(
+    nodes,
+    links,
+    n => sized.get(n.id)!,
+    l => (stroke ? stroke(l.size as number) : (l.size as number)),
+  );
+  for (const {box} of loops.values()) boxes.push(box);
+  return boxes;
 }
 
 /**
     Positions nodes within bounds and assigns final r/width/height via a
-    fitted radius scale. Nodes in `looped` keep room for their loops.
+    fitted radius scale. Nodes with a link in `links` to themselves keep
+    room for their loops, strokes included.
 */
 function scaleNetworkNodes(
   v: Parameters<TransformStage>[0]["viz"],
   nodes: NetworkNode[],
   width: number,
   height: number,
-  looped: Set<string> = new Set(),
+  links: NetworkLink[] = [],
 ): RScale {
   const xExtent = extent(nodes.map(n => n.fx)) as unknown as [number, number];
   const yExtent = extent(nodes.map(n => n.fy)) as unknown as [number, number];
@@ -255,19 +302,12 @@ function scaleNetworkNodes(
   // the outline up to ~3×) isn't clipped by the container edge — a node sitting
   // flush against the bottom/side would otherwise lose a pixel or two of stroke.
   const strokePad = 3;
-  nodes.forEach(n => {
-    const nr = r(n.r);
-    const size =
-      nr +
-      (looped.has(n.id) ? selfLoopReach(nr, 0) + strokePad : 0) +
-      strokePad;
-    const nx = n.x ?? 0;
-    const ny = n.y ?? 0;
-    if (xDomain[0] > x.invert(nx - size)) xDomain[0] = x.invert(nx - size);
-    if (xDomain[1] < x.invert(nx + size)) xDomain[1] = x.invert(nx + size);
-    if (yDomain[0] > y.invert(ny - size)) yDomain[0] = y.invert(ny - size);
-    if (yDomain[1] < y.invert(ny + size)) yDomain[1] = y.invert(ny + size);
-  });
+  for (const [[x0, y0], [x1, y1]] of nodeBoxes(v, nodes, links, r)) {
+    xDomain[0] = Math.min(xDomain[0], x.invert(x0 - strokePad));
+    xDomain[1] = Math.max(xDomain[1], x.invert(x1 + strokePad));
+    yDomain[0] = Math.min(yDomain[0], y.invert(y0 - strokePad));
+    yDomain[1] = Math.max(yDomain[1], y.invert(y1 + strokePad));
+  }
 
   const xNewSize = xDomain[1] - xDomain[0];
   const yNewSize = yDomain[1] - yDomain[0];
@@ -299,28 +339,28 @@ function normalizeLinkStrokes(
   links: NetworkLink[],
   r: RScale,
 ): void {
-  const strokeExtent = extent(links, (d: NetworkLink) => d.size);
-  if (strokeExtent[0] !== strokeExtent[1]) {
-    const strokeScale = (scales as unknown as Record<string, () => RScale>)
-      [
-        `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
-      ]()
-      .domain(strokeExtent as [number, number])
-      .range([v.schema.linkSizeMin as number, r.range()[0]]);
+  const strokeScale = linkStrokeScale(v, links, r.range()[0]);
+  if (strokeScale)
     links.forEach(link => {
-      link.size = strokeScale(link.size);
+      link.size = strokeScale(link.size as number);
     });
-  }
 }
 
 /**
-    Shapes each link from a node to itself as a loop, pointing into the
-    widest gap between the node's other links, or away from the middle of
-    the network when it has none. A node's loops fan out side by side.
+    The loops for each link from a node to itself, pointing into the widest
+    gap between the node's other links, or away from the middle of the
+    network when it has none. A node's loops fan out side by side.
+    @param at A node's position and radius.
+    @param strokeWidth A loop's stroke width.
 */
-function placeNetworkLoops(nodes: NetworkNode[], links: NetworkLink[]): void {
+function networkLoops(
+  nodes: NetworkNode[],
+  links: NetworkLink[],
+  at: (n: NetworkNode) => LoopNode & {id: string},
+  strokeWidth: (l: NetworkLink) => number,
+): Map<NetworkLink, SelfLoopGeometry> {
   const loops = links.filter(l => l.datum && isSelfLoop(l));
-  if (!loops.length) return;
+  if (!loops.length) return new Map();
   const neighbors = new Map<string, [number, number][]>();
   for (const l of links) {
     if (!l.source || !l.target || isSelfLoop(l)) continue;
@@ -329,24 +369,36 @@ function placeNetworkLoops(nodes: NetworkNode[], links: NetworkLink[]): void {
       [l.target, l.source],
     ]) {
       if (!neighbors.has(a.id)) neighbors.set(a.id, []);
-      neighbors.get(a.id)!.push([b.x ?? 0, b.y ?? 0]);
+      const p = at(b);
+      neighbors.get(a.id)!.push([p.x, p.y]);
     }
   }
+  const points = nodes.map(at);
   const center: [number, number] = [
-    nodes.reduce((sum, n) => sum + (n.x ?? 0), 0) / nodes.length,
-    nodes.reduce((sum, n) => sum + (n.y ?? 0), 0) / nodes.length,
+    points.reduce((sum, n) => sum + n.x, 0) / points.length,
+    points.reduce((sum, n) => sum + n.y, 0) / points.length,
   ];
-  const placed = layoutSelfLoops(loops, {
-    node: l => l.source as NetworkNode & {x: number; y: number},
+  return layoutSelfLoops(loops, {
+    node: l => at(l.source),
     angle: n =>
       widestGapAngle(
         [n.x, n.y],
         neighbors.get(n.id) ?? [],
         awayFromAngle([n.x, n.y], center),
       ),
-    reach: l => selfLoopReach(l.source.r, l.size),
-    strokeWidth: l => l.size,
+    reach: l => selfLoopReach(at(l.source).r),
+    strokeWidth,
   });
+}
+
+/** Shapes each link from a node to itself as a loop (see `networkLoops`). */
+function placeNetworkLoops(nodes: NetworkNode[], links: NetworkLink[]): void {
+  const placed = networkLoops(
+    nodes,
+    links,
+    n => ({id: n.id, x: n.x ?? NaN, y: n.y ?? NaN, r: n.r ?? 0}),
+    l => l.size as number,
+  );
   for (const [link, loop] of placed) link.loop = loop;
 }
 
@@ -368,7 +420,7 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
 
   positionNetworkNodes(v, nodes, links);
 
-  const r = scaleNetworkNodes(v, nodes, width, height, loopedNodeIds(links));
+  const r = scaleNetworkNodes(v, nodes, width, height, links);
   v._sizeLegendFinal = v._size ? (r as unknown as SizeLegendScale) : null;
   normalizeLinkStrokes(v, links, r);
   placeNetworkLoops(nodes, links);

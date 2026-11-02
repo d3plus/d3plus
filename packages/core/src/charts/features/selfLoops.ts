@@ -43,7 +43,7 @@ export interface SelfLoopGeometry {
   source: LoopPoint;
   /** Where the loop enters the node, pointing into it. */
   target: LoopPoint;
-  /** The box the loop covers. */
+  /** The box the loop covers, stroke included. */
   box: FocusBox;
   /** The direction the loop points out from its node, in radians. */
   angle: number;
@@ -78,36 +78,78 @@ export function isSelfLoopMark(node: {
   return !!meta && meta.source.id === meta.target.id;
 }
 
+/** A usable stroke width: finite and not negative, else none. */
+const strokeWidthOf = (sw: number): number =>
+  Number.isFinite(sw) ? Math.max(0, sw) : 0;
+
 /**
-    How far a loop reaches past the edge of a node of radius `r`: a little
-    more than the radius, at least 10 pixels, plus room for the loop's
-    stroke so a heavy loop keeps its hole.
+    How far a hairline loop reaches past the edge of a node of radius `r`:
+    a little more than the radius, and at least 10 pixels. A stroked loop
+    is sized from it (see `selfLoopGeometry`).
 */
-export function selfLoopReach(r: number, strokeWidth = 1): number {
-  const sw = Number.isFinite(strokeWidth) ? Math.max(0, strokeWidth) : 1;
-  return Math.max((Number.isFinite(r) ? r : 0) * 1.25, 10) + sw * 1.5;
+export function selfLoopReach(r: number): number {
+  return Math.max((Number.isFinite(r) ? r : 0) * 1.25, 10);
 }
 
-/** The loop's four Bézier points, pointing along `angle` from `node`. */
+/**
+    How far a loop's outer edge reaches past its node's edge, for a loop of
+    `reach` (see `selfLoopReach`) drawn with a `strokeWidth` stroke.
+*/
+export function selfLoopExtent(reach: number, strokeWidth = 0): number {
+  return selfLoopOpening(reach, strokeWidth) + strokeWidthOf(strokeWidth);
+}
+
+/**
+    How far a loop's opening (inside its stroke) reaches past its node's
+    edge: a hairline loop's `reach`, plus one stroke width, so the opening
+    grows with the stroke and the arrowhead (which grows with the stroke
+    too) leaves it clear. The loop's line sits half a stroke further out.
+*/
+export function selfLoopOpening(reach: number, strokeWidth = 0): number {
+  return Math.max(0, reach) + strokeWidthOf(strokeWidth);
+}
+
+/** The widest a loop's ends spread on its node, either side of its direction (radians). */
+const MAX_END_ANGLE = 1.2;
+
+/**
+    The loop's four Bézier points, pointing along `angle` from `node`. The
+    opening's edge is a hairline loop reaching `selfLoopOpening` past the
+    node: its ends sit on the node's edge, close enough together for that
+    reach, and its control points put its middle that far out. The loop's
+    line runs half a stroke outside it all round (its ends further apart
+    along the node's edge, its middle and sides further out), so the
+    stroke's inner edge follows the opening rather than closing it.
+*/
 function loopPoints(
   node: LoopNode,
   angle: number,
   reach: number,
+  strokeWidth = 0,
 ): [Point, Point, Point, Point] {
   const r = Math.max(0, node.r || 0);
+  const half = strokeWidthOf(strokeWidth) / 2;
+  const opening = selfLoopOpening(reach, strokeWidth);
   const ux = Math.cos(angle);
   const uy = Math.sin(angle);
   // Across the loop: from its source side to its target side.
   const vx = -uy;
   const vy = ux;
-  // The half-angle between the loop's two ends on the node's edge.
+  // The opening's half-angle between its two ends on the node's edge.
   const s =
-    r > 0 ? Math.min(0.5, Math.asin(Math.min(1, (reach * 0.3) / r))) : 0;
-  const along = r * Math.cos(s);
-  const across = r * Math.sin(s);
-  // Control points far enough out that the curve's middle is `reach` past the edge.
-  const far = (8 * (r + reach) - 2 * along) / 6;
-  const wide = reach * 0.8 + across;
+    r > 0 ? Math.min(0.5, Math.asin(Math.min(1, (opening * 0.3) / r))) : 0;
+  const hairAcross = r * Math.sin(s);
+  // The line's ends, half a stroke further apart on each side.
+  const end =
+    r > 0
+      ? Math.min(MAX_END_ANGLE, Math.asin(Math.min(1, (hairAcross + half) / r)))
+      : 0;
+  const along = r * Math.cos(end);
+  const across = r * Math.sin(end);
+  // Control points far enough out that the curve's middle is half a stroke past the opening.
+  const far = (8 * (r + opening + half) - 2 * along) / 6;
+  // 1.5× the offset at the control points moves the curve's sides out by about the offset.
+  const wide = opening * 0.8 + hairAcross + half * 1.5;
   const at = (a: number, b: number): Point => [
     node.x + ux * a + vx * b,
     node.y + uy * a + vy * b,
@@ -116,16 +158,26 @@ function loopPoints(
 }
 
 /**
-    A loop on `node`, pointing out from it along `angle` (radians), whose far
-    point sits `reach` pixels past the node's edge. The loop leaves the node
-    on one side of `angle` and comes back on the other, clockwise on screen.
+    A loop on `node`, pointing out from it along `angle` (radians). A
+    hairline loop's far point sits `reach` pixels past the node's edge. A
+    loop with a `strokeWidth` stroke keeps an opening inside its stroke
+    that grows with it (see `selfLoopOpening`), and its outer edge reaches
+    `selfLoopExtent` past the node's edge. The loop leaves the node on one
+    side of `angle` and comes back on the other, clockwise on screen.
 */
 export function selfLoopGeometry(
   node: LoopNode,
   angle: number,
   reach: number,
+  strokeWidth = 0,
 ): SelfLoopGeometry {
-  const [p0, p1, p2, p3] = loopPoints(node, angle, Math.max(0, reach));
+  const [p0, p1, p2, p3] = loopPoints(
+    node,
+    angle,
+    Math.max(0, reach),
+    strokeWidth,
+  );
+  const pad = strokeWidthOf(strokeWidth) / 2;
   const apexPoint = cubicPoint(p0, p1, p2, p3, 0.5);
   const end = (from: Point, to: Point): LoopPoint => {
     const dx = to[0] - from[0];
@@ -149,8 +201,8 @@ export function selfLoopGeometry(
     source: end(p1, p0),
     target: end(p2, p3),
     box: [
-      [Math.min(...xs), Math.min(...ys)],
-      [Math.max(...xs), Math.max(...ys)],
+      [Math.min(...xs) - pad, Math.min(...ys) - pad],
+      [Math.max(...xs) + pad, Math.max(...ys) + pad],
     ],
     angle,
     points: [p0, p1, p2, p3],
@@ -176,8 +228,8 @@ export function selfLoopD(
 
 /**
     The angle (radians) a loop on `node` covers, seen from the node's center,
-    stroke included: how far apart two loops on the node point so they
-    don't overlap.
+    stroke included, with a little air either side: how much of the turn
+    around the node it takes in a fan.
 */
 export function selfLoopSpread(
   node: LoopNode,
@@ -185,36 +237,41 @@ export function selfLoopSpread(
   strokeWidth = 0,
 ): number {
   const local = {x: 0, y: 0, r: node.r};
-  const [p0, p1, p2, p3] = loopPoints(local, 0, Math.max(0, reach));
+  const sw = strokeWidthOf(strokeWidth);
+  const [p0, p1, p2, p3] = loopPoints(local, 0, Math.max(0, reach), sw);
   let half = 0;
   for (let k = 0; k <= 24; k++) {
     const [x, y] = cubicPoint(p0, p1, p2, p3, k / 24);
     half = Math.max(half, Math.abs(Math.atan2(y, x)));
   }
-  const stroke = Math.atan2(
-    Math.max(0, strokeWidth) / 2,
-    Math.max(0, node.r) + reach / 2,
-  );
+  const stroke = Math.atan2(sw / 2, Math.max(0, node.r) + reach / 2);
   // A little air between neighbors.
   return (half + stroke) * 2 * 1.1;
 }
 
 /**
-    The directions for `count` loops on one node: centered on `angle`,
-    `spread` radians apart, or evenly around the node when they need more
-    than a full turn.
+    The directions for a fan of loops on one node, one per entry in
+    `spreads` (each the angle its loop covers, see `selfLoopSpread`), in
+    order around the node: neighbors sit half of each one's spread apart,
+    and the fan is centered on `angle`. When the fan needs more than a full
+    turn, every gap shrinks in proportion so the fan closes into one turn.
 */
 export function selfLoopAngles(
   angle: number,
-  count: number,
-  spread: number,
+  spreads: readonly number[],
 ): number[] {
-  if (count <= 0) return [];
-  const step = Math.min(spread, (Math.PI * 2) / count);
-  return Array.from(
-    {length: count},
-    (_, k) => angle + (k - (count - 1) / 2) * step,
-  );
+  const count = spreads.length;
+  if (!count) return [];
+  const gaps = spreads.slice(1).map((s, k) => (spreads[k] + s) / 2);
+  const span = gaps.reduce((sum, g) => sum + g, 0);
+  // The whole turn the fan would take, closing back round to its first loop.
+  const ring = span + (spreads[0] + spreads[count - 1]) / 2;
+  const scale = count > 1 && ring > Math.PI * 2 ? (Math.PI * 2) / ring : 1;
+  let at = angle - (span * scale) / 2;
+  return spreads.map((_, k) => {
+    if (k) at += gaps[k - 1] * scale;
+    return at;
+  });
 }
 
 /**
@@ -276,13 +333,15 @@ export function awayFromAngle(
 }
 
 /**
-    Lays out a set of loops: every node's loops share one size (the largest
-    `reach` among them), and fan out around the node's direction so they
-    don't draw over each other, the heaviest in the middle.
+    Lays out a set of loops: every node's loops share one hairline size (the
+    largest `reach` among them), each stroked by its own `strokeWidth`, and
+    fan out around the node's direction so they don't draw over each other,
+    the heaviest in the middle. Each loop takes as much of the fan as its
+    own stroke needs.
     @param loops The loops, each a link from a node to itself.
     @param opts `node` gives a loop's node (with an `id`), `angle` the
-    direction a node's loops point, `reach` how far a loop reaches, and
-    `strokeWidth` (optional) its stroke.
+    direction a node's loops point, `reach` how far a hairline loop reaches,
+    and `strokeWidth` (optional) its stroke.
 */
 export function layoutSelfLoops<L>(
   loops: readonly L[],
@@ -304,19 +363,23 @@ export function layoutSelfLoops<L>(
     const node = opts.node(group[0]);
     if (![node.x, node.y].every(Number.isFinite)) continue;
     const reach = Math.max(...group.map(l => opts.reach(l)));
-    const stroke = Math.max(0, ...group.map(l => opts.strokeWidth?.(l) ?? 0));
-    const angles = selfLoopAngles(
-      opts.angle(node),
-      group.length,
-      selfLoopSpread(node, reach, stroke),
-    );
     // The heaviest loop takes the middle of the fan, where the most room is.
     const heaviest = group
-      .map((loop, k) => ({loop, k, w: opts.strokeWidth?.(loop) ?? 0}))
+      .map((loop, k) => ({
+        loop,
+        k,
+        w: strokeWidthOf(opts.strokeWidth?.(loop) ?? 0),
+      }))
       .sort((a, b) => b.w - a.w || a.k - b.k);
     const slots = fanOrder(group.length);
-    heaviest.forEach(({loop}, k) =>
-      out.set(loop, selfLoopGeometry(node, angles[slots[k]], reach)),
+    const bySlot = new Array<(typeof heaviest)[number]>(group.length);
+    heaviest.forEach((entry, k) => (bySlot[slots[k]] = entry));
+    const angles = selfLoopAngles(
+      opts.angle(node),
+      bySlot.map(({w}) => selfLoopSpread(node, reach, w)),
+    );
+    bySlot.forEach(({loop, w}, slot) =>
+      out.set(loop, selfLoopGeometry(node, angles[slot], reach, w)),
     );
   }
   return out;
