@@ -242,10 +242,14 @@ function moveTarget(
   return undefined;
 }
 
-/** The keydown handler: arrows, Home/End, Enter/Space, and Escape. */
+/** The keydown handler: the chart's own keys, then arrows, Home/End, Enter/Space, and Escape. */
 function onKeydown(viz: VizInstance, state: KeyboardNavState, e: Event): void {
   const event = e as KeyboardEvent;
   if (event.altKey || event.ctrlKey || event.metaKey) return;
+  if (viz._keyboardGesture?.keydown(event)) {
+    event.preventDefault();
+    return;
+  }
   const {key} = event;
   const targets = paintedTargets(viz);
   const current = currentTarget(state, targets);
