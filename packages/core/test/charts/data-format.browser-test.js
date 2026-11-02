@@ -155,7 +155,7 @@ it("dataFormat: formats inline rows once per data(), from the rows given", async
   });
 });
 
-it("dataFormat: a new formatter re-runs on the next render, re-fetching the URL", async () => {
+it("dataFormat: a new formatter re-runs on the next render, over the cached response", async () => {
   const out = await inPage(async ({serve, draw, values, bar}) => {
     const server = serve({
       "/__fmt/both.json": {
@@ -184,7 +184,7 @@ it("dataFormat: a new formatter re-runs on the next render, re-fetching the URL"
     first: {a: 1},
     unchanged: 1,
     second: {b: 2},
-    requests: 2,
+    requests: 1,
   });
 });
 

@@ -123,8 +123,9 @@ them) and returns the rows to draw:
 - It runs when the chart renders, so it doesn't matter whether `data` or
   `dataFormat` is set first, in one `config()` call or in separate ones.
 - It runs on rows passed as `data` too, not only on fetched files.
-- Setting a new `dataFormat` re-runs it on the next render, fetching a URL
-  again. Setting `data` alone keeps the current `dataFormat`.
+- Setting a new `dataFormat` re-runs it on the next render, over the response
+  the chart already fetched. Setting `data` alone keeps the current
+  `dataFormat`.
 - Every `dataPollingInterval` poll runs it.
 
 A formatter can also return a config object holding the rows as its `data`
@@ -157,6 +158,16 @@ ArcDiagram, and `topojsonFormat` and `linksFormat` on Geomap.
   nodesFormat: json => json.vertices
 }} />
 ```
+
+### Caching
+
+Each chart keeps its 10 most recent responses, as fetched and before any
+formatter runs, keyed by the loader and the request (every URL and a request
+object's `fetch` options). Setting the same `data` URL again, or a new
+`dataFormat`, draws from that copy without a request, and so do `links`,
+`nodes`, and `topojson`. A failed request is not kept, so setting the URL again
+retries it. To fetch on every load, set `cache: false`; to re-fetch on a
+schedule, use `dataPollingInterval`, whose polls always go to the server.
 
 ## Live data
 

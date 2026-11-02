@@ -1,6 +1,7 @@
 import {afterEach, it, vi} from "vitest";
 import assert from "assert";
 import {default as load} from "../src/load.ts";
+import cacheKey from "../src/cacheKey.ts";
 
 const files = {
   "rows.json": JSON.stringify([
@@ -31,11 +32,24 @@ function stubFetch() {
   return requests;
 }
 
+/** A Map-backed cache that records its writes. */
+function memoryCache() {
+  const map = new Map();
+  return {
+    entries: [],
+    get: k => map.get(k),
+    set(k, v) {
+      this.entries.push([k, v]);
+      map.set(k, v);
+    },
+  };
+}
+
 /** A minimal viz context, recording `config()` calls and cache writes. */
 function context(extra = {}) {
   const ctx = {
     _cache: false,
-    _lrucache: {entries: [], set: (k, v) => ctx._lrucache.entries.push([k, v])},
+    _lrucache: memoryCache(),
     configs: [],
     config: obj => ctx.configs.push(obj),
     ...extra,
@@ -181,14 +195,93 @@ it("load: formatters also run on arrays that need no fetch", async () => {
   assert.deepStrictEqual(ctx.configs, [{legend: false}]);
 });
 
-it("load: with caching on, the loaded result is cached by key and URL", async () => {
+it("load: with caching on, the raw payload is cached under cacheKey", async () => {
   stubFetch();
   const ctx = context({_cache: true, _data: []});
+  await run(ctx, "folded.json", rows => rows.slice(0, 1), "data");
+  assert.deepStrictEqual(ctx._data, [{id: "a", value: 1}], "formatted");
+  assert.deepStrictEqual(ctx._lrucache.entries, [
+    [
+      cacheKey("data", "folded.json"),
+      [
+        [
+          {id: "a", value: 1},
+          {id: "b", value: 2},
+        ],
+      ],
+    ],
+  ]);
+});
+
+it("load: schema.cache turns caching on unless _cache overrides it", async () => {
+  stubFetch();
+  const schemaOn = context({_cache: undefined, schema: {cache: true}});
+  await run(schemaOn, "rows.json", undefined, "nodes");
+  assert.strictEqual(schemaOn._lrucache.entries.length, 1);
+  const overridden = context({_cache: false, schema: {cache: true}});
+  await run(overridden, "rows.json", undefined, "nodes");
+  assert.strictEqual(overridden._lrucache.entries.length, 0);
+  const schemaOff = context({_cache: undefined, schema: {cache: false}});
+  await run(schemaOff, "rows.json", undefined, "nodes");
+  assert.strictEqual(schemaOff._lrucache.entries.length, 0);
+});
+
+it("load: a cached request formats a copy at once, without fetching", async () => {
+  const requests = stubFetch();
+  const ctx = context({_cache: true, _data: []});
   await run(ctx, "rows.json", undefined, "data");
+  let called = false;
+  load.call(
+    ctx,
+    "rows.json",
+    rows => {
+      rows[0].value = 99;
+      return rows;
+    },
+    "data",
+    () => (called = true),
+  );
+  assert.strictEqual(called, true, "calls back synchronously");
+  assert.strictEqual(ctx._data[0].value, 99);
+  assert.strictEqual(requests.length, 1, "no second request");
+  let again;
+  load.call(ctx, "rows.json", undefined, "data", (e, d) => (again = d));
+  assert.strictEqual(again[0].value, 5, "the cached payload is unchanged");
+});
+
+it("load: request options and every URL of a list are part of the key", async () => {
+  const requests = stubFetch();
+  const ctx = context({_cache: true, schema: {}});
+  const request = {url: "rows.json", headers: {A: "1"}};
+  await run(ctx, request, undefined, "links");
+  await run(ctx, {url: "rows.json", headers: {A: "2"}}, undefined, "links");
+  await run(ctx, request, undefined, "links");
+  await run(ctx, ["rows.json", "more.json"], undefined, "links");
+  await run(ctx, ["rows.json", "more.json"], undefined, "links");
+  assert.strictEqual(
+    requests.length,
+    4,
+    "header change refetches; repeats hit",
+  );
   assert.deepStrictEqual(
     ctx._lrucache.entries.map(([k]) => k),
-    ["data_rows.json"],
+    [
+      cacheKey("links", request),
+      cacheKey("links", {url: "rows.json", headers: {A: "2"}}),
+      cacheKey("links", ["rows.json", "more.json"]),
+    ],
   );
+  assert.strictEqual(ctx.schema.links.length, 2, "a list stays one load");
+});
+
+it("load: a failed fetch and rows that need no fetch are not cached", async () => {
+  stubFetch();
+  const ctx = context({_cache: true, _data: []});
+  const [error] = await run(ctx, "missing.json", undefined, "data");
+  assert.ok(error instanceof Error);
+  await run(ctx, ["rows.json", "missing.json"], undefined, "data");
+  await run(ctx, [{id: "a"}], undefined, "data");
+  assert.deepStrictEqual(ctx._lrucache.entries, []);
 });
 
 it("load: a failed fetch hands the error to the callback without logging it", async () => {

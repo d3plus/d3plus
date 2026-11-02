@@ -917,7 +917,17 @@ export interface D3plusConfig {
   brushing?: boolean;
   /** Bullet: the most each bullet's band can be thick, in pixels (default 40); raise it to let rows fill a tall chart. */
   bulletSize?: number;
-  /** Whether to cache the processed data between renders. */
+  /**
+      Whether the chart keeps the files it fetches for `data`, `links`,
+      `nodes`, `topojson`, and `fitObject`. Each chart has its own cache of
+      its 10 most recent requests, keyed by the loader and the request (every
+      URL, and a request object's `fetch` options). It holds each response as
+      fetched, before its `*Format` formatter runs, so setting the same URL
+      again, or a new formatter, draws from the cache without a request. A
+      failed request is not kept. Defaults to `true`; set it to `false` to
+      fetch on every load, or use `dataPollingInterval` to re-fetch `data` on
+      a schedule (polls always fetch).
+  */
   cache?: boolean;
   /** Calendar: styles the weekday, month, and year labels (`fontColor`, `fontFamily`, `fontSize`, default `11`, and `fontWeight`). */
   calendarLabelConfig?: {
@@ -1100,8 +1110,8 @@ export interface D3plusConfig {
       response can set options such as `title` from what it contains.
 
       It runs when the chart renders, whichever order `data` and `dataFormat`
-      are set in, and setting it again re-runs it on the next render (a URL is
-      fetched again). Every `dataPollingInterval` poll runs it too. Passing a
+      are set in, and setting it again re-runs it on the next render, over the
+      cached response (see `cache`). Every `dataPollingInterval` poll runs it too. Passing a
       formatter as the second argument of `data(url, format)` sets it, and
       setting `data` alone keeps it.
   */

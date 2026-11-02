@@ -4,6 +4,7 @@ import type {DataPoint} from "./DataPoint.js";
 import fold from "./fold.js";
 import concat from "./concat.js";
 import isData from "./isData.js";
+import cacheKey from "./cacheKey.js";
 
 type DataFormatter = (
   data: DataPoint[] | DataPoint[][],
@@ -15,12 +16,39 @@ interface LoadRequestConfig {
   [key: string]: unknown;
 }
 
+/** A chart's data cache: raw payloads by `cacheKey`. */
+interface LoadCache {
+  get(key: string): unknown;
+  set(key: string, value: unknown): void;
+}
+
 interface VizContext {
-  _cache: boolean;
-  _lrucache: {set(key: string, value: DataPoint[] | DataPoint[][]): void};
+  /** Overrides `schema.cache` (a poll passes `false` to always fetch). */
+  _cache?: boolean;
+  _lrucache?: LoadCache;
   config(obj: Record<string, unknown>): void;
   schema?: Record<string, unknown>;
   [key: string]: unknown;
+}
+
+/**
+  The cache a load reads and writes, when the context caches: its `_cache` flag
+  when set, else its `schema.cache`.
+  @private
+*/
+function loadCache(ctx: VizContext): LoadCache | undefined {
+  const enabled =
+    typeof ctx._cache === "boolean" ? ctx._cache : Boolean(ctx.schema?.cache);
+  return enabled ? ctx._lrucache : undefined;
+}
+
+/**
+  A deep copy of a payload, so the cached one is never changed by a formatter
+  or the chart drawing it.
+  @private
+*/
+function copy<T>(value: T): T {
+  return typeof structuredClone === "function" ? structuredClone(value) : value;
 }
 
 /**
@@ -125,7 +153,36 @@ function applyFormatter(
 }
 
 /**
+  Formats a complete set of loaded payloads, stores the result under `key`,
+  and hands it to the callback.
+  @private
+*/
+function finish(
+  ctx: VizContext,
+  loaded: (DataPoint[] | undefined)[],
+  formatter: DataFormatter | undefined,
+  key: string | undefined,
+  error: null | undefined,
+  callback?: (
+    error: Error | null | undefined,
+    data: DataPoint[] | DataPoint[][] | undefined,
+  ) => void,
+): void {
+  const result = applyFormatter(
+    ctx,
+    loaded,
+    formatter,
+    key,
+    pickInitial(loaded),
+  );
+  if (key) storeLoaded(ctx, key, result);
+  if (callback) callback(error, result);
+}
+
+/**
   Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
+
+  When the context caches (its `_cache` flag, else its `schema.cache`), the fetched payloads are kept in its `_lrucache` under `cacheKey(key, path)`, before the formatter runs, and a later load of the same request formats the cached copy at once, calling back synchronously, instead of fetching again. A failed request is not cached.
   @param path The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.
   @param formatter Optional function to transform the loaded data.
   @param key The key in the `this` context to save the resulting data to.
@@ -162,6 +219,15 @@ export default function (
     loaded[0] = path as DataPoint[];
   }
 
+  const cache = toLoad.length && key ? loadCache(this) : undefined;
+  const storeKey = cache ? cacheKey(key!, path) : "";
+  const cached = cache?.get(storeKey) as
+    (DataPoint[] | undefined)[] | undefined;
+  if (cached) {
+    finish(this, copy(cached), formatter, key, undefined, callback);
+    return;
+  }
+
   // Load all urls an combine them with data arrays
   const alreadyLoaded = loadedLength(loaded);
   toLoad.forEach(dataItem => {
@@ -187,11 +253,8 @@ export default function (
         ] = data as DataPoint[];
         // All urls loaded
         if (loadedLength(loaded) - alreadyLoaded === toLoad.length) {
-          let result = pickInitial(loaded);
-          if (this._cache) this._lrucache.set(`${key}_${url}`, result);
-          result = applyFormatter(this, loaded, formatter, key, result);
-          if (key) storeLoaded(this, key, result);
-          if (callback) callback(undefined, result);
+          if (cache) cache.set(storeKey, copy(loaded));
+          finish(this, loaded, formatter, key, undefined, callback);
         }
       })
       .catch((err: Error) => {
@@ -212,10 +275,6 @@ export default function (
         return fold(data as unknown as Parameters<typeof fold>[0]);
       return data;
     });
-
-    let result = pickInitial(loaded);
-    result = applyFormatter(this, loaded, formatter, key, result);
-    if (key && `_${key}` in this) this[`_${key}`] = result;
-    if (callback) callback(null, result);
+    finish(this, loaded, formatter, key, null, callback);
   }
 }

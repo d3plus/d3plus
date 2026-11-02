@@ -118,7 +118,8 @@ export function setLoaderValue(
 /**
     Brings each loader's stored payload in line with its current `<key>Format`
     before a render draws: a URL whose formatter changed since it loaded is
-    queued to load again, and an inline value is formatted in place from the
+    queued to load again (from the chart's cache when it holds the response),
+    and an inline value is formatted in place from the
     value it was given. Queued loads already use the current formatter.
     @private
 */
