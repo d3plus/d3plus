@@ -73,7 +73,8 @@ function installRingsAccessors(viz: VizInstance): void {
       The edges that connect the `nodes`. The `source` and `target` of each
       link refer to a node by its `id`, by the node object itself (matched by
       its `id`), or by its index in the `nodes` array. Links to a node that
-      doesn't exist are dropped.
+      doesn't exist are dropped. A link whose `source` and `target` are the
+      same node draws as a loop on that node.
 
       Accepts an array of links, or a URL/filepath string to load them from.
       An optional formatting function can be passed as a second argument; it
@@ -264,7 +265,9 @@ export const ringsDef: ChartDefinition = {
     {key: "arrows", default: false},
     /**
         The arrowhead size in pixels, or an accessor function returning one
-        per link. Defaults to three times the link's stroke width (at least 6).
+        per link. Defaults to three times the link's stroke width, at least 6
+        and at most 12 pixels, but never under 1.5 times the stroke width so
+        the head stays wider than its line. The line stops inside the head.
         @type {number | function}
     */
     {key: "arrowSize"},

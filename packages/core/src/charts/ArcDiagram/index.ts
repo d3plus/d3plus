@@ -26,6 +26,7 @@ import {isPointShape} from "../viz/nearestHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {linkMeta, linkTooltipConfig} from "../features/linkInteraction.js";
+import {isSelfLoopMark} from "../features/selfLoops.js";
 import {installGraphFluent} from "../Network/graphFluent.js";
 import type {GraphFluent} from "../Network/graphFluent.js";
 import {applyArcDiagramLayout, arcSizeLegendScale} from "./applyLayout.js";
@@ -88,8 +89,9 @@ export const arcDiagramDef: ChartDefinition = {
     };
   },
 
-  // Nodes are points for `hoverDistance`; arcs keep exact hit-testing.
-  pointMark: (_viz, node) => isPointShape(node),
+  // Nodes (and loops, which sit within reach of their node) are points for
+  // `hoverDistance`; arcs keep exact hit-testing.
+  pointMark: (_viz, node) => isPointShape(node) || isSelfLoopMark(node),
 
   ctx: {},
 
@@ -110,7 +112,9 @@ export const arcDiagramDef: ChartDefinition = {
     {key: "arrows", default: false},
     /**
         The arrowhead size in pixels, or an accessor function returning one
-        per link. Defaults to three times the arc's stroke width (at least 6).
+        per link. Defaults to three times the arc's stroke width, at least 6
+        and at most 12 pixels, but never under 1.5 times the stroke width so
+        the head stays wider than its line. The line stops inside the head.
     */
     {key: "arrowSize"},
     ...linkStyleFields(),

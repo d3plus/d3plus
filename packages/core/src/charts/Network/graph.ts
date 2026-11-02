@@ -14,6 +14,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {makeLinkDatum, setLinkValue} from "../features/linkInteraction.js";
 import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
+import type {SelfLoopGeometry} from "../features/selfLoops.js";
 
 /** One resolved node: its merged row, its `nodes` entry, and its sizing inputs. */
 export interface GraphNode extends SimulationNodeDatum {
@@ -40,6 +41,8 @@ export interface GraphLink {
   size: number;
   /** The datum the link is drawn with, when both its ends resolve (see `makeLinkDatum`). */
   datum?: LinkDatum;
+  /** The loop a link from a node to itself draws as, once laid out. */
+  loop?: SelfLoopGeometry;
 }
 
 /** A node record as a link end. */
@@ -127,7 +130,7 @@ export function resolveGraphNodes(v: VizInstance): GraphNode[] {
     that matches no node is undefined. A link whose ends both resolve gets its
     datum, which `linkSize` receives (with the link's index). Stashes the id → node lookup on
     `v.ctx.nodeLookup` and the id → neighbor nodes lookup on
-    `v.ctx.linkLookup`.
+    `v.ctx.linkLookup` (a link from a node to itself adds no neighbor).
 */
 export function resolveGraphLinks(
   v: VizInstance,
@@ -167,7 +170,8 @@ export function resolveGraphLinks(
   });
 
   v.ctx.linkLookup = links.reduce((obj: Record<string, GraphNode[]>, d) => {
-    if (!d.source || !d.target) return obj;
+    // A link from a node to itself adds no neighbor.
+    if (!d.source || !d.target || d.source === d.target) return obj;
     if (!obj[d.source.id]) obj[d.source.id] = [];
     obj[d.source.id].push(d.target);
     if (!obj[d.target.id]) obj[d.target.id] = [];

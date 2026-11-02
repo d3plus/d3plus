@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Self-Loops</title>
+    <meta
+      name="description"
+      content="Network links from a node to itself drawn as loops, with arrows, labels, and several loops on one node."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Each link whose source and target are the same node draws as a loop,
+    // pointing into the widest gap between the node's other links. "hub" has
+    // three loops, which fan out side by side; "zeta" has one other link, so
+    // its loop points straight away from it.
+    var nodes = [
+      {id: "hub"},
+      {id: "alpha"},
+      {id: "beta"},
+      {id: "gamma"},
+      {id: "delta"},
+      {id: "epsilon"},
+      {id: "zeta"},
+    ];
+
+    var links = [
+      {source: "hub", target: "alpha", trips: 12},
+      {source: "hub", target: "beta", trips: 8},
+      {source: "hub", target: "gamma", trips: 5},
+      {source: "gamma", target: "delta", trips: 3},
+      {source: "delta", target: "epsilon", trips: 6},
+      {source: "epsilon", target: "alpha", trips: 2},
+      {source: "hub", target: "hub", trips: 10},
+      {source: "hub", target: "hub", trips: 4},
+      {source: "hub", target: "hub", trips: 2},
+      {source: "beta", target: "beta", trips: 7},
+      {source: "delta", target: "zeta", trips: 4},
+      {source: "zeta", target: "zeta", trips: 9},
+    ];
+
+    new d3plus.Network()
+      .links(links)
+      .nodes(nodes)
+      .linkSize(d => d.trips)
+      .linkLabel(d => d.trips)
+      .arrows(true)
+      .render();
+  </script>
+</html>

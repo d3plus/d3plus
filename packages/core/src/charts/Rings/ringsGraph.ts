@@ -9,6 +9,7 @@ import type {DataPoint} from "@d3plus/data";
 import {makeLinkDatum, setLinkValue} from "../features/linkInteraction.js";
 import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import type {SelfLoopGeometry} from "../features/selfLoops.js";
 
 /**
     Single laid-out node — accreted across the layout's passes. Each
@@ -60,6 +61,8 @@ export interface RingsEdge {
   targetY?: number;
   targetBisectX?: number;
   targetBisectY?: number;
+  /** The loop a link from a node to itself draws as, once laid out. */
+  loop?: SelfLoopGeometry;
 }
 
 /** A node record as a link end. */
@@ -113,7 +116,8 @@ function resolveRingsLinkEnd(
 /**
     Build the Rings node set + link descriptors from filtered data and schema
     nodes/links. Stashes `nodeLookup` on `viz.ctx` and returns the working
-    `nodes`, `nodeLookup`, `links`, and per-node `linkMap`.
+    `nodes`, `nodeLookup`, `links`, and per-node `linkMap` (which leaves out
+    links from a node to itself).
 */
 export function buildRingsGraph(
   v: VizInstance,
@@ -201,8 +205,10 @@ export function buildRingsGraph(
     },
   );
 
+  // A link from a node to itself places nothing; it draws as a loop.
   const linkMap: Record<string, RingsEdge[]> = links.reduce(
     (map: Record<string, RingsEdge[]>, link) => {
+      if (link.source === link.target) return map;
       if (!map[link.source.id]) map[link.source.id] = [];
       map[link.source.id].push(link);
       if (!map[link.target.id]) map[link.target.id] = [];

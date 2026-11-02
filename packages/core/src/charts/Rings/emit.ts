@@ -9,10 +9,9 @@ import type {Paint, SceneNode, Transform} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {
-  arrowEnds,
-  arrowNode,
-  arrowSizeFor,
+  edgeArrowTrims,
   straightEdgeArrows,
+  straightEdgeD,
 } from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {
@@ -34,6 +33,9 @@ import type {LinkEnds} from "../features/linkColor.js";
 import {cubicMidpoint, segmentMidpoint} from "../features/linkLabelGeometry.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
+import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
+import {chordArrowNodes, cubicArrowEdge} from "../features/curvedArrows.js";
+import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -53,6 +55,7 @@ export interface RingsEdge {
   targetY?: number;
   targetBisectX?: number;
   targetBisectY?: number;
+  loop?: SelfLoopGeometry;
 }
 type RingsNode = DataPoint & {
   __d3plus__?: true;
@@ -91,6 +94,17 @@ function ringsEdgeArrows(
   const arrows = viz.schema.arrows as ArrowValue;
   const baseKey = `${edge.source.id}-${edge.target.id}-${i}`;
   const fill = typeof stroke === "string" ? stroke : undefined;
+  if (edge.loop)
+    return selfLoopArrows({
+      arrows,
+      arrowSize: viz.schema.arrowSize,
+      strokeWidth,
+      datum,
+      i,
+      keyPrefix: `rings-arrow-${baseKey}`,
+      fill,
+      loop: edge.loop,
+    });
   if (!edge.spline) {
     return straightEdgeArrows({
       arrows,
@@ -104,61 +118,88 @@ function ringsEdgeArrows(
       target: edge.target as unknown as {x: number; y: number; r?: number},
     });
   }
-  const ends = arrowEnds(arrows, datum, i);
-  if (!ends.source && !ends.target) return [];
-  const size = arrowSizeFor(
-    viz.schema.arrowSize,
+  const curve = ringsCurve(edge);
+  if (!curve) return [];
+  const trims = ringsTrims(viz, edge, i, strokeWidth);
+  if (!trims.ends.source && !trims.ends.target) return [];
+  return chordArrowNodes({
+    ends: cubicArrowEdge(curve, trims),
+    size: trims.size,
     datum,
-    i,
-    typeof strokeWidth === "number" ? strokeWidth : 1,
-  );
-  const out: SceneNode[] = [];
-  if (ends.target && edge.targetX != null) {
-    const angle = Math.atan2(
-      edge.targetY! - edge.targetBisectY!,
-      edge.targetX - edge.targetBisectX!,
-    );
-    out.push(
-      arrowNode({
-        key: `rings-arrow-t-${baseKey}`,
-        datum,
-        x: edge.targetX,
-        y: edge.targetY!,
-        angle,
-        size,
-        fill,
-      }),
-    );
-  }
-  if (ends.source && edge.sourceX != null) {
-    const angle = Math.atan2(
-      edge.sourceY! - edge.sourceBisectY!,
-      edge.sourceX - edge.sourceBisectX!,
-    );
-    out.push(
-      arrowNode({
-        key: `rings-arrow-s-${baseKey}`,
-        datum,
-        x: edge.sourceX,
-        y: edge.sourceY!,
-        angle,
-        size,
-        fill,
-      }),
-    );
-  }
-  return out;
+    keyPrefix: "rings-arrow",
+    keys: {
+      source: `rings-arrow-s-${baseKey}`,
+      target: `rings-arrow-t-${baseKey}`,
+    },
+    fill,
+  });
 }
 
-/** An edge's scene key. */
-const ringsLinkKey = (edge: RingsEdge): string =>
-  `rings-link-${edge.source.id}-${edge.target.id}`;
+/** A spline edge's curve, from its source end to its target end, or null for a straight edge. */
+function ringsCurve(
+  edge: RingsEdge,
+):
+  | [[number, number], [number, number], [number, number], [number, number]]
+  | null {
+  if (!edge.spline || edge.sourceX == null || edge.targetX == null) return null;
+  return [
+    [edge.sourceX, edge.sourceY!],
+    [edge.sourceBisectX!, edge.sourceBisectY!],
+    [edge.targetBisectX!, edge.targetBisectY!],
+    [edge.targetX, edge.targetY!],
+  ];
+}
+
+/** An edge's arrow ends, size, and stroke trims. */
+const ringsTrims = (
+  viz: VizInstance,
+  edge: RingsEdge,
+  i: number,
+  strokeWidth: unknown,
+) =>
+  edgeArrowTrims({
+    arrows: viz.schema.arrows as ArrowValue,
+    arrowSize: viz.schema.arrowSize,
+    strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
+    datum: edge.datum,
+    i,
+  });
 
 /**
-    Where an edge's label goes: halfway along a spline edge's curve, or
-    along a straight edge's run between its nodes.
+    An edge's visible stroke: `d`, cut short inside its arrowheads (see
+    `edgeArrowTrims`). A spline edge or a loop follows its curve up to each
+    head's base, then runs along the head's axis (see `cubicArrowEdge`); a
+    spline's arrow tips sit on the node's edge, where the curve ends.
+*/
+export function ringsVisibleD(
+  viz: VizInstance,
+  edge: RingsEdge,
+  i: number,
+  strokeWidth: unknown,
+  d: string,
+): string {
+  const trims = ringsTrims(viz, edge, i, strokeWidth);
+  if (!trims.source && !trims.target) return d;
+  if (edge.loop) return selfLoopD(edge.loop, trims);
+  const curve = ringsCurve(edge);
+  if (curve) return cubicArrowEdge(curve, trims).d;
+  return straightEdgeD(
+    edge.source as unknown as {x: number; y: number; r?: number},
+    edge.target as unknown as {x: number; y: number; r?: number},
+    trims,
+  );
+}
+
+/** An edge's scene key (a loop's names its index, as a node can have several). */
+const ringsLinkKey = (edge: RingsEdge): string =>
+  `rings-link-${edge.source.id}-${edge.target.id}${edge.loop ? `-${linkMeta(edge.datum)?.index ?? 0}` : ""}`;
+
+/**
+    Where an edge's label goes: halfway along a spline edge's curve, along
+    a straight edge's run between its nodes, or at a loop's far point.
 */
 export function ringsEdgeAnchor(edge: RingsEdge): LinkAnchor {
+  if (edge.loop) return edge.loop.apex;
   if (edge.spline && edge.sourceX != null && edge.targetX != null)
     return cubicMidpoint(
       [edge.sourceX, edge.sourceY!],
@@ -296,7 +337,7 @@ export const ringsEmit: ChartEmit = ({viz}) => {
       out.push({
         type: "path",
         key,
-        d,
+        d: ringsVisibleD(viz, edge, i, paint.strokeWidth, d),
         datum,
         index: i,
         paint,

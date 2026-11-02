@@ -24,6 +24,7 @@ import {
 import type {RingGeometry} from "./ringsSizing.js";
 import {publishLinkGraph} from "../features/linkInteraction.js";
 import {buildRingsGraph, ringsLinkEnd} from "./ringsGraph.js";
+import {ringsLoops} from "./ringsLoops.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 
@@ -283,6 +284,7 @@ function publishRingsCtx(
   edges: RingsEdge[],
 ): void {
   v.ctx.linkLookup = links.reduce((obj: Record<string, RingsNode[]>, d) => {
+    if (d.source === d.target) return obj;
     if (!obj[d.source.id]) obj[d.source.id] = [];
     obj[d.source.id].push(d.target);
     if (!obj[d.target.id]) obj[d.target.id] = [];
@@ -308,9 +310,11 @@ function publishRingsCtx(
   delete linkConfig.on;
 
   const linkD = (d: RingsEdge) =>
-    d.spline
-      ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
-      : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
+    d.loop
+      ? d.loop.d
+      : d.spline
+        ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
+        : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
 
   // The center's label sits inside its circle unless the circle is too small
   // (see `ringsCenterLabel`), in which case it sits below like any other.
@@ -497,6 +501,8 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   applyRingsLabelBounds(v, nodes, geom);
 
   publishRingsCtx(v, nodes, nodeLookup, links, edges);
+  // Loops take their stroke from the scaled link sizes.
+  edges.push(...ringsLoops(links, nodes, edges, center, geom));
 
   return {shapeData: nodes as unknown as DataPoint[]};
 };

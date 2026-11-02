@@ -20,7 +20,11 @@ import type {
   CircleLabelItem,
   CircleLabelLayout,
 } from "../features/circleLabels.js";
-import {straightEdgeArrows} from "../features/edgeArrows.js";
+import {
+  edgeArrowTrims,
+  straightEdgeArrows,
+  straightEdgeD,
+} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
@@ -39,6 +43,8 @@ import type {LinkDatum} from "../features/linkInteraction.js";
 import {linkColorResolver} from "../features/linkColor.js";
 import type {LinkEnds} from "../features/linkColor.js";
 import {segmentMidpoint} from "../features/linkLabelGeometry.js";
+import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
+import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -48,6 +54,7 @@ interface NetworkLink {
   target: DataPoint & {x: number; y: number};
   size?: number;
   datum?: LinkDatum;
+  loop?: SelfLoopGeometry;
 }
 type NetworkNode = DataPoint & {
   __d3plus__?: true;
@@ -69,7 +76,7 @@ interface NetworkCtx {
   nodeShapeConfig: Record<string, unknown>;
 }
 
-/** Arrowheads for one network link (straight, center-to-center). */
+/** Arrowheads for one network link (straight, center-to-center, or along its loop). */
 function networkLinkArrows(
   viz: VizInstance,
   link: NetworkLink,
@@ -79,7 +86,7 @@ function networkLinkArrows(
   i: number,
   keyPrefix: string,
 ): SceneNode[] {
-  return straightEdgeArrows({
+  const common = {
     arrows: viz.schema.arrows as ArrowValue,
     arrowSize: viz.schema.arrowSize,
     strokeWidth,
@@ -87,9 +94,41 @@ function networkLinkArrows(
     i,
     keyPrefix,
     fill: typeof stroke === "string" ? stroke : undefined,
+  };
+  if (link.loop) return selfLoopArrows({...common, loop: link.loop});
+  return straightEdgeArrows({
+    ...common,
     source: link.source as NetworkNode,
     target: link.target as NetworkNode,
   });
+}
+
+/**
+    A link's visible stroke: `d`, cut short inside its arrowheads (see
+    `edgeArrowTrims`) so the line doesn't show past their sides.
+*/
+function networkVisibleD(
+  viz: VizInstance,
+  link: NetworkLink,
+  datum: DataPoint,
+  i: number,
+  strokeWidth: unknown,
+  d: string,
+): string {
+  const trims = edgeArrowTrims({
+    arrows: viz.schema.arrows as ArrowValue,
+    arrowSize: viz.schema.arrowSize,
+    strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
+    datum,
+    i,
+  });
+  if (!trims.source && !trims.target) return d;
+  if (link.loop) return selfLoopD(link.loop, trims);
+  return straightEdgeD(
+    link.source as NetworkNode,
+    link.target as NetworkNode,
+    trims,
+  );
 }
 
 /**
@@ -115,7 +154,7 @@ function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
     out.push({
       type: "path",
       key,
-      d,
+      d: networkVisibleD(viz, link, datum, i, paint.strokeWidth, d),
       datum,
       index: i,
       paint,
@@ -144,8 +183,9 @@ const networkLinkKey = (link: NetworkLink, i: number): string =>
   `network-link-${(link.source as DataPoint).id ?? ""}-${(link.target as DataPoint).id ?? ""}-${i}`;
 
 /**
-    The link labels, at the middle of each link's run between its nodes,
-    clear of every node and every node label placed beside its node.
+    The link labels, at the middle of each link's run between its nodes (a
+    loop's far point), clear of every node and every node label placed
+    beside its node.
 */
 function networkLinkLabels(
   viz: VizInstance,
@@ -167,8 +207,9 @@ function networkLinkLabels(
           key: networkLinkKey(link, i),
           link,
           i,
-          anchor:
-            link.source && link.target
+          anchor: link.loop
+            ? link.loop.apex
+            : link.source && link.target
               ? segmentMidpoint(
                   [link.source.x, link.source.y],
                   [link.target.x, link.target.y],

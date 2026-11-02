@@ -6,6 +6,10 @@
 
 import type {DataPoint} from "@d3plus/data";
 
+import {arrowAlongChord, chordEndsPathD} from "../features/curvedArrows.js";
+import type {ArrowedEnd} from "../features/curvedArrows.js";
+import type {EdgeArrowTrims} from "../features/edgeArrows.js";
+
 /** How ArcDiagram orders its nodes along the line. */
 export type NodeSort =
   | "data"
@@ -215,6 +219,84 @@ export function arcEndTip(
   return {x, y, angle: Math.atan2(dy, dx)};
 }
 
+/**
+    The point on an arc's ellipse `length` pixels along it from where it
+    stands `inset` pixels out from the line at `end` (where `arcEndTip` puts
+    that end's arrow tip), toward the arc's top. It stops at the top.
+*/
+export function arcPointAlong(
+  arc: ArcGeometry,
+  end: "source" | "target",
+  inset: number,
+  length: number,
+): [number, number] {
+  const [endU, otherU] =
+    end === "target" ? [arc.to, arc.from] : [arc.from, arc.to];
+  const a = Math.abs(endU - otherU) / 2;
+  const b = a * arc.scale;
+  const center = (endU + otherU) / 2;
+  const toward = endU >= otherU ? 1 : -1;
+  let theta = b > 0 ? Math.asin(Math.min(1, Math.max(0, inset) / b)) : 0;
+  const steps = 512;
+  const dt = Math.PI / 2 / steps;
+  let left = Math.max(0, length);
+  while (left > 0 && theta < Math.PI / 2) {
+    const next = Math.min(Math.PI / 2, theta + dt);
+    const mid = (theta + next) / 2;
+    const ds =
+      Math.hypot(a * Math.sin(mid), b * Math.cos(mid)) * (next - theta);
+    if (ds >= left) {
+      theta += (next - theta) * (ds ? left / ds : 0);
+      left = 0;
+    } else {
+      left -= ds;
+      theta = next;
+    }
+  }
+  return arcPoint(
+    arc,
+    center + toward * a * Math.cos(theta),
+    b * Math.sin(theta),
+  );
+}
+
+/**
+    An arc's visible stroke and arrowed ends. Each head's tip sits on the
+    arc `insets` pixels out from the line (see `arcEndTip`), its base `size`
+    further along the arc, and it is aimed along the chord from base to tip.
+    The stroke follows the arc between the bases, then runs along each
+    head's axis to end inside it (see `cubicArrowEdge`). The full arc stays
+    its hit area.
+*/
+export function arcArrowEdge(
+  arc: ArcGeometry,
+  trims: EdgeArrowTrims,
+  insets: {source: number; target: number},
+): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
+  const {ends, size} = trims;
+  if (!ends.source && !ends.target) return {d: arcPathD(arc)};
+  const arrowed = (end: "source" | "target"): ArrowedEnd | undefined => {
+    if (!ends[end]) return undefined;
+    const tip = arcEndTip(arc, end, insets[end]);
+    return arrowAlongChord(
+      [tip.x, tip.y],
+      arcPointAlong(arc, end, insets[end], size),
+      trims[end],
+    );
+  };
+  const source = arrowed("source");
+  const target = arrowed("target");
+  const half = Math.abs(arc.to - arc.from) / 2;
+  const height = half * arc.scale;
+  const [x1, y1] = source ? source.base : arcPoint(arc, arc.from, 0);
+  const [x2, y2] = target ? target.base : arcPoint(arc, arc.to, 0);
+  const forward = arc.to > arc.from;
+  const sweep = forward === (arc.side === "above") ? 1 : 0;
+  const [rx, ry] = arc.orient === "vertical" ? [height, half] : [half, height];
+  const body = `M${round(x1)},${round(y1)}A${round(rx)},${round(ry)} 0 0,${sweep} ${round(x2)},${round(y2)}`;
+  return {d: chordEndsPathD(body, source, target), source, target};
+}
+
 /** The box an arc covers: its two ends and its highest point, as `[[x0, y0], [x1, y1]]`. */
 export function arcBox(arc: ArcGeometry): [[number, number], [number, number]] {
   const points = [
@@ -228,4 +310,41 @@ export function arcBox(arc: ArcGeometry): [[number, number], [number, number]] {
     [Math.min(...xs), Math.min(...ys)],
     [Math.max(...xs), Math.max(...ys)],
   ];
+}
+
+/** The cross-axis layout: how far arcs flatten, and where the line sits. */
+export function crossLayout(opts: {
+  cross: number;
+  spans: {above: number; below: number};
+  labelSide: "above" | "below";
+  labelBand: number;
+  rMax: number;
+  strokePad: number;
+  orient: ArcOrient;
+  /** How far loops reach out from the line, on each side. */
+  loops?: {above: number; below: number};
+}): {scale: number; base: number} {
+  const {cross, spans, labelSide, labelBand, rMax, strokePad} = opts;
+  const loops = opts.loops ?? {above: 0, below: 0};
+  const room = Math.max(0, cross - strokePad * 2);
+  const [labelArcs, otherArcs] =
+    labelSide === "above"
+      ? [spans.above, spans.below]
+      : [spans.below, spans.above];
+  const scale = Math.min(
+    arcScale(otherArcs, labelArcs, room).scale,
+    arcScale(otherArcs, 0, room - labelBand).scale,
+  );
+  const region = (span: number, labeled: boolean, loop: number) =>
+    Math.max((scale * span) / 2, labeled ? labelBand : rMax, loop);
+  const regionAbove = region(spans.above, labelSide === "above", loops.above);
+  const regionBelow = region(spans.below, labelSide === "below", loops.below);
+  // The region first along the cross axis: above a horizontal line (the top),
+  // or below a vertical one (its left, where "below" arcs and labels go).
+  const [first, second] =
+    opts.orient === "horizontal"
+      ? [regionAbove, regionBelow]
+      : [regionBelow, regionAbove];
+  const offset = Math.max(0, (cross - first - second - strokePad * 2) / 2);
+  return {scale, base: offset + strokePad + first};
 }

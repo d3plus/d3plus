@@ -21,6 +21,13 @@ import {shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import {publishLinkGraph} from "../features/linkInteraction.js";
+import {
+  awayFromAngle,
+  isSelfLoop,
+  layoutSelfLoops,
+  selfLoopReach,
+  widestGapAngle,
+} from "../features/selfLoops.js";
 import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import type {GraphLink, GraphNode} from "./graph.js";
 
@@ -110,7 +117,8 @@ function runForceLayout(nodes: NetworkNode[], links: NetworkLink[]): void {
     Gives every node an `fx`/`fy`: its own x/y, or — when any node lacks
     them — a force-simulated position. The simulation depends only on the
     node ids and links, so its result is cached on `v.ctx` and reused by the
-    size legend's pre-layout estimate and the layout that follows it.
+    size legend's pre-layout estimate and the layout that follows it. Links
+    from a node to itself don't take part.
 */
 function positionNetworkNodes(
   v: Parameters<TransformStage>[0]["viz"],
@@ -118,7 +126,9 @@ function positionNetworkNodes(
   links: NetworkLink[],
 ): void {
   if (!nodes.some(n => n.fx === undefined || n.fy === undefined)) return;
-  const key = `${nodes.map(n => n.id).join("\u0000")}|${links
+  // Only links between two resolved, distinct nodes pull on the layout.
+  const pulling = links.filter(l => l.source && l.target && !isSelfLoop(l));
+  const key = `${nodes.map(n => n.id).join("\u0000")}|${pulling
     .map(l => `${l.source.id}>${l.target.id}:${l.size}`)
     .join("\u0000")}`;
   const cache = v.ctx.networkForceCache as
@@ -130,7 +140,7 @@ function positionNetworkNodes(
     });
     return;
   }
-  runForceLayout(nodes, links);
+  runForceLayout(nodes, pulling);
   v.ctx.networkForceCache = {key, positions: nodes.map(n => [n.fx, n.fy])};
 }
 
@@ -164,15 +174,25 @@ export function networkSizeLegendScale(
     nodes,
     width,
     height,
+    loopedNodeIds(links),
   ) as unknown as SizeLegendScale;
 }
 
-/** Positions nodes within bounds and assigns final r/width/height via a fitted radius scale. */
+/** The ids of the nodes with a link to themselves. */
+function loopedNodeIds(links: NetworkLink[]): Set<string> {
+  return new Set(links.filter(l => isSelfLoop(l)).map(l => l.source.id));
+}
+
+/**
+    Positions nodes within bounds and assigns final r/width/height via a
+    fitted radius scale. Nodes in `looped` keep room for their loops.
+*/
 function scaleNetworkNodes(
   v: Parameters<TransformStage>[0]["viz"],
   nodes: NetworkNode[],
   width: number,
   height: number,
+  looped: Set<string> = new Set(),
 ): RScale {
   const xExtent = extent(nodes.map(n => n.fx)) as unknown as [number, number];
   const yExtent = extent(nodes.map(n => n.fy)) as unknown as [number, number];
@@ -236,7 +256,11 @@ function scaleNetworkNodes(
   // flush against the bottom/side would otherwise lose a pixel or two of stroke.
   const strokePad = 3;
   nodes.forEach(n => {
-    const size = r(n.r) + strokePad;
+    const nr = r(n.r);
+    const size =
+      nr +
+      (looped.has(n.id) ? selfLoopReach(nr, 0) + strokePad : 0) +
+      strokePad;
     const nx = n.x ?? 0;
     const ny = n.y ?? 0;
     if (xDomain[0] > x.invert(nx - size)) xDomain[0] = x.invert(nx - size);
@@ -289,6 +313,43 @@ function normalizeLinkStrokes(
   }
 }
 
+/**
+    Shapes each link from a node to itself as a loop, pointing into the
+    widest gap between the node's other links, or away from the middle of
+    the network when it has none. A node's loops fan out side by side.
+*/
+function placeNetworkLoops(nodes: NetworkNode[], links: NetworkLink[]): void {
+  const loops = links.filter(l => l.datum && isSelfLoop(l));
+  if (!loops.length) return;
+  const neighbors = new Map<string, [number, number][]>();
+  for (const l of links) {
+    if (!l.source || !l.target || isSelfLoop(l)) continue;
+    for (const [a, b] of [
+      [l.source, l.target],
+      [l.target, l.source],
+    ]) {
+      if (!neighbors.has(a.id)) neighbors.set(a.id, []);
+      neighbors.get(a.id)!.push([b.x ?? 0, b.y ?? 0]);
+    }
+  }
+  const center: [number, number] = [
+    nodes.reduce((sum, n) => sum + (n.x ?? 0), 0) / nodes.length,
+    nodes.reduce((sum, n) => sum + (n.y ?? 0), 0) / nodes.length,
+  ];
+  const placed = layoutSelfLoops(loops, {
+    node: l => l.source as NetworkNode & {x: number; y: number},
+    angle: n =>
+      widestGapAngle(
+        [n.x, n.y],
+        neighbors.get(n.id) ?? [],
+        awayFromAngle([n.x, n.y], center),
+      ),
+    reach: l => selfLoopReach(l.source.r, l.size),
+    strokeWidth: l => l.size,
+  });
+  for (const [link, loop] of placed) link.loop = loop;
+}
+
 export const applyNetworkLayout: TransformStage = ({viz}) => {
   const v = viz;
   const {width, height} = chartBounds(v);
@@ -307,9 +368,10 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
 
   positionNetworkNodes(v, nodes, links);
 
-  const r = scaleNetworkNodes(v, nodes, width, height);
+  const r = scaleNetworkNodes(v, nodes, width, height, loopedNodeIds(links));
   v._sizeLegendFinal = v._size ? (r as unknown as SizeLegendScale) : null;
   normalizeLinkStrokes(v, links, r);
+  placeNetworkLoops(nodes, links);
 
   const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");
   delete linkConfig.on;
@@ -323,7 +385,9 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
         : false,
   };
   const linkD = (d: NetworkLink) =>
-    `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
+    d.loop
+      ? d.loop.d
+      : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
 
   v.ctx.networkCtx = {links, linkConfig, linkD, nodeGroups, nodeShapeConfig};

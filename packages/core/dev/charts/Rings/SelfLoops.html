@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Self-Loops</title>
+    <meta
+      name="description"
+      content="Rings links from a node to itself drawn as loops on the center and ring nodes, clear of the node labels."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Links from a node to itself draw as loops on whichever placed node they
+    // belong to, pointing away from its links and its label. Click a node to
+    // re-center the rings on it.
+    var links = [
+      {source: "center", target: "alpha"},
+      {source: "center", target: "beta"},
+      {source: "center", target: "gamma"},
+      {source: "alpha", target: "delta"},
+      {source: "alpha", target: "epsilon"},
+      {source: "beta", target: "zeta"},
+      {source: "gamma", target: "eta"},
+      {source: "center", target: "center"},
+      {source: "alpha", target: "alpha"},
+      {source: "zeta", target: "zeta"},
+      {source: "eta", target: "eta"},
+    ];
+
+    new d3plus.Rings().links(links).center("center").arrows(true).render();
+  </script>
+</html>

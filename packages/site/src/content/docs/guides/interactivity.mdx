@@ -147,6 +147,13 @@ keyboard navigation reads each link as "Source to Target". Hovering a node
 lists its number of connections and, when the links differ in value, its
 strongest links (`nodeTooltipLinks` sets how many, `false` for none).
 
+A link whose `source` and `target` are the same node draws as a loop beside
+the node in Network, Rings, and ArcDiagram, and behaves like any other link:
+its tooltip reads "Node → Node", and the node's tooltip lists it as "↻ Node".
+A loop sits close to its node, so pointing at it always picks the loop rather
+than the nearest node. Sankey can't draw a flow back into the node it leaves,
+so it leaves such links out and logs a warning.
+
 Clicking a link (or pressing Enter on it with keyboard navigation) focuses it:
 the link and its two nodes stay bright and the rest dims, and Network zooms to
 fit them. Click it again, or click the chart's empty background, to clear the
