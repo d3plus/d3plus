@@ -587,7 +587,7 @@ export const geomapDef: ChartDefinition = {
   ctx: {},
 
   fields: [
-    ...loaderFormatFields("topojson"),
+    ...loaderFormatFields("topojson", "links"),
     {key: "fitObject", default: false},
     ...geomapLinkFields(),
     {key: "noDataMessage", default: false},

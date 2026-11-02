@@ -1657,7 +1657,8 @@ export interface D3plusConfig {
         i: number,
       ) => number);
   /**
-      Network, Rings, Sankey, Chord, and ArcDiagram: transforms `links`
+      Network, Rings, Sankey, Chord, ArcDiagram, and Geomap: transforms
+      `links`
       before they are drawn. The function receives the loaded file (or the
       Array passed as `links`) and returns the links Array. It runs when the
       chart renders, whichever order `links` and `linksFormat` are set in,

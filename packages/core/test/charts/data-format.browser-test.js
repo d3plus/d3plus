@@ -323,3 +323,26 @@ it("topojsonFormat: formats Geomap topojson set through config", async () => {
   });
   assert.deepStrictEqual(out, {type: "Topology", getter: true});
 });
+
+it("linksFormat: formats Geomap links loaded from a URL", async () => {
+  const out = await inPage(async ({serve, draw}) => {
+    serve({
+      "/__fmt/flows.json": {
+        flows: [{source: [-74, 40.7], target: [-0.1, 51.5], value: 3}],
+      },
+    });
+    const fmt = json => json.flows;
+    const viz = new window.d3plus.Geomap()
+      .select("#c")
+      .duration(0)
+      .tiles(false)
+      .config({links: "/__fmt/flows.json", linksFormat: fmt});
+    await draw(viz);
+    return {
+      links: viz.links().length,
+      drawn: viz._chartScene ? true : false,
+      getter: viz.linksFormat() === fmt,
+    };
+  });
+  assert.deepStrictEqual(out, {links: 1, drawn: true, getter: true});
+});
