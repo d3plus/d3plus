@@ -1569,8 +1569,23 @@ export interface D3plusConfig {
   */
   maxAngle?: number;
   /**
-      Colors each link of a Network, Rings, Sankey, or ArcDiagram, and its
-      arrowheads: `"source"` or `"target"` takes that end node's color, and
+      Geomap: how far each link bows into an arc, as a share of the distance
+      between its ends. `0` draws the plain great-circle path; the default
+      `0.2` lifts a link's middle by a fifth of that distance, to the left
+      of its direction (a negative value bows to the right), so links
+      running both ways between two places stay apart. On a flat map, a
+      link whose great circle the projection cuts (across the antimeridian,
+      or between `"geoAlbersUsa"`'s insets) is drawn on the screen between
+      its ends, bowed the same way, so it crosses the map instead of leaving
+      by one edge. On a projection that clips to a circle (a globe such as
+      `"geoOrthographic"`), links follow the great circle without the lift.
+  */
+  linkCurve?: number;
+  /** Geomap: the widest link, in pixels, when `linkSize` values differ (default `10`). */
+  linkSizeMax?: number;
+  /**
+      Colors each link of a Network, Rings, Sankey, ArcDiagram, or Geomap,
+      and its arrowheads: `"source"` or `"target"` takes that end node's color, and
       a key or accessor function reads a value from each link (receiving the
       link, with `source` and `target` set to the data of its nodes, and its
       index in `links`). A number is colored on the chart's
@@ -1579,7 +1594,8 @@ export interface D3plusConfig {
       links share it, on one domain); a string is a color when it parses as
       one, or else a category in the chart's palette, as `color` colors
       nodes. `false` (the default) draws every link in the theme's `link`
-      gray.
+      gray (on a Geomap, a gray halfway between the chart's background and
+      text colors, which reads over land and water alike).
   */
   linkColor?:
     | false
@@ -1588,8 +1604,8 @@ export interface D3plusConfig {
     | string
     | ((d: DataPoint, i: number) => unknown);
   /**
-      Text drawn at the middle of each link of a Network, Rings, Sankey, or
-      ArcDiagram: a key or accessor function (receiving the link, with
+      Text drawn at the middle of each link of a Network, Rings, Sankey,
+      ArcDiagram, or Geomap: a key or accessor function (receiving the link, with
       `source` and `target` set to the data of its nodes, and its index in
       `links`). It sits halfway along a link's length, centered on
       a Sankey band, and at the top of an ArcDiagram arc, on a pad of the
@@ -1610,9 +1626,10 @@ export interface D3plusConfig {
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
   link?: LinkOption;
   /**
-      Network, Rings, and ArcDiagram: the thickness of each link, as a pixel
-      number used for every link, or an accessor function whose values are
-      scaled between `linkSizeMin` and the smallest node's radius. The
+      Network, Rings, ArcDiagram, and Geomap: the thickness of each link, as
+      a pixel number used for every link, or an accessor function whose
+      values are scaled between `linkSizeMin` and the smallest node's radius
+      (Geomap: `linkSizeMax`). The
       function receives each link with its own fields, with `source` and
       `target` set to the data of the nodes at its ends (not their ids or
       indices), and its index in `links`. Link `shapeConfig` functions, arrow
@@ -1713,7 +1730,7 @@ export interface D3plusConfig {
     | "degree"
     | ((a: DataPoint, b: DataPoint) => number);
   /**
-      Network, Rings, Sankey, and ArcDiagram: how many links a node's tooltip
+      Network, Rings, Sankey, ArcDiagram, and Geomap: how many links a node's tooltip
       lists below its number of connections, strongest first, each as the
       node at its other end ("→ Target" or "← Source") and its value. A
       number, or `false` to list none. Defaults to 3 when the links differ

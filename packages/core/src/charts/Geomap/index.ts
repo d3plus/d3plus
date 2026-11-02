@@ -4,6 +4,9 @@
     Implementation files in this folder:
       - `applyLayout.ts` — topojson + projection + path/point compute.
       - `emit.ts` — country Paths + point Circles.
+      - `flowLinks.ts` / `flowGeometry.ts` — `links`: their ends, widths,
+        and great-circle paths; `flowEmit.ts` draws them, `flowEvents.ts`
+        wires their hover and click, and `flowFields.ts` declares their config.
 */
 
 import {color} from "d3-color";
@@ -40,6 +43,10 @@ import {
 } from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
 import {geomapEmit} from "./emit.js";
+import {setupGeomapLinks} from "./flowEvents.js";
+import {installGlobeRotation} from "./globeRotate.js";
+import {runChartDraw} from "../pipeline/runChartDraw.js";
+import {geomapLinkFields} from "./flowFields.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 
@@ -315,7 +322,9 @@ function setupGeomapFitFluent(viz: VizInstance): void {
       Accessor function for each data point's coordinates, as
       `[longitude, latitude]` (d3's coordinate order), or one coordinate for
       every point. Defaults to each row's `point` key. Rows with a coordinate are
-      drawn as points; the rest are matched to `topojson` shapes.
+      drawn as points; the rest are matched to `topojson` shapes. A point the
+      projection clips (on the far side of a globe, or outside
+      `"geoAlbersUsa"`'s insets) is not drawn.
       @type {number[] | function}
   */
   v.point = function (this: VizInstance, _?: unknown) {
@@ -381,11 +390,18 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
       Rotates the projection, as d3-geo's
       [`projection.rotate`](https://github.com/d3/d3-geo#projection_rotate) angles
       `[lambda, phi, gamma]` in degrees. Turns `tiles` off, since rotated tiles
-      no longer line up.
+      no longer line up. On a projection that clips to a circle (a globe,
+      such as `"geoOrthographic"`), dragging the map turns the globe under the
+      pointer instead of panning it (the wheel, a pinch, and the zoom buttons
+      still zoom), and the zoom controls' reset turns it back to this
+      rotation. Reads back the rotation set here, as the zoom transform
+      isn't read back either; `projection().rotate()` reads the globe's
+      current one.
       @type {[number, number] | [number, number, number]}
   */
   v.projectionRotate = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
+      this.schema.projectionRotate = _;
       this.schema.projection.rotate(_);
       v.tiles(false);
       this._zoomSet = false;
@@ -554,6 +570,11 @@ export const geomapDef: ChartDefinition = {
     setupGeomapRenderTiles(viz);
     setupGeomapDraw(viz);
     setupGeomapFluent(viz);
+    setupGeomapLinks(viz);
+    // Dragging a globe re-lays the map out for each new rotation.
+    installGlobeRotation(viz, () =>
+      runChartDraw(viz, geomapDef, applyGeomapLayout),
+    );
 
     // Seed the default tile URL through the wrapped accessor so attribution is set.
     v.tileUrl(DEFAULT_TILE_URL);
@@ -569,6 +590,7 @@ export const geomapDef: ChartDefinition = {
 
   fields: [
     {key: "fitObject", default: false},
+    ...geomapLinkFields(),
     {key: "noDataMessage", default: false},
     /**
         The color behind the map's shapes and tiles: any CSS color (including

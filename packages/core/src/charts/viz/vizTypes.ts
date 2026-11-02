@@ -22,6 +22,7 @@
 */
 
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
+import type {ZoomGesture} from "../drawSteps/zoomGesture.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
@@ -253,6 +254,12 @@ export interface VizInstance {
       returns false to fall back to picture zoom (Plot rescales its axes).
   */
   _zoomRescale?: (t: ZoomState, duration?: number) => boolean;
+  /** Chart-specific handling of zoom gestures (Geomap turns a globe on a drag). */
+  _zoomGesture?: ZoomGesture;
+  /** Whether a globe drag is turning the map (Geomap skips refitting meanwhile). */
+  _globeDragging?: boolean;
+  /** The rotation a Geomap globe had before it was first dragged, with its projection. */
+  _globeHome?: {projection: unknown; rotate: number[]};
   /** Cleanup functions returned by `zoomControlIcons`' mount functions, keyed by button. */
   _zoomIconCleanup?: Partial<Record<ZoomControlIconKey, () => void>>;
   /** Cleanup function returned by an `attributionIcon` mount function. */

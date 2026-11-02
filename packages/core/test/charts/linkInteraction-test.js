@@ -2,6 +2,7 @@ import {it} from "vitest";
 import assert from "assert";
 
 import {
+  forgetLinkNodes,
   isLinkDatum,
   LINK_HIT_WIDTH,
   linkArrows,
@@ -140,6 +141,20 @@ it("linkEndLabel and linkTooltipTitle name a link's ends by their labels", () =>
     "b",
     "falls back to the id",
   );
+});
+
+it("linkEndLabel prefers an end's own label", () => {
+  const viz = fakeViz();
+  const coordinate = {data: {}, i: 0, id: "1,2", label: "1, 2"};
+  assert.strictEqual(linkEndLabel(viz, coordinate), "1, 2");
+});
+
+it("forgetLinkNodes stops rows reading as link ends", () => {
+  const {viz} = graphFixture();
+  assert.ok(linkNodeOf(viz, nodeData[0]));
+  forgetLinkNodes(viz);
+  assert.strictEqual(linkNodeOf(viz, nodeData[0]), undefined);
+  forgetLinkNodes(viz);
 });
 
 it("linkCellText formats numbers by locale and skips what it can't show", () => {
