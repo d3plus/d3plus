@@ -18,13 +18,7 @@ import {
   observeVisibility,
   syncUnloadObserver,
 } from "./vizVisibility.js";
-import {
-  formatPayload,
-  isFormatKey,
-  queuedFormatter,
-  storePayload,
-  syncLoaderFormats,
-} from "./loaderFormat.js";
+import {queuedFormatter, syncLoaderFormats} from "./loaderFormat.js";
 import {recordDataSignature, syncDataPolling} from "./vizDataPolling.js";
 
 /**
@@ -263,8 +257,8 @@ function setupDetection(
 }
 
 /**
-    Drains the data-loading queue, returning the in-flight promises. Cache hits
-    are applied synchronously and never produce a promise.
+    Drains the data-loading queue, returning the in-flight promises. A load
+    served from the chart's cache completes synchronously and adds no promise.
     @private
 */
 function queuePromises(viz: Viz): Promise<void>[] {
@@ -279,27 +273,16 @@ function queuePromises(viz: Viz): Promise<void>[] {
       ],
     ) => {
       const formatter = queuedFormatter(viz, p[3], p[2]);
-      const cache = viz.schema.cache
-        ? viz._lrucache.get(`${p[3]}_${p[1]}`)
-        : undefined;
-      if (!cache) {
-        promises.push(
-          new Promise<void>(resolve => {
-            p[0](p[1], formatter, p[3], (err: unknown, data: unknown) => {
-              if (err) console.error(err);
-              else if (p[3] === "data") recordDataSignature(viz, data);
-              resolve();
-            });
-          }),
-        );
-      } else {
-        const val = isFormatKey(p[3])
-          ? formatPayload(viz, p[3], cache, formatter)
-          : formatter
-            ? formatter(cache)
-            : cache;
-        storePayload(viz, p[3], val);
-      }
+      let done = false;
+      const promise = new Promise<void>(resolve => {
+        p[0](p[1], formatter, p[3], (err: unknown, data: unknown) => {
+          done = true;
+          if (err) console.error(err);
+          else if (p[3] === "data") recordDataSignature(viz, data);
+          resolve();
+        });
+      });
+      if (!done) promises.push(promise);
     },
   );
   viz._queue = [];

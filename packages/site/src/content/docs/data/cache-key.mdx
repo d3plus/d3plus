@@ -1,0 +1,23 @@
+---
+title: cacheKey
+description: "The key a chart's data cache stores a load under."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/cache-key/basic-example.js?raw";
+
+The key a chart's data cache stores a load under: the loader key (`data`,
+`links`, `nodes`, `topojson`, `fitObject`) plus the JSON of every path in the
+request, so a request object's `fetch` options and each URL of a list are part
+of it. A single path and a one-item Array of it share a key.
+
+## Basic example
+
+Each chart keeps the responses it fetches (see the `cache` config key) under
+these keys. A URL and a one-item Array of it match, while a different loader,
+different headers, or another list of URLs each get their own entry.
+
+<Calls code={basicExample} label="cacheKey: Basic example" />
+
+<ApiReference name="cacheKey" pkg="data" />

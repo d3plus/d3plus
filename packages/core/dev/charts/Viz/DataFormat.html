@@ -42,8 +42,8 @@
     <div id="network" class="viz"></div>
 
     <script>
-      // Counts requests for the local files, to show a new formatter
-      // re-fetching its URL.
+      // Counts requests for the local file: a new formatter re-runs over the
+      // chart's cached response, so the count stays at 1.
       let requests = 0;
       const nativeFetch = window.fetch.bind(window);
       window.fetch = (input, init) => {
