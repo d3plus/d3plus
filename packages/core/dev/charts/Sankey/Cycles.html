@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Cycles</title>
+    <meta
+      name="description"
+      content="Sankey links that loop back through several nodes, left out (the lightest on each loop) so the rest of the flow draws."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Recycled material flows back upstream, closing three loops:
+    // recycling → raw materials (10), recycling → manufacturing (8), and
+    // consumers → products (3). Each is the lightest link on its loop, so
+    // the Sankey leaves those three out and draws the rest.
+    var links = [
+      {source: "mining", target: "raw materials", value: 50},
+      {source: "raw materials", target: "manufacturing", value: 60},
+      {source: "manufacturing", target: "products", value: 55},
+      {source: "manufacturing", target: "waste", value: 5},
+      {source: "products", target: "consumers", value: 55},
+      {source: "consumers", target: "landfill", value: 30},
+      {source: "consumers", target: "recycling", value: 25},
+      {source: "recycling", target: "raw materials", value: 10},
+      {source: "recycling", target: "manufacturing", value: 8},
+      {source: "recycling", target: "landfill", value: 7},
+      {source: "consumers", target: "products", value: 3},
+    ];
+
+    // Silence the expected "loops back" warning so the page logs nothing.
+    d3plus.configWarnings(false);
+    new d3plus.Sankey()
+      .links(links)
+      .value("value")
+      .render(() => d3plus.configWarnings(true));
+  </script>
+</html>

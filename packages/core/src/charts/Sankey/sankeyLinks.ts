@@ -48,12 +48,22 @@ export function unlinkedNodeValue(
   return positive.length ? Math.min(...positive) : 1;
 }
 
+/** How many left-out links a loop warning names before summing up the rest. */
+const namedLoops = 10;
+
 /**
-    The warning Sankey logs when it leaves out links from a node to itself,
-    naming the nodes (each once).
+    The warning Sankey logs when it leaves out links that loop back into a
+    node they left (a link from a node to itself, or one that closes a loop
+    through several nodes), naming each link once as "source → target".
+    @param ends Each left-out link's source and target node ids.
 */
-export function sankeySelfLinkWarning(ids: readonly unknown[]): string {
-  const count = ids.length === 1 ? "1 link" : `${ids.length} links`;
-  const names = Array.from(new Set(ids.map(String))).join(", ");
-  return `Sankey can't draw a flow from a node back into itself, so it leaves out ${count} (${names}).`;
+export function sankeyLoopWarning(
+  ends: readonly (readonly [unknown, unknown])[],
+): string {
+  const count = ends.length === 1 ? "1 link" : `${ends.length} links`;
+  const names = Array.from(new Set(ends.map(([s, t]) => `${s} → ${t}`)));
+  const rest = names.length - namedLoops;
+  const list = names.slice(0, namedLoops).join(", ");
+  const more = rest > 0 ? `, and ${rest} more` : "";
+  return `Sankey can't draw a flow that loops back into a node it left, so it leaves out ${count} (${list}${more}).`;
 }

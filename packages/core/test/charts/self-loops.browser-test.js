@@ -345,7 +345,7 @@ for (const renderer of ["svg", "canvas"]) {
         );
         const warnings = await page.evaluate(() => window.__warnings);
         assert.strictEqual(warnings.length, 1, String(warnings));
-        assert.ok(warnings[0].includes("leaves out 1 link (B)"));
+        assert.ok(warnings[0].includes("leaves out 1 link (B → B)"));
         const a = scene["sankey-Rect-A"];
         const d = scene["sankey-Rect-D"];
         const e = scene["sankey-Rect-E"];

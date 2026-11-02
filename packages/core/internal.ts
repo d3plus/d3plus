@@ -1726,9 +1726,11 @@ export {ringsVisibleD} from "./src/charts/Rings/emit.js";
 export {sankeyVisibleD} from "./src/charts/Sankey/emit.js";
 export {
   sankeyDrawableLinks,
-  sankeySelfLinkWarning,
+  sankeyLoopWarning,
   unlinkedNodeValue,
 } from "./src/charts/Sankey/sankeyLinks.js";
+export {sankeyAcyclicLinks} from "./src/charts/Sankey/sankeyCycles.js";
+export type {SankeyWeightedLink} from "./src/charts/Sankey/sankeyCycles.js";
 
 export {geomapPointLabels} from "./src/charts/Geomap/pointLabels.js";
 export type {GeomapPoints} from "./src/charts/Geomap/pointLabels.js";
