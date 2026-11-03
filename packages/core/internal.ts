@@ -2057,3 +2057,11 @@ export type {GestureHoverState} from "./src/charts/drawSteps/zoomGesture.js";
 export {uniqueLinkKeys} from "./src/charts/features/linkKeys.js";
 export {sankeyLinkIds} from "./src/charts/Sankey/emit.js";
 export {ringsLinkKeys} from "./src/charts/Rings/emit.js";
+export {
+  bowedEdge,
+  edgesBetween,
+  fanParallelEdges,
+  firstPerNeighbor,
+  parallelOffsets,
+  slideOnRim,
+} from "./src/charts/Rings/ringsParallel.js";

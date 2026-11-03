@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Parallel Links</title>
+    <meta
+      name="description"
+      content="Rings with several links between the same two nodes, in either direction, each fanned out as its own curve with its own arrowhead and tooltip."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Two flows from the center to alpha and one back place alpha once and
+    // fan out as three curves, as do the two flows between beta and zeta.
+    // Hover each curve for its own tooltip; click a node to re-center.
+    var links = [
+      {source: "center", target: "alpha", kind: "trade"},
+      {source: "center", target: "alpha", kind: "aid"},
+      {source: "alpha", target: "center", kind: "loan"},
+      {source: "center", target: "beta", kind: "trade"},
+      {source: "center", target: "gamma", kind: "aid"},
+      {source: "alpha", target: "delta", kind: "trade"},
+      {source: "beta", target: "zeta", kind: "trade"},
+      {source: "zeta", target: "beta", kind: "loan"},
+      {source: "gamma", target: "eta", kind: "aid"},
+    ];
+
+    new d3plus.Rings().links(links).center("center").arrows(true).render();
+  </script>
+</html>

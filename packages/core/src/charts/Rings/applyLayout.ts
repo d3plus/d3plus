@@ -26,6 +26,11 @@ import {publishLinkGraph} from "../features/linkInteraction.js";
 import {linkWidthRange} from "../features/linkWidths.js";
 import {buildRingsGraph, ringsLinkEnd} from "./ringsGraph.js";
 import {ringsLoops} from "./ringsLoops.js";
+import {
+  edgesBetween,
+  fanParallelEdges,
+  firstPerNeighbor,
+} from "./ringsParallel.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 
@@ -77,12 +82,13 @@ function placeRingsNodes(
   const centerLinks = linkMap[v.schema.center as string] || [];
   centerLinks.forEach(edge => {
     const node = edge.source.id === v.schema.center ? edge.target : edge.source;
+    // A node takes one place however many center links reach it.
+    if (primaries.includes(node)) return;
     node.edges = linkMap[node.id].filter(
       link =>
         link.source.id !== v.schema.center ||
         link.target.id !== v.schema.center,
     );
-    node.edge = edge;
     claimed.push(node);
     primaries.push(node);
   });
@@ -95,10 +101,13 @@ function placeRingsNodes(
 
   primaries.forEach(p => {
     const primaryId = p.id;
-    p.edges = (p.edges as RingsEdge[]).filter(
-      edge =>
-        (!claimed.includes(edge.source) && edge.target.id === primaryId) ||
-        (!claimed.includes(edge.target) && edge.source.id === primaryId),
+    p.edges = firstPerNeighbor(
+      (p.edges as RingsEdge[]).filter(
+        edge =>
+          (!claimed.includes(edge.source) && edge.target.id === primaryId) ||
+          (!claimed.includes(edge.target) && edge.source.id === primaryId),
+      ),
+      primaryId,
     );
     totalEndNodes += (p.edges as RingsEdge[]).length || 1;
     (p.edges as RingsEdge[]).forEach(edge => {
@@ -167,11 +176,12 @@ function buildRingsEdges(
   primaries.forEach(p => {
     type EndKey = "source" | "target";
     const checks: EndKey[] = ["source", "target"];
-    const pEdge = p.edge as RingsEdge;
-    checks.forEach(node => {
-      pEdge[node] = nodes.find(n => n.id === pEdge[node].id) as RingsNode;
+    edgesBetween(linkMap[p.id], p.id, center.id).forEach(pEdge => {
+      checks.forEach(node => {
+        pEdge[node] = nodes.find(n => n.id === pEdge[node].id) as RingsNode;
+      });
+      if (!edges.includes(pEdge)) edges.push(pEdge);
     });
-    if (!edges.includes(pEdge)) edges.push(pEdge);
 
     linkMap[p.id].forEach(edge => {
       const otherNode = edge.source.id === p.id ? edge.target : edge.source;
@@ -522,6 +532,8 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   applyRingsLabelBounds(v, nodes, geom);
 
   publishRingsCtx(v, nodes, nodeLookup, links, edges);
+  // Parallel links fan apart by their scaled sizes.
+  fanParallelEdges(edges);
   // Loops take their stroke from the scaled link sizes.
   edges.push(...ringsLoops(links, nodes, edges, center, geom));
 
