@@ -31,7 +31,6 @@ export interface RingsNode {
   radians?: number;
   // Set by the per-link traversal.
   edges?: RingsEdge[] | Record<string, {angle: number; radius: number}>;
-  edge?: RingsEdge;
   size?: number;
   // Set by the label-bounds pass.
   labelBounds?: {x: number; y: number; width: number; height: number};
