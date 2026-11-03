@@ -35,6 +35,7 @@ import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 import {chordArrowNodes, cubicArrowEdge} from "../features/curvedArrows.js";
+import {uniqueLinkKeys} from "../features/linkKeys.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -190,9 +191,13 @@ export function ringsVisibleD(
   );
 }
 
-/** An edge's scene key (a loop's names its index, as a node can have several). */
+/** An edge's base scene key (a loop's names its index, as a node can have several). */
 const ringsLinkKey = (edge: RingsEdge): string =>
   `rings-link-${edge.source.id}-${edge.target.id}${edge.loop ? `-${linkMeta(edge.datum)?.index ?? 0}` : ""}`;
+
+/** Each edge's scene key, unique across `edges`: parallel edges after the first add their order among them (see `uniqueLinkKeys`). */
+export const ringsLinkKeys = (edges: readonly RingsEdge[]): string[] =>
+  uniqueLinkKeys(edges.map(ringsLinkKey));
 
 /**
     Where an edge's label goes: halfway along a spline edge's curve, along
@@ -256,11 +261,12 @@ function ringsLinkLabels(
   viz: VizInstance,
   c: RingsCtx,
   nodeLabels: SceneNode[],
+  keys: string[],
 ): SceneNode[] {
   return emitLinkLabels(
     viz,
     c.edges.map((edge, i) => ({
-      key: ringsLinkKey(edge),
+      key: keys[i],
       link: edge,
       i,
       anchor: ringsEdgeAnchor(edge),
@@ -325,14 +331,15 @@ export const ringsEmit: ChartEmit = ({viz}) => {
 
   if (c.edges && c.edges.length) {
     const linkColor = linkColorResolver(viz);
-    for (const edge of c.edges) {
+    const keys = ringsLinkKeys(c.edges);
+    for (const [j, edge] of c.edges.entries()) {
       const datum = edge.datum;
       const i = linkMeta(datum)?.index ?? 0;
       const paint = paintFromShapeConfig(c.linkConfig, datum, i);
       if (typeof edge.size === "number") paint.strokeWidth = edge.size;
       const stroke = linkColor(datum, edge as unknown as LinkEnds);
       if (stroke) paint.stroke = stroke;
-      const key = ringsLinkKey(edge);
+      const key = keys[j];
       const d = c.linkD(edge);
       out.push({
         type: "path",
@@ -357,7 +364,7 @@ export const ringsEmit: ChartEmit = ({viz}) => {
         ),
       );
     }
-    out.push(...ringsLinkLabels(viz, c, [...nodeLabels.values()].flat()));
+    out.push(...ringsLinkLabels(viz, c, [...nodeLabels.values()].flat(), keys));
   }
 
   if (c.nodeGroups && c.nodeGroups.length) {

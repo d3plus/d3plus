@@ -149,7 +149,8 @@ function placeRingsNodes(
 
 /**
     Resolve link endpoints to placed nodes, compute bezier control points for
-    spline edges, and push every edge onto `edges` (mutated in place).
+    spline edges, and push every edge onto `edges` once (mutated in place):
+    an edge between two primaries is reached from both.
 */
 function buildRingsEdges(
   v: VizInstance,
@@ -170,7 +171,7 @@ function buildRingsEdges(
     checks.forEach(node => {
       pEdge[node] = nodes.find(n => n.id === pEdge[node].id) as RingsNode;
     });
-    edges.push(pEdge);
+    if (!edges.includes(pEdge)) edges.push(pEdge);
 
     linkMap[p.id].forEach(edge => {
       const otherNode = edge.source.id === p.id ? edge.target : edge.source;
@@ -224,7 +225,7 @@ function buildRingsEdges(
           };
         }
       });
-      edges.push(edge);
+      if (!edges.includes(edge)) edges.push(edge);
     });
   });
 }
