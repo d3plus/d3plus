@@ -35,6 +35,7 @@ export interface TranslationStrings {
   Forecast: string;
   From: string;
   High: string;
+  "Hold Shift and use the arrow keys to rotate the globe.": string;
   Increase: string;
   "interactive chart": string;
   "JPG image": string;
@@ -152,6 +153,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     From: "\u0645\u0646",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
+    "Hold Shift and use the arrow keys to rotate the globe.":
+      "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062f\u0648\u064a\u0631 \u0627\u0644\u0643\u0631\u0629 \u0627\u0644\u0623\u0631\u0636\u064a\u0629.",
     Increase: "\u0632\u064a\u0627\u062f\u0629",
     "interactive chart":
       "\u0645\u062e\u0637\u0637 \u062a\u0641\u0627\u0639\u0644\u064a",
@@ -272,6 +275,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "Pron\u00f3stico",
     From: "Origen",
     High: "M\u00e1ximo",
+    "Hold Shift and use the arrow keys to rotate the globe.":
+      "Mantenga pulsada May\u00fas y use las flechas para girar el globo.",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interactivo",
     "JPG image": "Imagen JPG",
@@ -372,6 +377,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "Previs\u00e3o",
     From: "Origem",
     High: "M\u00e1xima",
+    "Hold Shift and use the arrow keys to rotate the globe.":
+      "Mantenha Shift pressionada e use as setas para girar o globo.",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interativo",
     "JPG image": "Imagem JPG",
@@ -475,6 +482,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "\u9884\u6d4b",
     From: "\u8d77\u70b9",
     High: "\u6700\u9ad8",
+    "Hold Shift and use the arrow keys to rotate the globe.":
+      "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u65b9\u5411\u952e\u65cb\u8f6c\u5730\u7403\u4eea\u3002",
     Increase: "\u589e\u52a0",
     "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
     "JPG image": "JPG \u56fe\u7247",

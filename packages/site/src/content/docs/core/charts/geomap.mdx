@@ -47,7 +47,7 @@ Rather than shading regions, this drops a marker per datum: `point` returns each
 
 ## Globe
 
-A projection that clips to a circle, such as `"geoOrthographic"`, draws a globe. Dragging it turns the globe under the pointer, keeping the place you grabbed beneath it, while the wheel, a pinch, and the zoom buttons zoom; the reset button turns it back to `projectionRotate`. Points on the far side are hidden, and links follow the shortest great circle, without `linkCurve`'s lift, so they stay on the sphere.
+A projection that clips to a circle, such as `"geoOrthographic"`, draws a globe. Dragging it turns the globe under the pointer, keeping the place you grabbed beneath it, while the wheel, a pinch, and the zoom buttons zoom; the reset button turns it back to `projectionRotate`. From the keyboard, focus the chart and hold <kbd>Shift</kbd> with the arrow keys: each press turns the globe 10°, <kbd>←</kbd> <kbd>→</kbd> bringing the land to the west or east into view and <kbd>↑</kbd> <kbd>↓</kbd> the land to the north or south, stopping at the poles. A press eases into place (instantly under `reducedMotion`), holding the keys keeps turning, and the plain arrow keys still move between points. Points on the far side are hidden, and links follow the shortest great circle, without `linkCurve`'s lift, so they stay on the sphere.
 
 <Playground chart="Geomap" code={globe} controls={["projectionRotate","renderer"]} />
 

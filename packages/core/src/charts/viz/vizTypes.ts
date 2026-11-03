@@ -34,6 +34,7 @@ import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
 import type {KeyboardNavState} from "./keyboardNav.js";
+import type {KeyboardGesture} from "./keyboardNavHost.js";
 import type {NearestHoverState} from "./nearestHover.js";
 import type {ResolvedTheme} from "../../utils/theme.js";
 
@@ -307,6 +308,8 @@ export interface VizInstance {
   _transitionEndsAt?: number;
   /** Keyboard navigation's host element and focused mark (see `keyboardNav.ts`). */
   _keyboardNav?: KeyboardNavState;
+  /** A chart's own keys, taken before mark navigation (Geomap's globe keys). */
+  _keyboardGesture?: KeyboardGesture;
   _userHover?: number;
   _userDuration?: number;
   _brushing?: boolean;

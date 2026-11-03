@@ -19,6 +19,20 @@ export interface KeyboardNavHost {
   live: HTMLSpanElement;
 }
 
+/**
+    A chart's own keys, consulted before mark navigation (a Geomap globe
+    turns on Shift and the arrow keys).
+*/
+export interface KeyboardGesture {
+  /** Handles a keydown; true when the chart took the key. */
+  keydown(event: KeyboardEvent): boolean;
+  /**
+      The keys the chart takes now, as `aria-keyshortcuts` lists them, and
+      their translated instructions; null when it takes none.
+  */
+  keys(): {shortcuts: string; instructions: string} | null;
+}
+
 /** The instructions read when the chart gains focus. */
 export const KEYBOARD_NAV_INSTRUCTIONS =
   "Use arrow keys to move between data points, Enter to select, and Escape to exit.";
@@ -112,7 +126,11 @@ export function updateKeyboardNavHost(
     ? `${viz._uuid}-desc ${desc.id}`
     : desc.id;
   host.setAttribute("aria-describedby", describedBy);
-  desc.textContent = t(KEYBOARD_NAV_INSTRUCTIONS);
+  const own = viz._keyboardGesture?.keys() ?? null;
+  const instructions = t(KEYBOARD_NAV_INSTRUCTIONS);
+  desc.textContent = own ? `${instructions} ${own.instructions}` : instructions;
+  if (own) host.setAttribute("aria-keyshortcuts", own.shortcuts);
+  else host.removeAttribute("aria-keyshortcuts");
   const svg = viz._select?.node?.() as SVGElement | null | undefined;
   Object.assign(host.style, {
     top: svg?.style.top || "0px",

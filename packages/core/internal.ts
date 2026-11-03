@@ -1982,6 +1982,17 @@ export type {
   Rotation,
   Versor,
 } from "./src/charts/Geomap/globeRotate.js";
+export {
+  GLOBE_KEY_DURATION,
+  GLOBE_KEY_INSTRUCTIONS,
+  GLOBE_KEY_SHORTCUTS,
+  GLOBE_KEY_STEP,
+  globeKeyStep,
+  installGlobeKeys,
+  rotateByStep,
+  rotationBetween,
+} from "./src/charts/Geomap/globeKeys.js";
+export type {KeyboardGesture} from "./src/charts/viz/keyboardNavHost.js";
 export type {
   ZoomGesture,
   ZoomGestureEvent,

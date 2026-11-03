@@ -45,6 +45,7 @@ import {
 import {projectionByName} from "./projections.js";
 import {geomapEmit} from "./emit.js";
 import {setupGeomapLinks} from "./flowEvents.js";
+import {installGlobeKeys} from "./globeKeys.js";
 import {installGlobeRotation} from "./globeRotate.js";
 import {runChartDraw} from "../pipeline/runChartDraw.js";
 import {geomapLinkFields} from "./flowFields.js";
@@ -394,10 +395,12 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
       no longer line up. On a projection that clips to a circle (a globe,
       such as `"geoOrthographic"`), dragging the map turns the globe under the
       pointer instead of panning it (the wheel, a pinch, and the zoom buttons
-      still zoom), and the zoom controls' reset turns it back to this
-      rotation. Reads back the rotation set here, as the zoom transform
-      isn't read back either; `projection().rotate()` reads the globe's
-      current one.
+      still zoom), Shift and the arrow keys turn it 10° of longitude or
+      latitude a press while the chart has keyboard focus (stopping at the
+      poles, and easing unless `reducedMotion` is on), and the zoom controls'
+      reset turns it back to this rotation. Reads back the rotation set
+      here, as the zoom transform isn't read back either;
+      `projection().rotate()` reads the globe's current one.
       @type {[number, number] | [number, number, number]}
   */
   v.projectionRotate = function (this: VizInstance, _?: unknown) {
@@ -569,10 +572,11 @@ export const geomapDef: ChartDefinition = {
     setupGeomapDraw(viz);
     setupGeomapFluent(viz);
     setupGeomapLinks(viz);
-    // Dragging a globe re-lays the map out for each new rotation.
-    installGlobeRotation(viz, () =>
-      runChartDraw(viz, geomapDef, applyGeomapLayout),
-    );
+    // Dragging a globe, or Shift and the arrow keys, re-lays the map out for
+    // each new rotation.
+    const relayout = () => runChartDraw(viz, geomapDef, applyGeomapLayout);
+    installGlobeRotation(viz, relayout);
+    installGlobeKeys(viz, relayout);
 
     // Seed the default tile URL through the wrapped accessor so attribution is set.
     v.tileUrl(DEFAULT_TILE_URL);
