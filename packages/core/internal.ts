@@ -1725,7 +1725,6 @@ export {
 export type {ArrowedEnd} from "./src/charts/features/curvedArrows.js";
 export {arcVisibleD} from "./src/charts/ArcDiagram/emit.js";
 export {ringsVisibleD} from "./src/charts/Rings/emit.js";
-export {sankeyVisibleD} from "./src/charts/Sankey/emit.js";
 export {
   sankeyDrawableLinks,
   sankeyLoopWarning,
@@ -1733,6 +1732,48 @@ export {
 } from "./src/charts/Sankey/sankeyLinks.js";
 export {sankeyAcyclicLinks} from "./src/charts/Sankey/sankeyCycles.js";
 export type {SankeyWeightedLink} from "./src/charts/Sankey/sankeyCycles.js";
+export {
+  CIRCULAR_CLEARANCE,
+  CIRCULAR_RADIUS,
+  circularLanes,
+  circularLinkAnchor,
+  circularLinkD,
+  circularLinkEdge,
+  circularRibbonD,
+  offsetCircularShape,
+  circularLinkOrder,
+  circularLinkShape,
+  circularLinkSide,
+  circularReserve,
+  sankeyNodeValue,
+  stackCircularEnds,
+} from "./src/charts/Sankey/circularLinks.js";
+export type {
+  CircularLane,
+  CircularLinkInput,
+  CircularNode,
+  CircularReserve,
+  CircularShape,
+  CircularSide,
+} from "./src/charts/Sankey/circularLinks.js";
+export {
+  capReserve,
+  columnEdges,
+  columnScale,
+  layOutCircular,
+  sankeyScale,
+  solveScale,
+} from "./src/charts/Sankey/circularLayout.js";
+export type {CircularLaidLink} from "./src/charts/Sankey/circularLayout.js";
+export {sankeyBandThickness, sankeyRibbonD} from "./src/charts/Sankey/emit.js";
+export {
+  bandRibbonD,
+  edgeD,
+  reverseEdge,
+  ribbonD,
+  shiftEdge,
+} from "./src/charts/Sankey/ribbons.js";
+export type {Edge, EdgeStep} from "./src/charts/Sankey/ribbons.js";
 
 export {geomapPointLabels} from "./src/charts/Geomap/pointLabels.js";
 export type {GeomapPoints} from "./src/charts/Geomap/pointLabels.js";

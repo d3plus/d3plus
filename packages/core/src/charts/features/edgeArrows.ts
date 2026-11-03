@@ -1,5 +1,6 @@
 /**
-    Shared arrowhead geometry for edge charts (Network, Rings, Sankey).
+    Shared arrowhead geometry for edge charts (Network, Rings, ArcDiagram,
+    Geomap, Gantt).
 
     Arrowheads are drawn as filled-triangle `path` scene nodes rather than SVG
     `marker-end`, because d3plus renders to both SVG and Canvas and Canvas has no

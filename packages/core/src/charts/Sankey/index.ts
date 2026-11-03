@@ -11,7 +11,6 @@ import {
   sankeyCenter,
   sankeyJustify,
   sankeyLeft,
-  sankeyLinkHorizontal,
   sankeyRight,
 } from "./sankeyLayout.js";
 
@@ -33,7 +32,7 @@ import {
   linkTooltipConfig,
   nodeHighlight,
 } from "../features/linkInteraction.js";
-import {applySankeyLayout, sankeyLinkStrokeWidth} from "./applyLayout.js";
+import {applySankeyLayout} from "./applyLayout.js";
 import {sankeyEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import {themeDark, themed} from "../../utils/theme.js";
@@ -132,10 +131,10 @@ export const sankeyDef: ChartDefinition = {
         values match a node's `nodeId`, and its width comes from `value`.
         Accepts an array of links, or a URL/filepath string to load them from.
         `linksFormat` transforms them; a function passed as a second argument
-        sets it. A flow can't loop back into a node it left, so a link from a
-        node to itself, or one that closes a loop through several nodes (A → B
-        → A), is left out with a warning: of the links on a loop, the
-        lightest by `value` is the one left out.
+        sets it. A link that loops back into a node it left (a link from a
+        node to itself, or the lightest link on a loop through several nodes,
+        A → B → A) is drawn as a circular band around the outside of the
+        nodes, or left out with a warning when `circularLinks` is `false`.
         @type {object[] | string}
     */
     v.links = function (this: VizInstance) {
@@ -201,8 +200,8 @@ export const sankeyDef: ChartDefinition = {
         data of the nodes at its ends, and its index in `links`. Defaults to
         `1` for every link. A node no link touches is sized by `value` read
         from its own row in `nodes` when that is a positive number, and
-        otherwise by the smallest link value. A link that loops back into a
-        node it left is left out (see `links`).
+        otherwise by the smallest link value. A node's height counts the
+        flow its circular links return (see `links`).
         @type {string | function}
     */
     v.value = function (this: VizInstance, _: unknown) {
@@ -219,24 +218,10 @@ export const sankeyDef: ChartDefinition = {
 
   ctx: {
     sankey: sankey(),
-    path: sankeyLinkHorizontal(),
   },
 
   fields: [
-    /**
-        Draws arrowheads on the links: `true` (or `"target"`) where each link
-        enters its target, `"source"` where it leaves its source, `"both"`,
-        or `false` for none. Also accepts an accessor function returning one
-        of those per link.
-        @type {boolean | "target" | "source" | "both" | function}
-    */
-    {key: "arrows", default: false},
-    /**
-        The arrowhead size in pixels, or an accessor function returning one
-        per link. Defaults to the link's width, kept between 8 and 28.
-        @type {number | function}
-    */
-    {key: "arrowSize"},
+    {key: "circularLinks", default: true},
     /**
         The number of relaxation iterations d3-sankey runs to position the
         nodes (see its [iterations](https://github.com/d3/d3-sankey#sankey_iterations)).
@@ -283,27 +268,22 @@ export const sankeyDef: ChartDefinition = {
     {
       key: "shapeConfig",
       merge: true,
-      factory: (viz: VizInstance) => {
-        const linkStrokeWidth = sankeyLinkStrokeWidth;
-        return {
-          Path: {
-            fill: "none",
-            hoverStyle: {"stroke-width": linkStrokeWidth},
-            label: false,
+      factory: (viz: VizInstance) => ({
+        Path: {
+          // Each band is a filled ribbon (see `sankeyRibbonD`).
+          fill: () =>
             // Wide bands recede on dark as #DBDBDB does on white: the dark
             // preset's link gray is for thin Network and Rings edges.
-            stroke: () =>
-              themed(
-                viz._theme,
-                t => (t.link === themeDark.link ? colorGray[800] : t.link),
-                "#DBDBDB",
-              ),
-            strokeOpacity: 0.5,
-            strokeWidth: linkStrokeWidth,
-          },
-          Rect: {},
-        };
-      },
+            themed(
+              viz._theme,
+              t => (t.link === themeDark.link ? colorGray[800] : t.link),
+              "#DBDBDB",
+            ),
+          fillOpacity: 0.5,
+          label: false,
+        },
+        Rect: {},
+      }),
     },
     {
       key: "tooltipConfig",

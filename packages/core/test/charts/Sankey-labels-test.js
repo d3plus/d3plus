@@ -95,3 +95,24 @@ it("takes its style from shapeConfig.labelConfig", () => {
   assert.strictEqual(labels.alpha.font.size, 16);
   assert.strictEqual(labels.alpha.paint.fill, "red");
 });
+
+it("hides link labels that would cover a node's label", () => {
+  const long = "a source with a much longer name";
+  const viz = new Sankey()
+    .links([
+      {source: long, target: "x", value: 10},
+      {source: "b", target: "x", value: 10},
+    ])
+    .value("value")
+    .linkLabel(d => d.value)
+    .width(320)
+    .height(300);
+  viz._preDraw();
+  viz._margin = {top: 0, right: 0, bottom: 0, left: 0};
+  viz._padding = {top: 0, right: 0, bottom: 0, left: 0};
+  runStages({viz}, [applySankeyLayout]);
+  const keys = sankeyDef.emit({viz}).map(n => String(n.key));
+  // Both bands' middles sit where the long name runs; only it is in the way.
+  assert.ok(keys.includes("sankey-link-b-x-label-group"), keys.join());
+  assert.ok(!keys.includes(`sankey-link-${long}-x-label-group`), keys.join());
+});

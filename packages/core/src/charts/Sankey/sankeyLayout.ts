@@ -53,6 +53,8 @@ export interface SankeyGenerator {
   links(links: SankeyLinkInput[]): SankeyGenerator;
   linkSort(sort: Comparator<SankeyLink> | null | undefined): SankeyGenerator;
   size(size: [number, number]): SankeyGenerator;
+  /** The box the nodes are laid out in: `[[x0, y0], [x1, y1]]`. */
+  extent(extent: [[number, number], [number, number]]): SankeyGenerator;
   iterations(iterations: number): SankeyGenerator;
 }
 
@@ -179,7 +181,19 @@ export function sankey(): SankeyGenerator {
   generator.nodes = _ => ((nodeList = _), generator);
   generator.links = _ => ((linkList = _), generator);
   generator.linkSort = _ => ((s.linkSort = _), generator);
-  generator.size = _ => ((s.x1 = +_[0]), (s.y1 = +_[1]), generator);
+  generator.size = _ => (
+    (s.x0 = s.y0 = 0),
+    (s.x1 = +_[0]),
+    (s.y1 = +_[1]),
+    generator
+  );
+  generator.extent = ([[x0, y0], [x1, y1]]) => (
+    (s.x0 = +x0),
+    (s.y0 = +y0),
+    (s.x1 = +x1),
+    (s.y1 = +y1),
+    generator
+  );
   generator.iterations = _ => ((s.iterations = +_), generator);
 
   return generator;

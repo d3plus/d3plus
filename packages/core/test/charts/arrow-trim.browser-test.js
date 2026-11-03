@@ -6,7 +6,7 @@ import {openPage} from "~test/browser/page.js";
     A link with an arrowhead stops inside it, in Chromium on SVG and Canvas:
     the square end of the link's painted stroke (both corners) lies within
     the arrowhead's triangle, on Network (straight links and loops), Rings,
-    ArcDiagram, and Sankey, while the link's hit path keeps its full length.
+    and ArcDiagram, while the link's hit path keeps its full length.
 */
 
 const box = "<div id='viz' style='width:640px;height:420px'></div>";
@@ -217,39 +217,6 @@ for (const renderer of ["svg", "canvas"]) {
           assertEndsInside(scene, key, `${prefix}-t`, "target", {curved: true});
           assertEndsInside(scene, key, `${prefix}-s`, "source", {curved: true});
         }
-      },
-    );
-  });
-
-  // Bands up to about 23px wide, whose heads (as wide as the band) cover them.
-  it(`Sankey ${renderer}: bands stop inside their arrowheads`, async () => {
-    await withChart(
-      [
-        "Sankey",
-        {
-          links: [
-            {source: "a", target: "b", value: 1},
-            {source: "a", target: "c", value: 30},
-            {source: "c", target: "d", value: 1},
-          ],
-          arrows: "target",
-          nodePadding: 30,
-        },
-        {value: "d => d.value"},
-        renderer,
-      ],
-      scene => {
-        for (const [s, t] of [
-          ["a", "b"],
-          ["c", "d"],
-        ])
-          assertEndsInside(
-            scene,
-            `sankey-link-${s}-${t}`,
-            `sankey-arrow-t-${s}-${t}`,
-            "target",
-            {curved: true},
-          );
       },
     );
   });

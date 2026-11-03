@@ -104,31 +104,40 @@ it("Network draws arrow triangles at the selected ends, and none when off", asyn
   assert.strictEqual(r.both, 6, "two arrows per link");
 });
 
-it("Sankey draws an arrow triangle per link end", async function () {
+it("Sankey draws no arrowheads, even with arrows in its config", async function () {
   const r = await render(box, async () => {
-    const count = arrows =>
-      new Promise(res => {
-        document.querySelector("#viz").innerHTML = "";
-        const viz = new window.d3plus.Sankey()
-          .select("#viz")
-          .arrows(arrows)
-          .links([
-            {source: "a", target: "b", value: 4},
-            {source: "b", target: "c", value: 2},
-          ])
-          .width(420)
-          .height(420)
-          .duration(0);
-        viz.render(() => {
-          const paths = Array.from(document.querySelectorAll("#viz svg path"));
-          res(
-            paths.filter(p => (p.getAttribute("d") || "").trim().endsWith("Z"))
-              .length,
-          );
-        });
+    const warnings = [];
+    const warn = console.warn;
+    console.warn = (...args) => warnings.push(args.join(" "));
+    const heads = await new Promise(res => {
+      const viz = new window.d3plus.Sankey()
+        .select("#viz")
+        .config({arrows: "both", arrowSize: 12})
+        .links([
+          {source: "a", target: "b", value: 4},
+          {source: "b", target: "c", value: 2},
+        ])
+        .width(420)
+        .height(420)
+        .duration(0);
+      viz.render(() => {
+        let count = 0;
+        const walk = n => {
+          if (/arrow/.test(String(n.key))) count++;
+          (n.children || []).forEach(walk);
+        };
+        walk(viz._paintedScene.root);
+        res({count, accessor: typeof viz.arrows});
       });
-    return {off: await count(false), both: await count("both")};
+    });
+    console.warn = warn;
+    return {...heads, warnings};
   });
-  assert.strictEqual(r.off, 0, "no arrows by default");
-  assert.strictEqual(r.both, 4, "2 links × 2 ends");
+  assert.strictEqual(r.count, 0, "no arrowhead nodes");
+  assert.strictEqual(r.accessor, "undefined", "no arrows accessor");
+  // config() skips keys a chart doesn't have, warning once for each.
+  assert.deepStrictEqual(r.warnings, [
+    'Sankey.config() received unknown property "arrows".',
+    'Sankey.config() received unknown property "arrowSize".',
+  ]);
 });

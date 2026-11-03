@@ -941,6 +941,19 @@ export interface D3plusConfig {
   /** Calendar: each cell's corner radius, in pixels (kept below a third of the cell). Defaults to `2`. */
   cellRadius?: number;
   /**
+      Sankey: draws the links that loop back into a node they left (a link
+      from a node to itself, or one that closes a loop through several
+      nodes, A → B → A) as circular bands. Each leaves its source's right
+      side, turns up or down, runs along a lane above or below the nodes,
+      and turns back into its target's left side. The lightest link on each
+      loop is the one drawn this way, and its lane runs above the nodes
+      when its two ends sit in the upper half of the chart, else below.
+      Nodes are sized by the flow through them, returns included. `false`
+      leaves these links out instead, with a warning naming them. Defaults
+      to `true`.
+  */
+  circularLinks?: boolean;
+  /**
       Candlestick: accessor or data key for each period's closing value
       (default `"close"`). It is the chart's `y`: setting `y` sets it.
   */

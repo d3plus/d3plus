@@ -6,9 +6,6 @@
 import type {DataPoint} from "@d3plus/data";
 import type {Paint, SceneNode} from "@d3plus/render";
 
-import {arrowEnds, arrowTrim} from "../features/edgeArrows.js";
-import {chordArrowNodes, cubicArrowEdge} from "../features/curvedArrows.js";
-import type {ArrowValue} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
   paintFromShapeConfig,
@@ -17,6 +14,7 @@ import {
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import {
+  LINK_HIT_WIDTH,
   linkAriaLabel,
   linkHitPath,
   linkMeta,
@@ -26,11 +24,14 @@ import {linkColorResolver} from "../features/linkColor.js";
 import type {LinkEnds} from "../features/linkColor.js";
 import {cubicMidpoint} from "../features/linkLabelGeometry.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
-import {emitLinkLabels} from "../features/linkLabels.js";
+import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+import {circularLinkAnchor, circularRibbonD} from "./circularLinks.js";
+import type {CircularShape} from "./circularLinks.js";
 import {sankeyLabels} from "./labels.js";
+import {bandRibbonD} from "./ribbons.js";
 
 export interface SankeyLink {
   source: SankeyNode;
@@ -41,6 +42,8 @@ export interface SankeyLink {
   width?: number;
   y0?: number;
   y1?: number;
+  /** A link that loops back: its band's geometry (see `circularLinkShape`). */
+  circular?: CircularShape;
 }
 export type SankeyNode = DataPoint & {
   __d3plus__?: true;
@@ -56,100 +59,29 @@ export type SankeyNode = DataPoint & {
 export interface SankeyCtx {
   links: SankeyLink[];
   nodeGroups: [string, SankeyNode[]][];
-  pathFn: (d: SankeyLink) => string;
   width: number;
   height: number;
 }
 
-/** A link's arrowhead size: `arrowSize`, else its band's width, kept between 8 and 28. */
-function sankeyArrowSize(
-  viz: VizInstance,
-  link: SankeyLink,
-  datum: DataPoint,
-  i: number,
-): number {
-  const width = typeof link.width === "number" ? link.width : 2;
-  const sizeCfg = resolveAccessor<number>(viz.schema.arrowSize, datum, i);
-  return typeof sizeCfg === "number"
-    ? sizeCfg
-    : Math.max(8, Math.min(width, 28));
-}
-
 /**
-    A link's arrowed ends and visible band (see `cubicArrowEdge`): the band
-    follows its horizontal link curve up to each head's base, then runs
-    along the head's axis to end inside it. The tips sit on the nodes'
-    edges, where the band ends. Null when the link has no arrows.
+    A band's thickness: its layout width less a pixel each side, so
+    neighboring bands show a gap, and at least 1.
 */
-function sankeyArrowEdge(
-  viz: VizInstance,
-  link: SankeyLink,
-  i: number,
-  strokeWidth: unknown,
-): (ReturnType<typeof cubicArrowEdge> & {size: number}) | null {
-  const ends = arrowEnds(viz.schema.arrows as ArrowValue, link.datum, i);
-  if (!ends.source && !ends.target) return null;
-  if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return null;
-  const size = sankeyArrowSize(viz, link, link.datum, i);
-  const trim = arrowTrim(
-    size,
-    typeof strokeWidth === "number" ? strokeWidth : 1,
-  );
-  const x0 = link.source.x1;
-  const x1 = link.target.x0;
-  const xm = (x0 + x1) / 2;
-  const edge = cubicArrowEdge(
-    [
-      [x0, link.y0],
-      [xm, link.y0],
-      [xm, link.y1],
-      [x1, link.y1],
-    ],
-    {
-      ends,
-      size,
-      source: ends.source ? trim : 0,
-      target: ends.target ? trim : 0,
-    },
-  );
-  return {...edge, size};
+export function sankeyBandThickness(link: {width?: number}): number {
+  const width = typeof link.width === "number" ? link.width : 0;
+  return Math.max(1, width - 2);
 }
 
-/** A link's visible band: `d`, or cut short inside its arrowheads (see `sankeyArrowEdge`). The full band stays its hit area. */
-export function sankeyVisibleD(
-  viz: VizInstance,
-  link: SankeyLink,
-  i: number,
-  strokeWidth: unknown,
-  d: string,
-): string {
-  return sankeyArrowEdge(viz, link, i, strokeWidth)?.d ?? d;
-}
-
-/**
-    Optional directional arrowheads for one link, aimed along the band's
-    chord from each head's base to its tip: the target arrow points into the
-    target, the source arrow back into the source.
-*/
-function emitSankeyArrows(
-  viz: VizInstance,
-  link: SankeyLink,
-  datum: DataPoint,
-  i: number,
-  paint: Paint,
-): SceneNode[] {
-  const edge = sankeyArrowEdge(viz, link, i, paint.strokeWidth);
-  if (!edge) return [];
-  const ids = `${link.source.id}-${link.target.id}`;
-  return chordArrowNodes({
-    ends: edge,
-    size: edge.size,
-    datum,
-    keyPrefix: "sankey-arrow",
-    keys: {source: `sankey-arrow-s-${ids}`, target: `sankey-arrow-t-${ids}`},
-    fill: typeof paint.stroke === "string" ? paint.stroke : undefined,
-    opacity: 1,
-  });
+/** A link's band as a filled ribbon from node to node, `half` its thickness each side of its center line. */
+export function sankeyRibbonD(link: SankeyLink, half: number): string {
+  if (link.circular) return circularRibbonD(link.circular, half);
+  return bandRibbonD(
+    link.source.x1,
+    link.y0 ?? 0,
+    link.target.x0,
+    link.y1 ?? 0,
+    half,
+  );
 }
 
 /** A link's scene key. */
@@ -162,6 +94,7 @@ const sankeyLinkKey = (link: SankeyLink): string =>
     its target.
 */
 export function sankeyLinkAnchor(link: SankeyLink): LinkAnchor | null {
+  if (link.circular) return circularLinkAnchor(link.circular);
   if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return null;
   const x0 = link.source.x1;
   const x1 = link.target.x0;
@@ -175,7 +108,11 @@ export function sankeyLinkAnchor(link: SankeyLink): LinkAnchor | null {
 }
 
 /** The link labels, centered on their bands, clear of every node. */
-function sankeyLinkLabels(viz: VizInstance, c: SankeyCtx): SceneNode[] {
+function sankeyLinkLabels(
+  viz: VizInstance,
+  c: SankeyCtx,
+  nodeLabels: readonly SceneNode[],
+): SceneNode[] {
   return emitLinkLabels(
     viz,
     c.links.map((link, i) => ({
@@ -194,8 +131,65 @@ function sankeyLinkLabels(viz: VizInstance, c: SankeyCtx): SceneNode[] {
           height: n.y1 - n.y0,
         })),
       ),
+      labels: textLineBoxes(nodeLabels),
     },
   );
+}
+
+/** The nodes, their background images and their labels, and the labels on their own. */
+function emitSankeyNodes(
+  viz: VizInstance,
+  c: SankeyCtx,
+): {out: SceneNode[]; labels: SceneNode[]} {
+  const out: SceneNode[] = [];
+  const labels: SceneNode[] = [];
+  for (const [shapeKind, values] of c.nodeGroups ?? []) {
+    if (!values.length) continue;
+    const cfg = shapeConfigFor(viz, shapeKind);
+    const start = out.length;
+    for (let i = 0; i < values.length; i++) {
+      const d = values[i];
+      const datum = (d.data ?? d) as DataPoint;
+      const paint = paintFromShapeConfig(cfg, datum, d.i ?? i);
+      const aria = {label: `${drawNodeLabel(viz, d, i)}.`};
+      if (shapeKind === "Rect") {
+        out.push({
+          type: "rect",
+          key: `sankey-${shapeKind}-${d.id}`,
+          x: d.x0,
+          y: d.y0,
+          width: d.x1 - d.x0,
+          height: d.y1 - d.y0,
+          datum,
+          paint,
+          aria,
+        } as SceneNode);
+      } else if (shapeKind === "Circle") {
+        const r = Number(resolveAccessor<number>(cfg.r, datum, d.i ?? i) ?? 0);
+        out.push({
+          type: "circle",
+          key: `sankey-${shapeKind}-${d.id}`,
+          cx: (d.x0 + d.x1) / 2,
+          cy: (d.y0 + d.y1) / 2,
+          r,
+          datum,
+          paint,
+          aria,
+        } as SceneNode);
+      }
+      // Other shape kinds: skipped (Sankey's default is Rect).
+    }
+    out.push(
+      ...backgroundImageNodes(cfg, out.slice(start), k => {
+        const d = values[k];
+        return [(d.data ?? d) as DataPoint, d.i ?? k];
+      }),
+    );
+    const own = sankeyLabels(viz, values, cfg, c.width, c.height);
+    labels.push(...own);
+    out.push(...own);
+  }
+  return {out, labels};
 }
 
 export const sankeyEmit: ChartEmit = ({viz}) => {
@@ -215,83 +209,40 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
       const datum = link.datum;
       const i = linkMeta(datum)?.index ?? 0;
       const paint: Paint = paintFromShapeConfig(linkConfig, datum, i);
-      const stroke = linkColor(datum, link as unknown as LinkEnds);
-      if (stroke) {
+      const color = linkColor(datum, link as unknown as LinkEnds);
+      if (color) {
         // A colored band is see-through, so the flows it crosses show.
-        paint.stroke = stroke;
-        paint.strokeOpacity =
-          resolveAccessor<number>(linkConfig.strokeOpacity, datum, i) ?? 0.5;
+        paint.fill = color;
+        paint.fillOpacity =
+          resolveAccessor<number>(linkConfig.fillOpacity, datum, i) ?? 0.5;
       }
+      const thickness = sankeyBandThickness(link);
       const key = sankeyLinkKey(link);
-      const d = c.pathFn(link);
       out.push({
         type: "path",
         shapeType: "Link",
         key,
-        d: sankeyVisibleD(viz, link, i, paint.strokeWidth, d),
+        d: sankeyRibbonD(link, thickness / 2),
         datum,
         index: i,
         paint,
         aria: {label: linkAriaLabel(viz, datum)},
       } as SceneNode);
+      // The ribbon, a few pixels wider, so thin bands are easy to point at.
       out.push({
-        ...linkHitPath(key, d, datum, paint.strokeWidth),
+        ...linkHitPath(key, sankeyRibbonD(link, thickness / 2), datum, 0),
+        paint: {
+          fill: "transparent",
+          stroke: "transparent",
+          strokeWidth: LINK_HIT_WIDTH,
+        },
         shapeType: "Link",
       } as SceneNode);
-
-      out.push(...emitSankeyArrows(viz, link, datum, i, paint));
-    }
-    out.push(...sankeyLinkLabels(viz, c));
-  }
-
-  if (c.nodeGroups && c.nodeGroups.length) {
-    for (const [shapeKind, values] of c.nodeGroups) {
-      if (!values.length) continue;
-      const cfg = shapeConfigFor(viz, shapeKind);
-      const start = out.length;
-      for (let i = 0; i < values.length; i++) {
-        const d = values[i];
-        const datum = (d.data ?? d) as DataPoint;
-        const paint = paintFromShapeConfig(cfg, datum, d.i ?? i);
-        const aria = {label: `${drawNodeLabel(viz, d, i)}.`};
-        if (shapeKind === "Rect") {
-          out.push({
-            type: "rect",
-            key: `sankey-${shapeKind}-${d.id}`,
-            x: d.x0,
-            y: d.y0,
-            width: d.x1 - d.x0,
-            height: d.y1 - d.y0,
-            datum,
-            paint,
-            aria,
-          } as SceneNode);
-        } else if (shapeKind === "Circle") {
-          const r = Number(
-            resolveAccessor<number>(cfg.r, datum, d.i ?? i) ?? 0,
-          );
-          out.push({
-            type: "circle",
-            key: `sankey-${shapeKind}-${d.id}`,
-            cx: (d.x0 + d.x1) / 2,
-            cy: (d.y0 + d.y1) / 2,
-            r,
-            datum,
-            paint,
-            aria,
-          } as SceneNode);
-        }
-        // Other shape kinds: skipped (Sankey's default is Rect).
-      }
-      out.push(
-        ...backgroundImageNodes(cfg, out.slice(start), k => {
-          const d = values[k];
-          return [(d.data ?? d) as DataPoint, d.i ?? k];
-        }),
-      );
-      out.push(...sankeyLabels(viz, values, cfg, c.width, c.height));
     }
   }
-
+  const nodes = emitSankeyNodes(viz, c);
+  if (c.links && c.links.length)
+    out.push(...sankeyLinkLabels(viz, c, nodes.labels));
+  out.push(...nodes.out);
   return out;
 };
