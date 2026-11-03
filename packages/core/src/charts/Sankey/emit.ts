@@ -25,6 +25,7 @@ import type {LinkEnds} from "../features/linkColor.js";
 import {cubicMidpoint} from "../features/linkLabelGeometry.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
+import {uniqueLinkKeys} from "../features/linkKeys.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -84,9 +85,13 @@ export function sankeyRibbonD(link: SankeyLink, half: number): string {
   );
 }
 
-/** A link's scene key. */
-const sankeyLinkKey = (link: SankeyLink): string =>
-  `sankey-link-${link.source.id ?? ""}-${link.target.id ?? ""}`;
+/**
+    Each link's key ids, `source-target`, unique across `links`: parallel
+    links after the first add their order among them (see `uniqueLinkKeys`).
+    A link's scene key is `sankey-link-${ids}`.
+*/
+export const sankeyLinkIds = (links: readonly SankeyLink[]): string[] =>
+  uniqueLinkKeys(links.map(l => `${l.source.id ?? ""}-${l.target.id ?? ""}`));
 
 /**
     Where a link's label goes: the middle of its band, which runs as a
@@ -112,11 +117,12 @@ function sankeyLinkLabels(
   viz: VizInstance,
   c: SankeyCtx,
   nodeLabels: readonly SceneNode[],
+  ids: readonly string[],
 ): SceneNode[] {
   return emitLinkLabels(
     viz,
     c.links.map((link, i) => ({
-      key: sankeyLinkKey(link),
+      key: `sankey-link-${ids[i]}`,
       link,
       i,
       anchor: sankeyLinkAnchor(link),
@@ -203,9 +209,10 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
   const linkConfig = ((
     viz.schema.shapeConfig as Record<string, unknown> | undefined
   )?.Path ?? {}) as Record<string, unknown>;
+  const ids = sankeyLinkIds(c.links ?? []);
   if (c.links && c.links.length) {
     const linkColor = linkColorResolver(viz);
-    for (const link of c.links) {
+    for (const [j, link] of c.links.entries()) {
       const datum = link.datum;
       const i = linkMeta(datum)?.index ?? 0;
       const paint: Paint = paintFromShapeConfig(linkConfig, datum, i);
@@ -217,7 +224,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
           resolveAccessor<number>(linkConfig.fillOpacity, datum, i) ?? 0.5;
       }
       const thickness = sankeyBandThickness(link);
-      const key = sankeyLinkKey(link);
+      const key = `sankey-link-${ids[j]}`;
       out.push({
         type: "path",
         shapeType: "Link",
@@ -242,7 +249,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
   }
   const nodes = emitSankeyNodes(viz, c);
   if (c.links && c.links.length)
-    out.push(...sankeyLinkLabels(viz, c, nodes.labels));
+    out.push(...sankeyLinkLabels(viz, c, nodes.labels, ids));
   out.push(...nodes.out);
   return out;
 };
