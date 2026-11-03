@@ -178,6 +178,54 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
+  it(`Network ${renderer}: heavy loops stay inside the chart, strokes included`, async () => {
+    // No sizeMax: the heaviest link is as wide as the nodes' radius.
+    await withChart(
+      ["Network", {nodes, links}, {linkSize: "d => d.weight"}, renderer],
+      async page => {
+        const out = await page.evaluate(() => {
+          const svg = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg",
+          );
+          document.body.appendChild(svg);
+          const loops = [];
+          const walk = (n, x, y) => {
+            const t = n.transform || {};
+            const nx = x + (t.x || 0),
+              ny = y + (t.y || 0);
+            if (/^network-link-(\w)-\1-\d+$/.test(String(n.key))) {
+              const path = document.createElementNS(svg.namespaceURI, "path");
+              path.setAttribute("d", n.d);
+              svg.appendChild(path);
+              const b = path.getBBox();
+              const pad = (n.paint?.strokeWidth ?? 1) / 2;
+              loops.push({
+                key: n.key,
+                sw: n.paint?.strokeWidth,
+                x0: nx + b.x - pad,
+                y0: ny + b.y - pad,
+                x1: nx + b.x + b.width + pad,
+                y1: ny + b.y + b.height + pad,
+              });
+            }
+            (n.children || []).forEach(c => walk(c, nx, ny));
+          };
+          walk(window.__viz._paintedScene.root, 0, 0);
+          svg.remove();
+          return loops;
+        });
+        assert.strictEqual(out.length, 3, "three loops");
+        assert.ok(Math.max(...out.map(l => l.sw)) > 8, "a heavy loop");
+        for (const l of out)
+          assert.ok(
+            l.x0 >= 0 && l.y0 >= 0 && l.x1 <= 640 && l.y1 <= 420,
+            `${l.key}: ${JSON.stringify(l)}`,
+          );
+      },
+    );
+  });
+
   it(`Network ${renderer}: hovering and clicking a loop shows its tooltip and focuses it`, async () => {
     await withChart(
       ["Network", {nodes, links, sizeMax: 12}, {label}, renderer],

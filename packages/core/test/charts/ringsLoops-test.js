@@ -74,5 +74,18 @@ it("ringsLoops keeps the center's loop inside the first ring", () => {
   const [loop] = ringsLoops([edge(center, center)], nodes, edges, center, geom);
   const reach = Math.hypot(loop.loop.apex.x - 200, loop.loop.apex.y - 200);
   assert.ok(reach <= 30 + (60 - 30) * 0.6 + 1e-9, `${reach}`);
+  // A heavy loop's line stays inside too.
+  const [heavy] = ringsLoops(
+    [edge(center, center, 8)],
+    nodes,
+    edges,
+    center,
+    geom,
+  );
+  const heavyReach = Math.hypot(
+    heavy.loop.apex.x - 200,
+    heavy.loop.apex.y - 200,
+  );
+  assert.ok(heavyReach <= 30 + (60 - 30) * 0.6 + 1e-9, `${heavyReach}`);
   assert.deepStrictEqual(ringsLoops(edges, nodes, edges, center, geom), []);
 });

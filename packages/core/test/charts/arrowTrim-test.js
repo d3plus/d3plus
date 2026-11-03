@@ -15,6 +15,7 @@ import {
   makeLinkDatum,
   ringsVisibleD,
   sankeyVisibleD,
+  selfLoopArrows,
   selfLoopD,
   selfLoopGeometry,
   straightEdgeD,
@@ -179,6 +180,40 @@ it("selfLoopD follows a loop to each head's base, then runs along its axis", () 
   const tipDistance = Math.hypot(ex - loop.target.x, ey - loop.target.y);
   close(tipDistance, 3, 0.1);
   assert.match(selfLoopD(loop, trims(true, true)), /^M[^L]+L[^C]+C[^L]+L/);
+});
+
+it("a heavy loop's stroke ends on its default-sized head's axis, at both ends", () => {
+  for (const sw of [1, 6, 20]) {
+    const loop = selfLoopGeometry({x: 0, y: 0, r: 20}, -1, 25, sw);
+    const opts = {arrows: "both", arrowSize: undefined, strokeWidth: sw};
+    const trims = edgeArrowTrims({...opts, datum: {}, i: 0});
+    const d = selfLoopD(loop, trims);
+    const nums = numbers(d);
+    const ends = {source: nums.slice(0, 2), target: nums.slice(-2)};
+    const heads = selfLoopArrows({
+      ...opts,
+      datum: {},
+      i: 0,
+      keyPrefix: "k",
+      loop,
+    });
+    for (const head of heads) {
+      const end = head.key === "k-t" ? "target" : "source";
+      const [tx, ty, ax, ay, bx, by] = numbers(head.d);
+      // The tip sits at the loop's end, a pixel off the node.
+      close(tx, loop[end].x, 0.1);
+      close(ty, loop[end].y, 0.1);
+      // The stroke's end lies on the head's axis, inside the head.
+      const mx = (ax + bx) / 2;
+      const my = (ay + by) / 2;
+      const [px, py] = ends[end];
+      const len = Math.hypot(tx - mx, ty - my);
+      const off = ((tx - mx) * (py - my) - (ty - my) * (px - mx)) / len;
+      close(off, 0, 0.1);
+      const along = Math.hypot(px - tx, py - ty);
+      assert.ok(along > 0 && along <= len + 0.1, `${sw} ${end}: ${along}`);
+    }
+  }
 });
 
 it("arcPointAlong walks an arc's ellipse from an end toward its top", () => {

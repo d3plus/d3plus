@@ -3,7 +3,11 @@
     the arcs' side of the line, pointing straight out from it.
 */
 
-import {layoutSelfLoops, selfLoopReach} from "../features/selfLoops.js";
+import {
+  layoutSelfLoops,
+  selfLoopExtent,
+  selfLoopReach,
+} from "../features/selfLoops.js";
 import type {LinkDatum} from "../features/linkInteraction.js";
 import type {ArcLink, ArcNode} from "./applyLayout.js";
 import type {ArcOrient, ArcSide} from "./arcGeometry.js";
@@ -14,19 +18,13 @@ export function loopSide(side: ArcSide): "above" | "below" {
 }
 
 /**
-    How far a loop on a node of radius `r` reaches out from it: as a
-    Network loop does (see `selfLoopReach`), and at least 30% of the
-    `spacing` between nodes (up to 40 pixels), so it reads at a glance.
+    How far a hairline loop on a node of radius `r` reaches out from it: as
+    a Network loop does (see `selfLoopReach`), and at least 30% of the
+    `spacing` between nodes (up to 40 pixels), so it reads at a glance. Its
+    stroke grows outward from there (see `selfLoopGeometry`).
 */
-export function arcLoopReach(
-  r: number,
-  strokeWidth: number,
-  spacing: number,
-): number {
-  return Math.max(
-    selfLoopReach(r, strokeWidth),
-    Math.min(Math.max(0, spacing) * 0.3, 40),
-  );
+export function arcLoopReach(r: number, spacing: number): number {
+  return Math.max(selfLoopReach(r), Math.min(Math.max(0, spacing) * 0.3, 40));
 }
 
 /** The direction (radians) loops point on `side` of a line running `orient`. */
@@ -57,7 +55,7 @@ export function placeLoops(
   const placed = layoutSelfLoops(known, {
     node: l => nodeById.get(l.id)!,
     angle: () => loopAngle(geometry.side, geometry.orient),
-    reach: l => arcLoopReach(nodeById.get(l.id)!.r, l.size, spacing),
+    reach: l => arcLoopReach(nodeById.get(l.id)!.r, spacing),
     strokeWidth: l => l.size,
   });
   return known.flatMap(l => {
@@ -95,7 +93,7 @@ export function arcLoopRoom(
   let room = 0;
   for (const l of loops) {
     const r = radii.get(l.id) ?? 0;
-    room = Math.max(room, r + arcLoopReach(r, l.size, spacing) + l.size / 2);
+    room = Math.max(room, r + selfLoopExtent(arcLoopReach(r, spacing), l.size));
   }
   return loopSide(side) === "above"
     ? {above: room, below: 0}

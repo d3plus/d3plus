@@ -8,6 +8,7 @@ import {
   loopAngle,
   loopSide,
   placeLoops,
+  selfLoopExtent,
   selfLoopReach,
 } from "../../internal.ts";
 
@@ -25,10 +26,10 @@ it("loopAngle points loops straight out from the line", () => {
 });
 
 it("arcLoopReach is a Network loop's reach, at least 30% of the spacing up to 40px", () => {
-  assert.strictEqual(arcLoopReach(5, 1, 10), selfLoopReach(5, 1));
-  assert.strictEqual(arcLoopReach(5, 1, 100), 30);
-  assert.strictEqual(arcLoopReach(5, 1, 1000), 40);
-  assert.strictEqual(arcLoopReach(40, 1, 1000), selfLoopReach(40, 1));
+  assert.strictEqual(arcLoopReach(5, 10), selfLoopReach(5));
+  assert.strictEqual(arcLoopReach(5, 100), 30);
+  assert.strictEqual(arcLoopReach(5, 1000), 40);
+  assert.strictEqual(arcLoopReach(40, 1000), selfLoopReach(40));
 });
 
 it("arcLoopRoom is how far the loops reach from the line, on their side", () => {
@@ -40,10 +41,12 @@ it("arcLoopRoom is how far the loops reach from the line, on their side", () => 
     {id: "a", size: 2},
     {id: "b", size: 1},
   ];
+  // The loops' outer edges, stroke included.
   const room = Math.max(
-    5 + arcLoopReach(5, 2, 100) + 1,
-    8 + arcLoopReach(8, 1, 100) + 0.5,
+    5 + selfLoopExtent(arcLoopReach(5, 100), 2),
+    8 + selfLoopExtent(arcLoopReach(8, 100), 1),
   );
+  assert.strictEqual(room, 8 + 30 + 1 * 2);
   assert.deepStrictEqual(arcLoopRoom(loops, radii, 100, "both"), {
     above: room,
     below: 0,

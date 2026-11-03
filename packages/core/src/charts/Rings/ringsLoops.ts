@@ -58,6 +58,13 @@ export function ringsLoops(
     ]);
   }
   const centerRoom = Math.max(8, (geom.primaryRing - (center.r ?? 0)) * 0.6);
+  // The center's loops keep their line within its room (a stroke's line
+  // runs a stroke and a half past its hairline reach, see `selfLoopOpening`).
+  const centerStroke = Math.max(
+    0,
+    ...loops.filter(l => l.source.id === center.id).map(l => l.size ?? 1),
+  );
+  const centerReach = Math.max(0, centerRoom - centerStroke * 1.5);
   const layout = layoutSelfLoops(loops, {
     node: l => placed.get(l.source.id)!,
     angle: n =>
@@ -65,8 +72,8 @@ export function ringsLoops(
     strokeWidth: l => l.size ?? 1,
     reach: l => {
       const n = placed.get(l.source.id)!;
-      const reach = selfLoopReach(n.r, l.size);
-      return n.id === center.id ? Math.min(reach, centerRoom) : reach;
+      const reach = selfLoopReach(n.r);
+      return n.id === center.id ? Math.min(reach, centerReach) : reach;
     },
   });
   return loops.flatMap(l => {
