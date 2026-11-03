@@ -21,6 +21,11 @@ import {
 } from "./zoomControlsMarkup.js";
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 import {startsOnBrush} from "./zoomGesture.js";
+import {
+  gestureHoverEnd,
+  gestureHoverMove,
+  gestureHoverStart,
+} from "./gestureHover.js";
 import type {ZoomGestureEvent} from "./zoomGesture.js";
 import {forgetTransform, recordTransform, showsTransform} from "./zoomShown.js";
 import {effectiveDuration, motionReduced} from "../viz/reducedMotion.js";
@@ -142,14 +147,22 @@ export const zoomFeature: FeatureModule = {
       .extent(area)
       .scaleExtent([1, zoomMax(viz, width, height)])
       .translateExtent(area)
-      .on("start", (event: ZoomGestureEvent) => viz._zoomGesture?.start(event))
+      .on("start", (event: ZoomGestureEvent) => {
+        gestureHoverStart(viz as unknown as VizInstance, event);
+        viz._zoomGesture?.start(event);
+      })
       .on("zoom", (event: ZoomGestureEvent) => {
+        // Tooltips and hover wait while the gesture moves the chart.
+        gestureHoverMove(viz as unknown as VizInstance, event);
         // A chart can take the gesture itself (a Geomap globe rotates).
         if (viz._zoomGesture?.zoom(event)) return;
         if (!showsTransform(viz, event.transform))
           zoomed.bind(viz)(event.transform);
       })
-      .on("end", (event: ZoomGestureEvent) => viz._zoomGesture?.end(event));
+      .on("end", (event: ZoomGestureEvent) => {
+        viz._zoomGesture?.end(event);
+        gestureHoverEnd(viz as unknown as VizInstance);
+      });
 
     viz._zoomToBounds = zoomToBounds.bind(viz);
 

@@ -9,6 +9,7 @@
 
 import type {PickResult, SceneEvent, SceneNode} from "@d3plus/render";
 
+import {gestureHolds} from "../drawSteps/gestureHover.js";
 import {facetPanelAt} from "../facet/facetPanel.js";
 import {focusTargets} from "./focusTargets.js";
 import type {FocusTarget} from "./focusTargets.js";
@@ -172,6 +173,8 @@ export function nearestPick(
     apart from the pick.
 */
 export function routePointerEvent(viz: VizInstance, event: SceneEvent): void {
+  // A zoom gesture moving the chart holds pointer events until it ends.
+  if (gestureHolds(viz)) return;
   const route = (e: SceneEvent): void => viz._routeSceneEvent?.(e);
   const state = (viz._nearestHover ??= {key: null});
   const native = (event.nativeEvent as Event | undefined)?.type;
