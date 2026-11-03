@@ -1619,8 +1619,18 @@ export interface D3plusConfig {
       `"geoOrthographic"`), links follow the great circle without the lift.
   */
   linkCurve?: number;
-  /** Geomap: the widest link, in pixels, when `linkSize` values differ (default `10`). */
+  /**
+      Network, Rings, and Geomap: the widest link, in pixels, when `linkSize`
+      values differ. Network and Rings default to half the smallest node's
+      radius (never thinner than `linkSizeMin`); Geomap defaults to `10`. A
+      `linkSizeMin` wider than a set `linkSizeMax` is held to it.
+  */
   linkSizeMax?: number;
+  /**
+      Network, Rings, ArcDiagram, and Geomap: the thinnest link, in pixels,
+      when `linkSize` values differ (default `1`).
+  */
+  linkSizeMin?: number;
   /**
       Colors each link of a Network, Rings, Sankey, ArcDiagram, or Geomap,
       and its arrowheads: `"source"` or `"target"` takes that end node's color, and
@@ -1666,8 +1676,10 @@ export interface D3plusConfig {
   /**
       Network, Rings, ArcDiagram, and Geomap: the thickness of each link, as
       a pixel number used for every link, or an accessor function whose
-      values are scaled between `linkSizeMin` and the smallest node's radius
-      (Geomap: `linkSizeMax`). The
+      values are scaled (see `linkSizeScale`) from `linkSizeMin` up to
+      `linkSizeMax` on a Network, Rings, or Geomap (by default half the
+      smallest node's radius on the first two, and 10 pixels on a Geomap),
+      or up to the smallest node's radius on an ArcDiagram. The
       function receives each link with its own fields, with `source` and
       `target` set to the data of the nodes at its ends (not their ids or
       indices), and its index in `links`. Link `shapeConfig` functions, arrow

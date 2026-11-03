@@ -37,7 +37,7 @@ import {
   linkMeta,
   linkTooltipConfig,
 } from "../features/linkInteraction.js";
-import {linkStyleFields} from "../features/linkFields.js";
+import {linkSizeMaxField, linkStyleFields} from "../features/linkFields.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
 
@@ -91,8 +91,8 @@ function installRingsAccessors(viz: VizInstance): void {
   };
   /**
       The thickness of each link: a pixel number used for every link, or an
-      accessor function whose values are scaled between `linkSizeMin` and the
-      smallest node radius (see `linkSizeScale`). The function receives each
+      accessor function whose values are scaled between `linkSizeMin` and
+      `linkSizeMax` (see `linkSizeScale`). The function receives each
       link, with `source` and `target` set to the data of the nodes at its
       ends, and its index in `links`.
       @type {number | function}
@@ -277,7 +277,12 @@ export const ringsDef: ChartDefinition = {
     ...loaderFormatFields("links", "nodes"),
     {key: "links", default: []},
     {key: "linkSize", default: constant(1)},
-    /** The minimum pixel stroke width used when sizing links. */
+    /**
+        The widest link, in pixels, when `linkSize` values differ. Defaults
+        to half the smallest node's radius.
+    */
+    linkSizeMaxField(),
+    /** The thinnest link, in pixels, when `linkSize` values differ. */
     {key: "linkSizeMin", default: 1},
     /**
         The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales)

@@ -23,6 +23,7 @@ import {
 } from "./ringsSizing.js";
 import type {RingGeometry} from "./ringsSizing.js";
 import {publishLinkGraph} from "../features/linkInteraction.js";
+import {linkWidthRange} from "../features/linkWidths.js";
 import {buildRingsGraph, ringsLinkEnd} from "./ringsGraph.js";
 import {ringsLoops} from "./ringsLoops.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
@@ -273,6 +274,37 @@ function applyRingsLabelBounds(
 }
 
 /**
+    Scales link stroke sizes onto the linkSizeScale between the widths
+    `linkWidthRange` gives for the smallest node, when they differ, mutating
+    each link's size.
+*/
+function scaleRingsStrokes(
+  v: VizInstance,
+  nodes: RingsNode[],
+  links: RingsEdge[],
+): void {
+  const strokeExtent = extent(links, d => d.size);
+  if (strokeExtent[0] !== strokeExtent[1]) {
+    const rNodeMin = min(nodes, d => d.r as number);
+    const strokeScale = (scales as unknown as Record<string, () => RScale>)
+      [
+        `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
+      ]()
+      .domain(strokeExtent as [number, number])
+      .range(
+        linkWidthRange(
+          v.schema.linkSizeMin,
+          v.schema.linkSizeMax,
+          rNodeMin as number,
+        ),
+      );
+    links.forEach(link => {
+      link.size = strokeScale(link.size);
+    });
+  }
+}
+
+/**
     Build the link/node shape config + `linkD` accessor, scale link strokes, and
     stash `linkLookup` + `ringsCtx` on `viz.ctx`.
 */
@@ -292,19 +324,7 @@ function publishRingsCtx(
     return obj;
   }, {});
 
-  const strokeExtent = extent(links, d => d.size);
-  if (strokeExtent[0] !== strokeExtent[1]) {
-    const rNodeMin = min(nodes, d => d.r as number);
-    const strokeScale = (scales as unknown as Record<string, () => RScale>)
-      [
-        `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
-      ]()
-      .domain(strokeExtent as [number, number])
-      .range([v.schema.linkSizeMin as number, rNodeMin as number]);
-    links.forEach(link => {
-      link.size = strokeScale(link.size);
-    });
-  }
+  scaleRingsStrokes(v, nodes, links);
 
   const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");
   delete linkConfig.on;

@@ -33,9 +33,9 @@ Omitting `x`/`y` from the nodes lets a force simulation position them automatica
 
 ## Data driven link size
 
-`linkSize` takes an accessor returning each link's `weight`, which d3plus runs through a linear scale to set stroke thickness—heavier links render thicker.
+`linkSize` takes an accessor returning each link's `weight`, which d3plus runs through a square-root scale (`linkSizeScale`) to set stroke thickness—heavier links render thicker. The thinnest link is `linkSizeMin` pixels wide (1 by default) and the widest `linkSizeMax`, which defaults to half the smallest node's radius so that even the heaviest links stay narrower than the nodes they join.
 
-<Playground chart="Network" code={dataDrivenLinkSize} controls={["linkSize"]} />
+<Playground chart="Network" code={dataDrivenLinkSize} controls={["linkSize","linkSizeMin","linkSizeMax"]} />
 
 ## Directional arrows
 

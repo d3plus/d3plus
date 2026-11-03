@@ -1619,7 +1619,14 @@ export type {
   DrawnLinkEnd,
   LinkEnds,
 } from "./src/charts/features/linkColor.js";
-export {linkStyleFields} from "./src/charts/features/linkFields.js";
+export {
+  linkSizeMaxField,
+  linkStyleFields,
+} from "./src/charts/features/linkFields.js";
+export {
+  LINK_SIZE_SHARE,
+  linkWidthRange,
+} from "./src/charts/features/linkWidths.js";
 export {
   FORMAT_KEYS,
   formatPayload,
