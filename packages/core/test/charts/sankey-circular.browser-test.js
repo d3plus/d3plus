@@ -5,8 +5,8 @@ import {openPage} from "~test/browser/page.js";
 /**
     Sankey's circular links, in Chromium on SVG and Canvas: links that loop
     back into a node they left draw as bands around the nodes, inside the
-    chart, with arrowheads, labels, tooltips, hover, click and keyboard
-    focus, in small multiples too. `sankey-cycles.browser-test.js` covers
+    chart, with labels, tooltips, hover, click and keyboard focus, in small
+    multiples too. `sankey-cycles.browser-test.js` covers
     `circularLinks(false)`.
 */
 
@@ -189,24 +189,20 @@ for (const renderer of ["svg", "canvas"]) {
     });
   });
 
-  it(`Sankey ${renderer}: circular links carry arrowheads, labels, tooltips and focus`, async () => {
-    await withSankey([{links, arrows: true}, renderer, true], async page => {
+  it(`Sankey ${renderer}: circular links carry labels, tooltips and focus`, async () => {
+    await withSankey([{links}, renderer, true], async page => {
       const scene = await page.evaluate(sceneNodes);
       const band = scene["sankey-link-C-A"];
-      const head = scene["sankey-arrow-t-C-A"];
       const a = scene["sankey-Rect-A"];
-      assert.ok(head && finite(head.d), "the return's arrowhead");
-      // The band ends inside its head, which points into A's left side.
+      // The ribbon runs all the way into A's left side.
       const xs = numbers(band.d).filter((_, k) => !(k % 2));
-      const end = Math.max(...xs.filter(x => x < a.x + 1));
       assert.ok(
-        end < a.x - 0.5 && end > a.x - 28,
-        `band ends at ${end}, A at ${a.x}`,
+        xs.some(x => Math.abs(x - a.x) < 0.5),
+        `reaches A at ${a.x}: ${band.d}`,
       );
-      const tip = numbers(head.d);
       assert.ok(
-        Math.abs(Math.max(...tip.filter((_, k) => !(k % 2))) - a.x) < 1,
-        `the head's tip is on A's edge: ${head.d}`,
+        !Object.keys(scene).some(k => /arrow/.test(k)),
+        "no arrowheads",
       );
       // Its label sits on the lane.
       const labels = Object.keys(scene).filter(

@@ -3,13 +3,7 @@ import {it} from "vitest";
 
 import {useJsdom} from "~test/jsdom.js";
 import {Sankey} from "../../index.ts";
-import {
-  applySankeyLayout,
-  makeLinkDatum,
-  runStages,
-  sankeyDef,
-  sankeyHeads,
-} from "../../internal.ts";
+import {applySankeyLayout, runStages, sankeyDef} from "../../internal.ts";
 
 useJsdom();
 
@@ -102,17 +96,6 @@ it("takes its style from shapeConfig.labelConfig", () => {
   assert.strictEqual(labels.alpha.paint.fill, "red");
 });
 
-it("keeps each label clear of the arrowheads at its node", () => {
-  const plain = draw();
-  const arrowed = draw(viz => viz.arrows("both").arrowSize(16));
-  // delta (last column) sits left of the heads entering it; the others sit
-  // right of the heads pointing back into them.
-  const shift = id => anchor(arrowed.labels[id]).x - anchor(plain.labels[id]).x;
-  assert.strictEqual(shift("delta"), -16);
-  for (const id of ["alpha", "beta", "gamma"])
-    assert.strictEqual(shift(id), 16);
-});
-
 it("hides link labels that would cover a node's label", () => {
   const long = "a source with a much longer name";
   const viz = new Sankey()
@@ -132,30 +115,4 @@ it("hides link labels that would cover a node's label", () => {
   // Both bands' middles sit where the long name runs; only it is in the way.
   assert.ok(keys.includes("sankey-link-b-x-label-group"), keys.join());
   assert.ok(!keys.includes(`sankey-link-${long}-x-label-group`), keys.join());
-});
-
-it("sankeyHeads measures the arrowheads at each node's sides", () => {
-  const a = {data: {id: "a"}, i: 0, id: "a"};
-  const b = {data: {id: "b"}, i: 1, id: "b"};
-  const datum = makeLinkDatum({source: "a", target: "b"}, a, b, 0);
-  const link = {
-    datum,
-    source: {id: "a", x1: 0},
-    target: {id: "b", x0: 200},
-    y0: 10,
-    y1: 50,
-    width: 20,
-  };
-  const heads = sankeyHeads({schema: {arrows: "target"}}, {links: [link]});
-  assert.strictEqual(heads.into({id: "b"}), 20);
-  assert.strictEqual(heads.into({id: "a"}), 0);
-  assert.strictEqual(heads.out({id: "a"}), 0);
-  assert.deepStrictEqual([heads.maxInto, heads.maxOut], [20, 0]);
-  const both = sankeyHeads(
-    {schema: {arrows: "both", arrowSize: 9}},
-    {links: [link]},
-  );
-  assert.deepStrictEqual([both.out({id: "a"}), both.maxInto], [9, 9]);
-  const none = sankeyHeads({schema: {arrows: false}}, {links: [link]});
-  assert.deepStrictEqual([none.maxInto, none.maxOut], [0, 0]);
 });

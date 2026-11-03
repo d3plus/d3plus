@@ -5,7 +5,6 @@ import {
   CIRCULAR_CLEARANCE,
   CIRCULAR_RADIUS,
   capReserve,
-  circularArrowEdge,
   columnEdges,
   columnScale,
   circularLanes,
@@ -15,9 +14,7 @@ import {
   circularLinkShape,
   circularLinkSide,
   circularReserve,
-  circularRibbonD,
   layOutCircular,
-  sankeyArrowSize,
   sankeyNodeValue,
   sankeyScale,
   solveScale,
@@ -99,7 +96,7 @@ it("circularLanes stacks lanes that share columns and nests legs at each column"
   const d = node(3, 0, 10);
   const e = node(4, 0, 10);
   const links = [link(0, c, b, 4), link(1, c, a, 6), link(2, e, d, 3)];
-  const lanes = circularLanes(links, 5, columnX);
+  const lanes = circularLanes(links, columnX);
   assert.deepStrictEqual(
     lanes.map(l => l.depth),
     [0, 4, 0],
@@ -107,17 +104,15 @@ it("circularLanes stacks lanes that share columns and nests legs at each column"
   assert.strictEqual(lanes[0].arcSource, CIRCULAR_RADIUS + 2);
   // The second leg out of column 2 turns around the first.
   assert.strictEqual(lanes[1].arcSource, CIRCULAR_RADIUS + 4 + 3);
-  assert.strictEqual(lanes[1].legSource, 5 + CIRCULAR_RADIUS + 4 + 3);
   // Different target columns: neither turns around the other.
   assert.strictEqual(lanes[1].arcTarget, CIRCULAR_RADIUS + 3);
-  assert.strictEqual(lanes[2].legTarget, 5 + CIRCULAR_RADIUS + 1.5);
-  assert.deepStrictEqual(circularLanes([], 0, columnX), []);
+  assert.strictEqual(lanes[2].arcTarget, CIRCULAR_RADIUS + 1.5);
+  assert.deepStrictEqual(circularLanes([], columnX), []);
   // A wide loop's legs reach into the next columns, so it stacks outside
   // a lane two columns over.
   const wide = node(4, 0, 10);
   const stacked = circularLanes(
     [link(0, c, b, 4), link(1, wide, wide, 200)],
-    0,
     columnX,
   );
   assert.deepStrictEqual(
@@ -133,11 +128,11 @@ it("circularReserve makes room for lanes and for legs past the outer columns", (
   const bottom = [link(2, node(1, 50, 60), node(1, 50, 60), 3)];
   const reserve = circularReserve(
     [
-      {side: "top", links: top, lanes: circularLanes(top, 0, columnX)},
+      {side: "top", links: top, lanes: circularLanes(top, columnX)},
       {
         side: "bottom",
         links: bottom,
-        lanes: circularLanes(bottom, 0, columnX),
+        lanes: circularLanes(bottom, columnX),
       },
     ],
     2,
@@ -162,9 +157,7 @@ it("circularLinkShape places the lane outside the nodes and caps each turn", () 
   const lane = {
     depth: 6,
     arcSource: 10,
-    arcTarget: 10,
-    legSource: 10,
-    legTarget: 12,
+    arcTarget: 12,
   };
   const top = circularLinkShape(l, lane, "top", 30);
   assert.strictEqual(top.laneY, 30 - CIRCULAR_CLEARANCE - 6 - 2);
@@ -200,8 +193,6 @@ it("circularLinkD runs from source to target through four turns", () => {
   assert.ok(numbers(d).every(Number.isFinite));
   const ys = numbers(d).filter((_, k) => k % 2);
   assert.strictEqual(Math.min(...ys), 10, "reaches the lane");
-  const trimmed = circularLinkD(shape, 6, 5);
-  assert.ok(trimmed.startsWith("M216,32") && trimmed.endsWith("L-5,42"));
   const below = circularLinkD({...shape, side: "bottom", laneY: 90});
   assert.strictEqual(Math.max(...numbers(below).filter((_, k) => k % 2)), 90);
 });
@@ -314,7 +305,6 @@ it("layOutCircular lays out returns around nodes that fit inside the chart", () 
     width: 400,
     height: 300,
     padding: 8,
-    stubFor: () => 8,
   });
   assert.strictEqual(extents.length, 2);
   const [[x0, y0], [x1, y1]] = extents[1];
@@ -349,56 +339,9 @@ it("layOutCircular lays out returns around nodes that fit inside the chart", () 
     width: 400,
     height: 300,
     padding: 8,
-    stubFor: () => 0,
   });
   assert.deepStrictEqual(none, []);
   assert.strictEqual(once.length, 1);
-});
-
-it("circularArrowEdge lays each head along its band's straight end", () => {
-  const shape = {
-    side: "top",
-    xs: 210,
-    sy: 32,
-    xt: 0,
-    ty: 42,
-    laneY: 10,
-    xr: 230,
-    rs: 8,
-    xl: -20,
-    rt: 8,
-  };
-  const edge = circularArrowEdge(shape, 10, 6, {source: true, target: true}, 3);
-  assert.deepStrictEqual(edge.target.tip, [0, 42]);
-  assert.strictEqual(edge.target.angle, 0);
-  assert.deepStrictEqual(edge.target.cut, [-6, 42]);
-  assert.deepStrictEqual(edge.source.tip, [210, 32]);
-  assert.ok(Math.abs(edge.source.angle - Math.PI) < 1e-9);
-  // The ribbon, 3px each side, ends square at each head's cut.
-  assert.ok(edge.d.startsWith("M216,35L"), edge.d);
-  assert.ok(edge.d.includes("L-6,45L-6,39"), edge.d);
-  assert.ok(edge.d.endsWith("L216,29Z"), edge.d);
-  const plain = circularArrowEdge(
-    shape,
-    10,
-    6,
-    {source: false, target: false},
-    3,
-  );
-  assert.strictEqual(plain.d, circularRibbonD(shape, 3));
-});
-
-it("sankeyArrowSize follows the band's width between 8 and 28, or arrowSize", () => {
-  const viz = {schema: {}};
-  assert.strictEqual(sankeyArrowSize(viz, 12, {}, 0), 12);
-  assert.strictEqual(sankeyArrowSize(viz, 2, {}, 0), 8);
-  assert.strictEqual(sankeyArrowSize(viz, 90, {}, 0), 28);
-  assert.strictEqual(sankeyArrowSize(viz, undefined, {}, 0), 8);
-  assert.strictEqual(sankeyArrowSize({schema: {arrowSize: 5}}, 90, {}, 0), 5);
-  assert.strictEqual(
-    sankeyArrowSize({schema: {arrowSize: (d, i) => i * 3}}, 90, {}, 4),
-    12,
-  );
 });
 
 it("columnScale matches the scale the layout draws nodes at", () => {

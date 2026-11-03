@@ -12,7 +12,6 @@ const config = {
     {source: "Recycling", target: "Manufacturing", value: 8},
     {source: "Recycling", target: "Landfill", value: 7},
   ],
-  arrows: true,
   circularLinks: true,
   linkColor: "source",
   linkLabel: "value",

@@ -11,7 +11,6 @@ import {
   sankeyCenter,
   sankeyJustify,
   sankeyLeft,
-  sankeyLinkHorizontal,
   sankeyRight,
 } from "./sankeyLayout.js";
 
@@ -219,24 +218,9 @@ export const sankeyDef: ChartDefinition = {
 
   ctx: {
     sankey: sankey(),
-    path: sankeyLinkHorizontal(),
   },
 
   fields: [
-    /**
-        Draws arrowheads on the links: `true` (or `"target"`) where each link
-        enters its target, `"source"` where it leaves its source, `"both"`,
-        or `false` for none. Also accepts an accessor function returning one
-        of those per link.
-        @type {boolean | "target" | "source" | "both" | function}
-    */
-    {key: "arrows", default: false},
-    /**
-        The arrowhead size in pixels, or an accessor function returning one
-        per link. Defaults to the link's width, kept between 8 and 28.
-        @type {number | function}
-    */
-    {key: "arrowSize"},
     {key: "circularLinks", default: true},
     /**
         The number of relaxation iterations d3-sankey runs to position the

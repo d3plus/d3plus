@@ -5,8 +5,6 @@
     over itself on the inside of a tight curve.
 */
 
-import type {ArrowedEnd} from "../features/curvedArrows.js";
-
 export type Point = [number, number];
 /** One step of an edge: a straight run to `to`, or a cubic curve through `c1` and `c2`. */
 export interface EdgeStep {
@@ -90,40 +88,4 @@ export function bandRibbonD(
     steps: [{c1: [xm, y0], c2: [xm, y1], to: [x1, y1]}],
   };
   return ribbonD(shiftEdge(center, -half), shiftEdge(center, half));
-}
-
-/** The unit normal of an arrowed end's axis that points up the chart. */
-function upward(end: ArrowedEnd): Point {
-  const n: Point = [Math.sin(end.angle), -Math.cos(end.angle)];
-  return n[1] > 0 ? [-n[0], -n[1]] : n;
-}
-
-/**
-    An arrowed band's ribbon: along its center curve `body` (trimmed to its
-    heads' bases), then straight on along each head's axis to end square to
-    it at the head's `cut`, so the ribbon's end sits inside the head.
-    @param body The center curve between the heads' bases.
-    @param half Half the band's thickness.
-*/
-export function arrowedRibbonD(
-  body: [Point, Point, Point, Point],
-  half: number,
-  source?: ArrowedEnd,
-  target?: ArrowedEnd,
-): string {
-  const edge = (side: 1 | -1): Edge => {
-    const curve = shiftEdge(
-      {start: body[0], steps: [{c1: body[1], c2: body[2], to: body[3]}]},
-      side * half,
-    );
-    const square = (end: ArrowedEnd): Point => {
-      const n = upward(end);
-      return [end.cut[0] - side * n[0] * half, end.cut[1] - side * n[1] * half];
-    };
-    const steps = [...curve.steps];
-    if (target) steps.push({to: square(target)});
-    if (!source) return {start: curve.start, steps};
-    return {start: square(source), steps: [{to: curve.start}, ...steps]};
-  };
-  return ribbonD(edge(-1), edge(1));
 }

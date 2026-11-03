@@ -36,13 +36,13 @@ export interface CircularLinkInput {
 export interface CircularLane {
   /** The total width of the lanes between this one and the nodes. */
   depth: number;
-  /** The radius of the band's turns at its source, past the bands inside it. */
+  /**
+      The radius of the band's turns at its source, past the bands inside
+      it: also how far right of the source's right edge its leg runs.
+  */
   arcSource: number;
+  /** The same at its target: how far left of the target's left edge its leg runs. */
   arcTarget: number;
-  /** How far right of the source's right edge the band's leg runs. */
-  legSource: number;
-  /** How far left of the target's left edge the band's leg runs. */
-  legTarget: number;
 }
 
 /** A circular link's drawn band, from `circularLinkShape`. */
@@ -123,14 +123,11 @@ export function circularLinkOrder<L extends CircularLinkInput>(
     earlier lane it would run into: one whose band, legs included, spans
     some of the same width of the chart.
     @param links One side's links, innermost first.
-    @param stub How far each band runs straight from its node before it
-    turns, to hold an arrowhead.
     @param columnX Where a column's nodes sit across: their left and right
     edges.
 */
 export function circularLanes(
   links: readonly CircularLinkInput[],
-  stub: number,
   columnX: (layer: number) => readonly [number, number],
 ): CircularLane[] {
   const inside = {source: new Map<number, number>(), target: new Map()};
@@ -140,21 +137,15 @@ export function circularLanes(
     inside[end].set(layer, before + l.width);
     return CIRCULAR_RADIUS + before + l.width / 2;
   };
-  const lanes: CircularLane[] = links.map(l => {
-    const arcSource = arc("source", l);
-    const arcTarget = arc("target", l);
-    return {
-      depth: 0,
-      arcSource,
-      arcTarget,
-      legSource: stub + arcSource,
-      legTarget: stub + arcTarget,
-    };
-  });
+  const lanes: CircularLane[] = links.map(l => ({
+    depth: 0,
+    arcSource: arc("source", l),
+    arcTarget: arc("target", l),
+  }));
   // Where each band reaches across, from its target's leg to its source's.
   const spans = links.map((l, k) => {
-    const right = columnX(l.source.layer)[1] + lanes[k].legSource;
-    const left = columnX(l.target.layer)[0] - lanes[k].legTarget;
+    const right = columnX(l.source.layer)[1] + lanes[k].arcSource;
+    const left = columnX(l.target.layer)[0] - lanes[k].arcTarget;
     const half = l.width / 2;
     return [Math.min(left, right) - half, Math.max(left, right) + half];
   });
@@ -199,9 +190,9 @@ export function circularReserve(
       const reach = CIRCULAR_CLEARANCE + lane.depth + l.width;
       out[side] = Math.max(out[side], reach);
       if (l.source.layer === lastLayer)
-        out.right = Math.max(out.right, lane.legSource + l.width / 2);
+        out.right = Math.max(out.right, lane.arcSource + l.width / 2);
       if (l.target.layer === 0)
-        out.left = Math.max(out.left, lane.legTarget + l.width / 2);
+        out.left = Math.max(out.left, lane.arcTarget + l.width / 2);
     });
   }
   return out;
@@ -231,9 +222,9 @@ export function circularLinkShape(
     xt: link.target.x0,
     ty,
     laneY,
-    xr: link.source.x1 + lane.legSource,
+    xr: link.source.x1 + lane.arcSource,
     rs: Math.max(0, Math.min(lane.arcSource, Math.abs(sy - laneY) / 2)),
-    xl: link.target.x0 - lane.legTarget,
+    xl: link.target.x0 - lane.arcTarget,
     rt: Math.max(0, Math.min(lane.arcTarget, Math.abs(ty - laneY) / 2)),
   };
 }
@@ -243,14 +234,9 @@ const kappa = 0.5523;
 
 /**
     A circular link's center line from its source to its target, made of
-    straight runs and quarter turns. `trimSource` and `trimTarget` start and
-    end it that far from the nodes, along its straight ends.
+    straight runs and quarter turns.
 */
-export function circularLinkEdge(
-  shape: CircularShape,
-  trimSource = 0,
-  trimTarget = 0,
-): Edge {
+export function circularLinkEdge(shape: CircularShape): Edge {
   const {xs, sy, xt, ty, laneY, xr, rs, xl, rt} = shape;
   const dir = shape.side === "top" ? -1 : 1;
   const steps: EdgeStep[] = [];
@@ -267,17 +253,13 @@ export function circularLinkEdge(
   turn([xr, laneY - dir * rs], [0, dir], [xr - rs, laneY], [-1, 0], rs);
   turn([xl + rt, laneY], [-1, 0], [xl, laneY - dir * rt], [0, -dir], rt);
   turn([xl, ty + dir * rt], [0, -dir], [xl + rt, ty], [1, 0], rt);
-  steps.push({to: [xt - trimTarget, ty]});
-  return {start: [xs + trimSource, sy], steps};
+  steps.push({to: [xt, ty]});
+  return {start: [xs, sy], steps};
 }
 
 /** A circular link's center line as a path (see `circularLinkEdge`). */
-export function circularLinkD(
-  shape: CircularShape,
-  trimSource = 0,
-  trimTarget = 0,
-): string {
-  return edgeD(circularLinkEdge(shape, trimSource, trimTarget));
+export function circularLinkD(shape: CircularShape): string {
+  return edgeD(circularLinkEdge(shape));
 }
 
 /**
@@ -304,18 +286,12 @@ export function offsetCircularShape(
 
 /**
     A circular link's band as a filled ribbon, `half` its thickness each
-    side of its center line, starting and ending `trimSource` and
-    `trimTarget` from the nodes along its straight ends.
+    side of its center line.
 */
-export function circularRibbonD(
-  shape: CircularShape,
-  half: number,
-  trimSource = 0,
-  trimTarget = 0,
-): string {
+export function circularRibbonD(shape: CircularShape, half: number): string {
   return ribbonD(
-    circularLinkEdge(offsetCircularShape(shape, half), trimSource, trimTarget),
-    circularLinkEdge(offsetCircularShape(shape, -half), trimSource, trimTarget),
+    circularLinkEdge(offsetCircularShape(shape, half)),
+    circularLinkEdge(offsetCircularShape(shape, -half)),
   );
 }
 

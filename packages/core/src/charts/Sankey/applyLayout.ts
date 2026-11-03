@@ -19,12 +19,9 @@ import {
 import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {warnConfigOnce} from "../../utils/configWarnings.js";
-import {arrowEnds} from "../features/edgeArrows.js";
-import type {ArrowValue} from "../features/edgeArrows.js";
 import {layOutCircular} from "./circularLayout.js";
 import {sankeyNodeValue} from "./circularLinks.js";
 import type {CircularNode} from "./circularLinks.js";
-import {sankeyArrowSize} from "./emit.js";
 import {sankeyAcyclicLinks} from "./sankeyCycles.js";
 import {
   sankeyDrawableLinks,
@@ -238,12 +235,6 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     width,
     height,
     padding: v.schema.nodePadding as number,
-    stubFor: (l, w) => {
-      const ends = arrowEnds(v.schema.arrows as ArrowValue, l.datum, l.i);
-      return ends.source || ends.target
-        ? sankeyArrowSize(v, w, l.datum, l.i)
-        : 0;
-    },
   });
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
   v.ctx.sankeyCtx = {

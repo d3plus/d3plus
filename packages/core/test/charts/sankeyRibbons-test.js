@@ -2,8 +2,6 @@ import {it} from "vitest";
 import assert from "assert";
 
 import {
-  arrowAlongChord,
-  arrowedRibbonD,
   bandRibbonD,
   circularLinkD,
   circularLinkEdge,
@@ -22,9 +20,6 @@ const pairs = d => {
   const n = numbers(d);
   return Array.from({length: n.length / 2}, (_, k) => [n[2 * k], n[2 * k + 1]]);
 };
-const close = (a, b, eps = 1e-6) =>
-  assert.ok(Math.abs(a - b) < eps, `${a} is not close to ${b}`);
-
 const edge = {
   start: [0, 0],
   steps: [{to: [10, 0]}, {c1: [20, 0], c2: [20, 10], to: [30, 10]}],
@@ -75,44 +70,8 @@ it("bandRibbonD is the link curve moved up and down by half the band", () => {
   assert.deepStrictEqual(steep[4], [20, 340]);
 });
 
-it("arrowedRibbonD ends square inside each head, on its axis", () => {
-  const body = [
-    [0, 10],
-    [90, 10],
-    [90, 50],
-    [180, 50],
-  ];
-  // A head angled 30° down at the target end.
-  const target = arrowAlongChord([200, 61.55], [180, 50], 6);
-  const d = arrowedRibbonD(body, 5, undefined, target);
-  const p = pairs(d);
-  const [top, bottom] = [p[4], p[5]];
-  const mid = [(top[0] + bottom[0]) / 2, (top[1] + bottom[1]) / 2];
-  close(mid[0], target.cut[0], 1e-2);
-  close(mid[1], target.cut[1], 1e-2);
-  close(Math.hypot(top[0] - bottom[0], top[1] - bottom[1]), 10, 1e-2);
-  // Square to the head's axis.
-  const across = [bottom[0] - top[0], bottom[1] - top[1]];
-  close(
-    across[0] * Math.cos(target.angle) + across[1] * Math.sin(target.angle),
-    0,
-    1e-2,
-  );
-  assert.ok(top[1] < bottom[1], "the top edge stays on top");
-  assert.ok(d.endsWith("Z"));
-  // A head at the source end leads the ribbon.
-  const source = arrowAlongChord([0, 10], [20, 10], 6);
-  const both = pairs(arrowedRibbonD(body, 5, source, target));
-  assert.deepStrictEqual(both[0], [6, 5]);
-  assert.deepStrictEqual(both[both.length - 1], [6, 15]);
-});
-
 it("circularLinkEdge is the center line circularLinkD draws", () => {
   assert.strictEqual(edgeD(circularLinkEdge(shape)), circularLinkD(shape));
-  assert.strictEqual(
-    edgeD(circularLinkEdge(shape, 4, 2)),
-    circularLinkD(shape, 4, 2),
-  );
 });
 
 it("offsetCircularShape moves a band outward around the same turn centers", () => {
@@ -143,7 +102,8 @@ it("circularRibbonD fills between the band's outer and inner edges", () => {
   const ys = numbers(d).filter((_, k) => k % 2);
   assert.strictEqual(Math.min(...ys), 7, "the outer edge of the lane");
   assert.ok(numbers(d).every(Number.isFinite));
-  assert.ok(circularRibbonD(shape, 3, 6, 6).startsWith("M216,35"));
+  assert.ok(d.startsWith("M210,35"), "from the source's right edge");
+  assert.ok(d.endsWith("L210,29Z"), "back to it");
 });
 
 it("sankeyBandThickness leaves a pixel each side, at least 1", () => {

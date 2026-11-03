@@ -6,7 +6,7 @@ import {openPage} from "~test/browser/page.js";
     A link with an arrowhead stops inside it, in Chromium on SVG and Canvas:
     the square end of the link's painted stroke (both corners) lies within
     the arrowhead's triangle, on Network (straight links and loops), Rings,
-    ArcDiagram, and Sankey, while the link's hit path keeps its full length.
+    and ArcDiagram, while the link's hit path keeps its full length.
 */
 
 const box = "<div id='viz' style='width:640px;height:420px'></div>";
@@ -102,47 +102,6 @@ function assertEndsInside(
   const hit = scene[`${key}::hit`];
   if (hit)
     assert.notStrictEqual(hit.d, link.d, `${key}'s hit path keeps its length`);
-}
-
-/**
-    Asserts a Sankey band (a filled ribbon) ends square inside its target
-    arrowhead: the two corners of its target end lie inside the head's
-    triangle, centered on the head's axis.
-*/
-function assertRibbonEndsInside(scene, key, arrowKey) {
-  const band = scene[key];
-  const arrow = scene[arrowKey];
-  assert.ok(band, `${key} is painted`);
-  assert.ok(arrow, `${arrowKey} is painted`);
-  const tri = [];
-  const pts = numbers(arrow.d);
-  for (let k = 0; k < 6; k += 2) tri.push([pts[k], pts[k + 1]]);
-  const tip = tri[0];
-  const base = [(tri[1][0] + tri[2][0]) / 2, (tri[1][1] + tri[2][1]) / 2];
-  const axis = [tip[0] - base[0], tip[1] - base[1]];
-  const len = Math.hypot(...axis);
-  // The ribbon runs its top edge to the target (a curve, then the run along
-  // the head's axis), then back along its bottom edge.
-  const n = numbers(band.d);
-  const corners = [
-    [n[8], n[9]],
-    [n[10], n[11]],
-  ];
-  for (const q of corners)
-    assert.ok(
-      inTriangle(q, tri),
-      `${key}: ribbon corner ${q.map(v => v.toFixed(2))} inside ${arrow.d}`,
-    );
-  const mid = [
-    (corners[0][0] + corners[1][0]) / 2,
-    (corners[0][1] + corners[1][1]) / 2,
-  ];
-  const off = Math.abs(
-    (mid[0] - tip[0]) * (axis[1] / len) - (mid[1] - tip[1]) * (axis[0] / len),
-  );
-  assert.ok(off < 0.5, `${key}: ribbon end ${off.toFixed(2)}px off the axis`);
-  const hit = scene[`${key}::hit`];
-  assert.ok(hit && hit.d !== band.d, `${key}'s hit path keeps its length`);
 }
 
 async function withChart(args, check) {
@@ -258,37 +217,6 @@ for (const renderer of ["svg", "canvas"]) {
           assertEndsInside(scene, key, `${prefix}-t`, "target", {curved: true});
           assertEndsInside(scene, key, `${prefix}-s`, "source", {curved: true});
         }
-      },
-    );
-  });
-
-  // Bands up to about 23px wide, whose heads (as wide as the band) cover them.
-  it(`Sankey ${renderer}: bands stop inside their arrowheads`, async () => {
-    await withChart(
-      [
-        "Sankey",
-        {
-          links: [
-            {source: "a", target: "b", value: 1},
-            {source: "a", target: "c", value: 30},
-            {source: "c", target: "d", value: 1},
-          ],
-          arrows: "target",
-          nodePadding: 30,
-        },
-        {value: "d => d.value"},
-        renderer,
-      ],
-      scene => {
-        for (const [s, t] of [
-          ["a", "b"],
-          ["c", "d"],
-        ])
-          assertRibbonEndsInside(
-            scene,
-            `sankey-link-${s}-${t}`,
-            `sankey-arrow-t-${s}-${t}`,
-          );
       },
     );
   });

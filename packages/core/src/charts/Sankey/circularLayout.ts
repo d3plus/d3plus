@@ -185,8 +185,6 @@ function shapeLinks<N extends CircularNode, D>(
     @param links The other links, laid out in place by `run`.
     @param circular The circular links, with node indices for ends.
     @param padding The gap between nodes in a column (`nodePadding`).
-    @param stubFor How far a band runs straight from its node before turning,
-    to hold an arrowhead at that width (0 for none).
 */
 export function layOutCircular<
   N extends CircularNode & {value?: number; depth?: number},
@@ -205,9 +203,8 @@ export function layOutCircular<
   width: number;
   height: number;
   padding: number;
-  stubFor: (link: {datum: D; i: number}, width: number) => number;
 }): CircularLaidLink<N, D>[] {
-  const {run, nodes, links, circular, width, height, padding, stubFor} = opts;
+  const {run, nodes, links, circular, width, height, padding} = opts;
   run([
     [0, 0],
     [width, height],
@@ -245,12 +242,11 @@ export function layOutCircular<
     columnX: (layer: number) => [number, number],
   ): Placed<N, D> => {
     const laid = sized(ky);
-    const stub = Math.max(0, ...laid.map(l => stubFor(l, l.width)));
     return (["top", "bottom"] as const).map(side => {
       const own = laid
         .filter(l => sides.get(l.i) === side)
         .sort((a, b) => (order.get(a.i) ?? 0) - (order.get(b.i) ?? 0));
-      return {side, links: own, lanes: circularLanes(own, stub, columnX)};
+      return {side, links: own, lanes: circularLanes(own, columnX)};
     });
   };
   // The room the links take at a scale: their legs first, then the lanes

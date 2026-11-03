@@ -14,8 +14,6 @@ import {
   edgeArrowTrims,
   makeLinkDatum,
   ringsVisibleD,
-  sankeyRibbonD,
-  sankeyVisibleD,
   selfLoopArrows,
   selfLoopD,
   selfLoopGeometry,
@@ -280,7 +278,7 @@ it("arcArrowEdge aims each head along its chord and ends the stroke on its axis"
   assert.match(both.d, /^M[^L]+L[^A]+A[^L]+L/);
 });
 
-it("arcVisibleD, ringsVisibleD, and sankeyVisibleD stop strokes inside arrowheads", () => {
+it("arcVisibleD and ringsVisibleD stop strokes inside arrowheads", () => {
   const a = {data: {id: "a"}, i: 0, id: "a"};
   const b = {data: {id: "b"}, i: 1, id: "b"};
   const datum = makeLinkDatum({source: "a", target: "b"}, a, b, 0);
@@ -338,23 +336,4 @@ it("arcVisibleD, ringsVisibleD, and sankeyVisibleD stop strokes inside arrowhead
   assert.strictEqual(curved.length, 10);
   close(Math.hypot(curved[8] - 100, curved[9]), 3, 0.05);
   close(Math.hypot(curved[6] - 100, curved[7]), 6, 0.1);
-
-  const band = {
-    datum,
-    source: {x1: 0},
-    target: {x0: 200},
-    y0: 10,
-    y1: 50,
-    width: 20,
-  };
-  // Without arrows: the full ribbon, 9px each side of the center line.
-  assert.strictEqual(sankeyVisibleD(off, band, 0, 18), sankeyRibbonD(band, 9));
-  // A 20px head on an 18px band: the ribbon ends square where the head is
-  // 18px wide, 15px back from its tip.
-  const cut = numbers(sankeyVisibleD(on, band, 0, 18));
-  assert.strictEqual(cut.length, 20);
-  const end = [(cut[8] + cut[10]) / 2, (cut[9] + cut[11]) / 2];
-  close(Math.hypot(end[0] - 200, end[1] - 50), 15, 0.01);
-  close(Math.hypot(cut[8] - cut[10], cut[9] - cut[11]), 18, 0.01);
-  assert.deepStrictEqual(cut.slice(0, 2), [0, 1]);
 });
