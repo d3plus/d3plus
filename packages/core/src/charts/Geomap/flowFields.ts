@@ -5,7 +5,7 @@
 
 import type {ConfigField} from "../../fluent.js";
 import constant from "../../utils/constant.js";
-import {linkStyleFields} from "../features/linkFields.js";
+import {linkSizeMaxField, linkStyleFields} from "../features/linkFields.js";
 import {linkTooltipConfig} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -60,7 +60,7 @@ export function geomapLinkFields(): ConfigField[] {
       coerce: v => (typeof v === "function" ? v : constant(v as number)),
     },
     /** The widest link, in pixels, when `linkSize` values differ. */
-    {key: "linkSizeMax", default: 10},
+    linkSizeMaxField(10),
     /** The thinnest link, in pixels, when `linkSize` values differ. */
     {key: "linkSizeMin", default: 1},
     /**

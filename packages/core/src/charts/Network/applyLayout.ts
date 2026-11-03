@@ -21,6 +21,7 @@ import {shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import {publishLinkGraph} from "../features/linkInteraction.js";
+import {linkWidthRange} from "../features/linkWidths.js";
 import {
   awayFromAngle,
   isSelfLoop,
@@ -182,13 +183,14 @@ export function networkSizeLegendScale(
 
 /**
     The scale from a link's `size` to its stroke width, on the
-    linkSizeScale from `linkSizeMin` to `widest`, or none when every link
-    is the same size (and keeps it).
+    linkSizeScale between the widths `linkWidthRange` gives for nodes no
+    smaller than `rMin`, or none when every link is the same size (and
+    keeps it).
 */
 function linkStrokeScale(
   v: Parameters<TransformStage>[0]["viz"],
   links: NetworkLink[],
-  widest: number,
+  rMin: number,
 ): RScale | null {
   const strokeExtent = extent(links, (d: NetworkLink) => d.size);
   if (strokeExtent[0] === strokeExtent[1]) return null;
@@ -197,7 +199,7 @@ function linkStrokeScale(
       `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
     ]()
     .domain(strokeExtent as [number, number])
-    .range([v.schema.linkSizeMin as number, widest]);
+    .range(linkWidthRange(v.schema.linkSizeMin, v.schema.linkSizeMax, rMin));
 }
 
 /**

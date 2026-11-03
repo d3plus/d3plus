@@ -1,6 +1,7 @@
 /**
     The link color and label config the node-link charts (Network, Rings,
-    Sankey, ArcDiagram) share.
+    Sankey, ArcDiagram) share, and the widest-link field Network and Geomap
+    share.
 */
 
 import type {ConfigField} from "../../fluent.js";
@@ -40,4 +41,15 @@ export function linkStyleFields(): ConfigField[] {
     */
     {key: "linkLabelConfig", merge: true, default: {...LINK_LABEL_DEFAULTS}},
   ];
+}
+
+/**
+    The `linkSizeMax` field: the widest link, in pixels, when `linkSize`
+    values differ. `fallback` is the chart's default; without one the
+    chart works the width out (see `linkWidthRange`).
+*/
+export function linkSizeMaxField(fallback?: number): ConfigField {
+  return fallback === undefined
+    ? {key: "linkSizeMax"}
+    : {key: "linkSizeMax", default: fallback};
 }
