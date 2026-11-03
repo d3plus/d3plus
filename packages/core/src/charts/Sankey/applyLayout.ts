@@ -19,9 +19,10 @@ import {
 import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {warnConfigOnce} from "../../utils/configWarnings.js";
+import {sankeyAcyclicLinks} from "./sankeyCycles.js";
 import {
   sankeyDrawableLinks,
-  sankeySelfLinkWarning,
+  sankeyLoopWarning,
   unlinkedNodeValue,
 } from "./sankeyLinks.js";
 
@@ -48,6 +49,8 @@ interface SankeyResolvedLink {
   value: number;
   /** The datum the link is drawn with (see `makeLinkDatum`). */
   datum: LinkDatum;
+  /** The link's index in `links`. */
+  i: number;
 }
 
 const layoutLinks = new WeakMap<object, {width?: number}>();
@@ -152,23 +155,29 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
         }))
       : [],
   );
-  if (selfLinks.length)
+  const resolved: SankeyResolvedLink[] = drawn.map(
+    ({link, i, source, target}) => {
+      const datum = makeLinkDatum(
+        link as DataPoint,
+        sankeyLinkEnd(nodes[source]),
+        sankeyLinkEnd(nodes[target]),
+        i,
+        endKeys,
+      );
+      const value = setLinkValue(datum, v.schema.value(datum, i)) as number;
+      return {source, target, value, datum, i};
+    },
+  );
+  const {kept: links, looped} = sankeyAcyclicLinks(resolved);
+  const left = [...selfLinks, ...looped].sort((a, b) => a.i - b.i);
+  if (left.length)
     warnConfigOnce(
       v,
-      "sankeySelfLinks",
-      sankeySelfLinkWarning(selfLinks.map(l => nodes[l.source!].id)),
+      "sankeyLoops",
+      sankeyLoopWarning(
+        left.map(l => [nodes[l.source!].id, nodes[l.target!].id] as const),
+      ),
     );
-  const links: SankeyResolvedLink[] = drawn.map(({link, i, source, target}) => {
-    const datum = makeLinkDatum(
-      link as DataPoint,
-      sankeyLinkEnd(nodes[source]),
-      sankeyLinkEnd(nodes[target]),
-      i,
-      endKeys,
-    );
-    const value = setLinkValue(datum, v.schema.value(datum, i)) as number;
-    return {source, target, value, datum};
-  });
   publishLinkGraph(
     v,
     links.map(l => l.datum),

@@ -53,7 +53,7 @@ Each node is labeled beside it, over its outgoing flows, or over its incoming fl
 
 ## Nodes without links
 
-Every entry in `nodes` is drawn, including nodes that no link touches. Such a node has no flow to size it, so it takes `value` read from its own row in `nodes` when that is a positive number ("reserve" here), and otherwise the value of the thinnest link ("pending"). With the default `nodeAlign`, it sits in the first column, with the sources. A Sankey can't draw a flow from a node back into itself, so it leaves out a link whose `source` and `target` are the same node, and logs a warning naming it.
+Every entry in `nodes` is drawn, including nodes that no link touches. Such a node has no flow to size it, so it takes `value` read from its own row in `nodes` when that is a positive number ("reserve" here), and otherwise the value of the thinnest link ("pending"). With the default `nodeAlign`, it sits in the first column, with the sources. A Sankey can't draw a flow that loops back into a node it left, so it leaves out a link whose `source` and `target` are the same node, and a link that closes a loop through several nodes (A → B → A), and logs a warning naming them. Of the links on a loop, it leaves out the one with the smallest `value`, so the heavier flows stay drawn.
 
 <Playground chart="Sankey" code={unlinkedNodes} controls={["nodes","value","nodeAlign"]} />
 

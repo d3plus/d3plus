@@ -132,7 +132,10 @@ export const sankeyDef: ChartDefinition = {
         values match a node's `nodeId`, and its width comes from `value`.
         Accepts an array of links, or a URL/filepath string to load them from.
         `linksFormat` transforms them; a function passed as a second argument
-        sets it.
+        sets it. A flow can't loop back into a node it left, so a link from a
+        node to itself, or one that closes a loop through several nodes (A → B
+        → A), is left out with a warning: of the links on a loop, the
+        lightest by `value` is the one left out.
         @type {object[] | string}
     */
     v.links = function (this: VizInstance) {
@@ -198,9 +201,8 @@ export const sankeyDef: ChartDefinition = {
         data of the nodes at its ends, and its index in `links`. Defaults to
         `1` for every link. A node no link touches is sized by `value` read
         from its own row in `nodes` when that is a positive number, and
-        otherwise by the smallest link value. A link from a node to itself
-        is left out, with a warning: a flow can't return to the node it
-        leaves.
+        otherwise by the smallest link value. A link that loops back into a
+        node it left is left out (see `links`).
         @type {string | function}
     */
     v.value = function (this: VizInstance, _: unknown) {

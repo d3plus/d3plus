@@ -3,7 +3,7 @@ import assert from "assert";
 
 import {
   sankeyDrawableLinks,
-  sankeySelfLinkWarning,
+  sankeyLoopWarning,
   unlinkedNodeValue,
 } from "../../internal.ts";
 
@@ -37,13 +37,26 @@ it("unlinkedNodeValue reads the node's own value, else the smallest link value, 
   assert.strictEqual(unlinkedNodeValue("n/a", [0]), 1);
 });
 
-it("sankeySelfLinkWarning counts the links and names each node once", () => {
+it("sankeyLoopWarning counts the links and names each one once", () => {
   assert.strictEqual(
-    sankeySelfLinkWarning(["a"]),
-    "Sankey can't draw a flow from a node back into itself, so it leaves out 1 link (a).",
+    sankeyLoopWarning([["a", "a"]]),
+    "Sankey can't draw a flow that loops back into a node it left, so it leaves out 1 link (a → a).",
   );
   assert.strictEqual(
-    sankeySelfLinkWarning(["a", "b", "a"]),
-    "Sankey can't draw a flow from a node back into itself, so it leaves out 3 links (a, b).",
+    sankeyLoopWarning([
+      ["a", "a"],
+      ["c", "a"],
+      ["a", "a"],
+    ]),
+    "Sankey can't draw a flow that loops back into a node it left, so it leaves out 3 links (a → a, c → a).",
   );
+});
+
+it("sankeyLoopWarning names ten links and sums up the rest", () => {
+  const ends = Array.from({length: 13}, (_, i) => [`n${i + 1}`, "n0"]);
+  const message = sankeyLoopWarning(ends);
+  assert.ok(message.startsWith("Sankey can't draw a flow that loops back"));
+  assert.ok(message.includes("leaves out 13 links (n1 → n0, n2 → n0,"));
+  assert.ok(message.endsWith("n10 → n0, and 3 more)."), message);
+  assert.ok(!message.includes("n11"));
 });
