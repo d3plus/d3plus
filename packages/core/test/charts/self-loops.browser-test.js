@@ -5,8 +5,9 @@ import {openPage} from "~test/browser/page.js";
 /**
     Links from a node to itself, in Chromium on SVG and Canvas: Network,
     ArcDiagram, and Rings draw them as loops (with arrows, labels, a tooltip,
-    hover, click focus, and keyboard focus), and Sankey leaves them out with
-    one warning. Sankey also draws the nodes no link touches.
+    hover, click focus, and keyboard focus), and Sankey draws them as
+    circular bands (or, with `circularLinks(false)`, leaves them out with
+    one warning). Sankey also draws the nodes no link touches.
 */
 
 const box = "<div id='viz' style='width:640px;height:420px'></div>";
@@ -362,7 +363,7 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
-  it(`Sankey ${renderer}: leaves out self-links with one warning, and draws unlinked nodes`, async () => {
+  it(`Sankey ${renderer}: draws self-links as loops (or leaves them out with one warning), and draws unlinked nodes`, async () => {
     await withChart(
       [
         "Sankey",
@@ -386,14 +387,13 @@ for (const renderer of ["svg", "canvas"]) {
       ],
       async page => {
         const scene = await page.evaluate(sceneNodes);
-        const keys = Object.keys(scene);
-        assert.ok(
-          !keys.some(k => k.includes("B-B")),
-          `no self-link drawn: ${keys}`,
+        const loop = scene["sankey-link-B-B"];
+        assert.ok(loop && finite(loop.d), `the self-link's loop: ${loop?.d}`);
+        assert.deepStrictEqual(
+          await page.evaluate(() => window.__warnings),
+          [],
+          "no warnings",
         );
-        const warnings = await page.evaluate(() => window.__warnings);
-        assert.strictEqual(warnings.length, 1, String(warnings));
-        assert.ok(warnings[0].includes("leaves out 1 link (B → B)"));
         const a = scene["sankey-Rect-A"];
         const d = scene["sankey-Rect-D"];
         const e = scene["sankey-Rect-E"];
@@ -404,6 +404,21 @@ for (const renderer of ["svg", "canvas"]) {
         const c = scene["sankey-Rect-C"];
         assert.ok(Math.abs(e.height - c.height) < 1, `${e.height} ${c.height}`);
 
+        // circularLinks(false) leaves it out, warning once.
+        await page.evaluate(
+          () =>
+            new Promise(r =>
+              window.__viz.circularLinks(false).render(() => r(true)),
+            ),
+        );
+        const keys = Object.keys(await page.evaluate(sceneNodes));
+        assert.ok(
+          !keys.some(k => k.includes("B-B")),
+          `no self-link drawn: ${keys}`,
+        );
+        const warnings = await page.evaluate(() => window.__warnings);
+        assert.strictEqual(warnings.length, 1, String(warnings));
+        assert.ok(warnings[0].includes("leaves out 1 link (B → B)"));
         // Redrawing doesn't warn again.
         await page.evaluate(
           () => new Promise(r => window.__viz.render(() => r(true))),

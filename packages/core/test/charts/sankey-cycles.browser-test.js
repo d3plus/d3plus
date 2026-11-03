@@ -4,8 +4,8 @@ import {openPage} from "~test/browser/page.js";
 
 /**
     Sankey links that loop back through several nodes (A → B → C → A), in
-    Chromium on SVG and Canvas: the chart draws the rest, leaving out the
-    lightest link on each loop with one warning.
+    Chromium on SVG and Canvas, with `circularLinks(false)`: the chart draws
+    the rest, leaving out the lightest link on each loop with one warning.
 */
 
 const box = "<div id='viz' style='width:640px;height:420px'></div>";
@@ -81,7 +81,7 @@ for (const renderer of ["svg", "canvas"]) {
       {source: "E", target: "E", value: 5},
       {source: "D", target: "E", value: 2},
     ];
-    await withSankey([{links}, renderer], async page => {
+    await withSankey([{links, circularLinks: false}, renderer], async page => {
       const scene = await page.evaluate(sceneNodes);
       const drawn = Object.keys(scene)
         .filter(k => /^sankey-link-[A-E]-[A-E]$/.test(k))
@@ -124,25 +124,30 @@ for (const renderer of ["svg", "canvas"]) {
         if (t !== s)
           links.push({source: `n${s}`, target: `n${t}`, value: random() * 9});
       }
-    await withSankey([{links}, renderer], async (page, time) => {
-      assert.ok(time < 5000, `drawn in ${time}ms`);
-      const scene = await page.evaluate(sceneNodes);
-      const nodes = Object.keys(scene).filter(k => k.startsWith("sankey-Rect"));
-      assert.strictEqual(nodes.length, 200);
-      const drawn = Object.keys(scene).filter(k =>
-        /^sankey-link-n\d+-n\d+$/.test(k),
-      );
-      assert.ok(
-        drawn.length > 0 && drawn.length < links.length,
-        `${drawn.length} of ${links.length}: ${drawn.slice(0, 5)}`,
-      );
-      for (const [key, node] of Object.entries(scene))
-        assert.ok(finite(node), `${key}: ${JSON.stringify(node)}`);
-      const warnings = await page.evaluate(() => window.__warnings);
-      assert.strictEqual(warnings.length, 1, String(warnings));
-      assert.ok(
-        /leaves out \d+ links \(.*, and \d+ more\)\.$/.test(warnings[0]),
-      );
-    });
+    await withSankey(
+      [{links, circularLinks: false}, renderer],
+      async (page, time) => {
+        assert.ok(time < 5000, `drawn in ${time}ms`);
+        const scene = await page.evaluate(sceneNodes);
+        const nodes = Object.keys(scene).filter(k =>
+          k.startsWith("sankey-Rect"),
+        );
+        assert.strictEqual(nodes.length, 200);
+        const drawn = Object.keys(scene).filter(k =>
+          /^sankey-link-n\d+-n\d+$/.test(k),
+        );
+        assert.ok(
+          drawn.length > 0 && drawn.length < links.length,
+          `${drawn.length} of ${links.length}: ${drawn.slice(0, 5)}`,
+        );
+        for (const [key, node] of Object.entries(scene))
+          assert.ok(finite(node), `${key}: ${JSON.stringify(node)}`);
+        const warnings = await page.evaluate(() => window.__warnings);
+        assert.strictEqual(warnings.length, 1, String(warnings));
+        assert.ok(
+          /leaves out \d+ links \(.*, and \d+ more\)\.$/.test(warnings[0]),
+        );
+      },
+    );
   });
 }

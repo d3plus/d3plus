@@ -5,31 +5,50 @@
     <title>Cycles</title>
     <meta
       name="description"
-      content="Sankey links that loop back through several nodes, left out (the lightest on each loop) so the rest of the flow draws."
+      content="Sankey links that loop back into a node they left, drawn as circular bands around the nodes, or left out with circularLinks(false)."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
     <style>
       body {
+        font-family: sans-serif;
         margin: 0;
         overflow: hidden;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 8px;
+      }
+      #viz {
+        height: calc(100vh - 24px);
       }
     </style>
   </head>
 
-  <body></body>
+  <body>
+    <label>
+      <input type="checkbox" id="circular" checked />
+      circularLinks
+    </label>
+    <div id="viz"></div>
+  </body>
 
   <script>
-    // Recycled material flows back upstream, closing three loops:
-    // recycling → raw materials (10), recycling → manufacturing (8), and
-    // consumers → products (3). Each is the lightest link on its loop, so
-    // the Sankey leaves those three out and draws the rest.
+    // Recycled material flows back upstream, closing four loops: recycling
+    // → raw materials (10), recycling → manufacturing (8), consumers →
+    // products (3), and a link from manufacturing to itself (rework, 4).
+    // Each is the lightest link on its loop, so it is drawn as a circular
+    // band around the nodes; unchecking circularLinks leaves them out.
     var links = [
       {source: "mining", target: "raw materials", value: 50},
       {source: "raw materials", target: "manufacturing", value: 60},
       {source: "manufacturing", target: "products", value: 55},
       {source: "manufacturing", target: "waste", value: 5},
+      {source: "manufacturing", target: "manufacturing", value: 4},
       {source: "products", target: "consumers", value: 55},
       {source: "consumers", target: "landfill", value: 30},
       {source: "consumers", target: "recycling", value: 25},
@@ -39,11 +58,23 @@
       {source: "consumers", target: "products", value: 3},
     ];
 
-    // Silence the expected "loops back" warning so the page logs nothing.
-    d3plus.configWarnings(false);
-    new d3plus.Sankey()
+    var viz = new d3plus.Sankey()
+      .select("#viz")
       .links(links)
       .value("value")
-      .render(() => d3plus.configWarnings(true));
+      .arrows(true)
+      .linkColor("source")
+      .linkLabel(function (d) {
+        return d.value;
+      });
+    viz.render();
+
+    document.getElementById("circular").onchange = function (e) {
+      // Leaving the loops out warns once; silence it so the page logs nothing.
+      d3plus.configWarnings(false);
+      viz
+        .circularLinks(e.target.checked)
+        .render(() => d3plus.configWarnings(true));
+    };
   </script>
 </html>

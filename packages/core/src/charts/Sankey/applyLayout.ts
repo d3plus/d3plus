@@ -19,6 +19,12 @@ import {
 import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {warnConfigOnce} from "../../utils/configWarnings.js";
+import {arrowEnds} from "../features/edgeArrows.js";
+import type {ArrowValue} from "../features/edgeArrows.js";
+import {layOutCircular} from "./circularLayout.js";
+import {sankeyNodeValue} from "./circularLinks.js";
+import type {CircularNode} from "./circularLinks.js";
+import {sankeyArrowSize} from "./emit.js";
 import {sankeyAcyclicLinks} from "./sankeyCycles.js";
 import {
   sankeyDrawableLinks,
@@ -52,6 +58,14 @@ interface SankeyResolvedLink {
   /** The link's index in `links`. */
   i: number;
 }
+
+/** A link the layout has laid out: its ends are nodes. */
+type LaidLink = {
+  source: SankeyWrappedNode & CircularNode;
+  target: SankeyWrappedNode & CircularNode;
+  y0: number;
+  y1: number;
+};
 
 const layoutLinks = new WeakMap<object, {width?: number}>();
 
@@ -107,6 +121,55 @@ function sizeUnlinkedNodes(
   });
 }
 
+/**
+    The links whose ends both name a node (a link from a node to itself
+    included), each with its datum and value, in the order given.
+*/
+function resolveLinks(
+  v: Parameters<TransformStage>[0]["viz"],
+  nodes: SankeyWrappedNode[],
+  nodeLookup: Record<string, number>,
+  hasLinks: boolean,
+): SankeyResolvedLink[] {
+  const endKeys = [v.schema.linksSource, v.schema.linksTarget] as string[];
+  const {drawn, selfLinks} = sankeyDrawableLinks(
+    hasLinks
+      ? (v.schema.links as SankeyRawLink[]).map((link, i) => ({
+          link,
+          i,
+          source: nodeLookup[String(link[endKeys[0]])] as number | undefined,
+          target: nodeLookup[String(link[endKeys[1]])] as number | undefined,
+        }))
+      : [],
+  );
+  return [...drawn, ...selfLinks]
+    .sort((x, y) => x.i - y.i)
+    .map(({link, i, source, target}) => {
+      const datum = makeLinkDatum(
+        link as DataPoint,
+        sankeyLinkEnd(nodes[source!]),
+        sankeyLinkEnd(nodes[target!]),
+        i,
+        endKeys,
+      );
+      const value = setLinkValue(datum, v.schema.value(datum, i)) as number;
+      return {source: source!, target: target!, value, datum, i};
+    });
+}
+
+/** Each node's neighbors, by the links between them. */
+function linkLookupOf(
+  links: readonly SankeyResolvedLink[],
+): Record<string, number[]> {
+  return links.reduce((obj: Record<string, number[]>, d) => {
+    if (!obj[d.source]) obj[d.source] = [];
+    obj[d.source].push(d.target);
+    if (!obj[d.target]) obj[d.target] = [];
+    obj[d.target].push(d.source);
+    return obj;
+  }, {});
+}
+
 export const applySankeyLayout: TransformStage = ({viz}) => {
   const v = viz;
   const {width, height} = chartBounds(v);
@@ -144,56 +207,34 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
   );
   v.ctx.nodeLookup = nodeLookup;
 
-  const endKeys = [v.schema.linksSource, v.schema.linksTarget] as string[];
-  const {drawn, selfLinks} = sankeyDrawableLinks(
-    hasLinks
-      ? (v.schema.links as SankeyRawLink[]).map((link, i) => ({
-          link,
-          i,
-          source: nodeLookup[String(link[endKeys[0]])] as number | undefined,
-          target: nodeLookup[String(link[endKeys[1]])] as number | undefined,
-        }))
-      : [],
-  );
-  const resolved: SankeyResolvedLink[] = drawn.map(
-    ({link, i, source, target}) => {
-      const datum = makeLinkDatum(
-        link as DataPoint,
-        sankeyLinkEnd(nodes[source]),
-        sankeyLinkEnd(nodes[target]),
-        i,
-        endKeys,
-      );
-      const value = setLinkValue(datum, v.schema.value(datum, i)) as number;
-      return {source, target, value, datum, i};
-    },
-  );
+  const resolved = resolveLinks(v, nodes, nodeLookup, hasLinks);
   const {kept: links, looped} = sankeyAcyclicLinks(resolved);
-  const left = [...selfLinks, ...looped].sort((a, b) => a.i - b.i);
-  if (left.length)
+  const circularOn = v.schema.circularLinks !== false;
+  if (!circularOn && looped.length)
     warnConfigOnce(
       v,
       "sankeyLoops",
       sankeyLoopWarning(
-        left.map(l => [nodes[l.source!].id, nodes[l.target!].id] as const),
+        looped.map(l => [nodes[l.source].id, nodes[l.target].id] as const),
       ),
     );
+  const circular = circularOn ? looped : [];
+  const shown = circular.length
+    ? [...links, ...circular].sort((x, y) => x.i - y.i)
+    : links;
   publishLinkGraph(
     v,
-    links.map(l => l.datum),
+    shown.map(l => l.datum),
     nodes.map(sankeyLinkEnd),
   );
-  sizeUnlinkedNodes(v, nodes, links);
+  sizeUnlinkedNodes(v, nodes, shown);
+  // A node a circular link touches is sized by its returning flow too.
+  for (const i of new Set(circular.flatMap(l => [l.source, l.target])))
+    nodes[i].fixedValue = sankeyNodeValue(i, shown);
 
-  v.ctx.linkLookup = links.reduce((obj: Record<string, number[]>, d) => {
-    if (!obj[d.source]) obj[d.source] = [];
-    obj[d.source].push(d.target);
-    if (!obj[d.target]) obj[d.target] = [];
-    obj[d.target].push(d.source);
-    return obj;
-  }, {});
+  v.ctx.linkLookup = linkLookupOf(shown);
 
-  (v.ctx.sankey as SankeyGenerator)
+  const layout = (v.ctx.sankey as SankeyGenerator)
     .nodeAlign(v.schema.nodeAlign)
     .nodePadding(v.schema.nodePadding)
     .nodeWidth(v.schema.nodeWidth)
@@ -201,14 +242,34 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     .nodeSort(v.schema.nodeSort)
     .links(links)
     .linkSort(v.schema.linkSort)
-    .iterations(v.schema.iterations)
-    .size([width, height])();
+    .iterations(v.schema.iterations);
+  const laid = layOutCircular({
+    run: extent => layout.extent(extent)(),
+    nodes: nodes as unknown as (SankeyWrappedNode & CircularNode)[],
+    links: links as unknown as LaidLink[],
+    circular,
+    width,
+    height,
+    padding: v.schema.nodePadding as number,
+    stubFor: (l, w) => {
+      const ends = arrowEnds(v.schema.arrows as ArrowValue, l.datum, l.i);
+      return ends.source || ends.target
+        ? sankeyArrowSize(v, w, l.datum, l.i)
+        : 0;
+    },
+  });
   // The layout gives each link its band `width`.
-  for (const link of links)
+  for (const link of [...links, ...laid])
     layoutLinks.set(link.datum, link as unknown as {width?: number});
 
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
-  v.ctx.sankeyCtx = {links, nodeGroups, pathFn: v.ctx.path, width, height};
+  v.ctx.sankeyCtx = {
+    links: [...links, ...laid],
+    nodeGroups,
+    pathFn: v.ctx.path,
+    width,
+    height,
+  };
 
   return {shapeData: nodes as unknown as DataPoint[]};
 };

@@ -132,10 +132,10 @@ export const sankeyDef: ChartDefinition = {
         values match a node's `nodeId`, and its width comes from `value`.
         Accepts an array of links, or a URL/filepath string to load them from.
         `linksFormat` transforms them; a function passed as a second argument
-        sets it. A flow can't loop back into a node it left, so a link from a
-        node to itself, or one that closes a loop through several nodes (A → B
-        → A), is left out with a warning: of the links on a loop, the
-        lightest by `value` is the one left out.
+        sets it. A link that loops back into a node it left (a link from a
+        node to itself, or the lightest link on a loop through several nodes,
+        A → B → A) is drawn as a circular band around the outside of the
+        nodes, or left out with a warning when `circularLinks` is `false`.
         @type {object[] | string}
     */
     v.links = function (this: VizInstance) {
@@ -201,8 +201,8 @@ export const sankeyDef: ChartDefinition = {
         data of the nodes at its ends, and its index in `links`. Defaults to
         `1` for every link. A node no link touches is sized by `value` read
         from its own row in `nodes` when that is a positive number, and
-        otherwise by the smallest link value. A link that loops back into a
-        node it left is left out (see `links`).
+        otherwise by the smallest link value. A node's height counts the
+        flow its circular links return (see `links`).
         @type {string | function}
     */
     v.value = function (this: VizInstance, _: unknown) {
@@ -237,6 +237,7 @@ export const sankeyDef: ChartDefinition = {
         @type {number | function}
     */
     {key: "arrowSize"},
+    {key: "circularLinks", default: true},
     /**
         The number of relaxation iterations d3-sankey runs to position the
         nodes (see its [iterations](https://github.com/d3/d3-sankey#sankey_iterations)).

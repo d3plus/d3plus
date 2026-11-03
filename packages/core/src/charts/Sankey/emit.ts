@@ -7,8 +7,14 @@ import type {DataPoint} from "@d3plus/data";
 import type {Paint, SceneNode} from "@d3plus/render";
 
 import {arrowEnds, arrowTrim} from "../features/edgeArrows.js";
-import {chordArrowNodes, cubicArrowEdge} from "../features/curvedArrows.js";
+import {
+  arrowAlongChord,
+  chordArrowNodes,
+  chordEndsPathD,
+  cubicArrowEdge,
+} from "../features/curvedArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
+import type {ArrowedEnd} from "../features/curvedArrows.js";
 import {
   drawNodeLabel,
   paintFromShapeConfig,
@@ -30,6 +36,8 @@ import {emitLinkLabels} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+import {circularLinkAnchor, circularLinkD} from "./circularLinks.js";
+import type {CircularShape} from "./circularLinks.js";
 import {sankeyLabels} from "./labels.js";
 
 export interface SankeyLink {
@@ -41,6 +49,8 @@ export interface SankeyLink {
   width?: number;
   y0?: number;
   y1?: number;
+  /** A link that loops back: its band's geometry (see `circularLinkShape`). */
+  circular?: CircularShape;
 }
 export type SankeyNode = DataPoint & {
   __d3plus__?: true;
@@ -61,14 +71,18 @@ export interface SankeyCtx {
   height: number;
 }
 
-/** A link's arrowhead size: `arrowSize`, else its band's width, kept between 8 and 28. */
-function sankeyArrowSize(
+/**
+    A link's arrowhead size: `arrowSize`, else its band's width, kept
+    between 8 and 28.
+    @param width The band's width.
+*/
+export function sankeyArrowSize(
   viz: VizInstance,
-  link: SankeyLink,
+  width: number | undefined,
   datum: DataPoint,
   i: number,
 ): number {
-  const width = typeof link.width === "number" ? link.width : 2;
+  if (typeof width !== "number") width = 2;
   const sizeCfg = resolveAccessor<number>(viz.schema.arrowSize, datum, i);
   return typeof sizeCfg === "number"
     ? sizeCfg
@@ -90,11 +104,13 @@ function sankeyArrowEdge(
   const ends = arrowEnds(viz.schema.arrows as ArrowValue, link.datum, i);
   if (!ends.source && !ends.target) return null;
   if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return null;
-  const size = sankeyArrowSize(viz, link, link.datum, i);
+  const size = sankeyArrowSize(viz, link.width, link.datum, i);
   const trim = arrowTrim(
     size,
     typeof strokeWidth === "number" ? strokeWidth : 1,
   );
+  if (link.circular)
+    return {...circularArrowEdge(link.circular, size, trim, ends), size};
   const x0 = link.source.x1;
   const x1 = link.target.x0;
   const xm = (x0 + x1) / 2;
@@ -113,6 +129,27 @@ function sankeyArrowEdge(
     },
   );
   return {...edge, size};
+}
+
+/**
+    A circular link's arrowed ends and visible band: each head lies along
+    the band's straight end at its node, its tip on the node's edge, and the
+    band runs between the heads' bases, then on to end inside each head.
+*/
+export function circularArrowEdge(
+  shape: CircularShape,
+  size: number,
+  trim: number,
+  ends: {source: boolean; target: boolean},
+): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
+  const target = ends.target
+    ? arrowAlongChord([shape.xt, shape.ty], [shape.xt - size, shape.ty], trim)
+    : undefined;
+  const source = ends.source
+    ? arrowAlongChord([shape.xs, shape.sy], [shape.xs + size, shape.sy], trim)
+    : undefined;
+  const body = circularLinkD(shape, source ? size : 0, target ? size : 0);
+  return {d: chordEndsPathD(body, source, target), source, target};
 }
 
 /** A link's visible band: `d`, or cut short inside its arrowheads (see `sankeyArrowEdge`). The full band stays its hit area. */
@@ -162,6 +199,7 @@ const sankeyLinkKey = (link: SankeyLink): string =>
     its target.
 */
 export function sankeyLinkAnchor(link: SankeyLink): LinkAnchor | null {
+  if (link.circular) return circularLinkAnchor(link.circular);
   if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return null;
   const x0 = link.source.x1;
   const x1 = link.target.x0;
@@ -223,7 +261,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
           resolveAccessor<number>(linkConfig.strokeOpacity, datum, i) ?? 0.5;
       }
       const key = sankeyLinkKey(link);
-      const d = c.pathFn(link);
+      const d = link.circular ? circularLinkD(link.circular) : c.pathFn(link);
       out.push({
         type: "path",
         shapeType: "Link",
