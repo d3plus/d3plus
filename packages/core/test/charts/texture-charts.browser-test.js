@@ -14,7 +14,8 @@ import {render} from "~test/browser/render.js";
 
     Stroked marks (lines, links, axes) have no fill to texture and are left
     out by the fill check, and a case with `links` checks that its link and
-    line paths stay unfilled while its nodes take the texture; the few filled
+    line paths take no pattern while its nodes take the texture (Sankey's
+    bands are filled ribbons, picked out of the fill check); the few filled
     marks that intentionally take neither feature are named per case. A case
     with `shapeKey` also takes a texture set under that shape's own
     shapeConfig key.
@@ -112,7 +113,13 @@ const pageCases = () => {
     Sunburst: {config: {data: nested, groupBy: ["parent", "id"], sum: "value"}},
     Tree: {config: {data: nested, groupBy: ["parent", "id"]}, links: true},
     Network: {config: {nodes, links}, links: true},
-    Sankey: {config: {links: links.slice(0, 2), value: "value"}},
+    // Bands are filled ribbons, but they are links: only the nodes take
+    // the texture or image.
+    Sankey: {
+      config: {links: links.slice(0, 2), value: "value"},
+      links: true,
+      marks: m => !String(m.key).startsWith("sankey-link-"),
+    },
     Rings: {config: {links, center: "alpha"}, links: true},
     Chord: {config: {links, value: "value"}},
     Geomap: {

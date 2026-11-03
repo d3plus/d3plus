@@ -197,8 +197,8 @@ it("a dark theme's end-of-line labels take its text color", async () => {
   for (const f of light) assert.strictEqual(hex(f), "#000000");
 });
 
-/** The stroke of each link in a Sankey drawn with `theme`. */
-const sankeyLinkStrokes = theme =>
+/** The fill of each link (a filled ribbon) in a Sankey drawn with `theme`. */
+const sankeyLinkFills = theme =>
   new Promise(resolve => {
     const viz = new window.d3plus.Sankey()
       .links([
@@ -213,7 +213,7 @@ const sankeyLinkStrokes = theme =>
       const walk = n => {
         const hit = String(n.key).endsWith("::hit");
         if (n.type === "path" && n.datum?.source && !hit)
-          strokes.push(n.paint.stroke);
+          strokes.push(n.paint.fill);
         (n.children || []).forEach(walk);
       };
       walk(viz.toScene().root);
@@ -222,12 +222,12 @@ const sankeyLinkStrokes = theme =>
   });
 
 it("a dark Sankey's links recede, and a custom link color still wins", async () => {
-  const dark = await render(page("#ffffff"), sankeyLinkStrokes, "dark");
+  const dark = await render(page("#ffffff"), sankeyLinkFills, "dark");
   assert.ok(dark.length >= 2);
   for (const s of dark) assert.strictEqual(hex(s), "#343a40");
-  const light = await render(page("#ffffff"), sankeyLinkStrokes, "light");
+  const light = await render(page("#ffffff"), sankeyLinkFills, "light");
   for (const s of light) assert.strictEqual(hex(s), "#dbdbdb");
-  const custom = await render(page("#ffffff"), sankeyLinkStrokes, {
+  const custom = await render(page("#ffffff"), sankeyLinkFills, {
     base: "dark",
     link: "#ff0000",
   });

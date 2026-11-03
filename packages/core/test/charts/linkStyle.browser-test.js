@@ -88,6 +88,8 @@ const draw = ([chart, config, renderer, hover]) =>
         key: String(n.key),
         stroke: n.paint.stroke,
         strokeOpacity: n.paint.strokeOpacity,
+        fill: n.paint.fill,
+        fillOpacity: n.paint.fillOpacity,
         opacity: n.paint.opacity ?? 1,
         source: n.datum.source.id,
         target: n.datum.target.id,
@@ -273,17 +275,19 @@ for (const renderer of ["svg", "canvas"]) {
       renderer,
     ]);
     assert.strictEqual(drawn.length, flows.length);
+    // Bands are filled ribbons: linkColor colors their fill.
     for (const l of drawn) {
-      assert.strictEqual(l.stroke, fills[l.source]);
-      assert.strictEqual(l.strokeOpacity, 0.5);
+      assert.strictEqual(l.fill, fills[l.source]);
+      assert.strictEqual(l.fillOpacity, 0.5);
+      assert.strictEqual(l.stroke, undefined);
     }
     const gray = await render(box, draw, ["Sankey", {links: flows}, renderer]);
     assert.strictEqual(
-      new Set(gray.links.map(l => l.stroke)).size,
+      new Set(gray.links.map(l => l.fill)).size,
       1,
       "the default stays one gray",
     );
-    assert.strictEqual(gray.links[0].strokeOpacity, undefined);
+    assert.strictEqual(gray.links[0].fillOpacity, undefined);
   });
 
   it(`ArcDiagram ${renderer}: linkColor false, "source", and "target" draw as before`, async () => {

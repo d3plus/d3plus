@@ -6,6 +6,8 @@
 */
 
 import {segmentMidpoint} from "../features/linkLabelGeometry.js";
+import {edgeD, ribbonD} from "./ribbons.js";
+import type {Edge, EdgeStep, Point} from "./ribbons.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 
 /** Which side of the nodes a circular link's lane runs along. */
@@ -238,41 +240,83 @@ export function circularLinkShape(
 
 /** The cubic Bézier curve's share of a quarter circle's radius at its handles. */
 const kappa = 0.5523;
-const round = (n: number): number => Math.round(n * 100) / 100;
 
 /**
-    A circular link's band as a path from its source to its target, made of
+    A circular link's center line from its source to its target, made of
     straight runs and quarter turns. `trimSource` and `trimTarget` start and
     end it that far from the nodes, along its straight ends.
 */
+export function circularLinkEdge(
+  shape: CircularShape,
+  trimSource = 0,
+  trimTarget = 0,
+): Edge {
+  const {xs, sy, xt, ty, laneY, xr, rs, xl, rt} = shape;
+  const dir = shape.side === "top" ? -1 : 1;
+  const steps: EdgeStep[] = [];
+  /** A quarter turn from `a`, heading `u`, to `b`, heading `v`. */
+  const turn = (a: Point, u: Point, b: Point, v: Point, r: number) => {
+    steps.push({to: a});
+    steps.push({
+      c1: [a[0] + u[0] * kappa * r, a[1] + u[1] * kappa * r],
+      c2: [b[0] - v[0] * kappa * r, b[1] - v[1] * kappa * r],
+      to: b,
+    });
+  };
+  turn([xr - rs, sy], [1, 0], [xr, sy + dir * rs], [0, dir], rs);
+  turn([xr, laneY - dir * rs], [0, dir], [xr - rs, laneY], [-1, 0], rs);
+  turn([xl + rt, laneY], [-1, 0], [xl, laneY - dir * rt], [0, -dir], rt);
+  turn([xl, ty + dir * rt], [0, -dir], [xl + rt, ty], [1, 0], rt);
+  steps.push({to: [xt - trimTarget, ty]});
+  return {start: [xs + trimSource, sy], steps};
+}
+
+/** A circular link's center line as a path (see `circularLinkEdge`). */
 export function circularLinkD(
   shape: CircularShape,
   trimSource = 0,
   trimTarget = 0,
 ): string {
-  const {xs, sy, xt, ty, laneY, xr, rs, xl, rt} = shape;
+  return edgeD(circularLinkEdge(shape, trimSource, trimTarget));
+}
+
+/**
+    A circular link's band moved `offset` pixels outward, away from the
+    loop it makes (inward when negative): its straight runs move out and
+    its turns widen around the same centers.
+*/
+export function offsetCircularShape(
+  shape: CircularShape,
+  offset: number,
+): CircularShape {
   const dir = shape.side === "top" ? -1 : 1;
-  const at = (x: number, y: number) => `${round(x)},${round(y)}`;
-  /** A quarter turn from `a`, heading `u`, to `b`, heading `v`. */
-  const turn = (
-    a: [number, number],
-    u: [number, number],
-    b: [number, number],
-    v: [number, number],
-    r: number,
-  ) =>
-    `L${at(...a)}C${at(a[0] + u[0] * kappa * r, a[1] + u[1] * kappa * r)} ${at(
-      b[0] - v[0] * kappa * r,
-      b[1] - v[1] * kappa * r,
-    )} ${at(...b)}`;
-  return [
-    `M${at(xs + trimSource, sy)}`,
-    turn([xr - rs, sy], [1, 0], [xr, sy + dir * rs], [0, dir], rs),
-    turn([xr, laneY - dir * rs], [0, dir], [xr - rs, laneY], [-1, 0], rs),
-    turn([xl + rt, laneY], [-1, 0], [xl, laneY - dir * rt], [0, -dir], rt),
-    turn([xl, ty + dir * rt], [0, -dir], [xl + rt, ty], [1, 0], rt),
-    `L${at(xt - trimTarget, ty)}`,
-  ].join("");
+  return {
+    ...shape,
+    sy: shape.sy - dir * offset,
+    ty: shape.ty - dir * offset,
+    laneY: shape.laneY + dir * offset,
+    xr: shape.xr + offset,
+    xl: shape.xl - offset,
+    rs: Math.max(0, shape.rs + offset),
+    rt: Math.max(0, shape.rt + offset),
+  };
+}
+
+/**
+    A circular link's band as a filled ribbon, `half` its thickness each
+    side of its center line, starting and ending `trimSource` and
+    `trimTarget` from the nodes along its straight ends.
+*/
+export function circularRibbonD(
+  shape: CircularShape,
+  half: number,
+  trimSource = 0,
+  trimTarget = 0,
+): string {
+  return ribbonD(
+    circularLinkEdge(offsetCircularShape(shape, half), trimSource, trimTarget),
+    circularLinkEdge(offsetCircularShape(shape, -half), trimSource, trimTarget),
+  );
 }
 
 /** The middle of a circular link's lane, where its label goes. */

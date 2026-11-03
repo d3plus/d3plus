@@ -120,11 +120,14 @@ it("Sankey draws an arrow triangle per link end", async function () {
           .height(420)
           .duration(0);
         viz.render(() => {
-          const paths = Array.from(document.querySelectorAll("#viz svg path"));
-          res(
-            paths.filter(p => (p.getAttribute("d") || "").trim().endsWith("Z"))
-              .length,
-          );
+          // Bands are closed ribbons too: count the arrowheads by key.
+          let heads = 0;
+          const walk = n => {
+            if (String(n.key).startsWith("sankey-arrow-")) heads++;
+            (n.children || []).forEach(walk);
+          };
+          walk(viz._paintedScene.root);
+          res(heads);
         });
       });
     return {off: await count(false), both: await count("both")};

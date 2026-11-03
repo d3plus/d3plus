@@ -67,19 +67,6 @@ type LaidLink = {
   y1: number;
 };
 
-const layoutLinks = new WeakMap<object, {width?: number}>();
-
-/**
-    A link's drawn band width, less a pixel each side (at least 1): its
-    default `strokeWidth`. Zero-width bands draw 1px wide.
-    @param d The link's datum.
-*/
-export function sankeyLinkStrokeWidth(d: unknown): number {
-  const link = d && typeof d === "object" ? layoutLinks.get(d) : undefined;
-  const width = typeof link?.width === "number" ? link.width : 0;
-  return Math.max(1, width - 2);
-}
-
 /** A node as a link end. */
 const sankeyLinkEnd = (n: SankeyWrappedNode): LinkEnd => ({
   data: n.data,
@@ -258,15 +245,10 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
         : 0;
     },
   });
-  // The layout gives each link its band `width`.
-  for (const link of [...links, ...laid])
-    layoutLinks.set(link.datum, link as unknown as {width?: number});
-
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
   v.ctx.sankeyCtx = {
     links: [...links, ...laid],
     nodeGroups,
-    pathFn: v.ctx.path,
     width,
     height,
   };

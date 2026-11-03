@@ -33,7 +33,7 @@ import {
   linkTooltipConfig,
   nodeHighlight,
 } from "../features/linkInteraction.js";
-import {applySankeyLayout, sankeyLinkStrokeWidth} from "./applyLayout.js";
+import {applySankeyLayout} from "./applyLayout.js";
 import {sankeyEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import {themeDark, themed} from "../../utils/theme.js";
@@ -284,27 +284,22 @@ export const sankeyDef: ChartDefinition = {
     {
       key: "shapeConfig",
       merge: true,
-      factory: (viz: VizInstance) => {
-        const linkStrokeWidth = sankeyLinkStrokeWidth;
-        return {
-          Path: {
-            fill: "none",
-            hoverStyle: {"stroke-width": linkStrokeWidth},
-            label: false,
+      factory: (viz: VizInstance) => ({
+        Path: {
+          // Each band is a filled ribbon (see `sankeyRibbonD`).
+          fill: () =>
             // Wide bands recede on dark as #DBDBDB does on white: the dark
             // preset's link gray is for thin Network and Rings edges.
-            stroke: () =>
-              themed(
-                viz._theme,
-                t => (t.link === themeDark.link ? colorGray[800] : t.link),
-                "#DBDBDB",
-              ),
-            strokeOpacity: 0.5,
-            strokeWidth: linkStrokeWidth,
-          },
-          Rect: {},
-        };
-      },
+            themed(
+              viz._theme,
+              t => (t.link === themeDark.link ? colorGray[800] : t.link),
+              "#DBDBDB",
+            ),
+          fillOpacity: 0.5,
+          label: false,
+        },
+        Rect: {},
+      }),
     },
     {
       key: "tooltipConfig",

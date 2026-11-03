@@ -67,6 +67,8 @@ const sceneNodes = () => {
         height: n.height,
         aria: n.aria?.label,
         stroke: n.paint?.stroke,
+        fill: n.paint?.fill,
+        fillOpacity: n.paint?.fillOpacity,
         strokeWidth: n.paint?.strokeWidth,
         strokeOpacity: n.paint?.strokeOpacity,
         opacity: n.paint?.opacity ?? 1,
@@ -78,7 +80,7 @@ const sceneNodes = () => {
   return out;
 };
 
-/** Runs in the page: the screen point halfway along the link path `key`'s lane. */
+/** Runs in the page: the screen point in the middle of the band `key`'s lane. */
 const lanePoint = key => {
   const host =
     document.querySelector("#viz svg") || document.querySelector("#viz canvas");
@@ -98,9 +100,16 @@ const lanePoint = key => {
   path.setAttribute("d", found.n.d);
   svg.appendChild(path);
   document.body.appendChild(svg);
-  const p = path.getPointAtLength(path.getTotalLength() / 2);
+  // The middles of the ribbon's two edges, a quarter and three quarters of
+  // the way around it, and between them the middle of the band.
+  const length = path.getTotalLength();
+  const a = path.getPointAtLength(length / 4);
+  const b = path.getPointAtLength((length * 3) / 4);
   svg.remove();
-  return [rect.left + found.x + p.x, rect.top + found.y + p.y];
+  return [
+    rect.left + found.x + (a.x + b.x) / 2,
+    rect.top + found.y + (a.y + b.y) / 2,
+  ];
 };
 
 /** Runs in the page: the visible tooltip's text, without whitespace. */
@@ -135,7 +144,8 @@ for (const renderer of ["svg", "canvas"]) {
         assert.ok(band && finite(band.d), `${key}: ${band?.d}`);
         assert.ok(scene[`${key}::hit`], `${key} has a hit path`);
         const n = numbers(band.d);
-        const half = band.strokeWidth / 2;
+        // A filled ribbon: its edges are its outline.
+        const half = 0;
         const xs = n.filter((_, k) => !(k % 2)).map(x => x + band.ox);
         const ys = n.filter((_, k) => k % 2).map(y => y + band.oy);
         assert.ok(
@@ -147,8 +157,9 @@ for (const renderer of ["svg", "canvas"]) {
           `${key} inside vertically: ${Math.min(...ys)}..${Math.max(...ys)}`,
         );
         // linkColor colors the band like its source, see-through.
-        assert.ok(typeof band.stroke === "string" && band.stroke !== "none");
-        assert.strictEqual(band.strokeOpacity, 0.5);
+        assert.ok(typeof band.fill === "string" && band.fill !== "none");
+        assert.strictEqual(band.fillOpacity, 0.5);
+        assert.ok(band.d.endsWith("Z"), "a closed ribbon");
       }
       for (const [key, node] of Object.entries(scene))
         assert.ok(
@@ -168,7 +179,10 @@ for (const renderer of ["svg", "canvas"]) {
       // The loop to E leaves its right side and enters its left side.
       const self = numbers(scene["sankey-link-E-E"].d);
       assert.ok(Math.abs(self[0] - (e.x + e.width)) < 0.5, "leaves E's right");
-      assert.ok(Math.abs(self[self.length - 2] - e.x) < 0.5, "enters E's left");
+      assert.ok(
+        self.some((x, k) => !(k % 2) && Math.abs(x - e.x) < 0.5),
+        "enters E's left",
+      );
       assert.strictEqual(scene["sankey-link-C-A"].aria, "C to A, 1.");
       const warnings = await page.evaluate(() => window.__warnings);
       assert.deepStrictEqual(warnings, [], "no warnings");
@@ -183,10 +197,10 @@ for (const renderer of ["svg", "canvas"]) {
       const a = scene["sankey-Rect-A"];
       assert.ok(head && finite(head.d), "the return's arrowhead");
       // The band ends inside its head, which points into A's left side.
-      const n = numbers(band.d);
-      const end = n[n.length - 2];
+      const xs = numbers(band.d).filter((_, k) => !(k % 2));
+      const end = Math.max(...xs.filter(x => x < a.x + 1));
       assert.ok(
-        end < a.x && end > a.x - 28,
+        end < a.x - 0.5 && end > a.x - 28,
         `band ends at ${end}, A at ${a.x}`,
       );
       const tip = numbers(head.d);

@@ -6,11 +6,10 @@
 import type {DataPoint} from "@d3plus/data";
 import type {Paint, SceneNode} from "@d3plus/render";
 
-import {arrowEnds, arrowTrim} from "../features/edgeArrows.js";
+import {arrowEnds, arrowTrim, trimCubic} from "../features/edgeArrows.js";
 import {
   arrowAlongChord,
   chordArrowNodes,
-  chordEndsPathD,
   cubicArrowEdge,
 } from "../features/curvedArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
@@ -23,6 +22,7 @@ import {
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import {
+  LINK_HIT_WIDTH,
   linkAriaLabel,
   linkHitPath,
   linkMeta,
@@ -36,9 +36,11 @@ import {emitLinkLabels} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {circularLinkAnchor, circularLinkD} from "./circularLinks.js";
+import {circularLinkAnchor, circularRibbonD} from "./circularLinks.js";
 import type {CircularShape} from "./circularLinks.js";
 import {sankeyLabels} from "./labels.js";
+import {arrowedRibbonD, bandRibbonD} from "./ribbons.js";
+import type {Point} from "./ribbons.js";
 
 export interface SankeyLink {
   source: SankeyNode;
@@ -66,7 +68,6 @@ export type SankeyNode = DataPoint & {
 export interface SankeyCtx {
   links: SankeyLink[];
   nodeGroups: [string, SankeyNode[]][];
-  pathFn: (d: SankeyLink) => string;
   width: number;
   height: number;
 }
@@ -90,57 +91,84 @@ export function sankeyArrowSize(
 }
 
 /**
-    A link's arrowed ends and visible band (see `cubicArrowEdge`): the band
-    follows its horizontal link curve up to each head's base, then runs
-    along the head's axis to end inside it. The tips sit on the nodes'
-    edges, where the band ends. Null when the link has no arrows.
+    A band's thickness: its layout width less a pixel each side, so
+    neighboring bands show a gap, and at least 1.
+*/
+export function sankeyBandThickness(link: {width?: number}): number {
+  const width = typeof link.width === "number" ? link.width : 0;
+  return Math.max(1, width - 2);
+}
+
+/** A link's full band as a filled ribbon, `half` its thickness each side of its center line. */
+export function sankeyRibbonD(link: SankeyLink, half: number): string {
+  if (link.circular) return circularRibbonD(link.circular, half);
+  return bandRibbonD(
+    link.source.x1,
+    link.y0 ?? 0,
+    link.target.x0,
+    link.y1 ?? 0,
+    half,
+  );
+}
+
+/**
+    A link's arrowed ends and visible ribbon: the band follows its center
+    line up to each head's base, then runs along the head's axis to end
+    square inside it. The tips sit on the nodes' edges, where the band
+    ends. Null when the link has no arrows.
 */
 function sankeyArrowEdge(
   viz: VizInstance,
   link: SankeyLink,
   i: number,
-  strokeWidth: unknown,
-): (ReturnType<typeof cubicArrowEdge> & {size: number}) | null {
+  thickness: number,
+): {d: string; source?: ArrowedEnd; target?: ArrowedEnd; size: number} | null {
   const ends = arrowEnds(viz.schema.arrows as ArrowValue, link.datum, i);
   if (!ends.source && !ends.target) return null;
   if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return null;
   const size = sankeyArrowSize(viz, link.width, link.datum, i);
-  const trim = arrowTrim(
-    size,
-    typeof strokeWidth === "number" ? strokeWidth : 1,
-  );
+  const trim = arrowTrim(size, thickness);
   if (link.circular)
-    return {...circularArrowEdge(link.circular, size, trim, ends), size};
+    return {
+      ...circularArrowEdge(link.circular, size, trim, ends, thickness / 2),
+      size,
+    };
   const x0 = link.source.x1;
   const x1 = link.target.x0;
   const xm = (x0 + x1) / 2;
-  const edge = cubicArrowEdge(
-    [
-      [x0, link.y0],
-      [xm, link.y0],
-      [xm, link.y1],
-      [x1, link.y1],
-    ],
-    {
-      ends,
-      size,
-      source: ends.source ? trim : 0,
-      target: ends.target ? trim : 0,
-    },
-  );
-  return {...edge, size};
+  const curve: [Point, Point, Point, Point] = [
+    [x0, link.y0],
+    [xm, link.y0],
+    [xm, link.y1],
+    [x1, link.y1],
+  ];
+  const {source, target} = cubicArrowEdge(curve, {
+    ends,
+    size,
+    source: ends.source ? trim : 0,
+    target: ends.target ? trim : 0,
+  });
+  const body = trimCubic(curve, source ? size : 0, target ? size : 0);
+  return {
+    d: arrowedRibbonD(body, thickness / 2, source, target),
+    source,
+    target,
+    size,
+  };
 }
 
 /**
-    A circular link's arrowed ends and visible band: each head lies along
+    A circular link's arrowed ends and visible ribbon: each head lies along
     the band's straight end at its node, its tip on the node's edge, and the
-    band runs between the heads' bases, then on to end inside each head.
+    ribbon ends square inside each head.
+    @param half Half the band's thickness.
 */
 export function circularArrowEdge(
   shape: CircularShape,
   size: number,
   trim: number,
   ends: {source: boolean; target: boolean},
+  half: number,
 ): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
   const target = ends.target
     ? arrowAlongChord([shape.xt, shape.ty], [shape.xt - size, shape.ty], trim)
@@ -148,19 +176,30 @@ export function circularArrowEdge(
   const source = ends.source
     ? arrowAlongChord([shape.xs, shape.sy], [shape.xs + size, shape.sy], trim)
     : undefined;
-  const body = circularLinkD(shape, source ? size : 0, target ? size : 0);
-  return {d: chordEndsPathD(body, source, target), source, target};
+  const d = circularRibbonD(
+    shape,
+    half,
+    source ? source.cut[0] - shape.xs : 0,
+    target ? shape.xt - target.cut[0] : 0,
+  );
+  return {d, source, target};
 }
 
-/** A link's visible band: `d`, or cut short inside its arrowheads (see `sankeyArrowEdge`). The full band stays its hit area. */
+/**
+    A link's visible band: its ribbon, cut short inside its arrowheads (see
+    `sankeyArrowEdge`). The full ribbon stays its hit area.
+    @param thickness The band's thickness (see `sankeyBandThickness`).
+*/
 export function sankeyVisibleD(
   viz: VizInstance,
   link: SankeyLink,
   i: number,
-  strokeWidth: unknown,
-  d: string,
+  thickness: number,
 ): string {
-  return sankeyArrowEdge(viz, link, i, strokeWidth)?.d ?? d;
+  return (
+    sankeyArrowEdge(viz, link, i, thickness)?.d ??
+    sankeyRibbonD(link, thickness / 2)
+  );
 }
 
 /**
@@ -174,8 +213,9 @@ function emitSankeyArrows(
   datum: DataPoint,
   i: number,
   paint: Paint,
+  thickness: number,
 ): SceneNode[] {
-  const edge = sankeyArrowEdge(viz, link, i, paint.strokeWidth);
+  const edge = sankeyArrowEdge(viz, link, i, thickness);
   if (!edge) return [];
   const ids = `${link.source.id}-${link.target.id}`;
   return chordArrowNodes({
@@ -184,7 +224,7 @@ function emitSankeyArrows(
     datum,
     keyPrefix: "sankey-arrow",
     keys: {source: `sankey-arrow-s-${ids}`, target: `sankey-arrow-t-${ids}`},
-    fill: typeof paint.stroke === "string" ? paint.stroke : undefined,
+    fill: typeof paint.fill === "string" ? paint.fill : undefined,
     opacity: 1,
   });
 }
@@ -253,31 +293,37 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
       const datum = link.datum;
       const i = linkMeta(datum)?.index ?? 0;
       const paint: Paint = paintFromShapeConfig(linkConfig, datum, i);
-      const stroke = linkColor(datum, link as unknown as LinkEnds);
-      if (stroke) {
+      const color = linkColor(datum, link as unknown as LinkEnds);
+      if (color) {
         // A colored band is see-through, so the flows it crosses show.
-        paint.stroke = stroke;
-        paint.strokeOpacity =
-          resolveAccessor<number>(linkConfig.strokeOpacity, datum, i) ?? 0.5;
+        paint.fill = color;
+        paint.fillOpacity =
+          resolveAccessor<number>(linkConfig.fillOpacity, datum, i) ?? 0.5;
       }
+      const thickness = sankeyBandThickness(link);
       const key = sankeyLinkKey(link);
-      const d = link.circular ? circularLinkD(link.circular) : c.pathFn(link);
       out.push({
         type: "path",
         shapeType: "Link",
         key,
-        d: sankeyVisibleD(viz, link, i, paint.strokeWidth, d),
+        d: sankeyVisibleD(viz, link, i, thickness),
         datum,
         index: i,
         paint,
         aria: {label: linkAriaLabel(viz, datum)},
       } as SceneNode);
+      // The full ribbon, a few pixels wider, so thin bands are easy to point at.
       out.push({
-        ...linkHitPath(key, d, datum, paint.strokeWidth),
+        ...linkHitPath(key, sankeyRibbonD(link, thickness / 2), datum, 0),
+        paint: {
+          fill: "transparent",
+          stroke: "transparent",
+          strokeWidth: LINK_HIT_WIDTH,
+        },
         shapeType: "Link",
       } as SceneNode);
 
-      out.push(...emitSankeyArrows(viz, link, datum, i, paint));
+      out.push(...emitSankeyArrows(viz, link, datum, i, paint, thickness));
     }
     out.push(...sankeyLinkLabels(viz, c));
   }

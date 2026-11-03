@@ -15,6 +15,7 @@ import {
   circularLinkShape,
   circularLinkSide,
   circularReserve,
+  circularRibbonD,
   layOutCircular,
   sankeyArrowSize,
   sankeyNodeValue,
@@ -367,16 +368,24 @@ it("circularArrowEdge lays each head along its band's straight end", () => {
     xl: -20,
     rt: 8,
   };
-  const edge = circularArrowEdge(shape, 10, 6, {source: true, target: true});
+  const edge = circularArrowEdge(shape, 10, 6, {source: true, target: true}, 3);
   assert.deepStrictEqual(edge.target.tip, [0, 42]);
   assert.strictEqual(edge.target.angle, 0);
   assert.deepStrictEqual(edge.target.cut, [-6, 42]);
   assert.deepStrictEqual(edge.source.tip, [210, 32]);
   assert.ok(Math.abs(edge.source.angle - Math.PI) < 1e-9);
-  assert.ok(edge.d.startsWith("M216,32L220,32"), edge.d);
-  assert.ok(edge.d.endsWith("L-10,42L-6,42"), edge.d);
-  const plain = circularArrowEdge(shape, 10, 6, {source: false, target: false});
-  assert.strictEqual(plain.d, circularLinkD(shape));
+  // The ribbon, 3px each side, ends square at each head's cut.
+  assert.ok(edge.d.startsWith("M216,35L"), edge.d);
+  assert.ok(edge.d.includes("L-6,45L-6,39"), edge.d);
+  assert.ok(edge.d.endsWith("L216,29Z"), edge.d);
+  const plain = circularArrowEdge(
+    shape,
+    10,
+    6,
+    {source: false, target: false},
+    3,
+  );
+  assert.strictEqual(plain.d, circularRibbonD(shape, 3));
 });
 
 it("sankeyArrowSize follows the band's width between 8 and 28, or arrowSize", () => {

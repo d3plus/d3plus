@@ -14,6 +14,7 @@ import {
   edgeArrowTrims,
   makeLinkDatum,
   ringsVisibleD,
+  sankeyRibbonD,
   sankeyVisibleD,
   selfLoopArrows,
   selfLoopD,
@@ -346,10 +347,14 @@ it("arcVisibleD, ringsVisibleD, and sankeyVisibleD stop strokes inside arrowhead
     y1: 50,
     width: 20,
   };
-  assert.strictEqual(sankeyVisibleD(off, band, 0, 18, "full"), "full");
-  // A 20px head on an 18px band: the band ends where the head is 18px wide.
-  const cut = numbers(sankeyVisibleD(on, band, 0, 18, "full"));
-  assert.strictEqual(cut.length, 10);
-  close(Math.hypot(cut[8] - 200, cut[9] - 50), 15, 0.01);
-  assert.deepStrictEqual(cut.slice(0, 2), [0, 10]);
+  // Without arrows: the full ribbon, 9px each side of the center line.
+  assert.strictEqual(sankeyVisibleD(off, band, 0, 18), sankeyRibbonD(band, 9));
+  // A 20px head on an 18px band: the ribbon ends square where the head is
+  // 18px wide, 15px back from its tip.
+  const cut = numbers(sankeyVisibleD(on, band, 0, 18));
+  assert.strictEqual(cut.length, 20);
+  const end = [(cut[8] + cut[10]) / 2, (cut[9] + cut[11]) / 2];
+  close(Math.hypot(end[0] - 200, end[1] - 50), 15, 0.01);
+  close(Math.hypot(cut[8] - cut[10], cut[9] - cut[11]), 18, 0.01);
+  assert.deepStrictEqual(cut.slice(0, 2), [0, 1]);
 });

@@ -104,6 +104,47 @@ function assertEndsInside(
     assert.notStrictEqual(hit.d, link.d, `${key}'s hit path keeps its length`);
 }
 
+/**
+    Asserts a Sankey band (a filled ribbon) ends square inside its target
+    arrowhead: the two corners of its target end lie inside the head's
+    triangle, centered on the head's axis.
+*/
+function assertRibbonEndsInside(scene, key, arrowKey) {
+  const band = scene[key];
+  const arrow = scene[arrowKey];
+  assert.ok(band, `${key} is painted`);
+  assert.ok(arrow, `${arrowKey} is painted`);
+  const tri = [];
+  const pts = numbers(arrow.d);
+  for (let k = 0; k < 6; k += 2) tri.push([pts[k], pts[k + 1]]);
+  const tip = tri[0];
+  const base = [(tri[1][0] + tri[2][0]) / 2, (tri[1][1] + tri[2][1]) / 2];
+  const axis = [tip[0] - base[0], tip[1] - base[1]];
+  const len = Math.hypot(...axis);
+  // The ribbon runs its top edge to the target (a curve, then the run along
+  // the head's axis), then back along its bottom edge.
+  const n = numbers(band.d);
+  const corners = [
+    [n[8], n[9]],
+    [n[10], n[11]],
+  ];
+  for (const q of corners)
+    assert.ok(
+      inTriangle(q, tri),
+      `${key}: ribbon corner ${q.map(v => v.toFixed(2))} inside ${arrow.d}`,
+    );
+  const mid = [
+    (corners[0][0] + corners[1][0]) / 2,
+    (corners[0][1] + corners[1][1]) / 2,
+  ];
+  const off = Math.abs(
+    (mid[0] - tip[0]) * (axis[1] / len) - (mid[1] - tip[1]) * (axis[0] / len),
+  );
+  assert.ok(off < 0.5, `${key}: ribbon end ${off.toFixed(2)}px off the axis`);
+  const hit = scene[`${key}::hit`];
+  assert.ok(hit && hit.d !== band.d, `${key}'s hit path keeps its length`);
+}
+
 async function withChart(args, check) {
   const {page, errors, close} = await openPage(box);
   try {
@@ -243,12 +284,10 @@ for (const renderer of ["svg", "canvas"]) {
           ["a", "b"],
           ["c", "d"],
         ])
-          assertEndsInside(
+          assertRibbonEndsInside(
             scene,
             `sankey-link-${s}-${t}`,
             `sankey-arrow-t-${s}-${t}`,
-            "target",
-            {curved: true},
           );
       },
     );

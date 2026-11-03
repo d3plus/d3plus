@@ -1739,6 +1739,9 @@ export {
   circularLanes,
   circularLinkAnchor,
   circularLinkD,
+  circularLinkEdge,
+  circularRibbonD,
+  offsetCircularShape,
   circularLinkOrder,
   circularLinkShape,
   circularLinkSide,
@@ -1763,7 +1766,21 @@ export {
   solveScale,
 } from "./src/charts/Sankey/circularLayout.js";
 export type {CircularLaidLink} from "./src/charts/Sankey/circularLayout.js";
-export {circularArrowEdge, sankeyArrowSize} from "./src/charts/Sankey/emit.js";
+export {
+  circularArrowEdge,
+  sankeyArrowSize,
+  sankeyBandThickness,
+  sankeyRibbonD,
+} from "./src/charts/Sankey/emit.js";
+export {
+  arrowedRibbonD,
+  bandRibbonD,
+  edgeD,
+  reverseEdge,
+  ribbonD,
+  shiftEdge,
+} from "./src/charts/Sankey/ribbons.js";
+export type {Edge, EdgeStep} from "./src/charts/Sankey/ribbons.js";
 
 export {geomapPointLabels} from "./src/charts/Geomap/pointLabels.js";
 export type {GeomapPoints} from "./src/charts/Geomap/pointLabels.js";
