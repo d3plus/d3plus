@@ -1993,3 +1993,12 @@ export type {
   ZoomGesture,
   ZoomGestureEvent,
 } from "./src/charts/drawSteps/zoomGesture.js";
+export {
+  clientPoint,
+  gestureHolds,
+  gestureHoverEnd,
+  gestureHoverMove,
+  gestureHoverStart,
+  gestureMoves,
+} from "./src/charts/drawSteps/gestureHover.js";
+export type {GestureHoverState} from "./src/charts/drawSteps/zoomGesture.js";

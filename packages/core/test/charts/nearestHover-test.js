@@ -298,6 +298,29 @@ describe("routePointerEvent", () => {
     ]);
   });
 
+  it("holds events while a zoom gesture moves the chart, then re-enters", () => {
+    const {viz, log} = fakeViz([a]);
+    routePointerEvent(viz, move([100, 100]));
+    viz._gestureHover = {press: null, moving: true};
+    // The gesture's own leave clears the resolved mark.
+    viz._nearestHover.key = null;
+    routePointerEvent(viz, move([100, 100]));
+    routePointerEvent(viz, {
+      type: "mouseleave",
+      point: [500, 100],
+      pick: null,
+      nativeEvent: {type: "mouseleave"},
+    });
+    viz._gestureHover = undefined;
+    routePointerEvent(viz, move([100, 100]));
+    assert.deepStrictEqual(log, [
+      "mouseenter:a",
+      "mousemove:a",
+      "mouseenter:a",
+      "mousemove:a",
+    ]);
+  });
+
   it("resolves clicks to the nearest point", () => {
     const {viz, log} = fakeViz([a]);
     routePointerEvent(viz, {

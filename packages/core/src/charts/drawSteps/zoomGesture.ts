@@ -49,3 +49,14 @@ export interface ZoomGesture {
   /** The zoom controls' reset was pressed, just before the zoom resets. */
   reset(): void;
 }
+
+/**
+    The hover hold of a zoom gesture in progress (see `gestureHover.ts`):
+    where its press began, and whether it has moved the chart yet.
+*/
+export interface GestureHoverState {
+  /** The press's client position, or null for a gesture without one (a wheel). */
+  press: [number, number] | null;
+  /** Whether the gesture has moved the chart, holding off hover until it ends. */
+  moving: boolean;
+}
