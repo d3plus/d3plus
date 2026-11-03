@@ -1770,6 +1770,7 @@ export {
   circularArrowEdge,
   sankeyArrowSize,
   sankeyBandThickness,
+  sankeyHeads,
   sankeyRibbonD,
 } from "./src/charts/Sankey/emit.js";
 export {
@@ -1781,6 +1782,8 @@ export {
   shiftEdge,
 } from "./src/charts/Sankey/ribbons.js";
 export type {Edge, EdgeStep} from "./src/charts/Sankey/ribbons.js";
+export {sankeyLabels} from "./src/charts/Sankey/labels.js";
+export type {SankeyLabelHeads} from "./src/charts/Sankey/labels.js";
 
 export {geomapPointLabels} from "./src/charts/Geomap/pointLabels.js";
 export type {GeomapPoints} from "./src/charts/Geomap/pointLabels.js";

@@ -17,7 +17,7 @@ import {
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-type SankeyNode = DataPoint & {
+export type SankeyNode = DataPoint & {
   data?: DataPoint;
   i?: number;
   id: string | number;
@@ -32,12 +32,36 @@ const gap = 5;
 /** The default label font size, in pixels. */
 const fontSize = 12;
 
+/** How long the arrowheads at each node's sides are, which its label stays clear of. */
+export interface SankeyLabelHeads {
+  /** The longest head entering a node, on its left side. */
+  into: (d: SankeyNode) => number;
+  /** The longest head pointing back into a node, on its right side. */
+  out: (d: SankeyNode) => number;
+  /** The longest head entering any node, and pointing back into any. */
+  maxInto: number;
+  maxOut: number;
+}
+
+const noHeads: SankeyLabelHeads = {
+  into: () => 0,
+  out: () => 0,
+  maxInto: 0,
+  maxOut: 0,
+};
+
+/**
+    Each node's label, beside it, clear of the arrowheads at its side and at
+    the facing side of the next column over.
+    @param heads The arrowheads' lengths (none by default).
+*/
 export function sankeyLabels(
   viz: VizInstance,
   nodes: SankeyNode[],
   cfg: Record<string, unknown>,
   width: number,
   height: number,
+  heads: SankeyLabelHeads = noHeads,
 ): SceneNode[] {
   if (!nodes.length || cfg.label === false) return [];
 
@@ -71,12 +95,15 @@ export function sankeyLabels(
     const r = reach.get(d) ?? (d.y1 - d.y0) / 2;
     const y = (d.y1 - d.y0) / 2 - r;
     if (d.x0 === last) {
-      const space = d.x0 - (columns[c - 1] + nodeWidth) - gap * 2;
-      return {x: -gap - space, y, width: space, height: r * 2};
+      const near = heads.into(d);
+      const space =
+        d.x0 - (columns[c - 1] + nodeWidth) - gap * 2 - near - heads.maxOut;
+      return {x: -gap - near - space, y, width: space, height: r * 2};
     }
+    const near = heads.out(d);
     const next = c < columns.length - 1 ? columns[c + 1] : width;
-    const space = next - d.x1 - gap * 2;
-    return {x: nodeWidth + gap, y, width: space, height: r * 2};
+    const space = next - d.x1 - gap * 2 - near - heads.maxInto;
+    return {x: nodeWidth + gap + near, y, width: space, height: r * 2};
   };
 
   return emitLabels({

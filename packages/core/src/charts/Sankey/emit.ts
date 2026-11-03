@@ -32,13 +32,14 @@ import {linkColorResolver} from "../features/linkColor.js";
 import type {LinkEnds} from "../features/linkColor.js";
 import {cubicMidpoint} from "../features/linkLabelGeometry.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
-import {emitLinkLabels} from "../features/linkLabels.js";
+import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {circularLinkAnchor, circularRibbonD} from "./circularLinks.js";
 import type {CircularShape} from "./circularLinks.js";
 import {sankeyLabels} from "./labels.js";
+import type {SankeyLabelHeads} from "./labels.js";
 import {arrowedRibbonD, bandRibbonD} from "./ribbons.js";
 import type {Point} from "./ribbons.js";
 
@@ -253,7 +254,11 @@ export function sankeyLinkAnchor(link: SankeyLink): LinkAnchor | null {
 }
 
 /** The link labels, centered on their bands, clear of every node. */
-function sankeyLinkLabels(viz: VizInstance, c: SankeyCtx): SceneNode[] {
+function sankeyLinkLabels(
+  viz: VizInstance,
+  c: SankeyCtx,
+  nodeLabels: readonly SceneNode[],
+): SceneNode[] {
   return emitLinkLabels(
     viz,
     c.links.map((link, i) => ({
@@ -272,8 +277,91 @@ function sankeyLinkLabels(viz: VizInstance, c: SankeyCtx): SceneNode[] {
           height: n.y1 - n.y0,
         })),
       ),
+      labels: textLineBoxes(nodeLabels),
     },
   );
+}
+
+/**
+    How long the arrowheads at each node's sides are (see `SankeyLabelHeads`).
+*/
+export function sankeyHeads(
+  viz: VizInstance,
+  c: Pick<SankeyCtx, "links">,
+): SankeyLabelHeads {
+  const into = new Map<unknown, number>();
+  const out = new Map<unknown, number>();
+  const longest = (map: Map<unknown, number>, key: unknown, size: number) =>
+    map.set(key, Math.max(map.get(key) ?? 0, size));
+  for (const link of c.links ?? []) {
+    const i = linkMeta(link.datum)?.index ?? 0;
+    const edge = sankeyArrowEdge(viz, link, i, sankeyBandThickness(link));
+    if (edge?.target) longest(into, link.target.id, edge.size);
+    if (edge?.source) longest(out, link.source.id, edge.size);
+  }
+  return {
+    into: d => into.get(d.id) ?? 0,
+    out: d => out.get(d.id) ?? 0,
+    maxInto: Math.max(0, ...into.values()),
+    maxOut: Math.max(0, ...out.values()),
+  };
+}
+
+/** The nodes, their background images and their labels, and the labels on their own. */
+function emitSankeyNodes(
+  viz: VizInstance,
+  c: SankeyCtx,
+  heads: SankeyLabelHeads,
+): {out: SceneNode[]; labels: SceneNode[]} {
+  const out: SceneNode[] = [];
+  const labels: SceneNode[] = [];
+  for (const [shapeKind, values] of c.nodeGroups ?? []) {
+    if (!values.length) continue;
+    const cfg = shapeConfigFor(viz, shapeKind);
+    const start = out.length;
+    for (let i = 0; i < values.length; i++) {
+      const d = values[i];
+      const datum = (d.data ?? d) as DataPoint;
+      const paint = paintFromShapeConfig(cfg, datum, d.i ?? i);
+      const aria = {label: `${drawNodeLabel(viz, d, i)}.`};
+      if (shapeKind === "Rect") {
+        out.push({
+          type: "rect",
+          key: `sankey-${shapeKind}-${d.id}`,
+          x: d.x0,
+          y: d.y0,
+          width: d.x1 - d.x0,
+          height: d.y1 - d.y0,
+          datum,
+          paint,
+          aria,
+        } as SceneNode);
+      } else if (shapeKind === "Circle") {
+        const r = Number(resolveAccessor<number>(cfg.r, datum, d.i ?? i) ?? 0);
+        out.push({
+          type: "circle",
+          key: `sankey-${shapeKind}-${d.id}`,
+          cx: (d.x0 + d.x1) / 2,
+          cy: (d.y0 + d.y1) / 2,
+          r,
+          datum,
+          paint,
+          aria,
+        } as SceneNode);
+      }
+      // Other shape kinds: skipped (Sankey's default is Rect).
+    }
+    out.push(
+      ...backgroundImageNodes(cfg, out.slice(start), k => {
+        const d = values[k];
+        return [(d.data ?? d) as DataPoint, d.i ?? k];
+      }),
+    );
+    const own = sankeyLabels(viz, values, cfg, c.width, c.height, heads);
+    labels.push(...own);
+    out.push(...own);
+  }
+  return {out, labels};
 }
 
 export const sankeyEmit: ChartEmit = ({viz}) => {
@@ -325,57 +413,10 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
 
       out.push(...emitSankeyArrows(viz, link, datum, i, paint, thickness));
     }
-    out.push(...sankeyLinkLabels(viz, c));
   }
-
-  if (c.nodeGroups && c.nodeGroups.length) {
-    for (const [shapeKind, values] of c.nodeGroups) {
-      if (!values.length) continue;
-      const cfg = shapeConfigFor(viz, shapeKind);
-      const start = out.length;
-      for (let i = 0; i < values.length; i++) {
-        const d = values[i];
-        const datum = (d.data ?? d) as DataPoint;
-        const paint = paintFromShapeConfig(cfg, datum, d.i ?? i);
-        const aria = {label: `${drawNodeLabel(viz, d, i)}.`};
-        if (shapeKind === "Rect") {
-          out.push({
-            type: "rect",
-            key: `sankey-${shapeKind}-${d.id}`,
-            x: d.x0,
-            y: d.y0,
-            width: d.x1 - d.x0,
-            height: d.y1 - d.y0,
-            datum,
-            paint,
-            aria,
-          } as SceneNode);
-        } else if (shapeKind === "Circle") {
-          const r = Number(
-            resolveAccessor<number>(cfg.r, datum, d.i ?? i) ?? 0,
-          );
-          out.push({
-            type: "circle",
-            key: `sankey-${shapeKind}-${d.id}`,
-            cx: (d.x0 + d.x1) / 2,
-            cy: (d.y0 + d.y1) / 2,
-            r,
-            datum,
-            paint,
-            aria,
-          } as SceneNode);
-        }
-        // Other shape kinds: skipped (Sankey's default is Rect).
-      }
-      out.push(
-        ...backgroundImageNodes(cfg, out.slice(start), k => {
-          const d = values[k];
-          return [(d.data ?? d) as DataPoint, d.i ?? k];
-        }),
-      );
-      out.push(...sankeyLabels(viz, values, cfg, c.width, c.height));
-    }
-  }
-
+  const nodes = emitSankeyNodes(viz, c, sankeyHeads(viz, c));
+  if (c.links && c.links.length)
+    out.push(...sankeyLinkLabels(viz, c, nodes.labels));
+  out.push(...nodes.out);
   return out;
 };
