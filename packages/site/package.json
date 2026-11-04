@@ -22,7 +22,7 @@
   "devDependencies": {
     "@astrojs/preact": "^6.1.1",
     "@astrojs/starlight": "^0.42.7",
-    "@babel/core": "^8.0.10",
+    "@babel/core": "^7.29.7",
     "@codemirror/lang-html": "^6.4.12",
     "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/language": "^6.13.1",
