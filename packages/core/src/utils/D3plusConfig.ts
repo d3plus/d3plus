@@ -571,6 +571,8 @@ export interface ClusterLabelConfig {
 
 /** The `clusterConfig` options. */
 export interface ClusterConfig {
+  /** The most clusters to keep. When there are more, the smallest joins the cluster it shares the most link weight with (or, when it has no links to another cluster, the largest), until there are this many. Defaults to `12`, the palette's distinct colors. */
+  max?: number;
   /** Names each cluster from its most-connected node's row, its index (0 is the largest), and its members' rows. Defaults to "{node} cluster", translated, with the node's label. */
   label?: (d: DataPoint, i: number, nodes: DataPoint[]) => string;
   /** Styles the cluster names a Network draws inside its clusters, or `false` for none. */
@@ -977,8 +979,8 @@ export interface D3plusConfig {
       Network and ArcDiagram: colors each node by the cluster it belongs to,
       found with the Louvain method (links weighted by `linkSize`). Each
       cluster is named after its most-connected node ("alpha cluster"), and
-      the legend lists the clusters, even for a network drawn from `nodes`
-      alone; clicking a cluster zooms to it. A Network also writes each name
+      the legend lists the clusters, largest first, even for a network drawn
+      from `nodes` alone; clicking a cluster zooms to it. A Network also writes each name
       inside its cluster, where it fits clear of the nodes and their labels.
       Applies only while the chart's color is its default: setting `color`,
       `colorScale`, `colorOrdinal`, or a `shapeConfig` fill, or more than one
@@ -992,8 +994,10 @@ export interface D3plusConfig {
       Network and ArcDiagram: names and styles the clusters (see `cluster`).
       `label` names each cluster: it receives the row of the cluster's
       most-connected node, the cluster's index (0 is the largest), and every
-      member's row. `labelConfig` styles the names a Network draws inside its
-      clusters, or `false` draws none.
+      member's row. `max` is the most clusters to keep (default `12`): while
+      there are more, the smallest joins the cluster it shares the most link
+      weight with, or the largest when it has none. `labelConfig` styles the
+      names a Network draws inside its clusters, or `false` draws none.
   */
   clusterConfig?: ClusterConfig;
   /**

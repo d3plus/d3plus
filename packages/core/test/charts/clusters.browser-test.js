@@ -102,6 +102,11 @@ const fillsOf = (fills, ids) => new Set(ids.map(id => fills[id]));
 for (const renderer of ["svg", "canvas"]) {
   it(`Network ${renderer}: no color config colors each cluster, and the legend lists them from nodes alone`, async () => {
     const r = await render(box, draw, ["Network", {}, renderer]);
+    // Equal sizes: the legend lists them by name.
+    assert.deepStrictEqual(
+      r.legend.map(e => e.label),
+      ["Ada cluster", "Fay cluster", "Kai cluster"],
+    );
     for (const g of groups)
       assert.strictEqual(fillsOf(r.fills, g).size, 1, `${g[0]}'s cluster`);
     assert.strictEqual(
@@ -197,6 +202,31 @@ for (const renderer of ["svg", "canvas"]) {
     ]);
     assert.strictEqual(quiet.names.length, 0);
     assert.strictEqual(quiet.legend.length, 3, "the legend still names them");
+  });
+
+  it(`Network ${renderer}: the cluster legend lists the largest cluster first`, async () => {
+    const r = await render(box, draw, [
+      "Network",
+      {
+        nodes: [
+          ...nodes,
+          {id: "Zed", x: 420, y: 60},
+          {id: "Yan", x: 380, y: 80},
+        ],
+        links: [
+          ...links,
+          {source: "Zed", target: "Fay"},
+          {source: "Zed", target: "Gus"},
+          {source: "Yan", target: "Gus"},
+          {source: "Yan", target: "Hana"},
+        ],
+      },
+      renderer,
+    ]);
+    const labels = r.legend.map(e => e.label);
+    assert.strictEqual(labels.length, 3);
+    assert.ok(/^(Fay|Gus) cluster$/.test(labels[0]), labels.join());
+    assert.deepStrictEqual(labels.slice(1), ["Ada cluster", "Kai cluster"]);
   });
 
   it(`ArcDiagram ${renderer}: clusters in its colors and legend, with no names on the chart`, async () => {

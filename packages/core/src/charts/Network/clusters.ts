@@ -6,6 +6,7 @@
 */
 
 import {colorAssign} from "@d3plus/color";
+import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {louvain} from "@d3plus/math";
 
@@ -16,6 +17,7 @@ import {graphNodeId, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import type {GraphLink, GraphNode} from "./graph.js";
 
 type Accessor = (d: DataPoint, i: number) => unknown;
+type Comparator = (a: DataPoint, b: DataPoint) => number;
 
 /** A cluster's index, name, members, and most-connected node. */
 export interface ClusterInfo {
@@ -34,7 +36,7 @@ export interface ClusterState {
   active: boolean;
   /** Each node id's color value: its cluster's name, or its own label when it is in no cluster. */
   names: Map<string, string>;
-  /** The clusters of two or more nodes, largest first. */
+  /** The clusters of two or more nodes, largest first (ties by name). */
   clusters: ClusterInfo[];
 }
 
@@ -97,7 +99,7 @@ export function findClusters(
             {
               source: l.source.id,
               target: l.target.id,
-              weight: l.size > 0 && Number.isFinite(l.size) ? l.size : 1,
+              weight: linkWeight(l.size),
             },
           ]
         : [],
@@ -115,6 +117,60 @@ export function findClusters(
 */
 export function clustersMeaningful(clusters: string[][]): boolean {
   return clusters.filter(c => c.length > 1).length > 1;
+}
+
+/** The most clusters `clusterConfig.max` keeps by default. */
+export const CLUSTER_MAX = 12;
+
+/** A link's weight between clusters: its `size`, or 1 when that isn't a positive number. */
+const linkWeight = (size: number) =>
+  size > 0 && Number.isFinite(size) ? size : 1;
+
+/**
+    Keeps at most `max` clusters of two or more nodes (lone nodes are left
+    as they are). While there are more, the smallest (the last listed of the
+    smallest) joins the cluster it shares the most link weight with (ties go
+    to the larger cluster, then the one listed first), or the largest
+    cluster when it has no links to any other. Returns the clusters largest
+    first (ties in their listed order), lone nodes last.
+    @param clusters Node id lists, largest first (see `findClusters`).
+    @param max The most clusters to keep; anything below 1 keeps them all.
+*/
+export function capClusters(
+  clusters: string[][],
+  links: Pick<GraphLink, "source" | "target" | "size">[],
+  max: number,
+): string[][] {
+  const groups = clusters
+    .map((ids, order) => ({ids: [...ids], order}))
+    .filter(g => g.ids.length > 1);
+  const lone = clusters.filter(c => c.length < 2);
+  if (!(max >= 1) || groups.length <= max) return clusters;
+  const owner = new Map<string, (typeof groups)[number]>();
+  for (const g of groups) for (const id of g.ids) owner.set(id, g);
+  const larger = (a: (typeof groups)[number], b: (typeof groups)[number]) =>
+    b.ids.length - a.ids.length || a.order - b.order;
+  while (groups.length > max) {
+    const small = groups.reduce((s, g) => (larger(s, g) < 0 ? g : s));
+    const shared = new Map<(typeof groups)[number], number>();
+    for (const l of links) {
+      if (!l.source || !l.target) continue;
+      const a = owner.get(l.source.id);
+      const b = owner.get(l.target.id);
+      if (!a || !b || a === b || (a !== small && b !== small)) continue;
+      const other = a === small ? b : a;
+      shared.set(other, (shared.get(other) ?? 0) + linkWeight(l.size));
+    }
+    let target = groups.filter(g => g !== small).sort(larger)[0];
+    for (const [g, w] of shared) {
+      const best = shared.get(target) ?? 0;
+      if (w > best || (w === best && larger(g, target) < 0)) target = g;
+    }
+    target.ids.push(...small.ids);
+    for (const id of small.ids) owner.set(id, target);
+    groups.splice(groups.indexOf(small), 1);
+  }
+  return [...groups.sort(larger).map(g => g.ids), ...lone];
 }
 
 /**
@@ -213,6 +269,35 @@ function nameClusters(
 }
 
 /**
+    The legend's rows: one per cluster, its members' rows merged, and one
+    per node in no cluster. A key holding each member's own id (such as
+    `id`) is kept as the list of member ids, not merged by value, so the row
+    still names every member even when the ids are numbers.
+*/
+export function clusterLegendRows(
+  viz: VizInstance,
+  clusters: ClusterInfo[],
+  nodes: GraphNode[],
+): DataPoint[] {
+  const byId = new Map(nodes.map(n => [n.id, n]));
+  const clustered = new Set(clusters.flatMap(c => c.ids));
+  const aggs = (viz.schema.aggs ?? {}) as Parameters<typeof merge>[1];
+  const merged = clusters.map(c => {
+    const rows = c.ids.map(id => byId.get(id)!.data);
+    const idKeys = Object.keys(rows[0]).filter(k =>
+      rows.every((r, j) => `${r[k]}` === c.ids[j]),
+    );
+    const own = {...aggs};
+    for (const k of idKeys) own[k] = (objects, read) => objects.map(read);
+    return merge(rows, own) as DataPoint;
+  });
+  return [
+    ...merged,
+    ...nodes.filter(n => !clustered.has(n.id)).map(n => n.data),
+  ];
+}
+
+/**
     Works out this draw's clusters onto `viz.ctx.clusterState`: inactive
     unless `clusterAutoActive` holds and the clusters are meaningful. While
     active, the legend lists every node's row (so a network with `nodes` and
@@ -229,15 +314,25 @@ export function prepareClusters(viz: VizInstance): void {
   )
     return;
   const {nodes, links} = clusterGraph(viz);
-  const groups = cachedClusters(viz, nodes, links);
+  const max = (viz.schema.clusterConfig ?? {}).max;
+  const groups = capClusters(
+    cachedClusters(viz, nodes, links),
+    links,
+    typeof max === "number" ? max : CLUSTER_MAX,
+  );
   if (!clustersMeaningful(groups)) return;
   const byId = new Map(nodes.map(n => [n.id, n]));
-  const clusters = nameClusters(viz, groups, clusterHubs(groups, links), byId);
+  const clusters = nameClusters(
+    viz,
+    groups,
+    clusterHubs(groups, links),
+    byId,
+  ).sort((a, b) => b.ids.length - a.ids.length || a.name.localeCompare(b.name));
   const names = new Map<string, string>();
   for (const n of nodes) names.set(n.id, `${viz._drawLabel(n.data, n.i)}`);
   for (const c of clusters) for (const id of c.ids) names.set(id, c.name);
   viz.ctx.clusterState = {active: true, names, clusters};
-  viz._legendData = nodes.map(n => n.data);
+  viz._legendData = clusterLegendRows(viz, clusters, nodes);
   const palette = linkedColorDefaults(viz);
   for (const c of clusters) colorAssign(c.name, palette);
 }
@@ -260,15 +355,41 @@ export function clusterOf(
 }
 
 /**
+    The legend order: while clusters are active, the clusters largest first
+    (the order they take the palette in), then any lone nodes by `base`;
+    otherwise `base`.
+*/
+export function clusterLegendSort(
+  viz: VizInstance,
+  base: Comparator,
+): Comparator {
+  return (a, b) => {
+    const state = viz.ctx.clusterState as ClusterState | undefined;
+    if (!state?.active) return base(a, b);
+    const rank = (d: DataPoint) => {
+      const name = clusterOf(viz, d, 0);
+      const i = state.clusters.findIndex(c => c.name === name);
+      return i < 0 ? state.clusters.length : i;
+    };
+    return rank(a) - rank(b) || base(a, b);
+  };
+}
+
+/**
     Installs cluster colors on a Network or ArcDiagram: `color` becomes an
     accessor returning a node's cluster name while clusters are active (and
-    the default `groupBy` color otherwise), and `_preDraw` works out the
+    the default `groupBy` color otherwise), `legendSort` lists the clusters
+    largest first (see `clusterLegendSort`), and `_preDraw` works out the
     clusters before the legend is laid out.
 */
 export function installClusters(viz: VizInstance): void {
   const base = viz.schema.color as Accessor;
   const color = (d: DataPoint, i: number) => clusterOf(viz, d, i) ?? base(d, i);
   viz.schema.color = color;
+  viz.schema.legendSort = clusterLegendSort(
+    viz,
+    viz.schema.legendSort as Comparator,
+  );
   viz.ctx.clusterDefaults = {
     color,
     fill: (viz.schema.shapeConfig as Record<string, unknown>).fill,

@@ -4,7 +4,11 @@ import {useJsdom} from "~test/jsdom.js";
 
 import {ArcDiagram, Network} from "../../index.ts";
 import {
+  clusterLegendRows,
   CLUSTER_LABEL_DEFAULTS,
+  CLUSTER_MAX,
+  capClusters,
+  clusterLegendSort,
   clusterAutoActive,
   clusterFields,
   clusterHubs,
@@ -128,6 +132,88 @@ it("findClusters — Louvain communities as id lists, largest first, weighted by
   );
 });
 
+it("capClusters — merges the smallest into its most-linked cluster until within the cap", () => {
+  const clusters = [
+    ["a1", "a2", "a3", "a4"],
+    ["b1", "b2", "b3"],
+    ["c1", "c2"],
+    ["d1", "d2"],
+    ["lone"],
+  ];
+  const links = [
+    link("c1", "a1", 1),
+    link("c2", "b1", 5),
+    link("d1", "a2", 2),
+    link("d2", "c1", 1),
+  ];
+  // d (the last of the smallest) shares 2 with a and 1 with c: it joins a.
+  assert.deepStrictEqual(capClusters(clusters, links, 3), [
+    ["a1", "a2", "a3", "a4", "d1", "d2"],
+    ["b1", "b2", "b3"],
+    ["c1", "c2"],
+    ["lone"],
+  ]);
+  // Then c shares 5 with b and 2 with a (its own link plus d2's): it joins b.
+  assert.deepStrictEqual(capClusters(clusters, links, 2), [
+    ["a1", "a2", "a3", "a4", "d1", "d2"],
+    ["b1", "b2", "b3", "c1", "c2"],
+    ["lone"],
+  ]);
+  // A max at or above the count, or below 1, leaves them as they are.
+  assert.strictEqual(capClusters(clusters, links, 4), clusters);
+  assert.strictEqual(capClusters(clusters, links, 40), clusters);
+  assert.strictEqual(capClusters(clusters, links, 0), clusters);
+  assert.strictEqual(CLUSTER_MAX, 12);
+});
+
+it("capClusters — ties go to the larger cluster, then the one listed first", () => {
+  const links = [link("x1", "a1", 1), link("x2", "b1", 1)];
+  // Equal weight to a (3 nodes) and b (2): a.
+  assert.deepStrictEqual(
+    capClusters(
+      [
+        ["a1", "a2", "a3"],
+        ["b1", "b2"],
+        ["x1", "x2"],
+      ],
+      links,
+      2,
+    )[0],
+    ["a1", "a2", "a3", "x1", "x2"],
+  );
+  // Equal weight and size: the one listed first.
+  assert.deepStrictEqual(
+    capClusters(
+      [
+        ["a1", "a2"],
+        ["b1", "b2"],
+        ["x1", "x2"],
+      ],
+      links,
+      2,
+    ),
+    [
+      ["a1", "a2", "x1", "x2"],
+      ["b1", "b2"],
+    ],
+  );
+});
+
+it("capClusters — a cluster linked to no other joins the largest", () => {
+  const clusters = [
+    ["a1", "a2", "a3"],
+    ["b1", "b2"],
+    ["island1", "island2"],
+  ];
+  const links = [link("a1", "b1"), link("island1", "island2")];
+  assert.deepStrictEqual(capClusters(clusters, links, 2), [
+    ["a1", "a2", "a3", "island1", "island2"],
+    ["b1", "b2"],
+  ]);
+  // Within the cap, it stays apart.
+  assert.strictEqual(capClusters(clusters, links, 3), clusters);
+});
+
 it("clustersMeaningful — needs two clusters of two or more nodes", () => {
   assert.strictEqual(
     clustersMeaningful([
@@ -205,7 +291,11 @@ it("prepareClusters — names clusters, lists every node in the legend, and clai
     ],
   );
   assert.strictEqual(state.names.get("lonely"), "LONELY");
-  assert.strictEqual(viz._legendData.length, 7);
+  // One legend row per cluster, then the node in none.
+  assert.deepStrictEqual(
+    viz._legendData.map(d => d.id),
+    [["a", "b", "c"], ["d", "e", "f"], "lonely"],
+  );
   const scale = viz.schema.colorDefaults.scale;
   assert.deepStrictEqual(scale.domain().slice(0, 2), [
     "C cluster",
@@ -221,6 +311,92 @@ it("prepareClusters — runs on its own, and turning `cluster` off clears the st
   viz.cluster(true);
   prepareClusters(viz);
   assert.strictEqual(viz.ctx.clusterState.clusters.length, 2);
+});
+
+it("prepareClusters — `clusterConfig.max` caps the clusters, named after the merged hub", () => {
+  const viz = prepared({clusterConfig: {max: 1}});
+  // One cluster left is not worth coloring.
+  assert.strictEqual(viz.ctx.clusterState.active, false);
+  const ring = new Network()
+    .nodes(["a", "b", "c", "d", "e", "f", "g", "h", "i"].map(node))
+    .links(
+      [
+        ["a", "b"],
+        ["b", "c"],
+        ["c", "a"],
+        ["d", "e"],
+        ["e", "f"],
+        ["f", "d"],
+        ["g", "h"],
+        ["h", "i"],
+        ["i", "g"],
+        ["c", "d"],
+        ["f", "g"],
+        ["e", "g"],
+      ].map(([source, target]) => ({source, target})),
+    );
+  ring._preDraw();
+  const uncapped = ring.ctx.clusterState.clusters.map(c => c.ids.length);
+  assert.strictEqual(uncapped.length, 3, JSON.stringify(uncapped));
+  ring.clusterConfig({max: 2})._preDraw();
+  const capped = ring.ctx.clusterState.clusters;
+  assert.strictEqual(capped.length, 2);
+  // g, h, and i share two links with d, e, and f and none with a, b, and
+  // c, so they join d, e, and f, whose most-connected node is now g.
+  assert.deepStrictEqual(
+    capped.map(c => [c.name, c.ids.length]),
+    [
+      ["g cluster", 6],
+      ["c cluster", 3],
+    ],
+  );
+});
+
+it("clusterLegendRows — merges each cluster's rows, keeping numeric ids as a list", () => {
+  const viz = new Network().aggs({value: rows => rows.length});
+  const nodes = [10, 20, 30, 40].map((id, i) => ({
+    id: `${id}`,
+    i,
+    data: {id, value: id * 2, name: `n${id}`},
+  }));
+  const rows = clusterLegendRows(
+    viz,
+    [{index: 0, name: "n10 cluster", ids: ["10", "20", "30"], hub: "10"}],
+    nodes,
+  );
+  assert.deepStrictEqual(rows, [
+    {id: [10, 20, 30], value: 3, name: ["n10", "n20", "n30"]},
+    {id: 40, value: 80, name: "n40"},
+  ]);
+});
+
+it("clusterLegendSort — clusters largest first (ties by name), then lone nodes; else the base order", () => {
+  const viz = prepared();
+  const sort = viz.schema.legendSort;
+  const rows = [
+    {id: "lonely", name: "LONELY"},
+    {id: ["d", "e", "f"]},
+    {id: ["a", "b", "c"]},
+  ];
+  assert.deepStrictEqual(
+    [...rows].sort(sort).map(d => `${d.id}`),
+    ["a,b,c", "d,e,f", "lonely"],
+  );
+  // A bigger cluster comes first whatever its name.
+  viz.ctx.clusterState.clusters.reverse();
+  assert.deepStrictEqual(
+    [...rows].sort(sort).map(d => `${d.id}`),
+    ["d,e,f", "a,b,c", "lonely"],
+  );
+  viz.ctx.clusterState.active = false;
+  const base = (a, b) => `${b.id}`.localeCompare(`${a.id}`);
+  assert.deepStrictEqual(
+    [...rows].sort(clusterLegendSort(viz, base)).map(d => `${d.id}`),
+    ["lonely", "d,e,f", "a,b,c"],
+  );
+  // A user legendSort replaces it.
+  const mine = () => 0;
+  assert.strictEqual(prepared({legendSort: mine}).schema.legendSort, mine);
 });
 
 it("prepareClusters — a `clusterConfig.label` names each cluster", () => {

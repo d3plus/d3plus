@@ -23,7 +23,7 @@ accessor or `shapeConfig.fill`.
 
 ## Network clusters
 
-A [Network](/core/charts/network/#clusters) or [ArcDiagram](/core/charts/arc-diagram/#clusters) with no colors of its own colors its nodes by the clusters the Louvain method finds in its links, each named after its most-connected node, and the legend lists them. The largest clusters take the palette's first slots. Setting `color`, `colorScale`, or a `shapeConfig` fill colors the nodes as configured instead, and `cluster: false` gives each node its own color.
+A [Network](/core/charts/network/#clusters) or [ArcDiagram](/core/charts/arc-diagram/#clusters) with no colors of its own colors its nodes by the clusters the Louvain method finds in its links, each named after its most-connected node, and the legend lists them. The largest clusters take the palette's first slots, and at most `clusterConfig.max` clusters (12 by default) are kept, so their colors don't repeat. Setting `color`, `colorScale`, or a `shapeConfig` fill colors the nodes as configured instead, and `cluster: false` gives each node its own color.
 
 ## Ordered categories
 

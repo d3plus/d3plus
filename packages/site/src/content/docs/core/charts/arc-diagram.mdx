@@ -31,7 +31,7 @@ Takes the same `nodes` and `links` as Network. Nodes sit evenly along one line i
 
 ## Clusters
 
-With no colors of its own, an ArcDiagram colors its nodes by cluster as [Network does](/core/charts/network/#clusters): the Louvain method finds the groups of nodes linked more to each other than to the rest, weighted by `linkSize`, and names each after its most-connected node. The legend lists the clusters, and clicking one focuses it. `nodeSort: "group"` orders the line by cluster, so each cluster's arcs stay short. An ArcDiagram names its clusters in the legend only. Set `cluster` to `false` for one color per node.
+With no colors of its own, an ArcDiagram colors its nodes by cluster as [Network does](/core/charts/network/#clusters): the Louvain method finds the groups of nodes linked more to each other than to the rest, weighted by `linkSize`, and names each after its most-connected node. The legend lists the clusters largest first (at most `clusterConfig.max`, 12 by default), and clicking one focuses it. `nodeSort: "group"` orders the line by cluster, so each cluster's arcs stay short. An ArcDiagram names its clusters in the legend only. Set `cluster` to `false` for one color per node.
 
 <Playground chart="ArcDiagram" code={clusters} controls={["cluster","nodeSort"]} />
 

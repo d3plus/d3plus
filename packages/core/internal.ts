@@ -2066,9 +2066,13 @@ export {
   slideOnRim,
 } from "./src/charts/Rings/ringsParallel.js";
 export {
+  CLUSTER_MAX,
+  capClusters,
   clusterAutoActive,
   clusterFields,
   clusterHubs,
+  clusterLegendRows,
+  clusterLegendSort,
   clusterName,
   clusterOf,
   clustersMeaningful,
