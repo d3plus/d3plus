@@ -427,11 +427,18 @@ function loadAndDraw(viz: Viz, callback?: () => void): void {
 /**
     Draws the visualization given the specified configuration.
     @param viz The Viz instance to render.
-    @param callback Optional callback invoked after rendering completes.
+    @param callback Optional callback invoked after rendering completes, and
+    after every later render that doesn't pass one of its own.
     @private
 */
 export function vizRender(viz: Viz, callback?: () => void): Viz {
+  // `_callback` marks an explicitly requested callback still in flight (the
+  // resize and font redraws wait on it). The latest callback is also kept so
+  // redraws the chart starts itself (legend clicks, reloads, resizes, polls)
+  // run it again.
   viz._callback = callback;
+  if (callback) viz._renderCallback = callback;
+  else callback = viz._renderCallback;
   // With unloading switched off nothing would ever reload an unloaded chart,
   // so drop the observer and treat this as a normal (possibly deferred) render.
   if (!(viz.schema.detectVisible && viz.schema.detectVisibleUnload)) {
