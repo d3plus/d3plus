@@ -31,6 +31,8 @@ import {markBoxes} from "./sceneBounds.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
 import {barHitsFirst} from "../Plot/barHitArea.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
+import {emitTrendLabels} from "../Plot/trendLabels.js";
+import {plotEdges} from "./pathLabelGeometry.js";
 import {emitForecast, forecastRows} from "../Plot/forecastScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import type {LineLabelSide} from "../Plot/lineLabelSides.js";
@@ -570,6 +572,9 @@ export function plotEmit(
       0,
       ...viz._plotUnderlay(marks.slice(shapesStart), x, y),
     );
+  // Labels along the lines sit above the marks.
+  const edges = plotEdges(xRange, yRange, pCtx.x2Height);
+  marks.push(...emitTrendLabels(viz, x, y, edges));
   // The plot area reaches down through any room reserved under the value
   // axis's range (see `_plotInsetBottom`), so marks drawn there stay.
   const clipRange = [yRange[0], yRange[1] + (mCtx.insetBottom ?? 0)];

@@ -603,6 +603,28 @@ export interface TrendLineConfig {
   strokeWidth?: number;
   /** Line dash pattern. Defaults to `"6 4"`. */
   strokeDasharray?: string;
+  /**
+      Labels each trend line along its own path, near its end and just above
+      it, in the line's color: `true` names the series ("Trend" for a line
+      fit to every point), `"equation"` shows its fitted equation and R²
+      (e.g. "y = 2.1x + 3.4, R² = 0.84", or just R² along a time axis), and
+      a function of the fit (its `label`, `color`, and regression `fit` with
+      `coefficients` and `r2`) returns any text. The text follows the line's
+      curve, reads upright whichever way the line runs, and is cut short with
+      an ellipsis when the line is too short for it; a line too short for a
+      few letters gets no label. It labels the fitted stretch, not a
+      projection. Defaults to `false`.
+  */
+  label?:
+    | boolean
+    | "equation"
+    | ((fit: {
+        label: string;
+        color: string;
+        fit: {coefficients: number[]; r2: number; type: string};
+      }) => string | false | null | undefined);
+  /** TextBox config for the trend line labels, such as `fontSize` (default 11) or `fontColor`. */
+  labelConfig?: Record<string, unknown>;
   /** Other Line shape config. */
   [key: string]: unknown;
 }

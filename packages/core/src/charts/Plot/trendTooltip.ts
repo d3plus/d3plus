@@ -82,8 +82,12 @@ export function trendEquation(
   return `${y} = ${rhs}`;
 }
 
-/** Abbreviates a coefficient, keeping three significant digits on tiny values. */
-function coefficientFormat(locale: string): (n: number) => string {
+/**
+    Abbreviates a coefficient as the axes abbreviate their numbers, keeping
+    three significant digits on tiny values.
+    @param locale The chart's locale.
+*/
+export function coefficientFormat(locale: string): (n: number) => string {
   return n =>
     n !== 0 && Math.abs(n) < 1e-3
       ? n.toPrecision(3)
