@@ -36,11 +36,25 @@ const mouseUp: BrowserCommand<[MouseOptions?]> = async (ctx, options) => {
   await ctx.page.mouse.up(options);
 };
 
+/** Emulates a `prefers-color-scheme` (or `null` to stop emulating it). */
+const emulateColorScheme: BrowserCommand<
+  ["light" | "dark" | "no-preference" | null]
+> = async (ctx, colorScheme) => {
+  await ctx.page.emulateMedia({colorScheme});
+};
+
 /**
  * Server commands that drive Playwright's mouse at test-page coordinates
- * (`getBoundingClientRect` values), for tests that need real pointer events.
+ * (`getBoundingClientRect` values), for tests that need real pointer events,
+ * and emulate the system color scheme.
  */
-export const commands = {mouseMove, mouseClick, mouseDown, mouseUp};
+export const commands = {
+  mouseMove,
+  mouseClick,
+  mouseDown,
+  mouseUp,
+  emulateColorScheme,
+};
 
 declare module "vitest/browser" {
   interface BrowserCommands {
@@ -48,5 +62,8 @@ declare module "vitest/browser" {
     mouseClick: (x: number, y: number, options?: MouseOptions) => Promise<void>;
     mouseDown: (options?: MouseOptions) => Promise<void>;
     mouseUp: (options?: MouseOptions) => Promise<void>;
+    emulateColorScheme: (
+      colorScheme: "light" | "dark" | "no-preference" | null,
+    ) => Promise<void>;
   }
 }

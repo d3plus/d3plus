@@ -84,6 +84,44 @@ export function diffChildren(prev: SceneNode[], next: SceneNode[]): GroupDiff {
 }
 
 /**
+    The order to paint a sibling list in while it transitions: the target's
+    nodes in the target's order (so a node entering beneath its siblings,
+    such as a background, stays beneath them), and each exiting node right
+    after the nearest node before it in the previous list that is still
+    drawn, or first when none is. This is the order SVG's keyed join leaves
+    its elements in.
+    @param prev The previously drawn children.
+    @param next The target children.
+*/
+export function transitionOrder(
+  prev: SceneNode[],
+  next: SceneNode[],
+): SceneNode[] {
+  const nextKeys = new Set(next.map(n => n.key));
+  const after = new Map<SceneNode["key"] | undefined, SceneNode[]>();
+  let anchor: SceneNode["key"] | undefined;
+  for (const n of prev) {
+    if (nextKeys.has(n.key)) {
+      anchor = n.key;
+      continue;
+    }
+    const list = after.get(anchor) ?? [];
+    list.push(n);
+    after.set(anchor, list);
+  }
+  const out: SceneNode[] = [...(after.get(undefined) ?? [])];
+  for (const n of next) {
+    out.push(n);
+    const exits = after.get(n.key);
+    if (exits) {
+      out.push(...exits);
+      after.delete(n.key);
+    }
+  }
+  return out;
+}
+
+/**
     The drill-morph override for one draw: the box entering nodes collapse
     FROM and/or exiting nodes collapse TO, in place of their own degenerate
     center. See `DrawOptions.enterFrom`/`exitTo`.
@@ -171,6 +209,9 @@ function interpolateChildren(
 
   const trailSpecs: TrailSpec[] = [];
   const persist: {key: string | number; persist: number | boolean}[] = [];
+  // Each node's interpolator, by the node it draws (the target node for an
+  // update or an enter, the previous one for an exit).
+  const interps = new Map<SceneNode, Interp<SceneNode>>();
   const updaters: Interp<SceneNode>[] = update.map(([a, b]) => {
     const swap = fadeSwapInterp(a, b);
     if (swap) return swap;
@@ -192,6 +233,7 @@ function interpolateChildren(
     }
     return interpolateNode(a, b);
   });
+  update.forEach(([, b], k) => interps.set(b, updaters[k]));
 
   // An entering node with an `enterWindow` runs its own enter over that
   // share of the progress (a group's children keep their own timing).
@@ -225,6 +267,7 @@ function interpolateChildren(
     }
     return interp;
   });
+  enter.forEach((n, k) => interps.set(n, enters[k]));
 
   // The clicked node's own exit is dropped from the animated set entirely —
   // it's never drawn again at any t, instead of collapsing on top of the
@@ -250,11 +293,41 @@ function interpolateChildren(
     if (n.type === "group") return wrapGroup(interp, () => n.children);
     return interp;
   });
+  animatedExit.forEach((n, k) => interps.set(n, exits[k]));
 
+  return siblingFrame({
+    order: transitionOrder(prev, next),
+    interps,
+    exiting: new Set(animatedExit),
+    trailSpecs,
+    persist,
+    log,
+  });
+}
+
+/**
+    A sibling list's frame at `t`: its motion trails first, so they paint
+    beneath the marks that cast them (ephemeral trails only while moving,
+    persistent ones at rest too), then each node in `order`, exiting nodes
+    dropped at t === 1.
+*/
+function siblingFrame({
+  order,
+  interps,
+  exiting,
+  trailSpecs,
+  persist,
+  log,
+}: {
+  order: SceneNode[];
+  interps: Map<SceneNode, Interp<SceneNode>>;
+  exiting: Set<SceneNode>;
+  trailSpecs: TrailSpec[];
+  persist: {key: string | number}[];
+  log?: TrailLog;
+}): Interp<SceneNode[]> {
   return t => {
     const out: SceneNode[] = [];
-    // Trails first so they paint beneath the marks that cast them. Ephemeral
-    // trails show only while moving; persistent trails stay drawn at rest too.
     if (t < 1) {
       for (const spec of trailSpecs) {
         const n = trailNode(spec, t);
@@ -266,9 +339,10 @@ function interpolateChildren(
         const n = persistTrailNode(log, p.key, t);
         if (n) out.push(n);
       }
-    for (const u of updaters) out.push(u(t));
-    for (const e of enters) out.push(e(t));
-    if (t < 1) for (const x of exits) out.push(x(t));
+    for (const n of order) {
+      const interp = interps.get(n);
+      if (interp && (t < 1 || !exiting.has(n))) out.push(interp(t));
+    }
     return out;
   };
 }
