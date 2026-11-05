@@ -5,7 +5,7 @@ packages:
 catalog:
   "@chenglou/pretext": ^1.0.0
   "@types/react": ^19.1.0
-  "@vitejs/plugin-react": ^6.1.2
+  "@vitejs/plugin-react": ^6.2.1
   "d3-array": ^3.2.4
   "d3-color": ^3.1.0
   "d3-interpolate": ^3.0.1
