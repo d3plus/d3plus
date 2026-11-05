@@ -557,6 +557,37 @@ export interface LinkLabelConfig {
   [key: string]: unknown;
 }
 
+/** The `linkBundleConfig` options. */
+export interface LinkBundleConfig {
+  /**
+      How closely each link keeps to its bundle, from `0` (drawn straight)
+      to `1` (fully bundled). Defaults to `0.85`.
+  */
+  strength?: number;
+  /**
+      How many times the points along each link double as the bundling
+      settles (finer bends, more work). Defaults to `6`.
+  */
+  cycles?: number;
+  /**
+      The simulation steps in the first cycle; each later cycle takes two
+      thirds as many. Defaults to `50`.
+  */
+  iterations?: number;
+  /**
+      How alike two links must be, from `0` to `1`, to pull on each other:
+      the product of how parallel they are, how alike their lengths are,
+      how near they are, and how much each lies alongside the other. Lower
+      values bundle more links. Defaults to `0.4`.
+  */
+  compatibility?: number;
+  /**
+      Whether each bundled link is drawn as a smooth curve (`true`, the
+      default) or as straight runs between its bend points.
+  */
+  smoothing?: boolean;
+}
+
 export interface ColorScaleConfig {
   /** The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through. */
   color?: string | string[];
@@ -1619,6 +1650,27 @@ export interface D3plusConfig {
       `"geoOrthographic"`), links follow the great circle without the lift.
   */
   linkCurve?: number;
+  /**
+      Network and Geomap: bundles the links (force-directed edge bundling,
+      after Holten and van Wijk). Links that run the same way near each
+      other are pulled together into shared curves that fan out at their
+      ends, so the main flows read through the clutter of a dense chart.
+      Arrowheads, labels, hover, and click focus follow each bundled curve.
+      A Network's links from a node to itself, and a Geomap's links on a
+      globe or cut by its projection, are drawn as usual; a bundled Geomap
+      link ignores `linkCurve`. The bundling is worked out once per layout
+      (under a second for 2,500 links) and reused while the chart zooms,
+      pans, or is hovered. Defaults to `false`.
+  */
+  linkBundle?: boolean;
+  /**
+      Tunes `linkBundle`: `strength` (how closely links keep to their
+      bundles, `0.85`), `cycles` (`6`), `iterations` (`50`),
+      `compatibility` (how alike two links must be to bundle, `0.4`; lower
+      bundles more), and `smoothing` (`true` draws smooth curves). Merged
+      into the defaults.
+  */
+  linkBundleConfig?: LinkBundleConfig;
   /**
       Network, Rings, and Geomap: the widest link, in pixels, when `linkSize`
       values differ. Network and Rings default to half the smallest node's

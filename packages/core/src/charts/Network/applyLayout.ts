@@ -22,6 +22,7 @@ import type {TransformStage} from "../pipeline/stages.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import {publishLinkGraph} from "../features/linkInteraction.js";
 import {linkWidthRange} from "../features/linkWidths.js";
+import {polylinePath} from "../features/polyline.js";
 import {
   awayFromAngle,
   isSelfLoop,
@@ -31,6 +32,7 @@ import {
 } from "../features/selfLoops.js";
 import type {LoopNode, SelfLoopGeometry} from "../features/selfLoops.js";
 import type {FocusBox} from "../features/linkFocus.js";
+import {bundleNetworkLinks} from "./bundle.js";
 import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import type {GraphLink, GraphNode} from "./graph.js";
 
@@ -426,6 +428,7 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
   v._sizeLegendFinal = v._size ? (r as unknown as SizeLegendScale) : null;
   normalizeLinkStrokes(v, links, r);
   placeNetworkLoops(nodes, links);
+  bundleNetworkLinks(v, links);
 
   const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");
   delete linkConfig.on;
@@ -441,7 +444,9 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
   const linkD = (d: NetworkLink) =>
     d.loop
       ? d.loop.d
-      : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
+      : d.points
+        ? polylinePath(d.points)
+        : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
 
   v.ctx.networkCtx = {links, linkConfig, linkD, nodeGroups, nodeShapeConfig};

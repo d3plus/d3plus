@@ -9,6 +9,7 @@ import choroplethMap from "~/examples/core/charts/geomap/choropleth-map.js?raw";
 import coordinatePointMap from "~/examples/core/charts/geomap/coordinate-point-map.js?raw";
 import flowMap from "~/examples/core/charts/geomap/flow-map.js?raw";
 import globe from "~/examples/core/charts/geomap/globe.js?raw";
+import edgeBundling from "~/examples/core/charts/geomap/edge-bundling.js?raw";
 import changingProjection from "~/examples/core/charts/geomap/changing-projection.js?raw";
 import onlyAreasWithData from "~/examples/core/charts/geomap/only-areas-with-data.js?raw";
 import changingTileset from "~/examples/core/charts/geomap/changing-tileset.js?raw";
@@ -50,6 +51,12 @@ Rather than shading regions, this drops a marker per datum: `point` returns each
 A projection that clips to a circle, such as `"geoOrthographic"`, draws a globe. Dragging it turns the globe under the pointer, keeping the place you grabbed beneath it, while the wheel, a pinch, and the zoom buttons zoom; the reset button turns it back to `projectionRotate`. From the keyboard, focus the chart and hold <kbd>Shift</kbd> with the arrow keys: each press turns the globe 10°, <kbd>←</kbd> <kbd>→</kbd> bringing the land to the west or east into view and <kbd>↑</kbd> <kbd>↓</kbd> the land to the north or south, stopping at the poles. A press eases into place (instantly under `reducedMotion`), holding the keys keeps turning, and the plain arrow keys still move between points. Points on the far side are hidden, and links follow the shortest great circle, without `linkCurve`'s lift, so they stay on the sphere.
 
 <Playground chart="Geomap" code={globe} controls={["projectionRotate","renderer"]} />
+
+## Edge bundling
+
+`linkBundle` pulls links that run the same way near each other into shared corridors, so many flows between two regions read as one: here every flight from six European cities to seven North American ones gathers over the Atlantic and fans out at each end. It bundles the links between their projected ends, in place of `linkCurve`'s arc, and `linkBundleConfig` tunes it (see Network's [edge bundling](/core/charts/network/#edge-bundling)). Only a flat map bundles: on a globe, and for a link the projection cuts (across the antimeridian, or between `"geoAlbersUsa"`'s insets), links keep their great-circle paths.
+
+<Playground chart="Geomap" code={edgeBundling} controls={["linkBundle","linkBundleConfig","projection"]} />
 
 ## Changing projection
 

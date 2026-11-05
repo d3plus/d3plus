@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>EdgeBundling · Network</title>
+    <meta
+      name="description"
+      content="The HS4 product space with linkBundle: about 2,500 links pulled into shared curves, with a toggle and a strength control."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font: 13px sans-serif;
+        margin: 0;
+        overflow: hidden;
+      }
+      #controls {
+        align-items: center;
+        display: flex;
+        gap: 16px;
+        height: 28px;
+        padding: 0 10px;
+      }
+      #viz {
+        height: calc(100vh - 28px);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <label><input id="bundle" type="checkbox" checked /> linkBundle</label>
+      <label
+        >strength
+        <input id="strength" type="range" min="0" max="1" step="0.05" />
+        <output id="strengthValue"></output>
+      </label>
+      <label
+        >arrows
+        <select id="arrows">
+          <option value="false" selected>false</option>
+          <option value="target">target</option>
+        </select>
+      </label>
+      <span id="timing"></span>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    const strength = document.getElementById("strength");
+    strength.value = 0.85;
+    document.getElementById("strengthValue").textContent = strength.value;
+
+    const colors = {
+      1: "#FFE999",
+      2: "#FFC41C",
+      3: "#E0902F",
+      4: "#D1FF00",
+      5: "#330000",
+      6: "#E377C2",
+      7: "#f7b6d2",
+      8: "#98df8a",
+      9: "#B00000",
+      10: "#EDE6D9",
+      11: "#105B10",
+      12: "#3ab11a",
+      13: "#D66011",
+      14: "#752277",
+      15: "#5E1F05",
+      16: "#17BCEF",
+      17: "#9edae5",
+      18: "#AA1F61",
+      19: "#A4BD99",
+      20: "#7F7F7F",
+      21: "#93789E",
+      22: "#C7C7C7",
+    };
+    const unique = (arr, cb) => {
+      const l = Array.from(new Set(arr.map(cb)));
+      return l.length === 1 ? l[0] : l;
+    };
+
+    // The product space's ~2,500 links, bundled. The bundling runs once per
+    // layout; moving the strength slider only re-straightens the cached paths.
+    const viz = new d3plus.Network()
+      .select("#viz")
+      .aggs({"HS2 ID": unique, "HS4 ID": unique})
+      .data("./oec2018.json")
+      .nodes("./network_hs4.json", resp => resp.nodes)
+      .links("./network_hs4.json", resp => resp.edges)
+      .groupBy(["HS2 ID", "id"])
+      .linkBundle(true)
+      .legend(false)
+      .label(d => d.HS4)
+      .shapeConfig({
+        fill: d =>
+          d["Trade Value RCA"] > 1 ? colors[d["Section ID"]] : "#ccc",
+      });
+
+    const timing = document.getElementById("timing");
+    const draw = () => {
+      const start = performance.now();
+      viz.render(() => {
+        timing.textContent = `rendered in ${Math.round(performance.now() - start)} ms`;
+      });
+    };
+    draw();
+
+    const value = id => document.getElementById(id).value;
+    document.getElementById("controls").addEventListener("change", () => {
+      document.getElementById("strengthValue").textContent = strength.value;
+      const arrows = value("arrows");
+      viz.config({
+        linkBundle: document.getElementById("bundle").checked,
+        linkBundleConfig: {strength: +strength.value},
+        arrows: arrows === "false" ? false : arrows,
+      });
+      draw();
+    });
+  </script>
+</html>
