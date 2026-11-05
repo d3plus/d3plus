@@ -15,6 +15,8 @@ import truncation from "~/examples/core/components/text-box/truncation.js?raw";
 import truncateWord from "~/examples/core/components/text-box/truncate-word.js?raw";
 import longWords from "~/examples/core/components/text-box/long-words.js?raw";
 import fontStyling from "~/examples/core/components/text-box/font-styling.js?raw";
+import textPath from "~/examples/core/components/text-box/text-path.js?raw";
+import textPathCircle from "~/examples/core/components/text-box/text-path-circle.js?raw";
 
 Creates a wrapped text box for each point in an array of data.
 
@@ -73,6 +75,29 @@ By default truncated text only breaks between words, and a first word too wide f
 A single word wider than the box cannot be wrapped. By default the wrapper stops there and truncates; `overflow: true` lets the word run past the box's right edge instead, so nothing is lost when the box is only a sizing hint.
 
 <Playground chart="TextBox" code={longWords} controls={["overflow","width"]} height={80} />
+
+## Text on a path
+
+`textPath` takes an SVG path `d` (or an accessor returning one), in coordinates relative to the box's `x` and `y`, and draws the text along it as one line with its baseline on the path. The text wraps to the path's length past `startOffset` (a distance in pixels, or a percentage of the path's length such as `"25%"`), so text too long for the path is cut short with the `ellipsis`, and with `truncateWord` mid-word.
+
+`textAnchor` places the line along that stretch of path: `start` at its beginning, `middle` centered, `end` at the path's end, and a percentage that share of the way along. `justify` reads as `start`, because the one line ends its paragraph. In right-to-left text the start is the path's end. `side: "right"` follows the path backwards, so the text sits on its other side; on an arc that curves over the top, that puts it beneath the arc, upside down. Draw the path the other way to read it the right way up. Both renderers draw it the same way: SVG with a `<textPath>`, and Canvas glyph by glyph along the path, each turned to the path's direction.
+
+<Playground chart="TextBox" code={textPath} controls={["textAnchor","startOffset","side","fontSize"]} height={200} />
+
+A closed path, such as a circle, takes text all the way around it.
+
+<Playground chart="TextBox" code={textPathCircle} controls={["startOffset","fontSize"]} height={240} />
+
+## Hitbox
+
+Only a label's glyphs pick it up in SVG, so a hover or click between its words or lines passes through to whatever is behind it. `hitbox: true` draws a transparent rect behind each box that covers the whole box (padding included) and carries the same datum, so the gaps count too. `{padding}` (a number or CSS shorthand) reaches further than the box. Text on a path gets the path's bounds grown by a font size. Keyboard navigation skips the rect, so a label with a hitbox doesn't become a stop of its own.
+
+```js
+new d3plus.Treemap()
+  .data(data)
+  .groupBy("id")
+  .shapeConfig({labelConfig: {hitbox: true}});
+```
 
 ## Font styling
 

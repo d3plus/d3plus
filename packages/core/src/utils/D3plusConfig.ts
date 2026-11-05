@@ -434,6 +434,37 @@ export interface TextBoxConfig {
       match start, middle, and end; percentages follow the writing direction.
   */
   textAnchor?: Accessor<"start" | "middle" | "end" | "justify" | `${number}%`>;
+  /**
+      An SVG path `d` (or a `(datum, index)` accessor returning one) for the
+      text to follow, in coordinates relative to the box's `x` and `y`. The
+      text is drawn as one line with its baseline on the path, wrapped to the
+      path's length past `startOffset` (and cut short with the `ellipsis` and
+      `truncateWord`). `textAnchor` places it along that stretch of path:
+      `"middle"` centers it, `"end"` ends it at the path's end, a percentage
+      places it that share along, and `"justify"` reads as `"start"`, since
+      the one line ends its paragraph. Falsy draws the text in its box.
+  */
+  textPath?: Accessor<string | false | null>;
+  /**
+      Where along the `textPath` the text's room begins: a distance in pixels,
+      or a percentage of the path's length such as `"25%"`. Defaults to 0.
+  */
+  startOffset?: Accessor<number | `${number}%`>;
+  /**
+      Which side of the `textPath` the text sits on, read in the path's
+      direction: `"left"` (the default) follows the path as drawn, with the
+      text above a left-to-right path, and `"right"` follows it backwards, so
+      the text sits on its other side.
+  */
+  side?: Accessor<"left" | "right">;
+  /**
+      Draws a transparent rect behind each box, so a hover or click anywhere
+      in the box (padding included), not just on its glyphs, reaches the
+      box's datum. `true`, or `{padding}` (a number or CSS shorthand) to
+      reach further than the box. Text on a path gets the path's bounds grown
+      by a font size. Defaults to `false`.
+  */
+  hitbox?: Accessor<boolean | {padding?: number | string}>;
   /** The vertical alignment of the lines in each box. */
   verticalAlign?: Accessor<"top" | "middle" | "bottom">;
   /** Whether the text receives pointer events (`"none"` lets them through to what is underneath). */

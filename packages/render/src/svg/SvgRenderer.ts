@@ -13,6 +13,7 @@ import {clockedTransition} from "./svgClock.js";
 import type {RenderTransition} from "./svgClock.js";
 import {markEntering} from "./svgWindow.js";
 import {svgChildOrder, updateNode} from "./svgUpdate.js";
+import {TextPathDefs} from "./svgTextPaths.js";
 import type {UpdateContext} from "./svgUpdate.js";
 import type {GroupNode, Scene, SceneNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
@@ -92,6 +93,11 @@ export default class SvgRenderer implements Renderer {
   /** Stable id counter so each GroupNode clip gets a unique <clipPath>. */
   private _clipIds = new Map<string, string>();
   private _clipSeq = 0;
+  /** The `<defs>` paths that path-following text nodes draw along. */
+  private _textPaths = new TextPathDefs(
+    () => this._ensureDefs(),
+    () => this._uid,
+  );
   /** Sibling host for HtmlOverlayNode mounts. Positioned absolutely over the svg. */
   private _overlayHost?: HTMLDivElement;
   private _scene?: Scene;
@@ -331,6 +337,7 @@ export default class SvgRenderer implements Renderer {
       trailLog: this._trailLog,
       trailActive: this._trailActive,
       trailGrads: this._trailGrads,
+      textPathHref: node => this._textPaths.href(node),
     };
 
     const exit = sel.exit<SceneNode>();
@@ -344,6 +351,7 @@ export default class SvgRenderer implements Renderer {
       if (d && d.type === "group") {
         self._releaseGroupClip(String((d as GroupNode).key));
       }
+      if (d && d.type === "text") self._textPaths.release(d.key, duration);
       // Drop any persistent-trail paths + gradient the exiting mark left behind
       // (its log entry is already pruned by commitTrailScene).
       if (d && this.parentNode)
@@ -360,7 +368,7 @@ export default class SvgRenderer implements Renderer {
       );
     enter.each(function (this: Element, d: SceneNode) {
       const s = select(this);
-      applyStatic(s, d);
+      applyStatic(s, d, ctx.textPathHref);
       applyGeometry(s, enterStart(d, flip), false, resolveFill);
       markEntering(this, d);
     });
@@ -608,6 +616,7 @@ export default class SvgRenderer implements Renderer {
   destroy(): void {
     for (const timer of this._timers) clearTimeout(timer);
     this._timers.clear();
+    this._textPaths.clear();
     if (this._svg) {
       for (const [k, fn] of Object.entries(this._domListeners))
         this._svg.removeEventListener(k, fn);

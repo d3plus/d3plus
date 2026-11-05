@@ -66,8 +66,12 @@ export function alignShare(align: unknown): number | null {
 const rtlChar = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
 const strongChar = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]|\p{L}/u;
 
-/** The direction of a string's first strongly-directional letter, or null when it has none (digits, punctuation). */
-function strongDirection(text: string): "ltr" | "rtl" | null {
+/**
+    The direction of a string's first strongly-directional letter, or null
+    when it has none (digits, punctuation).
+    @param text The string to read.
+*/
+export function strongDirection(text: string): "ltr" | "rtl" | null {
   const m = strongChar.exec(text);
   if (!m) return null;
   return rtlChar.test(m[0]) ? "rtl" : "ltr";

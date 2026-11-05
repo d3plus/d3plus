@@ -5,6 +5,7 @@ import {
   alignShare,
   anchorSide,
   lineLeft,
+  strongDirection,
   visualOrder,
 } from "../src/textAlign.ts";
 import {hitText} from "../src/canvas/canvasHit.ts";
@@ -212,4 +213,11 @@ it("textVisualCenter — follows the line's anchor and direction", () => {
     textVisualCenter(textNode({anchor: "middle"}, lines))[0],
     100,
   );
+});
+
+it("strongDirection — the first strong letter's direction", () => {
+  assert.strictEqual(strongDirection("abc"), "ltr");
+  assert.strictEqual(strongDirection("12 שלום"), "rtl");
+  assert.strictEqual(strongDirection("(مرحبا) a"), "rtl");
+  assert.strictEqual(strongDirection("12, 34"), null);
 });

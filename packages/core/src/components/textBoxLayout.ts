@@ -12,6 +12,8 @@ import type {TextWrapResult} from "@d3plus/text";
 
 import {fontStack} from "./fontStack.js";
 import type TextBox from "./TextBox.js";
+import {hitboxPadding, textBoxPath, textBoxRoom} from "./textBoxPath.js";
+import type {BoxPath, Sides} from "./textBoxPath.js";
 import {justifyWords} from "./textBoxWords.js";
 import type {JustifyWord, LineRun} from "./textBoxWords.js";
 
@@ -51,6 +53,14 @@ export interface TextBoxDatum {
   r: number;
   x: number;
   y: number;
+  /** The path the text follows (its `d` relative to x/y), or null. */
+  path: Pick<BoxPath, "d" | "side" | "offset"> | null;
+  /** The box's padding. */
+  pad: Sides;
+  /** How far the text block sits below the top of the box's padded area. */
+  yP: number;
+  /** The extra room around the box its hitbox covers, or null without one. */
+  hit: Sides | null;
 }
 
 /** Parses a "style: foo; …" string from defaultHtmlLookup into TextRun style. */
@@ -201,21 +211,24 @@ function assembleTextBoxDatum(
     wrap: TextWrapResult;
     /** The indices (in the wrap's lines) of the lines drawn. */
     kept: number[];
-    padding: {top: number; right: number; bottom: number; left: number};
+    padding: Sides;
+    path: BoxPath | null;
   },
 ): TextBoxDatum {
-  const {lineData, line, fS, lH, w, h, vA, style, wrap, kept, padding} = layout;
+  const {lineData, line, fS, lH, w, h, vA, style, wrap, kept, padding, path} =
+    layout;
   const tH = line * lH;
   const r = box.schema.rotate(d, i);
   let yP =
-    r === 0
+    path || r === 0
       ? vA === "top"
         ? 0
         : vA === "middle"
           ? h / 2 - tH / 2
           : h - tH
       : 0;
-  yP -= lH * 0.1;
+  if (path) yP = 0;
+  else yP -= lH * 0.1;
 
   // Pre-compute per-line runs from HTML markup, carrying open-tag state
   // across lines so a multi-line <b> continues to bold subsequent lines.
@@ -258,8 +271,13 @@ function assembleTextBoxDatum(
     w,
     h,
     r,
-    x: box.schema.x(d, i) + padding.left,
-    y: box.schema.y(d, i) + yP + padding.top,
+    // Text on a path is placed by the path, relative to the box's x/y.
+    x: box.schema.x(d, i) + (path ? 0 : padding.left),
+    y: box.schema.y(d, i) + (path ? 0 : yP + padding.top),
+    path: path ? {d: path.d, side: path.side, offset: path.offset} : null,
+    pad: padding,
+    yP,
+    hit: hitboxPadding(box.schema.hitbox(d, i)),
   };
 }
 
@@ -311,17 +329,16 @@ export function computeTextBoxDatum(
   };
 
   const padding = parseSides(box.schema.padding(d, i));
-
-  const h = box.schema.height(d, i) - (padding.top + padding.bottom),
-    w = box.schema.width(d, i) - (padding.left + padding.right),
-    shape = box.schema.shape(d, i) as string;
+  const path = textBoxPath(box, d, i);
+  const {w, h} = textBoxRoom(box, d, i, padding, path, lH);
+  const shape = box.schema.shape(d, i) as string;
 
   const wrapper = textWrap()
     .fontFamily(style["font-family"] as string)
     .fontSize(fS)
     .fontWeight(style["font-weight"])
     .lineHeight(lH)
-    .maxLines(box.schema.maxLines(d, i))
+    .maxLines(path ? 1 : box.schema.maxLines(d, i))
     .height(h)
     .overflow(box.schema.overflow(d, i))
     .shape(shape as "square" | "circle")
@@ -397,5 +414,6 @@ export function computeTextBoxDatum(
     wrap: wrapResults,
     kept,
     padding,
+    path,
   });
 }

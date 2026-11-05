@@ -26,6 +26,8 @@ export interface UpdateContext {
   trailLog: TrailLog;
   trailActive: boolean;
   trailGrads: TrailGradients;
+  /** The `href` of the `<defs>` path a text node on a path follows. */
+  textPathHref?: (node: TextNode) => string | null;
 }
 
 /**
@@ -93,7 +95,7 @@ export function updateNode(
       ? stash.__d3plusTrailPrev__
       : undefined;
   const draw = (sel: SvgSelection) => {
-    applyStatic(sel, d);
+    applyStatic(sel, d, ctx.textPathHref);
     applyGeometry(sel, d, false, ctx.resolveFill);
   };
   // A fade-swap label (TextNode.fadeSwap) fades instead of gliding.
@@ -109,7 +111,7 @@ export function updateNode(
   ) {
     // Its tween does the rest.
   } else if (ctx.duration) {
-    applyStatic(s, d);
+    applyStatic(s, d, ctx.textPathHref);
     const tsel = trackTransition(s.transition(ctx.t), ctx.t);
     applyGeometry(windowed(tsel), d, true, ctx.resolveFill);
     const font = d.type === "text" ? (d as TextNode).font : undefined;

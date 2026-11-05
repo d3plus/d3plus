@@ -1,5 +1,12 @@
 import type {SceneNode, TextLine, TextNode} from "../scene.js";
 import {anchorSide, lineLeft} from "../textAlign.js";
+import {
+  pathFont,
+  pathGlyphs,
+  pathLineStart,
+  placeGlyphs,
+  textPathSamples,
+} from "../textPath.js";
 import {solidFill} from "./canvasNodePaint.js";
 
 type Ctx = CanvasRenderingContext2D;
@@ -43,6 +50,11 @@ function paintLines(
       : f.baseline === "hanging"
         ? "hanging"
         : "alphabetic";
+  if (node.path) {
+    paintPathLine(ctx, node, paint);
+    ctx.direction = prevDirection;
+    return;
+  }
   for (const ln of node.lines) {
     if (ln.runs && ln.runs.length) {
       paintRuns(ctx, node, ln, paint);
@@ -53,6 +65,43 @@ function paintLines(
     }
   }
   ctx.direction = prevDirection;
+}
+
+/**
+    Paints a text node's first line along its path, piece by piece (see
+    `pathGlyphs`): each at the point its midpoint reaches, turned to the path
+    there, as SVG's `<textPath>` places glyphs.
+*/
+function paintPathLine(
+  ctx: Ctx,
+  node: TextNode,
+  paint: (text: string, x: number, y: number) => void,
+): void {
+  const placed = pathLineStart(node);
+  if (!placed || !node.path) return;
+  const f = node.font || {};
+  const runs = placed.line.runs?.length
+    ? placed.line.runs.map(r => ({text: r.text, font: pathFont(f, r.style)}))
+    : [{text: placed.line.text, font: pathFont(f)}];
+  const measure = (text: string, font?: string) => {
+    ctx.font = font ?? pathFont(f);
+    return ctx.measureText(text).width;
+  };
+  const glyphs = pathGlyphs(runs, f.dir === "rtl", measure);
+  for (const g of placeGlyphs(
+    textPathSamples(node.path),
+    placed.start,
+    glyphs,
+  )) {
+    ctx.save();
+    ctx.font = g.font ?? pathFont(f);
+    ctx.textAlign = "center";
+    if (g.dir) ctx.direction = g.dir;
+    ctx.translate(g.x, g.y);
+    ctx.rotate(g.angle);
+    paint(g.text, 0, 0);
+    ctx.restore();
+  }
 }
 
 /**

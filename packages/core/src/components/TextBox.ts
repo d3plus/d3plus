@@ -13,7 +13,7 @@ import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {computeTextBoxDatum} from "./textBoxLayout.js";
 import type {TextBoxDatum} from "./textBoxLayout.js";
-import {textBoxNode} from "./textBoxScene.js";
+import {textBoxNodes} from "./textBoxScene.js";
 
 const defaultHtmlLookup: Record<string, string> = {
   i: "font-style: italic;",
@@ -44,6 +44,7 @@ const textBoxSchema: ConfigField[] = [
   {key: "fontStrokeWidth", coerce: "const", default: constant(0)},
   {key: "fontWeight", coerce: "const", default: constant(400)},
   {key: "height", coerce: "const", default: accessor("height", 200)},
+  {key: "hitbox", coerce: "const", default: constant(false)},
   {
     key: "id",
     coerce: "const",
@@ -72,9 +73,12 @@ const textBoxSchema: ConfigField[] = [
     coerce: "const",
     default: (d: DataPoint) => (d.__d3plusWrapShape__ as string) ?? "square",
   },
+  {key: "side", coerce: "const", default: constant("left")},
   {key: "split", coerce: "identity", default: textSplit},
+  {key: "startOffset", coerce: "const", default: constant(0)},
   {key: "text", coerce: "const", default: accessor("text")},
   {key: "textAnchor", coerce: "const", default: constant("start")},
+  {key: "textPath", coerce: "const", default: constant(false)},
   {key: "truncateWord", coerce: "const", default: constant(false)},
   {key: "verticalAlign", coerce: "const", default: constant("top")},
   {key: "width", coerce: "const", default: accessor("width", 200)},
@@ -126,8 +130,8 @@ export default class TextBox extends BaseClass {
 */
   toScene(): GroupNode {
     const rtl = detectRTL();
-    const children: SceneNode[] = this._textData().map(d =>
-      textBoxNode(d, this.schema.rotateAnchor(d, d.i), rtl),
+    const children: SceneNode[] = this._textData().flatMap(d =>
+      textBoxNodes(d, this.schema.rotateAnchor(d, d.i), rtl),
     );
     return {type: "group", key: "textBox-group", children};
   }

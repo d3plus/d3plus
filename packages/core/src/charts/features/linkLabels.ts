@@ -8,7 +8,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
-import {lineLeft} from "@d3plus/render";
+import {lineLeft, pathTextBoxes} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
@@ -93,6 +93,21 @@ export function textLineBoxes(nodes: readonly SceneNode[]): LinkLabelBox[] {
     const rad = (angle * Math.PI) / 180;
     const cos = Math.cos(rad);
     const sin = Math.sin(rad);
+    // Text on a path: a box for each stretch of the path its glyphs cover.
+    if (node.path) {
+      for (const box of pathTextBoxes(node)) {
+        const cx = box.x - ax,
+          cy = box.y - ay;
+        out.push({
+          x: (tr.x ?? 0) + ax + cx * cos - cy * sin,
+          y: (tr.y ?? 0) + ay + cx * sin + cy * cos,
+          width: box.width,
+          height: box.height,
+          angle: angle + box.angle,
+        });
+      }
+      return;
+    }
     for (const line of node.lines ?? []) {
       if (!line.text || !size) continue;
       const width =
