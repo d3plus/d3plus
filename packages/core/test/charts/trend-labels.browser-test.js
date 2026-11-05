@@ -140,3 +140,139 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 }
+
+/** Two nearly coincident series and the scene boxes of their trend labels. */
+const coincident = ({renderer, label, lineLabels}) =>
+  new Promise(resolve => {
+    const data = [];
+    for (const [id, b] of [
+      ["Alpha", 5],
+      ["Gamma", 5.6],
+    ])
+      for (let x = 1; x <= 20; x++)
+        data.push({id, k: `${id}${x}`, x, y: 2 * x + b + (x % 2) * 0.2});
+    const viz = new window.d3plus[lineLabels ? "LinePlot" : "Plot"]()
+      .data(data)
+      .groupBy(lineLabels ? "id" : ["id", "k"])
+      .x("x")
+      .y("y")
+      .renderer(renderer)
+      .duration(0)
+      .legend(false)
+      .shapeConfig({Circle: {label: false}})
+      .trendLine(true)
+      .trendLineConfig({label})
+      .select("#viz");
+    if (lineLabels) viz.lineLabels(lineLabels);
+    viz.render(() => {
+      const texts = [];
+      const walk = (n, ox, oy) => {
+        const x = ox + (n.transform?.x ?? 0),
+          y = oy + (n.transform?.y ?? 0);
+        const lineLabel = n.datum?.data?.shape === "Line";
+        if (n.type === "text" && (n.path || lineLabel)) texts.push({n, ox, oy});
+        (n.children || []).forEach(c => walk(c, x, y));
+      };
+      walk(viz.toScene().root, 0, 0);
+      resolve(
+        texts.map(({n, ox, oy}) => ({
+          key: n.key,
+          text: n.lines[0].text,
+          // Each line's glyph box, turned with its node.
+          boxes: window.d3plus
+            .textLineBoxes([n])
+            .map(b => ({...b, x: b.x + ox, y: b.y + oy})),
+          end: n.path
+            ? Math.max(
+                ...[...n.path.d.matchAll(/[ML](-?[\d.]+),/g)].map(m => +m[1]),
+              )
+            : null,
+        })),
+      );
+    });
+  });
+
+/** Whether two turned boxes overlap (separating axis test). */
+const overlap = (a, b) => {
+  const corners = r => {
+    const rad = (r.angle * Math.PI) / 180;
+    const c = Math.cos(rad),
+      s = Math.sin(rad);
+    return [
+      [-1, -1],
+      [1, -1],
+      [1, 1],
+      [-1, 1],
+    ].map(([u, v]) => [
+      r.x + (u * r.width * c) / 2 - (v * r.height * s) / 2,
+      r.y + (u * r.width * s) / 2 + (v * r.height * c) / 2,
+    ]);
+  };
+  const ca = corners(a),
+    cb = corners(b);
+  for (const poly of [ca, cb])
+    for (let i = 0; i < 4; i++) {
+      const [x1, y1] = poly[i];
+      const [x2, y2] = poly[(i + 1) % 4];
+      const axis = [y2 - y1, x1 - x2];
+      const proj = pts => pts.map(([x, y]) => x * axis[0] + y * axis[1]);
+      const pa = proj(ca),
+        pb = proj(cb);
+      if (
+        Math.max(...pa) <= Math.min(...pb) ||
+        Math.max(...pb) <= Math.min(...pa)
+      )
+        return false;
+    }
+  return true;
+};
+
+/** Asserts no two labels overlap (or, with `only`, none with a label it picks). */
+const noOverlaps = (labels, only = () => true) => {
+  for (let i = 0; i < labels.length; i++)
+    for (let j = i + 1; j < labels.length; j++)
+      if (only(labels[i]) || only(labels[j]))
+        for (const a of labels[i].boxes)
+          for (const b of labels[j].boxes)
+            assert.ok(
+              !overlap(a, b),
+              `${labels[i].key} overlaps ${labels[j].key}`,
+            );
+};
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`trend labels on nearly coincident fits don't overlap (${renderer})`, async () => {
+    const equations = await render(page, coincident, {
+      renderer,
+      label: "equation",
+    });
+    assert.ok(equations.length >= 1, "at least one label");
+    noOverlaps(equations);
+    // Short names fit side by side: the second slides back from the end.
+    const names = await render(page, coincident, {renderer, label: true});
+    assert.strictEqual(names.length, 2, "both get a label");
+    noOverlaps(names);
+    const [first, second] = names;
+    assert.ok(
+      second.end < first.end - 20,
+      `the second slides back (${second.end} vs ${first.end})`,
+    );
+  });
+
+  it(`trend labels clear the line labels (${renderer})`, async () => {
+    for (const lineLabels of ["along", true]) {
+      const labels = await render(page, coincident, {
+        renderer,
+        label: true,
+        lineLabels,
+      });
+      const trend = labels.filter(l => `${l.key}`.startsWith("trend-label-"));
+      assert.ok(
+        trend.length >= 1,
+        `trend labels with lineLabels ${lineLabels}`,
+      );
+      assert.ok(labels.length > trend.length, "and line labels");
+      noOverlaps(labels, l => trend.includes(l));
+    }
+  });
+}

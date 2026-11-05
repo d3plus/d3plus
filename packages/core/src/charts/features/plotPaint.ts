@@ -575,8 +575,9 @@ export function plotEmit(
     );
   // Labels along the lines sit above the marks.
   const edges = plotEdges(xRange, yRange, pCtx.x2Height);
-  marks.push(...emitTrendLabels(viz, x, y, edges));
+  // Trend labels go last, to clear the line labels.
   marks.push(...emitAlongLabels(viz, marks, edges));
+  marks.push(...emitTrendLabels(viz, x, y, edges, marks));
   // The plot area reaches down through any room reserved under the value
   // axis's range (see `_plotInsetBottom`), so marks drawn there stay.
   const clipRange = [yRange[0], yRange[1] + (mCtx.insetBottom ?? 0)];

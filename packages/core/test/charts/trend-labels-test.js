@@ -4,7 +4,8 @@ import {useJsdom} from "~test/jsdom.js";
 import {
   emitTrendLabels,
   trendEquationLabel,
-  trendLabelPath,
+  lineLabelBoxes,
+  trendLabelSpot,
   trendLabelText,
 } from "../../src/charts/Plot/trendLabels.ts";
 import {pathLabelNodes} from "../../src/charts/features/pathLabels.ts";
@@ -76,44 +77,115 @@ it("trendLabelText — series name, Trend, equation, or a function", () => {
 
 const rect = {x0: 0, y0: 0, x1: 400, y1: 300};
 
-it("trendLabelPath — upright, inset from the end, above the line", () => {
+const place = (extra = {}) => ({
+  fontSize: 11,
+  lift: 3,
+  width: 60,
+  obstacles: [],
+  ...extra,
+});
+const xs = d =>
+  [...d.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g)].map(m => [+m[1], +m[2]]);
+
+it("trendLabelSpot — upright, inset from the end, above the line", () => {
   // A line running right to left reads left to right.
-  const d = trendLabelPath(
+  const spot = trendLabelSpot(
     [
       [300, 100],
       [100, 100],
     ],
     rect,
-    3,
-    11,
+    place(),
   );
-  assert.strictEqual(d, "M100,97L294,97");
+  assert.strictEqual(spot.d, "M234,97L294,97");
+  assert.ok(spot.boxes.length > 0);
   assert.strictEqual(
-    trendLabelPath(
+    trendLabelSpot(
       [
         [10, 10],
         [40, 10],
       ],
       rect,
-      3,
-      11,
+      place(),
     ),
     null,
     "too short for a label",
   );
-  // Only the part inside the plot is labeled.
+  // Only the part inside the plot is labeled, and a label longer than the
+  // line takes all of it (to be cut short with an ellipsis).
   assert.strictEqual(
-    trendLabelPath(
+    trendLabelSpot(
       [
         [-100, 100],
         [200, 100],
         [300, 100],
       ],
       rect,
-      0,
-      11,
-    ),
+      place({lift: 0, width: 500}),
+    ).d,
     "M200,100L294,100",
+  );
+});
+
+it("trendLabelSpot — slides back from a taken end, then tries below", () => {
+  const line = [
+    [100, 100],
+    [300, 100],
+  ];
+  // Another label sits on the end of this line's stretch.
+  const taken = {x: 270, y: 93, width: 40, height: 11, angle: 0};
+  const slid = trendLabelSpot(line, rect, place({obstacles: [taken]}));
+  const pts = xs(slid.d);
+  assert.ok(pts[pts.length - 1][0] < 244, `slides clear: ${slid.d}`);
+  assert.ok(
+    pts.every(p => p[1] === 97),
+    "still above the line",
+  );
+  // With the whole stretch above taken, it goes below.
+  const above = {x: 200, y: 93, width: 220, height: 11, angle: 0};
+  const below = trendLabelSpot(line, rect, place({obstacles: [above]}));
+  assert.ok(
+    xs(below.d).every(p => p[1] > 100),
+    `below: ${below.d}`,
+  );
+  // With both sides taken, there's no spot.
+  const under = {x: 200, y: 110, width: 220, height: 14, angle: 0};
+  assert.strictEqual(
+    trendLabelSpot(line, rect, place({obstacles: [above, under]})),
+    null,
+  );
+});
+
+it("lineLabelBoxes — the line labels at ends and along lines", () => {
+  const text = (key, datum, extra = {}) => ({
+    type: "text",
+    key,
+    x: 0,
+    y: 0,
+    datum,
+    font: {size: 10, anchor: "start"},
+    lines: [{text: "label", x: 0, y: 10, width: 30}],
+    ...extra,
+  });
+  const boxes = lineLabelBoxes([
+    {
+      type: "group",
+      key: "g",
+      transform: {x: 100, y: 0},
+      children: [
+        text("end", {data: {shape: "Line"}}),
+        text("point", {data: {shape: "Circle"}}),
+        text("line-label-along-a", undefined, {
+          path: {d: "M0,50L100,50"},
+        }),
+      ],
+    },
+  ]);
+  assert.ok(boxes.length > 1);
+  assert.strictEqual(boxes[0].x, 115, "offset by its group");
+  assert.ok(
+    boxes.slice(1).every(b => b.y < 50),
+    "the along label's boxes sit above its path",
   );
 });
 
