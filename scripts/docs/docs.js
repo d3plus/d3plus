@@ -61,18 +61,23 @@ function promoteCharts(docs, defMap) {
 }
 
 /**
- * Imports a package's built ESM entry for constructing its charts, with the
- * ResizeObserver stub Viz needs in Node; null when the build is missing.
+ * Imports a package's built ESM entry, with the ResizeObserver stub Viz needs
+ * in Node. Null for a package with no ESM build (such as @d3plus/types); a
+ * package that has one must be built first, since its charts and classes
+ * declare most of their config at runtime and the docs would silently lack it.
  */
-async function loadChartModule(folder) {
+async function loadBuiltModule(folder) {
+  const pkg = JSON.parse(
+    fs.readFileSync(path.resolve(folder, "package.json"), "utf8"),
+  );
+  if (!pkg.scripts?.["build:esm"]) return null;
   const entry = path.resolve(folder, "es/index.js");
-  if (!fs.existsSync(entry)) return null;
+  if (!fs.existsSync(entry))
+    throw new Error(
+      `${folder}/es/index.js not found; run \`pnpm -r --if-present run build:esm\` first`,
+    );
   stubResizeObserver();
-  try {
-    return await import(pathToFileURL(entry).href);
-  } catch {
-    return null;
-  }
+  return import(pathToFileURL(entry).href);
 }
 
 /** Viz's constructor wires a ResizeObserver; stub it so charts construct in Node. */
@@ -99,21 +104,8 @@ function stubResizeObserver() {
  */
 async function collectConfigDefaults(folder, stories) {
   const out = {};
-  const entry = path.resolve(folder, "es/index.js");
-  if (!fs.existsSync(entry)) {
-    log.warn(
-      `${folder}/es/index.js not found — run the build first to include schema-accessor argTypes`,
-    );
-    return out;
-  }
-  stubResizeObserver();
-  let mod;
-  try {
-    mod = await import(pathToFileURL(entry).href);
-  } catch (e) {
-    log.warn(`could not import ${entry} for schema argTypes: ${e.message}`);
-    return out;
-  }
+  const mod = await loadBuiltModule(folder);
+  if (!mod) return out;
   for (const story of stories) {
     if (story.kind !== "class") continue;
     const Ctor = mod[story.name];
@@ -419,7 +411,7 @@ async function generateMarkdown() {
     const chartsFrom = name === "@d3plus/types" ? "packages/core" : folder;
     const chartDefs = publicChartDefs(
       chartDefMap(`${chartsFrom}/src/charts`),
-      await loadChartModule(chartsFrom),
+      await loadBuiltModule(chartsFrom),
     );
 
     const reflections = (project.children || []).filter(r => {
