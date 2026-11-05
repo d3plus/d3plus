@@ -10,6 +10,7 @@ export {
 } from "./src/kernelDensity.js";
 export {default as largestRect} from "./src/largestRect.js";
 export {default as lineIntersection} from "./src/lineIntersection.js";
+export {default as louvain} from "./src/louvain.js";
 export {default as linearConfidence} from "./src/linearConfidence.js";
 export {default as linearPrediction} from "./src/linearPrediction.js";
 export {default as negativeSpace} from "./src/negativeSpace.js";
@@ -37,6 +38,12 @@ export type {
   RegressionType,
 } from "./src/regression.js";
 export type {Bounds, NegativeSpaceOptions} from "./src/negativeSpace.js";
+export type {
+  LouvainGraph,
+  LouvainId,
+  LouvainLink,
+  LouvainOptions,
+} from "./src/louvain.js";
 export type {PathCommand} from "./src/pathParse.js";
 export type {
   DensityPoint,
