@@ -19,6 +19,10 @@ updates:
     ignore:
       - dependency-name: typescript
         update-types: ["version-update:semver-major"]
+      # @astrojs/preact's Vite preset runs Babel 7 JSX plugins, which fail
+      # under Babel 8 (the docs site's dev server returns 500s).
+      - dependency-name: "@babel/core"
+        update-types: ["version-update:semver-major"]
     groups:
       d3:
         patterns: ["d3-*", "@types/d3-*"]

@@ -250,7 +250,12 @@ it(
         "/core/charts/bar-chart/",
       );
       // The "Stacked bars" example: the first with a `stacked` control. Found
-      // once, by index, since its controls unmount when the code tab opens.
+      // once, by index, since its controls unmount when the code tab opens,
+      // after the controls have hydrated.
+      await tab
+        .locator(".d3p-control-key", {hasText: /^stacked$/})
+        .first()
+        .waitFor();
       const index = await tab
         .locator(".d3p")
         .evaluateAll(els =>
@@ -260,6 +265,7 @@ it(
             ),
           ),
         );
+      assert.ok(index >= 0, "no playground with a `stacked` control");
       const playground = tab.locator(".d3p").nth(index);
       await playground.scrollIntoViewIfNeeded();
       await playground
