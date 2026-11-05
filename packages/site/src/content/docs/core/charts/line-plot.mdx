@@ -111,7 +111,7 @@ Give `confidence` a list of bands, outermost first, to nest several intervals ar
 
 ## Trend line
 
-Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. `trendLineConfig.label` writes the series name along each trend line (or `"equation"` its fitted equation and R²). On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation.
+Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. Each trend line is labeled with its fitted equation and R² by default (just R² along a time axis, as here); `trendLineConfig.label: true` names its series instead, and `false` leaves it unlabeled. On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation.
 
 <Playground chart="LinePlot" code={trendLine} controls={["trendLine","trendLineConfig"]} />
 

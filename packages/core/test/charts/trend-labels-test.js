@@ -204,7 +204,16 @@ it("emitTrendLabels — one inert, haloed label per fit, on its fitted stretch",
   const xs = [...label.path.d.matchAll(/[ML](-?[\d.]+),/g)].map(m => +m[1]);
   assert.ok(Math.max(...xs) < 200, label.path.d);
   assert.ok(Math.max(...xs) > 190, "inset just short of the end");
-  assert.deepStrictEqual(emitTrendLabels(viz(), scale, scale, rect), []);
+  assert.deepStrictEqual(
+    emitTrendLabels(viz({label: false}), scale, scale, rect),
+    [],
+    "label: false turns them off",
+  );
+  assert.strictEqual(
+    emitTrendLabels(viz(), scale, scale, rect)[0].lines[0].text,
+    "y = 2.1x + 3.4, R² = 0.84",
+    "the equation by default",
+  );
 });
 
 it("pathLabelNodes — legible color on the theme, cut short to its path", () => {

@@ -613,7 +613,10 @@ export interface TrendLineConfig {
       curve, reads upright whichever way the line runs, and is cut short with
       an ellipsis when the line is too short for it; a line too short for a
       few letters gets no label. It labels the fitted stretch, not a
-      projection. Defaults to `false`.
+      projection. Labels never overlap one another or the line labels: one
+      whose spot near its line's end is taken slides back along the line, or
+      moves below it, and is skipped only when no clear spot exists.
+      Defaults to `"equation"`; `false` turns labels off.
   */
   label?:
     | boolean

@@ -92,4 +92,19 @@ for (const renderer of ["svg", "canvas"]) {
     });
     assert.ok(!legendShows(hidden));
   });
+
+  it(`a trend line shows its equation by default (${renderer})`, async () => {
+    const out = await render(page, draw, {
+      renderer,
+      config: {trendLine: true, trendLineConfig: {group: "all"}},
+    });
+    // Along a year axis of numbers, the full equation.
+    assert.strictEqual(out.trend.length, 1);
+    assert.ok(/^y = .*, R² = \d\.\d\d$/.test(out.trend[0]), out.trend[0]);
+    const off = await render(page, draw, {
+      renderer,
+      config: {trendLine: true, trendLineConfig: {label: false}},
+    });
+    assert.deepStrictEqual(off.trend, []);
+  });
 }
