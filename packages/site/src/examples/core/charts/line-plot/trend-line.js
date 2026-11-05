@@ -20,5 +20,5 @@ const config = {
   x: "date",
   y: "value",
   trendLine: true,
-  trendLineConfig: {confidence: true},
+  trendLineConfig: {confidence: true, label: true},
 };

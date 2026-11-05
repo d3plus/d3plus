@@ -1707,6 +1707,13 @@ export interface D3plusConfig {
       each side on its own, with a dotted connector back to their line; when
       the plot is too short for them all, the last that fits reads "+N more".
       `lineLabelConfig` adds each end's value to its label.
+
+      `"along"` writes each series name along its own line instead, following
+      its curve: on the stretch that bends and slopes least and stays clear
+      of the other lines and labels, reading upright whichever way the line
+      runs. A line with no clear stretch for its name goes unlabeled, and the
+      plot leaves no room past the lines for these labels. The Line shape's
+      `labelConfig` sets their `fontSize`, `fontFamily`, and `fontWeight`.
   */
   lineLabels?: LineLabelsSetting;
   /**

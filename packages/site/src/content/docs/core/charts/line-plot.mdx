@@ -9,6 +9,7 @@ import basicExample from "~/examples/core/charts/line-plot/basic-example.js?raw"
 import lineLabels from "~/examples/core/charts/line-plot/line-labels.js?raw";
 import customLineLabels from "~/examples/core/charts/line-plot/custom-line-labels.js?raw";
 import lineLabelsBoth from "~/examples/core/charts/line-plot/line-labels-both.js?raw";
+import lineLabelsAlong from "~/examples/core/charts/line-plot/line-labels-along.js?raw";
 import secondaryYAxis from "~/examples/core/charts/line-plot/secondary-y-axis.js?raw";
 import lineVertexMarkers from "~/examples/core/charts/line-plot/line-vertex-markers.js?raw";
 import changingVertexMarkerStyle from "~/examples/core/charts/line-plot/changing-vertex-marker-style.js?raw";
@@ -60,6 +61,12 @@ Set `lineLabels: "both"` to name each line at **both ends**, and `lineLabelConfi
 
 <Playground chart="LinePlot" code={lineLabelsBoth} controls={["lineLabels","lineLabelConfig"]} />
 
+## Line labels along the lines
+
+Set `lineLabels: "along"` to write each series name along its own line, following its curve, instead of past an end. Each label goes on the stretch of its line that bends and slopes least and stays clear of the other lines and the labels placed before it, reading upright whichever way the line runs. A line with no clear stretch long enough for its name goes unlabeled. The plot leaves no room past the lines for these labels. A function of each row can choose `"along"` for some series and an end for others.
+
+<Playground chart="LinePlot" code={lineLabelsAlong} controls={["lineLabels"]} />
+
 ## Secondary y axis
 
 Plot a second metric against a right-hand axis with `y2`; because growth lives on a different scale than trade value, `y2Config.tickFormat` renders it as a percentage independent of the left axis.
@@ -104,7 +111,7 @@ Give `confidence` a list of bands, outermost first, to nest several intervals ar
 
 ## Trend line
 
-Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation.
+Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. `trendLineConfig.label` writes the series name along each trend line (or `"equation"` its fitted equation and R²). On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation.
 
 <Playground chart="LinePlot" code={trendLine} controls={["trendLine","trendLineConfig"]} />
 
