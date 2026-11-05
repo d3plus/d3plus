@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Clusters · Network</title>
+    <meta
+      name="description"
+      content="Networks with no color set, colored and labelled by the clusters Louvain finds: the HS4 product space, Les Misérables from nodes alone (with a cluster on/off switch), a dark theme with links colored by source, and custom cluster names."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 24px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 20px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .controls {
+        display: flex;
+        font-size: 12px;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+      .controls button[aria-pressed="true"] {
+        font-weight: 600;
+      }
+      .viz {
+        height: 460px;
+      }
+      .dark {
+        background: #1f2328;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      .wide .viz {
+        height: 640px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wide">
+      <h3>Product space (HS4), weighted by link strength</h3>
+      <div class="viz" id="products"></div>
+    </div>
+    <div>
+      <h3>Les Misérables (illustrative), from nodes and links alone</h3>
+      <div class="controls" data-option="cluster">
+        cluster:
+        <button value="true" aria-pressed="true">true</button>
+        <button value="false">false</button>
+      </div>
+      <div class="viz" id="lesmis"></div>
+    </div>
+    <div>
+      <h3>Dark theme, links colored by their source</h3>
+      <div class="viz dark" id="dark"></div>
+    </div>
+    <div class="wide">
+      <h3>Custom names: each cluster's size, from clusterConfig.label</h3>
+      <div class="viz" id="named"></div>
+    </div>
+  </body>
+
+  <script>
+    new d3plus.Network()
+      .select("#products")
+      .data("./oec2018.json")
+      .nodes("./network_hs4.json", resp => resp.nodes)
+      .links("./network_hs4.json", resp => resp.edges)
+      .label(d => d.HS4)
+      .linkSize(d => d.strength)
+      .render();
+
+    fetch("./lesmis.json")
+      .then(resp => resp.json())
+      .then(function (graph) {
+        var lesmis = new d3plus.Network()
+          .select("#lesmis")
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .render();
+
+        document
+          .querySelectorAll("[data-option] button")
+          .forEach(function (button) {
+            button.addEventListener("click", function () {
+              button.parentNode.querySelectorAll("button").forEach(b => {
+                b.setAttribute("aria-pressed", String(b === button));
+              });
+              lesmis.cluster(button.value === "true").render();
+            });
+          });
+
+        new d3plus.Network()
+          .select("#dark")
+          .theme("dark")
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .linkColor("source")
+          .render();
+
+        new d3plus.Network()
+          .select("#named")
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .clusterConfig({
+            label: (d, i, nodes) => `${d.id} and ${nodes.length - 1} more`,
+            labelConfig: {fontMax: 20, fontWeight: 400},
+          })
+          .render();
+      });
+  </script>
+</html>

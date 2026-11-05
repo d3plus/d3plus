@@ -97,6 +97,7 @@ export interface TranslationStrings {
   "working days": string;
   "Zoom In": string;
   "Zoom Out": string;
+  "{node} cluster": string;
 }
 
 /**
@@ -237,6 +238,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "working days": "\u0623\u064a\u0627\u0645 \u0639\u0645\u0644",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
+    "{node} cluster": "\u0645\u062c\u0645\u0648\u0639\u0629 {node}",
   },
   "es-ES": {
     "% of First Stage": "% de la Primera Etapa",
@@ -339,6 +341,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "working days": "d\u00edas laborables",
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
+    "{node} cluster": "Grupo de {node}",
   },
   "pt-BR": {
     "% of First Stage": "% da Primeira Etapa",
@@ -441,6 +444,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "working days": "dias \u00fateis",
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
+    "{node} cluster": "Grupo de {node}",
   },
   "zh-CN": {
     "% of First Stage":
@@ -546,6 +550,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "working days": "\u5de5\u4f5c\u65e5",
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
+    "{node} cluster": "{node}\u96c6\u7fa4",
   },
 };
 

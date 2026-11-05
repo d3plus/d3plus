@@ -16,6 +16,8 @@ import linkTooltips from "~/examples/core/charts/network/link-tooltips.js?raw";
 import linkColor from "~/examples/core/charts/network/link-color.js?raw";
 import linkLabels from "~/examples/core/charts/network/link-labels.js?raw";
 import selfLoops from "~/examples/core/charts/network/self-loops.js?raw";
+import clusters from "~/examples/core/charts/network/clusters.js?raw";
+import clusterNames from "~/examples/core/charts/network/cluster-names.js?raw";
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -30,6 +32,18 @@ Each node supplies its own `x`/`y` coordinates, so d3plus places nodes exactly r
 Omitting `x`/`y` from the nodes lets a force simulation position them automatically—reach for this when connections matter but there's no meaningful spatial layout.
 
 <Playground chart="Network" code={forceDirectedLayout} controls={["nodes","links"]} />
+
+## Clusters
+
+A network with no colors of its own is colored by the clusters in it: groups of nodes linked more to each other than to the rest, found with the [Louvain method](https://en.wikipedia.org/wiki/Louvain_method) and weighted by `linkSize`, so here the heaviest collaborations pull hardest. Each cluster is named after its most-connected node ("Fay cluster"). The legend lists the clusters, even though this network has only `nodes` and no `data`, and clicking one zooms to it. Each name is also written inside its cluster, where it fits clear of the nodes and their labels, shrinking down to `clusterConfig.labelConfig.fontMin` (10px) before it is left off; the legend still names every cluster.
+
+Clusters apply only while the chart's color is its default. Setting `color`, `colorScale`, `colorOrdinal`, or a `shapeConfig` fill colors the nodes as configured instead, and so does more than one `groupBy` level. A network with fewer than two clusters of two or more nodes (no links, or one cluster holding everything) keeps one color per node, as does a node with no links. Set `cluster` to `false` to turn clustering off. `linkColor: "source"` colors each link like its source node's cluster, and charts linked with `link` share the clusters' colors when they share their names.
+
+<Playground chart="Network" code={clusters} controls={["cluster","linkSize"]} />
+
+`clusterConfig.label` names each cluster: it receives the row of the cluster's most-connected node, the cluster's index (0 is the largest), and every member's row. `clusterConfig.labelConfig` styles the names written on the chart (`fontMax`, `fontMin`, `padding`, and TextBox settings such as `fontColor` or `fontWeight`), or `false` leaves them to the legend.
+
+<Playground chart="Network" code={clusterNames} controls={["clusterConfig"]} />
 
 ## Data driven link size
 
