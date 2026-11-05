@@ -25,11 +25,16 @@ import type {LinkEnds} from "../features/linkColor.js";
 import {cubicMidpoint} from "../features/linkLabelGeometry.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
+import {curvePoints} from "../features/linkLabelPath.js";
 import {uniqueLinkKeys} from "../features/linkKeys.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {circularLinkAnchor, circularRibbonD} from "./circularLinks.js";
+import {
+  circularLinkAnchor,
+  circularLinkD,
+  circularRibbonD,
+} from "./circularLinks.js";
 import type {CircularShape} from "./circularLinks.js";
 import {sankeyLabels} from "./labels.js";
 import {bandRibbonD} from "./ribbons.js";
@@ -112,6 +117,21 @@ export function sankeyLinkAnchor(link: SankeyLink): LinkAnchor | null {
   );
 }
 
+/**
+    The curve a link's label follows: its band's centerline, or a circular
+    link's center line around its return lane.
+*/
+export function sankeyLinkPath(link: SankeyLink): [number, number][] | null {
+  if (link.circular) return curvePoints(circularLinkD(link.circular));
+  if (typeof link.y0 !== "number" || typeof link.y1 !== "number") return null;
+  const x0 = link.source.x1;
+  const x1 = link.target.x0;
+  const xm = (x0 + x1) / 2;
+  return curvePoints(
+    `M${x0},${link.y0}C${xm},${link.y0} ${xm},${link.y1} ${x1},${link.y1}`,
+  );
+}
+
 /** The link labels, centered on their bands, clear of every node. */
 function sankeyLinkLabels(
   viz: VizInstance,
@@ -126,6 +146,7 @@ function sankeyLinkLabels(
       link,
       i,
       anchor: sankeyLinkAnchor(link),
+      path: sankeyLinkPath(link),
       priority: link.value,
     })),
     {

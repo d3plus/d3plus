@@ -41,7 +41,7 @@ Each node is labeled beside it, over its outgoing flows, or over its incoming fl
 
 ## Link color and labels
 
-`linkColor: "source"` colors each band like the node it leaves (`"target"` like the node it enters), drawn see-through so the bands it crosses show. A key or accessor colors bands by a value instead: numbers on the colorScale, strings as colors or categories. `linkLabel` writes a value at the middle of each band, along it or level (`linkLabelConfig.rotate`); a label that would cover a node or another label is hidden, the widest bands' labels kept first.
+`linkColor: "source"` colors each band like the node it leaves (`"target"` like the node it enters), drawn see-through so the bands it crosses show. A key or accessor colors bands by a value instead: numbers on the colorScale, strings as colors or categories. `linkLabel` writes a value at the middle of each band, following its curve or level (`linkLabelConfig.rotate`); a label that would cover a node or another label is hidden, the widest bands' labels kept first.
 
 <Playground chart="Sankey" code={linkColor} controls={["linkColor","linkLabel","linkLabelConfig"]} />
 

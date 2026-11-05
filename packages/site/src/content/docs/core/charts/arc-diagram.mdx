@@ -49,7 +49,7 @@ With no colors of its own, an ArcDiagram colors its nodes by cluster as [Network
 
 ## Link color and labels
 
-`linkColor` also takes a key or accessor: numbers color the arcs on the colorScale, and strings are colors or categories (links with no value keep the theme's gray). Here the rework loops are drawn in orange. `linkLabel` writes a value at the top of each arc, hidden when it would cover a node or another label.
+`linkColor` also takes a key or accessor: numbers color the arcs on the colorScale, and strings are colors or categories (links with no value keep the theme's gray). Here the rework loops are drawn in orange. `linkLabel` writes a value along the top of each arc, following its curve (and around the far side of a loop), hidden when it would cover a node or another label.
 
 <Playground chart="ArcDiagram" code={linkLabels} controls={["linkColor","linkLabel","linkLabelConfig"]} />
 

@@ -90,7 +90,7 @@ Hovering a link highlights it and the two nodes it connects, and its tooltip nam
 
 ## Link labels
 
-`linkLabel` writes a key or accessor's value at the middle of each link, between the nodes it joins, on a pad of the chart's background so it reads over the line. `linkLabelConfig.rotate` runs the text along each link (`"along"`, the default, kept upright) or keeps it level (`"horizontal"`), and takes font settings such as `fontSize` and `fontColor`. A label that would cover a node, a node's label, or another link's label is hidden, the thickest links' labels kept first.
+`linkLabel` writes a key or accessor's value at the middle of each link, between the nodes it joins, on a pad of the chart's background so it reads over the line. `linkLabelConfig.rotate` runs the text along each link (`"along"`, the default, kept upright) or keeps it level (`"horizontal"`), and takes font settings such as `fontSize` and `fontColor`. On a curved link, a self-loop or a bundled edge (see [Edge bundling](#edge-bundling)), the text follows the curve over a pad that bends with it, cut short with an ellipsis where the curve has too little room; a loop too tight for text to follow keeps a straight label. A label that would cover a node, a node's label, or another link's label is hidden, the thickest links' labels kept first.
 
 <Playground chart="Network" code={linkLabels} controls={["linkLabel","linkLabelConfig"]} />
 
