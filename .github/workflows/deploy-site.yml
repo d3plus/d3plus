@@ -29,8 +29,10 @@ jobs:
           node-version: 26.x
           cache: pnpm
       - run: pnpm install
-      # The API reference reads each package's built type declarations.
+      # The API reference reads each package's built type declarations, and
+      # the config each class declares at runtime from its built ESM.
       - run: pnpm -r --if-present run build:types
+      - run: pnpm -r --if-present run build:esm
       - run: pnpm --filter @d3plus/site run manifest
       - run: pnpm --filter @d3plus/site build
       - uses: actions/upload-pages-artifact@v5

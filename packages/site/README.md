@@ -19,8 +19,8 @@ It is private and not published to npm.
 Astro needs Node 22.23 or later.
 
 ```sh
-pnpm -r --if-present run build:esm       # the generator reads the built packages
 pnpm -r --if-present run build:types
+pnpm -r --if-present run build:esm       # the generator reads the built packages
 pnpm --filter @d3plus/site run manifest  # writes src/data/api.json
 pnpm --filter @d3plus/site run dev       # http://localhost:4000
 ```
