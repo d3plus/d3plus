@@ -231,6 +231,14 @@ it("textLineBoxes — each line's glyph box, rotated with its node", () => {
     text("start", {}, [{text: "abc", x: 0, y: 8, width: 0}]),
   ]);
   assert.ok(measured.width > 0, "an unmeasured line is measured");
+  // Right-to-left start text extends left from its x.
+  const [rtl] = textLineBoxes([
+    {
+      ...text("start", {x: 0, y: 0}, [{text: "ab", x: 30, y: 8, width: 20}]),
+      font: {size: 10, anchor: "start", dir: "rtl"},
+    },
+  ]);
+  assert.strictEqual(rtl.x, 20);
   assert.deepStrictEqual(
     textLineBoxes([text("start", {}, [{text: "", x: 0, y: 0, width: 5}])]),
     [],

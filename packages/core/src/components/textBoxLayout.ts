@@ -8,15 +8,12 @@ import {max, min, sum} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
 import {fontExists, parseSides, textWidth} from "@d3plus/dom";
 import {textWrap} from "@d3plus/text";
+import type {TextWrapResult} from "@d3plus/text";
 
 import {fontStack} from "./fontStack.js";
 import type TextBox from "./TextBox.js";
-
-/** A parsed inline run (segment of a wrapped line with optional bold/italic). */
-interface LineRun {
-  text: string;
-  style?: {weight?: number | string; style?: "normal" | "italic"};
-}
+import {justifyWords} from "./textBoxWords.js";
+import type {JustifyWord, LineRun} from "./textBoxWords.js";
 
 /** Internal shape produced by the data reduce in render(). */
 export interface TextBoxDatum {
@@ -26,6 +23,13 @@ export interface TextBoxDatum {
   lines: string[];
   /** Per-line parsed runs when `_html` is configured; null when plain text. */
   lineRuns: LineRun[][] | null;
+  /** Whether each line ended at a newline in the text. */
+  hardBreaks: boolean[];
+  /**
+      For justified text, each line's words with their widths (null for a
+      line that can't be split into words); null for other alignments.
+  */
+  lineWords: (JustifyWord[] | null)[] | null;
   fC: string;
   fStroke: string;
   fSW: number;
@@ -194,13 +198,13 @@ function assembleTextBoxDatum(
     h: number;
     vA: string;
     style: Record<string, string | number>;
-    widths: number[];
-    truncated: boolean;
+    wrap: TextWrapResult;
+    /** The indices (in the wrap's lines) of the lines drawn. */
+    kept: number[];
     padding: {top: number; right: number; bottom: number; left: number};
   },
 ): TextBoxDatum {
-  const {lineData, line, fS, lH, w, h, vA, style, widths, truncated, padding} =
-    layout;
+  const {lineData, line, fS, lH, w, h, vA, style, wrap, kept, padding} = layout;
   const tH = line * lH;
   const r = box.schema.rotate(d, i);
   let yP =
@@ -216,6 +220,12 @@ function assembleTextBoxDatum(
   // Pre-compute per-line runs from HTML markup, carrying open-tag state
   // across lines so a multi-line <b> continues to bold subsequent lines.
   const lineRuns = buildLineRuns(box, lineData);
+  const tA = box.schema.textAnchor(d, i);
+  // A line the wrap didn't produce (the ellipsis drawn when nothing fit) has
+  // no wrap data, so it reads as a plain, paragraph-ending line.
+  const wrapped = kept.length === lineData.length;
+  const pick = <T>(arr: T[], fallback: T): T[] =>
+    lineData.map((_, l) => (wrapped ? (arr[kept[l]] ?? fallback) : fallback));
 
   return {
     aH: box.schema.ariaHidden(d, i),
@@ -223,6 +233,11 @@ function assembleTextBoxDatum(
     i,
     lines: lineData,
     lineRuns,
+    hardBreaks: pick(wrap.hardBreaks, true),
+    lineWords:
+      tA === "justify"
+        ? justifyWords(pick(wrap.lineWords, []), lineRuns, style)
+        : null,
     fC: box.schema.fontColor(d, i),
     fStroke: box.schema.fontStroke(d, i),
     fSW: box.schema.fontStrokeWidth(d, i),
@@ -234,10 +249,10 @@ function assembleTextBoxDatum(
     fW: style["font-weight"],
     id: box.schema.id(d, i),
     pE: box.schema.pointerEvents(d, i),
-    tA: box.schema.textAnchor(d, i),
+    tA,
     vA: box.schema.verticalAlign(d, i),
-    widths,
-    truncated,
+    widths: pick(wrap.widths, 0),
+    truncated: wrap.truncated,
     fS,
     lH,
     w,
@@ -247,6 +262,18 @@ function assembleTextBoxDatum(
     y: box.schema.y(d, i) + yP + padding.top,
   };
 }
+
+/** The wrap result of a box too small to wrap into. */
+const EMPTY_WRAP: TextWrapResult = {
+  hardBreaks: [],
+  lines: [],
+  lineWords: [],
+  nextWord: 0,
+  sentence: "",
+  truncated: false,
+  widths: [],
+  words: [],
+};
 
 /**
     Computes the laid-out text box for a single data point, or null when the
@@ -269,11 +296,8 @@ export function computeTextBoxDatum(
     lH = resize ? fS * lHRatio : box.schema.lineHeight(d, i),
     line = 1,
     lineData: string[] = [],
-    wrapResults: {lines: string[]; truncated: boolean; widths: number[]} = {
-      lines: [],
-      truncated: false,
-      widths: [],
-    };
+    kept: number[] = [],
+    wrapResults: TextWrapResult = EMPTY_WRAP;
 
   // Text is measured with the one family fontExists finds installed, never a
   // list: a list would measure with whichever family the browser picks, which
@@ -302,7 +326,9 @@ export function computeTextBoxDatum(
     .overflow(box.schema.overflow(d, i))
     .shape(shape as "square" | "circle")
     .width(w)
-    .split(box.schema.split);
+    .split(box.schema.split)
+    .ellipsis((text: string, n: number) => box.schema.ellipsis(text, n))
+    .truncateWord(!!box.schema.truncateWord(d, i));
 
   const fMax = box.schema.fontMax(d, i),
     fMin = box.schema.fontMin(d, i),
@@ -314,9 +340,10 @@ export function computeTextBoxDatum(
     @private
 */
   function checkSize(): void {
+    // The wrap ends a truncated last line with the ellipsis itself, measured
+    // to fit; when nothing fit, the ellipsis decides what to draw instead.
     const truncate = () => {
       if (line < 1) lineData = [that.schema.ellipsis("", line)];
-      else lineData[line - 1] = that.schema.ellipsis(lineData[line - 1], line);
     };
 
     if (resize) {
@@ -330,7 +357,10 @@ export function computeTextBoxDatum(
     }
 
     wrapResults = wrapper(t!);
-    lineData = wrapResults.lines.filter((l: string) => l !== "");
+    kept = wrapResults.lines.flatMap((l: string, k: number) =>
+      l !== "" ? [k] : [],
+    );
+    lineData = kept.map(k => wrapResults.lines[k]);
     line = lineData.length;
 
     if (wrapResults.truncated) {
@@ -364,8 +394,8 @@ export function computeTextBoxDatum(
     h,
     vA,
     style,
-    widths: wrapResults.widths,
-    truncated: wrapResults.truncated,
+    wrap: wrapResults,
+    kept,
     padding,
   });
 }

@@ -9,6 +9,8 @@ import basicExample from "~/examples/text/text-wrap/basic-example.js?raw";
 import circleShape from "~/examples/text/text-wrap/circle-shape.js?raw";
 import fontStyling from "~/examples/text/text-wrap/font-styling.js?raw";
 import maxLinesTruncation from "~/examples/text/text-wrap/max-lines-truncation.js?raw";
+import truncateWord from "~/examples/text/text-wrap/truncate-word.js?raw";
+import lineWords from "~/examples/text/text-wrap/line-words.js?raw";
 
 Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
 
@@ -35,5 +37,17 @@ Based on the defined styles and dimensions, breaks a string into an array of str
 `maxLines(2)` keeps only the first two lines and sets `truncated: true` so a caller such as `TextBox` knows to add an ellipsis.
 
 <Calls code={maxLinesTruncation} label="textWrap: Max lines truncation" />
+
+## Ellipsis and cut words
+
+`ellipsis` ends a truncated wrap's last line: a string to append, or a function `(text, line) => string`. The ended line is measured, and words come off its end until it fits the width. `truncateWord(true)` cuts the word that did not fit (or a first word wider than the line) to the longest start that fits with the ellipsis, between whole characters so an emoji is never split. `nextWord` is the index in `words` of the first word that did not fit.
+
+<Calls code={truncateWord} label="textWrap: Ellipsis and cut words" />
+
+## Words for justified text
+
+`lineWords` splits each line into the units justified text spreads apart, a word with the spaces after it or a single CJK character or emoji, with their widths (not counting those spaces). `hardBreaks` marks the lines that end at a newline, which justified text leaves at the start. `TextBox` uses both for `textAnchor: "justify"`.
+
+<Calls code={lineWords} label="textWrap: Words for justified text" />
 
 <ApiReference name="textWrap" pkg="text" />

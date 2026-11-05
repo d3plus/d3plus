@@ -69,6 +69,37 @@ it("sameTextLayout compares text, place, and size", () => {
     ),
     "turned",
   );
+  assert.ok(
+    !sameTextLayout(
+      label("A", 10),
+      label("A", 10, {font: {size: 12, anchor: "middle"}}),
+    ),
+    "re-anchored",
+  );
+  const words = xs => ({
+    lines: [
+      {
+        text: "A B",
+        x: 0,
+        y: 0,
+        width: 20,
+        runs: xs.map((x, i) => ({text: i ? "B" : "A ", x})),
+      },
+    ],
+  });
+  assert.ok(
+    sameTextLayout(
+      label("A B", 10, words([0, 12])),
+      label("A B", 10, words([0, 12])),
+    ),
+  );
+  assert.ok(
+    !sameTextLayout(
+      label("A B", 10, words([0, 12])),
+      label("A B", 10, words([0, 30])),
+    ),
+    "words spread apart",
+  );
 });
 
 it("interpolateScene fade-swaps a moved label instead of gliding it", () => {

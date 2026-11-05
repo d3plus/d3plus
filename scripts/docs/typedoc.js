@@ -85,6 +85,10 @@ export function typeToString(type) {
       return `${elementString(type.elementType)}?`;
     case "rest":
       return `...${elementString(type.elementType)}`;
+    case "templateLiteral":
+      return `\`${type.head}${type.tail
+        .map(([t, text]) => `\${${typeToString(t)}}${text}`)
+        .join("")}\``;
     default:
       return "*";
   }

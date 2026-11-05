@@ -395,11 +395,22 @@ export interface TextBoxConfig {
   /**
       Handles truncated lines, returning the new line value. Passed the line's
       text and number; by default appends an ellipsis to every line except a
-      first word that cannot fit (which returns "").
+      first word that cannot fit (which returns ""). The ended line is
+      measured, and words come off its end until it fits the box.
   */
   ellipsis?: (text: string, line: number) => string;
+  /**
+      Lets truncated text cut a word: the word that did not fit (or a first
+      word wider than the box) is cut to the longest start that fits with the
+      `ellipsis`, by whole characters, so emoji and accented letters are never
+      split. Defaults to `false`, which only breaks between words, and draws
+      nothing when the first word does not fit.
+  */
+  truncateWord?: Accessor<boolean>;
   /** The padding as a CSS shorthand string or number. Defaults to 0. */
   padding?: Accessor<string | number>;
+  /** The rotation of each text box, in degrees about its `rotateAnchor`. */
+  rotate?: Accessor<number>;
   /** The anchor point around which to rotate the text box. */
   rotateAnchor?: Accessor<[number, number]>;
   /** The word split function: given a string, returns it split into an array of words. */
@@ -412,6 +423,27 @@ export interface TextBoxConfig {
   x?: Accessor<number>;
   /** The y position (top edge) for each text box. */
   y?: Accessor<number>;
+  /**
+      The horizontal alignment of each line in its box. `"start"`,
+      `"middle"`, and `"end"` align lines to the box's start edge, center, or
+      end edge (the start is the right edge in right-to-left text).
+      `"justify"` spreads each line's words across the box, or its characters
+      in CJK text, leaving a paragraph's last line and any line that ends at a
+      newline start-aligned. A percentage such as `"25%"` places each line
+      that share of the way across the box, so `"0%"`, `"50%"`, and `"100%"`
+      match start, middle, and end; percentages follow the writing direction.
+  */
+  textAnchor?: Accessor<"start" | "middle" | "end" | "justify" | `${number}%`>;
+  /** The vertical alignment of the lines in each box. */
+  verticalAlign?: Accessor<"top" | "middle" | "bottom">;
+  /** Whether the text receives pointer events (`"none"` lets them through to what is underneath). */
+  pointerEvents?: Accessor<"auto" | "none">;
+  /**
+      The inline HTML tags to draw as styles: a map of tag names to CSS
+      declarations, `true` for the defaults (`<b>`, `<strong>`, `<i>`, `<em>`),
+      or `false` to draw tags as text.
+  */
+  html?: boolean | Record<string, string>;
   /** The outline text wraps within, `"square"` or `"circle"`, or a `(datum, index)` accessor. */
   shape?:
     "square" | "circle" | ((d: DataPoint, i: number) => "square" | "circle");

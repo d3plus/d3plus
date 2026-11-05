@@ -2,6 +2,7 @@ import type {ClipShape, LineNode, SceneNode, TextNode} from "../scene.js";
 import {apply} from "./transform.js";
 import type {Mat} from "./transform.js";
 import {pathFor, pathHit} from "./canvasNodePaint.js";
+import {lineLeft} from "../textAlign.js";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -93,14 +94,8 @@ export function hitLine(node: LineNode, lx: number, ly: number): boolean {
 /** Loose bounding-box hit test over a text node's laid-out lines. */
 export function hitText(node: TextNode, lx: number, ly: number): boolean {
   const size = node.font?.size ?? 12;
-  const anchor = node.font?.anchor;
   for (const ln of node.lines) {
-    const left =
-      anchor === "middle"
-        ? ln.x - ln.width / 2
-        : anchor === "end"
-          ? ln.x - ln.width
-          : ln.x;
+    const left = lineLeft(ln, node.font);
     if (
       lx >= left &&
       lx <= left + ln.width &&

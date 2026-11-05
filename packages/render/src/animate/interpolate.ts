@@ -24,6 +24,7 @@ import type {
   PathNode,
   RectNode,
   SceneNode,
+  TextLine,
   TextNode,
   Transform,
   TransitionRect,
@@ -315,12 +316,19 @@ export function sameTextLayout(a: TextNode, b: TextNode): boolean {
     fb = b.font ?? {};
   if (fa.size !== fb.size || fa.family !== fb.family || fa.weight !== fb.weight)
     return false;
+  if (fa.anchor !== fb.anchor) return false;
   const la = a.lines ?? [],
     lb = b.lines ?? [];
+  // Positioned runs (justified words) move with their x.
+  const runXs = (l: TextLine) => (l.runs ?? []).map(r => r.x).join(",");
   return (
     la.length === lb.length &&
     la.every(
-      (l, i) => l.text === lb[i].text && l.x === lb[i].x && l.y === lb[i].y,
+      (l, i) =>
+        l.text === lb[i].text &&
+        l.x === lb[i].x &&
+        l.y === lb[i].y &&
+        runXs(l) === runXs(lb[i]),
     )
   );
 }
