@@ -221,7 +221,9 @@ function labelFont(viz: VizInstance): Record<string, unknown> {
 
 /**
     The labels for every series `lineLabels` runs along its line, placed one
-    by one so each stays clear of the lines and the labels before it.
+    by one so each stays clear of the lines and the labels before it. A
+    plot (or panel) with a single line labels none. Counts the lines and
+    labels into `viz._alongStats`, for the legend (see `alongLegend.ts`).
     @param viz The chart.
     @param marks The plot's drawn marks, its Lines among them.
     @param rect The plot area.
@@ -237,7 +239,13 @@ export function emitAlongLabels(
   const along = lines.filter(l =>
     rowLabelsAlong(setting, (l.row.data ?? l.row) as DataPoint, l.row.i ?? 0),
   );
-  if (!along.length) return [];
+  const stats = viz._alongStats;
+  if (stats) {
+    stats.lines += lines.length;
+    stats.requested += along.length;
+  }
+  // A lone line needs no name.
+  if (!along.length || lines.length < 2) return [];
   const font = labelFont(viz);
   const fontSize = (font.fontSize as number) ?? PATH_LABEL_FONT_SIZE;
   const style = {
@@ -251,12 +259,21 @@ export function emitAlongLabels(
   for (const line of lines)
     for (const piece of line.pieces) grid.add(resample(piece, 2));
   const ctx: StretchContext = {grid, rect, fontSize, lift: 3.5};
+  // A series drawn as several lines (observed and predicted, say) is named
+  // once: its later lines count as named when an earlier one was.
+  const named = new Set<string>();
   const labels = along.flatMap(line => {
     const text = `${viz._drawLabel(line.row, line.row.i ?? 0)}`;
+    if (named.has(text)) {
+      if (stats) stats.placed++;
+      return [];
+    }
     const length = (textWidth(text, style) as number) + fontSize;
     const stretch = bestStretch(line.pieces, length, ctx);
     if (!stretch) return [];
     grid.add(labelBand(stretch, ctx));
+    named.add(text);
+    if (stats) stats.placed++;
     return [
       {
         key: `line-label-along-${line.key}`,

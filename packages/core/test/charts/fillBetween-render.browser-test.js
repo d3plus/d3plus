@@ -14,7 +14,9 @@ const helpers = () => {
       const el = document.createElement("div");
       el.style.cssText = `width:${size[0]}px;height:${size[1]}px`;
       document.body.appendChild(el);
-      const viz = new window.d3plus[Chart]()
+      const viz = (c => (c.lineLabels ? c.lineLabels(false) : c))(
+        new window.d3plus[Chart](),
+      )
         .select(el)
         .detectVisible(false)
         .duration(0)

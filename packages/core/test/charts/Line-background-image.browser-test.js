@@ -27,7 +27,9 @@ const probe = async ({cls, config, renderer, image}) => {
   const el = document.createElement("div");
   el.style.cssText = "width:600px;height:400px;";
   document.body.appendChild(el);
-  const viz = new window.d3plus[cls]()
+  const viz = (c => (c.lineLabels ? c.lineLabels(false) : c))(
+    new window.d3plus[cls](),
+  )
     .select(el)
     .config({data: series, groupBy: "id", x: "year", y: "value", duration: 0})
     .config(config)

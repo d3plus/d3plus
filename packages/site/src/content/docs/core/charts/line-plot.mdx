@@ -39,13 +39,13 @@ Creates a line plot based on an array of data.
 
 ## Basic example
 
-A minimal line plot: `groupBy` splits the data into one line per `id`, with `x` and `y` mapping each point's position.
+A minimal line plot: `groupBy` splits the data into one line per `id`, with `x` and `y` mapping each point's position. Each line is named along it by default (`lineLabels: "along"`), so the chart needs no legend: the legend shows only when a line couldn't be named, and a chart with a single line names none.
 
 <Playground chart="LinePlot" code={basicExample} controls={["x","y"]} />
 
 ## Line labels
 
-Set `lineLabels: true` to print each series name at the **end of its line**, letting you trace a color straight to its label without consulting a legend.
+Set `lineLabels: true` to print each series name at the **end of its line** instead, letting you trace a color straight to its label without consulting a legend. `lineLabels: false` turns the labels off and brings back the legend.
 
 <Playground chart="LinePlot" code={lineLabels} controls={["lineLabels"]} />
 
@@ -63,7 +63,7 @@ Set `lineLabels: "both"` to name each line at **both ends**, and `lineLabelConfi
 
 ## Line labels along the lines
 
-Set `lineLabels: "along"` to write each series name along its own line, following its curve, instead of past an end. Each label goes on the stretch of its line that bends and slopes least and stays clear of the other lines and the labels placed before it, reading upright whichever way the line runs. A line with no clear stretch long enough for its name goes unlabeled. The plot leaves no room past the lines for these labels. A function of each row can choose `"along"` for some series and an end for others.
+LinePlot's default, `lineLabels: "along"`, writes each series name along its own line, following its curve, instead of past an end. Each label goes on the stretch of its line that bends and slopes least and stays clear of the other lines and the labels placed before it, reading upright whichever way the line runs. A line with no clear stretch long enough for its name goes unlabeled. The plot leaves no room past the lines for these labels. A function of each row can choose `"along"` for some series and an end for others.
 
 <Playground chart="LinePlot" code={lineLabelsAlong} controls={["lineLabels"]} />
 

@@ -5,7 +5,7 @@
     <title>LineLabelsAlong · LinePlot</title>
     <meta
       name="description"
-      content="Series names along their curved lines (lineLabels: along), on a normal and a reversed x axis, with a trend line label."
+      content="LinePlot's default along-line labels (legend hidden when every line is named, shown when one isn't), a reversed x axis, and a trend line label."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -28,8 +28,12 @@
 
   <body>
     <div>
-      <h3>lineLabels: "along"</h3>
+      <h3>Default: every line named along it, no legend</h3>
       <div class="chart" id="along"></div>
+    </div>
+    <div>
+      <h3>Default: one line too short to name, so the legend stays</h3>
+      <div class="chart" id="short"></div>
     </div>
     <div>
       <h3>Reversed x axis, with a labeled trend line</h3>
@@ -54,8 +58,17 @@
         groupBy: "id",
         x: "year",
         y: "value",
-        lineLabels: "along",
-        legend: false,
+        shapeConfig: {Line: {curve: "monotoneX"}},
+      })
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#short")
+      .config({
+        data: data.filter(d => d.id !== "Japan" || d.year < 2002),
+        groupBy: "id",
+        x: "year",
+        y: "value",
         shapeConfig: {Line: {curve: "monotoneX"}},
       })
       .render();

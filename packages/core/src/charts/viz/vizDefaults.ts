@@ -179,6 +179,8 @@ function initDataDefaults(viz: Viz): void {
 */
 function initLegendDefaults(viz: Viz): void {
   viz.schema.legend = (config: Record<string, unknown>, arr: DataPoint[]) => {
+    // Along-line labels that name every line stand in for the legend.
+    if (viz._alongLegendHide) return false;
     if (viz._legendCategories) return arr.length > 1;
     const maxGrouped = max(arr, (d: DataPoint, i: number) => {
       // A threshold bucket is one entry, however many groups it holds.
@@ -188,6 +190,7 @@ function initLegendDefaults(viz: Viz): void {
     });
     return arr.length > 1 && (maxGrouped ?? 0) <= 2;
   };
+  viz._defaultLegend = viz.schema.legend;
   viz._legendClass = new Legend();
   viz.schema.legendConfig = {
     label: legendLabel.bind(viz),

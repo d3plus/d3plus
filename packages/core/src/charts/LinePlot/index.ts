@@ -15,6 +15,11 @@ export const linePlotDef: ChartDefinition = {
 
   fields: [
     {key: "discrete", default: "x"},
+    /**
+        LinePlot names each series along its own line by default (see
+        `lineLabels`), and its legend hides when every line got a name.
+    */
+    {key: "lineLabels", default: "along"},
     {key: "shape", default: constant("Line"), coerce: "const"},
   ],
 };

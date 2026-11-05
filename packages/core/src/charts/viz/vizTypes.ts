@@ -574,6 +574,12 @@ export interface VizInstance {
   _legendDepth?: number;
   /** The color category each legend entry stands for, when the legend is labelled by color rather than groupBy. */
   _legendCategories?: WeakMap<DataPoint, string>;
+  /** The legend setting the chart starts with, which along-line labels may hide (see `Plot/alongLegend.ts`). */
+  _defaultLegend?: unknown;
+  /** Whether this draw hides the default legend for along-line labels. */
+  _alongLegendHide?: boolean;
+  /** This draw's along-line label counts (see `Plot/alongLegend.ts`). */
+  _alongStats?: {lines: number; requested: number; placed: number};
   _colorScalePosition?: (config: VizInstance) => string | false;
   _colorScale?: false | string | ((d: DataPoint, i: number) => string);
   _timeline?: boolean;
