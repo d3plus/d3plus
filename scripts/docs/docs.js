@@ -37,7 +37,9 @@ import {
 } from "./stubs/chartDefs.js";
 import {
   buildPublicDocs,
+  declarationText,
   getCommentText,
+  sourceOrder,
   tocSummary,
   typeToNames,
 } from "./typedoc.js";
@@ -189,7 +191,7 @@ function collectInterfaceDocs(project) {
         for (const prop of child.children || []) {
           if (prop.kind !== ReflectionKind.Property) continue;
           const entry = {
-            names: typeToNames(prop.type),
+            names: sourceOrder(typeToNames(prop.type), declarationText(prop)),
             description: getCommentText(prop.comment),
           };
           props[prop.name] = entry;
