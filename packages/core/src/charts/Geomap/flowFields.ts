@@ -1,11 +1,15 @@
 /**
     The config Geomap's links add: `links` and how they are sized, curved,
-    colored, labeled, and pointed, and the tooltips that read them.
+    bundled, colored, labeled, and pointed, and the tooltips that read them.
 */
 
 import type {ConfigField} from "../../fluent.js";
 import constant from "../../utils/constant.js";
-import {linkSizeMaxField, linkStyleFields} from "../features/linkFields.js";
+import {
+  linkBundleFields,
+  linkSizeMaxField,
+  linkStyleFields,
+} from "../features/linkFields.js";
 import {linkTooltipConfig} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -29,6 +33,7 @@ export function geomapLinkFields(): ConfigField[] {
     */
     {key: "arrowSize"},
     ...linkStyleFields(),
+    ...linkBundleFields(),
     {key: "links", default: []},
     /**
         How far each link bows into an arc, as a share of the distance

@@ -39,7 +39,12 @@ import {
   linkMeta,
   linkTooltipConfig,
 } from "../features/linkInteraction.js";
-import {linkSizeMaxField, linkStyleFields} from "../features/linkFields.js";
+import {
+  linkBundleFields,
+  linkSizeMaxField,
+  linkStyleFields,
+} from "../features/linkFields.js";
+import {polylineBox} from "../features/polyline.js";
 import {isSelfLoopMark, unionBox} from "../features/selfLoops.js";
 import type {FocusBox} from "../features/linkFocus.js";
 import type {LinkDatum} from "../features/linkInteraction.js";
@@ -66,11 +71,16 @@ const networkLinks = (viz: VizInstance): GraphLink[] =>
   ((viz.ctx.networkCtx as {links?: GraphLink[]} | undefined)?.links ??
     []) as GraphLink[];
 
-/** The box a link's focus zooms to: its two ends, and its loop when it has one. */
+/**
+    The box a link's focus zooms to: its two ends, and its loop or bundled
+    path when it has one.
+*/
 function networkLinkBox(viz: VizInstance, d: LinkDatum): FocusBox | null {
   const box = linkEndsBox(viz, d);
-  const loop = networkLinks(viz).find(l => l.datum === d)?.loop;
-  return box && loop ? unionBox(box, loop.box) : box;
+  const link = networkLinks(viz).find(l => l.datum === d);
+  if (box && link?.loop) return unionBox(box, link.loop.box);
+  if (box && link?.points) return unionBox(box, polylineBox(link.points));
+  return box;
 }
 
 /** Grows a node focus's `[x0, x1]`/`[y0, y1]` domains around the node's loops. */
@@ -378,6 +388,7 @@ export const networkDef: ChartDefinition = {
     */
     {key: "arrowSize"},
     ...linkStyleFields(),
+    ...linkBundleFields(),
     ...loaderFormatFields("links", "nodes"),
     {key: "links", default: []},
     /**

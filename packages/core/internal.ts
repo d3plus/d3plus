@@ -2065,3 +2065,44 @@ export {
   parallelOffsets,
   slideOnRim,
 } from "./src/charts/Rings/ringsParallel.js";
+export {polylineArrowEdge} from "./src/charts/features/curvedArrows.js";
+export {polylineReach} from "./src/charts/features/polyline.js";
+export {
+  EDGE_BUNDLE_DEFAULTS,
+  angleCompatibility,
+  bundleEdges,
+  compatibilityGraph,
+  edgeBundleCache,
+  edgeBundleKey,
+  edgeBundleOptions,
+  edgeCompatibility,
+  maxLengthRatio,
+  positionCompatibility,
+  scaleCompatibility,
+  subdividePolyline,
+  visibilityCompatibility,
+} from "./src/charts/features/edgeBundling.js";
+export type {
+  CompatibilityGraph,
+  EdgeBundleCache,
+  EdgeBundleOptions,
+  Segment,
+} from "./src/charts/features/edgeBundling.js";
+export {
+  bsplinePolyline,
+  simplifyPolyline,
+  smoothBundle,
+  straightenPolyline,
+} from "./src/charts/features/edgeBundlingSmooth.js";
+export {
+  bundleLinkPaths,
+  linkBundleCache,
+} from "./src/charts/features/linkBundle.js";
+export {linkBundleFields} from "./src/charts/features/linkFields.js";
+export {
+  bundleNetworkLinks,
+  bundledLinkAnchor,
+  bundledLinkEdge,
+  bundledTipBack,
+} from "./src/charts/Network/bundle.js";
+export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";

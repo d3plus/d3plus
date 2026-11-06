@@ -199,6 +199,13 @@ the marks at its ends instead; clicking it dims the rest of the map. Its links
 are styled by `linkColor` rather than `shapeConfig.Path`, which styles the map's
 shapes. See the [Geomap flow map example](/core/charts/geomap/#flow-map).
 
+With `linkBundle` on, Network and Geomap links draw as bundled curves, and
+every link interaction follows the curve: the hit area runs along it, a
+tooltip appears wherever you point at it, and clicking it zooms to fit the
+whole curve as well as its two ends. Hovering, zooming, and panning reuse
+the bundling worked out for the layout, so they stay as quick as with
+straight links. See the [Network edge bundling example](/core/charts/network/#edge-bundling).
+
 ## Legend
 
 A legend is shown automatically for grouped data. Clicking an entry toggles that

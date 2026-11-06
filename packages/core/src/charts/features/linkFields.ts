@@ -1,11 +1,12 @@
 /**
     The link color and label config the node-link charts (Network, Rings,
-    Sankey, ArcDiagram) share, and the widest-link field Network and Geomap
-    share.
+    Sankey, ArcDiagram) share, and the widest-link and link bundling fields
+    Network and Geomap share.
 */
 
 import type {ConfigField} from "../../fluent.js";
 import {optionalAccessor} from "../viz/vizFields.js";
+import {EDGE_BUNDLE_DEFAULTS} from "./edgeBundling.js";
 import {coerceLinkColor} from "./linkColor.js";
 import {LINK_LABEL_DEFAULTS} from "./linkLabels.js";
 
@@ -52,4 +53,22 @@ export function linkSizeMaxField(fallback?: number): ConfigField {
   return fallback === undefined
     ? {key: "linkSizeMax"}
     : {key: "linkSizeMax", default: fallback};
+}
+
+/** The `linkBundle` and `linkBundleConfig` fields (Network and Geomap). */
+export function linkBundleFields(): ConfigField[] {
+  return [
+    /**
+        Bundles the links: links running the same way near each other are
+        drawn pulled together, so the main flows read through the clutter.
+        Defaults to `false`.
+        @type {boolean}
+    */
+    {key: "linkBundle", default: false},
+    /**
+        Tunes `linkBundle`: `strength` (0.85), `cycles` (6), `iterations`
+        (50), `compatibility` (0.4), and `smoothing` (true).
+    */
+    {key: "linkBundleConfig", merge: true, default: {...EDGE_BUNDLE_DEFAULTS}},
+  ];
 }

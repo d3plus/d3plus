@@ -47,6 +47,7 @@ import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {bundledLinkAnchor, bundledLinkEdge} from "./bundle.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 interface NetworkLink {
@@ -55,6 +56,7 @@ interface NetworkLink {
   size?: number;
   datum?: LinkDatum;
   loop?: SelfLoopGeometry;
+  points?: [number, number][];
 }
 type NetworkNode = DataPoint & {
   __d3plus__?: true;
@@ -96,6 +98,8 @@ function networkLinkArrows(
     fill: typeof stroke === "string" ? stroke : undefined,
   };
   if (link.loop) return selfLoopArrows({...common, loop: link.loop});
+  if (link.points)
+    return bundledLinkEdge(viz, {...link, points: link.points}, common).arrows;
   return straightEdgeArrows({
     ...common,
     source: link.source as NetworkNode,
@@ -124,6 +128,17 @@ function networkVisibleD(
   });
   if (!trims.source && !trims.target) return d;
   if (link.loop) return selfLoopD(link.loop, trims);
+  if (link.points)
+    return bundledLinkEdge(
+      viz,
+      {...link, points: link.points},
+      {
+        datum,
+        i,
+        strokeWidth,
+        keyPrefix: "",
+      },
+    ).d;
   return straightEdgeD(
     link.source as NetworkNode,
     link.target as NetworkNode,
@@ -209,14 +224,16 @@ function networkLinkLabels(
           i,
           anchor: link.loop
             ? link.loop.apex
-            : link.source && link.target
-              ? segmentMidpoint(
-                  [link.source.x, link.source.y],
-                  [link.target.x, link.target.y],
-                  (link.source as NetworkNode).r ?? 0,
-                  (link.target as NetworkNode).r ?? 0,
-                )
-              : null,
+            : link.points
+              ? bundledLinkAnchor({...link, points: link.points})
+              : link.source && link.target
+                ? segmentMidpoint(
+                    [link.source.x, link.source.y],
+                    [link.target.x, link.target.y],
+                    (link.source as NetworkNode).r ?? 0,
+                    (link.target as NetworkNode).r ?? 0,
+                  )
+                : null,
           priority: link.size,
         },
       ];

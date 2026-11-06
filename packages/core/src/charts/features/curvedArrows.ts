@@ -17,8 +17,9 @@ import type {SceneNode} from "@d3plus/render";
 import {arrowNode, cubicPathD, trimCubic} from "./edgeArrows.js";
 import type {EdgeArrowTrims} from "./edgeArrows.js";
 import {cubicPoint} from "./linkLabelGeometry.js";
+import {polylinePath, trimPolyline} from "./polyline.js";
+import type {Point} from "./polyline.js";
 
-type Point = [number, number];
 type Cubic = [Point, Point, Point, Point];
 
 /** One arrowed end of an edge: its head's tip and direction, its base on the path, and where the stroke ends. */
@@ -124,6 +125,56 @@ export function cubicArrowEdge(
       )
     : undefined;
   return {d: chordEndsPathD(cubicPathD(body), source, target), source, target};
+}
+
+/** Whether `points` is a list of runs rather than one polyline. */
+const isRuns = (points: Point[] | Point[][]): points is Point[][] =>
+  Array.isArray(points[0]?.[0]);
+
+/**
+    A polyline edge's visible stroke and its arrowed ends: each head's tip
+    sits `tipBack` pixels back along the polyline from its end, its base
+    `size` further back, and the stroke follows the polyline between the
+    bases, then runs straight along each head's axis to its `cut`.
+    @param points The edge, from its source end to its target end: one
+      polyline, or the runs of a path cut into pieces (a map projection's),
+      whose first run starts at the source and last run ends at the target.
+    @param trims The edge's arrow ends, size, and stroke trims (see `edgeArrowTrims`).
+    @param tipBack How far back along the polyline each end's tip sits.
+*/
+export function polylineArrowEdge(
+  points: Point[] | Point[][],
+  trims: EdgeArrowTrims,
+  tipBack: {source: number; target: number} = {source: 0, target: 0},
+): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
+  const runs = (isRuns(points) ? points : [points]).filter(r => r.length);
+  const {ends, size} = trims;
+  const first = runs[0];
+  const last = runs[runs.length - 1];
+  const head = (run: Point[], back: number, trim: number): ArrowedEnd =>
+    arrowAlongChord(
+      pathPointBack(run, back),
+      pathPointBack(run, back + size),
+      trim,
+    );
+  const source =
+    ends.source && first
+      ? head([...first].reverse(), tipBack.source, trims.source)
+      : undefined;
+  const target =
+    ends.target && last ? head(last, tipBack.target, trims.target) : undefined;
+  const body = runs.map((run, k) =>
+    trimPolyline(
+      run,
+      k === 0 && source ? tipBack.source + size : 0,
+      k === runs.length - 1 && target ? tipBack.target + size : 0,
+    ),
+  );
+  return {
+    d: chordEndsPathD(body.map(polylinePath).join(""), source, target),
+    source,
+    target,
+  };
 }
 
 const round = (n: number): number => Math.round(n * 100) / 100;

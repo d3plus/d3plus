@@ -43,6 +43,8 @@ export interface GraphLink {
   datum?: LinkDatum;
   /** The loop a link from a node to itself draws as, once laid out. */
   loop?: SelfLoopGeometry;
+  /** The link's bundled path, from its source to its target (see `linkBundle`). */
+  points?: [number, number][];
 }
 
 /** A node record as a link end. */

@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>EdgeBundling · Geomap</title>
+    <meta
+      name="description"
+      content="Long-haul flows between US cities with linkBundle: the cross-country links gather into shared corridors; the globe option leaves them unbundled."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      #controls {
+        font: 13px sans-serif;
+        padding: 6px 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <label><input id="bundle" type="checkbox" checked /> linkBundle</label>
+      <label
+        >strength
+        <input id="strength" type="range" min="0" max="1" step="0.05" />
+      </label>
+      <label
+        >arrows
+        <select id="arrows">
+          <option value="false" selected>false</option>
+          <option value="target">target</option>
+        </select>
+      </label>
+      <label
+        >projection
+        <select id="projection">
+          <option value="geoAlbersUsa" selected>geoAlbersUsa</option>
+          <option value="geoOrthographic">geoOrthographic</option>
+        </select>
+      </label>
+    </div>
+    <div id="viz" style="height: 560px"></div>
+  </body>
+
+  <script>
+    const cities = [
+      {city: "New York", lon: -74.01, lat: 40.71, pop: 8.3},
+      {city: "Los Angeles", lon: -118.24, lat: 34.05, pop: 3.9},
+      {city: "Chicago", lon: -87.63, lat: 41.88, pop: 2.7},
+      {city: "Houston", lon: -95.37, lat: 29.76, pop: 2.3},
+      {city: "Phoenix", lon: -112.07, lat: 33.45, pop: 1.6},
+      {city: "Philadelphia", lon: -75.17, lat: 39.95, pop: 1.6},
+      {city: "San Antonio", lon: -98.49, lat: 29.42, pop: 1.5},
+      {city: "San Diego", lon: -117.16, lat: 32.72, pop: 1.4},
+      {city: "Dallas", lon: -96.8, lat: 32.78, pop: 1.3},
+      {city: "Seattle", lon: -122.33, lat: 47.61, pop: 0.75},
+      {city: "Denver", lon: -104.99, lat: 39.74, pop: 0.72},
+      {city: "Washington", lon: -77.04, lat: 38.91, pop: 0.69},
+      {city: "Boston", lon: -71.06, lat: 42.36, pop: 0.65},
+      {city: "Atlanta", lon: -84.39, lat: 33.75, pop: 0.5},
+      {city: "Miami", lon: -80.19, lat: 25.76, pop: 0.44},
+      {city: "Minneapolis", lon: -93.27, lat: 44.98, pop: 0.43},
+      {city: "New Orleans", lon: -90.07, lat: 29.95, pop: 0.38},
+      {city: "Portland", lon: -122.68, lat: 45.52, pop: 0.65},
+      {city: "Salt Lake City", lon: -111.89, lat: 40.76, pop: 0.2},
+      {city: "Las Vegas", lon: -115.14, lat: 36.17, pop: 0.64},
+      {city: "Detroit", lon: -83.05, lat: 42.33, pop: 0.63},
+      {city: "Charlotte", lon: -80.84, lat: 35.23, pop: 0.87},
+    ];
+
+    // A flow between every pair of cities more than 20° of longitude apart,
+    // weighted by their populations: the cross-country links.
+    const links = [];
+    cities.forEach((a, i) =>
+      cities.slice(i + 1).forEach(b => {
+        if (Math.abs(a.lon - b.lon) > 20)
+          links.push({
+            source: a.lon < b.lon ? a.city : b.city,
+            target: a.lon < b.lon ? b.city : a.city,
+            trips: Math.round(a.pop * b.pop * 100),
+          });
+      }),
+    );
+
+    const strength = document.getElementById("strength");
+    strength.value = 0.85;
+
+    const chart = new d3plus.Geomap().select("#viz").config({
+      data: cities,
+      groupBy: "city",
+      legend: false,
+      point: d => [d.lon, d.lat],
+      pointSize: d => d.pop,
+      pointSizeMin: 3,
+      pointSizeMax: 10,
+      links,
+      linkBundle: true,
+      linkSize: d => d.trips,
+      linkSizeMin: 0.5,
+      linkSizeMax: 4,
+      projection: "geoAlbersUsa",
+      tiles: false,
+      topojson: "./State.json",
+    });
+    chart.render();
+
+    const value = id => document.getElementById(id).value;
+    let shown = "geoAlbersUsa";
+    document.getElementById("controls").addEventListener("change", () => {
+      const projection = value("projection");
+      if (projection !== shown) {
+        shown = projection;
+        chart.projection(projection);
+        if (projection === "geoOrthographic") chart.projectionRotate([98, -38]);
+      }
+      const arrows = value("arrows");
+      chart
+        .config({
+          linkBundle: document.getElementById("bundle").checked,
+          linkBundleConfig: {strength: +strength.value},
+          arrows: arrows === "false" ? false : arrows,
+        })
+        .render();
+    });
+  </script>
+</html>
