@@ -59,7 +59,7 @@ it("SlopeChart — user config wins over its defaults", () => {
   const fresh = new SlopeChart();
   assert.strictEqual(fresh.lineLabels(), "both", "per instance");
   assert.deepStrictEqual(fresh.yConfig().labels, []);
-  assert.strictEqual(new LinePlot().lineLabels(), undefined);
+  assert.strictEqual(new LinePlot().lineLabels(), "along");
 });
 
 it("slopePeriods — distinct periods in order", () => {

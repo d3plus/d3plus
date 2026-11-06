@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>TextPath</title>
+    <meta
+      name="description"
+      content="TextBox text along arc, wave, and circle paths (SVG beside Canvas), side: right, and a hitbox that picks between lines and words."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+
+      .col {
+        display: inline-block;
+        height: 560px;
+        position: relative;
+        vertical-align: top;
+        width: 460px;
+      }
+
+      .col h3,
+      #hover {
+        font: 600 13px sans-serif;
+        margin: 4px 8px;
+      }
+
+      .col > * {
+        left: 0;
+        position: absolute;
+        top: 24px;
+      }
+
+      #hitboxes {
+        border-top: 1px solid #ddd;
+        position: relative;
+      }
+
+      .outline {
+        outline: 1px dashed #e33;
+        pointer-events: none;
+        position: absolute;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="col" id="svgCol"><h3>SVG</h3></div>
+    <div class="col" id="canvasCol"><h3>Canvas</h3></div>
+    <section id="hitboxes">
+      <p id="hover">Hover the boxes: hitbox: false (left), true (right)</p>
+    </section>
+  </body>
+
+  <script>
+    var W = 460,
+      H = 530;
+    var paths = [
+      {
+        id: "arc",
+        d: "M30,170 A200,140 0 0 1 430,170",
+        text: "Text follows an arc from one end to the other",
+        textAnchor: "middle",
+      },
+      {
+        id: "under",
+        d: "M110,200 A120,80 0 0 1 350,200",
+        text: "side: right sits under the arc",
+        textAnchor: "middle",
+        side: "right",
+      },
+      {
+        id: "wave",
+        d: "M20,300 C100,220 180,380 260,300 S380,220 440,300",
+        text: "A wave carries the words up and down along its curve",
+        textAnchor: "25%",
+      },
+      {
+        id: "circle",
+        d: "M230,360 A75,75 0 1 1 229.9,360 Z",
+        text: "Around the circle the text goes, all the way around and back again",
+      },
+    ];
+
+    function pathBox() {
+      return new d3plus.TextBox()
+        .data(paths)
+        .textPath(d => d.d)
+        .side(d => d.side || "left")
+        .textAnchor(d => d.textAnchor || "start")
+        .truncateWord(true)
+        .fontSize(17)
+        .x(0)
+        .y(0);
+    }
+
+    function guides(parent) {
+      var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", W);
+      svg.setAttribute("height", H);
+      paths.forEach(function (p) {
+        var path = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "path",
+        );
+        path.setAttribute("d", p.d);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", "#e33");
+        path.setAttribute("stroke-opacity", "0.4");
+        svg.appendChild(path);
+      });
+      parent.appendChild(svg);
+    }
+
+    var svgCol = document.getElementById("svgCol");
+    var canvasCol = document.getElementById("canvasCol");
+    guides(svgCol);
+    guides(canvasCol);
+
+    var svgText = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgText.setAttribute("width", W);
+    svgText.setAttribute("height", H);
+    svgCol.appendChild(svgText);
+    pathBox().select(svgText).render();
+
+    var canvasHost = document.createElement("div");
+    canvasCol.appendChild(canvasHost);
+    var canvas = new d3plus.CanvasRenderer();
+    canvas.mount({container: canvasHost, width: W, height: H});
+    canvas.drawScene({
+      width: W,
+      height: H,
+      root: {type: "group", key: "root", children: [pathBox().toScene()]},
+    });
+
+    // Hitboxes: the same label without and with one, drawn with an outline
+    // for the demo. Hovering reports what the renderer picks.
+    var section = document.getElementById("hitboxes");
+    var hover = document.getElementById("hover");
+    var host = document.createElement("div");
+    host.style.position = "relative";
+    section.appendChild(host);
+    var labels = [false, true].map(function (hitbox, i) {
+      return {
+        id: hitbox ? "with" : "without",
+        hitbox: hitbox,
+        text: "Wide gaps between ABCDEFGHIJKLMNOP",
+        x: 20 + i * 330,
+      };
+    });
+    labels.forEach(function (d) {
+      var outline = document.createElement("div");
+      outline.className = "outline";
+      outline.style.left = d.x + "px";
+      outline.style.top = "20px";
+      outline.style.width = "280px";
+      outline.style.height = "110px";
+      host.appendChild(outline);
+    });
+    var picker = new d3plus.SvgRenderer();
+    picker.mount({container: host, width: 700, height: 150});
+    picker.drawScene({
+      width: 700,
+      height: 150,
+      root: {
+        type: "group",
+        key: "root",
+        children: [
+          new d3plus.TextBox()
+            .data(labels)
+            .hitbox(d => d.hitbox)
+            .textAnchor("justify")
+            .fontSize(16)
+            .lineHeight(36)
+            .x(d => d.x)
+            .y(20)
+            .width(280)
+            .height(110)
+            .toScene(),
+        ],
+      },
+    });
+    picker.on(function (e) {
+      if (e.type === "mousemove" || e.type === "mouseenter")
+        hover.textContent = e.pick
+          ? "Picked: " + e.pick.datum.id
+          : "Picked: nothing";
+    });
+  </script>
+</html>

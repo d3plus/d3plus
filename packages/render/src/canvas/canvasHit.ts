@@ -3,6 +3,7 @@ import {apply} from "./transform.js";
 import type {Mat} from "./transform.js";
 import {pathFor, pathHit} from "./canvasNodePaint.js";
 import {lineLeft} from "../textAlign.js";
+import {hitPathText} from "../textPath.js";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -93,6 +94,7 @@ export function hitLine(node: LineNode, lx: number, ly: number): boolean {
 
 /** Loose bounding-box hit test over a text node's laid-out lines. */
 export function hitText(node: TextNode, lx: number, ly: number): boolean {
+  if (node.path) return hitPathText(node, lx, ly);
   const size = node.font?.size ?? 12;
   for (const ln of node.lines) {
     const left = lineLeft(ln, node.font);

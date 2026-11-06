@@ -9,6 +9,7 @@ import basicExample from "~/examples/core/charts/line-plot/basic-example.js?raw"
 import lineLabels from "~/examples/core/charts/line-plot/line-labels.js?raw";
 import customLineLabels from "~/examples/core/charts/line-plot/custom-line-labels.js?raw";
 import lineLabelsBoth from "~/examples/core/charts/line-plot/line-labels-both.js?raw";
+import lineLabelsAlong from "~/examples/core/charts/line-plot/line-labels-along.js?raw";
 import secondaryYAxis from "~/examples/core/charts/line-plot/secondary-y-axis.js?raw";
 import lineVertexMarkers from "~/examples/core/charts/line-plot/line-vertex-markers.js?raw";
 import changingVertexMarkerStyle from "~/examples/core/charts/line-plot/changing-vertex-marker-style.js?raw";
@@ -38,13 +39,13 @@ Creates a line plot based on an array of data.
 
 ## Basic example
 
-A minimal line plot: `groupBy` splits the data into one line per `id`, with `x` and `y` mapping each point's position.
+A minimal line plot: `groupBy` splits the data into one line per `id`, with `x` and `y` mapping each point's position. Each line is named along it by default (`lineLabels: "along"`), so the chart needs no legend: the legend shows only when a line couldn't be named, and a chart with a single line names none.
 
 <Playground chart="LinePlot" code={basicExample} controls={["x","y"]} />
 
 ## Line labels
 
-Set `lineLabels: true` to print each series name at the **end of its line**, letting you trace a color straight to its label without consulting a legend.
+Set `lineLabels: true` to print each series name at the **end of its line** instead, letting you trace a color straight to its label without consulting a legend. `lineLabels: false` turns the labels off and brings back the legend.
 
 <Playground chart="LinePlot" code={lineLabels} controls={["lineLabels"]} />
 
@@ -59,6 +60,12 @@ Override the default series-name label via `shapeConfig.Line.label` — here a f
 Set `lineLabels: "both"` to name each line at **both ends**, and `lineLabelConfig: {value: true}` to add each end's value, formatted like the y axis's ticks (set `valueFormat` to format it yourself). The plot makes room on the left for the first labels, and labels that would overlap are spread apart on each side, with a dotted connector back to their line. `"start"` labels only the left end, and `true` (or `"end"`) only the right.
 
 <Playground chart="LinePlot" code={lineLabelsBoth} controls={["lineLabels","lineLabelConfig"]} />
+
+## Line labels along the lines
+
+LinePlot's default, `lineLabels: "along"`, writes each series name along its own line, following its curve, instead of past an end. Each label goes on the stretch of its line that bends and slopes least and stays clear of the other lines and the labels placed before it, reading upright whichever way the line runs. A line with no clear stretch long enough for its name goes unlabeled. The plot leaves no room past the lines for these labels. A function of each row can choose `"along"` for some series and an end for others.
+
+<Playground chart="LinePlot" code={lineLabelsAlong} controls={["lineLabels"]} />
 
 ## Secondary y axis
 
@@ -104,7 +111,7 @@ Give `confidence` a list of bands, outermost first, to nest several intervals ar
 
 ## Trend line
 
-Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation.
+Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. Each trend line is labeled with its fitted equation and R² by default (just R² along a time axis, as here); `trendLineConfig.label: true` names its series instead, and `false` leaves it unlabeled. On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation.
 
 <Playground chart="LinePlot" code={trendLine} controls={["trendLine","trendLineConfig"]} />
 

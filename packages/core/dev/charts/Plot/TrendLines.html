@@ -5,7 +5,7 @@
     <title>TrendLines · Plot</title>
     <meta
       name="description"
-      content="Linear, polynomial and exponential trend lines with confidence bands across chart types."
+      content="Linear, polynomial and exponential trend lines with confidence bands and labels (series names and equations) across chart types."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -29,11 +29,11 @@
 
   <body>
     <div>
-      <h3>Scatter, per series (renderer toggle below)</h3>
+      <h3>Scatter, per series, labeled (renderer toggle below)</h3>
       <div class="chart" id="scatter"></div>
     </div>
     <div>
-      <h3>Scatter, all points + 95% confidence band</h3>
+      <h3>Scatter, all points + 95% confidence band, equation label</h3>
       <div class="chart" id="band"></div>
     </div>
     <div>
@@ -57,7 +57,7 @@
       <div class="chart" id="stacked"></div>
     </div>
     <div>
-      <h3>Exponential, log y axis, zoomable</h3>
+      <h3>Exponential, log y axis, zoomable, equation label</h3>
       <div class="chart" id="exp"></div>
     </div>
     <div>
@@ -108,6 +108,7 @@
       x: "x",
       y: "y",
       trendLine: true,
+      trendLineConfig: {label: true},
     });
 
     make("Plot", "#band", {
@@ -116,7 +117,7 @@
       x: "x",
       y: "y",
       trendLine: "linear",
-      trendLineConfig: {group: "all", confidence: true},
+      trendLineConfig: {group: "all", confidence: true, label: "equation"},
     });
 
     make("Plot", "#poly", {
@@ -186,6 +187,7 @@
       yConfig: {scale: "log"},
       zoom: true,
       trendLine: "exponential",
+      trendLineConfig: {label: "equation"},
     });
 
     document.querySelector("#canvas").addEventListener("change", e => {

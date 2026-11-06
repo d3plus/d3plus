@@ -20,6 +20,8 @@ const config = {
   x: "date",
   y: "value",
   trendLine: true,
+  // The trend lines' labels name each fit; the lines need no names of their own.
+  lineLabels: false,
   trendLineConfig: {
     confidence: true,
     projection: {to: 2030},

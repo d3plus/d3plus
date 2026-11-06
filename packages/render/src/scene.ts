@@ -1,4 +1,5 @@
 import {lineLeft} from "./textAlign.js";
+import {pathTextBoxes} from "./textPath.js";
 
 /** A data row carried on a scene node, for event handlers and hit-testing. */
 export interface DataPoint {
@@ -436,6 +437,22 @@ export interface TextLine {
   runs?: TextRun[];
 }
 
+/**
+    The path a text node's line follows (an SVG `<textPath>`). The line's `x`
+    is then its distance along the path, read with the node's anchor and
+    direction, and its `y` is unused: the baseline sits on the path.
+*/
+export interface TextPath {
+  /** The path's `d`, in the node's local coordinates. */
+  d: string;
+  /**
+      Which side of the path the text sits on, read in the path's direction:
+      `"left"` (the default) follows the path as drawn, and `"right"` follows
+      it backwards, so the text sits on its other side.
+  */
+  side?: "left" | "right";
+}
+
 export interface TextNode extends NodeBase {
   type: "text";
   x: number;
@@ -443,6 +460,8 @@ export interface TextNode extends NodeBase {
   /** Pre-wrapped, pre-positioned lines — backends do not re-measure or re-wrap. */
   lines: TextLine[];
   font: FontSpec;
+  /** Draws the first line along a path instead of at its x/y. */
+  path?: TextPath;
   /**
       Layout box width/height (the wrap box the lines were positioned in). Used
       only as a fallback to center a font-size transition's scale when a node has
@@ -500,6 +519,13 @@ export function textVisualCenter(node: TextNode): [number, number] {
   const fs = node.font?.size ?? 0;
   if (!lines || !lines.length)
     return [(node.width ?? 0) / 2, (node.height ?? 0) / 2];
+  if (node.path) {
+    // Text on a path: the middle of the boxes its glyphs cover.
+    const boxes = pathTextBoxes(node);
+    if (!boxes.length) return [0, 0];
+    const mid = boxes[Math.floor(boxes.length / 2)];
+    return [mid.x, mid.y];
+  }
   let minX = Infinity,
     maxX = -Infinity,
     minY = Infinity,

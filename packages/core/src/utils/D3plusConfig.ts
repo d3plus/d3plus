@@ -434,6 +434,37 @@ export interface TextBoxConfig {
       match start, middle, and end; percentages follow the writing direction.
   */
   textAnchor?: Accessor<"start" | "middle" | "end" | "justify" | `${number}%`>;
+  /**
+      An SVG path `d` (or a `(datum, index)` accessor returning one) for the
+      text to follow, in coordinates relative to the box's `x` and `y`. The
+      text is drawn as one line with its baseline on the path, wrapped to the
+      path's length past `startOffset` (and cut short with the `ellipsis` and
+      `truncateWord`). `textAnchor` places it along that stretch of path:
+      `"middle"` centers it, `"end"` ends it at the path's end, a percentage
+      places it that share along, and `"justify"` reads as `"start"`, since
+      the one line ends its paragraph. Falsy draws the text in its box.
+  */
+  textPath?: Accessor<string | false | null>;
+  /**
+      Where along the `textPath` the text's room begins: a distance in pixels,
+      or a percentage of the path's length such as `"25%"`. Defaults to 0.
+  */
+  startOffset?: Accessor<number | `${number}%`>;
+  /**
+      Which side of the `textPath` the text sits on, read in the path's
+      direction: `"left"` (the default) follows the path as drawn, with the
+      text above a left-to-right path, and `"right"` follows it backwards, so
+      the text sits on its other side.
+  */
+  side?: Accessor<"left" | "right">;
+  /**
+      Draws a transparent rect behind each box, so a hover or click anywhere
+      in the box (padding included), not just on its glyphs, reaches the
+      box's datum. `true`, or `{padding}` (a number or CSS shorthand) to
+      reach further than the box. Text on a path gets the path's bounds grown
+      by a font size. Defaults to `false`.
+  */
+  hitbox?: Accessor<boolean | {padding?: number | string}>;
   /** The vertical alignment of the lines in each box. */
   verticalAlign?: Accessor<"top" | "middle" | "bottom">;
   /** Whether the text receives pointer events (`"none"` lets them through to what is underneath). */
@@ -572,6 +603,31 @@ export interface TrendLineConfig {
   strokeWidth?: number;
   /** Line dash pattern. Defaults to `"6 4"`. */
   strokeDasharray?: string;
+  /**
+      Labels each trend line along its own path, near its end and just above
+      it, in the line's color: `true` names the series ("Trend" for a line
+      fit to every point), `"equation"` shows its fitted equation and R²
+      (e.g. "y = 2.1x + 3.4, R² = 0.84", or just R² along a time axis), and
+      a function of the fit (its `label`, `color`, and regression `fit` with
+      `coefficients` and `r2`) returns any text. The text follows the line's
+      curve, reads upright whichever way the line runs, and is cut short with
+      an ellipsis when the line is too short for it; a line too short for a
+      few letters gets no label. It labels the fitted stretch, not a
+      projection. Labels never overlap one another or the line labels: one
+      whose spot near its line's end is taken slides back along the line, or
+      moves below it, and is skipped only when no clear spot exists.
+      Defaults to `"equation"`; `false` turns labels off.
+  */
+  label?:
+    | boolean
+    | "equation"
+    | ((fit: {
+        label: string;
+        color: string;
+        fit: {coefficients: number[]; r2: number; type: string};
+      }) => string | false | null | undefined);
+  /** TextBox config for the trend line labels, such as `fontSize` (default 11) or `fontColor`. */
+  labelConfig?: Record<string, unknown>;
   /** Other Line shape config. */
   [key: string]: unknown;
 }
@@ -1654,6 +1710,17 @@ export interface D3plusConfig {
       each side on its own, with a dotted connector back to their line; when
       the plot is too short for them all, the last that fits reads "+N more".
       `lineLabelConfig` adds each end's value to its label.
+
+      `"along"` writes each series name along its own line instead, following
+      its curve: on the stretch that bends and slopes least and stays clear
+      of the other lines and labels, reading upright whichever way the line
+      runs. A line with no clear stretch for its name goes unlabeled, a chart
+      (or small-multiples panel) with a single line names none, and the plot
+      leaves no room past the lines for these labels. The Line shape's
+      `labelConfig` sets their `fontSize`, `fontFamily`, and `fontWeight`.
+      When every line gets a name, the default legend hides (a `legend` of
+      your own always wins). LinePlot defaults to `"along"`; other charts
+      default to no labels.
   */
   lineLabels?: LineLabelsSetting;
   /**

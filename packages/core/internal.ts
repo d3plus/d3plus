@@ -2106,3 +2106,4 @@ export {
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";
+export {CanvasRenderer, SvgRenderer} from "@d3plus/render";

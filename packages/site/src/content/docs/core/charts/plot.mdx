@@ -19,6 +19,7 @@ import trendLine from "~/examples/core/charts/plot/trend-line.js?raw";
 import trendLineConfidence from "~/examples/core/charts/plot/trend-line-confidence.js?raw";
 import trendLineTypes from "~/examples/core/charts/plot/trend-line-types.js?raw";
 import trendLineProjection from "~/examples/core/charts/plot/trend-line-projection.js?raw";
+import trendLineLabels from "~/examples/core/charts/plot/trend-line-labels.js?raw";
 import multipleShapes from "~/examples/core/charts/plot/multiple-shapes.js?raw";
 import sortingShapes from "~/examples/core/charts/plot/sorting-shapes.js?raw";
 import sizeLegend from "~/examples/core/charts/plot/size-legend.js?raw";
@@ -111,6 +112,12 @@ Besides `"linear"`, `trendLine` accepts `"exponential"`, `"logarithmic"`, `"powe
 On a continuous axis, `trendLineConfig.projection` with `{to}` extends the fit to that value; the x axis widens to fit it. A number would step that many times past the last value, by the median gap between values. With `confidence`, the band beyond the data is a prediction interval, wider than the confidence band, since it covers where individual new points could fall.
 
 <Playground chart="Plot" code={trendLineProjection} controls={["trendLine","trendLineConfig"]} />
+
+## Trend line labels
+
+`trendLineConfig.label` writes a label along each trend line, near its end and just above it, in the line's color over a halo of the chart's background. It defaults to `"equation"`, the fitted equation and R² as the tooltip reports them (R² alone along a time axis); `false` turns it off. `true` names the series ("Trend" for a line fit to every point), and a function of the fit returns any text. Labels never overlap: one whose spot near the line's end is taken slides back along its line, or moves below it, and is skipped only when its line has no clear spot. The text follows the line, even a curved fit on a log axis, reads upright whichever way the line runs, and is cut short with an ellipsis when the line is too short for it. `labelConfig` styles it, such as its `fontSize`.
+
+<Playground chart="Plot" code={trendLineLabels} controls={["trendLine","trendLineConfig"]} />
 
 ## Multiple shapes
 

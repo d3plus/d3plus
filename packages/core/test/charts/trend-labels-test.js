@@ -1,0 +1,237 @@
+import {it} from "vitest";
+import assert from "assert";
+import {useJsdom} from "~test/jsdom.js";
+import {
+  emitTrendLabels,
+  trendEquationLabel,
+  lineLabelBoxes,
+  trendLabelSpot,
+  trendLabelText,
+} from "../../src/charts/Plot/trendLabels.ts";
+import {pathLabelNodes} from "../../src/charts/features/pathLabels.ts";
+import {trendLineDefaults} from "../../src/charts/Plot/trendLines.ts";
+
+useJsdom();
+
+const fit = (extra = {}) => ({
+  id: "A",
+  label: "Alpha",
+  color: "#4c6ef5",
+  axis: "x",
+  fit: {type: "linear", coefficients: [3.4, 2.1], r2: 0.8412, n: 10},
+  row: {id: "A"},
+  samples: [
+    {x: 0, y: 0},
+    {x: 10, y: 5},
+    {x: 20, y: 10},
+    {x: 30, y: 30, projected: true},
+  ],
+  ...extra,
+});
+
+const viz = (config = {}, extra = {}) => ({
+  _trendFits: [fit()],
+  _trendLineConfig: {...trendLineDefaults(), ...config},
+  schema: {locale: "en-US", translate: s => s},
+  ...extra,
+});
+
+it("trendEquationLabel — the equation and R², or R² alone over time", () => {
+  assert.strictEqual(
+    trendEquationLabel(fit(), "en-US"),
+    "y = 2.1x + 3.4, R² = 0.84",
+  );
+  assert.strictEqual(trendEquationLabel(fit(), "en-US", true), "R² = 0.84");
+  assert.strictEqual(
+    trendEquationLabel(fit({axis: "y"}), "en-US"),
+    "x = 2.1y + 3.4, R² = 0.84",
+    "a fit along y swaps the axis names",
+  );
+});
+
+it("trendLabelText — series name, Trend, equation, or a function", () => {
+  assert.strictEqual(trendLabelText(viz(), fit(), false), null);
+  assert.strictEqual(trendLabelText(viz(), fit(), true), "Alpha");
+  assert.strictEqual(
+    trendLabelText(viz(), fit({row: undefined}), true),
+    "Trend",
+    "a line fit to every point",
+  );
+  assert.strictEqual(
+    trendLabelText(viz(), fit(), "equation"),
+    "y = 2.1x + 3.4, R² = 0.84",
+  );
+  assert.strictEqual(
+    trendLabelText(viz({}, {_xTime: true}), fit(), "equation"),
+    "R² = 0.84",
+  );
+  assert.strictEqual(
+    trendLabelText(viz(), fit(), f => `${f.label}!`),
+    "Alpha!",
+  );
+  assert.strictEqual(
+    trendLabelText(viz(), fit(), () => ""),
+    null,
+  );
+});
+
+const rect = {x0: 0, y0: 0, x1: 400, y1: 300};
+
+const place = (extra = {}) => ({
+  fontSize: 11,
+  lift: 3,
+  width: 60,
+  obstacles: [],
+  ...extra,
+});
+const xs = d =>
+  [...d.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g)].map(m => [+m[1], +m[2]]);
+
+it("trendLabelSpot — upright, inset from the end, above the line", () => {
+  // A line running right to left reads left to right.
+  const spot = trendLabelSpot(
+    [
+      [300, 100],
+      [100, 100],
+    ],
+    rect,
+    place(),
+  );
+  assert.strictEqual(spot.d, "M234,97L294,97");
+  assert.ok(spot.boxes.length > 0);
+  assert.strictEqual(
+    trendLabelSpot(
+      [
+        [10, 10],
+        [40, 10],
+      ],
+      rect,
+      place(),
+    ),
+    null,
+    "too short for a label",
+  );
+  // Only the part inside the plot is labeled, and a label longer than the
+  // line takes all of it (to be cut short with an ellipsis).
+  assert.strictEqual(
+    trendLabelSpot(
+      [
+        [-100, 100],
+        [200, 100],
+        [300, 100],
+      ],
+      rect,
+      place({lift: 0, width: 500}),
+    ).d,
+    "M200,100L294,100",
+  );
+});
+
+it("trendLabelSpot — slides back from a taken end, then tries below", () => {
+  const line = [
+    [100, 100],
+    [300, 100],
+  ];
+  // Another label sits on the end of this line's stretch.
+  const taken = {x: 270, y: 93, width: 40, height: 11, angle: 0};
+  const slid = trendLabelSpot(line, rect, place({obstacles: [taken]}));
+  const pts = xs(slid.d);
+  assert.ok(pts[pts.length - 1][0] < 244, `slides clear: ${slid.d}`);
+  assert.ok(
+    pts.every(p => p[1] === 97),
+    "still above the line",
+  );
+  // With the whole stretch above taken, it goes below.
+  const above = {x: 200, y: 93, width: 220, height: 11, angle: 0};
+  const below = trendLabelSpot(line, rect, place({obstacles: [above]}));
+  assert.ok(
+    xs(below.d).every(p => p[1] > 100),
+    `below: ${below.d}`,
+  );
+  // With both sides taken, there's no spot.
+  const under = {x: 200, y: 110, width: 220, height: 14, angle: 0};
+  assert.strictEqual(
+    trendLabelSpot(line, rect, place({obstacles: [above, under]})),
+    null,
+  );
+});
+
+it("lineLabelBoxes — the line labels at ends and along lines", () => {
+  const text = (key, datum, extra = {}) => ({
+    type: "text",
+    key,
+    x: 0,
+    y: 0,
+    datum,
+    font: {size: 10, anchor: "start"},
+    lines: [{text: "label", x: 0, y: 10, width: 30}],
+    ...extra,
+  });
+  const boxes = lineLabelBoxes([
+    {
+      type: "group",
+      key: "g",
+      transform: {x: 100, y: 0},
+      children: [
+        text("end", {data: {shape: "Line"}}),
+        text("point", {data: {shape: "Circle"}}),
+        text("line-label-along-a", undefined, {
+          path: {d: "M0,50L100,50"},
+        }),
+      ],
+    },
+  ]);
+  assert.ok(boxes.length > 1);
+  assert.strictEqual(boxes[0].x, 115, "offset by its group");
+  assert.ok(
+    boxes.slice(1).every(b => b.y < 50),
+    "the along label's boxes sit above its path",
+  );
+});
+
+it("emitTrendLabels — one inert, haloed label per fit, on its fitted stretch", () => {
+  const scale = v => v * 10;
+  const nodes = emitTrendLabels(viz({label: true}), scale, scale, rect);
+  assert.strictEqual(nodes.length, 1);
+  const [label] = nodes;
+  assert.strictEqual(label.type, "text");
+  assert.strictEqual(label.key, "trend-label-A");
+  assert.strictEqual(label.interactive, false);
+  assert.strictEqual(label.datum, undefined);
+  assert.strictEqual(label.halo, true);
+  assert.strictEqual(label.font.anchor, "end");
+  // The projected sample (x 30) is left off the path.
+  const xs = [...label.path.d.matchAll(/[ML](-?[\d.]+),/g)].map(m => +m[1]);
+  assert.ok(Math.max(...xs) < 200, label.path.d);
+  assert.ok(Math.max(...xs) > 190, "inset just short of the end");
+  assert.deepStrictEqual(
+    emitTrendLabels(viz({label: false}), scale, scale, rect),
+    [],
+    "label: false turns them off",
+  );
+  assert.strictEqual(
+    emitTrendLabels(viz(), scale, scale, rect)[0].lines[0].text,
+    "y = 2.1x + 3.4, R² = 0.84",
+    "the equation by default",
+  );
+});
+
+it("pathLabelNodes — legible color on the theme, cut short to its path", () => {
+  const nodes = pathLabelNodes(
+    {schema: {locale: "en-US"}, _theme: {dark: true}},
+    [
+      {
+        key: "k",
+        text: "A label far too long for the little path it follows",
+        d: "M0,0L60,0",
+        color: "#000080",
+        anchor: "middle",
+      },
+    ],
+  );
+  const [node] = nodes;
+  assert.ok(node.lines[0].text.endsWith("..."), node.lines[0].text);
+  assert.ok(node.lines[0].width <= 60);
+  assert.notStrictEqual(node.paint.fill, "#000080", "lightened on dark");
+  assert.strictEqual(node.aria.hidden, true);
+});

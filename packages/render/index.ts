@@ -21,6 +21,7 @@ export type {
   ImageNode,
   TextNode,
   TextLine,
+  TextPath,
   TextRun,
   GroupNode,
   HtmlOverlayNode,
@@ -37,8 +38,27 @@ export {
   alignShare,
   anchorSide,
   lineLeft,
+  strongDirection,
   visualOrder,
 } from "./src/textAlign.js";
+export {
+  hitPathText,
+  pathGlyphs,
+  pathTextBoxes,
+  placeGlyphs,
+  pointAtLength,
+  rotatedBoxBounds,
+  samplePath,
+  textPathD,
+  textPathSamples,
+} from "./src/textPath.js";
+export type {
+  PathGlyph,
+  PathPoint,
+  PathSamples,
+  PathTextBox,
+  PlacedGlyph,
+} from "./src/textPath.js";
 export type {
   AlignedLine,
   AlignLineInput,

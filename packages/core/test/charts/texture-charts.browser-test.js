@@ -237,7 +237,9 @@ const probe = async ({name, feature, renderer, pageCasesSrc}) => {
   const el = document.createElement("div");
   el.style.cssText = "width:600px;height:400px;";
   document.body.appendChild(el);
-  const viz = new window.d3plus[spec.cls || name]()
+  const viz = (c => (c.lineLabels ? c.lineLabels(false) : c))(
+    new window.d3plus[spec.cls || name](),
+  )
     .select(el)
     .config(spec.config)
     .shapeConfig(
@@ -484,7 +486,9 @@ const rowProbe = async ({cls, confidence, renderer}) => {
   el.style.cssText = "width:600px;height:400px;";
   document.body.appendChild(el);
   const seen = [];
-  const viz = new window.d3plus[cls]()
+  const viz = (c => (c.lineLabels ? c.lineLabels(false) : c))(
+    new window.d3plus[cls](),
+  )
     .select(el)
     .config({data: series, groupBy: "id", x: "year", y: "value", duration: 0})
     .shapeConfig({

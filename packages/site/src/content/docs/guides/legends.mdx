@@ -32,7 +32,7 @@ Clicking a swatch hides that group, and shift-clicking it shows that group alone
 
 ### Labeling lines directly
 
-Line charts can name each line where it ends instead, so readers don't have to match colors to a legend. `lineLabels: true` labels the right end of every line, `"start"` the left end, and `"both"` both ends; `lineLabelConfig: {value: true}` adds each end's value after the name (e.g. "Brazil 37%"). Labels that would overlap are moved apart on each side, with a dotted connector back to their line. [SlopeChart](/core/charts/slope-chart/#basic-example) labels both ends with values and hides its legend by default.
+Line charts can name each line directly, so readers don't have to match colors to a legend. LinePlot does by default: `lineLabels: "along"` writes each series name along its own line, and the legend hides when every line got a name (a `legend` setting of your own always wins). `lineLabels: true` labels the right end of every line, `"start"` the left end, and `"both"` both ends; `lineLabelConfig: {value: true}` adds each end's value after the name (e.g. "Brazil 37%"). Labels that would overlap are moved apart on each side, with a dotted connector back to their line. [SlopeChart](/core/charts/slope-chart/#basic-example) labels both ends with values and hides its legend by default.
 
 ```jsx
 <LinePlot config={{data, groupBy: "country", x: "year", y: "share", legend: false,
