@@ -11,7 +11,7 @@ import type {DataPoint} from "@d3plus/data";
 export type LineLabelSide = "start" | "end";
 
 /** What `lineLabels` takes for one series. */
-export type LineLabelsValue = boolean | "start" | "end" | "both";
+export type LineLabelsValue = boolean | "start" | "end" | "both" | "along";
 
 /** The `lineLabels` setting: one value for every series, or a function of each row. */
 export type LineLabelsSetting =
@@ -35,12 +35,13 @@ export interface LineLabelConfig {
 
 /**
     The ends a `lineLabels` value labels, left end first: `true` and `"end"`
-    label the right end, `"start"` the left end, `"both"` both, and anything
-    falsy neither.
+    label the right end, `"start"` the left end, `"both"` both, and
+    `"along"` (a label along the line) or anything falsy neither.
 */
 export function lineLabelSides(
   value: LineLabelsValue | null | undefined,
 ): LineLabelSide[] {
+  if (value === "along") return [];
   if (value === "both") return ["start", "end"];
   if (value === "start") return ["start"];
   return value ? ["end"] : [];
@@ -58,6 +59,18 @@ export function rowLineLabelSides(
   return lineLabelSides(
     typeof setting === "function" ? setting(d, i) : setting,
   );
+}
+
+/**
+    Whether `setting` runs row `d`'s series name along its line (`"along"`)
+    instead of at an end.
+*/
+export function rowLabelsAlong(
+  setting: LineLabelsSetting | null | undefined,
+  d: DataPoint,
+  i: number,
+): boolean {
+  return (typeof setting === "function" ? setting(d, i) : setting) === "along";
 }
 
 /**

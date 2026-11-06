@@ -22,6 +22,7 @@ it("the plot area and hover surface sit over the plot with a left legend", async
           ),
         );
         const chart = new window.d3plus.LinePlot()
+          .lineLabels(false)
           .select("#viz")
           .data(data)
           .groupBy("id")

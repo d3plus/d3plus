@@ -19,6 +19,7 @@ const helpers = () => {
       el.style.cssText = `width:${size[0]}px;height:${size[1]}px`;
       document.body.appendChild(el);
       const viz = new window.d3plus.LinePlot()
+        .lineLabels(false)
         .select(el)
         .detectVisible(false)
         .duration(0)

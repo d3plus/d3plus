@@ -57,7 +57,7 @@ const legendSwatches = src =>
 
 it("legend — a Line series gets a stroke through a dot", async () => {
   const out = await legendSwatches(
-    "(lib, data) => new lib.LinePlot().data(data).groupBy('id').x('year').y('value')",
+    "(lib, data) => new lib.LinePlot().lineLabels(false).data(data).groupBy('id').x('year').y('value')",
   );
   assert.deepStrictEqual(Object.keys(out).sort(), ["Alpha", "Beta", "Gamma"]);
   for (const [id, nodes] of Object.entries(out)) {
@@ -179,7 +179,7 @@ it("tooltip title — a scatter point leads with a dot", async () => {
 
 it("tooltip title — a single Line tooltip leads with the line glyph", async () => {
   const r = await titleSwatch(
-    "(lib, data) => new lib.LinePlot().data(data).groupBy('id').x('year').y('value').tooltipShared(false)",
+    "(lib, data) => new lib.LinePlot().lineLabels(false).data(data).groupBy('id').x('year').y('value').tooltipShared(false)",
     "svg => svg.querySelector('[data-key=\"Alpha::hit\"]') || svg.querySelector('[data-key=\"Alpha\"]')",
   );
   assert.strictEqual(r.text, "Alpha");
@@ -243,7 +243,7 @@ it("legend tooltip — a swatch and its label both lead with the swatch", async 
 
 it("legend tooltip — a Line series' label leads with the line glyph", async () => {
   const r = await titleSwatch(
-    "(lib, data) => new lib.LinePlot().data(data).groupBy('id').x('year').y('value')",
+    "(lib, data) => new lib.LinePlot().lineLabels(false).data(data).groupBy('id').x('year').y('value')",
     legendEl("text", "Alpha"),
   );
   assert.strictEqual(r.text, "Alpha");

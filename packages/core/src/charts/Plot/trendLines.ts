@@ -70,6 +70,7 @@ export function trendLineDefaults(): Record<string, unknown> {
     confidenceConfig: {fillOpacity: 0.15},
     confidenceLevel: 0.95,
     group: "series",
+    label: "equation",
     order: 2,
     projection: 0,
     projectionConfig: {strokeDasharray: "2 4"},

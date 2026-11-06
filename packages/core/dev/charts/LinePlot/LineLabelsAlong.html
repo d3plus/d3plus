@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LineLabelsAlong · LinePlot</title>
+    <meta
+      name="description"
+      content="LinePlot's default along-line labels (legend hidden when every line is named, shown when one isn't), a reversed x axis, and a trend line label."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        display: grid;
+        gap: 16px;
+        margin: 16px;
+        font-family: sans-serif;
+      }
+      .chart {
+        height: 380px;
+      }
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>Default: every line named along it, no legend</h3>
+      <div class="chart" id="along"></div>
+    </div>
+    <div>
+      <h3>Default: one line too short to name, so the legend stays</h3>
+      <div class="chart" id="short"></div>
+    </div>
+    <div>
+      <h3>Reversed x axis, with a labeled trend line</h3>
+      <div class="chart" id="reversed"></div>
+    </div>
+  </body>
+
+  <script>
+    const countries = ["United States", "Brazil", "Germany", "India", "Japan"];
+    const data = countries.flatMap((id, k) =>
+      Array.from({length: 25}, (_, t) => ({
+        id,
+        year: 2000 + t,
+        value: 40 + k * 12 + 10 * Math.sin(t / (3 + k) + k) + t * (k - 2) * 0.6,
+      })),
+    );
+
+    new d3plus.LinePlot()
+      .select("#along")
+      .config({
+        data,
+        groupBy: "id",
+        x: "year",
+        y: "value",
+        shapeConfig: {Line: {curve: "monotoneX"}},
+      })
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#short")
+      .config({
+        data: data.filter(d => d.id !== "Japan" || d.year < 2002),
+        groupBy: "id",
+        x: "year",
+        y: "value",
+        shapeConfig: {Line: {curve: "monotoneX"}},
+      })
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#reversed")
+      .config({
+        data: data.filter(d => d.id !== "Japan"),
+        groupBy: "id",
+        x: "year",
+        y: "value",
+        xDomain: [2024, 2000],
+        lineLabels: "along",
+        legend: false,
+        trendLine: true,
+        trendLineConfig: {group: "all", label: "equation"},
+      })
+      .render();
+  </script>
+</html>

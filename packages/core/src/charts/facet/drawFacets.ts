@@ -19,6 +19,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
 import {drawWithInset} from "../pipeline/insetPlacement.js";
+import {drawWithAlongLegend} from "../Plot/alongLegend.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
@@ -495,7 +496,9 @@ export function drawFacets(viz: VizInstance): boolean {
     otherwise as one chart (with chrome placed inside it when it fits).
 */
 export function drawChart(viz: VizInstance): void {
-  viz._facetPanels = undefined;
-  if (facetActive(viz) && drawFacets(viz)) return;
-  drawWithInset(viz);
+  drawWithAlongLegend(viz, () => {
+    viz._facetPanels = undefined;
+    if (facetActive(viz) && drawFacets(viz)) return;
+    drawWithInset(viz);
+  });
 }

@@ -431,7 +431,8 @@ it("trendLine — Canvas renderer picks the line for its tooltip", async () => {
       {
         ...points,
         trendLine: true,
-        trendLineConfig: {group: "all", strokeDasharray: "none"},
+        // Its label (in the same color) would draw pixels the probe can't pick.
+        trendLineConfig: {group: "all", strokeDasharray: "none", label: false},
       },
     ],
   );

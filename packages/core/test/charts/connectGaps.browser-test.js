@@ -30,6 +30,7 @@ const draw = ([renderer, config, data]) =>
     el.style.cssText = "width:600px;height:400px";
     document.body.appendChild(el);
     const viz = new window.d3plus.LinePlot()
+      .lineLabels(false)
       .data(data)
       .groupBy("id")
       .x("x")
@@ -206,6 +207,7 @@ const drawForHover = ([renderer]) =>
       data.push({id: "Beta", x, y: 50 + x});
     });
     const viz = new window.d3plus.LinePlot()
+      .lineLabels(false)
       .data(data)
       .groupBy("id")
       .x("x")

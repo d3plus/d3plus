@@ -124,7 +124,7 @@ function assertWithin(box, top, bottom, label) {
 
 const treemap = extra => `(lib, data) => new lib.Treemap()
   .data(data).groupBy("id").sum("value")${extra}`;
-const linePlot = extra => `(lib, data) => new lib.LinePlot()
+const linePlot = extra => `(lib, data) => new lib.LinePlot().lineLabels(false)
   .data(data).groupBy("id").x("year").y("value").legendInset(false)${extra}`;
 
 for (const renderer of ["svg", "canvas"]) {

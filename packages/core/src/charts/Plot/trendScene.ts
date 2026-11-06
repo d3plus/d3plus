@@ -31,6 +31,8 @@ const FIT_KEYS = [
   "projectionConfig",
   "tooltip",
   "stroke",
+  "label",
+  "labelConfig",
 ];
 
 /**

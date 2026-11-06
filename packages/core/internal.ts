@@ -2146,3 +2146,4 @@ export type {
   ClusterConfig,
   ClusterLabelConfig,
 } from "./src/utils/D3plusConfig.js";
+export {CanvasRenderer, SvgRenderer} from "@d3plus/render";

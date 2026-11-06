@@ -19,6 +19,8 @@ const config = {
   time: "date",
   x: "date",
   y: "value",
+  // Each trend line's label names its series, so the lines go unnamed.
+  lineLabels: false,
   trendLine: true,
-  trendLineConfig: {confidence: true},
+  trendLineConfig: {confidence: true, label: true},
 };

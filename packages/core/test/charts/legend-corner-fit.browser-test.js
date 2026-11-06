@@ -39,6 +39,7 @@ const legendLayout = (width, renderer, {labels = regions, css = ""} = {}) =>
           {id, x: 2, y: i + 3},
         ]);
         const viz = new window.d3plus.LinePlot()
+          .lineLabels(false)
           .select("#s")
           .data(data)
           .groupBy("id")

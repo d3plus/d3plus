@@ -84,6 +84,7 @@ export interface TranslationStrings {
   To: string;
   Today: string;
   Total: string;
+  Trend: string;
   "Trend Line": string;
   "Upper Bound": string;
   "Upper Quartile": string;
@@ -221,6 +222,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     To: "\u0625\u0644\u0649",
     Today: "\u0627\u0644\u064a\u0648\u0645",
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
+    Trend: "\u0627\u0644\u0627\u062a\u062c\u0627\u0647",
     "Trend Line": "\u062e\u0637 \u0627\u0644\u0627\u062a\u062c\u0627\u0647",
     "Upper Bound":
       "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0639\u0644\u0649",
@@ -327,6 +329,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     To: "Destino",
     Today: "Hoy",
     Total: "Total",
+    Trend: "Tendencia",
     "Trend Line": "L\u00ednea de Tendencia",
     "Upper Bound": "L\u00edmite Superior",
     "Upper Quartile": "Cuartil Superior",
@@ -430,6 +433,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     To: "Destino",
     Today: "Hoje",
     Total: "Total",
+    Trend: "Tend\u00eancia",
     "Trend Line": "Linha de Tend\u00eancia",
     "Upper Bound": "Limite Superior",
     "Upper Quartile": "Quartil Superior",
@@ -536,6 +540,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     To: "\u7ec8\u70b9",
     Today: "\u4eca\u5929",
     Total: "\u603b",
+    Trend: "\u8d8b\u52bf",
     "Trend Line": "\u8d8b\u52bf\u7ebf",
     "Upper Bound": "\u4e0a\u9650",
     "Upper Quartile": "\u4e0a\u56db\u5206\u4f4d\u6570",

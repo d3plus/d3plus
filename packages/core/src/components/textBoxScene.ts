@@ -3,14 +3,16 @@
     position, its runs, and the node's font and paint.
 */
 import {strip} from "@d3plus/text";
-import {alignLines} from "@d3plus/render";
+import {alignLines, textPathSamples} from "@d3plus/render";
 import type {
   FontSpec,
   LineAnchor,
   Paint,
+  RectNode,
   TextLine,
   TextNode,
   TextRun,
+  Transform,
 } from "@d3plus/render";
 
 import type {TextBoxDatum} from "./textBoxLayout.js";
@@ -112,30 +114,31 @@ export function textBoxPaint(d: TextBoxDatum): Paint {
   };
 }
 
-/**
-    The text node for one laid-out box.
-    @param d The laid-out box.
-    @param rotateAnchor The point the box rotates about.
-    @param rtl Whether the text reads right to left.
-*/
-export function textBoxNode(
+/** The transform a laid-out box's nodes share: its position and rotation. */
+function textBoxTransform(
   d: TextBoxDatum,
   rotateAnchor: [number, number],
-  rtl: boolean,
-): TextNode {
+): Transform {
+  return {x: d.x, y: d.y, rotate: d.r, rotateAnchor};
+}
+
+/**
+    Each line of a laid-out box at its place in the node: across the box with
+    its baseline at `textBoxLineY`, or along the box's path, its x the
+    distance along the path past the start offset.
+*/
+function placedLines(d: TextBoxDatum, rtl: boolean) {
   const {anchor, lines} = textBoxLines(d, d.w, rtl);
+  if (d.path) {
+    const offset = d.path.offset;
+    return {
+      anchor,
+      lines: lines.map(ln => ({...ln, x: ln.x + offset, y: 0})),
+    };
+  }
   const nudge = rotateNudge(d, anchor, rtl);
-  const ariaHidden = d.aH === "true" || (d.aH as unknown) === true;
   return {
-    type: "text",
-    key: d.id,
-    id: `d3plus-textBox-${strip(d.id)}`,
-    datum: d.data,
-    index: d.i,
-    x: 0,
-    y: 0,
-    width: d.w,
-    height: d.h,
+    anchor,
     lines: lines.map((ln, i) => ({
       ...ln,
       x: ln.x + nudge,
@@ -148,10 +151,101 @@ export function textBoxNode(
         : {}),
       y: textBoxLineY(d, i),
     })),
-    font: textBoxFont(d, anchor, rtl),
-    paint: textBoxPaint(d),
-    transform: {x: d.x, y: d.y, rotate: d.r, rotateAnchor},
-    aria: ariaHidden ? {hidden: true} : undefined,
+  };
+}
+
+/**
+    The transparent rect behind a laid-out box that makes the whole box
+    (padding included, plus the hitbox's own padding) pick its datum, or null
+    without a `hitbox`. Text on a path gets the path's bounds, grown by a font
+    size on every side. Its key ends in `::hit`, so keyboard navigation and
+    chart extents pass over it.
+    @param d The laid-out box.
+    @param rotateAnchor The point the box rotates about.
+*/
+export function textBoxHitbox(
+  d: TextBoxDatum,
+  rotateAnchor: [number, number],
+): RectNode | null {
+  const hit = d.hit;
+  if (!hit) return null;
+  let x: number, y: number, width: number, height: number;
+  if (d.path) {
+    const {points} = textPathSamples({d: d.path.d, side: d.path.side});
+    const xs = points.map(p => p[0]),
+      ys = points.map(p => p[1]);
+    x = Math.min(...xs) - d.fS;
+    y = Math.min(...ys) - d.fS;
+    width = Math.max(...xs) - x + d.fS;
+    height = Math.max(...ys) - y + d.fS;
+  } else {
+    x = -d.pad.left;
+    y = -(d.yP + d.pad.top);
+    width = d.w + d.pad.left + d.pad.right;
+    height = d.h + d.pad.top + d.pad.bottom;
+  }
+  return {
+    type: "rect",
+    key: `${d.id}::hit`,
+    datum: d.data,
+    index: d.i,
+    x: x - hit.left,
+    y: y - hit.top,
+    width: width + hit.left + hit.right,
+    height: height + hit.top + hit.bottom,
+    paint: {fill: "transparent"},
+    transform: textBoxTransform(d, rotateAnchor),
+    aria: {hidden: true},
     interactive: d.pE !== "none",
   };
+}
+
+/**
+    The text node for one laid-out box.
+    @param d The laid-out box.
+    @param rotateAnchor The point the box rotates about.
+    @param rtl Whether the text reads right to left.
+*/
+export function textBoxNode(
+  d: TextBoxDatum,
+  rotateAnchor: [number, number],
+  rtl: boolean,
+): TextNode {
+  const {anchor, lines} = placedLines(d, rtl);
+  const ariaHidden = d.aH === "true" || (d.aH as unknown) === true;
+  return {
+    type: "text",
+    key: d.id,
+    id: `d3plus-textBox-${strip(d.id)}`,
+    datum: d.data,
+    index: d.i,
+    x: 0,
+    y: 0,
+    width: d.w,
+    height: d.h,
+    lines,
+    font: textBoxFont(d, anchor, rtl),
+    paint: textBoxPaint(d),
+    transform: textBoxTransform(d, rotateAnchor),
+    aria: ariaHidden ? {hidden: true} : undefined,
+    interactive: d.pE !== "none",
+    ...(d.path ? {path: {d: d.path.d, side: d.path.side}} : {}),
+  };
+}
+
+/**
+    The scene nodes for one laid-out box: its text, behind it its hitbox
+    when it has one.
+    @param d The laid-out box.
+    @param rotateAnchor The point the box rotates about.
+    @param rtl Whether the text reads right to left.
+*/
+export function textBoxNodes(
+  d: TextBoxDatum,
+  rotateAnchor: [number, number],
+  rtl: boolean,
+): (TextNode | RectNode)[] {
+  const text = textBoxNode(d, rotateAnchor, rtl);
+  const hit = textBoxHitbox(d, rotateAnchor);
+  return hit ? [hit, text] : [text];
 }

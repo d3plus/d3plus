@@ -5,6 +5,7 @@ import type {Transition} from "d3-transition";
 import {arcPath, lerpArc} from "../animate/interpolate.js";
 import {areaPath, linePath} from "../paths.js";
 import {textVisualCenter} from "../scene.js";
+import {lineLeft} from "../textAlign.js";
 import type {
   ArcGeometry,
   SceneNode,
@@ -137,7 +138,11 @@ export function buildIndex(
 }
 
 /** Applies non-animated attributes: classes, accessibility, pointer behavior, content. */
-export function applyStatic(sel: SvgSelection, node: SceneNode): void {
+export function applyStatic(
+  sel: SvgSelection,
+  node: SceneNode,
+  textPathHref?: (node: TextNode) => string | null,
+): void {
   sel
     .attr("class", `d3plus-render-node d3plus-render-${node.type}`)
     .attr("data-key", String(node.key))
@@ -151,7 +156,7 @@ export function applyStatic(sel: SvgSelection, node: SceneNode): void {
     sel.attr("href", node.href);
     sel.attr("xlink:href", node.href).attr("xmlns:xlink", XLINK_NS);
   }
-  if (node.type === "text") applyText(sel, node);
+  if (node.type === "text") applyText(sel, node, textPathHref);
 }
 
 /** Direct-child <tspan> elements of an element (not nested run tspans). */
@@ -179,18 +184,34 @@ function runStyle(run: TextRun): string | null {
     the existing tspans in place rather than tearing them down and rebuilding
     (text content is set directly, not animated).
 */
-export function applyText(sel: SvgSelection, node: TextNode): void {
+export function applyText(
+  sel: SvgSelection,
+  node: TextNode,
+  textPathHref?: (node: TextNode) => string | null,
+): void {
   const f = node.font || {};
+  const href = node.path && textPathHref ? textPathHref(node) : null;
+  // Text on a path starts at its left edge along the path (`startOffset`)
+  // in a left-to-right paragraph; right-to-left text is embedded in it (see
+  // `applyTextPath`), so its words still read right to left.
   sel
     .attr("font-family", f.family ?? null)
     .attr("font-size", f.size ?? null)
     .attr("font-weight", f.weight ?? null)
     .attr("font-style", f.style ?? null)
-    .attr("text-anchor", f.anchor ?? null)
+    .attr("text-anchor", href ? "start" : (f.anchor ?? null))
     .attr("dominant-baseline", f.baseline ?? null)
-    .attr("dir", f.dir ?? null)
+    .attr("dir", href ? null : (f.dir ?? null))
+    .attr("direction", href ? "ltr" : null)
     .attr("paint-order", node.halo ? "stroke" : null)
     .attr("stroke-linejoin", node.halo ? "round" : null);
+
+  const textEl = sel.node() as Element | null;
+  if (textEl && href) {
+    applyTextPath(textEl, node, href);
+    return;
+  }
+  textEl?.querySelector(":scope > textPath")?.remove();
 
   const lines = sel
     .selectAll(function (this: Element) {
@@ -231,6 +252,61 @@ export function applyText(sel: SvgSelection, node: TextNode): void {
         .attr("style", (r: TextRun) => runStyle(r))
         .text((r: TextRun) => r.text);
     });
+}
+
+/**
+    Draws a text node's first line in a `<textPath>` that follows the `<defs>`
+    path at `href`, from the line's left edge along the path.
+*/
+function applyTextPath(el: Element, node: TextNode, href: string): void {
+  for (const t of childTspans(el)) t.remove();
+  for (let n = el.firstChild; n;) {
+    const next = n.nextSibling;
+    if (n.nodeType === 3) el.removeChild(n);
+    n = next;
+  }
+  let tp = el.querySelector(":scope > textPath");
+  if (!tp) {
+    tp = document.createElementNS("http://www.w3.org/2000/svg", "textPath");
+    el.appendChild(tp);
+  }
+  const line = node.lines[0] ?? {text: "", x: 0, y: 0, width: 0};
+  tp.setAttribute("href", href);
+  tp.setAttributeNS(XLINK_NS, "xlink:href", href);
+  tp.setAttribute("startOffset", String(lineLeft(line, node.font)));
+  // Right-to-left text sits in a right-to-left embedding (RLE … PDF) inside
+  // the left-to-right paragraph, so it starts at the offset in every browser
+  // and its words keep their right-to-left order.
+  const rtl = node.font?.dir === "rtl";
+  const [open, close] = rtl ? ["\u202B", "\u202C"] : ["", ""];
+  const tpSel = select(tp);
+  if (!line.runs || !line.runs.length) {
+    if (tp.firstElementChild) tpSel.selectAll("tspan").remove();
+    const content = `${open}${line.text}${close}`;
+    if (tp.textContent !== content) tp.textContent = content;
+    return;
+  }
+  for (let n = tp.firstChild; n;) {
+    const next = n.nextSibling;
+    if (n.nodeType === 3) tp.removeChild(n);
+    n = next;
+  }
+  if (open) {
+    tp.insertBefore(document.createTextNode(open), tp.firstChild);
+    tp.appendChild(document.createTextNode(close));
+  }
+  const runs = tpSel
+    .selectAll<SVGTSpanElement, TextRun>(function (this: Element) {
+      return childTspans(this);
+    })
+    .data(line.runs);
+  runs.exit().remove();
+  runs
+    .enter()
+    .append("tspan")
+    .merge(runs)
+    .attr("style", (r: TextRun) => runStyle(r))
+    .text((r: TextRun) => r.text);
 }
 
 /** Applies paint attributes to a selection or transition. */
