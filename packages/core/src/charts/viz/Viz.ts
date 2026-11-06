@@ -329,7 +329,7 @@ export default class Viz extends VizBase {
 
   /**
       Draws the visualization given the specified configuration.
-    @param callback Optional callback invoked after rendering completes.
+    @param callback Optional callback invoked after rendering completes. It also runs after every later redraw that doesn't pass a callback of its own, including the ones the chart starts itself (legend clicks, resizes, reloading after scrolling back into view), so it can redraw anything it adds to the chart.
   */
   render(callback?: () => void): this {
     return vizRender(this, callback) as this;
