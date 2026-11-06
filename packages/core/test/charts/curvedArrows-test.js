@@ -11,6 +11,7 @@ import {
   cubicPolyline,
   edgeArrowTrims,
   pathPointBack,
+  polylineArrowEdge,
 } from "../../internal.ts";
 
 const close = (a, b, eps = 1e-6) =>
@@ -158,4 +159,70 @@ it("chordArrowNodes draws a head at each arrowed end", () => {
   assert.strictEqual(keyed[0].key, "t!");
   assert.strictEqual(keyed[0].paint.opacity, 1);
   assert.deepStrictEqual(chordArrowNodes({...base, ends: {}}), []);
+});
+
+it("polylineArrowEdge ends the stroke on each head's axis, from the head's base on the polyline", () => {
+  // A right-angle bend near the target, so the chord and the last segment differ.
+  const line = [
+    [0, 0],
+    [100, 0],
+    [100, 10],
+  ];
+  const trims = arrows =>
+    edgeArrowTrims({arrows, arrowSize: 12, strokeWidth: 4, datum: {}, i: 0});
+  assert.deepStrictEqual(polylineArrowEdge(line, trims(false)), {
+    d: "M0,0L100,0L100,10",
+    source: undefined,
+    target: undefined,
+  });
+  const edge = polylineArrowEdge(line, trims("both"), {source: 3, target: 2});
+  // The target tip sits 2px back along the polyline, its base 12px further.
+  assert.deepStrictEqual(edge.target.tip, [100, 8]);
+  assert.deepStrictEqual(edge.target.base, [96, 0]);
+  close(edge.target.angle, Math.atan2(8, 4));
+  assert.deepStrictEqual(edge.source.tip, [3, 0]);
+  assert.deepStrictEqual(edge.source.base, [15, 0]);
+  close(edge.source.angle, Math.PI);
+  for (const end of [edge.source, edge.target]) {
+    close(offAxis(end.cut, end.tip, end.angle), 0, 1e-9);
+    close(Math.hypot(end.tip[0] - end.cut[0], end.tip[1] - end.cut[1]), 6);
+  }
+  // The stroke: source cut, the body between the bases, the target cut.
+  const nums = numbers(edge.d);
+  close(nums[0], edge.source.cut[0], 0.01);
+  assert.deepStrictEqual(nums.slice(2, 4), [15, 0]);
+  assert.deepStrictEqual(nums.slice(-4, -2), [96, 0]);
+  close(nums.at(-2), edge.target.cut[0], 0.01);
+  close(nums.at(-1), edge.target.cut[1], 0.01);
+});
+
+it("polylineArrowEdge puts the heads on the first run's start and the last run's end", () => {
+  const runs = [
+    [
+      [0, 0],
+      [50, 0],
+    ],
+    [
+      [60, 0],
+      [100, 0],
+    ],
+  ];
+  const trims = edgeArrowTrims({
+    arrows: "both",
+    arrowSize: 10,
+    strokeWidth: 2,
+    datum: {},
+    i: 0,
+  });
+  const edge = polylineArrowEdge(runs, trims);
+  assert.deepStrictEqual(edge.source.tip, [0, 0]);
+  assert.deepStrictEqual(edge.target.tip, [100, 0]);
+  assert.strictEqual((edge.d.match(/M/g) ?? []).length, 2, "two runs");
+  // Only the ends `trims.ends` names get a head.
+  const one = polylineArrowEdge(runs, {
+    ...trims,
+    ends: {source: false, target: true},
+  });
+  assert.strictEqual(one.source, undefined);
+  assert.match(one.d, /^M0,0L50,0M60,0L90,0L/);
 });

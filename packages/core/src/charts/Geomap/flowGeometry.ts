@@ -7,12 +7,22 @@
 import {geoArea, geoCentroid, geoDistance, geoInterpolate} from "d3-geo";
 import type {GeoPermissibleObjects} from "d3-geo";
 
-import type {LinkAnchor} from "../features/linkLabelGeometry.js";
+import {polylinePath} from "../features/polyline.js";
+import type {Point} from "../features/polyline.js";
+
+export {
+  polylineAt,
+  polylineBox,
+  polylineLength,
+  polylineMidpoint,
+  polylinePath,
+  trimPolyline,
+} from "../features/polyline.js";
+/** A point in the map's projected pixel space. */
+export type {Point};
 
 /** A geographic coordinate, `[longitude, latitude]` (d3's order). */
 export type LonLat = [number, number];
-/** A point in the map's projected pixel space. */
-export type Point = [number, number];
 /** Projects a coordinate to pixels, or null where the projection has none. */
 export type Projector = (p: LonLat) => Point | null | undefined;
 /** d3-geo's path generator for the map's projection. */
@@ -138,15 +148,6 @@ export function unbrokenPath(d: string, a: Point, b: Point): boolean {
   return near(n[0], n[1], a) && near(n[n.length - 2], n[n.length - 1], b);
 }
 
-const round = (n: number): number => Math.round(n * 100) / 100;
-
-/** A polyline as a path `d`. */
-export function polylinePath(points: Point[]): string {
-  return points
-    .map(([x, y], k) => `${k ? "L" : "M"}${round(x)},${round(y)}`)
-    .join("");
-}
-
 /**
     Whether the projection cuts the great circle from `a` to `b` (across
     the antimeridian, between geoAlbersUsa's insets, past a globe's horizon,
@@ -244,92 +245,6 @@ export function pathRuns(d: string): Point[][] {
     for (let k = 0; k + 1 < n.length; k += 2) run.push([n[k], n[k + 1]]);
   }
   return runs.filter(run => run.length > 1);
-}
-
-/**
-    A polyline shortened along its length by `start` pixels at its first
-    end and `end` at its last. When the cuts meet, it collapses to the
-    point where they do.
-*/
-export function trimPolyline(
-  points: Point[],
-  start: number,
-  end: number,
-): Point[] {
-  const length = polylineLength(points);
-  const s = Math.max(0, start);
-  const e = Math.max(0, end);
-  if (!s && !e) return points.slice();
-  if (s + e >= length) {
-    const at = polylineAt(points, (length * s) / (s + e || 1));
-    return [
-      [at.x, at.y],
-      [at.x, at.y],
-    ];
-  }
-  const out: Point[] = [];
-  let walked = 0;
-  const first = polylineAt(points, s);
-  const last = polylineAt(points, length - e);
-  out.push([first.x, first.y]);
-  for (let k = 1; k < points.length - 1; k++) {
-    walked += Math.hypot(
-      points[k][0] - points[k - 1][0],
-      points[k][1] - points[k - 1][1],
-    );
-    if (walked > s && walked < length - e) out.push(points[k]);
-  }
-  out.push([last.x, last.y]);
-  return out;
-}
-
-/** A polyline's length. */
-export function polylineLength(points: Point[]): number {
-  let length = 0;
-  for (let k = 1; k < points.length; k++)
-    length += Math.hypot(
-      points[k][0] - points[k - 1][0],
-      points[k][1] - points[k - 1][1],
-    );
-  return length;
-}
-
-/**
-    The point `distance` along a polyline from its start (clamped to its
-    ends), and the direction the polyline runs there, in radians.
-*/
-export function polylineAt(points: Point[], distance: number): LinkAnchor {
-  const last = points.length - 1;
-  let left = Math.max(0, distance);
-  for (let k = 1; k <= last; k++) {
-    const [x0, y0] = points[k - 1];
-    const [x1, y1] = points[k];
-    const step = Math.hypot(x1 - x0, y1 - y0);
-    if (!step) continue;
-    const angle = Math.atan2(y1 - y0, x1 - x0);
-    if (left <= step || k === last) {
-      const t = Math.min(1, left / step);
-      return {x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, angle};
-    }
-    left -= step;
-  }
-  const [x, y] = points[0] ?? [0, 0];
-  return {x, y, angle: 0};
-}
-
-/** The middle of a polyline's length, and its direction there. */
-export function polylineMidpoint(points: Point[]): LinkAnchor {
-  return polylineAt(points, polylineLength(points) / 2);
-}
-
-/** The box around a polyline, as `[[x0, y0], [x1, y1]]`. */
-export function polylineBox(points: Point[]): [Point, Point] {
-  const xs = points.map(p => p[0]);
-  const ys = points.map(p => p[1]);
-  return [
-    [Math.min(...xs), Math.min(...ys)],
-    [Math.max(...xs), Math.max(...ys)],
-  ];
 }
 
 /**

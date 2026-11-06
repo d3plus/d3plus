@@ -22,14 +22,17 @@ import {
   setLinkValue,
 } from "../features/linkInteraction.js";
 import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
+import {bundleLinkPaths} from "../features/linkBundle.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   clipsToCircle,
   coordinateVisible,
   featureAnchor,
   flowArc,
+  greatCircleCut,
   isLonLat,
   polylineBox,
+  polylinePath,
   toLonLat,
 } from "./flowGeometry.js";
 import type {GeoPathFn, LonLat, Point, Projector} from "./flowGeometry.js";
@@ -242,6 +245,44 @@ function pathBox(d: string): [Point, Point] {
       ];
 }
 
+/** What `bundleFlowLinks` reads and rewrites on a drawn link. */
+type BundledFlow = Pick<
+  FlowLink,
+  "source" | "target" | "d" | "points" | "sourceAt" | "targetAt" | "box"
+>;
+
+/**
+    Bundles the links when `linkBundle` is on (see `bundleEdges`), on a flat
+    map only: each link the projection draws unbroken, both ends shown,
+    takes a bundled path between its two ends. Links on a globe, or ones
+    the projection cuts, keep their paths.
+*/
+export function bundleFlowLinks(
+  v: VizInstance,
+  links: BundledFlow[],
+  projection: Projector,
+  path: GeoPathFn,
+): void {
+  if (!v.schema.linkBundle || clipsToCircle(projection)) return;
+  const shown = links.filter(
+    l =>
+      l.points &&
+      l.sourceAt &&
+      l.targetAt &&
+      !greatCircleCut(l.source.coord, l.target.coord, projection, path),
+  );
+  if (!shown.length) return;
+  const paths = bundleLinkPaths(
+    v,
+    shown.map(l => [l.points![0], l.points![l.points!.length - 1]]),
+  );
+  shown.forEach((l, k) => {
+    l.points = paths[k];
+    l.d = polylinePath(paths[k]);
+    l.box = polylineBox(paths[k]);
+  });
+}
+
 /**
     Resolves, sizes, and shapes the chart's `links` for this draw, and
     publishes them for tooltips and hover (see `publishLinkGraph`).
@@ -287,6 +328,7 @@ export function geomapFlowLinks(
       box: arc.points ? polylineBox(arc.points) : pathBox(arc.d),
     });
   });
+  bundleFlowLinks(v, drawn, projection, input.path);
   // Sized over the links drawn.
   const linkSize = v.schema.linkSize as (d: DataPoint, i: number) => unknown;
   const widths = flowLinkWidths(

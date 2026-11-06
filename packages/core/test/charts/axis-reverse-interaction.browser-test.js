@@ -35,7 +35,11 @@ const brushTimeline = ([rows, reverse]) =>
       .select("#viz");
     const years = () =>
       viz._timelineSelection.map(d => new Date(d).getFullYear());
+    // render's callback also runs after the redraw the brush triggers
+    let brushed = false;
     viz.render(() => {
+      if (brushed) return;
+      brushed = true;
       const initial = years();
       const at = text => {
         const node = Array.from(document.querySelectorAll("#viz text")).find(

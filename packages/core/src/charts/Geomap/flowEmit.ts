@@ -11,13 +11,7 @@ import type {Paint, SceneNode} from "@d3plus/render";
 
 import {interpolateRgb} from "d3-interpolate";
 
-import {
-  arrowAlongChord,
-  chordArrowNodes,
-  chordEndsPathD,
-  pathPointBack,
-} from "../features/curvedArrows.js";
-import type {ArrowedEnd} from "../features/curvedArrows.js";
+import {chordArrowNodes, polylineArrowEdge} from "../features/curvedArrows.js";
 import {edgeArrowTrims} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {linkColorResolver} from "../features/linkColor.js";
@@ -26,12 +20,7 @@ import {emitLinkLabels} from "../features/linkLabels.js";
 import type {LabelCircle} from "../features/circleLabelPlacement.js";
 import {backgroundInk, chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {
-  pathRuns,
-  polylineMidpoint,
-  polylinePath,
-  trimPolyline,
-} from "./flowGeometry.js";
+import {pathRuns, polylineMidpoint} from "./flowGeometry.js";
 import type {Point} from "./flowGeometry.js";
 import type {FlowLink} from "./flowLinks.js";
 
@@ -73,8 +62,8 @@ const startsAt = (run: Point[] | undefined, at: Point | null): boolean =>
     path, clear of the point at its end, and is aimed along the chord from
     its base (`size` further back along the path) to its tip; the stroke
     follows the path to each base, then runs straight along that chord to
-    end inside the head (see `arrowTrim`). A head goes only on an end the
-    projection draws.
+    end inside the head (see `polylineArrowEdge`). A head goes only on an
+    end the projection draws.
 */
 export function flowArrowEdge(
   viz: VizInstance,
@@ -90,39 +79,23 @@ export function flowArrowEdge(
   });
   if (!trims.ends.source && !trims.ends.target) return {d: link.d, arrows: []};
   const runs = pathRuns(link.d);
-  const first = runs[0];
   const last = runs[runs.length - 1];
-  const lastReversed = last ? [...last].reverse() : undefined;
   const inset = (r: number) => (r ? r + 1 : 0);
-  const head = (run: Point[], back: number, trim: number): ArrowedEnd =>
-    arrowAlongChord(
-      pathPointBack(run, back),
-      pathPointBack(run, back + trims.size),
-      trim,
-    );
   // The first run leaves the source and the last reaches the target, when
   // the projection draws them.
-  const sourceRun =
-    trims.ends.source && startsAt(first, link.sourceAt) ? first : undefined;
-  const targetRun =
-    trims.ends.target && startsAt(lastReversed, link.targetAt)
-      ? last
-      : undefined;
-  const backS = inset(link.source.r);
-  const backT = inset(link.target.r);
-  const source = sourceRun
-    ? head([...sourceRun].reverse(), backS, trims.source)
-    : undefined;
-  const target = targetRun ? head(targetRun, backT, trims.target) : undefined;
-  const body = runs.map((run, k) =>
-    trimPolyline(
-      run,
-      k === 0 && source ? backS + trims.size : 0,
-      k === runs.length - 1 && target ? backT + trims.size : 0,
-    ),
+  const ends = {
+    source: trims.ends.source && startsAt(runs[0], link.sourceAt),
+    target:
+      trims.ends.target &&
+      startsAt(last ? [...last].reverse() : undefined, link.targetAt),
+  };
+  const {d, source, target} = polylineArrowEdge(
+    runs,
+    {...trims, ends},
+    {source: inset(link.source.r), target: inset(link.target.r)},
   );
   return {
-    d: chordEndsPathD(body.map(polylinePath).join(""), source, target),
+    d,
     arrows: chordArrowNodes({
       ends: {source, target},
       size: trims.size,

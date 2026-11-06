@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import {ReflectionKind} from "typedoc";
 
@@ -54,6 +55,51 @@ export function getSource(reflection) {
   };
 }
 
+const sourceFiles = new Map();
+
+/**
+ * The source text of a property's declaration, from its line to the `;` that
+ * ends it (or "" when the source can't be read).
+ */
+export function declarationText(reflection) {
+  const source = getSource(reflection);
+  if (!source?.fullFileName || !source.line) return "";
+  let lines = sourceFiles.get(source.fullFileName);
+  if (!lines) {
+    try {
+      lines = fs.readFileSync(source.fullFileName, "utf8").split("\n");
+    } catch {
+      lines = [];
+    }
+    sourceFiles.set(source.fullFileName, lines);
+  }
+  const out = [];
+  for (let i = source.line - 1; i < lines.length; i++) {
+    out.push(lines[i]);
+    if (/;\s*$/.test(lines[i])) break;
+  }
+  return out.join("\n");
+}
+
+/**
+ * Orders a union's names as its declaration writes them. TypeScript reports a
+ * union's string literals in the order the compiler first met them, anywhere
+ * in the program, so `"start" | "middle" | "end"` can come back as
+ * `"middle" | "end" | "start"`. Names the text doesn't contain keep their
+ * place after those it does.
+ */
+export function sourceOrder(names, text) {
+  if (!text) return names;
+  const at = name => {
+    const i = text.indexOf(name);
+    return i < 0 ? Infinity : i;
+  };
+  return names
+    .map((name, i) => ({name, i, at: at(name)}))
+    .sort((a, b) => a.at - b.at || a.i - b.i)
+    .map(d => d.name);
+}
+
 /**
  * Maps a TypeDoc type to a simple type name string.
  */
@@ -85,6 +131,10 @@ export function typeToString(type) {
       return `${elementString(type.elementType)}?`;
     case "rest":
       return `...${elementString(type.elementType)}`;
+    case "templateLiteral":
+      return `\`${type.head}${type.tail
+        .map(([t, text]) => `\${${typeToString(t)}}${text}`)
+        .join("")}\``;
     default:
       return "*";
   }

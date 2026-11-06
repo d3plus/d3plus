@@ -12,7 +12,13 @@ import {
   publicChartDefs,
   splitDoc,
 } from "../stubs/chartDefs.js";
-import {tocSummary, typeToNames, typeToString} from "../typedoc.js";
+import {
+  declarationText,
+  sourceOrder,
+  tocSummary,
+  typeToNames,
+  typeToString,
+} from "../typedoc.js";
 
 const union = (...types) => ({type: "union", types});
 const str = {type: "intrinsic", name: "string"};
@@ -471,5 +477,33 @@ describe("configInterfaceDocs", () => {
 
   it("has no interface for other classes", () => {
     assert.deepEqual(configInterfaceDocs("Rect", stories, interfaceDocs), {});
+  });
+});
+
+describe("sourceOrder", () => {
+  it("orders a union's names as the declaration writes them", () => {
+    const text =
+      'textAnchor?: Accessor<"start" | "middle" | "end" | "justify">;';
+    assert.deepEqual(
+      sourceOrder(
+        ['"middle"', '"end"', '"start"', '"justify"', "Function"],
+        text,
+      ),
+      ['"start"', '"middle"', '"end"', '"justify"', "Function"],
+    );
+  });
+  it("leaves names alone without a declaration", () => {
+    assert.deepEqual(sourceOrder(['"b"', '"a"'], ""), ['"b"', '"a"']);
+  });
+});
+
+describe("declarationText", () => {
+  it("reads a declaration from its line to its semicolon", () => {
+    const file = new URL("../typedoc.js", import.meta.url).pathname;
+    const text = declarationText({
+      sources: [{fileName: "typedoc.js", fullFileName: file, line: 1}],
+    });
+    assert.equal(text, 'import fs from "node:fs";');
+    assert.equal(declarationText({}), "");
   });
 });

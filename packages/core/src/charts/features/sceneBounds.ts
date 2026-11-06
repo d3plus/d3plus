@@ -7,6 +7,7 @@
 
 import {path2polygon, pathBounds} from "@d3plus/math";
 import type {Bounds} from "@d3plus/math";
+import {lineLeft} from "@d3plus/render";
 import type {SceneNode, TextNode, Transform} from "@d3plus/render";
 
 type Point = [number, number];
@@ -42,21 +43,14 @@ const vertexBox = ([x, y]: Point): Bounds => ({x, y, width: 0, height: 0});
 /** One box per laid-out line of a text node, from its anchor, baseline, and font size. */
 function textBoxes(node: TextNode): Bounds[] {
   const size = node.font?.size ?? 0;
-  const anchor = node.font?.anchor ?? "start";
   const baseline = node.font?.baseline ?? "alphabetic";
   const above =
     baseline === "hanging" ? 0 : baseline === "middle" ? size / 2 : size * 0.8;
   return (node.lines || [])
     .filter(line => line.text && line.width)
     .map(line => {
-      const shift =
-        anchor === "middle"
-          ? line.width / 2
-          : anchor === "end"
-            ? line.width
-            : 0;
       return {
-        x: node.x + line.x - shift,
+        x: node.x + lineLeft(line, node.font),
         y: node.y + line.y - above,
         width: line.width,
         height: size,

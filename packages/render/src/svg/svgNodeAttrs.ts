@@ -227,6 +227,7 @@ export function applyText(sel: SvgSelection, node: TextNode): void {
         .enter()
         .append("tspan")
         .merge(runs)
+        .attr("x", (r: TextRun) => r.x ?? null)
         .attr("style", (r: TextRun) => runStyle(r))
         .text((r: TextRun) => r.text);
     });

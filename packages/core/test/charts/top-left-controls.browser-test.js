@@ -98,7 +98,11 @@ it("clicking the back button pops history and re-renders", async function () {
           .sum("value")
           .duration(0);
         viz._history = [{depth: 0}];
+        // render's callback also runs after the redraw the click triggers
+        let clicked = false;
         viz.render(() => {
+          if (clicked) return;
+          clicked = true;
           document.querySelector("#s .back-control").click();
           window.setTimeout(
             () => resolve({historyLength: viz._history.length}),

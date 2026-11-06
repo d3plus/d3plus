@@ -395,11 +395,22 @@ export interface TextBoxConfig {
   /**
       Handles truncated lines, returning the new line value. Passed the line's
       text and number; by default appends an ellipsis to every line except a
-      first word that cannot fit (which returns "").
+      first word that cannot fit (which returns ""). The ended line is
+      measured, and words come off its end until it fits the box.
   */
   ellipsis?: (text: string, line: number) => string;
+  /**
+      Lets truncated text cut a word: the word that did not fit (or a first
+      word wider than the box) is cut to the longest start that fits with the
+      `ellipsis`, by whole characters, so emoji and accented letters are never
+      split. Defaults to `false`, which only breaks between words, and draws
+      nothing when the first word does not fit.
+  */
+  truncateWord?: Accessor<boolean>;
   /** The padding as a CSS shorthand string or number. Defaults to 0. */
   padding?: Accessor<string | number>;
+  /** The rotation of each text box, in degrees about its `rotateAnchor`. */
+  rotate?: Accessor<number>;
   /** The anchor point around which to rotate the text box. */
   rotateAnchor?: Accessor<[number, number]>;
   /** The word split function: given a string, returns it split into an array of words. */
@@ -412,6 +423,27 @@ export interface TextBoxConfig {
   x?: Accessor<number>;
   /** The y position (top edge) for each text box. */
   y?: Accessor<number>;
+  /**
+      The horizontal alignment of each line in its box. `"start"`,
+      `"middle"`, and `"end"` align lines to the box's start edge, center, or
+      end edge (the start is the right edge in right-to-left text).
+      `"justify"` spreads each line's words across the box, or its characters
+      in CJK text, leaving a paragraph's last line and any line that ends at a
+      newline start-aligned. A percentage such as `"25%"` places each line
+      that share of the way across the box, so `"0%"`, `"50%"`, and `"100%"`
+      match start, middle, and end; percentages follow the writing direction.
+  */
+  textAnchor?: Accessor<"start" | "middle" | "end" | "justify" | `${number}%`>;
+  /** The vertical alignment of the lines in each box. */
+  verticalAlign?: Accessor<"top" | "middle" | "bottom">;
+  /** Whether the text receives pointer events (`"none"` lets them through to what is underneath). */
+  pointerEvents?: Accessor<"auto" | "none">;
+  /**
+      The inline HTML tags to draw as styles: a map of tag names to CSS
+      declarations, `true` for the defaults (`<b>`, `<strong>`, `<i>`, `<em>`),
+      or `false` to draw tags as text.
+  */
+  html?: boolean | Record<string, string>;
   /** The outline text wraps within, `"square"` or `"circle"`, or a `(datum, index)` accessor. */
   shape?:
     "square" | "circle" | ((d: DataPoint, i: number) => "square" | "circle");
@@ -555,6 +587,37 @@ export interface LinkLabelConfig {
   backgroundOpacity?: number;
   /** Any other TextBox setting, such as `fontColor`, `fontFamily`, or `fontWeight`. */
   [key: string]: unknown;
+}
+
+/** The `linkBundleConfig` options. */
+export interface LinkBundleConfig {
+  /**
+      How closely each link keeps to its bundle, from `0` (drawn straight)
+      to `1` (fully bundled). Defaults to `0.85`.
+  */
+  strength?: number;
+  /**
+      How many times the points along each link double as the bundling
+      settles (finer bends, more work). Defaults to `6`.
+  */
+  cycles?: number;
+  /**
+      The simulation steps in the first cycle; each later cycle takes two
+      thirds as many. Defaults to `50`.
+  */
+  iterations?: number;
+  /**
+      How alike two links must be, from `0` to `1`, to pull on each other:
+      the product of how parallel they are, how alike their lengths are,
+      how near they are, and how much each lies alongside the other. Lower
+      values bundle more links. Defaults to `0.4`.
+  */
+  compatibility?: number;
+  /**
+      Whether each bundled link is drawn as a smooth curve (`true`, the
+      default) or as straight runs between its bend points.
+  */
+  smoothing?: boolean;
 }
 
 /** The `clusterConfig.labelConfig` options. */
@@ -1666,6 +1729,27 @@ export interface D3plusConfig {
       `"geoOrthographic"`), links follow the great circle without the lift.
   */
   linkCurve?: number;
+  /**
+      Network and Geomap: bundles the links (force-directed edge bundling,
+      after Holten and van Wijk). Links that run the same way near each
+      other are pulled together into shared curves that fan out at their
+      ends, so the main flows read through the clutter of a dense chart.
+      Arrowheads, labels, hover, and click focus follow each bundled curve.
+      A Network's links from a node to itself, and a Geomap's links on a
+      globe or cut by its projection, are drawn as usual; a bundled Geomap
+      link ignores `linkCurve`. The bundling is worked out once per layout
+      (under a second for 2,500 links) and reused while the chart zooms,
+      pans, or is hovered. Defaults to `false`.
+  */
+  linkBundle?: boolean;
+  /**
+      Tunes `linkBundle`: `strength` (how closely links keep to their
+      bundles, `0.85`), `cycles` (`6`), `iterations` (`50`),
+      `compatibility` (how alike two links must be to bundle, `0.4`; lower
+      bundles more), and `smoothing` (`true` draws smooth curves). Merged
+      into the defaults.
+  */
+  linkBundleConfig?: LinkBundleConfig;
   /**
       Network, Rings, and Geomap: the widest link, in pixels, when `linkSize`
       values differ. Network and Rings default to half the smallest node's

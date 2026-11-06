@@ -8,8 +8,11 @@ import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/components/text-box/basic-example.js?raw";
 import fontResize from "~/examples/core/components/text-box/font-resize.js?raw";
 import alignment from "~/examples/core/components/text-box/alignment.js?raw";
+import justify from "~/examples/core/components/text-box/justify.js?raw";
+import percentAnchors from "~/examples/core/components/text-box/percent-anchors.js?raw";
 import rotation from "~/examples/core/components/text-box/rotation.js?raw";
 import truncation from "~/examples/core/components/text-box/truncation.js?raw";
+import truncateWord from "~/examples/core/components/text-box/truncate-word.js?raw";
 import longWords from "~/examples/core/components/text-box/long-words.js?raw";
 import fontStyling from "~/examples/core/components/text-box/font-styling.js?raw";
 
@@ -33,6 +36,18 @@ Three equally-sized boxes hold text of very different lengths. With `fontResize:
 
 <Playground chart="TextBox" code={alignment} controls={["textAnchor","verticalAlign"]} height={150} />
 
+### Justified text
+
+`textAnchor: "justify"` spreads the words of each line across the box so both edges stay straight. The last line of a paragraph, and any line that ends at a newline (`\n`), keeps its natural spacing and sits at the start. Scripts written without spaces, such as Chinese and Japanese, are justified between characters instead. In right-to-left text, lines start at the right edge, and a run of left-to-right words (a name, say) keeps its own order.
+
+<Playground chart="TextBox" code={justify} controls={["textAnchor","fontSize","width"]} height={200} />
+
+### Percentages
+
+A percentage places each line that share of the way across the box: the space left beside a line is split so `"25%"` of it sits before the line. `"0%"`, `"50%"`, and `"100%"` match `start`, `middle`, and `end`. Percentages follow the writing direction, so in right-to-left text `"0%"` is the right edge, like `start`.
+
+<Playground chart="TextBox" code={percentAnchors} controls={["fontSize"]} height={160} />
+
 ## Rotation
 
 `rotate` turns the whole box by that many degrees around `rotateAnchor` (its center by default), the same mechanism axes use for slanted tick labels and charts use for vertical bar labels.
@@ -44,6 +59,14 @@ Three equally-sized boxes hold text of very different lengths. With `fontResize:
 Text that does not fit is cut at the last whole line that fits the `height`, and `maxLines` caps the line count regardless of height. The cut line is passed through `ellipsis`, a function `(text, line) => string` that appends `…` by default and can be replaced to end truncated text any other way.
 
 <Playground chart="TextBox" code={truncation} controls={["maxLines","height"]} height={48} />
+
+The ellipsis is measured with the line: when the line and its ellipsis are too wide for the box, words come off the end of the line until they fit.
+
+### Cutting words
+
+By default truncated text only breaks between words, and a first word too wide for the box draws nothing. `truncateWord: true` lets truncation cut a word instead: the word that did not fit (or a first word wider than the box) is cut to the longest start that fits with the ellipsis. It cuts between whole characters, so an emoji or an accented letter is never split.
+
+<Playground chart="TextBox" code={truncateWord} controls={["truncateWord","width"]} height={90} />
 
 ## Long words
 

@@ -397,7 +397,11 @@ it("Gantt: groups draw header rows with brackets, and groupBy drills into a phas
           .depth(0)
           .duration(0)
           .select("#viz");
+        // render's callback also runs after the redraw the click triggers
+        let clicked = false;
         viz.render(() => {
+          if (clicked) return;
+          clicked = true;
           const phases = viz.ctx.gantt.rows.map(r => r.key);
           const bar = viz._chartScene.find(n => n.key === "gantt-task-Build");
           viz

@@ -64,6 +64,22 @@ describe("sceneBounds helpers", () => {
     );
   });
 
+  it("ownBoxes places text lines by their anchor and direction", () => {
+    const text = font => ({
+      type: "text",
+      key: "t",
+      x: 0,
+      y: 0,
+      font: {size: 10, ...font},
+      lines: [{text: "ab", x: 50, y: 10, width: 20}],
+    });
+    const left = font => ownBoxes(text(font))[0].x;
+    assert.strictEqual(left({anchor: "start"}), 50);
+    assert.strictEqual(left({anchor: "middle"}), 40);
+    assert.strictEqual(left({anchor: "end"}), 30);
+    assert.strictEqual(left({anchor: "start", dir: "rtl"}), 30);
+  });
+
   it("mapper composes transforms outermost first", () => {
     const map = mapper([
       {x: 100, y: 0, scale: 2},

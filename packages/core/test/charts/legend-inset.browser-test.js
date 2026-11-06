@@ -242,7 +242,11 @@ it("clicking a swatch in an inset legend still hides its group", async () => {
         const viz = new Function("lib", `return (${src})(lib);`)(lib)
           .duration(0)
           .select("#viz");
+        // render's callback also runs after the redraw the click triggers
+        let clicked = false;
         viz.render(() => {
+          if (clicked) return;
+          clicked = true;
           try {
             const p = viz._insetPlacement;
             const {margin} = lib.insetStyle(viz);

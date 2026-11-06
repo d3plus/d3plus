@@ -16,6 +16,7 @@ import linkTooltips from "~/examples/core/charts/network/link-tooltips.js?raw";
 import linkColor from "~/examples/core/charts/network/link-color.js?raw";
 import linkLabels from "~/examples/core/charts/network/link-labels.js?raw";
 import selfLoops from "~/examples/core/charts/network/self-loops.js?raw";
+import edgeBundling from "~/examples/core/charts/network/edge-bundling.js?raw";
 import clusters from "~/examples/core/charts/network/clusters.js?raw";
 import clusterNames from "~/examples/core/charts/network/cluster-names.js?raw";
 
@@ -98,5 +99,11 @@ Hovering a link highlights it and the two nodes it connects, and its tooltip nam
 A link whose `source` and `target` are the same node draws as a loop outside the node, pointing into the widest gap between the node's other links (or away from the middle of the network when it has none). Its thickness comes from `linkSize`, its label from `linkLabel` (at the loop's far point), and `arrows` draws its arrowhead where it comes back into the node. Several loops on one node fan out side by side, the heaviest in the middle. A loop has the same tooltip, hover, click focus, and keyboard focus as any other link, and a node's tooltip lists it as "↻ node".
 
 <Playground chart="Network" code={selfLoops} controls={["linkSize","linkLabel","arrows"]} />
+
+## Edge bundling
+
+`linkBundle` pulls links that run the same way near each other into shared curves that fan out at their ends, so the main flows between groups read through the clutter of a dense network. Two links bundle when they are close to parallel, of similar length, near each other, and alongside each other (force-directed edge bundling, after Holten and van Wijk). `linkBundleConfig.strength` sets how closely each link keeps to its bundle, from `0` (straight) to `1`; `compatibility` sets how alike two links must be to bundle (lower bundles more); and `cycles`, `iterations`, and `smoothing` tune the simulation and the curve. Arrowheads, labels, tooltips, and click focus follow each curve, and a link from a node to itself keeps its loop. The bundling is worked out once per layout and reused while the chart zooms, pans, or is hovered.
+
+<Playground chart="Network" code={edgeBundling} controls={["linkBundle","linkBundleConfig","arrows"]} height={500} />
 
 <ApiReference name="Network" pkg="core" />
