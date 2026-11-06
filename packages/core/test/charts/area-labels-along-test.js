@@ -4,6 +4,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {LinePlot, StackedArea, Streamgraph} from "../../index.ts";
 import {
   bandColor,
+  bandFontWeight,
   bandSections,
   bandTextColor,
   boxLabelsOnly,
@@ -151,6 +152,22 @@ it("labelSizes — from the font size or max down to the min, no lower than 8px"
   );
   assert.deepStrictEqual(labelSizes({fontSize: 7}), [7], "min caps at size");
   assert.deepStrictEqual(labelSizes({fontMax: 9.5, fontMin: 8}), [9.5, 8.5, 8]);
+});
+
+it("bandFontWeight — the labelConfig's weight, else the box labels' regular", () => {
+  const row = {id: "a"};
+  assert.strictEqual(bandFontWeight(undefined, row, 0), 400);
+  assert.strictEqual(bandFontWeight(700, row, 0), 700);
+  assert.strictEqual(bandFontWeight("bold", row, 0), "bold");
+  assert.strictEqual(
+    bandFontWeight((d, i) => (d.id === "a" ? 300 + i : 0), row, 2),
+    302,
+  );
+  assert.strictEqual(
+    bandFontWeight(() => undefined, row, 0),
+    400,
+  );
+  assert.strictEqual(bandFontWeight("", row, 0), 400);
 });
 
 it("bandTextColor — a user's fontColor wins over the contrast", () => {

@@ -77,6 +77,7 @@ const draw = config =>
           opacity: opacity(n),
           interactive: n.interactive,
           size: n.font.size,
+          weight: n.font.weight,
           points: samplePath(n.path.d).points.map(([px, py]) => [
             px + x,
             py + y,
@@ -89,6 +90,14 @@ const draw = config =>
           opacity: opacity(n),
           outline: samplePath(n.d).points.map(([px, py]) => [px + x, py + y]),
         })),
+        boxWeights: nodes
+          .filter(
+            ({n}) =>
+              n.type === "text" &&
+              names.some(name => `${n.key}`.startsWith(`${name}_`)) &&
+              !`${n.key}`.includes("area-label"),
+          )
+          .map(({n}) => n.font.weight),
         boxTexts: nodes
           .filter(
             ({n}) =>
@@ -308,6 +317,27 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(out.labels.length, 5);
     assert.ok(!out.legend);
     assert.ok(out.colorScale, "the colorScale draws");
+  });
+
+  it(`area labels take the box labels' weight, or a user's (${renderer})`, async () => {
+    const along = await render(page, draw, {renderer, chart: "Streamgraph"});
+    const boxed = await render(page, draw, {
+      renderer,
+      chart: "Streamgraph",
+      labelPosition: "inside",
+    });
+    assert.ok(boxed.boxWeights.length > 0);
+    assert.strictEqual(along.labels.length, 5);
+    for (const label of along.labels)
+      assert.strictEqual(label.weight, boxed.boxWeights[0]);
+    assert.strictEqual(along.labels[0].weight, 400, "regular");
+    const bold = await render(page, draw, {
+      renderer,
+      chart: "Streamgraph",
+      shapeConfig: {Area: {labelConfig: {fontWeight: 700}}},
+    });
+    assert.ok(bold.labels.length > 0);
+    for (const label of bold.labels) assert.strictEqual(label.weight, 700);
   });
 
   it(`a user's fontColor wins over the contrast (${renderer})`, async () => {

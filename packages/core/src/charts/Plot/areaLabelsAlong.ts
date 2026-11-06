@@ -29,6 +29,9 @@ import type {StretchContext} from "./lineLabelsAlong.js";
 /** The room a label keeps from its band's edges, above and below it together. */
 export const AREA_LABEL_PADDING = 4;
 
+/** The along label's weight when the Area's labelConfig sets none: the box labels' regular weight. */
+export const AREA_LABEL_FONT_WEIGHT = 400;
+
 /** How far past a label, in font sizes, more room in its band still scores better. */
 const ROOM_REACH = 1.5;
 
@@ -191,6 +194,26 @@ export function bandTextColor(
   return colorContrast(fill, colorDefaults);
 }
 
+/**
+    The font weight of a band's label: the Area labelConfig's `fontWeight`
+    (a weight, or an accessor of the band's datum and index), the same one
+    its box label would take, else regular.
+    @param fontWeight The labelConfig's `fontWeight`, if any.
+    @param datum The band's datum.
+    @param index The band's index.
+*/
+export function bandFontWeight(
+  fontWeight: unknown,
+  datum: DataPoint,
+  index: number,
+): number | string {
+  const own =
+    typeof fontWeight === "function" ? fontWeight(datum, index) : fontWeight;
+  return typeof own === "number" || (typeof own === "string" && own)
+    ? own
+    : AREA_LABEL_FONT_WEIGHT;
+}
+
 /** Where a band's label goes: the path its baseline follows, and its font size. */
 export interface BandLabelPlacement {
   /** The baseline, upright, in the plot's coordinates. */
@@ -339,15 +362,11 @@ export function emitAreaLabels(
   const config = shapeConfigFor(viz, "Area");
   const {fontColor} = userLabelConfig(viz, "Area");
   const font = labelFont(viz, "Area");
-  const sizes = labelSizes(
-    (config.labelConfig ?? {}) as Record<string, unknown>,
-  );
-  const style = {
-    "font-family": fontExists(
-      (font.fontFamily as string | string[]) ?? defaultFontFamily,
-    ) as string,
-    "font-weight": (font.fontWeight as number) ?? 600,
-  };
+  const labelConfig = (config.labelConfig ?? {}) as Record<string, unknown>;
+  const sizes = labelSizes(labelConfig);
+  const family = fontExists(
+    (font.fontFamily as string | string[]) ?? defaultFontFamily,
+  ) as string;
   const axis = viz.schema.discrete === "y" ? 1 : 0;
   const position = viz.schema.labelPosition;
   // Counted for the legend (see `alongLegend.ts`).
@@ -361,6 +380,12 @@ export function emitAreaLabels(
     const text = labelText(config.label, band.datum, band.index);
     if (!text) return [];
     if (stats) stats.requested++;
+    const fontWeight = bandFontWeight(
+      labelConfig.fontWeight,
+      band.datum,
+      band.index,
+    );
+    const style = {"font-family": family, "font-weight": fontWeight};
     const outlines = band.outlines.map(o => outsideBaselineBreak(viz, o));
     const placed = placeBandLabel(
       outlines,
@@ -387,6 +412,7 @@ export function emitAreaLabels(
         datum: band.datum,
         index: band.index,
         fontSize: placed.fontSize,
+        fontWeight,
       },
     ];
   });
@@ -397,6 +423,8 @@ export function emitAreaLabels(
       ...font,
       fontColor: (d: PathLabel) => d.color,
       fontSize: (d: PathLabel & {fontSize: number}) => d.fontSize,
+      fontWeight: (d: PathLabel & {fontWeight: number | string}) =>
+        d.fontWeight,
     },
     {halo: false},
   );

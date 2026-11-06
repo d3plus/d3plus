@@ -313,8 +313,10 @@ export {spreadLabelPositions} from "./src/charts/Plot/lineLabelSpread.js";
 export {
   AREA_LABEL_FONT_MAX,
   AREA_LABEL_FONT_MIN,
+  AREA_LABEL_FONT_WEIGHT,
   AREA_LABEL_PADDING,
   bandColor,
+  bandFontWeight,
   bandSections,
   boxLabelsOnly,
   densify,
