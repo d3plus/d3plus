@@ -5,6 +5,7 @@ import {LinePlot, StackedArea, Streamgraph} from "../../index.ts";
 import {
   bandColor,
   bandSections,
+  bandTextColor,
   boxLabelsOnly,
   densify,
   labelSizes,
@@ -139,12 +140,37 @@ it("densify — no gap along the polyline longer than the step", () => {
   );
 });
 
-it("labelSizes — from the font size or max down to the min", () => {
+it("labelSizes — from the font size or max down to the min, no lower than 8px", () => {
   assert.deepStrictEqual(labelSizes({fontMin: 12}), [16, 15, 14, 13, 12]);
   assert.deepStrictEqual(labelSizes({fontSize: 10, fontMin: 9}), [10, 9]);
   assert.deepStrictEqual(labelSizes({fontMax: 9}), [9, 8]);
+  assert.deepStrictEqual(
+    labelSizes({fontMax: 10, fontMin: 6}),
+    [10, 9, 8],
+    "Plot's box-label fontMin of 6 stops at 8",
+  );
   assert.deepStrictEqual(labelSizes({fontSize: 7}), [7], "min caps at size");
   assert.deepStrictEqual(labelSizes({fontMax: 9.5, fontMin: 8}), [9.5, 8.5, 8]);
+});
+
+it("bandTextColor — a user's fontColor wins over the contrast", () => {
+  const row = {id: "a"};
+  assert.strictEqual(bandTextColor(undefined, row, 0, "#000000"), "#f8f9fa");
+  assert.strictEqual(bandTextColor(undefined, row, 0, "#ffffff"), "#495057");
+  assert.strictEqual(bandTextColor("tomato", row, 0, "#000000"), "tomato");
+  assert.strictEqual(
+    bandTextColor((d, i) => `${d.id}${i}`, row, 3, "#000000"),
+    "a3",
+  );
+  assert.strictEqual(
+    bandTextColor(() => undefined, row, 0, "#000000"),
+    "#f8f9fa",
+    "an accessor with no color falls back",
+  );
+  assert.strictEqual(
+    bandTextColor(undefined, row, 0, "#000000", {light: "#eee"}),
+    "#eee",
+  );
 });
 
 it("scoreStretch — minClearance and the room it rewards are settable", () => {

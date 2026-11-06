@@ -5,7 +5,7 @@
     <title>Stacked Area Labels Along</title>
     <meta
       name="description"
-      content="Series names along the middle of their stacked bands: Streamgraph and StackedArea defaults, wiggle, a thin series left unlabeled, a reversed axis, horizontal bands, small multiples, a dark theme, and box labels for comparison."
+      content="Series names along the middle of their stacked bands, standing in for the legend: Streamgraph and StackedArea defaults, wiggle, a thin series left unlabeled, a reversed axis, horizontal bands, small multiples, a dark theme, and box labels for comparison."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -35,7 +35,7 @@
   <body>
     <div class="grid">
       <div>
-        <h3>Streamgraph (labels along by default)</h3>
+        <h3>Streamgraph (labels along by default, so no legend)</h3>
         <div class="viz" id="stream"></div>
       </div>
       <div>
@@ -43,7 +43,10 @@
         <div class="viz" id="wiggle"></div>
       </div>
       <div>
-        <h3>StackedArea with a thin series (Polka goes unlabeled)</h3>
+        <h3>
+          StackedArea with a thin series (Polka goes unlabeled; the legend
+          stays)
+        </h3>
         <div class="viz" id="thin"></div>
       </div>
       <div>
@@ -104,8 +107,7 @@
         .data(rowsFor)
         .groupBy("genre")
         .x("year")
-        .y("share")
-        .legend(false);
+        .y("share");
 
     chart(d3plus.Streamgraph, "stream").render();
     chart(d3plus.Streamgraph, "wiggle").stackOffset("wiggle").render();

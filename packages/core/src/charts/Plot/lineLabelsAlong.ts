@@ -273,7 +273,7 @@ export function emitAlongLabels(
   );
   const stats = viz._alongStats;
   if (stats) {
-    stats.lines += lines.length;
+    stats.series += lines.length;
     stats.requested += along.length;
   }
   // A lone line needs no name.

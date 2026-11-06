@@ -26,7 +26,7 @@ Series stack on top of one another, so the total height at each `x` is the sum o
 
 ## Labels along the bands
 
-Each series is named along the middle of its band, following its curve, on the stretch where the band is thick enough for the name and flattest. This is `labelPosition`'s `"auto"` default for stacked areas, and `"along"` asks for it outright. The text takes the color that reads best on the band's fill, starts at 16px and shrinks a pixel at a time down to the Area `labelConfig`'s `fontMin` to fit a thinner band, and dims with its band on hover. A band too thin for its name anywhere goes unlabeled (Solar's early years are too thin, so its name sits where it grows). Set `labelPosition: "inside"` to put each name in its band's largest box instead.
+Each series is named along the middle of its band, following its curve, on the stretch where the band is thick enough for the name and flattest. This is `labelPosition`'s `"auto"` default for stacked areas, and `"along"` asks for it outright. The text takes the color that reads best on the band's fill (an Area `labelConfig.fontColor` of your own wins), starts at 16px and shrinks a pixel at a time, down to 8px, to fit a thinner band, and dims with its band on hover. A band too thin for its name anywhere goes unlabeled (Solar's early years are too thin, so its name sits where it grows). When every band is named, as here, the default legend hides; an unlabeled band brings it back. Set `labelPosition: "inside"` to put each name in its band's largest box instead.
 
 <Playground chart="StackedArea" code={labelsAlong} controls={["labelPosition","shapeConfig"]} />
 

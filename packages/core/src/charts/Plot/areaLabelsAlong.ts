@@ -15,7 +15,7 @@ import {fontFamily as defaultFontFamily} from "@d3plus/text";
 import {samplePath} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 
-import {shapeConfigFor} from "../features/emitHelpers.js";
+import {shapeConfigFor, userLabelConfig} from "../features/emitHelpers.js";
 import {offsetPolyline, polylineD} from "../features/pathLabelGeometry.js";
 import type {Edges, Pt} from "../features/pathLabelGeometry.js";
 import {pathLabelNodes} from "../features/pathLabels.js";
@@ -35,7 +35,7 @@ const ROOM_REACH = 1.5;
 /** The largest along label when the Area's labelConfig sets no `fontSize` or `fontMax`. */
 export const AREA_LABEL_FONT_MAX = 16;
 
-/** The smallest along label when the Area's labelConfig sets no `fontMin`. */
+/** The smallest along label, whatever lower `fontMin` the Area's labelConfig sets. */
 export const AREA_LABEL_FONT_MIN = 8;
 
 /**
@@ -150,7 +150,9 @@ export function densify(points: Pt[], step: number): Pt[] {
 
 /**
     The font sizes to try for an along label, largest first: from `fontSize`
-    (or `fontMax`) down to `fontMin`, a pixel at a time.
+    (or `fontMax`) down to `fontMin`, a pixel at a time, stopping at
+    `AREA_LABEL_FONT_MIN` however low `fontMin` goes (unless `fontSize`
+    itself is smaller).
     @param config The Area's labelConfig.
 */
 export function labelSizes(config: Record<string, unknown> = {}): number[] {
@@ -158,11 +160,35 @@ export function labelSizes(config: Record<string, unknown> = {}): number[] {
     typeof v === "number" && Number.isFinite(v) && v > 0 ? v : undefined;
   const max =
     num(config.fontSize) ?? num(config.fontMax) ?? AREA_LABEL_FONT_MAX;
-  const min = Math.min(max, num(config.fontMin) ?? AREA_LABEL_FONT_MIN);
+  const floor = Math.max(num(config.fontMin) ?? 0, AREA_LABEL_FONT_MIN);
+  const min = Math.min(max, floor);
   const sizes: number[] = [];
   for (let s = max; s >= min; s--) sizes.push(s);
   if (sizes[sizes.length - 1] !== min) sizes.push(min);
   return sizes;
+}
+
+/**
+    The text color of a band's label: the `fontColor` a user's labelConfig
+    sets (a color, or an accessor of the band's datum and index), else the
+    color that contrasts with the band.
+    @param fontColor The user's `fontColor`, if any.
+    @param datum The band's datum.
+    @param index The band's index.
+    @param fill The color the band shows.
+    @param colorDefaults The chart's `colorDefaults`, for the contrast.
+*/
+export function bandTextColor(
+  fontColor: unknown,
+  datum: DataPoint,
+  index: number,
+  fill: string,
+  colorDefaults?: Parameters<typeof colorContrast>[1],
+): string {
+  const own =
+    typeof fontColor === "function" ? fontColor(datum, index) : fontColor;
+  if (typeof own === "string" && own) return own;
+  return colorContrast(fill, colorDefaults);
 }
 
 /** Where a band's label goes: the path its baseline follows, and its font size. */
@@ -296,6 +322,7 @@ function labelText(label: unknown, d: DataPoint, i: number): string | null {
 /**
     The labels along every stacked area band whose `labelPosition` runs it
     along (see `labelsAlongBand`), each in the text the Area's `label` gives.
+    Counts the bands and labels into `viz._alongStats`, for the legend.
     @param viz The chart.
     @param marks The plot's drawn marks, its Areas among them.
     @param rect The plot area.
@@ -310,6 +337,7 @@ export function emitAreaLabels(
   const bands = drawnBands(marks, background);
   if (!bands.length) return [];
   const config = shapeConfigFor(viz, "Area");
+  const {fontColor} = userLabelConfig(viz, "Area");
   const font = labelFont(viz, "Area");
   const sizes = labelSizes(
     (config.labelConfig ?? {}) as Record<string, unknown>,
@@ -322,6 +350,9 @@ export function emitAreaLabels(
   };
   const axis = viz.schema.discrete === "y" ? 1 : 0;
   const position = viz.schema.labelPosition;
+  // Counted for the legend (see `alongLegend.ts`).
+  const stats = viz._alongStats;
+  if (stats) stats.series += bands.length;
   const labels = bands.flatMap(band => {
     const row = (band.datum.data ?? band.datum) as DataPoint;
     const where =
@@ -329,6 +360,7 @@ export function emitAreaLabels(
     if (!labelsAlongBand(where)) return [];
     const text = labelText(config.label, band.datum, band.index);
     if (!text) return [];
+    if (stats) stats.requested++;
     const outlines = band.outlines.map(o => outsideBaselineBreak(viz, o));
     const placed = placeBandLabel(
       outlines,
@@ -338,12 +370,19 @@ export function emitAreaLabels(
       axis,
     );
     if (!placed) return [];
+    if (stats) stats.placed++;
     return [
       {
         key: `area-label-along-${band.key}`,
         text,
         d: polylineD(placed.points),
-        color: colorContrast(band.fill, viz.schema.colorDefaults),
+        color: bandTextColor(
+          fontColor,
+          band.datum,
+          band.index,
+          band.fill,
+          viz.schema.colorDefaults,
+        ),
         anchor: "middle" as const,
         datum: band.datum,
         index: band.index,

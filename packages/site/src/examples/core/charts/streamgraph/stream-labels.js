@@ -5,7 +5,6 @@ const genres = {
   Electronic: [4, 5, 6, 8, 11, 14, 16, 17, 17, 16, 15],
   Country: [12, 12, 11, 11, 12, 12, 13, 13, 14, 14, 15],
   Jazz: [6, 6, 5, 5, 5, 4, 4, 4, 4, 4, 4],
-  Polka: [1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
 };
 
 const streamData = Object.entries(genres).flatMap(([genre, shares]) =>
@@ -16,7 +15,6 @@ const config = {
   data: streamData,
   groupBy: "genre",
   labelPosition: "along",
-  legend: false,
   x: "year",
   y: "share",
 };

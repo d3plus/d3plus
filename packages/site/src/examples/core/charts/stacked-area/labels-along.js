@@ -14,7 +14,6 @@ const config = {
   data: energyData,
   groupBy: "source",
   labelPosition: "along",
-  legend: false,
   shapeConfig: {Area: {curve: "monotoneX"}},
   x: "year",
   y: "twh",

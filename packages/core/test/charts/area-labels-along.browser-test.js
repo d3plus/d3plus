@@ -21,6 +21,8 @@ const draw = config =>
       reversed,
       hover,
       facet,
+      defaultLegend,
+      colorScale,
       ...rest
     } = config;
     const names = ["Rock", "Pop", "Jazz", "Folk", "Soul"];
@@ -43,9 +45,10 @@ const draw = config =>
       .y("sales")
       .renderer(renderer)
       .duration(0)
-      .legend(false)
       .config(rest)
       .select("#viz");
+    if (!defaultLegend) viz.legend(false);
+    if (colorScale) viz.colorScale("sales");
     if (facet) viz.facet("region");
     if (config.discrete === "y") viz.x("sales").y("year");
     if (reversed) viz.xConfig({reverse: true});
@@ -94,6 +97,10 @@ const draw = config =>
               !`${n.key}`.includes("area-label"),
           )
           .map(({n}) => n.lines.map(l => l.text).join(" ")),
+        legend:
+          nodes.some(({n}) => n.key === "viz-legend") &&
+          (viz._legendClass._lineData || []).length > 0,
+        colorScale: nodes.some(({n}) => `${n.key}`.includes("colorScale")),
       });
     });
   });
@@ -252,6 +259,65 @@ for (const renderer of ["svg", "canvas"]) {
       shapeConfig: {Area: {label: false}},
     });
     assert.strictEqual(off.labels.length, 0, "label: false turns them off");
+  });
+
+  it(`the default legend hides when every band is named (${renderer})`, async () => {
+    const all = await render(page, draw, {
+      renderer,
+      chart: "Streamgraph",
+      defaultLegend: true,
+    });
+    assert.strictEqual(all.labels.length, 5);
+    assert.ok(!all.legend, "no legend");
+    const thin = await render(page, draw, {
+      renderer,
+      thin: true,
+      defaultLegend: true,
+    });
+    assert.strictEqual(thin.labels.length, 4);
+    assert.ok(thin.legend, "a band without a name keeps the legend");
+    const own = await render(page, draw, {
+      renderer,
+      chart: "Streamgraph",
+      defaultLegend: true,
+      legend: true,
+    });
+    assert.strictEqual(own.labels.length, 5);
+    assert.ok(own.legend, "legend: true wins");
+    const boxed = await render(page, draw, {
+      renderer,
+      defaultLegend: true,
+      labelPosition: "inside",
+    });
+    assert.ok(boxed.legend, "box labels keep the legend");
+    const faceted = await render(page, draw, {
+      renderer,
+      facet: true,
+      defaultLegend: true,
+    });
+    assert.strictEqual(faceted.labels.length, 10);
+    assert.ok(!faceted.legend, "every panel's bands are named");
+  });
+
+  it(`a colorScale stays while the named bands hide the legend (${renderer})`, async () => {
+    const out = await render(page, draw, {
+      renderer,
+      defaultLegend: true,
+      colorScale: true,
+    });
+    assert.strictEqual(out.labels.length, 5);
+    assert.ok(!out.legend);
+    assert.ok(out.colorScale, "the colorScale draws");
+  });
+
+  it(`a user's fontColor wins over the contrast (${renderer})`, async () => {
+    const out = await render(page, draw, {
+      renderer,
+      shapeConfig: {Area: {labelConfig: {fontColor: "rgb(255, 0, 0)"}}},
+    });
+    assert.strictEqual(out.labels.length, 5);
+    for (const label of out.labels)
+      assert.strictEqual(label.fill, "rgb(255, 0, 0)");
   });
 
   it(`area labels follow each small multiple, with reduced motion (${renderer})`, async () => {
