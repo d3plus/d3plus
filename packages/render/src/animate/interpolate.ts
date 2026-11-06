@@ -301,8 +301,13 @@ export function interpolateNode(
     the enter/exit conventions of the SVG Shape classes.
     @param node The node to collapse.
 */
-/** Whether two text nodes draw the same text at the same place and size. */
+/** Whether two text nodes draw the same text at the same place and size, along the same path. */
 export function sameTextLayout(a: TextNode, b: TextNode): boolean {
+  if (
+    (a.path?.d ?? "") !== (b.path?.d ?? "") ||
+    (a.path?.side ?? "left") !== (b.path?.side ?? "left")
+  )
+    return false;
   const ta = a.transform ?? {},
     tb = b.transform ?? {};
   if ((ta.x ?? 0) !== (tb.x ?? 0) || (ta.y ?? 0) !== (tb.y ?? 0)) return false;

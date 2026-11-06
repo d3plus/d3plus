@@ -100,6 +100,31 @@ it("sameTextLayout compares text, place, and size", () => {
     ),
     "words spread apart",
   );
+  const arc = "M0,-50A50,50 0 0 1 50,0";
+  assert.ok(
+    sameTextLayout(
+      label("A", 10, {path: {d: arc}}),
+      label("A", 10, {path: {d: arc, side: "left"}}),
+    ),
+  );
+  assert.ok(
+    !sameTextLayout(
+      label("A", 10, {path: {d: arc}}),
+      label("A", 10, {path: {d: "M0,-60A60,60 0 0 1 60,0"}}),
+    ),
+    "along a new path",
+  );
+  assert.ok(
+    !sameTextLayout(
+      label("A", 10, {path: {d: arc}}),
+      label("A", 10, {path: {d: arc, side: "right"}}),
+    ),
+    "on the path's other side",
+  );
+  assert.ok(
+    !sameTextLayout(label("A", 10), label("A", 10, {path: {d: arc}})),
+    "onto a path",
+  );
 });
 
 it("interpolateScene fade-swaps a moved label instead of gliding it", () => {
