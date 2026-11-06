@@ -68,6 +68,10 @@ export interface ContourConfig {
   thresholds?: number | number[];
   strokeWidth?: number;
   fillOpacity?: number;
+  /** Writes each level's value along its contour lines. */
+  labels?: boolean;
+  /** TextBox config for the level labels, such as `fontSize` or `fontWeight`. */
+  labelConfig?: Record<string, unknown>;
 }
 
 /** The `pointConfig` option. */
@@ -98,6 +102,8 @@ export const CONTOUR_DEFAULTS: Required<ContourConfig> = {
   thresholds: 8,
   strokeWidth: 1.5,
   fillOpacity: 0.8,
+  labels: true,
+  labelConfig: {},
 };
 
 /** `pointConfig`'s defaults (the fill follows the chart's text color). */

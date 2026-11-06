@@ -2,6 +2,7 @@ import {it} from "vitest";
 import assert from "assert";
 import {
   bestStretch,
+  bestStretchAt,
   curvature,
   labelBand,
   PointGrid,
@@ -39,6 +40,16 @@ it("PointGrid — the nearest obstacle within a cell", () => {
   assert.strictEqual(grid.nearest([3, 4]), 5);
   assert.strictEqual(grid.nearest([18, 0]), 7);
   assert.strictEqual(grid.nearest([60, 60]), Infinity, "out of reach");
+});
+
+it("PointGrid — a lookup can ignore a tag's points", () => {
+  const grid = new PointGrid(10);
+  grid.add([[0, 0]], 1);
+  grid.add([[8, 0]], 2);
+  grid.add([[0, 9]]);
+  assert.strictEqual(grid.nearest([1, 0]), 1);
+  assert.strictEqual(grid.nearest([1, 0], 1), 7, "skips tag 1");
+  assert.strictEqual(grid.nearest([0, 8], -1), 1, "untagged points stay");
 });
 
 it("resample — points every step along a polyline", () => {
@@ -150,5 +161,50 @@ it("bestStretch — the flat, clear part of a line, upright", () => {
     bestStretch([flat(50, 80, 100)], 60, ctx()),
     null,
     "too short",
+  );
+});
+
+it("scoreStretch — ignores the points of the line it sits on", () => {
+  const c = ctx();
+  c.grid.add(resample(flat(0, 400, 97), 2), 3);
+  assert.strictEqual(scoreStretch(flat(10, 60, 100), c), null);
+  assert.notStrictEqual(
+    scoreStretch(flat(10, 60, 100), {...c, ignore: 3}),
+    null,
+  );
+});
+
+it("scoreStretch — keeps the clearance it asks for", () => {
+  const c = ctx([[30, 104]]);
+  assert.notStrictEqual(scoreStretch(flat(10, 60, 100), c), null);
+  assert.strictEqual(
+    scoreStretch(flat(10, 60, 100), {...c, clearance: 8}),
+    null,
+  );
+});
+
+it("bestStretchAt — where the stretch lies, within what allow permits and maxTurn", () => {
+  const line = flat(0, 300, 100);
+  const spot = bestStretchAt([line], 60, ctx());
+  assert.strictEqual(spot.piece, 0);
+  assert.deepStrictEqual(spot.points, bestStretch([line], 60, ctx()));
+  const late = bestStretchAt([line], 60, ctx(), from => from >= 200);
+  assert.ok(late.from >= 200, "only allowed starts");
+  assert.strictEqual(late.points[0][0], late.from);
+  assert.strictEqual(
+    bestStretchAt([line], 60, ctx(), () => false),
+    null,
+    "nothing allowed",
+  );
+  // A right-angle corner: under the default turn limit, but not a tighter one.
+  const corner = [
+    [100, 100],
+    [130, 100],
+    [130, 130],
+  ];
+  assert.ok(bestStretchAt([corner], 50, ctx()));
+  assert.strictEqual(
+    bestStretchAt([corner], 50, {...ctx(), maxTurn: Math.PI / 3}),
+    null,
   );
 });

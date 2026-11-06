@@ -1250,8 +1250,15 @@ export interface D3plusConfig {
       levels to draw (default `8`, rounded to nice values) or the levels
       themselves, in observations per bin; `strokeWidth` is the outline
       width of `"lines"` contours (default `1.5`); and `fillOpacity` is the
-      opacity of the highest `"filled"` level (default `0.8`). Merged into
-      the current config.
+      opacity of the highest `"filled"` level (default `0.8`). `labels`
+      (default `true`) writes each level's value along its contour lines, as
+      a topographic map labels elevation: centered on the line, which breaks
+      beneath it, reading upright, and clear of the other contours and
+      labels. A long contour takes more than one label, spaced well apart;
+      with more than five levels, every other level is labelled; and a level
+      with no clear, gently curving stretch goes unlabelled. `labelConfig`
+      is TextBox config for the labels (`fontSize` defaults to `10`), and
+      `levelFormat` formats their values. Merged into the current config.
   */
   contourConfig?: ContourConfig;
   /**
@@ -1707,9 +1714,10 @@ export interface D3plusConfig {
   /** Configuration object for the legend tooltip. */
   legendTooltip?: TooltipConfig;
   /**
-      Formats the Radar's level value labels. Receives the ring's value and
-      returns its label. Defaults to the abbreviated number format the axes
-      use (`1.5k`, `2M`, …).
+      Formats the Radar's level value labels, or the Hexbin's contour level
+      labels and tooltips. Receives the level's value and returns its label.
+      Defaults to the abbreviated number format the axes use (`1.5k`, `2M`,
+      …).
   */
   levelFormat?: (d: number) => string | number;
   /**

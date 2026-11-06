@@ -5,7 +5,7 @@
     <title>Hexbin</title>
     <meta
       name="description"
-      content="Hexbin variants on 5,000 bivariate-normal points: hexagon and square bins with a binSize slider, density contours, contours over points, summed values, small multiples, zoom, and a dark theme."
+      content="Hexbin variants on 5,000 bivariate-normal points: hexagon and square bins with a binSize slider, density contours with level labels along the lines, contours over points, summed values, small multiples, zoom, and a dark theme."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -81,6 +81,22 @@
         <h3>Dark theme</h3>
         <div class="viz" id="dark"></div>
       </div>
+      <div>
+        <h3>Dense levels: every other one labelled, crowded ones skipped</h3>
+        <div class="viz" id="dense"></div>
+      </div>
+      <div>
+        <h3>Contour labels: levelFormat and labelConfig</h3>
+        <div class="viz" id="formatted"></div>
+      </div>
+      <div>
+        <h3>Contour labels clear a trend line and its label</h3>
+        <div class="viz" id="trend"></div>
+      </div>
+      <div>
+        <h3>Contour labels off (contourConfig.labels: false)</h3>
+        <div class="viz" id="unlabelled"></div>
+      </div>
     </div>
   </body>
 
@@ -122,6 +138,24 @@
       base("facet").facet("group"),
       base("zoom").zoom(true),
       base("dark").contours(true).theme("dark"),
+      base("dense")
+        .binShape(false)
+        .contours(true)
+        .contourConfig({thresholds: 20, bandwidth: 30}),
+      base("formatted")
+        .binShape(false)
+        .contours(true)
+        .levelFormat(d => `${d} / bin`)
+        .contourConfig({labelConfig: {fontSize: 12, fontWeight: 400}}),
+      base("trend")
+        .binShape(false)
+        .contours(true)
+        .trendLine(true)
+        .trendLineConfig({label: "equation"}),
+      base("unlabelled")
+        .binShape(false)
+        .contours(true)
+        .contourConfig({labels: false}),
     ];
     charts.forEach(chart => chart.render());
 

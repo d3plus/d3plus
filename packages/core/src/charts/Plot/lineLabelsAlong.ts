@@ -23,9 +23,13 @@ import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {rowLabelsAlong} from "./lineLabelSides.js";
 
-/** Obstacle points, bucketed by cell for nearest-distance lookups. */
+/**
+    Obstacle points, bucketed by cell for nearest-distance lookups. Each
+    point may carry a tag, so a lookup can ignore the points of the line a
+    label sits on.
+*/
 export class PointGrid {
-  private cells = new Map<string, Pt[]>();
+  private cells = new Map<string, [number, number, number][]>();
 
   /** @param cell The cell size: lookups see obstacles this far away. */
   constructor(private cell: number) {}
@@ -34,25 +38,34 @@ export class PointGrid {
     return `${Math.floor(x / this.cell)},${Math.floor(y / this.cell)}`;
   }
 
-  /** Adds obstacle points. */
-  add(points: Pt[]): void {
-    for (const p of points) {
-      const k = this.key(p[0], p[1]);
+  /**
+      Adds obstacle points.
+      @param points The points.
+      @param tag A tag `nearest` can ignore them by.
+  */
+  add(points: Pt[], tag = -1): void {
+    for (const [x, y] of points) {
+      const k = this.key(x, y);
       const list = this.cells.get(k);
-      if (list) list.push(p);
-      else this.cells.set(k, [p]);
+      if (list) list.push([x, y, tag]);
+      else this.cells.set(k, [[x, y, tag]]);
     }
   }
 
-  /** The distance from `p` to its nearest obstacle within one cell, or `Infinity`. */
-  nearest(p: Pt): number {
+  /**
+      The distance from `p` to its nearest obstacle within one cell, or `Infinity`.
+      @param p The point.
+      @param ignore A tag whose points are left out.
+  */
+  nearest(p: Pt, ignore?: number): number {
     const cx = Math.floor(p[0] / this.cell),
       cy = Math.floor(p[1] / this.cell);
     let best = Infinity;
     for (let dx = -1; dx <= 1; dx++)
       for (let dy = -1; dy <= 1; dy++)
-        for (const q of this.cells.get(`${cx + dx},${cy + dy}`) ?? [])
-          best = Math.min(best, Math.hypot(p[0] - q[0], p[1] - q[1]));
+        for (const [x, y, tag] of this.cells.get(`${cx + dx},${cy + dy}`) ?? [])
+          if (tag !== ignore || tag === -1)
+            best = Math.min(best, Math.hypot(p[0] - x, p[1] - y));
     return best;
   }
 }
@@ -99,8 +112,14 @@ export interface StretchContext {
   grid: PointGrid;
   rect: Edges;
   fontSize: number;
-  /** How far above the line the text's baseline sits. */
+  /** How far above the line the text's baseline sits (below it, when negative). */
   lift: number;
+  /** A grid tag to ignore: the points of the line the label sits on. */
+  ignore?: number;
+  /** The most a stretch may turn in all, in radians (default a right angle). */
+  maxTurn?: number;
+  /** The least distance a label keeps from the obstacles, in pixels (default 2). */
+  clearance?: number;
 }
 
 /**
@@ -130,14 +149,58 @@ export function scoreStretch(points: Pt[], ctx: StretchContext): number | null {
   for (const p of band) {
     if (p[0] < rect.x0 || p[0] > rect.x1 || p[1] < rect.y0 || p[1] > rect.y1)
       return null;
-    clearance = Math.min(clearance, ctx.grid.nearest(p));
+    clearance = Math.min(clearance, ctx.grid.nearest(p, ctx.ignore));
   }
-  if (clearance < 2) return null;
+  if (clearance < (ctx.clearance ?? 2)) return null;
   const [x0, y0] = points[0];
   const [x1, y1] = points[points.length - 1];
   const slope = Math.abs(Math.atan2(y1 - y0, x1 - x0));
   const room = Math.min(clearance, ctx.fontSize) / ctx.fontSize;
   return curvature(points) * 2 + slope * 0.5 - room * 0.5;
+}
+
+/** A stretch `bestStretchAt` found: its points, its piece, and where along the piece it starts. */
+export interface StretchSpot {
+  points: Pt[];
+  piece: number;
+  from: number;
+}
+
+/**
+    The best-scoring stretch of `length` pixels along any of a line's
+    pieces, upright, with where it lies, or null when every stretch is
+    blocked or too bent.
+    @param pieces The line's pieces (where its data has gaps), in pixels.
+    @param length The stretch's length.
+    @param ctx The obstacles, plot area, and font.
+    @param allow Which stretches may be taken, by their piece and start.
+*/
+export function bestStretchAt(
+  pieces: Pt[][],
+  length: number,
+  ctx: StretchContext,
+  allow?: (from: number, piece: number) => boolean,
+): StretchSpot | null {
+  let best: StretchSpot | null = null;
+  let bestScore = Infinity;
+  const step = Math.max(4, ctx.fontSize / 2);
+  const maxTurn = ctx.maxTurn ?? Math.PI / 2;
+  for (let index = 0; index < pieces.length; index++) {
+    const piece = pieces[index];
+    const total = polylineLength(piece);
+    for (let from = 0; from + length <= total; from += step) {
+      if (allow && !allow(from, index)) continue;
+      const stretch = uprightPoints(trimPolyline(piece, from, from + length));
+      // A label can't follow a line that doubles back under it.
+      if (curvature(stretch) > maxTurn) continue;
+      const score = scoreStretch(stretch, ctx);
+      if (score !== null && score < bestScore) {
+        bestScore = score;
+        best = {points: stretch, piece: index, from};
+      }
+    }
+  }
+  return best;
 }
 
 /**
@@ -152,23 +215,7 @@ export function bestStretch(
   length: number,
   ctx: StretchContext,
 ): Pt[] | null {
-  let best: Pt[] | null = null;
-  let bestScore = Infinity;
-  const step = Math.max(4, ctx.fontSize / 2);
-  for (const piece of pieces) {
-    const total = polylineLength(piece);
-    for (let from = 0; from + length <= total; from += step) {
-      const stretch = uprightPoints(trimPolyline(piece, from, from + length));
-      // A label can't follow a line that doubles back under it.
-      if (curvature(stretch) > Math.PI / 2) continue;
-      const score = scoreStretch(stretch, ctx);
-      if (score !== null && score < bestScore) {
-        bestScore = score;
-        best = stretch;
-      }
-    }
-  }
-  return best;
+  return bestStretchAt(pieces, length, ctx)?.points ?? null;
 }
 
 /** A drawn series line: its row, and its pieces in the plot's coordinates. */
