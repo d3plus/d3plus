@@ -676,6 +676,28 @@ export interface LinkBundleConfig {
   smoothing?: boolean;
 }
 
+/** The `clusterConfig.labelConfig` options. */
+export interface ClusterLabelConfig {
+  /** The largest font size a cluster name takes, in pixels. Defaults to `16`. */
+  fontMax?: number;
+  /** The smallest font size a cluster name may shrink to before it is left off, in pixels. Defaults to `10`. */
+  fontMin?: number;
+  /** The space kept clear around each name, in pixels. Defaults to `4`. */
+  padding?: number;
+  /** Any other TextBox setting, such as `fontColor` (defaults to the chart's text color), `fontFamily`, `fontOpacity`, or `fontWeight`. */
+  [key: string]: unknown;
+}
+
+/** The `clusterConfig` options. */
+export interface ClusterConfig {
+  /** The most clusters to keep. When there are more, the smallest joins the cluster it shares the most link weight with (or, when it has no links to another cluster, the largest), until there are this many. Defaults to `12`, the palette's distinct colors. */
+  max?: number;
+  /** Names each cluster from its most-connected node's row, its index (0 is the largest), and its members' rows. Defaults to "{node} cluster", translated, with the node's label. */
+  label?: (d: DataPoint, i: number, nodes: DataPoint[]) => string;
+  /** Styles the cluster names a Network draws inside its clusters, or `false` for none. */
+  labelConfig?: ClusterLabelConfig | false;
+}
+
 export interface ColorScaleConfig {
   /** The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through. */
   color?: string | string[];
@@ -1072,6 +1094,31 @@ export interface D3plusConfig {
       to `true`.
   */
   circularLinks?: boolean;
+  /**
+      Network and ArcDiagram: colors each node by the cluster it belongs to,
+      found with the Louvain method (links weighted by `linkSize`). Each
+      cluster is named after its most-connected node ("alpha cluster"), and
+      the legend lists the clusters, largest first, even for a network drawn
+      from `nodes` alone; clicking a cluster zooms to it. A Network also writes each name
+      inside its cluster, where it fits clear of the nodes and their labels.
+      Applies only while the chart's color is its default: setting `color`,
+      `colorScale`, `colorOrdinal`, or a `shapeConfig` fill, or more than one
+      `groupBy` level, colors nodes as configured instead. A network with
+      fewer than two clusters of two or more nodes keeps one color per node.
+      A node with no links keeps its own color and label. `false` turns
+      clustering off. Defaults to `true`.
+  */
+  cluster?: boolean;
+  /**
+      Network and ArcDiagram: names and styles the clusters (see `cluster`).
+      `label` names each cluster: it receives the row of the cluster's
+      most-connected node, the cluster's index (0 is the largest), and every
+      member's row. `max` is the most clusters to keep (default `12`): while
+      there are more, the smallest joins the cluster it shares the most link
+      weight with, or the largest when it has none. `labelConfig` styles the
+      names a Network draws inside its clusters, or `false` draws none.
+  */
+  clusterConfig?: ClusterConfig;
   /**
       Candlestick: accessor or data key for each period's closing value
       (default `"close"`). It is the chart's `y`: setting `y` sets it.

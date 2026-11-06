@@ -5,7 +5,7 @@
     <title>ArcDiagram</title>
     <meta
       name="description"
-      content="Arc diagrams of an illustrative Les Misérables co-occurrence network: nodeSort, arcSide, orient, and arrows controls, arcs colored by source on a dark background, and a small directed graph with arcs on both sides."
+      content="Arc diagrams of an illustrative Les Misérables co-occurrence network: nodeSort, arcSide, orient, and arrows controls, arcs colored by source on a dark background, a small directed graph with arcs on both sides, and the network with no color set, colored by cluster."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -89,6 +89,10 @@
       <h3>A directed graph: forward links above, backward below</h3>
       <div class="viz" id="directed"></div>
     </div>
+    <div class="wide">
+      <h3>No color set: nodes colored by cluster, ordered by group</h3>
+      <div class="viz" id="clusters"></div>
+    </div>
   </body>
 
   <script>
@@ -131,6 +135,14 @@
           .arcSide("below")
           .nodeSort("degree")
           .legend(false)
+          .render();
+
+        new d3plus.ArcDiagram()
+          .select("#clusters")
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .nodeSort("group")
           .render();
       });
 

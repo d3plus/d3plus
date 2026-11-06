@@ -2106,4 +2106,44 @@ export {
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";
+export {
+  CLUSTER_MAX,
+  capClusters,
+  clusterAutoActive,
+  clusterFields,
+  clusterHubs,
+  clusterLegendRows,
+  clusterLegendSort,
+  clusterName,
+  clusterOf,
+  clustersMeaningful,
+  findClusters,
+  installClusters,
+  prepareClusters,
+} from "./src/charts/Network/clusters.js";
+export type {
+  ClusterDefaults,
+  ClusterInfo,
+  ClusterState,
+} from "./src/charts/Network/clusters.js";
+export {
+  CLUSTER_LABEL_DEFAULTS,
+  clusterLabelObstacles,
+  clusterLabelSettings,
+  clusterRegion,
+  emitClusterLabels,
+  layoutClusterLabels,
+  nearestPoint,
+  networkClusterLabels,
+  placeClusterLabel,
+} from "./src/charts/Network/clusterLabels.js";
+export type {
+  ClusterLabel,
+  ClusterLabelCircle,
+  ClusterLabelSettings,
+} from "./src/charts/Network/clusterLabels.js";
+export type {
+  ClusterConfig,
+  ClusterLabelConfig,
+} from "./src/utils/D3plusConfig.js";
 export {CanvasRenderer, SvgRenderer} from "@d3plus/render";

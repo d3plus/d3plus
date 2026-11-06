@@ -5,6 +5,7 @@
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
+import type {Bounds} from "@d3plus/math";
 import type {Paint, SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
@@ -46,6 +47,7 @@ import {segmentMidpoint} from "../features/linkLabelGeometry.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
+import {networkClusterLabels} from "./clusterLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {bundledLinkAnchor, bundledLinkEdge} from "./bundle.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -206,6 +208,7 @@ function networkLinkLabels(
   viz: VizInstance,
   c: NetworkCtx,
   placed: Map<NetworkNode, CircleLabelLayout>,
+  taken: Bounds[] = [],
 ): SceneNode[] {
   if (!c.links?.length) return [];
   const beside = [...placed.values()].flatMap(p =>
@@ -249,7 +252,7 @@ function networkLinkLabels(
           const h = n.height ?? n.r * 2;
           return {x: n.x - w / 2, y: n.y - h / 2, width: w, height: h};
         })
-        .concat(beside),
+        .concat(beside, taken),
     },
   );
 }
@@ -433,7 +436,13 @@ export const networkEmit: ChartEmit = ({viz}) => {
     ? placeNetworkLabels(viz, c)
     : new Map<NetworkNode, CircleLabelLayout>();
   if (c.links && c.links.length) out.push(...emitNetworkLinks(viz, c));
-  out.push(...networkLinkLabels(viz, c, placed));
+  const clusters = networkClusterLabels(
+    viz,
+    (c.nodeGroups ?? []).flatMap(([, values]) => values),
+    placed,
+  );
+  out.push(...clusters.scene);
+  out.push(...networkLinkLabels(viz, c, placed, clusters.boxes));
 
   if (c.nodeGroups && c.nodeGroups.length) {
     for (const [shapeKind, values] of c.nodeGroups) {

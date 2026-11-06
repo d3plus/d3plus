@@ -29,6 +29,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {linkMeta, linkTooltipConfig} from "../features/linkInteraction.js";
 import {isSelfLoopMark} from "../features/selfLoops.js";
 import {installGraphFluent} from "../Network/graphFluent.js";
+import {clusterFields, installClusters} from "../Network/clusters.js";
 import type {GraphFluent} from "../Network/graphFluent.js";
 import {applyArcDiagramLayout, arcSizeLegendScale} from "./applyLayout.js";
 import type {ArcCtx} from "./applyLayout.js";
@@ -73,6 +74,7 @@ export const arcDiagramDef: ChartDefinition = {
   setup: (viz: VizInstance) => {
     setupArcEvents(viz);
     installGraphFluent(viz as VizInstance & GraphFluent);
+    installClusters(viz);
     // Like Network, ArcDiagram pans and zooms on its own surface, whose
     // background click clears a focus.
     const v = viz as VizInstance & {_draw: (cb?: () => void) => unknown};
@@ -118,6 +120,7 @@ export const arcDiagramDef: ChartDefinition = {
         the head stays wider than its line. The line stops inside the head.
     */
     {key: "arrowSize"},
+    ...clusterFields(),
     ...linkStyleFields(),
     ...loaderFormatFields("links", "nodes"),
     {key: "links", default: []},

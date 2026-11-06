@@ -147,9 +147,15 @@ export function setupArcEvents(viz: VizInstance): void {
       const ids = viz._ids(h, hi);
       return `${ids[idList.length - 1]}`;
     };
-    const want = `${idList[idList.length - 1]}`;
+    // A legend item that merges several ids (such as a cluster) has them all.
+    const merged: unknown = viz._id(d, i);
+    const wanted = new Set(
+      (Array.isArray(merged) ? merged : [idList[idList.length - 1]]).map(
+        String,
+      ),
+    );
     const ids = new Set(
-      c.nodes.filter(n => key(n.data, n.i) === want).map(n => n.id),
+      c.nodes.filter(n => wanted.has(key(n.data, n.i))).map(n => n.id),
     );
     if (!ids.size) return;
     const arcs = c.links.filter(
@@ -159,7 +165,7 @@ export function setupArcEvents(viz: VizInstance): void {
     v.hover(false);
     v.active((h: DataPoint, hi: number) => {
       const m = linkMeta(h);
-      return m ? indices.has(m.index) : key(h, hi) === want;
+      return m ? indices.has(m.index) : wanted.has(key(h, hi));
     });
     viz._focus = id;
     zoomTo(viz, focusBox(c, ids, arcs));

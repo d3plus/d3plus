@@ -11,6 +11,7 @@ import directedArrows from "~/examples/core/charts/arc-diagram/directed-arrows.j
 import bothSides from "~/examples/core/charts/arc-diagram/both-sides.js?raw";
 import linkLabels from "~/examples/core/charts/arc-diagram/link-labels.js?raw";
 import selfLoops from "~/examples/core/charts/arc-diagram/self-loops.js?raw";
+import clusters from "~/examples/core/charts/arc-diagram/clusters.js?raw";
 
 Places a network's nodes in a row along one line and draws each link as
 an arc between its two nodes, which shows the network's structure
@@ -27,6 +28,12 @@ Takes the same `nodes` and `links` as Network. Nodes sit evenly along one line i
 `nodeSort: "group"` gathers each team together (by the `color` value, then by label), so links within a team draw as small, low arcs and the few links between teams stand out as the tall ones. `"label"`, `"degree"` (most connected first), or a comparator reorder the line too. `linkSize` sets each arc's thickness from the number of meetings.
 
 <Playground chart="ArcDiagram" code={sortByGroup} controls={["nodeSort","color","linkSize"]} />
+
+## Clusters
+
+With no colors of its own, an ArcDiagram colors its nodes by cluster as [Network does](/core/charts/network/#clusters): the Louvain method finds the groups of nodes linked more to each other than to the rest, weighted by `linkSize`, and names each after its most-connected node. The legend lists the clusters largest first (at most `clusterConfig.max`, 12 by default), and clicking one focuses it. `nodeSort: "group"` orders the line by cluster, so each cluster's arcs stay short. An ArcDiagram names its clusters in the legend only. Set `cluster` to `false` for one color per node.
+
+<Playground chart="ArcDiagram" code={clusters} controls={["cluster","nodeSort"]} />
 
 ## Directed arrows
 

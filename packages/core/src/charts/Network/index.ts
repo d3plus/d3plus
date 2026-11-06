@@ -50,6 +50,7 @@ import type {FocusBox} from "../features/linkFocus.js";
 import type {LinkDatum} from "../features/linkInteraction.js";
 import type {GraphLink} from "./graph.js";
 import {loaderFormatFields} from "../viz/loaderFormat.js";
+import {clusterFields, installClusters} from "./clusters.js";
 
 const getNodeId = graphNodeId;
 
@@ -341,6 +342,7 @@ export const networkDef: ChartDefinition = {
     // `hover()` need imperative method bodies (queue loading, aggs side
     // effects). Install them per-instance.
     setupNetworkFluent(v);
+    installClusters(viz);
 
     // Default x/y accessors for nodes (Network reads node coords directly).
     viz._x = accessor("x") as VizInstance["_x"];
@@ -387,6 +389,7 @@ export const networkDef: ChartDefinition = {
         @type {number | function}
     */
     {key: "arrowSize"},
+    ...clusterFields(),
     ...linkStyleFields(),
     ...linkBundleFields(),
     ...loaderFormatFields("links", "nodes"),
