@@ -4,6 +4,7 @@ import {pathTextBoxes, samplePath} from "@d3plus/render";
 import {useJsdom} from "~test/jsdom.js";
 import {
   chooseRingLabel,
+  ringLabelEnd,
   ringLabelFit,
   ringLabelPair,
   ringLabelPosition,
@@ -69,13 +70,14 @@ it("ringTextPath — an arc of radius r between the angles, in reading order", (
 
 it("ringLabelFit — the largest size whose glyphs fit across the ring and the text along it", () => {
   const arc = {innerRadius: 100, outerRadius: 140, startAngle: 0, endAngle: 1};
-  // 40px of ring holds 34px glyphs with 3px padding on either side.
+  // 40px of ring holds 30px glyphs with 5px padding on either side.
   const short = ringLabelFit(arc, perPx(1), {fontMin: 8, fontMax: 50});
-  assert.strictEqual(short.fontSize, 34);
+  assert.strictEqual(short.fontSize, 30);
   assert.strictEqual(ringLabelFit(arc, perPx(1)).fontSize, 24, "fontMax");
-  // A longer text is held to the arc's length at its glyphs' inner edge.
+  // A longer text is held to the arc's length at its glyphs' inner edge,
+  // less 0.3em at either end.
   const fit = ringLabelFit(arc, perPx(4), {fontMin: 8, fontMax: 50});
-  assert.strictEqual(fit.fontSize, 26);
+  assert.strictEqual(fit.fontSize, 24);
   assert.strictEqual(fit.clockwise, true);
   assert.strictEqual(fit.truncated, false);
   near(fit.radius, 120 - 0.3 * fit.fontSize);
@@ -86,7 +88,7 @@ it("ringLabelFit — the largest size whose glyphs fit across the ring and the t
   near(fit.length, samplePath(fit.d).total, 1);
   // A narrower arc shrinks the text to fit along it.
   const narrow = ringLabelFit({...arc, endAngle: 0.4}, perPx(4));
-  assert.strictEqual(narrow.fontSize, 10);
+  assert.strictEqual(narrow.fontSize, 9);
   assert.strictEqual(narrow.truncated, false);
   assert.ok(4 * narrow.fontSize <= narrow.length + 1e-6);
 });
@@ -117,13 +119,58 @@ it("ringLabelFit — glyphs sit on the ring's middle, the baseline outside it on
 it("ringLabelFit — aligns to the outer or inner edge", () => {
   const arc = {innerRadius: 0, outerRadius: 200, startAngle: 0, endAngle: 1};
   const outer = ringLabelFit(arc, perPx(4), {fontMax: 12, align: "outer"});
-  near(outer.radius, 200 - 3 - 6 - 0.3 * 12);
+  near(outer.radius, 200 - 5 - 6 - 0.3 * 12);
   const inner = ringLabelFit(
     {...arc, innerRadius: 200, outerRadius: 230},
     perPx(4),
     {fontMax: 12, align: "inner"},
   );
-  near(inner.radius, 200 + 3 + 6 - 0.3 * 12);
+  near(inner.radius, 200 + 5 + 6 - 0.3 * 12);
+});
+
+it("ringLabelEnd — the padding at each end of the text, never under 0.3em", () => {
+  assert.strictEqual(ringLabelEnd(5, 10), 5);
+  assert.strictEqual(ringLabelEnd(5, 30), 9);
+  assert.strictEqual(ringLabelEnd(0, 20), 6);
+});
+
+it("ringLabelFit — the glyphs keep their padding from the ring and 0.3em from the segment's ends", () => {
+  for (const [startAngle, endAngle] of [
+    [0.2, 1.4],
+    [Math.PI - 0.6, Math.PI + 0.6],
+  ]) {
+    const arc = {innerRadius: 100, outerRadius: 150, startAngle, endAngle};
+    const width = perPx(5);
+    const fit = ringLabelFit(arc, width, {fontMax: 40});
+    const fs = fit.fontSize;
+    const boxes = pathTextBoxes({
+      type: "text",
+      key: "t",
+      x: 0,
+      y: 0,
+      font: {size: fs, anchor: "middle"},
+      lines: [{text: "x", x: fit.length / 2, y: 0, width: width(fs)}],
+      path: {d: fit.d},
+    });
+    for (const b of boxes) {
+      const rad = (b.angle * Math.PI) / 180;
+      const [ux, uy] = [Math.cos(rad), Math.sin(rad)];
+      for (const [su, sv] of [
+        [-1, -1],
+        [-1, 1],
+        [1, -1],
+        [1, 1],
+      ]) {
+        const x = b.x + (su * b.width * ux) / 2 - (sv * b.height * uy) / 2;
+        const y = b.y + (su * b.width * uy) / 2 + (sv * b.height * ux) / 2;
+        const r = Math.hypot(x, y);
+        assert.ok(r >= 105 - 0.5 && r <= 145 + 0.5, `radius ${r}`);
+        const a = (Math.atan2(x, -y) + TAU) % TAU;
+        const edge = Math.min(a - startAngle, endAngle - a) * r;
+        assert.ok(edge >= 0.3 * fs - 0.5, `${edge}px from an end at ${fs}px`);
+      }
+    }
+  }
 });
 
 it("ringLabelFit — cuts a long text short, or gives up", () => {

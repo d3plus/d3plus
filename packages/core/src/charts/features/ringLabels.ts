@@ -16,6 +16,20 @@ import type {Pt} from "./pathLabelGeometry.js";
 const TAU = Math.PI * 2;
 const EPSILON = 1e-6;
 
+/** The room a curved label keeps from its segment's edges by default, in pixels: the padding straight labels keep inside their box. */
+export const RING_LABEL_PADDING = 5;
+
+/**
+    The room a curved label keeps at each end of its text: `padding`, but
+    never less than 0.3em, so the first and last letters stay clear of the
+    segment's ends.
+    @param padding The padding in pixels.
+    @param fontSize The font size.
+*/
+export function ringLabelEnd(padding: number, fontSize: number): number {
+  return Math.max(padding, 0.3 * fontSize);
+}
+
 /** The polar extent of one ring segment. */
 export interface RingArc {
   innerRadius: number;
@@ -39,8 +53,14 @@ export interface RingLabelFitOptions {
   fontMin?: number;
   /** The largest font size to try. Defaults to 24. */
   fontMax?: number;
-  /** The room kept between the glyphs and the segment's edges, in pixels. Defaults to 3. */
+  /**
+      The room kept between the glyphs and the segment's edges, in pixels.
+      At each end of the text it is at least 0.3em. Defaults to 5, the
+      padding straight labels keep inside their box.
+  */
   padding?: number;
+  /** The room kept at each end of the text, when it differs from `padding`; still at least 0.3em. */
+  endPadding?: number;
   /** Where the glyphs sit across the ring. Defaults to `"middle"`. */
   align?: RingLabelAlign;
   /**
@@ -134,8 +154,9 @@ function bandCenter(
 /**
     Fits a one-line label along a ring segment: the largest font size (from
     `fontMax` down to `fontMin`) at which its glyphs fit across the ring and
-    its text along the arc, clear of the segment's ends and pad by `padding`
-    pixels. When no size fits the whole text, it sits at `fontMin` and is cut
+    its text along the arc, `padding` pixels clear of the ring's edges and
+    at least 0.3em clear of the segment's ends and pad (see `ringLabelEnd`).
+    When no size fits the whole text, it sits at `fontMin` and is cut
     short with an ellipsis (unless `truncate` is false), as long as its arc
     holds a few letters. Null when the label has no room. The glyphs span
     0.8em above the baseline to 0.2em below, so the baseline sits 0.3em
@@ -152,7 +173,8 @@ export function ringLabelFit(
   const {
     fontMin = 8,
     fontMax = 24,
-    padding = 3,
+    padding = RING_LABEL_PADDING,
+    endPadding = padding,
     align = "middle",
     minRadius = 2.5,
     maxTurn = Math.PI,
@@ -180,7 +202,7 @@ export function ringLabelFit(
     if (!(inner > 0)) return null;
     const turn = Math.min(
       maxTurn,
-      span - (padLength + padding * 2) / inner,
+      span - (padLength + ringLabelEnd(endPadding, fontSize) * 2) / inner,
       TAU - EPSILON,
     );
     return turn > 0 ? {radius, turn} : null;
@@ -229,7 +251,12 @@ export function ringLabelPair(
   subWidth: (fontSize: number) => number,
   options: RingLabelFitOptions = {},
 ): [RingLabelFit, RingLabelFit] | null {
-  const {fontMin = 8, fontMax = 24, padding = 3, align = "middle"} = options;
+  const {
+    fontMin = 8,
+    fontMax = 24,
+    padding = RING_LABEL_PADDING,
+    align = "middle",
+  } = options;
   const span = Math.abs(arc.endAngle - arc.startAngle);
   const mid = Math.min(arc.startAngle, arc.endAngle) + span / 2;
   const up = ringReadsClockwise(mid - 0.01, mid + 0.01) ? 1 : -1;
@@ -247,21 +274,13 @@ export function ringLabelPair(
           fontMin: size,
           fontMax: size,
           padding: 0,
+          endPadding: options.endPadding ?? padding,
           align: "middle",
           truncate: false,
         },
       );
-    // Each line keeps the padding from the segment's ends along the arc.
-    const first = line(
-      center + (up * (block - fontSize)) / 2,
-      fontSize,
-      fs => width(fs) + padding * 2,
-    );
-    const second = line(
-      center - (up * (block - sub)) / 2,
-      sub,
-      fs => subWidth(fs) + padding * 2,
-    );
+    const first = line(center + (up * (block - fontSize)) / 2, fontSize, width);
+    const second = line(center - (up * (block - sub)) / 2, sub, subWidth);
     return first && second ? [first, second] : null;
   };
   const fontSize = largestFontSize(

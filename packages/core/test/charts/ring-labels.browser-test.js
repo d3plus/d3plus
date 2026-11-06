@@ -121,6 +121,7 @@ const draw = ([type, config, renderer]) =>
           const arc = arcOf(n.datum);
           return {
             text: n.lines[0].text,
+            fontSize: n.font.size,
             fill: n.paint.fill,
             hasDatum: n.datum !== undefined,
             interactive: n.interactive,
@@ -170,6 +171,42 @@ const luminance = color => {
 };
 
 /** Asserts the curved labels sit inside their arcs' bands, upright, and nothing overlaps. */
+/** Asserts each curved label's glyphs keep 0.3em from its segment's ends and pad, and clear of its ring's edges. */
+function assertInset(out, label) {
+  for (const c of out.curved) {
+    const fs = c.fontSize;
+    const pad =
+      ((c.arc.padAngle || 0) / 2) *
+      Math.hypot(c.arc.innerRadius, c.arc.outerRadius);
+    for (const b of c.boxes) {
+      const rad = (b.angle * Math.PI) / 180;
+      const [ux, uy] = [Math.cos(rad), Math.sin(rad)];
+      for (const [su, sv] of [
+        [-1, -1],
+        [-1, 1],
+        [1, -1],
+        [1, 1],
+      ]) {
+        const x = b.x + (su * b.width * ux) / 2 - (sv * b.height * uy) / 2;
+        const y = b.y + (su * b.width * uy) / 2 + (sv * b.height * ux) / 2;
+        const r = Math.hypot(x, y);
+        assert.ok(
+          r >= c.arc.innerRadius + 3 && r <= c.arc.outerRadius - 3,
+          `${label}: ${c.text} at radius ${r.toFixed(1)} of [${c.arc.innerRadius.toFixed(1)}, ${c.arc.outerRadius.toFixed(1)}]`,
+        );
+        const a = Math.atan2(x, -y);
+        const from = norm(a - c.arc.startAngle);
+        const to = norm(c.arc.endAngle - a);
+        const edge = Math.min(from, to) * r - pad;
+        assert.ok(
+          edge >= 0.3 * fs - 1,
+          `${label}: ${c.text} ${edge.toFixed(1)}px from an end at ${fs}px`,
+        );
+      }
+    }
+  }
+}
+
 function assertRingLabels(out, label) {
   assert.ok(out.curved.length > 0, `${label}: some labels curve`);
   for (const c of out.curved) {
@@ -223,6 +260,7 @@ for (const renderer of ["svg", "canvas"]) {
   it(`Donut: names curve inside the ring, upright and apart (${renderer})`, async () => {
     const out = await run("Donut", renderer);
     assertRingLabels(out, "Donut");
+    assertInset(out, "Donut");
     const names = out.curved.map(c => c.text);
     assert.ok(names.includes("Manufacturing"), names.join());
     if (renderer === "svg")
@@ -232,6 +270,7 @@ for (const renderer of ["svg", "canvas"]) {
   it(`Sunburst: wide arcs curve, every label stays in its arc (${renderer})`, async () => {
     const out = await run("Sunburst", renderer);
     assertRingLabels(out, "Sunburst");
+    assertInset(out, "Sunburst");
     const names = out.curved.map(c => c.text);
     assert.ok(
       names.includes("Frontend") && names.includes("Backend"),
@@ -297,6 +336,65 @@ for (const renderer of ["svg", "canvas"]) {
     );
     assert.strictEqual(out.Manufacturing, 1, "the hovered slice's label");
     assert.ok(out["Retail Trade"] < 1, `dimmed: ${out["Retail Trade"]}`);
+  });
+}
+
+/** Draws a RadialBar and resolves with its curved labels and whether its legend shows. */
+const drawRadialBar = ([config, renderer]) =>
+  new Promise(resolve => {
+    const viz = new window.d3plus.RadialBar()
+      .config(config)
+      .renderer(renderer)
+      .width(600)
+      .height(500)
+      .duration(0)
+      .select("#viz");
+    viz.render(() => {
+      const nodes = [];
+      const walk = n => {
+        nodes.push(n);
+        (n.children || []).forEach(walk);
+      };
+      walk(viz.toScene().root);
+      resolve({
+        curved: nodes.filter(n => n.type === "text" && n.path).length,
+        legend:
+          nodes.some(n => n.key === "viz-legend") &&
+          (viz._legendClass._lineData || []).length > 0,
+      });
+    });
+  });
+
+const tracks = (n, extra = {}) => ({
+  data: Array.from({length: n}, (_v, k) => ({
+    id: `Track ${k + 1}`,
+    value: 90 - k * (80 / n),
+  })),
+  groupBy: "id",
+  ...extra,
+});
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`RadialBar: curved labels naming every track hide the default legend (${renderer})`, async () => {
+    const run = config =>
+      render('<div id="viz"></div>', drawRadialBar, [config, renderer]);
+    const full = await run(tracks(4, {maxAngle: 360}));
+    assert.strictEqual(full.curved, 4);
+    assert.strictEqual(full.legend, false, "full circle: no legend");
+    const along = await run(tracks(4, {labelPosition: "along"}));
+    assert.strictEqual(along.curved, 4);
+    assert.strictEqual(along.legend, false, "along: no legend");
+    const kept = await run(tracks(4, {maxAngle: 360, legend: true}));
+    assert.strictEqual(kept.legend, true, "an explicit legend wins");
+    const inside = await run(
+      tracks(4, {maxAngle: 360, labelPosition: "inside"}),
+    );
+    assert.strictEqual(inside.curved, 0);
+    assert.strictEqual(inside.legend, true, "no curved names: the legend");
+    // Tracks too thin for their names leave them to the legend.
+    const thin = await run(tracks(24, {maxAngle: 360}));
+    assert.ok(thin.curved < 24, `${thin.curved} of 24 named`);
+    assert.strictEqual(thin.legend, true, "an unnamed track keeps the legend");
   });
 }
 

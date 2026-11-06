@@ -35,6 +35,7 @@ import {
 } from "../../src/charts/RadialBar/curvedLabels.ts";
 import {
   measureTrackLabels,
+  radialBarAlongPossible,
   radialBarCurvedRows,
   trackFontSize,
 } from "../../src/charts/RadialBar/trackLayout.ts";
@@ -128,17 +129,29 @@ it("pieEmit — labelPosition inside keeps the straight labels; along curves eve
   assert.ok(curvedText(nodes).length >= sectors.length - 1);
 });
 
-it("pieSliceLabels — a full Pie's curves follow the rim, where its narrow wedges are widest", () => {
+it("pieEmit — a full Pie keeps its straight labels, even on along", () => {
+  for (const position of ["auto", "along"]) {
+    const {viz, shapeData} = draw(
+      new Pie().data(sectors).groupBy("id").labelPosition(position),
+      applyPieLayout,
+    );
+    const nodes = pieEmit({viz, shapeData});
+    assert.deepStrictEqual(curvedText(nodes), [], position);
+    assert.ok(straightText(nodes).length > 3, position);
+  }
+});
+
+it("pieSliceLabels — a small hole's curves follow the rim, where its narrow wedges are widest", () => {
   const {viz, shapeData} = draw(
     new Pie().data(sectors).groupBy("id").labelPosition("along"),
     applyPieLayout,
   );
   const radius = viz.ctx.arcData.outerRadius()();
-  const {straight, curved} = pieSliceLabels({
+  const inputs = {
     viz,
     slices: shapeData,
     arcOf: d => ({
-      innerRadius: 0,
+      innerRadius: 20,
       outerRadius: radius,
       startAngle: d.startAngle,
       endAngle: d.endAngle,
@@ -148,7 +161,8 @@ it("pieSliceLabels — a full Pie's curves follow the rim, where its narrow wedg
     fillOf: () => "#ffffff",
     straight: [],
     labelConfig: {},
-  });
+  };
+  const {straight, curved} = pieSliceLabels(inputs);
   assert.deepStrictEqual(straight, []);
   const mining = curved.find(n => n.lines[0].text === "Mining");
   assert.ok(mining, "the narrow Mining wedge is named along its rim");
@@ -161,6 +175,12 @@ it("pieSliceLabels — a full Pie's curves follow the rim, where its narrow wedg
       .map(Number),
   );
   assert.ok(r > radius * 0.8, `${r} near the rim of ${radius}`);
+  // With no hole at all, nothing curves.
+  const full = pieSliceLabels({
+    ...inputs,
+    arcOf: d => ({...inputs.arcOf(d), innerRadius: 0}),
+  });
+  assert.deepStrictEqual(full.curved, []);
 });
 
 it("metricsWidth — a label's one-line width from its words at 1px", () => {
@@ -414,5 +434,42 @@ it("radialBarCurvedLabels — names each full-circle track, dimming with its bar
   assert.deepStrictEqual(
     radialBarCurvedLabels(gap.viz, gap.shapeData, gap.viz.ctx.polar),
     [],
+  );
+});
+
+it("radialBarCurvedLabels — counts its tracks and labels for the legend", () => {
+  const {viz, shapeData} = radialBar({maxAngle: 360});
+  viz._alongStats = {lines: 0, requested: 0, placed: 0};
+  radialBarCurvedLabels(viz, shapeData, viz.ctx.polar);
+  assert.deepStrictEqual(viz._alongStats, {lines: 3, requested: 3, placed: 3});
+  const gap = radialBar();
+  gap.viz._alongStats = {lines: 0, requested: 0, placed: 0};
+  radialBarCurvedLabels(gap.viz, gap.shapeData, gap.viz.ctx.polar);
+  assert.deepStrictEqual(gap.viz._alongStats, {
+    lines: 3,
+    requested: 0,
+    placed: 0,
+  });
+});
+
+it("radialBarAlongPossible — every track's label curves, on the tracks layout", () => {
+  assert.strictEqual(
+    radialBarAlongPossible(radialBar({maxAngle: 360}).viz),
+    true,
+  );
+  assert.strictEqual(
+    radialBarAlongPossible(radialBar({labelPosition: "along"}).viz),
+    true,
+  );
+  assert.strictEqual(radialBarAlongPossible(radialBar().viz), false);
+  assert.strictEqual(
+    radialBarAlongPossible(
+      radialBar({maxAngle: 360, labelPosition: "inside"}).viz,
+    ),
+    false,
+  );
+  assert.strictEqual(
+    radialBarAlongPossible(radialBar({maxAngle: 360, discrete: "angle"}).viz),
+    false,
   );
 });

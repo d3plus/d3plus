@@ -314,15 +314,23 @@
   ],
   "texts": [
     {
+      "s": "Energy",
+      "a": "middle"
+    },
+    {
+      "s": "Pharma",
+      "a": "middle"
+    },
+    {
+      "s": "Iota",
+      "a": "middle"
+    },
+    {
       "s": "Tech",
       "a": "start"
     },
     {
       "s": "Health",
-      "a": "start"
-    },
-    {
-      "s": "Energy",
       "a": "start"
     },
     {
@@ -335,10 +343,6 @@
     },
     {
       "s": "Care",
-      "a": "start"
-    },
-    {
-      "s": "Pharma",
       "a": "start"
     },
     {
@@ -375,10 +379,6 @@
     },
     {
       "s": "Theta",
-      "a": "start"
-    },
-    {
-      "s": "Iota",
       "a": "start"
     },
     {

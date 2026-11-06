@@ -110,6 +110,18 @@ export function radialBarCurvedRows(viz: Viz, rows: DataPoint[]): boolean[] {
 }
 
 /**
+    Whether a draw's curved track labels could name every track, so the
+    default legend may stand aside for them (see `alongLegend.ts`): the
+    tracks layout, with every row's label curved.
+    @param viz The chart.
+*/
+export function radialBarAlongPossible(viz: Viz): boolean {
+  if (viz.schema.discrete === "angle") return false;
+  const rows = (viz._filteredData ?? []) as DataPoint[];
+  return rows.length > 1 && radialBarCurvedRows(viz, rows).every(Boolean);
+}
+
+/**
     The value tick labels outside the circle, and the room they need around
     it. Where the sweep's two ends meet or nearly meet, the last label is
     left out if it would cover the first.

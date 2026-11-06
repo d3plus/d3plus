@@ -1,10 +1,11 @@
 /**
-    Curved slice labels for Pie and Donut (see `labelPosition`): a slice's
-    name runs along its arc where that reads better than the straight label
-    in its largest box. A Donut's labels follow the middle of its ring; a
-    full Pie's wedges narrow to a point, so their curves follow the rim,
-    where a wedge is widest. The share goes on a second, smaller line
-    beneath the name when the ring has room for both.
+    Curved slice labels for a Donut, or any Pie with an `innerRadius` (see
+    `labelPosition`): a slice's name runs along its arc where that reads
+    better than the straight label in its largest box. A full Pie's wedges
+    run to a point at the center, so its labels stay straight. Names follow
+    the middle of a wide ring, or the rim of one whose hole is small, where
+    a wedge is widest. The share goes on a second, smaller line beneath the
+    name when the ring has room for both.
 */
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
@@ -117,9 +118,14 @@ export function pieSliceLabels<S extends PieLabelSlice>(
         }
       : null;
     const arc = arcOf(slice);
+    // A full Pie keeps its straight labels, whatever its labelPosition.
+    if (!(arc.innerRadius > 0)) {
+      keep.push(...nodes);
+      return;
+    }
     const options: RingLabelFitOptions = {
       ...range,
-      // A wedge narrows to the center, so a full Pie's curve hugs its rim.
+      // Near a small hole a wedge is narrow, so the curve hugs the rim.
       align: arc.innerRadius >= arc.outerRadius * 0.3 ? "middle" : "outer",
     };
     const width = ringTextWidth(name, font);

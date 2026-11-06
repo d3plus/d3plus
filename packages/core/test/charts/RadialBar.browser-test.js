@@ -352,7 +352,7 @@ it("RadialBar draws one panel per facet", {timeout: 180000}, async function () {
 });
 
 it(
-  "RadialBar names the tracks with the legend once the sweep leaves no room for track labels",
+  "RadialBar names the tracks along them, not with the legend, once the sweep leaves no room for track labels",
   {timeout: 180000},
   async function () {
     const out = await render(
@@ -371,6 +371,8 @@ it(
           const ticks = viz._chartScene.find(n => n.key === "radialbar-ticks");
           return {
             trackLabels: keys.includes("radialbar-labels"),
+            curved: viz._chartScene.filter(n => n.type === "text" && n.path)
+              .length,
             legend: viz._legendClass.outerBounds().height > 0,
             ticks: ticks ? ticks.children.map(c => c.lines[0].text) : [],
             domain: viz.ctx.polar.domain,
@@ -388,14 +390,25 @@ it(
     assert.ok(out.partial.trackLabels, "30° of room: the track labels");
     assert.ok(!out.partial.legend, "...and no legend");
     assert.ok(!out.full.trackLabels, "a full circle: no track labels");
-    assert.ok(out.full.legend, "...the legend names the tracks");
+    assert.strictEqual(
+      out.full.curved,
+      shares.length,
+      "...names along each track",
+    );
+    assert.ok(!out.full.legend, "...and no legend");
     assert.ok(
-      !out.nearFull.trackLabels && out.nearFull.legend,
-      "within 30° of a full circle: the legend",
+      !out.nearFull.trackLabels &&
+        out.nearFull.curved === shares.length &&
+        !out.nearFull.legend,
+      "within 30° of a full circle: names along the tracks",
     );
     assert.deepStrictEqual(
-      {trackLabels: out.canvasFull.trackLabels, legend: out.canvasFull.legend},
-      {trackLabels: false, legend: true},
+      {
+        trackLabels: out.canvasFull.trackLabels,
+        curved: out.canvasFull.curved,
+        legend: out.canvasFull.legend,
+      },
+      {trackLabels: false, curved: shares.length, legend: false},
       "Canvas lays out the same",
     );
     // Where the sweep's ends meet, the last tick label would cover the first.

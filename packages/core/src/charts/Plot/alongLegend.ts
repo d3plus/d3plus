@@ -25,14 +25,18 @@ export const emptyAlongStats = (): AlongStats => ({
 /**
     Whether this chart's legend may stand aside for its along-line labels:
     it is the default legend (a user's `legend` always wins), and
-    `lineLabels` can ask for along labels.
+    `lineLabels` can ask for along labels, or the chart says its own along
+    labels can name every series (`_alongLabelsPossible`, such as a
+    RadialBar's curved track labels).
     @param viz The chart.
 */
 export function alongLegendAuto(viz: VizInstance): boolean {
   const setting = viz.schema.lineLabels;
   return (
     viz.schema.legend === viz._defaultLegend &&
-    (setting === "along" || typeof setting === "function")
+    (setting === "along" ||
+      typeof setting === "function" ||
+      Boolean(viz._alongLabelsPossible?.(viz)))
   );
 }
 

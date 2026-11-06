@@ -29,7 +29,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRadialBarLayout, radialBarDomainValues} from "./applyLayout.js";
 import {radialBarEmit} from "./emit.js";
-import {radialBarTrackLabels} from "./trackLayout.js";
+import {radialBarAlongPossible, radialBarTrackLabels} from "./trackLayout.js";
 import {chartGridline, chartBackground} from "../viz/backgroundInk.js";
 
 export const radialBarDef: DataDrivenChartDefinition = {
@@ -38,6 +38,13 @@ export const radialBarDef: DataDrivenChartDefinition = {
   layoutStage: applyRadialBarLayout,
   emit: radialBarEmit,
   insetRegion: sceneInsetRegion,
+
+  // Curved track labels that name every track stand in for the legend, as
+  // along-line labels do; the legend RadialBar starts with is its default.
+  setup: (viz: VizInstance) => {
+    viz._defaultLegend = viz.schema.legend;
+    viz._alongLabelsPossible = radialBarAlongPossible;
+  },
 
   // Centered on the circle, which partial sweeps shift off the area's center.
   chartTransform: (viz: VizInstance) => {
@@ -96,8 +103,8 @@ export const radialBarDef: DataDrivenChartDefinition = {
         The sweep the chart spans, in degrees from `startAngle`. Defaults to
         270 for tracks, leaving the quarter before the start for the track
         labels (past 330°, too little room is left, so the names curve along
-        the tracks instead, and the legend names them too), and 360 for the
-        circular bar chart.
+        the tracks instead, and the legend hides when every track is named),
+        and 360 for the circular bar chart.
     */
     {key: "maxAngle"},
     /** Room (px) reserved around the circular bar chart for its category labels, or `"auto"`. */
@@ -141,7 +148,8 @@ export const radialBarDef: DataDrivenChartDefinition = {
     /**
         RadialBar hides the legend when each row is its own entry and the
         chart's labels already name it: the circular bar chart's category
-        labels, or the track labels unless the sweep leaves them no room.
+        labels, the track labels before the start, or curved labels along
+        every track.
         @default rowLegend
     */
     {

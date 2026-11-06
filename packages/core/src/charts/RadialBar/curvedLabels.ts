@@ -16,7 +16,7 @@ import {
 } from "../features/emitHelpers.js";
 import {ringLabelNodes, ringTextWidth} from "../features/ringLabelNodes.js";
 import type {RingLabel} from "../features/ringLabelNodes.js";
-import {ringLabelFit} from "../features/ringLabels.js";
+import {ringLabelEnd, ringLabelFit} from "../features/ringLabels.js";
 import type {RingArc, RingLabelFit} from "../features/ringLabels.js";
 import type {PolarWedge} from "../polar/wedgeLayout.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
@@ -53,7 +53,8 @@ export function radialBarLabelSpot(
   const inner = rm - fontSize / 2;
   if (!(inner > 0)) return null;
   // The turn the text takes, measured where the track is narrowest.
-  const turn = (width(fontSize) + padding * 2) / inner + 1e-6;
+  const turn =
+    (width(fontSize) + ringLabelEnd(padding, fontSize) * 2) / inner + 1e-6;
   const at = (start: number) =>
     ringLabelFit({...bar, startAngle: start, endAngle: start + turn}, width, {
       fontMin: fontSize,
@@ -78,6 +79,8 @@ export function radialBarLabelSpot(
     The curved labels for the tracks whose rows take one (see
     `radialBarCurvedRows`), each in the color that reads on its bar or, past
     the bar, on its track, unless the Path `labelConfig` sets a `fontColor`.
+    Counts the tracks and their labels into `viz._alongStats`, so labels
+    that name every track hide the default legend (see `alongLegend.ts`).
     @param viz The chart.
     @param wedges The bars, in track order.
     @param frame The tracks' frame.
@@ -89,6 +92,12 @@ export function radialBarCurvedLabels(
 ): SceneNode[] {
   const rows = wedges.map(w => w.data);
   const curved = radialBarCurvedRows(viz, rows);
+  // Every track counts toward whether the labels can stand in for the legend.
+  const stats = viz._alongStats;
+  if (stats) {
+    stats.lines += wedges.length;
+    stats.requested += curved.filter(Boolean).length;
+  }
   if (!curved.some(Boolean)) return [];
   const thickness = wedges.length
     ? wedges[0].arc.outerRadius - wedges[0].arc.innerRadius
@@ -134,9 +143,11 @@ export function radialBarCurvedLabels(
     });
   });
   const first = measured[0]?.font;
-  return ringLabelNodes(
+  const nodes = ringLabelNodes(
     viz,
     labels,
     first ? {fontFamily: first.fontFamily, fontWeight: first.fontWeight} : {},
   );
+  if (stats) stats.placed += nodes.length;
+  return nodes;
 }
