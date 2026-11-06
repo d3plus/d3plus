@@ -70,7 +70,11 @@ export {
   sameTextLayout,
 } from "./src/animate/interpolate.js";
 export type {Interp} from "./src/animate/interpolate.js";
-export {diffChildren, interpolateScene} from "./src/animate/diff.js";
+export {
+  diffChildren,
+  interpolateScene,
+  transitionOrder,
+} from "./src/animate/diff.js";
 export type {FlipTransition, GroupDiff} from "./src/animate/diff.js";
 export {
   commitTrailCatchups,

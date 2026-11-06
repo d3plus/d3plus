@@ -60,7 +60,9 @@ export function setUpPage(win) {
 /**
  * Opens a fresh page with d3plus loaded, for tests that drive it in steps.
  * `page.evaluate(fn, arg)` runs `fn` (compiled from its source) in the page,
- * `page.mouse` moves Playwright's real pointer, and with `{clock: true}`
+ * `page.mouse` moves Playwright's real pointer, `page.emulateColorScheme`
+ * sets the system's `prefers-color-scheme` (pass `null` to reset it once
+ * done), and with `{clock: true}`
  * `page.clock.runFor(ms)` steps every timer, animation frame and
  * `performance.now()` together.
  * @param {String} bodyHtml Markup placed inside <body>.
@@ -103,6 +105,8 @@ export async function openPage(bodyHtml, {clock = false} = {}) {
       down: options => commands.mouseDown(options),
       up: options => commands.mouseUp(options),
     },
+    // Emulates the system's `prefers-color-scheme` for every page.
+    emulateColorScheme: scheme => commands.emulateColorScheme(scheme),
     clock: fake && {
       runFor: ms => fake.tickAsync(ms),
       // Jumps ahead, firing each due timer at most once, as Playwright does.
