@@ -23,8 +23,74 @@ import {
   backgroundImageNodes,
 } from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {textLineBoxes} from "../features/linkLabels.js";
+import {
+  clearRingLabels,
+  ringLabelFont,
+  ringLabelNodes,
+} from "../features/ringLabelNodes.js";
+import {ringLabelPosition} from "../features/ringLabels.js";
+import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ChordCtx, ChordNode} from "./applyLayout.js";
+
+/**
+    The group labels the layout stage placed: curved ones along the ring,
+    and the rest along their spokes, in the chart's ink. A spoke label that
+    would cover a curved one is left out.
+*/
+function chordLabels(viz: VizInstance, arcData: ChordNode[]): SceneNode[] {
+  const labelConfig = userLabelConfig(viz, "Path");
+  const userColor = labelConfig.fontColor;
+  const ink = backgroundInk(viz);
+  const colorOf = (nd: ChordNode) => {
+    const color = resolveAccessor<unknown>(userColor, nd.data, nd.i);
+    return typeof color === "string" ? color : ink;
+  };
+  const curved = ringLabelNodes(
+    viz,
+    arcData
+      .filter(nd => nd.labelCurve)
+      .map(nd => ({
+        key: `chord-label-curved-${nd.id}`,
+        text: `${viz._drawLabel(nd.data, nd.i)}`,
+        fit: nd.labelCurve!,
+        color: colorOf(nd),
+        datum: nd.data,
+        index: nd.i,
+      })),
+    ringLabelFont(labelConfig),
+  );
+  const spoked = arcData.filter(
+    nd => !nd.labelCurve && ringLabelPosition(viz, nd.data, nd.i) !== "along",
+  );
+  const straight = spoked.length
+    ? emitLabels({
+        data: spoked as unknown as DataPoint[],
+        label: d => {
+          const nd = d as unknown as ChordNode;
+          return viz._drawLabel(nd.data, nd.i);
+        },
+        x: d => (d as unknown as ChordNode).labelX ?? 0,
+        y: d => (d as unknown as ChordNode).labelY ?? 0,
+        aes: () => ({}),
+        rotate: d => (d as unknown as ChordNode).labelRotate ?? 0,
+        id: d => `chord-label-${(d as unknown as ChordNode).id}`,
+        labelBounds: d => (d as unknown as ChordNode).labelBounds ?? false,
+        labelConfig: {
+          fontColor: (d: DataPoint) =>
+            colorOf((d.data ?? d) as unknown as ChordNode),
+          ...labelConfig,
+          fontResize: false,
+          padding: 0,
+          textAnchor: (d: DataPoint) =>
+            ((d.data ?? d) as unknown as ChordNode).labelAnchor ?? "start",
+          verticalAlign: "middle",
+        },
+      })
+    : [];
+  return [...curved, ...clearRingLabels(straight, textLineBoxes(curved))];
+}
 
 /**
     Ribbon Paths for every chord, followed by their background images. Each
@@ -135,31 +201,8 @@ export const chordEmit: ChartEmit = ({viz}) => {
     ]),
   );
 
-  // Group labels, positioned + rotated by the layout stage.
-  if (arcData.length) {
-    const labelNodes = emitLabels({
-      data: arcData as unknown as DataPoint[],
-      label: d => {
-        const nd = d as unknown as ChordNode;
-        return viz._drawLabel(nd.data, nd.i);
-      },
-      x: d => (d as unknown as ChordNode).labelX ?? 0,
-      y: d => (d as unknown as ChordNode).labelY ?? 0,
-      aes: () => ({}),
-      rotate: d => (d as unknown as ChordNode).labelRotate ?? 0,
-      id: d => `chord-label-${(d as unknown as ChordNode).id}`,
-      labelBounds: d => (d as unknown as ChordNode).labelBounds ?? false,
-      labelConfig: {
-        ...userLabelConfig(viz, "Path"),
-        fontResize: false,
-        padding: 0,
-        textAnchor: (d: DataPoint) =>
-          ((d.data ?? d) as unknown as ChordNode).labelAnchor ?? "start",
-        verticalAlign: "middle",
-      },
-    });
-    out.push(...labelNodes);
-  }
+  // Group labels: curved along the ring, or along their spokes.
+  if (arcData.length) out.push(...chordLabels(viz, arcData));
 
   return out;
 };

@@ -11,6 +11,7 @@ import sortedWithLegend from "~/examples/core/charts/donut/sorted-with-legend.js
 import drillDown from "~/examples/core/charts/donut/drill-down.js?raw";
 import halfDonut from "~/examples/core/charts/donut/half-donut.js?raw";
 import threeQuarterDonut from "~/examples/core/charts/donut/three-quarter-donut.js?raw";
+import curvedLabels from "~/examples/core/charts/donut/curved-labels.js?raw";
 
 Extends the Pie visualization to create a donut chart.
 
@@ -49,5 +50,11 @@ A two-level `groupBy` with `depth: 0` shows one arc per category; clicking an ar
 From -135 to 135 degrees the ring sweeps 270°, leaving a gap at the bottom like a gauge. The slices still divide the sweep by `value`.
 
 <Playground chart="Donut" code={threeQuarterDonut} controls={["startAngle","endAngle","innerRadius"]} />
+
+## Curved labels
+
+A Donut's slice names follow the middle of its ring, reading left to right on the bottom half as on the top, with the share on a smaller line beneath when the ring has room. `labelPosition: "along"` curves every name that fits; the default, `"auto"`, keeps a straight label where it reads as large, and `"inside"` keeps them all straight. A name too long for its arc is cut short with an ellipsis only when nothing else fits.
+
+<Playground chart="Donut" code={curvedLabels} controls={["labelPosition","innerRadius"]} />
 
 <ApiReference name="Donut" pkg="core" />

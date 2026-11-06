@@ -10,6 +10,7 @@ import paddedSlices from "~/examples/core/charts/pie/padded-slices.js?raw";
 import drillDownOnClick from "~/examples/core/charts/pie/drill-down-on-click.js?raw";
 import backgroundImages from "~/examples/core/charts/pie/background-images.js?raw";
 import quarterPie from "~/examples/core/charts/pie/quarter-pie.js?raw";
+import curvedLabels from "~/examples/core/charts/pie/curved-labels.js?raw";
 
 Uses the d3 pie layout to create SVG arcs based on an array of data.
 
@@ -42,5 +43,11 @@ Set under a shape's name (`shapeConfig.Path.backgroundImage`), the image applies
 `startAngle: 0, endAngle: 90` draws a quarter pie from 12 to 3 o'clock. A partial ring is sized to the part it draws and centered in the chart, so the quarter fills the chart's height. An `endAngle` smaller than `startAngle` lays the slices out counter-clockwise.
 
 <Playground chart="Pie" code={quarterPie} controls={["startAngle","endAngle"]} />
+
+## Curved labels
+
+With `labelPosition: "auto"`, the default, a slice is named along its arc when that reads better than a straight label in its largest box. A full Pie's wedges narrow to a point, so their names follow the rim, where a wedge is widest: the thin Agriculture and Mining slices are named there, with their share on a smaller second line, while the wide slices keep their large straight labels. `"along"` curves every name that fits, and `"inside"` keeps the straight labels.
+
+<Playground chart="Pie" code={curvedLabels} controls={["labelPosition"]} />
 
 <ApiReference name="Pie" pkg="core" />

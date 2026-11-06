@@ -14,6 +14,7 @@ import arcThickness from "~/examples/core/charts/chord/arc-thickness.js?raw";
 import ribbonOpacity from "~/examples/core/charts/chord/ribbon-opacity.js?raw";
 import groupSpacing from "~/examples/core/charts/chord/group-spacing.js?raw";
 import customNodeIdentifiers from "~/examples/core/charts/chord/custom-node-identifiers.js?raw";
+import curvedLabels from "~/examples/core/charts/chord/curved-labels.js?raw";
 
 Creates a Chord diagram based on a defined set of nodes and links.
 
@@ -70,5 +71,11 @@ A link whose `source` and `target` are the same node writes to the diagonal of t
 `nodeId` points at whatever key identifies a node — here `"key"` instead of the default `"id"` — so `links` can reference nodes by that same value. It only governs matching, though: the drawn label still defaults to reading `id`, so a custom `nodeId` needs an explicit `label` accessor (here `d => d.name`) alongside it. Supplying `nodes` explicitly (rather than letting them be inferred from `links`) also lets a node with no flows at all, like `"Operations"`, still get drawn as an empty arc.
 
 <Playground chart="Chord" code={customNodeIdentifiers} controls={["nodes","nodeId"]} />
+
+## Curved labels
+
+When every group's name fits along its arc, the names curve just outside the ring, which needs only a line of room around it, so the ring grows into the band the spoke labels would take. Otherwise the names that fit still curve and the rest turn along their spokes. This is `labelPosition`'s `"auto"` default; `"along"` curves every name, cutting long ones short, and `"inside"` keeps every name on its spoke.
+
+<Playground chart="Chord" code={curvedLabels} controls={["labelPosition","arcThickness"]} />
 
 <ApiReference name="Chord" pkg="core" />

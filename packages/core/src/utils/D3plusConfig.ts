@@ -1624,6 +1624,30 @@ export interface D3plusConfig {
       Where each shape's label goes, as a string for every shape or a
       `(d, i) => string` accessor of the data row.
 
+      - Ring segments (Pie and Donut slices, Sunburst arcs, Chord groups, and
+        RadialBar tracks): `"along"` runs a segment's name along its arc,
+        following the ring, reading left to right on the bottom half as on
+        the top. `"auto"` picks, segment by segment, whichever reads better:
+        the curve when its arc is long enough for the whole name and it
+        shows it larger than a straight label could (a thin ring), the
+        straight label when that fits as well (a wide Pie wedge), and a
+        curve cut short with an ellipsis when nothing else fits. `"inside"`
+        and `"outside"` keep the straight labels. A Donut's curves follow
+        the middle of its ring and a full Pie's follow its rim, each with
+        the slice's share on a smaller second line when there is room. A
+        Sunburst also weighs a label turned along its radius, which suits
+        the narrow arcs of the outer rings. Curved Pie, Donut, and Sunburst
+        names take the largest size from the Path `labelConfig`'s
+        `fontSize` (else `fontMax`, 24px by default) down to its `fontMin`
+        (8px). A Chord curves its group names just outside the ring when
+        every name fits along its arc, which leaves the ring more room;
+        otherwise it curves those that fit and turns the rest along their
+        spokes. A RadialBar curves each track's name along the track, inside
+        its bar (or past its end when the bar is too short), when the sweep
+        leaves no room before the start for the straight labels, and at any
+        sweep for `"along"`. Curved text takes the color that contrasts with
+        what lies under it (the theme's ink outside the ring) and dims with
+        its segment on hover. A label with no room is left out.
       - Bars: `"inside"` or `"outside"` the bar, or `"auto"`, which goes
         outside when the bar is shorter than half the room along its axis.
         Stacked bars always label inside.
@@ -1651,9 +1675,10 @@ export interface D3plusConfig {
   */
   labelPosition?:
     | "auto"
+    | "along"
     | "inside"
     | "outside"
-    | ((d: DataPoint, i: number) => "auto" | "inside" | "outside");
+    | ((d: DataPoint, i: number) => "auto" | "along" | "inside" | "outside");
   /**
       Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
   */

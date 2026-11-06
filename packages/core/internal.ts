@@ -1177,11 +1177,19 @@ export {
   radialBarTracks,
 } from "./src/charts/RadialBar/tracks.js";
 export {
+  measureTrackLabels,
   RADIAL_BAR_MIN_LABEL_GAP,
+  radialBarCurvedRows,
   radialBarSweep,
   radialBarTrackLabels,
   radialBarTrackLayout,
+  trackFontSize,
 } from "./src/charts/RadialBar/trackLayout.js";
+export {
+  radialBarCurvedLabels,
+  radialBarLabelSpot,
+} from "./src/charts/RadialBar/curvedLabels.js";
+export type {RadialBarLabelSpot} from "./src/charts/RadialBar/curvedLabels.js";
 export type {RadialBarFrame} from "./src/charts/RadialBar/trackLayout.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
@@ -1672,6 +1680,58 @@ export type {
   LinkLabelSettings,
 } from "./src/charts/features/linkLabels.js";
 export type {LinkLabelConfig} from "./src/utils/D3plusConfig.js";
+export {
+  chooseRingLabel,
+  ringLabelFit,
+  ringLabelPair,
+  ringLabelPosition,
+  ringPoint,
+  ringReadsClockwise,
+  ringTextPath,
+  textBroken,
+} from "./src/charts/features/ringLabels.js";
+export type {
+  RingArc,
+  RingLabelAlign,
+  RingLabelCandidate,
+  RingLabelChoice,
+  RingLabelFit,
+  RingLabelFitOptions,
+} from "./src/charts/features/ringLabels.js";
+export {
+  clearRingLabels,
+  RING_LABEL_FADE,
+  ringLabelFont,
+  ringLabelNodes,
+  ringTextWidth,
+} from "./src/charts/features/ringLabelNodes.js";
+export type {
+  RingLabel,
+  RingLabelFont,
+} from "./src/charts/features/ringLabelNodes.js";
+export {pieSliceLabels, ringFontRange} from "./src/charts/Pie/curvedLabels.js";
+export type {
+  PieCurvedInputs,
+  PieLabelSlice,
+} from "./src/charts/Pie/curvedLabels.js";
+export {
+  metricsWidth,
+  sunburstCurvedNodes,
+  sunburstLabelPlacements,
+} from "./src/charts/Sunburst/curvedLabels.js";
+export type {
+  SunburstLabelInputs,
+  SunburstLabelPlacements,
+} from "./src/charts/Sunburst/curvedLabels.js";
+export {
+  applyChordLabelGeometry,
+  CHORD_LABEL_FONT_SIZE,
+  CHORD_LABEL_PADDING,
+  chordAllCurved,
+  chordCurves,
+  chordLabelFontSize,
+} from "./src/charts/Chord/labels.js";
+export type {ChordLabelNode} from "./src/charts/Chord/labels.js";
 export {ringsEdgeAnchor} from "./src/charts/Rings/emit.js";
 export {sankeyLinkAnchor} from "./src/charts/Sankey/emit.js";
 export {

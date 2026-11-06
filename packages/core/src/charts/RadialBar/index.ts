@@ -95,8 +95,9 @@ export const radialBarDef: DataDrivenChartDefinition = {
     /**
         The sweep the chart spans, in degrees from `startAngle`. Defaults to
         270 for tracks, leaving the quarter before the start for the track
-        labels (past 330°, too little room is left, so the legend names the
-        tracks instead), and 360 for the circular bar chart.
+        labels (past 330°, too little room is left, so the names curve along
+        the tracks instead, and the legend names them too), and 360 for the
+        circular bar chart.
     */
     {key: "maxAngle"},
     /** Room (px) reserved around the circular bar chart for its category labels, or `"auto"`. */

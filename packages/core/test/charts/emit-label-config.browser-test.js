@@ -161,8 +161,11 @@ it("emitted chart labels keep the chart's own label colors by default", async fu
     },
   );
 
-  // Chord labels sit outside their arcs on the page background, so they must
-  // not take the Viz's generic fill-contrast color (which would be white-ish
-  // against dark arcs).
-  assert.strictEqual(out, "black");
+  // Chord labels sit outside their arcs on the page background, so they take
+  // the chart's ink, not the Viz's generic fill-contrast color (which would
+  // be white-ish against dark arcs).
+  const [r, g, b] = out.startsWith("#")
+    ? [1, 3, 5].map(k => parseInt(out.slice(k, k + 2), 16))
+    : out.match(/\d+/g).map(Number);
+  assert.ok(r + g + b < 3 * 110, `dark ink on a light page: ${out}`);
 });
