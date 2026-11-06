@@ -116,7 +116,6 @@ jobs:
         if: matrix.node-version != '22.x' && steps.affected.outputs.packages != 'none'
         env:
           PACKAGES: ${{ steps.affected.outputs.packages }}
-          DEBUG: ${{ matrix.node-version == '24.x' && 'pw:browser*,vitest:browser:*' || '' }}
         run: |
           if [ "$PACKAGES" = all ]; then
             pnpm vitest run
