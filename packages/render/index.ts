@@ -32,6 +32,20 @@ export type {
 
 export {gradientToken, parseGradient} from "./src/scene.js";
 
+export {
+  alignLines,
+  alignShare,
+  anchorSide,
+  lineLeft,
+  visualOrder,
+} from "./src/textAlign.js";
+export type {
+  AlignedLine,
+  AlignLineInput,
+  LineAnchor,
+  TextAlign,
+} from "./src/textAlign.js";
+
 export type {
   RenderTarget,
   DrawOptions,

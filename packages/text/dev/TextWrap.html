@@ -5,7 +5,7 @@
     <title>TextWrap</title>
     <meta
       name="description"
-      content="textSplit() and textWrap() on a string with inline HTML."
+      content="textSplit() and textWrap() on a string with inline HTML, the words of each line, and ellipsis/truncateWord truncation."
     />
     <script src="/umd/d3plus-text.full.js"></script>
 
@@ -81,6 +81,23 @@
     var wrapper = d3plus.textWrap().width(100).overflow(true);
     var result = wrapper(string);
     log(result.lines);
+
+    // The units justified text spreads apart, and lines ending at a newline.
+    var justified = d3plus.textWrap().width(160)(
+      "Justified text spreads words apart.\n这是句子没有空格",
+    );
+    log("lineWords", result.lineWords);
+    log("lineWords", justified.lineWords);
+    log("hardBreaks", justified.hardBreaks);
+
+    // A measured ellipsis, then truncateWord cutting into the next word and
+    // into a first word wider than the line.
+    var truncating = d3plus.textWrap().width(115).maxLines(1).ellipsis("...");
+    log(truncating("Keep going until the box runs out of room").lines);
+    truncating.truncateWord(true);
+    log(truncating("Keep going until the box runs out of room").lines);
+    log(truncating("ABCDEFGHIJKLMNOPQRSTUVWXYZ").lines);
+    log(truncating("Go 👨‍👩‍👧👨‍👩‍👧👨‍👩‍👧👨‍👩‍👧👨‍👩‍👧👨‍👩‍👧👨‍👩‍👧").lines);
 
     // var result2 = wrapper(string + " " + string);
     // log(result2);

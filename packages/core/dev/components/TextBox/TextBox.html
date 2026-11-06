@@ -5,7 +5,7 @@
     <title>TextBox</title>
     <meta
       name="description"
-      content="TextBox wrapping with inline HTML, and a lineHeight change after 2 seconds."
+      content="TextBox wrapping with inline HTML (lineHeight changes after 2 seconds), plus justified, percentage-anchored, and truncateWord boxes."
     />
     <link
       href="https://fonts.googleapis.com/css?family=Pathway+Gothic+One"
@@ -37,6 +37,19 @@
         position: absolute;
         top: 0;
       }
+
+      #layout {
+        height: 360px;
+        left: 0;
+        position: absolute;
+        top: 260px;
+        width: 1265px;
+      }
+
+      #layout .box {
+        height: 140px;
+        position: absolute;
+      }
     </style>
   </head>
 
@@ -50,6 +63,9 @@
       <p>
         Here is some sample text that has been wrapped using d3plus.textBox.
       </p>
+      <section id="layout">
+        <svg width="1265" height="360" id="layoutSvg"></svg>
+      </section>
     </main>
   </body>
 
@@ -93,5 +109,56 @@
     }
 
     draw();
+
+    // Line placement: justify, percentage anchors, and truncateWord (with a
+    // first word too long for its box, which draws nothing without it).
+    var passage =
+      "Justified text spreads each line's words across the box, so both edges stay straight, except on the paragraph's last line.";
+    var layout = [
+      {text: passage, textAnchor: "start"},
+      {text: passage, textAnchor: "justify"},
+      {
+        text: "Twenty-five percent of the way across the box.",
+        textAnchor: "25%",
+      },
+      {
+        text: "Seventy-five percent of the way across the box.",
+        textAnchor: "75%",
+      },
+      {text: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", truncateWord: false, row: 1},
+      {text: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", truncateWord: true, row: 1},
+      {
+        text: "Ends at a word: ABCDEFGHIJKLMNOP",
+        truncateWord: false,
+        row: 1,
+      },
+      {
+        text: "Ends at a word: ABCDEFGHIJKLMNOP",
+        truncateWord: true,
+        row: 1,
+      },
+    ];
+    var layoutWidth = 200;
+    var section = document.getElementById("layout");
+    layout.forEach(function (d, i) {
+      var outline = document.createElement("div");
+      outline.className = "box";
+      outline.style.left = `${(i % 4) * (layoutWidth + 50)}px`;
+      outline.style.top = `${d.row ? 180 : 0}px`;
+      outline.style.width = `${layoutWidth}px`;
+      outline.style.height = `${d.row ? 22 : 140}px`;
+      section.appendChild(outline);
+    });
+    new d3plus.TextBox()
+      .data(layout)
+      .fontSize(14)
+      .width(layoutWidth)
+      .height(d => (d.row ? 22 : 140))
+      .textAnchor(d => d.textAnchor || "start")
+      .truncateWord(d => !!d.truncateWord)
+      .x((d, i) => (i % 4) * (layoutWidth + 50) + 1)
+      .y(d => (d.row ? 181 : 1))
+      .select("#layoutSvg")
+      .render();
   </script>
 </html>

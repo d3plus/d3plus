@@ -1,3 +1,5 @@
+import {lineLeft} from "./textAlign.js";
+
 /** A data row carried on a scene node, for event handlers and hit-testing. */
 export interface DataPoint {
   [key: string]: string | number | boolean | DataPoint;
@@ -119,6 +121,12 @@ export interface FontSpec {
 */
 export interface TextRun {
   text: string;
+  /**
+      Positions the run on its own: its x is read like a line's, with the
+      node's anchor and direction (justified text places each word this way).
+      A run without one follows the run before it.
+  */
+  x?: number;
   style?: {
     weight?: number | string;
     style?: FontStyle;
@@ -492,15 +500,13 @@ export function textVisualCenter(node: TextNode): [number, number] {
   const fs = node.font?.size ?? 0;
   if (!lines || !lines.length)
     return [(node.width ?? 0) / 2, (node.height ?? 0) / 2];
-  const anchor = node.font?.anchor;
   let minX = Infinity,
     maxX = -Infinity,
     minY = Infinity,
     maxY = -Infinity;
   for (const ln of lines) {
     const w = ln.width || 0;
-    const left =
-      anchor === "middle" ? ln.x - w / 2 : anchor === "end" ? ln.x - w : ln.x;
+    const left = lineLeft(ln, node.font);
     if (left < minX) minX = left;
     if (left + w > maxX) maxX = left + w;
     if (ln.y < minY) minY = ln.y;

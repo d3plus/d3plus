@@ -1,4 +1,5 @@
-import type {SceneNode, TextNode} from "../scene.js";
+import type {SceneNode, TextLine, TextNode} from "../scene.js";
+import {anchorSide, lineLeft} from "../textAlign.js";
 import {solidFill} from "./canvasNodePaint.js";
 
 type Ctx = CanvasRenderingContext2D;
@@ -29,9 +30,13 @@ function paintLines(
   const baseWeight = f.weight ?? "normal";
   const size = f.size ?? 12;
   const family = f.family ?? "sans-serif";
+  const prevDirection = ctx.direction;
+  // The direction orders the glyphs within each painted string; the
+  // alignment is physical (left/right), read from the anchor and direction.
+  if (f.dir) ctx.direction = f.dir;
   ctx.font = `${baseStyle} ${baseWeight} ${size}px ${family}`;
-  ctx.textAlign =
-    f.anchor === "middle" ? "center" : f.anchor === "end" ? "right" : "left";
+  const side = anchorSide(f.anchor, f.dir);
+  ctx.textAlign = side;
   ctx.textBaseline =
     f.baseline === "middle"
       ? "middle"
@@ -40,24 +45,46 @@ function paintLines(
         : "alphabetic";
   for (const ln of node.lines) {
     if (ln.runs && ln.runs.length) {
-      // Paint runs left-to-right with per-run weight/style. textAlign is
-      // forced to "left" within the line — the line's own x already encodes
-      // anchor placement at layout time.
-      const prevAlign: CanvasTextAlign = ctx.textAlign;
-      ctx.textAlign = "left";
-      let cursor = ln.x;
-      for (const run of ln.runs) {
-        const w = run.style?.weight ?? baseWeight;
-        const s = run.style?.style ?? baseStyle;
-        ctx.font = `${s} ${w} ${size}px ${family}`;
-        paint(run.text, cursor, ln.y);
-        cursor += ctx.measureText(run.text).width;
-      }
+      paintRuns(ctx, node, ln, paint);
       ctx.font = `${baseStyle} ${baseWeight} ${size}px ${family}`;
-      ctx.textAlign = prevAlign;
+      ctx.textAlign = side;
     } else {
       paint(ln.text, ln.x, ln.y);
     }
+  }
+  ctx.direction = prevDirection;
+}
+
+/**
+    Paints a line's runs one after another in its reading direction, each with
+    its own weight and style. A run with its own x starts there (read with the
+    node's anchor and direction); the others follow the run before.
+*/
+function paintRuns(
+  ctx: Ctx,
+  node: TextNode,
+  ln: TextLine,
+  paint: (text: string, x: number, y: number) => void,
+): void {
+  const f = node.font || {};
+  const size = f.size ?? 12;
+  const family = f.family ?? "sans-serif";
+  const rtl = f.dir === "rtl";
+  // Runs flow from the line's start edge: its left in LTR, its right in RTL.
+  const left = lineLeft(ln, f);
+  let cursor = rtl ? left + (ln.width || 0) : left;
+  ctx.textAlign = rtl ? "right" : "left";
+  for (const run of ln.runs ?? []) {
+    ctx.font = `${run.style?.style ?? f.style ?? "normal"} ${
+      run.style?.weight ?? f.weight ?? "normal"
+    } ${size}px ${family}`;
+    const w = ctx.measureText(run.text).width;
+    if (run.x !== undefined) {
+      const runLeft = lineLeft({x: run.x, width: w}, f);
+      cursor = rtl ? runLeft + w : runLeft;
+    }
+    paint(run.text, cursor, ln.y);
+    cursor += rtl ? -w : w;
   }
 }
 

@@ -308,6 +308,7 @@ select.d3p-field {
 /* Short option lists: one button per option. */
 .d3p-choice {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.125rem;
   padding: 0.125rem;
   border: 1px solid var(--d3p-border);

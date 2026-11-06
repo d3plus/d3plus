@@ -40,6 +40,12 @@ describe("segmented", () => {
     assert.ok(!segmented(["a", "b", "c", "d", "e"]));
     assert.ok(!segmented(["squarify", "a much longer label"]));
   });
+
+  it("leaves options too wide together for the control column to a menu", () => {
+    assert.ok(segmented(["start", "middle", "end"]));
+    assert.ok(segmented(["top", "middle", "bottom"]));
+    assert.ok(!segmented(["start", "middle", "end", "justify"]));
+  });
 });
 
 describe("representable", () => {

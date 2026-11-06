@@ -21,6 +21,12 @@ interface InputProps {
 /** Option lists this short, of short labels, draw as a segmented control. */
 const SEGMENT_OPTIONS = 4;
 const SEGMENT_LABEL = 10;
+/**
+    The room a segmented control has, in characters of its monospace labels,
+    with each option's padding counted as two more: what fits the narrowest
+    control column (12rem). Longer sets draw as a menu instead.
+*/
+const SEGMENT_WIDTH = 24;
 
 /** Whether `value` is one the control can show and set; others stay in code. */
 export function representable(spec: ControlSpec, value: unknown): boolean {
@@ -78,7 +84,9 @@ export function segmented(options: unknown[]): boolean {
   return (
     options.length > 1 &&
     options.length <= SEGMENT_OPTIONS &&
-    options.every(o => String(o).length <= SEGMENT_LABEL)
+    options.every(o => String(o).length <= SEGMENT_LABEL) &&
+    options.reduce((w: number, o) => w + String(o).length + 2, 0) <=
+      SEGMENT_WIDTH
   );
 }
 

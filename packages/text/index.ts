@@ -4,3 +4,9 @@ export {default as strip} from "./src/strip.js";
 export {default as textSplit} from "./src/textSplit.js";
 export {default as textWrap} from "./src/textWrap.js";
 export {default as titleCase} from "./src/titleCase.js";
+export type {
+  TextWrapGenerator,
+  TextWrapResult,
+  TextWrapWord,
+} from "./src/textWrap.js";
+export type {EllipsisFunction} from "./src/textTruncate.js";

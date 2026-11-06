@@ -3,7 +3,7 @@ import {select} from "d3-selection";
 import type {DataPoint} from "@d3plus/data";
 import {rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
-import {fontFamily, strip, textSplit} from "@d3plus/text";
+import {fontFamily, textSplit} from "@d3plus/text";
 import {SvgRenderer} from "@d3plus/render";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
@@ -13,6 +13,7 @@ import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {computeTextBoxDatum} from "./textBoxLayout.js";
 import type {TextBoxDatum} from "./textBoxLayout.js";
+import {textBoxNode} from "./textBoxScene.js";
 
 const defaultHtmlLookup: Record<string, string> = {
   i: "font-style: italic;",
@@ -74,6 +75,7 @@ const textBoxSchema: ConfigField[] = [
   {key: "split", coerce: "identity", default: textSplit},
   {key: "text", coerce: "const", default: accessor("text")},
   {key: "textAnchor", coerce: "const", default: constant("start")},
+  {key: "truncateWord", coerce: "const", default: constant(false)},
   {key: "verticalAlign", coerce: "const", default: constant("top")},
   {key: "width", coerce: "const", default: accessor("width", 200)},
   {key: "x", coerce: "const", default: accessor("x", 0)},
@@ -124,72 +126,9 @@ export default class TextBox extends BaseClass {
 */
   toScene(): GroupNode {
     const rtl = detectRTL();
-    const children: SceneNode[] = this._textData().map(d => {
-      const anchor =
-        d.tA === "middle" ? "middle" : d.tA === "end" ? "end" : "start";
-      const lineX =
-        d.tA === "middle"
-          ? d.w / 2
-          : rtl
-            ? d.tA === "start"
-              ? d.w
-              : 0
-            : d.tA === "end"
-              ? d.w
-              : 2 * Math.sin((Math.PI * d.r) / 180);
-      const lines = d.lines.map((text, i) => {
-        const y =
-          d.r === 0 || d.vA === "top"
-            ? (i + 1) * d.lH - (d.lH - d.fS)
-            : d.vA === "middle"
-              ? (d.h + d.fS) / 2 -
-                (d.lH - d.fS) +
-                (i - d.lines.length / 2 + 0.5) * d.lH
-              : d.h -
-                2 * (d.lH - d.fS) -
-                (d.lines.length - (i + 1)) * d.lH +
-                2 * Math.cos((Math.PI * d.r) / 180);
-        const width = d.widths ? (d.widths[i] ?? 0) : 0;
-        const runs = d.lineRuns ? d.lineRuns[i] : undefined;
-        return runs
-          ? {text, x: lineX, y, width, runs}
-          : {text, x: lineX, y, width};
-      });
-      const rotateAnchor = this.schema.rotateAnchor(d, d.i);
-      const ariaHidden = d.aH === "true" || (d.aH as unknown) === true;
-      const interactive = d.pE !== "none";
-      return {
-        type: "text",
-        key: d.id,
-        id: `d3plus-textBox-${strip(d.id)}`,
-        datum: d.data,
-        index: d.i,
-        x: 0,
-        y: 0,
-        width: d.w,
-        height: d.h,
-        lines,
-        font: {
-          family: d.fF,
-          size: d.fS,
-          weight: d.fW,
-          anchor,
-          baseline: "alphabetic",
-          dir: rtl ? "rtl" : "ltr",
-        },
-        paint: {
-          fill: d.fC,
-          opacity: d.fO,
-          ...(d.fStroke && d.fStroke !== "transparent"
-            ? {stroke: d.fStroke}
-            : {}),
-          ...(d.fSW ? {strokeWidth: d.fSW} : {}),
-        },
-        transform: {x: d.x, y: d.y, rotate: d.r, rotateAnchor},
-        aria: ariaHidden ? {hidden: true} : undefined,
-        interactive,
-      } as SceneNode;
-    });
+    const children: SceneNode[] = this._textData().map(d =>
+      textBoxNode(d, this.schema.rotateAnchor(d, d.i), rtl),
+    );
     return {type: "group", key: "textBox-group", children};
   }
 

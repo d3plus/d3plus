@@ -8,6 +8,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
+import {lineLeft} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
@@ -101,13 +102,7 @@ export function textLineBoxes(nodes: readonly SceneNode[]): LinkLabelBox[] {
           size,
           weight: node.font.weight,
         }).width;
-      const anchor = node.font.anchor;
-      const left =
-        anchor === "middle"
-          ? line.x - width / 2
-          : anchor === "end"
-            ? line.x - width
-            : line.x;
+      const left = lineLeft({x: line.x, width}, node.font);
       // The line's center in the node's frame, then rotated about its anchor.
       const cx = left + width / 2 - ax;
       const cy = line.y - size * 0.3 - ay;

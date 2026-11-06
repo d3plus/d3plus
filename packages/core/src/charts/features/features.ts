@@ -13,11 +13,13 @@ import {extent, sum} from "d3-array";
 
 import {unique} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
-import {date, elem} from "@d3plus/dom";
+import {date, elem, rtl as detectRTL} from "@d3plus/dom";
 
 import type {SceneNode} from "@d3plus/render";
 
 import type TextBox from "../../components/TextBox.js";
+import type {TextBoxDatum} from "../../components/textBoxLayout.js";
+import {textBoxLines} from "../../components/textBoxScene.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {wholeWordFit, wholeWords} from "../../utils/wholeWords.js";
@@ -219,18 +221,6 @@ export function runLayout(
 /* --------------------------- text-block features --------------------------- */
 
 /** A TextBox `_textData()` row, as the text-block features read it. */
-interface TextDatum {
-  lines: string[];
-  lH: number;
-  fS: number;
-  fF: string;
-  fC: string;
-  fO: number;
-  tA: string;
-  widths: number[];
-  truncated: boolean;
-}
-
 /**
     A little breathing room added to a NON-zero corner inset, on top of the
     exact pixel width the corner panel measured at. Without it, content
@@ -379,7 +369,7 @@ interface TextBlockFit {
   x: number;
   width: number;
   drop: number;
-  boxes: TextDatum[];
+  boxes: TextBoxDatum[];
 }
 
 /**
@@ -409,7 +399,7 @@ function fitTextBlock(
   ): {fits: boolean; result: TextBlockFit} => {
     textClass.width(w);
     const wrap = (): TextBlockFit & {lines: string[]; truncated: boolean} => {
-      const boxes = textClass._textData() as TextDatum[];
+      const boxes = textClass._textData();
       return {
         x,
         width: w,
@@ -499,11 +489,11 @@ function textBlockLayout(
   // higher than the same-row zoom/back/search buttons beside it.
   const y = layoutMargin.top + drop + blockPadding;
 
-  const lines = box.lines.map((str: string, i: number) => ({
-    text: str,
-    x: box.tA === "middle" ? width / 2 : box.tA === "end" ? width : 0,
+  const rtl = detectRTL();
+  const placed = textBoxLines(box, width, rtl);
+  const lines = placed.lines.map((ln, i) => ({
+    ...ln,
     y: (i + 1) * lineHeight - (lineHeight - box.fS),
-    width: box.widths?.[i] ?? 0,
   }));
 
   const panel: SceneNode = {
@@ -515,11 +505,9 @@ function textBlockLayout(
     font: {
       family: box.fF,
       size: box.fS,
-      anchor:
-        box.tA === "middle" || box.tA === "end" || box.tA === "start"
-          ? (box.tA as "middle" | "end" | "start")
-          : "start",
+      anchor: placed.anchor,
       baseline: "alphabetic",
+      ...(rtl ? {dir: "rtl" as const} : {}),
     },
     paint: {fill: box.fC, opacity: box.fO},
     transform: {x, y},
