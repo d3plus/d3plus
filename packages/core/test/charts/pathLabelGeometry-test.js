@@ -60,6 +60,27 @@ it("uprightPoints — reverses a line running right to left or straight down", (
   assert.strictEqual(uprightPoints(up), up, "straight up stays");
 });
 
+it("uprightPoints — a wider steep reads bottom to top further from upright", () => {
+  const down = [
+    [0, 0],
+    [20, 100],
+  ];
+  assert.strictEqual(uprightPoints(down), down, "left to right by default");
+  assert.deepStrictEqual(
+    uprightPoints(down, 0.5),
+    [
+      [20, 100],
+      [0, 0],
+    ],
+    "bottom to top within the steep",
+  );
+  const shallow = [
+    [0, 0],
+    [80, 100],
+  ];
+  assert.strictEqual(uprightPoints(shallow, 0.5), shallow);
+});
+
 it("offsetPolyline — moves a line to its left (above a rightward line)", () => {
   assert.deepStrictEqual(
     offsetPolyline(

@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Stacked Area Labels Along</title>
+    <meta
+      name="description"
+      content="Series names along the middle of their stacked bands: Streamgraph and StackedArea defaults, wiggle, a thin series left unlabeled, a reversed axis, horizontal bands, small multiples, a dark theme, and box labels for comparison."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Streamgraph (labels along by default)</h3>
+        <div class="viz" id="stream"></div>
+      </div>
+      <div>
+        <h3>Streamgraph, stackOffset: "wiggle"</h3>
+        <div class="viz" id="wiggle"></div>
+      </div>
+      <div>
+        <h3>StackedArea with a thin series (Polka goes unlabeled)</h3>
+        <div class="viz" id="thin"></div>
+      </div>
+      <div>
+        <h3>StackedArea on a reversed x axis</h3>
+        <div class="viz" id="reversed"></div>
+      </div>
+      <div>
+        <h3>Horizontal StackedArea (discrete: "y")</h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet)</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3>Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+      <div>
+        <h3>labelPosition: "inside" (box labels)</h3>
+        <div class="viz" id="inside"></div>
+      </div>
+      <div>
+        <h3>labelPosition by row: Rock and Pop along, the rest in boxes</h3>
+        <div class="viz" id="mixed"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const genres = {
+      Rock: [38, 36, 33, 30, 27, 24, 21, 19, 17, 15, 14],
+      Pop: [22, 24, 27, 29, 30, 31, 30, 29, 28, 27, 26],
+      "Hip-Hop": [8, 10, 13, 16, 20, 24, 28, 31, 33, 34, 35],
+      Electronic: [4, 5, 6, 8, 11, 14, 16, 17, 17, 16, 15],
+      Country: [12, 12, 11, 11, 12, 12, 13, 13, 14, 14, 15],
+      Jazz: [6, 6, 5, 5, 5, 4, 4, 4, 4, 4, 4],
+    };
+    const rows = extra =>
+      Object.entries({...genres, ...extra}).flatMap(([genre, shares]) =>
+        shares.map((share, i) => ({genre, year: 2014 + i, share})),
+      );
+    const data = rows();
+    const thin = rows({
+      Polka: [0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
+    });
+    const regions = ["North", "South"].flatMap((region, r) =>
+      data.map(d => ({
+        ...d,
+        region,
+        share: d.share * (r ? 1.4 - d.share / 60 : 1),
+      })),
+    );
+
+    const chart = (Chart, id, rowsFor = data) =>
+      new Chart()
+        .select("#" + id)
+        .data(rowsFor)
+        .groupBy("genre")
+        .x("year")
+        .y("share")
+        .legend(false);
+
+    chart(d3plus.Streamgraph, "stream").render();
+    chart(d3plus.Streamgraph, "wiggle").stackOffset("wiggle").render();
+    chart(d3plus.StackedArea, "thin", thin)
+      .shapeConfig({Area: {curve: "monotoneX"}})
+      .render();
+    chart(d3plus.StackedArea, "reversed").xConfig({reverse: true}).render();
+    chart(d3plus.StackedArea, "horizontal")
+      .discrete("y")
+      .x("share")
+      .y("year")
+      .render();
+    chart(d3plus.StackedArea, "facet", regions)
+      .facet("region")
+      .shapeConfig({Area: {curve: "monotoneX"}})
+      .render();
+    chart(d3plus.Streamgraph, "dark").theme("dark").render();
+    chart(d3plus.Streamgraph, "inside").labelPosition("inside").render();
+    chart(d3plus.StackedArea, "mixed")
+      .labelPosition(d =>
+        ["Rock", "Pop"].includes(d.genre) ? "along" : "inside",
+      )
+      .render();
+  </script>
+</html>

@@ -396,19 +396,19 @@
   "texts": [
     {
       "s": "Folk",
-      "a": "middle"
+      "a": "start"
     },
     {
       "s": "Jazz",
-      "a": "middle"
+      "a": "start"
     },
     {
       "s": "Pop",
-      "a": "middle"
+      "a": "start"
     },
     {
       "s": "Rock",
-      "a": "middle"
+      "a": "start"
     },
     {
       "s": "2000",

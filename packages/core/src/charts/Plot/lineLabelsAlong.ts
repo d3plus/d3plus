@@ -25,19 +25,23 @@ import {rowLabelsAlong} from "./lineLabelSides.js";
 
 /** Obstacle points, bucketed by cell for nearest-distance lookups. */
 export class PointGrid {
-  private cells = new Map<string, Pt[]>();
+  private cells = new Map<number, Pt[]>();
 
   /** @param cell The cell size: lookups see obstacles this far away. */
   constructor(private cell: number) {}
 
-  private key(x: number, y: number): string {
-    return `${Math.floor(x / this.cell)},${Math.floor(y / this.cell)}`;
+  /** A cell's key: its column and row, packed into one number. */
+  private static key(cx: number, cy: number): number {
+    return cx * 1048576 + cy;
   }
 
   /** Adds obstacle points. */
   add(points: Pt[]): void {
     for (const p of points) {
-      const k = this.key(p[0], p[1]);
+      const k = PointGrid.key(
+        Math.floor(p[0] / this.cell),
+        Math.floor(p[1] / this.cell),
+      );
       const list = this.cells.get(k);
       if (list) list.push(p);
       else this.cells.set(k, [p]);
@@ -50,10 +54,17 @@ export class PointGrid {
       cy = Math.floor(p[1] / this.cell);
     let best = Infinity;
     for (let dx = -1; dx <= 1; dx++)
-      for (let dy = -1; dy <= 1; dy++)
-        for (const q of this.cells.get(`${cx + dx},${cy + dy}`) ?? [])
-          best = Math.min(best, Math.hypot(p[0] - q[0], p[1] - q[1]));
-    return best;
+      for (let dy = -1; dy <= 1; dy++) {
+        const list = this.cells.get(PointGrid.key(cx + dx, cy + dy));
+        if (!list) continue;
+        for (const q of list) {
+          const ex = p[0] - q[0],
+            ey = p[1] - q[1];
+          const d = ex * ex + ey * ey;
+          if (d < best) best = d;
+        }
+      }
+    return Math.sqrt(best);
   }
 }
 
@@ -99,8 +110,16 @@ export interface StretchContext {
   grid: PointGrid;
   rect: Edges;
   fontSize: number;
-  /** How far above the line the text's baseline sits. */
+  /** How far above the line the text's baseline sits (below it when negative). */
   lift: number;
+  /** The least room a label needs from every obstacle. Defaults to `2`. */
+  minClearance?: number;
+  /** The room past which a stretch scores no better. Defaults to the font size. */
+  roomReach?: number;
+  /** How much room counts against bends and slope. Defaults to `0.5`. */
+  roomWeight?: number;
+  /** How steep a stretch reads bottom to top (see `uprightPoints`). */
+  steep?: number;
 }
 
 /**
@@ -118,26 +137,29 @@ export function labelBand(points: Pt[], ctx: StretchContext): Pt[] {
 
 /**
     A stretch's score, lower being better: how much it bends and slopes, less
-    a bonus for room around its label; null when its label would leave the
-    plot or touch another line or label.
+    a bonus for room around its label (up to `roomReach`, weighted by
+    `roomWeight`); null when its label would leave the
+    plot or come within `minClearance` of an obstacle (another line or
+    label, or the edges of the band it runs in).
     @param points The upright stretch.
     @param ctx The obstacles, plot area, and font.
 */
 export function scoreStretch(points: Pt[], ctx: StretchContext): number | null {
   const band = labelBand(points, ctx);
-  const {rect} = ctx;
+  const {rect, minClearance = 2} = ctx;
   let clearance = Infinity;
   for (const p of band) {
     if (p[0] < rect.x0 || p[0] > rect.x1 || p[1] < rect.y0 || p[1] > rect.y1)
       return null;
     clearance = Math.min(clearance, ctx.grid.nearest(p));
+    if (clearance < minClearance) return null;
   }
-  if (clearance < 2) return null;
   const [x0, y0] = points[0];
   const [x1, y1] = points[points.length - 1];
   const slope = Math.abs(Math.atan2(y1 - y0, x1 - x0));
-  const room = Math.min(clearance, ctx.fontSize) / ctx.fontSize;
-  return curvature(points) * 2 + slope * 0.5 - room * 0.5;
+  const {roomReach = ctx.fontSize, roomWeight = 0.5} = ctx;
+  const room = Math.min(clearance, roomReach) / roomReach;
+  return curvature(points) * 2 + slope * 0.5 - room * roomWeight;
 }
 
 /**
@@ -158,7 +180,10 @@ export function bestStretch(
   for (const piece of pieces) {
     const total = polylineLength(piece);
     for (let from = 0; from + length <= total; from += step) {
-      const stretch = uprightPoints(trimPolyline(piece, from, from + length));
+      const stretch = uprightPoints(
+        trimPolyline(piece, from, from + length),
+        ctx.steep,
+      );
       // A label can't follow a line that doubles back under it.
       if (curvature(stretch) > Math.PI / 2) continue;
       const score = scoreStretch(stretch, ctx);
@@ -206,9 +231,16 @@ function seriesLines(nodes: SceneNode[]): SeriesLine[] {
   return out;
 }
 
-/** The label font the Line shape's labelConfig sets, as plain values. */
-function labelFont(viz: VizInstance): Record<string, unknown> {
-  const config = (shapeConfigFor(viz, "Line").labelConfig ?? {}) as Record<
+/**
+    The label font a shape's labelConfig sets, as plain values.
+    @param viz The chart.
+    @param shape The shape whose labelConfig to read.
+*/
+export function labelFont(
+  viz: VizInstance,
+  shape = "Line",
+): Record<string, unknown> {
+  const config = (shapeConfigFor(viz, shape).labelConfig ?? {}) as Record<
     string,
     unknown
   >;

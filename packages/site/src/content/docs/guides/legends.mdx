@@ -39,6 +39,12 @@ Line charts can name each line directly, so readers don't have to match colors t
   lineLabels: "both", lineLabelConfig: {value: true}}} />
 ```
 
+Stacked areas name their bands the same way by default: StackedArea, Streamgraph, and a stacked AreaPlot write each series' name along the middle of its band, where the band is thick enough for it (`labelPosition: "auto"` or `"along"`; `"inside"` uses the band's largest box instead). A band too thin for its name goes unlabeled, so keep the legend when some series are that small.
+
+```jsx
+<Streamgraph config={{data, groupBy: "genre", x: "year", y: "share", legend: false}} />
+```
+
 ## ColorScale
 
 When `colorScale` maps a numeric value to color, a colorScale replaces the legend for those marks. It shows the range of values as a gradient or as a row of color buckets with an axis:

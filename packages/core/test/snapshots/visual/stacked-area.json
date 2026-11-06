@@ -621,11 +621,11 @@
   "texts": [
     {
       "s": "A",
-      "a": "middle"
+      "a": "start"
     },
     {
       "s": "B",
-      "a": "middle"
+      "a": "start"
     },
     {
       "s": "1",
