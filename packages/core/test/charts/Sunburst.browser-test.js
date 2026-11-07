@@ -202,7 +202,12 @@ it("Sunburst: labels break only between words and run along the ring or the radi
       .map(n => {
         const arc = window
           .arcs(chart)
-          .find(a => n.key && n.key.startsWith(a.key + "_"));
+          .find(
+            a =>
+              n.key &&
+              (n.key.startsWith(a.key + "_") ||
+                n.key === a.key.replace("sunburst-", "sunburst-curved-")),
+          );
         const mid = arc
           ? ((arc.arc.startAngle + arc.arc.endAngle) / 2) * (180 / Math.PI)
           : null;
@@ -213,6 +218,7 @@ it("Sunburst: labels break only between words and run along the ring or the radi
           rotate: (n.transform && n.transform.rotate) || 0,
           mid,
           disc,
+          curved: Boolean(n.path),
         };
       });
     const split = window.d3plus.sunburstSplit("Containerization orchestration");
@@ -226,7 +232,12 @@ it("Sunburst: labels break only between words and run along the ring or the radi
       .map(n => {
         const arc = window
           .arcs(chart)
-          .find(a => n.key && n.key.startsWith(a.key + "_"));
+          .find(
+            a =>
+              n.key &&
+              (n.key.startsWith(a.key + "_") ||
+                n.key === a.key.replace("sunburst-", "sunburst-curved-")),
+          );
         const mid = arc
           ? ((arc.arc.startAngle + arc.arc.endAngle) / 2) * (180 / Math.PI)
           : null;
@@ -237,6 +248,7 @@ it("Sunburst: labels break only between words and run along the ring or the radi
           rotate: (n.transform && n.transform.rotate) || 0,
           mid,
           disc,
+          curved: Boolean(n.path),
         };
       });
     return {labels, split, metrics, zoomed};
@@ -270,6 +282,8 @@ it("Sunburst: labels break only between words and run along the ring or the radi
   );
   for (const l of all) {
     assert.ok(l.mid !== null, `label ${l.key} pairs with its arc`);
+    // A curved label follows its arc (see ring-labels.browser-test.js).
+    if (l.curved) continue;
     if (l.disc) {
       assert.strictEqual(l.rotate, 0, "the center label stays upright");
       continue;
@@ -794,8 +808,8 @@ it("Sunburst: shapeConfig and tooltipConfig keep the chart's defaults through me
 /**
     Records every Sunburst label through one transition: on SVG by sampling
     the DOM, on Canvas by recording each painted frame. Each sample carries
-    the transition's progress `t` (0–1, by time) and each label's place,
-    text, and opacity.
+    the transition's progress `t` (0–1, by time) and each label's place (its
+    transform, and the path a curved label follows), text, and opacity.
 */
 const recordLabels = `
   window.recordLabels = (chart, duration, action) => new Promise(async resolve => {
@@ -813,7 +827,7 @@ const recordLabels = `
       const walk = n => {
         if (n.type === "text" && String(n.key).startsWith("sunburst-"))
           labels[n.key] = {
-            place: JSON.stringify(n.transform || {}),
+            place: JSON.stringify(n.transform || {}) + (n.path ? n.path.d : ""),
             text: (n.lines || []).map(l => l.text).join(" "),
             opacity: n.paint && n.paint.opacity !== undefined ? n.paint.opacity : 1,
           };
@@ -826,8 +840,11 @@ const recordLabels = `
       const labels = {};
       for (const el of document.querySelectorAll("#viz text[data-key^='sunburst-']")) {
         const op = el.getAttribute("opacity");
+        const tp = el.querySelector("textPath");
+        const href = tp && tp.getAttribute("href");
+        const curve = href ? document.querySelector(href).getAttribute("d") : "";
         labels[el.getAttribute("data-key")] = {
-          place: el.getAttribute("transform"),
+          place: el.getAttribute("transform") + curve,
           text: el.textContent,
           opacity: op === null ? 1 : Number(op),
         };

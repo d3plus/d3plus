@@ -4,8 +4,8 @@
     shared sweep. Pushes the chrome onto `viz._chartScene` beneath the bars:
     the track backgrounds, the value gridlines (spokes at the ticks) with
     their labels outside the circle, and each track's label beside its start
-    (a sweep within 30° of a full circle has no room there, so the legend
-    names the tracks).
+    (a sweep within 30° of a full circle has no room there, so the names
+    curve along the tracks, see `curvedLabels.ts`).
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -14,6 +14,7 @@ import {arcPath} from "@d3plus/render";
 import type {Paint, SceneNode, TextNode} from "@d3plus/render";
 
 import {chartBounds} from "../features/chartGeometry.js";
+import {ringLabelPosition} from "../features/ringLabels.js";
 import {
   paintFromShapeConfig,
   resolveAccessor,
@@ -85,10 +86,39 @@ export const RADIAL_BAR_MIN_LABEL_GAP = Math.PI / 6;
 /**
     Whether the tracks leave enough of a gap before their start for the track
     labels. A sweep closer to a full circle leaves too little (none at 360°),
-    so the legend names the tracks instead.
+    so the names curve along the tracks instead (see `radialBarCurvedRows`).
 */
 export function radialBarTrackLabels(viz: Viz): boolean {
   return Math.PI * 2 - radialBarSweep(viz) >= RADIAL_BAR_MIN_LABEL_GAP - 1e-9;
+}
+
+/**
+    Which rows' tracks take a curved label: every `"along"` row, and the
+    `"auto"` rows when the sweep leaves no room for the straight labels.
+    `"inside"` and `"outside"` rows keep the straight labels.
+    @param viz The chart.
+    @param rows The rows, in track order.
+*/
+export function radialBarCurvedRows(viz: Viz, rows: DataPoint[]): boolean[] {
+  const room = radialBarTrackLabels(viz);
+  return rows.map((d, i) => {
+    const position = ringLabelPosition(viz, d, i);
+    if (position === "along") return true;
+    if (position === "inside" || position === "outside") return false;
+    return !room;
+  });
+}
+
+/**
+    Whether a draw's curved track labels could name every track, so the
+    default legend may stand aside for them (see `alongLegend.ts`): the
+    tracks layout, with every row's label curved.
+    @param viz The chart.
+*/
+export function radialBarAlongPossible(viz: Viz): boolean {
+  if (viz.schema.discrete === "angle") return false;
+  const rows = (viz._filteredData ?? []) as DataPoint[];
+  return rows.length > 1 && radialBarCurvedRows(viz, rows).every(Boolean);
 }
 
 /**
@@ -157,7 +187,7 @@ function tickLabels(
 }
 
 /** A track label's font size: the user's `labelConfig.fontSize`, else scaled to the track. */
-function trackFontSize(viz: Viz, thickness: number): number {
+export function trackFontSize(viz: Viz, thickness: number): number {
   const size = (viz.schema.axisConfig as RadarAxisConfig).shapeConfig
     ?.labelConfig?.fontSize;
   if (typeof size === "number") return Math.min(size, thickness * 0.9);
@@ -165,7 +195,11 @@ function trackFontSize(viz: Viz, thickness: number): number {
 }
 
 /** The track labels' text, font, and one-line width at their track's font size. */
-function measureTrackLabels(viz: Viz, rows: DataPoint[], thickness: number) {
+export function measureTrackLabels(
+  viz: Viz,
+  rows: DataPoint[],
+  thickness: number,
+) {
   const size = trackFontSize(viz, thickness);
   return rows.map((d, i) => {
     const text = viz._drawLabel(d, i);
@@ -179,18 +213,20 @@ function measureTrackLabels(viz: Viz, rows: DataPoint[], thickness: number) {
   });
 }
 
-/** Each track's label, running back from the track's start. */
+/** Each track's label, running back from the track's start, but for the tracks whose label curves. */
 function trackLabels(
   viz: Viz,
   rows: DataPoint[],
   frame: RadialBarFrame,
   rings: {inner: number; outer: number}[],
+  curved: boolean[],
 ): SceneNode[] {
   const gapAngle = Math.PI * 2 - (frame.end - frame.start);
   const thickness = rings.length ? rings[0].outer - rings[0].inner : 0;
   const children: SceneNode[] = [];
   measureTrackLabels(viz, rows, thickness).forEach(
     ({d, i, text, font, size}) => {
+      if (curved[i]) return;
       const ring = rings[i];
       const mid = (ring.inner + ring.outer) / 2;
       const room = radialBarLabelRoom(
@@ -242,12 +278,14 @@ function trackLabels(
 
 /**
     Fits the tracks into a `width` × `height` area: the swept arc plus the
-    track labels' strip, inside a margin for the tick labels. Returns the
-    outer radius and the circle's center relative to the area's center.
+    track labels' strip (for the rows not in `skip`), inside a margin for
+    the tick labels. Returns the outer radius and the circle's center
+    relative to the area's center.
 */
 function fitTracks(
   viz: Viz,
   rows: DataPoint[],
+  skip: boolean[],
   opts: {
     width: number;
     height: number;
@@ -263,7 +301,8 @@ function fitTracks(
   const place = (reach: number) =>
     fitDial(w, h, radialBarFootprint(start, end, reach));
   let fit = place(0);
-  for (let pass = 0; pass < 2 && rows.length && fit.radius > 0; pass++) {
+  const strip = rows.some((_d, k) => !skip[k]);
+  for (let pass = 0; pass < 2 && strip && fit.radius > 0; pass++) {
     const inner = polarInnerRadius(viz.schema.innerRadius, fit.radius);
     const thickness = radialBarTracks(
       rows.length,
@@ -273,9 +312,9 @@ function fitTracks(
     )[0];
     const widest = Math.max(
       0,
-      ...measureTrackLabels(viz, rows, thickness.outer - thickness.inner).map(
-        l => l.width,
-      ),
+      ...measureTrackLabels(viz, rows, thickness.outer - thickness.inner)
+        .filter((_l, k) => !skip[k])
+        .map(l => l.width),
     );
     fit = place((widest + RADIAL_BAR_LABEL_GAP) / fit.radius);
   }
@@ -358,6 +397,7 @@ export function radialBarTrackLayout(
   const start = ((Number(viz.schema.startAngle) || 0) * Math.PI) / 180;
   const end = start + radialBarSweep(viz);
   const labeled = radialBarTrackLabels(viz);
+  const curved = radialBarCurvedRows(viz, rows);
   const tickInput = viz.schema.ticks as number | number[] | false | undefined;
   const tickCount =
     typeof tickInput === "number" ? tickInput : defaultTickCount(start, end);
@@ -372,7 +412,7 @@ export function radialBarTrackLayout(
   const angle = (v: number) => gaugeAngle(v, domain, start, end);
 
   const tickText = tickLabels(viz, ticks, angle);
-  const {outer, cx, cy} = fitTracks(viz, labeled ? rows : [], {
+  const {outer, cx, cy} = fitTracks(viz, labeled ? rows : [], curved, {
     width: Math.max(0, width - POLAR_STROKE_BUFFER * 2),
     height: Math.max(0, height - POLAR_STROKE_BUFFER * 2),
     margin: tickText.margin,
@@ -430,7 +470,7 @@ export function radialBarTrackLayout(
       interactive: false,
       children: tickText.nodes(outer),
     });
-  if (labeled) scene.push(...trackLabels(viz, rows, frame, rings));
+  if (labeled) scene.push(...trackLabels(viz, rows, frame, rings, curved));
   viz.ctx.polar = frame;
   return {wedges, frame};
 }

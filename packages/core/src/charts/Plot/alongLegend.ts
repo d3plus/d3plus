@@ -46,7 +46,9 @@ export function bandLabelsPossible(viz: VizInstance): boolean {
     Whether this chart's legend may stand aside for its along labels: it is
     the default legend (a user's `legend` always wins), no series is hidden
     or soloed from it (the legend is the way back to them), and `lineLabels`
-    or stacked areas can ask for along labels.
+    or stacked areas can ask for along labels, or the chart says its own
+    along labels can name every series (`_alongLabelsPossible`, such as a
+    RadialBar's curved track labels).
     @param viz The chart.
 */
 export function alongLegendAuto(viz: VizInstance): boolean {
@@ -56,7 +58,8 @@ export function alongLegendAuto(viz: VizInstance): boolean {
   return (
     setting === "along" ||
     typeof setting === "function" ||
-    bandLabelsPossible(viz)
+    bandLabelsPossible(viz) ||
+    Boolean(viz._alongLabelsPossible?.(viz))
   );
 }
 

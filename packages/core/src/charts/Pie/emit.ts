@@ -22,6 +22,7 @@ import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 import {sweepFraction} from "./arcFit.js";
+import {pieSliceLabels} from "./curvedLabels.js";
 import type {PieSweep} from "./arcFit.js";
 
 const isDefaultSweep = (s: PieSweep) => s.start === 0 && s.end === FULL_TURN;
@@ -188,6 +189,77 @@ function stampLabelFlip(
   }
 }
 
+/**
+    Each slice's straight label, in its largest inscribed rectangle: the name
+    above and the share percentage below, meeting at the rectangle's center.
+    Short rectangles skip the share line so it can't crowd out the name.
+    With a single angle the search is cheap, so more origins are sampled
+    than the default for a tighter box.
+*/
+function straightLabels(
+  slices: Slice[],
+  labelConfig: Record<string, unknown>,
+  ctx: PathNodeCtx,
+): SceneNode[] {
+  const {viz, arcMaker, sc, sharePct} = ctx;
+  const labelBoxes = slices.map(d => {
+    const r = largestRect(path2polygon(arcMaker(d)), {angle: 0, nTries: 40});
+    if (!r) return false;
+    const x = r.cx - r.width / 2;
+    const y = r.cy - r.height / 2;
+    if (r.height < 50)
+      return [{angle: r.angle, width: r.width, height: r.height, x, y}];
+    const padding = 5;
+    const band = Math.min(32, (r.height - padding * 2) * 0.3) + padding * 2;
+    return [
+      {angle: r.angle, width: r.width, height: r.height - band, x, y},
+      {angle: r.angle, width: r.width, height: band, x, y: y + r.height - band},
+    ];
+  });
+
+  return emitLabels({
+    data: slices as unknown as DataPoint[],
+    label: (_d, i) => {
+      const name = viz._drawLabel(
+        slices[i].data as DataPoint,
+        slices[i].i ?? i,
+      );
+      const box = labelBoxes[i];
+      return box && box.length > 1 ? [name, sharePct(slices[i])] : [name];
+    },
+    // The largest inscribed rectangle is in chart-centered path coordinates,
+    // so the anchor is the origin and labelBounds carries the absolute box.
+    x: () => 0,
+    y: () => 0,
+    aes: () => ({}),
+    rotate: constant(0),
+    id: (_d, i) => `pie-label-${i}`,
+    labelBounds: (_d, i) => labelBoxes[i],
+    labelConfig: {
+      fontColor: (d: {data?: Slice}) => {
+        const slice = (d.data ?? d) as Slice;
+        const fill = resolveAccessor<string>(
+          sc.fill,
+          slice.data as DataPoint,
+          slice.i ?? 0,
+        );
+        return colorContrast(
+          typeof fill === "string" ? fill : "rgb(255, 255, 255)",
+          viz.schema.colorDefaults,
+        );
+      },
+      fontResize: true,
+      textAnchor: "middle",
+      verticalAlign: (d: {data?: Slice; l?: number}) => {
+        if (d && d.l === 1) return "top";
+        const box = d && d.data ? labelBoxes[slices.indexOf(d.data)] : false;
+        return box && box.length > 1 ? "bottom" : "middle";
+      },
+      ...labelConfig,
+    },
+  });
+}
+
 export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const slices = (shapeData ?? []) as Slice[];
   if (!slices.length) return [];
@@ -244,74 +316,34 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     buildPathNode(d, rank, pathCtx),
   );
 
-  // Each label sits in its slice's largest inscribed rectangle: the name
-  // above and the share percentage below, meeting at the rectangle's center.
-  // Short rectangles skip the share line so it can't crowd out the name.
-  // With a single angle the search is cheap, so sample more origins than the
-  // default for a tighter box.
-  const labelBoxes = slices.map(d => {
-    const r = largestRect(path2polygon(arcMaker(d)), {angle: 0, nTries: 40});
-    if (!r) return false;
-    const x = r.cx - r.width / 2;
-    const y = r.cy - r.height / 2;
-    if (r.height < 50)
-      return [{angle: r.angle, width: r.width, height: r.height, x, y}];
-    const padding = 5;
-    const band = Math.min(32, (r.height - padding * 2) * 0.3) + padding * 2;
-    return [
-      {angle: r.angle, width: r.width, height: r.height - band, x, y},
-      {angle: r.angle, width: r.width, height: band, x, y: y + r.height - band},
-    ];
+  const labelConfig = userLabelConfig(viz, "Path");
+  const straightNodes = straightLabels(slices, labelConfig, pathCtx);
+
+  // Each slice keeps its straight label or takes a curved one along its arc.
+  const labels = pieSliceLabels({
+    viz,
+    slices,
+    arcOf: d => ({
+      innerRadius: resolveInnerRadius(d, d.i ?? 0),
+      outerRadius: resolveOuterRadius(d, d.i ?? 0),
+      startAngle: d.startAngle,
+      endAngle: d.endAngle,
+      padAngle: d.padAngle,
+    }),
+    nameOf: d => viz._drawLabel(d.data as DataPoint, d.i ?? 0),
+    shareOf: sharePct,
+    fillOf: d =>
+      resolveAccessor<unknown>(sc.fill, d.data as DataPoint, d.i ?? 0),
+    straight: straightNodes,
+    labelConfig,
   });
 
-  const labelNodes = emitLabels({
-    data: slices as unknown as DataPoint[],
-    label: (_d, i) => {
-      const name = viz._drawLabel(
-        slices[i].data as DataPoint,
-        slices[i].i ?? i,
-      );
-      const box = labelBoxes[i];
-      return box && box.length > 1 ? [name, sharePct(slices[i])] : [name];
-    },
-    // The largest inscribed rectangle is in chart-centered path coordinates,
-    // so the anchor is the origin and labelBounds carries the absolute box.
-    x: () => 0,
-    y: () => 0,
-    aes: () => ({}),
-    rotate: constant(0),
-    id: (_d, i) => `pie-label-${i}`,
-    labelBounds: (_d, i) => labelBoxes[i],
-    labelConfig: {
-      fontColor: (d: {data?: Slice}) => {
-        const slice = (d.data ?? d) as Slice;
-        const fill = resolveAccessor<string>(
-          sc.fill,
-          slice.data as DataPoint,
-          slice.i ?? 0,
-        );
-        return colorContrast(
-          typeof fill === "string" ? fill : "rgb(255, 255, 255)",
-          viz.schema.colorDefaults,
-        );
-      },
-      fontResize: true,
-      textAnchor: "middle",
-      verticalAlign: (d: {data?: Slice; l?: number}) => {
-        if (d && d.l === 1) return "top";
-        const box = d && d.data ? labelBoxes[slices.indexOf(d.data)] : false;
-        return box && box.length > 1 ? "bottom" : "middle";
-      },
-      ...userLabelConfig(viz, "Path"),
-    },
-  });
-
-  stampLabelFlip(labelNodes, flipSource, sweep);
+  stampLabelFlip(labels.straight, flipSource, sweep);
 
   const imageNodes = backgroundImageNodes(sc, pathNodes, k => [
     slices[k].data as DataPoint,
     slices[k].i ?? 0,
   ]);
 
-  return [...pathNodes, ...imageNodes, ...labelNodes];
+  return [...pathNodes, ...imageNodes, ...labels.straight, ...labels.curved];
 };

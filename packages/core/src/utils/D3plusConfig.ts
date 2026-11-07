@@ -1637,6 +1637,36 @@ export interface D3plusConfig {
       Where each shape's label goes, as a string for every shape or a
       `(d, i) => string` accessor of the data row.
 
+      - Ring segments (Donut slices and those of a Pie with an
+        `innerRadius`, Sunburst arcs, Chord groups, and RadialBar tracks):
+        `"along"` runs a segment's name along its arc, following the ring,
+        reading left to right on the bottom half as on the top. `"auto"`
+        picks, segment by segment, whichever reads better: the curve when
+        its arc is long enough for the whole name and it shows it larger
+        than a straight label could (a thin ring), the straight label when
+        that fits as well, and a curve cut short with an ellipsis when
+        nothing else fits. `"inside"` and `"outside"` keep the straight
+        labels. A full Pie (no `innerRadius`) always keeps its straight
+        labels: its wedges run to a point at the center. A Donut's curves
+        follow the middle of its ring (the rim, when its hole is small),
+        with the slice's share on a smaller second line when there is room.
+        A Sunburst also weighs a label turned along its radius, which suits
+        the narrow arcs of the outer rings. Curved Donut and Sunburst names
+        keep 5px from the ring's edges and at least 0.3em from the
+        segment's ends, at the largest size from the Path `labelConfig`'s
+        `fontSize` (else `fontMax`, 24px by default) down to its `fontMin`
+        (8px). A Chord curves its group names just outside the ring when
+        every name fits along its arc, which leaves the ring more room;
+        otherwise it curves those that fit and turns the rest along their
+        spokes. A Radar does the same with its metric names, just outside
+        the web, each between its neighbors' spokes, wrapping a long name
+        onto a second curved line. A RadialBar curves each track's name along the track, inside
+        its bar (or past its end when the bar is too short), when the sweep
+        leaves no room before the start for the straight labels, and at any
+        sweep for `"along"`; when every track is named this way, the default
+        legend hides. Curved text takes the color that contrasts with what
+        lies under it (the theme's ink outside the ring) and dims with its
+        segment on hover. A label with no room is left out.
       - Bars: `"inside"` or `"outside"` the bar, or `"auto"`, which goes
         outside when the bar is shorter than half the room along its axis.
         Stacked bars always label inside.
@@ -2068,11 +2098,15 @@ export interface D3plusConfig {
   overlap?: number;
   /**
       Room (px) the Radar reserves around its web for the metric labels.
-      `"auto"` (the default) measures the labels and gives the web the largest
-      radius at which every label fits inside the chart, wrapping long labels
-      onto two lines (and truncating what still doesn't fit) rather than
-      shrinking the web below half its largest possible size. A number
-      reserves exactly that much room and wraps labels to that width.
+      `"auto"` (the default) curves every metric name along the web when
+      they all fit (see `labelPosition`), on one line or, for long names,
+      two, which needs only that much room.
+      Otherwise it measures the labels along their spokes and gives the web
+      the largest radius at which every label fits inside the chart,
+      wrapping long labels onto two lines (and truncating what still doesn't
+      fit) rather than shrinking the web below half its largest possible
+      size; names that fit along the web at that radius still curve. A
+      number reserves exactly that much room and wraps labels to that width.
   */
   outerPadding?: number | "auto";
   /** Priestley and Gantt: the space between neighboring bars, as a share of each row (d3's band `paddingInner`). */

@@ -13,6 +13,7 @@ import styledTracks from "~/examples/core/charts/radial-bar/styled-tracks.js?raw
 import smallMultiples from "~/examples/core/charts/radial-bar/small-multiples.js?raw";
 import sharedValueDomain from "~/examples/core/charts/radial-bar/shared-value-domain.js?raw";
 import fullCircle from "~/examples/core/charts/radial-bar/full-circle.js?raw";
+import curvedTrackLabels from "~/examples/core/charts/radial-bar/curved-track-labels.js?raw";
 
 Creates a radial bar chart from an array of data: each row is a
 concentric track whose arc length shows its value, or, with
@@ -62,8 +63,14 @@ With `facetConfig: {scales: "shared"}`, every panel uses one value domain across
 
 ## Full circle
 
-A sweep within 30° of a full circle leaves no room before the tracks' start for their labels, so the legend names the tracks instead.
+A sweep within 30° of a full circle leaves no room before the tracks' start for the straight labels, so each track's name curves along the track instead (see [curved track labels](#curved-track-labels)), and the legend stands aside when every track is named.
 
 <Playground chart="RadialBar" code={fullCircle} controls={["maxAngle"]} />
+
+## Curved track labels
+
+Each track's name runs along the track: inside its bar from the start, or just past the bar's end when the bar is too short. `labelPosition: "along"` does this at any sweep, and `"inside"` keeps only the straight labels before the start (none at a full circle, where the legend names the tracks). When every track is named this way, the default legend hides, as it does for lines named along them; a track too thin for its name keeps the legend, and an explicit `legend` setting wins.
+
+<Playground chart="RadialBar" code={curvedTrackLabels} controls={["labelPosition","maxAngle"]} />
 
 <ApiReference name="RadialBar" pkg="core" />

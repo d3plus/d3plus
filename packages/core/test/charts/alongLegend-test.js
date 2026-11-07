@@ -26,6 +26,18 @@ it("alongLegendAuto — the default legend with along labels possible", () => {
     false,
     "a user's legend wins",
   );
+  // A chart with along labels of its own (a RadialBar's curved tracks).
+  const own = possible => ({
+    ...viz({lineLabels: undefined}),
+    _alongLabelsPossible: () => possible,
+  });
+  assert.strictEqual(alongLegendAuto(own(true)), true);
+  assert.strictEqual(alongLegendAuto(own(false)), false);
+  assert.strictEqual(
+    alongLegendAuto({...own(true), schema: {legend: () => true}}),
+    false,
+    "a user's legend still wins",
+  );
 });
 
 /** A stacked area chart's viz, with no line labels. */

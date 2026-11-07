@@ -49,7 +49,8 @@ export class TextPathDefs {
 
   /**
       Removes the path an exiting node followed, once its exit transition has
-      had `delay` ms to finish.
+      had `delay` ms to finish and no `<textPath>` still follows it (an exit
+      can outlast its duration when frames run late).
       @param key The exiting node's key.
       @param delay The exit transition's duration.
   */
@@ -57,13 +58,23 @@ export class TextPathDefs {
     const id = this._ids.get(String(key));
     if (!id) return;
     this._ids.delete(String(key));
-    const remove = () => this.defs()?.querySelector(`#${id}`)?.remove();
+    const remove = () => {
+      const path = this.defs()?.querySelector<SVGPathElement>(`#${id}`);
+      if (!path) return;
+      const svg = path.ownerSVGElement;
+      if (delay && svg?.querySelector(`textPath[href="#${id}"]`))
+        return wait(Math.min(delay, 100));
+      path.remove();
+    };
+    const wait = (ms: number) => {
+      const timer = setTimeout(() => {
+        this._timers.delete(timer);
+        remove();
+      }, ms);
+      this._timers.add(timer);
+    };
     if (!delay) return remove();
-    const timer = setTimeout(() => {
-      this._timers.delete(timer);
-      remove();
-    }, delay);
-    this._timers.add(timer);
+    wait(delay);
   }
 
   /** Cancels pending removals. */

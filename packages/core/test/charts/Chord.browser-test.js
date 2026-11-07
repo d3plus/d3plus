@@ -21,7 +21,7 @@ it("Chord emits one arc per node, one ribbon per directed flow, and a label per 
     await new Promise(r => viz.render(r));
     const svg = document.querySelector("#viz svg");
     return {
-      paths: svg.querySelectorAll("path").length,
+      paths: svg.querySelectorAll("path:not(defs path)").length,
       labels: Array.from(svg.querySelectorAll("text"))
         .map(t => t.textContent)
         .sort(),
@@ -57,7 +57,10 @@ it("Chord drops links naming an endpoint absent from the node set", async functi
       err = String(e);
     }
     const svg = document.querySelector("#viz svg");
-    return {err, paths: svg ? svg.querySelectorAll("path").length : 0};
+    return {
+      err,
+      paths: svg ? svg.querySelectorAll("path:not(defs path)").length : 0,
+    };
   });
   assert.strictEqual(result.err, null, "renders without error");
   // 3 nodes → 3 arcs; 2 valid links → 2 ribbons (the A→ZZZ link is dropped).
@@ -87,7 +90,7 @@ it("Chord renders undirected with .directed(false)", async function () {
       .duration(0);
     await new Promise(r => viz.render(r));
     const svg = document.querySelector("#viz svg");
-    return {paths: svg.querySelectorAll("path").length};
+    return {paths: svg.querySelectorAll("path:not(defs path)").length};
   });
   // 3 nodes → 3 arcs; undirected merges A↔B into one chord, plus B↔C → 2 ribbons.
   assert.strictEqual(result.paths, 5, "3 arcs + 2 undirected ribbons");
@@ -131,7 +134,10 @@ it("Chord renders a self-loop (source === target) without error", async function
       err = String(e);
     }
     const svg = document.querySelector("#viz svg");
-    return {err, paths: svg ? svg.querySelectorAll("path").length : 0};
+    return {
+      err,
+      paths: svg ? svg.querySelectorAll("path:not(defs path)").length : 0,
+    };
   });
   assert.strictEqual(result.err, null, "renders without error");
   // 2 nodes → 2 arcs; 2 links (one self-loop) → 2 ribbons.
@@ -196,7 +202,7 @@ it("Chord colors groups by a custom nodeId", async function () {
       .duration(0);
     await new Promise(r => viz.render(r));
     const svg = document.querySelector("#viz svg");
-    return Array.from(svg.querySelectorAll("path")).map(p =>
+    return Array.from(svg.querySelectorAll("path:not(defs path)")).map(p =>
       p.getAttribute("fill"),
     );
   });

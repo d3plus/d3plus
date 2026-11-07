@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>RingLabels · Viz</title>
+    <meta
+      name="description"
+      content="Curved ring labels (labelPosition: auto, along, inside) on a Donut, Sunburst, Chord and full-circle RadialBar (a full Pie keeps straight labels), with a theme switch and a data shuffle to watch the labels fade through the arc transitions."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 16px;
+        font-family: sans-serif;
+      }
+      body.dark {
+        background: #1f2328;
+        color: #e6e6e6;
+      }
+      .controls {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+      }
+      .chart {
+        height: 420px;
+      }
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="controls">
+      <label>
+        labelPosition
+        <select id="position">
+          <option value="auto">auto</option>
+          <option value="along">along</option>
+          <option value="inside">inside</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="dark" /> dark theme</label>
+      <button id="shuffle">Shuffle values</button>
+    </div>
+    <div class="grid">
+      <div>
+        <h3>Pie (no innerRadius: straight labels)</h3>
+        <div class="chart" id="pie"></div>
+      </div>
+      <div>
+        <h3>Donut</h3>
+        <div class="chart" id="donut"></div>
+      </div>
+      <div>
+        <h3>Sunburst</h3>
+        <div class="chart" id="sunburst"></div>
+      </div>
+      <div>
+        <h3>Chord</h3>
+        <div class="chart" id="chord"></div>
+      </div>
+      <div>
+        <h3>RadialBar, maxAngle(360)</h3>
+        <div class="chart" id="radialbar"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const sectors = [
+      {id: "Manufacturing", value: 31},
+      {id: "Retail Trade", value: 22},
+      {id: "Health Care", value: 16},
+      {id: "Construction", value: 11},
+      {id: "Education", value: 7},
+      {id: "Finance and Insurance", value: 5},
+      {id: "Agriculture", value: 4},
+      {id: "Mining", value: 2.5},
+      {id: "Utilities", value: 1.5},
+    ];
+    const files = [
+      ["Frontend", "Components", "Button", 120],
+      ["Frontend", "Components", "Modal", 240],
+      ["Frontend", "Components", "Table", 410],
+      ["Frontend", "Pages", "Dashboard", 520],
+      ["Frontend", "Pages", "Settings", 180],
+      ["Frontend", "Styles", "Theme", 60],
+      ["Backend", "API", "Users", 330],
+      ["Backend", "API", "Orders", 460],
+      ["Backend", "Database", "Migrations", 380],
+      ["Backend", "Database", "Models", 290],
+      ["Backend", "Jobs", "Reports", 150],
+      ["Infrastructure", "Deploy", "Containers", 160],
+      ["Infrastructure", "Deploy", "Terraform", 210],
+      ["Docs", "Reference", "API Reference", 260],
+    ].map(([area, module, file, size]) => ({area, module, file, size}));
+    const regions = [
+      "North America",
+      "Europe",
+      "East Asia",
+      "South Asia",
+      "Africa",
+      "Latin America",
+      "Middle East",
+      "Oceania",
+    ];
+    const flows = [];
+    regions.forEach((s, i) =>
+      regions.forEach((t, j) => {
+        const v = ((i * 7 + j * 13) % 11) + (i < 3 ? 6 : 1);
+        if (i !== j && v > 3) flows.push({source: s, target: t, value: v});
+      }),
+    );
+    const activity = [
+      {id: "Running", value: 82},
+      {id: "Cycling", value: 64},
+      {id: "Swimming", value: 47},
+      {id: "Yoga", value: 30},
+      {id: "Climbing", value: 18},
+    ];
+
+    const charts = [
+      [new d3plus.Pie().select("#pie"), {data: sectors, groupBy: "id"}],
+      [new d3plus.Donut().select("#donut"), {data: sectors, groupBy: "id"}],
+      [
+        new d3plus.Sunburst().select("#sunburst"),
+        {data: files, groupBy: ["area", "module", "file"], sum: "size"},
+      ],
+      [new d3plus.Chord().select("#chord"), {links: flows, value: "value"}],
+      [
+        new d3plus.RadialBar().select("#radialbar"),
+        {data: activity, groupBy: "id", maxAngle: 360},
+      ],
+    ];
+
+    const draw = () => {
+      const labelPosition = document.querySelector("#position").value;
+      const theme = document.querySelector("#dark").checked ? "dark" : "light";
+      document.body.classList.toggle("dark", theme === "dark");
+      for (const [viz, config] of charts)
+        viz.config({...config, labelPosition, theme}).render();
+    };
+
+    document.querySelector("#position").addEventListener("change", draw);
+    document.querySelector("#dark").addEventListener("change", draw);
+    document.querySelector("#shuffle").addEventListener("click", () => {
+      sectors.forEach(d => (d.value = Math.round(2 + Math.random() * 30)));
+      activity.forEach(d => (d.value = Math.round(5 + Math.random() * 90)));
+      charts[0][1].data = sectors.slice();
+      charts[1][1].data = sectors.slice();
+      charts[4][1].data = activity.slice();
+      draw();
+    });
+    draw();
+  </script>
+</html>

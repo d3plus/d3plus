@@ -17,7 +17,15 @@ import {arc} from "d3-shape";
 import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../features/chartGeometry.js";
+import type {RingLabelFit} from "../features/ringLabels.js";
 import type {TransformStage} from "../pipeline/stages.js";
+import {
+  CHORD_LABEL_PADDING,
+  applyChordLabelGeometry,
+  chordAllCurved,
+  chordCurves,
+  chordLabelFontSize,
+} from "./labels.js";
 
 /** A single laid-out Chord node (group), accreted across the layout passes. */
 export interface ChordNode {
@@ -35,6 +43,8 @@ export interface ChordNode {
   labelRotate?: number;
   labelAnchor?: "start" | "end";
   labelBounds?: {x: number; y: number; width: number; height: number};
+  /** The curve the label follows, when it curves (see `labelPosition`). */
+  labelCurve?: RingLabelFit;
 }
 
 /** Everything `chordEmit` needs, stashed on `viz.ctx.chordCtx`. */
@@ -74,48 +84,72 @@ function inferChordNodes(
   return ids.map(id => ({id}) as DataPoint);
 }
 
+/** A laid-out ring: its outer radius, chords, and path generators. */
+interface ChordRing {
+  outer: number;
+  chords: Chords;
+  arcFn: (d: ChordGroup) => string;
+  ribbonFn: (d: Chord) => string;
+}
+
 /**
-    Compute each node's label geometry — a tangential label just outside the
-    outer arc, rotated to read radially, flipped upright on the left half
-    (mirrors Rings' label placement). Mutates each node in place.
+    Lays the flow matrix out as a ring of outer radius `outerRadius`,
+    attaching each group to its node.
 */
-function applyChordLabelGeometry(
+function chordRing(
+  v: Parameters<TransformStage>[0]["viz"],
   nodes: ChordNode[],
-  outer: number,
-  labelWidth: number,
-): void {
-  const lineHeight = 15;
-  const pad = 4;
-  nodes.forEach(node => {
-    const g = node.group;
-    if (!g) return;
-    const mid = (g.startAngle + g.endAngle) / 2;
-    const a = mid - Math.PI / 2;
-    node.labelX = Math.cos(a) * outer;
-    node.labelY = Math.sin(a) * outer;
-    let deg = (mid * 180) / Math.PI - 90;
-    if (mid > Math.PI) {
-      // Left half: flip the text upright and extend it inward (−x) in the box's
-      // local frame so it still reads outward from the arc.
-      deg += 180;
-      node.labelBounds = {
-        x: -(labelWidth + pad),
-        y: -lineHeight / 2,
-        width: labelWidth,
-        height: lineHeight,
-      };
-      node.labelAnchor = "end";
-    } else {
-      node.labelBounds = {
-        x: pad,
-        y: -lineHeight / 2,
-        width: labelWidth,
-        height: lineHeight,
-      };
-      node.labelAnchor = "start";
-    }
-    node.labelRotate = deg;
+  matrix: number[][],
+  outerRadius: number,
+): ChordRing {
+  const outer = Math.max(0, outerRadius);
+  const arcThickness = Math.min(v.schema.arcThickness as number, outer);
+  const inner = Math.max(0, outer - arcThickness);
+  const padAngle =
+    v.schema.padAngle != null
+      ? (v.schema.padAngle as number)
+      : (v.schema.padPixel as number) / (outer || 1);
+
+  // `chord()`'s own group-sizing sums only outgoing matrix entries (row `i`);
+  // `chordDirected()` sums both row and column. So with `.directed(false)`, a
+  // node with links only ever pointing INTO it — never OUT of it — gets a
+  // zero-width arc even though it has real incoming flow. Give every node at
+  // least one outgoing link to avoid this (d3-chord's convention, not ours).
+  const layout = (v.schema.directed ? chordDirected() : chord())
+    .padAngle(padAngle)
+    .sortSubgroups(descending);
+  const chords = layout(matrix);
+  // Attach each group to its node by index — `sortGroups` can reorder groups.
+  chords.groups.forEach(g => {
+    const node = nodes[g.index];
+    if (node) node.group = g;
   });
+
+  const arcGen = arc<ChordGroup>().innerRadius(inner).outerRadius(outer);
+  const arcFn = (d: ChordGroup): string => arcGen(d) ?? "";
+
+  // Any truthy `arrows` value (except "source", which ribbonArrow can't express)
+  // puts an arrowhead on the target end of every ribbon. The d3 ribbon
+  // generators return the path string when no canvas context is set; their type
+  // union includes `void`, so coerce.
+  const arrows = v.schema.arrows;
+  const useArrows =
+    typeof arrows === "function" ? true : !!arrows && arrows !== "source";
+  const arrowSize =
+    typeof v.schema.arrowSize === "number"
+      ? (v.schema.arrowSize as number)
+      : undefined;
+  let ribbonFn: (d: Chord) => string;
+  if (useArrows) {
+    const gen = ribbonArrow<Chord, ChordSubgroup>()
+      .radius(inner)
+      .headRadius(arrowSize ?? Math.max(10, arcThickness * 0.75));
+    ribbonFn = (d: Chord): string => (gen(d) as unknown as string) ?? "";
+  } else {
+    const gen = ribbon<Chord, ChordSubgroup>().radius(inner);
+    ribbonFn = (d: Chord): string => (gen(d) as unknown as string) ?? "";
+  }
+  return {outer, chords, arcFn, ribbonFn};
 }
 
 export const applyChordLayout: TransformStage = ({viz}) => {
@@ -176,58 +210,23 @@ export const applyChordLayout: TransformStage = ({viz}) => {
   });
   v.ctx.adjacency = adjacency;
 
-  // Polar geometry, reserving an outer band for labels.
+  // Polar geometry, reserving an outer band for labels: a line's height
+  // when every label curves along the ring, else room for the labels along
+  // their spokes.
   const radius = Math.min(width, height) / 2;
   const labelWidth = Math.min(radius * 0.28, 90);
-  const outer = Math.max(0, radius - labelWidth);
-  const arcThickness = Math.min(v.schema.arcThickness as number, outer);
-  const inner = Math.max(0, outer - arcThickness);
-  const padAngle =
-    v.schema.padAngle != null
-      ? (v.schema.padAngle as number)
-      : (v.schema.padPixel as number) / (outer || 1);
-
-  // `chord()`'s own group-sizing sums only outgoing matrix entries (row `i`);
-  // `chordDirected()` sums both row and column. So with `.directed(false)`, a
-  // node with links only ever pointing INTO it — never OUT of it — gets a
-  // zero-width arc even though it has real incoming flow. Give every node at
-  // least one outgoing link to avoid this (d3-chord's convention, not ours).
-  const layout = (v.schema.directed ? chordDirected() : chord())
-    .padAngle(padAngle)
-    .sortSubgroups(descending);
-  const chords = layout(matrix);
-  // Attach each group to its node by index — `sortGroups` can reorder groups.
-  chords.groups.forEach(g => {
-    const node = nodes[g.index];
-    if (node) node.group = g;
-  });
-
-  const arcGen = arc<ChordGroup>().innerRadius(inner).outerRadius(outer);
-  const arcFn = (d: ChordGroup): string => arcGen(d) ?? "";
-
-  // Any truthy `arrows` value (except "source", which ribbonArrow can't express)
-  // puts an arrowhead on the target end of every ribbon. The d3 ribbon
-  // generators return the path string when no canvas context is set; their type
-  // union includes `void`, so coerce.
-  const arrows = v.schema.arrows;
-  const useArrows =
-    typeof arrows === "function" ? true : !!arrows && arrows !== "source";
-  const arrowSize =
-    typeof v.schema.arrowSize === "number"
-      ? (v.schema.arrowSize as number)
-      : undefined;
-  let ribbonFn: (d: Chord) => string;
-  if (useArrows) {
-    const gen = ribbonArrow<Chord, ChordSubgroup>()
-      .radius(inner)
-      .headRadius(arrowSize ?? Math.max(10, arcThickness * 0.75));
-    ribbonFn = (d: Chord): string => (gen(d) as unknown as string) ?? "";
-  } else {
-    const gen = ribbon<Chord, ChordSubgroup>().radius(inner);
-    ribbonFn = (d: Chord): string => (gen(d) as unknown as string) ?? "";
+  const curvedBand = chordLabelFontSize(v) + CHORD_LABEL_PADDING * 2;
+  let ring = chordRing(v, nodes, matrix, radius - curvedBand);
+  let curves = chordCurves(v, nodes, ring.outer);
+  if (!chordAllCurved(v, nodes, curves)) {
+    ring = chordRing(v, nodes, matrix, radius - labelWidth);
+    curves = chordCurves(v, nodes, ring.outer);
   }
-
-  applyChordLabelGeometry(nodes, outer, labelWidth);
+  const {chords, arcFn, ribbonFn} = ring;
+  applyChordLabelGeometry(nodes, ring.outer, labelWidth);
+  nodes.forEach((node, k) => {
+    node.labelCurve = curves[k] ?? undefined;
+  });
 
   v.ctx.chordCtx = {nodes, chords, arcFn, ribbonFn} satisfies ChordCtx;
   v.ctx.chordWidth = width;

@@ -226,6 +226,12 @@ export interface VizInstance {
   _y2Config?: Record<string, unknown>;
   _backgroundConfig?: Record<string, unknown>;
 
+  /**
+      Whether a chart other than a Plot can name every series along it, so
+      its default legend may stand aside (see `Plot/alongLegend.ts`).
+  */
+  _alongLabelsPossible?: (viz: VizInstance) => boolean;
+
   /* 6. Scene & output */
   _chartScene?: SceneNode[];
   /** The whole scene last painted (chart, legend, colorScale, chrome). */

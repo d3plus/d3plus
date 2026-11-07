@@ -11,6 +11,7 @@ import drillDown from "~/examples/core/charts/sunburst/drill-down.js?raw";
 import styling from "~/examples/core/charts/sunburst/styling.js?raw";
 import smallDataThreshold from "~/examples/core/charts/sunburst/small-data-threshold.js?raw";
 import shading from "~/examples/core/charts/sunburst/shading.js?raw";
+import curvedLabels from "~/examples/core/charts/sunburst/curved-labels.js?raw";
 
 Draws a hierarchy as concentric rings, one per `groupBy` level, where each
 node's arc angle is proportional to its summed value. Click an arc to zoom
@@ -51,5 +52,11 @@ Click an arc to zoom into it: it moves to the center and its descendants fill th
 `shadeConfig` sets how much each ring lightens (`step`), up to `max`; `shade: false` draws every arc in its branch's flat color. Shading applies only to the default colors, so a custom `color` or `colorScale` is drawn as given.
 
 <Playground chart="Sunburst" code={shading} controls={["shade","shadeConfig"]} />
+
+## Curved labels
+
+Each arc's name goes where it shows largest: curved along the arc, or straight along the radius. The inner rings' wide arcs take a curve that follows the ring, while the narrow arcs of the outer ring often read better turned along the radius, where a name runs out of arc long before it runs out of ring. This is `labelPosition`'s `"auto"` default; `"along"` curves every name that fits, and `"inside"` keeps the straight labels.
+
+<Playground chart="Sunburst" code={curvedLabels} controls={["labelPosition","ringSize"]} />
 
 <ApiReference name="Sunburst" pkg="core" />

@@ -30,6 +30,10 @@ Clicking a swatch hides that group, and shift-clicking it shows that group alone
 - **`legendTooltip`** configures the tooltip shown when hovering a swatch.
 - **`legendPadding`** lines the legend up with the chart's own padding, so a bottom legend centers under a plot's x-axis rather than under the whole chart. It's on for screens wider than 600 pixels.
 
+### Labeling ring segments
+
+Ring charts name their segments on the chart itself. With `labelPosition: "auto"`, the default, each name runs along its arc where that reads better than a straight label: Donut and Sunburst names follow the middle of their ring, a [Chord](/core/charts/chord/#curved-labels) curves its group names just outside the ring, and a full-circle [RadialBar](/core/charts/radial-bar/#curved-track-labels) names each track along it, which hides its legend when every track gets a name. `"along"` curves every name that fits, and `"inside"` keeps the straight labels. A full Pie's wedges run to a point at the center, so its labels stay straight. A segment too small for its name goes unlabeled, so keep the legend when some are that small.
+
 ### Labeling lines directly
 
 Line charts can name each line directly, so readers don't have to match colors to a legend. LinePlot does by default: `lineLabels: "along"` writes each series name along its own line, and the legend hides when every line got a name (a `legend` setting of your own always wins). `lineLabels: true` labels the right end of every line, `"start"` the left end, and `"both"` both ends; `lineLabelConfig: {value: true}` adds each end's value after the name (e.g. "Brazil 37%"). Labels that would overlap are moved apart on each side, with a dotted connector back to their line. [SlopeChart](/core/charts/slope-chart/#basic-example) labels both ends with values and hides its legend by default.

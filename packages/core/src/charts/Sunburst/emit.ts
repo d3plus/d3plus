@@ -22,9 +22,9 @@ import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 import {sunburstPadAngle} from "./geometry.js";
 import type {SunburstArc} from "./geometry.js";
-import {sunburstLabelBox, sunburstSplit} from "./labelFit.js";
-import type {SunburstLabelBox} from "./labelFit.js";
-import {labelMetrics, measureLabel} from "../partition/labelWords.js";
+import {sunburstSplit} from "./labelFit.js";
+import {labelMetrics} from "../partition/labelWords.js";
+import {sunburstCurvedNodes, sunburstLabelPlacements} from "./curvedLabels.js";
 import {partitionFillResolver} from "../partition/shade.js";
 import type {PartitionFillable} from "../partition/shade.js";
 import type {SunburstNode} from "./partition.js";
@@ -73,36 +73,6 @@ function fillResolver(
   );
 }
 
-/** Where each node's label fits, measured in the label font; nodes without room are left out. */
-function labelBoxes(
-  viz: Parameters<ChartEmit>[0]["viz"],
-  nodes: SunburstNode[],
-  labelConfig: Record<string, unknown>,
-  options: {
-    fontMin: number;
-    fontMax: number;
-    padAngle: number;
-    padPixel: number;
-  },
-): Map<SunburstNode, SunburstLabelBox> {
-  const {fontMin, fontMax, padAngle, padPixel} = options;
-  const boxes = new Map<SunburstNode, SunburstLabelBox>();
-  for (const node of nodes) {
-    const metrics = measureLabel(
-      sunburstLabel(viz, node),
-      node.datum,
-      labelConfig,
-    );
-    const box = sunburstLabelBox(
-      sunburstArcGeometry(node, padAngle, padPixel),
-      metrics,
-      {fontMin, fontMax},
-    );
-    if (box) boxes.set(node, box);
-  }
-  return boxes;
-}
-
 /**
     Arcs a zoom-in removed stay for this frame, folding to zero width beneath
     the arcs that grow into their place; they carry no datum, so they take no
@@ -134,6 +104,94 @@ function ghostNodes(
     the last ~25%, once the arcs have all but settled.
 */
 export const SUNBURST_LABEL_FADE: FadeSwap = {out: 0.06, in: 0.06};
+
+/**
+    Every arc's label: straight in its box along the ring or the radius, or
+    curved along the arc (see `sunburstLabelPlacements`), in the color that
+    contrasts with its arc's fill.
+*/
+function sunburstLabels(
+  viz: Parameters<ChartEmit>[0]["viz"],
+  nodes: SunburstNode[],
+  fillOf: (node: PartitionFillable) => string | undefined,
+  pad: {padAngle: number; padPixel: number},
+): SceneNode[] {
+  const {padAngle, padPixel} = pad;
+  const labelConfig = (userLabelConfig(viz, "Path") ?? {}) as Record<
+    string,
+    unknown
+  >;
+  const fontMin =
+    typeof labelConfig.fontMin === "number" ? labelConfig.fontMin : 8;
+  const fontMax =
+    typeof labelConfig.fontMax === "number" ? labelConfig.fontMax : 24;
+  const labelOf = (node: SunburstNode) => sunburstLabel(viz, node);
+  const {boxes, curves} = sunburstLabelPlacements(viz, nodes, labelConfig, {
+    labelOf,
+    arcOf: node => sunburstArcGeometry(node, padAngle, padPixel),
+    fontMin,
+    fontMax,
+  });
+  const labeled = nodes.filter(n => boxes.has(n));
+  const contrast = (node: SunburstNode | undefined) =>
+    colorContrast(
+      (node && fillOf(node)) ?? "rgb(255, 255, 255)",
+      viz.schema.colorDefaults,
+    );
+
+  const labelNodes = emitLabels({
+    data: labeled as unknown as DataPoint[],
+    label: d => sunburstLabel(viz, d as unknown as SunburstNode),
+    x: d => boxes.get(d as unknown as SunburstNode)!.x,
+    y: d => boxes.get(d as unknown as SunburstNode)!.y,
+    rotate: d => boxes.get(d as unknown as SunburstNode)!.rotate,
+    aes: () => ({}),
+    id: d => `sunburst-${(d as unknown as SunburstNode).id}`,
+    datum: d => (d as unknown as SunburstNode).datum,
+    labelBounds: d => {
+      const {width, height} = boxes.get(d as unknown as SunburstNode)!;
+      return {x: -width / 2, y: -height / 2, width, height};
+    },
+    labelConfig: {
+      fontMax,
+      fontMin,
+      // Words wrap only at spaces; the label box was sized for whole words.
+      split: sunburstSplit,
+      fontResize: true,
+      padding: 0,
+      textAnchor: "middle",
+      verticalAlign: "middle",
+      fontColor: (d: DataPoint) => {
+        let row = d;
+        while (row && row.__d3plus__ && row.data) row = row.data as DataPoint;
+        return contrast(
+          (viz.ctx.sunburstNodes as Map<DataPoint, SunburstNode>).get(row),
+        );
+      },
+      ...labelConfig,
+    },
+  });
+
+  // A label never glides along with its arc: when an animated draw moves,
+  // retexts, or resizes it, it fades out where it was and back in where it
+  // lands (see SUNBURST_LABEL_FADE). A label whose arc stays put stays put.
+  for (const n of labelNodes) (n as TextNode).fadeSwap = SUNBURST_LABEL_FADE;
+
+  const userColor = labelConfig.fontColor;
+  const curvedNodes = sunburstCurvedNodes(viz, curves, labelConfig, {
+    labelOf,
+    colorOf: node => {
+      const color = resolveAccessor<unknown>(
+        userColor,
+        node.datum,
+        node.i ?? 0,
+      );
+      return typeof color === "string" ? color : contrast(node);
+    },
+  });
+
+  return [...labelNodes, ...curvedNodes];
+}
 
 export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as unknown as SunburstNode[];
@@ -184,64 +242,7 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
 
   const ghosts = ghostNodes(viz, fillOf);
 
-  const labelConfig = (userLabelConfig(viz, "Path") ?? {}) as Record<
-    string,
-    unknown
-  >;
-  const fontMin =
-    typeof labelConfig.fontMin === "number" ? labelConfig.fontMin : 8;
-  const fontMax =
-    typeof labelConfig.fontMax === "number" ? labelConfig.fontMax : 24;
-  const boxes = labelBoxes(viz, nodes, labelConfig, {
-    fontMin,
-    fontMax,
-    padAngle,
-    padPixel,
-  });
-  const labeled = nodes.filter(n => boxes.has(n));
-
-  const labelNodes = emitLabels({
-    data: labeled as unknown as DataPoint[],
-    label: d => sunburstLabel(viz, d as unknown as SunburstNode),
-    x: d => boxes.get(d as unknown as SunburstNode)!.x,
-    y: d => boxes.get(d as unknown as SunburstNode)!.y,
-    rotate: d => boxes.get(d as unknown as SunburstNode)!.rotate,
-    aes: () => ({}),
-    id: d => `sunburst-${(d as unknown as SunburstNode).id}`,
-    datum: d => (d as unknown as SunburstNode).datum,
-    labelBounds: d => {
-      const {width, height} = boxes.get(d as unknown as SunburstNode)!;
-      return {x: -width / 2, y: -height / 2, width, height};
-    },
-    labelConfig: {
-      fontMax,
-      fontMin,
-      // Words wrap only at spaces; the label box was sized for whole words.
-      split: sunburstSplit,
-      fontResize: true,
-      padding: 0,
-      textAnchor: "middle",
-      verticalAlign: "middle",
-      fontColor: (d: DataPoint) => {
-        let row = d;
-        while (row && row.__d3plus__ && row.data) row = row.data as DataPoint;
-        const node = (
-          viz.ctx.sunburstNodes as Map<DataPoint, SunburstNode>
-        ).get(row);
-        const fill = node ? fillOf(node) : undefined;
-        return colorContrast(
-          fill ?? "rgb(255, 255, 255)",
-          viz.schema.colorDefaults,
-        );
-      },
-      ...labelConfig,
-    },
-  });
-
-  // A label never glides along with its arc: when an animated draw moves,
-  // retexts, or resizes it, it fades out where it was and back in where it
-  // lands (see SUNBURST_LABEL_FADE). A label whose arc stays put stays put.
-  for (const n of labelNodes) (n as TextNode).fadeSwap = SUNBURST_LABEL_FADE;
+  const labelNodes = sunburstLabels(viz, nodes, fillOf, {padAngle, padPixel});
 
   return [...ghosts, ...pathNodes, ...imageNodes, ...labelNodes];
 };
