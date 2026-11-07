@@ -82,6 +82,27 @@ export function ringFontRange(config: Record<string, unknown>): {
 }
 
 /**
+    Whether laid-out lines show all of `text`: every letter, in order, with
+    nothing cut short. A word hyphenated across two lines still counts as
+    shown whole.
+    @param lines The laid-out lines' text.
+    @param text The label's text.
+*/
+export function textShownWhole(lines: string[], text: string): boolean {
+  const letters = (s: string) => s.replace(/[\s\u00ad\u2010-]/g, "");
+  const whole = letters(text);
+  return whole.length > 0 && letters(lines.join("")) === whole;
+}
+
+/** The labels for every slice, and which slices they name in full. */
+export interface PieSliceLabelNodes<S> {
+  straight: SceneNode[];
+  curved: SceneNode[];
+  /** The slices whose label shows their whole name. */
+  whole: Set<S>;
+}
+
+/**
     The labels for every slice: each slice's straight label (from
     `straight`) or its curved one, whichever its `labelPosition` and the fit
     choose (see `chooseRingLabel`).
@@ -89,7 +110,7 @@ export function ringFontRange(config: Record<string, unknown>): {
 */
 export function pieSliceLabels<S extends PieLabelSlice>(
   inputs: PieCurvedInputs<S>,
-): {straight: SceneNode[]; curved: SceneNode[]} {
+): PieSliceLabelNodes<S> {
   const {viz, slices, arcOf, nameOf, shareOf, fillOf, labelConfig} = inputs;
   const bySlice = new Map<S, SceneNode[]>();
   for (const node of inputs.straight) {
@@ -103,6 +124,8 @@ export function pieSliceLabels<S extends PieLabelSlice>(
   const range = ringFontRange(labelConfig);
   const keep: SceneNode[] = [];
   const curved: RingLabel[] = [];
+  const whole = new Set<S>();
+  const curvedWhole = new Map<string, S>();
   slices.forEach((slice, k) => {
     const i = slice.i ?? k;
     const name = nameOf(slice);
@@ -117,10 +140,17 @@ export function pieSliceLabels<S extends PieLabelSlice>(
           ),
         }
       : null;
+    const straightWhole =
+      first !== undefined &&
+      textShownWhole(
+        first.lines.map(l => l.text),
+        name,
+      );
     const arc = arcOf(slice);
     // A full Pie keeps its straight labels, whatever its labelPosition.
     if (!(arc.innerRadius > 0)) {
       keep.push(...nodes);
+      if (straightWhole) whole.add(slice);
       return;
     }
     const options: RingLabelFitOptions = {
@@ -132,7 +162,10 @@ export function pieSliceLabels<S extends PieLabelSlice>(
     const fit = name ? ringLabelFit(arc, width, options) : null;
     const position = ringLabelPosition(viz, slice.data, i);
     const choice = chooseRingLabel(position, straight, fit);
-    if (choice === "straight") keep.push(...nodes);
+    if (choice === "straight") {
+      keep.push(...nodes);
+      if (straightWhole) whole.add(slice);
+    }
     if (choice !== "curved" || !fit) return;
     const userColor = resolveAccessor<unknown>(
       labelConfig.fontColor,
@@ -153,6 +186,7 @@ export function pieSliceLabels<S extends PieLabelSlice>(
       : ringLabelPair(arc, width, ringTextWidth(share, font), options);
     const base = {color, datum: slice.data, index: i};
     const key = `pie-label-curved-${viz._ids(slice.data, i).join("-")}`;
+    if (!fit.truncated) curvedWhole.set(key, slice);
     if (pair)
       curved.push(
         {...base, key, text: name, fit: pair[0]},
@@ -164,5 +198,9 @@ export function pieSliceLabels<S extends PieLabelSlice>(
     ringLabelNodes(viz, curved, font),
     textLineBoxes(keep),
   );
-  return {straight: keep, curved: curvedNodes};
+  for (const node of curvedNodes) {
+    const slice = curvedWhole.get(String(node.key));
+    if (slice) whole.add(slice);
+  }
+  return {straight: keep, curved: curvedNodes, whole};
 }

@@ -126,6 +126,7 @@ export {
   applyPieLayout,
   pieAspect,
   pieBaseRadius,
+  pieRingLayout,
   pieSweepOf,
 } from "./src/charts/Pie/applyLayout.js";
 export {
@@ -133,6 +134,7 @@ export {
   isFullTurn,
   pieSweep,
   ringExtent,
+  ringSizeFor,
   sweepFraction,
 } from "./src/charts/Pie/arcFit.js";
 export type {ArcBox, PieSweep, RingFit} from "./src/charts/Pie/arcFit.js";
@@ -1709,11 +1711,76 @@ export type {
   RingLabel,
   RingLabelFont,
 } from "./src/charts/features/ringLabelNodes.js";
-export {pieSliceLabels, ringFontRange} from "./src/charts/Pie/curvedLabels.js";
+export {
+  pieSliceLabels,
+  ringFontRange,
+  textShownWhole,
+} from "./src/charts/Pie/curvedLabels.js";
 export type {
   PieCurvedInputs,
   PieLabelSlice,
+  PieSliceLabelNodes,
 } from "./src/charts/Pie/curvedLabels.js";
+export {
+  OUTSIDE_LABEL_FONT_SIZE,
+  leaderPoints,
+  leaderRoutes,
+  outsideColumn,
+  outsideIdealY,
+  outsideMetrics,
+  outsideRoom,
+  outsideSide,
+  polylinesCross,
+  segmentDistance,
+  stackOutsideLabels,
+} from "./src/charts/Pie/outsideLabels.js";
+export type {
+  Leader,
+  OutsideMetrics,
+  StackItem,
+} from "./src/charts/Pie/outsideLabels.js";
+export {
+  LEADER_OPACITY,
+  OUTSIDE_ENTER,
+  outsideSpace,
+  pieOutsideLabels,
+  pieOutsideNodes,
+  placeOutsideLabels,
+} from "./src/charts/Pie/outsideNodes.js";
+export type {
+  CrowdedLabel,
+  OutsideFrame,
+  OutsidePlacement,
+  OutsideStackLabel,
+  PieOutsideScene,
+} from "./src/charts/Pie/outsideNodes.js";
+export {
+  NO_ROOM,
+  OUTSIDE_MAX_SHARE,
+  PIE_MIN_SCALE,
+  clampSides,
+  crowdedRoom,
+  layoutWithLabelRoom,
+  outsideClaim,
+  pieLabelRoom,
+  usedRoom,
+} from "./src/charts/Pie/labelRoom.js";
+export type {PieRoom} from "./src/charts/Pie/labelRoom.js";
+export {
+  labelGoesOutside,
+  outsideFontSize,
+  pieLabelPlan,
+  pieMayLabelOutside,
+  pieSharePct,
+  twoLineWidth,
+} from "./src/charts/Pie/pieLabels.js";
+export type {
+  OutsideCandidate,
+  PieLabelPlan,
+  PieSlice,
+} from "./src/charts/Pie/pieLabels.js";
+export {pieStraightLabels} from "./src/charts/Pie/straightLabels.js";
+export type {StraightLabelInputs} from "./src/charts/Pie/straightLabels.js";
 export {
   metricsWidth,
   sunburstCurvedNodes,

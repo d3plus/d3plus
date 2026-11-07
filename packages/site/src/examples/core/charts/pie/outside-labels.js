@@ -1,0 +1,20 @@
+const config = {
+  data: [
+    {Category: "Housing", Share: 33.3},
+    {Category: "Transportation", Share: 17},
+    {Category: "Food", Share: 12.9},
+    {Category: "Personal insurance and pensions", Share: 12},
+    {Category: "Healthcare", Share: 8},
+    {Category: "Entertainment", Share: 4.7},
+    {Category: "Cash contributions", Share: 3.4},
+    {Category: "Apparel and services", Share: 2.6},
+    {Category: "Education", Share: 2.2},
+    {Category: "Miscellaneous", Share: 1.4},
+    {Category: "Personal care", Share: 1.2},
+    {Category: "Alcoholic beverages", Share: 0.8},
+    {Category: "Tobacco", Share: 0.4},
+  ],
+  groupBy: "Category",
+  value: "Share",
+  labelPosition: "auto",
+};

@@ -30,6 +30,8 @@ const mockViz = (schema = {}) => ({
     shapeConfig: {},
     startAngle: field("startAngle").default,
     endAngle: field("endAngle").default,
+    // The ring's geometry alone: no labels go outside it to claim room.
+    labelPosition: "inside",
     ...schema,
   },
 });

@@ -177,3 +177,27 @@ export function fitRing(
     box,
   };
 }
+
+/**
+    The size a ring sweeping from `start` to `end` needs for an outer radius
+    of `radius`, inset by `pad` on every side (the inverse of `fitRing`, for
+    a ring without a hole).
+    @param radius The outer radius.
+    @param start Where the sweep starts.
+    @param end Where it ends.
+    @param pad The inset on each side.
+*/
+export function ringSizeFor(
+  radius: number,
+  start: number,
+  end: number,
+  pad = 0,
+): {width: number; height: number} {
+  const b = isFullTurn(start, end)
+    ? {x0: -1, x1: 1, y0: -1, y1: 1}
+    : ringExtent(start, end, 0);
+  return {
+    width: radius * (b.x1 - b.x0) + 2 * pad,
+    height: radius * (b.y1 - b.y0) + 2 * pad,
+  };
+}

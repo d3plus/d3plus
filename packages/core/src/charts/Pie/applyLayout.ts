@@ -16,10 +16,12 @@ import {chartBounds} from "../features/chartGeometry.js";
 import {stampShare} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {fitRing, pieSweep, ringExtent} from "./arcFit.js";
+import {fitRing, pieSweep, ringExtent, ringSizeFor} from "./arcFit.js";
 import type {PieSweep} from "./arcFit.js";
+import {NO_ROOM, PIE_MIN_SCALE, layoutWithLabelRoom} from "./labelRoom.js";
+import type {PieRoom} from "./labelRoom.js";
+import type {PieSlice} from "./pieLabels.js";
 
-type PieSlice = PieArcDatum<DataPoint> & {__d3plus__?: true; i?: number};
 type InnerRadius = number | ((d: DataPoint, i: number) => number);
 
 /** Pie's resolved sweep, from its `startAngle` and `endAngle` settings. */
@@ -61,8 +63,21 @@ function strokeBufferOf(viz: VizInstance): number {
   return (baseStrokeWidth * 3) / 2;
 }
 
-export const applyPieLayout: TransformStage = ({viz}) => {
-  const {width, height} = chartBounds(viz);
+/**
+    Lays the slices out with `room` kept around the ring for labels outside
+    it: the ring fits the chart area less that room, its inner radius shrinks
+    with it, and it sits within the room left. Stores the layout on
+    `viz.ctx` (see `applyPieLayout`) and returns the slices.
+    @param viz The chart.
+    @param room The room kept on each side.
+*/
+export function pieRingLayout(
+  viz: VizInstance,
+  room: PieRoom = NO_ROOM,
+): PieSlice[] {
+  const {width: chartWidth, height: chartHeight} = chartBounds(viz);
+  const width = Math.max(0, chartWidth - room.left - room.right);
+  const height = Math.max(0, chartHeight - room.top - room.bottom);
   const strokeBuffer = strokeBufferOf(viz);
   const sweep = pieSweepOf(viz);
 
@@ -80,11 +95,6 @@ export const applyPieLayout: TransformStage = ({viz}) => {
       .sort(sortFn)
       .value(valueFn)(viz._filteredData as DataPoint[]) as PieSlice[];
 
-  const innerRadius = viz.schema.innerRadius as InnerRadius;
-  const innerFn = (typeof innerRadius === "function"
-    ? innerRadius
-    : () => innerRadius) as unknown as (d: PieSlice, i: number) => number;
-
   // The hole-less fit sizes a first pass, whose slices resolve the inner
   // radius; a hole can let a partial ring grow, so the slices are laid out
   // again at the final radius when it does.
@@ -96,6 +106,25 @@ export const applyPieLayout: TransformStage = ({viz}) => {
     0,
     strokeBuffer,
   );
+  // A ring narrowed to leave room for labels keeps its hole in proportion.
+  const fullRadius =
+    width < chartWidth || height < chartHeight
+      ? fitRing(
+          chartWidth,
+          chartHeight,
+          sweep.start,
+          sweep.end,
+          0,
+          strokeBuffer,
+        ).radius
+      : baseFit.radius;
+  const scale = fullRadius > 0 ? baseFit.radius / fullRadius : 1;
+  const innerRadius = viz.schema.innerRadius as InnerRadius;
+  const innerOf = (typeof innerRadius === "function"
+    ? innerRadius
+    : () => innerRadius) as unknown as (d: PieSlice, i: number) => number;
+  const innerFn = (d: PieSlice, i: number) => innerOf(d, i) * scale;
+
   let pieData = layout(baseFit.radius);
   const innerMin = pieData.reduce(
     (m, d, i) => Math.min(m, Number(innerFn(d, i)) || 0),
@@ -128,12 +157,34 @@ export const applyPieLayout: TransformStage = ({viz}) => {
   viz.ctx.pieSweep = sweep;
   // The ring's center within the chart area — chartTransform places the
   // origin here.
-  viz.ctx.pieCenter = {x: fit.cx, y: fit.cy};
+  viz.ctx.pieCenter = {x: room.left + fit.cx, y: room.top + fit.cy};
   // The ring's footprint around its center, at the actual (buffer-reduced)
   // radius wedges are drawn at — chartBodyRect (Pie/index.ts) reads this, so
   // the drill-morph's "whole pie" reference box matches the wedges' real
   // extent, not the looser available space.
   viz.ctx.pieBox = fit.box;
+  return pieData;
+}
 
-  return {shapeData: pieData};
+/**
+    Lays the slices out, keeping room around the ring for the labels that
+    go outside it (see `layoutWithLabelRoom`).
+*/
+export const applyPieLayout: TransformStage = ({viz}) => {
+  const pieData = pieRingLayout(viz);
+  const sweep = pieSweepOf(viz);
+  const min = ringSizeFor(
+    (viz.ctx.arcData as d3Shape.Arc<unknown, PieSlice>).outerRadius()(
+      pieData[0],
+    ) * PIE_MIN_SCALE,
+    sweep.start,
+    sweep.end,
+    strokeBufferOf(viz),
+  );
+  const slices = layoutWithLabelRoom(
+    viz,
+    room => pieRingLayout(viz, room),
+    min,
+  );
+  return {shapeData: slices};
 };

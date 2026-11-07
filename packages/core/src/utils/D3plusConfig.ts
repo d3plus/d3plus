@@ -1632,9 +1632,23 @@ export interface D3plusConfig {
         its arc is long enough for the whole name and it shows it larger
         than a straight label could (a thin ring), the straight label when
         that fits as well, and a curve cut short with an ellipsis when
-        nothing else fits. `"inside"` and `"outside"` keep the straight
-        labels. A full Pie (no `innerRadius`) always keeps its straight
-        labels: its wedges run to a point at the center. A Donut's curves
+        nothing else fits. A full Pie (no `innerRadius`) keeps its labels
+        inside straight: its wedges run to a point at the center. On a Pie
+        or Donut (any `innerRadius`, and partial rings such as a half pie),
+        a slice whose label inside can't show its whole name under
+        `"auto"` is labelled outside the ring instead, and `"outside"`
+        labels every slice there: its name and share, horizontal, in the
+        Path `labelConfig`'s font at its `fontSize` (12px by default), in
+        the theme's text color unless `labelConfig.fontColor` sets one,
+        joined to the slice by a thin leader line. These labels stack in a
+        column on the side of the ring their slice faces, wrapping onto a
+        second line between words when their column is narrow; the ring
+        shrinks (its hole with it) to leave room for them, never below 60%
+        of its full radius, and when they don't all fit, the smallest
+        slices' labels are left out (those slices keep their label inside,
+        if any). `"inside"` keeps a Pie or Donut's labels straight inside
+        their slices, and on the other ring segments both `"inside"` and
+        `"outside"` keep the straight labels. A Donut's curves
         follow the middle of its ring (the rim, when its hole is small),
         with the slice's share on a smaller second line when there is room.
         A Sunburst also weighs a label turned along its radius, which suits
