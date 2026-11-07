@@ -9,6 +9,7 @@ import basicExample from "~/examples/core/charts/hexbin/basic-example.js?raw";
 import squareBins from "~/examples/core/charts/hexbin/square-bins.js?raw";
 import densityContours from "~/examples/core/charts/hexbin/density-contours.js?raw";
 import contoursOverBins from "~/examples/core/charts/hexbin/contours-over-bins.js?raw";
+import contourLabels from "~/examples/core/charts/hexbin/contour-labels.js?raw";
 import meanPerBin from "~/examples/core/charts/hexbin/mean-per-bin.js?raw";
 
 Creates a 2D binned density chart from raw observations: each row is a
@@ -43,6 +44,12 @@ With `binShape(false)` and `contours`, the observations are summarized as densit
 Contours can be drawn over the bins. Contour levels are in observations per bin, the count a bin would hold there, so both share one colorScale; over bins, the contour lines take the chart's text color and leave hover to the bins.
 
 <Playground chart="Hexbin" code={contoursOverBins} controls={["contours","contourConfig","binSize"]} />
+
+## Contour labels
+
+Each contour line carries its level's value along it, the way a topographic map labels elevation: centered on the line, which breaks beneath the text, and reading upright whichever way the line runs. Labels keep clear of the other contours and labels, a long contour takes more than one, spaced well apart, and a level with no clear, gently curving stretch goes unlabelled. With more than five levels, every other level is labelled. `levelFormat` formats the values, `contourConfig.labelConfig` styles them, and `contourConfig.labels: false` turns them off.
+
+<Playground chart="Hexbin" code={contourLabels} controls={["contours","contourConfig","levelFormat"]} />
 
 ## Mean per bin
 

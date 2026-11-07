@@ -16,11 +16,13 @@ import {
   makeShape,
   shapeConfigFor,
 } from "../features/emitHelpers.js";
+import type {Pt} from "../features/pathLabelGeometry.js";
 import type {PlotDatum} from "../features/plotPaint.js";
 import type {ShapeEmitContext, ShapeEmitter} from "../features/shapeEmit.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {binPoints, type PixelPoint} from "./binning.js";
+import {emitContourLabels} from "./contourLabels.js";
 import {
   binRows,
   binsInView,
@@ -151,6 +153,15 @@ function emitPoints(
   ];
 }
 
+/** The trend lines in pixels, for the contour labels to keep clear of. */
+function trendPoints(ctx: ShapeEmitContext): Pt[][] {
+  return (ctx.viz._trendFits ?? []).map(fit =>
+    fit.samples
+      .map((s): Pt => [ctx.x(s.x), ctx.y(s.y)])
+      .filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y)),
+  );
+}
+
 /** Where the bin grid is anchored: the smallest observation, so a pan moves the grid with the data. */
 function gridOrigin(ctx: ShapeEmitContext, frame: PlotFrame): [number, number] {
   const anchor = hexbinState(ctx.viz).anchor;
@@ -164,7 +175,8 @@ function gridOrigin(ctx: ShapeEmitContext, frame: PlotFrame): [number, number] {
 
 /**
     Emits a Hexbin's observations: the raw points (`points`), the bins
-    (`binShape`), then the density contours (`contours`). Each paint, zoomed
+    (`binShape`), then the density contours (`contours`) and their level
+    labels. Each paint, zoomed
     or not, refits the colorScale to the bins in view (or the contour
     levels), so the fills and the colorScale agree and the densest bin in
     view takes the top color.
@@ -205,14 +217,23 @@ export const hexbinEmit: ShapeEmitter = (ctx: ShapeEmitContext) => {
     return (d: DataPoint, i: number) =>
       typeof fill === "function" ? fill(d, i) : fill;
   };
+  const contourNodes = emitPaths(
+    ctx,
+    contours,
+    base => contourStyle(viz, settings, fillOf(base)),
+    !settings.shape,
+  );
   return [
     ...(settings.points ? emitPoints(viz, points, settings) : []),
     ...emitPaths(ctx, bins, () => ({}), true),
-    ...emitPaths(
-      ctx,
+    ...contourNodes,
+    ...emitContourLabels(
+      viz,
       contours,
-      base => contourStyle(viz, settings, fillOf(base)),
-      !settings.shape,
+      contourNodes,
+      frame,
+      settings,
+      trendPoints(ctx),
     ),
   ];
 };

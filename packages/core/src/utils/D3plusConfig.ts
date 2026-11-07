@@ -634,7 +634,13 @@ export interface TrendLineConfig {
 
 /** The `linkLabelConfig` options. */
 export interface LinkLabelConfig {
-  /** `"along"` runs text along its link, kept upright; `"horizontal"` keeps it level. */
+  /**
+      `"along"` runs text along its link, kept upright: on a curved link
+      (a Rings spline, an ArcDiagram arc, a self-loop, a bundled edge, a
+      Geomap flow arc, a Sankey band), the text follows the curve over a
+      pad that curves with it, and is cut short with an ellipsis where the
+      curve has too little room. `"horizontal"` keeps it level.
+  */
   rotate?: "along" | "horizontal";
   fontSize?: number;
   /** The pad around the text, in pixels. */
@@ -1250,8 +1256,15 @@ export interface D3plusConfig {
       levels to draw (default `8`, rounded to nice values) or the levels
       themselves, in observations per bin; `strokeWidth` is the outline
       width of `"lines"` contours (default `1.5`); and `fillOpacity` is the
-      opacity of the highest `"filled"` level (default `0.8`). Merged into
-      the current config.
+      opacity of the highest `"filled"` level (default `0.8`). `labels`
+      (default `true`) writes each level's value along its contour lines, as
+      a topographic map labels elevation: centered on the line, which breaks
+      beneath it, reading upright, and clear of the other contours and
+      labels. A long contour takes more than one label, spaced well apart;
+      with more than five levels, every other level is labelled; and a level
+      with no clear, gently curving stretch goes unlabelled. `labelConfig`
+      is TextBox config for the labels (`fontSize` defaults to `10`), and
+      `levelFormat` formats their values. Merged into the current config.
   */
   contourConfig?: ContourConfig;
   /**
@@ -1690,6 +1703,20 @@ export interface D3plusConfig {
         off), else by `label`. Labels are placed when the chart draws: a
         zoomed Plot places them again for its new scales, while a zoomed
         Network or Geomap scales them with the picture.
+      - Stacked areas (StackedArea, Streamgraph, and a stacked AreaPlot):
+        `"auto"` or `"along"` runs each series' name along its band's
+        centerline, following its curve, on the stretch where the band is at
+        least the font size plus 4px thick under the whole label and flattest.
+        The text reads upright, in the color that contrasts with the band's
+        fill (or the Area `labelConfig`'s `fontColor`, when you set one), and
+        dims with its band on hover. It starts at the Area `labelConfig`'s
+        `fontSize` (or `fontMax`, else 16px) and shrinks a pixel at a time
+        down to its `fontMin`, but no lower than 8px, before giving up; a
+        band too thin for its name everywhere goes unlabeled. When every band
+        gets a name, the default legend hides (a `legend` of your own always
+        wins, and the legend stays while a series is hidden from it).
+        `"inside"` (or `"outside"`) puts the label in the band's largest box
+        instead. `shapeConfig.Area.label` sets the text, or `false` for none.
 
       Defaults to `"auto"`.
   */
@@ -1752,9 +1779,10 @@ export interface D3plusConfig {
   /** Configuration object for the legend tooltip. */
   legendTooltip?: TooltipConfig;
   /**
-      Formats the Radar's level value labels. Receives the ring's value and
-      returns its label. Defaults to the abbreviated number format the axes
-      use (`1.5k`, `2M`, …).
+      Formats the Radar's level value labels, or the Hexbin's contour level
+      labels and tooltips. Receives the level's value and returns its label.
+      Defaults to the abbreviated number format the axes use (`1.5k`, `2M`,
+      …).
   */
   levelFormat?: (d: number) => string | number;
   /**
@@ -1900,7 +1928,8 @@ export interface D3plusConfig {
       `source` and `target` set to the data of its nodes, and its index in
       `links`). It sits halfway along a link's length, centered on
       a Sankey band, and at the top of an ArcDiagram arc, on a pad of the
-      chart's background. Numbers are abbreviated in the chart's locale.
+      chart's background, and follows a curved link's curve (see
+      `linkLabelConfig`). Numbers are abbreviated in the chart's locale.
       Labels that would cover a node or another label are hidden, the
       widest links' labels kept first. Defaults to none.
   */
@@ -1912,6 +1941,13 @@ export interface D3plusConfig {
       `backgroundOpacity`, the opacity of that pad in the chart's background
       color (0.85); and any other TextBox setting, such as `fontColor`
       (defaults to the chart's text color), `fontFamily`, or `fontWeight`.
+      Along a curved link (a Rings spline or fanned parallel link, an
+      ArcDiagram arc, a self-loop, a bundled Network edge, a Geomap flow
+      arc, or a Sankey band or return lane), an `"along"` label follows the
+      curve, centered where a straight label would sit, over a pad that
+      curves with it, and is cut short with an ellipsis when the curve has
+      too little room (or left out when fewer than three letters fit). A
+      loop too tight for text to follow keeps a straight label.
   */
   linkLabelConfig?: LinkLabelConfig;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */

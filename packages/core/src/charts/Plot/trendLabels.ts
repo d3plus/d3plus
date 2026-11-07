@@ -153,7 +153,8 @@ export function trendLabelSpot(
 
 /**
     The boxes of the labels a trend label must clear: the line labels at the
-    lines' ends and along them, wherever they sit among the marks.
+    lines' ends and along them, and Hexbin's contour labels, wherever they
+    sit among the marks.
     @param marks The plot's marks.
 */
 export function lineLabelBoxes(marks: SceneNode[]): Box[] {
@@ -164,7 +165,7 @@ export function lineLabelBoxes(marks: SceneNode[]): Box[] {
     if (node.type === "group") node.children.forEach(c => visit(c, x, y));
     if (node.type !== "text") return;
     const row = node.datum as {data?: {shape?: unknown}} | undefined;
-    const along = `${node.key}`.startsWith("line-label-along-");
+    const along = /^(line-label-along|contour-label)-/.test(`${node.key}`);
     if (!along && row?.data?.shape !== "Line") return;
     for (const box of textLineBoxes([node]))
       out.push({...box, x: box.x + ox, y: box.y + oy});

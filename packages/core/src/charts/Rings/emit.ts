@@ -9,6 +9,7 @@ import type {Paint, SceneNode, Transform} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {
+  cubicPathD,
   edgeArrowTrims,
   straightEdgeArrows,
   straightEdgeD,
@@ -33,6 +34,7 @@ import type {LinkEnds} from "../features/linkColor.js";
 import {cubicMidpoint, segmentMidpoint} from "../features/linkLabelGeometry.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
+import {curvePoints} from "../features/linkLabelPath.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 import {chordArrowNodes, cubicArrowEdge} from "../features/curvedArrows.js";
 import {uniqueLinkKeys} from "../features/linkKeys.js";
@@ -221,6 +223,16 @@ export function ringsEdgeAnchor(edge: RingsEdge): LinkAnchor {
   );
 }
 
+/**
+    The curve an edge's label follows: a spline edge's curve or a loop, or
+    null for a straight edge.
+*/
+export function ringsEdgePath(edge: RingsEdge): [number, number][] | null {
+  if (edge.loop) return curvePoints(edge.loop.d);
+  const curve = ringsCurve(edge);
+  return curve ? curvePoints(cubicPathD(curve)) : null;
+}
+
 /** How Rings draws its node labels. */
 interface RingsNodeConfig {
   label?: (d: RingsNode, i: number) => unknown;
@@ -270,6 +282,7 @@ function ringsLinkLabels(
       link: edge,
       i,
       anchor: ringsEdgeAnchor(edge),
+      path: ringsEdgePath(edge),
       priority: edge.size,
     })),
     {
