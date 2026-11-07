@@ -1,8 +1,9 @@
-import {it} from "vitest";
+import {it, vi} from "vitest";
 import assert from "assert";
 
 import {useJsdom} from "~test/jsdom.js";
 import {SvgRenderer} from "../index.ts";
+import {TextPathDefs} from "../src/svg/svgTextPaths.ts";
 
 useJsdom({augment: false});
 
@@ -73,6 +74,39 @@ it("SvgRenderer draws path text in a <textPath> along a <defs> path", () => {
   for (const id of ids)
     assert.strictEqual(document.getElementById(id), null, `${id} removed`);
   renderer.destroy?.();
+});
+
+it("TextPathDefs keeps an exiting node's def while a <textPath> still follows it", () => {
+  vi.useFakeTimers();
+  try {
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    const defs = svg.appendChild(document.createElementNS(ns, "defs"));
+    document.body.appendChild(svg);
+    const paths = new TextPathDefs(
+      () => defs,
+      () => 1,
+    );
+    const href = paths.href(pathText("a", "M0,50 L200,50"));
+    const tp = svg
+      .appendChild(document.createElementNS(ns, "text"))
+      .appendChild(document.createElementNS(ns, "textPath"));
+    tp.setAttribute("href", href);
+
+    paths.release("a", 500);
+    vi.advanceTimersByTime(500);
+    assert.ok(svg.querySelector(href), "kept while the exit runs late");
+    tp.parentNode.remove();
+    vi.advanceTimersByTime(100);
+    assert.strictEqual(svg.querySelector(href), null, "removed after it");
+
+    // With no transition, it goes at once.
+    const now = paths.href(pathText("b", "M0,10 L200,10"));
+    paths.release("b");
+    assert.strictEqual(svg.querySelector(now), null);
+  } finally {
+    vi.useRealTimers();
+  }
 });
 
 it("SvgRenderer embeds right-to-left path text so it reads right to left", () => {

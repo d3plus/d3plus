@@ -93,14 +93,25 @@ it("pieEmit — a Donut curves its slice names along the ring, with the share be
   );
   const nodes = pieEmit({viz, shapeData});
   const curved = curvedText(nodes);
-  for (const name of ["Manufacturing", "Retail Trade", "Health Care"])
-    assert.ok(curved.includes(name), `${name} in ${curved}`);
+  // Which way "auto" draws a slice depends on the font's widths, so the
+  // big slices are each named, most of them along the ring.
+  const names = curved.filter(t => !t.endsWith("%"));
+  assert.ok(names.length >= 3, `curved: ${curved}`);
+  assert.ok(curved.includes("Manufacturing"), `Manufacturing in ${curved}`);
   assert.ok(
     curved.some(t => /^[\d.]+%$/.test(t)),
     "the share on a second line",
   );
   // Every slice is named at most once.
-  const all = [...curved, ...straightText(nodes)].filter(t => !t.endsWith("%"));
+  const all = [
+    ...names,
+    ...straightText(nodes).map(t => t.replace(/\s*[\d.]+%$/, "")),
+  ].filter(Boolean);
+  for (const name of ["Manufacturing", "Retail Trade", "Health Care"])
+    assert.ok(
+      all.some(t => t.startsWith(name)),
+      `${name} in ${all}`,
+    );
   assert.strictEqual(new Set(all).size, all.length, all.join(", "));
   const label = nodes.find(n => n.path && n.lines[0].text === "Health Care");
   const wedge = nodes.find(
