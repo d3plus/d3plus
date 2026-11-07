@@ -107,6 +107,9 @@ importers:
       '@types/d3-delaunay':
         specifier: ^6.0.4
         version: 6.0.4
+      '@types/d3-dsv':
+        specifier: ^3.0.7
+        version: 3.0.7
       '@types/d3-fetch':
         specifier: ^3.0.7
         version: 3.0.7
@@ -379,6 +382,9 @@ importers:
       d3-array:
         specifier: 'catalog:'
         version: 3.2.4
+      d3-dsv:
+        specifier: ^3.0.1
+        version: 3.0.1
       d3-fetch:
         specifier: ^3.0.1
         version: 3.0.1

@@ -1,9 +1,7 @@
 /**
-  The key a chart's data cache stores a load under: the loader key (`data`, `links`, `nodes`, `topojson`, `fitObject`) plus the JSON of every path in the request, so a request object's `fetch` options and each URL of a list are part of it. A single path and a one-item Array of it share a key.
-  @param key The loader key.
-  @param path The URL, request object, or Array of them (and of inline data) being loaded.
+  The key a chart's data cache stores a fetched response under: the JSON of the URL or request object, so a request object's `fetch` options are part of it. Every loader (`data`, `links`, `nodes`, `topojson`, `fitObject`) shares these keys, so two loaders naming the same request share one response.
+  @param request The URL or request object being fetched.
 */
-export default function cacheKey(key: string, path: unknown): string {
-  const paths = path instanceof Array ? path : [path];
-  return `${key}_${JSON.stringify(paths)}`;
+export default function cacheKey(request: unknown): string {
+  return JSON.stringify(request);
 }
