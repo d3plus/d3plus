@@ -5,7 +5,7 @@
     <title>Hexbin</title>
     <meta
       name="description"
-      content="Hexbin variants on 5,000 bivariate-normal points: hexagon and square bins with a binSize slider, density contours with level labels along the lines, contours over points, summed values, small multiples, zoom, and a dark theme."
+      content="Hexbin variants on 5,000 bivariate-normal points: hexagon and square bins with a binSize slider, density contours with level labels along the lines (labelStep and labelSpacing selectors), contours over points, summed values, small multiples, zoom, and a dark theme."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -94,6 +94,25 @@
         <div class="viz" id="trend"></div>
       </div>
       <div>
+        <h3>
+          Contour labels: labelStep
+          <select id="labelStep">
+            <option value="auto" selected>auto</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          and labelSpacing
+          <select id="labelSpacing">
+            <option value="auto" selected>auto</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="5000">5000</option>
+          </select>
+        </h3>
+        <div class="viz" id="spacing"></div>
+      </div>
+      <div>
         <h3>Contour labels off (contourConfig.labels: false)</h3>
         <div class="viz" id="unlabelled"></div>
       </div>
@@ -152,12 +171,26 @@
         .contours(true)
         .trendLine(true)
         .trendLineConfig({label: "equation"}),
+      base("spacing")
+        .binShape(false)
+        .contours(true)
+        .contourConfig({thresholds: 12}),
       base("unlabelled")
         .binShape(false)
         .contours(true)
         .contourConfig({labels: false}),
     ];
     charts.forEach(chart => chart.render());
+
+    const spacing = charts[charts.length - 2];
+    ["labelStep", "labelSpacing"].forEach(key => {
+      document.getElementById(key).addEventListener("change", e => {
+        const value = e.target.value;
+        spacing
+          .contourConfig({[key]: value === "auto" ? value : +value})
+          .render();
+      });
+    });
 
     const size = document.getElementById("size");
     size.addEventListener("input", () => {

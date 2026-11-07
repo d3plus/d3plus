@@ -18,8 +18,8 @@ import type {VizInstance} from "../viz/vizTypes.js";
 /** The gap between the ring and its labels, in pixels. */
 export const CHORD_LABEL_PADDING = 4;
 
-/** The label font size when the Path labelConfig sets none. */
-export const CHORD_LABEL_FONT_SIZE = 10;
+/** The label font size, curved or along a spoke, when the Path labelConfig sets none. */
+export const CHORD_LABEL_FONT_SIZE = 11;
 
 /** What placing a group's label needs: its id, row, index, and arc. */
 export interface ChordLabelNode {
@@ -112,13 +112,15 @@ export function chordAllCurved(
     @param nodes The laid-out groups.
     @param outer The ring's outer radius.
     @param labelWidth The room outside the ring for a label.
+    @param fontSize The labels' font size: each label's box is 1.5 lines of it tall.
 */
 export function applyChordLabelGeometry(
   nodes: ChordLabelNode[],
   outer: number,
   labelWidth: number,
+  fontSize = CHORD_LABEL_FONT_SIZE,
 ): void {
-  const lineHeight = 15;
+  const lineHeight = fontSize * 1.5;
   const pad = CHORD_LABEL_PADDING;
   nodes.forEach(node => {
     const g = node.group;

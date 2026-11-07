@@ -4,6 +4,8 @@ import {useJsdom} from "~test/jsdom.js";
 import {Hexbin} from "../../index.ts";
 import {
   CONTOUR_LABEL_MAX_LEVELS,
+  contourLabelSpacing,
+  contourLabelStep,
   contourLevelText,
   contourRings,
   emitContourLabels,
@@ -82,12 +84,72 @@ it("labelledLevels: all of a few, every other of many", () => {
     false,
     true,
   ]);
-  assert.deepStrictEqual(labelledLevels([1, 2, 3, 4], 3), [
+  // A step of 1 labels them all.
+  assert.deepStrictEqual(
+    labelledLevels([5, 10, 15, 20, 25, 30, 35], 1),
+    Array(7).fill(true),
+  );
+});
+
+it("labelledLevels: every step-th level, the multiples of step spacings", () => {
+  // Evenly spaced from zero: the multiples of 3 × 5.
+  assert.deepStrictEqual(labelledLevels([5, 10, 15, 20, 25, 30, 35], 3), [
+    false,
+    false,
+    true,
+    false,
+    false,
+    true,
+    false,
+  ]);
+  // A few levels label every other one when asked to.
+  assert.deepStrictEqual(labelledLevels([2, 4, 6, 8], 2), [
     false,
     true,
     false,
     true,
   ]);
+  // Uneven levels: every third position, from the third.
+  assert.deepStrictEqual(labelledLevels([1, 2, 4, 8, 16, 32, 64], 3), [
+    false,
+    false,
+    true,
+    false,
+    false,
+    true,
+    false,
+  ]);
+  // Levels offset from zero: by position.
+  assert.deepStrictEqual(labelledLevels([1.5, 3.5, 5.5, 7.5], 2), [
+    false,
+    true,
+    false,
+    true,
+  ]);
+});
+
+it("contourLabelStep: a whole number of at least 1, or auto by the level count", () => {
+  assert.strictEqual(contourLabelStep("auto", CONTOUR_LABEL_MAX_LEVELS), 1);
+  assert.strictEqual(contourLabelStep("auto", CONTOUR_LABEL_MAX_LEVELS + 1), 2);
+  assert.strictEqual(contourLabelStep(undefined, 3), 1);
+  assert.strictEqual(contourLabelStep(3, 2), 3);
+  assert.strictEqual(contourLabelStep(2.6, 10), 3, "rounded");
+  assert.strictEqual(contourLabelStep(0, 10), 1, "at least 1");
+  assert.strictEqual(contourLabelStep(-4, 10), 1);
+  assert.strictEqual(contourLabelStep(NaN, 10), 2, "invalid is auto");
+  assert.strictEqual(contourLabelStep("3", 2), 1, "a string is auto");
+});
+
+it("contourLabelSpacing: pixels as given, or auto from the font and plot", () => {
+  const frame = {width: 600, height: 400};
+  // Auto: 20 ems, or half the plot's mean side when that is longer.
+  assert.strictEqual(contourLabelSpacing("auto", 10, frame), 250);
+  assert.strictEqual(contourLabelSpacing("auto", 14, frame), 280);
+  assert.strictEqual(contourLabelSpacing(undefined, 10, frame), 250);
+  assert.strictEqual(contourLabelSpacing(120, 10, frame), 120);
+  assert.strictEqual(contourLabelSpacing(0, 10, frame), 250, "0 is auto");
+  assert.strictEqual(contourLabelSpacing(-5, 10, frame), 250);
+  assert.strictEqual(contourLabelSpacing(Infinity, 10, frame), 250);
 });
 
 it("ringDistance: the shorter way round", () => {
@@ -157,6 +219,18 @@ it("ringLabelStretches: spaced along a long ring, upright, on the line", () => {
   // Their bands are obstacles now, for the labels that follow.
   for (const s of stretches)
     assert.ok(ctx.grid.nearest(s[Math.floor(s.length / 2)], 0) < 5);
+});
+
+it("ringLabelStretches: a spacing shorter than a label keeps a label's length apart", () => {
+  const ring = circle(300, 300, 200);
+  const stretches = ringLabelStretches(ring, 40, stretchCtx(ring), 1);
+  const mids = stretches.map(s => s[Math.floor(s.length / 2)]);
+  assert.ok(stretches.length > 3, `${stretches.length} labels`);
+  for (let i = 0; i < mids.length; i++)
+    for (let j = i + 1; j < mids.length; j++) {
+      const d = Math.hypot(mids[i][0] - mids[j][0], mids[i][1] - mids[j][1]);
+      assert.ok(d > 35, `labels ${i} and ${j} are ${d}px apart`);
+    }
 });
 
 it("ringLabelStretches: none on a ring too small or too tight", () => {
@@ -294,4 +368,51 @@ it("emitContourLabels: keeps clear of other lines, and follows labelConfig", () 
     [circle(300, 300, 224)],
   );
   assert.deepStrictEqual(blocked, []);
+});
+
+it("emitContourLabels: labelSpacing sets how often a line repeats its label", () => {
+  const ring = circle(300, 300, 220);
+  const rows = [contourRow(0, 5, ring)];
+  const nodes = [colorNode(0, 5, "#0074D9")];
+  const count = contourConfig => {
+    const viz = new Hexbin().binShape(false).contours(true);
+    if (contourConfig) viz.contourConfig(contourConfig);
+    return emitContourLabels(viz, rows, nodes, frame, hexbinSettings(viz))
+      .flatMap(n => walk(n))
+      .filter(n => n.type === "text").length;
+  };
+  // The ring is about 1,380px round; auto spacing is 300px on a 600px plot.
+  const auto = count();
+  assert.strictEqual(auto, count({labelSpacing: "auto"}));
+  assert.ok(auto >= 3, `${auto} labels`);
+  assert.ok(count({labelSpacing: 120}) > auto, "closer together");
+  assert.strictEqual(count({labelSpacing: 2000}), 1, "one per line");
+});
+
+it("emitContourLabels: labelStep picks the labelled levels", () => {
+  const radii = [260, 220, 180, 140, 100, 60];
+  const rows = radii.map((r, i) =>
+    contourRow(i, (i + 1) * 5, circle(300, 300, r)),
+  );
+  const nodes = radii.map((_, i) => colorNode(i, (i + 1) * 5, "#0074D9"));
+  const levels = contourConfig => {
+    const viz = new Hexbin().binShape(false).contours(true);
+    if (contourConfig) viz.contourConfig(contourConfig);
+    const texts = emitContourLabels(
+      viz,
+      rows,
+      nodes,
+      frame,
+      hexbinSettings(viz),
+    )
+      .flatMap(n => walk(n))
+      .filter(n => n.type === "text");
+    return [...new Set(texts.map(t => Number(t.lines[0].text)))].sort(
+      (a, b) => a - b,
+    );
+  };
+  // Six levels: auto labels every other one, the multiples of 10.
+  assert.deepStrictEqual(levels(), [10, 20, 30]);
+  assert.deepStrictEqual(levels({labelStep: 1}), [5, 10, 15, 20, 25, 30]);
+  assert.deepStrictEqual(levels({labelStep: 3}), [15, 30]);
 });

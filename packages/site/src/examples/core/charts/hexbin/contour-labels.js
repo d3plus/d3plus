@@ -24,6 +24,11 @@ const config = {
   y: "Weight (kg)",
   binShape: false,
   contours: "lines",
-  contourConfig: {thresholds: 5, labelConfig: {fontSize: 11}},
+  contourConfig: {
+    thresholds: 5,
+    labelSpacing: 240,
+    labelStep: 1,
+    labelConfig: {fontSize: 11},
+  },
   levelFormat: d => `${d} per bin`,
 };

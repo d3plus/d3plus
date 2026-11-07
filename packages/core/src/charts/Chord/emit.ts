@@ -33,6 +33,7 @@ import {ringLabelPosition} from "../features/ringLabels.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ChordCtx, ChordNode} from "./applyLayout.js";
+import {chordLabelFontSize} from "./labels.js";
 
 /**
     The group labels the layout stage placed: curved ones along the ring,
@@ -82,6 +83,7 @@ function chordLabels(viz: VizInstance, arcData: ChordNode[]): SceneNode[] {
             colorOf((d.data ?? d) as unknown as ChordNode),
           ...labelConfig,
           fontResize: false,
+          fontSize: chordLabelFontSize(viz),
           padding: 0,
           textAnchor: (d: DataPoint) =>
             ((d.data ?? d) as unknown as ChordNode).labelAnchor ?? "start",

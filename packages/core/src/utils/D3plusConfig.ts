@@ -647,6 +647,13 @@ export interface LinkLabelConfig {
   padding?: number;
   /** The opacity of the pad, which takes the chart's background color. */
   backgroundOpacity?: number;
+  /**
+      The tightest bend an `"along"` label follows, as a radius in ems of
+      `fontSize`. A label is cut short of a tighter bend, and keeps a
+      straight label when too little of the curve is left for a few
+      letters, as on a small self-loop. Defaults to `2`.
+  */
+  minRadius?: number;
   /** Any other TextBox setting, such as `fontColor`, `fontFamily`, or `fontWeight`. */
   [key: string]: unknown;
 }
@@ -1260,11 +1267,15 @@ export interface D3plusConfig {
       (default `true`) writes each level's value along its contour lines, as
       a topographic map labels elevation: centered on the line, which breaks
       beneath it, reading upright, and clear of the other contours and
-      labels. A long contour takes more than one label, spaced well apart;
-      with more than five levels, every other level is labelled; and a level
-      with no clear, gently curving stretch goes unlabelled. `labelConfig`
-      is TextBox config for the labels (`fontSize` defaults to `10`), and
-      `levelFormat` formats their values. Merged into the current config.
+      labels. A long contour takes more than one label, at least
+      `labelSpacing` pixels apart (default `"auto"`: 20 ems or half the
+      plot's mean side, whichever is longer); `labelStep` labels every n-th
+      level (`1` all of them, `2` every other one, keeping the multiples of
+      twice the levels' spacing; default `"auto"`: all of up to five levels,
+      else every other one); and a level with no clear, gently curving
+      stretch goes unlabelled. `labelConfig` is TextBox config for the
+      labels (`fontSize` defaults to `10`), and `levelFormat` formats their
+      values. Merged into the current config.
   */
   contourConfig?: ContourConfig;
   /**
@@ -1672,7 +1683,8 @@ export interface D3plusConfig {
         (8px). A Chord curves its group names just outside the ring when
         every name fits along its arc, which leaves the ring more room;
         otherwise it curves those that fit and turns the rest along their
-        spokes. A Radar does the same with its metric names, just outside
+        spokes, all at the Path `labelConfig`'s `fontSize` (11px by
+        default). A Radar does the same with its metric names, just outside
         the web, each between its neighbors' spokes, wrapping a long name
         onto a second curved line. A RadialBar curves each track's name along the track, inside
         its bar (or past its end when the bar is too short), when the sweep
@@ -1939,7 +1951,8 @@ export interface D3plusConfig {
       default) to run text along its link, kept upright, or `"horizontal"`;
       `fontSize` (10); `padding`, the pad around the text (2);
       `backgroundOpacity`, the opacity of that pad in the chart's background
-      color (0.85); and any other TextBox setting, such as `fontColor`
+      color (0.85); `minRadius`, the tightest bend a curved label follows,
+      in ems (2); and any other TextBox setting, such as `fontColor`
       (defaults to the chart's text color), `fontFamily`, or `fontWeight`.
       Along a curved link (a Rings spline or fanned parallel link, an
       ArcDiagram arc, a self-loop, a bundled Network edge, a Geomap flow
@@ -1947,7 +1960,7 @@ export interface D3plusConfig {
       curve, centered where a straight label would sit, over a pad that
       curves with it, and is cut short with an ellipsis when the curve has
       too little room (or left out when fewer than three letters fit). A
-      loop too tight for text to follow keeps a straight label.
+      loop bending tighter than `minRadius` keeps a straight label.
   */
   linkLabelConfig?: LinkLabelConfig;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */

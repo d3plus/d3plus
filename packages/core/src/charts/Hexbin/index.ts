@@ -136,9 +136,12 @@ export const hexbinDef: ChartDefinition = {
         `strokeWidth`, the outline width of `"lines"` (default 1.5);
         `fillOpacity`, the opacity of the highest `"filled"` level (default
         0.8); `labels`, which writes each level's value along its contour
-        (default `true`); and `labelConfig`, TextBox config for those labels
-        (`fontSize` defaults to 10).
-        @type {{bandwidth?: number, thresholds?: number | number[], strokeWidth?: number, fillOpacity?: number, labels?: boolean, labelConfig?: object}}
+        (default `true`); `labelConfig`, TextBox config for those labels
+        (`fontSize` defaults to 10); `labelSpacing`, the least distance
+        between two labels along a line, in pixels (default `"auto"`); and
+        `labelStep`, which labels every n-th level (default `"auto"`: all of
+        up to five levels, else every other one).
+        @type {{bandwidth?: number, thresholds?: number | number[], strokeWidth?: number, fillOpacity?: number, labels?: boolean, labelConfig?: object, labelSpacing?: number | "auto", labelStep?: number | "auto"}}
     */
     {key: "contourConfig", merge: true, default: CONTOUR_DEFAULTS},
     /** Formats the contour labels' and tooltips' level values. Defaults to the abbreviated number format (`1.5k`). */

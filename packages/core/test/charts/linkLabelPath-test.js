@@ -14,6 +14,7 @@ import {
   emitLinkLabels,
   labelStretch,
   LINK_LABEL_MAX_TURN,
+  LINK_LABEL_MIN_RADIUS,
   makeLinkDatum,
   placeLinkLabels,
   ringsEdgePath,
@@ -189,8 +190,29 @@ it("curvedLabelSpot — none for a straight run or a tight loop", () => {
   ];
   assert.strictEqual(curvedLabelSpot(line, 100, 30, 10, 2), null);
   assert.strictEqual(curvedLabelSpot([[0, 0]], 0, 30, 10, 2), null);
-  // A loop 8px across bends tighter than 1.5em.
+  // A loop 8px across bends tighter than the default 2em.
   assert.strictEqual(curvedLabelSpot(arch(8), 12, 20, 10, 2), null);
+});
+
+it("curvedLabelSpot — minRadius, in ems, sets the tightest bend a label follows", () => {
+  assert.strictEqual(LINK_LABEL_MIN_RADIUS, 2);
+  const spot = (r, ...minRadius) => {
+    const points = arch(r);
+    const at = polylineLength(points) / 2;
+    return curvedLabelSpot(points, at, 12, 10, 2, ...minRadius);
+  };
+  // A 16px loop is under 2em (20px) at 10px: straight by default, curved at 1.5em.
+  assert.strictEqual(spot(16), null);
+  assert.ok(spot(16, 1.5));
+  assert.ok(spot(16, 1));
+  // A 22px loop is past 2em, but not past 2.5em.
+  assert.ok(spot(22));
+  assert.strictEqual(spot(22, 2.5), null);
+  // The cutoff scales with the font size: 2em at 14px is 28px.
+  const points = arch(22);
+  const at = polylineLength(points) / 2;
+  assert.strictEqual(curvedLabelSpot(points, at, 12, 14, 2), null);
+  assert.ok(curvedLabelSpot(points, at, 12, 14, 2, 1));
 });
 
 it("curvedLabelSpot — text dropped 0.3em under the centerline, upright", () => {

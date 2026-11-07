@@ -252,6 +252,60 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(off.pads.length, 0);
   });
 
+  it(`[${renderer}] labelStep and labelSpacing choose the labelled levels and how often they repeat`, async () => {
+    const auto = await render(box, draw, {renderer});
+    const all = await render(box, draw, {
+      renderer,
+      config: {contourConfig: {labelStep: 1}},
+    });
+    const levels = out => new Set(out.labels.map(l => l.level));
+    const count = Object.keys(auto.contours).length;
+    assert.ok(count > 5, `${count} levels`);
+    assert.ok(
+      levels(all).size > levels(auto).size,
+      `${levels(all).size} vs ${levels(auto).size} levels labelled`,
+    );
+    // Every third level: the multiples of three spacings.
+    const third = await render(box, draw, {
+      renderer,
+      config: {contourConfig: {labelStep: 3}},
+    });
+    const spacing = auto.contours[1].level - auto.contours[0].level;
+    assert.ok(levels(third).size > 0);
+    for (const level of levels(third)) {
+      const value = third.contours[level].level;
+      assert.strictEqual(Math.round(value / spacing) % 3, 0, `${value}`);
+    }
+    // Labels along one ring: closer with a short spacing, one with a long one.
+    const perRing = out => {
+      const byRing = {};
+      for (const l of out.labels) {
+        const ring = l.key.replace(/-\d+$/, "");
+        byRing[ring] = (byRing[ring] || 0) + 1;
+      }
+      return Math.max(...Object.values(byRing));
+    };
+    const close = await render(box, draw, {
+      renderer,
+      config: {contourConfig: {labelStep: 1, labelSpacing: 120}},
+    });
+    const far = await render(box, draw, {
+      renderer,
+      config: {contourConfig: {labelStep: 1, labelSpacing: 5000}},
+    });
+    assert.ok(
+      perRing(close) > perRing(all),
+      `${perRing(close)} vs ${perRing(all)} labels on a ring`,
+    );
+    assert.strictEqual(perRing(far), 1);
+    for (const out of [all, third, close, far])
+      for (let i = 0; i < out.labels.length; i++)
+        for (let j = i + 1; j < out.labels.length; j++)
+          for (const a of out.labels[i].boxes)
+            for (const b of out.labels[j].boxes)
+              assert.ok(!overlap(a, b), "labels never overlap");
+  });
+
   it(`[${renderer}] under reducedMotion, a redraw places the labels without motion`, async () => {
     const out = await render(
       box,

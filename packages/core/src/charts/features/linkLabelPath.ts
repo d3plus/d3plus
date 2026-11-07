@@ -25,7 +25,7 @@ export const LINK_LABEL_MAX_TURN = Math.PI * 0.75;
 export const LINK_LABEL_STRAIGHT_TURN = 0.03;
 
 /** The tightest a label's stretch may bend, as a radius in ems: a stretch is cut short of tighter bends. */
-export const LINK_LABEL_MIN_RADIUS = 1.5;
+export const LINK_LABEL_MIN_RADIUS = 2;
 
 /** How far below its centerline a label's baseline sits, in ems: glyphs span 0.8em above it to 0.2em below. */
 const BASELINE_DROP = 0.3;
@@ -173,6 +173,7 @@ export interface CurvedLabelSpot {
     @param textWidth The text's width.
     @param fontSize The font size.
     @param pad The pad around the text.
+    @param minRadius The tightest bend the label follows, in ems.
 */
 export function curvedLabelSpot(
   path: Pt[],
@@ -180,6 +181,7 @@ export function curvedLabelSpot(
   textWidth: number,
   fontSize: number,
   pad: number,
+  minRadius = LINK_LABEL_MIN_RADIUS,
 ): CurvedLabelSpot | null {
   if (path.length < 2) return null;
   // A font size of slack, as text along the inside of a bend has less room.
@@ -188,7 +190,7 @@ export function curvedLabelSpot(
     at,
     textWidth + fontSize + pad * 2,
     LINK_LABEL_MAX_TURN,
-    LINK_LABEL_MIN_RADIUS * fontSize,
+    minRadius * fontSize,
   );
   if (stretch.length < 2) return null;
   if (curvature(stretch) <= LINK_LABEL_STRAIGHT_TURN) return null;
