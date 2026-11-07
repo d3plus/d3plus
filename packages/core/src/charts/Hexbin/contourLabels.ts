@@ -3,7 +3,7 @@
     contour lines, the way a topographic map labels elevation. Labels sit
     centered on the line, read upright, break the line beneath them, and
     keep clear of the other contours and labels; long rings take several,
-    spaced well apart, and dense levels are labelled every other one.
+    `labelSpacing` apart, and dense levels are labelled every `labelStep`-th.
 
     @module
 */
@@ -38,7 +38,7 @@ import {contourLevelText} from "./tooltip.js";
 /** The labels' font size when `labelConfig` sets none. */
 export const CONTOUR_LABEL_FONT_SIZE = 10;
 
-/** With more levels than this, every other level is labelled. */
+/** With more levels than this, `labelStep: "auto"` labels every other level. */
 export const CONTOUR_LABEL_MAX_LEVELS = 5;
 
 /** How far below the line a label's baseline sits, in ems, so its digits' middles sit on the line. */
@@ -72,26 +72,61 @@ export function contourRings(d: string): Pt[][] {
 }
 
 /**
-    Which levels take labels: all of them, or with more than `max`, every
-    other one, keeping the levels at even multiples of their spacing (the
-    "index" contours), or the even positions when the levels aren't evenly
-    spaced.
+    How many levels apart labelled levels are (see `contourConfig.labelStep`):
+    a whole number of at least 1, or with `"auto"` (or anything else), 1
+    with up to `CONTOUR_LABEL_MAX_LEVELS` levels and 2 with more.
+    @param option The `labelStep` option.
+    @param count How many levels there are.
+*/
+export function contourLabelStep(option: unknown, count: number): number {
+  if (typeof option === "number" && Number.isFinite(option))
+    return Math.max(1, Math.round(option));
+  return count > CONTOUR_LABEL_MAX_LEVELS ? 2 : 1;
+}
+
+/**
+    Which levels take labels: every `step`-th one, keeping the levels at
+    multiples of `step` times their spacing (the "index" contours), or
+    every `step`-th position, from the `step`-th lowest, when the levels
+    aren't evenly spaced from zero.
     @param levels The levels, lowest first.
-    @param max The most levels to label all of.
+    @param step How many levels apart labelled levels are (see `contourLabelStep`).
 */
 export function labelledLevels(
   levels: number[],
-  max = CONTOUR_LABEL_MAX_LEVELS,
+  step = contourLabelStep("auto", levels.length),
 ): boolean[] {
-  if (levels.length <= max) return levels.map(() => true);
-  const step = levels[1] - levels[0];
+  if (step <= 1) return levels.map(() => true);
+  const spacing = levels[1] - levels[0];
   const even =
-    step > 0 &&
-    levels.every((l, i) => !i || Math.abs(l - levels[i - 1] - step) < 1e-9);
-  const multiple = (l: number) => Math.round(l / step) % 2 === 0;
-  if (even && Math.abs(levels[0] / step - Math.round(levels[0] / step)) < 1e-9)
+    spacing > 0 &&
+    levels.every((l, i) => !i || Math.abs(l - levels[i - 1] - spacing) < 1e-9);
+  const multiple = (l: number) => Math.round(l / spacing) % step === 0;
+  if (
+    even &&
+    Math.abs(levels[0] / spacing - Math.round(levels[0] / spacing)) < 1e-9
+  )
     return levels.map(multiple);
-  return levels.map((_, i) => i % 2 === 1);
+  return levels.map((_, i) => (i + 1) % step === 0);
+}
+
+/**
+    The least distance between two labels' middles along one contour line,
+    in pixels (see `contourConfig.labelSpacing`): a positive number as
+    given, or with `"auto"` (or anything else), 20 ems or half the plot's
+    mean side, whichever is longer.
+    @param option The `labelSpacing` option.
+    @param fontSize The labels' font size.
+    @param frame The plot area.
+*/
+export function contourLabelSpacing(
+  option: unknown,
+  fontSize: number,
+  frame: Pick<PlotFrame, "width" | "height">,
+): number {
+  if (typeof option === "number" && option > 0 && Number.isFinite(option))
+    return option;
+  return Math.max(fontSize * 20, (frame.width + frame.height) / 4);
 }
 
 /**
@@ -129,7 +164,7 @@ export function paddedBand(points: Pt[], ctx: StretchContext): Pt[] {
     @param ring The closed ring.
     @param length Each label's length.
     @param ctx The obstacles (ignoring the ring's own points), plot area, and font.
-    @param spacing The least distance between two labels' middles along the ring.
+    @param spacing The least distance between two labels' middles along the ring (at least a label's length).
 */
 export function ringLabelStretches(
   ring: Pt[],
@@ -139,9 +174,11 @@ export function ringLabelStretches(
 ): Pt[][] {
   const total = polylineLength(ring);
   if (!(total > length * 2)) return [];
+  // Labels closer than their own length would overlap.
+  const gap = Math.max(spacing, length);
   // Twice round, so a stretch can cross where the ring starts and ends.
   const loop = trimPolyline([...ring, ...ring.slice(1)], 0, total + length);
-  const count = Math.max(1, Math.floor(total / spacing));
+  const count = Math.max(1, Math.floor(total / gap));
   const middles: number[] = [];
   const out: Pt[][] = [];
   while (out.length < count) {
@@ -151,9 +188,7 @@ export function ringLabelStretches(
       ctx,
       from =>
         from < total &&
-        middles.every(
-          m => ringDistance(from + length / 2, m, total) >= spacing,
-        ),
+        middles.every(m => ringDistance(from + length / 2, m, total) >= gap),
     );
     if (!spot) break;
     middles.push(spot.from + length / 2);
@@ -197,7 +232,8 @@ export function emitContourLabels(
   settings: HexbinSettings,
   obstacles: Pt[][] = [],
 ): SceneNode[] {
-  const {labels, labelConfig, strokeWidth} = settings.contourConfig;
+  const {labels, labelConfig, labelSpacing, labelStep, strokeWidth} =
+    settings.contourConfig;
   if (!labels || !rows.length) return [];
   const metas = rows
     .map(row => hexbinMeta(row))
@@ -239,11 +275,13 @@ export function emitContourLabels(
     // Wide enough that no line slips between the band's rows.
     minClearance: Math.max(2, CLEARANCE * fontSize),
   };
-  // Long rings take another label every half of the plot's mean side.
-  const spacing = Math.max(fontSize * 20, (frame.width + frame.height) / 4);
+  const spacing = contourLabelSpacing(labelSpacing, fontSize, frame);
   const colors = levelColors(nodes);
   const lines = settings.contours === "lines" && strokeWidth > 0;
-  const labelled = labelledLevels(metas.map(m => m.level));
+  const labelled = labelledLevels(
+    metas.map(m => m.level),
+    contourLabelStep(labelStep, metas.length),
+  );
   const pads: SceneNode[] = [];
   const texts: PathLabel[] = [];
   metas.forEach((meta, l) => {

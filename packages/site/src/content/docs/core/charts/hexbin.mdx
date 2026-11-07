@@ -47,7 +47,7 @@ Contours can be drawn over the bins. Contour levels are in observations per bin,
 
 ## Contour labels
 
-Each contour line carries its level's value along it, the way a topographic map labels elevation: centered on the line, which breaks beneath the text, and reading upright whichever way the line runs. Labels keep clear of the other contours and labels, a long contour takes more than one, spaced well apart, and a level with no clear, gently curving stretch goes unlabelled. With more than five levels, every other level is labelled. `levelFormat` formats the values, `contourConfig.labelConfig` styles them, and `contourConfig.labels: false` turns them off.
+Each contour line carries its level's value along it, the way a topographic map labels elevation: centered on the line, which breaks beneath the text, and reading upright whichever way the line runs. Labels keep clear of the other contours and labels, and a level with no clear, gently curving stretch goes unlabelled. A long contour takes more than one label, at least `contourConfig.labelSpacing` pixels apart (by default 20 ems or half the plot's mean side, whichever is longer). `contourConfig.labelStep` labels every n-th level: `1` labels them all, `2` every other one (keeping the multiples of twice the levels' spacing), and by default all of up to five levels, else every other one. `levelFormat` formats the values, `contourConfig.labelConfig` styles them, and `contourConfig.labels: false` turns them off.
 
 <Playground chart="Hexbin" code={contourLabels} controls={["contours","contourConfig","levelFormat"]} />
 

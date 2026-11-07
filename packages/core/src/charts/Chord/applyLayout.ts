@@ -223,7 +223,7 @@ export const applyChordLayout: TransformStage = ({viz}) => {
     curves = chordCurves(v, nodes, ring.outer);
   }
   const {chords, arcFn, ribbonFn} = ring;
-  applyChordLabelGeometry(nodes, ring.outer, labelWidth);
+  applyChordLabelGeometry(nodes, ring.outer, labelWidth, chordLabelFontSize(v));
   nodes.forEach((node, k) => {
     node.labelCurve = curves[k] ?? undefined;
   });

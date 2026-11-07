@@ -72,6 +72,19 @@ export interface ContourConfig {
   labels?: boolean;
   /** TextBox config for the level labels, such as `fontSize` or `fontWeight`. */
   labelConfig?: Record<string, unknown>;
+  /**
+      The least distance between two labels along one contour line, in
+      pixels. `"auto"` (the default) takes 20 ems or half the plot's mean
+      side, whichever is longer.
+  */
+  labelSpacing?: number | "auto";
+  /**
+      Labels every n-th level: `1` labels them all, `2` every other one
+      (the multiples of twice the levels' spacing), and so on. `"auto"`
+      (the default) labels all of up to five levels, and every other one
+      of more.
+  */
+  labelStep?: number | "auto";
 }
 
 /** The `pointConfig` option. */
@@ -104,6 +117,8 @@ export const CONTOUR_DEFAULTS: Required<ContourConfig> = {
   fillOpacity: 0.8,
   labels: true,
   labelConfig: {},
+  labelSpacing: "auto",
+  labelStep: "auto",
 };
 
 /** `pointConfig`'s defaults (the fill follows the chart's text color). */

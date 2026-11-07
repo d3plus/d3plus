@@ -289,6 +289,7 @@ const chord = config =>
   );
 
 it("chordLabelFontSize — the Path labelConfig's fontSize, else the default", () => {
+  assert.strictEqual(CHORD_LABEL_FONT_SIZE, 11);
   assert.strictEqual(chordLabelFontSize(chord().viz), CHORD_LABEL_FONT_SIZE);
   assert.strictEqual(
     chordLabelFontSize(chord({shapeConfig: {labelConfig: {fontSize: 14}}}).viz),
@@ -334,10 +335,17 @@ it("applyChordLabelGeometry — reads outward along each spoke, flipped on the l
     {data: {}, i: 1, group: {startAngle: 4, endAngle: 4.4}},
   ];
   applyChordLabelGeometry(nodes, 100, 60);
+  assert.strictEqual(nodes[0].labelBounds.height, CHORD_LABEL_FONT_SIZE * 1.5);
   assert.strictEqual(nodes[0].labelAnchor, "start");
   assert.strictEqual(nodes[1].labelAnchor, "end");
   assert.ok(
     Math.abs(Math.hypot(nodes[0].labelX, nodes[0].labelY) - 100) < 1e-9,
+  );
+  // A larger font takes a taller box, centered on the spoke.
+  applyChordLabelGeometry(nodes, 100, 60, 20);
+  assert.deepStrictEqual(
+    [nodes[0].labelBounds.y, nodes[0].labelBounds.height],
+    [-15, 30],
   );
 });
 
@@ -352,6 +360,24 @@ it("chordEmit — curved names in the chart's ink, or spoke labels in it too", (
   assert.ok(
     spoke.every(n => n.paint.fill !== "black" && n.paint.fill !== "#000000"),
     "spoke labels follow the dark theme",
+  );
+});
+
+it("chordEmit — curved and spoke names share the label font size", () => {
+  const size = config =>
+    chordEmit({viz: chord(config).viz})
+      .filter(n => n.type === "text")
+      .map(n => [Boolean(n.path), n.font.size]);
+  assert.deepStrictEqual(size(), Array(4).fill([true, 11]));
+  assert.deepStrictEqual(
+    size({labelPosition: "inside"}),
+    Array(4).fill([false, 11]),
+  );
+  const custom = {shapeConfig: {Path: {labelConfig: {fontSize: 13}}}};
+  assert.deepStrictEqual(size(custom), Array(4).fill([true, 13]));
+  assert.deepStrictEqual(
+    size({...custom, labelPosition: "inside"}),
+    Array(4).fill([false, 13]),
   );
 });
 

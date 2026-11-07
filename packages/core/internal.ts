@@ -1100,6 +1100,8 @@ export {
 export {
   CONTOUR_LABEL_FONT_SIZE,
   CONTOUR_LABEL_MAX_LEVELS,
+  contourLabelSpacing,
+  contourLabelStep,
   contourRings,
   emitContourLabels,
   labelledLevels,

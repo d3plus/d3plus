@@ -31,13 +31,21 @@ it("linkLabelSettings — the defaults, overrides, and the rest as TextBox confi
     fontSize: LINK_LABEL_DEFAULTS.fontSize,
     padding: LINK_LABEL_DEFAULTS.padding,
     backgroundOpacity: LINK_LABEL_DEFAULTS.backgroundOpacity,
+    minRadius: LINK_LABEL_DEFAULTS.minRadius,
     text: {},
   });
+  assert.strictEqual(LINK_LABEL_DEFAULTS.minRadius, 2);
+  assert.strictEqual(
+    viz.linkLabelConfig().minRadius,
+    2,
+    "the accessor's default",
+  );
   viz.linkLabelConfig({
     rotate: "horizontal",
     fontSize: 14,
     padding: 0,
     backgroundOpacity: 3,
+    minRadius: 1.25,
     fontWeight: 700,
   });
   assert.deepStrictEqual(linkLabelSettings(viz), {
@@ -45,14 +53,27 @@ it("linkLabelSettings — the defaults, overrides, and the rest as TextBox confi
     fontSize: 14,
     padding: 0,
     backgroundOpacity: 1,
+    minRadius: 1.25,
     text: {fontWeight: 700},
   });
-  viz.linkLabelConfig({rotate: "sideways", fontSize: -1, padding: "x"});
+  viz.linkLabelConfig({
+    rotate: "sideways",
+    fontSize: -1,
+    padding: "x",
+    minRadius: -2,
+  });
   const bad = linkLabelSettings(viz);
   assert.deepStrictEqual(
-    [bad.rotate, bad.fontSize, bad.padding],
-    ["along", LINK_LABEL_DEFAULTS.fontSize, LINK_LABEL_DEFAULTS.padding],
+    [bad.rotate, bad.fontSize, bad.padding, bad.minRadius],
+    [
+      "along",
+      LINK_LABEL_DEFAULTS.fontSize,
+      LINK_LABEL_DEFAULTS.padding,
+      LINK_LABEL_DEFAULTS.minRadius,
+    ],
   );
+  viz.linkLabelConfig({minRadius: 0});
+  assert.strictEqual(linkLabelSettings(viz).minRadius, 0, "0 follows any bend");
 });
 
 it("linkLabelText — abbreviated numbers, strings as given, nothing else", () => {

@@ -28,6 +28,7 @@ import {
   curvedLabelPad,
   curvedLabelSpot,
   distanceAlong,
+  LINK_LABEL_MIN_RADIUS,
 } from "./linkLabelPath.js";
 import type {CurvedLabelSpot} from "./linkLabelPath.js";
 import {polylineD, polylineLength} from "./pathLabelGeometry.js";
@@ -40,6 +41,7 @@ export const LINK_LABEL_DEFAULTS = {
   fontSize: 10,
   padding: 2,
   backgroundOpacity: 0.85,
+  minRadius: LINK_LABEL_MIN_RADIUS,
 };
 
 /** The resolved `linkLabelConfig`. */
@@ -51,6 +53,8 @@ export interface LinkLabelSettings {
   padding: number;
   /** The opacity of the background pad. */
   backgroundOpacity: number;
+  /** The tightest bend a curved label follows, as a radius in ems. */
+  minRadius: number;
   /** The rest, as TextBox config (fontFamily, fontColor, fontWeight, …). */
   text: Record<string, unknown>;
 }
@@ -60,7 +64,8 @@ export function linkLabelSettings(viz: VizInstance): LinkLabelSettings {
   const cfg = (viz.schema.linkLabelConfig ?? {}) as Record<string, unknown>;
   const num = (v: unknown, fallback: number): number =>
     typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : fallback;
-  const {rotate, fontSize, padding, backgroundOpacity, ...text} = cfg;
+  const {rotate, fontSize, padding, backgroundOpacity, minRadius, ...text} =
+    cfg;
   return {
     rotate: rotate === "horizontal" ? "horizontal" : "along",
     fontSize: num(fontSize, LINK_LABEL_DEFAULTS.fontSize) || 1,
@@ -69,6 +74,7 @@ export function linkLabelSettings(viz: VizInstance): LinkLabelSettings {
       1,
       num(backgroundOpacity, LINK_LABEL_DEFAULTS.backgroundOpacity),
     ),
+    minRadius: num(minRadius, LINK_LABEL_DEFAULTS.minRadius),
     text,
   };
 }
@@ -232,6 +238,7 @@ export function emitLinkLabels(
         size.width,
         settings.fontSize,
         pad,
+        settings.minRadius,
       );
       if (spot) {
         const [x, y] = spot.stretch[Math.floor(spot.stretch.length / 2)];
