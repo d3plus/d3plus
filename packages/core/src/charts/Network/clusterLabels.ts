@@ -7,7 +7,7 @@
     and keyboard, in the chart's ink over a halo of its background.
 */
 
-import {polygonContains, polygonHull} from "d3-polygon";
+import {polygonHull} from "d3-polygon";
 
 import type {DataPoint} from "@d3plus/data";
 import type {Bounds} from "@d3plus/math";
@@ -20,6 +20,8 @@ import {textHalo} from "../features/textHalo.js";
 import {backgroundInk, chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ClusterState} from "./clusters.js";
+import {insideRow, polygonRows} from "./polygonRows.js";
+import type {PolygonRows} from "./polygonRows.js";
 
 type Point = [number, number];
 
@@ -80,6 +82,28 @@ function boxesOverlap(a: Bounds, b: Bounds): boolean {
   );
 }
 
+/** Lists of items by grid cell. */
+function cellGrid<T>() {
+  const columns = new Map<number, Map<number, T[]>>();
+  let size = 0;
+  return {
+    get size() {
+      return size;
+    },
+    get: (i: number, j: number): T[] | undefined => columns.get(i)?.get(j),
+    add(i: number, j: number, item: T): void {
+      let column = columns.get(i);
+      if (!column) columns.set(i, (column = new Map()));
+      const list = column.get(j);
+      if (list) list.push(item);
+      else {
+        column.set(j, [item]);
+        size++;
+      }
+    },
+  };
+}
+
 /**
     A grid of buckets over the circles and boxes names keep clear of, so a
     test only checks the obstacles near it. `add` puts a placed name in.
@@ -89,8 +113,8 @@ export function clusterLabelObstacles(
   boxes: readonly Bounds[],
   cell = 32,
 ): {hits: (box: Bounds) => boolean; add: (box: Bounds) => void} {
-  const buckets = new Map<string, (ClusterLabelCircle | Bounds)[]>();
-  const each = (b: Bounds, fn: (key: string) => void) => {
+  const buckets = cellGrid<ClusterLabelCircle | Bounds>();
+  const each = (b: Bounds, fn: (i: number, j: number) => void) => {
     for (
       let i = Math.floor(b.x / cell);
       i <= Math.floor((b.x + b.width) / cell);
@@ -101,7 +125,7 @@ export function clusterLabelObstacles(
         j <= Math.floor((b.y + b.height) / cell);
         j++
       )
-        fn(`${i},${j}`);
+        fn(i, j);
   };
   const extent = (o: ClusterLabelCircle | Bounds): Bounds =>
     "r" in o
@@ -110,26 +134,19 @@ export function clusterLabelObstacles(
   const add = (o: ClusterLabelCircle | Bounds) => {
     const b = extent(o);
     if (![b.x, b.y, b.width, b.height].every(Number.isFinite)) return;
-    each(b, key => {
-      const list = buckets.get(key);
-      if (list) list.push(o);
-      else buckets.set(key, [o]);
-    });
+    each(b, (i, j) => buckets.add(i, j, o));
   };
   circles.forEach(add);
   boxes.forEach(add);
   const hits = (box: Bounds): boolean => {
-    let hit = false;
-    each(box, key => {
-      if (hit) return;
-      for (const o of buckets.get(key) ?? []) {
-        if ("r" in o ? boxHitsCircle(box, o) : boxesOverlap(box, o)) {
-          hit = true;
-          return;
-        }
-      }
-    });
-    return hit;
+    const i1 = Math.floor((box.x + box.width) / cell);
+    const j1 = Math.floor((box.y + box.height) / cell);
+    for (let i = Math.floor(box.x / cell); i <= i1; i++)
+      for (let j = Math.floor(box.y / cell); j <= j1; j++)
+        for (const o of buckets.get(i, j) ?? [])
+          if ("r" in o ? boxHitsCircle(box, o) : boxesOverlap(box, o))
+            return true;
+    return false;
   };
   return {hits, add};
 }
@@ -142,7 +159,7 @@ export function nearestPoint<T extends {x: number; y: number}>(
   points: readonly T[],
   cell = 32,
 ): (x: number, y: number) => T | undefined {
-  const buckets = new Map<string, T[]>();
+  const buckets = cellGrid<T>();
   let ix0 = Infinity,
     ix1 = -Infinity,
     iy0 = Infinity,
@@ -157,10 +174,7 @@ export function nearestPoint<T extends {x: number; y: number}>(
       Math.min(iy0, j),
       Math.max(iy1, j),
     ];
-    const key = `${i},${j}`;
-    const list = buckets.get(key);
-    if (list) list.push(p);
-    else buckets.set(key, [p]);
+    buckets.add(i, j, p);
   }
   return (x, y) => {
     if (!buckets.size) return undefined;
@@ -180,7 +194,7 @@ export function nearestPoint<T extends {x: number; y: number}>(
       for (let i = ci - k; i <= ci + k; i++)
         for (let j = cj - k; j <= cj + k; j++) {
           if (Math.max(Math.abs(i - ci), Math.abs(j - cj)) !== k) continue;
-          for (const p of buckets.get(`${i},${j}`) ?? []) {
+          for (const p of buckets.get(i, j) ?? []) {
             const d = (p.x - x) ** 2 + (p.y - y) ** 2;
             if (d < bestD) [best, bestD] = [p, d];
           }
@@ -190,39 +204,68 @@ export function nearestPoint<T extends {x: number; y: number}>(
   };
 }
 
+/** Each hull's edge crossings, kept per row (see `polygonRows`). */
+const rowsCache = new WeakMap<readonly Point[], PolygonRows>();
+
+/** `polygonRows` for `hull`, kept for each hull. */
+function hullRows(hull: readonly Point[]): PolygonRows {
+  let rows = rowsCache.get(hull);
+  if (!rows) rowsCache.set(hull, (rows = polygonRows(hull)));
+  return rows;
+}
+
+/** A hull's grid spots, nearest the target first, and each spot's grid row. */
+interface HullSpots {
+  spots: Point[];
+  rows: number[];
+}
+
 /** Grid points inside each hull, nearest its target first (see `hullSpots`). */
-const spotCache = new WeakMap<
-  readonly Point[],
-  {key: string; spots: Point[]}
->();
+const spotCache = new WeakMap<readonly Point[], {key: string} & HullSpots>();
 
 /**
     Points on a grid at most `step` pixels apart (no more than 120 a side)
-    inside the convex `hull`, nearest `target` first. Kept per hull, so each
-    font size a name tries reuses them.
+    inside the convex `hull`, nearest `target` first, with the grid row of
+    each. Kept per hull, so each font size a name tries reuses them.
 */
-function hullSpots(hull: readonly Point[], target: Point, step: number) {
+function hullSpots(
+  hull: readonly Point[],
+  target: Point,
+  step: number,
+): HullSpots {
   const key = `${target}|${step}`;
   const cached = spotCache.get(hull);
-  if (cached?.key === key) return cached.spots;
+  if (cached?.key === key) return cached;
+  const {contains} = hullRows(hull);
   const xs = hull.map(p => p[0]);
   const ys = hull.map(p => p[1]);
   const [x0, x1] = [Math.min(...xs), Math.max(...xs)];
   const [y0, y1] = [Math.min(...ys), Math.max(...ys)];
   const nx = Math.min(120, Math.ceil((x1 - x0) / step) + 1);
   const ny = Math.min(120, Math.ceil((y1 - y0) / step) + 1);
-  const spots: Point[] = [];
+  const inside: Point[] = [];
+  const gridRows: number[] = [];
   for (let i = 0; i < nx; i++)
     for (let j = 0; j < ny; j++) {
       const p: Point = [
         x0 + (nx > 1 ? ((x1 - x0) * i) / (nx - 1) : 0),
         y0 + (ny > 1 ? ((y1 - y0) * j) / (ny - 1) : 0),
       ];
-      if (polygonContains(hull as Point[], p)) spots.push(p);
+      if (contains(p)) {
+        inside.push(p);
+        gridRows.push(j);
+      }
     }
-  const away = ([x, y]: Point) => (x - target[0]) ** 2 + (y - target[1]) ** 2;
-  spots.sort((a, b) => away(a) - away(b));
-  spotCache.set(hull, {key, spots});
+  const away = inside.map(
+    ([x, y]) => (x - target[0]) ** 2 + (y - target[1]) ** 2,
+  );
+  const order = inside.map((_, i) => i).sort((a, b) => away[a] - away[b]);
+  const spots = {
+    key,
+    spots: order.map(i => inside[i]),
+    rows: order.map(i => gridRows[i]),
+  };
+  spotCache.set(hull, spots);
   return spots;
 }
 
@@ -230,7 +273,9 @@ function hullSpots(hull: readonly Point[], target: Point, step: number) {
     The spot for a `width` × `height` box inside the convex `hull` whose
     middle is nearest `target`, among a grid of middles at most `step`
     pixels apart, where `blocked` is false; or null when there is none.
-    `blocked` receives the box grown by `padding`.
+    `blocked` receives the box grown by `padding`. A box is inside when
+    `polygonContains` holds at its four corners; the spots of a grid row
+    share their corners' rows, so each row's edge crossings are found once.
 */
 export function placeClusterLabel(
   hull: readonly Point[],
@@ -241,17 +286,18 @@ export function placeClusterLabel(
   step = 4,
 ): Bounds | null {
   const {width, height} = size;
-  const poly = hull as Point[];
-  for (const [cx, cy] of hullSpots(hull, target, step)) {
+  const {row} = hullRows(hull);
+  const {spots, rows} = hullSpots(hull, target, step);
+  const tops: number[][] = [];
+  const bottoms: number[][] = [];
+  for (let k = 0; k < spots.length; k++) {
+    const [cx, cy] = spots[k];
     const x = cx - width / 2;
     const y = cy - height / 2;
-    const corners: Point[] = [
-      [x, y],
-      [x + width, y],
-      [x + width, y + height],
-      [x, y + height],
-    ];
-    if (!corners.every(c => polygonContains(poly, c))) continue;
+    const top = (tops[rows[k]] ??= row(y));
+    if (!insideRow(top, x) || !insideRow(top, x + width)) continue;
+    const bottom = (bottoms[rows[k]] ??= row(y + height));
+    if (!insideRow(bottom, x + width) || !insideRow(bottom, x)) continue;
     const box = {
       x: x - padding,
       y: y - padding,

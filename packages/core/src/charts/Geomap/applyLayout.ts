@@ -7,7 +7,6 @@
 import {extent, max, quantile} from "d3-array";
 import * as d3GeoCore from "d3-geo";
 import * as scales from "d3-scale";
-import {feature as topojsonFeature} from "topojson-client";
 
 import {pointDistance} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
@@ -18,6 +17,7 @@ import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout
 import {flowLinkCoordinates, geomapFlowLinks} from "./flowLinks.js";
 import type {FlowLayoutInput} from "./flowLinks.js";
 import {clipsToCircle, coordinateVisible, toLonLat} from "./flowGeometry.js";
+import {cachedPaths, fitExtentOnce, topoFeatures} from "./geoCache.js";
 import {globeHome} from "./globeRotate.js";
 import type {GeoPathFn, LonLat} from "./flowGeometry.js";
 
@@ -45,20 +45,6 @@ interface GeomapCtx {
   geomapWidth: number;
   geomapHeight: number;
   geomapCtx: unknown;
-}
-
-function topo2feature(
-  topo: Record<string, unknown>,
-  key?: string,
-): {type: string; features: Record<string, unknown>[]} {
-  const k =
-    key && (topo.objects as Record<string, unknown>)[key]
-      ? key
-      : Object.keys(topo.objects as Record<string, unknown>)[0];
-  return topojsonFeature(
-    topo as unknown as Parameters<typeof topojsonFeature>[0],
-    k,
-  ) as unknown as {type: string; features: Record<string, unknown>[]};
 }
 
 /** Reduces fit features, trimming far-flung MultiPolygon parts via path geometry. */
@@ -243,7 +229,7 @@ function fitExtentBounds(
   // so a later draw that reuses the cached extent fits the same way.
   ctx.effectivePadding = undefined;
   const fitData = v.schema.fitObject
-    ? topo2feature(v.schema.fitObject, v.schema.fitKey)
+    ? topoFeatures(v.schema.fitObject, v.schema.fitKey)
     : coordData;
 
   ctx.extentBounds = {
@@ -282,7 +268,8 @@ function fitProjection(
   const home = clipsToCircle(v.schema.projection) ? globeHome(v) : undefined;
   const live = home ? v.schema.projection.rotate() : undefined;
   if (home) v.schema.projection.rotate(home);
-  v.schema.projection = v.schema.projection.fitExtent(
+  fitExtentOnce(
+    v.schema.projection,
     ctx.extentBounds.features.length
       ? [
           [effectivePadding.left, effectivePadding.top],
@@ -304,7 +291,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
 
   const coordData: {type: string; features: Record<string, unknown>[]} = v
     .schema.topojson
-    ? topo2feature(v.schema.topojson, v.schema.topojsonKey)
+    ? topoFeatures(v.schema.topojson, v.schema.topojsonKey)
     : {type: "FeatureCollection", features: []};
   ctx.coordData = coordData;
 
@@ -355,6 +342,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
 
   ctx.geomapWidth = width;
   ctx.geomapHeight = height;
+  const featurePath = cachedPaths(v.schema.projection, path);
 
   const pointR = (d: DataPoint, i: number) => r(v.schema.pointSize(d, i));
   ctx.geomapCtx = {
@@ -365,7 +353,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
       path: path as unknown as FlowLayoutInput["path"],
     }),
     topoData,
-    pathFn: (d: Record<string, unknown>) => path(d.feature),
+    pathFn: (d: Record<string, unknown>) => featurePath(d.feature),
     pointData: visiblePointData(
       v,
       pointData,

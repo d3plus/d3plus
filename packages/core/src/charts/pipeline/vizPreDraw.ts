@@ -12,7 +12,7 @@
     `super._preDraw()`.
 */
 
-import {group, min} from "d3-array";
+import {InternSet, min} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
@@ -166,7 +166,7 @@ export function vizPostThresholdCtx(
   noDataMessage: boolean;
 } {
   const result: ReturnType<typeof vizPostThresholdCtx> = {noDataMessage: false};
-  const uniqueIds = group(filteredData, id).size;
+  const uniqueIds = new InternSet(filteredData.map(id)).size;
   if (uniqueIds > viz.schema.dataCutoff) {
     result.hoverOverride = {
       hoverOpacity: 1,
