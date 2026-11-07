@@ -41,6 +41,7 @@ import {stackEnterWindows} from "../Plot/stackEnter.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
 import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
+import {boxLabelsOnly} from "../Plot/areaLabelsAlong.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
@@ -170,6 +171,8 @@ function finishShape(
   s.config(userConfig);
   if (override) s.config(override(userConfig));
   if (key === "Bar" && ctx.barLabelsOnAxis) s.label(false);
+  if (key === "Area" && viz.schema.stacked)
+    s.label(boxLabelsOnly(viz, s.label()));
   if (viz.schema.stacked && key === "Bar") applyStackShareLabels(viz, s);
   const besideLabels =
     key === "Circle" ? plotCircleLabels(ctx, s, userConfig) : null;

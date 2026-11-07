@@ -23,9 +23,24 @@ function axisName(viz: VizInstance, axis: "x" | "y"): string {
   return typeof key === "string" ? key : axis;
 }
 
+/**
+    A contour level's value as text: through `levelFormat` when set, or
+    abbreviated (`1.5k`).
+    @param viz The chart.
+    @param level The level.
+*/
+export function contourLevelText(viz: VizInstance, level: number): string {
+  const format = viz.schema.levelFormat as
+    ((d: number) => string | number) | undefined;
+  return typeof format === "function" ? `${format(level)}` : fmt(viz, level);
+}
+
 /** A contour level's density range: up to the next level, or the level and up. */
 function levelRange(viz: VizInstance, level: number, next?: number): string {
-  return next === undefined ? `≥ ${fmt(viz, level)}` : range(viz, level, next);
+  const text = (n: number) => contourLevelText(viz, n);
+  return next === undefined
+    ? `≥ ${text(level)}`
+    : `${text(level)} – ${text(next)}`;
 }
 
 /** A bin's tooltip title: its measure, such as "Count: 42". */

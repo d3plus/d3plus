@@ -222,24 +222,29 @@ export interface LabelObstacles {
 
 /**
     The labels that fit, in the order given (earlier labels win): each one
-    that overlaps no node and no label already kept.
+    that overlaps no node and no label already kept. A label with `boxes`
+    (such as one along a curve) is tested by those, else by its `box`.
 */
-export function placeLinkLabels<T extends {box: LinkLabelBox}>(
-  labels: readonly T[],
-  obstacles: LabelObstacles,
-): T[] {
+export function placeLinkLabels<
+  T extends {box: LinkLabelBox; boxes?: readonly LinkLabelBox[]},
+>(labels: readonly T[], obstacles: LabelObstacles): T[] {
   const circles = obstacles.circles ?? [];
-  const boxes = obstacles.boxes ?? [];
+  const rects = obstacles.boxes ?? [];
   const others = obstacles.labels ?? [];
   const kept: T[] = [];
+  const keptBoxes: LinkLabelBox[] = [];
   for (const label of labels) {
-    const {box} = label;
-    if (!(box.width > 0 && box.height > 0)) continue;
-    if (circles.some(c => labelHitsCircle(box, c))) continue;
-    if (boxes.some(b => labelHitsBox(box, b))) continue;
-    if (others.some(o => labelsOverlap(box, o))) continue;
-    if (kept.some(k => labelsOverlap(box, k.box))) continue;
+    const boxes = label.boxes ?? [label.box];
+    if (!boxes.length || !boxes.every(b => b.width > 0 && b.height > 0))
+      continue;
+    const hits = (box: LinkLabelBox) =>
+      circles.some(c => labelHitsCircle(box, c)) ||
+      rects.some(b => labelHitsBox(box, b)) ||
+      others.some(o => labelsOverlap(box, o)) ||
+      keptBoxes.some(k => labelsOverlap(box, k));
+    if (boxes.some(hits)) continue;
     kept.push(label);
+    keptBoxes.push(...boxes);
   }
   return kept;
 }

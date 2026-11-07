@@ -7,6 +7,7 @@ import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/charts/streamgraph/basic-example.js?raw";
 import wiggle from "~/examples/core/charts/streamgraph/wiggle.js?raw";
+import streamLabels from "~/examples/core/charts/streamgraph/stream-labels.js?raw";
 
 Creates a streamgraph from an array of data: a StackedArea whose layers
 flow around a central baseline instead of rising from zero. Layers stack
@@ -17,13 +18,20 @@ since a moving baseline has no zero to read them from; each layer's
 thickness carries its value, and tooltips show each value and its share
 of the stack. Set `stackOffset("wiggle")` to keep each layer's slope as
 steady as it can instead, at the cost of a stream that drifts up or down
-as its total changes.
+as its total changes. Each layer is named along its own stream (see
+`labelPosition`).
 
 ## Basic example
 
 Each `groupBy` series is a layer, stacked around a central baseline instead of rising from zero. The thickest layers sit in the middle, and each layer's thickness at a year is its value. The value axis shows no numbers, since the baseline moves; hover a layer for its value and its share of the stack.
 
 <Playground chart="Streamgraph" code={basicExample} controls={["groupBy","x","y"]} />
+
+## Stream labels
+
+Each layer's name runs along the middle of its stream, following its curve, where the stream is thick enough for it and flattest. The text takes the color that reads best on the layer's fill, shrinks to fit a thinner stream (down to 8px), and dims with its layer on hover. With every layer named on the chart, the default legend hides. A layer too thin for its name anywhere goes unlabeled, its tooltip still names it, and the legend stays. Set `labelPosition: "inside"` to put each name in its layer's largest box instead, or `shapeConfig: {Area: {label: false}}` to drop the names.
+
+<Playground chart="Streamgraph" code={streamLabels} controls={["labelPosition"]} />
 
 ## Wiggle
 

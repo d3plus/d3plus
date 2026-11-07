@@ -1,8 +1,9 @@
 /**
     `linkLabel` on the node-link charts: a line of text at the middle of each
     link, along it or level, on a pad of the chart's background so it reads
-    over the links. Labels that would cover a node or another label are left
-    out, the most prominent links' first. Labels are inert to the pointer and
+    over the links. Along a curved link, the text and its pad follow the
+    curve. Labels that would cover a node or another label are left out, the
+    most prominent links' first. Labels are inert to the pointer and
     keyboard, and dim with their link on hover.
 */
 
@@ -23,6 +24,15 @@ import type {
   LinkLabelBox,
 } from "./linkLabelGeometry.js";
 import {placeLinkLabels, uprightAngle} from "./linkLabelGeometry.js";
+import {
+  curvedLabelPad,
+  curvedLabelSpot,
+  distanceAlong,
+} from "./linkLabelPath.js";
+import type {CurvedLabelSpot} from "./linkLabelPath.js";
+import {polylineD, polylineLength} from "./pathLabelGeometry.js";
+import type {Pt} from "./pathLabelGeometry.js";
+import {pathLabelNodes} from "./pathLabels.js";
 
 /** `linkLabelConfig`'s defaults. */
 export const LINK_LABEL_DEFAULTS = {
@@ -144,6 +154,12 @@ export interface LinkLabelRequest {
   i: number;
   /** Where on the link the label goes, or null for nowhere. */
   anchor: LinkAnchor | null;
+  /**
+      A curved link's centerline, between the edges of its nodes: an
+      `"along"` label follows it, centered where `anchor` falls on it (or
+      halfway along without one). A straight link needs none.
+  */
+  path?: Pt[] | null;
   /** Links with a larger priority (such as a wider stroke) get their label first. */
   priority?: number;
 }
@@ -154,15 +170,24 @@ interface PlacedLabel {
   link: object;
   text: string;
   box: LinkLabelBox;
+  /** A curved label's boxes, along its glyphs and pad. */
+  boxes?: LinkLabelBox[];
   textWidth: number;
   textHeight: number;
+  /** A curved label's text node and the centerline stretch its pad covers. */
+  curve?: {node: SceneNode; pad: Pt[]};
 }
+
+/** A label to place, in priority order. */
+type Candidate = PlacedLabel & {priority: number; order: number};
 
 /**
     The labels for the drawn links, as scene nodes: for each link with
     `linkLabel` text that fits, a group at the link's middle, rotated with
     the link unless `linkLabelConfig.rotate` is `"horizontal"`, holding a pad
-    in the chart's background and the text in the chart's ink.
+    in the chart's background and the text in the chart's ink. Along a
+    curved link (one with a `path`), the text follows the curve over a pad
+    that follows it too.
     @param obstacles The nodes labels stay clear of.
 */
 export function emitLinkLabels(
@@ -179,20 +204,47 @@ export function emitLinkLabels(
     size: settings.fontSize,
     weight: settings.text.fontWeight as string | number | undefined,
   };
-  const candidates: (PlacedLabel & {priority: number; order: number})[] = [];
+  const pad = settings.padding;
+  const candidates: Candidate[] = [];
+  const curved: {base: Candidate; spot: CurvedLabelSpot}[] = [];
   requests.forEach((req, order) => {
-    if (!req.anchor) return;
     const {row, index} = linkRow(req.link, req.i);
     const text = linkLabelText(accessor(row, index), viz.schema.locale);
     if (!text) return;
     const size = measureLabel(text, font);
-    const pad = settings.padding;
-    candidates.push({
+    const base = {
       key: req.key,
       link: row,
       text,
       textWidth: size.width,
       textHeight: size.height,
+      priority: req.priority ?? 0,
+      order,
+    };
+    const path = settings.rotate === "along" ? req.path : null;
+    if (path && path.length > 1) {
+      const at = req.anchor
+        ? distanceAlong(path, [req.anchor.x, req.anchor.y])
+        : polylineLength(path) / 2;
+      const spot = curvedLabelSpot(
+        path,
+        at,
+        size.width,
+        settings.fontSize,
+        pad,
+      );
+      if (spot) {
+        const [x, y] = spot.stretch[Math.floor(spot.stretch.length / 2)];
+        curved.push({
+          base: {...base, box: {x, y, width: 0, height: 0, angle: 0}},
+          spot,
+        });
+        return;
+      }
+    }
+    if (!req.anchor) return;
+    candidates.push({
+      ...base,
       box: {
         x: req.anchor.x,
         y: req.anchor.y,
@@ -201,13 +253,108 @@ export function emitLinkLabels(
         angle:
           settings.rotate === "horizontal" ? 0 : uprightAngle(req.anchor.angle),
       },
-      priority: req.priority ?? 0,
-      order,
     });
   });
+  candidates.push(...curvedCandidates(viz, curved, settings));
   candidates.sort((a, b) => b.priority - a.priority || a.order - b.order);
   const placed = placeLinkLabels(candidates, obstacles);
-  return placed.map(label => labelGroup(viz, label, settings));
+  return placed.map(label =>
+    label.curve
+      ? curvedGroup(viz, label, label.curve, settings)
+      : labelGroup(viz, label, settings),
+  );
+}
+
+/** Whether text cut short keeps fewer than three letters before its ellipsis. */
+const tooShort = (drawn: string, full: string): boolean =>
+  drawn !== full && drawn.replace(/[\s.\u2026]+$/, "").length < 3;
+
+/**
+    The curved labels as candidates: each one's text laid along its spot
+    (cut short with an ellipsis where the stretch is too short for it), its
+    pad's stretch, and the boxes its glyphs and pad cover. A label whose
+    stretch has room for fewer than three letters is left out.
+*/
+function curvedCandidates(
+  viz: VizInstance,
+  curved: readonly {base: Candidate; spot: CurvedLabelSpot}[],
+  settings: LinkLabelSettings,
+): Candidate[] {
+  if (!curved.length) return [];
+  const pad = settings.padding;
+  const nodes = pathLabelNodes(
+    viz,
+    curved.map(({base, spot}) => ({
+      key: `${base.key}-label`,
+      text: base.text,
+      d: polylineD(spot.text),
+      color: "",
+      anchor: "middle" as const,
+    })),
+    {
+      fontColor: () => backgroundInk(viz),
+      fontWeight: 400,
+      ...settings.text,
+      fontResize: false,
+      fontSize: settings.fontSize,
+      lineHeight: settings.fontSize * 1.2,
+      pointerEvents: "none",
+    },
+    {halo: false},
+  );
+  const byKey = new Map(nodes.map(n => [String(n.key), n]));
+  return curved.flatMap(({base, spot}) => {
+    const node = byKey.get(`${base.key}-label`);
+    const line = node?.type === "text" ? node.lines[0] : undefined;
+    if (!node || !line || tooShort(line.text, base.text)) return [];
+    const boxes = textLineBoxes([node]).map(b => ({
+      ...b,
+      width: b.width + pad * 2,
+      height: b.height + pad * 2,
+    }));
+    if (!boxes.length) return [];
+    return [
+      {
+        ...base,
+        box: boxes[Math.floor(boxes.length / 2)],
+        boxes,
+        curve: {node, pad: curvedLabelPad(spot, line.width ?? 0, pad)},
+      },
+    ];
+  });
+}
+
+/**
+    One curved label's group: a stroke of the chart's background along the
+    stretch its text covers, as thick as the text and its pad, then the
+    text along the curve.
+*/
+function curvedGroup(
+  viz: VizInstance,
+  label: PlacedLabel,
+  curve: {node: SceneNode; pad: Pt[]},
+  settings: LinkLabelSettings,
+): SceneNode {
+  const pad: SceneNode = {
+    type: "path",
+    key: `${label.key}-label-pad`,
+    d: polylineD(curve.pad),
+    interactive: false,
+    paint: {
+      fill: "none",
+      stroke: chartBackground(viz),
+      strokeOpacity: settings.backgroundOpacity,
+      strokeWidth: label.textHeight + settings.padding * 2,
+      strokeLinecap: "butt",
+    },
+  };
+  return {
+    type: "group",
+    key: `${label.key}-label-group`,
+    datum: label.link as DataPoint,
+    interactive: false,
+    children: [pad, curve.node],
+  };
 }
 
 /** One label's group: the pad, then the text, both centered on the group's origin. */

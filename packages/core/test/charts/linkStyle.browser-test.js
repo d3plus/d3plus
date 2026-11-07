@@ -70,6 +70,7 @@ const draw = ([chart, config, renderer, hover]) =>
       const isLink = n =>
         n.type === "path" &&
         /-link-/.test(String(n.key)) &&
+        !/-label-pad$/.test(String(n.key)) &&
         !String(n.key).endsWith("::hit");
       const isNode = n =>
         (n.type === "circle" || n.type === "rect") &&
@@ -111,16 +112,33 @@ const draw = ([chart, config, renderer, hover]) =>
         .filter(n => n.type === "group" && /-label-group$/.test(String(n.key)))
         .map(n => {
           const [pad, text] = n.children;
+          // A label along a curve: its glyphs' boxes, centered (by width) where the label is.
+          const curved = pad.type === "path";
+          const boxes = curved
+            ? window.__textLineBoxes([text]).map(b => ({...b, rotate: b.angle}))
+            : [
+                {
+                  x: n.transform.x,
+                  y: n.transform.y,
+                  rotate: n.transform.rotate ?? 0,
+                  width: pad.width,
+                  height: pad.height,
+                },
+              ];
+          const total = boxes.reduce((t, b) => t + b.width, 0);
+          const mid = boxes[Math.floor(boxes.length / 2)];
           return {
             key: String(n.key),
-            x: n.transform.x,
-            y: n.transform.y,
-            rotate: n.transform.rotate ?? 0,
-            width: pad.width,
-            height: pad.height,
+            curved,
+            boxes,
+            x: boxes.reduce((t, b) => t + b.x * b.width, 0) / total,
+            y: boxes.reduce((t, b) => t + b.y * b.width, 0) / total,
+            rotate: mid.rotate,
+            width: curved ? total : pad.width,
+            height: curved ? mid.height : pad.height,
             interactive: n.interactive,
             opacity: n.paint?.opacity ?? 1,
-            padFill: pad.paint.fill,
+            padFill: curved ? pad.paint.stroke : pad.paint.fill,
             textFill: text.paint.fill,
             text: text.lines.map(l => l.text).join(" "),
             source: n.datum.source.id,
@@ -177,6 +195,10 @@ const corners = l => {
     ];
   });
 };
+
+/** Whether any of two labels' boxes overlap. */
+const labelsMeet = (a, b) =>
+  a.boxes.some(p => b.boxes.some(q => overlap(corners(p), corners(q))));
 
 /** Whether two convex polygons overlap (separating axes). */
 const overlap = (a, b) => {
@@ -326,7 +348,7 @@ for (const renderer of ["svg", "canvas"]) {
     for (let a = 0; a < labels.length; a++)
       for (let b = a + 1; b < labels.length; b++)
         assert.ok(
-          !overlap(corners(labels[a]), corners(labels[b])),
+          !labelsMeet(labels[a], labels[b]),
           `${labels[a].key} / ${labels[b].key}`,
         );
   });
@@ -345,10 +367,10 @@ for (const renderer of ["svg", "canvas"]) {
     for (const l of labels) assert.strictEqual(l.rotate, 0);
     for (let a = 0; a < labels.length; a++)
       for (let b = a + 1; b < labels.length; b++)
-        assert.ok(!overlap(corners(labels[a]), corners(labels[b])));
+        assert.ok(!labelsMeet(labels[a], labels[b]));
   });
 
-  it(`ArcDiagram ${renderer}: labels sit at the top of each arc`, async () => {
+  it(`ArcDiagram ${renderer}: labels follow each arc, centered at its top`, async () => {
     const {labels, pos} = await render(box, draw, [
       "ArcDiagram",
       {...graph, linkLabel: "kind"},
@@ -358,10 +380,17 @@ for (const renderer of ["svg", "canvas"]) {
     for (const l of labels) {
       const [x0, y0] = pos[l.source];
       const [x1] = pos[l.target];
-      assert.ok(Math.abs(l.x - (x0 + x1) / 2) < 0.01, "midway along the line");
+      assert.ok(Math.abs(l.x - (x0 + x1) / 2) < 2, "midway along the line");
       // A semicircle (or flattened arc) rises from the line toward the top.
       assert.ok(l.y < y0, "above the line");
-      assert.strictEqual(l.rotate, 0);
+      assert.ok(l.curved, `${l.key} follows its arc`);
+      // Upright, its glyphs turn down toward each end of the arc.
+      const turns = l.boxes.map(b => b.rotate);
+      assert.ok(
+        turns.every(r => r > -90 && r < 90),
+        "upright",
+      );
+      assert.ok(turns[0] < turns[turns.length - 1], "bends with the arc");
     }
   });
 
@@ -376,7 +405,7 @@ for (const renderer of ["svg", "canvas"]) {
     for (const l of labels)
       for (const b of nodeLabelBoxes)
         assert.ok(
-          !overlap(corners(l), corners({...b, rotate: b.angle})),
+          !labelsMeet(l, {boxes: [{...b, rotate: b.angle}]}),
           `${l.key} clear of a node label`,
         );
   });

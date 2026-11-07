@@ -95,7 +95,7 @@ export function radialBarCurvedLabels(
   // Every track counts toward whether the labels can stand in for the legend.
   const stats = viz._alongStats;
   if (stats) {
-    stats.lines += wedges.length;
+    stats.series += wedges.length;
     stats.requested += curved.filter(Boolean).length;
   }
   if (!curved.some(Boolean)) return [];

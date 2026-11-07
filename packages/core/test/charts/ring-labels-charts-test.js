@@ -450,14 +450,14 @@ it("radialBarCurvedLabels — names each full-circle track, dimming with its bar
 
 it("radialBarCurvedLabels — counts its tracks and labels for the legend", () => {
   const {viz, shapeData} = radialBar({maxAngle: 360});
-  viz._alongStats = {lines: 0, requested: 0, placed: 0};
+  viz._alongStats = {series: 0, requested: 0, placed: 0};
   radialBarCurvedLabels(viz, shapeData, viz.ctx.polar);
-  assert.deepStrictEqual(viz._alongStats, {lines: 3, requested: 3, placed: 3});
+  assert.deepStrictEqual(viz._alongStats, {series: 3, requested: 3, placed: 3});
   const gap = radialBar();
-  gap.viz._alongStats = {lines: 0, requested: 0, placed: 0};
+  gap.viz._alongStats = {series: 0, requested: 0, placed: 0};
   radialBarCurvedLabels(gap.viz, gap.shapeData, gap.viz.ctx.polar);
   assert.deepStrictEqual(gap.viz._alongStats, {
-    lines: 3,
+    series: 3,
     requested: 0,
     placed: 0,
   });

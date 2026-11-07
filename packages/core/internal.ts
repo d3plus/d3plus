@@ -78,7 +78,11 @@ export {
   placeArcLabel,
 } from "./src/charts/ArcDiagram/arcLabels.js";
 export type {ArcLabel, LabelFit} from "./src/charts/ArcDiagram/arcLabels.js";
-export {arcDiagramEmit, arcLabelAnchor} from "./src/charts/ArcDiagram/emit.js";
+export {
+  arcDiagramEmit,
+  arcLabelAnchor,
+  arcLabelPath,
+} from "./src/charts/ArcDiagram/emit.js";
 export {arcFocus, setupArcEvents} from "./src/charts/ArcDiagram/events.js";
 export {
   bindSvgBackgroundClick,
@@ -310,6 +314,26 @@ export {
   rowLineLabelSides,
 } from "./src/charts/Plot/lineLabelSides.js";
 export {spreadLabelPositions} from "./src/charts/Plot/lineLabelSpread.js";
+export {
+  AREA_LABEL_FONT_MAX,
+  AREA_LABEL_FONT_MIN,
+  AREA_LABEL_FONT_WEIGHT,
+  AREA_LABEL_PADDING,
+  bandColor,
+  bandFontWeight,
+  bandSections,
+  boxLabelsOnly,
+  densify,
+  emitAreaLabels,
+  labelSizes,
+  labelsAlongBand,
+  placeBandLabel,
+  thickRuns,
+} from "./src/charts/Plot/areaLabelsAlong.js";
+export type {
+  BandLabelPlacement,
+  BandSection,
+} from "./src/charts/Plot/areaLabelsAlong.js";
 export type {
   LineLabelConfig,
   LineLabelSide,
@@ -1067,9 +1091,20 @@ export {hexbinEmit, pixelPoints} from "./src/charts/Hexbin/emit.js";
 export {
   binAriaLabel,
   contourAriaLabel,
+  contourLevelText,
   hexbinTooltipRows,
   hexbinTooltipTitle,
 } from "./src/charts/Hexbin/tooltip.js";
+export {
+  CONTOUR_LABEL_FONT_SIZE,
+  CONTOUR_LABEL_MAX_LEVELS,
+  contourRings,
+  emitContourLabels,
+  labelledLevels,
+  paddedBand,
+  ringDistance,
+  ringLabelStretches,
+} from "./src/charts/Hexbin/contourLabels.js";
 export {
   isAggregatedBranch,
   mergeBranch,
@@ -1732,8 +1767,21 @@ export {
   chordLabelFontSize,
 } from "./src/charts/Chord/labels.js";
 export type {ChordLabelNode} from "./src/charts/Chord/labels.js";
-export {ringsEdgeAnchor} from "./src/charts/Rings/emit.js";
-export {sankeyLinkAnchor} from "./src/charts/Sankey/emit.js";
+export {
+  curvedLabelPad,
+  curvedLabelSpot,
+  curvePoints,
+  distanceAlong,
+  LINK_LABEL_MAX_TURN,
+  LINK_LABEL_MIN_RADIUS,
+  LINK_LABEL_STRAIGHT_TURN,
+  labelStretch,
+  sharpestTurn,
+  trimToNodes,
+} from "./src/charts/features/linkLabelPath.js";
+export type {CurvedLabelSpot} from "./src/charts/features/linkLabelPath.js";
+export {ringsEdgeAnchor, ringsEdgePath} from "./src/charts/Rings/emit.js";
+export {sankeyLinkAnchor, sankeyLinkPath} from "./src/charts/Sankey/emit.js";
 export {
   awayFromAngle,
   fanOrder,
@@ -2163,6 +2211,7 @@ export {
   bundleNetworkLinks,
   bundledLinkAnchor,
   bundledLinkEdge,
+  bundledLinkPath,
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";

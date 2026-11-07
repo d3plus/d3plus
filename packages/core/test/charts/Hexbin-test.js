@@ -51,6 +51,8 @@ it("Hexbin — a Plot of observations drawn as bins, with a colorScale and no le
     thresholds: 8,
     strokeWidth: 1.5,
     fillOpacity: 0.8,
+    labels: true,
+    labelConfig: {},
   });
   assert.strictEqual(
     viz.colorScaleConfig().scale,

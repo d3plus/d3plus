@@ -156,7 +156,7 @@ it("trendLabelSpot — slides back from a taken end, then tries below", () => {
   );
 });
 
-it("lineLabelBoxes — the line labels at ends and along lines", () => {
+it("lineLabelBoxes — the line labels at ends and along lines, and contour labels", () => {
   const text = (key, datum, extra = {}) => ({
     type: "text",
     key,
@@ -187,6 +187,12 @@ it("lineLabelBoxes — the line labels at ends and along lines", () => {
     boxes.slice(1).every(b => b.y < 50),
     "the along label's boxes sit above its path",
   );
+  const contour = lineLabelBoxes([
+    text("contour-label-0-0-0", undefined, {path: {d: "M0,50L100,50"}}),
+    text("contour-label-0-0-0-pad", undefined, {type: "path"}),
+  ]);
+  assert.ok(contour.length > 0, "Hexbin's contour labels count");
+  assert.ok(contour.every(b => b.y < 50));
 });
 
 it("emitTrendLabels — one inert, haloed label per fit, on its fitted stretch", () => {
