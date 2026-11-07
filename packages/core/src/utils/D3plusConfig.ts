@@ -1652,14 +1652,29 @@ export interface D3plusConfig {
         off), else by `label`. Labels are placed when the chart draws: a
         zoomed Plot places them again for its new scales, while a zoomed
         Network or Geomap scales them with the picture.
+      - Stacked areas (StackedArea, Streamgraph, and a stacked AreaPlot):
+        `"auto"` or `"along"` runs each series' name along its band's
+        centerline, following its curve, on the stretch where the band is at
+        least the font size plus 4px thick under the whole label and flattest.
+        The text reads upright, in the color that contrasts with the band's
+        fill (or the Area `labelConfig`'s `fontColor`, when you set one), and
+        dims with its band on hover. It starts at the Area `labelConfig`'s
+        `fontSize` (or `fontMax`, else 16px) and shrinks a pixel at a time
+        down to its `fontMin`, but no lower than 8px, before giving up; a
+        band too thin for its name everywhere goes unlabeled. When every band
+        gets a name, the default legend hides (a `legend` of your own always
+        wins, and the legend stays while a series is hidden from it).
+        `"inside"` (or `"outside"`) puts the label in the band's largest box
+        instead. `shapeConfig.Area.label` sets the text, or `false` for none.
 
       Defaults to `"auto"`.
   */
   labelPosition?:
     | "auto"
+    | "along"
     | "inside"
     | "outside"
-    | ((d: DataPoint, i: number) => "auto" | "inside" | "outside");
+    | ((d: DataPoint, i: number) => "auto" | "along" | "inside" | "outside");
   /**
       Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
   */

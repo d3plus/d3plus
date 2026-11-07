@@ -36,15 +36,17 @@ export function polylineLength(points: Pt[]): number {
     running right to left in screen space (a reversed axis, or a fit along
     the y axis) is reversed, so its text never reads upside down.
     @param points The polyline.
+    @param steep How far across, for each pixel up or down, a line can run
+    and still read bottom to top. Defaults to `0.02`.
 */
-export function uprightPoints(points: Pt[]): Pt[] {
+export function uprightPoints(points: Pt[], steep = 0.02): Pt[] {
   if (points.length < 2) return points;
   const [x0, y0] = points[0];
   const [x1, y1] = points[points.length - 1];
   const dx = x1 - x0,
     dy = y1 - y0;
-  const steep = Math.abs(dx) < Math.abs(dy) * 0.02;
-  return (steep ? dy > 0 : dx < 0) ? [...points].reverse() : points;
+  const upright = Math.abs(dx) < Math.abs(dy) * steep;
+  return (upright ? dy > 0 : dx < 0) ? [...points].reverse() : points;
 }
 
 /**

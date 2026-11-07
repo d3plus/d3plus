@@ -9,6 +9,7 @@ import basicExample from "~/examples/core/charts/area-plot/basic-example.js?raw"
 import changingAreaOpacity from "~/examples/core/charts/area-plot/changing-area-opacity.js?raw";
 import stackedSeries from "~/examples/core/charts/area-plot/stacked-series.js?raw";
 import timeAxis from "~/examples/core/charts/area-plot/time-axis.js?raw";
+import stackedLabels from "~/examples/core/charts/area-plot/stacked-labels.js?raw";
 
 Creates an area plot based on an array of data.
 
@@ -29,6 +30,12 @@ Set `shapeConfig.Area.fillOpacity` to 0.5 so that where the two series overlap y
 `stacked: true` piles the series on top of one another so the outline of the whole is the total at each `x`, with `stackOrder` and `stackOffset` controlling which series sits at the bottom and how the stack is normalized. Compare the overlapping, translucent areas above.
 
 <Playground chart="AreaPlot" code={stackedSeries} controls={["stacked","stackOrder","stackOffset"]} />
+
+## Stacked series labels
+
+Stacked series are named along the middle of their bands by default (`labelPosition: "auto"`, or `"along"`), the way [StackedArea](/core/charts/stacked-area/#labels-along-the-bands) labels them. `labelPosition: "inside"` puts each name in its band's largest box instead, sized to fill it; switch the control back to `"along"` to compare. Areas that don't stack carry no labels.
+
+<Playground chart="AreaPlot" code={stackedLabels} controls={["labelPosition","stacked"]} />
 
 ## Time axis
 

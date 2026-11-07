@@ -1,4 +1,5 @@
 import {it} from "vitest";
+import {pathTextBoxes} from "@d3plus/render";
 import assert from "~test/browser/assert.js";
 import {probeChart} from "~test/browser/helpers.js";
 
@@ -58,6 +59,16 @@ const probe = (src, opts = {}) =>
             masked: inMask,
             y: n.transform && n.transform.y,
             h: n.height,
+            // Text along a path: each glyph box's lowest point.
+            bottoms: n.path
+              ? pathTextBoxes(n).map(
+                  b =>
+                    b.y +
+                    (Math.abs(Math.cos((b.angle * Math.PI) / 180)) * b.height +
+                      Math.abs(Math.sin((b.angle * Math.PI) / 180)) * b.width) /
+                      2,
+                )
+              : null,
           });
         const row = n.datum && (n.datum.data || n.datum);
         if (n.shapeType === "Bar" && n.type === "rect")
@@ -405,12 +416,15 @@ it("Labels stay outside the break mask", async function () {
   ]);
   for (const src of [
     `new lib.StackedArea().data(data).groupBy("id").x("x").y("v").yDomain([980])`,
+    `new lib.StackedArea().data(data).groupBy("id").x("x").y("v").yDomain([980]).labelPosition("inside")`,
     `new lib.BarChart().data(data).groupBy("id").x("x").y("v").yDomain([980])`,
     `new lib.BarChart().data(data).groupBy("id").x("x").y("v").yBreak([100, 900])`,
   ]) {
     const out = await probe(`(lib, data) => ${src}`, {data: rows});
     assert.strictEqual(out.masks.length >= 1, true, `${src} is masked`);
-    const labels = out.texts.filter(t => /^(North|South)/.test(t.key));
+    const labels = out.texts.filter(t =>
+      /^(area-label-along-)?(North|South)/.test(t.key),
+    );
     assert.ok(labels.length, `${src} draws labels`);
     assert.deepStrictEqual(
       labels.filter(t => t.masked),
@@ -425,29 +439,32 @@ it("An area's label sits clear of the baseline break", async function () {
     {id: "North", x, v: 1000 + i * 8},
     {id: "South", x, v: 990 + i * 5},
   ]);
-  const src = `(lib, data) => new lib.StackedArea().data(data).groupBy("id").x("x").y("v")`;
-  // North's plotted part is a sliver above 980: too thin for its label, which
-  // would otherwise sit mostly in the break.
-  const thin = await probe(`${src}.yDomain([980])`, {data: rows});
-  // From 500 up, North's plotted part holds its label.
-  const thick = await probe(`${src}.yDomain([500])`, {data: rows});
-  for (const [out, name] of [
-    [thin, "yDomain([980])"],
-    [thick, "yDomain([500])"],
-  ]) {
-    out.texts
-      .filter(t => t.key.startsWith("North"))
-      .forEach(t =>
+  for (const position of ["inside", "along"]) {
+    const src = `(lib, data) => new lib.StackedArea().data(data).groupBy("id").x("x").y("v").labelPosition("${position}")`;
+    // North's plotted part is a sliver above 980: too thin for its label, which
+    // would otherwise sit mostly in the break.
+    const thin = await probe(`${src}.yDomain([980])`, {data: rows});
+    // From 500 up, North's plotted part holds its label.
+    const thick = await probe(`${src}.yDomain([500])`, {data: rows});
+    const north = out =>
+      out.texts.filter(t => /^(area-label-along-)?North/.test(t.key));
+    for (const [out, name] of [
+      [thin, "yDomain([980])"],
+      [thick, "yDomain([500])"],
+    ]) {
+      for (const t of north(out)) {
+        const bottom = t.bottoms ? Math.max(...t.bottoms) : t.y + t.h;
         assert.ok(
-          t.y + t.h <= out.y.edge + 0.5,
-          `${name}: label bottom ${t.y + t.h} sits above the break edge ${out.y.edge}`,
-        ),
-      );
+          bottom <= out.y.edge + 0.5,
+          `${position}, ${name}: label bottom ${bottom} sits above the break edge ${out.y.edge}`,
+        );
+      }
+    }
+    assert.ok(
+      north(thick).length,
+      `${position}: a plotted part with room keeps its label`,
+    );
   }
-  assert.ok(
-    thick.texts.some(t => t.key.startsWith("North")),
-    "a plotted part with room keeps its label",
-  );
 });
 
 it("BarChart: the Canvas renderer cuts the baseline break's gap across a bar", async function () {

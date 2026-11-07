@@ -314,6 +314,26 @@ export {
   rowLineLabelSides,
 } from "./src/charts/Plot/lineLabelSides.js";
 export {spreadLabelPositions} from "./src/charts/Plot/lineLabelSpread.js";
+export {
+  AREA_LABEL_FONT_MAX,
+  AREA_LABEL_FONT_MIN,
+  AREA_LABEL_FONT_WEIGHT,
+  AREA_LABEL_PADDING,
+  bandColor,
+  bandFontWeight,
+  bandSections,
+  boxLabelsOnly,
+  densify,
+  emitAreaLabels,
+  labelSizes,
+  labelsAlongBand,
+  placeBandLabel,
+  thickRuns,
+} from "./src/charts/Plot/areaLabelsAlong.js";
+export type {
+  BandLabelPlacement,
+  BandSection,
+} from "./src/charts/Plot/areaLabelsAlong.js";
 export type {
   LineLabelConfig,
   LineLabelSide,
