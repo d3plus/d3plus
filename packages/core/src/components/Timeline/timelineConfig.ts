@@ -27,6 +27,18 @@ export function byValue<T>(values: T[]): T[] {
 }
 
 /**
+    The brush overlay's cursor: `brushCursor`, or what it returns when given
+    the presentation drawn (`"ticks"` or `"buttons"`).
+*/
+export function brushOverlayCursor(tl: Timeline): string | null {
+  const cursor = tl.schema.brushCursor as
+    string | ((mode: string) => string) | null | undefined;
+  return typeof cursor === "function"
+    ? cursor(tl._buttonBehaviorCurrent)
+    : (cursor ?? null);
+}
+
+/**
     Builds the play/pause TextBox. The button's visual is composed into the
     scene in compute mode; its click is wired to `Timeline._togglePlay` via a
     DOM hit target in `renderPlayButton` (the scene path mounts no per-node

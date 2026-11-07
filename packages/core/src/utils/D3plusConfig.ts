@@ -481,6 +481,16 @@ export interface TextBoxConfig {
 }
 
 export interface TimelineConfig {
+  /**
+      The cursor shown over the timeline's brush area, where a click or drag
+      picks periods: a CSS cursor, or a function given how the timeline is
+      drawn (`"ticks"` or `"buttons"`) that returns one. Defaults to
+      `"pointer"`. The handles keep `ew-resize` and the selected range
+      `move`; `handleConfig` and `selectionConfig` take a `cursor` too.
+      @example
+{brushCursor: mode => (mode === "buttons" ? "pointer" : "crosshair")}
+  */
+  brushCursor?: string | ((mode: "ticks" | "buttons") => string);
   /** Brush event filter. */
   brushFilter?: () => boolean;
   /**
@@ -510,7 +520,16 @@ export interface TimelineConfig {
   brushMin?: number;
   /** Toggles the horizontal alignment of the button timeline. */
   buttonAlign?: "start" | "middle" | "end";
-  /** Toggles the style of the timeline. */
+  /**
+      How the timeline draws its periods: `"ticks"` along an axis,
+      `"buttons"` in a row, or `"auto"` (the default), which draws buttons
+      when every label fits and ticks otherwise, and checks again whenever
+      the chart redraws. The timeline's group carries a class naming the
+      result, for page CSS: `d3plus-viz-timeline-ticks` or
+      `d3plus-viz-timeline-buttons` on a chart's `g.d3plus-viz-timeline`, and
+      `d3plus-Timeline-ticks` or `d3plus-Timeline-buttons` on the Timeline's
+      own group.
+  */
   buttonBehavior?: "auto" | "buttons" | "ticks";
   /** Button height. */
   buttonHeight?: number;
@@ -520,6 +539,21 @@ export interface TimelineConfig {
   handleConfig?: Record<string, unknown>;
   /** Handle size. */
   handleSize?: number;
+  /**
+      Listeners for the brush's `start`, `brush` and `end` events. On a chart,
+      `end` receives the period the viewer picked once a click, drag or
+      playback step settles (a Date, or `[start, end]` Dates for a range),
+      and `brush` receives it, snapped to whole periods, as a drag moves
+      (with `brushing` on and `snapping` off, the last committed one);
+      `start` receives the d3-brush event.
+      @example
+{on: {end: period => console.log(period)}}
+  */
+  on?: {
+    start?: (event: unknown) => void;
+    brush?: (selection: Date | Date[]) => void;
+    end?: (selection: Date | Date[]) => void;
+  };
   /**
       Determines the visibility of the play button to the left of the timeline,
       which cycles through the available periods at a rate set by `playButtonInterval`.
@@ -531,7 +565,11 @@ export interface TimelineConfig {
       otherwise playback steps once per `duration` so each step animates in full.
   */
   playButtonInterval?: number;
-  /** The current selection. Defaults to the most recent period in the timeline. */
+  /**
+      The current selection. Defaults to the most recent period in the
+      timeline. On a chart it is where the timeline starts, and the chart
+      starts on the same period(s); the viewer's picks replace it.
+  */
   selection?: (Date | number)[] | Date | number | false;
   /**
       Whether to run the timeline from its latest period to its earliest.
@@ -2542,7 +2580,15 @@ export interface D3plusConfig {
   tiles?: boolean;
   /** Time key for temporal data. */
   time?: string;
-  /** Predicate filtering which time slices are shown, or false to disable. */
+  /**
+      Predicate filtering which time slices are shown, or false to disable.
+      With `time` set and no `timeFilter`, a chart starts on its latest
+      period, or on `timelineDefault`/`timelineConfig.selection`; setting it
+      starts the chart (and its timeline) on the periods it keeps. A
+      viewer's pick on the timeline replaces it.
+      @example
+{timeFilter: d => d.year === 2015}
+  */
   timeFilter?: ((d: DataPoint, i: number) => boolean) | false;
   /** Whether to show the timeline component. */
   timeline?: boolean;

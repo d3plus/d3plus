@@ -10,6 +10,9 @@ import rangeSelection from "~/examples/core/components/timeline/range-selection.
 import tickFormat from "~/examples/core/components/timeline/tick-format.js?raw";
 import initialSelection from "~/examples/core/components/timeline/initial-selection.js?raw";
 import limitingTheSelection from "~/examples/core/components/timeline/limiting-the-selection.js?raw";
+import startingPeriod from "~/examples/core/components/timeline/starting-period.js?raw";
+import readingTheSelection from "~/examples/core/components/timeline/reading-the-selection.js?raw";
+import brushCursor from "~/examples/core/components/timeline/brush-cursor.js?raw";
 
 Creates an interactive timeline brush component for selecting time periods within a visualization.
 
@@ -42,5 +45,31 @@ The timeline is an Axis, so `ticks` chooses which periods get a mark and `tickFo
 `brushMax` caps how many ticks a selection can span. Drag across more and the brush is pulled in on release, keeping the end you dragged; a wider starting `selection` keeps its latest periods. `brushMin` sets the fewest the same way, with ticks or buttons: a narrower brush widens, and a click selects that many periods from the one clicked. On a chart, pass both through `timelineConfig`. When `brushMin` is larger, `brushMin` wins.
 
 <Playground chart="Timeline" code={limitingTheSelection} controls={["brushMax","brushMin","selection"]} height={100} />
+
+## Starting on a chosen period
+
+A chart with `time` starts on its latest period. Its `timeFilter` starts it somewhere else: the chart draws the rows it keeps, and its timeline selects their periods. Once the viewer picks another period, that pick replaces the filter. `timelineDefault` (a date, or the first and last of a range) and `timelineConfig.selection` start a chart the same way.
+
+<Playground chart="Treemap" code={startingPeriod} controls={[]} height={360} />
+
+## Reading the selection
+
+`timelineConfig.on.end` runs whenever the viewer clicks, drags or plays the timeline to a new period, and receives what they picked: a Date for one period, or `[start, end]` Dates for a range. Here it rewrites the subtitle, which the chart draws again with the new period. `on.brush` receives the selection while a drag is still moving.
+
+<Playground chart="Treemap" code={readingTheSelection} controls={[]} height={360} />
+
+## Cursor and mode classes
+
+`brushCursor` sets the cursor over the brush area, `"pointer"` by default: a CSS cursor, or a function given how the timeline is drawn (`"ticks"` or `"buttons"`). The handles keep their resize cursor; `handleConfig` and `selectionConfig` take a `cursor` to change those too.
+
+`buttonBehavior: "auto"` draws buttons when every label fits and ticks when they don't, and checks again each time the chart redraws, such as after a resize. The timeline's group names the result in a class, so page CSS can follow it: a chart's `g.d3plus-viz-timeline` also carries `d3plus-viz-timeline-ticks` or `d3plus-viz-timeline-buttons`, and a Timeline's own group `d3plus-Timeline-ticks` or `d3plus-Timeline-buttons`.
+
+```css
+g.d3plus-viz-timeline-buttons .selection {
+  fill-opacity: 0.5;
+}
+```
+
+<Playground chart="Timeline" code={brushCursor} controls={["buttonBehavior"]} height={100} />
 
 <ApiReference name="Timeline" pkg="core" />
