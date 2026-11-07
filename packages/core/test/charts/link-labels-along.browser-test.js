@@ -406,7 +406,12 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`Rings ${renderer}: links out from the center keep straight labels`, async () => {
-    const {labels} = await render(box, draw, ["Rings", charts.Rings, renderer]);
+    // Large enough that the spokes' labels fit whatever the font's widths.
+    const {labels} = await render(
+      "<div id='viz' style='width:1100px;height:900px'></div>",
+      draw,
+      ["Rings", charts.Rings, renderer],
+    );
     const spokes = labels.filter(l =>
       /^rings-link-Hub-(East|South|West|Port)$/.test(l.key),
     );
