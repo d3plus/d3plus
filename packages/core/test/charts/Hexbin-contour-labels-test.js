@@ -107,7 +107,7 @@ const stretchCtx = ring => {
     lift: -3,
     ignore: 0,
     maxTurn: Math.PI / 3,
-    clearance: 3,
+    minClearance: 3,
   };
 };
 

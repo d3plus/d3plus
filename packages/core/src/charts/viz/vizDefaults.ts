@@ -179,7 +179,7 @@ function initDataDefaults(viz: Viz): void {
 */
 function initLegendDefaults(viz: Viz): void {
   viz.schema.legend = (config: Record<string, unknown>, arr: DataPoint[]) => {
-    // Along-line labels that name every line stand in for the legend.
+    // Along labels that name every series stand in for the legend.
     if (viz._alongLegendHide) return false;
     if (viz._legendCategories) return arr.length > 1;
     const maxGrouped = max(arr, (d: DataPoint, i: number) => {

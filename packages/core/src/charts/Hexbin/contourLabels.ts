@@ -237,7 +237,7 @@ export function emitContourLabels(
     lift: -BASELINE_DROP * fontSize,
     maxTurn: MAX_TURN,
     // Wide enough that no line slips between the band's rows.
-    clearance: Math.max(2, CLEARANCE * fontSize),
+    minClearance: Math.max(2, CLEARANCE * fontSize),
   };
   // Long rings take another label every half of the plot's mean side.
   const spacing = Math.max(fontSize * 20, (frame.width + frame.height) / 4);

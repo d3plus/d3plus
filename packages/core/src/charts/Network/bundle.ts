@@ -130,14 +130,21 @@ export function bundledLinkEdge(
   };
 }
 
-/** The middle of a bundled link's run between the edges of its two nodes. */
-export function bundledLinkAnchor(
+/** A bundled link's run between the edges of its two nodes. */
+export function bundledLinkPath(
   link: BundledLink & {points: Point[]},
-): LinkAnchor {
+): Point[] {
   const {source, target} = bundledTipBack(
     link.points,
     (link.source?.r ?? 0) - 1,
     (link.target?.r ?? 0) - 1,
   );
-  return polylineMidpoint(trimPolyline(link.points, source, target));
+  return trimPolyline(link.points, source, target);
+}
+
+/** The middle of a bundled link's run between the edges of its two nodes. */
+export function bundledLinkAnchor(
+  link: BundledLink & {points: Point[]},
+): LinkAnchor {
+  return polylineMidpoint(bundledLinkPath(link));
 }

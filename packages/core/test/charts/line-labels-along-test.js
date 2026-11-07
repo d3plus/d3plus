@@ -178,7 +178,7 @@ it("scoreStretch — keeps the clearance it asks for", () => {
   const c = ctx([[30, 104]]);
   assert.notStrictEqual(scoreStretch(flat(10, 60, 100), c), null);
   assert.strictEqual(
-    scoreStretch(flat(10, 60, 100), {...c, clearance: 8}),
+    scoreStretch(flat(10, 60, 100), {...c, minClearance: 8}),
     null,
   );
 });

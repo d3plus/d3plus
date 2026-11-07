@@ -51,6 +51,7 @@ export const streamgraphDef: ChartDefinition = {
     thickness carries its value, and tooltips show each value and its share
     of the stack. Set `stackOffset("wiggle")` to keep each layer's slope as
     steady as it can instead, at the cost of a stream that drifts up or down
-    as its total changes.
+    as its total changes. Each layer is named along its own stream (see
+    `labelPosition`).
 */
 export default makeChart(streamgraphDef, StackedArea);

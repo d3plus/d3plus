@@ -18,7 +18,8 @@ import type {ArcCtx, ArcLink, ArcNode} from "./applyLayout.js";
 import {linkColorResolver} from "../features/linkColor.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
-import {arcApex, arcArrowEdge} from "./arcGeometry.js";
+import {curvePoints, trimToNodes} from "../features/linkLabelPath.js";
+import {arcApex, arcArrowEdge, arcPathD} from "./arcGeometry.js";
 import {chordArrowNodes} from "../features/curvedArrows.js";
 import {emitArcLabels} from "./arcLabels.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
@@ -35,6 +36,19 @@ export function arcLabelAnchor(link: ArcLink): LinkAnchor {
   return {x, y, angle: link.arc.orient === "vertical" ? Math.PI / 2 : 0};
 }
 
+/**
+    The curve an arc's label follows: the arc between the edges of its two
+    nodes, or the loop.
+*/
+export function arcLabelPath(link: ArcLink): [number, number][] {
+  if (link.loop) return curvePoints(link.loop.d);
+  return trimToNodes(
+    curvePoints(arcPathD(link.arc)),
+    link.source.r,
+    link.target.r,
+  );
+}
+
 /** The arc labels, at the top of each arc, clear of every node. */
 function arcLinkLabels(viz: VizInstance, c: ArcCtx): SceneNode[] {
   return emitLinkLabels(
@@ -44,6 +58,7 @@ function arcLinkLabels(viz: VizInstance, c: ArcCtx): SceneNode[] {
       link,
       i,
       anchor: arcLabelAnchor(link),
+      path: arcLabelPath(link),
       priority: link.size,
     })),
     {circles: c.nodes.map(n => ({x: n.x, y: n.y, r: n.r}))},

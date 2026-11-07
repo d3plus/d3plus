@@ -634,7 +634,13 @@ export interface TrendLineConfig {
 
 /** The `linkLabelConfig` options. */
 export interface LinkLabelConfig {
-  /** `"along"` runs text along its link, kept upright; `"horizontal"` keeps it level. */
+  /**
+      `"along"` runs text along its link, kept upright: on a curved link
+      (a Rings spline, an ArcDiagram arc, a self-loop, a bundled edge, a
+      Geomap flow arc, a Sankey band), the text follows the curve over a
+      pad that curves with it, and is cut short with an ellipsis where the
+      curve has too little room. `"horizontal"` keeps it level.
+  */
   rotate?: "along" | "horizontal";
   fontSize?: number;
   /** The pad around the text, in pixels. */
@@ -1653,14 +1659,29 @@ export interface D3plusConfig {
         off), else by `label`. Labels are placed when the chart draws: a
         zoomed Plot places them again for its new scales, while a zoomed
         Network or Geomap scales them with the picture.
+      - Stacked areas (StackedArea, Streamgraph, and a stacked AreaPlot):
+        `"auto"` or `"along"` runs each series' name along its band's
+        centerline, following its curve, on the stretch where the band is at
+        least the font size plus 4px thick under the whole label and flattest.
+        The text reads upright, in the color that contrasts with the band's
+        fill (or the Area `labelConfig`'s `fontColor`, when you set one), and
+        dims with its band on hover. It starts at the Area `labelConfig`'s
+        `fontSize` (or `fontMax`, else 16px) and shrinks a pixel at a time
+        down to its `fontMin`, but no lower than 8px, before giving up; a
+        band too thin for its name everywhere goes unlabeled. When every band
+        gets a name, the default legend hides (a `legend` of your own always
+        wins, and the legend stays while a series is hidden from it).
+        `"inside"` (or `"outside"`) puts the label in the band's largest box
+        instead. `shapeConfig.Area.label` sets the text, or `false` for none.
 
       Defaults to `"auto"`.
   */
   labelPosition?:
     | "auto"
+    | "along"
     | "inside"
     | "outside"
-    | ((d: DataPoint, i: number) => "auto" | "inside" | "outside");
+    | ((d: DataPoint, i: number) => "auto" | "along" | "inside" | "outside");
   /**
       Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
   */
@@ -1863,7 +1884,8 @@ export interface D3plusConfig {
       `source` and `target` set to the data of its nodes, and its index in
       `links`). It sits halfway along a link's length, centered on
       a Sankey band, and at the top of an ArcDiagram arc, on a pad of the
-      chart's background. Numbers are abbreviated in the chart's locale.
+      chart's background, and follows a curved link's curve (see
+      `linkLabelConfig`). Numbers are abbreviated in the chart's locale.
       Labels that would cover a node or another label are hidden, the
       widest links' labels kept first. Defaults to none.
   */
@@ -1875,6 +1897,13 @@ export interface D3plusConfig {
       `backgroundOpacity`, the opacity of that pad in the chart's background
       color (0.85); and any other TextBox setting, such as `fontColor`
       (defaults to the chart's text color), `fontFamily`, or `fontWeight`.
+      Along a curved link (a Rings spline or fanned parallel link, an
+      ArcDiagram arc, a self-loop, a bundled Network edge, a Geomap flow
+      arc, or a Sankey band or return lane), an `"along"` label follows the
+      curve, centered where a straight label would sit, over a pad that
+      curves with it, and is cut short with an ellipsis when the curve has
+      too little room (or left out when fewer than three letters fit). A
+      loop too tight for text to follow keeps a straight label.
   */
   linkLabelConfig?: LinkLabelConfig;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */

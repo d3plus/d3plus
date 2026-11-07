@@ -1,0 +1,236 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Link Labels Along Curves · Viz</title>
+    <meta
+      name="description"
+      content="linkLabel text that follows curved links: Rings splines and fanned parallel links, ArcDiagram arcs and loops, a bundled Network with self-loops, Sankey bands and return lanes, and Geomap flow arcs, with along/horizontal and light/dark toggles."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 24px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 20px;
+      }
+
+      body.dark {
+        background: #1f2328;
+        color: #e6e6e6;
+      }
+
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+
+      #controls {
+        display: flex;
+        font-size: 12px;
+        gap: 12px;
+        grid-column: 1 / -1;
+      }
+
+      #controls button[aria-pressed="true"] {
+        font-weight: 600;
+      }
+
+      .viz {
+        height: 520px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <span data-option="rotate">
+        rotate:
+        <button value="along" aria-pressed="true">along</button>
+        <button value="horizontal">horizontal</button>
+      </span>
+      <span data-option="theme">
+        theme:
+        <button value="light" aria-pressed="true">light</button>
+        <button value="dark">dark</button>
+      </span>
+    </div>
+    <div>
+      <h3>Rings: spline links, fanned parallel links, and a loop</h3>
+      <div class="viz" id="rings"></div>
+    </div>
+    <div>
+      <h3>ArcDiagram: arcs and a loop</h3>
+      <div class="viz" id="arc"></div>
+    </div>
+    <div>
+      <h3>Network: bundled links and self-loops</h3>
+      <div class="viz" id="network"></div>
+    </div>
+    <div>
+      <h3>Sankey: bands and a circular return lane</h3>
+      <div class="viz" id="sankey"></div>
+    </div>
+    <div>
+      <h3>Geomap: bowed flow arcs between points</h3>
+      <div class="viz" id="geomap"></div>
+    </div>
+  </body>
+
+  <script>
+    var nodes = [
+      {id: "Alpha", region: "North"},
+      {id: "Bravo", region: "North"},
+      {id: "Charlie", region: "South"},
+      {id: "Delta", region: "South"},
+      {id: "Echo", region: "East"},
+      {id: "Foxtrot", region: "East"},
+      {id: "Golf", region: "West"},
+    ];
+    var links = [
+      {source: "Alpha", target: "Bravo", kind: "road"},
+      {source: "Alpha", target: "Bravo", kind: "rail"},
+      {source: "Alpha", target: "Charlie", kind: "shipping"},
+      {source: "Bravo", target: "Delta", kind: "pipeline"},
+      {source: "Bravo", target: "Echo", kind: "air freight"},
+      {source: "Charlie", target: "Delta", kind: "rail"},
+      {source: "Delta", target: "Foxtrot", kind: "road"},
+      {source: "Echo", target: "Foxtrot", kind: "air"},
+      {source: "Charlie", target: "Golf", kind: "ferry"},
+      {source: "Bravo", target: "Bravo", kind: "local"},
+    ];
+
+    var kinds = ["trade", "aid", "loan", "rail", "ferry"];
+    var ringLinks = [
+      {source: "Hub", target: "North", kind: "trade"},
+      {source: "Hub", target: "North", kind: "aid"},
+      {source: "North", target: "East", kind: "shipping"},
+      {source: "Hub", target: "Hub", kind: "local"},
+    ];
+    ["North", "East", "South", "West", "Port"].forEach(function (p, i) {
+      if (p !== "North")
+        ringLinks.push({source: "Hub", target: p, kind: kinds[i]});
+      for (var c = 0; c < 3; c++)
+        ringLinks.push({
+          source: p,
+          target: p + " " + (c + 1),
+          kind: kinds[(i + c + 1) % kinds.length],
+        });
+    });
+
+    var flows = [
+      {source: "Coal", target: "Power", value: 40},
+      {source: "Gas", target: "Power", value: 25},
+      {source: "Gas", target: "Heat", value: 15},
+      {source: "Power", target: "Homes", value: 45},
+      {source: "Power", target: "Industry", value: 20},
+      {source: "Heat", target: "Homes", value: 15},
+      {source: "Industry", target: "Gas", value: 10},
+    ];
+
+    var points = [];
+    var networkLinks = [];
+    var groups = 3;
+    for (var g = 0; g < groups; g++)
+      for (var k = 0; k < 5; k++) {
+        var angle = (g / groups) * Math.PI * 2 + (k - 2) * 0.18;
+        var radius = 3 + (k % 2) * 0.6;
+        points.push({
+          id: "n" + g + k,
+          group: "Group " + (g + 1),
+          x: Math.cos(angle) * radius,
+          y: Math.sin(angle) * radius,
+        });
+      }
+    for (var a = 0; a < groups; a++)
+      for (var b = a + 1; b < groups; b++)
+        for (var j = 0; j < 5; j++)
+          networkLinks.push({
+            source: "n" + a + j,
+            target: "n" + b + ((j + 2) % 5),
+            weight: 1 + ((a + b + j) % 4),
+          });
+    networkLinks.push({source: "n00", target: "n00", weight: 3});
+    networkLinks.push({source: "n12", target: "n12", weight: 2});
+
+    var cities = [
+      {id: "NYC", name: "New York", point: [-74.0, 40.71]},
+      {id: "LON", name: "London", point: [-0.13, 51.51]},
+      {id: "DXB", name: "Dubai", point: [55.27, 25.2]},
+      {id: "TYO", name: "Tokyo", point: [139.69, 35.69]},
+      {id: "SYD", name: "Sydney", point: [151.21, -33.87]},
+      {id: "JNB", name: "Johannesburg", point: [28.05, -26.2]},
+    ];
+    var routes = [
+      {source: "NYC", target: "LON", passengers: 3200},
+      {source: "LON", target: "DXB", passengers: 1800},
+      {source: "DXB", target: "SYD", passengers: 900},
+      {source: "DXB", target: "JNB", passengers: 700},
+      {source: "TYO", target: "SYD", passengers: 1400},
+    ];
+
+    var charts = [
+      new d3plus.Rings().select("#rings").config({
+        links: ringLinks,
+        center: "Hub",
+        linkLabel: "kind",
+      }),
+      new d3plus.ArcDiagram().select("#arc").config({
+        data: nodes,
+        nodes: nodes,
+        links: links,
+        color: "region",
+        linkLabel: "kind",
+      }),
+      new d3plus.Network().select("#network").config({
+        data: points,
+        nodes: points,
+        links: networkLinks,
+        color: "group",
+        linkBundle: true,
+        linkSize: d => d.weight,
+        linkLabel: "weight",
+      }),
+      new d3plus.Sankey().select("#sankey").config({
+        links: flows,
+        linkLabel: "value",
+      }),
+      new d3plus.Geomap().select("#geomap").config({
+        data: cities,
+        label: d => d.name,
+        point: d => d.point,
+        links: routes,
+        linkSize: d => d.passengers,
+        linkCurve: 0.3,
+        linkLabel: "passengers",
+        tiles: false,
+      }),
+    ];
+    charts.forEach(function (chart) {
+      chart.render();
+    });
+
+    document.querySelectorAll("[data-option]").forEach(function (group) {
+      var key = group.dataset.option;
+      group.querySelectorAll("button").forEach(function (button) {
+        button.addEventListener("click", function () {
+          group.querySelectorAll("button").forEach(function (b) {
+            b.setAttribute("aria-pressed", String(b === button));
+          });
+          if (key === "theme")
+            document.body.classList.toggle("dark", button.value === "dark");
+          charts.forEach(function (chart) {
+            if (key === "rotate") chart.linkLabelConfig({rotate: button.value});
+            else chart.theme(button.value);
+            chart.render();
+          });
+        });
+      });
+    });
+  </script>
+</html>

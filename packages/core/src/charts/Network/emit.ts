@@ -47,9 +47,10 @@ import {segmentMidpoint} from "../features/linkLabelGeometry.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
+import {curvePoints} from "../features/linkLabelPath.js";
 import {networkClusterLabels} from "./clusterLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
-import {bundledLinkAnchor, bundledLinkEdge} from "./bundle.js";
+import {bundledLinkAnchor, bundledLinkEdge, bundledLinkPath} from "./bundle.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 interface NetworkLink {
@@ -237,6 +238,11 @@ function networkLinkLabels(
                     (link.target as NetworkNode).r ?? 0,
                   )
                 : null,
+          path: link.loop
+            ? curvePoints(link.loop.d)
+            : link.points
+              ? bundledLinkPath({...link, points: link.points})
+              : null,
           priority: link.size,
         },
       ];
