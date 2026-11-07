@@ -476,6 +476,8 @@ export interface VizInstance {
   _stackOffset?: (series: number[][][], order: number[]) => void;
   /** d3-stack order: an accessor, or an explicit array of series keys. */
   _stackOrder?: ((series: number[][][]) => number[]) | unknown[];
+  /** The series of the last stacked draw in reading order, which the default legend follows (see `Plot/stackLegendOrder.ts`). */
+  _stackLegendOrder?: string[];
   /** The `confidence` bounds as `[lower, upper]` accessors (either may be `false`), or `false` when off. */
   _confidence?:
     [ConfidenceAccessor | false, ConfidenceAccessor | false] | false;

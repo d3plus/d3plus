@@ -28,6 +28,7 @@ import {
   stackOffsetDiverging,
   stackOrderTotalDescending,
 } from "./stackHelpers.js";
+import {stackLegendSort} from "./stackLegendOrder.js";
 import {chartGridline} from "../viz/backgroundInk.js";
 import {themed} from "../../utils/theme.js";
 
@@ -132,6 +133,10 @@ export function initPlotDefaults(viz: Plot): void {
   viz.schema.sizeScale = "sqrt";
   viz._stackOffset = stackOffsetDiverging;
   viz._stackOrder = stackOrderTotalDescending;
+  viz.schema.legendSort = stackLegendSort(
+    viz as unknown as VizInstance,
+    viz.schema.legendSort,
+  );
   // Off until set: a stacked Plot's threshold folds whole series.
   viz.schema.threshold = constant(0);
   viz._thresholdMemberFormat = (v: number) =>

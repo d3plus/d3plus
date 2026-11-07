@@ -23,6 +23,11 @@ import {
   formatPlotData,
   plotSizeScale,
 } from "./pipeline.js";
+import {
+  poolStackPositions,
+  recordStackLegendOrder,
+} from "./stackLegendOrder.js";
+import type {StackPositions} from "./stackLegendOrder.js";
 import {computePlotTrendFits} from "./trendLines.js";
 
 /** Whether an axis's domain is a list of values (a category axis) rather than an extent. */
@@ -60,7 +65,21 @@ function panelDomains(viz: VizInstance, rows: DataPoint[]) {
   return {
     formatted: (ctx.plotFormattedData || []) as Record<string, unknown>[],
     domains: (ctx.plotInitialDomains || {}) as Record<string, DomainValue[]>,
+    positions: ctx.plotStackPositions,
   };
+}
+
+/**
+    Orders a stacked chart's legend by every panel's stacks, pooled (see
+    `stackLegendOrder.ts`), before the chrome lays the legend out.
+*/
+export function plotFacetChrome(viz: VizInstance, panels: DataPoint[][]): void {
+  if (!viz.schema.stacked) return recordStackLegendOrder(viz, undefined);
+  const positions = panels
+    .filter(rows => rows.length)
+    .map(rows => panelDomains(viz, rows).positions)
+    .filter((p): p is StackPositions => p !== undefined);
+  recordStackLegendOrder(viz, poolStackPositions(positions));
 }
 
 /**
@@ -197,6 +216,7 @@ export function plotFacetInsets(viz: VizInstance): FacetSides {
 /** Plot's small-multiple hooks. */
 export const plotFacetHooks: FacetHooks = {
   aspect: 4 / 3,
+  chrome: plotFacetChrome,
   share: sharePlotScales,
   panel: plotFacetPanel,
   insets: plotFacetInsets,

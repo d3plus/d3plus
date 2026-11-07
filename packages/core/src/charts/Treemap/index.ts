@@ -28,7 +28,11 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
-import {rowLegend, shareRow} from "../features/sharedFields.js";
+import {
+  legendLargestFirst,
+  rowLegend,
+  shareRow,
+} from "../features/sharedFields.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -160,10 +164,7 @@ export const treemapDef: ChartDefinition = {
     },
     {
       key: "legendSort",
-      factory: (viz: VizInstance) => {
-        const sumFn = viz.schema.sum as (d: DataPoint) => number;
-        return (a: DataPoint, b: DataPoint) => sumFn(b) - sumFn(a);
-      },
+      factory: (viz: VizInstance) => legendLargestFirst(viz, "sum"),
     },
     {key: "legend", coerce: "const", factory: rowLegend},
   ],

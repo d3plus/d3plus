@@ -1177,7 +1177,11 @@ export {
   polarValueRow,
   polarWedgeNodes,
 } from "./src/charts/polar/config.js";
-export {rowLegend, shareRow} from "./src/charts/features/sharedFields.js";
+export {
+  legendLargestFirst,
+  rowLegend,
+  shareRow,
+} from "./src/charts/features/sharedFields.js";
 export {
   polarSlotArc,
   polarSlotTops,
@@ -2057,12 +2061,23 @@ export {
 export {
   listAxis,
   panelAxisConfig,
+  plotFacetChrome,
   plotFacetHooks,
   plotFacetInsets,
   plotFacetPanel,
   sharePlotScales,
   unionExtent,
 } from "./src/charts/Plot/plotFacet.js";
+export {
+  mergeStackOrder,
+  plotSeriesIds,
+  poolStackPositions,
+  recordStackLegendOrder,
+  stackLegendSort,
+  stackPositions,
+  stackReadingOrder,
+} from "./src/charts/Plot/stackLegendOrder.js";
+export type {StackPositions} from "./src/charts/Plot/stackLegendOrder.js";
 export {applyPaddedDomains} from "./src/charts/Plot/facetScales.js";
 export type {PlotFacetScales} from "./src/charts/Plot/facetScales.js";
 export {

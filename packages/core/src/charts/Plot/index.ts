@@ -653,8 +653,10 @@ Stacked charts always fit one line to the stack totals.
       - a value accessor, or a `{value, order}` config, to rank series by an
         aggregate of any data field.
 
-      Unknown named strings warn and fall back to `"descending"`. If *value*
-      is not specified, returns the current stack order.
+      Unknown named strings warn and fall back to `"descending"`. The
+      default legend lists the series in the order they stack, the top of
+      the stack first. If *value* is not specified, returns the current
+      stack order.
 */
   stackOrder(_?: StackOrderInput): this | StackOrderFn | string[] {
     return arguments.length

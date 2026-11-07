@@ -30,6 +30,7 @@ import {stampShare} from "../features/shareKey.js";
 import {stackedConfidenceValues} from "./barConfidence.js";
 import {isSpanAxis, spanDomain} from "./discreteSpan.js";
 import {orderLast} from "./stackHelpers.js";
+import {plotSeriesIds, stackPositions} from "./stackLegendOrder.js";
 import {trendDomainValues} from "./trendLines.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -291,7 +292,35 @@ function computeStackedDomains(
     plotDiscreteKeys: discreteKeys,
     plotStackData: stackData,
     plotStackKeys: stackKeys,
+    plotStackPositions: drawnStackPositions(
+      viz,
+      axisData,
+      stackData,
+      stackKeys,
+    ),
   };
+}
+
+/** Where each series sits in the drawn stacks (see `stackLegendOrder.ts`). */
+function drawnStackPositions(
+  viz: VizInstance,
+  axisData: Row[],
+  stackData: number[][][],
+  stackKeys: unknown[],
+) {
+  const series = new Map<string, string>();
+  for (const row of axisData) {
+    const key = `${row.id}`;
+    if (series.has(key) || !row.data) continue;
+    const ids = plotSeriesIds(viz, row.data as DataPoint, row.i as number);
+    if (ids.length) series.set(key, ids[0]);
+  }
+  return stackPositions(
+    stackData,
+    stackKeys,
+    key => series.get(key),
+    viz.schema.discrete === "y",
+  );
 }
 
 /** Non-stacked branch: data-values-or-extent domains per axis. */
