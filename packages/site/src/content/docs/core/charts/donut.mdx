@@ -12,6 +12,7 @@ import drillDown from "~/examples/core/charts/donut/drill-down.js?raw";
 import halfDonut from "~/examples/core/charts/donut/half-donut.js?raw";
 import threeQuarterDonut from "~/examples/core/charts/donut/three-quarter-donut.js?raw";
 import curvedLabels from "~/examples/core/charts/donut/curved-labels.js?raw";
+import outsideLabels from "~/examples/core/charts/donut/outside-labels.js?raw";
 
 Extends the Pie visualization to create a donut chart.
 
@@ -53,8 +54,14 @@ From -135 to 135 degrees the ring sweeps 270°, leaving a gap at the bottom like
 
 ## Curved labels
 
-A Donut's slice names follow the middle of its ring, reading left to right on the bottom half as on the top, with the share on a smaller line beneath when the ring has room. `labelPosition: "along"` curves every name that fits; the default, `"auto"`, keeps a straight label where it reads as large, and `"inside"` keeps them all straight. A name too long for its arc is cut short with an ellipsis only when nothing else fits.
+A Donut's slice names follow the middle of its ring, reading left to right on the bottom half as on the top, with the share on a smaller line beneath when the ring has room. `labelPosition: "along"` curves every name that fits; the default, `"auto"`, keeps a straight label where it reads as large, and `"inside"` keeps them all straight. A name too long for both goes [outside the ring](#labels-outside-the-ring) under `"auto"`; with `"along"`, it is cut short with an ellipsis.
 
 <Playground chart="Donut" code={curvedLabels} controls={["labelPosition","innerRadius"]} />
+
+## Labels outside the ring
+
+A slice whose name fits neither straight nor along its arc is labelled outside the ring, with its share, and joined to it by a leader line; the ring and its hole shrink together to leave room. `labelPosition: "outside"` moves every label out, `"inside"` keeps them all straight inside, and `"along"` curves every name that fits, cutting a long one short.
+
+<Playground chart="Donut" code={outsideLabels} controls={["labelPosition","innerRadius"]} />
 
 <ApiReference name="Donut" pkg="core" />

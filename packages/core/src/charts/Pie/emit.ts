@@ -2,18 +2,12 @@
     `pieEmit` — Path SceneNodes (one per slice) + label TextNodes.
 */
 
-import type {Arc, PieArcDatum} from "d3-shape";
-import {colorContrast} from "@d3plus/color";
-import {formatAbbreviate} from "@d3plus/format";
-import {largestRect, path2polygon} from "@d3plus/math";
+import type {Arc} from "d3-shape";
 import type {DataPoint} from "@d3plus/data";
 import {FULL_TURN} from "@d3plus/render";
 import type {ArcGeometry, SceneNode, TextNode} from "@d3plus/render";
 
-import constant from "../../utils/constant.js";
-import {emitLabels} from "../../shapes/emitLabels.js";
 import {
-  userLabelConfig,
   textureFill,
   shapeConfigFor,
   resolveAccessor,
@@ -22,16 +16,14 @@ import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 import {sweepFraction} from "./arcFit.js";
-import {pieSliceLabels} from "./curvedLabels.js";
 import type {PieSweep} from "./arcFit.js";
+import {pieOutsideLabels} from "./outsideNodes.js";
+import {pieLabelPlan, pieSharePct} from "./pieLabels.js";
+import type {PieSlice} from "./pieLabels.js";
 
 const isDefaultSweep = (s: PieSweep) => s.start === 0 && s.end === FULL_TURN;
 
-type Slice = PieArcDatum<DataPoint> & {
-  __d3plus__?: true;
-  i?: number;
-  share?: number;
-};
+type Slice = PieSlice;
 
 /** Shared, per-draw context `buildPathNode` needs for every slice — bundled to keep its own parameter list short. */
 interface PathNodeCtx {
@@ -189,77 +181,6 @@ function stampLabelFlip(
   }
 }
 
-/**
-    Each slice's straight label, in its largest inscribed rectangle: the name
-    above and the share percentage below, meeting at the rectangle's center.
-    Short rectangles skip the share line so it can't crowd out the name.
-    With a single angle the search is cheap, so more origins are sampled
-    than the default for a tighter box.
-*/
-function straightLabels(
-  slices: Slice[],
-  labelConfig: Record<string, unknown>,
-  ctx: PathNodeCtx,
-): SceneNode[] {
-  const {viz, arcMaker, sc, sharePct} = ctx;
-  const labelBoxes = slices.map(d => {
-    const r = largestRect(path2polygon(arcMaker(d)), {angle: 0, nTries: 40});
-    if (!r) return false;
-    const x = r.cx - r.width / 2;
-    const y = r.cy - r.height / 2;
-    if (r.height < 50)
-      return [{angle: r.angle, width: r.width, height: r.height, x, y}];
-    const padding = 5;
-    const band = Math.min(32, (r.height - padding * 2) * 0.3) + padding * 2;
-    return [
-      {angle: r.angle, width: r.width, height: r.height - band, x, y},
-      {angle: r.angle, width: r.width, height: band, x, y: y + r.height - band},
-    ];
-  });
-
-  return emitLabels({
-    data: slices as unknown as DataPoint[],
-    label: (_d, i) => {
-      const name = viz._drawLabel(
-        slices[i].data as DataPoint,
-        slices[i].i ?? i,
-      );
-      const box = labelBoxes[i];
-      return box && box.length > 1 ? [name, sharePct(slices[i])] : [name];
-    },
-    // The largest inscribed rectangle is in chart-centered path coordinates,
-    // so the anchor is the origin and labelBounds carries the absolute box.
-    x: () => 0,
-    y: () => 0,
-    aes: () => ({}),
-    rotate: constant(0),
-    id: (_d, i) => `pie-label-${i}`,
-    labelBounds: (_d, i) => labelBoxes[i],
-    labelConfig: {
-      fontColor: (d: {data?: Slice}) => {
-        const slice = (d.data ?? d) as Slice;
-        const fill = resolveAccessor<string>(
-          sc.fill,
-          slice.data as DataPoint,
-          slice.i ?? 0,
-        );
-        return colorContrast(
-          typeof fill === "string" ? fill : "rgb(255, 255, 255)",
-          viz.schema.colorDefaults,
-        );
-      },
-      fontResize: true,
-      textAnchor: "middle",
-      verticalAlign: (d: {data?: Slice; l?: number}) => {
-        if (d && d.l === 1) return "top";
-        const box = d && d.data ? labelBoxes[slices.indexOf(d.data)] : false;
-        return box && box.length > 1 ? "bottom" : "middle";
-      },
-      ...labelConfig,
-    },
-  });
-}
-
 export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const slices = (shapeData ?? []) as Slice[];
   if (!slices.length) return [];
@@ -297,9 +218,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   };
 
   const value = viz.schema.value as (d: DataPoint, i: number) => number;
-  const locale = viz.schema.locale;
-  const sharePct = (d: Slice) =>
-    `${formatAbbreviate((d.share ?? 0) * 100, locale)}%`;
+  const sharePct = pieSharePct(viz);
   const pathCtx: PathNodeCtx = {
     viz,
     arcMaker,
@@ -316,34 +235,29 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     buildPathNode(d, rank, pathCtx),
   );
 
-  const labelConfig = userLabelConfig(viz, "Path");
-  const straightNodes = straightLabels(slices, labelConfig, pathCtx);
-
-  // Each slice keeps its straight label or takes a curved one along its arc.
-  const labels = pieSliceLabels({
-    viz,
-    slices,
-    arcOf: d => ({
-      innerRadius: resolveInnerRadius(d, d.i ?? 0),
-      outerRadius: resolveOuterRadius(d, d.i ?? 0),
-      startAngle: d.startAngle,
-      endAngle: d.endAngle,
-      padAngle: d.padAngle,
-    }),
-    nameOf: d => viz._drawLabel(d.data as DataPoint, d.i ?? 0),
-    shareOf: sharePct,
-    fillOf: d =>
-      resolveAccessor<unknown>(sc.fill, d.data as DataPoint, d.i ?? 0),
-    straight: straightNodes,
-    labelConfig,
+  // Each slice keeps its label inside the ring (straight, or curved along
+  // its arc), or takes one outside it when that leaves its name whole.
+  const plan = pieLabelPlan(viz, slices);
+  const outside = pieOutsideLabels(viz, slices);
+  const named = new Set(Array.from(outside.named, d => d.data));
+  const straight = plan.straight.filter(n => {
+    const slice = (n.datum as {data?: Slice} | undefined)?.data;
+    return !slice || !outside.named.has(slice);
   });
+  const curved = plan.curved.filter(n => !named.has(n.datum as DataPoint));
 
-  stampLabelFlip(labels.straight, flipSource, sweep);
+  stampLabelFlip(straight, flipSource, sweep);
 
   const imageNodes = backgroundImageNodes(sc, pathNodes, k => [
     slices[k].data as DataPoint,
     slices[k].i ?? 0,
   ]);
 
-  return [...pathNodes, ...imageNodes, ...labels.straight, ...labels.curved];
+  return [
+    ...pathNodes,
+    ...imageNodes,
+    ...straight,
+    ...curved,
+    ...outside.nodes,
+  ];
 };

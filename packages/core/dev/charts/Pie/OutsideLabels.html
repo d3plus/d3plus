@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>OutsideLabels · Pie</title>
+    <meta
+      name="description"
+      content="Small slices labelled outside the ring with leader lines: Pie, Donut and half pie with a long tail, labelPosition outside, and a drillable Pie."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 20px;
+        font: 13px sans-serif;
+      }
+
+      .viz {
+        height: 420px;
+      }
+
+      #controls {
+        grid-column: 1 / -1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      labelPosition:
+      <select id="position">
+        <option>auto</option>
+        <option>outside</option>
+        <option>inside</option>
+        <option>along</option>
+      </select>
+      <button id="shuffle">Change values</button>
+    </div>
+    <div class="viz" id="pie"></div>
+    <div class="viz" id="donut"></div>
+    <div class="viz" id="half"></div>
+    <div class="viz" id="drill"></div>
+  </body>
+
+  <script>
+    var spending = [
+      {category: "Housing", value: 33.3},
+      {category: "Transportation", value: 17},
+      {category: "Food", value: 12.9},
+      {category: "Personal insurance and pensions", value: 12},
+      {category: "Healthcare", value: 8},
+      {category: "Entertainment", value: 4.7},
+      {category: "Cash contributions", value: 3.4},
+      {category: "Apparel and services", value: 2.6},
+      {category: "Education", value: 2.2},
+      {category: "Miscellaneous", value: 1.4},
+      {category: "Personal care", value: 1.2},
+      {category: "Alcoholic beverages", value: 0.8},
+      {category: "Tobacco", value: 0.4},
+      {category: "Reading", value: 0.1},
+    ];
+
+    var seats = [
+      {party: "Social Democrats", seats: 120},
+      {party: "Conservatives", seats: 105},
+      {party: "Greens", seats: 48},
+      {party: "Liberals", seats: 39},
+      {party: "Left Alliance", seats: 28},
+      {party: "Regional Party", seats: 9},
+      {party: "Independents", seats: 4},
+      {party: "Pirates", seats: 3},
+      {party: "Animal Welfare", seats: 2},
+    ];
+
+    var trade = [
+      {region: "Asia", country: "China", value: 340},
+      {region: "Asia", country: "Japan", value: 72},
+      {region: "Asia", country: "Vietnam", value: 18},
+      {region: "Asia", country: "Laos", value: 2},
+      {region: "Asia", country: "Mongolia", value: 1},
+      {region: "Europe", country: "Germany", value: 160},
+      {region: "Europe", country: "France", value: 48},
+      {region: "Europe", country: "Iceland", value: 2},
+      {region: "Europe", country: "Malta", value: 1},
+      {region: "Americas", country: "Mexico", value: 120},
+      {region: "Americas", country: "Canada", value: 110},
+      {region: "Americas", country: "Uruguay", value: 3},
+      {region: "Oceania", country: "Australia", value: 12},
+      {region: "Oceania", country: "Fiji", value: 0.5},
+    ];
+
+    var charts = [
+      new d3plus.Pie().select("#pie").config({
+        data: spending,
+        groupBy: "category",
+        value: "value",
+        title: "Pie: the long tail is labelled outside",
+      }),
+      new d3plus.Donut().select("#donut").config({
+        data: spending,
+        groupBy: "category",
+        value: "value",
+        title: "Donut",
+      }),
+      new d3plus.Pie().select("#half").config({
+        data: seats,
+        groupBy: "party",
+        value: "seats",
+        startAngle: -90,
+        endAngle: 90,
+        title: "Half pie (startAngle -90, endAngle 90)",
+      }),
+      new d3plus.Pie().select("#drill").config({
+        data: trade,
+        groupBy: ["region", "country"],
+        depth: 0,
+        value: "value",
+        title: "Click a slice to drill in",
+      }),
+    ];
+    charts.forEach(function (chart) {
+      chart.render();
+    });
+
+    document.getElementById("position").onchange = function (e) {
+      var position = e.target.value;
+      charts.forEach(function (chart) {
+        chart.labelPosition(position).render();
+      });
+    };
+
+    document.getElementById("shuffle").onclick = function () {
+      var data = spending.map(function (d) {
+        return {category: d.category, value: d.value * (0.5 + Math.random())};
+      });
+      charts[0].data(data).render();
+      charts[1].data(data).render();
+    };
+  </script>
+</html>
