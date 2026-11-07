@@ -61,9 +61,11 @@ export function offsetPolyline(points: Pt[], distance: number): Pt[] {
     const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
     return [(b[1] - a[1]) / len, -(b[0] - a[0]) / len];
   };
+  // Each segment's normal, shared by the vertices at its ends.
+  const normals = points.slice(1).map((p, i) => normal(points[i], p));
   return points.map((p, i) => {
-    const before = i > 0 ? normal(points[i - 1], p) : null;
-    const after = i < points.length - 1 ? normal(p, points[i + 1]) : null;
+    const before = i > 0 ? normals[i - 1] : null;
+    const after = i < points.length - 1 ? normals[i] : null;
     const n =
       before && after
         ? [before[0] + after[0], before[1] + after[1]]
@@ -103,6 +105,107 @@ export function trimPolyline(points: Pt[], from: number, to: number): Pt[] {
     walked = next;
   }
   return out;
+}
+
+/**
+    A polyline with the distance along it to each of its points, for taking
+    many stretches or samples of it in one pass: `trim` and `at` give what
+    `trimPolyline` does, but start from the first segment the stretch
+    reaches instead of the polyline's first point. Walking forward is
+    cheapest; a shorter distance than the last searches back.
+*/
+export class PolylineRuler {
+  /** The polyline's length. */
+  readonly length: number;
+  /** The distance along the polyline to each point. */
+  private cum: number[];
+  /** The segment (its end point's index) the last lookup stopped at. */
+  private i = 1;
+
+  /** @param points The polyline. */
+  constructor(private points: Pt[]) {
+    const cum = [0];
+    let walked = 0;
+    for (let i = 1; i < points.length; i++) {
+      walked += Math.hypot(
+        points[i][0] - points[i - 1][0],
+        points[i][1] - points[i - 1][1],
+      );
+      cum.push(walked);
+    }
+    this.cum = cum;
+    this.length = walked;
+  }
+
+  /** The first segment ending `distance` or more along the polyline (`points.length` when none does). */
+  private seek(distance: number): number {
+    const {cum} = this;
+    const n = this.points.length;
+    let i = this.i;
+    if (i > 1 && cum[i - 1] >= distance) {
+      let lo = 1,
+        hi = i - 1;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (cum[mid] >= distance) hi = mid;
+        else lo = mid + 1;
+      }
+      i = lo;
+    }
+    while (i < n && cum[i] < distance) i++;
+    this.i = i;
+    return i;
+  }
+
+  /**
+      The stretch from `from` to `to` pixels along the polyline, the same
+      points `trimPolyline` gives.
+      @param from The distance along it where the stretch starts.
+      @param to The distance along it where the stretch ends.
+  */
+  trim(from: number, to: number): Pt[] {
+    const {points, cum} = this;
+    const out: Pt[] = [];
+    // Every segment before the first one reaching `from` adds nothing.
+    for (let i = this.seek(from); i < points.length; i++) {
+      const [ax, ay] = points[i - 1];
+      const [bx, by] = points[i];
+      const len = Math.hypot(bx - ax, by - ay);
+      const walked = cum[i - 1];
+      const next = cum[i];
+      const at = (s: number): Pt => {
+        const t = len ? (s - walked) / len : 0;
+        return [ax + (bx - ax) * t, ay + (by - ay) * t];
+      };
+      if (next >= from && walked <= to) {
+        if (!out.length) out.push(at(Math.max(from, walked)));
+        if (next <= to) out.push([bx, by]);
+        else {
+          out.push(at(to));
+          break;
+        }
+      }
+    }
+    return out;
+  }
+
+  /**
+      The point `distance` pixels along the polyline, as `trimPolyline`'s
+      first point for a stretch from there to there, or undefined past its
+      end.
+      @param distance The distance along it.
+  */
+  at(distance: number): Pt | undefined {
+    const i = this.seek(distance);
+    if (i >= this.points.length || !(this.cum[i - 1] <= distance))
+      return undefined;
+    const [ax, ay] = this.points[i - 1];
+    const [bx, by] = this.points[i];
+    const len = Math.hypot(bx - ax, by - ay);
+    const walked = this.cum[i - 1];
+    const t = len ? (Math.max(distance, walked) - walked) / len : 0;
+    return [ax + (bx - ax) * t, ay + (by - ay) * t];
+  }
 }
 
 /**

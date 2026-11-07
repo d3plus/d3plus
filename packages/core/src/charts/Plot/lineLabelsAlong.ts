@@ -14,8 +14,7 @@ import {shapeConfigFor} from "../features/emitHelpers.js";
 import {
   offsetPolyline,
   polylineD,
-  polylineLength,
-  trimPolyline,
+  PolylineRuler,
   uprightPoints,
 } from "../features/pathLabelGeometry.js";
 import type {Edges, Pt} from "../features/pathLabelGeometry.js";
@@ -87,10 +86,10 @@ export class PointGrid {
     @param step The spacing.
 */
 export function resample(points: Pt[], step: number): Pt[] {
-  const length = polylineLength(points);
+  const ruler = new PolylineRuler(points);
   const out: Pt[] = [];
-  for (let s = 0; s <= length; s += step) {
-    const [p] = trimPolyline(points, s, s);
+  for (let s = 0; s <= ruler.length; s += step) {
+    const p = ruler.at(s);
     if (p) out.push(p);
   }
   return out;
@@ -146,10 +145,16 @@ export interface StretchContext {
     @param ctx The font size and lift.
 */
 export function labelBand(points: Pt[], ctx: StretchContext): Pt[] {
+  return BAND_ROWS.flatMap(f => bandRow(points, ctx, f));
+}
+
+/** The rows of a label's band, as fractions of its font size above its baseline. */
+const BAND_ROWS = [0, 0.35, 0.7];
+
+/** One row of a label's band (see `labelBand`). */
+function bandRow(points: Pt[], ctx: StretchContext, f: number): Pt[] {
   const step = Math.max(2, ctx.fontSize / 2);
-  return [0, 0.35, 0.7].flatMap(f =>
-    resample(offsetPolyline(points, ctx.lift + f * ctx.fontSize), step),
-  );
+  return resample(offsetPolyline(points, ctx.lift + f * ctx.fontSize), step);
 }
 
 /**
@@ -162,15 +167,16 @@ export function labelBand(points: Pt[], ctx: StretchContext): Pt[] {
     @param ctx The obstacles, plot area, and font.
 */
 export function scoreStretch(points: Pt[], ctx: StretchContext): number | null {
-  const band = labelBand(points, ctx);
   const {rect, minClearance = 2} = ctx;
   let clearance = Infinity;
-  for (const p of band) {
-    if (p[0] < rect.x0 || p[0] > rect.x1 || p[1] < rect.y0 || p[1] > rect.y1)
-      return null;
-    clearance = Math.min(clearance, ctx.grid.nearest(p, ctx.ignore));
-    if (clearance < minClearance) return null;
-  }
+  // Row by row, so a blocked stretch stops at its first blocked row.
+  for (const f of BAND_ROWS)
+    for (const p of bandRow(points, ctx, f)) {
+      if (p[0] < rect.x0 || p[0] > rect.x1 || p[1] < rect.y0 || p[1] > rect.y1)
+        return null;
+      clearance = Math.min(clearance, ctx.grid.nearest(p, ctx.ignore));
+      if (clearance < minClearance) return null;
+    }
   const [x0, y0] = points[0];
   const [x1, y1] = points[points.length - 1];
   const slope = Math.abs(Math.atan2(y1 - y0, x1 - x0));
@@ -206,14 +212,10 @@ export function bestStretchAt(
   const step = Math.max(4, ctx.fontSize / 2);
   const maxTurn = ctx.maxTurn ?? Math.PI / 2;
   for (let index = 0; index < pieces.length; index++) {
-    const piece = pieces[index];
-    const total = polylineLength(piece);
-    for (let from = 0; from + length <= total; from += step) {
+    const ruler = new PolylineRuler(pieces[index]);
+    for (let from = 0; from + length <= ruler.length; from += step) {
       if (allow && !allow(from, index)) continue;
-      const stretch = uprightPoints(
-        trimPolyline(piece, from, from + length),
-        ctx.steep,
-      );
+      const stretch = uprightPoints(ruler.trim(from, from + length), ctx.steep);
       // A label can't follow a line that doubles back under it.
       if (curvature(stretch) > maxTurn) continue;
       const score = scoreStretch(stretch, ctx);
