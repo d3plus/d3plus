@@ -1,6 +1,10 @@
 import {it} from "vitest";
 import assert from "assert";
-import {rowLegend, shareRow} from "../../src/charts/features/sharedFields.ts";
+import {
+  legendLargestFirst,
+  rowLegend,
+  shareRow,
+} from "../../src/charts/features/sharedFields.ts";
 
 function mockViz(extra = {}) {
   return {
@@ -45,4 +49,32 @@ it("rowLegend hides while every drawn row is its own entry", () => {
 it("rowLegend keeps the legend when the chart's labels don't name every row", () => {
   const legend = rowLegend(mockViz(), () => false);
   assert.strictEqual(legend({}, [{}, {}]), "legend:2");
+});
+
+it("legendLargestFirst sorts by the chart's size accessor, read when sorting", () => {
+  const viz = mockViz();
+  const rows = [
+    {size: 2, amount: 9},
+    {size: 7, amount: 1},
+    {size: 4, amount: 5},
+  ];
+  const sorted = key => rows.slice().sort(legendLargestFirst(viz, key));
+  assert.deepStrictEqual(
+    sorted("sum").map(d => d.size),
+    [7, 4, 2],
+  );
+  assert.deepStrictEqual(
+    sorted("value").map(d => d.amount),
+    [9, 5, 1],
+  );
+  const bySum = legendLargestFirst(viz, "sum");
+  viz.schema.sum = d => -d.size;
+  assert.deepStrictEqual(
+    rows
+      .slice()
+      .sort(bySum)
+      .map(d => d.size),
+    [2, 4, 7],
+    "a later sum applies",
+  );
 });

@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LegendOrder · Viz</title>
+    <meta
+      name="description"
+      content="Legends that read in the order the chart draws: Pack largest first, stacked charts in stacking order, a threshold bucket last, others alphabetical."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+
+      section {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      h3 {
+        margin: 12px 0 0 12px;
+        width: 100%;
+      }
+
+      .viz {
+        width: 460px;
+        height: 320px;
+        margin: 0 24px 24px 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <section>
+      <h3>Largest first</h3>
+      <div class="viz" id="pack"></div>
+      <div class="viz" id="treemap"></div>
+    </section>
+    <section>
+      <h3>Stacking order, from the baseline outward</h3>
+      <div class="viz" id="area"></div>
+      <div class="viz" id="bar"></div>
+      <div class="viz" id="ascending"></div>
+      <div class="viz" id="stream"></div>
+    </section>
+    <section>
+      <h3>Horizontal stacks and small multiples</h3>
+      <div class="viz" id="horizontal"></div>
+      <div class="viz" id="facet"></div>
+    </section>
+    <section>
+      <h3>A threshold bucket comes last</h3>
+      <div class="viz" id="treemapThreshold"></div>
+      <div class="viz" id="areaThreshold"></div>
+    </section>
+    <section>
+      <h3>Alphabetical (unstacked) and a user legendSort</h3>
+      <div class="viz" id="grouped"></div>
+      <div class="viz" id="userSort"></div>
+    </section>
+  </body>
+
+  <script>
+    // Totals: Bravo > Charlie > Delta > Alpha. Delta grows fastest.
+    const base = {Alpha: 6, Bravo: 40, Charlie: 25, Delta: 4};
+    const rows = Object.keys(base).flatMap(id =>
+      [2019, 2020, 2021, 2022, 2023].map((year, j) => ({
+        id,
+        year,
+        value: base[id] + (id === "Delta" ? j * 8 : j),
+      })),
+    );
+    const foods = [
+      {group: "Fruit", id: "Apples", value: 12},
+      {group: "Fruit", id: "Bananas", value: 9},
+      {group: "Grains", id: "Rice", value: 40},
+      {group: "Grains", id: "Wheat", value: 30},
+      {group: "Vegetables", id: "Carrots", value: 18},
+      {group: "Vegetables", id: "Peas", value: 14},
+      {group: "Dairy", id: "Milk", value: 6},
+      {group: "Dairy", id: "Cheese", value: 4},
+    ];
+    const plot = {
+      data: rows,
+      groupBy: "id",
+      x: "year",
+      y: "value",
+      legend: true,
+      legendPosition: "right",
+    };
+
+    new d3plus.Pack()
+      .select("#pack")
+      .config({data: foods, groupBy: ["group", "id"], legendPosition: "right"})
+      .render();
+
+    new d3plus.Treemap()
+      .select("#treemap")
+      .config({data: foods, groupBy: ["group", "id"], legendPosition: "right"})
+      .render();
+
+    new d3plus.StackedArea().select("#area").config(plot).render();
+
+    new d3plus.BarChart()
+      .select("#bar")
+      .config({...plot, stacked: true})
+      .render();
+
+    new d3plus.StackedArea()
+      .select("#ascending")
+      .config({
+        ...plot,
+        stackOrder: "ascending",
+        title: "stackOrder: ascending",
+      })
+      .render();
+
+    new d3plus.Streamgraph().select("#stream").config(plot).render();
+
+    new d3plus.BarChart()
+      .select("#horizontal")
+      .config({
+        ...plot,
+        discrete: "y",
+        x: "value",
+        y: "year",
+        stacked: true,
+        legendPosition: "bottom",
+      })
+      .render();
+
+    // Small multiples: the legend averages both panels' stacks.
+    new d3plus.BarChart()
+      .select("#facet")
+      .config({
+        ...plot,
+        data: rows.flatMap(d => [
+          {...d, market: "East"},
+          {
+            ...d,
+            market: "West",
+            value: d.id === "Alpha" ? d.value * 6 : d.value,
+          },
+        ]),
+        facet: "market",
+        stacked: true,
+        legendPosition: "bottom",
+      })
+      .render();
+
+    new d3plus.BarChart().select("#grouped").config(plot).render();
+
+    new d3plus.StackedArea()
+      .select("#userSort")
+      .config({
+        ...plot,
+        title: "legendSort: Z to A",
+        legendSort: (a, b) => b.id.localeCompare(a.id),
+      })
+      .render();
+
+    // Many small rows that together outweigh every other entry.
+    const small = ["Kiwi", "Lime", "Mango", "Nectarine", "Olive", "Plum"];
+    new d3plus.Treemap()
+      .select("#treemapThreshold")
+      .config({
+        data: [
+          {id: "Rice", value: 30},
+          {id: "Wheat", value: 22},
+          ...small.map((id, i) => ({id, value: 5 + i * 0.5})),
+        ],
+        threshold: 0.1,
+        legend: true,
+        legendPosition: "right",
+      })
+      .render();
+
+    new d3plus.StackedArea()
+      .select("#areaThreshold")
+      .config({
+        ...plot,
+        data: [
+          ...rows,
+          ...small.flatMap(id =>
+            [2019, 2020, 2021, 2022, 2023].map(year => ({id, year, value: 3})),
+          ),
+        ],
+        threshold: 0.05,
+      })
+      .render();
+  </script>
+</html>

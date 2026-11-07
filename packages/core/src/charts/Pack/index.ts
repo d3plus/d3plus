@@ -16,7 +16,7 @@ import accessor from "../../utils/accessor.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
-import {rowLegend} from "../features/sharedFields.js";
+import {legendLargestFirst, rowLegend} from "../features/sharedFields.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -136,6 +136,10 @@ export const packDef: ChartDefinition = {
             (d as DataPoint & {__d3plusOpacity__?: number}).__d3plusOpacity__,
         },
       }),
+    },
+    {
+      key: "legendSort",
+      factory: (viz: VizInstance) => legendLargestFirst(viz, "sum"),
     },
     {key: "legend", coerce: "const", factory: rowLegend},
     {

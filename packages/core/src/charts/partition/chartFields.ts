@@ -8,6 +8,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
+import {legendLargestFirst} from "../features/sharedFields.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {thresholdFunction} from "../Treemap/thresholdFunction.js";
 
@@ -54,8 +55,7 @@ export function partitionSumOnSet(viz: VizInstance, v: unknown): void {
 
 /** Legend entries ordered by value, largest first. */
 export function partitionLegendSort(viz: VizInstance) {
-  const sumFn = viz.schema.sum as (d: DataPoint) => number;
-  return (a: DataPoint, b: DataPoint) => sumFn(b) - sumFn(a);
+  return legendLargestFirst(viz, "sum");
 }
 
 /**

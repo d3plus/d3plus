@@ -117,6 +117,8 @@ export interface FacetHooks {
       axis. Set to `"outer"`, these still label only the grid's outer edges.
   */
   fixedAxes?: (viz: VizInstance) => {x?: boolean; y?: boolean};
+  /** Runs before the chrome lays out, with each panel's rows (one array per panel), for chrome that reads what the panels draw (such as a stacked chart's legend order). */
+  chrome?: (viz: VizInstance, panels: DataPoint[][]) => void;
   /** Computes the scales every panel shares from each panel's rows (one array per panel). Runs before any panel draws, when scales are shared. */
   share?: (viz: VizInstance, panels: DataPoint[][]) => unknown;
   /** Applies a panel's overrides before it draws; returns a function undoing them. */

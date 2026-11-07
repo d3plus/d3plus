@@ -448,6 +448,16 @@ export function drawFacets(viz: VizInstance): boolean {
   viz._insetPending = null;
   viz._insetPlacement = null;
 
+  // Chrome that reads what the panels draw (a stacked legend's order) sees
+  // every panel's rows before it lays out.
+  const hooks = viz._facetHooks ? viz._facetHooks() : {};
+  if (hooks.chrome) {
+    hooks.chrome(
+      viz,
+      panels.map(p => p.data),
+    );
+    viz._filteredData = all;
+  }
   viz._facetStep = "chrome";
   try {
     viz._draw();
@@ -463,7 +473,6 @@ export function drawFacets(viz: VizInstance): boolean {
     height: viz.schema.height - margin.top - margin.bottom,
   };
 
-  const hooks = viz._facetHooks ? viz._facetHooks() : {};
   const shared = facetScalesShared(config, hooks);
   const {states, zoomShapes} = drawPanels(viz, {
     config,
