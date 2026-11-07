@@ -25,8 +25,12 @@ function plainDecimal(v: string): boolean {
   @private
 */
 export function coerceCell(v: string): string | number | boolean {
-  const n = +v;
-  if (n === n) return plainDecimal(v) ? n : parseFloat(v);
+  // Only "Infinity" reads as a number when it starts with a letter.
+  const letter = v.charCodeAt(0) | 32;
+  if (letter < 97 || letter > 122 || letter === 105) {
+    const n = +v;
+    if (n === n) return plainDecimal(v) ? n : parseFloat(v);
+  }
   // toLowerCase never maps a longer or shorter string onto "true" or "false".
   if (v.length === 4) return v.toLowerCase() === "true" ? true : v;
   if (v.length === 5) return v.toLowerCase() === "false" ? false : v;
