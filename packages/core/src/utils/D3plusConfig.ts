@@ -1645,7 +1645,9 @@ export interface D3plusConfig {
         (8px). A Chord curves its group names just outside the ring when
         every name fits along its arc, which leaves the ring more room;
         otherwise it curves those that fit and turns the rest along their
-        spokes. A RadialBar curves each track's name along the track, inside
+        spokes. A Radar does the same with its metric names, just outside
+        the web, each between its neighbors' spokes, wrapping a long name
+        onto a second curved line. A RadialBar curves each track's name along the track, inside
         its bar (or past its end when the bar is too short), when the sweep
         leaves no room before the start for the straight labels, and at any
         sweep for `"along"`; when every track is named this way, the default
@@ -2060,11 +2062,15 @@ export interface D3plusConfig {
   overlap?: number;
   /**
       Room (px) the Radar reserves around its web for the metric labels.
-      `"auto"` (the default) measures the labels and gives the web the largest
-      radius at which every label fits inside the chart, wrapping long labels
-      onto two lines (and truncating what still doesn't fit) rather than
-      shrinking the web below half its largest possible size. A number
-      reserves exactly that much room and wraps labels to that width.
+      `"auto"` (the default) curves every metric name along the web when
+      they all fit (see `labelPosition`), on one line or, for long names,
+      two, which needs only that much room.
+      Otherwise it measures the labels along their spokes and gives the web
+      the largest radius at which every label fits inside the chart,
+      wrapping long labels onto two lines (and truncating what still doesn't
+      fit) rather than shrinking the web below half its largest possible
+      size; names that fit along the web at that radius still curve. A
+      number reserves exactly that much room and wraps labels to that width.
   */
   outerPadding?: number | "auto";
   /** Priestley and Gantt: the space between neighboring bars, as a share of each row (d3's band `paddingInner`). */

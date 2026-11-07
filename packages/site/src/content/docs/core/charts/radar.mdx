@@ -54,9 +54,9 @@ Each ring is labeled with its value along the vertical axis. Passing an array to
 
 ## Long metric labels
 
-With the default `outerPadding: "auto"`, the web takes the largest radius at which every metric label fits inside the chart. A label too long for that wraps onto two lines (truncating only if it still doesn't fit) instead of shrinking the web below half its largest possible size.
+With the default `outerPadding: "auto"`, metric names curve along the outside of the web, a long one wrapping onto a second curved line, which leaves the web nearly the whole chart. When some names are too long even for two lines along their arc, the web takes the largest radius at which every label fits inside the chart along its spoke. A label too long for that wraps onto two lines (truncating only if it still doesn't fit) instead of shrinking the web below half its largest possible size, and the names that fit along the web still curve. `labelPosition: "inside"` keeps every name on its spoke.
 
-<Playground chart="Radar" code={longMetricLabels} controls={["outerPadding"]} />
+<Playground chart="Radar" code={longMetricLabels} controls={["outerPadding","labelPosition"]} />
 
 ## Axis styles
 

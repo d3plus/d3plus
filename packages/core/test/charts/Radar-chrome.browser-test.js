@@ -85,6 +85,7 @@ const probe = ([rows, configSrc]) =>
           })),
           area,
           labels,
+          curved: axisLabels.children.filter(c => c.path).length,
           radius: Math.max(...rings.children.map(c => c.r)),
           size: Math.min(
             viz.schema.width - m.left - m.right,
@@ -325,6 +326,10 @@ it("auto outerPadding wraps long labels and keeps them inside the chart", async 
     "{legend: false, shapeConfig: {Path: {opacity: 0.7}}}",
   ]);
   assertInside(r, "long labels");
+  assert.ok(
+    r.curved >= names.length,
+    `every name curves, the longest on two lines (${r.curved})`,
+  );
   assert.deepStrictEqual(r.warnings, [], "no config warnings");
   assert.ok(
     r.radius >= r.size / 4 - 0.5,
@@ -350,4 +355,32 @@ it("a numeric outerPadding is used as-is", async function () {
     Math.abs(r.radius - (r.size / 2 - 120)) < 1e-6,
     `radius ${r.radius}`,
   );
+});
+
+it("short metric names curve along the web, which leaves it more room", async function () {
+  const curved = await render(box(), probe, [data, "{legend: false}"]);
+  assert.strictEqual(curved.curved, 6, "every name curves");
+  assertInside(curved, "curved labels");
+  const spoked = await render(box(), probe, [
+    data,
+    "{legend: false, labelPosition: 'inside'}",
+  ]);
+  assert.strictEqual(spoked.curved, 0, "inside keeps them on their spokes");
+  assertInside(spoked, "spoke labels");
+  assert.ok(
+    curved.radius > spoked.radius,
+    `curved ${curved.radius} > spoked ${spoked.radius}`,
+  );
+});
+
+it("a numeric outerPadding curves the names that fit at its radius", async function () {
+  const r = await render(box(), probe, [
+    data,
+    "{legend: false, outerPadding: 60}",
+  ]);
+  assert.ok(
+    Math.abs(r.radius - (r.size / 2 - 60)) < 1e-6,
+    `radius ${r.radius}`,
+  );
+  assert.strictEqual(r.curved, 6);
 });

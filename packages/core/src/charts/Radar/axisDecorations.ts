@@ -18,7 +18,18 @@ import {
 import TextBox from "../../components/TextBox.js";
 import {emitLabels, shapeLabelDefaults} from "../../shapes/emitLabels.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
-import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
+import {
+  paintFromShapeConfig,
+  resolveAccessor,
+  shapeConfigFor,
+} from "../features/emitHelpers.js";
+import {textLineBoxes} from "../features/linkLabels.js";
+import {
+  clearRingLabels,
+  ringLabelFont,
+  ringLabelNodes,
+} from "../features/ringLabelNodes.js";
+import {ringLabelPosition} from "../features/ringLabels.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 
@@ -28,6 +39,12 @@ import {
   RADAR_LABEL_PADDING,
   radarAxisLabelLayout,
 } from "./axisLabels.js";
+import {
+  radarCurveLines,
+  radarCurvedLayout,
+  radarCurves,
+} from "./curvedLabels.js";
+import type {RadarCurve} from "./curvedLabels.js";
 import {emitRadarLevelLabels, radarLevelLabels, radarRadius} from "./levels.js";
 import type {RadarLevels} from "./levels.js";
 import {emitRadarRings, radarRingStyle} from "./rings.js";
@@ -49,6 +66,8 @@ export interface PolarAxisDatum {
   rotateAnchor: [number, number];
   x: number;
   y: number;
+  /** The curved lines the label follows, when it curves (see `labelPosition`). */
+  labelCurve?: RadarCurve;
 }
 
 export interface RadarAxisConfig {
@@ -89,8 +108,10 @@ export const labelFont = (
 
 /**
     Lays out the metric labels and the web radius. `outerPadding` "auto"
-    sizes both from the measured labels; a number reserves that many pixels
-    around the web and wraps labels to it.
+    curves every label along the web when they all fit, which leaves the web
+    the most room, and otherwise sizes both from the measured labels along
+    their spokes; a number reserves that many pixels around the web and
+    wraps labels to it. Either way, a label that fits along the web curves.
 */
 export function radarPolarAxis(
   viz: Viz,
@@ -114,12 +135,17 @@ export function radarPolarAxis(
     };
   });
 
-  let radius: number;
-  let boxes: {wrapWidth: number}[];
+  const room = Math.min(width, height) / 2 - RADAR_EDGE_GAP;
+  let radius = 0;
+  let boxes: {wrapWidth: number}[] = inputs.map(() => ({wrapWidth: 0}));
+  let curves: (RadarCurve | null)[] | undefined;
+  const allCurved =
+    outerPadding === "auto" ? radarCurvedLayout(viz, inputs, room) : null;
+  if (allCurved) ({radius, curves} = allCurved);
   if (typeof outerPadding === "number") {
     radius = Math.max(0, Math.min(width, height) / 2 - outerPadding);
     boxes = inputs.map(() => ({wrapWidth: outerPadding}));
-  } else {
+  } else if (!curves) {
     const layout = radarAxisLabelLayout({
       labels: inputs,
       width: width - RADAR_EDGE_GAP * 2,
@@ -143,6 +169,10 @@ export function radarPolarAxis(
     radius = layout.radius;
     boxes = layout.labels;
   }
+  const lines = radarCurveLines(inputs, radius, room);
+  curves ??= lines
+    ? radarCurves(viz, inputs, radius, lines)
+    : inputs.map(() => null);
 
   const polarAxis = inputs
     .map(({key, data, font, angle: radians}, i): PolarAxisDatum => {
@@ -170,10 +200,50 @@ export function radarPolarAxis(
         rotateAnchor: [-x, hh / 2],
         x: radius * Math.cos(radians),
         y: radius * Math.sin(radians),
+        labelCurve: curves[i] ?? undefined,
       };
     })
     .sort((a, b) => Number(a.key) - Number(b.key));
   return {radius, polarAxis};
+}
+
+/**
+    The metric labels: curved ones along the web, and the rest along their
+    spokes. A spoke label that would cover a curved one is left out.
+*/
+function radarAxisLabels(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode[] {
+  const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
+  const labelConfig = axisConfig.shapeConfig?.labelConfig ?? {};
+  const colorOf = (p: PolarAxisDatum) => {
+    const color = resolveAccessor<unknown>(labelConfig.fontColor, p.data, p.i);
+    return typeof color === "string" ? color : backgroundInk(viz);
+  };
+  const curved = ringLabelNodes(
+    viz,
+    polarAxis.flatMap(p =>
+      (p.labelCurve?.lines ?? []).map((line, k) => ({
+        key: `radar-axis-label-${p.id}${k ? `-${k}` : ""}`,
+        text: line.text,
+        fit: line.fit,
+        color: colorOf(p),
+      })),
+    ),
+    ringLabelFont(labelConfig),
+  );
+  const straight = emitLabels({
+    data: polarAxis.filter(
+      p => !p.labelCurve && ringLabelPosition(viz, p.data, p.i) !== "along",
+    ) as unknown as DataPoint[],
+    label: d => (d as unknown as PolarAxisDatum).id,
+    x: d => (d as unknown as PolarAxisDatum).x,
+    y: d => (d as unknown as PolarAxisDatum).y,
+    aes: () => ({}),
+    rotate: d => (d as unknown as PolarAxisDatum).angle || 0,
+    id: d => (d as unknown as PolarAxisDatum).id,
+    labelBounds: d => (d as unknown as PolarAxisDatum).labelBounds,
+    labelConfig,
+  });
+  return [...curved, ...clearRingLabels(straight, textLineBoxes(curved))];
 }
 
 /** Builds the metric labels and the spokes (non-interactive, datum-free). */
@@ -183,17 +253,7 @@ export function radarAxisNodes(
 ): SceneNode[] {
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
   const out: SceneNode[] = [];
-  const labels = emitLabels({
-    data: polarAxis as unknown as DataPoint[],
-    label: d => (d as unknown as PolarAxisDatum).id,
-    x: d => (d as unknown as PolarAxisDatum).x,
-    y: d => (d as unknown as PolarAxisDatum).y,
-    aes: () => ({}),
-    rotate: d => (d as unknown as PolarAxisDatum).angle || 0,
-    id: d => (d as unknown as PolarAxisDatum).id,
-    labelBounds: d => (d as unknown as PolarAxisDatum).labelBounds,
-    labelConfig: axisConfig.shapeConfig?.labelConfig ?? {},
-  });
+  const labels = radarAxisLabels(viz, polarAxis);
   if (labels.length)
     out.push({type: "group", key: "radar-axis-labels", children: labels});
 
