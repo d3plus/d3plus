@@ -163,9 +163,9 @@ export const preparePlotAxisLayout: TransformStage = ({
 
   const tickFor = (axis: string, axisScale: string) => {
     if (isSpanAxis(viz, axis)) return spanEdges(viz, axisData);
+    if (axisScale !== "Point") return null;
     const ticks = unique(axisData.map((d: Record<string, unknown>) => d[axis]));
-    if (axisScale !== "Point" || !ticks.every(t => barLabels.includes(`${t}`)))
-      return null;
+    if (!ticks.every(t => barLabels.includes(`${t}`))) return null;
     // The axis measure checks that the bars have room for these labels.
     if (axis === "x" || axis === "y")
       if (axis === viz.schema.discrete && (axis === "x" ? showX : showY))

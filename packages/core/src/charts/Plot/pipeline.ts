@@ -11,10 +11,11 @@
 */
 import {date} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
-import {merge as d3plusMerge, unique} from "@d3plus/data";
+import {merge as d3plusMerge} from "@d3plus/data";
 import {extent, groups, min, rollups} from "d3-array";
 
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
+import {sortedAxisValues} from "./axisValues.js";
 import {applyBarWidths, shareAxis} from "./barWidth.js";
 import {discreteDomainCategories} from "./discreteDomain.js";
 import {extraBandValues} from "./confidenceBands.js";
@@ -415,15 +416,13 @@ export const computePlotAxisValues: TransformStage = ({
                   ? parseFloat(key as string)
                   : key,
             )
-        : unique(
-            filteredData
-              .sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
-                viz.schema[`${axis}Sort`]
-                  ? viz.schema[`${axis}Sort`](a.data, b.data)
-                  : (a[axis] as number) - (b[axis] as number),
-              )
-              .map((d: Record<string, unknown>) => d[axis]),
-            (d: unknown) => `${d}`,
+        : sortedAxisValues(
+            filteredData,
+            axis,
+            viz.schema[`${axis}Sort`]
+              ? (a: Record<string, unknown>, b: Record<string, unknown>) =>
+                  viz.schema[`${axis}Sort`](a.data, b.data)
+              : undefined,
           );
 
     if (viz.schema.discrete !== axis.charAt(0) && viz._confidence) {

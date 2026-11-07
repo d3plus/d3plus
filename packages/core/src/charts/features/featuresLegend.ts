@@ -10,6 +10,7 @@ import {elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
 import {configPrep} from "../../utils/index.js";
+import {constantValue} from "../../utils/constant.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
@@ -40,7 +41,8 @@ interface LegendData {
     `viz._legendDepth` (the lowest groupBy level whose values are unique) and
     `viz._legendCategories` (see `legendCategory.ts`), then sorts it.
     Returns the `legendData` array plus the `fill`/`getAttr` accessors the
-    render step reuses.
+    render step reuses. A legend set to a constant false (`legend(false)`)
+    gets no entries, and its depth and categories stay as they were.
 */
 export function buildLegendData(viz: VizInstance): LegendData {
   // Source: `_legendData` from the rollupAndFilter pipeline stage — same
@@ -77,6 +79,10 @@ export function buildLegendData(viz: VizInstance): LegendData {
   };
   const legendKey = (d: DataPoint, i: number): string =>
     keyOf(d, i, colorOf(d, i));
+
+  // A legend set to a constant false never shows, so it needs no entries.
+  const never = constantValue(viz.schema.legend);
+  if (never && !never.value) return {legendData: [], legendKey, getAttr};
 
   const rollupData = viz.schema.colorScale
     ? data.filter(

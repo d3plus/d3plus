@@ -9,6 +9,7 @@ import {
   legendMergesIds,
 } from "../../src/charts/features/legendCategory.ts";
 import {legendLabel} from "../../src/charts/features/legendLabel.ts";
+import constant from "../../src/utils/constant.ts";
 
 /**
     Legend entries that stand for a color category: `color` is a categorical
@@ -170,4 +171,20 @@ it("buildLegendData names no category for CSS color values", () => {
   const {legendData} = buildLegendData(viz);
   assert.strictEqual(legendData.length, 3, "still one entry per color");
   assert.strictEqual(viz._legendCategories, undefined);
+});
+
+it("buildLegendData builds no entries for a constant false legend", () => {
+  const viz = fakeViz(d => d.region);
+  viz.schema.legend = constant(false);
+  viz._legendDepth = 3;
+  const built = buildLegendData(viz);
+  assert.deepStrictEqual(built.legendData, []);
+  assert.strictEqual(viz._legendDepth, 3, "depth untouched");
+  assert.strictEqual(typeof built.legendKey, "function");
+  assert.strictEqual(typeof built.getAttr, "function");
+  // A legend that only might hide (a function) still gets its entries.
+  viz.schema.legend = () => false;
+  assert.strictEqual(buildLegendData(viz).legendData.length, 3);
+  viz.schema.legend = constant(true);
+  assert.strictEqual(buildLegendData(viz).legendData.length, 3);
 });
