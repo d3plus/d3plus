@@ -5,6 +5,7 @@ import fold from "./fold.js";
 import concat from "./concat.js";
 import isData from "./isData.js";
 import cacheKey from "./cacheKey.js";
+import validateData from "./validateData.js";
 
 type DataFormatter = (
   data: DataPoint[] | DataPoint[][],
@@ -84,25 +85,6 @@ function fetchData(
     default:
       return json(path, init) as Promise<Record<string, unknown>>;
   }
-}
-
-/** Coerces stringified numbers/booleans in loaded rows into real values. */
-function validateData(
-  data: DataPoint[] | Record<string, unknown>,
-): DataPoint[] | Record<string, unknown> {
-  if (data && data instanceof Array) {
-    data.forEach((d: DataPoint) => {
-      for (const k in d) {
-        const v = d[k];
-        if (typeof v === "string") {
-          if (!isNaN(v as unknown as number)) d[k] = parseFloat(v);
-          else if (v.toLowerCase() === "false") d[k] = false;
-          else if (v.toLowerCase() === "true") d[k] = true;
-        }
-      }
-    });
-  }
-  return data;
 }
 
 /** Counts how many slots of the loaded array are populated. */
