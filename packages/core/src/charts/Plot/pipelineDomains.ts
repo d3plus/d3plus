@@ -315,12 +315,7 @@ function drawnStackPositions(
     const ids = plotSeriesIds(viz, row.data as DataPoint, row.i as number);
     if (ids.length) series.set(key, ids[0]);
   }
-  return stackPositions(
-    stackData,
-    stackKeys,
-    key => series.get(key),
-    viz.schema.discrete === "y",
-  );
+  return stackPositions(stackData, stackKeys, key => series.get(key));
 }
 
 /** Non-stacked branch: data-values-or-extent domains per axis. */

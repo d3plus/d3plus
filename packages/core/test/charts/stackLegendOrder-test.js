@@ -24,41 +24,57 @@ const viz = ({groupBy = ["id"], depth = 0, stacked = true, ...rest} = {}) => ({
 const means = positions =>
   Array.from(positions, ([s, {total, count}]) => [s, total / count]);
 
-it("stackPositions — a vertical stack reads top first", () => {
-  // Two groups; A on the bottom, B in the middle, C on top.
-  const data = [
+/** Tags each series with its d3-stack `index` (its place in the stacking order). */
+const indexed = (data, order) =>
+  data.map((s, i) => Object.assign(s, {index: order[i]}));
+
+it("stackPositions — lists series in stacking order, from the baseline out", () => {
+  // Two groups, stacked C (baseline), then A, then B.
+  const data = indexed(
     [
-      [0, 10],
-      [0, 5],
+      [
+        [30, 40],
+        [25, 30],
+      ],
+      [
+        [40, 45],
+        [30, 45],
+      ],
+      [
+        [0, 30],
+        [0, 25],
+      ],
     ],
-    [
-      [10, 15],
-      [5, 20],
-    ],
-    [
-      [15, 16],
-      [20, 30],
-    ],
-  ];
-  const positions = stackPositions(data, ["A", "B", "C"], k => k, false);
+    [1, 2, 0],
+  );
+  const positions = stackPositions(data, ["A", "B", "C"], k => k);
   assert.deepStrictEqual(means(positions), [
     ["C", 1 / 6],
-    ["B", 0.5],
-    ["A", 5 / 6],
+    ["A", 0.5],
+    ["B", 5 / 6],
   ]);
-});
-
-it("stackPositions — a horizontal stack reads left first", () => {
-  const data = [[[0, 10]], [[10, 15]], [[15, 16]]];
-  const positions = stackPositions(data, ["A", "B", "C"], k => k, true);
-  assert.deepStrictEqual(stackReadingOrder(positions), ["A", "B", "C"]);
-});
-
-it("stackPositions — reads where segments sit, not their stack index", () => {
-  // A diverging stack: B is negative and sits below the baseline.
-  const data = [[[0, 10]], [[-8, 0]], [[10, 12]]];
-  const positions = stackPositions(data, ["A", "B", "C"], k => k, false);
   assert.deepStrictEqual(stackReadingOrder(positions), ["C", "A", "B"]);
+});
+
+it("stackPositions — follows the stacking order, not where the offset puts it", () => {
+  // A diverging stack: B (stacked second) is negative, below the baseline,
+  // and a centered (silhouette) stack starts below zero.
+  const diverging = indexed([[[0, 10]], [[-8, 0]], [[10, 12]]], [0, 1, 2]);
+  assert.deepStrictEqual(
+    stackReadingOrder(stackPositions(diverging, ["A", "B", "C"], k => k)),
+    ["A", "B", "C"],
+  );
+  const centered = indexed([[[-1, 5]], [[-6, -1]], [[5, 6]]], [1, 0, 2]);
+  assert.deepStrictEqual(
+    stackReadingOrder(stackPositions(centered, ["A", "B", "C"], k => k)),
+    ["B", "A", "C"],
+  );
+});
+
+it("stackPositions — without an index, series stack in data order", () => {
+  const data = [[[0, 10]], [[10, 15]], [[15, 16]]];
+  const positions = stackPositions(data, ["A", "B", "C"], k => k);
+  assert.deepStrictEqual(stackReadingOrder(positions), ["A", "B", "C"]);
 });
 
 it("stackPositions — skips empty and unplaced segments", () => {
@@ -76,11 +92,8 @@ it("stackPositions — skips empty and unplaced segments", () => {
       [4, 6],
     ],
   ];
-  const positions = stackPositions(
-    data,
-    ["A", "B", "C"],
-    k => (k === "C" ? undefined : k),
-    false,
+  const positions = stackPositions(data, ["A", "B", "C"], k =>
+    k === "C" ? undefined : k,
   );
   // Group 0: B alone (A is empty); group 1: A alone (B isn't finite).
   assert.deepStrictEqual(means(positions), [
@@ -93,17 +106,12 @@ it("stackPositions — maps each stack key to its series", () => {
   // Bar segments are keyed per bar; both belong to series A.
   const data = [[[0, 2]], [[2, 3]], [[3, 4]]];
   const series = {A_1: "A", B_1: "B", A_2: "A"};
-  const positions = stackPositions(
-    data,
-    ["A_1", "B_1", "A_2"],
-    k => series[k],
-    false,
-  );
+  const positions = stackPositions(data, ["A_1", "B_1", "A_2"], k => series[k]);
   assert.deepStrictEqual(means(positions), [
     ["A", (1 / 6 + 5 / 6) / 2],
     ["B", 0.5],
   ]);
-  assert.deepStrictEqual(stackPositions([], [], k => k, false).size, 0);
+  assert.deepStrictEqual(stackPositions([], [], k => k).size, 0);
 });
 
 it("poolStackPositions — sums each series across sets", () => {

@@ -35,10 +35,10 @@ Clicking a swatch hides that group, and shift-clicking it shows that group alone
 The legend lists its swatches in the order the chart draws them, so it reads like the chart:
 
 - **Part-to-whole charts** list the largest first: Treemap and Pack by `sum`, Pie and Donut by `value`, and Icicle and Sunburst by their summed values. Waffle follows the order its categories fill the grid, Waterfall lists its bar kinds, and Network and ArcDiagram list their [clusters](/core/charts/network/#clusters) largest first.
-- **Stacked charts** (StackedArea, Streamgraph, a stacked AreaPlot, LinePlot, or BarChart, Marimekko, and the rest of the Plot family when `stacked`) follow their stacks. A stack that rises lists its top band first, reading down the chart; a stack that runs along x (a horizontal bar chart) lists its leftmost segment first, reading across like the legend row beneath it. The order comes from the stacks as drawn, so it follows `stackOrder` and `stackOffset`, changes with the timeline's period, and averages over the bars when each bar stacks in its own order. A hidden or soloed series keeps its place, and small multiples average every panel's stacks.
+- **Stacked charts** (StackedArea, Streamgraph, a stacked AreaPlot, LinePlot, or BarChart, Marimekko, and the rest of the Plot family when `stacked`) list their series in stacking order, from the baseline outward: the bottom band of a rising stack first, and the leftmost segment of a horizontal bar. The default `stackOrder`, `"descending"`, stacks the largest series first, so the legend lists it first too; `"ascending"`, `"key"`, or an array of keys reorders the legend with the stack. The order is the one the series were stacked in, so a diverging stack's negative series and a streamgraph's centered layers keep their place in it. It comes from the stacks as drawn, so it changes with the timeline's period, and averages over the bars when each bar stacks in its own order. A hidden or soloed series keeps its place, and small multiples average every panel's stacks.
 - **Everything else** (grouped bars, lines, scatter plots, maps) is alphabetical by label.
 
-The group a `threshold` makes of small values always comes last. A `legendSort` of your own always wins:
+The group a `threshold` makes of small values ("Values < 5%") always comes last, on every chart. A `legendSort` of your own always wins:
 
 ```jsx
 <StackedArea config={{data, groupBy: "fruit", x: "year", y: "price",

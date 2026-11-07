@@ -654,8 +654,8 @@ Stacked charts always fit one line to the stack totals.
         aggregate of any data field.
 
       Unknown named strings warn and fall back to `"descending"`. The
-      default legend lists the series in the order they stack, the top of
-      the stack first. If *value* is not specified, returns the current
+      default legend lists the series in the order they stack, from the
+      baseline outward. If *value* is not specified, returns the current
       stack order.
 */
   stackOrder(_?: StackOrderInput): this | StackOrderFn | string[] {

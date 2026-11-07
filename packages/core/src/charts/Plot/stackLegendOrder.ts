@@ -1,10 +1,10 @@
 /**
-    A stacked Plot's legend order: its series in the order the drawn stacks
-    read, the top band or segment first when the stacks rise (a vertical
-    stack, read top to bottom) and the leftmost first when they run along x
-    (a horizontal stack, read left to right, like the legend row beneath it).
-    Positions come from the d3-stack output the chart draws, so the legend
-    follows any `stackOrder` and `stackOffset`.
+    A stacked Plot's legend order: its series in stacking order, from the
+    baseline outward, so the default `"descending"` order lists the largest
+    series first. The order is d3-stack's own (each drawn series' `index`),
+    which the chart's `stackOrder` sets, whatever the `stackOffset` does
+    with it: a diverging stack's negative series and a streamgraph's
+    centered layers keep the order they were stacked in.
 
     @module
 */
@@ -17,26 +17,29 @@ export type StackPositions = Map<string, {total: number; count: number}>;
 
 type Comparator = (a: DataPoint, b: DataPoint) => number;
 
+/** A d3-stack series: its segments, and its place in the stacking order. */
+type StackSeries = ArrayLike<ArrayLike<number>> & {index?: number};
+
 /**
     Where each series sits in the drawn stacks. Each stack (one per discrete
-    group) lists its non-empty segments in reading order (`horizontal`:
-    left to right; otherwise top to bottom), and each segment adds its
-    fractional position, `(rank + 0.5) / segments`, to its series.
+    group) lists its non-empty segments in stacking order (each series'
+    d3-stack `index`, else its place in `stackData`), and each segment adds
+    its fractional position, `(rank + 0.5) / segments`, to its series. A
+    stacked bar keys each segment as its own series, so this also averages
+    bars that stack in different orders.
     @param stackData The d3-stack output, `[series][group] = [start, end]`.
     @param stackKeys Each series' stack key, in `stackData` order.
     @param seriesOf The legend series a stack key belongs to; undefined skips it.
-    @param horizontal Whether the stacks run along x.
 */
 export function stackPositions(
-  stackData: ArrayLike<number>[][],
+  stackData: StackSeries[],
   stackKeys: unknown[],
   seriesOf: (key: string) => string | undefined,
-  horizontal: boolean,
 ): StackPositions {
   const positions: StackPositions = new Map();
   const groups = Math.max(0, ...stackData.map(s => s.length));
   for (let j = 0; j < groups; j++) {
-    const segments: {series: string; mid: number}[] = [];
+    const segments: {series: string; order: number}[] = [];
     stackData.forEach((s, i) => {
       const segment = s[j];
       const series = seriesOf(`${stackKeys[i]}`);
@@ -44,9 +47,9 @@ export function stackPositions(
       const [start, end] = [+segment[0], +segment[1]];
       if (!Number.isFinite(start) || !Number.isFinite(end) || start === end)
         return;
-      segments.push({series, mid: (start + end) / 2});
+      segments.push({series, order: s.index ?? i});
     });
-    segments.sort((a, b) => (horizontal ? a.mid - b.mid : b.mid - a.mid));
+    segments.sort((a, b) => a.order - b.order);
     segments.forEach(({series}, rank) => {
       const entry = positions.get(series) ?? {total: 0, count: 0};
       entry.total += (rank + 0.5) / segments.length;

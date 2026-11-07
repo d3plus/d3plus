@@ -6,9 +6,10 @@ import {render} from "~test/browser/render.js";
 /**
     Legends read in the order the chart draws, on SVG and Canvas: Pack lists
     its largest circles first (as Treemap does), and a stacked Plot lists its
-    series in the order of the drawn stacks: the top band or segment first
-    when the stacks rise, the leftmost first when they run along x. The
-    order follows `stackOrder`, and a user's `legendSort` always wins.
+    series in the order the drawn stacks stacked them, from the baseline
+    outward (the largest first under the default `"descending"`). The order
+    follows `stackOrder`, a threshold bucket always comes last, and a user's
+    `legendSort` otherwise always wins.
 */
 
 // Totals: Bravo 160 > Charlie 100 > Alpha 40 > Delta 20.
@@ -89,34 +90,34 @@ for (const renderer of ["svg", "canvas"]) {
     assert.deepStrictEqual(painted, labels);
   });
 
-  it(`StackedArea lists the top band first (${renderer})`, async () => {
+  it(`StackedArea lists its bands from the baseline up (${renderer})`, async () => {
     const {labels, painted} = await legendOrder(
       "StackedArea",
       stacked,
       renderer,
     );
     // Descending by total: Bravo on the baseline, Delta on top.
-    assert.deepStrictEqual(labels, ["Delta", "Alpha", "Charlie", "Bravo"]);
+    assert.deepStrictEqual(labels, ["Bravo", "Charlie", "Alpha", "Delta"]);
     assert.deepStrictEqual(painted, labels);
   });
 
-  it(`a stacked BarChart lists the top segment first (${renderer})`, async () => {
+  it(`a stacked BarChart lists its segments from the baseline up (${renderer})`, async () => {
     const {labels, painted} = await legendOrder(
       "BarChart",
       {...stacked, stacked: true},
       renderer,
     );
-    assert.deepStrictEqual(labels, ["Delta", "Alpha", "Charlie", "Bravo"]);
+    assert.deepStrictEqual(labels, ["Bravo", "Charlie", "Alpha", "Delta"]);
     assert.deepStrictEqual(painted, labels);
   });
 
-  it(`a horizontal stacked BarChart lists the leftmost segment first (${renderer})`, async () => {
+  it(`a horizontal stacked BarChart lists its segments from the baseline out (${renderer})`, async () => {
     const {labels, painted} = await legendOrder(
       "BarChart",
       horizontal,
       renderer,
     );
-    // The segments from the baseline out, as the legend row beneath reads.
+    // Left to right, as the legend row beneath reads.
     assert.deepStrictEqual(labels, ["Bravo", "Charlie", "Alpha", "Delta"]);
     assert.deepStrictEqual(painted, labels);
   });
@@ -129,10 +130,10 @@ for (const renderer of ["svg", "canvas"]) {
       `viz => void viz.stackOrder("ascending")`,
     );
     assert.deepStrictEqual(ascending.labels, [
-      "Bravo",
-      "Charlie",
-      "Alpha",
       "Delta",
+      "Alpha",
+      "Charlie",
+      "Bravo",
     ]);
     const keys = await legendOrder(
       "StackedArea",
@@ -140,7 +141,7 @@ for (const renderer of ["svg", "canvas"]) {
       renderer,
       `viz => void viz.stackOrder(["Charlie", "Delta", "Alpha", "Bravo"])`,
     );
-    assert.deepStrictEqual(keys.labels, ["Bravo", "Alpha", "Delta", "Charlie"]);
+    assert.deepStrictEqual(keys.labels, ["Charlie", "Delta", "Alpha", "Bravo"]);
     const bars = await legendOrder(
       "BarChart",
       horizontal,
@@ -183,7 +184,7 @@ for (const renderer of ["svg", "canvas"]) {
       }`,
     );
     assert.deepStrictEqual(hide.hidden, ["Alpha"]);
-    assert.deepStrictEqual(hide.labels, ["Delta", "Alpha", "Charlie", "Bravo"]);
+    assert.deepStrictEqual(hide.labels, ["Bravo", "Charlie", "Alpha", "Delta"]);
     assert.deepStrictEqual(hide.painted, hide.labels);
     const solo = await legendOrder(
       "StackedArea",
@@ -194,7 +195,7 @@ for (const renderer of ["svg", "canvas"]) {
         viz.render(done);
       }`,
     );
-    assert.deepStrictEqual(solo.labels, ["Delta", "Alpha", "Charlie", "Bravo"]);
+    assert.deepStrictEqual(solo.labels, ["Bravo", "Charlie", "Alpha", "Delta"]);
   });
 
   it(`unstacked charts keep an alphabetical legend (${renderer})`, async () => {
@@ -219,25 +220,55 @@ for (const renderer of ["svg", "canvas"]) {
       {...stacked, data: panels, facet: "panel"},
       renderer,
     );
-    // Delta tops panel A and sits second from the bottom of panel B
-    // (its total there passes Charlie's): its mean place is second.
-    assert.deepStrictEqual(labels, ["Alpha", "Delta", "Charlie", "Bravo"]);
+    // Delta tops panel A's stack and is second from panel B's baseline
+    // (its total there passes Charlie's): its mean place is third.
+    assert.deepStrictEqual(labels, ["Bravo", "Charlie", "Delta", "Alpha"]);
   });
 
-  it(`a threshold bucket stays last (${renderer})`, async () => {
+  it(`a threshold bucket stays last on a stacked chart (${renderer})`, async () => {
     const small = [1, 2, 3, 4].map(x => ({id: "Echo", x, y: 3}));
-    const {labels} = await legendOrder(
+    const config = {...stacked, data: [...rows, ...small], threshold: 0.1};
+    const {labels} = await legendOrder("StackedArea", config, renderer);
+    // Delta and Echo fold into the bucket.
+    const bucket = "Values < 10%";
+    assert.deepStrictEqual(labels, ["Bravo", "Charlie", "Alpha", bucket]);
+    // A legendSort that asks for it first still leaves it last.
+    const sorted = await legendOrder(
       "StackedArea",
-      {...stacked, data: [...rows, ...small], threshold: 0.1},
+      config,
       renderer,
+      `viz => void viz.legendSort((a, b) =>
+        (b._isAggregation ? 1 : 0) - (a._isAggregation ? 1 : 0) ||
+        String(b.id).localeCompare(String(a.id)))`,
     );
-    // Delta and Echo fold into the bucket, which tops the stack.
-    assert.deepStrictEqual(labels, [
-      "Alpha",
+    assert.deepStrictEqual(sorted.labels, [
       "Charlie",
       "Bravo",
-      "Values < 10%",
+      "Alpha",
+      bucket,
     ]);
+  });
+
+  it(`a threshold bucket stays last on a largest-first legend (${renderer})`, async () => {
+    // The six small rows fold into a bucket larger than every other entry.
+    // Pack has no threshold, so this uses Treemap, whose legend comparator
+    // Pack shares.
+    const small = ["Kiwi", "Lime", "Mango", "Nectarine", "Olive", "Plum"];
+    const {labels, painted} = await legendOrder(
+      "Treemap",
+      {
+        data: [
+          {id: "Rice", value: 30},
+          {id: "Wheat", value: 22},
+          ...small.map((id, i) => ({id, value: 5 + i * 0.5})),
+        ],
+        threshold: 0.1,
+        legend: true,
+      },
+      renderer,
+    );
+    assert.deepStrictEqual(labels, ["Rice", "Wheat", "Values < 10%"]);
+    assert.deepStrictEqual(painted, labels);
   });
 
   it(`the legend follows the stacks of the shown period (${renderer})`, async () => {
@@ -249,10 +280,10 @@ for (const renderer of ["svg", "canvas"]) {
     // The latest year shows by default, with Delta on the baseline.
     const latest = await legendOrder("StackedArea", config, renderer);
     assert.deepStrictEqual(latest.labels, [
-      "Alpha",
-      "Charlie",
-      "Bravo",
       "Delta",
+      "Bravo",
+      "Charlie",
+      "Alpha",
     ]);
     const first = await legendOrder(
       "StackedArea",
@@ -261,10 +292,10 @@ for (const renderer of ["svg", "canvas"]) {
       `viz => void viz.timeFilter(d => d.year === 2000)`,
     );
     assert.deepStrictEqual(first.labels, [
-      "Delta",
-      "Alpha",
-      "Charlie",
       "Bravo",
+      "Charlie",
+      "Alpha",
+      "Delta",
     ]);
   });
 }

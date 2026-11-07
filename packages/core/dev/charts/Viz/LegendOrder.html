@@ -5,7 +5,7 @@
     <title>LegendOrder · Viz</title>
     <meta
       name="description"
-      content="Legends that read in the order the chart draws: Pack largest first, stacked charts in stack order, others alphabetical."
+      content="Legends that read in the order the chart draws: Pack largest first, stacked charts in stacking order, a threshold bucket last, others alphabetical."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -41,16 +41,21 @@
       <div class="viz" id="treemap"></div>
     </section>
     <section>
-      <h3>Stack order: the top band or segment first</h3>
+      <h3>Stacking order, from the baseline outward</h3>
       <div class="viz" id="area"></div>
       <div class="viz" id="bar"></div>
       <div class="viz" id="ascending"></div>
       <div class="viz" id="stream"></div>
     </section>
     <section>
-      <h3>Stack order: the leftmost segment first, and small multiples</h3>
+      <h3>Horizontal stacks and small multiples</h3>
       <div class="viz" id="horizontal"></div>
       <div class="viz" id="facet"></div>
+    </section>
+    <section>
+      <h3>A threshold bucket comes last</h3>
+      <div class="viz" id="treemapThreshold"></div>
+      <div class="viz" id="areaThreshold"></div>
     </section>
     <section>
       <h3>Alphabetical (unstacked) and a user legendSort</h3>
@@ -155,6 +160,36 @@
         ...plot,
         title: "legendSort: Z to A",
         legendSort: (a, b) => b.id.localeCompare(a.id),
+      })
+      .render();
+
+    // Many small rows that together outweigh every other entry.
+    const small = ["Kiwi", "Lime", "Mango", "Nectarine", "Olive", "Plum"];
+    new d3plus.Treemap()
+      .select("#treemapThreshold")
+      .config({
+        data: [
+          {id: "Rice", value: 30},
+          {id: "Wheat", value: 22},
+          ...small.map((id, i) => ({id, value: 5 + i * 0.5})),
+        ],
+        threshold: 0.1,
+        legend: true,
+        legendPosition: "right",
+      })
+      .render();
+
+    new d3plus.StackedArea()
+      .select("#areaThreshold")
+      .config({
+        ...plot,
+        data: [
+          ...rows,
+          ...small.flatMap(id =>
+            [2019, 2020, 2021, 2022, 2023].map(year => ({id, year, value: 3})),
+          ),
+        ],
+        threshold: 0.05,
       })
       .render();
   </script>

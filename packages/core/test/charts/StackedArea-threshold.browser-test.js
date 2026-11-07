@@ -164,13 +164,12 @@ for (const renderer of ["svg", "canvas"]) {
       );
       const fills = result.bands.map(b => b.fill);
       assert.strictEqual(new Set(fills).size, fills.length, "distinct colors");
-      // The legend reads the stack from the top down, the bucket last.
       assert.deepStrictEqual(result.labels, [
-        "Echo",
-        "Delta",
-        "Charlie",
-        "Bravo",
         "Alpha",
+        "Bravo",
+        "Charlie",
+        "Delta",
+        "Echo",
         "Values < 5%",
       ]);
       const stack = await page.evaluate(() => {

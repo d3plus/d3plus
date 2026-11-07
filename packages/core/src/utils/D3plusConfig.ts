@@ -1775,7 +1775,7 @@ export interface D3plusConfig {
   */
   legendPosition?: false | PanelPosition | (() => false | PanelPosition);
   /**
-      Comparator that orders the legend's entries. By default the legend reads in the order the chart draws: Treemap, Pack, Pie, Donut, Icicle, and Sunburst list their largest entries first; a stacked chart lists its series in stack order (the top band first, or the leftmost segment first when the stacks run along x), following `stackOrder`; Waffle and Waterfall follow their own order, and Network and ArcDiagram clusters come largest first; every other chart is alphabetical by label. A threshold group always comes last.
+      Comparator that orders the legend's entries. By default the legend reads in the order the chart draws: Treemap, Pack, Pie, Donut, Icicle, and Sunburst list their largest entries first; a stacked chart lists its series in stacking order, from the baseline outward (so the default `stackOrder`, `"descending"`, lists the largest first); Waffle and Waterfall follow their own order, and Network and ArcDiagram clusters come largest first; every other chart is alphabetical by label. A threshold group always comes last, whatever the sort.
   */
   legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Configuration object for the legend tooltip. */
@@ -2401,7 +2401,7 @@ export interface D3plusConfig {
       order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of
       series keys for an explicit order, a value accessor, or a `{value, order}`
       config to rank series by an aggregate of any data field. The default
-      legend lists the series in this order, the top of the stack first.
+      legend lists the series in this order, from the baseline outward.
   */
   stackOrder?:
     | string
