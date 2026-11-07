@@ -374,14 +374,19 @@ it("pieMayLabelOutside / pieSharePct — read the labelPosition and the share", 
   assert.strictEqual(pieSharePct(viz)({share: 0.125}), "12.5%");
 });
 
-it("pieStraightLabels — a label per slice in its largest box", () => {
+it("pieStraightLabels — a label per slice, centered on its bisector", () => {
   const viz = prepare(new Pie().data(spending.slice(0, 3)).groupBy("id"));
   const slices = pieRingLayout(viz);
   const arc = viz.ctx.arcData;
   const nodes = pieStraightLabels({
     viz,
     slices,
-    arcMaker: d => arc(d),
+    arcOf: d => ({
+      innerRadius: 0,
+      outerRadius: arc.outerRadius()(d),
+      startAngle: d.startAngle,
+      endAngle: d.endAngle,
+    }),
     sc: {fill: "#336699"},
     sharePct: pieSharePct(viz),
     labelConfig: {},

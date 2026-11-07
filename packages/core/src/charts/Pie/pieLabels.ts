@@ -18,6 +18,7 @@ import {
 } from "../features/emitHelpers.js";
 import {ringLabelFont, ringTextWidth} from "../features/ringLabelNodes.js";
 import {ringLabelPosition} from "../features/ringLabels.js";
+import type {RingArc} from "../features/ringLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {pieSliceLabels} from "./curvedLabels.js";
@@ -150,7 +151,6 @@ export function pieLabelPlan(
   if (cached && cached.arc === arcGen && cached.slices === slices)
     return cached.plan;
 
-  const arcMaker = (d: PieSlice) => arcGen(d) ?? "";
   const resolveInnerRadius = arcGen.innerRadius();
   const resolveOuterRadius = arcGen.outerRadius();
   const sc = shapeConfigFor(viz, "Path");
@@ -158,16 +158,18 @@ export function pieLabelPlan(
   const sharePct = pieSharePct(viz);
   const nameOf = (d: PieSlice) => viz._drawLabel(d.data as DataPoint, d.i ?? 0);
 
+  const arcOf = (d: PieSlice): RingArc => ({
+    innerRadius: resolveInnerRadius(d, d.i ?? 0),
+    outerRadius: resolveOuterRadius(d, d.i ?? 0),
+    startAngle: d.startAngle,
+    endAngle: d.endAngle,
+    padAngle: d.padAngle,
+  });
+
   const inside = pieSliceLabels({
     viz,
     slices,
-    arcOf: d => ({
-      innerRadius: resolveInnerRadius(d, d.i ?? 0),
-      outerRadius: resolveOuterRadius(d, d.i ?? 0),
-      startAngle: d.startAngle,
-      endAngle: d.endAngle,
-      padAngle: d.padAngle,
-    }),
+    arcOf,
     nameOf,
     shareOf: sharePct,
     fillOf: d =>
@@ -175,7 +177,7 @@ export function pieLabelPlan(
     straight: pieStraightLabels({
       viz,
       slices,
-      arcMaker,
+      arcOf,
       sc,
       sharePct,
       labelConfig,
