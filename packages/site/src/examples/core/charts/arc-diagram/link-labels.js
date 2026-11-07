@@ -19,5 +19,5 @@ const config = {
   arcSide: "both",
   arrows: true,
   linkColor: d => (d.rework ? "#d9480f" : null),
-  linkLabel: d => `${d.days}d`,
+  linkLabel: d => `${d.days} days`,
 };

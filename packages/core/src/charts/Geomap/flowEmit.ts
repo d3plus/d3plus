@@ -157,6 +157,7 @@ export function emitFlowLabels(
       link: link.datum,
       i,
       anchor: link.points ? polylineMidpoint(link.points) : null,
+      path: link.points,
       priority: link.size,
     })),
     {circles},
