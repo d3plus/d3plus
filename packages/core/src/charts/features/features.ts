@@ -34,6 +34,8 @@ import {
 } from "../drawSteps/topLeftControlsMarkup.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {timelineRangeBreaks} from "../Plot/plotRangeBreaks.js";
+import {startingSelection} from "../pipeline/preDrawData.js";
+import {classTimelineMode} from "../../components/Timeline/timelineMode.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -636,7 +638,7 @@ export const timelineFeature: FeatureModule = {
     if (!viz._timelineSelection) {
       // First render only: default to the *filtered* extent, which the
       // synthesized default timeFilter pins to the latest period (see
-      // vizPreDraw) — the historical default. `timelineDefault` overrides it.
+      // vizPreDraw). `timelineDefault` or `timelineConfig.selection` overrides it.
       // A row merged across periods holds each of their times.
       const filtered = extent(
         (viz._filteredData || [])
@@ -644,7 +646,7 @@ export const timelineFeature: FeatureModule = {
           .map((d: unknown) => date(d as string | number)) as Date[],
       ) as [Date, Date];
       viz._timelineSelection =
-        viz.schema.timelineDefault || (filtered[0] ? filtered : fullExtent);
+        startingSelection(viz) || (filtered[0] ? filtered : fullExtent);
     } else {
       if (viz._timelineSelection[0] < fullExtent[0])
         viz._timelineSelection[0] = fullExtent[0];
@@ -661,7 +663,10 @@ export const timelineFeature: FeatureModule = {
     // sets its own `rangeBreaks`.
     const inherited = timelineRangeBreaks(viz);
     timeline.rangeBreaks(inherited.length ? inherited : false);
-    const config = viz.schema.timelineConfig;
+    // `timelineConfig.selection` is where the timeline starts (see
+    // `startingSelection`); after that the viewer's selection stands.
+    const config = {...viz.schema.timelineConfig};
+    delete config.selection;
     timeline
       .config(config)
       .on("brush", (s: Date[]) => {
@@ -679,6 +684,11 @@ export const timelineFeature: FeatureModule = {
         if (config.on && config.on.end) config.on.end(s);
       })
       .render();
+    classTimelineMode(
+      timelineGroup as Element | null,
+      "d3plus-viz-timeline",
+      timeline._buttonBehaviorCurrent,
+    );
 
     return {
       panel: null,

@@ -268,6 +268,15 @@ or play through time periods, and the chart filters to the selected window:
 Set `timeline: false` to keep the `time` filtering behavior without rendering the
 timeline control.
 
+A chart starts on its latest period; `timeFilter` (or `timelineDefault`)
+starts it on another, and `timelineConfig.on.end` receives each period the
+viewer picks. See
+[starting on a chosen period](/core/components/timeline/#starting-on-a-chosen-period)
+and [reading the selection](/core/components/timeline/#reading-the-selection).
+`timelineConfig.brushCursor` sets the cursor over the timeline, and its
+group's `d3plus-viz-timeline-ticks` or `d3plus-viz-timeline-buttons` class
+names how it is drawn ([cursor and mode classes](/core/components/timeline/#cursor-and-mode-classes)).
+
 When points move between periods as the timeline plays, they leave **motion
 trails** by default, and `trailPersist` can keep the whole path visible. See
 **Guides → Animation**.

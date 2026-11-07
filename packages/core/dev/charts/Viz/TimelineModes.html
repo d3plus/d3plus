@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Timeline Modes · Viz</title>
+    <meta
+      name="description"
+      content="Timeline mode classes (d3plus-viz-timeline-ticks / -buttons, auto follows the width), brushCursor, a timeFilter start, and on.end updating the subtitle."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .chart {
+        height: 320px;
+        margin: 12px;
+        border: 1px dashed #ccc;
+      }
+      #auto {
+        resize: horizontal;
+        overflow: hidden;
+        width: 760px;
+        max-width: calc(100% - 24px);
+      }
+      /* Page CSS keyed off the class naming how each timeline is drawn. */
+      g.d3plus-viz-timeline-buttons .brushGroup .selection {
+        fill-opacity: 0.45;
+      }
+      g.d3plus-viz-timeline-ticks .brushGroup .handle {
+        stroke-width: 3;
+      }
+      p {
+        margin: 12px;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>
+      Buttons, starting on 2014 through <code>timeFilter</code>; the subtitle
+      reads the period <code>timelineConfig.on.end</code> hands back, and the
+      brush shows a <code>grab</code> cursor.
+    </p>
+    <div class="chart" id="buttons"></div>
+    <p>
+      Ticks, starting on 2012–2015 through <code>timelineDefault</code>; a
+      <code>brushCursor</code> function of the mode picks a crosshair.
+    </p>
+    <div class="chart" id="ticks"></div>
+    <p>
+      <code>"auto"</code>: drag this chart's bottom-right corner narrower and
+      the timeline switches from buttons to ticks (its group's class follows).
+      Class now: <code id="autoClass"></code>
+    </p>
+    <div class="chart" id="auto"></div>
+  </body>
+
+  <script>
+    const data = ["Apples", "Pears", "Plums", "Figs"].flatMap((id, i) =>
+      Array.from({length: 12}, (_, y) => ({
+        id,
+        year: 2010 + y,
+        value: 20 + ((i * 7 + y * 5) % 11) * 6,
+      })),
+    );
+    const label = period =>
+      []
+        .concat(period)
+        .map(d => new Date(d).getFullYear())
+        .join("–");
+
+    let picked = "2014";
+    new d3plus.Treemap()
+      .select("#buttons")
+      .data(data)
+      .groupBy("id")
+      .sum("value")
+      .time("year")
+      .timeFilter(d => d.year === 2014)
+      .subtitle(() => `Showing ${picked}`)
+      .timelineConfig({
+        buttonBehavior: "buttons",
+        brushCursor: "grab",
+        on: {
+          end(period) {
+            picked = label(period);
+          },
+        },
+      })
+      .render();
+
+    new d3plus.Treemap()
+      .select("#ticks")
+      .data(data)
+      .groupBy("id")
+      .sum("value")
+      .time("year")
+      .timelineDefault(["2012", "2015"])
+      .timelineConfig({
+        buttonBehavior: "ticks",
+        brushCursor: mode => (mode === "ticks" ? "crosshair" : "pointer"),
+      })
+      .render();
+
+    const auto = new d3plus.Treemap()
+      .select("#auto")
+      .data(data)
+      .groupBy("id")
+      .sum("value")
+      .time("year")
+      .render(showClass);
+
+    function showClass() {
+      const group = document.querySelector("#auto g.d3plus-viz-timeline");
+      document.getElementById("autoClass").textContent = group
+        ? group.getAttribute("class")
+        : "";
+    }
+    new ResizeObserver(() => setTimeout(showClass, 600)).observe(
+      document.getElementById("auto"),
+    );
+  </script>
+</html>
