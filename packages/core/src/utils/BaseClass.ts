@@ -51,6 +51,21 @@ function nestedReset(value: unknown, defaults: unknown): unknown {
 
 type Setter = ((v: unknown) => unknown) & {[RESOLVES_RESET]?: boolean};
 
+/** Public methods that are not config accessors, left out of `getAllMethods`. */
+const REFLECT_SKIP = new Set([
+  "config",
+  "constructor",
+  "destroy",
+  "layout",
+  "measure",
+  "parent",
+  "render",
+  "renderMode",
+  "toCanvas",
+  "toSVGString",
+  "toScene",
+]);
+
 /**
     finds all prototype methods of a class and it's parent classes
     @param obj
@@ -68,17 +83,10 @@ function getAllMethods(obj: object): string[] {
       // Side-effect/lifecycle methods excluded from config reflection: invoking
       // them as no-arg getters would run real work. `measure` runs the full
       // axis-layout pass; `destroy` tears down the scene renderer (which defeats
-      // keyed reconcile and forces a full remount on the next draw).
-      ![
-        "config",
-        "constructor",
-        "destroy",
-        "measure",
-        "parent",
-        "render",
-        "renderMode",
-        "toScene",
-      ].includes(e),
+      // keyed reconcile and forces a full remount on the next draw);
+      // `toSVGString` serializes the drawn chart (through a throwaway SVG
+      // backend on Canvas), and `layout` recomputes a SizeLegend's layout.
+      !REFLECT_SKIP.has(e),
   );
 }
 
