@@ -64,6 +64,8 @@ When `colorScale` maps a numeric value to color, a colorScale replaces the legen
 
 See **Guides → Color** for how the default sequential and diverging palettes are built.
 
+Hexbin's density contours also write each level's value along the line itself, as a topographic map does, so a reader can tell the levels apart without the colorScale (and over bins, where every contour takes the text color, it's the only way to). [Contour labels](/core/charts/hexbin/#contour-labels) are on by default; `contourConfig: {labels: false}` turns them off.
+
 ### Link values
 
 On Network, Rings, Sankey, and ArcDiagram, `linkColor` set to a key or accessor whose values are numbers colors the links on the colorScale, so a chart can show a legend for its nodes' colors and a colorScale for its links' values:

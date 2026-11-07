@@ -133,12 +133,16 @@ export const hexbinDef: ChartDefinition = {
         Contour options: `bandwidth`, the density kernel's standard deviation
         in pixels (default 20); `thresholds`, about how many levels to draw
         (default 8, rounded to nice values) or the levels themselves;
-        `strokeWidth`, the outline width of `"lines"` (default 1.5); and
+        `strokeWidth`, the outline width of `"lines"` (default 1.5);
         `fillOpacity`, the opacity of the highest `"filled"` level (default
-        0.8).
-        @type {{bandwidth?: number, thresholds?: number | number[], strokeWidth?: number, fillOpacity?: number}}
+        0.8); `labels`, which writes each level's value along its contour
+        (default `true`); and `labelConfig`, TextBox config for those labels
+        (`fontSize` defaults to 10).
+        @type {{bandwidth?: number, thresholds?: number | number[], strokeWidth?: number, fillOpacity?: number, labels?: boolean, labelConfig?: object}}
     */
     {key: "contourConfig", merge: true, default: CONTOUR_DEFAULTS},
+    /** Formats the contour labels' and tooltips' level values. Defaults to the abbreviated number format (`1.5k`). */
+    {key: "levelFormat"},
     /** Draws the raw observations as small dots beneath the bins and contours. Defaults to `false`. */
     {key: "points", default: false},
     /**

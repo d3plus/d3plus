@@ -1091,9 +1091,20 @@ export {hexbinEmit, pixelPoints} from "./src/charts/Hexbin/emit.js";
 export {
   binAriaLabel,
   contourAriaLabel,
+  contourLevelText,
   hexbinTooltipRows,
   hexbinTooltipTitle,
 } from "./src/charts/Hexbin/tooltip.js";
+export {
+  CONTOUR_LABEL_FONT_SIZE,
+  CONTOUR_LABEL_MAX_LEVELS,
+  contourRings,
+  emitContourLabels,
+  labelledLevels,
+  paddedBand,
+  ringDistance,
+  ringLabelStretches,
+} from "./src/charts/Hexbin/contourLabels.js";
 export {
   isAggregatedBranch,
   mergeBranch,

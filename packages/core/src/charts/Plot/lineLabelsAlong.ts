@@ -23,9 +23,13 @@ import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {rowLabelsAlong} from "./lineLabelSides.js";
 
-/** Obstacle points, bucketed by cell for nearest-distance lookups. */
+/**
+    Obstacle points, bucketed by cell for nearest-distance lookups. Each
+    point may carry a tag, so a lookup can ignore the points of the line a
+    label sits on.
+*/
 export class PointGrid {
-  private cells = new Map<number, Pt[]>();
+  private cells = new Map<number, [number, number, number][]>();
 
   /** @param cell The cell size: lookups see obstacles this far away. */
   constructor(private cell: number) {}
@@ -35,21 +39,29 @@ export class PointGrid {
     return cx * 1048576 + cy;
   }
 
-  /** Adds obstacle points. */
-  add(points: Pt[]): void {
-    for (const p of points) {
+  /**
+      Adds obstacle points.
+      @param points The points.
+      @param tag A tag `nearest` can ignore them by.
+  */
+  add(points: Pt[], tag = -1): void {
+    for (const [x, y] of points) {
       const k = PointGrid.key(
-        Math.floor(p[0] / this.cell),
-        Math.floor(p[1] / this.cell),
+        Math.floor(x / this.cell),
+        Math.floor(y / this.cell),
       );
       const list = this.cells.get(k);
-      if (list) list.push(p);
-      else this.cells.set(k, [p]);
+      if (list) list.push([x, y, tag]);
+      else this.cells.set(k, [[x, y, tag]]);
     }
   }
 
-  /** The distance from `p` to its nearest obstacle within one cell, or `Infinity`. */
-  nearest(p: Pt): number {
+  /**
+      The distance from `p` to its nearest obstacle within one cell, or `Infinity`.
+      @param p The point.
+      @param ignore A tag whose points are left out.
+  */
+  nearest(p: Pt, ignore?: number): number {
     const cx = Math.floor(p[0] / this.cell),
       cy = Math.floor(p[1] / this.cell);
     let best = Infinity;
@@ -57,9 +69,10 @@ export class PointGrid {
       for (let dy = -1; dy <= 1; dy++) {
         const list = this.cells.get(PointGrid.key(cx + dx, cy + dy));
         if (!list) continue;
-        for (const q of list) {
-          const ex = p[0] - q[0],
-            ey = p[1] - q[1];
+        for (const [x, y, tag] of list) {
+          if (tag !== -1 && tag === ignore) continue;
+          const ex = p[0] - x,
+            ey = p[1] - y;
           const d = ex * ex + ey * ey;
           if (d < best) best = d;
         }
@@ -120,6 +133,10 @@ export interface StretchContext {
   roomWeight?: number;
   /** How steep a stretch reads bottom to top (see `uprightPoints`). */
   steep?: number;
+  /** A grid tag to ignore: the points of the line the label sits on. */
+  ignore?: number;
+  /** The most a stretch may turn in all, in radians (default a right angle). */
+  maxTurn?: number;
 }
 
 /**
@@ -151,7 +168,7 @@ export function scoreStretch(points: Pt[], ctx: StretchContext): number | null {
   for (const p of band) {
     if (p[0] < rect.x0 || p[0] > rect.x1 || p[1] < rect.y0 || p[1] > rect.y1)
       return null;
-    clearance = Math.min(clearance, ctx.grid.nearest(p));
+    clearance = Math.min(clearance, ctx.grid.nearest(p, ctx.ignore));
     if (clearance < minClearance) return null;
   }
   const [x0, y0] = points[0];
@@ -160,6 +177,53 @@ export function scoreStretch(points: Pt[], ctx: StretchContext): number | null {
   const {roomReach = ctx.fontSize, roomWeight = 0.5} = ctx;
   const room = Math.min(clearance, roomReach) / roomReach;
   return curvature(points) * 2 + slope * 0.5 - room * roomWeight;
+}
+
+/** A stretch `bestStretchAt` found: its points, its piece, and where along the piece it starts. */
+export interface StretchSpot {
+  points: Pt[];
+  piece: number;
+  from: number;
+}
+
+/**
+    The best-scoring stretch of `length` pixels along any of a line's
+    pieces, upright, with where it lies, or null when every stretch is
+    blocked or too bent.
+    @param pieces The line's pieces (where its data has gaps), in pixels.
+    @param length The stretch's length.
+    @param ctx The obstacles, plot area, and font.
+    @param allow Which stretches may be taken, by their piece and start.
+*/
+export function bestStretchAt(
+  pieces: Pt[][],
+  length: number,
+  ctx: StretchContext,
+  allow?: (from: number, piece: number) => boolean,
+): StretchSpot | null {
+  let best: StretchSpot | null = null;
+  let bestScore = Infinity;
+  const step = Math.max(4, ctx.fontSize / 2);
+  const maxTurn = ctx.maxTurn ?? Math.PI / 2;
+  for (let index = 0; index < pieces.length; index++) {
+    const piece = pieces[index];
+    const total = polylineLength(piece);
+    for (let from = 0; from + length <= total; from += step) {
+      if (allow && !allow(from, index)) continue;
+      const stretch = uprightPoints(
+        trimPolyline(piece, from, from + length),
+        ctx.steep,
+      );
+      // A label can't follow a line that doubles back under it.
+      if (curvature(stretch) > maxTurn) continue;
+      const score = scoreStretch(stretch, ctx);
+      if (score !== null && score < bestScore) {
+        bestScore = score;
+        best = {points: stretch, piece: index, from};
+      }
+    }
+  }
+  return best;
 }
 
 /**
@@ -174,26 +238,7 @@ export function bestStretch(
   length: number,
   ctx: StretchContext,
 ): Pt[] | null {
-  let best: Pt[] | null = null;
-  let bestScore = Infinity;
-  const step = Math.max(4, ctx.fontSize / 2);
-  for (const piece of pieces) {
-    const total = polylineLength(piece);
-    for (let from = 0; from + length <= total; from += step) {
-      const stretch = uprightPoints(
-        trimPolyline(piece, from, from + length),
-        ctx.steep,
-      );
-      // A label can't follow a line that doubles back under it.
-      if (curvature(stretch) > Math.PI / 2) continue;
-      const score = scoreStretch(stretch, ctx);
-      if (score !== null && score < bestScore) {
-        bestScore = score;
-        best = stretch;
-      }
-    }
-  }
-  return best;
+  return bestStretchAt(pieces, length, ctx)?.points ?? null;
 }
 
 /** A drawn series line: its row, and its pieces in the plot's coordinates. */
