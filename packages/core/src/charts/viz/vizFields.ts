@@ -69,6 +69,7 @@ const fields = {
   legend: {coerce: "const"},
   legendConfig: {merge: true},
   legendFilterInvert: {coerce: "const"},
+  legendHistory: {default: true},
   legendInset: {},
   legendInsetConfig: {merge: true},
   legendPadding: {coerce: "const"},

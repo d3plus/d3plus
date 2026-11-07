@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LegendHistory · Viz</title>
+    <meta
+      name="description"
+      content="Legend clicks on the Back history: hide or solo from the legend, drill into a treemap or zoom a sunburst, then step back through each change in order; linked bar charts follow Back, and one chart turns legendHistory off."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+      }
+
+      p {
+        margin: 0 0 16px;
+        max-width: 720px;
+        font-size: 14px;
+      }
+
+      section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+
+      .viz {
+        width: 440px;
+        height: 300px;
+      }
+
+      #log {
+        font-size: 13px;
+        min-height: 1.4em;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>
+      Click a legend item to hide it, shift+click to show it alone, and click a
+      tile or arc to drill in. Back undoes each step in the order it happened.
+      The two bar charts are linked: Back in the one you clicked restores both.
+      The last chart sets <code>legendHistory: false</code>, so its legend
+      clicks never show Back.
+    </p>
+    <div id="log"></div>
+    <section>
+      <div class="viz" id="treemap"></div>
+      <div class="viz" id="sunburst"></div>
+    </section>
+    <section>
+      <div class="viz" id="barA"></div>
+      <div class="viz" id="barB"></div>
+      <div class="viz" id="off"></div>
+    </section>
+  </body>
+
+  <script>
+    const tree = [
+      {region: "Americas", country: "Brazil", value: 21},
+      {region: "Americas", country: "Canada", value: 17},
+      {region: "Americas", country: "Mexico", value: 12},
+      {region: "Europe", country: "France", value: 19},
+      {region: "Europe", country: "Germany", value: 24},
+      {region: "Europe", country: "Spain", value: 9},
+      {region: "Asia", country: "India", value: 22},
+      {region: "Asia", country: "Japan", value: 18},
+      {region: "Asia", country: "Korea", value: 8},
+    ];
+
+    const charts = {};
+    const log = () => {
+      document.getElementById("log").textContent = Object.entries(charts)
+        .map(
+          ([name, viz]) =>
+            `${name}: ${(viz._history || []).map(e => e.kind || "drill").join(" → ") || "–"}`,
+        )
+        .join("   ");
+    };
+
+    const draw = (name, viz) => {
+      charts[name] = viz;
+      viz.select(`#${name}`).render(log);
+    };
+
+    draw(
+      "treemap",
+      new d3plus.Treemap().config({
+        data: tree,
+        groupBy: ["region", "country"],
+        depth: 0,
+        sum: "value",
+        legend: true,
+        title: "Treemap: legend + drill-down",
+      }),
+    );
+
+    draw(
+      "sunburst",
+      new d3plus.Sunburst().config({
+        data: tree,
+        groupBy: ["region", "country"],
+        sum: "value",
+        legend: true,
+        title: "Sunburst: legend + zoom",
+      }),
+    );
+
+    for (const name of ["barA", "barB"])
+      draw(
+        name,
+        new d3plus.BarChart().config({
+          data: tree,
+          groupBy: "region",
+          x: "region",
+          y: "value",
+          link: "regions",
+          title: `Linked bar chart ${name.slice(-1)}`,
+        }),
+      );
+
+    draw(
+      "off",
+      new d3plus.BarChart().config({
+        data: tree,
+        groupBy: "region",
+        x: "region",
+        y: "value",
+        legendHistory: false,
+        title: "legendHistory: false",
+      }),
+    );
+
+    setInterval(log, 300);
+  </script>
+</html>
