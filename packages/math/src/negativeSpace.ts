@@ -209,6 +209,95 @@ function maximalEmptyRects(
   return results;
 }
 
+/** How far inside the eight-direction polygon a corner must be to be left out, in pixels. */
+const INSIDE = 1e-6;
+
+/** The eight directions `hullPoints` finds extreme corners along, in turning order. */
+const DIRECTIONS: Point[] = [
+  [1, 0],
+  [1, 1],
+  [0, 1],
+  [-1, 1],
+  [-1, 0],
+  [-1, -1],
+  [0, -1],
+  [1, -1],
+];
+
+/** An edge of a convex polygon, turned so that its inside is to the left. */
+interface InnerEdge {
+  ax: number;
+  ay: number;
+  ex: number;
+  ey: number;
+  tol: number;
+}
+
+/** The edges of the convex polygon through `points`, or none when it has no area. */
+function innerEdges(points: Point[]): InnerEdge[] {
+  const poly = polygonHull(points) as Point[] | null;
+  if (!poly) return [];
+  let area = 0;
+  poly.forEach((a, i) => {
+    const b = poly[(i + 1) % poly.length];
+    area += a[0] * b[1] - b[0] * a[1];
+  });
+  if (!(Math.abs(area) > INSIDE)) return [];
+  const sign = area > 0 ? 1 : -1;
+  return poly
+    .map((a, i) => {
+      const b = poly[(i + 1) % poly.length];
+      const ex = b[0] - a[0],
+        ey = b[1] - a[1];
+      return {
+        ax: a[0],
+        ay: a[1],
+        ex: ex * sign,
+        ey: ey * sign,
+        tol: INSIDE * Math.hypot(ex, ey),
+      };
+    })
+    .filter(e => e.tol > 0);
+}
+
+/**
+    The padded corners of the finite obstacles that could be vertices of
+    their convex hull. The corners extreme along eight directions span a
+    convex polygon inside the hull; a corner more than `INSIDE` within that
+    polygon is inside the hull too, so it is left out, which spares
+    `polygonHull` from sorting it. The hull of what is left is the hull of
+    every corner.
+*/
+export function hullPoints(obstacles: Bounds[], padding: number): Point[] {
+  const corners: Point[] = [];
+  for (const o of obstacles) {
+    if (![o.x, o.y, o.width, o.height].every(Number.isFinite)) continue;
+    const x0 = o.x - padding,
+      y0 = o.y - padding;
+    const x1 = o.x + o.width + padding,
+      y1 = o.y + o.height + padding;
+    corners.push([x0, y0], [x1, y0], [x1, y1], [x0, y1]);
+  }
+  if (corners.length < 3) return corners;
+  const best = DIRECTIONS.map(() => -Infinity);
+  const extreme = DIRECTIONS.map(() => corners[0]);
+  for (const c of corners)
+    for (let k = 0; k < DIRECTIONS.length; k++) {
+      const v = c[0] * DIRECTIONS[k][0] + c[1] * DIRECTIONS[k][1];
+      if (v > best[k]) {
+        best[k] = v;
+        extreme[k] = c;
+      }
+    }
+  const edges = innerEdges(extreme);
+  if (!edges.length) return corners;
+  return corners.filter(([x, y]) => {
+    for (const {ax, ay, ex, ey, tol} of edges)
+      if (!(ex * (y - ay) - ey * (x - ax) > tol)) return true;
+    return false;
+  });
+}
+
 /**
     Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
     outside the marks described by `obstacles`. The marks are treated as a single
@@ -240,15 +329,7 @@ export default function negativeSpace(
     by1 = bounds.y + bounds.height;
   if (!(bounds.width > 0 && bounds.height > 0)) return [];
 
-  const points: Point[] = [];
-  for (const o of obstacles) {
-    if (![o.x, o.y, o.width, o.height].every(Number.isFinite)) continue;
-    const x0 = o.x - padding,
-      y0 = o.y - padding;
-    const x1 = o.x + o.width + padding,
-      y1 = o.y + o.height + padding;
-    points.push([x0, y0], [x1, y0], [x1, y1], [x0, y1]);
-  }
+  const points = hullPoints(obstacles, padding);
   const blocks = exclude.filter(b =>
     [b.x, b.y, b.width, b.height].every(Number.isFinite),
   );
