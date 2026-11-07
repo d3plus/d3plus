@@ -47,7 +47,7 @@ Set under a shape's name (`shapeConfig.Path.backgroundImage`), the image applies
 
 ## Slice labels
 
-Each slice's name sits centered on the line through the middle of the slice, with its share on a smaller line beneath. The name takes the largest size that shows it whole inside the slice (up to `shapeConfig.labelConfig.fontMax`, 50px by default), wrapping between words where that reads larger, and the share is left off where it would shrink the name too much. A slice with room to spare keeps its label halfway between where the slice gets too narrow and its rim.
+Each slice's name sits centered on the line through the middle of the slice, with its share on a smaller line beneath. The name takes the largest size that shows it whole inside the slice, from `shapeConfig.labelConfig.fontMin` to `fontMax` (10px to 32px by default), wrapping between words where that reads larger, and the share is left off where it would shrink the name too much. A slice with room to spare keeps its label halfway between where the slice gets too narrow and its rim, and a slice too small to show its whole name at 10px is labelled [outside the ring](#labels-outside-the-ring) instead.
 
 <Playground chart="Pie" code={sliceLabels} controls={["labelPosition","shapeConfig"]} />
 

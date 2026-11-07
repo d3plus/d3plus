@@ -38,8 +38,8 @@ export interface StraightLabelOptions {
 
 /** The defaults for `StraightLabelOptions`. */
 export const STRAIGHT_LABEL_DEFAULTS: StraightLabelOptions = {
-  fontMin: 8,
-  fontMax: 50,
+  fontMin: 10,
+  fontMax: 32,
   padding: 5,
   lineHeight: 1.2,
   shareRatio: 0.7,
@@ -55,7 +55,7 @@ const num = (v: unknown) =>
 
 /**
     The straight label options a labelConfig asks for: its `fontSize` alone
-    when it sets one, else `fontMin` to `fontMax` (8 to 50 by default), and
+    when it sets one, else `fontMin` to `fontMax` (10 to 32 by default), and
     its `padding` (5 by default).
     @param config The labelConfig.
 */

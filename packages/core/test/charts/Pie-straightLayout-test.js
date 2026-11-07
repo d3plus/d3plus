@@ -35,7 +35,8 @@ const wholeBox = layout => {
 
 it("straightLabelOptions — a fixed fontSize, else fontMin to fontMax, and the padding", () => {
   assert.deepStrictEqual(straightLabelOptions({}), STRAIGHT_LABEL_DEFAULTS);
-  assert.strictEqual(STRAIGHT_LABEL_DEFAULTS.fontMax, 50);
+  assert.strictEqual(STRAIGHT_LABEL_DEFAULTS.fontMax, 32);
+  assert.strictEqual(STRAIGHT_LABEL_DEFAULTS.fontMin, 10);
   const fixed = straightLabelOptions({fontSize: 14, fontMin: 6});
   assert.deepStrictEqual([fixed.fontMin, fixed.fontMax], [14, 14]);
   const range = straightLabelOptions({fontMin: 10, fontMax: 30, padding: 2});
@@ -46,7 +47,7 @@ it("straightLabelOptions — a fixed fontSize, else fontMin to fontMax, and the 
   const low = straightLabelOptions({fontMin: 40, fontMax: 20});
   assert.deepStrictEqual([low.fontMin, low.fontMax], [20, 20]);
   const odd = straightLabelOptions({fontSize: () => 12, padding: "4px"});
-  assert.deepStrictEqual([odd.fontMin, odd.fontMax, odd.padding], [8, 50, 5]);
+  assert.deepStrictEqual([odd.fontMin, odd.fontMax, odd.padding], [10, 32, 5]);
 });
 
 it("wrapWidths — the narrowest wrap between words onto each number of lines", () => {
@@ -71,7 +72,7 @@ it("straightLabelLayout — the name and share, as large as fits, centered on th
   const layout = straightLabelLayout(sectorEdges(arc), [4.5, 2.6], 1.6);
   assert.ok(layout);
   assert.ok(Number.isInteger(layout.fontSize));
-  assert.ok(layout.fontSize >= 8 && layout.fontSize <= 50);
+  assert.ok(layout.fontSize >= 10 && layout.fontSize <= 32);
   assert.ok(layout.share, "a share beneath");
   assert.strictEqual(
     layout.shareSize,
@@ -103,7 +104,7 @@ it("straightLabelLayout — wraps onto more lines where that shows the name larg
 it("straightLabelLayout — fontMax caps the name, and the box goes halfway along its room", () => {
   const arc = seg(0, 180);
   const layout = straightLabelLayout(sectorEdges(arc), [2], 1.5);
-  assert.strictEqual(layout.fontSize, 50);
+  assert.strictEqual(layout.fontSize, 32);
   near(bisectorOffset(arc, layout.center).across, 0, 1e-9, "on the bisector");
   const fixed = straightLabelLayout(sectorEdges(arc), [2], 1.5, {
     ...STRAIGHT_LABEL_DEFAULTS,
@@ -116,7 +117,7 @@ it("straightLabelLayout — fontMax caps the name, and the box goes halfway alon
 
 it("straightLabelLayout — leaves the share off where it would shrink the name", () => {
   // A shallow ring: room for one line, not two.
-  const arc = seg(-60, 60, 160, 200);
+  const arc = seg(-60, 60, 150, 200);
   const layout = straightLabelLayout(sectorEdges(arc), [3], 1.6);
   assert.strictEqual(layout.share, null);
   assert.strictEqual(layout.shareSize, null);
@@ -135,7 +136,7 @@ it("straightLabelLayout — cuts a name short at fontMin, or gives up", () => {
   const arc = seg(0, 30, 0, 120);
   const layout = straightLabelLayout(sectorEdges(arc), [40], 2);
   assert.strictEqual(layout.truncated, true);
-  assert.strictEqual(layout.fontSize, 8);
+  assert.strictEqual(layout.fontSize, 10);
   assert.strictEqual(layout.lines, 1);
   assert.strictEqual(layout.share, null);
   assert.ok(boxInSector(arc, layout.name));
@@ -146,6 +147,52 @@ it("straightLabelLayout — cuts a name short at fontMin, or gives up", () => {
     "no room for a few letters",
   );
   assert.strictEqual(straightLabelLayout(sectorEdges(arc), [], 2), null);
+});
+
+it("straightLabelLayout — a name that only shows whole below 10px is cut short at 10px", () => {
+  const arc = seg(0, 12, 0, 200);
+  const small = straightLabelLayout(sectorEdges(arc), [3], null, {
+    ...STRAIGHT_LABEL_DEFAULTS,
+    fontMin: 6,
+  });
+  assert.ok(
+    small.fontSize >= 6 && small.fontSize < 10 && !small.truncated,
+    `whole at ${small.fontSize}px when fontMin allows it`,
+  );
+  const layout = straightLabelLayout(sectorEdges(arc), [3], null);
+  assert.strictEqual(layout.truncated, true);
+  assert.strictEqual(layout.fontSize, 10);
+});
+
+it("pieLabelPlan — a slice whose name needs less than 10px inside is labelled outside", () => {
+  const viz = new Pie()
+    .data([
+      {id: "Green", value: 48},
+      {id: "Red", value: 112},
+      {id: "Blue", value: 96},
+      {id: "Yellow", value: 31},
+      {id: "Independent", value: 13},
+    ])
+    .groupBy("id")
+    .startAngle(-90)
+    .endAngle(90);
+  const labels = straightLabels(viz, 440, 300);
+  const names = labels.map(l => l.nodes[0].lines.map(x => x.text).join(" "));
+  assert.ok(!names.includes("Independent"), names.join(", "));
+  const plan = viz.ctx.pieLabelPlan.plan;
+  assert.deepStrictEqual(
+    plan.outside.map(c => c.text),
+    ["Independent 4.33%"],
+  );
+  for (const {nodes} of labels)
+    for (const n of nodes) assert.ok(n.font.size >= 10, `${n.font.size}px`);
+
+  // A smaller fontMin of the chart's own keeps it inside.
+  viz.shapeConfig({labelConfig: {fontMin: 6}});
+  const kept = straightLabels(viz, 440, 300).map(l =>
+    l.nodes[0].lines.map(x => x.text).join(" "),
+  );
+  assert.ok(kept.includes("Independent"), kept.join(", "));
 });
 
 it("centerLabelLines — moves a label's lines together onto a height", () => {
@@ -183,8 +230,8 @@ it("centerLabelLines — moves a label's lines together onto a height", () => {
 });
 
 /** A chart's straight labels after layout, each slice's nodes together. */
-function straightLabels(viz) {
-  viz.width(600).height(500).duration(0);
+function straightLabels(viz, width = 600, height = 500) {
+  viz.width(width).height(height).duration(0);
   viz._preDraw();
   viz._margin = {top: 0, right: 0, bottom: 0, left: 0};
   viz._padding = {top: 0, right: 0, bottom: 0, left: 0};

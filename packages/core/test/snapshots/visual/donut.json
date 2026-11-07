@@ -1,7 +1,7 @@
 {
   "counts": {
     "path": 6,
-    "text": 12,
+    "text": 11,
     "rect": 10
   },
   "shapes": [
@@ -168,6 +168,10 @@
       "a": "middle"
     },
     {
+      "s": "Zeta",
+      "a": "middle"
+    },
+    {
       "s": "Alpha",
       "a": "start"
     },
@@ -189,14 +193,6 @@
     },
     {
       "s": "10%",
-      "a": "start"
-    },
-    {
-      "s": "Zeta",
-      "a": "start"
-    },
-    {
-      "s": "5%",
       "a": "start"
     }
   ]
