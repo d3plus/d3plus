@@ -1,27 +1,13 @@
-import {csv, json, text, tsv} from "d3-fetch";
-
 import type {DataPoint} from "./DataPoint.js";
 import fold from "./fold.js";
 import concat from "./concat.js";
 import isData from "./isData.js";
-import cacheKey from "./cacheKey.js";
-import validateData from "./validateData.js";
+import request from "./request.js";
+import type {LoadCache, LoadRequestConfig} from "./request.js";
 
 type DataFormatter = (
   data: DataPoint[] | DataPoint[][],
 ) => DataPoint[] | Record<string, unknown>;
-
-interface LoadRequestConfig {
-  url: string;
-  headers?: Record<string, string>;
-  [key: string]: unknown;
-}
-
-/** A chart's data cache: raw payloads by `cacheKey`. */
-interface LoadCache {
-  get(key: string): unknown;
-  set(key: string, value: unknown): void;
-}
 
 interface VizContext {
   /** Overrides `schema.cache` (a poll passes `false` to always fetch). */
@@ -44,15 +30,6 @@ function loadCache(ctx: VizContext): LoadCache | undefined {
 }
 
 /**
-  A deep copy of a payload, so the cached one is never changed by a formatter
-  or the chart drawing it.
-  @private
-*/
-function copy<T>(value: T): T {
-  return typeof structuredClone === "function" ? structuredClone(value) : value;
-}
-
-/**
   Stores a loaded value under its instance key. Core data slots own a real
   `_<key>` property (e.g. `_data`); schema-managed fold keys (links, nodes,
   topojson, fitObject) live on `schema`.
@@ -68,24 +45,6 @@ function storeLoaded(
 }
 
 type LoadedData = DataPoint[] | DataPoint[][];
-
-/** Fetches a single resource, parsing by file extension. */
-function fetchData(
-  path: string,
-  init: RequestInit = {},
-): Promise<DataPoint[] | Record<string, unknown>> {
-  const ext = path.slice(path.length - 4);
-  switch (ext) {
-    case ".csv":
-      return csv(path, init) as Promise<DataPoint[]>;
-    case ".tsv":
-      return tsv(path, init) as Promise<DataPoint[]>;
-    case ".txt":
-      return text(path, init) as unknown as Promise<DataPoint[]>;
-    default:
-      return json(path, init) as Promise<Record<string, unknown>>;
-  }
-}
 
 /** Counts how many slots of the loaded array are populated. */
 function loadedLength(loadedArray: (DataPoint[] | undefined)[]): number {
@@ -164,7 +123,7 @@ function finish(
 /**
   Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
 
-  When the context caches (its `_cache` flag, else its `schema.cache`), the fetched payloads are kept in its `_lrucache` under `cacheKey(key, path)`, before the formatter runs, and a later load of the same request formats the cached copy at once, calling back synchronously, instead of fetching again. A failed request is not cached.
+  When the context caches (its `_cache` flag, else its `schema.cache`), each response's text is kept in its `_lrucache` under `cacheKey(request)`, and a later load of the same request parses it again at once, calling back synchronously, instead of fetching. Loads of a request already in flight share its fetch and parse, each getting its own copy, so a formatter that changes its rows never affects another load. A failed request is not cached.
   @param path The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.
   @param formatter Optional function to transform the loaded data.
   @param key The key in the `this` context to save the resulting data to.
@@ -187,12 +146,12 @@ export default function (
   const needToLoad = path.find(isData);
 
   let loaded: (DataPoint[] | undefined)[] = new Array(path.length);
-  const toLoad: (string | LoadRequestConfig)[] = [];
+  const toLoad: number[] = [];
 
   // If there is a string I'm assuming is a Array to merge, urls or data
   if (needToLoad) {
     path.forEach((dataItem, ix: number) => {
-      if (isData(dataItem)) toLoad.push(dataItem as string | LoadRequestConfig);
+      if (isData(dataItem)) toLoad.push(ix);
       else loaded[ix] = dataItem as DataPoint[];
     });
   }
@@ -201,48 +160,22 @@ export default function (
     loaded[0] = path as DataPoint[];
   }
 
+  // Load all urls and combine them with data arrays. Cached responses call
+  // back at once, so a fully cached load finishes synchronously.
   const cache = toLoad.length && key ? loadCache(this) : undefined;
-  const storeKey = cache ? cacheKey(key!, path) : "";
-  const cached = cache?.get(storeKey) as
-    (DataPoint[] | undefined)[] | undefined;
-  if (cached) {
-    finish(this, copy(cached), formatter, key, undefined, callback);
-    return;
-  }
-
-  // Load all urls an combine them with data arrays
-  const alreadyLoaded = loadedLength(loaded);
-  toLoad.forEach(dataItem => {
-    let url: string = dataItem as string;
-    let init: Record<string, unknown> = {};
-    if (typeof dataItem === "object" && dataItem.url) {
-      url = dataItem.url;
-      init = dataItem;
-    }
-    fetchData(url, init as RequestInit)
-      .then((data: DataPoint[] | Record<string, unknown>) => {
-        if (
-          !(data instanceof Array) &&
-          (data as Record<string, unknown>).data &&
-          (data as Record<string, unknown>).headers
-        )
-          data = fold(data as Parameters<typeof fold>[0]);
-        data = validateData(data);
-        loaded[
-          (path as (string | LoadRequestConfig | DataPoint[])[]).findIndex(
-            d => JSON.stringify(d) == JSON.stringify(dataItem),
-          )
-        ] = data as DataPoint[];
-        // All urls loaded
-        if (loadedLength(loaded) - alreadyLoaded === toLoad.length) {
-          if (cache) cache.set(storeKey, copy(loaded));
-          finish(this, loaded, formatter, key, undefined, callback);
-        }
-      })
-      .catch((err: Error) => {
+  let remaining = toLoad.length;
+  toLoad.forEach(ix => {
+    const dataItem = (path as (string | LoadRequestConfig)[])[ix];
+    request(dataItem, cache, (err, data) => {
+      if (err) {
         if (callback) callback(err, undefined);
         else console.error(err);
-      });
+        return;
+      }
+      loaded[ix] = data as DataPoint[];
+      if (--remaining === 0)
+        finish(this, loaded, formatter, key, undefined, callback);
+    });
   });
 
   // If there is no data to Load response is immediately

@@ -172,7 +172,7 @@ it("data cache: a request object is keyed by its fetch options", async () => {
   assert.deepStrictEqual(out, {requests: 2, tokens: ["one", "two"]});
 });
 
-it("data cache: several URLs load and cache as one request", async () => {
+it("data cache: several URLs cache each response, in any order", async () => {
   window.__renderer = "svg";
   const out = await render(BODY, async () => {
     const server = serve({
@@ -187,12 +187,13 @@ it("data cache: several URLs load and cache as one request", async () => {
     const second = values(viz);
     viz.data(["/__cache/y.json", "/__cache/x.json"]);
     await draw(viz);
-    return {first, second, requests: server.requests};
+    return {first, second, third: values(viz), requests: server.requests};
   });
   assert.deepStrictEqual(out, {
     first: {a: 1, b: 2},
     second: {a: 1, b: 2},
-    requests: {"/__cache/x.json": 2, "/__cache/y.json": 2},
+    third: {a: 1, b: 2},
+    requests: {"/__cache/x.json": 1, "/__cache/y.json": 1},
   });
 });
 
@@ -247,7 +248,7 @@ it("data cache: each chart has its own cache", async () => {
   assert.strictEqual(out, 2);
 });
 
-it("data cache: links, nodes, topojson and fitObject are cached by loader", async () => {
+it("data cache: links, nodes, topojson and fitObject naming one URL share its request", async () => {
   window.__renderer = "svg";
   const out = await render(BODY, async () => {
     const topology = {
@@ -309,11 +310,10 @@ it("data cache: links, nodes, topojson and fitObject are cached by loader", asyn
       fitObject: geomap.fitObject().type,
     };
   });
-  // links and nodes share a URL but not a cache entry: one request each.
   assert.deepStrictEqual(out, {
-    graphRequests: 2,
+    graphRequests: 1,
     nodes: ["a", "b"],
-    topoRequests: 2,
+    topoRequests: 1,
     topojson: "Topology",
     fitObject: "Topology",
   });

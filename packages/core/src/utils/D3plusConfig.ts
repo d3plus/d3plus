@@ -1067,11 +1067,11 @@ export interface D3plusConfig {
   /**
       Whether the chart keeps the files it fetches for `data`, `links`,
       `nodes`, `topojson`, and `fitObject`. Each chart has its own cache of
-      its 10 most recent requests, keyed by the loader and the request (every
-      URL, and a request object's `fetch` options). It holds each response as
-      fetched, before its `*Format` formatter runs, so setting the same URL
-      again, or a new formatter, draws from the cache without a request. A
-      failed request is not kept. Defaults to `true`; set it to `false` to
+      its 10 most recent requests, keyed by the request (the URL, and a
+      request object's `fetch` options), so loaders naming the same URL share
+      one request. It holds each response as fetched, before its `*Format`
+      formatter runs, so setting the same URL again, or a new formatter, draws
+      from the cache without a request. A failed request is not kept. Defaults to `true`; set it to `false` to
       fetch on every load, or use `dataPollingInterval` to re-fetch `data` on
       a schedule (polls always fetch).
   */

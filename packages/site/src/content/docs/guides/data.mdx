@@ -162,11 +162,12 @@ ArcDiagram, and `topojsonFormat` and `linksFormat` on Geomap.
 ### Caching
 
 Each chart keeps its 10 most recent responses, as fetched and before any
-formatter runs, keyed by the loader and the request (every URL and a request
-object's `fetch` options). Setting the same `data` URL again, or a new
-`dataFormat`, draws from that copy without a request, and so do `links`,
-`nodes`, and `topojson`. A failed request is not kept, so setting the URL again
-retries it. To fetch on every load, set `cache: false`; to re-fetch on a
+formatter runs, keyed by the request (the URL and a request object's `fetch`
+options). Setting the same `data` URL again, or a new `dataFormat`, draws from
+that copy without a request, and so do `links`, `nodes`, and `topojson`.
+Loaders that name the same URL, like `links` and `nodes` above, share one
+request, and each formatter gets its own copy of the response. A failed request
+is not kept, so setting the URL again retries it. To fetch on every load, set `cache: false`; to re-fetch on a
 schedule, use `dataPollingInterval`, whose polls always go to the server.
 
 ## Live data

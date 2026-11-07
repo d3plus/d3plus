@@ -195,21 +195,13 @@ it("load: formatters also run on arrays that need no fetch", async () => {
   assert.deepStrictEqual(ctx.configs, [{legend: false}]);
 });
 
-it("load: with caching on, the raw payload is cached under cacheKey", async () => {
+it("load: with caching on, the response text is cached under cacheKey", async () => {
   stubFetch();
   const ctx = context({_cache: true, _data: []});
   await run(ctx, "folded.json", rows => rows.slice(0, 1), "data");
   assert.deepStrictEqual(ctx._data, [{id: "a", value: 1}], "formatted");
   assert.deepStrictEqual(ctx._lrucache.entries, [
-    [
-      cacheKey("data", "folded.json"),
-      [
-        [
-          {id: "a", value: 1},
-          {id: "b", value: 2},
-        ],
-      ],
-    ],
+    [cacheKey("folded.json"), files["folded.json"]],
   ]);
 });
 
@@ -266,9 +258,10 @@ it("load: request options and every URL of a list are part of the key", async ()
   assert.deepStrictEqual(
     ctx._lrucache.entries.map(([k]) => k),
     [
-      cacheKey("links", request),
-      cacheKey("links", {url: "rows.json", headers: {A: "2"}}),
-      cacheKey("links", ["rows.json", "more.json"]),
+      cacheKey(request),
+      cacheKey({url: "rows.json", headers: {A: "2"}}),
+      cacheKey("rows.json"),
+      cacheKey("more.json"),
     ],
   );
   assert.strictEqual(ctx.schema.links.length, 2, "a list stays one load");
@@ -279,9 +272,16 @@ it("load: a failed fetch and rows that need no fetch are not cached", async () =
   const ctx = context({_cache: true, _data: []});
   const [error] = await run(ctx, "missing.json", undefined, "data");
   assert.ok(error instanceof Error);
-  await run(ctx, ["rows.json", "missing.json"], undefined, "data");
   await run(ctx, [{id: "a"}], undefined, "data");
   assert.deepStrictEqual(ctx._lrucache.entries, []);
+  await run(ctx, ["rows.json", "missing.json"], undefined, "data");
+  await vi.waitFor(() =>
+    assert.deepStrictEqual(
+      ctx._lrucache.entries.map(([k]) => k),
+      [cacheKey("rows.json")],
+      "only the request that succeeded",
+    ),
+  );
 });
 
 it("load: a failed fetch hands the error to the callback without logging it", async () => {
@@ -336,4 +336,84 @@ it("load: a failed fetch without a callback only logs the error", async () => {
   const logged = vi.spyOn(console, "error").mockImplementation(() => {});
   load.call(context(), "missing.json");
   await vi.waitFor(() => assert.strictEqual(logged.mock.calls.length, 1));
+});
+
+it("load: a formatter that changes its rows never corrupts a later load", async () => {
+  const requests = stubFetch();
+  const ctx = context({_cache: true, _data: []});
+  const mutate = rows => {
+    rows.forEach(d => (d.value *= 10));
+    rows.push({id: "extra", value: 0});
+    return rows;
+  };
+  const [, first] = await run(ctx, "rows.json", mutate, "data");
+  assert.deepStrictEqual(
+    first.map(d => d.value),
+    [50, 0],
+  );
+  for (let i = 0; i < 3; i++) {
+    const [, again] = await run(ctx, "rows.json", mutate, "data");
+    assert.deepStrictEqual(
+      again.map(d => d.value),
+      [50, 0],
+      "each load formats a pristine copy",
+    );
+  }
+  const [, plain] = await run(ctx, "rows.json", undefined, "data");
+  assert.deepStrictEqual(plain, [
+    {id: "a", value: 5, flag: true, off: false, name: "alpha"},
+  ]);
+  assert.strictEqual(requests.length, 1);
+});
+
+it("load: links and nodes naming one URL share one request, each formatted on its own copy", async () => {
+  files["graph.json"] = JSON.stringify({
+    edges: [{source: "a", target: "b", weight: "2"}],
+    vertices: [{id: "a"}, {id: "b"}],
+  });
+  const requests = stubFetch();
+  const ctx = context({_cache: true, schema: {}});
+  const [[, links], [, nodes]] = await Promise.all([
+    run(
+      ctx,
+      "graph.json",
+      json => {
+        json.vertices.length = 0;
+        return json.edges;
+      },
+      "links",
+    ),
+    run(ctx, "graph.json", json => json.vertices, "nodes"),
+  ]);
+  assert.deepStrictEqual(links, [{source: "a", target: "b", weight: "2"}]);
+  assert.deepStrictEqual(nodes, [{id: "a"}, {id: "b"}]);
+  assert.strictEqual(ctx.schema.links, links);
+  assert.strictEqual(ctx.schema.nodes, nodes);
+  assert.strictEqual(requests.length, 1);
+  const [, cachedNodes] = await run(
+    ctx,
+    "graph.json",
+    json => json.vertices,
+    "nodes",
+  );
+  assert.deepStrictEqual(cachedNodes, [{id: "a"}, {id: "b"}]);
+  assert.strictEqual(requests.length, 1);
+  delete files["graph.json"];
+});
+
+it("load: a list naming one URL twice loads each slot", async () => {
+  const requests = stubFetch();
+  const ctx = context({_cache: true, _data: []});
+  const [, data] = await run(
+    ctx,
+    ["rows.json", "rows.json"],
+    undefined,
+    "data",
+  );
+  assert.deepStrictEqual(
+    data.map(d => d.id),
+    ["a", "a"],
+  );
+  assert.notStrictEqual(data[0], data[1]);
+  assert.strictEqual(requests.length, 1);
 });
