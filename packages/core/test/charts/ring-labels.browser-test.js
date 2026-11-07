@@ -325,7 +325,9 @@ for (const renderer of ["svg", "canvas"]) {
             const opacity = {};
             const walk = (n, o) => {
               const op = o * (n.paint?.opacity ?? 1);
-              if (n.type === "text" && n.path) opacity[n.lines[0].text] = op;
+              // Curved or straight, each label by its whole text.
+              if (n.type === "text")
+                opacity[n.lines.map(l => l.text).join(" ")] = op;
               (n.children || []).forEach(c => walk(c, op));
             };
             walk(viz._paintedScene.root, 1);

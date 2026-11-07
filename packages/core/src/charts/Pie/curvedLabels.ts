@@ -1,7 +1,7 @@
 /**
     Curved slice labels for a Donut, or any Pie with an `innerRadius` (see
     `labelPosition`): a slice's name runs along its arc where that reads
-    better than the straight label in its largest box. A full Pie's wedges
+    better than the straight label centered in its slice. A full Pie's wedges
     run to a point at the center, so its labels stay straight. Names follow
     the middle of a wide ring, or the rim of one whose hole is small, where
     a wedge is widest. The share goes on a second, smaller line beneath the

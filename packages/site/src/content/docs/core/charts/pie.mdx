@@ -11,6 +11,7 @@ import drillDownOnClick from "~/examples/core/charts/pie/drill-down-on-click.js?
 import backgroundImages from "~/examples/core/charts/pie/background-images.js?raw";
 import quarterPie from "~/examples/core/charts/pie/quarter-pie.js?raw";
 import outsideLabels from "~/examples/core/charts/pie/outside-labels.js?raw";
+import sliceLabels from "~/examples/core/charts/pie/slice-labels.js?raw";
 
 Uses the d3 pie layout to create SVG arcs based on an array of data.
 
@@ -43,6 +44,12 @@ Set under a shape's name (`shapeConfig.Path.backgroundImage`), the image applies
 `startAngle: 0, endAngle: 90` draws a quarter pie from 12 to 3 o'clock. A partial ring is sized to the part it draws and centered in the chart, so the quarter fills the chart's height. An `endAngle` smaller than `startAngle` lays the slices out counter-clockwise.
 
 <Playground chart="Pie" code={quarterPie} controls={["startAngle","endAngle"]} />
+
+## Slice labels
+
+Each slice's name sits centered on the line through the middle of the slice, with its share on a smaller line beneath. The name takes the largest size that shows it whole inside the slice (up to `shapeConfig.labelConfig.fontMax`, 50px by default), wrapping between words where that reads larger, and the share is left off where it would shrink the name too much. A slice with room to spare keeps its label halfway between where the slice gets too narrow and its rim.
+
+<Playground chart="Pie" code={sliceLabels} controls={["labelPosition","shapeConfig"]} />
 
 ## Labels outside the ring
 
