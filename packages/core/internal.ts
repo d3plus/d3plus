@@ -1555,6 +1555,24 @@ export {
   unregisterLink,
 } from "./src/charts/viz/linkGroup.js";
 export type {LinkKind, ResolvedLink} from "./src/charts/viz/linkGroup.js";
+export {
+  dropLegendHistory,
+  isLegendEntry,
+  latestDrillEntry,
+  legendSnapshot,
+  recordLegendChange,
+  removeLatestDrillEntry,
+  restoreLegendEntry,
+  sameLegendIds,
+  takeLegendState,
+} from "./src/charts/viz/history.js";
+export type {
+  DrillDownHistoryEntry,
+  HistoryEntry,
+  LegendHistoryEntry,
+  LegendState,
+} from "./src/charts/viz/vizTypes.js";
+export {goBack} from "./src/charts/drawSteps/backControl.js";
 export {forEachSceneRow, MARK_TYPES} from "./src/charts/viz/sceneRows.js";
 export {
   effectiveDuration,

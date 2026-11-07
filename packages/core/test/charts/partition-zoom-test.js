@@ -36,6 +36,21 @@ it("partition zoom: partitionFocus is unfocused without history, else reads the 
     "never focuses at or past the deepest drawn level",
   );
   assert.deepStrictEqual(
+    partitionFocus(
+      mockViz({
+        _history: [{groupDepth: 0}, {kind: "legend", hidden: ["a2"], solo: []}],
+      }),
+    ),
+    {level: 0, path: ["A"]},
+    "reads the latest zoom past a legend entry",
+  );
+  assert.deepStrictEqual(
+    partitionFocus(
+      mockViz({_history: [{kind: "legend", hidden: ["a2"], solo: []}]}),
+    ),
+    {level: -1, path: []},
+  );
+  assert.deepStrictEqual(
     partitionFocus(mockViz({_history: [{groupDepth: 0}], _filteredData: []})),
     {level: -1, path: []},
   );

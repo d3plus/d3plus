@@ -159,6 +159,12 @@ describe.each(charts)("$chart interaction", c => {
     const viz = mockViz();
     const root = {...nodeAt(viz, ["A"]), depth: 0};
     assert.strictEqual(partitionClickable(viz, root), false);
+    viz._history.push({kind: "legend", hidden: [], solo: []});
+    assert.strictEqual(
+      partitionClickable(viz, root),
+      false,
+      "a legend entry is not a zoom to step out of",
+    );
     viz._history.push({});
     assert.strictEqual(partitionClickable(viz, root), true);
     assert.strictEqual(
@@ -236,6 +242,22 @@ describe.each(charts)("$chart interaction", c => {
       partitionZoomOut(viz);
       assert.strictEqual(viz.log.config.length, 2, "nothing to pop");
     }
+  });
+
+  it("partitionZoomOut steps out of the latest zoom, keeping later legend entries", () => {
+    const viz = mockViz();
+    c.zoomIn(viz, nodeAt(viz, ["A"]));
+    const legend = {kind: "legend", hidden: ["x"], solo: []};
+    viz._history.push(legend);
+    partitionZoomOut(viz);
+    assert.deepStrictEqual(viz.log.config[1], {
+      depth: undefined,
+      filter: undefined,
+    });
+    assert.deepStrictEqual(viz._history, [legend]);
+    partitionZoomOut(viz);
+    assert.strictEqual(viz.log.config.length, 2, "no zoom left to pop");
+    assert.deepStrictEqual(viz._history, [legend]);
   });
 
   it("handlers hover the lineage of a node and defer other marks to the base handler", () => {

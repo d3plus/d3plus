@@ -1743,9 +1743,13 @@ export interface D3plusConfig {
     shapeConfig?: Record<string, string | number>;
   };
   /**
-      Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
+      Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking will solo that category and shift+clicking will hide that category. The Back button undoes each click (see `legendHistory`).
   */
   legendFilterInvert?: boolean | ((viz: VizBase) => boolean);
+  /**
+      Whether legend clicks go on the chart's Back history. A click or shift+click (or Enter or Space on a legend item) that changes what is hidden or solo'd shows the Back button, and Back undoes legend clicks and drill-downs in the order they happened, restoring the legend exactly as it was. A drill-down to a deeper level starts with every group shown, and Back out of it brings back the legend it left. A click that changes nothing adds no step, and new `data` clears the legend's steps along with the legend. Clicking a Sunburst or Icicle center zooms out without undoing the legend clicks made since the zoom. Defaults to `true`; `false` leaves legend clicks off the history, so Back only steps out of drill-downs.
+  */
+  legendHistory?: boolean;
   /**
       Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
   */

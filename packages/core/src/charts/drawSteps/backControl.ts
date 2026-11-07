@@ -1,8 +1,8 @@
 /**
     The "← Back" control's contribution to the shared top-left controls
     panel (`topLeftControls.ts`) — visible only when the chart has
-    drill-down history to pop. Styled like the zoom/search controls: a real
-    `<button>` at the same 20px height, an SVG arrow icon (not a text
+    history to pop (drill-downs and legend clicks). Styled like the
+    zoom/search controls: a real `<button>` at the same 20px height, an SVG arrow icon (not a text
     glyph), and no default background/border/color — a plain
     browser-appearance button that lets native/host-page button chrome
     show through, restylable via `.backControlStyle()`/
@@ -20,7 +20,10 @@
 
     @module
 */
+import {isLegendEntry, restoreLegendEntry} from "../viz/history.js";
+import {broadcastLegend} from "../viz/linkGroup.js";
 import type Viz from "../viz/Viz.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 import type {Contribution} from "./topLeftControlsMarkup.js";
 import {ICON_ATTRS} from "./zoomControlsMarkup.js";
 import {paintControlButton, resolveControlStyle} from "./controlButtonStyle.js";
@@ -44,10 +47,19 @@ export function paintBackButton(viz: Viz, btn: HTMLElement): void {
 // A left-pointing arrow: a horizontal shaft + an open chevron head.
 const BACK_ICON = `<svg ${ICON_ATTRS}><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`;
 
-/** Pops the drill-down history (or steps up a level, when there's no history entry left) and re-renders. */
-function goBack(viz: Viz): void {
+/**
+    Pops the Back history and re-renders: a legend entry puts back the
+    legend's hide/solo state (mirrored to linked charts), a drill-down entry
+    the view (and any legend state the drill cleared) before it. With no
+    entry left, steps up a level.
+*/
+export function goBack(viz: Viz): void {
   const entry = viz._history.pop();
-  if (entry) {
+  if (entry && isLegendEntry(entry)) {
+    restoreLegendEntry(viz as unknown as VizInstance, entry);
+    broadcastLegend(viz as unknown as VizInstance);
+    viz.render();
+  } else if (entry) {
     // Arms the reappearing parent's reunion lookup (resolveDrillMorph), so
     // the vanishing children shrink into its rect instead of just fading —
     // the mirror of clickShape's forward capture. `body` is the CURRENT
@@ -60,6 +72,8 @@ function goBack(viz: Viz): void {
         groupDepth: entry.groupDepth,
         body: viz._bodyRect,
       };
+    if (entry.legend)
+      restoreLegendEntry(viz as unknown as VizInstance, entry.legend);
     // Only the entry's view keys are config; groupId/groupDepth are the
     // reunion lookup's.
     viz.config({depth: entry.depth, filter: entry.filter}).render();

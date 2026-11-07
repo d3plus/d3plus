@@ -7,6 +7,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 
+import {latestDrillEntry} from "../viz/history.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import type {PartitionFields, PartitionKey} from "./hierarchy.js";
@@ -18,13 +19,13 @@ export interface PartitionFocus {
 }
 
 /**
-    The node a click zoomed into, read from the drill-down history: the latest
-    entry's `groupDepth` is the clicked node's `groupBy` level, and every drawn
-    row shares that node's keys (the drill-down filtered to them). Level -1
-    (an empty path) means the whole hierarchy is drawn, unfocused.
+    The node a click zoomed into, read from the Back history: the latest
+    drill-down entry's `groupDepth` is the clicked node's `groupBy` level, and
+    every drawn row shares that node's keys (the drill-down filtered to them).
+    Level -1 (an empty path) means the whole hierarchy is drawn, unfocused.
 */
 export function partitionFocus(viz: VizInstance): PartitionFocus {
-  const entry = viz._history?.[viz._history.length - 1];
+  const entry = latestDrillEntry(viz._history);
   const data = (viz._filteredData ?? []) as DataPoint[];
   const groupBy = viz.schema.groupBy as PartitionKey[];
   if (!entry || entry.groupDepth === undefined || !data.length)
