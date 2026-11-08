@@ -27,10 +27,12 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {insetFrame, insetOrient, isInsetPending} from "./insetState.js";
 import type {InsetOrient} from "./insetState.js";
 import {legendCategories, legendMergesIds} from "./legendCategory.js";
+import {legendKeys, legendRows} from "./legendKeys.js";
 import type {LegendEntry} from "./legendCategory.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 
-interface LegendData {
+/** The legend's rolled-up entries, with the key and paint accessors its render reuses. */
+export interface LegendData {
   legendData: DataPoint[];
   legendKey: (d: DataPoint, i: number) => string;
   getAttr: (d: DataPoint, i: number, attr: string) => string;
@@ -47,36 +49,7 @@ interface LegendData {
 export function buildLegendData(viz: VizInstance): LegendData {
   // Source: `_legendData` from the rollupAndFilter pipeline stage — same
   // arg drawLegend received via `drawLegend.bind(this)(this._legendData)`.
-  const data: DataPoint[] = viz._legendData || [];
-
-  const getAttr = (d: DataPoint, i: number, attr: string): string => {
-    const shape = viz.schema.shape(d, i);
-    if (attr === "fill" && shape === "Line") attr = "stroke";
-    const value =
-      viz.schema.shapeConfig[shape] && viz.schema.shapeConfig[shape][attr]
-        ? viz.schema.shapeConfig[shape][attr]
-        : viz.schema.shapeConfig[attr];
-    return typeof value === "function" ? value.bind(viz)(d, i) : value;
-  };
-
-  // Legend grouping key: the color *encoding* input, so categories keep their
-  // own entry even when two resolve to the same hex (#788), while
-  // opacity/texture still split entries that differ on those secondary
-  // encodings. Falls back to the resolved fill when there's no color accessor
-  // to key on (e.g. `.color(false)` with a custom `shapeConfig.fill`).
-  const colorOf = (d: DataPoint, i: number): unknown =>
-    typeof viz.schema.color === "function" ? viz.schema.color(d, i) : undefined;
-  const keyOf = (d: DataPoint, i: number, c: unknown): string => {
-    const colorKey =
-      c === undefined || c === null
-        ? getAttr(d, i, "fill")
-        : typeof c === "string"
-          ? c
-          : JSON.stringify(c);
-    return [colorKey, getAttr(d, i, "opacity"), getAttr(d, i, "texture")].join(
-      "_",
-    );
-  };
+  const {getAttr, colorOf, keyOf} = legendKeys(viz);
   const legendKey = (d: DataPoint, i: number): string =>
     keyOf(d, i, colorOf(d, i));
 
@@ -84,11 +57,7 @@ export function buildLegendData(viz: VizInstance): LegendData {
   const never = constantValue(viz.schema.legend);
   if (never && !never.value) return {legendData: [], legendKey, getAttr};
 
-  const rollupData = viz.schema.colorScale
-    ? data.filter(
-        (d: DataPoint, i: number) => viz.schema.colorScale(d, i) === undefined,
-      )
-    : data;
+  const rollupData = legendRows(viz);
   const groups = new Map<string, {leaves: DataPoint[]; color: unknown}>();
   rollupData.forEach((d: DataPoint, i: number) => {
     const c = colorOf(d, i);

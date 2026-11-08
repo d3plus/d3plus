@@ -5,7 +5,7 @@
     <title>Link Labels Along Curves · Viz</title>
     <meta
       name="description"
-      content="linkLabel text that follows curved links: Rings splines and fanned parallel links, ArcDiagram arcs and loops, a bundled Network with self-loops, Sankey bands and return lanes, and Geomap flow arcs, with along/horizontal and light/dark toggles."
+      content="linkLabel text that follows curved links: Rings splines and fanned parallel links, ArcDiagram arcs and loops, a bundled Network with self-loops, Sankey bands and return lanes, Geomap flow arcs, and self-loops of growing size, with along/horizontal, minRadius, and light/dark toggles."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -54,6 +54,13 @@
         <button value="along" aria-pressed="true">along</button>
         <button value="horizontal">horizontal</button>
       </span>
+      <span data-option="minRadius">
+        minRadius:
+        <button value="1">1em</button>
+        <button value="1.5">1.5em</button>
+        <button value="2" aria-pressed="true">2em</button>
+        <button value="3">3em</button>
+      </span>
       <span data-option="theme">
         theme:
         <button value="light" aria-pressed="true">light</button>
@@ -79,6 +86,10 @@
     <div>
       <h3>Geomap: bowed flow arcs between points</h3>
       <div class="viz" id="geomap"></div>
+    </div>
+    <div>
+      <h3>Network: self-loops of growing size against minRadius</h3>
+      <div class="viz" id="loops"></div>
     </div>
   </body>
 
@@ -174,6 +185,15 @@
       {source: "TYO", target: "SYD", passengers: 1400},
     ];
 
+    var loopNodes = [];
+    for (var n = 0; n < 8; n++)
+      loopNodes.push({
+        id: "loop" + n,
+        x: n % 4,
+        y: Math.floor(n / 4),
+        size: n + 1,
+      });
+
     var charts = [
       new d3plus.Rings().select("#rings").config({
         links: ringLinks,
@@ -210,6 +230,18 @@
         linkLabel: "passengers",
         tiles: false,
       }),
+      new d3plus.Network().select("#loops").config({
+        data: loopNodes,
+        nodes: loopNodes,
+        links: loopNodes.map(function (d, i) {
+          return {source: d.id, target: d.id, kind: i % 2 ? "rework" : "42"};
+        }),
+        size: "size",
+        sizeMin: 4,
+        sizeMax: 30,
+        legend: false,
+        linkLabel: "kind",
+      }),
     ];
     charts.forEach(function (chart) {
       chart.render();
@@ -226,6 +258,8 @@
             document.body.classList.toggle("dark", button.value === "dark");
           charts.forEach(function (chart) {
             if (key === "rotate") chart.linkLabelConfig({rotate: button.value});
+            else if (key === "minRadius")
+              chart.linkLabelConfig({minRadius: +button.value});
             else chart.theme(button.value);
             chart.render();
           });

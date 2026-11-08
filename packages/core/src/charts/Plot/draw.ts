@@ -43,6 +43,7 @@ import {
   preparePlotAxisLayout,
 } from "./pipeline.js";
 import {roundPlotOpenEnds} from "./openDomainEnds.js";
+import {recordStackLegendOrder} from "./stackLegendOrder.js";
 import {computePlotTrendFits} from "./trendLines.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
@@ -109,6 +110,10 @@ function runPlotLayoutStages(
     },
     [computePlotInitialDomains, computePlotScales],
   );
+  // The legend reads in the stacks' order. A small multiple's panel draws
+  // after the legend, which the facet chrome hook orders instead.
+  if (viz._facetStep !== "panel")
+    recordStackLegendOrder(viz, layoutCtx.plotStackPositions);
   return {
     plotInitialDomains: layoutCtx.plotInitialDomains!,
     plotDiscreteKeys: layoutCtx.plotDiscreteKeys!,

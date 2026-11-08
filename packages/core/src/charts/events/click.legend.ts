@@ -1,12 +1,14 @@
 import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
+import {legendSnapshot, recordLegendChange} from "../viz/history.js";
 import {broadcastLegend} from "../viz/linkGroup.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
     @module clickLegend
-    On click event for all legend shapes in a Viz.
+    On click event for all legend shapes in a Viz. A click that changes what
+    is hidden or solo'd goes on the chart's Back history (see `legendHistory`).
     @private
 */
 export default function (
@@ -33,8 +35,11 @@ export default function (
 
   const inverted = this.schema.legendFilterInvert.bind(this)(this);
 
+  const viz = this as unknown as VizInstance;
+  const before = legendSnapshot(viz);
   const rerender = (): void => {
-    broadcastLegend(this as unknown as VizInstance);
+    recordLegendChange(viz, before);
+    broadcastLegend(viz);
     this.render();
   };
 

@@ -102,6 +102,11 @@ export function mapper(chain: Transform[]): (p: Point) => Point {
 
 /** The axis-aligned box around a box mapped through `map`. */
 export function mapBox(b: Bounds, map: (p: Point) => Point): Bounds {
+  // A point's four corners all map to the same place.
+  if (b.width === 0 && b.height === 0) {
+    const [x, y] = map([b.x, b.y]);
+    return {x, y, width: x - x, height: y - y};
+  }
   const corners = [
     map([b.x, b.y]),
     map([b.x + b.width, b.y]),

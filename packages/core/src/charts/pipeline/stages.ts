@@ -21,6 +21,7 @@ import type {Axis, TextBox} from "../../components/index.js";
 import type Shape from "../../shapes/Shape.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {BarLabelCheck} from "../Plot/barLabelFit.js";
+import type {StackPositions} from "../Plot/stackLegendOrder.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** The four configured d3 scales plus their resolved scale-type strings. */
@@ -111,6 +112,8 @@ export interface VizContext {
   plotDiscreteKeys?: unknown[];
   plotStackData?: unknown[];
   plotStackKeys?: unknown[];
+  /** Where each series sits in the drawn stacks, for the legend's order (see `Plot/stackLegendOrder.ts`). */
+  plotStackPositions?: StackPositions;
   /** Final domains after log/baseline adjustments (output of `computePlotScales`). */
   plotDomains?: Record<string, (number | string | Date)[]>;
   /** Four configured d3 scale instances + their scale-type strings. */

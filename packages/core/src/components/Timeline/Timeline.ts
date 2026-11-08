@@ -12,7 +12,12 @@ import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 import {fitBrush, timelineBrushSpan} from "./brushSpan.js";
-import {byValue, initTimelineDefaults} from "./timelineConfig.js";
+import {
+  brushOverlayCursor,
+  byValue,
+  initTimelineDefaults,
+} from "./timelineConfig.js";
+import {classTimelineMode} from "./timelineMode.js";
 import {
   configureScale,
   measureTicksWidth,
@@ -25,6 +30,7 @@ import {
 /** Timeline's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const timelineSchema: ConfigField[] = [
   {key: "buttonPadding", coerce: "identity", default: 10},
+  {key: "brushCursor", coerce: "identity", default: "pointer"},
   {key: "brushing", coerce: "identity", default: true},
   {key: "brushFilter", coerce: "identity"},
   {key: "brushMax", coerce: "const"},
@@ -288,7 +294,7 @@ export default class Timeline extends Axis {
     this._brushGroup
       .selectAll(".overlay")
       .attr("x", this._paddingLeft)
-      .attr("cursor", "pointer")
+      .attr("cursor", brushOverlayCursor(this))
       .attr(
         "transform",
         `translate(0,${
@@ -606,6 +612,11 @@ export default class Timeline extends Axis {
 
     setupBrush(this, hiddenHandles, height, y);
     renderPlayButton(this, playButtonWidth);
+    classTimelineMode(
+      this._group?.node() as Element | null,
+      "d3plus-Timeline",
+      this._buttonBehaviorCurrent,
+    );
 
     // Standalone (non-Viz) use: a parent Viz normally composes the timeline's
     // scene via toScene(), but on its own `_managesOwnScenePaint` made

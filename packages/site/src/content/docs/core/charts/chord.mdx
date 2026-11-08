@@ -74,7 +74,7 @@ A link whose `source` and `target` are the same node writes to the diagonal of t
 
 ## Curved labels
 
-When every group's name fits along its arc, the names curve just outside the ring, which needs only a line of room around it, so the ring grows into the band the spoke labels would take. Otherwise the names that fit still curve and the rest turn along their spokes. This is `labelPosition`'s `"auto"` default; `"along"` curves every name, cutting long ones short, and `"inside"` keeps every name on its spoke.
+When every group's name fits along its arc, the names curve just outside the ring, which needs only a line of room around it, so the ring grows into the band the spoke labels would take. Otherwise the names that fit still curve and the rest turn along their spokes. This is `labelPosition`'s `"auto"` default; `"along"` curves every name, cutting long ones short, and `"inside"` keeps every name on its spoke. Names are drawn at 11px, curved or on a spoke; `shapeConfig: {Path: {labelConfig: {fontSize}}}` sets another size.
 
 <Playground chart="Chord" code={curvedLabels} controls={["labelPosition","arcThickness"]} />
 

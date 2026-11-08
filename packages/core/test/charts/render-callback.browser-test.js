@@ -28,30 +28,37 @@ const drawCounts = () =>
       .duration(0)
       .select("#viz");
     const counts = [];
-    const settle = () => tick(250).then(() => counts.push({...calls}));
+    // Waits for the expected draw (a slow machine can take longer than any
+    // fixed delay), then a little longer to catch any extra callback.
+    const settle = done => {
+      const start = Date.now();
+      const poll = () =>
+        done() || Date.now() - start > 10000 ? tick(250) : tick(25).then(poll);
+      return poll().then(() => counts.push({...calls}));
+    };
     viz.render(() => calls.first++);
-    settle()
+    settle(() => calls.first >= 1)
       .then(() => {
         // a legend click filters the chart and redraws it
         const legend = viz._legendClass.data();
         viz.schema.on["click.legend"](legend[0], 0, undefined, {
           shiftKey: false,
         });
-        return settle();
+        return settle(() => calls.first >= 2);
       })
       .then(() => {
         // a redraw without a callback of its own doesn't block resize redraws
         viz.render();
         counts.push({inFlight: viz._callback !== undefined});
-        return settle();
+        return settle(() => calls.first >= 3);
       })
       .then(() => {
         viz.render(() => calls.second++);
-        return settle();
+        return settle(() => calls.second >= 1);
       })
       .then(() => {
         viz.render();
-        return settle();
+        return settle(() => calls.second >= 2);
       })
       .then(() => resolve(counts))
       .catch(reject);

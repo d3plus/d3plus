@@ -2,23 +2,21 @@ import {it} from "vitest";
 import assert from "assert";
 import cacheKey from "../src/cacheKey.ts";
 
-it("cacheKey: the loader key plus the JSON of the paths", () => {
-  assert.strictEqual(cacheKey("data", "a.json"), 'data_["a.json"]');
+it("cacheKey: the JSON of the URL or request object", () => {
+  assert.strictEqual(cacheKey("a.json"), '"a.json"');
   assert.strictEqual(
-    cacheKey("data", "a.json"),
-    cacheKey("data", ["a.json"]),
-    "a path and a one-item Array of it match",
+    cacheKey({url: "a.json", headers: {A: "1"}}),
+    '{"url":"a.json","headers":{"A":"1"}}',
   );
 });
 
-it("cacheKey: loaders, request options and each URL of a list differ", () => {
+it("cacheKey: URLs and request options differ", () => {
   const keys = [
-    cacheKey("data", "a.json"),
-    cacheKey("links", "a.json"),
-    cacheKey("data", {url: "a.json", headers: {A: "1"}}),
-    cacheKey("data", {url: "a.json", headers: {A: "2"}}),
-    cacheKey("data", ["a.json", "b.json"]),
-    cacheKey("data", ["b.json", "a.json"]),
+    cacheKey("a.json"),
+    cacheKey("b.json"),
+    cacheKey({url: "a.json"}),
+    cacheKey({url: "a.json", headers: {A: "1"}}),
+    cacheKey({url: "a.json", headers: {A: "2"}}),
   ];
   assert.strictEqual(new Set(keys).size, keys.length);
   assert.ok(!keys.some(k => k.includes("[object Object]")));

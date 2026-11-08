@@ -36,9 +36,10 @@ export function linkStyleFields(): ConfigField[] {
         Styles the link labels: `rotate`, `"along"` (the default) to run
         text along its link, kept upright, or `"horizontal"`; `fontSize`
         (10); `padding`, the pad around the text (2); `backgroundOpacity`,
-        the opacity of that pad in the chart's background color (0.85); and
-        any other TextBox setting, such as `fontColor`, `fontFamily`, or
-        `fontWeight`.
+        the opacity of that pad in the chart's background color (0.85);
+        `minRadius`, the tightest bend a curved label follows, as a radius
+        in ems (2); and any other TextBox setting, such as `fontColor`,
+        `fontFamily`, or `fontWeight`.
     */
     {key: "linkLabelConfig", merge: true, default: {...LINK_LABEL_DEFAULTS}},
   ];

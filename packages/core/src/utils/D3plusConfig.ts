@@ -481,6 +481,16 @@ export interface TextBoxConfig {
 }
 
 export interface TimelineConfig {
+  /**
+      The cursor shown over the timeline's brush area, where a click or drag
+      picks periods: a CSS cursor, or a function given how the timeline is
+      drawn (`"ticks"` or `"buttons"`) that returns one. Defaults to
+      `"pointer"`. The handles keep `ew-resize` and the selected range
+      `move`; `handleConfig` and `selectionConfig` take a `cursor` too.
+      @example
+{brushCursor: mode => (mode === "buttons" ? "pointer" : "crosshair")}
+  */
+  brushCursor?: string | ((mode: "ticks" | "buttons") => string);
   /** Brush event filter. */
   brushFilter?: () => boolean;
   /**
@@ -510,7 +520,16 @@ export interface TimelineConfig {
   brushMin?: number;
   /** Toggles the horizontal alignment of the button timeline. */
   buttonAlign?: "start" | "middle" | "end";
-  /** Toggles the style of the timeline. */
+  /**
+      How the timeline draws its periods: `"ticks"` along an axis,
+      `"buttons"` in a row, or `"auto"` (the default), which draws buttons
+      when every label fits and ticks otherwise, and checks again whenever
+      the chart redraws. The timeline's group carries a class naming the
+      result, for page CSS: `d3plus-viz-timeline-ticks` or
+      `d3plus-viz-timeline-buttons` on a chart's `g.d3plus-viz-timeline`, and
+      `d3plus-Timeline-ticks` or `d3plus-Timeline-buttons` on the Timeline's
+      own group.
+  */
   buttonBehavior?: "auto" | "buttons" | "ticks";
   /** Button height. */
   buttonHeight?: number;
@@ -520,6 +539,21 @@ export interface TimelineConfig {
   handleConfig?: Record<string, unknown>;
   /** Handle size. */
   handleSize?: number;
+  /**
+      Listeners for the brush's `start`, `brush` and `end` events. On a chart,
+      `end` receives the period the viewer picked once a click, drag or
+      playback step settles (a Date, or `[start, end]` Dates for a range),
+      and `brush` receives it, snapped to whole periods, as a drag moves
+      (with `brushing` on and `snapping` off, the last committed one);
+      `start` receives the d3-brush event.
+      @example
+{on: {end: period => console.log(period)}}
+  */
+  on?: {
+    start?: (event: unknown) => void;
+    brush?: (selection: Date | Date[]) => void;
+    end?: (selection: Date | Date[]) => void;
+  };
   /**
       Determines the visibility of the play button to the left of the timeline,
       which cycles through the available periods at a rate set by `playButtonInterval`.
@@ -531,7 +565,11 @@ export interface TimelineConfig {
       otherwise playback steps once per `duration` so each step animates in full.
   */
   playButtonInterval?: number;
-  /** The current selection. Defaults to the most recent period in the timeline. */
+  /**
+      The current selection. Defaults to the most recent period in the
+      timeline. On a chart it is where the timeline starts, and the chart
+      starts on the same period(s); the viewer's picks replace it.
+  */
   selection?: (Date | number)[] | Date | number | false;
   /**
       Whether to run the timeline from its latest period to its earliest.
@@ -647,6 +685,13 @@ export interface LinkLabelConfig {
   padding?: number;
   /** The opacity of the pad, which takes the chart's background color. */
   backgroundOpacity?: number;
+  /**
+      The tightest bend an `"along"` label follows, as a radius in ems of
+      `fontSize`. A label is cut short of a tighter bend, and keeps a
+      straight label when too little of the curve is left for a few
+      letters, as on a small self-loop. Defaults to `2`.
+  */
+  minRadius?: number;
   /** Any other TextBox setting, such as `fontColor`, `fontFamily`, or `fontWeight`. */
   [key: string]: unknown;
 }
@@ -1067,11 +1112,11 @@ export interface D3plusConfig {
   /**
       Whether the chart keeps the files it fetches for `data`, `links`,
       `nodes`, `topojson`, and `fitObject`. Each chart has its own cache of
-      its 10 most recent requests, keyed by the loader and the request (every
-      URL, and a request object's `fetch` options). It holds each response as
-      fetched, before its `*Format` formatter runs, so setting the same URL
-      again, or a new formatter, draws from the cache without a request. A
-      failed request is not kept. Defaults to `true`; set it to `false` to
+      its 10 most recent requests, keyed by the request (the URL, and a
+      request object's `fetch` options), so loaders naming the same URL share
+      one request. It holds each response as fetched, before its `*Format`
+      formatter runs, so setting the same URL again, or a new formatter, draws
+      from the cache without a request. A failed request is not kept. Defaults to `true`; set it to `false` to
       fetch on every load, or use `dataPollingInterval` to re-fetch `data` on
       a schedule (polls always fetch).
   */
@@ -1260,11 +1305,15 @@ export interface D3plusConfig {
       (default `true`) writes each level's value along its contour lines, as
       a topographic map labels elevation: centered on the line, which breaks
       beneath it, reading upright, and clear of the other contours and
-      labels. A long contour takes more than one label, spaced well apart;
-      with more than five levels, every other level is labelled; and a level
-      with no clear, gently curving stretch goes unlabelled. `labelConfig`
-      is TextBox config for the labels (`fontSize` defaults to `10`), and
-      `levelFormat` formats their values. Merged into the current config.
+      labels. A long contour takes more than one label, at least
+      `labelSpacing` pixels apart (default `"auto"`: 20 ems or half the
+      plot's mean side, whichever is longer); `labelStep` labels every n-th
+      level (`1` all of them, `2` every other one, keeping the multiples of
+      twice the levels' spacing; default `"auto"`: all of up to five levels,
+      else every other one); and a level with no clear, gently curving
+      stretch goes unlabelled. `labelConfig` is TextBox config for the
+      labels (`fontSize` defaults to `10`), and `levelFormat` formats their
+      values. Merged into the current config.
   */
   contourConfig?: ContourConfig;
   /**
@@ -1672,7 +1721,8 @@ export interface D3plusConfig {
         (8px). A Chord curves its group names just outside the ring when
         every name fits along its arc, which leaves the ring more room;
         otherwise it curves those that fit and turns the rest along their
-        spokes. A Radar does the same with its metric names, just outside
+        spokes, all at the Path `labelConfig`'s `fontSize` (11px by
+        default). A Radar does the same with its metric names, just outside
         the web, each between its neighbors' spokes, wrapping a long name
         onto a second curved line. A RadialBar curves each track's name along the track, inside
         its bar (or past its end when the bar is too short), when the sweep
@@ -1743,9 +1793,13 @@ export interface D3plusConfig {
     shapeConfig?: Record<string, string | number>;
   };
   /**
-      Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
+      Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking will solo that category and shift+clicking will hide that category. The Back button undoes each click (see `legendHistory`).
   */
   legendFilterInvert?: boolean | ((viz: VizBase) => boolean);
+  /**
+      Whether legend clicks go on the chart's Back history. A click or shift+click (or Enter or Space on a legend item) that changes what is hidden or solo'd shows the Back button, and Back undoes legend clicks and drill-downs in the order they happened, restoring the legend exactly as it was. A drill-down to a deeper level starts with every group shown, and Back out of it brings back the legend it left. A click that changes nothing adds no step, and new `data` clears the legend's steps along with the legend. Clicking a Sunburst or Icicle center zooms out without undoing the legend clicks made since the zoom. Defaults to `true`; `false` leaves legend clicks off the history, so Back only steps out of drill-downs.
+  */
+  legendHistory?: boolean;
   /**
       Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
   */
@@ -1774,7 +1828,9 @@ export interface D3plusConfig {
       Defines which side of the visualization to anchor the legend. Expected values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false` to hide it. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.
   */
   legendPosition?: false | PanelPosition | (() => false | PanelPosition);
-  /** Custom sort comparator for legend items. */
+  /**
+      Comparator that orders the legend's entries. By default the legend reads in the order the chart draws: Treemap, Pack, Pie, Donut, Icicle, and Sunburst list their largest entries first; a stacked chart lists its series in stacking order, from the baseline outward (so the default `stackOrder`, `"descending"`, lists the largest first); Waffle and Waterfall follow their own order, and Network and ArcDiagram clusters come largest first; every other chart is alphabetical by label. A threshold group always comes last, whatever the sort.
+  */
   legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Configuration object for the legend tooltip. */
   legendTooltip?: TooltipConfig;
@@ -1939,7 +1995,8 @@ export interface D3plusConfig {
       default) to run text along its link, kept upright, or `"horizontal"`;
       `fontSize` (10); `padding`, the pad around the text (2);
       `backgroundOpacity`, the opacity of that pad in the chart's background
-      color (0.85); and any other TextBox setting, such as `fontColor`
+      color (0.85); `minRadius`, the tightest bend a curved label follows,
+      in ems (2); and any other TextBox setting, such as `fontColor`
       (defaults to the chart's text color), `fontFamily`, or `fontWeight`.
       Along a curved link (a Rings spline or fanned parallel link, an
       ArcDiagram arc, a self-loop, a bundled Network edge, a Geomap flow
@@ -1947,7 +2004,7 @@ export interface D3plusConfig {
       curve, centered where a straight label would sit, over a pad that
       curves with it, and is cut short with an ellipsis when the curve has
       too little room (or left out when fewer than three letters fit). A
-      loop too tight for text to follow keeps a straight label.
+      loop bending tighter than `minRadius` keeps a straight label.
   */
   linkLabelConfig?: LinkLabelConfig;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
@@ -2398,7 +2455,8 @@ export interface D3plusConfig {
       `"key"` / `"keyReverse"` alphabetically, `"none"` / `"data"` for input
       order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of
       series keys for an explicit order, a value accessor, or a `{value, order}`
-      config to rank series by an aggregate of any data field.
+      config to rank series by an aggregate of any data field. The default
+      legend lists the series in this order, from the baseline outward.
   */
   stackOrder?:
     | string
@@ -2542,7 +2600,15 @@ export interface D3plusConfig {
   tiles?: boolean;
   /** Time key for temporal data. */
   time?: string;
-  /** Predicate filtering which time slices are shown, or false to disable. */
+  /**
+      Predicate filtering which time slices are shown, or false to disable.
+      With `time` set and no `timeFilter`, a chart starts on its latest
+      period, or on `timelineDefault`/`timelineConfig.selection`; setting it
+      starts the chart (and its timeline) on the periods it keeps. A
+      viewer's pick on the timeline replaces it.
+      @example
+{timeFilter: d => d.year === 2015}
+  */
   timeFilter?: ((d: DataPoint, i: number) => boolean) | false;
   /** Whether to show the timeline component. */
   timeline?: boolean;

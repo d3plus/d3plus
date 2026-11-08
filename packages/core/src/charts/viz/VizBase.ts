@@ -10,6 +10,7 @@ import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {coerceFacet} from "../facet/facetConfig.js";
 import type {FacetConfig} from "../facet/facetConfig.js";
 import {groupDepthOf} from "./groupRow.js";
+import {dropLegendHistory} from "./history.js";
 import {broadcastLink} from "./linkGroup.js";
 import {shapeHoverEnabled} from "./shapeHover.js";
 import {setLoaderValue} from "./loaderFormat.js";
@@ -91,6 +92,7 @@ Defaults to an empty array (`[]`).
       setLoaderValue(this, "data", arguments.length > 1 ? [_, f] : [_]);
       this._hidden = [];
       this._solo = [];
+      dropLegendHistory(this as unknown as VizInstance);
       if (
         this._userData &&
         JSON.stringify(_) !== JSON.stringify(this._userData)
@@ -394,7 +396,7 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.
+      The starting time or range for the timeline, which the chart starts on too. Can be a single Date/String, or an Array of 2 values representing the min and max. A viewer's pick on the timeline replaces it.
 */
   timelineDefault(_?: Date | string | (Date | string)[]): this | Date[] {
     if (arguments.length) {

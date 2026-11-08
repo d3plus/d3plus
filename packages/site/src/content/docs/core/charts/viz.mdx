@@ -21,6 +21,7 @@ import className from "~/examples/core/charts/viz/class-name.js?raw";
 import reducedMotion from "~/examples/core/charts/viz/reduced-motion.js?raw";
 import keyboardNavigation from "~/examples/core/charts/viz/keyboard-navigation.js?raw";
 import themes from "~/examples/core/charts/viz/themes.js?raw";
+import legendHistory from "~/examples/core/charts/viz/legend-history.js?raw";
 
 <LiveSales />
 
@@ -170,6 +171,19 @@ it to screen readers. `keyboardNavConfig` styles the ring (`stroke`,
 `strokeWidth`, `padding`), and `keyboardNav: false` removes the Tab stop.
 
 <Playground chart="LinePlot" code={keyboardNavigation} controls={["keyboardNav"]} />
+
+## Back history
+
+The Back button undoes a chart's steps in the order they happened: each
+drill-down, and each legend click or shift+click that hid or solo'd something.
+Here, hide a region from the legend, click a tile to drill into a region, then
+click Back to step out of the region and again to bring the hidden region back.
+A drill-down to a deeper level starts with every group shown, and Back puts the
+legend back as it was. A legend click that changes nothing adds no step, and
+new `data` clears the legend's steps. Set `legendHistory: false` to keep legend
+clicks off the history, so Back only steps out of drill-downs.
+
+<Playground chart="Treemap" code={legendHistory} controls={["legendHistory"]} />
 
 ## Themes
 

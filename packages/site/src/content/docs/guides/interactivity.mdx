@@ -209,7 +209,10 @@ straight links. See the [Network edge bundling example](/core/charts/network/#ed
 ## Legend
 
 A legend is shown automatically for grouped data. Clicking an entry toggles that
-series; hovering highlights it. Control it with `legend` and `legendConfig`:
+series; hovering highlights it. Each toggle goes on the chart's Back history
+with its drill-downs, so the Back button undoes legend clicks and drill-downs
+in the order they happened; `legendHistory: false` keeps legend clicks off it.
+Control the legend with `legend` and `legendConfig`:
 
 ```jsx
 <BarChart config={{
@@ -243,7 +246,8 @@ Because matching goes by value, a coarse chart can drive a finer one. Hovering a
 region tile lights up every bar whose row carries that `region`. A chart with no
 row for the hovered value dims all of its marks. Legend toggles follow the same
 rule: a legend entry is solo'd when any of its values is solo'd elsewhere, and
-hidden once all of its values are hidden.
+hidden once all of its values are hidden. Back in the chart you clicked undoes
+the toggle in every chart in the group.
 
 To stop mirroring one interaction, set it to `false`:
 `link: {group: "dashboard", hover: false}` still shares legend toggles and
@@ -267,6 +271,15 @@ or play through time periods, and the chart filters to the selected window:
 
 Set `timeline: false` to keep the `time` filtering behavior without rendering the
 timeline control.
+
+A chart starts on its latest period; `timeFilter` (or `timelineDefault`)
+starts it on another, and `timelineConfig.on.end` receives each period the
+viewer picks. See
+[starting on a chosen period](/core/components/timeline/#starting-on-a-chosen-period)
+and [reading the selection](/core/components/timeline/#reading-the-selection).
+`timelineConfig.brushCursor` sets the cursor over the timeline, and its
+group's `d3plus-viz-timeline-ticks` or `d3plus-viz-timeline-buttons` class
+names how it is drawn ([cursor and mode classes](/core/components/timeline/#cursor-and-mode-classes)).
 
 When points move between periods as the timeline plays, they leave **motion
 trails** by default, and `trailPersist` can keep the whole path visible. See

@@ -1,25 +1,34 @@
 /**
-    A Pie's straight slice labels, each in its slice's largest inscribed
-    rectangle.
+    A Pie's straight slice labels, each centered on its slice's bisector
+    (see `straightLayout.ts`).
 */
 import {colorContrast} from "@d3plus/color";
-import {largestRect, path2polygon} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {resolveAccessor} from "../features/emitHelpers.js";
+import {ringLabelFont, ringTextWidth} from "../features/ringLabelNodes.js";
+import type {RingArc} from "../features/ringLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import type {PieSlice} from "./pieLabels.js";
+import {sectorEdges} from "./sectorBox.js";
+import {
+  centerLabelLines,
+  straightLabelLayout,
+  straightLabelOptions,
+  wrapWidths,
+} from "./straightLayout.js";
+import type {StraightLabelLayout} from "./straightLayout.js";
 
 /** What placing the straight labels needs. */
 export interface StraightLabelInputs {
   viz: VizInstance;
   slices: PieSlice[];
-  /** Each slice's path. */
-  arcMaker: (d: PieSlice) => string;
+  /** Each slice's ring segment. */
+  arcOf: (d: PieSlice) => RingArc;
   /** The Path shape config, for each slice's fill. */
   sc: Record<string, unknown>;
   /** Each slice's share, as text. */
@@ -28,49 +37,59 @@ export interface StraightLabelInputs {
   labelConfig: Record<string, unknown>;
 }
 
+/** The slice a label node names. */
+const sliceOf = (node: SceneNode) =>
+  (node.datum as {data?: PieSlice} | undefined)?.data;
+
 /**
-    Each slice's straight label, in its largest inscribed rectangle: the name
-    above and the share percentage below, meeting at the rectangle's center.
-    Short rectangles skip the share line so it can't crowd out the name.
-    With a single angle the search is cheap, so more origins are sampled
-    than the default for a tighter box.
-    @param inputs The slices, their paths and fills, and the label config.
+    Each slice's straight label, centered on its bisector: the name, at the
+    largest size that shows it whole, and the share percentage beneath it
+    when there is room (see `straightLabelLayout`).
+    @param inputs The slices, their segments and fills, and the label config.
 */
 export function pieStraightLabels(inputs: StraightLabelInputs): SceneNode[] {
-  const {viz, slices, arcMaker, sc, sharePct, labelConfig} = inputs;
-  const labelBoxes = slices.map(d => {
-    const r = largestRect(path2polygon(arcMaker(d)), {angle: 0, nTries: 40});
-    if (!r) return false;
-    const x = r.cx - r.width / 2;
-    const y = r.cy - r.height / 2;
-    if (r.height < 50)
-      return [{angle: r.angle, width: r.width, height: r.height, x, y}];
-    const padding = 5;
-    const band = Math.min(32, (r.height - padding * 2) * 0.3) + padding * 2;
-    return [
-      {angle: r.angle, width: r.width, height: r.height - band, x, y},
-      {angle: r.angle, width: r.width, height: band, x, y: y + r.height - band},
-    ];
+  const {viz, slices, arcOf, sc, sharePct, labelConfig} = inputs;
+  const options = straightLabelOptions(labelConfig);
+  const font = ringLabelFont(labelConfig);
+  const unitWidth = (text: string) => ringTextWidth(text, font)(1);
+  const layouts = new Map<PieSlice, StraightLabelLayout>();
+  slices.forEach((d, i) => {
+    const name = viz._drawLabel(d.data as DataPoint, d.i ?? i);
+    const edges = name ? sectorEdges(arcOf(d)) : null;
+    if (!edges) return;
+    const layout = straightLabelLayout(
+      edges,
+      wrapWidths(String(name), unitWidth, options.maxLines),
+      unitWidth(sharePct(d)),
+      options,
+    );
+    if (layout) layouts.set(d, layout);
   });
 
-  return emitLabels({
+  const nodes = emitLabels({
     data: slices as unknown as DataPoint[],
     label: (_d, i) => {
       const name = viz._drawLabel(
         slices[i].data as DataPoint,
         slices[i].i ?? i,
       );
-      const box = labelBoxes[i];
-      return box && box.length > 1 ? [name, sharePct(slices[i])] : [name];
+      return layouts.get(slices[i])?.share
+        ? [name, sharePct(slices[i])]
+        : [name];
     },
-    // The largest inscribed rectangle is in chart-centered path coordinates,
-    // so the anchor is the origin and labelBounds carries the absolute box.
+    // The boxes are in chart-centered path coordinates, so the anchor is
+    // the origin and labelBounds carries each absolute box.
     x: () => 0,
     y: () => 0,
     aes: () => ({}),
     rotate: constant(0),
     id: (_d, i) => `pie-label-${i}`,
-    labelBounds: (_d, i) => labelBoxes[i],
+    labelBounds: (_d, i) => {
+      const layout = layouts.get(slices[i]);
+      if (!layout) return false;
+      const boxes = layout.share ? [layout.name, layout.share] : [layout.name];
+      return boxes.map(b => ({...b, angle: 0}));
+    },
     labelConfig: {
       fontColor: (d: {data?: PieSlice}) => {
         const slice = (d.data ?? d) as PieSlice;
@@ -84,14 +103,32 @@ export function pieStraightLabels(inputs: StraightLabelInputs): SceneNode[] {
           viz.schema.colorDefaults,
         );
       },
-      fontResize: true,
       textAnchor: "middle",
-      verticalAlign: (d: {data?: PieSlice; l?: number}) => {
-        if (d && d.l === 1) return "top";
-        const box = d && d.data ? labelBoxes[slices.indexOf(d.data)] : false;
-        return box && box.length > 1 ? "bottom" : "middle";
-      },
+      verticalAlign: "middle",
       ...labelConfig,
+      // Each label's size is worked out to fit its slice.
+      fontResize: false,
+      fontSize: (d: {data?: PieSlice; l?: number}) => {
+        const layout = d.data ? layouts.get(d.data) : undefined;
+        if (!layout) return options.fontMin;
+        return d.l === 1 && layout.shareSize
+          ? layout.shareSize
+          : layout.fontSize;
+      },
     },
   });
+
+  if (labelConfig.verticalAlign === undefined) {
+    const bySlice = new Map<PieSlice, SceneNode[]>();
+    for (const node of nodes) {
+      const slice = sliceOf(node);
+      if (!slice) continue;
+      bySlice.set(slice, [...(bySlice.get(slice) ?? []), node]);
+    }
+    bySlice.forEach((list, slice) => {
+      const layout = layouts.get(slice);
+      if (layout) centerLabelLines(list, layout.center[1]);
+    });
+  }
+  return nodes;
 }
