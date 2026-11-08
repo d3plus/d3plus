@@ -64,11 +64,41 @@ function latestPeriods(viz: Viz, dates: Date[], count: number): TimeFilterFn {
 }
 
 /**
+    The period a chart's timeline starts on, earliest first: `timelineDefault`,
+    else `timelineConfig.selection` (a date or a pair of dates), else
+    undefined.
+*/
+export function startingSelection(viz: Viz): Date[] | undefined {
+  const config = (viz.schema.timelineConfig || {}) as Record<string, unknown>;
+  const start =
+    viz.schema.timelineDefault && viz.schema.timelineDefault.length
+      ? viz.schema.timelineDefault
+      : config.selection;
+  if (start === undefined || start === null || start === false) return;
+  const dates = ([] as unknown[])
+    .concat(start)
+    .map(d => date(d as Parameters<typeof date>[0]))
+    .filter((d): d is Date => d instanceof Date && !isNaN(+d))
+    .sort((a, b) => +a - +b);
+  return dates.length ? [dates[0], dates[dates.length - 1]] : undefined;
+}
+
+/**
     Computes a NEW timeFilter when `time` is set but `timeFilter` isn't and
-    data exists; returns undefined otherwise.
+    data exists; returns undefined otherwise. It keeps the timeline's
+    `startingSelection`, or else the latest period(s).
 */
 export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
   let computedTimeFilter: TimeFilterFn | undefined;
+  const time = viz.schema.time;
+  const start = time && !viz.schema.timeFilter && startingSelection(viz);
+  if (time && start && viz._data.length) {
+    const [from, to] = start.map(Number);
+    return (d: DataPoint, i: number) => {
+      const ms = Number(date(time(d, i) as Parameters<typeof date>[0]));
+      return ms >= from && ms <= to;
+    };
+  }
   if (viz.schema.time && !viz.schema.timeFilter && viz._data.length) {
     const dates = viz._data
       .map(viz.schema.time)

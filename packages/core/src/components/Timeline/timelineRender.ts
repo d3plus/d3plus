@@ -149,17 +149,9 @@ export function configureScale(
 
   if (tl._buttonBehaviorCurrent === "buttons") {
     tl.schema.scale = "ordinal";
-    const domain = scaleTime()
-      .domain(tl.schema.domain.map(date) as Date[])
-      .ticks()
-      .map(Number);
-
-    tl.schema.domain = tl.schema.ticks
-      ? tl.schema.ticks
-      : Array.from(
-          Array(domain[domain.length - 1] - domain[0] + 1),
-          (_: unknown, x: number) => domain[0] + x,
-        ).map(date);
+    // One button per tick: the `ticks` given, or the time scale's own (the
+    // ones `measureTicksWidth` sized the buttons for).
+    tl.schema.domain = tl.schema.ticks ? tl.schema.ticks : ticks;
 
     tl.schema.ticks = tl.schema.domain;
 

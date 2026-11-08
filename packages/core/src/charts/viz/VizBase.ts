@@ -394,7 +394,7 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.
+      The starting time or range for the timeline, which the chart starts on too. Can be a single Date/String, or an Array of 2 values representing the min and max. A viewer's pick on the timeline replaces it.
 */
   timelineDefault(_?: Date | string | (Date | string)[]): this | Date[] {
     if (arguments.length) {

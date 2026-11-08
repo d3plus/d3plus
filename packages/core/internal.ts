@@ -2085,7 +2085,13 @@ export type {PlotFacetScales} from "./src/charts/Plot/facetScales.js";
 export {
   computeFilteredData,
   computeTimeFilter,
+  startingSelection,
 } from "./src/charts/pipeline/preDrawData.js";
+export {
+  classTimelineMode,
+  timelineModeClass,
+} from "./src/components/Timeline/timelineMode.js";
+export type {TimelineMode} from "./src/components/Timeline/timelineMode.js";
 
 // ── Themes ───────────────────────────────────────────────────────────────────
 export {
