@@ -1841,6 +1841,29 @@ export type {
 export {pieStraightLabels} from "./src/charts/Pie/straightLabels.js";
 export type {StraightLabelInputs} from "./src/charts/Pie/straightLabels.js";
 export {
+  centeredSectorBox,
+  largestSectorBox,
+  sectorBoxAt,
+  sectorBoxRange,
+  sectorEdges,
+} from "./src/charts/Pie/sectorBox.js";
+export type {
+  SectorBox,
+  SectorEdges,
+  SectorSide,
+} from "./src/charts/Pie/sectorBox.js";
+export {
+  centerLabelLines,
+  STRAIGHT_LABEL_DEFAULTS,
+  straightLabelLayout,
+  straightLabelOptions,
+  wrapWidths,
+} from "./src/charts/Pie/straightLayout.js";
+export type {
+  StraightLabelLayout,
+  StraightLabelOptions,
+} from "./src/charts/Pie/straightLayout.js";
+export {
   metricsWidth,
   sunburstCurvedNodes,
   sunburstLabelPlacements,

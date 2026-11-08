@@ -127,7 +127,7 @@ const charts = [
     "donut",
     `lib => new lib.Donut().data([
       {id: "Alpha", value: 30}, {id: "Beta", value: 22}, {id: "Gamma", value: 18},
-      {id: "Delta", value: 15}, {id: "Epsilon", value: 10}, {id: "Zeta", value: 5},
+      {id: "Delta", value: 15}, {id: "Epsilon", value: 10}, {id: "Zeta", value: 7},
     ])`,
   ],
   [

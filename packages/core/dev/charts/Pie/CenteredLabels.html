@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CenteredLabels · Pie</title>
+    <meta
+      name="description"
+      content="Straight slice labels centered on each slice's bisector: a Pie, a Donut, a half pie, padded slices, a slice past half the turn, and a single slice, with a button to change the values."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin: 20px;
+        font: 13px sans-serif;
+      }
+
+      .viz {
+        height: 360px;
+      }
+
+      #controls {
+        grid-column: 1 / -1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <label><input type="checkbox" id="guides" /> Show bisectors</label>
+      <button id="shuffle">Change values</button>
+    </div>
+    <div class="viz" id="pie"></div>
+    <div class="viz" id="donut"></div>
+    <div class="viz" id="half"></div>
+    <div class="viz" id="padded"></div>
+    <div class="viz" id="majority"></div>
+    <div class="viz" id="single"></div>
+  </body>
+
+  <script>
+    var budget = [
+      {id: "Rent and utilities", value: 30},
+      {id: "Groceries", value: 22},
+      {id: "Transportation", value: 17},
+      {id: "Dining out", value: 7},
+      {id: "Healthcare", value: 6.5},
+      {id: "Savings", value: 6},
+      {id: "Clothing", value: 5.5},
+      {id: "Gifts", value: 5},
+    ];
+    var toppings = [
+      {id: "Powdered sugar", value: 40},
+      {id: "Cinnamon", value: 20},
+      {id: "Sprinkles", value: 25},
+      {id: "Fruits", value: 30},
+      {id: "Cream", value: 15},
+    ];
+    var seats = [
+      {id: "Green", value: 48},
+      {id: "Red", value: 112},
+      {id: "Blue", value: 96},
+      {id: "Yellow", value: 31},
+      {id: "Independent", value: 13},
+    ];
+    var few = [
+      {id: "Alpha", value: 40},
+      {id: "Beta", value: 30},
+      {id: "Gamma", value: 20},
+      {id: "Delta", value: 10},
+    ];
+    var majority = [
+      {id: "Majority share", value: 72},
+      {id: "Rest", value: 28},
+    ];
+
+    var charts = [
+      [d3plus.Pie, "#pie", budget, {}],
+      [d3plus.Donut, "#donut", toppings, {}],
+      [d3plus.Pie, "#half", seats, {startAngle: -90, endAngle: 90}],
+      [d3plus.Pie, "#padded", few, {padAngle: 0.06}],
+      [d3plus.Pie, "#majority", majority, {}],
+      [d3plus.Donut, "#single", [{id: "Everything", value: 1}], {}],
+    ].map(function (c) {
+      var viz = new c[0]()
+        .select(c[1])
+        .config(Object.assign({groupBy: "id", value: "value"}, c[3]))
+        .data(c[2]);
+      return {viz: viz, data: c[2]};
+    });
+
+    /** Draws each slice's bisector over the chart, from the ring's center. */
+    function guides(viz) {
+      var svg = viz._select.select("svg");
+      svg.selectAll(".dev-bisector").remove();
+      if (!document.querySelector("#guides").checked || svg.empty()) return;
+      var wedge = svg.select("path[aria-label]").node();
+      if (!wedge) return;
+      var ctm = wedge.getCTM();
+      var r = viz.ctx.arcData.outerRadius()();
+      (viz.ctx.pieData || []).forEach(function (d) {
+        var full = Math.abs(d.endAngle - d.startAngle) >= Math.PI * 2 - 1e-6;
+        var a = full ? 0 : (d.startAngle + d.endAngle) / 2;
+        svg
+          .append("line")
+          .attr("class", "dev-bisector")
+          .attr("x1", ctm.e)
+          .attr("y1", ctm.f)
+          .attr("x2", ctm.e + r * Math.sin(a))
+          .attr("y2", ctm.f - r * Math.cos(a))
+          .attr("stroke", "black")
+          .attr("stroke-dasharray", "3 3")
+          .attr("pointer-events", "none");
+      });
+    }
+
+    function draw() {
+      charts.forEach(function (c) {
+        c.viz.render(function () {
+          guides(c.viz);
+        });
+      });
+    }
+
+    document.querySelector("#guides").addEventListener("change", draw);
+    document.querySelector("#shuffle").addEventListener("click", function () {
+      charts.forEach(function (c) {
+        c.viz.data(
+          c.data.map(function (d) {
+            return {id: d.id, value: d.value * (0.4 + Math.random() * 1.2)};
+          }),
+        );
+      });
+      draw();
+    });
+    draw();
+  </script>
+</html>
