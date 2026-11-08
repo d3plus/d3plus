@@ -10,6 +10,7 @@ import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {coerceFacet} from "../facet/facetConfig.js";
 import type {FacetConfig} from "../facet/facetConfig.js";
 import {groupDepthOf} from "./groupRow.js";
+import {dropLegendHistory} from "./history.js";
 import {broadcastLink} from "./linkGroup.js";
 import {shapeHoverEnabled} from "./shapeHover.js";
 import {setLoaderValue} from "./loaderFormat.js";
@@ -91,6 +92,7 @@ Defaults to an empty array (`[]`).
       setLoaderValue(this, "data", arguments.length > 1 ? [_, f] : [_]);
       this._hidden = [];
       this._solo = [];
+      dropLegendHistory(this as unknown as VizInstance);
       if (
         this._userData &&
         JSON.stringify(_) !== JSON.stringify(this._userData)

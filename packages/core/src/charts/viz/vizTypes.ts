@@ -90,15 +90,32 @@ export interface Padding {
   right: number;
 }
 
-/** One entry on the drill-down history stack (`Viz._history`), pushed by a click.shape drill-down and popped by Back. */
+/** A drill-down entry on the Back history (`Viz._history`), pushed by a click.shape drill-down or a partition zoom and popped by Back. */
 export interface DrillDownHistoryEntry {
+  kind?: "drill";
   depth: number;
   filter?: (d: DataPoint, i: number) => boolean;
   /** `groupBy[groupDepth]`'s value for the clicked node — identifies the reunion node the Back morph grows back into. */
   groupId?: unknown;
   /** The groupBy index `groupId` was read at (== `_drawDepth` when the node was clicked). */
   groupDepth?: number;
+  /** The legend's hide/solo state a drill to a deeper level cleared, which Back puts back. */
+  legend?: LegendState;
 }
+
+/** The legend's hide/solo state: the legend ids hidden, and the ones shown alone. */
+export interface LegendState {
+  hidden: (string | number)[];
+  solo: (string | number)[];
+}
+
+/** A legend entry on the Back history (`Viz._history`): the legend's hide/solo state before a legend click changed it. */
+export interface LegendHistoryEntry extends LegendState {
+  kind: "legend";
+}
+
+/** One entry on the Back history (`Viz._history`). */
+export type HistoryEntry = DrillDownHistoryEntry | LegendHistoryEntry;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
@@ -339,8 +356,8 @@ export interface VizInstance {
   _trailSeq?: number;
   /** The user-set data, retained to detect changes across `.data()` calls. */
   _userData?: DataPoint[] | string;
-  /** Drill-down history stack (back button). */
-  _history?: DrillDownHistoryEntry[];
+  /** The Back history: drill-downs and legend clicks, newest last. */
+  _history?: HistoryEntry[];
   /**
       The local, chart-family-defined "body rect" flip-morph fractions are
       measured against — e.g. Treemap/Pack's margin-adjusted chart area at

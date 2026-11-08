@@ -2,14 +2,15 @@
     Interaction shared by the partition charts (Sunburst, Icicle): hovering a
     node highlights it with its ancestor path, clicking a node zooms into it
     (it moves to depth 0 and its descendants fill the whole breadth), and
-    clicking the depth-0 node zooms back out. Zooming rides the shared
-    drill-down history, so the Back control steps out too.
+    clicking the depth-0 node zooms back out. Zooming rides the shared Back
+    history, so the Back control steps out too.
 */
 
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
+import {latestDrillEntry, removeLatestDrillEntry} from "../viz/history.js";
 import type {DrillDownHistoryEntry, VizInstance} from "../viz/vizTypes.js";
 
 import {partitionLineage} from "./hierarchy.js";
@@ -64,7 +65,7 @@ export function partitionClickable(
   node: PartitionNode,
 ): boolean {
   return node.depth === 0
-    ? Boolean(viz._history?.length)
+    ? latestDrillEntry(viz._history) !== undefined
     : partitionDrillable(viz, node);
 }
 
@@ -116,9 +117,12 @@ export function partitionZoomIn<N extends PartitionNode>(
   (viz as Configurable).config(config).render();
 }
 
-/** Zooms out one step, restoring the view recorded before the last zoom. */
+/**
+    Zooms out one step, restoring the view recorded before the last zoom. The
+    legend clicks made since stay, along with their Back history entries.
+*/
 export function partitionZoomOut(viz: VizInstance): void {
-  const entry = viz._history?.pop();
+  const entry = removeLatestDrillEntry(viz._history);
   if (!entry) return;
   clearInteraction(viz);
   const config: Record<string, unknown> = {

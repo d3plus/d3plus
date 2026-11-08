@@ -6,7 +6,9 @@ import {
   groupPath,
   inGroup,
 } from "../viz/groupRow.js";
+import {takeLegendState} from "../viz/history.js";
 import type Viz from "../viz/Viz.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
     Zooms into the group a group row stands for (see `viz/groupRow.ts`):
@@ -82,11 +84,15 @@ export default function (
       };
     }
 
+    // The legend's hidden and solo'd ids name groups at the level being
+    // left, so the drill clears them and Back puts them back.
+    const legend = takeLegendState(this as unknown as VizInstance);
     this._history.push({
       depth: this.schema.depth,
       filter: oldFilter,
       groupId: filterId,
       groupDepth: this._drawDepth,
+      ...(legend && {legend}),
     });
 
     // A threshold bucket's id lists the groups it holds; it opens onto them.
