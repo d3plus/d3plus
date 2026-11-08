@@ -13,7 +13,11 @@ import accessor from "../../utils/accessor.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {chartBounds, centerChartTransform} from "../features/chartGeometry.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
-import {rowLegend, shareRow} from "../features/sharedFields.js";
+import {
+  legendLargestFirst,
+  rowLegend,
+  shareRow,
+} from "../features/sharedFields.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -131,10 +135,7 @@ export const pieDef: DataDrivenChartDefinition = {
     },
     {
       key: "legendSort",
-      factory: (viz: VizInstance) => {
-        const valueFn = viz.schema.value as (d: DataPoint) => number;
-        return (a: DataPoint, b: DataPoint) => valueFn(b) - valueFn(a);
-      },
+      factory: (viz: VizInstance) => legendLargestFirst(viz, "value"),
     },
     {
       key: "shapeConfig",

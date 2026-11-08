@@ -1,6 +1,7 @@
 /**
-    Config pieces the part-to-whole charts share: the tooltip's "Share" row
-    and the legend that hides while it would repeat every drawn row.
+    Config pieces the part-to-whole charts share: the tooltip's "Share" row,
+    the legend that hides while it would repeat every drawn row, and the
+    legend order that lists the largest entry first.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -55,5 +56,22 @@ export function rowLegend(
   return (config: D3plusConfig, arr: DataPoint[]) => {
     if (arr.length === viz._filteredData.length && labeled(viz)) return false;
     return base.call(viz, config, arr);
+  };
+}
+
+/**
+    The legend comparator of a chart that sizes its marks by value: the
+    largest entry first, measured by the accessor the chart sizes rows by
+    (read when the legend sorts, so a later `sum`/`value` applies).
+    @param viz The chart.
+    @param sumKey The schema accessor the chart sizes rows by.
+*/
+export function legendLargestFirst(
+  viz: VizInstance,
+  sumKey: "sum" | "value",
+): (a: DataPoint, b: DataPoint) => number {
+  return (a: DataPoint, b: DataPoint) => {
+    const size = viz.schema[sumKey] as (d: DataPoint) => number;
+    return size(b) - size(a);
   };
 }
