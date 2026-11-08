@@ -26,6 +26,8 @@ import {chartBounds} from "../features/chartGeometry.js";
 import {colorScaleValue} from "../features/colorScaleValue.js";
 import {paintColorScaleInset} from "../features/featuresColorScale.js";
 import {buildLegendData, paintLegendInset} from "../features/featuresLegend.js";
+import type {LegendData} from "../features/featuresLegend.js";
+import {legendEntryCount} from "../features/legendKeys.js";
 import {sanitizePosition} from "../features/features.js";
 import {markBoxes} from "../features/sceneBounds.js";
 import {
@@ -87,10 +89,11 @@ function legendCouldFit(viz: VizInstance): boolean {
     width: viz.schema.width || 0,
     height: viz.schema.height || 0,
   });
-  const entries = buildLegendData(viz).legendData.length;
-  return (
-    entries * MIN_LEGEND_ENTRY * MIN_LEGEND_ENTRY <= frame.width * frame.height
-  );
+  // Counting stops at the first entry past the most that could fit.
+  const room = frame.width * frame.height;
+  const most = Math.floor(room / (MIN_LEGEND_ENTRY * MIN_LEGEND_ENTRY));
+  const entries = legendEntryCount(viz, most + 1);
+  return entries * MIN_LEGEND_ENTRY * MIN_LEGEND_ENTRY <= room;
 }
 
 /** Whether a `legendPosition`/`colorScalePosition` accessor resolves to `"auto"` for this draw. */
@@ -142,19 +145,21 @@ function isShowing(viz: VizInstance, key: InsetKey): boolean {
 /**
     Lays a showing candidate out for the chart's interior in `orient` and
     returns its content size, or null when it can't lay out that way.
+    `legend` gives the legend's data, built once for every orientation tried.
 */
 function measure(
   viz: VizInstance,
   key: InsetKey,
   orient: InsetOrient,
   area: {width: number; height: number},
+  legend: () => LegendData,
 ): {width: number; height: number} | null {
   if (key === "sizeLegend") {
     const box = bottomRightControlsBox(viz);
     return box ? {width: box.width, height: box.height} : null;
   }
   return key === "legend"
-    ? paintLegendInset(viz, orient, area)
+    ? paintLegendInset(viz, orient, area, legend())
     : paintColorScaleInset(viz, orient, area);
 }
 
@@ -311,9 +316,11 @@ function choose(
   const space = showing.length ? openSpace(viz) : null;
   if (!space || !space.rects.length) return {placement: null, showing};
   const {margin} = insetStyle(viz);
+  let built: LegendData | undefined;
+  const legend = () => (built ??= buildLegendData(viz));
   for (const key of showing) {
     for (const orient of ORIENTS[key]) {
-      const size = measure(viz, key, orient, space.area);
+      const size = measure(viz, key, orient, space.area, legend);
       const spot =
         size &&
         fitInset(
