@@ -4,6 +4,7 @@
 */
 import type {DataPoint} from "@d3plus/data";
 
+import {constantValue} from "../../utils/constant.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** The functions that read a row's legend paint and key. */
@@ -69,11 +70,13 @@ export function legendRows(viz: VizInstance): DataPoint[] {
 /**
     How many entries the legend has (the number `buildLegendData` rolls its
     rows into), counting no further than `limit + 1`: enough to tell whether
-    there are more than `limit`.
+    there are more than `limit`. A legend set to a constant false has none.
     @param viz The chart.
     @param limit The count past which to stop.
 */
 export function legendEntryCount(viz: VizInstance, limit = Infinity): number {
+  const never = constantValue(viz.schema.legend);
+  if (never && !never.value) return 0;
   const {colorOf, keyOf} = legendKeys(viz);
   const keys = new Set<string>();
   const data: DataPoint[] = viz._legendData || [];

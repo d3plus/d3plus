@@ -7,13 +7,13 @@
     `viz.ctx` for the click/hover handlers installed by `setup`.
 */
 
-import {extent, max, min, merge as d3ArrayMerge, groups} from "d3-array";
+import {extent, max, min, groups} from "d3-array";
 import {forceLink, forceManyBody, forceSimulation} from "d3-force";
 import type {SimulationNodeDatum, SimulationLinkDatum} from "d3-force";
 import {polygonHull} from "d3-polygon";
 import * as scales from "d3-scale";
 
-import {largestRect, pointDistance, pointRotate} from "@d3plus/math";
+import {largestRect, pointRotate} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../features/chartGeometry.js";
@@ -33,6 +33,7 @@ import {
 import type {LoopNode, SelfLoopGeometry} from "../features/selfLoops.js";
 import type {FocusBox} from "../features/linkFocus.js";
 import {bundleNetworkLinks} from "./bundle.js";
+import {minNodeDistance} from "./minNodeDistance.js";
 import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import type {GraphLink, GraphNode} from "./graph.js";
 
@@ -270,20 +271,7 @@ function scaleNetworkNodes(
   const rExtent = extent(nodes.map(n => n.r)) as unknown as [number, number];
   let rMax =
     v.schema.sizeMax ||
-    (max([
-      1,
-      (min(
-        d3ArrayMerge(
-          nodes.map(n1 =>
-            nodes.map(n2 =>
-              n1 === n2
-                ? null
-                : pointDistance([n1.x ?? 0, n1.y ?? 0], [n2.x ?? 0, n2.y ?? 0]),
-            ),
-          ) as unknown as Iterable<Iterable<number>>,
-        ),
-      ) as unknown as number) / 2,
-    ]) as unknown as number);
+    (max([1, (minNodeDistance(nodes) as number) / 2]) as unknown as number);
 
   const r: RScale = (scales as unknown as Record<string, () => RScale>)
     [

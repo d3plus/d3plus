@@ -131,6 +131,28 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
 }
 
 /**
+    `rows.indexOf`, for looking up many rows: it scans like `indexOf` until
+    the scans add up to the length of `rows`, then indexes every row (by its
+    first position) and looks the rest up.
+*/
+export function rowIndex<T extends object>(
+  rows: readonly T[],
+): (row: T) => number {
+  let scanned = 0;
+  let index: Map<T, number> | undefined;
+  return row => {
+    if (index) return index.get(row) ?? -1;
+    const i = rows.indexOf(row);
+    scanned += i < 0 ? rows.length : i + 1;
+    if (scanned >= rows.length) {
+      index = new Map();
+      for (let k = rows.length - 1; k >= 0; k--) index.set(rows[k], k);
+    }
+    return i;
+  };
+}
+
+/**
     Filters + groups `data` (default: `viz._data`) into the result's
     `filteredData`, `legendData`, and (when data exists) `_thresholdTree`.
     Small multiples pass one panel's rows as `data`.
@@ -160,10 +182,11 @@ export function computeFilteredData(
     for (let i = 0; i <= drawDepth; i++) nestKeys.push(viz.schema.groupBy[i]);
     nestKeys.push(...discreteNestKeys(viz));
 
+    const indexOf = rowIndex(viz._data);
     const tree = rollup(
       flatData,
       (leaves: DataPoint[]) => {
-        const index = viz._data.indexOf(leaves[0]);
+        const index = indexOf(leaves[0]);
         const shape = viz.schema.shape(leaves[0], index);
         const localId = id(leaves[0], index) as string | number;
 

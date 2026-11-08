@@ -8,6 +8,7 @@ import {
   legendRows,
 } from "../../src/charts/features/legendKeys.ts";
 import {applyTransform, mapBox} from "../../src/charts/features/sceneBounds.ts";
+import constant from "../../src/utils/constant.ts";
 
 function seeded(seed) {
   return () => {
@@ -72,6 +73,16 @@ it("legendEntryCount — the number of entries buildLegendData rolls up", () => 
           Math.min(full, limit + 1),
         );
     }
+});
+
+it("legendEntryCount — none for a legend set to a constant false", () => {
+  const data = rows(seeded(5), 40, 3);
+  const viz = fakeViz(data, {color: d => d.kind});
+  viz.schema.legend = constant(false);
+  assert.strictEqual(buildLegendData(viz).legendData.length, 0);
+  assert.strictEqual(legendEntryCount(viz), 0);
+  viz.schema.legend = () => false;
+  assert.strictEqual(legendEntryCount(viz), 3);
 });
 
 it("legendKeys and legendRows — the legend's grouping", () => {

@@ -1,5 +1,6 @@
 import {it} from "vitest";
 import assert from "assert";
+import {group} from "d3-array";
 import {useJsdom} from "~test/jsdom.js";
 import {BarChart, Plot} from "../../index.ts";
 import {
@@ -301,5 +302,29 @@ it("vizPreDraw: trailPersist auto-enables axisPersist and a single-period timeli
     chart.schema.timelineConfig.brushing,
     false,
     "brushing forced off by trailPersist",
+  );
+});
+
+it("vizPostThresholdCtx counts distinct ids against dataCutoff as d3 group does", () => {
+  const chart = new BarChart();
+  const day = t => new Date(Date.UTC(2020, 0, t));
+  // Dates count by time, and ids repeat.
+  const rows = [day(1), day(1), day(2), "a", "a", 3, 3, null, undefined].map(
+    id => ({id}),
+  );
+  const idFn = d => d.id;
+  const distinct = group(rows, idFn).size;
+  assert.strictEqual(distinct, 6);
+  chart.schema.dataCutoff = distinct;
+  assert.strictEqual(
+    vizPostThresholdCtx(chart, rows, idFn).hoverOverride?.stashOriginals,
+    undefined,
+    "at the cutoff",
+  );
+  chart.schema.dataCutoff = distinct - 1;
+  assert.strictEqual(
+    vizPostThresholdCtx(chart, rows, idFn).hoverOverride?.stashOriginals,
+    true,
+    "past the cutoff",
   );
 });
