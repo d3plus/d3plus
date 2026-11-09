@@ -1,6 +1,10 @@
 import type {ConfigField} from "../../fluent.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
+import {
+  bivariateAccessor,
+  isBivariateSetting,
+} from "../features/colorScaleBivariate.js";
 import {teardownKeyboardNav} from "./keyboardNav.js";
 import {registerLink} from "./linkGroup.js";
 import {onDataPollingIntervalSet} from "./vizDataPolling.js";
@@ -12,6 +16,12 @@ export const optionalAccessor = (value: unknown): unknown =>
   !value || typeof value === "function"
     ? value
     : fieldAccessor(value as string);
+
+/** `optionalAccessor`, except that two keys or accessors make a bivariate accessor (see `colorScaleBivariate.ts`). */
+export const colorScaleAccessor = (value: unknown): unknown =>
+  isBivariateSetting(value)
+    ? bivariateAccessor(value)
+    : optionalAccessor(value);
 
 /**
     The config keys every chart has, as generated accessors (`viz.<key>(value)`
@@ -33,7 +43,7 @@ const fields = {
   cache: {},
   color: {coerce: optionalAccessor},
   colorOrdinal: {default: false},
-  colorScale: {coerce: optionalAccessor},
+  colorScale: {coerce: colorScaleAccessor},
   colorScaleConfig: {merge: true},
   colorScaleMaxSize: {},
   colorScalePadding: {coerce: "const"},

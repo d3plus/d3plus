@@ -26,12 +26,20 @@ import {renderGradient, renderLegendVariant} from "./colorScaleRender.js";
 import {isBucketScale} from "./colorScaleType.js";
 import type {ColorScaleType} from "./colorScaleType.js";
 import {addHoverMark, hoverMarkDefaults} from "./colorScaleHoverMark.js";
+import {renderBivariate} from "./bivariateRender.js";
 import type {ColorScaleBarGeometry} from "./colorScaleHoverMark.js";
 import type {ColorScaleGroups} from "./colorScaleRender.js";
 
 /** ColorScale's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const colorScaleSchema: ConfigField[] = [
   {key: "align", coerce: "identity", default: "middle"},
+  // A bivariate scale reads a pair of values from each row and draws its
+  // grid of colors as a diamond key (see bivariateRender.ts).
+  {key: "bivariate", coerce: "identity", default: false},
+  {key: "bivariateBuckets", coerce: "identity", default: 3},
+  // No default grid: an unset one paints Stevens' blue–red scheme.
+  {key: "bivariateColors", coerce: "identity"},
+  {key: "bivariateLabels", coerce: "identity"},
   {key: "buckets", coerce: "identity", default: 5},
   {key: "bucketAxis", coerce: "identity", default: false},
   {key: "bucketFormat", coerce: "identity"},
@@ -96,8 +104,12 @@ export default class ColorScale extends BaseClass {
   _scaleType: ColorScaleType = "linear";
   /** Where the color bar sits, set when the bar variant renders (see colorScaleHoverMark). */
   _barGeometry?: ColorScaleBarGeometry;
-  /** The value marked on the scale, set with `hover()`. */
-  _hoverValue?: number | false;
+  /** The value marked on the scale, set with `hover()`: a pair of values on a bivariate scale. */
+  _hoverValue?: number | [number, number] | false;
+  /** The names a chart gives a bivariate scale's two variables (its field names), under `bivariateLabels`. */
+  _bivariateFields?: string[];
+  /** The bivariate key's nodes, laid out by the last render. */
+  _bivariateNodes?: SceneNode[];
   /** Smooth-gradient fill token (`gradient:<json>`), set by renderGradientStops. */
   _gradientFill?: string;
   // Standalone scene renderer (used when rendered on its own, not inside a
@@ -179,9 +191,12 @@ export default class ColorScale extends BaseClass {
     // Shape <g> Group
     this._group = elem("g.d3plus-ColorScale", {parent: this._select});
 
-    const compute = computeColorScale(this);
+    const bivariate = Boolean(this.schema.bivariate);
+    this._bivariateNodes = bivariate ? renderBivariate(this).nodes : undefined;
+    const compute = bivariate ? undefined : computeColorScale(this);
 
-    const gradient = this.schema.bucketAxis || !isBucketScale(compute.scale);
+    const gradient =
+      !bivariate && (this.schema.bucketAxis || !isBucketScale(compute!.scale));
     const t = transition().duration(this.schema.duration);
     const groupParams: Record<string, unknown> = {
       enter: {opacity: 0},
@@ -200,7 +215,7 @@ export default class ColorScale extends BaseClass {
     );
     const legendGroup = elem(
       "g.d3plus-ColorScale-legend",
-      Object.assign({condition: !gradient}, groupParams),
+      Object.assign({condition: !gradient && !bivariate}, groupParams),
     );
 
     const groups: ColorScaleGroups = {
@@ -211,8 +226,10 @@ export default class ColorScale extends BaseClass {
       gradient,
     };
 
-    if (gradient) renderGradient(this, compute, groups);
-    else renderLegendVariant(this, compute, groups);
+    if (compute) {
+      if (gradient) renderGradient(this, compute, groups);
+      else renderLegendVariant(this, compute, groups);
+    }
 
     // Standalone render: paint the scene into the user's `_select`. Inside a
     // Viz the color scale runs in compute mode and the Viz composes its
@@ -248,7 +265,9 @@ export default class ColorScale extends BaseClass {
       }
     };
 
-    if (gradient) {
+    if (this._bivariateNodes) {
+      children.push(...this._bivariateNodes);
+    } else if (gradient) {
       pushScene(this._rectClass as unknown as {toScene?: () => GroupNode});
       pushScene(this._axisClass as unknown as {toScene?: () => GroupNode});
       pushScene(this._labelClass as unknown as {toScene?: () => GroupNode});
@@ -277,7 +296,7 @@ export default class ColorScale extends BaseClass {
       ...(transform ? {transform} : {}),
       children,
     };
-    addHoverMark(this, group);
+    if (!this._bivariateNodes) addHoverMark(this, group);
     return group;
   }
 
@@ -302,11 +321,11 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      Marks a value on the scale: an extra axis tick where the value falls on the color bar and a badge reading it where that tick's label would sit, plus an outline around its bucket on a bucketed bar (`bucketAxis`). A scale drawn as discrete swatches draws no mark. A chart sets this while one of its shapes is hovered. Pass `false` to clear it. Turned off with `hoverMark(false)`.
+      Marks a value on the scale: an extra axis tick where the value falls on the color bar and a badge reading it where that tick's label would sit, plus an outline around its bucket on a bucketed bar (`bucketAxis`). A scale drawn as discrete swatches draws no mark, and a bivariate scale takes a pair of values. A chart sets this while one of its shapes is hovered. Pass `false` to clear it. Turned off with `hoverMark(false)`.
 */
-  hover(): number | false | undefined;
-  hover(_: number | false): this;
-  hover(_?: number | false): unknown {
+  hover(): number | [number, number] | false | undefined;
+  hover(_: number | [number, number] | false): this;
+  hover(_?: number | [number, number] | false): unknown {
     return arguments.length ? ((this._hoverValue = _), this) : this._hoverValue;
   }
 

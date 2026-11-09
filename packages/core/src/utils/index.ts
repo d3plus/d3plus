@@ -6,6 +6,7 @@ export type {
   AxisConfig,
   ColorDefaultsConfig,
   ColorScaleConfig,
+  ColorScaleField,
   ConfidenceBandSetting,
   ConfidenceBound,
   KeyboardNavConfig,
