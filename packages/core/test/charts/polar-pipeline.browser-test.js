@@ -88,16 +88,27 @@ it(
           angle: (i * Math.PI) / 2,
           data: {id: text},
         }));
+        const curved = d3plus.polarCategoryLayout(viz, cats, 400, 300);
+        const curvedNodes = d3plus.polarCategoryNodes(viz, curved, "test");
+        viz.labelPosition("inside");
         const layout = d3plus.polarCategoryLayout(viz, cats, 400, 300);
         const hidden = d3plus.polarCategoryLayout(viz, cats, 400, 300, false);
         viz.outerPadding(50);
         const fixed = d3plus.polarCategoryLayout(viz, cats, 400, 300);
         viz.outerPadding("auto");
-        const nodes = d3plus.polarCategoryNodes(viz, layout.labels, "test");
-        const none = d3plus.polarCategoryNodes(viz, [], "test");
+        const nodes = d3plus.polarCategoryNodes(viz, layout, "test");
+        const none = d3plus.polarCategoryNodes(
+          viz,
+          {labels: [], curves: []},
+          "test",
+        );
         const levels = {domain: [0, 100], ticks: [0, 50, 100]};
         const level = d3plus.polarLevelNodes(viz, levels, 100, v => v, "test");
         return {
+          curvedRadius: curved.radius,
+          curvedStraight: curved.labels.length,
+          curvedTexts: curvedNodes[0].children.map(c => c.lines[0].text),
+          curvedPaths: curvedNodes[0].children.filter(c => c.path).length,
           radius: layout.radius,
           anchors: layout.labels.map(l => l.textAnchor),
           aligns: layout.labels.map(l => l.verticalAlign),
@@ -114,13 +125,18 @@ it(
       },
       rows,
     );
+    assert.strictEqual(out.curvedStraight, 0, "every name curves");
+    assert.deepStrictEqual(out.curvedTexts, ["North", "East", "South", "West"]);
+    assert.strictEqual(out.curvedPaths, 4, "each along its own arc");
     assert.ok(
-      out.radius > 0 && out.radius < 150,
-      `labels leave room (${out.radius})`,
+      out.radius > 0 &&
+        out.radius <= out.curvedRadius &&
+        out.curvedRadius < 150,
+      `curved names leave as much room (${out.curvedRadius} >= ${out.radius})`,
     );
     assert.deepStrictEqual(out.anchors, ["middle", "start", "middle", "end"]);
     assert.deepStrictEqual(out.aligns, ["bottom", "middle", "top", "middle"]);
-    assert.deepStrictEqual(out.hidden, {radius: 150, labels: []});
+    assert.deepStrictEqual(out.hidden, {radius: 150, labels: [], curves: []});
     assert.strictEqual(
       out.fixed,
       100,

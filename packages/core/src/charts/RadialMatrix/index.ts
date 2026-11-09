@@ -141,7 +141,8 @@ export const radialMatrixDef: ChartDefinition = {
       coerce: v => (typeof v === "function" ? v : constant(v as number)),
     },
     /**
-        Config for the column labels drawn around the circle:
+        Config for the column labels drawn around the circle, curved just
+        outside it when they all fit (see `labelPosition`):
         `shapeConfig.labelConfig` styles them (a `TextBox` config), and
         `labels`, an array of column values, limits which ones are drawn.
     */

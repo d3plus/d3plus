@@ -37,9 +37,9 @@ With a `metric`, every metric value is one slice of the circle and its `groupBy`
 
 ## Crowded categories
 
-When the category labels would overlap reading horizontally, each one turns to run along its wedge's spoke instead, and the circle shrinks just enough for them to fit.
+Category names curve just outside the circle when they all fit. When they don't, they read horizontally, or, when those would overlap, each one turns to run along its wedge's spoke, and the circle shrinks just enough for them to fit. `labelPosition: "inside"` keeps every name straight.
 
-<Playground chart="PolarArea" code={crowdedCategories} controls={["outerPadding"]} />
+<Playground chart="PolarArea" code={crowdedCategories} controls={["outerPadding","labelPosition"]} />
 
 ## Small multiples
 

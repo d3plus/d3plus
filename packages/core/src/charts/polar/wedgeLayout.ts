@@ -194,6 +194,7 @@ export function polarWedgeLayout(
       key: s.key,
       text: opts.slotLabel(s.key, members),
       angle: s.angle,
+      span: s.endAngle - s.startAngle,
       data: (members.length === 1
         ? members[0]
         : merge(members, aggs)) as DataPoint,
@@ -240,7 +241,7 @@ export function polarWedgeLayout(
     scene.push(trackGroup(opts.key, slots, tracks, opts.trackPaint));
   scene.push(
     ...chrome.rings,
-    ...polarCategoryNodes(viz, layout.labels, opts.key),
+    ...polarCategoryNodes(viz, layout, opts.key),
     ...chrome.labels,
   );
 

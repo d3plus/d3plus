@@ -11,6 +11,9 @@ import {textWidth} from "@d3plus/dom";
 import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {textLineBoxes} from "../features/linkLabels.js";
+import {clearRingLabels} from "../features/ringLabelNodes.js";
+import {ringLabelPosition} from "../features/ringLabels.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {
   radarAxisLabelLayout,
@@ -23,6 +26,12 @@ import {
   radarRingNodes,
 } from "../Radar/axisDecorations.js";
 import type {RadarAxisConfig} from "../Radar/axisDecorations.js";
+import {
+  radarCurveNodes,
+  radarCurvedLayout,
+  radarCurvesAt,
+} from "../Radar/curvedLabels.js";
+import type {RadarCurveLabel} from "../Radar/curvedLabels.js";
 import type {RadarLevels} from "../Radar/levels.js";
 import {textWrap} from "@d3plus/text";
 
@@ -42,6 +51,8 @@ export interface PolarCategory {
   text: string;
   /** The slot's center angle (radians, 0 at 12 o'clock, clockwise). */
   angle: number;
+  /** The slot's angle (radians); defaults to an even share of the circle. */
+  span?: number;
   data: DataPoint;
 }
 
@@ -60,11 +71,18 @@ interface PolarLabelDatum {
   rotateAnchor?: [number, number];
 }
 
-/** Where the category labels go, and the radius they leave for the circle. */
+/**
+    Where the category labels go, and the radius they leave for the circle:
+    the straight labels, and the ones that curve along it.
+*/
 export interface PolarCategoryLayout {
   radius: number;
   labels: PolarLabelDatum[];
+  curves: RadarCurveLabel[];
 }
+
+/** A straight layout: the radius and every category's straight label. */
+type StraightLayout = Omit<PolarCategoryLayout, "curves">;
 
 /** The narrowest box a category label is laid out in, in pixels. */
 const LABEL_MIN_WIDTH = 12;
@@ -88,7 +106,7 @@ interface SpokeInput {
 function spokeLayout(
   categories: PolarCategory[],
   {fonts, widths, innerW, innerH, fixed, outerPadding}: SpokeInput,
-): PolarCategoryLayout {
+): StraightLayout {
   const spoke = radarAxisLabelLayout({
     labels: categories.map((c, i) => ({
       text: c.text,
@@ -141,9 +159,12 @@ function spokeLayout(
 
 /**
     Lays out the category labels around a circle centered in `width` ×
-    `height`, and the circle's radius. `outerPadding` "auto" sizes both from
-    the measured labels; a number reserves that many pixels around the
-    circle. With `show` false, the circle fills the area.
+    `height`, and the circle's radius. `outerPadding` "auto" curves every
+    label just outside the circle when they all fit (see `labelPosition`),
+    which leaves the circle the most room, and otherwise sizes both from the
+    measured straight labels; a number reserves that many pixels around the
+    circle. Either way, a label that fits along the circle curves. With
+    `show` false, the circle fills the area.
 */
 export function polarCategoryLayout(
   viz: Viz,
@@ -153,9 +174,55 @@ export function polarCategoryLayout(
   show = true,
 ): PolarCategoryLayout {
   const half = Math.max(0, Math.min(width, height) / 2);
-  if (!show || !categories.length) return {radius: half, labels: []};
-  const outerPadding = viz.schema.outerPadding as number | "auto" | undefined;
+  if (!show || !categories.length)
+    return {radius: half, labels: [], curves: []};
   const fonts = categories.map((c, i) => labelFont(viz, c.text, c.data, i));
+  const inputs = categories.map((c, i) => ({
+    text: c.text,
+    data: c.data,
+    angle: c.angle - Math.PI / 2,
+    span: c.span,
+    font: fonts[i],
+  }));
+  const curveLabels = (curves: ReturnType<typeof radarCurvesAt>) =>
+    categories.flatMap((c, i): RadarCurveLabel[] => {
+      const curve = curves[i];
+      return curve ? [{key: c.key, data: c.data, i, curve}] : [];
+    });
+  const room = Math.max(0, half - RADAR_EDGE_GAP);
+  if (typeof viz.schema.outerPadding !== "number") {
+    const curved = radarCurvedLayout(viz, inputs, room);
+    if (curved)
+      return {
+        radius: curved.radius,
+        labels: [],
+        curves: curveLabels(curved.curves),
+      };
+  }
+  const straight = straightLayout(viz, categories, fonts, width, height);
+  const curves = radarCurvesAt(viz, inputs, straight.radius, room);
+  return {
+    radius: straight.radius,
+    labels: straight.labels.filter(
+      (l, i) => !curves[i] && ringLabelPosition(viz, l.data, i) !== "along",
+    ),
+    curves: curveLabels(curves),
+  };
+}
+
+/**
+    The straight category labels: read horizontally, or along their spokes
+    when neighbors would overlap that way.
+*/
+function straightLayout(
+  viz: Viz,
+  categories: PolarCategory[],
+  fonts: ReturnType<typeof labelFont>[],
+  width: number,
+  height: number,
+): StraightLayout {
+  const half = Math.max(0, Math.min(width, height) / 2);
+  const outerPadding = viz.schema.outerPadding as number | "auto" | undefined;
   const style = (i: number) => ({
     "font-family": fonts[i].fontFamily,
     "font-size": fonts[i].fontSize,
@@ -221,16 +288,25 @@ export function polarCategoryLayout(
   });
 }
 
-/** Builds the category label nodes laid out by `polarCategoryLayout`. */
+/**
+    Builds the category label nodes laid out by `polarCategoryLayout`: the
+    curved ones, and the straight ones that stay clear of them.
+*/
 export function polarCategoryNodes(
   viz: Viz,
-  labels: PolarLabelDatum[],
+  {labels, curves}: Pick<PolarCategoryLayout, "labels" | "curves">,
   key: string,
 ): SceneNode[] {
-  if (!labels.length) return [];
+  if (!labels.length && !curves.length) return [];
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
+  const labelConfig = axisConfig.shapeConfig?.labelConfig ?? {};
+  const curved = radarCurveNodes(
+    viz,
+    curves.map(c => ({...c, key: `${key}-label-${c.key}`})),
+    labelConfig,
+  );
   const asLabel = (d: DataPoint) => d as unknown as PolarLabelDatum;
-  const nodes = emitLabels({
+  const straight = emitLabels({
     data: labels as unknown as DataPoint[],
     label: d => asLabel(d).text,
     x: d => asLabel(d).x,
@@ -240,11 +316,15 @@ export function polarCategoryNodes(
     id: d => `${key}-label-${asLabel(d).id}`,
     labelBounds: d => asLabel(d).labelBounds,
     labelConfig: {
-      ...(axisConfig.shapeConfig?.labelConfig ?? {}),
+      ...labelConfig,
       verticalAlign: (d: {data?: PolarLabelDatum}) =>
         d.data?.verticalAlign ?? "middle",
     },
   });
+  const nodes = [
+    ...curved,
+    ...clearRingLabels(straight, textLineBoxes(curved)),
+  ];
   for (const n of nodes) n.interactive = false;
   return nodes.length
     ? [
