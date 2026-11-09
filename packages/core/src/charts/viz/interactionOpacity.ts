@@ -18,6 +18,8 @@ import type {SceneNode} from "@d3plus/render";
 import {activeBucketColors} from "../features/colorScaleBucket.js";
 import {hoveredSwatch} from "../features/colorScaleHover.js";
 import {datumValues} from "../features/hoverTicks.js";
+import {STROKE_EMPHASIS} from "./emphasis.js";
+import type {EmphasisKind} from "./emphasis.js";
 import {MARK_TYPES} from "./sceneRows.js";
 import type {VizInstance} from "./vizTypes.js";
 
@@ -29,16 +31,24 @@ const HOVER_RAISE_Z = 1e6;
 /**
     Emphasizes a matched mark's stroke on hover/active — the v3 `hoverStyle` /
     `activeStyle` look (a thicker, darker outline). v4 paints from the scene
-    graph, so this reapplies it here: darken the fill by `darken` for the stroke
-    and multiply the stroke width by `widthMult` (treating a 0/absent width as 1,
-    matching the shape defaults). Non-mark nodes (labels, groups) are untouched.
+    graph, so this reapplies it here: darken the fill by the kind's `darken`
+    for the stroke and multiply the stroke width by its `width` (treating a
+    0/absent width as 1, matching the shape defaults; see `STROKE_EMPHASIS`).
+    A path with an `emphasis` takes its `d` for the kind, and a filled glyph
+    (an arrowhead) darkens its fill instead, so it stays the color of its
+    edge's stroke. Non-mark nodes (labels, groups) are untouched.
 */
-function emphasizeStroke(
-  node: SceneNode,
-  darken: number,
-  widthMult: number,
-): SceneNode {
+function emphasizeStroke(node: SceneNode, kind: EmphasisKind): SceneNode {
+  const {darken, width} = STROKE_EMPHASIS[kind];
   const paint = {...((node.paint ?? {}) as Record<string, unknown>)};
+  const emphasis = node.type === "path" ? node.emphasis : undefined;
+  const d = emphasis?.d?.[kind];
+  const shaped = d ? {...node, d} : node;
+  if (emphasis?.fill) {
+    const c = typeof paint.fill === "string" ? color(paint.fill) : null;
+    if (c) paint.fill = c.darker(darken).formatHex();
+    return {...shaped, paint} as SceneNode;
+  }
   let base = typeof paint.fill === "string" ? paint.fill : undefined;
   if (!base || base === "transparent" || base === "none")
     base = typeof paint.stroke === "string" ? paint.stroke : undefined;
@@ -51,8 +61,8 @@ function emphasizeStroke(
     typeof paint.strokeWidth === "number" && paint.strokeWidth
       ? paint.strokeWidth
       : 1;
-  paint.strokeWidth = w * widthMult;
-  return {...node, paint} as SceneNode;
+  paint.strokeWidth = w * width;
+  return {...shaped, paint} as SceneNode;
 }
 
 /**
@@ -334,9 +344,7 @@ export function applyInteractionOpacity(
             (activePredicate
               ? nodeMatches(node, activePredicate) === true
               : false);
-          next = active
-            ? emphasizeStroke(node, 1, 3)
-            : emphasizeStroke(node, 0.5, 2);
+          next = emphasizeStroke(node, active ? "active" : "hover");
         }
         if (isHover) {
           // Raise the hovered node above its siblings. Both renderers paint by

@@ -16,8 +16,9 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
-import type {SceneNode} from "@d3plus/render";
+import type {PathNode, SceneNode} from "@d3plus/render";
 
+import {STROKE_EMPHASIS} from "../viz/emphasis.js";
 import {cubicPoint} from "./linkLabelGeometry.js";
 
 /** Which end(s) of an edge carry an arrowhead. `true` is equivalent to `"target"`. */
@@ -126,6 +127,79 @@ export function arrowTrim(size: number, strokeWidth: number): number {
   const s = Number.isFinite(size) ? Math.max(0, size) : 0;
   const sw = Number.isFinite(strokeWidth) ? Math.max(0, strokeWidth) : 0;
   return Math.min(s, Math.max(s / 2, sw / 1.2));
+}
+
+/**
+    An `arrowSize` config for an edge drawn `scale` times wider, as hover
+    and active emphasis draw it: a size you set grows with the stroke, and
+    the default follows the wider stroke on its own (see `defaultArrowSize`).
+*/
+export function scaledArrowSize(arrowSize: unknown, scale: number): unknown {
+  if (scale === 1) return arrowSize;
+  if (typeof arrowSize === "number") return arrowSize * scale;
+  if (typeof arrowSize === "function")
+    return (d: DataPoint, i: number) => {
+      const v = (arrowSize as (d: DataPoint, i: number) => unknown)(d, i);
+      return typeof v === "number" ? v * scale : v;
+    };
+  return arrowSize;
+}
+
+/**
+    An edge's stroke width `scale` times wider, as hover and active emphasis
+    draw it (a 0 or unset width counting as 1, the way they do).
+*/
+export function scaledStrokeWidth(
+  strokeWidth: number | undefined,
+  scale: number,
+): number | undefined {
+  if (scale === 1) return strokeWidth;
+  const sw = typeof strokeWidth === "number" && strokeWidth ? strokeWidth : 1;
+  return sw * scale;
+}
+
+/** An edge's visible stroke, its arrowheads, and what emphasis changes on the stroke. */
+export interface ArrowEdge {
+  d: string;
+  arrows: SceneNode[];
+  emphasis?: PathNode["emphasis"];
+}
+
+/**
+    An edge's visible stroke and arrowheads as `draw` draws them at their
+    own stroke width, carrying the geometry hover and active emphasis widen
+    them to: each arrowhead grows with the wider stroke and darkens with it,
+    and the stroke ends back inside it, so neither pokes past the other.
+    @param draw Draws the edge at `scale` times its stroke width (see
+    `scaledStrokeWidth` and `scaledArrowSize`).
+*/
+export function emphasizedArrowEdge(
+  draw: (scale: number) => ArrowEdge,
+): ArrowEdge {
+  const rest = draw(1);
+  if (!rest.arrows.length) return rest;
+  const hover = draw(STROKE_EMPHASIS.hover.width);
+  const active = draw(STROKE_EMPHASIS.active.width);
+  const pathD = (node: SceneNode | undefined) =>
+    node?.type === "path" ? node.d : undefined;
+  return {
+    d: rest.d,
+    arrows: rest.arrows.map((arrow, k) =>
+      arrow.type === "path"
+        ? {
+            ...arrow,
+            emphasis: {
+              ...arrow.emphasis,
+              d: {
+                hover: pathD(hover.arrows[k]),
+                active: pathD(active.arrows[k]),
+              },
+            },
+          }
+        : arrow,
+    ),
+    emphasis: {d: {hover: hover.d, active: active.d}},
+  };
 }
 
 /** An edge's arrowheads: which ends carry one, their size, and the stroke trim at each. */
@@ -358,13 +432,15 @@ export interface ArrowNodeOpts {
 /**
     Build one arrowhead scene node. `interactive: false` so the edge path owns
     hit-testing, and the same `datum` as its edge so the hover-dim pass keeps the
-    arrow paired with its edge.
+    arrow paired with its edge. Emphasis darkens its fill with its edge's
+    stroke rather than outlining it.
 */
 export function arrowNode(opts: ArrowNodeOpts): SceneNode {
   return {
     type: "path",
     key: opts.key,
     d: arrowPathD(opts.x, opts.y, opts.angle, opts.size),
+    emphasis: {fill: true},
     datum: opts.datum,
     interactive: false,
     paint: {

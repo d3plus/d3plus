@@ -378,6 +378,18 @@ export interface ArcGeometry {
 export interface PathNode extends NodeBase {
   type: "path";
   d: string;
+  /**
+      What hover and active emphasis change on this path beyond the thicker,
+      darker stroke every emphasized mark takes: the `d` it is drawn with
+      under each (an edge cut back inside its larger arrowheads, an
+      arrowhead grown with its edge's stroke), and whether it is a filled
+      glyph (an arrowhead) whose fill darkens instead of gaining an outline.
+      Interaction metadata only — backends never read it for drawing.
+  */
+  emphasis?: {
+    d?: {hover?: string; active?: string};
+    fill?: boolean;
+  };
   /** This wedge's own current polar parameters (Pie/Donut only) — see {@link ArcGeometry}. */
   arc?: ArcGeometry;
   /**

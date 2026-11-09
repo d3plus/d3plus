@@ -8,7 +8,12 @@ import type {DataPoint} from "@d3plus/data";
 import type {Paint, SceneNode} from "@d3plus/render";
 
 import type {ChartEmit} from "../definition/ChartDefinition.js";
-import {edgeArrowTrims} from "../features/edgeArrows.js";
+import {
+  edgeArrowTrims,
+  emphasizedArrowEdge,
+  scaledArrowSize,
+  scaledStrokeWidth,
+} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
@@ -69,26 +74,31 @@ function arcLinkLabels(viz: VizInstance, c: ArcCtx): SceneNode[] {
 const arcLinkKey = (link: ArcLink): string =>
   `arc-link-${link.source.id}-${link.target.id}-${link.index}`;
 
-/** Arrowheads at an arc's (or loop's) selected ends, each pointing along it into its node. */
+/**
+    Arrowheads at an arc's (or loop's) selected ends, each pointing along it
+    into its node, sized for `scale` times its stroke (see
+    `emphasizedArrowEdge`).
+*/
 function arcArrows(
   viz: VizInstance,
   link: ArcLink,
   stroke: string | undefined,
   key: string,
+  scale = 1,
 ): SceneNode[] {
   const datum = link.datum;
   if (link.loop)
     return selfLoopArrows({
       arrows: viz.schema.arrows as ArrowValue,
-      arrowSize: viz.schema.arrowSize,
-      strokeWidth: link.size,
+      arrowSize: scaledArrowSize(viz.schema.arrowSize, scale),
+      strokeWidth: scaledStrokeWidth(link.size, scale),
       datum,
       i: link.index,
       keyPrefix: key,
       fill: stroke,
       loop: link.loop,
     });
-  const trims = arcTrims(viz, link);
+  const trims = arcTrims(viz, link, scale);
   if (!trims.ends.source && !trims.ends.target) return [];
   return chordArrowNodes({
     ends: arcArrowEdge(link.arc, trims, arcInsets(link)),
@@ -102,21 +112,26 @@ function arcArrows(
 /**
     An arc's (or loop's) visible stroke: along it up to each arrowhead's
     base, then along the head's axis to end inside it (see `arcArrowEdge`),
-    whose tips sit a pixel out past the nodes.
+    whose tips sit a pixel out past the nodes. `scale` widens the stroke
+    (see `emphasizedArrowEdge`).
 */
-export function arcVisibleD(viz: VizInstance, link: ArcLink): string {
-  const trims = arcTrims(viz, link);
+export function arcVisibleD(
+  viz: VizInstance,
+  link: ArcLink,
+  scale = 1,
+): string {
+  const trims = arcTrims(viz, link, scale);
   if (!trims.source && !trims.target) return link.d;
   if (link.loop) return selfLoopD(link.loop, trims);
   return arcArrowEdge(link.arc, trims, arcInsets(link)).d;
 }
 
-/** An arc's arrow ends, size, and stroke trims. */
-const arcTrims = (viz: VizInstance, link: ArcLink) =>
+/** An arc's arrow ends, size, and stroke trims, `scale` times as wide. */
+const arcTrims = (viz: VizInstance, link: ArcLink, scale = 1) =>
   edgeArrowTrims({
     arrows: viz.schema.arrows as ArrowValue,
-    arrowSize: viz.schema.arrowSize,
-    strokeWidth: link.size,
+    arrowSize: scaledArrowSize(viz.schema.arrowSize, scale),
+    strokeWidth: scaledStrokeWidth(link.size, scale),
     datum: link.datum,
     i: link.index,
   });
@@ -141,24 +156,24 @@ function emitArcs(viz: VizInstance, c: ArcCtx): SceneNode[] {
     const stroke = linkColor(datum, link);
     if (stroke) paint.stroke = stroke;
     const key = arcLinkKey(link);
+    const fill = typeof paint.stroke === "string" ? paint.stroke : undefined;
+    const arrowKey = `arc-arrow-${link.source.id}-${link.target.id}-${link.index}`;
+    const edge = emphasizedArrowEdge(scale => ({
+      d: arcVisibleD(viz, link, scale),
+      arrows: arcArrows(viz, link, fill, arrowKey, scale),
+    }));
     arcs.push({
       type: "path",
       key,
-      d: arcVisibleD(viz, link),
+      d: edge.d,
+      ...(edge.emphasis ? {emphasis: edge.emphasis} : {}),
       datum,
       index: link.index,
       paint,
       aria: {label: linkAriaLabel(viz, datum)},
     } as SceneNode);
     hits.push(linkHitPath(key, link.d, datum, link.size) as SceneNode);
-    arrows.push(
-      ...arcArrows(
-        viz,
-        link,
-        typeof paint.stroke === "string" ? paint.stroke : undefined,
-        `arc-arrow-${link.source.id}-${link.target.id}-${link.index}`,
-      ),
-    );
+    arrows.push(...edge.arrows);
   }
   return [...arcs, ...hits, ...arrows, ...arcLinkLabels(viz, c)];
 }
