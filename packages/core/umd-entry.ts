@@ -8,8 +8,12 @@
     it carries both — advanced/browser consumers and the in-browser parity
     tests can reach the pipeline through the same global.
 
+    The global also carries `clearDataCache`, so a page loading only this
+    bundle can empty the data cache its charts share.
+
     This file is the rollup input for the UMD build only; it is not part of
     the package's `exports` map.
 */
 export * from "./index.js";
 export * from "./internal.js";
+export {clearDataCache} from "@d3plus/data";

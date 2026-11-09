@@ -1002,10 +1002,12 @@ export interface D3plusConfig {
   /** Bullet: the most each bullet's band can be thick, in pixels (default 40); raise it to let rows fill a tall chart. */
   bulletSize?: number;
   /**
-      Whether the chart keeps the files it fetches for `data`, `links`,
-      `nodes`, `topojson`, and `fitObject` (its 10 most recent requests), so
-      loading the same URL again, or changing a formatter, needs no new
-      request. Defaults to `true`; `false` fetches on every load.
+      Whether the chart uses the data cache that every chart on the page
+      shares for the files fetched by `data`, `links`, `nodes`, `topojson`,
+      and `fitObject`, so charts loading the same URL share one request and
+      loading it again, or changing a formatter, needs none. Defaults to
+      `true`; `false` fetches on every load. `clearDataCache()` from
+      `@d3plus/data` empties the cache.
   */
   cache?: boolean;
   /** Calendar: styles the weekday, month, and year labels (`fontColor`, `fontFamily`, `fontSize`, default `11`, and `fontWeight`). */

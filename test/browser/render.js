@@ -34,7 +34,7 @@ export async function loadD3plus() {
 /**
  * Restores the page to an empty document holding `bodyHtml`: removes every
  * node added since the file loaded, resets the body's attributes, scroll
- * position and the element id counter.
+ * position, the element id counter and the shared data cache.
  * @param {String} [bodyHtml]
  */
 export function resetPage(bodyHtml = "") {
@@ -48,6 +48,7 @@ export function resetPage(bodyHtml = "") {
     document.body.setAttribute(name, value);
   document.body.insertAdjacentHTML("beforeend", bodyHtml);
   window.scrollTo(0, 0);
+  window.d3plus?.clearDataCache?.();
   resetIds();
   errors.length = 0;
 }

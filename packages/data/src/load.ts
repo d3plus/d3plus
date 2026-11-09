@@ -3,7 +3,9 @@ import fold from "./fold.js";
 import concat from "./concat.js";
 import isData from "./isData.js";
 import request from "./request.js";
-import type {LoadCache, LoadRequestConfig} from "./request.js";
+import type {LoadRequestConfig} from "./request.js";
+import {sharedCache} from "./dataCache.js";
+import type {LoadCache} from "./dataCache.js";
 
 type DataFormatter = (
   data: DataPoint[] | DataPoint[][],
@@ -12,6 +14,7 @@ type DataFormatter = (
 interface VizContext {
   /** Overrides `schema.cache` (a poll passes `false` to always fetch). */
   _cache?: boolean;
+  /** A cache of its own, in place of the shared one. */
   _lrucache?: LoadCache;
   config(obj: Record<string, unknown>): void;
   schema?: Record<string, unknown>;
@@ -19,14 +22,15 @@ interface VizContext {
 }
 
 /**
-  The cache a load reads and writes, when the context caches: its `_cache` flag
-  when set, else its `schema.cache`.
+  The cache a load reads and writes, when the context caches (its `_cache`
+  flag when set, else its `schema.cache`): its own `_lrucache`, else the one
+  every chart shares.
   @private
 */
 function loadCache(ctx: VizContext): LoadCache | undefined {
   const enabled =
     typeof ctx._cache === "boolean" ? ctx._cache : Boolean(ctx.schema?.cache);
-  return enabled ? ctx._lrucache : undefined;
+  return enabled ? (ctx._lrucache ?? sharedCache) : undefined;
 }
 
 /**
@@ -123,7 +127,7 @@ function finish(
 /**
   Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
 
-  When the context caches (its `_cache` flag, else its `schema.cache`), each response's text is kept in its `_lrucache` under `cacheKey(request)`, and a later load of the same request parses it again at once, calling back synchronously, instead of fetching. Loads of a request already in flight share its fetch and parse, each getting its own copy, so a formatter that changes its rows never affects another load. A failed request is not cached.
+  When the context caches (its `_cache` flag, else its `schema.cache`), each response's text is kept under `cacheKey(request)` in one cache shared by every chart on the page (about 50 MB of text, least recently used dropped first; `clearDataCache()` empties it), and a later load of the same request parses it again at once, calling back synchronously, instead of fetching. Loads of a request already in flight share its fetch and parse, each getting its own copy, so a formatter that changes its rows never affects another load. A failed request is not cached.
   @param path The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.
   @param formatter Optional function to transform the loaded data.
   @param key The key in the `this` context to save the resulting data to.

@@ -1,0 +1,25 @@
+---
+title: clearDataCache
+description: "Empties the data cache that every chart shares."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/data/clear-data-cache/basic-example.js?raw";
+
+Empties the data cache that every chart shares, so the next load of each URL
+fetches it again. Call it when the data behind your URLs changes for the whole
+page, such as after a user logs out.
+
+## Basic example
+
+Every chart that caches (the `cache` config key, on by default) keeps the files
+it fetches in one shared cache, so the first load below fetches
+`fruits.csv` and any later one reads it from the cache. After
+`clearDataCache()`, the next load fetches the file again. Requests already in
+flight still reach the charts waiting on them, but their responses are not
+cached.
+
+<Calls code={basicExample} label="clearDataCache: Basic example" />
+
+<ApiReference name="clearDataCache" pkg="data" />

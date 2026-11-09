@@ -70,7 +70,6 @@ function fetchPoll(
     let config: Record<string, unknown> | undefined;
     const ctx = {
       _cache: false,
-      _lrucache: viz._lrucache,
       _data: [] as DataPoint[] | DataPoint[][],
       config: (obj: Record<string, unknown>) => {
         config = obj;

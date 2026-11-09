@@ -43,6 +43,9 @@ export async function renderToStaticSVG(
       // `_ssr` tells Geomap to emit its ocean (and tiles) into the scene graph so
       // the serialized SVG is complete (those normally live in a separate <svg>).
       viz._ssr = true;
+      // The chart keeps the files it fetches to itself, so one server render
+      // never draws another's (possibly stale or per-user) data.
+      viz._lrucache ??= new Map();
       viz
         .select(container)
         .renderer("svg")
