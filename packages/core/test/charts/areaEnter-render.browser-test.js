@@ -187,21 +187,44 @@ const frames = renderer =>
             .querySelector(`svg.d3plus-render-svg path[data-key="A"]`)
             .getAttribute("d");
         });
+      // Band A's name: its opacity, or null while it isn't drawn.
+      const label = () =>
+        page.evaluate(() => {
+          if (window.frame) {
+            const flat = nodes =>
+              nodes.flatMap(n => [n, ...(n.children ? flat(n.children) : [])]);
+            const n = flat([window.frame.root]).find(n =>
+              `${n.key}`.startsWith("area-label-along-A"),
+            );
+            return n ? (n.paint?.opacity ?? 1) : null;
+          }
+          const el = document.querySelector(
+            `svg.d3plus-render-svg [data-key^="area-label-along-A"]`,
+          );
+          return el ? Number(el.getAttribute("opacity") ?? 1) : null;
+        });
       const out = [];
+      const labels = [];
       let now = 0;
       for (const ms of [16, 800, 1700]) {
         await page.clock.runFor(ms - now);
         now = ms;
         out.push(await current());
+        labels.push(await label());
       }
-      return {target, frames: out};
+      return {target, frames: out, labels};
     },
     {clock: true},
   );
 
 for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: a stacked band rises from the zero line to its outline`, async () => {
-    const {target, frames: ds} = await frames(renderer);
+    const {target, frames: ds, labels} = await frames(renderer);
+    assert.deepStrictEqual(
+      labels.map(o => (o === null ? 0 : o)),
+      [0, 0, 1],
+      "the band's name waits until the band has nearly grown in",
+    );
     const base = along(target.enterD, 1)[0];
     const [start, mid, end] = ds.map(d => along(d, 1));
     const final = along(target.d, 1);

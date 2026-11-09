@@ -3,8 +3,9 @@
     and rises into place. An unstacked area starts on its own baseline; a
     stack starts on the zero line (or the `baseline`, kept inside the
     domain), so its bands rise together, each riding on the one beneath it.
+    Their labels fade in as the bands finish growing, where the bands land.
 */
-import type {SceneNode} from "@d3plus/render";
+import type {EnterWindow, SceneNode} from "@d3plus/render";
 
 import {growFromLine} from "../helpers/densityEnter.js";
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
@@ -29,6 +30,26 @@ export function areaBaseline(ctx: ShapeEmitContext): number | null {
   return Number.isFinite(at) ? at : null;
 }
 
+/**
+    The share of an area's enter its labels wait out: they fade in over the
+    last part, once the bands have nearly reached the places they name.
+*/
+export const AREA_LABEL_ENTER: EnterWindow = {start: 0.7, end: 1};
+
+/**
+    Holds every text node under `nodes` back until late in its enter (see
+    `AREA_LABEL_ENTER`), so a label doesn't show where its band has yet to
+    grow.
+    @param nodes The label nodes, or the groups holding them.
+*/
+export function holdAreaLabels<T extends SceneNode>(nodes: T[]): T[] {
+  for (const node of nodes) {
+    if (node.type === "text") node.enterWindow = AREA_LABEL_ENTER;
+    else if (node.type === "group") holdAreaLabels(node.children);
+  }
+  return nodes;
+}
+
 /** Every Area path's key under `nodes`. */
 function areaKeys(nodes: SceneNode[], out: string[] = []): string[] {
   for (const node of nodes) {
@@ -42,7 +63,7 @@ function areaKeys(nodes: SceneNode[], out: string[] = []): string[] {
 /**
     Sets each Area path's `enterD`: its outline flattened onto the baseline
     (see `areaBaseline`), so it grows out of the axis and, on exit, sinks
-    back into it.
+    back into it. The areas' own labels fade in late (see `holdAreaLabels`).
     @param ctx The Plot shape-emit context the areas were drawn with.
     @param nodes The areas' scene nodes.
 */
@@ -54,6 +75,7 @@ export function growAreasFromBaseline(
   if (line === null) return;
   const axis = ctx.viz.schema.discrete === "y" ? "x" : "y";
   const keys = areaKeys(nodes);
-  if (keys.length)
-    growFromLine(nodes, axis, new Map(keys.map(key => [key, line])));
+  if (!keys.length) return;
+  growFromLine(nodes, axis, new Map(keys.map(key => [key, line])));
+  holdAreaLabels(nodes);
 }
