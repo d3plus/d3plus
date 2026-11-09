@@ -2315,6 +2315,7 @@ export {
   arcCubics,
   curveRingsEdge,
   gapMiddle,
+  ringArcRadius,
   ringArcCubics,
   ringRadius,
 } from "./src/charts/Rings/ringsCurves.js";

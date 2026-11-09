@@ -9,6 +9,7 @@ import {
   curveRingsEdge,
   fanParallelEdges,
   gapMiddle,
+  ringArcRadius,
   ringArcCubics,
   ringRadius,
   ringsGeometry,
@@ -65,6 +66,22 @@ const node = (geom, id, ring, angle, r = 5) => ({
   r,
   x: 200 + geom.rings[ring - 1] * Math.cos(angle),
   y: 200 + geom.rings[ring - 1] * Math.sin(angle),
+});
+
+it("ringArcRadius sits a third of the way into the gap, clear of big nodes", () => {
+  const geom = ringsGeometry(400, 400, 3);
+  close(
+    ringArcRadius(geom, 1, [{r: 1}, {r: 2}]),
+    geom.rings[0] + geom.ringWidth / 3,
+    "a third of the gap",
+  );
+  close(
+    ringArcRadius(geom, 3, [{r: 1}]),
+    geom.rings[2] + geom.ringWidth / 3,
+    "a third of a spacing past the last",
+  );
+  const big = geom.ringWidth / 2;
+  close(ringArcRadius(geom, 2, [{r: 1}, {r: big}]), geom.rings[1] + big + 2);
 });
 
 it("ringRadius and gapMiddle follow the rings, and run on past the last", () => {
@@ -172,7 +189,7 @@ it("curveRingsEdge: across rings, each end faces the other's ring and bends in t
   close(edge.sourceBisectX, 200 + gapMiddle(geom, 2), "bends in the gap");
 });
 
-it("curveRingsEdge: along a ring, every hops (the first ring too) runs around the gap's middle", () => {
+it("curveRingsEdge: along a ring, every hops (the first ring too) runs a third of the way into the gap", () => {
   for (const hops of [1, 2, 3]) {
     const geom = ringsGeometry(400, 400, hops);
     const a = node(geom, "a", 1, 0);
@@ -182,7 +199,7 @@ it("curveRingsEdge: along a ring, every hops (the first ring too) runs around th
     assert.deepStrictEqual(edge.arc, {
       cx: 200,
       cy: 200,
-      radius: gapMiddle(geom, 1),
+      radius: geom.rings[0] + (ringRadius(geom, 2) - geom.rings[0]) / 3,
     });
     assert.ok(edge.segments.length >= 2);
     assert.deepStrictEqual([edge.sourceX, edge.sourceY], edge.segments[0][0]);
@@ -202,7 +219,11 @@ it("fanParallelEdges circles parallel links along a ring at different distances"
   fanParallelEdges(edges);
   const radii = edges.map(e => e.arc.radius);
   assert.strictEqual(new Set(radii).size, 3, "three circles");
-  close(radii[1], gapMiddle(geom, 2), "the middle one keeps the gap's middle");
+  close(
+    radii[1],
+    ringArcRadius(geom, 2, [a, b]),
+    "the middle one keeps the third circle",
+  );
   edges.forEach(e => {
     const {near, far} = reach(e.segments, [200, 200]);
     assert.ok(near >= geom.rings[1], "outside the ring");

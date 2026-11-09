@@ -1,7 +1,7 @@
 /**
     Rings' curved links between ring nodes: a link across rings bends
-    through the gap between them, and a link along one ring runs out to the
-    middle of the gap outside it, around that circle, and back in.
+    through the gap between them, and a link along one ring runs a third
+    of the way into the gap outside it, around that circle, and back in.
 
     @module
 */
@@ -23,6 +23,20 @@ export const ringRadius = (geom: RingGeometry, k: number): number =>
 /** The radius halfway between ring `k` and the ring (or spacing) outside it. */
 export const gapMiddle = (geom: RingGeometry, k: number): number =>
   ringRadius(geom, k) + (ringRadius(geom, k + 1) - ringRadius(geom, k)) * 0.5;
+
+/**
+    The circle a link along ring `k` runs around: a third of the way into
+    the gap outside the ring, and clear of both nodes.
+*/
+export const ringArcRadius = (
+  geom: RingGeometry,
+  k: number,
+  nodes: Pick<RingsNode, "r">[],
+): number =>
+  Math.max(
+    ringRadius(geom, k) + (ringRadius(geom, k + 1) - ringRadius(geom, k)) / 3,
+    ringRadius(geom, k) + Math.max(...nodes.map(n => n.r ?? 0)) + 2,
+  );
 
 const unit = (a: number): Point => [Math.cos(a), Math.sin(a)];
 const along = (p: Point, u: Point, d: number): Point => [
@@ -138,19 +152,20 @@ export function applyRingArc(edge: RingsEdge): void {
 /**
     Sets a link's curve between two ring nodes. Across rings, it leaves each
     node on the side facing the other's ring and bends through the middle of
-    the gap between them. Along one ring, it runs out to the middle of the
-    gap outside that ring (half a spacing past the last ring), around it,
-    and back in (see `ringArcCubics`).
+    the gap between them. Along one ring, it runs a third of the way into
+    the gap outside that ring (a third of a spacing past the last ring),
+    around it, and back in (see `ringArcCubics`).
 */
 export function curveRingsEdge(edge: RingsEdge, geom: RingGeometry): void {
   const {width, height} = geom;
   const inner = Math.min(edge.source.ring!, edge.target.ring!);
-  const middleRing = gapMiddle(geom, inner);
   if (edge.source.ring === edge.target.ring) {
-    edge.arc = {cx: width / 2, cy: height / 2, radius: middleRing};
+    const radius = ringArcRadius(geom, inner, [edge.source, edge.target]);
+    edge.arc = {cx: width / 2, cy: height / 2, radius};
     applyRingArc(edge);
     return;
   }
+  const middleRing = gapMiddle(geom, inner);
   edge.spline = true;
   const ends: EndKey[] = ["source", "target"];
   ends.forEach(endKey => {

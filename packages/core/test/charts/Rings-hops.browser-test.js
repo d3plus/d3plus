@@ -329,8 +329,10 @@ for (const renderer of ["svg", "canvas"]) {
         linked.arrows.some(k => k.includes("a1-b1")),
         `an arrowhead: ${linked.arrows}`,
       );
+      // a1>b1's label would land on a2's name, across the ring, so it hides;
+      // a-b, along the first ring, keeps its label on the arc.
       assert.ok(
-        linked.labels.some(k => k.includes("a1-b1")),
+        linked.labels.includes("rings-link-a-b-label-group"),
         `a label: ${linked.labels}`,
       );
 
