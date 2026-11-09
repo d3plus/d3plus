@@ -1,6 +1,7 @@
 const config = {
   center: "Hub",
-  ringDepth: 3,
+  hops: 3,
+  ringLinks: false,
   links: [
     {source: "Hub", target: "A"},
     {source: "Hub", target: "B"},
@@ -28,6 +29,8 @@ const config = {
     {source: "C1", target: "C1b"},
     {source: "D1", target: "D1a"},
     {source: "D2", target: "D2a"},
+    {source: "A1b", target: "A2a"},
+    {source: "C1b", target: "D1a"},
     {source: "A1a", target: "X"},
     {source: "D2a", target: "Y"},
   ],

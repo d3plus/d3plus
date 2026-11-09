@@ -11,6 +11,7 @@ import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout
 
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 import {edgesBetween, firstPerNeighbor} from "./ringsParallel.js";
+import {curveRingsEdge} from "./ringsCurves.js";
 import {sizeRingsNodes} from "./ringsSizing.js";
 import type {RingGeometry} from "./ringsSizing.js";
 
@@ -25,7 +26,7 @@ export interface RingsTree {
 }
 
 /**
-    Claims the nodes on each of `depth` rings around `center`, breadth-first,
+    Claims the nodes on each of `hops` rings around `center`, breadth-first,
     so a node reachable by several paths sits once, on its shallowest ring.
     The first ring is the center's neighbors, fewest links first; each later
     ring is, in order, the unclaimed neighbors of each node on the ring
@@ -34,7 +35,7 @@ export interface RingsTree {
 export function claimRings(
   linkMap: Record<string, RingsEdge[]>,
   center: RingsNode,
-  depth: number,
+  hops: number,
 ): RingsTree {
   const claimed = new Set<RingsNode>([center]);
   const children = new Map<RingsNode, RingsNode[]>();
@@ -51,7 +52,7 @@ export function claimRings(
   );
 
   const rings = [first];
-  while (rings.length < depth) {
+  while (rings.length < hops) {
     const inner = rings[rings.length - 1];
     const ring: RingsNode[] = [];
     inner.forEach(p => {
@@ -139,15 +140,15 @@ export function placeRingsNodes(
   rings: RingsNode[][];
   radius: SizeLegendScale | null;
 } {
-  const {width, height, primaryRing} = geom;
+  const {width, height, baseRing} = geom;
 
   center.x = width / 2;
   center.y = height / 2;
   center.r = v.schema.sizeMin
-    ? max([v.schema.sizeMin, primaryRing * 0.65])
+    ? max([v.schema.sizeMin, baseRing * 0.65])
     : v.schema.sizeMax
-      ? min([v.schema.sizeMax, primaryRing * 0.65])
-      : primaryRing * 0.65;
+      ? min([v.schema.sizeMax, baseRing * 0.65])
+      : baseRing * 0.65;
 
   const tree = claimRings(linkMap, center, geom.rings.length);
   const slots = placeRings(tree, geom);
@@ -156,45 +157,18 @@ export function placeRingsNodes(
   return {nodes, rings: tree.rings, radius};
 }
 
-type EndKey = "source" | "target";
-
-/**
-    Sets a link's curve between two ring nodes: it leaves each node on the
-    side facing the other's ring (both outward for nodes on the same ring)
-    and bends through the middle of the gap outside the inner one.
-*/
-export function curveRingsEdge(edge: RingsEdge, geom: RingGeometry): void {
-  const {width, height, ringWidth} = geom;
-  const inner = Math.min(edge.source.ring!, edge.target.ring!);
-  const ringRadius = (k: number) => ringWidth * k;
-  const middleRing =
-    ringRadius(inner) + (ringRadius(inner + 1) - ringRadius(inner)) * 0.5;
-  edge.spline = true;
-  const ends: EndKey[] = ["source", "target"];
-  ends.forEach(endKey => {
-    const endNode = edge[endKey];
-    const endRadians = endNode.radians as number;
-    const rotated = endNode.ring! > inner ? endRadians + Math.PI : endRadians;
-    const r = endNode.r as number;
-    edge[`${endKey}X` as const] = (endNode.x as number) + Math.cos(rotated) * r;
-    edge[`${endKey}Y` as const] = (endNode.y as number) + Math.sin(rotated) * r;
-    edge[`${endKey}BisectX` as const] =
-      width / 2 + middleRing * Math.cos(endRadians);
-    edge[`${endKey}BisectY` as const] =
-      height / 2 + middleRing * Math.sin(endRadians);
-  });
-}
-
 /**
     The links drawn between placed nodes, each once: every link from the
     center to the first ring, and every link from a node on a ring inside the
-    outermost to another ring node (curved, see `curveRingsEdge`).
+    outermost to another ring node (curved, see `curveRingsEdge`). With
+    `ringLinks`, links between two nodes on the outermost ring draw too.
 */
 export function buildRingsEdges(
   rings: RingsNode[][],
   linkMap: Record<string, RingsEdge[]>,
   center: RingsNode,
   geom: RingGeometry,
+  ringLinks = false,
 ): RingsEdge[] {
   const edges: RingsEdge[] = [];
   const placed = new Set(rings.flat().map(n => n.id));
@@ -204,10 +178,13 @@ export function buildRingsEdges(
         edgesBetween(linkMap[p.id], p.id, center.id).forEach(edge => {
           if (!edges.includes(edge)) edges.push(edge);
         });
-      if (k === rings.length - 1) return;
+      const outermost = k === rings.length - 1;
+      if (outermost && !ringLinks) return;
       linkMap[p.id].forEach(edge => {
         const other = otherEnd(edge, p.id);
         if (other.id === center.id || !placed.has(other.id)) return;
+        // From the outermost ring, only its own links are left to draw.
+        if (outermost && other.ring !== p.ring) return;
         curveRingsEdge(edge, geom);
         if (!edges.includes(edge)) edges.push(edge);
       });

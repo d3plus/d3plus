@@ -7,12 +7,12 @@ import {
   applyRingsLayout,
   buildRingsEdges,
   claimRings,
-  curveRingsEdge,
   placeRings,
   ringNodeRadii,
   ringWeights,
-  ringsDepth,
   ringsGeometry,
+  ringsHops,
+  ringsNodeRadii,
   runStages,
 } from "../../internal.ts";
 
@@ -55,32 +55,43 @@ function graph(pairs = links) {
 
 const ids = ring => ring.map(n => n.id);
 
-it("ringsDepth reads a whole number of rings, at least 1, defaulting to 2", () => {
-  assert.strictEqual(ringsDepth(undefined), 2);
-  assert.strictEqual(ringsDepth(null), 2);
-  assert.strictEqual(ringsDepth("many"), 2);
-  assert.strictEqual(ringsDepth(3), 3);
-  assert.strictEqual(ringsDepth("4"), 4);
-  assert.strictEqual(ringsDepth(2.7), 2);
-  assert.strictEqual(ringsDepth(0), 1);
-  assert.strictEqual(ringsDepth(-3), 1);
+it("ringsHops reads a whole number of rings, at least 1, defaulting to 2", () => {
+  assert.strictEqual(ringsHops(undefined), 2);
+  assert.strictEqual(ringsHops(null), 2);
+  assert.strictEqual(ringsHops("many"), 2);
+  assert.strictEqual(ringsHops(3), 3);
+  assert.strictEqual(ringsHops("4"), 4);
+  assert.strictEqual(ringsHops(2.7), 2);
+  assert.strictEqual(ringsHops(0), 1);
+  assert.strictEqual(ringsHops(-3), 1);
 });
 
-it("ringsGeometry spaces the rings evenly, leaving one spacing outside the last", () => {
+it("ringsGeometry spaces one or two rings evenly, and further rings evenly past the two-ring first", () => {
   const two = ringsGeometry(600, 400);
   close(two.ringWidth, 200 / 3, "two rings: a third of the radius apart");
   assert.deepStrictEqual(two.rings, [two.ringWidth, two.ringWidth * 2]);
   assert.strictEqual(two.primaryRing, two.ringWidth);
+  assert.strictEqual(two.baseRing, two.ringWidth);
 
   const one = ringsGeometry(600, 400, 1);
   assert.deepStrictEqual(one.rings, [100]);
+  assert.strictEqual(one.ringWidth, 100, "label room outside the ring");
+  close(one.baseRing, 200 / 3);
 
   const three = ringsGeometry(600, 400, 3);
-  assert.strictEqual(three.ringWidth, 50);
-  assert.deepStrictEqual(three.rings, [50, 100, 150]);
+  close(
+    three.primaryRing,
+    200 / 3,
+    "the first ring stays where it is with two",
+  );
+  close(three.ringWidth, 400 / 9);
+  three.rings.forEach((r, k) =>
+    close(r, 200 / 3 + (400 / 9) * k, `ring ${k + 1}`),
+  );
+  close(three.rings[2] + three.ringWidth, 200, "one spacing left outside");
 });
 
-/** The two-ring node radii as Rings sized them before `ringDepth`. */
+/** The two-ring node radii as Rings sized them before `hops`. */
 function twoRingRadii(ringWidth) {
   const primaryDistance = ringWidth / 2;
   const secondaryDistance = ringWidth / 4;
@@ -115,6 +126,22 @@ it("ringNodeRadii keeps the two-ring sizes, and shrinks outward on deeper charts
   // One ring sizes by its own room alone.
   assert.deepStrictEqual(ringNodeRadii(100, 1), [21]);
   assert.deepStrictEqual(ringNodeRadii(20, 1), [5]);
+});
+
+it("ringsNodeRadii keeps the two-ring first-ring size at any hops, outer rings no larger", () => {
+  for (const size of [200, 400, 600, 1200]) {
+    const base = ringNodeRadii(size / 6, 2);
+    assert.deepStrictEqual(ringsNodeRadii(ringsGeometry(size, size)), base);
+    assert.deepStrictEqual(ringsNodeRadii(ringsGeometry(size, size, 1)), [
+      base[0],
+    ]);
+    for (const hops of [3, 4, 6]) {
+      const radii = ringsNodeRadii(ringsGeometry(size, size, hops));
+      assert.strictEqual(radii.length, hops);
+      assert.strictEqual(radii[0], base[0], `${size}px, ${hops} hops`);
+      for (let k = 1; k < hops; k++) assert.ok(radii[k] <= radii[k - 1]);
+    }
+  }
 });
 
 it("claimRings: one ring holds only the center's neighbors, fewest links first", () => {
@@ -212,27 +239,10 @@ it("placeRings puts each ring's nodes on its radius, children within their paren
   }
 });
 
-it("curveRingsEdge leaves an outer node on its inner side and bends in the gap outside the inner ring", () => {
-  const geom = ringsGeometry(400, 400, 3);
-  const inner = {id: "p", ring: 2, radians: 0, x: 300, y: 200, r: 5};
-  const outer = {id: "q", ring: 3, radians: 0, x: 350, y: 200, r: 4};
-  const edge = {source: inner, target: outer};
-  curveRingsEdge(edge, geom);
-  assert.strictEqual(edge.spline, true);
-  close(edge.sourceX, 305, "the inner end leaves outward");
-  close(edge.targetX, 346, "the outer end leaves inward");
-  close(edge.sourceBisectX, 200 + 125, "bends halfway between rings 2 and 3");
-
-  const peer = {id: "r", ring: 2, radians: Math.PI, x: 100, y: 200, r: 5};
-  const same = {source: inner, target: peer};
-  curveRingsEdge(same, geom);
-  close(same.targetX, 95, "same-ring ends both leave outward");
-});
-
-it("buildRingsEdges draws each link once, and none between outermost-ring nodes", () => {
+it("buildRingsEdges draws each link once, and between outermost-ring nodes only with ringLinks", () => {
   const {nodes, linkMap} = graph();
   const pairs = edges => edges.map(e => `${e.source.id}-${e.target.id}`).sort();
-  const build = depth => {
+  const build = (depth, ringLinks) => {
     const geom = ringsGeometry(400, 400, depth);
     const tree = claimRings(linkMap, nodes.c, depth);
     placeRings(tree, geom);
@@ -242,7 +252,7 @@ it("buildRingsEdges draws each link once, and none between outermost-ring nodes"
         n.r = 4;
       }),
     );
-    return buildRingsEdges(tree.rings, linkMap, nodes.c, geom);
+    return buildRingsEdges(tree.rings, linkMap, nodes.c, geom, ringLinks);
   };
 
   assert.deepStrictEqual(pairs(build(1)), ["c-a", "c-b", "c-d"]);
@@ -271,6 +281,17 @@ it("buildRingsEdges draws each link once, and none between outermost-ring nodes"
     "c-d",
   ]);
   assert.strictEqual(new Set(three).size, three.length);
+
+  // ringLinks adds the links between two outermost-ring nodes.
+  assert.deepStrictEqual(pairs(build(1, true)), ["a-b", "c-a", "c-b", "c-d"]);
+  assert.deepStrictEqual(
+    pairs(build(2, true)),
+    pairs(build(2)).concat("a1-a2").sort(),
+  );
+  const ringLinks = build(2, true).find(e => e.source.id === "a1");
+  assert.strictEqual(ringLinks.target.id, "a2");
+  assert.strictEqual(ringLinks.spline, true, "it curves");
+  assert.deepStrictEqual(pairs(build(3, true)), pairs(three), "x has no peer");
 });
 
 /** Lays out a 400 × 400 Rings of `links` around "c", returning its nodes and edges. */
@@ -294,59 +315,73 @@ const summary = ({nodes, edges}) => ({
   edges: edges.map(e => [e.source.id, e.target.id, e.sourceX, e.targetY]),
 });
 
-it("Rings ringDepth: 2 is the default layout", () => {
-  assert.deepStrictEqual(
-    summary(layout(c => c.ringDepth(2))),
-    summary(layout()),
-  );
+it("Rings hops: 2 is the default layout", () => {
+  assert.deepStrictEqual(summary(layout(c => c.hops(2))), summary(layout()));
 });
 
-it("Rings ringDepth: rings sit evenly apart, outer nodes no larger, each node once", () => {
-  for (const depth of [1, 2, 3, 4]) {
-    const {nodes} = layout(c => c.ringDepth(depth));
+it("Rings hops: nodes sit on the rings, each once; center and first ring keep their size", () => {
+  const two = layout().nodes;
+  const centerR = two[0].r;
+  const firstR = two.find(n => n.ring === 1).r;
+  for (const hops of [1, 2, 3, 4]) {
+    const {nodes} = layout(c => c.hops(hops));
+    const geom = ringsGeometry(400, 400, hops);
     const center = nodes[0];
     assert.strictEqual(center.id, "c");
+    assert.strictEqual(center.r, centerR, `${hops} hops: the center's size`);
     const seen = nodes.map(n => n.id);
-    assert.strictEqual(
-      new Set(seen).size,
-      seen.length,
-      `depth ${depth}: unique`,
-    );
-    const spacing = 200 / (depth + 1);
+    assert.strictEqual(new Set(seen).size, seen.length, `${hops} hops: unique`);
     const byRing = {};
     nodes.slice(1).forEach(n => {
       close(
         Math.hypot(n.x - center.x, n.y - center.y),
-        spacing * n.ring,
-        `depth ${depth}: ${n.id} on ring ${n.ring}`,
+        geom.rings[n.ring - 1],
+        `${hops} hops: ${n.id} on ring ${n.ring}`,
       );
       (byRing[n.ring] ??= new Set()).add(n.r);
     });
     const rings = Object.keys(byRing).map(Number);
-    assert.strictEqual(Math.max(...rings), Math.min(depth, 4));
+    assert.strictEqual(Math.max(...rings), Math.min(hops, 4));
+    assert.deepStrictEqual(
+      [...byRing[1]],
+      [firstR],
+      `${hops} hops: first ring`,
+    );
     rings.forEach(k =>
-      assert.strictEqual(
-        byRing[k].size,
-        1,
-        `depth ${depth}: one size per ring`,
-      ),
+      assert.strictEqual(byRing[k].size, 1, `${hops} hops: one size per ring`),
     );
     for (let k = 2; k <= Math.max(...rings); k++)
       assert.ok([...byRing[k]][0] <= [...byRing[k - 1]][0]);
   }
   assert.deepStrictEqual(
-    layout(c => c.ringDepth(1)).nodes.map(n => n.id),
+    layout(c => c.hops(1)).nodes.map(n => n.id),
     ["c", "d", "a", "b"],
     "one ring: only the center's neighbors",
   );
   assert.deepStrictEqual(
-    layout(c => c.ringDepth(3)).nodes.map(n => n.id),
+    layout(c => c.hops(3)).nodes.map(n => n.id),
     ["c", "d", "a", "b", "a1", "a2", "b1", "x"],
   );
 });
 
-it("Rings ringDepth: outer nodes shrink on a larger chart", () => {
-  const {nodes} = layout(c => c.ringDepth(3).width(1200).height(1200));
+it("Rings hops: outer nodes shrink on a larger chart", () => {
+  const {nodes} = layout(c => c.hops(3).width(1200).height(1200));
   const r = ring => nodes.find(n => n.ring === ring).r;
   assert.ok(r(1) > r(2) && r(2) > r(3), `${r(1)} > ${r(2)} > ${r(3)}`);
+});
+
+it("Rings ringLinks: draws the outermost ring's own links, and nothing else changes", () => {
+  const plain = layout();
+  const linked = layout(c => c.ringLinks(true));
+  const pairs = ({edges}) => edges.map(e => `${e.source.id}-${e.target.id}`);
+  assert.deepStrictEqual(
+    pairs(linked),
+    pairs(plain).concat("a1-a2"),
+    "a1-a2 joins at the end",
+  );
+  assert.deepStrictEqual(
+    summary(linked).nodes,
+    summary(plain).nodes,
+    "the nodes stay put",
+  );
 });

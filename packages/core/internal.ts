@@ -2307,15 +2307,22 @@ export {
 export {
   buildRingsEdges,
   claimRings,
-  curveRingsEdge,
   placeRings,
   ringWeights,
 } from "./src/charts/Rings/ringsPlacement.js";
+export {
+  archControl,
+  cubicReach,
+  curveRingsEdge,
+  gapMiddle,
+  ringRadius,
+} from "./src/charts/Rings/ringsCurves.js";
 export type {RingsTree} from "./src/charts/Rings/ringsPlacement.js";
 export {
   ringNodeRadii,
-  ringsDepth,
   ringsGeometry,
+  ringsHops,
+  ringsNodeRadii,
 } from "./src/charts/Rings/ringsSizing.js";
 export {polylineArrowEdge} from "./src/charts/features/curvedArrows.js";
 export {polylineReach} from "./src/charts/features/polyline.js";

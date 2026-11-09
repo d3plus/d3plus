@@ -7,7 +7,7 @@ import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/charts/rings/basic-example.js?raw";
 import largerNetwork from "~/examples/core/charts/rings/larger-network.js?raw";
-import ringDepth from "~/examples/core/charts/rings/ring-depth.js?raw";
+import hops from "~/examples/core/charts/rings/hops.js?raw";
 import directionalArrows from "~/examples/core/charts/rings/directional-arrows.js?raw";
 import sizedNodes from "~/examples/core/charts/rings/sized-nodes.js?raw";
 import linkColor from "~/examples/core/charts/rings/link-color.js?raw";
@@ -27,11 +27,13 @@ Nodes one hop from the center sit on the inner ring; their neighbors fan out to 
 
 <Playground chart="Rings" code={largerNetwork} controls={["center"]} />
 
-## Ring depth
+## Hops
 
-`ringDepth` sets how many rings of connections surround the center: `1` shows only the nodes linked to it, and each step adds the next ring out, evenly spaced to the edge with smaller nodes. A node linked from several places sits once, on the innermost ring that reaches it, under its first parent. Clicking a node re-centers the chart on it.
+`hops` sets how many rings of connections surround the center: `1` shows only the nodes linked to it, and each step adds the next ring out, with smaller nodes. The center and the first ring keep their size at any `hops`. A node linked from several places sits once, on the innermost ring that reaches it, under its first parent. Clicking a node re-centers the chart on it.
 
-<Playground chart="Rings" code={ringDepth} controls={["ringDepth","center"]} height={600} />
+Links between two nodes on the outermost ring are left out unless `ringLinks` is `true`; each then arches out past the ring before turning back to its target.
+
+<Playground chart="Rings" code={hops} controls={["hops","ringLinks","center"]} height={600} />
 
 ## Directional arrows
 

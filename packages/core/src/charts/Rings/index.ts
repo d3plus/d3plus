@@ -1,12 +1,13 @@
 /**
     Rings — node-link diagram laid out around a central focal node in
-    concentric rings (`ringDepth` of them).
+    concentric rings (`hops` of them).
 
     Implementation files in this folder:
       - `applyLayout.ts` — the layout stage: labels, link strokes, ctx.
       - `emit.ts` — link Paths + per-shape-type node groups.
       - `ringsGraph.ts` — node set + link resolution.
-      - `ringsPlacement.ts` — ring claiming, node angles, link curves.
+      - `ringsPlacement.ts` — ring claiming, node angles, drawn links.
+      - `ringsCurves.ts` — the curves of links between ring nodes.
       - `ringsSizing.ts` — ring geometry + node sizing.
 */
 
@@ -265,7 +266,7 @@ export const ringsDef: ChartDefinition = {
     /**
         The `id` of the node drawn at the center, with the nodes linked to it
         on the inner ring and their other links on the rings outside it (see
-        `ringDepth`). Clicking a node re-centers the chart on it.
+        `hops`). Clicking a node re-centers the chart on it.
         @type {string | number}
     */
     {key: "center"},
@@ -276,7 +277,7 @@ export const ringsDef: ChartDefinition = {
         the innermost ring it can. Defaults to 2.
         @type {number}
     */
-    {key: "ringDepth", default: 2},
+    {key: "hops", default: 2},
     {
       key: "tooltipConfig",
       merge: true,
@@ -299,6 +300,13 @@ export const ringsDef: ChartDefinition = {
     */
     {key: "linkSizeScale", default: "sqrt"},
     {key: "noDataMessage", default: false},
+    /**
+        Draws the links between two nodes on the outermost ring, which are
+        otherwise left out. Each arcs outward, half a ring spacing past the
+        ring, before turning back to its target.
+        @type {boolean}
+    */
+    {key: "ringLinks", default: false},
     {key: "nodes", default: []},
     /**
         How many links a node's tooltip lists under its number of

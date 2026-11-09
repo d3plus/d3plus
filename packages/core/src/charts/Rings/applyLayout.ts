@@ -1,6 +1,6 @@
 /**
     `applyRingsLayout` — Rings' chart-specific layout stage. Lays out the
-    focal center node + `ringDepth` concentric rings of connected nodes, sizes
+    focal center node + `hops` concentric rings of connected nodes, sizes
     each by extent, builds bezier link `d` accessor, and stashes
     `ringsCtx` + `nodeLookup`/`linkLookup` on `viz.ctx`.
 */
@@ -16,7 +16,7 @@ import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 
-import {ringsCenterLabel, ringsDepth, ringsGeometry} from "./ringsSizing.js";
+import {ringsCenterLabel, ringsGeometry, ringsHops} from "./ringsSizing.js";
 import type {RingGeometry} from "./ringsSizing.js";
 import {publishLinkGraph} from "../features/linkInteraction.js";
 import {linkWidthRange} from "../features/linkWidths.js";
@@ -278,7 +278,7 @@ export function ringsSizeLegendScale(
     v,
     graph.linkMap,
     center,
-    ringsGeometry(width, height, ringsDepth(v.schema.ringDepth)),
+    ringsGeometry(width, height, ringsHops(v.schema.hops)),
   ).radius;
 }
 
@@ -308,12 +308,18 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   }
 
   const {width, height} = chartBounds(v);
-  const geom = ringsGeometry(width, height, ringsDepth(v.schema.ringDepth));
+  const geom = ringsGeometry(width, height, ringsHops(v.schema.hops));
 
   const {nodes, rings, radius} = placeRingsNodes(v, linkMap, center, geom);
   v._sizeLegendFinal = radius;
 
-  const edges = buildRingsEdges(rings, linkMap, center, geom);
+  const edges = buildRingsEdges(
+    rings,
+    linkMap,
+    center,
+    geom,
+    !!v.schema.ringLinks,
+  );
 
   applyRingsLabelBounds(v, nodes, geom);
 

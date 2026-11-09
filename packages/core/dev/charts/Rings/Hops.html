@@ -2,10 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Ring Depth</title>
+    <title>Hops</title>
     <meta
       name="description"
-      content="Rings with ringDepth 1, 2, or 3: how many rings of connections surround the center, switched with the buttons."
+      content="Rings with hops 1, 2, or 3 (how many rings of connections surround the center) and ringLinks, switched with the controls."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -28,10 +28,11 @@
 
   <body>
     <div id="controls">
-      ringDepth:
-      <button data-depth="1">1</button>
-      <button data-depth="2">2</button>
-      <button data-depth="3">3</button>
+      hops:
+      <button data-hops="1">1</button>
+      <button data-hops="2">2</button>
+      <button data-hops="3">3</button>
+      <label><input type="checkbox" id="ringLinks" /> ringLinks</label>
     </div>
   </body>
 
@@ -67,18 +68,25 @@
       ["D2", "D2a"],
       ["A1a", "X"],
       ["D2a", "Y"],
+      ["A1b", "A2a"],
+      ["C1b", "D1a"],
     ];
     var links = pairs.map(function (p) {
       return {source: p[0], target: p[1]};
     });
 
-    var viz = new d3plus.Rings().links(links).center("Hub").ringDepth(3);
+    var viz = new d3plus.Rings().links(links).center("Hub").hops(3);
     viz.render();
 
     document.querySelectorAll("#controls button").forEach(function (button) {
       button.addEventListener("click", function () {
-        viz.ringDepth(+button.dataset.depth).render();
+        viz.hops(+button.dataset.hops).render();
       });
     });
+    document
+      .querySelector("#ringLinks")
+      .addEventListener("change", function (e) {
+        viz.ringLinks(e.target.checked).render();
+      });
   </script>
 </html>
