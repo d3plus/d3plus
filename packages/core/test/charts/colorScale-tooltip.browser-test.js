@@ -97,12 +97,36 @@ it("svg: the colorScale's title names the value", async () => {
   ]);
 });
 
-it("svg: a user's tbody follows the value", async () => {
+it("svg: a user's tbody is the whole table", async () => {
   const src = treemap(`.tooltipConfig({tbody: [["Size", d => d.size]]})`);
+  assert.deepStrictEqual(await rowsFor(src, "svg", "beta"), [["Size", "6"]]);
+});
+
+it("svg: RESET brings the value back", async () => {
+  // `config()` takes the defaults snapshot RESET restores (see
+  // `mergeConfigBag`) before the user's tbody is set.
+  const src = treemap(
+    `.config({}).tooltipConfig({tbody: [["Size", d => d.size]]}).tooltipConfig({tbody: lib.RESET})`,
+  );
   assert.deepStrictEqual(await rowsFor(src, "svg", "beta"), [
     ["value", "3.4k"],
-    ["Size", "6"],
+    ["Share", "26.1%"],
   ]);
+});
+
+it("canvas: a user's tbody leaves out a Plot point's value", async () => {
+  const src = `lib => new lib.Plot()
+    .data(${JSON.stringify(rows.slice(0, 3).map((d, i) => ({...d, x: i, y: d.size})))})
+    .x("x")
+    .y("y")
+    .colorScale("value")
+    .tooltipConfig({tbody: [["Size", d => d.size]]})`;
+  const body = await rowsFor(src, "canvas", "beta");
+  assert.ok(!body.some(r => r[0] === "value"), JSON.stringify(body));
+  assert.ok(
+    body.some(r => r[0] === "Size"),
+    JSON.stringify(body),
+  );
 });
 
 it("svg: an accessor's value is named Value", async () => {

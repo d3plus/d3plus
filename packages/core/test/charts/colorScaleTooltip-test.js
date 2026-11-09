@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
-import {Calendar, ColorScale, Hexbin, Treemap} from "../../index.ts";
+import {Calendar, ColorScale, Hexbin, RESET, Treemap} from "../../index.ts";
+import {isSetEntry} from "../../src/fluent.ts";
 import {
   colorScaleTooltipRows,
   colorScaleValueLabel,
@@ -114,4 +115,50 @@ it("colorScaleTooltip — Calendar and Hexbin show the value themselves", () => 
   assert.strictEqual(new Calendar()._colorScaleTooltip, false);
   assert.strictEqual(new Hexbin()._colorScaleTooltip, false);
   assert.strictEqual(new Treemap()._colorScaleTooltip, undefined);
+});
+
+it("isSetEntry — the entries a user's config sets, not a chart's defaults", () => {
+  const viz = new Treemap();
+  const set = () => isSetEntry(viz, "tooltipConfig", "tbody");
+  const share = viz.tooltipConfig().tbody;
+  assert.ok(Array.isArray(share), "Treemap's Share row");
+  viz.config({}); // takes the defaults snapshot RESET restores
+  assert.strictEqual(set(), false, "a chart default isn't the user's");
+  viz.tooltipConfig({title: "Name"}).fontFamily("Georgia");
+  assert.strictEqual(set(), false, "other entries");
+  viz.tooltipConfig({tbody: [["Size", d => d.size]]});
+  assert.strictEqual(set(), true);
+  viz.tooltipConfig({title: "Other"});
+  assert.strictEqual(set(), true, "a later patch keeps it");
+  viz.tooltipConfig({tbody: RESET});
+  assert.strictEqual(set(), false, "RESET");
+  assert.deepStrictEqual(
+    viz.tooltipConfig().tbody,
+    share,
+    "the default is back",
+  );
+  viz.config({tooltipConfig: {tbody: []}});
+  assert.strictEqual(set(), true, "through config()");
+  viz.config({tooltipConfig: RESET});
+  assert.strictEqual(set(), false, "the whole field RESET");
+  viz.tooltipConfig({tbody: () => []});
+  viz.tooltipConfig({tbody: undefined});
+  assert.strictEqual(set(), false, "undefined");
+  assert.strictEqual(
+    isSetEntry(new Treemap(), "tooltipConfig", "tbody"),
+    false,
+  );
+});
+
+it("colorScaleTooltipRows — a user's tbody leaves them out", () => {
+  const viz = new Treemap().colorScale("value");
+  assert.deepStrictEqual(colorScaleTooltipRows(viz, {value: 3}, 0), [
+    ["value", "3"],
+  ]);
+  viz.tooltipConfig({tbody: [["Size", "1"]]});
+  assert.deepStrictEqual(colorScaleTooltipRows(viz, {value: 3}, 0), []);
+  viz.tooltipConfig({tbody: RESET});
+  assert.deepStrictEqual(colorScaleTooltipRows(viz, {value: 3}, 0), [
+    ["value", "3"],
+  ]);
 });

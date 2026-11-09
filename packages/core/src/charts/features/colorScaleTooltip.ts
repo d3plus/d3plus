@@ -6,6 +6,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import {colorScaleValueFormat} from "../../components/ColorScale/bivariateRender.js";
+import {isSetEntry} from "../../fluent.js";
 import {fieldNameOf} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
@@ -34,8 +35,9 @@ export function colorScaleValueLabel(viz: VizInstance): string {
     (see `colorScaleValueLabel`) and formatted (see `colorScaleValueFormat`)
     as the colorScale shows it, or, for a bivariate colorScale, each
     variable's (see `bivariateTooltipRows`). None for a row without a value,
-    a colorScale bucket or key cell, a chart without a colorScale, or one
-    whose tooltip already shows the value (`ChartDefinition.colorScaleTooltip`).
+    a colorScale bucket or key cell, a chart without a colorScale, one
+    whose tooltip already shows the value (`ChartDefinition.colorScaleTooltip`),
+    or one whose `tooltipConfig.tbody` the user has set.
     @param viz The chart.
     @param d The hovered row.
     @param i Its index.
@@ -48,6 +50,8 @@ export function colorScaleTooltipRows(
   const cs = viz._colorScaleClass;
   const accessor = viz.schema.colorScale as unknown;
   if (viz._colorScaleTooltip === false || !cs) return [];
+  // A `tbody` the user sets is the whole table.
+  if (isSetEntry(viz, "tooltipConfig", "tbody")) return [];
   if (typeof accessor !== "function" || !d || typeof d !== "object") return [];
   if ((d as {_isColorScaleBucket?: boolean})._isColorScaleBucket) return [];
   if (bivariateSpec(viz)) return bivariateTooltipRows(viz, d, i);
@@ -75,8 +79,7 @@ const wrappedBase = new WeakMap<object, unknown>();
 
 /**
     Leads `tooltip`'s `tbody` with the row's colorScale value rows (see
-    `colorScaleTooltipRows`), ahead of the rows it already has: the chart's
-    own, or a `tbody` set in `tooltipConfig`. A `tbody` led on an earlier
+    `colorScaleTooltipRows`), ahead of the chart's own rows. A `tbody` led on an earlier
     hover is unwrapped first, so the rows never stack.
     @param tooltip The chart's tooltip.
     @param viz The chart.
