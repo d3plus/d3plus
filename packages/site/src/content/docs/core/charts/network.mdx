@@ -85,16 +85,18 @@ Hovering a link highlights it and the two nodes it connects, and its tooltip nam
 
 ## Network measures
 
-A node's tooltip also lists where the node stands in the network, worked out the first time a tooltip shows them (a chart nobody hovers never computes them) and kept until the nodes or links change:
+A node's tooltip also lists where the node stands in the network:
 
 - **Degree**: its number of links, in place of the "Connections" count. When the chart draws `arrows`, it is split into "In-degree" (links pointing at the node) and "Out-degree" (links pointing away), and the other measures follow the arrows too.
 - **Betweenness**: the share of the shortest paths between every other pair of nodes that pass through it, from 0 to 1 (1 is the center of a star). Here Dev, Eli, and Fay score highest: every path between the two groups crosses them.
 - **Closeness**: how near it is to the rest of the network, from 0 to 1 (1 is a node one link from every other). A node that can reach only part of a network scores lower in proportion, and a node with no links scores 0.
 - **Cluster**: the name of its cluster, while [clusters](#clusters) color the chart.
 
-`nodeTooltipStats` picks the measures to list, as an Array of `"degree"`, `"betweenness"`, `"closeness"`, and `"cluster"` in the order to list them, or `false` lists none (and the "Connections" count returns). Every link counts as one step; set `nodeTooltipStatsWeighted` to `true` to count a strong link (by `linkSize`) as a shorter step than a weak one, so the shortest paths prefer the strongest links: a link half as strong as the strongest is two steps. On a large network the first tooltip can take a moment, as betweenness and closeness compare every pair of nodes.
+Betweenness and closeness compare every pair of nodes, so they are worked out a little at a time while the browser is idle after the chart draws, without holding up the page. A tooltip opened before they are ready lists the degree and cluster, and fills in the rest when they arrive. They are kept until the nodes or links change, and new nodes or links stop a calculation that is under way. On a network of a few thousand nodes they can take several seconds to arrive.
 
-<Playground chart="Network" code={nodeMeasures} controls={["nodeTooltipStats","nodeTooltipStatsWeighted","arrows"]} />
+`nodeTooltipStats` picks the measures to list, as an Array of `"degree"`, `"betweenness"`, `"closeness"`, and `"cluster"` in the order to list them, or `false` lists none (and the "Connections" count returns). Every link counts as one step; set `nodeTooltipStatsConfig.weighted` to `true` to count a strong link (by `linkSize`) as a shorter step than a weak one, so the shortest paths prefer the strongest links: a link half as strong as the strongest is two steps.
+
+<Playground chart="Network" code={nodeMeasures} controls={["nodeTooltipStats","nodeTooltipStatsConfig","arrows"]} />
 
 ## Link color
 

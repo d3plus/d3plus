@@ -21,5 +21,5 @@ const config = {
   links: pairs.map(([source, target, papers]) => ({source, target, papers})),
   linkSize: d => d.papers,
   nodeTooltipStats: true,
-  nodeTooltipStatsWeighted: false,
+  nodeTooltipStatsConfig: {weighted: false},
 };
