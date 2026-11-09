@@ -134,3 +134,33 @@ for (const [chart, renderer] of [
     assert.deepStrictEqual([...r.hovered.nodes].sort(), [...r.entryIds].sort());
   });
 }
+
+it("Network: a cluster's legend tooltip is titled by the cluster, a node's by the node", async () => {
+  const out = await render(
+    box,
+    async ([ns, ls]) => {
+      const viz = new window.d3plus.Network()
+        .select("#viz")
+        .duration(0)
+        .nodes(ns)
+        .links(ls);
+      await new Promise(r => viz.render(r));
+      const title = viz.schema.tooltipConfig.title;
+      const entries = viz._legendClass.data();
+      const node = ns.find(d => d.id === "Ben");
+      return {
+        legend: entries.map((d, i) => viz.schema.legendConfig.label(d, i)),
+        // The tooltip receives the legend shape's wrapper around a copy of
+        // the entry, not the entry itself.
+        tooltips: entries.map((d, i) =>
+          title({__d3plus__: true, data: {...d}, i, id: d.id}, i),
+        ),
+        node: title(node, 0),
+      };
+    },
+    [nodes, links],
+  );
+  assert.deepStrictEqual(out.tooltips, out.legend);
+  assert.ok(out.legend[0].endsWith(" cluster"), out.legend[0]);
+  assert.strictEqual(out.node, "Ben");
+});

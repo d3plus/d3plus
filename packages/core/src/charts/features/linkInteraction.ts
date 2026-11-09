@@ -19,6 +19,7 @@ import {rtl} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {colorCategory} from "./legendCategory.js";
 
 /**
     A link as accessors and tooltips receive it: the link's own fields, with
@@ -397,6 +398,23 @@ export function nodeConnectionRows(viz: VizInstance, d: DataPoint): Row[] {
 }
 
 /**
+    The color category a row merging several nodes stands for (a cluster's
+    name, or a legend entry's color value), so a legend entry's tooltip
+    reads as the entry does instead of listing every node.
+*/
+function mergedCategory(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): string | undefined {
+  const ids = viz._id?.(d, i);
+  if (!Array.isArray(ids) || ids.length < 2) return undefined;
+  const color = viz.schema.color as
+    ((d: DataPoint, i: number) => unknown) | undefined;
+  return typeof color === "function" ? colorCategory(color(d, i)) : undefined;
+}
+
+/**
     The node-link charts' default `tooltipConfig`: a link is titled
     "Source → Target" and lists its value and fields; a node is titled by its
     label and lists its connections.
@@ -409,7 +427,8 @@ export function linkTooltipConfig(viz: VizInstance): {
     title: (d, i) =>
       isLinkDatum(d)
         ? linkTooltipTitle(viz, d)
-        : viz._drawLabel(d, typeof d.i === "number" ? d.i : i),
+        : (mergedCategory(viz, d, i) ??
+          viz._drawLabel(d, typeof d.i === "number" ? d.i : i)),
     tbody: d =>
       isLinkDatum(d) ? linkTooltipRows(viz, d) : nodeConnectionRows(viz, d),
   };
