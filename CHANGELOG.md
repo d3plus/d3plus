@@ -2,16 +2,174 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## 4.11.0
+
+This release adds eight chart types and gives the node-link charts (Network, Rings, Sankey, ArcDiagram, and Geomap's new flow links) link tooltips, colors, labels, self-loops, clusters, and edge bundling. Every chart gains themes, keyboard navigation, and reduced motion. Labels now run along lines, bands, rings, and links, and small Pie slices are labeled outside the ring. TextBox can justify text and set it along a path. Profiling made large charts several times faster. d3plus.org moves from Storybook to a new docs site where every example is editable. Many new defaults change what existing charts look like, and link accessors now receive node data; see the breaking changes.
 
 ### Added
 
-- **Sankey node labels.** Each Sankey node is labeled beside it: to its right, over its outgoing flows, or to its left in the last column. A label that has no room above and below its node, before it would reach a neighbor's, is hidden. `label` sets the text, `shapeConfig.Rect.labelConfig` styles it, and `shapeConfig: {Rect: {label: false}}` turns them off. (#1035) [Example ↗](https://d3plus.org/?path=/docs/core-charts-sankey--d3plus#node-labels)
-- **Width shares above Marimekko bars.** `barWidthShare("opposite")` draws each bar's share of the total width on an axis across the bars from the category names: above them, or to their right when the bars run along `y`. Style that axis with `x2Config` (or `y2Config`). It works on BarCharts with `barWidth` too. (#1036) [Example ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus#basic-example)
-- **`barWidthShareFormat`** writes each bar's share label. It is called with the merge of the bar's rows and `{share, size, total, text}`, so a label can show the bar's value, such as `` (d, {text}) => `$${d.Revenue}B · ${text}` ``. (#1036) [Example ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus#share-labels)
+#### New charts
+
+- **`Scatter`, `BubbleChart`, and `Streamgraph`.** Scatter is a Plot of circles on continuous x and y axes. BubbleChart sizes them by `size`, with each bubble's area proportional to its value and the largest drawn first. Streamgraph is a StackedArea centered on its baseline. Plot gains `sizeZero`, which starts the size scale at zero. (#1043) [Scatter ↗](https://d3plus.org/core/charts/scatter/#basic-example) · [BubbleChart ↗](https://d3plus.org/core/charts/bubble-chart/#basic-example) · [Streamgraph ↗](https://d3plus.org/core/charts/streamgraph/#basic-example)
+- **`Hexbin`** bins a scatter's points into hexagons or squares (`binShape`, `binSize`), colored by count or by an aggregated field (`binValue`). `contours` draws density contours as lines or filled bands, alone or over the bins or points. Zooming recounts the bins and refits the color scale to the ones in view. (#1050) [Example ↗](https://d3plus.org/core/charts/hexbin/#basic-example)
+- **`SlopeChart`** compares two periods: lines labeled with their values at both ends, no y axis, and no legend. `slopeColor: true` colors each line by whether it rises, falls, or stays flat. (#1051) [Example ↗](https://d3plus.org/core/charts/slope-chart/#basic-example)
+- **`Gantt`** draws tasks as bars on a time axis, one labeled row per task, with phase groups (`group`), milestones, dependency arrows (`dependencies`), progress fills (`progress`), and a "Today" line (`today`). Hiding weekends with `rangeBreaks` makes task durations count working days. (#1052, #1071) [Example ↗](https://d3plus.org/core/charts/gantt/#basic-example)
+- **`Alluvial`** (parallel sets) shows how plain rows flow across categorical columns (`dimensions`), with no nodes or links to build. Bands keep their `colorBy` color across every column, and hovering a band highlights the rows it carries through all of them. (#1053) [Example ↗](https://d3plus.org/core/charts/alluvial/#basic-example)
+- **`ArcDiagram`** places a network's nodes along one line and draws each link as an arc. It takes Network's data and accessors, plus `nodeSort`, `arcSide`, and `orient`. (#1054) [Example ↗](https://d3plus.org/core/charts/arc-diagram/#basic-example)
+
+#### Themes and accessibility
+
+- **Themes.** `theme` takes `"auto"` (the default: colors follow the page, as before), `"light"`, `"dark"`, or a custom object such as `{base: "dark", background: "#14213d", accent: "#fca311"}`. A forced theme paints its background and colors every part of the chart other than the data, including in exports and server renders. Every `"auto"` chart redraws when its page switches between light and dark. New `ThemeSetting`, `ThemeConfig`, and `ThemeTokens` types. (#1039) [Guide ↗](https://d3plus.org/guides/theming/#themes) · [Example ↗](https://d3plus.org/core/charts/viz/#themes)
+- **Dark color scales.** On a dark chart, color scales run from a dim tint just above the background up to a bright end, and diverging scales meet at a dark gray. A theme's `colorScale` tokens (`min`, `mid`, `max`, `missing`) restyle them. `@d3plus/color` gains `colorRampDark`. (#1055) [Guide ↗](https://d3plus.org/guides/theming/#color-scales-on-a-dark-theme) · [Example ↗](https://d3plus.org/core/charts/matrix/#dark-theme-color-scales)
+- **Keyboard navigation.** Every chart is one Tab stop. The arrow keys move to the nearest mark in that direction, Home and End jump to the first and last, Enter and Space click, and Escape clears the focus. The focused mark gets a focus ring, its tooltip, and its hover highlight, and a live region announces it to screen readers. `keyboardNavConfig` styles the ring, and `keyboardNav(false)` turns it off. (#1038) [Guide ↗](https://d3plus.org/guides/accessibility/#keyboard-navigation) · [Example ↗](https://d3plus.org/core/charts/viz/#keyboard-navigation)
+- **Reduced motion.** `reducedMotion` takes `"auto"` (the default, following the viewer's `prefers-reduced-motion` setting), `true`, or `false`. With motion reduced, every transition draws instantly in SVG and Canvas. (#1037) [Guide ↗](https://d3plus.org/guides/accessibility/#reduced-motion) · [Example ↗](https://d3plus.org/core/charts/viz/#reduced-motion)
+
+#### Networks, flows, and maps
+
+- **Link tooltips, hover, and focus** on Network, Rings, Sankey, and ArcDiagram. A link's tooltip is titled "Source → Target". Hovering a link highlights it and its two ends. Clicking a link, or pressing Enter on it, focuses it, and Network and ArcDiagram also zoom to it. Node tooltips count their connections and list the strongest (`nodeTooltipLinks`). (#1072; closes #164, #749, #87) [Guide ↗](https://d3plus.org/guides/interactivity/#links-in-node-link-charts) · [Example ↗](https://d3plus.org/core/charts/network/#link-tooltips)
+- **`linkColor`** colors links by their `"source"` or `"target"` node, or by a value on the chart's color scale. Arrowheads follow it. (#1073; closes #71) [Example ↗](https://d3plus.org/core/charts/network/#link-color)
+- **`linkLabel`** writes a value at each link's middle, over a background pad, following curved links. A label that would cover a node, a node label, or another link label is hidden. `linkLabelConfig.minRadius` sets how tight a bend a label follows. (#1073, #1099, #1104; closes #423) [Example ↗](https://d3plus.org/core/charts/network/#link-labels)
+- **Self-loops.** A link from a node to itself draws as a loop on Network, Rings, and ArcDiagram, with the same tooltip, hover, focus, label, and arrowhead as any other link. Several loops on one node fan out, and heavy loops stay open. (#1076, #1083; closes #566) [Example ↗](https://d3plus.org/core/charts/network/#self-loops)
+- **Sankey flows that loop back** draw as circular bands that run along a lane above or below the nodes. `circularLinks: false` leaves the loop-closing links out instead, with a warning naming them. (#1082, #1084) [Example ↗](https://d3plus.org/core/charts/sankey/#flows-that-loop-back)
+- **Sankey nodes without links** are drawn, sized from their own `value`. (#1076; closes #750) [Example ↗](https://d3plus.org/core/charts/sankey/#nodes-without-links)
+- **Sankey node labels.** Each Sankey node is labeled beside it: to its right, over its outgoing flows, or to its left in the last column. A label with no room between its neighbors is hidden. `shapeConfig: {Rect: {label: false}}` turns them off. (#1035) [Example ↗](https://d3plus.org/core/charts/sankey/#node-labels)
+- **Network clusters.** A Network or ArcDiagram with no color of its own colors its nodes by community (Louvain modularity, weighted by `linkSize`). Each cluster is named after its most-connected node, in the legend and inside its area on a Network. `clusterConfig` caps the count (`max`, default 12), renames them (`label`), and styles the names (`labelConfig`). `cluster: false` turns clusters off. `@d3plus/math` gains `louvain`. (#1095; closes #276) [Guide ↗](https://d3plus.org/guides/color/#network-clusters) · [Example ↗](https://d3plus.org/core/charts/network/#clusters)
+- **Edge bundling.** `linkBundle: true` routes Network links, and Geomap flow links on flat maps, that run the same way into shared paths (force-directed edge bundling). `linkBundleConfig` sets `strength`, `cycles`, `iterations`, `compatibility`, and `smoothing`. (#1096; closes #97) [Network ↗](https://d3plus.org/core/charts/network/#edge-bundling) · [Geomap ↗](https://d3plus.org/core/charts/geomap/#edge-bundling)
+- **Geomap flow links.** `links` draws lines between places, given as data row ids, topojson shape ids, or `[lon, lat]` pairs. They follow the projection as great circles, bowed by `linkCurve`, and take `linkSize`, `linkColor`, `linkLabel`, `arrows`, and link tooltips. (#1077; closes #752) [Example ↗](https://d3plus.org/core/charts/geomap/#flow-map)
+- **Rotating globes.** Dragging a globe rotates it. Shift and the arrow keys turn it 10° per press. The reset button returns it to its `projectionRotate`. (#1077, #1081) [Example ↗](https://d3plus.org/core/charts/geomap/#globe)
+- **`linkSizeMax`** on Network and Rings caps link widths, as on Geomap. (#1085) [Example ↗](https://d3plus.org/core/charts/network/#data-driven-link-size)
+
+#### Labels
+
+- **Labels beside small circles.** A circle label that doesn't fit inside its circle goes beside it when there's room, placed with a Voronoi diagram so labels never overlap. `labelPosition` (now on every chart) takes `"auto"`, `"inside"`, or `"outside"` for circles, and `pointLabelConfig` styles them. (#1048; closes #138) [Network ↗](https://d3plus.org/core/charts/network/#label-placement) · [Scatter ↗](https://d3plus.org/core/charts/scatter/#point-labels)
+- **Line labels at either end.** `lineLabels` takes `"start"`, `"end"`, or `"both"`. `lineLabelConfig: {value: true}` adds each end's value. Labels are spaced apart so they never overlap. (#1051) [Example ↗](https://d3plus.org/core/charts/line-plot/#line-labels-both)
+- **Line names along their lines.** `lineLabels: "along"` runs each series' name along its line, in its straightest clear stretch. It is LinePlot's default, and the legend hides when every line is named. (#1098) [Example ↗](https://d3plus.org/core/charts/line-plot/#line-labels-along-the-lines)
+- **Trend line labels.** `trendLineConfig.label` runs each fit's equation and R² along its trend line, or the series name with `true`. (#1098) [Example ↗](https://d3plus.org/core/charts/plot/#trend-line-labels)
+- **Stacked area band names.** StackedArea, Streamgraph, and stacked AreaPlots write each series' name along its band, where it is thick and flat enough. `labelPosition` gains `"along"`. The legend hides when every band is named. (#1100) [Example ↗](https://d3plus.org/core/charts/stacked-area/#labels-along-the-bands)
+- **Hexbin contour labels.** Each contour level's value runs along its line, like elevations on a topographic map. `contourConfig` sets `labels`, `labelConfig`, `labelSpacing`, and `labelStep`, and `levelFormat` formats them. (#1101, #1104) [Example ↗](https://d3plus.org/core/charts/hexbin/#contour-labels)
+- **Curved ring labels.** Pie, Donut, Sunburst, Chord, Radar, and RadialBar labels can run along their arcs. `labelPosition: "along"` always curves them, and `"auto"` curves each one only when that shows its name better than a straight label would. (#1102) [Donut ↗](https://d3plus.org/core/charts/donut/#curved-labels) · [Guide ↗](https://d3plus.org/guides/legends/#labeling-ring-segments)
+- **Pie and Donut labels outside the ring.** A slice whose name doesn't fit inside is labeled outside the ring, as "Name 4.2%", with a leader line to the slice. `labelPosition: "outside"` labels every slice that way. (#1103) [Pie ↗](https://d3plus.org/core/charts/pie/#labels-outside-the-ring) · [Donut ↗](https://d3plus.org/core/charts/donut/#labels-outside-the-ring)
+
+#### Plot charts
+
+- **`connectGaps`** breaks lines at missing values (`false`), bridges them with a dashed line (`"dashed"`, or an object to style it), or runs straight through them (`true`, the default). (#1042; closes #282) [Guide ↗](https://d3plus.org/guides/data/#missing-values) · [Example ↗](https://d3plus.org/core/charts/line-plot/#connect-gaps)
+- **Time axis range breaks.** `rangeBreaks` in an axis config hides stretches of time, such as `"weekends"`, weekdays, hours of the day, single dates, or explicit ranges, so the data closes up around them. Timelines follow the same breaks. (#1044) [Guide ↗](https://d3plus.org/guides/data/#time-axes) · [Example ↗](https://d3plus.org/core/charts/line-plot/#range-breaks)
+- **Callouts and reference lines.** A `{shape: "Callout"}` annotation draws a text box beside a data point, with a connector to it. `referenceLines` and `referenceBands` mark values and spans across the plot, widening its axes to show them. New `CalloutAnnotation`, `ReferenceLineConfig`, and `ReferenceBandConfig` types. (#1045, #1071) [Example ↗](https://d3plus.org/core/charts/plot/#callouts-and-reference-lines) · [Bands ↗](https://d3plus.org/core/charts/line-plot/#reference-lines-and-bands)
+- **Nearest-point hover.** Hovering or clicking near a point acts on the closest one within `hoverDistance` pixels (default 20), on Plot points, Beeswarm, Network nodes, and Geomap points. (#1046) [Guide ↗](https://d3plus.org/guides/interactivity/#hovering-near-a-point) · [Example ↗](https://d3plus.org/core/charts/plot/#nearest-point-hover)
+- **Cumulative histograms.** `cumulative: true` draws running totals, and `"reverse"` counts down from the top. With `binNormalize("relative")` it draws an empirical CDF. (#1040, #1047) [Example ↗](https://d3plus.org/core/charts/histogram/#cumulative)
+- **Partial rings.** `startAngle` and `endAngle` on Pie and Donut draw half donuts and other partial sweeps, sized to fill the space. (#1041) [Example ↗](https://d3plus.org/core/charts/donut/#half-donut)
+- **Width shares above Marimekko bars.** `barWidthShare("opposite")` draws each bar's share of the total width on an axis across the bars from the category names: above them, or to their right when the bars run along `y`. Style that axis with `x2Config` (or `y2Config`). It works on BarCharts with `barWidth` too. (#1036) [Example ↗](https://d3plus.org/core/charts/marimekko/#basic-example)
+- **`barWidthShareFormat`** writes each bar's share label. It is called with the merge of the bar's rows and `{share, size, total, text}`, so a label can show the bar's value, such as `` (d, {text}) => `$${d.Revenue}B · ${text}` ``. (#1036) [Example ↗](https://d3plus.org/core/charts/marimekko/#share-labels)
+
+#### Text
+
+- **Justified text.** `textAnchor: "justify"` spreads each line across the box, apart from the last. (#1097; closes #737) [Example ↗](https://d3plus.org/core/components/text-box/#justified-text)
+- **Percentage anchors.** `textAnchor: "25%"` places each line that share of the way across the box. (#1097; closes #740) [Example ↗](https://d3plus.org/core/components/text-box/#percentages)
+- **`truncateWord`** on TextBox and `textWrap` cuts the word that didn't fit down to the longest start that fits with the ellipsis, instead of dropping it. (#1097; closes #745) [Example ↗](https://d3plus.org/core/components/text-box/#cutting-words)
+- **`textPath`** sets a TextBox's text along any SVG path, in SVG and Canvas. (#1098; closes #739) [Example ↗](https://d3plus.org/core/components/text-box/#text-on-a-path)
+- **`hitbox`** makes a TextBox's whole box clickable, including the gaps between words and lines. (#1098; closes #738) [Example ↗](https://d3plus.org/core/components/text-box/#hitbox)
+
+#### Legends, timelines, and data
+
+- **Back undoes legend clicks.** Hiding or soloing series from the legend adds a step to the chart's Back history, the same one drill-downs use, and the Back button appears after a legend click on any chart. `legendHistory: false` keeps legend clicks out of it. (#1107; closes #778) [Example ↗](https://d3plus.org/core/charts/viz/#back-history)
+- **Timeline mode classes and cursor.** The timeline's group carries a class naming whether it draws ticks or buttons, and `timelineConfig.brushCursor` sets the cursor over its brush. (#1106; closes #747, #748) [Example ↗](https://d3plus.org/core/components/timeline/#cursor-and-mode-classes)
+- **`*Format` config keys.** `dataFormat`, `linksFormat`, `nodesFormat`, and `topojsonFormat` are ordinary config keys. They apply when the chart renders, in whatever order they and their loaders were set. The framework wrappers pass them straight through `config()`. (#1078; closes #758, #759) [Guide ↗](https://d3plus.org/guides/data/#formatting-loaded-data)
+- **Shared requests.** Loads of the same URL with the same fetch options share one request, so `nodes()` and `links()` naming one file fetch it once. (#1110)
+- Translations for the keyboard, link, cumulative histogram, Gantt, and cluster labels in every locale. (#1038, #1040, #1052, #1072, #1081, #1095)
+
+### Changed
+
+- **Faster large charts.** Labels along lines, bands, contours, and links, `config()`, inset legends, data rollups, Network sizing, and Geomap redraws were profiled and sped up, and nothing draws differently. A 400-point, 20-line LinePlot draws in 0.5s instead of 4.4s. A 100,000-point Hexbin redraws in 1.0s instead of 4.4s. Canvas redraws take about half as long, and a 500,000-row CSV is ready 3× sooner. (#1108, #1109, #1110)
+- **Legends list series in the order the chart draws them.** Stacked charts list them from the baseline outward, largest first by default, and Pack lists its largest groups first, as Treemap does. The "Other" group from `threshold` always comes last. A `legendSort` you set still wins. (#1105) [Guide ↗](https://d3plus.org/guides/legends/#legend-order)
+- **Pie and Donut labels are centered in their slices**, on the line through the slice's middle, between 10px and 32px. A name that only fits below 10px is labeled along the ring or outside it. (#1111) [Example ↗](https://d3plus.org/core/charts/pie/#slice-labels)
+- **Sankey bands are filled ribbons** instead of thick stroked lines, so wide bands no longer bulge past their nodes. `linkColor` sets their `fill`. (#1084)
+- **Arrowheads.** A link's line ends inside its arrowhead, and on curved links the head points along the curve. Default heads are capped at 3× the line width and 12px. (#1076, #1077)
+- **Network and Rings links** are at most half as wide as the smallest node's radius, unless `linkSizeMax` says otherwise. (#1085)
+- **Parallel Rings links fan out** as slightly bowed curves, each with its own tooltip and focus. (#1087)
+- **The ellipsis is measured**, so truncated labels fit their box, and some show one word fewer. Titles, subtitles, and totals share TextBox's line layout, so they follow `dir`. (#1097)
+- **Time labels follow the locale's clock**: "3:30 PM" in en-US, "15:30" in es-ES. (#1071)
+- **Reference line and band labels** move to stay clear of data labels, and hide when they can't. (#1071)
+- **Network nodes, scatter points, and Geomap points** get labels beside them, and Geomap points are labeled by default. (#1048)
+- **Chord group names** are 11px instead of 10px. (#1104)
+- **Tooltips and hover clear while a drag or zoom gesture moves the chart.** (#1080)
+- **`render(callback)` runs its callback again** after redraws the chart starts itself: legend clicks, resizes, drill-downs, timeline brushes, polled data, and font loads. A later `render()` reruns it too. (#1094; closes #1088)
+- **`timelineDefault` and `timelineConfig.selection` start the chart's data on that period**, not just the brush. (#1106; closes #773) [Example ↗](https://d3plus.org/core/components/timeline/#starting-on-a-chosen-period)
+- **Drilling down clears hidden and soloed series**, and Back restores them. (#1107)
+- **A formatter runs on inline data too.** Before, `data(rows, fn)` ignored `fn` unless `rows` was a URL. (#1078)
+- **Labels name their fallback fonts**, so an SVG from `@d3plus/ssr` or an export draws in the right family on a machine without the measured font. (#1057)
+- **Warnings name a class as written**, even in a minified bundle: `Legend.config() received unknown property "titel".` (#1064)
+- **SVG charts receive pointer events over empty space**, not just over shapes. (#1046)
+- `@d3plus/core` depends on `d3-delaunay`, `d3-hexbin`, and `d3-contour`. (#1046, #1050)
+
+### Fixed
+
+- **The data cache works.** `cache` never took effect, and request objects and URL lists were read and written under different keys. Each chart now keeps its 10 most recent responses, and changing a `*Format` reformats a cached response without a new request. (#1079, #1110) [Guide ↗](https://d3plus.org/guides/data/#caching)
+- A chart with a `height` but no `width` that was partly scrolled out of view as it rendered drew every mark at `NaN`. (#1061)
+- A Canvas chart went blank when its theme changed after its first render. (#1093)
+- A Sankey with links that loop back through several nodes threw "circular link", and one with a link to a missing node, or no links at all, crashed. (#1076, #1082)
+- Two Sankey or Rings links between the same nodes shared a key, so on a redraw one could vanish or swap with the other. A link between two first-ring Rings nodes was drawn twice. (#1086)
+- A Rings node reached by several links was placed once per link, pushing the others out of place. (#1087)
+- Points on the far side of a globe were drawn on the near side, and `projectionRotate()` always returned `undefined`. Coordinates given as numeric strings now work. (#1077)
+- A tooltip froze in place while a map was dragged. (#1080)
+- On Canvas, right-to-left text could draw outside its box, styled runs on centered lines started in the wrong place, the undrawn parts of a dashed line could be hovered, and the area under an unfilled path counted as part of it. Clicking empty space on Canvas now clears a focused Network node, as on SVG. (#1042, #1054, #1071, #1097)
+- A first word too long for its TextBox drew nothing. (#1097)
+- Labels inside large bubbles were drawn under the bubbles. (#1048)
+- ColorScale bucket labels for computed values could show float noise such as "-9.5 - -10f". (#1050)
+- A three-month Priestley labeled every weekly tick "Q1 2024". (#1052)
+- A tick on a range-break axis could crowd the tick moved out of a hidden gap. (#1074)
+- A standalone Timeline with `buttonBehavior: "buttons"` and no `ticks` threw `RangeError`. The timeline brush eased for 250ms even with `duration(0)`. (#1037, #1106)
+- Chord spoke labels of 13px or more drew nothing. (#1104)
+- Setting `sum` after a Treemap, Pack, Pie, Icicle, or Sunburst was created didn't update its legend order. (#1105)
+- The legend title was always black, and the table view's text could be unreadable on a dark page. (#1039)
+- A fading label whose text path changed jumped when its transition started. (#1102)
+- The minimap's viewport box had no `role`, which accessibility checkers flag. (#1049)
+- `textWidth` threw on a font family that needs quoting, and `fontExists` could report `serif` missing. (#1070)
+
+### Documentation
+
+- **d3plus.org is a new docs site**, replacing Storybook. Every chart, component, shape, and function has a page whose examples are editable, with controls, an SVG/Canvas switch, and code for JavaScript, React, Vue, Svelte, Web Components, and Angular. Search, light and dark themes, and phone layouts are built in, and pages load in about 2 seconds instead of 30 or more. Links to the Storybook site land on the page and example they moved to. (#1056, #1059, #1062, #1063, #1065, #1066, #1067)
+- The 15 guides move to the site, with new sections on themes, dark color scales, keyboard navigation, reduced motion, missing values, time axes, formatting loaded data, caching, hovering near a point, node-link interactions, legend order, and labeling lines and rings. (#1065, and the PRs above)
+- The API reference lists every config option again: the site build skipped the ones the chart schema declares, so BarChart showed 57 of its 210. (#1092)
+
+### Developer & tooling
+
+- **Storybook is removed**, and `pnpm run docs` no longer writes stories or args. The site generates a page for every documented export when it builds, so a new export needs nothing committed. (#1068)
+- `pnpm test:site` builds the site and loads every page in Chromium. It fails on console errors, an example that draws nothing, a broken link or anchor, or a page wider than a phone. CI runs it, and the site deploys from `deploy-site.yml` when a release is published. (#1056, #1065, #1066, #1067, #1092)
+- `@d3plus/core/internal` exports `pointVoronoi`, and `ChartDefinition` gains `tableData`. `@d3plus/render` gains `transitionOrder`, and text nodes gain `halo` and `path`. (#1046, #1054, #1071, #1093, #1098)
+- `@d3plus/data`'s `cacheKey(request)` builds the cache key from a request. (#1079, #1110)
+- The font measurement tests run on `@napi-rs/canvas` 1.0.12+, which falls back between fonts as Chrome does. (#1070)
+- Dependabot holds `@babel/core` at 7 for the site's Preact build. (#1089)
+- Flaky keyboard-navigation and render-callback tests now wait on fake timers or poll. (#1060, #1105)
 
 ### Breaking changes
 
+Most charts upgrade without code changes, but many new defaults change what existing charts look like, and visual-regression snapshots will change.
+
+- **Link accessors receive node data.** `linkSize`, Sankey's `value`, link `shapeConfig` functions, `arrows`, `arrowSize`, and tooltip accessors receive each link with `source` and `target` set to the node data at its ends, plus the link's own fields. They used to receive the ids from `links`, or internal layout records. (#1072)
+  ```js
+  // Before: linkSize: d => lookup[d.source].weight
+  linkSize: d => d.source.weight,
+  ```
+- **Sankey's `arrows` and `arrowSize` are removed.** Calling `.arrows()` on a Sankey throws. Sankey bands are filled, so `linkColor` sets their `fill`, and a `shapeConfig.Path.stroke` draws an outline. (#1084)
+- **Charts are in the page's Tab order.** `keyboardNav(false)` takes a chart out of it. (#1038)
+- **Networks and ArcDiagrams without a color are colored by cluster** and show a cluster legend. `cluster: false` keeps per-node colors. (#1095)
+- **LinePlots name their lines along them and hide the legend**, and stacked areas name their bands. `lineLabels: false` (or `labelPosition: "inside"` on a stacked area) and an explicit `legend` bring the old look back. (#1098, #1100)
+- **Trend lines show their equation and R².** `trendLineConfig: {label: false}` hides them. (#1098)
+- **Hexbin contour lines show their values.** `contourConfig: {labels: false}` hides them. (#1101)
+- **Ring labels curve, and small Pie slices are labeled outside the ring.** Straight slice labels are centered and run from 10px to 32px. `labelPosition: "inside"` keeps every label straight and inside. (#1102, #1103, #1111)
+- **Circle labels go beside small circles**, and Geomap points are labeled. `labelPosition: "inside"` keeps the old Network labels, and `shapeConfig: {Circle: {label: false}}` unlabels Geomap points. (#1048)
+- **Link labels curve along curved links.** `linkLabelConfig: {rotate: "horizontal"}` keeps them level. (#1099, #1104)
+- **Legends list series in drawing order**, not alphabetically, on stacked charts and Pack. (#1105)
+- **Legend clicks add Back steps**, so the Back button appears after one. `legendHistory: false` keeps them out. (#1107)
+- **`render(callback)` runs again after later redraws.** Guard a callback that should run once. (#1094)
+- **`timelineDefault` and `timelineConfig.selection` filter the chart's data**, not just the brush. (#1106)
+- **The data cache is on.** Calling `data(sameUrl)` again uses the cached response. Set `cache: false`, or use `dataPollingInterval`, to fetch again. `cacheKey` takes a request instead of `(key, path)`. (#1079, #1110)
+- **Formatters run on inline data**, not only on loaded URLs. (#1078)
+- **Arrowheads are smaller on thick links**, and heavy Network and Rings links are thinner. `arrowSize` and `linkSizeMax` set them. (#1076, #1085)
+- **Truncated labels measure their ellipsis**, so some show one word fewer. (#1097)
+- **Chord group names are 11px.** (#1104)
+- **`config()` no longer includes `toSVGString`, `toCanvas`, or a SizeLegend's `layout`.** (#1108)
+- **A chart's `mouseleave` handler fires when a drag starts**, and its enter handler fires again after the gesture. (#1080)
 - **Marimekko draws its width shares above the bars**, leaving the category names alone beneath them, and the plot area moves down to make room. `barWidthShare: true` puts each share back beneath its name. (#1036)
 
 ## 4.10.0
