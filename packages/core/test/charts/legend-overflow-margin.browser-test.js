@@ -27,6 +27,8 @@ const pageFn = ({count}) =>
       .height(350)
       // These cases cover the legend's margin claim, not placing it inside the plot.
       .legendInset(false)
+      // Named points would stand in for the legend.
+      .shapeConfig({Circle: {label: false}})
       .duration(0);
     chart.render(() =>
       resolve({
