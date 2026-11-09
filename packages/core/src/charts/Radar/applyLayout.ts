@@ -2,15 +2,13 @@
     `applyRadarLayout` — Radar's chart-specific layout stage. Computes per-
     axis angular positions and the web radius (sized to the metric labels,
     see `axisLabels.ts`), the radial value domain + level rings (see
-    `levels.ts`), per-group polygon vertices, and the per-polygon
-    `pathConfig` (with event-handler wrappers that translate cursor →
-    nearest vertex). Emits the chrome (rings, metric labels, spokes, level
+    `levels.ts`), per-group polygon vertices, and the polygons'
+    `pathConfig`. Emits the chrome (rings, metric labels, spokes, level
     value labels — see `axisDecorations.ts`) into `_chartScene`, beneath the
     polygons. Stashes `groupData` + `pathConfig` on `viz.ctx`.
 */
 
-import {groups, min, sum} from "d3-array";
-import {pointer} from "d3-selection";
+import {groups, sum} from "d3-array";
 
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
@@ -43,40 +41,6 @@ interface GroupDatum {
   points: {x: number; y: number}[];
   d: string;
 }
-
-/** Builds the polygon `pathConfig`, wrapping handlers to resolve cursor → nearest vertex. */
-const buildPathConfig = (
-  viz: Parameters<TransformStage>[0]["viz"],
-  width: number,
-  height: number,
-): Record<string, unknown> => {
-  const pathConfig = shapeConfigFor(viz, "Path");
-  // Event-handler wrappers: cursor → nearest polygon vertex resolution.
-  const eventNames = Object.keys(
-    (pathConfig.on as Record<string, unknown>) ?? {},
-  );
-  pathConfig.on = {};
-  for (const eventName of eventNames) {
-    (pathConfig.on as Record<string, unknown>)[eventName] = (
-      d: GroupDatum,
-      i: number,
-      s: unknown,
-      evt: Event,
-    ) => {
-      const xs = d.points.map(p => p.x + width / 2);
-      const ys = d.points.map(p => p.y + height / 2);
-      const cursor = pointer(evt, viz._select.node() as Element);
-      const xDist = xs.map(p => Math.abs(p - cursor[0]));
-      const yDist = ys.map(p => Math.abs(p - cursor[1]));
-      const dists = xDist.map((dd, ii) => dd + yDist[ii]);
-      const handler = viz.schema.on[eventName] as (
-        ...args: unknown[]
-      ) => unknown;
-      handler.call(viz, d.arr[dists.indexOf(min(dists)!)], i, s, evt);
-    };
-  }
-  return pathConfig;
-};
 
 export const applyRadarLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(viz);
@@ -159,9 +123,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     };
   });
 
-  const pathConfig = buildPathConfig(viz, width, height);
-
   viz.ctx.groupData = groupData;
-  viz.ctx.pathConfig = pathConfig;
+  viz.ctx.pathConfig = shapeConfigFor(viz, "Path");
   return {shapeData: groupData};
 };
