@@ -74,6 +74,28 @@ it("ColorScale bivariate — a diamond of cells, one per color", () => {
   assert.strictEqual(cells[8].datum.id, "Alpha: 7 - 9, Beta: 6 - 8");
 });
 
+it("ColorScale bivariate — cells take the swatches' stroke, or none", () => {
+  const strokeOf = config =>
+    flatten(scaleOf(config).toScene())
+      .filter(n => n.type === "path")
+      .map(n => [n.paint.stroke, n.paint.strokeWidth, n.paint.strokeOpacity]);
+  const own = strokeOf({
+    legendConfig: {
+      shapeConfig: {
+        stroke: d => (d._bivariateX ? "#ff0000" : "#0000ff"),
+        strokeWidth: 2,
+        strokeOpacity: 0.5,
+      },
+    },
+  });
+  assert.deepStrictEqual(own[0], ["#0000ff", 2, 0.5], "per cell");
+  assert.deepStrictEqual(own[1], ["#ff0000", 2, 0.5]);
+  const none = strokeOf({legendConfig: {shapeConfig: {strokeWidth: 0}}});
+  none.forEach(s =>
+    assert.deepStrictEqual(s, [undefined, undefined, undefined]),
+  );
+});
+
 it("ColorScale bivariate — the grid turned 45°: low/low at the bottom", () => {
   const cs = scaleOf();
   const cells = flatten(cs.toScene()).filter(n => n.type === "path");

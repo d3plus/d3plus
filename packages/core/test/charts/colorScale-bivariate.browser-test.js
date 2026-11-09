@@ -119,12 +119,19 @@ function painted(page) {
             title: d.id,
             x: d._bivariateX,
             y: d._bivariateY,
+            stroke: node.paint?.stroke,
+            strokeWidth: node.paint?.strokeWidth,
           };
         else if (
           typeof d.id === "string" &&
           ["rect", "path", "circle"].includes(node.type)
         )
-          shapes[d.id] = {fill: node.paint?.fill, opacity: own};
+          shapes[d.id] = {
+            fill: node.paint?.fill,
+            opacity: own,
+            stroke: node.paint?.stroke,
+            strokeWidth: node.paint?.strokeWidth,
+          };
       }
       if (node.type === "text" && key.startsWith("bivariate-label"))
         labels.push({
@@ -170,6 +177,48 @@ for (const renderer of ["svg", "canvas"]) {
       }
     });
   }
+
+  it(`${renderer}: the key's cells take the shapes' stroke`, async () => {
+    const stroked = charts.Treemap.replace(
+      ".colorScale(",
+      `.shapeConfig({stroke: "#ff0000", strokeWidth: 2}).colorScale(`,
+    );
+    for (const [src, expected] of [
+      [stroked, {stroke: "#ff0000", strokeWidth: 2}],
+      [charts.Geomap, null],
+    ]) {
+      const {page, close} = await chart(src, renderer);
+      try {
+        const {shapes, cells} = await painted(page);
+        // Without a set stroke, a cell matches a shape of its color.
+        let matched = 0;
+        for (const [color, c] of Object.entries(cells)) {
+          const shape = Object.values(shapes).find(d => d.fill === color);
+          const want = expected ?? shape;
+          if (!want) continue;
+          matched++;
+          assert.ok(want.stroke, "the shapes have a stroke");
+          assert.strictEqual(c.stroke, want.stroke, `${c.title}: stroke`);
+          assert.strictEqual(c.strokeWidth, want.strokeWidth, c.title);
+        }
+        assert.ok(matched >= 5, `cells checked: ${matched}`);
+      } finally {
+        await close();
+      }
+    }
+    const bare = charts.Treemap.replace(
+      ".colorScale(",
+      `.shapeConfig({stroke: "none", strokeWidth: 0}).colorScale(`,
+    );
+    const {page, close} = await chart(bare, renderer);
+    try {
+      const {cells} = await painted(page);
+      for (const c of Object.values(cells))
+        assert.ok(!c.stroke || c.strokeWidth === 0, `${c.title}: no stroke`);
+    } finally {
+      await close();
+    }
+  });
 
   it(`${renderer}: the key's labels name the fields along its edges`, async () => {
     const {page, close} = await chart(charts.Treemap, renderer);

@@ -229,6 +229,32 @@ function edgeLabel(
   return {node, corners};
 }
 
+/**
+    A key cell's stroke: the one `legendConfig.shapeConfig` gives the
+    colorScale's swatches, which a chart sets to its own shapes' stroke.
+*/
+function cellStroke(
+  cs: ColorScale,
+  datum: BivariateCell,
+  i: number,
+): {stroke?: string; strokeWidth?: number; strokeOpacity?: number} {
+  const sc = ((cs.schema.legendConfig as Record<string, unknown> | undefined)
+    ?.shapeConfig ?? {}) as Record<string, unknown>;
+  const read = (key: string): unknown => {
+    const v = sc[key];
+    return typeof v === "function" ? v(datum, i) : v;
+  };
+  const stroke = read("stroke");
+  const strokeWidth = Number(read("strokeWidth"));
+  const strokeOpacity = read("strokeOpacity");
+  if (typeof stroke !== "string" || !stroke || !(strokeWidth > 0)) return {};
+  return {
+    stroke,
+    strokeWidth,
+    ...(typeof strokeOpacity === "number" ? {strokeOpacity} : {}),
+  };
+}
+
 /** The key's cells, a path each, and their corners. */
 function cellNodes(
   cs: ColorScale,
@@ -265,7 +291,7 @@ function cellNodes(
         d: `M${points.map(p => p.map(v => +v.toFixed(3)).join(",")).join("L")}Z`,
         datum,
         index: j * n + i,
-        paint: {fill: datum.color},
+        paint: {fill: datum.color, ...cellStroke(cs, datum, j * n + i)},
         aria: {label: datum.id},
       } as SceneNode);
     }
