@@ -1,14 +1,19 @@
 /**
     ArcDiagram's pointer handlers. Hovering a node highlights it, its
     neighbors, and the arcs between them; hovering an arc highlights it and
-    its two ends. Clicking a node or arc focuses the same set and zooms to it
+    its two ends; hovering a legend item highlights its nodes and the arcs
+    between them. Clicking a node or arc focuses the same set and zooms to it
     (clicking it again, or the background, resets), and clicking a legend
     item focuses its nodes, as Network does.
 */
 
 import type {DataPoint} from "@d3plus/data";
 
-import {isLinkDatum, linkMeta} from "../features/linkInteraction.js";
+import {
+  isLinkDatum,
+  legendHighlight,
+  linkMeta,
+} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {graphNodeId, zoomToNodeBounds} from "../Network/graph.js";
 import type {ArcCtx, ArcLink, ArcNode} from "./applyLayout.js";
@@ -99,6 +104,9 @@ const focusId = (viz: VizInstance, d: DataPoint, i: number): string =>
 export function setupArcEvents(viz: VizInstance): void {
   const v = viz as ArcViz;
   viz.schema.on.mouseenter = () => undefined;
+  viz.schema.on["mouseenter.legend"] = (d: DataPoint, i: number) => {
+    v.hover(legendHighlight(viz, d, i));
+  };
   viz.schema.on["mouseleave.shape"] = () => {
     v.hover(false);
   };
