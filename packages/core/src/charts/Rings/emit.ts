@@ -11,6 +11,9 @@ import {emitLabels} from "../../shapes/emitLabels.js";
 import {
   cubicPathD,
   edgeArrowTrims,
+  emphasizedArrowEdge,
+  scaledArrowSize,
+  scaledStrokeWidth,
   straightEdgeArrows,
   straightEdgeD,
 } from "../features/edgeArrows.js";
@@ -84,23 +87,27 @@ interface RingsCtx {
 /**
     Arrowheads for one Rings edge. Spline edges already terminate at the node
     boundary, so the tangent comes from the bezier's end control point; straight
-    center-links run center-to-center and inset by the node radius.
+    center-links run center-to-center and inset by the node radius. `scale`
+    widens the stroke they're sized for (see `emphasizedArrowEdge`).
 */
 function ringsEdgeArrows(
   viz: VizInstance,
   edge: RingsEdge,
   datum: DataPoint,
   stroke: string | undefined,
-  strokeWidth: number | undefined,
+  width: number | undefined,
   i: number,
+  scale = 1,
 ): SceneNode[] {
   const arrows = viz.schema.arrows as ArrowValue;
+  const arrowSize = scaledArrowSize(viz.schema.arrowSize, scale);
+  const strokeWidth = scaledStrokeWidth(width, scale);
   const baseKey = `${edge.source.id}-${edge.target.id}-${i}`;
   const fill = typeof stroke === "string" ? stroke : undefined;
   if (edge.loop)
     return selfLoopArrows({
       arrows,
-      arrowSize: viz.schema.arrowSize,
+      arrowSize,
       strokeWidth,
       datum,
       i,
@@ -111,7 +118,7 @@ function ringsEdgeArrows(
   if (!edge.spline) {
     return straightEdgeArrows({
       arrows,
-      arrowSize: viz.schema.arrowSize,
+      arrowSize,
       strokeWidth,
       datum,
       i,
@@ -123,7 +130,7 @@ function ringsEdgeArrows(
   }
   const curve = ringsCurve(edge);
   if (!curve) return [];
-  const trims = ringsTrims(viz, edge, i, strokeWidth);
+  const trims = ringsTrims(viz, edge, i, width, scale);
   if (!trims.ends.source && !trims.ends.target) return [];
   return chordArrowNodes({
     ends: cubicArrowEdge(curve, trims),
@@ -153,17 +160,21 @@ function ringsCurve(
   ];
 }
 
-/** An edge's arrow ends, size, and stroke trims. */
+/** An edge's arrow ends, size, and stroke trims, `scale` times as wide. */
 const ringsTrims = (
   viz: VizInstance,
   edge: RingsEdge,
   i: number,
   strokeWidth: unknown,
+  scale = 1,
 ) =>
   edgeArrowTrims({
     arrows: viz.schema.arrows as ArrowValue,
-    arrowSize: viz.schema.arrowSize,
-    strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
+    arrowSize: scaledArrowSize(viz.schema.arrowSize, scale),
+    strokeWidth: scaledStrokeWidth(
+      typeof strokeWidth === "number" ? strokeWidth : undefined,
+      scale,
+    ),
     datum: edge.datum,
     i,
   });
@@ -173,6 +184,7 @@ const ringsTrims = (
     `edgeArrowTrims`). A spline edge or a loop follows its curve up to each
     head's base, then runs along the head's axis (see `cubicArrowEdge`); a
     spline's arrow tips sit on the node's edge, where the curve ends.
+    `scale` widens the stroke (see `emphasizedArrowEdge`).
 */
 export function ringsVisibleD(
   viz: VizInstance,
@@ -180,8 +192,9 @@ export function ringsVisibleD(
   i: number,
   strokeWidth: unknown,
   d: string,
+  scale = 1,
 ): string {
-  const trims = ringsTrims(viz, edge, i, strokeWidth);
+  const trims = ringsTrims(viz, edge, i, strokeWidth, scale);
   if (!trims.source && !trims.target) return d;
   if (edge.loop) return selfLoopD(edge.loop, trims);
   const curve = ringsCurve(edge);
@@ -354,28 +367,33 @@ export const ringsEmit: ChartEmit = ({viz}) => {
       if (stroke) paint.stroke = stroke;
       const key = keys[j];
       const d = c.linkD(edge);
+      const width =
+        typeof paint.strokeWidth === "number" ? paint.strokeWidth : undefined;
+      // Optional directional arrowheads.
+      const drawn = emphasizedArrowEdge(scale => ({
+        d: ringsVisibleD(viz, edge, i, width, d, scale),
+        arrows: ringsEdgeArrows(
+          viz,
+          edge,
+          datum,
+          paint.stroke,
+          width,
+          i,
+          scale,
+        ),
+      }));
       out.push({
         type: "path",
         key,
-        d: ringsVisibleD(viz, edge, i, paint.strokeWidth, d),
+        d: drawn.d,
+        ...(drawn.emphasis ? {emphasis: drawn.emphasis} : {}),
         datum,
         index: i,
         paint,
         aria: {label: linkAriaLabel(viz, datum)},
       } as SceneNode);
       out.push(linkHitPath(key, d, datum, paint.strokeWidth) as SceneNode);
-
-      // Optional directional arrowheads.
-      out.push(
-        ...ringsEdgeArrows(
-          viz,
-          edge,
-          datum,
-          paint.stroke,
-          paint.strokeWidth,
-          i,
-        ),
-      );
+      out.push(...drawn.arrows);
     }
     out.push(...ringsLinkLabels(viz, c, [...nodeLabels.values()].flat(), keys));
   }
