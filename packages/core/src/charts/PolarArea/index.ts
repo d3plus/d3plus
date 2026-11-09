@@ -94,7 +94,8 @@ export const polarAreaDef: DataDrivenChartDefinition = {
     },
     /**
         Room (px) reserved around the circle for the category labels, or
-        `"auto"` to size the circle to the measured labels.
+        `"auto"` to curve them just outside the circle when they all fit
+        (see `labelPosition`), else size the circle to the measured labels.
     */
     {key: "outerPadding", default: "auto"},
     /** Angular gap between neighboring wedges, in radians; overrides `padPixel`. */

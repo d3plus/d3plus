@@ -245,6 +245,20 @@ export interface NodeBase {
       DOM to walk. Interaction metadata only — backends never read it for drawing.
   */
   interactionGroup?: string;
+  /**
+      The value a chrome label stands for, such as a discrete axis tick:
+      while marks are hovered (or active, or highlighted), the label keeps
+      full opacity when a matched mark's datum, or a datum it wraps, has
+      `field` equal to `value`, and dims with the other marks otherwise.
+      Interaction metadata only — backends never read it for drawing.
+  */
+  hoverMatch?: {field: string; value: unknown};
+  /**
+      Values a mark stands for beyond its datum, keyed by field, that
+      `hoverMatch` labels match as if the datum held them (a polar wedge's
+      slot). Interaction metadata only — backends never read it for drawing.
+  */
+  hoverKeys?: Record<string, unknown>;
   paint?: Paint;
   transform?: Transform;
   /** When false, the node is ignored by hit-testing (= SVG pointer-events: none). */
@@ -364,6 +378,18 @@ export interface ArcGeometry {
 export interface PathNode extends NodeBase {
   type: "path";
   d: string;
+  /**
+      What hover and active emphasis change on this path beyond the thicker,
+      darker stroke every emphasized mark takes: the `d` it is drawn with
+      under each (an edge cut back inside its larger arrowheads, an
+      arrowhead grown with its edge's stroke), and whether it is a filled
+      glyph (an arrowhead) whose fill darkens instead of gaining an outline.
+      Interaction metadata only — backends never read it for drawing.
+  */
+  emphasis?: {
+    d?: {hover?: string; active?: string};
+    fill?: boolean;
+  };
   /** This wedge's own current polar parameters (Pie/Donut only) — see {@link ArcGeometry}. */
   arc?: ArcGeometry;
   /**

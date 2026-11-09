@@ -12,6 +12,7 @@ import {
   radarCurveLines,
   radarCurvedLayout,
   radarCurves,
+  radarCurvesAt,
 } from "../../src/charts/Radar/curvedLabels.ts";
 
 useJsdom();
@@ -172,4 +173,26 @@ it("radarCurvedLayout — one line when every name fits, else two, else null", (
   ]);
   assert.strictEqual(radarCurvedLayout(viz, tooLong, 80), null);
   assert.strictEqual(radarCurvedLayout(viz, [], room), null);
+});
+
+it("radarCurves — a label's span narrows the arc it may take", () => {
+  const viz = new Radar();
+  const names = labels(["Population Density", "B", "C", "D"]);
+  assert.ok(radarCurves(viz, names, 60)[0], "a quarter turn holds it");
+  names[0] = {...names[0], span: 0.2};
+  assert.strictEqual(radarCurves(viz, names, 60)[0], null, "0.2rad doesn't");
+});
+
+it("radarCurvesAt — as many lines as the room holds, else none", () => {
+  const viz = new Radar();
+  const names = labels(["A", "B", "C", long, "E", "F", "G", "H"]);
+  const two = radarCurvesAt(viz, names, 150, 150 + radarCurveBand(names, 2));
+  assert.strictEqual(two[3].lines.length, 2);
+  const one = radarCurvesAt(viz, names, 150, 150 + radarCurveBand(names, 1));
+  assert.strictEqual(one[3], null, "too long for one line");
+  assert.ok(one[0], "a short name still curves");
+  assert.deepStrictEqual(
+    radarCurvesAt(viz, names, 150, 150),
+    names.map(() => null),
+  );
 });

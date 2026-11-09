@@ -18,17 +18,9 @@ import {
 import TextBox from "../../components/TextBox.js";
 import {emitLabels, shapeLabelDefaults} from "../../shapes/emitLabels.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
-import {
-  paintFromShapeConfig,
-  resolveAccessor,
-  shapeConfigFor,
-} from "../features/emitHelpers.js";
+import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import {textLineBoxes} from "../features/linkLabels.js";
-import {
-  clearRingLabels,
-  ringLabelFont,
-  ringLabelNodes,
-} from "../features/ringLabelNodes.js";
+import {clearRingLabels} from "../features/ringLabelNodes.js";
 import {ringLabelPosition} from "../features/ringLabels.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
@@ -40,9 +32,9 @@ import {
   radarAxisLabelLayout,
 } from "./axisLabels.js";
 import {
-  radarCurveLines,
+  radarCurveNodes,
   radarCurvedLayout,
-  radarCurves,
+  radarCurvesAt,
 } from "./curvedLabels.js";
 import type {RadarCurve} from "./curvedLabels.js";
 import {emitRadarLevelLabels, radarLevelLabels, radarRadius} from "./levels.js";
@@ -81,17 +73,21 @@ export interface RadarAxisConfig {
 
 type FontAccessor<T> = (d: DataPoint, i: number) => T;
 
-/** Resolves the font a metric label renders with, the way its TextBox will. */
+/**
+    Resolves the font a metric label renders with, the way its TextBox will:
+    from `labelConfig`, else `axisConfig.shapeConfig.labelConfig`.
+*/
 export const labelFont = (
   viz: Viz,
   text: string,
   datum: DataPoint,
   i: number,
+  labelConfig?: Record<string, unknown>,
 ) => {
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
   const tb = new TextBox().config({
     ...shapeLabelDefaults,
-    ...(axisConfig.shapeConfig?.labelConfig ?? {}),
+    ...(labelConfig ?? axisConfig.shapeConfig?.labelConfig ?? {}),
   });
   const s = tb.schema as Record<string, FontAccessor<unknown>>;
   const record = {data: datum, i, text} as unknown as DataPoint;
@@ -169,10 +165,7 @@ export function radarPolarAxis(
     radius = layout.radius;
     boxes = layout.labels;
   }
-  const lines = radarCurveLines(inputs, radius, room);
-  curves ??= lines
-    ? radarCurves(viz, inputs, radius, lines)
-    : inputs.map(() => null);
+  curves ??= radarCurvesAt(viz, inputs, radius, room);
 
   const polarAxis = inputs
     .map(({key, data, font, angle: radians}, i): PolarAxisDatum => {
@@ -214,21 +207,22 @@ export function radarPolarAxis(
 function radarAxisLabels(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode[] {
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
   const labelConfig = axisConfig.shapeConfig?.labelConfig ?? {};
-  const colorOf = (p: PolarAxisDatum) => {
-    const color = resolveAccessor<unknown>(labelConfig.fontColor, p.data, p.i);
-    return typeof color === "string" ? color : backgroundInk(viz);
-  };
-  const curved = ringLabelNodes(
+  const curved = radarCurveNodes(
     viz,
     polarAxis.flatMap(p =>
-      (p.labelCurve?.lines ?? []).map((line, k) => ({
-        key: `radar-axis-label-${p.id}${k ? `-${k}` : ""}`,
-        text: line.text,
-        fit: line.fit,
-        color: colorOf(p),
-      })),
+      p.labelCurve
+        ? [
+            {
+              key: `radar-axis-label-${p.id}`,
+              data: p.data,
+              i: p.i,
+              curve: p.labelCurve,
+              hoverMatch: {field: "metric", value: p.key},
+            },
+          ]
+        : [],
     ),
-    ringLabelFont(labelConfig),
+    labelConfig,
   );
   const straight = emitLabels({
     data: polarAxis.filter(
@@ -243,6 +237,11 @@ function radarAxisLabels(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode[] {
     labelBounds: d => (d as unknown as PolarAxisDatum).labelBounds,
     labelConfig,
   });
+  // Each label follows the hover of the polygons with a value for it.
+  for (const n of straight) {
+    const metric = (n.datum as {data?: PolarAxisDatum} | undefined)?.data?.key;
+    if (metric !== undefined) n.hoverMatch = {field: "metric", value: metric};
+  }
   return [...curved, ...clearRingLabels(straight, textLineBoxes(curved))];
 }
 

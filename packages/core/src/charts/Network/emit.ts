@@ -23,10 +23,13 @@ import type {
 } from "../features/circleLabels.js";
 import {
   edgeArrowTrims,
+  emphasizedArrowEdge,
+  scaledArrowSize,
+  scaledStrokeWidth,
   straightEdgeArrows,
   straightEdgeD,
 } from "../features/edgeArrows.js";
-import type {ArrowValue} from "../features/edgeArrows.js";
+import type {ArrowEdge, ArrowValue} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
   paintFromShapeConfig,
@@ -81,72 +84,51 @@ interface NetworkCtx {
   nodeShapeConfig: Record<string, unknown>;
 }
 
-/** Arrowheads for one network link (straight, center-to-center, or along its loop). */
-function networkLinkArrows(
+/**
+    A link's visible stroke and arrowheads (straight, center-to-center,
+    along its loop, or along its bundle), drawn `scale` times as wide (see
+    `emphasizedArrowEdge`): `d` cut short inside its arrowheads (see
+    `edgeArrowTrims`) so the line doesn't show past their sides.
+*/
+function networkLinkEdge(
   viz: VizInstance,
   link: NetworkLink,
   datum: DataPoint,
-  stroke: string | undefined,
-  strokeWidth: number | undefined,
   i: number,
+  d: string,
+  paint: Paint,
   keyPrefix: string,
-): SceneNode[] {
+  scale: number,
+): ArrowEdge {
   const common = {
     arrows: viz.schema.arrows as ArrowValue,
-    arrowSize: viz.schema.arrowSize,
-    strokeWidth,
+    arrowSize: scaledArrowSize(viz.schema.arrowSize, scale),
+    strokeWidth: scaledStrokeWidth(
+      typeof paint.strokeWidth === "number" ? paint.strokeWidth : undefined,
+      scale,
+    ),
     datum,
     i,
     keyPrefix,
-    fill: typeof stroke === "string" ? stroke : undefined,
+    fill: typeof paint.stroke === "string" ? paint.stroke : undefined,
   };
-  if (link.loop) return selfLoopArrows({...common, loop: link.loop});
+  const trims = edgeArrowTrims(common);
+  if (!trims.source && !trims.target) return {d, arrows: []};
+  if (link.loop)
+    return {
+      d: selfLoopD(link.loop, trims),
+      arrows: selfLoopArrows({...common, loop: link.loop}),
+    };
   if (link.points)
-    return bundledLinkEdge(viz, {...link, points: link.points}, common).arrows;
-  return straightEdgeArrows({
-    ...common,
+    return bundledLinkEdge(viz, {...link, points: link.points}, common);
+  const ends = {
     source: link.source as NetworkNode,
     target: link.target as NetworkNode,
-  });
-}
-
-/**
-    A link's visible stroke: `d`, cut short inside its arrowheads (see
-    `edgeArrowTrims`) so the line doesn't show past their sides.
-*/
-function networkVisibleD(
-  viz: VizInstance,
-  link: NetworkLink,
-  datum: DataPoint,
-  i: number,
-  strokeWidth: unknown,
-  d: string,
-): string {
-  const trims = edgeArrowTrims({
-    arrows: viz.schema.arrows as ArrowValue,
-    arrowSize: viz.schema.arrowSize,
-    strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
-    datum,
-    i,
-  });
-  if (!trims.source && !trims.target) return d;
-  if (link.loop) return selfLoopD(link.loop, trims);
-  if (link.points)
-    return bundledLinkEdge(
-      viz,
-      {...link, points: link.points},
-      {
-        datum,
-        i,
-        strokeWidth,
-        keyPrefix: "",
-      },
-    ).d;
-  return straightEdgeD(
-    link.source as NetworkNode,
-    link.target as NetworkNode,
-    trims,
-  );
+  };
+  return {
+    d: straightEdgeD(ends.source, ends.target, trims),
+    arrows: straightEdgeArrows({...common, ...ends}),
+  };
 }
 
 /**
@@ -169,29 +151,31 @@ function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
     const tgtId = (link.target as DataPoint).id ?? "";
     const key = networkLinkKey(link, i);
     const d = c.linkD(link);
+    // Optional directional arrowheads at the node boundary.
+    const edge = emphasizedArrowEdge(scale =>
+      networkLinkEdge(
+        viz,
+        link,
+        datum,
+        i,
+        d,
+        paint,
+        `network-arrow-${srcId}-${tgtId}-${i}`,
+        scale,
+      ),
+    );
     out.push({
       type: "path",
       key,
-      d: networkVisibleD(viz, link, datum, i, paint.strokeWidth, d),
+      d: edge.d,
+      ...(edge.emphasis ? {emphasis: edge.emphasis} : {}),
       datum,
       index: i,
       paint,
       aria: {label: linkAriaLabel(viz, datum)},
     } as SceneNode);
     out.push(linkHitPath(key, d, datum, paint.strokeWidth) as SceneNode);
-
-    // Optional directional arrowheads at the node boundary.
-    out.push(
-      ...networkLinkArrows(
-        viz,
-        link,
-        datum,
-        paint.stroke,
-        paint.strokeWidth,
-        i,
-        `network-arrow-${srcId}-${tgtId}-${i}`,
-      ),
-    );
+    out.push(...edge.arrows);
   }
   return out;
 }

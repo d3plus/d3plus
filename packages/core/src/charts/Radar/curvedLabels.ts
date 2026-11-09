@@ -8,9 +8,15 @@
 */
 import type {DataPoint} from "@d3plus/data";
 import {fontExists} from "@d3plus/dom";
+import type {TextNode} from "@d3plus/render";
 import {fontFamily as defaultFontFamily, textWrap} from "@d3plus/text";
 
-import {ringTextWidth} from "../features/ringLabelNodes.js";
+import {resolveAccessor} from "../features/emitHelpers.js";
+import {
+  ringLabelFont,
+  ringLabelNodes,
+  ringTextWidth,
+} from "../features/ringLabelNodes.js";
 import type {RingLabelFont} from "../features/ringLabelNodes.js";
 import {
   ringLabelEnd,
@@ -18,6 +24,7 @@ import {
   ringLabelPosition,
 } from "../features/ringLabels.js";
 import type {RingLabelFit} from "../features/ringLabels.js";
+import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** The gap (px) between the outer ring and a curved metric label. */
@@ -32,6 +39,11 @@ export interface RadarCurveInput {
   data: DataPoint;
   /** Spoke direction, in radians (clockwise from 3 o'clock). */
   angle: number;
+  /**
+      The angle (radians) the label's arc may span, centered on its spoke.
+      Defaults to an even share of the circle.
+  */
+  span?: number;
   font: RingLabelFont & {fontSize: number; lineHeight?: number};
 }
 
@@ -59,7 +71,7 @@ export function radarCurveBand(labels: RadarCurveInput[], lines = 1): number {
 
 /** The ring segment a label's `j`th line (0 nearest the web) curves along. */
 function lineArc(label: RadarCurveInput, radius: number, j: number, n: number) {
-  const half = Math.PI / Math.max(1, n);
+  const half = (label.span ?? (Math.PI * 2) / Math.max(1, n)) / 2;
   // Ring angles run clockwise from 12 o'clock, a spoke's from 3 o'clock.
   const mid = label.angle + Math.PI / 2;
   const inner = radius + j * lineHeightOf(label);
@@ -254,6 +266,26 @@ export function radarCurveLines(
 }
 
 /**
+    Each label's curve at `radius`, on as many lines as the room around the
+    web holds (see `radarCurveLines`), or null where it doesn't curve.
+    @param viz The chart.
+    @param labels The metric labels, in spoke order.
+    @param radius The web's radius.
+    @param room The room from the center to the area's nearest edge.
+*/
+export function radarCurvesAt(
+  viz: VizInstance,
+  labels: RadarCurveInput[],
+  radius: number,
+  room: number,
+): (RadarCurve | null)[] {
+  const lines = radarCurveLines(labels, radius, room);
+  return lines
+    ? radarCurves(viz, labels, radius, lines)
+    : labels.map(() => null);
+}
+
+/**
     The web's radius and every metric's curved label when every name fits
     along the web, which leaves the web the most room: on one line when
     they all fit, else on up to `RADAR_CURVE_MAX_LINES`. Null when some
@@ -274,4 +306,49 @@ export function radarCurvedLayout(
     if (radarAllCurved(labels, curves)) return {radius, curves};
   }
   return null;
+}
+
+/** A curved label to draw: its key, its row, and its curve. */
+export interface RadarCurveLabel {
+  key: string;
+  data: DataPoint;
+  i: number;
+  curve: RadarCurve;
+  /** What its lines follow on hover (see `hoverMatch`). */
+  hoverMatch?: {field: string; value: unknown};
+}
+
+/**
+    The text nodes for curved labels, one per line, in `labelConfig`'s font
+    and color (the chart's ink by default).
+    @param viz The chart.
+    @param labels The labels.
+    @param labelConfig Their label config.
+*/
+export function radarCurveNodes(
+  viz: VizInstance,
+  labels: RadarCurveLabel[],
+  labelConfig: Record<string, unknown>,
+): TextNode[] {
+  const colorOf = (l: RadarCurveLabel) => {
+    const color = resolveAccessor<unknown>(labelConfig.fontColor, l.data, l.i);
+    return typeof color === "string" ? color : backgroundInk(viz);
+  };
+  const matches = new Map<string, RadarCurveLabel["hoverMatch"]>();
+  const nodes = ringLabelNodes(
+    viz,
+    labels.flatMap(l =>
+      l.curve.lines.map((line, k) => {
+        const key = `${l.key}${k ? `-${k}` : ""}`;
+        matches.set(key, l.hoverMatch);
+        return {key, text: line.text, fit: line.fit, color: colorOf(l)};
+      }),
+    ),
+    ringLabelFont(labelConfig),
+  );
+  for (const node of nodes) {
+    const match = matches.get(`${node.key}`);
+    if (match) node.hoverMatch = match;
+  }
+  return nodes;
 }

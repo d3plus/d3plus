@@ -23,6 +23,7 @@ import {valueAxisExtent} from "../Plot/baselineBreak.js";
 import {breakLineNodes, maskBreaks} from "../Plot/plotBreaks.js";
 import {clipToPlotArea} from "../Plot/domainClip.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
+import {discreteAxis, tagHoverTicks} from "./hoverTicks.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitAnnotations} from "./plotAnnotations.js";
 import {plotAnnotationFrame} from "./annotationFrame.js";
@@ -460,7 +461,8 @@ const tagAxisGroup = (node: SceneNode): void => {
     — ticks, tick labels, domain bar, title — which stays on top. Each axis
     is wrapped in a group with its axis-relative transform; the chart-cells
     group's `_chartTransform` composes with this to land at the right
-    absolute position.
+    absolute position. A discrete axis's tick labels follow the hover (see
+    `tagHoverTicks`), matched on the marks' value for that axis.
 */
 function collectAxisScenes(
   axisSceneQueue: PlotMeasureResult["axisSceneQueue"],
@@ -471,6 +473,8 @@ function collectAxisScenes(
     if (!axis || typeof axis.toScene !== "function") return;
     const scene = axis.toScene();
     if (!scene) return;
+    if (discreteAxis(axis))
+      tagHoverTicks(scene, key.replace(/^plot-|-axis$/g, ""));
     const children = scene.children || [];
     const gridChildren = children.filter(isGridNode);
     const restChildren = children.filter(c => !isGridNode(c));

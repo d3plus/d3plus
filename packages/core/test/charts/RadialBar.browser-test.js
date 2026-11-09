@@ -201,6 +201,9 @@ it(
           hits: hits.length,
           frame: viz.ctx.polar,
           tracks: scene.find(n => n.key === "radialbar-tracks").children.length,
+          curved: scene
+            .find(n => n.key === "radialbar-labels")
+            .children.filter(c => c.path).length,
           texts: [...document.querySelectorAll("#viz svg text")].map(
             t => t.textContent,
           ),
@@ -239,6 +242,7 @@ it(
     assert.ok(out.keys.includes("radialbar-labels"), "category labels");
     for (const t of ["Chrome", "Safari", "Firefox", "Edge"])
       assert.ok(out.texts.includes(t), `labels ${t}`);
+    assert.strictEqual(out.curved, 4, "each name curves outside its bar");
   },
 );
 

@@ -12,7 +12,12 @@ import type {Paint, SceneNode} from "@d3plus/render";
 import {interpolateRgb} from "d3-interpolate";
 
 import {chordArrowNodes, polylineArrowEdge} from "../features/curvedArrows.js";
-import {edgeArrowTrims} from "../features/edgeArrows.js";
+import {
+  edgeArrowTrims,
+  emphasizedArrowEdge,
+  scaledArrowSize,
+  scaledStrokeWidth,
+} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {linkColorResolver} from "../features/linkColor.js";
 import {linkAriaLabel, linkHitPath} from "../features/linkInteraction.js";
@@ -63,17 +68,19 @@ const startsAt = (run: Point[] | undefined, at: Point | null): boolean =>
     its base (`size` further back along the path) to its tip; the stroke
     follows the path to each base, then runs straight along that chord to
     end inside the head (see `polylineArrowEdge`). A head goes only on an
-    end the projection draws.
+    end the projection draws. `scale` widens the stroke (see
+    `emphasizedArrowEdge`).
 */
 export function flowArrowEdge(
   viz: VizInstance,
   link: FlowLink,
   fill: string | undefined,
+  scale = 1,
 ): {d: string; arrows: SceneNode[]} {
   const trims = edgeArrowTrims({
     arrows: viz.schema.arrows as ArrowValue,
-    arrowSize: viz.schema.arrowSize,
-    strokeWidth: link.size,
+    arrowSize: scaledArrowSize(viz.schema.arrowSize, scale),
+    strokeWidth: scaledStrokeWidth(link.size, scale),
     datum: link.datum,
     i: link.index,
   });
@@ -122,10 +129,9 @@ export function emitFlowLinks(
   for (const link of order) {
     const paint = flowLinkPaint(viz, link, color, gray);
     const key = flowLinkKey(link);
-    const edge = flowArrowEdge(
-      viz,
-      link,
-      typeof paint.stroke === "string" ? paint.stroke : undefined,
+    const fill = typeof paint.stroke === "string" ? paint.stroke : undefined;
+    const edge = emphasizedArrowEdge(scale =>
+      flowArrowEdge(viz, link, fill, scale),
     );
     // A stroke ending inside its head ends square, so no cap pokes past it.
     if (edge.arrows.length) paint.strokeLinecap = "butt";
@@ -133,6 +139,7 @@ export function emitFlowLinks(
       type: "path",
       key,
       d: edge.d,
+      ...(edge.emphasis ? {emphasis: edge.emphasis} : {}),
       datum: link.datum as DataPoint,
       index: link.index,
       paint,

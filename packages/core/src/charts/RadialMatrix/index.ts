@@ -73,11 +73,13 @@ export const radialMatrixDef: ChartDefinition = {
       const row = getProp.bind(viz)("row", d, i);
       const column = getProp.bind(viz)("column", d, i);
       type HoverFn = (fn: (h: DataPoint, ii: number) => boolean) => unknown;
-      (viz as VizInstance & {hover: HoverFn}).hover(
-        (h: DataPoint, ii: number) =>
-          getProp.bind(viz)("row", h, ii) === row ||
-          getProp.bind(viz)("column", h, ii) === column,
-      );
+      const hover = (h: DataPoint, ii: number) =>
+        getProp.bind(viz)("row", h, ii) === row ||
+        getProp.bind(viz)("column", h, ii) === column;
+      // The crosshair lights the whole row and column; only the hovered
+      // cell's column label stays bright.
+      viz._hoverFocus = {hover, rows: [{row, column} as DataPoint]};
+      (viz as VizInstance & {hover: HoverFn}).hover(hover);
     };
   },
 
@@ -141,7 +143,8 @@ export const radialMatrixDef: ChartDefinition = {
       coerce: v => (typeof v === "function" ? v : constant(v as number)),
     },
     /**
-        Config for the column labels drawn around the circle:
+        Config for the column labels drawn around the circle, curved just
+        outside it when they all fit (see `labelPosition`):
         `shapeConfig.labelConfig` styles them (a `TextBox` config), and
         `labels`, an array of column values, limits which ones are drawn.
     */

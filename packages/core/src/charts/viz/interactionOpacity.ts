@@ -17,6 +17,9 @@ import type {SceneNode} from "@d3plus/render";
 
 import {activeBucketColors} from "../features/colorScaleBucket.js";
 import {hoveredSwatch} from "../features/colorScaleHover.js";
+import {datumValues} from "../features/hoverTicks.js";
+import {STROKE_EMPHASIS} from "./emphasis.js";
+import type {EmphasisKind} from "./emphasis.js";
 import {MARK_TYPES} from "./sceneRows.js";
 import type {VizInstance} from "./vizTypes.js";
 
@@ -28,16 +31,24 @@ const HOVER_RAISE_Z = 1e6;
 /**
     Emphasizes a matched mark's stroke on hover/active — the v3 `hoverStyle` /
     `activeStyle` look (a thicker, darker outline). v4 paints from the scene
-    graph, so this reapplies it here: darken the fill by `darken` for the stroke
-    and multiply the stroke width by `widthMult` (treating a 0/absent width as 1,
-    matching the shape defaults). Non-mark nodes (labels, groups) are untouched.
+    graph, so this reapplies it here: darken the fill by the kind's `darken`
+    for the stroke and multiply the stroke width by its `width` (treating a
+    0/absent width as 1, matching the shape defaults; see `STROKE_EMPHASIS`).
+    A path with an `emphasis` takes its `d` for the kind, and a filled glyph
+    (an arrowhead) darkens its fill instead, so it stays the color of its
+    edge's stroke. Non-mark nodes (labels, groups) are untouched.
 */
-function emphasizeStroke(
-  node: SceneNode,
-  darken: number,
-  widthMult: number,
-): SceneNode {
+function emphasizeStroke(node: SceneNode, kind: EmphasisKind): SceneNode {
+  const {darken, width} = STROKE_EMPHASIS[kind];
   const paint = {...((node.paint ?? {}) as Record<string, unknown>)};
+  const emphasis = node.type === "path" ? node.emphasis : undefined;
+  const d = emphasis?.d?.[kind];
+  const shaped = d ? {...node, d} : node;
+  if (emphasis?.fill) {
+    const c = typeof paint.fill === "string" ? color(paint.fill) : null;
+    if (c) paint.fill = c.darker(darken).formatHex();
+    return {...shaped, paint} as SceneNode;
+  }
   let base = typeof paint.fill === "string" ? paint.fill : undefined;
   if (!base || base === "transparent" || base === "none")
     base = typeof paint.stroke === "string" ? paint.stroke : undefined;
@@ -50,8 +61,8 @@ function emphasizeStroke(
     typeof paint.strokeWidth === "number" && paint.strokeWidth
       ? paint.strokeWidth
       : 1;
-  paint.strokeWidth = w * widthMult;
-  return {...node, paint} as SceneNode;
+  paint.strokeWidth = w * width;
+  return {...shaped, paint} as SceneNode;
 }
 
 /**
@@ -206,6 +217,58 @@ function nodeMatches(node: SceneNode, predicate: Predicate): boolean | null {
   });
 }
 
+/** Each `field` the scene's `hoverMatch` labels ask about. */
+function hoverFields(nodes: SceneNode[], out = new Set<string>()): Set<string> {
+  for (const node of nodes) {
+    if (node.hoverMatch) out.add(node.hoverMatch.field);
+    const kids = (node as {children?: SceneNode[]}).children;
+    if (kids) hoverFields(kids, out);
+  }
+  return out;
+}
+
+/**
+    The values the marks `predicate` matches hold under each of `fields`
+    (as strings), for the `hoverMatch` labels. Chrome is skipped: axis and
+    timeline subtrees, and the labels themselves.
+*/
+function matchedValues(
+  nodes: SceneNode[],
+  predicate: Predicate,
+  fields: Set<string>,
+): Map<string, Set<string>> {
+  const out = new Map([...fields].map(f => [f, new Set<string>()]));
+  const add = (datum: DataPoint | undefined) => {
+    for (const [field, values] of out)
+      for (const v of datumValues(datum, field)) values.add(v);
+  };
+  const walk = (node: SceneNode) => {
+    const group = node.interactionGroup;
+    if (group === "axis" || group === "timeline" || node.hoverMatch) return;
+    if (nodeMatches(node, predicate)) {
+      if (node.hoverKeys) add(node.hoverKeys as DataPoint);
+      if (node.datum) add(node.datum);
+      else
+        for (const p of node.interactionPoints ?? [])
+          if (matchesChain(predicate, p.datum, 0)) add(p.datum);
+    }
+    const kids = (node as {children?: SceneNode[]}).children;
+    if (kids) kids.forEach(walk);
+  };
+  nodes.forEach(walk);
+  return out;
+}
+
+/** The values `rows` hold under each of `fields` (see `_hoverFocus`). */
+function focusValues(
+  rows: DataPoint[],
+  fields: Set<string>,
+): Map<string, Set<string>> {
+  return new Map(
+    [...fields].map(f => [f, new Set(rows.flatMap(r => datumValues(r, f)))]),
+  );
+}
+
 export function applyInteractionOpacity(
   nodes: SceneNode[],
   viz: VizInstance,
@@ -217,30 +280,58 @@ export function applyInteractionOpacity(
   if (!settings) return nodes;
   const {predicate, dimOpacity, isHover, gray, kind, activePredicate} =
     settings;
+  const fields = hoverFields(nodes);
+  const focus = viz._hoverFocus;
+  const values = !fields.size
+    ? null
+    : focus && kind === "hover" && focus.hover === viz._hover
+      ? focusValues(focus.rows, fields)
+      : matchedValues(nodes, predicate, fields);
+
+  /** A node left out of the interaction: grayed for highlight, else dimmed. */
+  const fade = (node: SceneNode): SceneNode => {
+    const paint = (node.paint ?? {}) as Record<string, unknown>;
+    if (gray) {
+      // highlight: recolor the mark to the de-emphasis gray so the
+      // highlighted series keeps the only color on the chart.
+      const next2: Record<string, unknown> = {...paint};
+      if (typeof paint.fill === "string")
+        next2.fill = colorGrayscale(paint.fill);
+      if (typeof paint.stroke === "string")
+        next2.stroke = colorGrayscale(paint.stroke);
+      return {...node, paint: next2} as SceneNode;
+    }
+    const base = typeof paint.opacity === "number" ? paint.opacity : 1;
+    return {...node, paint: {...paint, opacity: base * dimOpacity}};
+  };
+
+  /** A `hoverMatch` label: kept when a matched mark holds its value, else faded. */
+  const label = (node: SceneNode): SceneNode => {
+    const {field, value} = node.hoverMatch!;
+    return values?.get(field)?.has(String(value)) ? node : fade(node);
+  };
+
+  /** Chrome keeps full opacity, all but its `hoverMatch` labels. */
+  const chrome = (node: SceneNode): SceneNode => {
+    if (node.hoverMatch) return label(node);
+    const kids = (node as {children?: SceneNode[]}).children;
+    return values && kids && kids.length
+      ? ({...node, children: kids.map(chrome)} as SceneNode)
+      : node;
+  };
 
   const walk = (node: SceneNode): SceneNode => {
     // Axes and the timeline are chrome, not data marks — they keep full
-    // opacity when a shape is hovered/selected (the whole subtree is tagged).
+    // opacity when a shape is hovered/selected (the whole subtree is
+    // tagged), all but the discrete tick labels that follow the hover.
     const group = (node as {interactionGroup?: string}).interactionGroup;
-    if (group === "axis" || group === "timeline") return node;
+    if (group === "axis" || group === "timeline") return chrome(node);
+    if (node.hoverMatch) return label(node);
     let next = node;
     const matched = nodeMatches(node, predicate);
     if (matched !== null) {
       if (!matched) {
-        const paint = (node.paint ?? {}) as Record<string, unknown>;
-        if (gray) {
-          // highlight: recolor the mark to the de-emphasis gray so the
-          // highlighted series keeps the only color on the chart.
-          const next2: Record<string, unknown> = {...paint};
-          if (typeof paint.fill === "string")
-            next2.fill = colorGrayscale(paint.fill);
-          if (typeof paint.stroke === "string")
-            next2.stroke = colorGrayscale(paint.stroke);
-          next = {...node, paint: next2} as SceneNode;
-        } else {
-          const base = typeof paint.opacity === "number" ? paint.opacity : 1;
-          next = {...node, paint: {...paint, opacity: base * dimOpacity}};
-        }
+        next = fade(node);
       } else {
         // Matched (hovered / active / highlighted) mark. Restore the v3
         // hover/active emphasis — a thicker, darker stroke — on the mark shapes
@@ -253,9 +344,7 @@ export function applyInteractionOpacity(
             (activePredicate
               ? nodeMatches(node, activePredicate) === true
               : false);
-          next = active
-            ? emphasizeStroke(node, 1, 3)
-            : emphasizeStroke(node, 0.5, 2);
+          next = emphasizeStroke(node, active ? "active" : "hover");
         }
         if (isHover) {
           // Raise the hovered node above its siblings. Both renderers paint by

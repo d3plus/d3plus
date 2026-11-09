@@ -85,10 +85,11 @@ function bundledTrims(
   datum: DataPoint,
   i: number,
   strokeWidth: unknown,
+  arrowSize: unknown,
 ): EdgeArrowTrims {
   return edgeArrowTrims({
     arrows: viz.schema.arrows as ArrowValue,
-    arrowSize: viz.schema.arrowSize,
+    arrowSize,
     strokeWidth: typeof strokeWidth === "number" ? strokeWidth : undefined,
     datum,
     i,
@@ -98,7 +99,8 @@ function bundledTrims(
 /**
     A bundled link's visible stroke and arrowheads: the stroke follows the
     path and ends inside each head, and each head's tip sits a pixel off its
-    node, aimed along the path (see `polylineArrowEdge`).
+    node, aimed along the path (see `polylineArrowEdge`). `arrowSize`
+    defaults to the chart's.
 */
 export function bundledLinkEdge(
   viz: VizInstance,
@@ -107,11 +109,18 @@ export function bundledLinkEdge(
     datum: DataPoint;
     i: number;
     strokeWidth: unknown;
+    arrowSize?: unknown;
     keyPrefix: string;
     fill?: string;
   },
 ): {d: string; arrows: SceneNode[]} {
-  const trims = bundledTrims(viz, opts.datum, opts.i, opts.strokeWidth);
+  const trims = bundledTrims(
+    viz,
+    opts.datum,
+    opts.i,
+    opts.strokeWidth,
+    "arrowSize" in opts ? opts.arrowSize : viz.schema.arrowSize,
+  );
   const tipBack = bundledTipBack(
     link.points,
     link.source?.r ?? 0,

@@ -26,12 +26,17 @@ const draw = ([chart, config, fns, renderer]) =>
     viz.render(() => resolve(true));
   });
 
-/** Runs in the page: each painted path's `d` and stroke width, by key. */
+/** Runs in the page: each painted path's `d`, stroke, and fill, by key. */
 const paths = () => {
   const out = {};
   const walk = n => {
     if (n.type === "path")
-      out[String(n.key)] = {d: n.d, strokeWidth: n.paint?.strokeWidth ?? 1};
+      out[String(n.key)] = {
+        d: n.d,
+        strokeWidth: n.paint?.strokeWidth ?? 1,
+        stroke: n.paint?.stroke,
+        fill: n.paint?.fill,
+      };
     (n.children || []).forEach(walk);
   };
   walk(window.__viz._paintedScene.root);
@@ -104,11 +109,29 @@ function assertEndsInside(
     assert.notStrictEqual(hit.d, link.d, `${key}'s hit path keeps its length`);
 }
 
-async function withChart(args, check) {
+/**
+    Runs in the page: sets every mark `hover`ed or `active`, resolving once
+    the chart repaints.
+*/
+const emphasize = kind =>
+  new Promise(resolve => {
+    window.__viz[kind](() => true);
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve(true)));
+  });
+
+/** An arrowhead's length, from its tip to the middle of its base. */
+function arrowLength(arrow) {
+  const [tx, ty, ax, ay, bx, by] = numbers(arrow.d);
+  return Math.hypot(tx - (ax + bx) / 2, ty - (ay + by) / 2);
+}
+
+async function withChart(args, check, kind) {
   const {page, errors, close} = await openPage(box);
   try {
     await page.evaluate(draw, args);
-    await check(await page.evaluate(paths));
+    const rest = await page.evaluate(paths);
+    if (kind) await page.evaluate(emphasize, kind);
+    await check(kind ? await page.evaluate(paths) : rest, rest);
     assert.deepStrictEqual(errors, [], "no page errors");
   } finally {
     await close();
@@ -258,6 +281,133 @@ for (const renderer of ["svg", "canvas"]) {
               {curved: true},
             );
       },
+    );
+  });
+
+  for (const [kind, width] of [
+    ["hover", 2],
+    ["active", 3],
+  ]) {
+    it(`Network ${renderer}: ${kind} grows each arrowhead with its stroke, in the stroke's color`, async () => {
+      await withChart(
+        [
+          "Network",
+          {nodes, links, arrows: "both", sizeMax: 14},
+          {linkSize: "d => d.w"},
+          renderer,
+        ],
+        (scene, rest) => {
+          for (const [key, s, t] of [
+            ["network-link-A-B-0", "A", "B"],
+            ["network-link-A-C-1", "A", "C"],
+            ["network-link-C-D-2", "C", "D"],
+            ["network-link-D-D-3", "D", "D"],
+          ]) {
+            const i = key.split("-").pop();
+            const link = scene[key];
+            assert.ok(
+              Math.abs(link.strokeWidth - rest[key].strokeWidth * width) < 1e-6,
+              `${key} is ${width}× as wide`,
+            );
+            for (const end of ["t", "s"]) {
+              const arrowKey = `network-arrow-${s}-${t}-${i}-${end}`;
+              const arrow = scene[arrowKey];
+              assert.strictEqual(
+                arrow.fill,
+                link.stroke,
+                `${arrowKey} takes its link's ${kind} stroke color`,
+              );
+              assert.strictEqual(
+                arrow.stroke,
+                undefined,
+                `${arrowKey}: no outline`,
+              );
+              assert.ok(
+                arrowLength(arrow) >= arrowLength(rest[arrowKey]) - 1e-6,
+                `${arrowKey} doesn't shrink`,
+              );
+              assert.ok(
+                arrowLength(arrow) * 1.2 >= link.strokeWidth,
+                `${arrowKey} (${arrowLength(arrow)}) is wider than its ${link.strokeWidth}px stroke`,
+              );
+              assertEndsInside(
+                scene,
+                key,
+                arrowKey,
+                end === "t" ? "target" : "source",
+                {curved: s === t},
+              );
+            }
+          }
+          // A thick link's head grows with it.
+          assert.ok(
+            arrowLength(scene["network-arrow-A-C-1-t"]) >
+              arrowLength(rest["network-arrow-A-C-1-t"]) + 1,
+            "the thick link's head grows",
+          );
+        },
+        kind,
+      );
+    });
+  }
+
+  it(`ArcDiagram and Rings ${renderer}: hover keeps arrowheads over their wider strokes`, async () => {
+    await withChart(
+      [
+        "ArcDiagram",
+        {nodes, links, arrows: "both"},
+        {linkSize: "d => d.w"},
+        renderer,
+      ],
+      scene => {
+        for (const key of ["arc-link-A-C-1", "arc-link-D-D-3"]) {
+          const prefix = key.replace("arc-link-", "arc-arrow-");
+          for (const end of ["t", "s"]) {
+            assert.strictEqual(
+              scene[`${prefix}-${end}`].fill,
+              scene[key].stroke,
+            );
+            assertEndsInside(
+              scene,
+              key,
+              `${prefix}-${end}`,
+              end === "t" ? "target" : "source",
+              {curved: true},
+            );
+          }
+        }
+      },
+      "hover",
+    );
+    await withChart(
+      [
+        "Rings",
+        {
+          links: [
+            {source: "A", target: "B"},
+            {source: "B", target: "D"},
+          ],
+          center: "A",
+          arrows: true,
+        },
+        {},
+        renderer,
+      ],
+      scene => {
+        assert.strictEqual(
+          scene["rings-arrow-A-B-0-t"].fill,
+          scene["rings-link-A-B"].stroke,
+        );
+        assertEndsInside(scene, "rings-link-A-B", "rings-arrow-A-B-0-t");
+        assertEndsInside(
+          scene,
+          "rings-link-B-D",
+          "rings-arrow-t-B-D-1",
+          "target",
+          {curved: true},
+        );
+      },
+      "active",
     );
   });
 }

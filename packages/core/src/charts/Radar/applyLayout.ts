@@ -35,6 +35,8 @@ interface GroupDatum {
   data: DataPoint;
   arr: DataPoint[];
   id: string | number;
+  /** The metrics the polygon has a value for. */
+  metrics: unknown[];
   points: {x: number; y: number}[];
   d: string;
 }
@@ -113,38 +115,43 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     ...radarLevelLabelNodes(viz, levels, radius),
   );
   const totalAxis = nestedAxisData.length;
+  const spokeOf = new Map(nestedAxisData.map(([key], i) => [key, i]));
 
-  const groupData: GroupDatum[] = nestedGroupData.map(
-    ([hKey, innerEntries]) => {
-      const q = innerEntries.map(([, vals], i) => {
-        const value = sum(vals, (x, ii) => valueFn(x, ii));
-        const r = radarRadius(value, domain, radius);
-        const radians = (TAU / totalAxis) * i;
-        return {x: r * Math.cos(radians), y: r * Math.sin(radians)};
-      });
+  const groupData: GroupDatum[] = nestedGroupData.map(([hKey, entries]) => {
+    // Each vertex sits on its own metric's spoke, in spoke order; a
+    // metric the group has no value for has no vertex.
+    const innerEntries = entries
+      .slice()
+      .sort((a, b) => spokeOf.get(a[0])! - spokeOf.get(b[0])!);
+    const q = innerEntries.map(([metric, vals]) => {
+      const value = sum(vals, (x, ii) => valueFn(x, ii));
+      const r = radarRadius(value, domain, radius);
+      const radians = (TAU / totalAxis) * spokeOf.get(metric)!;
+      return {x: r * Math.cos(radians), y: r * Math.sin(radians)};
+    });
 
-      const pathD = `M ${q[0].x} ${q[0].y} ${q
-        .map(l => `L ${l.x} ${l.y}`)
-        .join(" ")} L ${q[0].x} ${q[0].y}`;
+    const pathD = `M ${q[0].x} ${q[0].y} ${q
+      .map(l => `L ${l.x} ${l.y}`)
+      .join(" ")} L ${q[0].x} ${q[0].y}`;
 
-      const aggs = viz.schema.aggs as Parameters<typeof merge>[1];
-      return {
-        __d3plus__: true,
-        arr: innerEntries.map(([, vals]) =>
+    const aggs = viz.schema.aggs as Parameters<typeof merge>[1];
+    return {
+      __d3plus__: true,
+      arr: innerEntries.map(([, vals]) =>
+        merge(vals as DataPoint[], aggs),
+      ) as DataPoint[],
+      id: hKey as string | number,
+      metrics: innerEntries.map(([metric]) => metric),
+      points: q,
+      d: pathD,
+      data: merge(
+        innerEntries.map(([, vals]) =>
           merge(vals as DataPoint[], aggs),
         ) as DataPoint[],
-        id: hKey as string | number,
-        points: q,
-        d: pathD,
-        data: merge(
-          innerEntries.map(([, vals]) =>
-            merge(vals as DataPoint[], aggs),
-          ) as DataPoint[],
-          aggs,
-        ) as DataPoint,
-      };
-    },
-  );
+        aggs,
+      ) as DataPoint,
+    };
+  });
 
   const pathConfig = buildPathConfig(viz, width, height);
 

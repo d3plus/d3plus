@@ -5,8 +5,8 @@ import {render} from "~test/browser/render.js";
 /**
     PolarArea renders in Chromium on both backends: stacked wedges on a sqrt
     radius scale, one wedge per row without a metric, the linear scale and
-    inner radius, value rings and their labels, category labels (horizontal,
-    or along the spokes when crowded), the legend rule, the tooltip rows,
+    inner radius, value rings and their labels, category labels (curved
+    along the circle, else horizontal, or along the spokes when crowded), the legend rule, the tooltip rows,
     hover dimming, Canvas painting + picking, and small multiples.
 */
 
@@ -276,6 +276,44 @@ it(
       `labels run along their spokes (${out.rotated})`,
     );
     assert.ok(out.interactive, "category labels never take the pointer");
+  },
+);
+
+it(
+  "PolarArea curves category names just outside the circle",
+  {timeout: 180000},
+  async function () {
+    const probe = async ([rows, position]) => {
+      const viz = new window.d3plus.PolarArea()
+        .select("#viz")
+        .duration(0)
+        .data(rows)
+        .groupBy("cause")
+        .metric("month")
+        .value("deaths")
+        .legend(false)
+        .labelPosition(position);
+      await new Promise(r => viz.render(r));
+      const labels = viz._chartScene.find(n => n.key === "polararea-labels");
+      return {
+        curved: labels.children.filter(c => c.path).length,
+        texts: labels.children.map(c => c.lines.map(l => l.text).join(" ")),
+        interactive: labels.children.every(c => c.interactive === false),
+        outer: viz.ctx.polar.outer,
+      };
+    };
+    const box = "<div id='viz' style='width:600px;height:500px'></div>";
+    const curved = await render(box, probe, [rose, "auto"]);
+    assert.strictEqual(curved.curved, 4, "every month curves");
+    assert.deepStrictEqual(curved.texts, months);
+    assert.ok(curved.interactive, "curved labels never take the pointer");
+    const straight = await render(box, probe, [rose, "inside"]);
+    assert.strictEqual(straight.curved, 0, "inside keeps them straight");
+    assert.deepStrictEqual(straight.texts, months);
+    assert.ok(
+      curved.outer > 150,
+      `the circle keeps its room (${curved.outer})`,
+    );
   },
 );
 
