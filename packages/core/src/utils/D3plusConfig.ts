@@ -1587,10 +1587,10 @@ export interface D3plusConfig {
   /** Configuration object for the legend tooltip. */
   legendTooltip?: TooltipConfig;
   /**
-      Formats the Radar's level value labels, or the Hexbin's contour level
-      labels and tooltips. Receives the level's value and returns its label.
-      Defaults to the abbreviated number format the axes use (`1.5k`, `2M`,
-      …).
+      Formats the Radar's level value labels and dot tooltip values, or the
+      Hexbin's contour level labels and tooltips. Receives the value and
+      returns its label. Defaults to the abbreviated number format the axes
+      use (`1.5k`, `2M`, …).
   */
   levelFormat?: (d: number) => string | number;
   /**

@@ -47,9 +47,13 @@ export function radarPointOf(d: unknown): RadarPoint | undefined {
   return d && typeof d === "object" ? pointRows.get(d) : undefined;
 }
 
-/** A dot's value as text. */
+/** A dot's value as text: through `levelFormat` when set, as the ring labels are, else abbreviated. */
 function valueText(viz: VizInstance, value: number): string {
-  return formatAbbreviate(value, viz.schema.locale as string);
+  const format = viz.schema.levelFormat as
+    ((d: number) => string | number) | undefined;
+  return typeof format === "function"
+    ? `${format(value)}`
+    : formatAbbreviate(value, viz.schema.locale as string);
 }
 
 /**

@@ -59,6 +59,17 @@ it("radarPointTooltipRows lists a dot's metric and value, none for a polygon", (
   assert.deepStrictEqual(radarPointTooltipRows(viz, {id: "A"}), []);
 });
 
+it("radarPointTooltipRows and the dot's aria label format through levelFormat when set", () => {
+  const viz = fakeViz();
+  viz.schema.levelFormat = d => `${d} pts`;
+  const g = group();
+  assert.deepStrictEqual(radarPointTooltipRows(viz, g.arr[0]), [
+    ["Speed", "1500 pts"],
+  ]);
+  const [speed] = radarPointNodes(viz, [g], {r: 3});
+  assert.strictEqual(speed.aria.label, "A, Speed: 1500 pts.");
+});
+
 it("radarPointNodes puts a Circle on each vertex, painted from the config", () => {
   const g = group();
   const nodes = radarPointNodes(fakeViz(), [g], {
