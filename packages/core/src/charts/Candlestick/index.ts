@@ -192,16 +192,10 @@ export const candlestickDef: ChartDefinition = {
       factory: () => defaultKeyedAccessor("close"),
     },
     /**
-        Accessor (or data key) for each period's traded volume. Off by
-        default; when set, a strip under the candles draws one bar per
-        candle, as tall as its volume on the strip's own axis (ticks
-        abbreviated, e.g. "1.2M"), in its candle's up or down color, and the
-        tooltip adds a Volume row. Bars are always filled, hollow candles
-        included, and take `shapeConfig.texture` and
-        `shapeConfig.backgroundImage` like filled candles; they hover with
-        their candle. The price axis shrinks to make room, and the x axis
-        sits under the strip. Merged rows add their volumes; an `aggs` entry
-        overrides it as it does for `open`. Set `false` to turn it off.
+        Accessor (or data key) for each period's traded volume. When set, a
+        strip under the candles draws one bar per candle, as tall as its
+        volume, in its candle's up or down color (see `volumeConfig`), and
+        the tooltip adds a Volume row. Off (`false`) by default.
     */
     {key: "volume", coerce: volumeAccessor},
     /**
