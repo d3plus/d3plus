@@ -37,7 +37,9 @@ const labelFills = (background, extra = "") =>
       }),
     `lib => new lib.Plot()
       .data([{id: "alpha", x: 1, y: 2}, {id: "beta", x: 2, y: 1}, {id: "gamma", x: 3, y: 3}])
-      .groupBy("id").x("x").y("y")${extra}`,
+      .groupBy("id").x("x").y("y")
+      // Named points would stand in for the legend.
+      .shapeConfig({Circle: {label: false}})${extra}`,
   );
 
 const lightness = color => {

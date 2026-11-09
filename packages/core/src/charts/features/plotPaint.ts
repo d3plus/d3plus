@@ -33,6 +33,7 @@ import {barHitsFirst} from "../Plot/barHitArea.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
 import {emitTrendLabels} from "../Plot/trendLabels.js";
 import {emitAlongLabels} from "../Plot/lineLabelsAlong.js";
+import {countShapeLabels} from "../Plot/shapeLabelLegend.js";
 import {emitAreaLabels} from "../Plot/areaLabelsAlong.js";
 import {plotEdges} from "./pathLabelGeometry.js";
 import {emitForecast, forecastRows} from "../Plot/forecastScene.js";
@@ -574,6 +575,8 @@ export function plotEmit(
       0,
       ...viz._plotUnderlay(marks.slice(shapesStart), x, y),
     );
+  // Shapes that each show their legend entry's name hide the default legend.
+  countShapeLabels(viz, marks.slice(shapesStart));
   // Labels along the lines and the stacked bands sit above the marks.
   const edges = plotEdges(xRange, yRange, pCtx.x2Height);
   // Trend labels go last, to clear the line labels.

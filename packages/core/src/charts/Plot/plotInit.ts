@@ -23,6 +23,7 @@ import {fillBetweenDefaults} from "./fillBetween.js";
 import {forecastDefaults} from "./forecast.js";
 import {plotDef} from "./pipeline.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
+import {shapeLabelsPossible} from "./shapeLabelLegend.js";
 import {axisValue} from "./sharedTooltip.js";
 import {
   stackOffsetDiverging,
@@ -119,6 +120,9 @@ export function initPlotDefaults(viz: Plot): void {
   viz._lineMarkers = defaults.lineMarkers as boolean;
   viz._previousAnnotations = {back: [], front: []};
   viz._previousShapes = [];
+  // Shapes that each show their legend entry's name stand in for the
+  // legend, as along-line labels do (see `shapeLabelLegend.ts`).
+  viz._alongLabelsPossible = shapeLabelsPossible;
   viz.schema.shape = defaults.shape;
   viz.schema.shapeConfig = assign(
     viz.schema.shapeConfig,
