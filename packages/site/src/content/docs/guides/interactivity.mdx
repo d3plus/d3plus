@@ -144,8 +144,10 @@ Hovering a link highlights it and the two nodes it connects, and dims the rest;
 its tooltip is titled "Source → Target" and lists the link's own fields. Thin
 links have a wider invisible hit area, so they are easy to point at, and
 keyboard navigation reads each link as "Source to Target". Hovering a node
-lists its number of connections and, when the links differ in value, its
-strongest links (`nodeTooltipLinks` sets how many, `false` for none).
+lists its degree, betweenness, closeness, and cluster (see
+[Network measures](/core/charts/network/#network-measures); `nodeTooltipStats`
+picks them) and, when the links differ in value, its strongest links
+(`nodeTooltipLinks` sets how many, `false` for none).
 
 A link whose `source` and `target` are the same node draws as a loop beside
 the node in Network, Rings, and ArcDiagram, and behaves like any other link:

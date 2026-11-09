@@ -13,6 +13,7 @@ import sizeLegend from "~/examples/core/charts/network/size-legend.js?raw";
 import legendInset from "~/examples/core/charts/network/legend-inset.js?raw";
 import labelPlacement from "~/examples/core/charts/network/label-placement.js?raw";
 import linkTooltips from "~/examples/core/charts/network/link-tooltips.js?raw";
+import nodeMeasures from "~/examples/core/charts/network/node-measures.js?raw";
 import linkColor from "~/examples/core/charts/network/link-color.js?raw";
 import linkLabels from "~/examples/core/charts/network/link-labels.js?raw";
 import selfLoops from "~/examples/core/charts/network/self-loops.js?raw";
@@ -81,6 +82,19 @@ A node's label stays inside it when it fits there at a readable size (`pointLabe
 Hovering a link highlights it and the two nodes it connects, and its tooltip names them ("alpha → beta") above the link's own fields. Hovering a node lists its number of connections and, when `linkSize` gives the links different values, its strongest links with their values; `nodeTooltipLinks` sets how many (`false` for none). `linkSize`, link `shapeConfig` functions, and tooltip accessors all receive each link with `source` and `target` set to the data of its nodes, so here a link between two nodes in the same `group` draws darker. Click a link to focus and zoom to it and its nodes; click it again, or the background, to reset.
 
 <Playground chart="Network" code={linkTooltips} controls={["nodeTooltipLinks"]} />
+
+## Network measures
+
+A node's tooltip also lists where the node stands in the network, worked out the first time a tooltip shows them (a chart nobody hovers never computes them) and kept until the nodes or links change:
+
+- **Degree**: its number of links, in place of the "Connections" count. When the chart draws `arrows`, it is split into "In-degree" (links pointing at the node) and "Out-degree" (links pointing away), and the other measures follow the arrows too.
+- **Betweenness**: the share of the shortest paths between every other pair of nodes that pass through it, from 0 to 1 (1 is the center of a star). Here Dev, Eli, and Fay score highest: every path between the two groups crosses them.
+- **Closeness**: how near it is to the rest of the network, from 0 to 1 (1 is a node one link from every other). A node that can reach only part of a network scores lower in proportion, and a node with no links scores 0.
+- **Cluster**: the name of its cluster, while [clusters](#clusters) color the chart.
+
+`nodeTooltipStats` picks the measures to list, as an Array of `"degree"`, `"betweenness"`, `"closeness"`, and `"cluster"` in the order to list them, or `false` lists none (and the "Connections" count returns). Every link counts as one step; set `nodeTooltipStatsWeighted` to `true` to count a strong link (by `linkSize`) as a shorter step than a weak one, so the shortest paths prefer the strongest links: a link half as strong as the strongest is two steps. On a large network the first tooltip can take a moment, as betweenness and closeness compare every pair of nodes.
+
+<Playground chart="Network" code={nodeMeasures} controls={["nodeTooltipStats","nodeTooltipStatsWeighted","arrows"]} />
 
 ## Link color
 

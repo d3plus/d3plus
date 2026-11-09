@@ -57,4 +57,8 @@ A flow that returns to a node it already left can't run left to right, so Sankey
 
 <Playground chart="Sankey" code={circularLinks} controls={["circularLinks","linkColor"]} />
 
+## Network measures
+
+Hovering a node lists its degree, betweenness, and closeness, reading the flows as links that run both ways. `nodeTooltipStats` picks the measures or turns them off, and `nodeTooltipStatsWeighted` counts a larger `value` as a shorter step; see [Network measures](/core/charts/network/#network-measures).
+
 <ApiReference name="Sankey" pkg="core" />
