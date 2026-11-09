@@ -1,7 +1,8 @@
 /**
     Link interaction shared by the node-link charts (Network, Rings, Sankey,
     ArcDiagram): the datum each link is drawn with, its tooltip and spoken
-    label, what hovering a link or a node highlights, and the connections a
+    label, what hovering a link, a node, or a legend entry highlights, and
+    the connections a
     node's tooltip lists.
 
     A link's datum is its row from `links`, with `source` and `target`
@@ -259,6 +260,28 @@ export function linkHighlight(
     if (m) return m.index === meta.index;
     const id = linkNodeOf(viz, h)?.id ?? nodeKey?.(h, hi);
     return id !== undefined && ids.has(`${id}`);
+  };
+}
+
+/**
+    What hovering a legend entry highlights: the nodes it stands for (one, or
+    every member of a merged entry, such as a cluster) and the links between
+    them. A row matches when every id it holds is one of the entry's, so the
+    entry matches itself.
+*/
+export function legendHighlight(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): Predicate {
+  const idsOf = (h: DataPoint, hi: number) =>
+    ([] as unknown[]).concat(viz._id(h, hi)).map(id => `${id}`);
+  const ids = new Set(idsOf(d, i));
+  return (h, hi) => {
+    const m = linkMeta(h);
+    if (m) return ids.has(m.source.id) && ids.has(m.target.id);
+    const own = idsOf(h, hi);
+    return own.length > 0 && own.every(id => ids.has(id));
   };
 }
 

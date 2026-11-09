@@ -35,6 +35,7 @@ import {
 } from "../features/linkFocus.js";
 import {
   isLinkDatum,
+  legendHighlight,
   linkHighlight,
   linkMeta,
   linkTooltipConfig,
@@ -218,6 +219,9 @@ function setupNetworkClickLegend(viz: VizInstance, v: NetworkViz) {
 /** Installs mouseenter/mouseleave/mousemove handlers that drive hover highlighting. */
 function setupNetworkMouse(viz: VizInstance, v: NetworkViz) {
   viz.schema.on.mouseenter = () => undefined;
+  viz.schema.on["mouseenter.legend"] = (d: DataPoint, i: number) => {
+    v.hover(legendHighlight(viz, d, i));
+  };
   viz.schema.on["mouseleave.shape"] = () => {
     v.hover(false);
   };
