@@ -41,6 +41,7 @@ import {stackEnterWindows} from "../Plot/stackEnter.js";
 import {growAreasFromBaseline} from "../Plot/areaEnter.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
 import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
+import {lineMarkerKeys} from "../Plot/lineMarkerKeys.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
 import {boxLabelsOnly} from "../Plot/areaLabelsAlong.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
@@ -531,12 +532,14 @@ const lineEmit: ShapeEmitter = ctx => {
   );
   out.push(...(gaps ? breakLines(lines, gaps) : lines));
 
+  const points = viz._lineMarkers ? (values as PlotDatum[]) : [];
+  const keys = lineMarkerKeys(points, viz.schema.discrete);
   const markers = makeShape("Circle")
     .renderMode("compute")
-    .data(viz._lineMarkers ? values : [])
+    .data(points)
     .config(ctx.shapeConfig)
     .config(viz._lineMarkerConfig)
-    .id((d: PlotDatum) => `${d.id}_${d.discrete}`);
+    .id((d: PlotDatum) => keys.get(d));
 
   viz._wirePlotShapeEvents!(markers, "Circle", ctx.events);
   markers.render();
