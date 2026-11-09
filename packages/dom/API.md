@@ -1,23 +1,23 @@
 # @d3plus/dom API Reference
 
-| Functions                             | Description                                                                                                                                                                                           |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`applyConfig`](#applyconfig)         | Merges the supplied config objects over a fresh `{select: node}` target, routes any `<field>` + `<field>Format` pairs to their loader methods, then applies whatever remains via `instance.config()`. |
-| [`assign`](#assign)                   | A deeply recursive version of `Object.assign`.                                                                                                                                                        |
-| [`attrize`](#attrize)                 | Applies each key/value in an object as an attr.                                                                                                                                                       |
-| [`backgroundColor`](#backgroundcolor) | Given a DOM element, returns its background color by walking up the ancestor chain until a non-transparent background is found.                                                                       |
-| [`date`](#date)                       | Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats.                                                                              |
-| [`elem`](#elem)                       | Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.                                                                |
-| [`fontExists`](#fontexists)           | Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine.                                |
-| [`getSize`](#getsize)                 | Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions.                                                       |
-| [`hash`](#hash)                       | Stable hash that serializes functions by their source, so function-valued config props (accessors, formatters) still register as changed when their body changes.                                     |
-| [`inViewport`](#inviewport)           | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer.                                                                                         |
-| [`isObject`](#isobject)               | Detects if a variable is a javascript Object.                                                                                                                                                         |
-| [`onFontsLoaded`](#onfontsloaded)     | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale.       |
-| [`parseSides`](#parsesides)           | Converts a string of directional CSS shorthand values into an object with the values expanded.                                                                                                        |
-| [`rtl`](#rtl)                         | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "rtl".                                                                          |
-| [`stylize`](#stylize)                 | Applies each key/value in an object as a style.                                                                                                                                                       |
-| [`textWidth`](#textwidth)             | Given a text string, returns the predicted pixel width of the string when placed into DOM.                                                                                                            |
+| Functions                             | Description                                                                                                                                                                                     |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`applyConfig`](#applyconfig)         | Merges the supplied config objects over a fresh `{select: node}` target and applies the result via `instance.config()`.                                                                         |
+| [`assign`](#assign)                   | A deeply recursive version of `Object.assign`.                                                                                                                                                  |
+| [`attrize`](#attrize)                 | Applies each key/value in an object as an attr.                                                                                                                                                 |
+| [`backgroundColor`](#backgroundcolor) | Given a DOM element, returns its background color by walking up the ancestor chain until a non-transparent background is found.                                                                 |
+| [`date`](#date)                       | Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats.                                                                        |
+| [`elem`](#elem)                       | Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.                                                          |
+| [`fontExists`](#fontexists)           | Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine.                          |
+| [`getSize`](#getsize)                 | Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions.                                                 |
+| [`hash`](#hash)                       | Stable hash that serializes functions by their source, so function-valued config props (accessors, formatters) still register as changed when their body changes.                               |
+| [`inViewport`](#inviewport)           | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer.                                                                                   |
+| [`isObject`](#isobject)               | Detects if a variable is a javascript Object.                                                                                                                                                   |
+| [`onFontsLoaded`](#onfontsloaded)     | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale. |
+| [`parseSides`](#parsesides)           | Converts a string of directional CSS shorthand values into an object with the values expanded.                                                                                                  |
+| [`rtl`](#rtl)                         | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "rtl".                                                                    |
+| [`stylize`](#stylize)                 | Applies each key/value in an object as a style.                                                                                                                                                 |
+| [`textWidth`](#textwidth)             | Given a text string, returns the predicted pixel width of the string when placed into DOM.                                                                                                      |
 
 | Interfaces                          | Description                                                                                      |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -36,12 +36,13 @@
 
 > **applyConfig**(`instance`: [`D3plusInstance`](#d3plusinstance), `node`: `Element`, ...`configs`: (`Record`\<`string`, `unknown`\> \| `undefined`)[]): [`D3plusInstance`](#d3plusinstance)
 
-Defined in: [renderer.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L37)
+Defined in: [renderer.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L29)
 
-Merges the supplied config objects over a fresh `{select: node}` target,
-routes any `<field>` + `<field>Format` pairs to their loader methods, then
-applies whatever remains via `instance.config()`. Shared by every d3plus
-framework wrapper so this routing lives in exactly one place.
+Merges the supplied config objects over a fresh `{select: node}` target and
+applies the result via `instance.config()`. Shared by every d3plus
+framework wrapper. Loader formatters (`dataFormat`, `linksFormat`,
+`nodesFormat`, `topojsonFormat`) are ordinary config keys, so they pass
+through with the rest.
 
 #### Parameters
 
@@ -191,7 +192,7 @@ Manages the enter/update/exit pattern for a single DOM element, applying enter, 
 
 > **fontExists**(`font`: `string` \| `string`[]): `string` \| `false`
 
-Defined in: [fontExists.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/fontExists.ts#L34)
+Defined in: [fontExists.ts:50](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/fontExists.ts#L50)
 
 Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine.
 
@@ -235,7 +236,7 @@ Finds the available width and height for a specified HTMLElement, traversing it'
 
 > **hash**(`val`: `unknown`): `string`
 
-Defined in: [renderer.ts:70](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L70)
+Defined in: [renderer.ts:50](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L50)
 
 Stable hash that serializes functions by their source, so function-valued
 config props (accessors, formatters) still register as changed when their
@@ -391,7 +392,7 @@ Applies each key/value in an object as a style.
 
 > **textWidth**(`text`: `string`, `style?`: `Record`\<`string`, `string` \| `number`\>): `number`
 
-Defined in: [textWidth.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L121)
+Defined in: [textWidth.ts:141](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L141)
 
 Given a text string, returns the predicted pixel width of the string when placed into DOM.
 
@@ -410,7 +411,7 @@ Given a text string, returns the predicted pixel width of the string when placed
 
 > **textWidth**(`text`: `string`[], `style?`: `Record`\<`string`, `string` \| `number`\>): `number`[]
 
-Defined in: [textWidth.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L125)
+Defined in: [textWidth.ts:145](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L145)
 
 ##### Parameters
 
@@ -429,12 +430,11 @@ Defined in: [textWidth.ts:125](https://github.com/d3plus/d3plus/blob/main/packag
 
 ### D3plusInstance
 
-Defined in: [renderer.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L9)
+Defined in: [renderer.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L8)
 
 A minimal structural interface for the d3plus class instances that the
 framework wrappers drive. Every visualization, component, and shape exposes
-`.config()`; charts additionally expose `.render()` and `.destroy()`, plus
-loader methods (`data()`, `links()`, …) for their data-like fields.
+`.config()`; charts additionally expose `.render()` and `.destroy()`.
 
 #### Indexable
 
@@ -448,7 +448,7 @@ loader methods (`data()`, `links()`, …) for their data-like fields.
 
 > **config**(`c`: `Record`\<`string`, `unknown`\>): `unknown`
 
-Defined in: [renderer.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L10)
+Defined in: [renderer.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L9)
 
 ###### Parameters
 
@@ -466,7 +466,7 @@ Defined in: [renderer.ts:10](https://github.com/d3plus/d3plus/blob/main/packages
 
 > `optional` **destroy**(): `unknown`
 
-Defined in: [renderer.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L12)
+Defined in: [renderer.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L11)
 
 ###### Returns
 
@@ -478,7 +478,7 @@ Defined in: [renderer.ts:12](https://github.com/d3plus/d3plus/blob/main/packages
 
 > `optional` **render**(`callback?`: () => `void`): `unknown`
 
-Defined in: [renderer.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L11)
+Defined in: [renderer.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L10)
 
 ###### Parameters
 
@@ -496,9 +496,9 @@ Defined in: [renderer.ts:11](https://github.com/d3plus/d3plus/blob/main/packages
 
 ### D3plusConstructor
 
-> **D3plusConstructor** = (...`args`: `any`[]) => [`D3plusInstance`](#d3plusinstance)
+> **D3plusConstructor** = new (...`args`: `any`[]) => [`D3plusInstance`](#d3plusinstance)
 
-Defined in: [renderer.ts:17](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L17)
+Defined in: [renderer.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/renderer.ts#L16)
 
 Constructor type for d3plus visualization, component, and shape classes.
 

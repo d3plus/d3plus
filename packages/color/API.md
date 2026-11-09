@@ -1,16 +1,17 @@
 # @d3plus/color API Reference
 
-| Functions                           | Description                                                                                                                                                      |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`colorAdd`](#coloradd)             | Adds two colors together.                                                                                                                                        |
-| [`colorAssign`](#colorassign)       | Assigns a color to a value using a predefined set of defaults.                                                                                                   |
-| [`colorContrast`](#colorcontrast)   | Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color.                |
-| [`colorGrayscale`](#colorgrayscale) | Strips a color's saturation while keeping its lightness and alpha, so a de-emphasized mark keeps the contrast it had (and a transparent fill stays transparent). |
-| [`colorLegible`](#colorlegible)     | Darkens a color so that it will appear legible on a white background.                                                                                            |
-| [`colorLighter`](#colorlighter)     | Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon.                                                         |
-| [`colorRamp`](#colorramp)           | Builds an `n`-step single-hue ramp from a pale tint to the given base color, stepped evenly in OKLab so each step looks equally far from the next.               |
-| [`colorSubtract`](#colorsubtract)   | Subtracts one color from another.                                                                                                                                |
-| [`colorValidate`](#colorvalidate)   | Validates a chart color palette against the computable accessibility checks.                                                                                     |
+| Functions                           | Description                                                                                                                                                                        |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`colorAdd`](#coloradd)             | Adds two colors together.                                                                                                                                                          |
+| [`colorAssign`](#colorassign)       | Assigns a color to a value using a predefined set of defaults.                                                                                                                     |
+| [`colorContrast`](#colorcontrast)   | Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color.                                  |
+| [`colorGrayscale`](#colorgrayscale) | Strips a color's saturation while keeping its lightness and alpha, so a de-emphasized mark keeps the contrast it had (and a transparent fill stays transparent).                   |
+| [`colorLegible`](#colorlegible)     | Darkens a color so that it will appear legible on a white background.                                                                                                              |
+| [`colorLighter`](#colorlighter)     | Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon.                                                                           |
+| [`colorRamp`](#colorramp)           | Builds an `n`-step single-hue ramp from a pale tint to the given base color, stepped evenly in OKLab so each step looks equally far from the next.                                 |
+| [`colorRampDark`](#colorrampdark)   | Builds an `n`-step single-hue ramp for a dark background: from a deep, low-chroma tint of the base just above the background up to the bright base color, stepped evenly in OKLab. |
+| [`colorSubtract`](#colorsubtract)   | Subtracts one color from another.                                                                                                                                                  |
+| [`colorValidate`](#colorvalidate)   | Validates a chart color palette against the computable accessibility checks.                                                                                                       |
 
 | Variables                         | Description                                                                                                                              |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
@@ -21,6 +22,7 @@
 | ----------------------------------------------- | -------------------------------------------------- |
 | [`ColorCheck`](#colorcheck)                     | One computed check in a palette validation report. |
 | [`ColorDefaults`](#colordefaults)               |                                                    |
+| [`ColorRampDarkOptions`](#colorrampdarkoptions) | Options for colorRampDark.                         |
 | [`ColorRampOptions`](#colorrampoptions)         | Options for colorRamp.                             |
 | [`ColorValidateOptions`](#colorvalidateoptions) | Options for colorValidate.                         |
 | [`ColorValidation`](#colorvalidation)           | The result of validating a palette.                |
@@ -205,6 +207,37 @@ continuous ramp.
 
 ---
 
+<a id="colorrampdark"></a>
+
+### colorRampDark()
+
+> **colorRampDark**(`base`: `string`, `n`: `number`, `options?`: [`ColorRampDarkOptions`](#colorrampdarkoptions)): `string`[]
+
+Defined in: [rampDark.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/color/src/rampDark.ts#L34)
+
+Builds an `n`-step single-hue ramp for a dark background: from a deep,
+low-chroma tint of the base just above the background up to the bright base
+color, stepped evenly in OKLab. Low values recede into the background and
+high values glow, the mirror of [colorRamp](#colorramp) on a light background.
+
+Returned dimmest→brightest (low→high), so it swaps in for `colorRamp`
+wherever a ramp maps low values to its first step. The brightest step is
+the base color itself for a continuous ramp.
+
+#### Parameters
+
+| Parameter  | Type                                            | Description                                        |
+| ---------- | ----------------------------------------------- | -------------------------------------------------- |
+| `base`     | `string`                                        | The bright anchor of the ramp — a valid CSS color. |
+| `n`        | `number`                                        | How many steps to produce.                         |
+| `options?` | [`ColorRampDarkOptions`](#colorrampdarkoptions) | Ramp shaping options.                              |
+
+#### Returns
+
+`string`[]
+
+---
+
 <a id="colorsubtract"></a>
 
 ### colorSubtract()
@@ -363,6 +396,23 @@ Defined in: [defaults.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/
 
 ---
 
+<a id="colorrampdarkoptions"></a>
+
+### ColorRampDarkOptions
+
+Defined in: [rampDark.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/color/src/rampDark.ts#L5)
+
+Options for [colorRampDark](#colorrampdark).
+
+#### Properties
+
+| Property                                       | Type      | Description                                                                                                                                                                                                                           | Defined in                                                                                      |
+| ---------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| <a id="property-background"></a> `background?` | `string`  | The dark surface the ramp is drawn on. The ramp's dim end sits a fixed step of OKLab lightness above it, so the lowest step still reads as a mark rather than as empty background. Defaults to `#212529` (gray 900).                  | [rampDark.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/color/src/rampDark.ts#L11) |
+| <a id="property-ordinal"></a> `ordinal?`       | `boolean` | Build an ordered/ordinal ramp rather than a continuous sequential one. Ordinal ramps lift the dim end further off the background and keep more chroma across the range, since every step is a discrete mark a reader must tell apart. | [rampDark.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/color/src/rampDark.ts#L18) |
+
+---
+
 <a id="colorrampoptions"></a>
 
 ### ColorRampOptions
@@ -373,9 +423,9 @@ Options for [colorRamp](#colorramp).
 
 #### Properties
 
-| Property                                 | Type      | Description                                                                                                                                                                                                                                                                                                                                           | Defined in                                                                              |
-| ---------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| <a id="property-ordinal"></a> `ordinal?` | `boolean` | Build an ordered/ordinal ramp rather than a continuous sequential one. Ordinal ramps hold the palest step darker (so it still reads against the surface) and keep more chroma across the range, since every step is a discrete mark a reader must tell apart. Continuous ramps let the light end fade nearly into the surface (it means "near zero"). | [ramp.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/color/src/ramp.ts#L12) |
+| Property                                   | Type      | Description                                                                                                                                                                                                                                                                                                                                           | Defined in                                                                              |
+| ------------------------------------------ | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| <a id="property-ordinal-1"></a> `ordinal?` | `boolean` | Build an ordered/ordinal ramp rather than a continuous sequential one. Ordinal ramps hold the palest step darker (so it still reads against the surface) and keep more chroma across the range, since every step is a discrete mark a reader must tell apart. Continuous ramps let the light end fade nearly into the surface (it means "near zero"). | [ramp.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/color/src/ramp.ts#L12) |
 
 ---
 
@@ -392,7 +442,7 @@ Options for [colorValidate](#colorvalidate).
 | Property                                   | Type                    | Description                                                           | Defined in                                                                                        |
 | ------------------------------------------ | ----------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | <a id="property-mode"></a> `mode?`         | `"light"` \| `"dark"`   | Surface mode — sets the lightness band and default surface.           | [validate.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L115) |
-| <a id="property-ordinal-1"></a> `ordinal?` | `boolean`               | Validate as an ordered one-hue ramp instead of a categorical palette. | [validate.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L121) |
+| <a id="property-ordinal-2"></a> `ordinal?` | `boolean`               | Validate as an ordered one-hue ramp instead of a categorical palette. | [validate.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L121) |
 | <a id="property-pairs"></a> `pairs?`       | `"adjacent"` \| `"all"` | `adjacent` (bars/lines/stacks) or `all` (scatter/bubble/maps).        | [validate.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L119) |
 | <a id="property-surface"></a> `surface?`   | `string`                | Chart surface color the marks are drawn on.                           | [validate.ts:117](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L117) |
 

@@ -1,41 +1,45 @@
 # @d3plus/math API Reference
 
-| Functions                                       | Description                                                                                                                                                                         |
-| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`ckmeans`](#ckmeans)                           | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.         |
-| [`clamp`](#clamp)                               | Constrains a number to the range from `min` to `max`, inclusive.                                                                                                                    |
-| [`closest`](#closest)                           | Finds the closest numeric value in an array.                                                                                                                                        |
-| [`epanechnikovKernel`](#epanechnikovkernel)     | The Epanechnikov kernel, scaled to unit variance like the gaussian kernel so a bandwidth smooths about as much with either: `3 / (4√5) · (1 - u²/5)` for `\|u\| ≤ √5`, otherwise 0. |
-| [`finite`](#finite)                             | Whether a value is a finite number: not `NaN`, `±Infinity`, or a non-number such as a numeric string, `null`, or an array.                                                          |
-| [`gaussianKernel`](#gaussiankernel)             | The standard normal (gaussian) kernel: `e^(-u²/2) / √(2π)`.                                                                                                                         |
-| [`kernelDensity`](#kerneldensity)               | Estimates the probability density of a set of observations with a kernel density estimate, evaluated on an evenly spaced grid.                                                      |
-| [`largestRect`](#largestrect)                   | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios.                                                  |
-| [`linearConfidence`](#linearconfidence)         | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)`.                                                        |
-| [`linearPrediction`](#linearprediction)         | Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − x̄)²/Sxx)`.                                                 |
-| [`lineIntersection`](#lineintersection)         | Finds the intersection point (if there is one) of the lines p1q1 and p2q2.                                                                                                          |
-| [`negativeSpace`](#negativespace)               | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely outside the marks described by `obstacles`.                                                               |
-| [`path2polygon`](#path2polygon)                 | Transforms a path string into an Array of points, with no DOM involved.                                                                                                             |
-| [`pathBounds`](#pathbounds)                     | Computes the exact bounding box of an SVG path string with no DOM involved, evaluating the true extrema of each Bézier and arc segment (not a sampled approximation).               |
-| [`pathCommands`](#pathcommands)                 | Tokenizes an SVG path `d` string into its commands as written, without resolving them to absolute coordinates.                                                                      |
-| [`pointDistance`](#pointdistance)               | Calculates the pixel distance between two points.                                                                                                                                   |
-| [`pointDistanceSquared`](#pointdistancesquared) | Returns the squared euclidean distance between two points.                                                                                                                          |
-| [`pointRotate`](#pointrotate)                   | Rotates a point around a given origin.                                                                                                                                              |
-| [`polygonInside`](#polygoninside)               | Checks if one polygon is inside another polygon.                                                                                                                                    |
-| [`polygonRayCast`](#polygonraycast)             | Gives the two closest intersection points between a ray cast from a point inside a polygon.                                                                                         |
-| [`polygonRotate`](#polygonrotate)               | Rotates a polygon around a given origin.                                                                                                                                            |
-| [`regression`](#regression)                     | Fits a regression model to a set of `[x, y]` points.                                                                                                                                |
-| [`segmentBoxContains`](#segmentboxcontains)     | Checks whether a point is inside the bounding box of a line segment.                                                                                                                |
-| [`segmentsIntersect`](#segmentsintersect)       | Checks whether the line segments p1q1 && p2q2 intersect.                                                                                                                            |
-| [`shapeEdgePoint`](#shapeedgepoint)             | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel distance and radian angle.                                     |
-| [`silvermanBandwidth`](#silvermanbandwidth)     | Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate: `0.9 · min(σ, IQR / 1.34) · n^(-1/5)`.                                                                  |
-| [`simplify`](#simplify)                         | Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification.                                                          |
-| [`studentTCdf`](#studenttcdf)                   | The cumulative distribution function of Student's t-distribution.                                                                                                                   |
-| [`studentTQuantile`](#studenttquantile)         | The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportion `p` of the distribution lies.                             |
+| Functions                                       | Description                                                                                                                                                                                                    |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`ckmeans`](#ckmeans)                           | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.                                    |
+| [`clamp`](#clamp)                               | Constrains a number to the range from `min` to `max`, inclusive.                                                                                                                                               |
+| [`closest`](#closest)                           | Finds the closest numeric value in an array.                                                                                                                                                                   |
+| [`epanechnikovKernel`](#epanechnikovkernel)     | The Epanechnikov kernel, scaled to unit variance like the gaussian kernel so a bandwidth smooths about as much with either: `3 / (4√5) · (1 - u²/5)` for `\|u\| ≤ √5`, otherwise 0.                            |
+| [`finite`](#finite)                             | Whether a value is a finite number: not `NaN`, `±Infinity`, or a non-number such as a numeric string, `null`, or an array.                                                                                     |
+| [`gaussianKernel`](#gaussiankernel)             | The standard normal (gaussian) kernel: `e^(-u²/2) / √(2π)`.                                                                                                                                                    |
+| [`kernelDensity`](#kerneldensity)               | Estimates the probability density of a set of observations with a kernel density estimate, evaluated on an evenly spaced grid.                                                                                 |
+| [`largestRect`](#largestrect)                   | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios.                                                                             |
+| [`linearConfidence`](#linearconfidence)         | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)`.                                                                                   |
+| [`linearPrediction`](#linearprediction)         | Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − x̄)²/Sxx)`.                                                                            |
+| [`lineIntersection`](#lineintersection)         | Finds the intersection point (if there is one) of the lines p1q1 and p2q2.                                                                                                                                     |
+| [`louvain`](#louvain)                           | Finds communities in a graph with the Louvain method (Blondel et al., 2008): each node joins the neighboring community that raises modularity most, then each community becomes one node, until nothing moves. |
+| [`negativeSpace`](#negativespace)               | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely outside the marks described by `obstacles`.                                                                                          |
+| [`path2polygon`](#path2polygon)                 | Transforms a path string into an Array of points, with no DOM involved.                                                                                                                                        |
+| [`pathBounds`](#pathbounds)                     | Computes the exact bounding box of an SVG path string with no DOM involved, evaluating the true extrema of each Bézier and arc segment (not a sampled approximation).                                          |
+| [`pathCommands`](#pathcommands)                 | Tokenizes an SVG path `d` string into its commands as written, without resolving them to absolute coordinates.                                                                                                 |
+| [`pointDistance`](#pointdistance)               | Calculates the pixel distance between two points.                                                                                                                                                              |
+| [`pointDistanceSquared`](#pointdistancesquared) | Returns the squared euclidean distance between two points.                                                                                                                                                     |
+| [`pointRotate`](#pointrotate)                   | Rotates a point around a given origin.                                                                                                                                                                         |
+| [`polygonInside`](#polygoninside)               | Checks if one polygon is inside another polygon.                                                                                                                                                               |
+| [`polygonRayCast`](#polygonraycast)             | Gives the two closest intersection points between a ray cast from a point inside a polygon.                                                                                                                    |
+| [`polygonRotate`](#polygonrotate)               | Rotates a polygon around a given origin.                                                                                                                                                                       |
+| [`regression`](#regression)                     | Fits a regression model to a set of `[x, y]` points.                                                                                                                                                           |
+| [`segmentBoxContains`](#segmentboxcontains)     | Checks whether a point is inside the bounding box of a line segment.                                                                                                                                           |
+| [`segmentsIntersect`](#segmentsintersect)       | Checks whether the line segments p1q1 && p2q2 intersect.                                                                                                                                                       |
+| [`shapeEdgePoint`](#shapeedgepoint)             | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel distance and radian angle.                                                                |
+| [`silvermanBandwidth`](#silvermanbandwidth)     | Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate: `0.9 · min(σ, IQR / 1.34) · n^(-1/5)`.                                                                                             |
+| [`simplify`](#simplify)                         | Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification.                                                                                     |
+| [`studentTCdf`](#studenttcdf)                   | The cumulative distribution function of Student's t-distribution.                                                                                                                                              |
+| [`studentTQuantile`](#studenttquantile)         | The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportion `p` of the distribution lies.                                                        |
 
 | Interfaces                                      | Description                                                                                                                                                                     |
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`Bounds`](#bounds)                             | An axis-aligned box: top-left corner plus size.                                                                                                                                 |
 | [`KernelDensityOptions`](#kerneldensityoptions) |                                                                                                                                                                                 |
+| [`LouvainGraph`](#louvaingraph)                 | The graph `louvain` partitions: node ids, and the links between them.                                                                                                           |
+| [`LouvainLink`](#louvainlink)                   | One undirected link of a `louvain` graph, with an optional weight (default 1).                                                                                                  |
+| [`LouvainOptions`](#louvainoptions)             | Options for `louvain`.                                                                                                                                                          |
 | [`NegativeSpaceOptions`](#negativespaceoptions) | Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid.                                                                              |
 | [`PathCommand`](#pathcommand)                   | One command of an SVG path as written: its letter (case kept, so relative commands stay relative) and its arguments, one array per segment when the command repeats implicitly. |
 | [`RegressionOptions`](#regressionoptions)       |                                                                                                                                                                                 |
@@ -46,6 +50,7 @@
 | [`DensityPoint`](#densitypoint)     | One evaluated point of a density curve: `[value, density]`.          |
 | [`Kernel`](#kernel)                 | A kernel function of the scaled distance `u = (x - xi) / bandwidth`. |
 | [`KernelName`](#kernelname)         | The built-in kernels, by name.                                       |
+| [`LouvainId`](#louvainid)           | A node id in a `louvain` graph.                                      |
 | [`RegressionType`](#regressiontype) |                                                                      |
 
 ## Functions
@@ -335,13 +340,46 @@ Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 
 ---
 
+<a id="louvain"></a>
+
+### louvain()
+
+> **louvain**(`graph`: [`LouvainGraph`](#louvaingraph), `options?`: [`LouvainOptions`](#louvainoptions)): `Map`\<[`LouvainId`](#louvainid), `number`\>
+
+Defined in: [louvain.ts:158](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L158)
+
+Finds communities in a graph with the Louvain method (Blondel et al.,
+2008): each node joins the neighboring community that raises modularity
+most, then each community becomes one node, until nothing moves. Links
+are undirected; duplicates add their weights, and links with a missing
+end or a weight that isn't a positive number are ignored. The result is
+deterministic: nodes are visited in the order given, and ties go to the
+lowest-numbered community.
+
+Returns each node's community, numbered from 0 by size (largest first,
+ties in the order the communities' first nodes appear in `nodes`). A
+node with no links is a community of its own.
+
+#### Parameters
+
+| Parameter  | Type                                | Description                              |
+| ---------- | ----------------------------------- | ---------------------------------------- |
+| `graph`    | [`LouvainGraph`](#louvaingraph)     | The node ids and the links between them. |
+| `options?` | [`LouvainOptions`](#louvainoptions) | The modularity `resolution`.             |
+
+#### Returns
+
+`Map`\<[`LouvainId`](#louvainid), `number`\>
+
+---
+
 <a id="negativespace"></a>
 
 ### negativeSpace()
 
 > **negativeSpace**(`bounds`: [`Bounds`](#bounds), `obstacles`: [`Bounds`](#bounds)[], `options?`: [`NegativeSpaceOptions`](#negativespaceoptions)): [`Bounds`](#bounds)[]
 
-Defined in: [negativeSpace.ts:225](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L225)
+Defined in: [negativeSpace.ts:314](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L314)
 
 Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
 outside the marks described by `obstacles`. The marks are treated as a single
@@ -827,6 +865,57 @@ Defined in: [kernelDensity.ts:12](https://github.com/d3plus/d3plus/blob/main/pac
 
 ---
 
+<a id="louvaingraph"></a>
+
+### LouvainGraph
+
+Defined in: [louvain.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L12)
+
+The graph `louvain` partitions: node ids, and the links between them.
+
+#### Properties
+
+| Property                            | Type                            | Defined in                                                                                   |
+| ----------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------- |
+| <a id="property-links"></a> `links` | [`LouvainLink`](#louvainlink)[] | [louvain.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L14) |
+| <a id="property-nodes"></a> `nodes` | [`LouvainId`](#louvainid)[]     | [louvain.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L13) |
+
+---
+
+<a id="louvainlink"></a>
+
+### LouvainLink
+
+Defined in: [louvain.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L5)
+
+One undirected link of a `louvain` graph, with an optional weight (default 1).
+
+#### Properties
+
+| Property                               | Type                      | Defined in                                                                                 |
+| -------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------ |
+| <a id="property-source"></a> `source`  | [`LouvainId`](#louvainid) | [louvain.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L6) |
+| <a id="property-target"></a> `target`  | [`LouvainId`](#louvainid) | [louvain.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L7) |
+| <a id="property-weight"></a> `weight?` | `number`                  | [louvain.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L8) |
+
+---
+
+<a id="louvainoptions"></a>
+
+### LouvainOptions
+
+Defined in: [louvain.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L18)
+
+Options for `louvain`.
+
+#### Properties
+
+| Property                                       | Type     | Description                                                                       | Defined in                                                                                   |
+| ---------------------------------------------- | -------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| <a id="property-resolution"></a> `resolution?` | `number` | Above 1 favors more, smaller communities; below 1, fewer, larger ones. Default 1. | [louvain.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L20) |
+
+---
+
 <a id="negativespaceoptions"></a>
 
 ### NegativeSpaceOptions
@@ -942,6 +1031,18 @@ A kernel function of the scaled distance `u = (x - xi) / bandwidth`.
 Defined in: [kernelDensity.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L7)
 
 The built-in kernels, by name.
+
+---
+
+<a id="louvainid"></a>
+
+### LouvainId
+
+> **LouvainId** = `string` \| `number`
+
+Defined in: [louvain.ts:2](https://github.com/d3plus/d3plus/blob/main/packages/math/src/louvain.ts#L2)
+
+A node id in a `louvain` graph.
 
 ---
 

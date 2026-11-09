@@ -3,6 +3,7 @@
 | Functions                   | Description                                                                                                                                                                                          |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`addToQueue`](#addtoqueue) | Adds the provided value to the internal queue to be loaded, if necessary.                                                                                                                            |
+| [`cacheKey`](#cachekey)     | The key a chart's data cache stores a fetched response under: the JSON of the URL or request object, so a request object's `fetch` options are part of it.                                           |
 | [`concat`](#concat)         | Reduce and concat all the elements included in arrayOfArrays if they are arrays.                                                                                                                     |
 | [`fold`](#fold)             | Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects. |
 | [`isData`](#isdata)         | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request.                                                                                     |
@@ -41,6 +42,28 @@ Adds the provided value to the internal queue to be loaded, if necessary. This i
 #### Returns
 
 `void`
+
+---
+
+<a id="cachekey"></a>
+
+### cacheKey()
+
+> **cacheKey**(`request`: `unknown`): `string`
+
+Defined in: [cacheKey.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/data/src/cacheKey.ts#L5)
+
+The key a chart's data cache stores a fetched response under: the JSON of the URL or request object, so a request object's `fetch` options are part of it. Every loader (`data`, `links`, `nodes`, `topojson`, `fitObject`) shares these keys, so two loaders naming the same request share one response.
+
+#### Parameters
+
+| Parameter | Type      | Description                              |
+| --------- | --------- | ---------------------------------------- |
+| `request` | `unknown` | The URL or request object being fetched. |
+
+#### Returns
+
+`string`
 
 ---
 
@@ -119,9 +142,11 @@ Returns true/false whether the argument provided to the function should be loade
 
 > **load**(`this`: `VizContext`, `path`: `string` \| [`DataPoint`](#datapoint)[] \| (`string` \| [`DataPoint`](#datapoint)[] \| `LoadRequestConfig`)[], `formatter?`: `DataFormatter`, `key?`: `string`, `callback?`: (`error`: `Error` \| `null` \| `undefined`, `data`: [`DataPoint`](#datapoint)[] \| [`DataPoint`](#datapoint)[][] \| `undefined`) => `void`): `void`
 
-Defined in: [load.ts:134](https://github.com/d3plus/d3plus/blob/main/packages/data/src/load.ts#L134)
+Defined in: [load.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/data/src/load.ts#L132)
 
 Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
+
+When the context caches (its `_cache` flag, else its `schema.cache`), each response's text is kept in its `_lrucache` under `cacheKey(request)`, and a later load of the same request parses it again at once, calling back synchronously, instead of fetching. Loads of a request already in flight share its fetch and parse, each getting its own copy, so a formatter that changes its rows never affects another load. A failed request is not cached.
 
 #### Parameters
 
