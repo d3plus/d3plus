@@ -69,41 +69,47 @@ export function radarPointTooltipRows(
 }
 
 /**
-    One Circle node per vertex of each group, painted from `circleConfig`
-    and drawn above every polygon. None when the radius resolves to 0 or
-    less.
+    One Circle node per vertex of group `g` (the `gi`th), painted from
+    `circleConfig`. None when the radius resolves to 0 or less.
 */
-export function radarPointNodes(
+export function radarGroupPointNodes(
   viz: VizInstance,
-  groups: RadarPointGroup[],
+  g: RadarPointGroup,
+  gi: number,
   circleConfig: Record<string, unknown>,
 ): SceneNode[] {
   const out: SceneNode[] = [];
-  groups.forEach((g, gi) => {
-    g.points.forEach((p, k) => {
-      const datum = g.arr[k];
-      const r = Number(resolveAccessor<number>(circleConfig.r, datum, gi));
-      if (!(r > 0)) return;
-      const metric = g.metrics[k];
-      out.push({
-        type: "circle",
-        key: `radar-point-${g.id}-${metric}`,
-        cx: 0,
-        cy: 0,
-        r,
-        transform: {x: p.x, y: p.y},
-        datum,
-        // Only this dot's metric label stays bright on hover.
-        hoverKeys: {metric: [metric]},
-        paint: paintFromShapeConfig(circleConfig, datum, gi),
-        aria: {
-          label: `${viz._drawLabel(datum, gi)}, ${metric}: ${valueText(viz, g.values[k])}.`,
-        },
-      } as SceneNode);
-    });
+  g.points.forEach((p, k) => {
+    const datum = g.arr[k];
+    const r = Number(resolveAccessor<number>(circleConfig.r, datum, gi));
+    if (!(r > 0)) return;
+    const metric = g.metrics[k];
+    out.push({
+      type: "circle",
+      key: `radar-point-${g.id}-${metric}`,
+      cx: 0,
+      cy: 0,
+      r,
+      transform: {x: p.x, y: p.y},
+      datum,
+      // Only this dot's metric label stays bright on hover.
+      hoverKeys: {metric: [metric]},
+      paint: paintFromShapeConfig(circleConfig, datum, gi),
+      aria: {
+        label: `${viz._drawLabel(datum, gi)}, ${metric}: ${valueText(viz, g.values[k])}.`,
+      },
+    } as SceneNode);
   });
   return out;
 }
+
+/** The vertex dots of every group, in group order (see `radarGroupPointNodes`). */
+export const radarPointNodes = (
+  viz: VizInstance,
+  groups: RadarPointGroup[],
+  circleConfig: Record<string, unknown>,
+): SceneNode[] =>
+  groups.flatMap((g, gi) => radarGroupPointNodes(viz, g, gi, circleConfig));
 
 /**
     Wraps the chart's `mouseenter` handler so hovering a dot lights its

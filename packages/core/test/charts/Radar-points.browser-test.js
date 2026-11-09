@@ -141,6 +141,12 @@ describe.each(["svg", "canvas"])("Radar points (%s)", renderer => {
       const a = dots.find(d => d.key === "radar-point-A-Range");
       assert.deepStrictEqual(a.hoverKeys, {metric: ["Range"]});
       assert.strictEqual(a.aria, "A, Range: 4.");
+      // Each polygon's dots paint right after it, so B covers A's dots.
+      const order = (await probe(page, "^radar-(point-)?[AB]")).map(d => d.key);
+      const at = key => order.indexOf(key);
+      assert.ok(at("radar-A") < at("radar-point-A-Speed"), "A's dots over A");
+      assert.ok(at("radar-point-A-Range") < at("radar-B"), "B over A's dots");
+      assert.ok(at("radar-B") < at("radar-point-B-Speed"), "B's dots over B");
     } finally {
       await close();
     }
