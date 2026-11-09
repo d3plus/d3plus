@@ -4,7 +4,7 @@
     Sankey), its betweenness and closeness, and its cluster. In a browser,
     betweenness and closeness are worked out in idle time after the chart
     draws (see `scheduleNodeStats`); a tooltip shown before they are ready
-    fills them in when they are. They are kept until the chart's nodes or
+    reads "…" for them, and fills them in when they are. They are kept until the chart's nodes or
     links change.
 */
 
@@ -329,6 +329,9 @@ function measuresFor(
   return measures;
 }
 
+/** What a node's tooltip shows for a measure still being worked out: an ellipsis. */
+export const STAT_PENDING = "\u2026";
+
 /** The name of the cluster a node is in, when clusters color the chart. */
 function nodeCluster(viz: VizInstance, id: string): string | undefined {
   const state = viz.ctx.clusterState as ClusterState | undefined;
@@ -341,8 +344,9 @@ function nodeCluster(viz: VizInstance, id: string): string | undefined {
     A node's measure rows, in `nodeTooltipStats` order: "Degree" (or
     "In-degree" and "Out-degree" when the chart draws arrows, and in
     Sankey), "Betweenness", "Closeness", and "Cluster" (when clusters color
-    the chart and the node is in one). Betweenness and closeness are left
-    out until they are ready (see `measuresFor`). `degree` says whether its
+    the chart and the node is in one). Betweenness and closeness read
+    `STAT_PENDING` until they are ready (see `measuresFor`), so the tooltip
+    keeps its size when they fill in. `degree` says whether its
     degree is listed, so the tooltip leaves out its count of connections.
     @param links The graph's links, read once per graph, `arrows`, and
     weighting when a measure other than the cluster needs them.
@@ -374,11 +378,12 @@ export function nodeStatRows(
       if (name !== undefined) rows.push([t("Cluster"), name]);
     } else {
       const measures = measuresFor(viz, read(), refresh);
-      if (measures)
-        rows.push([
-          t(stat === "betweenness" ? "Betweenness" : "Closeness"),
-          formatAbbreviate(measures[stat].get(id) ?? 0, locale),
-        ]);
+      rows.push([
+        t(stat === "betweenness" ? "Betweenness" : "Closeness"),
+        measures
+          ? formatAbbreviate(measures[stat].get(id) ?? 0, locale)
+          : STAT_PENDING,
+      ]);
     }
   }
   return {rows, degree: list.includes("degree")};

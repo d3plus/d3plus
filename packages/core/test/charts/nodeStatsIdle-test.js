@@ -13,6 +13,7 @@ import {
   publishLinkGraph,
   requestIdle,
   setLinkValue,
+  STAT_PENDING,
 } from "../../internal.ts";
 
 /**
@@ -164,10 +165,24 @@ it("nodeStatsInIdle — in a page, but not while @d3plus/ssr renders or outside 
 it("a drawn chart works out its measures in idle time; an open node tooltip fills them in", async () => {
   const viz = pageViz();
   publish(viz, path);
-  // Right after the draw, before any idle time: the degree only.
+  // Right after the draw, before any idle time: the degree, and an
+  // ellipsis for each measure still to come.
   assert.deepStrictEqual(nodeConnectionRows(viz, nodeData[1]), [
     ["Degree", "2"],
+    ["Betweenness", STAT_PENDING],
+    ["Closeness", STAT_PENDING],
   ]);
+  assert.strictEqual(STAT_PENDING, "\u2026");
+  viz.schema.nodeTooltipStats = ["closeness", "cluster"];
+  assert.deepStrictEqual(
+    nodeConnectionRows(viz, nodeData[1]),
+    [
+      ["Connections", "2"],
+      ["Closeness", STAT_PENDING],
+    ],
+    "only the measures asked for",
+  );
+  viz.schema.nodeTooltipStats = true;
   viz._tooltipClass.shown = [nodeData[1]];
   await until(() => viz.ctx.nodeStatsCache?.size === 1);
   assert.strictEqual(viz._tooltipClass.renders, 1, "the open tooltip updates");

@@ -152,13 +152,16 @@ for (const renderer of ["svg", "canvas"]) {
         assert.strictEqual(ready, false, "held back");
         assert.ok(tip.includes("Degree3"), `the degree at once: "${tip}"`);
         assert.ok(tip.includes("ClusterCharliecluster"), "and the cluster");
-        assert.ok(!tip.includes("Betweenness"), `not yet: "${tip}"`);
+        // Ellipses hold the measures' places until they arrive.
+        assert.ok(tip.includes("Betweenness\u2026"), `pending: "${tip}"`);
+        assert.ok(tip.includes("Closeness\u2026"), `pending: "${tip}"`);
         await page.evaluate(release);
         await waitFor(page, worked);
         await page.waitForTimeout(100);
         const after = await page.evaluate(tooltip);
         assert.ok(after.includes("Betweenness0.6"), `filled in: "${after}"`);
         assert.ok(after.includes("Closeness0.71"), `filled in: "${after}"`);
+        assert.ok(!after.includes("\u2026"), `no ellipsis left: "${after}"`);
       },
       "hold",
     );

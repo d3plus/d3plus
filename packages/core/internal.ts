@@ -145,6 +145,7 @@ export {
   nodeStatsGraph,
   nodeStatsInIdle,
   scheduleNodeStats,
+  STAT_PENDING,
   nodeTooltipStatList,
 } from "./src/charts/features/nodeStats.js";
 export type {
