@@ -416,7 +416,10 @@ for (const renderer of ["svg", "canvas"]) {
         await page.mouse.move(5, 5);
         await hover(page, await page.evaluate(nodePoint, "sankey-Rect-Delta"));
         const node = (await page.evaluate(state, [])).tip;
-        assert.ok(node.includes("Degree2"), `got "${node}"`);
+        assert.ok(
+          node.includes("In-degree2") && node.includes("Out-degree0"),
+          `got "${node}"`,
+        );
         assert.ok(node.indexOf("←Bravo3") < node.indexOf("←Alpha1"));
       },
     );

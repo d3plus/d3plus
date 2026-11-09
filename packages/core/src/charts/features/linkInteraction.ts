@@ -20,7 +20,7 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 import {colorCategory} from "./legendCategory.js";
-import {nodeStatRows} from "./nodeStats.js";
+import {nodeStatRows, scheduleNodeStats} from "./nodeStats.js";
 import type {StatLink} from "./nodeStats.js";
 
 /**
@@ -142,6 +142,12 @@ export function publishLinkGraph(
     if (n.data && typeof n.data === "object")
       entries.set(n.data, {id: n.id, graph});
   viz.ctx.linkGraph = graph;
+  scheduleNodeStats(
+    viz,
+    graph,
+    () => statLinks(graph),
+    () => refreshNodeTooltip(viz),
+  );
   return graph;
 }
 
@@ -387,6 +393,17 @@ function statLinks(graph: LinkGraph): StatLink[] {
 }
 
 /**
+    Renders the chart's tooltip again while it shows one of its nodes, so
+    measures that became ready since it opened fill in.
+*/
+function refreshNodeTooltip(viz: VizInstance): void {
+  const tooltip = viz._tooltipClass;
+  const shown = tooltip?.data();
+  if (Array.isArray(shown) && shown.some(d => linkNodeOf(viz, d)))
+    tooltip!.render();
+}
+
+/**
     A node's tooltip rows: its number of connections (left out when its
     degree takes its place) and the network measures `nodeTooltipStats`
     lists (see `nodeStatRows`), then its strongest links ("→ Target" or "← Source", or "↻ Node" for a link to
@@ -399,7 +416,13 @@ export function nodeConnectionRows(viz: VizInstance, d: DataPoint): Row[] {
   if (!entry) return [];
   const {graph, id} = entry;
   const connections = nodeConnections(graph, id);
-  const stats = nodeStatRows(viz, graph, id, () => statLinks(graph));
+  const stats = nodeStatRows(
+    viz,
+    graph,
+    id,
+    () => statLinks(graph),
+    () => refreshNodeTooltip(viz),
+  );
   const rows: Row[] = stats.degree
     ? stats.rows
     : [

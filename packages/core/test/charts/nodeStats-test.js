@@ -303,10 +303,11 @@ it("nodeTooltipStatList — `true` lists every measure, an Array the known ones 
   );
 });
 
-it("nodeStatsFields — on by default, unweighted", () => {
+it("nodeStatsFields — on by default; the settings merge", () => {
   const fields = Object.fromEntries(nodeStatsFields().map(f => [f.key, f]));
   assert.strictEqual(fields.nodeTooltipStats.default, true);
-  assert.strictEqual(fields.nodeTooltipStatsWeighted.default, false);
+  assert.deepStrictEqual(fields.nodeTooltipStatsConfig.default, {});
+  assert.strictEqual(fields.nodeTooltipStatsConfig.merge, true);
 });
 
 /** A stand-in chart: labels nodes by `name`, translating with `dictionary`. */
@@ -401,6 +402,17 @@ it("nodeStatRows — in and out degree when the chart draws arrows", () => {
   ]);
 });
 
+it("nodeStatRows — a chart whose links always run source to target (Sankey) is directed without arrows", () => {
+  const viz = fakeViz({nodeTooltipStats: ["degree", "closeness"]});
+  viz.ctx.linksDirected = true;
+  publishPath(viz);
+  assert.deepStrictEqual(nodeConnectionRows(viz, nodeData[1]), [
+    ["In-degree", "1"],
+    ["Out-degree", "1"],
+    ["Closeness", "0.33"],
+  ]);
+});
+
 it("nodeStatRows — directed betweenness and closeness follow the arrows", () => {
   const viz = fakeViz({arrows: true, nodeTooltipStats: ["closeness"]});
   publishPath(viz);
@@ -433,7 +445,7 @@ it("nodeStatRows — weighted paths prefer strong links", () => {
   const b = () =>
     nodeConnectionRows(viz, nodeData[1]).find(r => r[0] === "Betweenness");
   assert.deepStrictEqual(b(), ["Betweenness", "0"]);
-  viz.schema.nodeTooltipStatsWeighted = true;
+  viz.schema.nodeTooltipStatsConfig = {weighted: true};
   assert.deepStrictEqual(b(), ["Betweenness", "1"]);
 });
 
@@ -482,22 +494,24 @@ it("nodeStatRows — measures are worked out on first need and kept until the ne
   assert.strictEqual(viz.ctx.nodeStatsCache, undefined, "degree alone");
   viz.schema.nodeTooltipStats = true;
   nodeConnectionRows(viz, nodeData[0]);
-  const first = viz.ctx.nodeStatsCache;
-  assert.ok(first, "worked out for betweenness and closeness");
+  const cache = viz.ctx.nodeStatsCache;
+  assert.strictEqual(cache.size, 1, "worked out for betweenness and closeness");
+  const [first] = cache.values();
   nodeConnectionRows(viz, nodeData[2]);
-  assert.strictEqual(viz.ctx.nodeStatsCache, first, "kept");
+  assert.strictEqual(cache.size, 1, "kept");
   // A redraw publishes a new graph of the same network: the same measures.
   publishPath(viz);
   nodeConnectionRows(viz, nodeData[0]);
-  assert.strictEqual(viz.ctx.nodeStatsCache.measures, first.measures);
+  assert.strictEqual(cache.size, 1);
+  assert.strictEqual([...cache.values()][0], first);
   // Weighted with every value the same: the same arcs, the same measures.
-  viz.schema.nodeTooltipStatsWeighted = true;
+  viz.schema.nodeTooltipStatsConfig = {weighted: true};
   nodeConnectionRows(viz, nodeData[0]);
-  assert.strictEqual(viz.ctx.nodeStatsCache.measures, first.measures);
+  assert.strictEqual(cache.size, 1);
   // New link values change the weighted lengths, and the measures.
   publishPath(viz, [1, 2, 1]);
   nodeConnectionRows(viz, nodeData[0]);
-  assert.notStrictEqual(viz.ctx.nodeStatsCache.measures, first.measures);
+  assert.strictEqual(cache.size, 2);
   assert.strictEqual(reads, 1);
 });
 

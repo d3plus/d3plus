@@ -1,9 +1,11 @@
 /**
     Network measures in a node's tooltip (Network, Rings, ArcDiagram, and
-    Sankey): its degree (in and out when the chart draws arrows), its
-    betweenness and closeness, and its cluster. They are worked out the
-    first time a node's tooltip asks for them, and kept until the chart's
-    nodes or links change.
+    Sankey): its degree (in and out when the chart draws arrows, and in
+    Sankey), its betweenness and closeness, and its cluster. In a browser,
+    betweenness and closeness are worked out in idle time after the chart
+    draws (see `scheduleNodeStats`); a tooltip shown before they are ready
+    fills them in when they are. They are kept until the chart's nodes or
+    links change.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -15,7 +17,8 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {arrowEnds} from "./edgeArrows.js";
 import type {ArrowValue} from "./edgeArrows.js";
 import type {LinkGraph} from "./linkInteraction.js";
-import {networkMeasures} from "./networkMeasures.js";
+import {idleQueue} from "./idleQueue.js";
+import {measuresTask, networkMeasures} from "./networkMeasures.js";
 import type {MeasureArc, NetworkMeasures} from "./networkMeasures.js";
 
 /** A measure a node's tooltip can list. */
@@ -56,7 +59,7 @@ export interface NodeStatsGraph {
 
 type Row = [string, string];
 
-/** The `nodeTooltipStats` and `nodeTooltipStatsWeighted` fields. */
+/** The `nodeTooltipStats` and `nodeTooltipStatsConfig` fields. */
 export function nodeStatsFields(): ConfigField[] {
   return [
     /**
@@ -67,11 +70,13 @@ export function nodeStatsFields(): ConfigField[] {
     */
     {key: "nodeTooltipStats", default: true},
     /**
-        Whether betweenness and closeness count a strong link (by `linkSize`,
-        or Sankey's `value`) as a shorter step than a weak one. Defaults to
-        `false`, every link one step.
+        Settings for the network measures: `weighted` counts a strong link
+        (by `linkSize`, or Sankey's `value`) as a shorter step than a weak
+        one for betweenness and closeness. Defaults to `{weighted: false}`,
+        every link one step.
+        @type {{weighted?: boolean}}
     */
-    {key: "nodeTooltipStatsWeighted", default: false},
+    {key: "nodeTooltipStatsConfig", merge: true, default: {}},
   ];
 }
 
@@ -139,12 +144,13 @@ export function nodeStatsGraph(
   return {directed, degree, inDegree, outDegree, nodes, arcs};
 }
 
-/** What a chart graph's measures were last worked out for. */
+/** What a chart graph's degrees and arcs were last read for. */
 interface Memo {
   arrows: unknown;
   weighted: boolean;
   stats: NodeStatsGraph;
-  measures?: NetworkMeasures;
+  /** Names the nodes and arcs, for the measures cache (see `measuresKey`). */
+  key?: string;
 }
 
 const memos = new WeakMap<LinkGraph, Memo>();
@@ -156,9 +162,27 @@ function measuresKey(stats: NodeStatsGraph): string {
     .join("\u0000")}`;
 }
 
+/** The memo's `measuresKey`, worked out once. */
+const memoKey = (memo: Memo): string => (memo.key ??= measuresKey(memo.stats));
+
+/**
+    The `arrows` the measures read: every link runs from source to target
+    in a chart whose links always do (Sankey sets `ctx.linksDirected`).
+*/
+function statArrows(viz: VizInstance): unknown {
+  return viz.ctx.linksDirected === true ? true : viz.schema.arrows;
+}
+
+/** Whether `nodeTooltipStatsConfig` weights the paths by `linkSize`. */
+function statWeighted(viz: VizInstance): boolean {
+  const config = viz.schema.nodeTooltipStatsConfig as
+    {weighted?: unknown} | undefined;
+  return config?.weighted === true;
+}
+
 /**
     The chart graph's degrees and arcs, for the chart's current `arrows` and
-    `nodeTooltipStatsWeighted`.
+    `nodeTooltipStatsConfig.weighted`.
     @param links The graph's links, read only when they haven't been for these settings.
 */
 function memoFor(
@@ -166,8 +190,8 @@ function memoFor(
   graph: LinkGraph,
   links: () => StatLink[],
 ): Memo {
-  const arrows = viz.schema.arrows;
-  const weighted = viz.schema.nodeTooltipStatsWeighted === true;
+  const arrows = statArrows(viz);
+  const weighted = statWeighted(viz);
   const memo = memos.get(graph);
   if (memo && memo.arrows === arrows && memo.weighted === weighted) return memo;
   const stats = nodeStatsGraph(
@@ -181,22 +205,127 @@ function memoFor(
   return next;
 }
 
+/** The measures worked out for the chart, by `measuresKey`. */
+function measuresCache(viz: VizInstance): Map<string, NetworkMeasures> {
+  let cache = viz.ctx.nodeStatsCache as
+    Map<string, NetworkMeasures> | undefined;
+  if (!(cache instanceof Map)) viz.ctx.nodeStatsCache = cache = new Map();
+  return cache;
+}
+
 /**
-    The memo's betweenness and closeness, worked out on first use. The
-    result is kept on `viz.ctx.nodeStatsCache` by its nodes and arcs, so a
-    redraw that leaves them as they were reuses it.
+    Whether the measures are worked out in idle time: in a browser, but not
+    while `@d3plus/ssr` renders the chart (or anywhere without a window),
+    where they are worked out when first asked for.
 */
-function measuresFor(viz: VizInstance, memo: Memo): NetworkMeasures {
-  if (memo.measures) return memo.measures;
-  const key = measuresKey(memo.stats);
-  const cache = viz.ctx.nodeStatsCache as
-    {key: string; measures: NetworkMeasures} | undefined;
-  const measures =
-    cache?.key === key
-      ? cache.measures
-      : networkMeasures(memo.stats.nodes, memo.stats.arcs);
-  viz.ctx.nodeStatsCache = {key, measures};
-  memo.measures = measures;
+export function nodeStatsInIdle(viz: VizInstance): boolean {
+  return !viz._ssr && typeof window !== "undefined";
+}
+
+/** Whether `nodeTooltipStats` lists a measure that needs shortest paths. */
+function needsPaths(viz: VizInstance): boolean {
+  const list = nodeTooltipStatList(viz.schema.nodeTooltipStats);
+  return list.includes("betweenness") || list.includes("closeness");
+}
+
+/**
+    Queues the idle job working out a memo's measures, unless it is cached
+    or queued. `refresh` runs once they are ready.
+*/
+function queueMeasures(viz: VizInstance, memo: Memo, refresh: () => void) {
+  const key = memoKey(memo);
+  const queue = idleQueue(viz);
+  if (measuresCache(viz).has(key) || queue.has(key)) return;
+  const task = measuresTask(memo.stats.nodes, memo.stats.arcs);
+  queue.add(key, {
+    step(budget) {
+      if (!task.step(budget)) return false;
+      measuresCache(viz).set(key, task.result());
+      refresh();
+      return true;
+    },
+  });
+}
+
+/** A graph a draw published, waiting for its measures to be queued. */
+interface Published {
+  graph: LinkGraph;
+  links: () => StatLink[];
+  refresh: () => void;
+}
+
+const drafts = new WeakMap<VizInstance, Published[]>();
+
+/**
+    Queues the measures of the graphs one draw published, and cancels (and
+    forgets) any others: they belong to nodes and links the chart no longer
+    draws.
+*/
+function settleDraw(viz: VizInstance, published: Published[]): void {
+  const keys = new Set<string>();
+  if (needsPaths(viz))
+    for (const p of published) {
+      const memo = memoFor(viz, p.graph, p.links);
+      keys.add(memoKey(memo));
+      queueMeasures(viz, memo, p.refresh);
+    }
+  idleQueue(viz).keep(keys);
+  const cache = measuresCache(viz);
+  for (const key of [...cache.keys()]) if (!keys.has(key)) cache.delete(key);
+}
+
+/**
+    Works out a published graph's betweenness and closeness in the browser's
+    idle time after the chart draws (see `IdleQueue`), so a node's tooltip
+    rarely waits for them. The graphs one draw publishes (one per small
+    multiple) are settled together in the first idle turn after it: their
+    measures are queued, and a run for nodes and links the chart no longer
+    draws is cancelled. Nothing is queued while `@d3plus/ssr` renders.
+    @param refresh Runs when a graph's measures are ready, to update an open tooltip.
+*/
+export function scheduleNodeStats(
+  viz: VizInstance,
+  graph: LinkGraph,
+  links: () => StatLink[],
+  refresh: () => void,
+): void {
+  // A chart without node measures (Geomap's flows) has nothing to queue.
+  if (!nodeStatsInIdle(viz) || viz.schema.nodeTooltipStats === undefined)
+    return;
+  let draft = drafts.get(viz);
+  if (!draft) {
+    drafts.set(viz, (draft = []));
+    queueMicrotask(() => {
+      const published = drafts.get(viz) ?? [];
+      drafts.delete(viz);
+      idleQueue(viz).beforeNext(() => settleDraw(viz, published));
+    });
+  }
+  draft.push({graph, links, refresh});
+}
+
+/**
+    The memo's betweenness and closeness. In a browser they come from idle
+    time: until they are ready this queues them (if no draw has) and returns
+    undefined. Elsewhere they are worked out now. Either way they are kept by
+    their nodes and arcs, so a redraw that leaves those as they were reuses
+    them.
+*/
+function measuresFor(
+  viz: VizInstance,
+  memo: Memo,
+  refresh: () => void,
+): NetworkMeasures | undefined {
+  const key = memoKey(memo);
+  const cache = measuresCache(viz);
+  const cached = cache.get(key);
+  if (cached) return cached;
+  if (nodeStatsInIdle(viz)) {
+    queueMeasures(viz, memo, refresh);
+    return undefined;
+  }
+  const measures = networkMeasures(memo.stats.nodes, memo.stats.arcs);
+  cache.set(key, measures);
   return measures;
 }
 
@@ -210,24 +339,26 @@ function nodeCluster(viz: VizInstance, id: string): string | undefined {
 
 /**
     A node's measure rows, in `nodeTooltipStats` order: "Degree" (or
-    "In-degree" and "Out-degree" when the chart draws arrows),
-    "Betweenness", "Closeness", and "Cluster" (when clusters color the
-    chart and the node is in one). `degree` says whether its degree is
-    listed, so the tooltip leaves out its count of connections.
+    "In-degree" and "Out-degree" when the chart draws arrows, and in
+    Sankey), "Betweenness", "Closeness", and "Cluster" (when clusters color
+    the chart and the node is in one). Betweenness and closeness are left
+    out until they are ready (see `measuresFor`). `degree` says whether its
+    degree is listed, so the tooltip leaves out its count of connections.
     @param links The graph's links, read once per graph, `arrows`, and
-    `nodeTooltipStatsWeighted` when a measure other than the cluster needs them.
+    weighting when a measure other than the cluster needs them.
+    @param refresh Runs when measures this asked for become ready.
 */
 export function nodeStatRows(
   viz: VizInstance,
   graph: LinkGraph,
   id: string,
   links: () => StatLink[],
+  refresh: () => void = () => undefined,
 ): {rows: Row[]; degree: boolean} {
   const list = nodeTooltipStatList(viz.schema.nodeTooltipStats);
   if (!list.length) return {rows: [], degree: false};
   const t = (s: string) => `${viz.schema.translate(s)}`;
   const locale = viz.schema.locale as string;
-  const share = (v: number | undefined) => formatAbbreviate(v ?? 0, locale);
   let memo: Memo | undefined;
   const read = () => (memo ??= memoFor(viz, graph, links));
   const rows: Row[] = [];
@@ -242,11 +373,12 @@ export function nodeStatRows(
       const name = nodeCluster(viz, id);
       if (name !== undefined) rows.push([t("Cluster"), name]);
     } else {
-      const value = measuresFor(viz, read())[stat].get(id);
-      rows.push([
-        t(stat === "betweenness" ? "Betweenness" : "Closeness"),
-        share(value),
-      ]);
+      const measures = measuresFor(viz, read(), refresh);
+      if (measures)
+        rows.push([
+          t(stat === "betweenness" ? "Betweenness" : "Closeness"),
+          formatAbbreviate(measures[stat].get(id) ?? 0, locale),
+        ]);
     }
   }
   return {rows, degree: list.includes("degree")};

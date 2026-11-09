@@ -213,6 +213,78 @@ function accumulate(g: Adjacency, s: number, w: Search, raw: Float64Array) {
 }
 
 /**
+    Works out the measures one node's search at a time (see
+    `networkMeasures`), so the work can be spread over several turns.
+*/
+export interface MeasuresTask {
+  /**
+      Runs searches until `budget` milliseconds have passed (at least one),
+      and returns whether every node has been searched.
+  */
+  step(budget?: number): boolean;
+  /** The measures, once `step` has returned `true`. */
+  result(): NetworkMeasures;
+}
+
+/** The current time in milliseconds, for task budgets. */
+const now = (): number =>
+  typeof performance !== "undefined" ? performance.now() : Date.now();
+
+/**
+    A task working out each node's betweenness and closeness (see
+    `networkMeasures`), one node's search per unit of work.
+    @param nodes The node ids; arcs naming other ids are ignored.
+    @param arcs The directed arcs between them.
+*/
+export function measuresTask(
+  nodes: string[],
+  arcs: MeasureArc[],
+): MeasuresTask {
+  const index = new Map<string, number>();
+  for (const id of nodes) if (!index.has(id)) index.set(id, index.size);
+  const n = index.size;
+  const g = adjacency(index, arcs);
+  const w: Search = {
+    dist: new Float64Array(n),
+    sigma: new Float64Array(n),
+    delta: new Float64Array(n),
+    order: new Int32Array(n),
+    reached: 0,
+    done: new Uint8Array(n),
+  };
+  const raw = new Float64Array(n);
+  const close = new Float64Array(n);
+  let s = 0;
+  return {
+    step(budget = Infinity) {
+      const start = now();
+      while (s < n) {
+        if (g.unit) bfs(g, s, w);
+        else dijkstra(g, s, w);
+        let total = 0;
+        for (let j = 1; j < w.reached; j++) total += w.dist[w.order[j]];
+        const r = w.reached - 1;
+        close[s] = r > 0 && total > 0 ? (r / total) * (r / (n - 1)) : 0;
+        accumulate(g, s, w, raw);
+        s++;
+        if (now() - start >= budget) break;
+      }
+      return s >= n;
+    },
+    result() {
+      const scale = n > 2 ? 1 / ((n - 1) * (n - 2)) : 0;
+      const betweenness = new Map<string, number>();
+      const closeness = new Map<string, number>();
+      for (const [id, i] of index) {
+        betweenness.set(id, raw[i] * scale);
+        closeness.set(id, close[i]);
+      }
+      return {betweenness, closeness};
+    },
+  };
+}
+
+/**
     Each node's betweenness and closeness.
 
     Betweenness is the share of shortest paths between other pairs of nodes
@@ -232,35 +304,7 @@ export function networkMeasures(
   nodes: string[],
   arcs: MeasureArc[],
 ): NetworkMeasures {
-  const index = new Map<string, number>();
-  for (const id of nodes) if (!index.has(id)) index.set(id, index.size);
-  const n = index.size;
-  const g = adjacency(index, arcs);
-  const w: Search = {
-    dist: new Float64Array(n),
-    sigma: new Float64Array(n),
-    delta: new Float64Array(n),
-    order: new Int32Array(n),
-    reached: 0,
-    done: new Uint8Array(n),
-  };
-  const raw = new Float64Array(n);
-  const close = new Float64Array(n);
-  for (let s = 0; s < n; s++) {
-    if (g.unit) bfs(g, s, w);
-    else dijkstra(g, s, w);
-    let total = 0;
-    for (let j = 1; j < w.reached; j++) total += w.dist[w.order[j]];
-    const r = w.reached - 1;
-    close[s] = r > 0 && total > 0 ? (r / total) * (r / (n - 1)) : 0;
-    accumulate(g, s, w, raw);
-  }
-  const scale = n > 2 ? 1 / ((n - 1) * (n - 2)) : 0;
-  const betweenness = new Map<string, number>();
-  const closeness = new Map<string, number>();
-  for (const [id, i] of index) {
-    betweenness.set(id, raw[i] * scale);
-    closeness.set(id, close[i]);
-  }
-  return {betweenness, closeness};
+  const task = measuresTask(nodes, arcs);
+  task.step();
+  return task.result();
 }

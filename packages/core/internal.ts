@@ -122,16 +122,29 @@ export type {
   LinkGraph,
   LinkMeta,
 } from "./src/charts/features/linkInteraction.js";
-export {networkMeasures} from "./src/charts/features/networkMeasures.js";
+export {
+  measuresTask,
+  networkMeasures,
+} from "./src/charts/features/networkMeasures.js";
 export type {
   MeasureArc,
+  MeasuresTask,
   NetworkMeasures,
 } from "./src/charts/features/networkMeasures.js";
+export {
+  IDLE_BUDGET,
+  IdleQueue,
+  idleQueue,
+  requestIdle,
+} from "./src/charts/features/idleQueue.js";
+export type {IdleJob} from "./src/charts/features/idleQueue.js";
 export {
   NODE_STATS,
   nodeStatRows,
   nodeStatsFields,
   nodeStatsGraph,
+  nodeStatsInIdle,
+  scheduleNodeStats,
   nodeTooltipStatList,
 } from "./src/charts/features/nodeStats.js";
 export type {

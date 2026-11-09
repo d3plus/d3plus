@@ -8,7 +8,8 @@ import {openPage} from "~test/browser/page.js";
     degree, betweenness, and closeness (and its cluster, where clusters
     color the chart) without configuration; `arrows` split the degree in
     and out; `nodeTooltipStats` picks the measures or turns them off; and
-    the measures aren't worked out until a node's tooltip shows.
+    betweenness and closeness are worked out in idle time after the chart
+    draws, filling in a tooltip that opened before them.
 */
 
 const box = "<div id='viz' style='width:640px;height:420px'></div>";
@@ -31,9 +32,18 @@ const links = [
   ["C", "D"],
 ].map(([source, target]) => ({source, target}));
 
-/** Runs in the page: draws `chart` from `config`, then resolves once it has painted. */
-const draw = ([chart, config, renderer]) =>
+/**
+    Runs in the page: draws `chart` from `config`, then resolves once it has
+    painted. With `hold`, idle callbacks wait for `release`.
+*/
+const draw = ([chart, config, renderer, hold]) =>
   new Promise(resolve => {
+    // Holding idle callbacks keeps the measures from arriving until `release`.
+    const idle = window.requestIdleCallback.bind(window);
+    window.__held = [];
+    window.__hold = hold;
+    window.requestIdleCallback = (fn, options) =>
+      window.__hold ? window.__held.push(fn) : idle(fn, options);
     const viz = new window.d3plus[chart]()
       .select("#viz")
       .renderer(renderer)
@@ -73,21 +83,38 @@ const tooltip = () =>
     .join("|");
 
 /** Runs in the page: whether the measures have been worked out. */
-const worked = () => window.__viz.ctx.nodeStatsCache !== undefined;
+const worked = () => (window.__viz.ctx.nodeStatsCache?.size ?? 0) > 0;
 
-/** Draws a chart, hovers the node mark `key`, and returns its tooltip's text. */
-async function nodeTip(chart, config, renderer, key, check) {
+/** Runs in the page: lets the held idle callbacks run. */
+const release = () => {
+  window.__hold = false;
+  for (const fn of window.__held.splice(0)) window.requestIdleCallback(fn);
+};
+
+/** Waits (up to 3 seconds) for `fn` to hold in the page. */
+async function waitFor(page, fn) {
+  for (let i = 0; i < 60 && !(await page.evaluate(fn)); i++)
+    await page.waitForTimeout(50);
+}
+
+/**
+    Draws a chart, hovers the node mark `key`, and hands its tooltip's text
+    to `check`. `mode` is `"wait"` (for the measures to arrive before
+    hovering), `"hold"` (keep them from arriving), or `"none"`.
+*/
+async function nodeTip(chart, config, renderer, key, check, mode = "wait") {
+  const hold = mode === "hold";
   const {page, errors, close} = await openPage(box);
   try {
-    await page.evaluate(draw, [chart, config, renderer]);
-    const before = await page.evaluate(worked);
+    await page.evaluate(draw, [chart, config, renderer, hold]);
+    if (mode === "wait") await waitFor(page, worked);
     const point = await page.evaluate(nodePoint, key);
     assert.ok(point, `found ${key}`);
     await page.mouse.move(point[0] - 20, point[1] - 30);
     await page.mouse.move(...point, {steps: 4});
     await page.waitForTimeout(150);
     const tip = await page.evaluate(tooltip);
-    await check(tip, {before, after: await page.evaluate(worked)}, page);
+    await check(tip, {worked: await page.evaluate(worked)}, page);
     assert.deepStrictEqual(errors, [], "no page errors");
   } finally {
     await close();
@@ -95,13 +122,13 @@ async function nodeTip(chart, config, renderer, key, check) {
 }
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`Network ${renderer}: a node's tooltip lists its measures and cluster by default, worked out on hover`, async () => {
+  it(`Network ${renderer}: a node's tooltip lists its measures and cluster by default, worked out after the draw`, async () => {
     await nodeTip(
       "Network",
       {nodes, links},
       renderer,
       "network-Circle-C",
-      (tip, {before, after}) => {
+      tip => {
         assert.ok(tip.startsWith("Charlie"), `title, got "${tip}"`);
         for (const row of [
           "Degree3",
@@ -111,9 +138,29 @@ for (const renderer of ["svg", "canvas"]) {
         ])
           assert.ok(tip.includes(row), `${row} in "${tip}"`);
         assert.ok(!tip.includes("Connections"), "degree replaces the count");
-        assert.strictEqual(before, false, "nothing worked out before hover");
-        assert.strictEqual(after, true, "worked out for the tooltip");
       },
+    );
+  });
+
+  it(`Network ${renderer}: an open tooltip fills in the measures when they arrive`, async () => {
+    await nodeTip(
+      "Network",
+      {nodes, links},
+      renderer,
+      "network-Circle-C",
+      async (tip, {worked: ready}, page) => {
+        assert.strictEqual(ready, false, "held back");
+        assert.ok(tip.includes("Degree3"), `the degree at once: "${tip}"`);
+        assert.ok(tip.includes("ClusterCharliecluster"), "and the cluster");
+        assert.ok(!tip.includes("Betweenness"), `not yet: "${tip}"`);
+        await page.evaluate(release);
+        await waitFor(page, worked);
+        await page.waitForTimeout(100);
+        const after = await page.evaluate(tooltip);
+        assert.ok(after.includes("Betweenness0.6"), `filled in: "${after}"`);
+        assert.ok(after.includes("Closeness0.71"), `filled in: "${after}"`);
+      },
+      "hold",
     );
   });
 
@@ -123,12 +170,18 @@ for (const renderer of ["svg", "canvas"]) {
       {nodes, links, arrows: true, nodeTooltipStats: ["degree"]},
       renderer,
       "network-Circle-C",
-      (tip, {after}) => {
+      async (tip, _, page) => {
         assert.ok(tip.includes("In-degree2"), `got "${tip}"`);
         assert.ok(tip.includes("Out-degree1"), `got "${tip}"`);
         assert.ok(!tip.includes("Betweenness"), "only the degree");
-        assert.strictEqual(after, false, "degree alone needs no paths");
+        await page.waitForTimeout(200);
+        assert.strictEqual(
+          await page.evaluate(worked),
+          false,
+          "degree alone needs no paths",
+        );
       },
+      "none",
     );
   });
 
@@ -138,12 +191,14 @@ for (const renderer of ["svg", "canvas"]) {
       {nodes, links, nodeTooltipStats: false},
       renderer,
       "network-Circle-C",
-      (tip, {after}) => {
+      async (tip, _, page) => {
         assert.ok(tip.includes("Connections3"), `got "${tip}"`);
         for (const row of ["Degree", "Betweenness", "Closeness", "Cluster"])
           assert.ok(!tip.includes(row), `no ${row} in "${tip}"`);
-        assert.strictEqual(after, false);
+        await page.waitForTimeout(200);
+        assert.strictEqual(await page.evaluate(worked), false);
       },
+      "none",
     );
   });
 
@@ -173,7 +228,7 @@ for (const renderer of ["svg", "canvas"]) {
     });
   });
 
-  it(`Sankey ${renderer}: a node's tooltip lists its measures, with no cluster`, async () => {
+  it(`Sankey ${renderer}: a node's tooltip lists its in- and out-degree and measures along the flows`, async () => {
     await nodeTip(
       "Sankey",
       {
@@ -187,8 +242,14 @@ for (const renderer of ["svg", "canvas"]) {
       renderer,
       "sankey-Rect-Bravo",
       tip => {
-        // Bravo is the star's center: every other pair's path passes it.
-        for (const row of ["Degree3", "Betweenness1", "Closeness1"])
+        // Flows run left to right: Alpha reaches Charlie and Delta through
+        // Bravo, and Bravo reaches two of the other three.
+        for (const row of [
+          "In-degree1",
+          "Out-degree2",
+          "Betweenness0.33",
+          "Closeness0.67",
+        ])
           assert.ok(tip.includes(row), `${row} in "${tip}"`);
         assert.ok(!tip.includes("Cluster"), `no cluster in "${tip}"`);
       },

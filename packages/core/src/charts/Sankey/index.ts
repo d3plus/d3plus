@@ -218,6 +218,9 @@ export const sankeyDef: ChartDefinition = {
   },
 
   ctx: {
+    // Flows run from source to target: node tooltips split the degree in
+    // and out, and shortest paths follow the flows.
+    linksDirected: true,
     sankey: sankey(),
   },
 
