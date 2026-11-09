@@ -280,7 +280,7 @@ for (const renderer of ["svg", "canvas"]) {
         await hover(page, await page.evaluate(nodePoint, "network-Circle-A"));
         const {tip} = await page.evaluate(state, []);
         assert.ok(tip.includes("Alpha"), `title, got "${tip}"`);
-        assert.ok(tip.includes("Connections2"), "its connection count");
+        assert.ok(tip.includes("Degree2"), "its degree");
         assert.ok(tip.includes("→Charlie9"), "its strongest link first");
         assert.ok(tip.includes("→Bravo4"), "then the next");
         assert.ok(tip.indexOf("Charlie9") < tip.indexOf("Bravo4"));
@@ -288,7 +288,7 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
-  it(`Network ${renderer}: nodeTooltipLinks: false lists only the count`, async () => {
+  it(`Network ${renderer}: nodeTooltipLinks: false lists no links`, async () => {
     await withChart(
       [
         "Network",
@@ -299,7 +299,7 @@ for (const renderer of ["svg", "canvas"]) {
       async page => {
         await hover(page, await page.evaluate(nodePoint, "network-Circle-C"));
         const {tip} = await page.evaluate(state, []);
-        assert.ok(tip.includes("Connections2"), `got "${tip}"`);
+        assert.ok(tip.includes("Degree2"), `got "${tip}"`);
         assert.ok(!tip.includes("→") && !tip.includes("←"), "no links");
       },
     );
@@ -323,7 +323,7 @@ for (const renderer of ["svg", "canvas"]) {
         await page.mouse.move(5, 5);
         await hover(page, await page.evaluate(nodePoint, "network-Circle-D"));
         const node = (await page.evaluate(state, [])).tip;
-        assert.ok(node.includes("Conexiones1"), `got "${node}"`);
+        assert.ok(node.includes("Grado1"), `got "${node}"`);
         assert.ok(node.includes("←Charlie10"), "an incoming link");
       },
     );
@@ -364,7 +364,7 @@ for (const renderer of ["svg", "canvas"]) {
         await page.mouse.move(5, 5);
         await hover(page, await page.evaluate(nodePoint, "rings-Circle-B"));
         const node = (await page.evaluate(state, [])).tip;
-        assert.ok(node.includes("Connections2"), `got "${node}"`);
+        assert.ok(node.includes("Degree2"), `got "${node}"`);
         assert.ok(node.includes("→Delta2"), "its links");
       },
     );
@@ -416,7 +416,7 @@ for (const renderer of ["svg", "canvas"]) {
         await page.mouse.move(5, 5);
         await hover(page, await page.evaluate(nodePoint, "sankey-Rect-Delta"));
         const node = (await page.evaluate(state, [])).tip;
-        assert.ok(node.includes("Connections2"), `got "${node}"`);
+        assert.ok(node.includes("Degree2"), `got "${node}"`);
         assert.ok(node.indexOf("←Bravo3") < node.indexOf("←Alpha1"));
       },
     );
@@ -439,7 +439,7 @@ for (const renderer of ["svg", "canvas"]) {
         await page.mouse.move(5, 5);
         await hover(page, await page.evaluate(nodePoint, "arc-node-A"));
         const node = (await page.evaluate(state, [])).tip;
-        assert.ok(node.includes("Connections2"), `got "${node}"`);
+        assert.ok(node.includes("Degree2"), `got "${node}"`);
         assert.ok(!node.includes("→"), "unsized links aren't listed");
       },
     );

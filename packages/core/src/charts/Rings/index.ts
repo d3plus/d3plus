@@ -37,6 +37,7 @@ import {
   linkMeta,
   linkTooltipConfig,
 } from "../features/linkInteraction.js";
+import {nodeStatsFields} from "../features/nodeStats.js";
 import {linkSizeMaxField, linkStyleFields} from "../features/linkFields.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
@@ -298,6 +299,7 @@ export const ringsDef: ChartDefinition = {
         @type {number | false}
     */
     {key: "nodeTooltipLinks"},
+    ...nodeStatsFields(),
     /**
         The maximum pixel radius of a node. Defaults to the largest radius
         that keeps neighboring nodes from overlapping.

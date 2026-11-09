@@ -40,6 +40,7 @@ import {
   linkMeta,
   linkTooltipConfig,
 } from "../features/linkInteraction.js";
+import {nodeStatsFields} from "../features/nodeStats.js";
 import {
   linkBundleFields,
   linkSizeMaxField,
@@ -432,6 +433,7 @@ export const networkDef: ChartDefinition = {
         @type {number | false}
     */
     {key: "nodeTooltipLinks"},
+    ...nodeStatsFields(),
     {
       key: "tooltipConfig",
       merge: true,

@@ -186,7 +186,7 @@ for (const renderer of ["svg", "canvas"]) {
       });
       const bright = k => state.opacity[k] === 1;
       assert.ok(state.tip.includes("Echo"), "the node's tooltip");
-      assert.ok(state.tip.includes("Connections"), "with its connections");
+      assert.ok(state.tip.includes("Degree"), "with its degree");
       for (const id of ["Echo", "Alpha", "Delta"])
         assert.ok(bright(`arc-node-${id}`), `${id} stays bright`);
       for (const id of ["Bravo", "Charlie", "Foxtrot"])
