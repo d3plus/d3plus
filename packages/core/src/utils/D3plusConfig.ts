@@ -88,71 +88,44 @@ type AxisScale =
 export interface AxisConfig {
   barConfig?: Record<string, string | number>;
   /**
-      The axis's domain: `[min, max]` on a continuous axis, or the
-      categories to show on a discrete one. A full domain is drawn exactly
-      as given unless this axis config's `rounding` says otherwise, just as
-      on an Axis. In a Plot's axis configs it is a lower-level override than
-      `xDomain`/`yDomain`: it wins over them, isn't stretched to the
-      chart's `baseline`, and isn't rounded by Plot's own "outside"
-      default. In `xConfig`/`yConfig`, one with a single end set (`[min]`
-      or `[undefined, max]`) on a continuous axis works exactly like
-      `yDomain([min])` instead: it pins that end, and the data fills the
-      other, rounded as `rounding` says.
+      The axis's domain: `[min, max]` on a continuous axis, or the categories
+      to show on a discrete one. In a Plot it overrides `xDomain`/`yDomain`
+      and isn't rounded unless `rounding` says so; a single end (`[min]` or
+      `[undefined, max]`) pins that end like `yDomain([min])`.
   */
   domain?: (number | string | Date | undefined)[];
   /**
-      The value the axis's `baselineBreak` returns to: the tick kept below
-      (or above) the break. Defaults to `0`. To start a Plot's value axis at
-      a value, set the chart's `baseline` instead, which sets the axis's
-      minimum exactly like `yDomain([n])`, break back to this tick included.
+      The tick the axis's `baselineBreak` returns to. Defaults to `0`. To start
+      a Plot's value axis at a value, set the chart's `baseline` instead.
   */
   baseline?: number;
   /**
-      When the domain of a linear value axis stops short of the `baseline`
-      (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the
-      axis's end tick and breaks the axis between it and the domain: a short
-      stretch of axis holds the baseline tick and two tilted marks with a gap
-      in the axis line, then the domain spans the rest. Style it with the
-      axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
-      value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick,
-      with the break's gap cut across them (`baselineBreakConfig`'s
-      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
-      `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
-      to `true` for the Plots whose marks grow from `0`, such as BarChart,
-      AreaPlot, Histogram, and Lollipop (each chart lists its own default),
-      and `false` for other Plots and a standalone Axis.
+      When a linear value axis's domain stops short of the `baseline` (e.g.
+      `[1100, 2100]` with a baseline of `0`), keeps the baseline tick and
+      breaks the axis between it and the domain, styled by
+      `baselineBreakConfig`. Turned off, a Plot's `yDomain` stretches to the
+      baseline instead. Defaults to `true` for Plots whose marks grow from `0`
+      (BarChart, AreaPlot, Histogram, Lollipop), else `false`.
   */
   baselineBreak?: boolean;
   /**
-      Style of the baseline break: `space` (pixels of axis between the baseline
-      tick and the first tick after the break, default `36`), `gap` (pixels
-      between the two marks, where the axis line is not drawn, default `5`),
-      `size` (length of each mark, drawn outward from the axis line on the
-      tick side so it never reaches into the plot, default `10`), `angle`
-      (degrees each mark tilts from perpendicular to the axis, default `30`),
-      `lines` (whether a Plot runs a straight line across the plot from the
-      foot of each mark, perpendicular to the axis, default `true`; they take
-      the axis line's `barConfig` style), `lineConfig` (those lines'
-      `stroke`, `stroke-width`, and other line styles, layered over the axis
-      line style), `mask` (whether a Plot cuts the gap between the two
-      lines straight across the shapes, default `true`), plus `stroke`,
-      `stroke-width`, and the other line styles `barConfig` takes, for the
-      marks.
+      Style of the baseline break: `space` (axis pixels between the baseline
+      tick and the domain, default `36`), `gap` (pixels between the two marks,
+      default `5`), `size` (mark length, default `10`), `angle` (mark tilt in
+      degrees, default `30`), `lines` (whether a Plot draws lines across the
+      plot at the break, default `true`), `lineConfig` (their style), `mask`
+      (whether a Plot cuts the gap across its shapes, default `true`), and
+      `stroke`, `stroke-width`, and other line styles for the marks.
   */
   baselineBreakConfig?: Record<
     string,
     string | number | boolean | Record<string, string | number>
   >;
   /**
-      Value ranges to remove from a linear axis: one `[start, end]` pair, or a
-      list of them (`[[start, end], [start, end]]`). Each range collapses to a
-      short fixed gap in the axis, marked like the baseline break, with no
-      ticks or gridlines inside it and both of its edges labeled; the values
-      on either side keep one shared scale. Reversed pairs are flipped,
-      overlapping ones merged, and ranges that don't lie strictly inside the
-      domain (or that don't leave room for the data) are ignored. Only
-      positions change — tooltips and labels still show the real values.
+      Value ranges to remove from a linear axis: one `[start, end]` pair or a
+      list of them. Each collapses to a short marked gap (styled by
+      `breakConfig`); values either side share one scale, and tooltips still
+      show real values. Ranges outside the domain are ignored.
   */
   break?: false | [number, number] | [number, number][];
   /**
@@ -165,25 +138,15 @@ export interface AxisConfig {
     string | number | boolean | Record<string, string | number>
   >;
   /**
-      Stretches of time to hide from a time axis, so the data closes up
-      around them (like weekends and nights on a stock chart): one rule or a
-      list of them. `"weekends"` hides every Saturday and Sunday;
-      `{days: [5, 6]}` hides those days of the week (0 is Sunday);
-      `{hours: [17, 9]}` hides the same hours every day, wrapping past
-      midnight when the first is later (fractions are minutes, so `9.5` is
-      9:30); `{values: [date, …]}` hides each listed date's whole day, such
-      as holidays; and `{bounds: [start, end]}` hides one range, from `start`
-      up to `end`. Rules read the calendar in local time, as the axis's date
-      labels do. In a Plot, rules on an axis whose values are dates make it
-      a time axis even without `time`, and a chart's timeline takes the
-      rules of the axis that plots its `time` (see `timelineConfig`). Shown time keeps one shared scale, ticks and labels never
-      land in hidden time, lines and areas connect across it, and rows whose
-      time is hidden are not drawn. A rule's `marker` draws the `break`
-      marker where its time was removed, in a gap of `breakConfig.space`
-      pixels: on by default for `bounds`, off for the others, which recur
-      too often to mark.
+      Stretches of time to hide from a time axis (weekends, nights, holidays),
+      so the data closes up around them: one rule or a list of them.
+      `"weekends"`; `{days: [5, 6]}` (0 is Sunday); `{hours: [17, 9]}`, daily,
+      wrapping past midnight (`9.5` is 9:30); `{values: [date, …]}`, whole
+      days; or `{bounds: [start, end]}`, one range. Rules use local time. A
+      rule's `marker` draws the `break` marker at the gap (on by default for
+      `bounds` only).
       @example
-{rangeBreaks: ["weekends", {hours: [16, 9.5]}, {values: ["2024-07-04"]}]}
+      {rangeBreaks: ["weekends", {hours: [16, 9.5]}, {values: ["2024-07-04"]}]}
   */
   rangeBreaks?: false | RangeBreakRule | RangeBreakRule[];
   /** Grid values of the axis. */
@@ -201,15 +164,10 @@ export interface AxisConfig {
   labels?: unknown[];
   labelOffset?: false | number;
   /**
-      Whether to rotate the axis labels, and by how much: `true` rotates
-      them -90 degrees, `false` keeps them flat, and a number rotates them
-      by that many degrees (clockwise, so `-45` rises to the right), each
-      label hanging off the axis from the end of its text nearest the axis,
-      across from its tick, and wrapping onto up to three lines when its
-      neighbors leave room. Left `undefined` (the default), a horizontal
-      axis of categories slants its labels 30 degrees when they would not
-      fit flat, or stands them at -90 when they are too crowded to slant.
-      See Axis's `labelRotation`.
+      Whether to rotate the axis labels: `true` rotates them -90 degrees,
+      `false` keeps them flat, and a number rotates them that many degrees
+      clockwise (`-45` rises to the right). Unset (the default), a horizontal
+      axis of categories slants its labels when they don't fit flat.
   */
   labelRotation?: boolean | number;
   /**
@@ -234,18 +192,11 @@ export interface AxisConfig {
   */
   rotatedTickFormat?: (d: number | string) => string | number;
   /**
-      How a linear or log axis rounds its domain to "nice" values:
-      "outside" widens each end past the data, "inside" pulls each end in
-      (marking them with the `roundingInside*` prefixes and suffixes), and
-      "none" keeps the domain as given. Defaults to "none" on an Axis; a
-      Plot rounds "outside" unless its axis config says otherwise or sets a
-      full `domain`, which is rounded only when asked for here. With a
-      user domain on a Plot (`xDomain`/`yDomain`, `baseline`, or a
-      one-sided `domain` here) only an end left open is rounded:
-      `yDomain([n])` keeps `n` exactly and rounds the far end where the
-      axis would with no domain set, and "none" leaves that end at the
-      data. A `yDomain` with both ends set isn't rounded unless `rounding`
-      is set here.
+      How a linear or log axis rounds its domain to "nice" values: "outside"
+      widens each end past the data, "inside" pulls each end in, and "none"
+      keeps it as given. Defaults to "none" on an Axis and "outside" in a
+      Plot. A Plot only rounds the ends a user domain leaves open, unless
+      `rounding` is set here.
   */
   rounding?: "none" | "outside" | "inside";
   /** Scale of the axis. */
@@ -642,19 +593,11 @@ export interface TrendLineConfig {
   /** Line dash pattern. Defaults to `"6 4"`. */
   strokeDasharray?: string;
   /**
-      Labels each trend line along its own path, near its end and just above
-      it, in the line's color: `true` names the series ("Trend" for a line
-      fit to every point), `"equation"` shows its fitted equation and R²
-      (e.g. "y = 2.1x + 3.4, R² = 0.84", or just R² along a time axis), and
-      a function of the fit (its `label`, `color`, and regression `fit` with
-      `coefficients` and `r2`) returns any text. The text follows the line's
-      curve, reads upright whichever way the line runs, and is cut short with
-      an ellipsis when the line is too short for it; a line too short for a
-      few letters gets no label. It labels the fitted stretch, not a
-      projection. Labels never overlap one another or the line labels: one
-      whose spot near its line's end is taken slides back along the line, or
-      moves below it, and is skipped only when no clear spot exists.
-      Defaults to `"equation"`; `false` turns labels off.
+      Labels each trend line along its path, near its end, in the line's
+      color: `true` names the series, `"equation"` shows its fitted equation
+      and R², and a function of the fit (`label`, `color`, and `fit` with
+      `coefficients` and `r2`) returns any text. Defaults to `"equation"`;
+      `false` turns labels off.
   */
   label?:
     | boolean
@@ -782,16 +725,10 @@ export interface ColorScaleConfig {
   */
   scale?: ColorScaleTypeSetting;
   /**
-      Whether hovering a chart shape marks its value on the scale: an extra
-      axis tick at the value on the color bar, and a badge reading the value
-      in the axis's tick format where that tick's label would sit, covering
-      the labels it overlaps (a value outside the domain marks the bar's
-      end). A bucketed bar (`bucketAxis`) also outlines the value's bucket.
-      A scale drawn as discrete swatches gets no mark; the value's swatch
-      stays lit and the others dim instead. On charts whose shape hover is
-      off (`hoverOpacity: 1`, as on Geomap and Calendar or past
-      `dataCutoff`), that swatch highlight comes from this option too, so
-      `false` turns it off there. Defaults to `true`.
+      Whether hovering a shape marks its value on the color scale: a tick and
+      a badge with the value (and, on a `bucketAxis`, an outline around its
+      bucket). A swatch scale lights the value's swatch instead. Defaults to
+      `true`.
   */
   hoverMark?: boolean;
   /**
@@ -802,19 +739,11 @@ export interface ColorScaleConfig {
   */
   ordinalRamp?: boolean;
   /**
-      Styles the `hoverMark`. `tickConfig` takes `stroke` and `strokeWidth`
-      (the axis ticks' own by default) and `length` (the axis's `tickSize`
-      by default); the badge starts where the tick ends. `badgeConfig` takes `fill`
-      (the value's color by default), `stroke` (the background-legible text
-      color by default), `strokeWidth` (default `1`), `fontColor` (a color
-      contrasting the fill by default), `fontFamily`, `fontSize` (default
-      `11`), `fontWeight` (default `400`), `padding` around the text (default
-      `3`; across the bar it is padded to sit as far out as the tick
-      labels), and `rx` corner radius (default `2`). `outlineConfig`, the
-      bucket outline on a `bucketAxis` bar, takes `stroke` (the
-      background-legible text color by default) and `strokeWidth` (default
-      `2`). Each is a value or a function of the
-      hovered value.
+      Styles the `hoverMark`: `tickConfig` (`stroke`, `strokeWidth`, `length`),
+      `badgeConfig` (`fill`, `stroke`, `strokeWidth`, `fontColor`,
+      `fontFamily`, `fontSize`, `fontWeight`, `padding`, `rx`), and
+      `outlineConfig`, the bucket outline on a `bucketAxis` bar (`stroke`,
+      `strokeWidth`). Each is a value or a function of the hovered value.
   */
   hoverMarkConfig?: ColorScaleHoverMarkConfig;
 }
@@ -918,16 +847,9 @@ export interface D3plusConfig {
     shapeConfig?: Record<string, unknown>;
   };
   /**
-      Whether hovering a Plot's mark draws a dashed guide from its point to
-      each axis and a badge on that axis with the point's value there,
-      formatted as the tooltip formats that axis's values (the axis's
-      `tickFormat` when set). `"x"` or `"y"` draws them for that direction
-      only (each including its secondary axis). A bar is badged on its value
-      axis only. With a discrete axis, the shared tooltip's crosshair is that
-      axis's guide, and the value axis follows the hovered series' point (or
-      the one nearest the pointer). Defaults to `true` (`"x"` on BumpChart,
-      whose y axes label series rather than values, and on Streamgraph, whose
-      y positions name no values).
+      Whether hovering a Plot's mark draws a dashed guide to each axis with a
+      badge showing its value there. `"x"` or `"y"` limits it to that
+      direction. Defaults to `true` (`"x"` on BumpChart and Streamgraph).
   */
   axisHover?: boolean | "x" | "y";
   /**
@@ -975,20 +897,10 @@ export interface D3plusConfig {
   barWidth?: string | false | ((d: DataPoint, i?: number) => number);
   /**
       BarChart/Marimekko with `barWidth`: whether each category's axis label
-      also shows its bar's share of the total width, beneath the name along
-      a horizontal axis ("Retail" over "50%") and after it along a vertical
-      one ("Retail (50%)"). Along a horizontal axis, a name wraps to fit
-      a narrow bar, widening into room its neighbors leave; a label that
-      still can't fit is left out, and the labels rotate, showing the name
-      alone, only when half or more can't fit. The tooltip always shows the
-      share. `"opposite"` moves the shares to the axis across the bars from
-      the names, above them along a horizontal axis and to their right along
-      a vertical one, leaving the names alone on their own axis; style it
-      with `x2Config` (or `y2Config`). In small
-      multiples (`facet`), each panel's shares are of that panel's own total
-      width and add to 100%, even when shared scales draw a smaller panel
-      narrower. `barWidthShareFormat` changes what the label says.
-      `"opposite"` for Marimekko, off for BarChart.
+      also shows its bar's share of the total width ("Retail" over "50%").
+      `"opposite"` puts the shares on the axis across from the names (styled
+      with `x2Config`/`y2Config`). `barWidthShareFormat` changes the text.
+      Defaults to `"opposite"` for Marimekko, `false` for BarChart.
   */
   barWidthShare?: boolean | "opposite";
   /**
@@ -1001,39 +913,19 @@ export interface D3plusConfig {
   */
   barWidthShareFormat?: (d: DataPoint, info: BarShareInfo) => unknown;
   /**
-      Starts a Plot's value axis (the x axis for horizontal charts) at a
-      value: `baseline(n)` renders exactly like `yDomain([n])` (or
-      `xDomain([n])`). Bars, areas, and stems still grow from the chart's
-      own `0` in the Plots that draw from one (such as BarChart, AreaPlot,
-      Histogram, and Lollipop), so with `baselineBreak` on (their default)
-      the axis breaks back to a `0`
-      tick and bars run through the break, with its gap cut across them,
-      and with it off the axis
-      stretches down to `0`. As with `yDomain([n])`, only `n` is
-      pinned: the far end comes from the data and is rounded where the
-      axis would round it with no domain set (left at the data when the
-      axis config's `rounding` is "none"), and marks for values past `n`
-      stop at the axis's edge.
-      When every value sits at or below `n`, it ends the axis instead,
-      like `yDomain([undefined, n])`. A bound given in
-      `yDomain`/`xDomain` wins.
+      Starts a Plot's value axis at a value, like `yDomain([n])` (or
+      `xDomain([n])` for horizontal charts); the far end comes from the data.
+      Bars, areas, and stems still grow from `0`, so with `baselineBreak` on
+      the axis breaks back to a `0` tick. A bound in `yDomain`/`xDomain` wins.
   */
   baseline?: number;
   /**
-      When the domain of a linear value axis stops short of the `baseline`
-      (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the
-      axis's end tick and breaks the axis between it and the domain: a short
-      stretch of axis holds the baseline tick and two tilted marks with a gap
-      in the axis line, then the domain spans the rest. Style it with the
-      axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
-      value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick,
-      with the break's gap cut across them (`baselineBreakConfig`'s
-      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
-      `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
-      to `true` for the Plots whose marks grow from `0`, such as BarChart,
-      AreaPlot, Histogram, and Lollipop (each chart lists its own default),
-      and `false` for other Plots and a standalone Axis.
+      When a linear value axis's domain stops short of the `baseline` (e.g.
+      `[1100, 2100]` with a baseline of `0`), keeps the baseline tick and
+      breaks the axis between it and the domain, styled by
+      `baselineBreakConfig`. Turned off, a Plot's `yDomain` stretches to the
+      baseline instead. Defaults to `true` for Plots whose marks grow from `0`
+      (BarChart, AreaPlot, Histogram, Lollipop), else `false`.
   */
   baselineBreak?: boolean;
   /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */
@@ -1111,14 +1003,9 @@ export interface D3plusConfig {
   bulletSize?: number;
   /**
       Whether the chart keeps the files it fetches for `data`, `links`,
-      `nodes`, `topojson`, and `fitObject`. Each chart has its own cache of
-      its 10 most recent requests, keyed by the request (the URL, and a
-      request object's `fetch` options), so loaders naming the same URL share
-      one request. It holds each response as fetched, before its `*Format`
-      formatter runs, so setting the same URL again, or a new formatter, draws
-      from the cache without a request. A failed request is not kept. Defaults to `true`; set it to `false` to
-      fetch on every load, or use `dataPollingInterval` to re-fetch `data` on
-      a schedule (polls always fetch).
+      `nodes`, `topojson`, and `fitObject` (its 10 most recent requests), so
+      loading the same URL again, or changing a formatter, needs no new
+      request. Defaults to `true`; `false` fetches on every load.
   */
   cache?: boolean;
   /** Calendar: styles the weekday, month, and year labels (`fontColor`, `fontFamily`, `fontSize`, default `11`, and `fontWeight`). */
@@ -1133,31 +1020,16 @@ export interface D3plusConfig {
   /** Calendar: each cell's corner radius, in pixels (kept below a third of the cell). Defaults to `2`. */
   cellRadius?: number;
   /**
-      Sankey: draws the links that loop back into a node they left (a link
-      from a node to itself, or one that closes a loop through several
-      nodes, A → B → A) as circular bands. Each leaves its source's right
-      side, turns up or down, runs along a lane above or below the nodes,
-      and turns back into its target's left side. The lightest link on each
-      loop is the one drawn this way, and its lane runs above the nodes
-      when its two ends sit in the upper half of the chart, else below.
-      Nodes are sized by the flow through them, returns included. `false`
-      leaves these links out instead, with a warning naming them. Defaults
-      to `true`.
+      Sankey: draws links that loop back to a node they left (A → B → A, or a
+      node to itself) as bands that run in a lane above or below the nodes.
+      `false` leaves them out, with a warning. Defaults to `true`.
   */
   circularLinks?: boolean;
   /**
-      Network and ArcDiagram: colors each node by the cluster it belongs to,
-      found with the Louvain method (links weighted by `linkSize`). Each
-      cluster is named after its most-connected node ("alpha cluster"), and
-      the legend lists the clusters, largest first, even for a network drawn
-      from `nodes` alone; clicking a cluster zooms to it. A Network also writes each name
-      inside its cluster, where it fits clear of the nodes and their labels.
-      Applies only while the chart's color is its default: setting `color`,
-      `colorScale`, `colorOrdinal`, or a `shapeConfig` fill, or more than one
-      `groupBy` level, colors nodes as configured instead. A network with
-      fewer than two clusters of two or more nodes keeps one color per node.
-      A node with no links keeps its own color and label. `false` turns
-      clustering off. Defaults to `true`.
+      Network and ArcDiagram: colors each node by its cluster (found with the
+      Louvain method, weighted by `linkSize`), named after its most-connected
+      node and listed in the legend; clicking a cluster zooms to it. Applies
+      only while the chart's color is its default. Defaults to `true`.
   */
   cluster?: boolean;
   /**
@@ -1253,36 +1125,19 @@ export interface D3plusConfig {
   */
   confidence?: ConfidenceBandSetting | ConfidenceBandSetting[] | false;
   /**
-      Styles the `confidence` interval: a line's band (an Area) or a bar's
-      error bar (a Path, with `stroke`, `strokeWidth`, and `capWidth` — the end
-      caps' length in pixels or as a percentage string of the bar's thickness).
-      Keys nested under `Area` or `Bar` apply only to that shape. `tooltip:
-      false` leaves the bounds out of tooltips. With nested bands,
-      `bandOpacity` sets how each band looks where it is the innermost band
-      drawn — an array ramps from the outermost band to the innermost
-      (default `[0.15, 0.6]`), a number gives every band that opacity — in
-      place of `fillOpacity`. Accepted keys: any Area or Path key,
-      `bandOpacity`, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar`
-      (Path keys and `capWidth`); any other key logs a warning.
+      Styles the `confidence` interval: a line's band (Area keys) or a bar's
+      error bar (Path keys, plus `capWidth`, in pixels or a percentage of the
+      bar). Keys under `Area` or `Bar` apply to that shape only.
+      `bandOpacity` ramps nested bands' opacity (default `[0.15, 0.6]`), and
+      `tooltip: false` leaves the bounds out of tooltips.
   */
   confidenceConfig?: Record<string, unknown>;
   /**
-      How a line crosses a missing value: a step of the discrete axis that
-      another line has and this one skips, or a row whose value is `null` or
-      `NaN`. `true` (the default) or `"solid"` draws the line straight on
-      through it. `false` breaks the line there, leaving the gap empty.
-      `"dashed"` breaks the line and bridges the gap with a short dash
-      (`"2 4"`) in the line's color, distinct from a forecast's longer dash.
-      An object styles the bridge: `stroke` (default the line's color),
-      `strokeDasharray` (default `"2 4"`; `false` for a solid bridge),
-      `strokeWidth` (default the line's width), and `opacity` (default `1`).
-      A bridge follows the line's curve, since it is drawn along the same
-      path, and is decoration only: it has no tooltip, takes no keyboard
-      focus, and a shared tooltip at a missing step lists no value for that
-      line. Confidence bands are clipped to the stretches between gaps. A
-      point with a gap on both sides draws no line of its own, so turn on
-      `lineMarkers` to show it. Areas, including stacked ones, are drawn as
-      before.
+      How a line crosses a missing value (a skipped step, or a `null`/`NaN`
+      value): `true` (the default) or `"solid"` draws straight through,
+      `false` breaks the line, and `"dashed"` breaks it and bridges the gap
+      with a short dash. An object styles the bridge: `stroke`,
+      `strokeDasharray` (default `"2 4"`), `strokeWidth`, and `opacity`.
   */
   connectGaps?: ConnectGaps;
   /** Funnel: fills the gap between consecutive stages with a neck joining their widths. */
@@ -1296,24 +1151,14 @@ export interface D3plusConfig {
   */
   connectorConfig?: Record<string, unknown>;
   /**
-      Hexbin: contour options. `bandwidth` is the density kernel's standard
-      deviation in pixels (default `20`); `thresholds` is about how many
-      levels to draw (default `8`, rounded to nice values) or the levels
-      themselves, in observations per bin; `strokeWidth` is the outline
-      width of `"lines"` contours (default `1.5`); and `fillOpacity` is the
-      opacity of the highest `"filled"` level (default `0.8`). `labels`
-      (default `true`) writes each level's value along its contour lines, as
-      a topographic map labels elevation: centered on the line, which breaks
-      beneath it, reading upright, and clear of the other contours and
-      labels. A long contour takes more than one label, at least
-      `labelSpacing` pixels apart (default `"auto"`: 20 ems or half the
-      plot's mean side, whichever is longer); `labelStep` labels every n-th
-      level (`1` all of them, `2` every other one, keeping the multiples of
-      twice the levels' spacing; default `"auto"`: all of up to five levels,
-      else every other one); and a level with no clear, gently curving
-      stretch goes unlabelled. `labelConfig` is TextBox config for the
-      labels (`fontSize` defaults to `10`), and `levelFormat` formats their
-      values. Merged into the current config.
+      Hexbin contour options: `bandwidth` (density kernel standard deviation,
+      px, default `20`), `thresholds` (a level count, default `8`, or the
+      levels themselves), `strokeWidth` (`"lines"` outline width, default
+      `1.5`), `fillOpacity` (top `"filled"` level, default `0.8`), `labels`
+      (write each level's value along its lines, default `true`),
+      `labelSpacing` (px between labels on a line, default `"auto"`),
+      `labelStep` (label every n-th level, default `"auto"`), `labelConfig`
+      (TextBox config), and `levelFormat`.
   */
   contourConfig?: ContourConfig;
   /**
@@ -1343,22 +1188,18 @@ export interface D3plusConfig {
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
   /**
-      Transforms `data` before it is drawn. The function receives the loaded
-      file (or the parsed JSON response, or an Array of them when `data` lists
-      several URLs), or the Array passed as `data`, and returns the rows to
-      draw. It may instead return a config object holding the rows as its
-      `data` key, and the rest of that object is applied to the chart, so a
-      response can set options such as `title` from what it contains.
-
-      It runs when the chart renders, whichever order `data` and `dataFormat`
-      are set in, and setting it again re-runs it on the next render, over the
-      cached response (see `cache`). Every `dataPollingInterval` poll runs it too. Passing a
-      formatter as the second argument of `data(url, format)` sets it, and
-      setting `data` alone keeps it.
+      Transforms `data` before it is drawn: receives the loaded file (or the
+      Array passed as `data`) and returns the rows to draw, or a config object
+      holding them as `data` (its other keys are applied to the chart). Also
+      set by `data(url, format)`.
   */
   dataFormat?: (data: DataPoint[]) => DataPoint[] | Record<string, unknown>;
   /**
-      When `data` is loaded from a URL (or a request object, or an Array holding one), re-fetches it every this many milliseconds and redraws with a transition when it changes, keeping hover, zoom, legend toggles, and the timeline selection. Each poll uses the same request and `dataFormat` as the first load, and a response identical to the drawn data is not redrawn. Polling waits while the browser tab is hidden or, with `detectVisible`, while the chart is scrolled out of view, and catches up as soon as it is visible again. A failed request keeps the last data, logs one warning per run of failures, and tries again on the next tick. `destroy()`, setting this to `false`, or passing new `data` stops polling. Only `data` is polled, not `links`, `nodes`, or `topojson`. Defaults to `false` (load once).
+      When `data` comes from a URL, re-fetches it every this many milliseconds
+      and redraws when it changes, keeping hover, zoom, and legend state.
+      Polling pauses while the tab (or, with `detectVisible`, the chart) is
+      hidden, and a failed request keeps the last data. Only `data` is polled.
+      Defaults to `false` (load once).
   */
   dataPollingInterval?: number | false;
   /**
@@ -1424,7 +1265,10 @@ export interface D3plusConfig {
   */
   detectVisibleInterval?: number;
   /**
-      When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
+      With `detectVisible` on, releases the chart's DOM and scene while it is
+      scrolled out of view and redraws it when it returns, keeping pages with
+      many charts light. Data and config are kept; zoom and selection are not,
+      so set `false` to keep them. Defaults to `true`.
   */
   detectVisibleUnload?: boolean;
   /**
@@ -1493,24 +1337,16 @@ export interface D3plusConfig {
   /** Allows removing specific geographies from topojson file to improve zoom. */
   fitFilter?: number | string | ((d: Record<string, unknown>) => boolean);
   /**
-      Marks a forecast: the stretch of the discrete axis after it gets a
-      shaded backdrop, a rule at its start, and a translated "Forecast"
-      label, and each line's forecast stretch is dashed (see
-      `forecastConfig`). A function flags the forecast rows (e.g.
-      `d => d.Type === "Predicted"`): each line is dashed from its last
-      unflagged point, or throughout when every row is flagged, and the
-      backdrop starts at the earliest of those. `"auto"` (or `true`) flags
-      the rows whose `confidence` bounds spread away from their line. A
-      discrete-axis value (a date or year on a time axis) starts the
-      forecast there. Unset (the default), only a trend line projection
-      (`trendLineConfig.projection`) is marked, from the last fitted value;
-      `false` marks nothing, not even a projection. On bar charts the
-      backdrop starts at the edge of the first forecast bar, and bars keep
-      their own styles. Defaults to `"auto"` on a FanChart.
+      Marks a forecast: a shaded backdrop, a rule, and a "Forecast" label over
+      the forecast stretch, with lines dashed there (see `forecastConfig`).
+      A function flags the forecast rows; `"auto"` (or `true`) flags rows whose
+      `confidence` bounds spread from their line; a discrete-axis value starts
+      the forecast there; `false` marks nothing. Unset (the default), only a
+      trend line projection is marked. Defaults to `"auto"` on a FanChart.
 
-      Bullet: each row's forecast (or other comparative measure), drawn as
-      a paler bar behind the measure: a data key, an accessor returning the
-      row's value, a number shared by every row, or `false`.
+      Bullet: each row's forecast (or other comparative measure), drawn as a
+      paler bar behind the measure: a data key, an accessor, a number, or
+      `false`.
   */
   forecast?:
     | boolean
@@ -1520,27 +1356,16 @@ export interface D3plusConfig {
     | Date
     | ((d: DataPoint, i: number) => boolean | number);
   /**
-      Styles for the `forecast` marker: the backdrop's `fill` and
-      `fillOpacity` (default `0.05`; `fill: false` hides it), the rule's
-      `stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and
-      `strokeDasharray` (`"4 4"`; `stroke: false` hides it), the label's
-      text as `label` (default "Forecast", translated; `false` hides it)
-      with `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and
-      `fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each
-      line's forecast stretch (default `"6 4"`; `false` keeps lines solid).
-      Colors default to the chart's text color for its background. The
-      backdrop is chart chrome with no data row, so `shapeConfig.texture`
-      and `shapeConfig.backgroundImage` leave it plain; give it its own
-      `texture` (a textures.js name or config, drawn in the backdrop's color
-      over its shade at `textureOpacity`, default `0.3`, with
-      `textureDefault`) or `backgroundImage` (a URL,
-      fit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off
-      by default.
+      Styles the `forecast` marker: the backdrop's `fill` and `fillOpacity`
+      (default `0.05`), the rule's `stroke`, `strokeWidth`, `strokeOpacity`,
+      and `strokeDasharray`, the `label` text (default "Forecast"; `false`
+      hides it) and its font keys, `lineDasharray` for each line's forecast
+      stretch (default `"6 4"`; `false` keeps lines solid), and an optional
+      `texture` or `backgroundImage` for the backdrop. `fill: false` or
+      `stroke: false` hides the backdrop or rule.
 
-      Bullet: the forecast bar's `size` (a fraction of the band's
-      thickness), `opacity`, `fill`, `texture`, and
-      `backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)`
-      accessor.
+      Bullet: the forecast bar's `size` (a share of the band), `opacity`,
+      `fill`, `texture`, and `backgroundImage`/`backgroundImageFit`.
   */
   forecastConfig?: Record<string, unknown>;
   /**
@@ -1613,19 +1438,9 @@ export interface D3plusConfig {
   /** The hover callback function for highlighting shapes on mouseover. */
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
   /**
-      How close, in pixels, the pointer has to come to a point mark for it to
-      count as hovering that point. Over empty space, or over something other
-      than a point (a gridline, a link), the pointer acts on the closest point
-      whose edge lies within this distance: its tooltip, hover highlight, and
-      axis guides show, and a click there clicks it. A point's tooltip points
-      at the top of the point (on it or near it) and holds still until
-      another point takes over. Applies to the point
-      marks of scatter and bubble plots (Circle and Rect shapes, Beeswarm
-      included), Network nodes, and Geomap points; bars, areas, lines, and
-      other area-filling marks keep exact hit-testing.
-      Plots with a discrete axis and `tooltipShared` on snap to the nearest
-      column instead. Defaults to `20`; `0` turns it off, along with the
-      anchored tooltip.
+      How close (px) the pointer must come to a point mark (scatter and
+      bubble points, Network nodes, Geomap points) to hover it, so small
+      points are easy to reach. Defaults to `20`; `0` turns it off.
   */
   hoverDistance?: number;
   /** Candlestick: accessor or data key for each period's highest value (default `"high"`). */
@@ -1655,17 +1470,10 @@ export interface D3plusConfig {
     points?: Record<string, unknown>;
   };
   /**
-      Lets keyboard users move between the chart's data marks. The chart is
-      one Tab stop (a focusable `role="application"` element laid over it,
-      named by `svgTitle` or the chart's `title`); once it has focus, the
-      arrow keys move to the nearest mark in that direction, Home and End
-      jump to the first and last mark, Enter or Space selects the focused
-      mark as a click would (drilling down, or toggling a legend item), and
-      Escape clears it. The focused mark shows its tooltip and hover
-      highlight, a ring outlines it (see `keyboardNavConfig`), and a live
-      region announces its label to screen readers. Legend items are
-      included after the chart's marks; Line and Area series are visited
-      point by point. On by default; `false` removes the Tab stop.
+      Lets keyboard users move between the chart's marks: the chart is one Tab
+      stop, the arrow keys move to the nearest mark in that direction, Home and
+      End jump to the ends, Enter or Space click the focused mark, and Escape
+      clears it. Defaults to `true`; `false` removes the Tab stop.
   */
   keyboardNav?: boolean;
   /** Styles the focus ring around the mark keyboard navigation has focused (see `KeyboardNavConfig`). */
@@ -1683,92 +1491,23 @@ export interface D3plusConfig {
   */
   labelWidth?: number;
   /**
-      Where each shape's label goes, as a string for every shape or a
-      `(d, i) => string` accessor of the data row.
+      Where each shape's label goes: `"auto"`, `"along"`, `"inside"`, or
+      `"outside"`, or a `(d, i) => string` accessor. `"auto"` picks
+      whichever fits best per shape, and a label with no room is left out.
 
-      - Ring segments (Donut slices and those of a Pie with an
-        `innerRadius`, Sunburst arcs, Chord groups, and RadialBar tracks):
-        `"along"` runs a segment's name along its arc, following the ring,
-        reading left to right on the bottom half as on the top. `"auto"`
-        picks, segment by segment, whichever reads better: the curve when
-        its arc is long enough for the whole name and it shows it larger
-        than a straight label could (a thin ring), the straight label when
-        that fits as well, and a curve cut short with an ellipsis when
-        nothing else fits. A full Pie (no `innerRadius`) keeps its labels
-        inside straight: its wedges run to a point at the center. On a Pie
-        or Donut (any `innerRadius`, and partial rings such as a half pie),
-        a slice whose label inside can't show its whole name under
-        `"auto"` is labelled outside the ring instead, and `"outside"`
-        labels every slice there: its name and share, horizontal, in the
-        Path `labelConfig`'s font at its `fontSize` (12px by default), in
-        the theme's text color unless `labelConfig.fontColor` sets one,
-        joined to the slice by a thin leader line. These labels stack in a
-        column on the side of the ring their slice faces, wrapping onto a
-        second line between words when their column is narrow; the ring
-        shrinks (its hole with it) to leave room for them, never below 60%
-        of its full radius, and when they don't all fit, the smallest
-        slices' labels are left out (those slices keep their label inside,
-        if any). `"inside"` keeps a Pie or Donut's labels straight inside
-        their slices, and on the other ring segments both `"inside"` and
-        `"outside"` keep the straight labels. A Donut's curves
-        follow the middle of its ring (the rim, when its hole is small),
-        with the slice's share on a smaller second line when there is room.
-        A Sunburst also weighs a label turned along its radius, which suits
-        the narrow arcs of the outer rings. Curved Donut and Sunburst names
-        keep 5px from the ring's edges and at least 0.3em from the
-        segment's ends, at the largest size from the Path `labelConfig`'s
-        `fontSize` (else `fontMax`, 24px by default) down to its `fontMin`
-        (8px). A Chord curves its group names just outside the ring when
-        every name fits along its arc, which leaves the ring more room;
-        otherwise it curves those that fit and turns the rest along their
-        spokes, all at the Path `labelConfig`'s `fontSize` (11px by
-        default). A Radar does the same with its metric names, just outside
-        the web, each between its neighbors' spokes, wrapping a long name
-        onto a second curved line. A RadialBar curves each track's name along the track, inside
-        its bar (or past its end when the bar is too short), when the sweep
-        leaves no room before the start for the straight labels, and at any
-        sweep for `"along"`; when every track is named this way, the default
-        legend hides. Curved text takes the color that contrasts with what
-        lies under it (the theme's ink outside the ring) and dims with its
-        segment on hover. A label with no room is left out.
-      - Bars: `"inside"` or `"outside"` the bar, or `"auto"`, which goes
-        outside when the bar is shorter than half the room along its axis.
-        Stacked bars always label inside.
-      - Circles (scatter and bubble points, Beeswarm points given a `label`,
-        Network nodes, and Geomap coordinate points): `"auto"` keeps a label
-        inside its circle when it fits there at `pointLabelConfig.fontMin` or
-        larger, else moves it beside the circle, else hides it. A Network or
-        Geomap's labels beside their circles stay in the chart area, a
-        Plot's in its plot area. `"inside"` keeps every label
-        inside, shrinking it to fit (a label that can't fit is dropped).
-        `"outside"` always puts it beside the circle. A label goes beside its
-        circle on the side with the most open room: the side facing its
-        Voronoi cell's centroid first, then right, left, top, bottom, and the
-        diagonals. A side is taken only where the label lies mostly in the
-        circle's Voronoi cell, stays in that area, and overlaps no circle and
-        no label placed before it. Larger circles are
-        placed first. A label with no room is hidden; the circle's tooltip and
-        aria-label still name it. Geomap points are labeled by
-        `shapeConfig.Circle.label` when it is set (`false` turns their labels
-        off), else by `label`. Labels are placed when the chart draws: a
-        zoomed Plot places them again for its new scales, while a zoomed
-        Network or Geomap scales them with the picture.
-      - Stacked areas (StackedArea, Streamgraph, and a stacked AreaPlot):
-        `"auto"` or `"along"` runs each series' name along its band's
-        centerline, following its curve, on the stretch where the band is at
-        least the font size plus 4px thick under the whole label and flattest.
-        The text reads upright, in the color that contrasts with the band's
-        fill (or the Area `labelConfig`'s `fontColor`, when you set one), and
-        dims with its band on hover. It starts at the Area `labelConfig`'s
-        `fontSize` (or `fontMax`, else 16px) and shrinks a pixel at a time
-        down to its `fontMin`, but no lower than 8px, before giving up; a
-        band too thin for its name everywhere goes unlabeled. When every band
-        gets a name, the default legend hides (a `legend` of your own always
-        wins, and the legend stays while a series is hidden from it).
-        `"inside"` (or `"outside"`) puts the label in the band's largest box
-        instead. `shapeConfig.Area.label` sets the text, or `false` for none.
+      - Rings (Pie, Donut, Sunburst, Chord, RadialBar) and polar charts
+        (Radar, PolarArea, RadialMatrix): `"along"` curves the name along its
+        arc. `"inside"` keeps it straight; on a Pie or Donut, `"outside"`
+        moves it beside the ring with a leader line.
+      - Bars: inside or outside the bar. `"auto"` goes outside when the bar
+        is short. Stacked bars always label inside.
+      - Circles (Plot points, Network nodes, Geomap points): inside the
+        circle, or beside it when it doesn't fit (`"outside"` always beside).
+      - Stacked areas: `"auto"` and `"along"` run each name along its band;
+        `"inside"` puts it in the band's largest box.
 
-      Defaults to `"auto"`.
+      When every stacked area or RadialBar track is named along its shape,
+      the default legend hides. Defaults to `"auto"`.
   */
   labelPosition?:
     | "auto"
@@ -1777,7 +1516,14 @@ export interface D3plusConfig {
     | "outside"
     | ((d: DataPoint, i: number) => "auto" | "along" | "inside" | "outside");
   /**
-      Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. It hides when the chart's own labels already name every entry: lines labeled along them (`lineLabels: "along"`), stacked areas named along their bands, a RadialBar's curved track names, or a Plot whose every Circle, Rect, and Bar shows its whole label reading exactly as its legend entry would. It stays while any series is hidden or soloed from it. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
+      Whether to display the legend. By default it shows when it has more than
+      one entry and each entry stands for a single group, or when entries are
+      colored by a category that isn't a `groupBy` level. It hides when the
+      chart's own labels already name every entry (see `labelPosition`), or
+      when every Circle, Rect, and Bar of a Plot shows its whole label as its
+      legend entry would, and stays while a series is hidden or soloed.
+      `false` hides it, `true` always shows it, and a `(config, data) =>
+      boolean` function decides.
   */
   legend?: boolean | ((config: D3plusConfig, arr: DataPoint[]) => boolean);
   /** Configuration object passed to the legend's config method. */
@@ -1797,11 +1543,17 @@ export interface D3plusConfig {
   */
   legendFilterInvert?: boolean | ((viz: VizBase) => boolean);
   /**
-      Whether legend clicks go on the chart's Back history. A click or shift+click (or Enter or Space on a legend item) that changes what is hidden or solo'd shows the Back button, and Back undoes legend clicks and drill-downs in the order they happened, restoring the legend exactly as it was. A drill-down to a deeper level starts with every group shown, and Back out of it brings back the legend it left. A click that changes nothing adds no step, and new `data` clears the legend's steps along with the legend. Clicking a Sunburst or Icicle center zooms out without undoing the legend clicks made since the zoom. Defaults to `true`; `false` leaves legend clicks off the history, so Back only steps out of drill-downs.
+      Whether legend clicks go on the chart's Back history, so Back undoes
+      them along with drill-downs, in order. Defaults to `true`; `false` leaves
+      them off, so Back only steps out of drill-downs.
   */
   legendHistory?: boolean;
   /**
-      Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
+      Whether the chart may draw a legend, size legend, or colorScale inside
+      empty space around its marks (over a translucent box, see
+      `legendInsetConfig`) instead of in a margin. Only a legend whose position
+      is `"auto"` can move inside. Defaults to `true`; also accepts a function
+      of the resolved config.
   */
   legendInset?: boolean | ((config: D3plusConfig) => boolean);
   /**
@@ -1875,28 +1627,13 @@ export interface D3plusConfig {
   /** ParallelCoordinates: the lines' stroke opacity, or `"auto"` (default) to fade them as their number grows. */
   lineOpacity?: number | "auto";
   /**
-      Labels each line of a line chart with its series name, just past the
-      line's ends: `true` or `"end"` labels the right end, `"start"` the left
-      end, and `"both"` both ends. A function of each row returns any of
-      these (or `false`) to choose per series. The plot leaves room for the
-      labels on the side they sit, at most a quarter of its width past the y
-      axis per side;
-      a label wider than that drops its value, then shortens its name with
-      an ellipsis, then hides. Labels that would overlap are moved apart,
-      each side on its own, with a dotted connector back to their line; when
-      the plot is too short for them all, the last that fits reads "+N more".
-      `lineLabelConfig` adds each end's value to its label.
-
-      `"along"` writes each series name along its own line instead, following
-      its curve: on the stretch that bends and slopes least and stays clear
-      of the other lines and labels, reading upright whichever way the line
-      runs. A line with no clear stretch for its name goes unlabeled, a chart
-      (or small-multiples panel) with a single line names none, and the plot
-      leaves no room past the lines for these labels. The Line shape's
-      `labelConfig` sets their `fontSize`, `fontFamily`, and `fontWeight`.
-      When every line gets a name, the default legend hides (a `legend` of
-      your own always wins). LinePlot defaults to `"along"`; other charts
-      default to no labels.
+      Labels each line with its series name: `true` or `"end"` past its right
+      end, `"start"` past its left end, `"both"` at both ends, or `"along"`
+      written along the line itself, following its curve. A function of each
+      row picks per series (or `false`). End labels that would overlap are
+      moved apart, and `lineLabelConfig` can add each end's value. When every
+      line is named along it, the default legend hides. Defaults to `"along"`
+      on LinePlot, no labels elsewhere.
   */
   lineLabels?: LineLabelsSetting;
   /**
@@ -1914,28 +1651,16 @@ export interface D3plusConfig {
   maxAngle?: number;
   /**
       Geomap: how far each link bows into an arc, as a share of the distance
-      between its ends. `0` draws the plain great-circle path; the default
-      `0.2` lifts a link's middle by a fifth of that distance, to the left
-      of its direction (a negative value bows to the right), so links
-      running both ways between two places stay apart. On a flat map, a
-      link whose great circle the projection cuts (across the antimeridian,
-      or between `"geoAlbersUsa"`'s insets) is drawn on the screen between
-      its ends, bowed the same way, so it crosses the map instead of leaving
-      by one edge. On a projection that clips to a circle (a globe such as
-      `"geoOrthographic"`), links follow the great circle without the lift.
+      between its ends: `0` draws the plain great-circle path, and the default
+      `0.2` bows it to the left of its direction (negative bows right), so
+      links running both ways stay apart. Globes ignore it.
   */
   linkCurve?: number;
   /**
-      Network and Geomap: bundles the links (force-directed edge bundling,
-      after Holten and van Wijk). Links that run the same way near each
-      other are pulled together into shared curves that fan out at their
-      ends, so the main flows read through the clutter of a dense chart.
-      Arrowheads, labels, hover, and click focus follow each bundled curve.
-      A Network's links from a node to itself, and a Geomap's links on a
-      globe or cut by its projection, are drawn as usual; a bundled Geomap
-      link ignores `linkCurve`. The bundling is worked out once per layout
-      (under a second for 2,500 links) and reused while the chart zooms,
-      pans, or is hovered. Defaults to `false`.
+      Network and Geomap: bundles links that run the same way into shared
+      curves (force-directed edge bundling), so the main flows read through
+      the clutter of a dense chart. A bundled Geomap link ignores
+      `linkCurve`. Defaults to `false`.
   */
   linkBundle?: boolean;
   /**
@@ -1959,18 +1684,11 @@ export interface D3plusConfig {
   */
   linkSizeMin?: number;
   /**
-      Colors each link of a Network, Rings, Sankey, ArcDiagram, or Geomap,
-      and its arrowheads: `"source"` or `"target"` takes that end node's color, and
-      a key or accessor function reads a value from each link (receiving the
-      link, with `source` and `target` set to the data of its nodes, and its
-      index in `links`). A number is colored on the chart's
-      colorScale, which then shows the links' values beside the nodes' color
-      legend (when the chart also has a `colorScale` for its nodes, nodes and
-      links share it, on one domain); a string is a color when it parses as
-      one, or else a category in the chart's palette, as `color` colors
-      nodes. `false` (the default) draws every link in the theme's `link`
-      gray (on a Geomap, a gray halfway between the chart's background and
-      text colors, which reads over land and water alike).
+      Colors each link of a Network, Rings, Sankey, ArcDiagram, or Geomap (and
+      its arrowheads): `"source"` or `"target"` takes that node's color, and a
+      key or accessor reads a value from each link: a number is colored on the
+      colorScale, and a string is a color or a palette category. `false` (the
+      default) draws every link in the theme's link gray.
   */
   linkColor?:
     | false
@@ -1991,35 +1709,21 @@ export interface D3plusConfig {
   */
   linkLabel?: string | ((d: DataPoint, i: number) => unknown);
   /**
-      Styles the link labels (see `linkLabel`): `rotate`, `"along"` (the
-      default) to run text along its link, kept upright, or `"horizontal"`;
-      `fontSize` (10); `padding`, the pad around the text (2);
-      `backgroundOpacity`, the opacity of that pad in the chart's background
-      color (0.85); `minRadius`, the tightest bend a curved label follows,
-      in ems (2); and any other TextBox setting, such as `fontColor`
-      (defaults to the chart's text color), `fontFamily`, or `fontWeight`.
-      Along a curved link (a Rings spline or fanned parallel link, an
-      ArcDiagram arc, a self-loop, a bundled Network edge, a Geomap flow
-      arc, or a Sankey band or return lane), an `"along"` label follows the
-      curve, centered where a straight label would sit, over a pad that
-      curves with it, and is cut short with an ellipsis when the curve has
-      too little room (or left out when fewer than three letters fit). A
-      loop bending tighter than `minRadius` keeps a straight label.
+      Styles the link labels (see `linkLabel`): `rotate` (`"along"`, the
+      default, runs text along its link, curves included; `"horizontal"`
+      keeps it flat), `fontSize` (default `10`), `padding` (default `2`),
+      `backgroundOpacity` of the pad behind the text (default `0.85`),
+      `minRadius`, the tightest bend a label follows in ems (default `2`), and
+      any other TextBox setting, such as `fontColor`.
   */
   linkLabelConfig?: LinkLabelConfig;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
   link?: LinkOption;
   /**
-      Network, Rings, ArcDiagram, and Geomap: the thickness of each link, as
-      a pixel number used for every link, or an accessor function whose
-      values are scaled (see `linkSizeScale`) from `linkSizeMin` up to
-      `linkSizeMax` on a Network, Rings, or Geomap (by default half the
-      smallest node's radius on the first two, and 10 pixels on a Geomap),
-      or up to the smallest node's radius on an ArcDiagram. The
-      function receives each link with its own fields, with `source` and
-      `target` set to the data of the nodes at its ends (not their ids or
-      indices), and its index in `links`. Link `shapeConfig` functions, arrow
-      accessors, and tooltip accessors receive the same object.
+      Network, Rings, ArcDiagram, and Geomap: each link's thickness, as a
+      pixel number, or an accessor whose values are scaled (see
+      `linkSizeScale`) between `linkSizeMin` and `linkSizeMax`. The accessor
+      receives each link with `source` and `target` set to its nodes' data.
   */
   linkSize?:
     | number
@@ -2168,16 +1872,11 @@ export interface D3plusConfig {
   */
   overlap?: number;
   /**
-      Room (px) the Radar reserves around its web for the metric labels.
-      `"auto"` (the default) curves every metric name along the web when
-      they all fit (see `labelPosition`), on one line or, for long names,
-      two, which needs only that much room.
-      Otherwise it measures the labels along their spokes and gives the web
-      the largest radius at which every label fits inside the chart,
-      wrapping long labels onto two lines (and truncating what still doesn't
-      fit) rather than shrinking the web below half its largest possible
-      size; names that fit along the web at that radius still curve. A
-      number reserves exactly that much room and wraps labels to that width.
+      Room (px) reserved around a Radar's web (or a polar chart's circle) for
+      its labels. `"auto"` (the default) curves every label along the edge
+      when they all fit (see `labelPosition`), else sizes the circle to the
+      labels measured along their spokes, wrapping long ones onto two lines.
+      A number reserves exactly that much room.
   */
   outerPadding?: number | "auto";
   /** Priestley and Gantt: the space between neighboring bars, as a share of each row (d3's band `paddingInner`). */
@@ -2246,49 +1945,25 @@ export interface D3plusConfig {
   */
   reducedMotion?: "auto" | boolean;
   /**
-      Plot: shaded spans across the plot between two values, such as a
-      recession or a target range. Give each entry `x` (a vertical band) or
-      `y` (a horizontal one) as `[start, end]` in data units (numbers, dates,
-      or categories; on a category axis the band covers each end category's
-      whole slot), or `x2`/`y2` for the secondary axes, or `ref: "plot"` for
-      fractions of the plot area. An optional `label` sits inside the band's
-      top-left corner (`labelPosition: "end"` for the top-right), with
-      `fontColor`, `fontFamily`, `fontSize`, `fontWeight`, `lineHeight`, and
-      `maxWidth`. The fill defaults to the chart's text color at `fillOpacity`
-      `0.08`, so it reads on light and dark themes; `stroke`, `strokeWidth`,
-      and `strokeOpacity` add edges. On a continuous or time axis the band's
-      ends count toward the axis domain, widening it to show the whole band
-      (an end set by `xDomain`/`yDomain`/`x2Domain`/`y2Domain` or the axis
-      config's `domain` stays put). Each entry expands into a
-      `"ReferenceBand"` annotation (see `annotations`) behind the data
-      (`layer: "front"` to draw it over; its label always draws above), which follows zoom and never
-      responds to the pointer or keyboard. A label that would cover a data
-      label or another reference label moves to the band's other corners or
-      along its length, inside the plot, and is hidden when no spot is free.
+      Plot: shaded spans between two values, such as a recession or a target
+      range. Give each entry `x` (vertical) or `y` (horizontal) as
+      `[start, end]` in data units, `x2`/`y2` for the secondary axes, or
+      `ref: "plot"` for fractions of the plot. Optional: a `label` (top-left;
+      `labelPosition: "end"` for top-right) with font keys and `maxWidth`,
+      `fill`/`fillOpacity` (default the text color at `0.08`), `stroke`,
+      `strokeWidth`, `strokeOpacity`, and `layer: "front"` to draw over the
+      data. A band widens a continuous axis's domain to fit.
   */
   referenceBands?: ReferenceBandConfig[];
   /**
-      Plot: lines across the whole plot at one value, such as a target or a
-      launch date. Give each entry `x` (a vertical line) or `y` (a horizontal
-      one) in data units (a number, a date, or a category), or `x2`/`y2` for
-      the secondary axes, or `ref: "plot"` for a fraction of the plot area.
-      An optional `label` sits at the line's `"end"` (the right of a
-      horizontal line, the top of a vertical one) or `"start"`
-      (`labelPosition`), with `fontColor`, `fontFamily`, `fontSize`,
-      `fontWeight`, `lineHeight`, and `maxWidth`. The line's `stroke`
-      defaults to the chart's text color at `strokeOpacity` `0.6`, `strokeWidth`
-      `1`; `dash: true` dashes it ("4 4"), or give a dash pattern. On a
-      continuous or time axis the value counts toward the axis domain,
-      widening it to show the line (an end set by `xDomain`/`yDomain`/
-      `x2Domain`/`y2Domain` or the axis config's `domain` stays put; a value
-      outside such a domain is not drawn). Each entry
-      expands into a `"ReferenceLine"` annotation (see `annotations`) behind
-      the data (`layer: "front"` to draw it over; its label always draws
-      above), which follows zoom and
-      never responds to the pointer or keyboard. A label that would cover a
-      data label or another reference label moves to the line's other side
-      or end, or along it, inside the plot, and is hidden when no spot is
-      free.
+      Plot: lines across the plot at one value, such as a target or a launch
+      date. Give each entry `x` (vertical) or `y` (horizontal) in data units,
+      `x2`/`y2` for the secondary axes, or `ref: "plot"` for a fraction of the
+      plot. Optional: a `label` at the line's `"end"` or `"start"`
+      (`labelPosition`) with font keys and `maxWidth`, `stroke`/`strokeOpacity`
+      (default the text color at `0.6`), `strokeWidth` (`1`), `dash` (`true`
+      or a dash pattern), and `layer: "front"` to draw over the data. A line
+      widens a continuous axis's domain to fit.
   */
   referenceLines?: ReferenceLineConfig[];
   /** Row key for matrix-style layouts. */
@@ -2479,16 +2154,12 @@ export interface D3plusConfig {
   /** Accessor function or string for the visualization's subtitle. */
   subtitle?: string | ((data: DataPoint[]) => string);
   /**
-      Packs a Plot's circles into a beeswarm: each circle keeps its value along
-      one axis and is placed beside its neighbors along the other, so none
-      overlap. `"x"` or `"y"` names the value axis; `true` uses x when its
-      values are numeric, else y; `false` draws a plain scatter. When the other
-      axis holds categories (strings), each category gets its own swarm in its
-      own band; otherwise that axis's values are ignored and its axis is hidden.
-      Circles keep their ids, so switching a chart between `false` and `true`
-      animates each circle between its scatter and swarm position. The default,
-      `"auto"`, swarms only when every mark is a Circle and every row lacks a y
-      (or x) value.
+      Packs a Plot's circles into a beeswarm: each keeps its value along one
+      axis and is placed beside its neighbors along the other, so none
+      overlap. `"x"` or `"y"` names the value axis; `true` picks x when its
+      values are numeric, else y; `false` draws a plain scatter. A category
+      axis gets one swarm per category. The default, `"auto"`, swarms only
+      when every mark is a Circle and rows lack the other axis's value.
   */
   swarm?: boolean | "auto" | "x" | "y";
   /**
@@ -2561,19 +2232,11 @@ export interface D3plusConfig {
   targetConfig?: Record<string, unknown>;
   /**
       The chart's colors. `"auto"` (the default) paints no background and
-      follows the page behind the chart: its chrome text contrasts with the
-      page, its tooltip, table view, and overlays turn dark on a dark page,
-      and it redraws when the page flips between light and dark. `"light"` and
-      `"dark"` paint the theme's background behind the chart (so it reads the
-      same on any page, and in a saved image) and take every chrome color
-      from the theme. An object sets your own tokens on top of the preset its
-      `base` names (`"light"` or `"dark"`), for example
-      `{base: "dark", background: "#123", accent: "#ffd43b"}`. A dark theme
-      also turns color scale ramps around, from a dim tint near the background
-      up to a bright pole (see the `colorScale` tokens). Colors you set in the
-      other config (`titleConfig.fontColor`, `tooltipConfig`,
-      `colorScaleConfig.colorMax`, the `*Style` options, …) win over the
-      theme.
+      follows the page, light or dark. `"light"` and `"dark"` paint the
+      theme's background and take every chrome color from it. An object
+      overrides tokens on top of its `base` preset, e.g.
+      `{base: "dark", background: "#123", accent: "#ffd43b"}`. Colors set
+      elsewhere in the config win over the theme.
   */
   theme?: ThemeSetting;
   /**
@@ -2743,16 +2406,10 @@ export interface D3plusConfig {
   */
   xBreak?: [number, number] | [number, number][];
   /**
-      The x domain as an array. On a continuous axis it is `[min, max]`.
-      Setting just one end (`[min]` or `[undefined, max]`) pins only that
-      end: the data fills the other, rounded where the axis would round it
-      with no domain set (left at the data when `xConfig`'s `rounding`
-      is "none"; time axes aren't rounded). With both ends set, neither is
-      rounded. On a discrete axis it lists the categories to show, in
-      order; data in other categories is not drawn. A full `xConfig`
-      `domain` is the lower-level override: it wins over this, and is drawn
-      exactly as given (rounded only by `xConfig`'s own `rounding`),
-      without stretching to the chart's `baseline`.
+      The x domain: `[min, max]` on a continuous axis, or the categories to
+      show, in order, on a discrete one. Setting one end (`[min]` or
+      `[undefined, max]`) pins only that end; the data fills the other. An
+      `xConfig.domain` overrides this.
   */
   xDomain?: (number | string | Date)[];
   /** The x2 domain as an array. If either value is undefined, it is calculated from the data. */
@@ -2773,16 +2430,10 @@ export interface D3plusConfig {
   */
   yBreak?: [number, number] | [number, number][];
   /**
-      The y domain as an array. On a continuous axis it is `[min, max]`.
-      Setting just one end (`[min]` or `[undefined, max]`) pins only that
-      end: the data fills the other, rounded where the axis would round it
-      with no domain set (left at the data when `yConfig`'s `rounding`
-      is "none"; time axes aren't rounded). With both ends set, neither is
-      rounded. On a discrete axis it lists the categories to show, in
-      order; data in other categories is not drawn. A full `yConfig`
-      `domain` is the lower-level override: it wins over this, and is drawn
-      exactly as given (rounded only by `yConfig`'s own `rounding`),
-      without stretching to the chart's `baseline`.
+      The y domain: `[min, max]` on a continuous axis, or the categories to
+      show, in order, on a discrete one. Setting one end (`[min]` or
+      `[undefined, max]`) pins only that end; the data fills the other. A
+      `yConfig.domain` overrides this.
   */
   yDomain?: (number | string | Date)[];
   /** The y2 domain as an array. If either value is undefined, it is calculated from the data. */
@@ -2810,7 +2461,11 @@ export interface D3plusConfig {
   */
   zoomControlClassName?: string;
   /**
-      Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.
+      Overrides the zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`,
+      `zoomBrush`). Each value is an HTML string, or a mount function
+      `(el) => void | (() => void)` called with the button's 12×12px icon slot
+      (for a React tree, an `<img>`, …); a returned cleanup runs when the
+      buttons redraw.
   */
   zoomControlIcons?: Partial<
     Record<

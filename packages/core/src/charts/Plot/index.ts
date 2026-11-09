@@ -388,11 +388,7 @@ export default class Plot extends Viz {
   }
 
   /**
-      Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
-
-Additionally, each config object can also contain an optional "layer" key, which defines whether the annotations will be displayed in "front" or in "back" of the primary visualization shapes. This value defaults to "back" if not present ("front" for callouts).
-
-Three more kinds draw chart notes: `"Callout"` anchors wrapped text in a box at each data row's `x`/`y` (in data units, or plot-area fractions with `xRef`/`yRef: "plot"`), offset by `dx`/`dy` pixels and joined to its anchor by a connector ending in an arrowhead or dot (see `CalloutAnnotation`); `"ReferenceLine"` and `"ReferenceBand"` draw what `referenceLines` and `referenceBands` entries expand into. All annotations follow zoom and never respond to the pointer or keyboard.
+      Custom shapes drawn as annotations on the plot: a [Shape](http://d3plus.org/docs/#Shape) config object, or an array of them, each with a `shape` key naming the Shape class to use (`"Rect"`, `"Line"`, …) and an optional `layer`, `"back"` (the default) or `"front"`. Three more kinds draw chart notes: `"Callout"` (wrapped text joined to a data point by a connector; see `CalloutAnnotation`), and `"ReferenceLine"` and `"ReferenceBand"` (what `referenceLines` and `referenceBands` expand into).
 */
   annotations(_?: unknown): this | unknown[] {
     return arguments.length
@@ -410,7 +406,7 @@ Three more kinds draw chart notes: `"Callout"` anchors wrapped text in a box at 
   }
 
   /**
-      Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars, areas, and stems still grow from the chart's own `0` in the Plots that draw from one (such as BarChart, AreaPlot, Histogram, and Lollipop), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is "none"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
+      Starts the value axis at a value, like `yDomain([n])` (or `xDomain([n])` for horizontal charts); the far end comes from the data. Bars, areas, and stems still grow from `0`, so with `baselineBreak` on the axis breaks back to a `0` tick. A bound in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
 */
   baseline(_?: number): this | number | undefined {
     return arguments.length
@@ -458,9 +454,7 @@ Three more kinds draw chart notes: `"Callout"` anchors wrapped text in a box at 
   }
 
   /**
-       The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval, and a row without a bound pinches the band onto its line. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.
-
-       Pass an array of bands, outermost first, to draw nested bands around each line (a fan): each band is a `[lower, upper]` pair or `[lower, upper, label]`, or a `{lower, upper, label}` object, and `confidenceConfig.bandOpacity` shades them from the widest (lightest) to the narrowest (darkest). Tooltips list each band's range under its label ("Band 1", "Band 2", … when unlabeled), and bars draw the first band's error bar.
+       The confidence interval as `[lower, upper]` bounds (keys or accessors): lines draw a shaded band, bars an error bar. Either bound may be `false` for a one-sided interval, and the value axis widens to fit. Pass an array of bands, outermost first (`[lower, upper, label]` or `{lower, upper, label}`), to draw nested bands (a fan). `false` turns it off.
 
 @example <caption>Can be called with accessor functions or static keys:</caption>
        var data = {id: "alpha", value: 10, lci: 9, hci: 11};
@@ -487,7 +481,7 @@ Three more kinds draw chart notes: `"Callout"` anchors wrapped text in a box at 
   }
 
   /**
-       Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `"50%"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. With several bands, `bandOpacity` sets how each band looks where it is the innermost band drawn: an array ramps from the outermost band to the innermost (default `[0.15, 0.6]`), a number gives every band that opacity, and either replaces `fillOpacity`. `tooltip` (default `true`) lists the bounds in tooltips: a "Lower Bound" and "Upper Bound" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `bandOpacity`, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.
+       Styles the confidence intervals: a line's band takes Area keys (filled with the line's color), and a bar's error bar takes Path keys (`stroke`, `strokeWidth`, …) plus `capWidth`, in pixels or a percentage of the bar (default `"50%"`). Keys under `Area` or `Bar` apply to that shape only. `bandOpacity` ramps nested bands' opacity (default `[0.15, 0.6]`), and `tooltip: false` leaves the bounds out of tooltips.
 
 @example
        .confidenceConfig({Bar: {stroke: "#333", capWidth: 8}, tooltip: false})

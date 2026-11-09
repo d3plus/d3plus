@@ -47,13 +47,13 @@ Set under a shape's name (`shapeConfig.Path.backgroundImage`), the image applies
 
 ## Slice labels
 
-Each slice's name sits centered on the line through the middle of the slice, with its share on a smaller line beneath. The name takes the largest size that shows it whole inside the slice, from `shapeConfig.labelConfig.fontMin` to `fontMax` (10px to 32px by default), wrapping between words where that reads larger, and the share is left off where it would shrink the name too much. A slice with room to spare keeps its label halfway between where the slice gets too narrow and its rim, and a slice too small to show its whole name at 10px is labelled [outside the ring](#labels-outside-the-ring) instead.
+Each slice shows its name, with its share on a smaller line beneath, at the largest size that fits inside the slice (between `shapeConfig.labelConfig.fontMin` and `fontMax`). A slice too small for its name is labelled [outside the ring](#labels-outside-the-ring) instead.
 
 <Playground chart="Pie" code={sliceLabels} controls={["labelPosition","shapeConfig"]} />
 
 ## Labels outside the ring
 
-A slice too small to show its whole name inside takes a label outside the ring instead, with its share, joined to it by a thin leader line. The labels stack in a column on the side each slice faces, and the ring shrinks just enough to leave them room. `labelPosition: "outside"` labels every slice this way, and `"inside"` keeps every label inside (a slice too small for one goes unlabeled). When there isn't room for them all, the smallest slices' labels are left out.
+Small slices are labelled outside the ring, joined to their slice by a leader line, and the ring shrinks to make room. `labelPosition: "outside"` labels every slice this way, and `"inside"` keeps every label inside.
 
 <Playground chart="Pie" code={outsideLabels} controls={["labelPosition"]} />
 

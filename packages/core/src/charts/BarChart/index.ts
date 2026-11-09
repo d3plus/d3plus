@@ -38,16 +38,9 @@ export const barChartDef: ChartDefinition = {
     {key: "barWidth", coerce: barWidthAccessor},
     /**
         With `barWidth`, adds each bar's share of the total width to its
-        category's axis label: on a second line beneath the name along a
-        horizontal axis, in parentheses after it along a vertical one. Along
-        a horizontal axis, a name wraps to fit a narrow bar, widening into
-        room its neighbors leave; a label that still can't fit is left out,
-        and the labels rotate, showing the name alone, only when half or
-        more can't fit. `"opposite"` puts the shares on the axis across the
-        bars from the names instead: above them along a horizontal axis
-        (`x2Config`), right of them along a vertical one (`y2Config`). In
-        small multiples, each panel's shares are of that panel's own total
-        width. Off (`false`) by default.
+        category's axis label ("Retail" over "50%"). `"opposite"` puts the
+        shares on the axis across from the names (`x2Config`/`y2Config`).
+        Off (`false`) by default.
     */
     {key: "barWidthShare", default: false},
     /**
