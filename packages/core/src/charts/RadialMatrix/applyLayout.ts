@@ -64,7 +64,10 @@ interface MatrixArc {
   endAngle: (fn: (d: {column: unknown}) => number) => MatrixArc;
 }
 
-/** The straight column labels: the TextBox, rendered in compute mode. */
+/**
+    The straight column labels: the TextBox, rendered in compute mode, each
+    following the hover of its column's cells.
+*/
 const straightColumnLabels = (
   viz: Parameters<TransformStage>[0]["viz"],
   displayLabels: LabelDatum[],
@@ -85,7 +88,13 @@ const straightColumnLabels = (
     .height(labelHeight)
     .config(labelConfig)
     .render();
-  return (columnLabels.toScene()?.children ?? []) as SceneNode[];
+  const nodes = (columnLabels.toScene()?.children ?? []) as SceneNode[];
+  // Each label follows the hover of its column's cells.
+  for (const n of nodes) {
+    const column = (n.datum as LabelDatum | undefined)?.key;
+    if (column !== undefined) n.hoverMatch = {field: "column", value: column};
+  }
+  return nodes;
 };
 
 /**
@@ -216,6 +225,7 @@ const layColumnLabels = (
               data,
               i: k,
               curve,
+              hoverMatch: {field: "column", value: key},
             },
           ]
         : [];

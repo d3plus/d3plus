@@ -83,6 +83,8 @@ export function polarWedgeNodes(
       arc: w.arc,
       datum: w.data,
       index: w.i,
+      // Its category's labels stay bright while it's hovered.
+      hoverKeys: {slot: w.slot},
       // Explicit, so an exiting wedge fades from a real starting opacity.
       paint: {...paint, opacity: paint.opacity ?? 1},
       aria: {label: aria(w)},

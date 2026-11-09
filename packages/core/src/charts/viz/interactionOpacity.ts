@@ -236,6 +236,7 @@ function matchedValues(
     const group = node.interactionGroup;
     if (group === "axis" || group === "timeline" || node.hoverMatch) return;
     if (nodeMatches(node, predicate)) {
+      if (node.hoverKeys) add(node.hoverKeys as DataPoint);
       if (node.datum) add(node.datum);
       else
         for (const p of node.interactionPoints ?? [])

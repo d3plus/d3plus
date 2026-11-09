@@ -253,6 +253,12 @@ export interface NodeBase {
       Interaction metadata only — backends never read it for drawing.
   */
   hoverMatch?: {field: string; value: unknown};
+  /**
+      Values a mark stands for beyond its datum, keyed by field, that
+      `hoverMatch` labels match as if the datum held them (a polar wedge's
+      slot). Interaction metadata only — backends never read it for drawing.
+  */
+  hoverKeys?: Record<string, unknown>;
   paint?: Paint;
   transform?: Transform;
   /** When false, the node is ignored by hit-testing (= SVG pointer-events: none). */
