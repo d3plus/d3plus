@@ -1,21 +1,23 @@
 /**
     `radarEmit` — Path SceneNodes for each radar polygon, using
-    `groupData` + `pathConfig` stashed on `viz.ctx`. Emits flat SceneNodes
+    `groupData` + `pathConfig` stashed on `viz.ctx`, then a Circle on each
+    vertex above them all (see `points.ts`). Emits flat SceneNodes
     directly (no transient Shape compute pass).
 */
 
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import {paintFromShapeConfig} from "../features/emitHelpers.js";
+import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
-interface RadarGroupDatum {
+import {radarPointNodes} from "./points.js";
+import type {RadarPointGroup} from "./points.js";
+
+interface RadarGroupDatum extends RadarPointGroup {
   __d3plus__?: true;
   data?: DataPoint;
-  id: string | number;
-  metrics?: unknown[];
   d: string;
 }
 
@@ -43,5 +45,6 @@ export const radarEmit: ChartEmit = ({viz}) => {
     (groupData[k].data ?? groupData[k]) as DataPoint,
     k,
   ]);
-  return [...out, ...images];
+  const points = radarPointNodes(viz, groupData, shapeConfigFor(viz, "Circle"));
+  return [...out, ...images, ...points];
 };

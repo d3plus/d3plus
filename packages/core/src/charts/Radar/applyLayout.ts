@@ -27,6 +27,7 @@ import {
   radarRingNodes,
 } from "./axisDecorations.js";
 import {radarLevels, radarRadius} from "./levels.js";
+import {registerRadarPoint} from "./points.js";
 
 const TAU = Math.PI * 2;
 
@@ -37,6 +38,8 @@ interface GroupDatum {
   id: string | number;
   /** The metrics the polygon has a value for. */
   metrics: unknown[];
+  /** Each vertex's value. */
+  values: number[];
   points: {x: number; y: number}[];
   d: string;
 }
@@ -123,9 +126,11 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     const innerEntries = entries
       .slice()
       .sort((a, b) => spokeOf.get(a[0])! - spokeOf.get(b[0])!);
-    const q = innerEntries.map(([metric, vals]) => {
-      const value = sum(vals, (x, ii) => valueFn(x, ii));
-      const r = radarRadius(value, domain, radius);
+    const values = innerEntries.map(([, vals]) =>
+      sum(vals, (x, ii) => valueFn(x, ii)),
+    );
+    const q = innerEntries.map(([metric], k) => {
+      const r = radarRadius(values[k], domain, radius);
       const radians = (TAU / totalAxis) * spokeOf.get(metric)!;
       return {x: r * Math.cos(radians), y: r * Math.sin(radians)};
     });
@@ -135,21 +140,22 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
       .join(" ")} L ${q[0].x} ${q[0].y}`;
 
     const aggs = viz.schema.aggs as Parameters<typeof merge>[1];
+    const metrics = innerEntries.map(([metric]) => metric);
+    // Each vertex's row: the datum of its dot (see `points.ts`).
+    const arr = innerEntries.map(([, vals], k) => {
+      const row = merge(vals as DataPoint[], aggs) as DataPoint;
+      registerRadarPoint(row, {metric: metrics[k], value: values[k]});
+      return row;
+    });
     return {
       __d3plus__: true,
-      arr: innerEntries.map(([, vals]) =>
-        merge(vals as DataPoint[], aggs),
-      ) as DataPoint[],
+      arr,
       id: hKey as string | number,
-      metrics: innerEntries.map(([metric]) => metric),
+      metrics,
+      values,
       points: q,
       d: pathD,
-      data: merge(
-        innerEntries.map(([, vals]) =>
-          merge(vals as DataPoint[], aggs),
-        ) as DataPoint[],
-        aggs,
-      ) as DataPoint,
+      data: merge(arr, aggs) as DataPoint,
     };
   });
 

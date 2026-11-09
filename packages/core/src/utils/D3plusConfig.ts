@@ -1439,7 +1439,7 @@ export interface D3plusConfig {
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
   /**
       How close (px) the pointer must come to a point mark (scatter and
-      bubble points, Network nodes, Geomap points) to hover it, so small
+      bubble points, Network nodes, Geomap points, Radar dots) to hover it, so small
       points are easy to reach. Defaults to `20`; `0` turns it off.
   */
   hoverDistance?: number;
