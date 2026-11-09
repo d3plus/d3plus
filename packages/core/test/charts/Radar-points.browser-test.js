@@ -185,6 +185,14 @@ describe.each(["svg", "canvas"])("Radar points (%s)", renderer => {
       await page.mouse.move(body[0], body[1], {steps: 3});
       await page.waitForTimeout(80);
       assert.deepStrictEqual(await run(page, tooltip), {title: "A", rows: []});
+      assert.ok(
+        !(await run(page, () =>
+          document
+            .querySelector(".d3plus-tooltip")
+            .textContent.includes("false"),
+        )),
+        'no stray "false" in the polygon tooltip',
+      );
       assert.deepStrictEqual(await run(page, labelOpacity), {
         Speed: 1,
         Power: 1,

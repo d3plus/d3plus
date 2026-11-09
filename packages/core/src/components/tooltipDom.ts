@@ -173,21 +173,23 @@ export function divElement(
     .attr("id", ((d: DataPoint, i: number) =>
       elementId(that, d, i, cat)) as never);
 
+  const value = (d: DataPoint, i: number): unknown =>
+    (that.schema as Record<string, (d: DataPoint, i: number) => unknown>)[cat](
+      d,
+      i,
+    );
+  // A part set to `false` (or nothing) is hidden and left empty, rather
+  // than holding the text "false".
+  const shown = (val: unknown): boolean =>
+    val !== false && val !== undefined && val !== null;
   const div = update
     .select(`.d3plus-tooltip-${cat}`)
-    .html(
-      ((d: DataPoint, i: number) =>
-        (that.schema as Record<string, (d: DataPoint, i: number) => unknown>)[
-          cat
-        ](d, i) as string) as never,
-    )
-    .style("display", ((d: DataPoint, i: number) => {
-      const val = (
-        that.schema as Record<string, (d: DataPoint, i: number) => unknown>
-      )[cat](d, i);
-      const visible = val !== false && val !== undefined && val !== null;
-      return visible ? "block" : "none";
-    }) as never);
+    .html(((d: DataPoint, i: number) => {
+      const val = value(d, i);
+      return shown(val) ? (val as string) : "";
+    }) as never)
+    .style("display", ((d: DataPoint, i: number) =>
+      shown(value(d, i)) ? "block" : "none") as never);
 
   stylize(
     div,
