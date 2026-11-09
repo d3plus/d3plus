@@ -6,6 +6,7 @@ description: "Creates a geographical map with zooming, panning, image tiles, and
 import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import choroplethMap from "~/examples/core/charts/geomap/choropleth-map.js?raw";
+import bivariateChoropleth from "~/examples/core/charts/geomap/bivariate-choropleth.js?raw";
 import coordinatePointMap from "~/examples/core/charts/geomap/coordinate-point-map.js?raw";
 import flowMap from "~/examples/core/charts/geomap/flow-map.js?raw";
 import globe from "~/examples/core/charts/geomap/globe.js?raw";
@@ -33,6 +34,12 @@ Creates a geographical map with zooming, panning, image tiles, and the ability t
 Joins data to the `topojson` shapes via `groupBy` and fills each region by its `colorScale` value; `colorScaleConfig`'s `tickFormat` renders the legend ticks as percentages.
 
 <Playground chart="Geomap" code={choroplethMap} controls={["colorScale","colorScaleConfig","ocean","projection","tiles","topojson"]} />
+
+## Bivariate choropleth
+
+Two fields given to `colorScale` color each region by both at once. Each variable is split into quantile bins (3 by default; `colorScaleConfig.bivariateBuckets` takes 2 to 4), and the pair of bins picks a color from a grid: Joshua Stevens' blue–red scheme by default, where adult obesity rises toward red, physical inactivity toward blue, and both together toward the dark corner. The key turns the grid 45° into a diamond, each variable named along its lower edge. Hover a cell to highlight the states in it, or a state to light its cell and read both values in the tooltip. A state missing either value takes the no-data fill.
+
+<Playground chart="Geomap" code={bivariateChoropleth} controls={["colorScale","colorScaleConfig","projection"]} />
 
 ## Coordinate point map
 
