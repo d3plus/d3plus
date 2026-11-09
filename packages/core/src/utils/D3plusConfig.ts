@@ -1005,9 +1005,10 @@ export interface D3plusConfig {
       Whether the chart uses the data cache that every chart on the page
       shares for the files fetched by `data`, `links`, `nodes`, `topojson`,
       and `fitObject`, so charts loading the same URL share one request and
-      loading it again, or changing a formatter, needs none. Defaults to
-      `true`; `false` fetches on every load. `clearDataCache()` from
-      `@d3plus/data` empties the cache.
+      loading it again, or changing a formatter, needs none. The cache uses
+      up to about 50 MB of memory, dropping the least recently used files
+      first. Defaults to `true`; `false` fetches on every load.
+      `clearDataCache()` from `@d3plus/data` empties the cache.
   */
   cache?: boolean;
   /** Calendar: styles the weekday, month, and year labels (`fontColor`, `fontFamily`, `fontSize`, default `11`, and `fontWeight`). */

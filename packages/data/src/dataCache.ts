@@ -7,8 +7,11 @@ export interface LoadCache {
 /** The receivers waiting on in-flight requests, by cache key. */
 export type InFlight<R> = Map<string, R[]>;
 
-/** How much response text the shared cache keeps, in characters (about 50 MB). */
-export const DATA_CACHE_LIMIT = 50 * 1024 * 1024;
+/**
+  How much response text the shared cache keeps, in characters: about 50 MB of
+  memory, at about 2 bytes per character.
+*/
+export const DATA_CACHE_LIMIT = 25 * 1024 * 1024;
 
 /**
   A least-recently-used cache of response text that evicts by the total

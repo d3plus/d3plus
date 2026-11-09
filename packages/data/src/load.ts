@@ -127,7 +127,7 @@ function finish(
 /**
   Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
 
-  When the context caches (its `_cache` flag, else its `schema.cache`), each response's text is kept under `cacheKey(request)` in one cache shared by every chart on the page (about 50 MB of text, least recently used dropped first; `clearDataCache()` empties it), and a later load of the same request parses it again at once, calling back synchronously, instead of fetching. Loads of a request already in flight share its fetch and parse, each getting its own copy, so a formatter that changes its rows never affects another load. A failed request is not cached.
+  When the context caches (its `_cache` flag, else its `schema.cache`), each response's text is kept under `cacheKey(request)` in one cache shared by every chart on the page (about 50 MB of memory, least recently used dropped first; `clearDataCache()` empties it), and a later load of the same request parses it again at once, calling back synchronously, instead of fetching. Loads of a request already in flight share its fetch and parse, each getting its own copy, so a formatter that changes its rows never affects another load. A failed request is not cached.
   @param path The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.
   @param formatter Optional function to transform the loaded data.
   @param key The key in the `this` context to save the resulting data to.

@@ -102,9 +102,9 @@ it("SizedCache: text longer than the limit is not kept, and clear empties it", (
   assert.strictEqual(cache.size, 0);
 });
 
-it("the shared cache holds about 50 MB of text", () => {
+it("the shared cache holds 25M characters, about 50 MB of memory", () => {
   assert.strictEqual(sharedCache.limit, DATA_CACHE_LIMIT);
-  assert.strictEqual(DATA_CACHE_LIMIT, 50 * 1024 * 1024);
+  assert.strictEqual(DATA_CACHE_LIMIT, 25 * 1024 * 1024);
 });
 
 it("inFlightFor: one set of in-flight requests per cache until cleared", () => {

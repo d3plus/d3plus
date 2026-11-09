@@ -170,7 +170,7 @@ or a new `dataFormat`, draws from the cache without a request; so do `links`,
 the rows, so one chart's `dataFormat` never changes another's data. A failed
 request is not kept, so setting the URL again retries it.
 
-The cache holds about 50 MB of responses and drops the least recently used
+The cache uses up to about 50 MB of memory and drops the least recently used
 first. To fetch on every load, set `cache: false` on that chart; to re-fetch on
 a schedule, use `dataPollingInterval`, whose polls always go to the server. To
 empty the cache, after a user logs out for example, call
