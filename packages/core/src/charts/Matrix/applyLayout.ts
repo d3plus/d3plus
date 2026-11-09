@@ -2,12 +2,16 @@
     `applyMatrixLayout` — Matrix's chart-specific layout stage.
 
     Two-pass axis layout: measure-only pass for padding, then compute-mode
-    render that absorbs row/column axis scenes into `_chartScene`. Stashes
+    render that absorbs row/column axis scenes into `_chartScene`, their
+    labels following the hover (see `tagHoverTicks`). Stashes
     `columnScale`/`rowScale`/`cellWidth`/`cellHeight` on `viz.ctx`.
 */
 
+import type {SceneNode} from "@d3plus/render";
+
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
+import {tagHoverTicks} from "../features/hoverTicks.js";
 import matrixPrepData from "../helpers/matrixData.js";
 
 type AxisLike = {
@@ -90,12 +94,14 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
     .render();
   const rowScene = rowAxis.toScene();
   if (rowScene) {
-    (viz._chartScene ||= []).push({
+    const group: SceneNode = {
       type: "group",
       key: "matrix-row-axis",
       transform: {x: viz._margin.left, y: 0},
       children: (rowScene.children ?? []) as never[],
-    });
+    };
+    tagHoverTicks(group, "row");
+    (viz._chartScene ||= []).push(group);
   }
 
   columnAxis
@@ -109,12 +115,14 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
     .render();
   const colScene = columnAxis.toScene();
   if (colScene) {
-    (viz._chartScene ||= []).push({
+    const group: SceneNode = {
       type: "group",
       key: "matrix-column-axis",
       transform: {x: 0, y: 0},
       children: (colScene.children ?? []) as never[],
-    });
+    };
+    tagHoverTicks(group, "column");
+    (viz._chartScene ||= []).push(group);
   }
 
   const rowScale = rowAxis._getPosition.bind(rowAxis);

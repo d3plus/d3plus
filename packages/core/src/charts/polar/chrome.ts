@@ -300,9 +300,14 @@ export function polarCategoryNodes(
   if (!labels.length && !curves.length) return [];
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
   const labelConfig = axisConfig.shapeConfig?.labelConfig ?? {};
+  // Each label follows the hover of its slot's marks (see `hoverKeys`).
   const curved = radarCurveNodes(
     viz,
-    curves.map(c => ({...c, key: `${key}-label-${c.key}`})),
+    curves.map(c => ({
+      ...c,
+      key: `${key}-label-${c.key}`,
+      hoverMatch: {field: "slot", value: c.key},
+    })),
     labelConfig,
   );
   const asLabel = (d: DataPoint) => d as unknown as PolarLabelDatum;
@@ -321,6 +326,10 @@ export function polarCategoryNodes(
         d.data?.verticalAlign ?? "middle",
     },
   });
+  for (const n of straight) {
+    const slot = (n.datum as {data?: PolarLabelDatum} | undefined)?.data?.id;
+    if (slot !== undefined) n.hoverMatch = {field: "slot", value: slot};
+  }
   const nodes = [
     ...curved,
     ...clearRingLabels(straight, textLineBoxes(curved)),

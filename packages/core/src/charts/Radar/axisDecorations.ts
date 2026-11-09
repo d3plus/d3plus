@@ -217,6 +217,7 @@ function radarAxisLabels(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode[] {
               data: p.data,
               i: p.i,
               curve: p.labelCurve,
+              hoverMatch: {field: "metric", value: p.key},
             },
           ]
         : [],
@@ -236,6 +237,11 @@ function radarAxisLabels(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode[] {
     labelBounds: d => (d as unknown as PolarAxisDatum).labelBounds,
     labelConfig,
   });
+  // Each label follows the hover of the polygons with a value for it.
+  for (const n of straight) {
+    const metric = (n.datum as {data?: PolarAxisDatum} | undefined)?.data?.key;
+    if (metric !== undefined) n.hoverMatch = {field: "metric", value: metric};
+  }
   return [...curved, ...clearRingLabels(straight, textLineBoxes(curved))];
 }
 

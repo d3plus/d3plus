@@ -305,6 +305,16 @@ export interface VizInstance {
   _backgroundClick?: (point: [number, number]) => void;
   _active?: ((d: DataPoint, i?: number) => boolean) | false;
   _hover?: ((d: DataPoint, i?: number) => boolean) | false;
+  /**
+      The marks a hover stands for when its predicate lights more of them
+      (a Matrix cell lights its whole row and column): while `hover` is the
+      current hover, `hoverMatch` labels follow `rows` instead of every
+      matched mark.
+  */
+  _hoverFocus?: {
+    hover: (d: DataPoint, i: number) => boolean;
+    rows: DataPoint[];
+  };
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
   /**

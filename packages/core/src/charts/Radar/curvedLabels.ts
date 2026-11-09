@@ -314,6 +314,8 @@ export interface RadarCurveLabel {
   data: DataPoint;
   i: number;
   curve: RadarCurve;
+  /** What its lines follow on hover (see `hoverMatch`). */
+  hoverMatch?: {field: string; value: unknown};
 }
 
 /**
@@ -332,16 +334,21 @@ export function radarCurveNodes(
     const color = resolveAccessor<unknown>(labelConfig.fontColor, l.data, l.i);
     return typeof color === "string" ? color : backgroundInk(viz);
   };
-  return ringLabelNodes(
+  const matches = new Map<string, RadarCurveLabel["hoverMatch"]>();
+  const nodes = ringLabelNodes(
     viz,
     labels.flatMap(l =>
-      l.curve.lines.map((line, k) => ({
-        key: `${l.key}${k ? `-${k}` : ""}`,
-        text: line.text,
-        fit: line.fit,
-        color: colorOf(l),
-      })),
+      l.curve.lines.map((line, k) => {
+        const key = `${l.key}${k ? `-${k}` : ""}`;
+        matches.set(key, l.hoverMatch);
+        return {key, text: line.text, fit: line.fit, color: colorOf(l)};
+      }),
     ),
     ringLabelFont(labelConfig),
   );
+  for (const node of nodes) {
+    const match = matches.get(`${node.key}`);
+    if (match) node.hoverMatch = match;
+  }
+  return nodes;
 }

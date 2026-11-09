@@ -76,7 +76,9 @@ const marks = () => {
       inherited *
       (n.paint && typeof n.paint.opacity === "number" ? n.paint.opacity : 1);
     const inAxis = axis || n.interactionGroup === "axis";
-    if (inAxis && opacity < 1) axisDims = true;
+    // Discrete tick labels follow the hover (`hoverMatch`); the rest of an
+    // axis stays bright.
+    if (inAxis && opacity < 1 && !n.hoverMatch) axisDims = true;
     const key = String(n.key);
     const swatches = inLegend || n.interactionGroup === "legend";
     if (swatches && n.type === "rect" && n.datum)

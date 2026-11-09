@@ -15,6 +15,7 @@ interface RadarGroupDatum {
   __d3plus__?: true;
   data?: DataPoint;
   id: string | number;
+  metrics?: unknown[];
   d: string;
 }
 
@@ -32,6 +33,8 @@ export const radarEmit: ChartEmit = ({viz}) => {
       key: `radar-${g.id}`,
       d: g.d,
       datum,
+      // The labels of the metrics it has a value for stay bright on hover.
+      hoverKeys: {metric: g.metrics ?? []},
       paint,
       aria: {label: `${viz._drawLabel(datum, i)}.`},
     } as SceneNode);

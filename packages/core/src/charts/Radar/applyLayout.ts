@@ -35,6 +35,8 @@ interface GroupDatum {
   data: DataPoint;
   arr: DataPoint[];
   id: string | number;
+  /** The metrics the polygon has a value for. */
+  metrics: unknown[];
   points: {x: number; y: number}[];
   d: string;
 }
@@ -134,6 +136,7 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
           merge(vals as DataPoint[], aggs),
         ) as DataPoint[],
         id: hKey as string | number,
+        metrics: innerEntries.map(([metric]) => metric),
         points: q,
         d: pathD,
         data: merge(
