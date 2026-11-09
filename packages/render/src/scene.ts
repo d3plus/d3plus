@@ -432,6 +432,7 @@ export interface PathNode extends NodeBase {
       `d` (e.g. a Violin's outline flattened onto its center line), with the
       same commands and point count as `d` so it morphs point by point. It
       grows from there at its own opacity instead of fading in where it lands.
+      An `"Area"` path also sinks back onto it as it exits.
   */
   enterD?: string;
 }

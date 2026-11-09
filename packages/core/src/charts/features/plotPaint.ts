@@ -36,6 +36,7 @@ import {emitTrendLabels} from "../Plot/trendLabels.js";
 import {emitAlongLabels} from "../Plot/lineLabelsAlong.js";
 import {countShapeLabels} from "../Plot/shapeLabelLegend.js";
 import {emitAreaLabels} from "../Plot/areaLabelsAlong.js";
+import {holdAreaLabels} from "../Plot/areaEnter.js";
 import {plotEdges} from "./pathLabelGeometry.js";
 import {emitForecast, forecastRows} from "../Plot/forecastScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -585,7 +586,7 @@ export function plotEmit(
   const edges = plotEdges(xRange, yRange, pCtx.x2Height);
   // Trend labels go last, to clear the line labels.
   marks.push(...emitAlongLabels(viz, marks, edges));
-  marks.push(...emitAreaLabels(viz, marks, edges));
+  marks.push(...holdAreaLabels(emitAreaLabels(viz, marks, edges)));
   marks.push(...emitTrendLabels(viz, x, y, edges, marks));
   // The plot area reaches down through any room reserved under the value
   // axis's range (see `_plotInsetBottom`), so marks drawn there stay.

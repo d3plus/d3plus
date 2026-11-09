@@ -38,6 +38,7 @@ import {rowSpan} from "../Plot/discreteSpan.js";
 import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {stackEnterWindows} from "../Plot/stackEnter.js";
+import {growAreasFromBaseline} from "../Plot/areaEnter.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
 import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
@@ -180,6 +181,8 @@ function finishShape(
   const nodes = collectComputed(s);
   if (key === "Circle")
     return labelsOverCircles([...nodes, ...(besideLabels?.() ?? [])]);
+  // Areas grow out of the value axis's baseline.
+  if (key === "Area") growAreasFromBaseline(ctx, nodes);
   if (key !== "Bar") return nodes;
   // Error bars paint over their bars but under the bar labels. Stacked bars
   // grow in one stack level after another.
