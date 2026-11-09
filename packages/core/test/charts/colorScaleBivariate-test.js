@@ -8,7 +8,7 @@ import {
   bivariateSpec,
   bivariateTooltipRows,
   isBivariateSetting,
-  leadWithBivariateRows,
+  toNumber,
 } from "../../src/charts/features/colorScaleBivariate.ts";
 import {
   colorScaleAccessor,
@@ -17,9 +17,21 @@ import {
 import {colorScaleHoverValue} from "../../src/charts/features/colorScaleHover.ts";
 import {bivariateScale} from "../../src/components/ColorScale/bivariateScale.ts";
 import {BIVARIATE_COLORS} from "../../src/components/ColorScale/bivariateScale.ts";
+import {leadWithColorScaleRows} from "../../src/charts/features/colorScaleTooltip.ts";
 import {useJsdom} from "~test/jsdom.js";
 
 useJsdom();
+
+it("toNumber — finite numbers and numeric strings", () => {
+  assert.strictEqual(toNumber(2), 2);
+  assert.strictEqual(toNumber("2.5"), 2.5);
+  assert.strictEqual(toNumber(""), null);
+  assert.strictEqual(toNumber(null), null);
+  assert.strictEqual(toNumber(undefined), null);
+  assert.strictEqual(toNumber(NaN), null);
+  assert.strictEqual(toNumber(true), null);
+  assert.strictEqual(toNumber([3]), null);
+});
 
 it("isBivariateSetting — two keys or accessors", () => {
   assert.ok(isBivariateSetting(["a", "b"]));
@@ -143,7 +155,7 @@ it("bivariateTooltipRows — each variable's name and value", () => {
   );
 });
 
-it("leadWithBivariateRows — leads the tbody, never stacking", () => {
+it("leadWithColorScaleRows — leads the tbody, never stacking", () => {
   const viz = chartOf();
   let tbody = [["Share", "10%"]];
   const tooltip = {
@@ -153,22 +165,22 @@ it("leadWithBivariateRows — leads the tbody, never stacking", () => {
       return this;
     },
   };
-  leadWithBivariateRows(tooltip, viz, {a: 1, b: 2}, 0);
+  leadWithColorScaleRows(tooltip, viz, {a: 1, b: 2}, 0);
   assert.deepStrictEqual(tbody({}, 0), [
     ["a", "1"],
     ["b", "2"],
     ["Share", "10%"],
   ]);
-  leadWithBivariateRows(tooltip, viz, {a: 3, b: 4}, 0);
+  leadWithColorScaleRows(tooltip, viz, {a: 3, b: 4}, 0);
   assert.deepStrictEqual(tbody({}, 0), [
     ["a", "3"],
     ["b", "4"],
     ["Share", "10%"],
   ]);
-  leadWithBivariateRows(tooltip, viz, {_isColorScaleBucket: true}, 0);
+  leadWithColorScaleRows(tooltip, viz, {_isColorScaleBucket: true}, 0);
   assert.deepStrictEqual(tbody, [["Share", "10%"]], "a cell: the base back");
   tbody = d => [["Name", d.name]];
-  leadWithBivariateRows(tooltip, viz, {a: 1, b: 2}, 0);
+  leadWithColorScaleRows(tooltip, viz, {a: 1, b: 2}, 0);
   assert.deepStrictEqual(tbody({name: "x"}, 0), [
     ["a", "1"],
     ["b", "2"],

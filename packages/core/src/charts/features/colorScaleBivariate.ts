@@ -10,7 +10,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {
   bivariateAxisLabels,
-  bivariateFormat,
+  colorScaleValueFormat,
 } from "../../components/ColorScale/bivariateRender.js";
 import type {BivariateScale} from "../../components/ColorScale/bivariateScale.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
@@ -27,7 +27,7 @@ export interface BivariateSpec {
 const specs = new WeakMap<object, BivariateSpec>();
 
 /** `value` as a finite number, or null (null, undefined, "", and non-numbers have none). */
-function toNumber(value: unknown): number | null {
+export function toNumber(value: unknown): number | null {
   if (value === null || value === undefined || value === "") return null;
   if (typeof value !== "number" && typeof value !== "string") return null;
   const n = +value;
@@ -122,50 +122,7 @@ export function bivariateTooltipRows(
     const value = toNumber(accessor(d, i));
     if (value === null) return;
     const values = pairs.map(p => (Array.isArray(p) ? p[k] : NaN));
-    rows.push([labels[k], bivariateFormat(cs, values)(value)]);
+    rows.push([labels[k], colorScaleValueFormat(cs, values)(value)]);
   });
   return rows;
-}
-
-/** A tooltip whose `tbody` can be read and replaced. */
-interface TbodyHost {
-  tbody(): unknown;
-  tbody(_: unknown): unknown;
-}
-
-/** The `tbody` a wrapped one stood in for. */
-const wrappedBase = new WeakMap<object, unknown>();
-
-/**
-    Leads `tooltip`'s `tbody` with the row's bivariate values (see
-    `bivariateTooltipRows`), ahead of the rows it already has. A `tbody`
-    led on an earlier hover is unwrapped first, so the rows never stack.
-    @param tooltip The chart's tooltip.
-    @param viz The chart.
-    @param d The hovered row.
-    @param i Its index.
-*/
-export function leadWithBivariateRows<T extends TbodyHost>(
-  tooltip: T,
-  viz: VizInstance,
-  d: DataPoint,
-  i: number,
-): T {
-  let base = tooltip.tbody();
-  if (typeof base === "function" && wrappedBase.has(base)) {
-    base = wrappedBase.get(base);
-    tooltip.tbody(base);
-  }
-  const rows = bivariateTooltipRows(viz, d, i);
-  if (!rows.length) return tooltip;
-  const lead = (dd: DataPoint, ii: number): unknown[] => {
-    const own =
-      typeof base === "function"
-        ? (base as (d: DataPoint, i: number) => unknown)(dd, ii)
-        : base;
-    return [...rows, ...(Array.isArray(own) ? own : [])];
-  };
-  wrappedBase.set(lead, base);
-  tooltip.tbody(lead);
-  return tooltip;
 }

@@ -4,7 +4,7 @@ import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import clickShape from "./click.shape.js";
 import {groupDepthOf, groupNarrows, groupPath} from "../viz/groupRow.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
-import {leadWithBivariateRows} from "../features/colorScaleBivariate.js";
+import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {pointTooltipAnchor} from "../viz/pointTooltipAnchor.js";
 import type Viz from "../viz/Viz.js";
@@ -100,8 +100,9 @@ export default function (
           this.schema.tooltipConfig,
         ),
       );
-    // A bivariate colorScale's two values lead the rows.
-    leadWithBivariateRows(
+    // The row's colorScale value (or a bivariate colorScale's two) leads
+    // the rows.
+    leadWithColorScaleRows(
       this._tooltipClass,
       this as unknown as VizInstance,
       tooltipDatum,

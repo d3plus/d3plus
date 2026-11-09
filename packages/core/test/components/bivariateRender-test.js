@@ -3,7 +3,7 @@ import assert from "assert";
 import {ColorScale} from "../../index.ts";
 import {
   bivariateAxisLabels,
-  bivariateFormat,
+  colorScaleValueFormat,
   layoutBivariate,
   renderBivariate,
 } from "../../src/components/ColorScale/bivariateRender.ts";
@@ -217,12 +217,12 @@ it("ColorScale bivariate — ignores rows without a pair", () => {
   assert.strictEqual(cs._colorScale.domain().length, 9);
 });
 
-it("bivariateFormat — tickFormat, then years, then abbreviated", () => {
+it("colorScaleValueFormat — tickFormat, then years, then abbreviated", () => {
   const cs = new ColorScale();
-  assert.strictEqual(bivariateFormat(cs, [1, 2])(12500), "12.5k");
-  assert.strictEqual(bivariateFormat(cs, [1990, 2020])(2001), "2001");
+  assert.strictEqual(colorScaleValueFormat(cs, [1, 2])(12500), "12.5k");
+  assert.strictEqual(colorScaleValueFormat(cs, [1990, 2020])(2001), "2001");
   cs.axisConfig({tickFormat: d => `${d * 100}%`});
-  assert.strictEqual(bivariateFormat(cs, [1, 2])(0.5), "50%");
+  assert.strictEqual(colorScaleValueFormat(cs, [1, 2])(0.5), "50%");
 });
 
 it("ColorScale bivariate — draws no hover mark", () => {

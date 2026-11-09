@@ -66,13 +66,13 @@ export function bivariateAxisLabels(cs: ColorScale): [string, string] {
 }
 
 /**
-    How a bivariate ColorScale formats its values: `axisConfig.tickFormat`,
-    else a variable whose values all read as years as years, else
-    abbreviated (`formatAbbreviate`).
+    How a ColorScale's values read in a bivariate key's ranges and in a
+    chart's tooltip: `axisConfig.tickFormat`, else a variable whose values
+    all read as years as years, else abbreviated (`formatAbbreviate`).
     @param cs The ColorScale.
     @param values The variable's values.
 */
-export function bivariateFormat(
+export function colorScaleValueFormat(
   cs: ColorScale,
   values: number[],
 ): (v: number) => string {
@@ -240,8 +240,8 @@ function cellNodes(
   const labels = bivariateAxisLabels(cs);
   const values = (bins: 0 | 1): number[] => scale.domain().map(p => p[bins]);
   const formats: [(v: number) => string, (v: number) => string] = [
-    bivariateFormat(cs, values(0)),
-    bivariateFormat(cs, values(1)),
+    colorScaleValueFormat(cs, values(0)),
+    colorScaleValueFormat(cs, values(1)),
   ];
   const nodes: SceneNode[] = [];
   for (let j = 0; j < n; j++)

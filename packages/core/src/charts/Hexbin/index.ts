@@ -94,6 +94,9 @@ export const hexbinDef: ChartDefinition = {
     };
   },
 
+  // Its tooltip title reads each bin's measure, its colorScale value.
+  colorScaleTooltip: false,
+
   ctx: {},
 
   fields: [
