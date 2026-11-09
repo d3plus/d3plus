@@ -125,6 +125,19 @@ it("collapse grows a Sankey link's stroke-width from 0, keeping opacity", () => 
   );
 });
 
+it("collapse sinks a shapeType Area path back onto its enterD baseline", () => {
+  const d = "M0,0L10,-10L20,0Z";
+  const enterD = flattenPath(d, "y", 0);
+  const area = collapse({type: "path", key: "a", shapeType: "Area", d, enterD});
+  assert.strictEqual(area.d, enterD, "it exits onto the line it grew from");
+  assert.strictEqual(area.paint.opacity, 0, "and fades as it goes");
+  const mid = interpolateNode(
+    {type: "path", key: "a", shapeType: "Area", d},
+    area,
+  )(0.5);
+  assert.strictEqual(mid.d, "M0,0L10,-5L20,0Z", "point by point");
+});
+
 it("collapse flattens a shapeType Area path to a flat line at its own bounding-box center", () => {
   // A triangle-ish "d" whose bbox is x:[0,20], y:[-10,0] — the flat line
   // should sit at the box's vertical center (y=-5), spanning its x-span.

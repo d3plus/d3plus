@@ -491,10 +491,15 @@ export function collapse(node: SceneNode): SceneNode {
       // own opacity — rather than the default opacity fade other paths use.
       if (node.shapeType === "Link")
         return {...node, paint: {...node.paint, strokeWidth: 0}};
-      // StackedArea/AreaPlot's band, collapsed to a flat line at its own
-      // vertical center — the band grows out of/into that centerline.
+      // StackedArea/AreaPlot's band sinks back onto the baseline it grew
+      // out of (`enterD`), as a bar shrinks into its baseline; without one,
+      // it collapses to a flat line at its own vertical center.
       if (node.shapeType === "Area")
-        return {...node, paint, d: flatAreaPath(pathBounds(node.d))};
+        return {
+          ...node,
+          paint,
+          d: node.enterD ?? flatAreaPath(pathBounds(node.d)),
+        };
       // A Pie/Donut wedge collapses to a zero-WIDTH slice at its OWN full
       // radius — not scaled down to a point/dot — at whichever of 0 or a
       // full turn (2π) is closer to the wedge's own position: d3.pie()'s
