@@ -2,10 +2,12 @@
     Rings' parallel links: several links between the same two nodes, in
     either direction. Each node takes one place on its ring however many
     links reach it, and the links fan out as curves bowed either side of
-    the line between their nodes, so each stays its own mark.
+    the line between their nodes (or, along one ring, circle around at
+    different distances), so each stays its own mark.
 */
 
 import {LINK_HIT_WIDTH} from "../features/linkInteraction.js";
+import {applyRingArc} from "./ringsCurves.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 
 type Point = {x: number; y: number; r?: number};
@@ -157,6 +159,19 @@ function shiftSpline(
   edge.targetBisectY! += normal[1] * h;
 }
 
+/**
+    Moves a link along one ring `offset` pixels out from the circle it runs
+    around (in, for a negative offset), keeping it clear of its nodes.
+*/
+function shiftRingArc(edge: RingsEdge, offset: number): void {
+  const arc = edge.arc!;
+  const reach = (n: RingsNode) =>
+    Math.hypot((n.x ?? 0) - arc.cx, (n.y ?? 0) - arc.cy) + (n.r ?? 0);
+  const floor = Math.max(reach(edge.source), reach(edge.target)) + 2;
+  edge.arc = {...arc, radius: Math.max(floor, arc.radius + offset)};
+  applyRingArc(edge);
+}
+
 const isPlaced = (n: RingsNode): n is Placed =>
   typeof n.x === "number" && typeof n.y === "number";
 
@@ -165,7 +180,8 @@ const isPlaced = (n: RingsNode): n is Placed =>
     leaving a link with no parallel alone. Their middles sit a hit path's
     width (and a gap) apart, so each can be pointed at. A straight link
     becomes a bowed curve (see `bowedEdge`); a curved one moves to the side
-    (see `shiftSpline`). The side follows the two nodes, not the link's
+    (see `shiftSpline`); one along a ring circles nearer or farther out (see
+    `shiftRingArc`). The side follows the two nodes, not the link's
     direction, so links both ways between them fan apart too.
 */
 export function fanParallelEdges(edges: readonly RingsEdge[]): void {
@@ -192,7 +208,8 @@ export function fanParallelEdges(edges: readonly RingsEdge[]): void {
     const step = Math.max(LINK_HIT_WIDTH, widest + 4) + 4;
     parallelOffsets(group.length, step).forEach((offset, k) => {
       const edge = group[k] as RingsEdge & {source: Placed; target: Placed};
-      if (edge.spline && edge.sourceX != null && edge.targetX != null)
+      if (edge.arc) shiftRingArc(edge, offset);
+      else if (edge.spline && edge.sourceX != null && edge.targetX != null)
         shiftSpline(edge, normal, offset);
       else {
         Object.assign(

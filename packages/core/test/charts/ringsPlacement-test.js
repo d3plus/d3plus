@@ -66,7 +66,7 @@ it("ringsHops reads a whole number of rings, at least 1, defaulting to 2", () =>
   assert.strictEqual(ringsHops(-3), 1);
 });
 
-it("ringsGeometry spaces one or two rings evenly, and further rings evenly past the two-ring first", () => {
+it("ringsGeometry spaces the rings evenly, leaving one spacing outside the last", () => {
   const two = ringsGeometry(600, 400);
   close(two.ringWidth, 200 / 3, "two rings: a third of the radius apart");
   assert.deepStrictEqual(two.rings, [two.ringWidth, two.ringWidth * 2]);
@@ -76,19 +76,12 @@ it("ringsGeometry spaces one or two rings evenly, and further rings evenly past 
   const one = ringsGeometry(600, 400, 1);
   assert.deepStrictEqual(one.rings, [100]);
   assert.strictEqual(one.ringWidth, 100, "label room outside the ring");
-  close(one.baseRing, 200 / 3);
+  close(one.baseRing, 200 / 3, "sized like the two-ring chart");
 
   const three = ringsGeometry(600, 400, 3);
-  close(
-    three.primaryRing,
-    200 / 3,
-    "the first ring stays where it is with two",
-  );
-  close(three.ringWidth, 400 / 9);
-  three.rings.forEach((r, k) =>
-    close(r, 200 / 3 + (400 / 9) * k, `ring ${k + 1}`),
-  );
-  close(three.rings[2] + three.ringWidth, 200, "one spacing left outside");
+  assert.strictEqual(three.ringWidth, 50);
+  assert.strictEqual(three.baseRing, 50, "sized by its own spacing");
+  assert.deepStrictEqual(three.rings, [50, 100, 150]);
 });
 
 /** The two-ring node radii as Rings sized them before `hops`. */
@@ -128,7 +121,7 @@ it("ringNodeRadii keeps the two-ring sizes, and shrinks outward on deeper charts
   assert.deepStrictEqual(ringNodeRadii(20, 1), [5]);
 });
 
-it("ringsNodeRadii keeps the two-ring first-ring size at any hops, outer rings no larger", () => {
+it("ringsNodeRadii sizes the first ring and every ring past it as two rings at the base spacing", () => {
   for (const size of [200, 400, 600, 1200]) {
     const base = ringNodeRadii(size / 6, 2);
     assert.deepStrictEqual(ringsNodeRadii(ringsGeometry(size, size)), base);
@@ -136,10 +129,12 @@ it("ringsNodeRadii keeps the two-ring first-ring size at any hops, outer rings n
       base[0],
     ]);
     for (const hops of [3, 4, 6]) {
-      const radii = ringsNodeRadii(ringsGeometry(size, size, hops));
-      assert.strictEqual(radii.length, hops);
-      assert.strictEqual(radii[0], base[0], `${size}px, ${hops} hops`);
-      for (let k = 1; k < hops; k++) assert.ok(radii[k] <= radii[k - 1]);
+      const [first, outer] = ringNodeRadii(size / 2 / (hops + 1), 2);
+      assert.deepStrictEqual(
+        ringsNodeRadii(ringsGeometry(size, size, hops)),
+        [first, ...Array(hops - 1).fill(outer)],
+        `${size}px, ${hops} hops`,
+      );
     }
   }
 });
@@ -319,7 +314,7 @@ it("Rings hops: 2 is the default layout", () => {
   assert.deepStrictEqual(summary(layout(c => c.hops(2))), summary(layout()));
 });
 
-it("Rings hops: nodes sit on the rings, each once; center and first ring keep their size", () => {
+it("Rings hops: nodes sit on the rings, each once, outer rings no larger", () => {
   const two = layout().nodes;
   const centerR = two[0].r;
   const firstR = two.find(n => n.ring === 1).r;
@@ -328,7 +323,6 @@ it("Rings hops: nodes sit on the rings, each once; center and first ring keep th
     const geom = ringsGeometry(400, 400, hops);
     const center = nodes[0];
     assert.strictEqual(center.id, "c");
-    assert.strictEqual(center.r, centerR, `${hops} hops: the center's size`);
     const seen = nodes.map(n => n.id);
     assert.strictEqual(new Set(seen).size, seen.length, `${hops} hops: unique`);
     const byRing = {};
@@ -342,16 +336,21 @@ it("Rings hops: nodes sit on the rings, each once; center and first ring keep th
     });
     const rings = Object.keys(byRing).map(Number);
     assert.strictEqual(Math.max(...rings), Math.min(hops, 4));
-    assert.deepStrictEqual(
-      [...byRing[1]],
-      [firstR],
-      `${hops} hops: first ring`,
-    );
     rings.forEach(k =>
       assert.strictEqual(byRing[k].size, 1, `${hops} hops: one size per ring`),
     );
     for (let k = 2; k <= Math.max(...rings); k++)
       assert.ok([...byRing[k]][0] <= [...byRing[k - 1]][0]);
+    if (hops <= 2) {
+      assert.strictEqual(center.r, centerR, `${hops} hops: the center's size`);
+      assert.deepStrictEqual([...byRing[1]], [firstR], `${hops} hops: ring 1`);
+    } else {
+      close(center.r, 0.65 * geom.ringWidth, `${hops} hops: a smaller center`);
+      assert.ok(
+        center.r + [...byRing[1]][0] < geom.rings[0],
+        "clear of ring 1",
+      );
+    }
   }
   assert.deepStrictEqual(
     layout(c => c.hops(1)).nodes.map(n => n.id),
@@ -364,10 +363,11 @@ it("Rings hops: nodes sit on the rings, each once; center and first ring keep th
   );
 });
 
-it("Rings hops: outer nodes shrink on a larger chart", () => {
+it("Rings hops: on a larger chart, rings past the first share one smaller size", () => {
   const {nodes} = layout(c => c.hops(3).width(1200).height(1200));
   const r = ring => nodes.find(n => n.ring === ring).r;
-  assert.ok(r(1) > r(2) && r(2) > r(3), `${r(1)} > ${r(2)} > ${r(3)}`);
+  assert.ok(r(1) > r(2), `${r(1)} > ${r(2)}`);
+  assert.strictEqual(r(2), r(3));
 });
 
 it("Rings ringLinks: draws the outermost ring's own links, and nothing else changes", () => {

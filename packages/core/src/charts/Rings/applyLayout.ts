@@ -23,6 +23,7 @@ import {linkWidthRange} from "../features/linkWidths.js";
 import {buildRingsGraph, ringsLinkEnd} from "./ringsGraph.js";
 import {ringsLoops} from "./ringsLoops.js";
 import {fanParallelEdges} from "./ringsParallel.js";
+import {ringsSegmentsD} from "./ringsCurves.js";
 import {buildRingsEdges, placeRingsNodes} from "./ringsPlacement.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
@@ -146,9 +147,11 @@ function publishRingsCtx(
   const linkD = (d: RingsEdge) =>
     d.loop
       ? d.loop.d
-      : d.spline
-        ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
-        : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
+      : d.segments
+        ? ringsSegmentsD(d.segments)
+        : d.spline
+          ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
+          : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
 
   // The center's label sits inside its circle unless the circle is too small
   // (see `ringsCenterLabel`), in which case it sits below like any other.

@@ -2311,10 +2311,11 @@ export {
   ringWeights,
 } from "./src/charts/Rings/ringsPlacement.js";
 export {
-  archControl,
-  cubicReach,
+  applyRingArc,
+  arcCubics,
   curveRingsEdge,
   gapMiddle,
+  ringArcCubics,
   ringRadius,
 } from "./src/charts/Rings/ringsCurves.js";
 export type {RingsTree} from "./src/charts/Rings/ringsPlacement.js";
@@ -2324,7 +2325,11 @@ export {
   ringsHops,
   ringsNodeRadii,
 } from "./src/charts/Rings/ringsSizing.js";
-export {polylineArrowEdge} from "./src/charts/features/curvedArrows.js";
+export {
+  cubicsArrowEdge,
+  cubicsPathD,
+  polylineArrowEdge,
+} from "./src/charts/features/curvedArrows.js";
 export {polylineReach} from "./src/charts/features/polyline.js";
 export {
   EDGE_BUNDLE_DEFAULTS,

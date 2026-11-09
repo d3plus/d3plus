@@ -9,7 +9,6 @@ import type {Paint, SceneNode, Transform} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {
-  cubicPathD,
   edgeArrowTrims,
   emphasizedArrowEdge,
   scaledArrowSize,
@@ -39,7 +38,13 @@ import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
 import {curvePoints} from "../features/linkLabelPath.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
-import {chordArrowNodes, cubicArrowEdge} from "../features/curvedArrows.js";
+import {
+  chordArrowNodes,
+  cubicPolyline,
+  cubicsArrowEdge,
+  cubicsPathD,
+} from "../features/curvedArrows.js";
+import {polylineMidpoint} from "../features/polyline.js";
 import {uniqueLinkKeys} from "../features/linkKeys.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
@@ -62,7 +67,15 @@ export interface RingsEdge {
   targetBisectX?: number;
   targetBisectY?: number;
   loop?: SelfLoopGeometry;
+  /** A link along one ring: the cubics it draws as (see `ringArcCubics`). */
+  segments?: Cubic[];
 }
+type Cubic = [
+  [number, number],
+  [number, number],
+  [number, number],
+  [number, number],
+];
 type RingsNode = DataPoint & {
   __d3plus__?: true;
   data?: DataPoint;
@@ -128,12 +141,12 @@ function ringsEdgeArrows(
       target: edge.target as unknown as {x: number; y: number; r?: number},
     });
   }
-  const curve = ringsCurve(edge);
-  if (!curve) return [];
+  const curves = ringsCurves(edge);
+  if (!curves) return [];
   const trims = ringsTrims(viz, edge, i, width, scale);
   if (!trims.ends.source && !trims.ends.target) return [];
   return chordArrowNodes({
-    ends: cubicArrowEdge(curve, trims),
+    ends: cubicsArrowEdge(curves, trims),
     size: trims.size,
     datum,
     keyPrefix: "rings-arrow",
@@ -145,19 +158,28 @@ function ringsEdgeArrows(
   });
 }
 
-/** A spline edge's curve, from its source end to its target end, or null for a straight edge. */
-function ringsCurve(
-  edge: RingsEdge,
-):
-  | [[number, number], [number, number], [number, number], [number, number]]
-  | null {
+/**
+    A spline edge's curves, from its source end to its target end: one
+    cubic, or a link along a ring's several. Null for a straight edge.
+*/
+function ringsCurves(edge: RingsEdge): Cubic[] | null {
+  if (edge.segments?.length) return edge.segments;
   if (!edge.spline || edge.sourceX == null || edge.targetX == null) return null;
   return [
-    [edge.sourceX, edge.sourceY!],
-    [edge.sourceBisectX!, edge.sourceBisectY!],
-    [edge.targetBisectX!, edge.targetBisectY!],
-    [edge.targetX, edge.targetY!],
+    [
+      [edge.sourceX, edge.sourceY!],
+      [edge.sourceBisectX!, edge.sourceBisectY!],
+      [edge.targetBisectX!, edge.targetBisectY!],
+      [edge.targetX, edge.targetY!],
+    ],
   ];
+}
+
+/** A curved edge's points along its curves, or null for a straight edge. */
+function ringsCurvePoints(edge: RingsEdge): [number, number][] | null {
+  const curves = ringsCurves(edge);
+  if (!curves) return null;
+  return curves.flatMap((curve, k) => cubicPolyline(curve).slice(k ? 1 : 0));
 }
 
 /** An edge's arrow ends, size, and stroke trims, `scale` times as wide. */
@@ -182,7 +204,7 @@ const ringsTrims = (
 /**
     An edge's visible stroke: `d`, cut short inside its arrowheads (see
     `edgeArrowTrims`). A spline edge or a loop follows its curve up to each
-    head's base, then runs along the head's axis (see `cubicArrowEdge`); a
+    head's base, then runs along the head's axis (see `cubicsArrowEdge`); a
     spline's arrow tips sit on the node's edge, where the curve ends.
     `scale` widens the stroke (see `emphasizedArrowEdge`).
 */
@@ -197,8 +219,8 @@ export function ringsVisibleD(
   const trims = ringsTrims(viz, edge, i, strokeWidth, scale);
   if (!trims.source && !trims.target) return d;
   if (edge.loop) return selfLoopD(edge.loop, trims);
-  const curve = ringsCurve(edge);
-  if (curve) return cubicArrowEdge(curve, trims).d;
+  const curves = ringsCurves(edge);
+  if (curves) return cubicsArrowEdge(curves, trims).d;
   return straightEdgeD(
     edge.source as unknown as {x: number; y: number; r?: number},
     edge.target as unknown as {x: number; y: number; r?: number},
@@ -220,6 +242,7 @@ export const ringsLinkKeys = (edges: readonly RingsEdge[]): string[] =>
 */
 export function ringsEdgeAnchor(edge: RingsEdge): LinkAnchor {
   if (edge.loop) return edge.loop.apex;
+  if (edge.segments?.length) return polylineMidpoint(ringsCurvePoints(edge)!);
   if (edge.spline && edge.sourceX != null && edge.targetX != null)
     return cubicMidpoint(
       [edge.sourceX, edge.sourceY!],
@@ -242,8 +265,8 @@ export function ringsEdgeAnchor(edge: RingsEdge): LinkAnchor {
 */
 export function ringsEdgePath(edge: RingsEdge): [number, number][] | null {
   if (edge.loop) return curvePoints(edge.loop.d);
-  const curve = ringsCurve(edge);
-  return curve ? curvePoints(cubicPathD(curve)) : null;
+  const curves = ringsCurves(edge);
+  return curves ? curvePoints(cubicsPathD(curves)) : null;
 }
 
 /** How Rings draws its node labels. */

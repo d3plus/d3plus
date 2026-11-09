@@ -62,6 +62,17 @@ export interface RingsEdge {
   targetBisectY?: number;
   /** The loop a link from a node to itself draws as, once laid out. */
   loop?: SelfLoopGeometry;
+  /**
+      A link along one ring: the circle its middle runs along (centered on
+      the chart's center), and the curves it draws as, from source to target.
+  */
+  arc?: {cx: number; cy: number; radius: number};
+  segments?: [
+    [number, number],
+    [number, number],
+    [number, number],
+    [number, number],
+  ][];
 }
 
 /** A node record as a link end. */

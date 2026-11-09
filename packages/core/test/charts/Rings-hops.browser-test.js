@@ -4,8 +4,8 @@ import {openPage} from "~test/browser/page.js";
 
 /**
     `hops` and `ringLinks`, in Chromium on SVG and Canvas with a real
-    pointer: each `hops` draws every node it reaches once, on its rings, with
-    the center and first ring at one size, and the links between the rings,
+    pointer: each `hops` draws every node it reaches once, on evenly spaced
+    rings (the center and first ring smaller past two), and the links between the rings,
     arrows and link labels; hovering a node on the third ring shows its
     tooltip and clicking it re-centers the chart; small multiples draw each
     panel's rings; and `ringLinks` draws the outermost ring's own links,
@@ -181,14 +181,21 @@ for (const renderer of ["svg", "canvas"]) {
         }
         if (hops === 3)
           assert.ok(
-            Math.abs(radii[3] - radii[2] - (radii[2] - radii[1])) < 0.5,
-            "the rings past the first are evenly spaced",
+            Math.abs(radii[3] - radii[2] - radii[1]) < 0.5 &&
+              Math.abs(radii[2] - 2 * radii[1]) < 0.5,
+            "the rings are evenly spaced",
           );
-        // The center and the first ring keep one size at any hops.
+        // One and two rings share their center and first-ring sizes; more
+        // rings shrink them.
         sizes.c ??= s.circles.c.r;
         sizes.a ??= s.circles.a.r;
-        assert.strictEqual(s.circles.c.r, sizes.c, `${hops} hops: center size`);
-        assert.strictEqual(s.circles.a.r, sizes.a, `${hops} hops: ring 1 size`);
+        if (hops < 3) {
+          assert.strictEqual(s.circles.c.r, sizes.c, `${hops} hops: center`);
+          assert.strictEqual(s.circles.a.r, sizes.a, `${hops} hops: ring 1`);
+        } else {
+          assert.ok(s.circles.c.r < sizes.c, `${hops} hops: a smaller center`);
+          assert.ok(s.circles.a.r <= sizes.a, `${hops} hops: ring 1`);
+        }
         // Arrows and labels follow every drawn link.
         assert.strictEqual(s.arrows.length, s.links.length);
         // The short center links leave no room for a label; the curves between rings do.
@@ -296,6 +303,28 @@ for (const renderer of ["svg", "canvas"]) {
       );
       assert.deepStrictEqual(linked.circles, plain.circles, "nodes stay put");
       assert.ok(linked.keys.includes("rings-link-a1-b1::hit"), "a hit path");
+      // Out, around the ring, and back in: several curves, the stroke and
+      // its hit path following the same ones.
+      const paths = await page.evaluate(() => {
+        const out = {};
+        const walk = n => {
+          if (String(n.key).startsWith("rings-link-a1-b1")) out[n.key] = n.d;
+          (n.children || []).forEach(walk);
+        };
+        walk(window.__viz._paintedScene.root);
+        return out;
+      });
+      const curves = d => (d.match(/C/g) || []).length;
+      assert.ok(
+        curves(paths["rings-link-a1-b1::hit"]) >= 2,
+        "a multi-part path",
+      );
+      assert.strictEqual(
+        curves(paths["rings-link-a1-b1"]),
+        curves(paths["rings-link-a1-b1::hit"]),
+        "the stroke keeps every curve, ending inside its arrowhead",
+      );
+      assert.ok(/L[\d.,-]+$/.test(paths["rings-link-a1-b1"]), "into the head");
       assert.ok(
         linked.arrows.some(k => k.includes("a1-b1")),
         `an arrowhead: ${linked.arrows}`,

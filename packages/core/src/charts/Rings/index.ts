@@ -302,8 +302,8 @@ export const ringsDef: ChartDefinition = {
     {key: "noDataMessage", default: false},
     /**
         Draws the links between two nodes on the outermost ring, which are
-        otherwise left out. Each arcs outward, half a ring spacing past the
-        ring, before turning back to its target.
+        otherwise left out. Each runs out to half a ring spacing past the
+        ring, around it the shorter way, and back in to its target.
         @type {boolean}
     */
     {key: "ringLinks", default: false},
