@@ -1,11 +1,12 @@
 /**
     Rings — node-link diagram laid out around a central focal node in
-    two concentric rings.
+    concentric rings (`ringDepth` of them).
 
     Implementation files in this folder:
-      - `applyLayout.ts` — focus + ring placement + link bezier paths.
+      - `applyLayout.ts` — the layout stage: labels, link strokes, ctx.
       - `emit.ts` — link Paths + per-shape-type node groups.
       - `ringsGraph.ts` — node set + link resolution.
+      - `ringsPlacement.ts` — ring claiming, node angles, link curves.
       - `ringsSizing.ts` — ring geometry + node sizing.
 */
 
@@ -263,11 +264,19 @@ export const ringsDef: ChartDefinition = {
     {key: "arrowSize"},
     /**
         The `id` of the node drawn at the center, with the nodes linked to it
-        on the inner ring and their other links on the outer ring. Clicking a
-        node re-centers the chart on it.
+        on the inner ring and their other links on the rings outside it (see
+        `ringDepth`). Clicking a node re-centers the chart on it.
         @type {string | number}
     */
     {key: "center"},
+    /**
+        How many rings of connections to draw around the `center`: `1` shows
+        only the nodes linked to the center, `2` adds their connections, and
+        each step adds the next ring out. A node reached several ways sits on
+        the innermost ring it can. Defaults to 2.
+        @type {number}
+    */
+    {key: "ringDepth", default: 2},
     {
       key: "tooltipConfig",
       merge: true,

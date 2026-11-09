@@ -2304,6 +2304,19 @@ export {
   parallelOffsets,
   slideOnRim,
 } from "./src/charts/Rings/ringsParallel.js";
+export {
+  buildRingsEdges,
+  claimRings,
+  curveRingsEdge,
+  placeRings,
+  ringWeights,
+} from "./src/charts/Rings/ringsPlacement.js";
+export type {RingsTree} from "./src/charts/Rings/ringsPlacement.js";
+export {
+  ringNodeRadii,
+  ringsDepth,
+  ringsGeometry,
+} from "./src/charts/Rings/ringsSizing.js";
 export {polylineArrowEdge} from "./src/charts/features/curvedArrows.js";
 export {polylineReach} from "./src/charts/features/polyline.js";
 export {

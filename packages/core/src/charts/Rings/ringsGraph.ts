@@ -27,10 +27,10 @@ export interface RingsNode {
   x?: number;
   y?: number;
   r?: number;
-  ring?: 1 | 2;
+  /** The ring the node sits on, 1 innermost (unset on the center). */
+  ring?: number;
   radians?: number;
-  // Set by the per-link traversal.
-  edges?: RingsEdge[] | Record<string, {angle: number; radius: number}>;
+  // Set by sizing.
   size?: number;
   // Set by the label-bounds pass.
   labelBounds?: {x: number; y: number; width: number; height: number};
