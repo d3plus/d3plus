@@ -1777,7 +1777,7 @@ export interface D3plusConfig {
     | "outside"
     | ((d: DataPoint, i: number) => "auto" | "along" | "inside" | "outside");
   /**
-      Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
+      Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. It hides when the chart's own labels already name every entry: lines labeled along them (`lineLabels: "along"`), stacked areas named along their bands, a RadialBar's curved track names, or a Plot whose every Circle, Rect, and Bar shows its whole label reading exactly as its legend entry would. It stays while any series is hidden or soloed from it. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
   */
   legend?: boolean | ((config: D3plusConfig, arr: DataPoint[]) => boolean);
   /** Configuration object passed to the legend's config method. */
