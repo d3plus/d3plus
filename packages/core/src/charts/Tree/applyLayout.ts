@@ -90,7 +90,7 @@ function buildTreeData(
   const treeData = (root as unknown as {descendants: () => TreeNode[]})
     .descendants()
     .filter(
-      d => (d.depth ?? 0) <= viz.schema.groupBy.length && !!d.parent,
+      d => (d.depth ?? 0) <= viz._drawDepth + 1 && !!d.parent,
     ) as TreeNode[];
 
   treeData.forEach((d, i) => {
@@ -145,7 +145,7 @@ function measureTreeLabels(
   const yExtent = extent(treeData, d => d.y) as [number, number];
   const labelHeight = min([
     isVertical ? 50 : 100,
-    (yExtent[1] - rBufferRoot - rBufferEnd) / (viz.schema.groupBy.length + 1),
+    (yExtent[1] - rBufferRoot - rBufferEnd) / (viz._drawDepth + 2),
   ]) as number;
   viz.ctx.labelHeight = labelHeight;
 
@@ -231,12 +231,12 @@ function buildTreeShapeConfig(
         height: isHorizontal ? h : offset * 2 + h,
         x: isVertical
           ? -w / 2
-          : d.children && d.depth !== viz.schema.groupBy.length
+          : d.children && d.depth !== viz._drawDepth + 1
             ? -(offset + w)
             : -offset,
         y: isHorizontal
           ? -h / 2
-          : d.children && d.depth !== viz.schema.groupBy.length
+          : d.children && d.depth !== viz._drawDepth + 1
             ? -(offset + labelHeight)
             : -offset,
       };
@@ -258,9 +258,7 @@ function buildTreeShapeConfig(
         [heightKey]: h,
         [xKey]: -w / 2,
         [yKey]:
-          d.children && d.depth !== viz.schema.groupBy.length
-            ? -(offset + h)
-            : offset,
+          d.children && d.depth !== viz._drawDepth + 1 ? -(offset + h) : offset,
       };
     },
   };
