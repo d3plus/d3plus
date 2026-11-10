@@ -6,7 +6,10 @@ import {openPage} from "~test/browser/page.js";
     A shape or legend entry with a click action shows the pointer cursor
     whether or not it shows a tooltip: a tile that drills down keeps the hand
     with `tooltip: false`, or with a `tooltip` accessor that turns its level's
-    tooltips off. Without a click action the cursor stays the default.
+    tooltips off. Without a click action the cursor stays the default, and
+    leaving the shape or entry, or clicking it, brings the default back. The
+    cursor is read from the element under the pointer: with the SVG renderer
+    a shape inside the chart's svg, with the Canvas renderer its canvas.
 */
 
 const data = [
@@ -31,13 +34,18 @@ async function open() {
       deepest: {tooltip: (d, i, {depth, maxDepth}) => depth === maxDepth},
       off: {tooltip: false},
       click: {tooltip: false, on: {"click.shape": () => {}}},
+      anyClick: {tooltip: false, on: {click: () => {}}},
     };
-    // Draws a Treemap into `sel`, in place of the one last drawn in #viz;
-    // `settings` names an entry of SETTINGS.
-    window.make = ({settings, ...config}, renderer, sel = "#viz") =>
+    // Draws a `chart` (a Treemap unless named) into `sel`, in place of the
+    // one last drawn in #viz; `settings` names an entry of SETTINGS.
+    window.make = (
+      {chart = "Treemap", settings, ...config},
+      renderer,
+      sel = "#viz",
+    ) =>
       new Promise(resolve => {
         if (sel === "#viz" && window.__viz) window.__viz.destroy();
-        const viz = new window.d3plus.Treemap()
+        const viz = new window.d3plus[chart]()
           .config({
             data,
             groupBy: ["region", "state"],
@@ -77,15 +85,11 @@ async function open() {
       document.querySelector("#layout").innerHTML = "";
       return [box.left + box.width / 2, box.top + box.height / 2];
     };
-    // The cursor at a point, the tooltips showing, and whether the pointer is
-    // on a legend entry. The chart sets the cursor on its svg: in SVG that is
-    // the cursor of the element under the pointer, and in Canvas, where the
-    // canvas is a sibling of that svg, it is read from the svg itself.
+    // The cursor of the element under a point, the tooltips showing, and
+    // whether the pointer is on a legend entry.
     window.state = ([x, y]) => {
-      const svg = window.__viz._select.node();
-      const under = document.elementFromPoint(x, y);
       return {
-        cursor: getComputedStyle(svg.contains(under) ? under : svg).cursor,
+        cursor: getComputedStyle(document.elementFromPoint(x, y)).cursor,
         tooltips: [...document.querySelectorAll(".d3plus-tooltip")]
           .filter(t => getComputedStyle(t).visibility === "visible")
           .map(t =>
@@ -118,10 +122,28 @@ async function hover(page, config, renderer, target) {
   return page.evaluate(point => window.state(point), point);
 }
 
+/** Moves the real pointer to the chart's empty corner and reads the cursor there. */
+async function leave(page) {
+  await page.mouse.move(5, 395);
+  await page.waitForTimeout(60);
+  return page.evaluate(() => window.state([5, 395]).cursor);
+}
+
+/** Clicks where the pointer rests and reads the state there once the chart settles. */
+async function click(page, point) {
+  await page.mouse.click(point[0], point[1]);
+  await page.waitForTimeout(150);
+  return page.evaluate(
+    point => ({...window.state(point), depth: window.__viz._drawDepth}),
+    point,
+  );
+}
+
 const drill = {depth: 0, color: "state"};
 const flat = {groupBy: "state"};
 const west = {tile: "treemap-West"};
 const texas = {tile: "treemap-Texas"};
+const icicle = {chart: "Icicle"};
 
 for (const renderer of ["svg", "canvas"]) {
   it(`click cursor (${renderer}): a tile that drills down shows the pointer without a tooltip`, async () => {
@@ -144,10 +166,7 @@ for (const renderer of ["svg", "canvas"]) {
       );
 
       // Off the tile, the cursor is the default again.
-      await page.mouse.move(5, 395);
-      await page.waitForTimeout(60);
-      const left = await page.evaluate(() => window.state([5, 395]).cursor);
-      assert.strictEqual(left, "auto");
+      assert.strictEqual(await leave(page), "auto");
     } finally {
       await close();
     }
@@ -197,6 +216,76 @@ for (const renderer of ["svg", "canvas"]) {
         }),
         {cursor: "auto", tooltips: [], legend: true},
         "the default cursor at the deepest level",
+      );
+
+      // Off the entry, the cursor is the default again.
+      assert.strictEqual(
+        (await hover(page, drill, renderer, {legend: "West"})).cursor,
+        "pointer",
+      );
+      assert.strictEqual(await leave(page), "auto");
+    } finally {
+      await close();
+    }
+  });
+
+  it(`click cursor (${renderer}): a click brings the default cursor back`, async () => {
+    const {page, close} = await open();
+    try {
+      assert.strictEqual(
+        (await hover(page, drill, renderer, west)).cursor,
+        "pointer",
+      );
+      // After the drill the pointer rests on one of West's states, with
+      // nothing to click.
+      const point = await page.evaluate(() => window.tilePoint("treemap-West"));
+      assert.deepStrictEqual(await click(page, point), {
+        cursor: "auto",
+        tooltips: [],
+        legend: false,
+        depth: 1,
+      });
+
+      // A click on a legend entry hides its group.
+      assert.strictEqual(
+        (await hover(page, drill, renderer, {legend: "West"})).cursor,
+        "pointer",
+      );
+      const entry = await page.evaluate(
+        config => window.legendPoint(config, "West"),
+        drill,
+      );
+      assert.strictEqual((await click(page, entry)).cursor, "auto");
+      assert.deepStrictEqual(await page.evaluate(() => window.__viz._hidden), [
+        "West",
+      ]);
+    } finally {
+      await close();
+    }
+  });
+
+  it(`click cursor (${renderer}): a partition chart shows the pointer on a node that zooms`, async () => {
+    const {page, close} = await open();
+    try {
+      assert.deepStrictEqual(
+        await hover(page, icicle, renderer, {tile: 'icicle-["West"]'}),
+        {cursor: "pointer", tooltips: ["West"], legend: false},
+        "a node with children",
+      );
+      assert.strictEqual(await leave(page), "auto", "off the node");
+      assert.deepStrictEqual(
+        await hover(page, icicle, renderer, {
+          tile: 'icicle-["West","Oregon"]',
+        }),
+        {cursor: "auto", tooltips: ["Oregon"], legend: false},
+        "a leaf",
+      );
+      assert.deepStrictEqual(
+        await hover(page, {...icicle, settings: "anyClick"}, renderer, {
+          tile: 'icicle-["West","Oregon"]',
+        }),
+        {cursor: "pointer", tooltips: [], legend: false},
+        "a leaf with a click handler of the chart's own",
       );
     } finally {
       await close();
