@@ -29,8 +29,8 @@ export async function chart(src, renderer, size = [600, 400]) {
 /**
     The client point at the middle of the first painted node matching `match`
     (a `(node, drawn) => boolean` source, `drawn` being a text node's lines
-    joined): the middle of a text node's first line, or a rect's center.
-    `null` when nothing matches.
+    joined): the middle of a text node's first line, a rect's center, or the
+    point halfway between a line's ends. `null` when nothing matches.
 */
 export function nodePoint(page, match) {
   return page.evaluate(match => {
@@ -95,6 +95,9 @@ export function nodePoint(page, match) {
         }
       } else if (node.type === "rect" && test(node, "")) {
         found = at(node.x + node.width / 2, node.y + node.height / 2);
+      } else if (node.type === "line" && test(node, "")) {
+        const [a, b] = [node.points[0], node.points.at(-1)];
+        found = at((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
       }
       (node.children || []).forEach(c => walk(c, next));
     };
@@ -127,6 +130,14 @@ export const tickLabel = text =>
 /** The matcher for the bar drawn for the data point with `id`. */
 export const bar = id =>
   `node => node.type === "rect" && String(node.key).startsWith(${JSON.stringify(`${id}_`)}) && !String(node.key).endsWith("::hit")`;
+
+/** The matcher for the bar a Gantt draws for the task with `id`. */
+export const task = id =>
+  `node => node.type === "rect" && node.key === ${JSON.stringify(`gantt-task-${id}`)}`;
+
+/** The matcher for the grid line a Gantt's axis draws at `date` (a `Date` source). */
+export const gridLine = date =>
+  `node => node.type === "line" && String(node.key).startsWith("grid-") && Math.abs(window.__viz.ctx.gantt.column + node.points[0][0] - window.__viz.ctx.gantt.x(${date})) < 1`;
 
 /** Moves the real mouse onto `point` and waits for the hover repaint. */
 export async function hover(page, point) {

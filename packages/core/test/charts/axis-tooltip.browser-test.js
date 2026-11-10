@@ -3,9 +3,11 @@ import assert from "~test/browser/assert.js";
 import {
   bar,
   chart,
+  gridLine,
   hover,
   label,
   nodePoint,
+  task,
   tickLabel,
   title,
   tooltip,
@@ -37,6 +39,25 @@ const cut = `xConfig: {maxSize: 40, labelRotation: false, CUTX},
   yConfig: {title: ${JSON.stringify(LONG_TITLE)}, titleConfig: {maxLines: 1}, CUTY}`;
 const cutBars = (x = "", y = "") =>
   bars(cut.replace("CUTX", x).replace("CUTY", y));
+
+const LONG_TICK =
+  "The long week that begins on the eighteenth day of March in the year 2024, a Monday, and ends on a Sunday, with the design review on its Wednesday afternoon and the sprint demo on its Friday morning";
+const MARCH_18 = "new Date(2024, 2, 18)";
+
+/** A Gantt source (`lib => viz`) labeling three weeks, with `axis` config. */
+const gantt = (axis = "") => `lib => new lib.Gantt().config({
+  data: [
+    {task: "Plan", start: "2024-03-04", end: "2024-03-08"},
+    {task: "Design", start: "2024-03-11", end: "2024-03-22"},
+    {task: "Ship", start: "2024-03-25", end: "2024-04-05"},
+  ],
+  groupBy: "task", legend: false,
+  axisConfig: {
+    labels: [new Date(2024, 2, 4), ${MARCH_18}, new Date(2024, 3, 1)],
+    tickFormat: d => new Date(d).toDateString().slice(4, 10),
+    ${axis}
+  },
+})`;
 
 /** Just the tooltip's text. */
 const text = async page => {
@@ -509,6 +530,101 @@ for (const renderer of ["svg", "canvas"]) {
         assert.strictEqual((await over(page, label("2008"))).body, "Year 2008");
         await leave(page);
         assert.strictEqual(await tooltip(page), null);
+      },
+    ));
+
+  it(`axis tooltip (${renderer}): a Gantt's time axis`, () =>
+    withChart(
+      gantt(
+        `title: "Schedule", titleTooltip: "When each task runs",
+         tickTooltip: value => "Week of " + new Date(value).toDateString()`,
+      ),
+      renderer,
+      async page => {
+        assert.deepStrictEqual(await over(page, label("Schedule")), {
+          title: "",
+          body: "When each task runs",
+          rows: [],
+        });
+        assert.deepStrictEqual(await over(page, label("Mar 18")), {
+          title: "",
+          body: "Week of Mon Mar 18 2024",
+          rows: [],
+        });
+        await leave(page);
+        assert.strictEqual(await tooltip(page), null);
+      },
+    ));
+
+  it(`axis tooltip (${renderer}): a Gantt's cut tick label and title show their whole text`, () =>
+    withChart(
+      gantt(
+        `maxSize: 100, labelRotation: true,
+         title: ${JSON.stringify(LONG_TITLE)}, titleConfig: {maxLines: 1},
+         tickFormat: d => +d === +${MARCH_18} ? ${JSON.stringify(LONG_TICK)} : new Date(d).toDateString().slice(4, 10)`,
+      ),
+      renderer,
+      async page => {
+        assert.deepStrictEqual(await over(page, label("The long")), {
+          title: LONG_TICK,
+          body: "",
+          rows: [],
+        });
+        await leave(page);
+        assert.strictEqual(await tooltip(page), null);
+        assert.strictEqual(await over(page, label("Mar 04")), null);
+        assert.deepStrictEqual(await over(page, title), {
+          title: LONG_TITLE,
+          body: "",
+          rows: [],
+        });
+        await leave(page);
+        assert.strictEqual(await tooltip(page), null);
+      },
+    ));
+
+  it(`axis tooltip (${renderer}): a Gantt's bars keep the pointer under its axis`, () =>
+    withChart(
+      `${gantt(`title: "Schedule"`)}.on("click.shape", d => (window.__clicks ||= []).push(d.task))`,
+      renderer,
+      async page => {
+        const clicks = () => page.evaluate(() => window.__clicks);
+        const mark = await nodePoint(page, task("Design"));
+        const grid = await nodePoint(page, gridLine(MARCH_18));
+        assert.ok(mark, "the task's bar is drawn");
+        assert.ok(grid, "a grid line is drawn at March 18");
+        const [half, spans] = await page.evaluate(() => {
+          const scene = window.__viz._chartScene;
+          const design = scene.find(n => n.key === "gantt-task-Design");
+          const line = scene
+            .find(n => n.key === "gantt-axis")
+            .children.find(n => n.type === "line");
+          const ys = line.points.map(p => p[1]);
+          const y = design.transform.y;
+          return [design.width / 2, Math.min(...ys) < y && y < Math.max(...ys)];
+        });
+        assert.ok(Math.abs(grid[0] - mark[0]) < half, "the line is in the bar");
+        assert.ok(spans, "the grid lines run through the bar's row");
+
+        const point = [grid[0], mark[1]];
+        await hover(page, point);
+        assert.strictEqual((await tooltip(page)).title, "Design");
+        await page.mouse.click(point[0], point[1]);
+        await page.waitForTimeout(120);
+        assert.deepStrictEqual(await clicks(), ["Design"]);
+
+        // A label with no tooltip is no shape: it shows nothing, and a click
+        // on it reaches no shape handler.
+        for (const name of ["Mar 18", "Schedule"]) {
+          const at = await nodePoint(page, label(name));
+          assert.ok(at, `${name} is drawn`);
+          await hover(page, at);
+          assert.strictEqual(await tooltip(page), null, name);
+          await page.mouse.click(at[0], at[1]);
+          await page.waitForTimeout(120);
+          assert.strictEqual(await tooltip(page), null, `${name}, clicked`);
+        }
+        assert.deepStrictEqual(await clicks(), ["Design"]);
       },
     ));
 

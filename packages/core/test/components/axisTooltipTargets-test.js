@@ -2,6 +2,7 @@ import {it} from "vitest";
 import assert from "assert";
 import {
   axisTooltipTarget,
+  inertAxis,
   labelCut,
   stampTickTooltips,
   stampTitleTooltip,
@@ -152,4 +153,60 @@ it("stampTitleTooltip — false stamps nothing", () => {
   });
   stampTitleTooltip([cut], "Population", false);
   assert.strictEqual(axisTooltipTarget(cut), undefined);
+});
+
+it("inertAxis — only the nodes stamped with a tooltip target stay in hit-testing", () => {
+  const labels = [
+    tickLabel("Short", "Short"),
+    tickLabel("x", "A long...", true, "A long label"),
+  ];
+  stampTickTooltips(labels, undefined);
+  const grid = {type: "line", key: "grid-0", points: []};
+  const axis = {type: "group", key: "axis", children: [grid, ...labels]};
+  const inert = inertAxis(axis);
+
+  const flags = node =>
+    node.type === "group" ? node.children.map(flags) : node.interactive;
+  assert.deepStrictEqual(flags(inert), [
+    false,
+    [false, false],
+    [undefined, undefined],
+  ]);
+  assert.strictEqual(inert.interactive, undefined, "a group keeps its own");
+  assert.strictEqual(
+    axisTooltipTarget(inert.children[2].children[1]).text,
+    "A long label",
+    "the target stays on its node",
+  );
+});
+
+it("inertAxis — every node joins the axis interaction group", () => {
+  const axis = {
+    type: "group",
+    key: "axis",
+    children: [
+      {type: "group", key: "ticks", children: [text(["1"], {key: "tick"})]},
+      text(["Title"], {key: "title", interactionGroup: "other"}),
+    ],
+  };
+  const groups = node => [
+    node.interactionGroup,
+    ...(node.children ?? []).flatMap(groups),
+  ];
+  assert.deepStrictEqual(groups(inertAxis(axis)), [
+    "axis",
+    "axis",
+    "axis",
+    "axis",
+  ]);
+});
+
+it("inertAxis — leaves the scene it is given as it was", () => {
+  const leaf = text(["1"], {key: "tick"});
+  const axis = {type: "group", key: "axis", children: [leaf]};
+  const inert = inertAxis(axis);
+  assert.notStrictEqual(inert, axis);
+  assert.deepStrictEqual(axis, {type: "group", key: "axis", children: [leaf]});
+  assert.deepStrictEqual(leaf, text(["1"], {key: "tick"}));
+  assert.strictEqual(inert.children[0].interactive, false);
 });
