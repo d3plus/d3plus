@@ -211,3 +211,73 @@ it("bucketFormat — leaves the values array in its order", () => {
   bucketLabels([1, 3, 5], values);
   assert.deepStrictEqual(values, [1, 2, 3, 4, 5, 6]);
 });
+
+/** A ColorScale laid out (never painted) over 0–100 with `config`. */
+const laidOut = config => {
+  const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  document.body.appendChild(group);
+  return new ColorScale()
+    .renderMode("compute")
+    .select(group)
+    .data([0, 20, 50, 75, 100].map(value => ({value})))
+    .width(400)
+    .height(100)
+    .duration(0)
+    .config(config)
+    .render();
+};
+
+/** Every node that draws inside `node`, with the keys of the groups above it. */
+const drawn = (node, path = []) =>
+  node.type === "group"
+    ? node.children.flatMap(child => drawn(child, [...path, node.key]))
+    : [{node, path}];
+
+/** The nodes `scene` draws under its group whose key starts with `prefix`. */
+const under = (scene, prefix) =>
+  drawn(scene)
+    .filter(({path}) => path.some(key => String(key).startsWith(prefix)))
+    .map(({node}) => node);
+
+it("toScene — a gradient's bar is chrome", () => {
+  const bar = under(laidOut({scale: "linear"}).toScene(), "Rect-");
+  assert.strictEqual(bar.length, 1, "one bar");
+  assert.strictEqual(bar[0].interactive, false);
+  assert.strictEqual(bar[0].interactionGroup, "axis");
+});
+
+it("toScene — a bucketed bar's segments are chrome", () => {
+  const scene = laidOut({scale: "jenks", bucketAxis: true}).toScene();
+  const segments = under(scene, "Rect-");
+  assert.ok(segments.length > 1, "one segment per bucket");
+  for (const segment of segments) {
+    assert.strictEqual(segment.interactive, false, `segment ${segment.key}`);
+    assert.strictEqual(segment.interactionGroup, "axis");
+  }
+});
+
+it("toScene — an axis label with a tooltip stays live beside an inert bar", () => {
+  const scene = laidOut({
+    scale: "linear",
+    axisConfig: {tickTooltip: "A tick"},
+  }).toScene();
+  const labels = under(scene, "Axis-").filter(node => node.axisTooltip);
+  assert.ok(labels.length > 0, "the tick labels carry the tooltip");
+  for (const label of labels) assert.notStrictEqual(label.interactive, false);
+  for (const {node, path} of drawn(scene))
+    assert.ok(
+      node.interactive === false || node.axisTooltip,
+      `${path.join(" > ")} > ${node.key} is inert`,
+    );
+});
+
+it("toScene — bucket swatches keep the pointer", () => {
+  const swatches = drawn(laidOut({scale: "jenks"}).toScene()).filter(
+    ({node}) => node.type === "rect",
+  );
+  assert.ok(swatches.length > 1, "one swatch per bucket");
+  for (const {node} of swatches) {
+    assert.notStrictEqual(node.interactive, false, `swatch ${node.key}`);
+    assert.strictEqual(node.interactionGroup, undefined);
+  }
+});
