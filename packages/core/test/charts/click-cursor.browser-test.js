@@ -7,9 +7,12 @@ import {openPage} from "~test/browser/page.js";
     whether or not it shows a tooltip: a tile that drills down keeps the hand
     with `tooltip: false`, or with a `tooltip` accessor that turns its level's
     tooltips off. Without a click action the cursor stays the default, and
-    leaving the shape or entry, or clicking it, brings the default back. The
-    cursor is read from the element under the pointer: with the SVG renderer
-    a shape inside the chart's svg, with the Canvas renderer its canvas.
+    leaving the shape or entry, or clicking it, brings the default back. A
+    partition chart's node follows the same rule, a click zooming into one
+    with children. Swapping the renderer leaves the hand on neither drawing
+    surface, and the next pointer move shows it again. The cursor is read
+    from the element under the pointer: with the SVG renderer a shape inside
+    the chart's svg, with the Canvas renderer its canvas.
 */
 
 const data = [
@@ -35,7 +38,9 @@ async function open() {
       off: {tooltip: false},
       click: {tooltip: false, on: {"click.shape": () => {}}},
       anyClick: {tooltip: false, on: {click: () => {}}},
+      count: {on: {"click.shape": () => window.__clicks++}},
     };
+    window.__clicks = 0;
     // Draws a `chart` (a Treemap unless named) into `sel`, in place of the
     // one last drawn in #viz; `settings` names an entry of SETTINGS.
     window.make = (
@@ -60,7 +65,7 @@ async function open() {
         if (sel === "#viz") window.__viz = viz;
         viz.render(() => resolve(viz));
       });
-    // Client coordinates of the center of the tile keyed `key`.
+    // Client coordinates of the middle of the tile or arc keyed `key`.
     window.tilePoint = key => {
       const viz = window.__viz;
       const node = viz._chartScene.find(n => n.key === key);
@@ -68,6 +73,14 @@ async function open() {
         .querySelector("#viz svg, #viz canvas")
         .getBoundingClientRect();
       const c = viz._chartTransform || {x: 0, y: 0};
+      if (node.arc) {
+        const angle = (node.arc.startAngle + node.arc.endAngle) / 2;
+        const radius = (node.arc.innerRadius + node.arc.outerRadius) / 2;
+        return [
+          surface.left + c.x + radius * Math.sin(angle),
+          surface.top + c.y - radius * Math.cos(angle),
+        ];
+      }
       return [
         surface.left + c.x + node.x + node.width / 2,
         surface.top + c.y + node.y + node.height / 2,
@@ -98,6 +111,11 @@ async function open() {
         legend: Boolean(window.__viz._lastScenePick?.isLegend),
       };
     };
+    // The chart's drawing surfaces that hold the hand cursor, by tag name.
+    window.hands = () =>
+      [...document.querySelectorAll("#viz svg, #viz canvas")]
+        .filter(el => el.style.cursor === "pointer")
+        .map(el => el.localName);
   }, data);
   return opened;
 }
@@ -137,6 +155,29 @@ async function click(page, point) {
     point => ({...window.state(point), depth: window.__viz._drawDepth}),
     point,
   );
+}
+
+/**
+    Redraws the chart with the other renderer, the pointer resting where it
+    is, and reads the drawing surfaces left holding the hand cursor.
+*/
+async function swap(page, renderer) {
+  await page.evaluate(
+    renderer =>
+      new Promise(resolve =>
+        window.__viz.renderer(renderer).render(() => resolve(null)),
+      ),
+    renderer,
+  );
+  await page.waitForTimeout(60);
+  return page.evaluate(() => window.hands());
+}
+
+/** Moves the real pointer a pixel off a point and reads the cursor there. */
+async function nudge(page, [x, y]) {
+  await page.mouse.move(x + 1, y + 1);
+  await page.waitForTimeout(60);
+  return page.evaluate(point => window.state(point).cursor, [x + 1, y + 1]);
 }
 
 const drill = {depth: 0, color: "state"};
@@ -287,6 +328,125 @@ for (const renderer of ["svg", "canvas"]) {
         {cursor: "pointer", tooltips: [], legend: false},
         "a leaf with a click handler of the chart's own",
       );
+    } finally {
+      await close();
+    }
+  });
+
+  for (const chart of ["Icicle", "Sunburst"]) {
+    const prefix = chart.toLowerCase();
+    const leaf = {tile: `${prefix}-["West","Oregon"]`};
+    const branch = {tile: `${prefix}-["West"]`};
+
+    it(`click cursor (${renderer}): ${chart} shows the pointer on a leaf with a click.shape handler`, async () => {
+      const {page, close} = await open();
+      try {
+        assert.deepStrictEqual(
+          await hover(page, {chart}, renderer, leaf),
+          {cursor: "auto", tooltips: ["Oregon"], legend: false},
+          "the default cursor with nothing to click",
+        );
+        assert.deepStrictEqual(
+          await hover(page, {chart, settings: "click"}, renderer, leaf),
+          {cursor: "pointer", tooltips: [], legend: false},
+          "the pointer with a handler, without a tooltip",
+        );
+        assert.strictEqual(await leave(page), "auto", "off the leaf");
+
+        // The handler the pointer announces runs on a click.
+        assert.deepStrictEqual(
+          await hover(page, {chart, settings: "count"}, renderer, leaf),
+          {cursor: "pointer", tooltips: ["Oregon"], legend: false},
+          "the pointer with a handler and a tooltip",
+        );
+        await click(
+          page,
+          await page.evaluate(key => window.tilePoint(key), leaf.tile),
+        );
+        assert.strictEqual(await page.evaluate(() => window.__clicks), 1);
+      } finally {
+        await close();
+      }
+    });
+
+    it(`click cursor (${renderer}): ${chart} keeps the pointer on a node with children`, async () => {
+      const {page, close} = await open();
+      try {
+        assert.deepStrictEqual(
+          await hover(page, {chart}, renderer, branch),
+          {cursor: "pointer", tooltips: ["West"], legend: false},
+          "a node that zooms",
+        );
+        await click(
+          page,
+          await page.evaluate(key => window.tilePoint(key), branch.tile),
+        );
+        assert.strictEqual(
+          await page.evaluate(() => window.__viz._history.length),
+          1,
+          "a click zooms into it",
+        );
+        assert.deepStrictEqual(
+          await hover(page, {chart, settings: "click"}, renderer, branch),
+          {cursor: "pointer", tooltips: [], legend: false},
+          "with a click.shape handler",
+        );
+        assert.strictEqual(await leave(page), "auto", "off the node");
+      } finally {
+        await close();
+      }
+    });
+  }
+}
+
+for (const [from, to] of [
+  ["svg", "canvas"],
+  ["canvas", "svg"],
+]) {
+  it(`click cursor (${from} to ${to}): a swap over a clickable tile leaves no hand behind`, async () => {
+    const {page, close} = await open();
+    try {
+      assert.strictEqual(
+        (await hover(page, drill, from, west)).cursor,
+        "pointer",
+      );
+      const point = await page.evaluate(() => window.tilePoint("treemap-West"));
+      assert.deepStrictEqual(
+        await swap(page, to),
+        [],
+        `nothing keeps the ${from} renderer's hand`,
+      );
+
+      // The next pointer move shows the hand on the new drawing surface.
+      assert.strictEqual(await nudge(page, point), "pointer");
+      assert.deepStrictEqual(await page.evaluate(() => window.hands()), [to]);
+      assert.strictEqual(await leave(page), "auto", "off the tile");
+      assert.deepStrictEqual(await page.evaluate(() => window.hands()), []);
+    } finally {
+      await close();
+    }
+  });
+
+  it(`click cursor (${from} to ${to}): a swap away from a clickable tile shows the default cursor`, async () => {
+    const {page, close} = await open();
+    try {
+      // The chart starts on the renderer it ends on, so that renderer's
+      // drawing surface has shown the hand before.
+      assert.strictEqual(
+        (await hover(page, drill, to, west)).cursor,
+        "pointer",
+      );
+      await swap(page, from);
+      const point = await page.evaluate(() => window.tilePoint("treemap-West"));
+      assert.strictEqual(await nudge(page, point), "pointer");
+      assert.strictEqual(await leave(page), "auto", "off the tile");
+
+      assert.deepStrictEqual(await swap(page, to), []);
+      assert.strictEqual(
+        await page.evaluate(() => window.state([5, 395]).cursor),
+        "auto",
+      );
+      assert.strictEqual(await nudge(page, [5, 394]), "auto", "and on a move");
     } finally {
       await close();
     }
