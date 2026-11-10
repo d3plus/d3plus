@@ -530,6 +530,11 @@ export interface TextNode extends NodeBase {
       behind it.
   */
   halo?: boolean;
+  /**
+      Whether the text was cut short to fit its box, so `lines` hold less than
+      the whole text.
+  */
+  truncated?: boolean;
 }
 
 /** The fade-out and fade-in windows of a `TextNode.fadeSwap`, as shares (0–1) of a transition's eased progress. */

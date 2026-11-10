@@ -92,6 +92,7 @@ export {
 export type {
   D3plusConfig,
   AxisConfig,
+  AxisTooltipConfig,
   ColorDefaultsConfig,
   ColorScaleConfig,
   ColorScaleField,

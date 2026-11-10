@@ -73,8 +73,10 @@ const axisSchema: ConfigField[] = [
   {key: "ticks", coerce: "identity"},
   {key: "tickSize", coerce: "identity", default: 8},
   {key: "tickSuffix", coerce: "identity", default: "normal"},
+  {key: "tickTooltip", coerce: "identity"},
   {key: "timeLocale", coerce: "identity", default: undefined},
   {key: "title", coerce: "identity"},
+  {key: "titleTooltip", coerce: "identity"},
   {key: "width", coerce: "identity", default: 400},
 ];
 

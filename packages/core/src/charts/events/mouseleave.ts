@@ -1,4 +1,5 @@
 import type {DataPoint} from "@d3plus/data";
+import {isAxisTooltipDatum} from "../features/axisTooltip.js";
 import {shapeHoverEnabled} from "../viz/shapeHover.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type Viz from "../viz/Viz.js";
@@ -53,7 +54,12 @@ export default function (this: Viz, d: DataPoint, i: number): void {
       this.hover(false);
     }
     const tooltipData = this._tooltipClass.data();
-    if (tooltipData.length && tooltipEnabled(this, d, i, legend)) {
+    // An axis label's tooltip, shown since, isn't this shape's to hide.
+    if (
+      tooltipData.length &&
+      !isAxisTooltipDatum(tooltipData[0]) &&
+      tooltipEnabled(this, d, i, legend)
+    ) {
       let tooltipDatum = tooltipData[0];
       while (tooltipDatum.__d3plus__ && tooltipDatum.data)
         tooltipDatum = tooltipDatum.data;

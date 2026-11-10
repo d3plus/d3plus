@@ -257,10 +257,38 @@ export interface AxisConfig {
       [d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale)).
   */
   timeLocale?: Record<string, unknown>;
+  /**
+      The tooltip shown when a tick label is hovered, in a chart: a function
+      that receives the tick's value (as `tickFormat` does) and its index
+      among the axis's labels and returns the tooltip's text (nothing for a
+      tick without one), or a tooltip config (as `tooltipConfig`) whose
+      accessors receive the same. Unset (the default), a label cut short with
+      an ellipsis shows its whole text; `false` shows no tooltip.
+      @example
+      {tickTooltip: value => notes[value]}
+  */
+  tickTooltip?:
+    | ((value: number | string, index: number) => string | false | void)
+    | AxisTooltipConfig<[value: number | string, index: number]>
+    | false;
   /** Title of the axis. */
   title?: string;
   /** Title configuration of the axis. */
   titleConfig?: Record<string, unknown>;
+  /**
+      The tooltip shown when the axis title is hovered, in a chart: the
+      tooltip's text, a function that receives the title and returns it, or a
+      tooltip config (as `tooltipConfig`) whose accessors receive the title.
+      Unset (the default), a title cut short with an ellipsis shows its whole
+      text; `false` shows no tooltip.
+      @example
+      {title: "GDP per capita", titleTooltip: "Constant 2015 US$"}
+  */
+  titleTooltip?:
+    | string
+    | ((title: string) => string | false | void)
+    | AxisTooltipConfig<[title: string]>
+    | false;
 }
 
 /**
@@ -280,6 +308,23 @@ export interface TooltipLevels {
   /** Whether the hovered item is a legend entry, not a mark. */
   legend: boolean;
 }
+/** `T` with every accessor in it called with `Args`. */
+type WithAccessorArgs<T, Args extends unknown[]> = T extends (
+  ...args: never[]
+) => infer R
+  ? (...args: Args) => R
+  : T extends Array<infer U>
+    ? Array<WithAccessorArgs<U, Args>>
+    : T;
+
+/**
+    A tooltip config for an axis label (see `titleTooltip` and
+    `tickTooltip`): a `TooltipConfig` whose accessors are called with `Args`
+    in place of a data point.
+*/
+export type AxisTooltipConfig<Args extends unknown[]> = {
+  [K in keyof TooltipConfig]: WithAccessorArgs<TooltipConfig[K], Args>;
+};
 
 export interface TooltipConfig {
   /** The inner HTML content of the arrow element, empty by default. */
