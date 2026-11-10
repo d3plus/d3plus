@@ -2,6 +2,7 @@ import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
 import {legendSnapshot, recordLegendChange} from "../viz/history.js";
 import {broadcastLegend} from "../viz/linkGroup.js";
+import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -19,7 +20,7 @@ export default function (
   x: DataPoint,
   event: MouseEvent,
 ): void {
-  this._select.style("cursor", "auto");
+  setCursor(this, "auto");
   if (tooltipEnabled(this, d, i, true)) this._tooltipClass.data([]).render();
 
   let id = this._id(d, i);

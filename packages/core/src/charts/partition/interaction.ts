@@ -11,6 +11,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {latestDrillEntry, removeLatestDrillEntry} from "../viz/history.js";
+import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type {DrillDownHistoryEntry, VizInstance} from "../viz/vizTypes.js";
 
@@ -255,8 +256,8 @@ export function partitionHandlers<N extends PartitionNode>(
       if (!node) return;
       if (viz.ctx[`${prefix}Hovered`] !== node) hoverNode(node);
       const userClick = Boolean(viz.schema.on.click);
-      viz._select?.style(
-        "cursor",
+      setCursor(
+        viz,
         userClick || partitionClickable(viz, node) ? "pointer" : "auto",
       );
       if (viz._tooltipClass && tooltipEnabled(viz, d, i))

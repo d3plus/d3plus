@@ -4,6 +4,7 @@ import clickLegend from "./click.legend.js";
 import {legendLabel} from "../features/legendLabel.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
+import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
@@ -63,8 +64,8 @@ export default function (
 
   // only show the hand cursor when the entry has a click event, whether or
   // not it shows a tooltip
-  this._select.style(
-    "cursor",
+  setCursor(
+    this,
     hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
   );
 

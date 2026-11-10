@@ -7,6 +7,7 @@ import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {pointTooltipAnchor} from "../viz/pointTooltipAnchor.js";
+import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -57,8 +58,8 @@ export default function (
 
   // only show the hand cursor when the shape has a click event, whether or
   // not it shows a tooltip
-  this._select.style(
-    "cursor",
+  setCursor(
+    this,
     hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
   );
 

@@ -1,5 +1,6 @@
 import type {DataPoint} from "@d3plus/data";
 import {isAxisTooltipDatum} from "../features/axisTooltip.js";
+import {setCursor} from "../viz/setCursor.js";
 import {shapeHoverEnabled} from "../viz/shapeHover.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type Viz from "../viz/Viz.js";
@@ -73,5 +74,5 @@ export default function (this: Viz, d: DataPoint, i: number): void {
     // larger delay made the tooltip lag behind the cursor on dense charts.
   }, 0);
 
-  this._select.style("cursor", "auto");
+  setCursor(this, "auto");
 }
