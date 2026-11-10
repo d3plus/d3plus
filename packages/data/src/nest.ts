@@ -42,6 +42,8 @@ export function nestGroups(data: DataPoint[], fns: KeyAccessor[]): NestEntry[] {
     Bubbles up values that do not nest to the furthest key: an entry whose next
     level resolved to no key is replaced by its leaf row, so rows whose keys run
     out early become leaves at that depth instead of an empty level.
+    `undefined`, `null` and `""` are no key; `0` and `false` are keys like any
+    other.
     @param values The entries of one nest level.
     @param depth The number of key levels from `values` down, inclusive.
     @private
@@ -49,14 +51,22 @@ export function nestGroups(data: DataPoint[], fns: KeyAccessor[]): NestEntry[] {
 function bubble(values: NestEntry[], depth: number): NestEntry[] {
   if (depth < 2) return values;
   return values.map(d => {
-    if (d.key && d.values) {
+    if (!noKey(d.key) && d.values) {
       const children = d.values as NestEntry[];
       const first = children[0];
-      if (first && (first.key === undefined || first.key === "undefined"))
+      if (first && (noKey(first.key) || first.key === "undefined"))
         return first.values[0] as unknown as NestEntry;
       else d.values = bubble(children, depth - 1);
     }
 
     return d;
   });
+}
+
+/**
+    Whether a nest key stands for no key at all: `undefined`, `null` or `""`.
+    @private
+*/
+function noKey(key: NestEntry["key"] | null): boolean {
+  return key === undefined || key === null || key === "";
 }
