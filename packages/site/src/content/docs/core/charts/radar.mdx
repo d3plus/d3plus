@@ -7,6 +7,7 @@ import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/charts/radar/basic-example.js?raw";
 import multipleSeries from "~/examples/core/charts/radar/multiple-series.js?raw";
+import vertexDots from "~/examples/core/charts/radar/vertex-dots.js?raw";
 import moreMetrics from "~/examples/core/charts/radar/more-metrics.js?raw";
 import levelsAndPadding from "~/examples/core/charts/radar/levels-and-padding.js?raw";
 import levelLabels from "~/examples/core/charts/radar/level-labels.js?raw";
@@ -24,9 +25,15 @@ Creates a radar visualization based on an array of data.
 
 ## Multiple series
 
-Two series overlaid on the same axes, one filled polygon per group.
+Two series overlaid on the same axes, one polygon per group. Each is a see-through fill outlined in its color, so overlapping groups stay readable; `shapeConfig.Path` restyles them (`fillOpacity: 1` for solid shapes).
 
 <Playground chart="Radar" code={multipleSeries} controls={["metric","value"]} />
+
+## Vertex dots
+
+Every polygon has a dot on each of its vertices, in the polygon's color; a metric a group has no value for gets no dot. Hovering a dot (or coming within `hoverDistance` pixels of one) shows that group's value for that metric (formatted by `levelFormat` when it is set, like the ring labels), keeps the group's polygon highlighted, and dims every metric name but the dot's own. The polygons themselves don't respond to the pointer. `shapeConfig.Circle` styles the dots, here larger and outlined in a darker shade; set its `r` to `0` to hide them, and the polygons take the pointer instead.
+
+<Playground chart="Radar" code={vertexDots} controls={["shapeConfig","hoverDistance"]} />
 
 ## More metrics
 

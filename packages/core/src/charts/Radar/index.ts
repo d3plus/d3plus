@@ -7,8 +7,11 @@
       - `axisLabels.ts` — sizes the web to its metric labels.
       - `levels.ts` — nice ring values + level value labels.
       - `rings.ts` — ring styles + ring scene nodes.
-      - `emit.ts` — Path scene nodes per polygon.
+      - `points.ts` — a dot on each vertex, its tooltip row, and its hover.
+      - `emit.ts` — Path scene nodes per polygon, then the dots.
 */
+
+import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
@@ -16,11 +19,13 @@ import constant from "../../utils/constant.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {isPointShape} from "../viz/nearestHover.js";
 import {backgroundInk, chartGridline} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRadarLayout} from "./applyLayout.js";
 import {radarEmit} from "./emit.js";
+import {radarPointHover, radarPointTooltipRows} from "./points.js";
 
 export const radarDef: ChartDefinition = {
   name: "Radar",
@@ -41,6 +46,12 @@ export const radarDef: ChartDefinition = {
     const {width, height} = chartBounds(viz);
     return {x: -width / 2, y: -height / 2, width, height};
   },
+
+  // The vertex dots are points for `hoverDistance`; polygons keep exact
+  // hit-testing.
+  pointMark: (_viz, node) => isPointShape(node),
+
+  setup: radarPointHover,
 
   // Small-multiple panels as close to square as the grid allows.
   facet: {aspect: 1},
@@ -66,6 +77,32 @@ export const radarDef: ChartDefinition = {
     },
     {key: "outerPadding", default: "auto"},
     {key: "shape", default: constant("Path"), coerce: "const"},
+    // See-through polygons outlined in their own color, so overlapping
+    // groups all stay readable, and a dot on each vertex, styled by
+    // `shapeConfig.Circle` (`r: 0` hides them).
+    {
+      key: "shapeConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        Path: {
+          fillOpacity: 0.25,
+          stroke: (d: DataPoint, i: number) => {
+            const sc = viz.schema.shapeConfig;
+            const fill = sc.Path?.fill ?? sc.fill;
+            return typeof fill === "function" ? fill(d, i) : fill;
+          },
+          strokeWidth: 2,
+        },
+        Circle: {r: 3},
+      }),
+    },
+    {
+      key: "tooltipConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        tbody: (d: DataPoint) => radarPointTooltipRows(viz, d),
+      }),
+    },
     /**
         Accessor function or string key for each data point's value, which sets its
         distance from the center along its metric's spoke.
@@ -107,6 +144,10 @@ export const radarDef: ChartDefinition = {
 };
 
 /**
-    Creates a radar visualization based on an array of data.
+    Creates a radar visualization based on an array of data. Each polygon is
+    a see-through fill outlined in its color (`shapeConfig.Path`), with a dot
+    on every vertex, styled by `shapeConfig.Circle`. The dots, not the
+    polygons, answer the pointer: hovering one shows that group's value for
+    its metric. `r: 0` hides them, and the polygons answer instead.
 */
 export default makeChart(radarDef);

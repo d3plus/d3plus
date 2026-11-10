@@ -152,8 +152,10 @@ const pageCases = () => {
       },
       shapeKey: "Rect",
     },
+    // The vertex dots are markers: they take a texture but no image.
     Radar: {
       config: {data: series, groupBy: "id", metric: "year", value: "value"},
+      noImage: /^radar-point-/,
     },
     // A needle and its hub are pointers: they take a texture but no image.
     Gauge: {

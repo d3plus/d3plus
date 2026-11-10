@@ -2,15 +2,13 @@
     `applyRadarLayout` — Radar's chart-specific layout stage. Computes per-
     axis angular positions and the web radius (sized to the metric labels,
     see `axisLabels.ts`), the radial value domain + level rings (see
-    `levels.ts`), per-group polygon vertices, and the per-polygon
-    `pathConfig` (with event-handler wrappers that translate cursor →
-    nearest vertex). Emits the chrome (rings, metric labels, spokes, level
+    `levels.ts`), per-group polygon vertices, and the polygons'
+    `pathConfig`. Emits the chrome (rings, metric labels, spokes, level
     value labels — see `axisDecorations.ts`) into `_chartScene`, beneath the
     polygons. Stashes `groupData` + `pathConfig` on `viz.ctx`.
 */
 
-import {groups, min, sum} from "d3-array";
-import {pointer} from "d3-selection";
+import {groups, sum} from "d3-array";
 
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
@@ -27,6 +25,7 @@ import {
   radarRingNodes,
 } from "./axisDecorations.js";
 import {radarLevels, radarRadius} from "./levels.js";
+import {registerRadarPoint} from "./points.js";
 
 const TAU = Math.PI * 2;
 
@@ -37,43 +36,11 @@ interface GroupDatum {
   id: string | number;
   /** The metrics the polygon has a value for. */
   metrics: unknown[];
+  /** Each vertex's value. */
+  values: number[];
   points: {x: number; y: number}[];
   d: string;
 }
-
-/** Builds the polygon `pathConfig`, wrapping handlers to resolve cursor → nearest vertex. */
-const buildPathConfig = (
-  viz: Parameters<TransformStage>[0]["viz"],
-  width: number,
-  height: number,
-): Record<string, unknown> => {
-  const pathConfig = shapeConfigFor(viz, "Path");
-  // Event-handler wrappers: cursor → nearest polygon vertex resolution.
-  const eventNames = Object.keys(
-    (pathConfig.on as Record<string, unknown>) ?? {},
-  );
-  pathConfig.on = {};
-  for (const eventName of eventNames) {
-    (pathConfig.on as Record<string, unknown>)[eventName] = (
-      d: GroupDatum,
-      i: number,
-      s: unknown,
-      evt: Event,
-    ) => {
-      const xs = d.points.map(p => p.x + width / 2);
-      const ys = d.points.map(p => p.y + height / 2);
-      const cursor = pointer(evt, viz._select.node() as Element);
-      const xDist = xs.map(p => Math.abs(p - cursor[0]));
-      const yDist = ys.map(p => Math.abs(p - cursor[1]));
-      const dists = xDist.map((dd, ii) => dd + yDist[ii]);
-      const handler = viz.schema.on[eventName] as (
-        ...args: unknown[]
-      ) => unknown;
-      handler.call(viz, d.arr[dists.indexOf(min(dists)!)], i, s, evt);
-    };
-  }
-  return pathConfig;
-};
 
 export const applyRadarLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(viz);
@@ -123,9 +90,11 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     const innerEntries = entries
       .slice()
       .sort((a, b) => spokeOf.get(a[0])! - spokeOf.get(b[0])!);
-    const q = innerEntries.map(([metric, vals]) => {
-      const value = sum(vals, (x, ii) => valueFn(x, ii));
-      const r = radarRadius(value, domain, radius);
+    const values = innerEntries.map(([, vals]) =>
+      sum(vals, (x, ii) => valueFn(x, ii)),
+    );
+    const q = innerEntries.map(([metric], k) => {
+      const r = radarRadius(values[k], domain, radius);
       const radians = (TAU / totalAxis) * spokeOf.get(metric)!;
       return {x: r * Math.cos(radians), y: r * Math.sin(radians)};
     });
@@ -135,27 +104,26 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
       .join(" ")} L ${q[0].x} ${q[0].y}`;
 
     const aggs = viz.schema.aggs as Parameters<typeof merge>[1];
+    const metrics = innerEntries.map(([metric]) => metric);
+    // Each vertex's row: the datum of its dot (see `points.ts`).
+    const arr = innerEntries.map(([, vals], k) => {
+      const row = merge(vals as DataPoint[], aggs) as DataPoint;
+      registerRadarPoint(row, {metric: metrics[k], value: values[k]});
+      return row;
+    });
     return {
       __d3plus__: true,
-      arr: innerEntries.map(([, vals]) =>
-        merge(vals as DataPoint[], aggs),
-      ) as DataPoint[],
+      arr,
       id: hKey as string | number,
-      metrics: innerEntries.map(([metric]) => metric),
+      metrics,
+      values,
       points: q,
       d: pathD,
-      data: merge(
-        innerEntries.map(([, vals]) =>
-          merge(vals as DataPoint[], aggs),
-        ) as DataPoint[],
-        aggs,
-      ) as DataPoint,
+      data: merge(arr, aggs) as DataPoint,
     };
   });
 
-  const pathConfig = buildPathConfig(viz, width, height);
-
   viz.ctx.groupData = groupData;
-  viz.ctx.pathConfig = pathConfig;
+  viz.ctx.pathConfig = shapeConfigFor(viz, "Path");
   return {shapeData: groupData};
 };
