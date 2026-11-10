@@ -28,6 +28,7 @@ import {
   applyGeometry,
   applyStatic,
   buildIndex,
+  elementNode,
   SVG_NS,
   tagFor,
 } from "./svgNodeAttrs.js";
@@ -102,6 +103,8 @@ export default class SvgRenderer implements Renderer {
   private _overlayHost?: HTMLDivElement;
   private _scene?: Scene;
   private _index = new Map<string, SceneNode>();
+  /** The nodes of `_index` that share a key with another. */
+  private _sharedKeys = new Map<string, SceneNode[]>();
   private _textureDefs = new Map<string, {url: () => string}>();
   /** Cache of `gradient:<json>` token → `url(#id)`, materialized in <defs>. */
   private _gradientDefs = new Map<string, string>();
@@ -514,14 +517,15 @@ export default class SvgRenderer implements Renderer {
     // walking the whole tree on every drawScene when nobody picks.
     if (this._indexDirty && this._scene) {
       this._index = new Map();
-      buildIndex(this._scene.root, this._index);
+      this._sharedKeys = new Map();
+      buildIndex(this._scene.root, this._index, this._sharedKeys);
       this._indexDirty = false;
     }
     let cur: Element | null = el;
     while (cur && cur !== this._svg) {
       const k = cur.getAttribute("data-key");
       if (k !== null) {
-        const node = this._index.get(k);
+        const node = elementNode(cur, k, this._index, this._sharedKeys);
         if (node && node.interactive !== false)
           return {node, datum: node.datum, index: node.index};
       }
@@ -641,6 +645,7 @@ export default class SvgRenderer implements Renderer {
     this._clipSeq = 0;
     this._scene = undefined;
     this._index = new Map();
+    this._sharedKeys = new Map();
     this._textureDefs = new Map();
     this._gradientDefs.clear();
     this._trailGrads.clear();
