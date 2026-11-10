@@ -245,9 +245,9 @@ export default class ColorScale extends BaseClass {
   /**
       Produces a backend-agnostic scene graph for this ColorScale with no DOM
       dependency. The discrete variant (jenks/buckets/quantile) delegates to the
-      internal Legend's toScene(); the gradient variant composes the Rect and
-      Axis scenes as chrome (see `inertAxis`: only an axis label with a tooltip
-      takes the pointer) and the label TextBox scene. The scaleGroup's
+      internal Legend's toScene(); the gradient variant composes the Rect,
+      Axis, and label TextBox scenes, all as chrome (see `inertAxis`): only an
+      axis label with a tooltip takes the pointer. The scaleGroup's
       translate (set by the chart's colorScale feature on
       `g.d3plus-viz-colorScale`) is read off `_select` so the content lands at
       its on-screen position.
@@ -282,7 +282,10 @@ export default class ColorScale extends BaseClass {
         this._axisClass as unknown as {toScene?: () => GroupNode},
         inertAxis,
       );
-      pushScene(this._labelClass as unknown as {toScene?: () => GroupNode});
+      pushScene(
+        this._labelClass as unknown as {toScene?: () => GroupNode},
+        inertAxis,
+      );
     } else {
       pushScene(this._legendClass as unknown as {toScene?: () => GroupNode});
     }

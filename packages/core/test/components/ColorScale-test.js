@@ -281,3 +281,21 @@ it("toScene — bucket swatches keep the pointer", () => {
     assert.strictEqual(node.interactionGroup, undefined);
   }
 });
+
+it("toScene — a gradient's end labels are chrome", () => {
+  const scene = laidOut({
+    scale: "linear",
+    orient: "bottom",
+    labelMin: "Low",
+    labelMax: "High",
+  }).toScene();
+  const labels = under(scene, "textBox-");
+  assert.deepStrictEqual(
+    labels.map(node => node.lines.map(line => line.text).join(" ")),
+    ["Low", "High"],
+  );
+  for (const label of labels) {
+    assert.strictEqual(label.interactive, false, `label ${label.key}`);
+    assert.strictEqual(label.interactionGroup, "axis");
+  }
+});
