@@ -44,6 +44,20 @@ const emulateColorScheme: BrowserCommand<
 };
 
 /**
+ * Runs a full garbage collection in the page's renderer. Chromium frees the
+ * 2 MiB shared-memory buffers each loaded page leaves behind only when it
+ * collects garbage, and a renderer that maps 32 GiB of them stops working.
+ */
+const collectGarbage: BrowserCommand<[]> = async ctx => {
+  const cdp = await ctx.page.context().newCDPSession(ctx.page);
+  try {
+    await cdp.send("HeapProfiler.collectGarbage");
+  } finally {
+    await cdp.detach();
+  }
+};
+
+/**
  * Server commands that drive Playwright's mouse at test-page coordinates
  * (`getBoundingClientRect` values), for tests that need real pointer events,
  * and emulate the system color scheme.
@@ -54,6 +68,7 @@ export const commands = {
   mouseDown,
   mouseUp,
   emulateColorScheme,
+  collectGarbage,
 };
 
 declare module "vitest/browser" {
@@ -65,5 +80,6 @@ declare module "vitest/browser" {
     emulateColorScheme: (
       colorScheme: "light" | "dark" | "no-preference" | null,
     ) => Promise<void>;
+    collectGarbage: () => Promise<void>;
   }
 }
