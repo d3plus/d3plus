@@ -26,6 +26,25 @@ const toFake = [
 ];
 
 /**
+ * Counts a load of d3plus's module graph in this renderer, and collects
+ * garbage every few loads. After the first load, Chromium keeps a 2 MiB
+ * shared-memory buffer for each module response (about 770 per load of
+ * d3plus) until it next collects garbage, and a renderer that has mapped
+ * 32 GiB of them (about 21 loads) can no longer reach the network: the test
+ * server's connection drops and the run fails with "Browser connection was
+ * closed".
+ * The count lives on the top-level page, which outlives each test file.
+ */
+export async function countModuleLoad() {
+  const top = window.top;
+  top.__d3plusModuleLoads = (top.__d3plusModuleLoads ?? 0) + 1;
+  if (top.__d3plusModuleLoads >= 8) {
+    top.__d3plusModuleLoads = 0;
+    await commands.collectGarbage();
+  }
+}
+
+/**
  * Prepares a window as a test page: deterministic element ids, a log of its
  * uncaught errors, and IntersectionObservers rooted in its own viewport.
  * @param {Window} win
@@ -116,6 +135,7 @@ export async function openPage(bodyHtml, {clock = false} = {}) {
     },
   };
   try {
+    await countModuleLoad();
     await page.loadModule("d3plus", entry);
     // A moment past loading, as Playwright's clock paused there.
     if (fake) fake.jump(1000);

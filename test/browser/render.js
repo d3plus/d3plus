@@ -3,7 +3,7 @@
     Playwright page per test. `window.d3plus` holds everything the UMD bundle
     exposes, loaded from source through Vite.
 */
-import {setUpPage, withPage} from "./page.js";
+import {countModuleLoad, setUpPage, withPage} from "./page.js";
 import {toEvaluateResult} from "./serialize.js";
 
 // The tester page resets the body's margin and stretches it to the viewport,
@@ -26,8 +26,10 @@ const {errors, resetIds} = setUpPage(window);
  * Loads d3plus onto `window.d3plus` (once per test file).
  */
 export async function loadD3plus() {
-  if (!window.d3plus)
+  if (!window.d3plus) {
+    await countModuleLoad();
     window.d3plus = {...(await import("../../packages/core/umd-entry.ts"))};
+  }
   return window.d3plus;
 }
 
