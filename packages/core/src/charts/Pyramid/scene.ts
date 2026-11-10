@@ -6,6 +6,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {LineNode, Paint, Scene, SceneNode} from "@d3plus/render";
 import {clamp} from "@d3plus/math";
 
+import {inertAxis} from "../../components/Axis/axisTooltipTargets.js";
 import TextBox from "../../components/TextBox.js";
 import {PLOT_ZOOM_CONTENT_KEY} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -176,7 +177,7 @@ export function sideTitleBoxes(
   }));
 }
 
-/** Lays out the side titles as scene text nodes. */
+/** Lays out the side titles as scene text nodes, chrome as an axis's are. */
 export function sideTitleNodes(
   box: TextBox,
   titles: SideTitle[],
@@ -190,12 +191,11 @@ export function sideTitleNodes(
     .render();
   const group = box.toScene();
   return [
-    {
+    inertAxis({
       type: "group",
       key: "pyramid-side-titles",
-      interactionGroup: "axis",
       children: group.children ?? [],
-    } as SceneNode,
+    }),
   ];
 }
 

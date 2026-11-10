@@ -12,6 +12,7 @@ import {
   fontFamilyStringify,
 } from "@d3plus/text";
 
+import {inertAxis} from "../../components/Axis/axisTooltipTargets.js";
 import type TextBox from "../../components/TextBox.js";
 import {stackOffsetDiverging} from "../Plot/stackHelpers.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
@@ -138,7 +139,7 @@ export interface GutterLabel {
   font: LabelFont;
 }
 
-/** Lays out the gutter labels as scene text nodes. */
+/** Lays out the gutter labels as scene text nodes, chrome as an axis's are. */
 export function gutterLabelNodes(
   box: TextBox,
   labels: GutterLabel[],
@@ -159,12 +160,11 @@ export function gutterLabelNodes(
     .render();
   const group = box.toScene();
   return [
-    {
+    inertAxis({
       type: "group",
       key: "pyramid-categories",
-      interactionGroup: "axis",
       children: group.children ?? [],
-    } as SceneNode,
+    }),
   ];
 }
 
