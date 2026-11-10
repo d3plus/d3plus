@@ -29,16 +29,30 @@ type TreeNode = DataPoint & {
   children?: TreeNode[];
 };
 
-type Branch = {key?: string | number; values?: Branch[] | DataPoint[]} & Record<
-  string,
-  unknown
->;
+type Branch = {
+  key?: string | number | boolean | null;
+  values?: Branch[] | DataPoint[];
+} & Record<string, unknown>;
+
+/**
+    Whether a nest entry is a group rather than a data row: it has a key, `0`
+    or `false` included, and a list of values. `undefined`, `null` and `""`
+    are no key.
+*/
+export function isBranch(d: Branch): boolean {
+  return (
+    d.key !== undefined &&
+    d.key !== null &&
+    d.key !== "" &&
+    Array.isArray(d.values)
+  );
+}
 
 /** Merge a branch's leaf values (recursively) through the schema aggs. */
 function flattenBranchData(viz: VizInstance, branch: Branch): DataPoint {
   return merge(
     (branch.values as Branch[]).map(l =>
-      l.key && l.values ? flattenBranchData(viz, l) : (l as DataPoint),
+      isBranch(l) ? flattenBranchData(viz, l) : (l as DataPoint),
     ),
     viz.schema.aggs as Parameters<typeof merge>[1],
   ) as DataPoint;
@@ -69,7 +83,7 @@ function buildTreeData(
           viz.schema.groupBy.slice(0, viz._drawDepth + 1),
         ) as unknown as Branch[],
       } as Branch,
-      d => (d.key && d.values ? (d.values as Branch[]) : null),
+      d => (isBranch(d) ? (d.values as Branch[]) : null),
     ).sort(viz.schema.sort as (a: unknown, b: unknown) => number),
   );
 
@@ -84,8 +98,9 @@ function buildTreeData(
     // Each node gets a row of its own: a branch's merged leaves, or a copy of
     // the row it wraps, so the rows the legend and `data()` hold are never
     // written to.
-    const row: DataPoint =
-      dd.key && dd.values ? flattenBranchData(viz, dd) : {...(dd as DataPoint)};
+    const row: DataPoint = isBranch(dd)
+      ? flattenBranchData(viz, dd)
+      : {...(dd as DataPoint)};
     d.data = row;
     d.__d3plus__ = true;
     d.i = i;
