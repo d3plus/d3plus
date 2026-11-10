@@ -4,7 +4,10 @@ import {
   labelMisses,
   rotatesLabels,
 } from "../../src/components/Axis/axisLayout.ts";
-import {thinEvenly} from "../../src/components/Axis/axisLabelThinning.ts";
+import {
+  regrowShown,
+  thinEvenly,
+} from "../../src/components/Axis/axisLabelThinning.ts";
 import {isDiscreteScale} from "../../src/components/Axis/axisLayoutLabels.ts";
 import {buildTickFormat} from "../../src/components/Axis/axisLayoutScale.ts";
 
@@ -157,4 +160,60 @@ it("labelMisses — counts labels cut short or hidden", () => {
   ];
   assert.strictEqual(labelMisses(textData), 3);
   assert.strictEqual(labelMisses([{fits: true, truncated: false}]), 0);
+});
+
+/** A measured label stacked across a vertical axis, `lines` long, at `position`. */
+const stacked = (i, position, fits = false) => ({
+  ...label(i, position, 90),
+  fits,
+  space: 40,
+  lines: ["x", "x"],
+});
+
+it("regrowShown — labels left shown take the room the hidden ones leave", () => {
+  // Ticks 25px apart; every second label hidden, so the shown ones sit 50
+  // apart: up to their 5px padding short of each other.
+  const textData = [0, 1, 2, 3, 4].map(i => stacked(i, 50 + i * 25));
+  textData.forEach(t => (t.truncated = t.i % 2 === 1));
+  const rooms = [];
+  regrowShown(
+    textData,
+    (d, space) => {
+      rooms.push([d.i, space]);
+      return Object.assign(d, {space});
+    },
+    [0, 200],
+  );
+  // The end labels are also held to twice their distance to the axis ends.
+  assert.deepStrictEqual(rooms, [
+    [0, 45],
+    [2, 45],
+    [4, 45],
+  ]);
+});
+
+it("regrowShown — leaves labels alone when none is hidden, or when they fit", () => {
+  const all = [0, 1, 2].map(i => stacked(i, 50 + i * 50));
+  regrowShown(all, () => assert.fail("nothing hidden"), [0, 200]);
+  const fitting = [0, 1, 2].map(i => stacked(i, 50 + i * 25, true));
+  fitting[1].truncated = true;
+  regrowShown(fitting, () => assert.fail("they fit"), [0, 200]);
+});
+
+it("regrowShown — never less room than a label had, nor past an end of the axis", () => {
+  // Shown labels 60 apart, but the first sits 10px from the start of the
+  // axis: it keeps the 40px it had rather than shrink to 2 × 10 − 5.
+  const textData = [10, 40, 70].map((position, i) => stacked(i, position));
+  textData[1].truncated = true;
+  const rooms = [];
+  regrowShown(
+    textData,
+    (d, space) => {
+      rooms.push([d.i, space]);
+      return d;
+    },
+    [0, 100],
+  );
+  // The last label: min(60 apart, 2 × 30 to the end) − 5 = 55.
+  assert.deepStrictEqual(rooms, [[2, 55]]);
 });

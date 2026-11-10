@@ -23,6 +23,7 @@ import type {LabelLayoutCtx, LabelSize} from "./axisLabelSize.js";
 import {slantedLineWidth, slantedLines} from "./axisSlantWrap.js";
 import {
   fitOwnSpaces,
+  regrowShown,
   thinEvenly,
   thinGreedily,
   thinGreedilyShown,
@@ -245,6 +246,8 @@ export function createTextData(
     labels: unknown[];
     rangeOuter: number[];
     offset?: number;
+    /** Whether the labels left shown take the room hidden ones leave (see `regrowShown`). */
+    regrow?: boolean;
   },
 ): AxisTextDatum[] {
   const {
@@ -256,6 +259,7 @@ export function createTextData(
     tickFormat,
     offset = 1,
     ownSpace,
+    regrow,
   } = ctx;
   const wholeLine =
     horizontal && !axis._labelRotation && wholeLineLabels(axis, labels);
@@ -333,6 +337,8 @@ export function createTextData(
     fitOwnSpaces(textData, spaces, axis._d3Scale!.range(), size, rangeOuter);
   else if (wholeLine) thinGreedilyShown(textData, horizontal, show);
   else thinGreedily(textData, horizontal);
+  if (regrow && !horizontal && !axis._labelRotation)
+    regrowShown(textData, size, rangeOuter);
 
   // Painted only as wide as the widest label, a cut label is cut there.
   if (

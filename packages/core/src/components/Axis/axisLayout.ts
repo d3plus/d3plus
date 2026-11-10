@@ -119,11 +119,13 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
 
   const {hBuff, wBuff} = computeBuffers(axis, ticks, tickGet, height);
 
-  // Labels at given values naming things (one per variable-width bar) wrap
-  // within their own share of the axis, so a wide bar's label lies flat
-  // across it while a narrow one's wraps (see `fitOwnSpaces`).
-  const ownSpace =
-    horizontal &&
+  // Labels at given values naming things (one per variable-width bar, or a
+  // bucketed color scale's) wrap within their own share of the axis: along
+  // a horizontal axis, a wide bar's label lies flat across it while a
+  // narrow one's wraps (see `fitOwnSpaces`); along a vertical one, the
+  // labels left shown take the room the hidden ones leave (see
+  // `regrowShown`).
+  const named =
     !isDiscreteScale(axis.schema.scale) &&
     rotatesLabels(axis, labels, tickFormat);
   const labelCtx = {
@@ -133,7 +135,8 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     p,
     tickFormat,
     rescale,
-    ownSpace,
+    ownSpace: horizontal && named,
+    regrow: !horizontal && named,
   };
   const setting = axis._labelRotationSetting;
   turnLabels(axis, settingTurn(setting, horizontal));
@@ -150,7 +153,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     textData = autoRotateLabels(axis, textData, {
       labels,
       tickFormat,
-      ownSpace,
+      ownSpace: labelCtx.ownSpace,
       rangeOuter,
       relayout: () => layoutLabels(axis, rescale(), labelCtx),
     });
@@ -335,9 +338,11 @@ function layoutLabels(
     tickFormat: (d: unknown) => string;
     rescale: (newRange?: number[]) => {range: number[]; labels: unknown[]};
     ownSpace?: boolean;
+    regrow?: boolean;
   },
 ): AxisTextDatum[] {
-  const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace} = ctx;
+  const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale} = ctx;
+  const {ownSpace, regrow} = ctx;
   let {labels} = scale;
 
   let textData = createTextData(axis, {
@@ -348,6 +353,7 @@ function layoutLabels(
     p,
     tickFormat,
     ownSpace,
+    regrow,
   });
   const offsetEnabled =
     axis.schema.labelOffset && textData.some((d: AxisTextDatum) => d.truncated);
@@ -360,6 +366,7 @@ function layoutLabels(
       p,
       tickFormat,
       ownSpace,
+      regrow,
       offset: 2,
     });
 
@@ -419,6 +426,7 @@ function layoutLabels(
       p,
       tickFormat,
       ownSpace,
+      regrow,
       offset: offsetEnabled ? 2 : 1,
     });
     // A slanted label's reach is lopsided, so its range narrows again until

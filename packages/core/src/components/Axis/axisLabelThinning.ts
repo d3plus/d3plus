@@ -136,6 +136,36 @@ export function roomAround(position: number, bounds: number[]): number {
 }
 
 /**
+    Measures each label left shown along a vertical axis again in the room
+    the hidden labels beside it leave: up to its padding short of the
+    nearest label shown on either side, and of the ends of the axis
+    (`bounds`), centered on its tick. Labels are first measured in room for
+    one at every tick, so the ones left shown after thinning could take more
+    lines. Only labels that don't fit whole are measured again, and only in
+    more room than they had; that room keeps them clear of their neighbors
+    and within the axis, so no two shown labels crowd and none reaches
+    further past an end than before.
+*/
+export function regrowShown(
+  textData: AxisTextDatum[],
+  resize: (datum: AxisTextDatum, space: number) => AxisTextDatum,
+  bounds: number[],
+): void {
+  const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
+  if (shown.length === textData.length) return;
+  const rooms = shown.map((datum: AxisTextDatum, i: number) => {
+    const gaps = [shown[i - 1], shown[i + 1]]
+      .filter((t?: AxisTextDatum): t is AxisTextDatum => t !== undefined)
+      .map((t: AxisTextDatum) => Math.abs(t.position - datum.position));
+    const room = Math.min(roomAround(datum.position, bounds), ...gaps);
+    return Math.floor(room - datum.fP);
+  });
+  shown.forEach((datum: AxisTextDatum, i: number) => {
+    if (!datum.fits && rooms[i] > datum.space) resize(datum, rooms[i]);
+  });
+}
+
+/**
     Whether label `b` sits too close to label `a` before it, leaving less
     than `b`'s padding between their text.
 */
