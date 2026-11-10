@@ -7,6 +7,7 @@ import {
   hover,
   label,
   nodePoint,
+  shape,
   task,
   tickLabel,
   title,
@@ -78,6 +79,47 @@ async function over(page, match) {
 async function leave(page) {
   await page.mouse.move(700, 500, {steps: 3});
   await page.waitForTimeout(120);
+}
+
+/** The cursor the chart asks for. */
+const cursor = page =>
+  page.evaluate(() => window.__viz._select.node().style.cursor);
+
+/** `src` with a `click.shape` handler recording each clicked row's `field`. */
+const clickable = (src, field) =>
+  `${src}.on("click.shape", d => (window.__clicks ||= []).push(d[${JSON.stringify(field)}]))`;
+
+/** What `clickable`'s handler has recorded. */
+const clicks = page => page.evaluate(() => window.__clicks ?? []);
+
+/**
+    Asserts the shape matching `match` takes the pointer (a tooltip, the
+    pointer cursor, and one `click.shape` reporting `id`), then that each label
+    in `names` is chrome: no tooltip and no pointer cursor under the pointer,
+    and no `click.shape` from a click on it.
+*/
+async function assertChrome(page, match, id, names) {
+  const mark = await nodePoint(page, match);
+  assert.ok(mark, "the shape is drawn");
+  await hover(page, mark);
+  assert.ok(await tooltip(page), "the shape shows its tooltip");
+  assert.strictEqual(await cursor(page), "pointer", "the shape's cursor");
+  await page.mouse.click(mark[0], mark[1]);
+  await page.waitForTimeout(120);
+  assert.deepStrictEqual(await clicks(page), [id]);
+
+  for (const name of names) {
+    const at = await nodePoint(page, label(name));
+    assert.ok(at, `${name} is drawn`);
+    await hover(page, mark);
+    await hover(page, at);
+    assert.strictEqual(await tooltip(page), null, name);
+    assert.strictEqual(await cursor(page), "auto", `${name}, cursor`);
+    await page.mouse.click(at[0], at[1]);
+    await page.waitForTimeout(120);
+    assert.strictEqual(await tooltip(page), null, `${name}, clicked`);
+  }
+  assert.deepStrictEqual(await clicks(page), [id], "no label is clicked");
 }
 
 /** Runs `run(page)` on a chart built from `src`. */
@@ -704,10 +746,9 @@ for (const renderer of ["svg", "canvas"]) {
 
   it(`axis tooltip (${renderer}): a Gantt's bars keep the pointer under its axis`, () =>
     withChart(
-      `${gantt(`title: "Schedule"`)}.on("click.shape", d => (window.__clicks ||= []).push(d.task))`,
+      clickable(gantt(`title: "Schedule"`), "task"),
       renderer,
       async page => {
-        const clicks = () => page.evaluate(() => window.__clicks);
         const mark = await nodePoint(page, task("Design"));
         const grid = await nodePoint(page, gridLine(MARCH_18));
         assert.ok(mark, "the task's bar is drawn");
@@ -728,23 +769,114 @@ for (const renderer of ["svg", "canvas"]) {
         const point = [grid[0], mark[1]];
         await hover(page, point);
         assert.strictEqual((await tooltip(page)).title, "Design");
-        await page.mouse.click(point[0], point[1]);
-        await page.waitForTimeout(120);
-        assert.deepStrictEqual(await clicks(), ["Design"]);
+        await leave(page);
 
-        // A label with no tooltip is no shape: it shows nothing, and a click
-        // on it reaches no shape handler.
-        for (const name of ["Mar 18", "Schedule"]) {
-          const at = await nodePoint(page, label(name));
-          assert.ok(at, `${name} is drawn`);
-          await hover(page, at);
-          assert.strictEqual(await tooltip(page), null, name);
-          await page.mouse.click(at[0], at[1]);
-          await page.waitForTimeout(120);
-          assert.strictEqual(await tooltip(page), null, `${name}, clicked`);
-        }
-        assert.deepStrictEqual(await clicks(), ["Design"]);
+        // A label with no tooltip is no shape.
+        await assertChrome(page, task("Design"), "Design", [
+          "Mar 18",
+          "Schedule",
+        ]);
       },
+    ));
+
+  it(`axis tooltip (${renderer}): a Priestley's plain axis labels are no shapes`, () =>
+    withChart(
+      clickable(
+        `lib => new lib.Priestley().config({
+          data: [
+            {id: "a", start: "2004", end: "2007"},
+            {id: "b", start: "2005", end: "2010"},
+            {id: "c", start: "2008", end: "2012"},
+          ],
+          groupBy: "id", start: "start", end: "end", legend: false,
+          axisConfig: {title: "Years"},
+        })`,
+        "id",
+      ),
+      renderer,
+      page =>
+        assertChrome(page, shape("priestley-b-1"), "b", ["2008", "Years"]),
+    ));
+
+  it(`axis tooltip (${renderer}): a Matrix's plain axis labels are no shapes`, () =>
+    withChart(
+      clickable(
+        `lib => new lib.Matrix().config({
+          data: [
+            {id: "a", row: "North", column: "Apples", value: 1},
+            {id: "b", row: "North", column: "Pears", value: 2},
+            {id: "c", row: "South", column: "Apples", value: 3},
+            {id: "d", row: "South", column: "Pears", value: 4},
+          ],
+          groupBy: ["row", "column"], row: "row", column: "column",
+          legend: false, colorScale: "value", colorScalePosition: false,
+          rowConfig: {title: "Regions"},
+          columnConfig: {title: "Fruits", titleTooltip: "Kinds of fruit"},
+        })`,
+        "id",
+      ),
+      renderer,
+      async page => {
+        await assertChrome(page, shape("matrix-3"), "d", [
+          "South",
+          "Pears",
+          "Regions",
+        ]);
+        // The other axis's title keeps its tooltip, and is no shape either.
+        const at = await nodePoint(page, label("Fruits"));
+        await hover(page, at);
+        assert.deepStrictEqual(await text(page), {
+          title: "",
+          body: "Kinds of fruit",
+          rows: [],
+        });
+        await page.mouse.click(at[0], at[1]);
+        await page.waitForTimeout(120);
+        assert.deepStrictEqual(await clicks(page), ["d"]);
+      },
+    ));
+
+  it(`axis tooltip (${renderer}): a Pyramid's category labels and side titles are no shapes`, () =>
+    withChart(
+      clickable(
+        `lib => new lib.Pyramid().config({
+          data: [
+            {age: "0-9", sex: "Women", pop: 10},
+            {age: "0-9", sex: "Men", pop: 12},
+            {age: "10-19", sex: "Women", pop: 14},
+            {age: "10-19", sex: "Men", pop: 11},
+          ],
+          groupBy: "sex", y: "age", x: "pop", legend: false,
+          tooltipShared: false,
+        })`,
+        "sex",
+      ),
+      renderer,
+      page =>
+        assertChrome(page, bar("Women"), "Women", [
+          "10-19",
+          "0-9",
+          "Women",
+          "Men",
+        ]),
+    ));
+
+  it(`axis tooltip (${renderer}): a color scale's plain axis labels are no shapes`, () =>
+    withChart(
+      clickable(
+        `lib => new lib.Treemap().config({
+          data: [
+            {id: "a", value: 10, score: 0},
+            {id: "b", value: 20, score: 50},
+            {id: "c", value: 30, score: 100},
+          ],
+          groupBy: "id", sum: "value", colorScale: "score",
+          colorScaleConfig: {scale: "linear", axisConfig: {title: "Score"}},
+        })`,
+        "id",
+      ),
+      renderer,
+      page => assertChrome(page, shape("treemap-c"), "c", ["40", "Score"]),
     ));
 
   it(`axis tooltip (${renderer}): a color scale's axis`, () =>

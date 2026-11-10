@@ -131,9 +131,12 @@ export const tickLabel = text =>
 export const bar = id =>
   `node => node.type === "rect" && String(node.key).startsWith(${JSON.stringify(`${id}_`)}) && !String(node.key).endsWith("::hit")`;
 
+/** The matcher for the rect keyed exactly `key`. */
+export const shape = key =>
+  `node => node.type === "rect" && node.key === ${JSON.stringify(key)}`;
+
 /** The matcher for the bar a Gantt draws for the task with `id`. */
-export const task = id =>
-  `node => node.type === "rect" && node.key === ${JSON.stringify(`gantt-task-${id}`)}`;
+export const task = id => shape(`gantt-task-${id}`);
 
 /** The matcher for the grid line a Gantt's axis draws at `date` (a `Date` source). */
 export const gridLine = date =>
