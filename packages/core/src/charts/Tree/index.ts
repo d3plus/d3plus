@@ -11,6 +11,7 @@ import {tree} from "d3-hierarchy";
 import type {DataPoint} from "@d3plus/data";
 
 import constant from "../../utils/constant.js";
+import {depthOf} from "../features/depthKey.js";
 import {legendLabel} from "../features/legendLabel.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -32,9 +33,8 @@ export const treeDef: ChartDefinition = {
   // A node's `groupBy` level, from the hierarchy depth applyTreeLayout stamps
   // onto its row.
   shapeDepth: (_viz: VizInstance, d: DataPoint) => {
-    let row = d as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
-    while (row && row.__d3plus__ && row.data) row = row.data as typeof row;
-    return row && typeof row.depth === "number" ? row.depth - 1 : undefined;
+    const depth = depthOf(d);
+    return depth === undefined ? undefined : depth - 1;
   },
 
   ctx: {
@@ -94,8 +94,8 @@ export const treeDef: ChartDefinition = {
         // The Tooltip calls `title(d, i)` with the bound row; the node's
         // hierarchy depth is stamped onto that row in applyTreeLayout, so the
         // label resolves at the node's own level rather than the leaf level.
-        title: (d: DataPoint & {depth?: number}, i: number) =>
-          viz._drawLabel(d, i, (d.depth ?? 1) - 1),
+        title: (d: DataPoint, i: number) =>
+          viz._drawLabel(d, i, (depthOf(d) ?? 1) - 1),
       }),
     },
     {
