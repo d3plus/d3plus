@@ -5,6 +5,7 @@ import {
   fixFloat,
   floorPow,
   isNegative,
+  openEnd,
   roundedDomain,
   roundingScales,
 } from "../../src/components/Axis/axisRounding.ts";
@@ -49,4 +50,40 @@ it("roundedDomain — a power axis rounds like a linear one", () => {
   );
   assert.strictEqual(roundedDomain([0, 10], "outside", "time"), undefined);
   assert.deepStrictEqual(roundingScales, ["linear", "log", "pow", "sqrt"]);
+});
+
+it("openEnd — the lowest and highest labeled values the domain reaches", () => {
+  const labeled = [200, 400, 600, 800, 900, 300, 1000];
+  const domain = [120, 1040];
+  assert.strictEqual(openEnd(200, labeled, domain), "min");
+  assert.strictEqual(openEnd(1000, labeled, domain), "max");
+  assert.strictEqual(openEnd(900, labeled, domain), undefined);
+  assert.strictEqual(openEnd(300, labeled, domain), undefined);
+  assert.strictEqual(openEnd(500, labeled, domain), undefined, "not labeled");
+  assert.strictEqual(openEnd("1000", labeled, domain), "max", "by value");
+});
+
+it("openEnd — a value past the domain is not open-ended", () => {
+  const labeled = [0, 500, 1500];
+  assert.strictEqual(openEnd(0, labeled, [120, 1040]), undefined);
+  assert.strictEqual(openEnd(1500, labeled, [120, 1040]), undefined);
+  assert.strictEqual(openEnd(0, labeled, [0, 1500]), "min", "at the domain");
+  assert.strictEqual(openEnd(1500, labeled, [0, 1500]), "max", "at the domain");
+  assert.strictEqual(openEnd(0, labeled, [-50, 1040]), "min");
+  assert.strictEqual(openEnd(1500, labeled, [-50, 1040]), undefined);
+});
+
+it("openEnd — reads the values and the domain in either order", () => {
+  const labeled = [1000, 800, 600, 400, 200];
+  assert.strictEqual(openEnd(200, labeled, [1040, 120]), "min");
+  assert.strictEqual(openEnd(1000, labeled, [1040, 120]), "max");
+  assert.strictEqual(openEnd(-300, [-300, 0, 800], [-340, 0, 870]), "min");
+  assert.strictEqual(openEnd(800, [-300, 0, 800], [-340, 0, 870]), "max");
+});
+
+it("openEnd — a lone value is the low end, and no values mark no end", () => {
+  assert.strictEqual(openEnd(500, [500], [120, 1040]), "min");
+  assert.strictEqual(openEnd(500, [], [120, 1040]), undefined);
+  assert.strictEqual(openEnd(500, [500], []), undefined);
+  assert.strictEqual(openEnd("a", ["a", "b"], ["a", "b"]), undefined);
 });

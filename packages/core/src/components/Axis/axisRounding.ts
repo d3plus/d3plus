@@ -4,7 +4,7 @@
 
     @module
 */
-import {max} from "d3-array";
+import {extent, max} from "d3-array";
 
 /** Whether `d` is negative, counting -0. */
 export const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
@@ -158,5 +158,26 @@ export function roundedDomain(
     }
     return roundLinear(initialDomain, rounding, scale);
   }
+  return undefined;
+}
+
+/**
+    The open end of an axis rounded "inside" that the value `d` labels, if
+    any: "min" when `d` is the lowest of the `values` the axis labels and
+    the `domain` reaches down to it, "max" when it is the highest and the
+    domain reaches up to it. A value beyond the domain has nothing past it,
+    so it is not open-ended.
+*/
+export function openEnd(
+  d: unknown,
+  values: unknown[],
+  domain: unknown[],
+): "min" | "max" | undefined {
+  const value = Number(d);
+  const [low, high] = extent(values, Number);
+  const [from, to] = extent(domain, Number);
+  if (low === undefined || from === undefined) return undefined;
+  if (value === low && from <= low) return "min";
+  if (value === high && to >= high) return "max";
   return undefined;
 }
