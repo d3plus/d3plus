@@ -76,6 +76,13 @@ interface ChartDefinitionBase {
   */
   pointMark?: (viz: VizInstance, node: SceneNode) => boolean;
   /**
+      Optional `groupBy` level a shape's row stands for, for a chart that
+      draws several levels at once (a Sunburst's rings). The `tooltip`
+      accessor receives it as `depth` (see `tooltipLevels`). Return undefined
+      for a row at the level the chart draws.
+  */
+  shapeDepth?: (viz: VizInstance, d: DataPoint) => number | undefined;
+  /**
       Optional small-multiples hooks (see `facet/facetConfig.ts`): the panel
       aspect the chart reads best at, and for charts with scales, how panels
       share them. A chart without any still draws as small multiples, each

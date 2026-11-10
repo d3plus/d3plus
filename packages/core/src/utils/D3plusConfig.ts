@@ -253,6 +253,19 @@ export interface AxisConfig {
   titleConfig?: Record<string, unknown>;
 }
 
+/** The `groupBy` levels a `tooltip` accessor receives as its third argument. */
+export interface TooltipLevels {
+  /**
+      The `groupBy` level, from 0, the hovered item stands for: the level the
+      chart draws, or the item's own level where a chart draws several at
+      once (a Sunburst or Icicle node, a Tree node, a Treemap group header).
+      A legend entry stands for the level its label is read from.
+  */
+  depth: number;
+  /** The deepest `groupBy` level: `groupBy.length - 1`. */
+  maxDepth: number;
+}
+
 export interface TooltipConfig {
   /** The inner HTML content of the arrow element, empty by default. */
   arrow?: ((d: DataPoint) => string) | string;
@@ -2357,8 +2370,15 @@ export interface D3plusConfig {
       `labelPosition`.
   */
   todayConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2" | "ref">;
-  /** Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. */
-  tooltip?: boolean | ((d: DataPoint, i: number) => boolean);
+  /**
+      Whether to show tooltips, or a `(datum, index, {depth, maxDepth})`
+      accessor deciding per mark and legend entry. `depth` is the `groupBy`
+      level (from 0) the hovered item stands for and `maxDepth` the deepest
+      level, so `depth === maxDepth` keeps tooltips to the deepest level.
+      Defaults to `true`.
+  */
+  tooltip?:
+    boolean | ((d: DataPoint, i: number, levels: TooltipLevels) => boolean);
   /** Configuration for the tooltip component. */
   tooltipConfig?: TooltipConfig;
   /**

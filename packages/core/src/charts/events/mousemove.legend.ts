@@ -4,6 +4,7 @@ import clickLegend from "./click.legend.js";
 import {legendLabel} from "../features/legendLabel.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
+import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import type Viz from "../viz/Viz.js";
@@ -33,7 +34,7 @@ export default function (
     }),
   ).length;
 
-  if (d && this.schema.tooltip(d, i)) {
+  if (d && tooltipEnabled(this, d, i, true)) {
     let id = this._id(d, i);
     if (id instanceof Array) id = id[0];
 

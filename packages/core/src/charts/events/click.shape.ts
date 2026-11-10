@@ -7,6 +7,7 @@ import {
   inGroup,
 } from "../viz/groupRow.js";
 import {takeLegendState} from "../viz/history.js";
+import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -60,7 +61,7 @@ export default function (
       filterId = filterGroup(d, i);
 
     this.hover(false);
-    if (this.schema.tooltip(d, i)) this._tooltipClass.data([]).render();
+    if (tooltipEnabled(this, d, i)) this._tooltipClass.data([]).render();
 
     const oldFilter = this.schema.filter;
 

@@ -22,6 +22,7 @@ import {
   partitionDefaultSort,
   partitionLegendSort,
   partitionSetup,
+  partitionShapeDepth,
   partitionSortDecorate,
   partitionSumCoerce,
   partitionSumOnSet,
@@ -58,6 +59,9 @@ export const sunburstDef: DataDrivenChartDefinition = {
 
   // Shading applies only while the default colors stay in place.
   setup: (viz: VizInstance) => partitionSetup(viz, sunburstInteraction),
+
+  // Each node reports its own `groupBy` level to the `tooltip` accessor.
+  shapeDepth: partitionShapeDepth(sunburstInteraction),
 
   // Small-multiple panels as close to square as the grid allows.
   facet: {aspect: 1},

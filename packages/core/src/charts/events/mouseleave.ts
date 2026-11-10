@@ -1,5 +1,6 @@
 import type {DataPoint} from "@d3plus/data";
 import {shapeHoverEnabled} from "../viz/shapeHover.js";
+import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type Viz from "../viz/Viz.js";
 
 /**
@@ -21,6 +22,9 @@ function sameId(a: unknown, b: unknown): boolean {
     @private
 */
 export default function (this: Viz, d: DataPoint, i: number): void {
+  // The pick being left, read before the deferred work: the router clears it
+  // once the leave handlers return.
+  const legend = Boolean(this._lastScenePick?.isLegend);
   setTimeout(() => {
     let leaveDatum = d as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
     while (leaveDatum && leaveDatum.__d3plus__ && leaveDatum.data)
@@ -49,7 +53,7 @@ export default function (this: Viz, d: DataPoint, i: number): void {
       this.hover(false);
     }
     const tooltipData = this._tooltipClass.data();
-    if (tooltipData.length && this.schema.tooltip(d, i)) {
+    if (tooltipData.length && tooltipEnabled(this, d, i, legend)) {
       let tooltipDatum = tooltipData[0];
       while (tooltipDatum.__d3plus__ && tooltipDatum.data)
         tooltipDatum = tooltipDatum.data;

@@ -547,6 +547,16 @@ export default class Viz extends VizBase {
   }
 
   /**
+      The `groupBy` level a shape's row stands for (see
+      `ChartDefinition.shapeDepth`): undefined in the base chart, where every
+      shape sits at the level the chart draws.
+      @private
+  */
+  _shapeDepth(_d: DataPoint): number | undefined {
+    return undefined;
+  }
+
+  /**
       Whether a painted scene node is a point mark that nearest-point hover
       (`hoverDistance`) resolves the pointer to. None in the base chart;
       charts drawn with points (Plot, Network, Geomap) accept theirs.

@@ -7,6 +7,7 @@ import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {pointTooltipAnchor} from "../viz/pointTooltipAnchor.js";
+import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -23,7 +24,7 @@ export default function (
   x: DataPoint,
   event: MouseEvent & TouchEvent,
 ): void {
-  if (d && this.schema.tooltip(d, i)) {
+  if (d && tooltipEnabled(this, d, i)) {
     const defaultClick = clickShape.bind(this).toString();
 
     // does the shape have any user-defined click events?

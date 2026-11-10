@@ -18,6 +18,7 @@ export type {
   TextBoxConfig,
   TimelineConfig,
   TooltipConfig,
+  TooltipLevels,
   TrendLineConfig,
 } from "./D3plusConfig.js";
 export type {D3Scale} from "./D3Scale.js";

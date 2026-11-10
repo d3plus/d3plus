@@ -10,6 +10,7 @@ import type {InteractionPoint, SceneEvent, SceneNode} from "@d3plus/render";
 import {nodeColor, ownerNode, visibleColor} from "../features/tooltipSwatch.js";
 import {facetPanelAt} from "../facet/facetPanel.js";
 import {linkAs} from "../viz/linkGroup.js";
+import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   renderSharedTooltip,
@@ -269,7 +270,8 @@ function memberRow(
   const datum = (member.wrapped.data || member.wrapped) as DataPoint;
   const index = typeof member.wrapped.i === "number" ? member.wrapped.i : 0;
   const value = valueOf ? Number(valueOf(datum, index)) : NaN;
-  if (!Number.isFinite(value) || !viz.schema.tooltip(datum, index)) return null;
+  if (!Number.isFinite(value) || !tooltipEnabled(viz, datum, index))
+    return null;
   const name = String(viz._drawLabel(datum, index));
   return {
     id,
