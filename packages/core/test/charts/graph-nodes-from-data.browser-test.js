@@ -67,3 +67,62 @@ describe.each(["svg", "canvas"])("nodes from data and links (%s)", renderer => {
     });
   }
 });
+
+/** Draws a Network and resolves with each node's center, by id, and the chart's size. */
+const networkSpots = ([renderer, config]) =>
+  new Promise(resolve => {
+    const viz = new window.d3plus.Network()
+      .select("#viz")
+      .renderer(renderer)
+      .duration(0)
+      .legend(false)
+      .config(config);
+    viz.render(() => {
+      const spots = {};
+      const walk = (n, x, y) => {
+        const t = n.transform || {};
+        const nx = x + (t.x || 0),
+          ny = y + (t.y || 0);
+        const key = String(n.key);
+        if (key.startsWith("network-Circle-") && !key.includes("::"))
+          spots[key.slice("network-Circle-".length)] = [
+            nx + (n.cx ?? 0),
+            ny + (n.cy ?? 0),
+          ];
+        (n.children || []).forEach(c => walk(c, nx, ny));
+      };
+      walk(viz._paintedScene.root, 0, 0);
+      resolve({spots, width: 600, height: 400});
+    });
+  });
+
+describe.each(["svg", "canvas"])(
+  "Network nodes without links (%s)",
+  renderer => {
+    it("sit in a row under the linked nodes, all in view", async () => {
+      const {spots, width, height} = await render(box, networkSpots, [
+        renderer,
+        {data, links},
+      ]);
+      for (const [id, [x, y]] of Object.entries(spots)) {
+        assert.ok(x > 0 && x < width, `${id} x ${x}`);
+        assert.ok(y > 0 && y < height, `${id} y ${y}`);
+      }
+      const linkedBottom = Math.max(
+        ...["a", "b", "c", "x"].map(id => spots[id][1]),
+      );
+      assert.ok(spots.lonely[1] > linkedBottom, "lonely sits below");
+    });
+
+    it("with no links at all, form a grid that fills the chart", async () => {
+      const nodes = ["a", "b", "c", "d"].map(id => ({id}));
+      const {spots} = await render(box, networkSpots, [
+        renderer,
+        {nodes, links: []},
+      ]);
+      const xs = new Set(Object.values(spots).map(([x]) => Math.round(x)));
+      const ys = new Set(Object.values(spots).map(([, y]) => Math.round(y)));
+      assert.deepStrictEqual([xs.size, ys.size], [2, 2], "a 2 × 2 grid");
+    });
+  },
+);

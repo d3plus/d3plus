@@ -120,11 +120,53 @@ function runForceLayout(nodes: NetworkNode[], links: NetworkLink[]): void {
 }
 
 /**
+    Places `lone` (nodes no link pulls on) in rows under `placed`, as far
+    apart as the placed nodes typically sit from their nearest neighbor,
+    the rows centered beneath them. Without placed nodes the rows form a
+    square-ish grid.
+*/
+export function placeLoneNodes(
+  placed: NetworkNode[],
+  lone: NetworkNode[],
+): void {
+  if (!lone.length) return;
+  // The median distance from each placed node to its nearest neighbor.
+  const nearest = placed
+    .map(n =>
+      Math.min(
+        ...placed
+          .filter(m => m !== n)
+          .map(m => Math.hypot(m.fx! - n.fx!, m.fy! - n.fy!)),
+      ),
+    )
+    .filter(d => d > 0 && Number.isFinite(d))
+    .sort((a, b) => a - b);
+  const step = nearest.length ? nearest[Math.floor(nearest.length / 2)] : 1;
+  const xs = placed.map(n => n.fx!);
+  const ys = placed.map(n => n.fy!);
+  const left = xs.length ? Math.min(...xs) : 0;
+  const right = xs.length ? Math.max(...xs) : 0;
+  const bottom = ys.length ? Math.max(...ys) : -step;
+  const columns = Math.max(
+    Math.ceil(Math.sqrt(lone.length)),
+    Math.floor((right - left) / step) + 1,
+  );
+  const center = (left + right) / 2;
+  lone.forEach((n, i) => {
+    const row = Math.floor(i / columns);
+    const inRow = Math.min(columns, lone.length - row * columns);
+    n.fx = center + ((i % columns) - (inRow - 1) / 2) * step;
+    n.fy = bottom + (row + 1) * step;
+  });
+}
+
+/**
     Gives every node an `fx`/`fy`: its own x/y, or — when any node lacks
-    them — a force-simulated position. The simulation depends only on the
-    node ids and links, so its result is cached on `v.ctx` and reused by the
-    size legend's pre-layout estimate and the layout that follows it. Links
-    from a node to itself don't take part.
+    them — a force-simulated position. Nodes no link pulls on sit out the
+    simulation, in rows under the rest (see `placeLoneNodes`). The layout
+    depends only on the node ids and links, so its result is cached on
+    `v.ctx` and reused by the size legend's pre-layout estimate and the
+    layout that follows it. Links from a node to itself don't take part.
 */
 function positionNetworkNodes(
   v: Parameters<TransformStage>[0]["viz"],
@@ -146,7 +188,13 @@ function positionNetworkNodes(
     });
     return;
   }
-  runForceLayout(nodes, pulling);
+  const linked = new Set(pulling.flatMap(l => [l.source, l.target]));
+  const placed = nodes.filter(n => linked.has(n));
+  if (placed.length) runForceLayout(placed, pulling);
+  placeLoneNodes(
+    placed,
+    nodes.filter(n => !linked.has(n)),
+  );
   v.ctx.networkForceCache = {key, positions: nodes.map(n => [n.fx, n.fy])};
 }
 
