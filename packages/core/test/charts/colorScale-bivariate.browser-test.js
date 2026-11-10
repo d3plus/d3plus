@@ -1,0 +1,321 @@
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {chart, hover, pointOf, tooltipRows} from "./colorScale-page.js";
+
+/**
+    #298: two fields given to `colorScale` make it bivariate. Each shape is
+    colored from a grid by its two values' quantile bins, a row missing
+    either value keeps the missing-data color, and the key draws the grid as
+    a diamond. Hovering a key cell highlights the shapes in it, hovering a
+    shape lights its cell, and the tooltip reads both values.
+*/
+
+const STEVENS = [
+  "#e8e8e8",
+  "#e4acac",
+  "#c85a5a",
+  "#b0d5df",
+  "#ad9ea5",
+  "#985356",
+  "#64acbe",
+  "#627f8c",
+  "#574249",
+];
+
+// Nine rows across the grid (a: 1–9, b rising with a's thirds offset), and
+// one missing its second value.
+const rows = [
+  {id: "a1", a: 1, b: 1},
+  {id: "a2", a: 2, b: 5},
+  {id: "a3", a: 3, b: 9},
+  {id: "a4", a: 4, b: 2},
+  {id: "a5", a: 5, b: 6},
+  {id: "a6", a: 6, b: 7},
+  {id: "a7", a: 7, b: 3},
+  {id: "a8", a: 8, b: 4},
+  {id: "a9", a: 9, b: 8},
+  {id: "gap", a: 5},
+];
+const sizes = rows.map((d, i) => ({...d, size: 10 + i}));
+
+/** A 5×2 grid of square regions, one per row id. */
+const topojson = {
+  type: "Topology",
+  objects: {
+    geo: {
+      type: "GeometryCollection",
+      geometries: rows.map((d, k) => ({
+        type: "Polygon",
+        id: d.id,
+        arcs: [[k]],
+      })),
+    },
+  },
+  arcs: rows.map((d, k) => {
+    const x = (k % 5) * 12;
+    const y = Math.floor(k / 5) * 12;
+    return [
+      [x, y],
+      [x, y + 10],
+      [x + 10, y + 10],
+      [x + 10, y],
+      [x, y],
+    ];
+  }),
+};
+
+const charts = {
+  Geomap: `lib => new lib.Geomap()
+    .data(${JSON.stringify(rows)})
+    .groupBy("id")
+    .colorScale(["a", "b"])
+    .colorScalePosition("right")
+    .tiles(false)
+    .ocean("transparent")
+    .topojsonFill("#123456")
+    .topojson(${JSON.stringify(topojson)})`,
+  Treemap: `lib => new lib.Treemap()
+    .data(${JSON.stringify(sizes)})
+    .sum("size")
+    .color(() => "#123456")
+    .colorScale(["a", "b"])
+    .colorScalePosition("right")`,
+  Plot: `lib => new lib.Plot()
+    .data(${JSON.stringify(rows.filter(d => d.b !== undefined))})
+    .x("a")
+    .y(d => d.a * 2)
+    .colorScale(["a", d => d.b])
+    .colorScaleConfig({bivariateLabels: ["A", "B"]})
+    .colorScalePosition("right")`,
+};
+
+/**
+    The painted data shapes (by row id) and key cells (by color), each with
+    its fill and opacity.
+*/
+function painted(page) {
+  return page.evaluate(() => {
+    const viz = window.__viz;
+    const shapes = {};
+    const cells = {};
+    const labels = [];
+    const unwrap = d => {
+      while (d && d.__d3plus__ && d.data) d = d.data;
+      return d;
+    };
+    const walk = (node, opacity) => {
+      const own = opacity * (node.paint?.opacity ?? 1);
+      const key = String(node.key);
+      const d = unwrap(node.datum);
+      if (
+        node.type !== "group" &&
+        node.type !== "text" &&
+        d &&
+        !key.endsWith("::hit")
+      ) {
+        if (d._isColorScaleBucket)
+          cells[d.color] = {
+            opacity: own,
+            title: d.id,
+            x: d._bivariateX,
+            y: d._bivariateY,
+            stroke: node.paint?.stroke,
+            strokeWidth: node.paint?.strokeWidth,
+          };
+        else if (
+          typeof d.id === "string" &&
+          ["rect", "path", "circle"].includes(node.type)
+        )
+          shapes[d.id] = {
+            fill: node.paint?.fill,
+            opacity: own,
+            stroke: node.paint?.stroke,
+            strokeWidth: node.paint?.strokeWidth,
+          };
+      }
+      if (node.type === "text" && key.startsWith("bivariate-label"))
+        labels.push({
+          text: node.lines.map(l => l.text).join(" "),
+          rotate: node.transform?.rotate,
+        });
+      (node.children || []).forEach(c => walk(c, own));
+    };
+    walk(viz._paintedScene.root, 1);
+    const scale = viz._colorScaleClass._colorScale;
+    return {shapes, cells, labels, colors: scale.colors};
+  });
+}
+
+/** The node matcher for the shape of row "a7". */
+const shapeA7 = `n => n.type !== "text" && n.datum && !n.datum._isColorScaleBucket && (n.datum.id === "a7" || (n.datum.data && n.datum.data.id === "a7"))`;
+
+/** The node matcher for a key cell of `color`. */
+const cell = color =>
+  `n => n.type === "path" && n.datum && n.datum._isColorScaleBucket && n.datum.color === ${JSON.stringify(color)}`;
+
+for (const renderer of ["svg", "canvas"]) {
+  for (const name of Object.keys(charts)) {
+    it(`${renderer}: ${name} colors each shape by its two values' bins`, async () => {
+      const {page, close} = await chart(charts[name], renderer);
+      try {
+        const {shapes, cells, colors} = await painted(page);
+        assert.deepStrictEqual(colors, STEVENS, "Stevens' scheme");
+        assert.strictEqual(Object.keys(cells).length, 9, "nine key cells");
+        assert.strictEqual(shapes.a1.fill, "#e8e8e8", "low/low");
+        assert.strictEqual(shapes.a9.fill, "#574249", "high/high");
+        assert.strictEqual(shapes.a7.fill, "#c85a5a", "a high, b low");
+        assert.strictEqual(shapes.a3.fill, "#64acbe", "a low, b high");
+        assert.strictEqual(shapes.a5.fill, "#ad9ea5", "middle/middle");
+        if (name !== "Plot")
+          assert.strictEqual(
+            shapes.gap?.fill,
+            "#123456",
+            "the missing-data color",
+          );
+      } finally {
+        await close();
+      }
+    });
+  }
+
+  it(`${renderer}: the key's cells take the shapes' stroke`, async () => {
+    const stroked = charts.Treemap.replace(
+      ".colorScale(",
+      `.shapeConfig({stroke: "#ff0000", strokeWidth: 2}).colorScale(`,
+    );
+    for (const [src, expected] of [
+      [stroked, {stroke: "#ff0000", strokeWidth: 2}],
+      [charts.Geomap, null],
+    ]) {
+      const {page, close} = await chart(src, renderer);
+      try {
+        const {shapes, cells} = await painted(page);
+        // Without a set stroke, a cell matches a shape of its color.
+        let matched = 0;
+        for (const [color, c] of Object.entries(cells)) {
+          const shape = Object.values(shapes).find(d => d.fill === color);
+          const want = expected ?? shape;
+          if (!want) continue;
+          matched++;
+          assert.ok(want.stroke, "the shapes have a stroke");
+          assert.strictEqual(c.stroke, want.stroke, `${c.title}: stroke`);
+          assert.strictEqual(c.strokeWidth, want.strokeWidth, c.title);
+        }
+        assert.ok(matched >= 5, `cells checked: ${matched}`);
+      } finally {
+        await close();
+      }
+    }
+    const bare = charts.Treemap.replace(
+      ".colorScale(",
+      `.shapeConfig({stroke: "none", strokeWidth: 0}).colorScale(`,
+    );
+    const {page, close} = await chart(bare, renderer);
+    try {
+      const {cells} = await painted(page);
+      for (const c of Object.values(cells))
+        assert.ok(!c.stroke || c.strokeWidth === 0, `${c.title}: no stroke`);
+    } finally {
+      await close();
+    }
+  });
+
+  it(`${renderer}: the key's labels name the fields along its edges`, async () => {
+    const {page, close} = await chart(charts.Treemap, renderer);
+    try {
+      const {labels, cells} = await painted(page);
+      assert.deepStrictEqual(labels, [
+        {text: "a →", rotate: -45},
+        {text: "← b", rotate: 45},
+      ]);
+      assert.strictEqual(cells["#574249"].title, "a: 7 - 9, b: 7 - 9");
+      const plot = await chart(charts.Plot, renderer);
+      try {
+        const {labels: own} = await painted(plot.page);
+        assert.deepStrictEqual(
+          own.map(l => l.text),
+          ["A →", "← B"],
+          "bivariateLabels",
+        );
+      } finally {
+        await plot.close();
+      }
+    } finally {
+      await close();
+    }
+  });
+
+  for (const name of ["Treemap", "Geomap"]) {
+    it(`${renderer}: ${name} — hovering a key cell highlights its shapes`, async () => {
+      const {page, close} = await chart(charts[name], renderer);
+      try {
+        await hover(page, await pointOf(page, cell("#574249")));
+        const {shapes, cells} = await painted(page);
+        assert.strictEqual(shapes.a9.opacity, 1, "the shape in the cell");
+        assert.ok(shapes.a1.opacity < 1, "a shape outside it dims");
+        assert.ok(shapes.a5.opacity < 1, "a shape outside it dims");
+        assert.strictEqual(cells["#574249"].opacity, 1, "the hovered cell");
+        assert.ok(cells["#e8e8e8"].opacity < 1, "the other cells dim");
+        const title = await page.evaluate(
+          () => document.querySelector(".d3plus-tooltip-title")?.textContent,
+        );
+        assert.strictEqual(title, "a: 7 - 9, b: 7 - 9", "the cell's ranges");
+      } finally {
+        await close();
+      }
+    });
+
+    it(`${renderer}: ${name} — hovering a shape lights its cell and reads both values`, async () => {
+      const {page, close} = await chart(charts[name], renderer);
+      try {
+        await hover(page, await pointOf(page, shapeA7));
+        const {cells} = await painted(page);
+        assert.strictEqual(cells["#c85a5a"].opacity, 1, "its cell stays lit");
+        assert.ok(cells["#574249"].opacity < 1, "the other cells dim");
+        const body = await tooltipRows(page);
+        assert.deepStrictEqual(body.slice(0, 2), [
+          ["a", "7"],
+          ["b", "3"],
+        ]);
+        // Straight from a key cell to the shape: the cell's highlight clears
+        // and the shape's cell lights.
+        await hover(page, await pointOf(page, cell("#574249")));
+        await hover(page, await pointOf(page, shapeA7));
+        await page.waitForTimeout(600);
+        const [x, y] = await pointOf(page, shapeA7);
+        await page.mouse.move(x + 1, y + 1);
+        await page.waitForTimeout(120);
+        const after = await painted(page);
+        assert.strictEqual(after.cells["#c85a5a"].opacity, 1, "lit again");
+        assert.ok(after.cells["#574249"].opacity < 1, "the left cell dims");
+        assert.strictEqual(after.shapes.a7.opacity, 1, "the hovered shape");
+        // Geomap doesn't dim the other shapes on a shape hover: the cell's
+        // highlight must not linger.
+        if (name === "Geomap")
+          assert.strictEqual(after.shapes.a9.opacity, 1, "nothing dimmed");
+      } finally {
+        await close();
+      }
+    });
+  }
+}
+
+it("svg: 2×2 and 4×4 keys", async () => {
+  for (const [n, count] of [
+    [2, 4],
+    [4, 16],
+  ]) {
+    const {page, close} = await chart(
+      `${charts.Treemap}.colorScaleConfig({bivariateBuckets: ${n}})`,
+      "svg",
+    );
+    try {
+      const {cells, shapes} = await painted(page);
+      assert.strictEqual(Object.keys(cells).length, count);
+      assert.strictEqual(shapes.a1.fill, "#e8e8e8");
+      assert.strictEqual(shapes.a9.fill, "#574249");
+    } finally {
+      await close();
+    }
+  }
+});

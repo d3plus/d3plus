@@ -45,6 +45,8 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
     constructor() {
       super();
       applyDefinition(this as unknown as VizInstance, def);
+      if (def.colorScaleTooltip === false)
+        (this as unknown as VizInstance)._colorScaleTooltip = false;
     }
 
     _draw(callback?: () => void) {

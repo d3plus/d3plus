@@ -617,6 +617,8 @@ export interface VizInstance {
   _alongStats?: {series: number; requested: number; placed: number};
   _colorScalePosition?: (config: VizInstance) => string | false;
   _colorScale?: false | string | ((d: DataPoint, i: number) => string);
+  /** False when the chart's tooltip already shows its colorScale value (see `ChartDefinition.colorScaleTooltip`). */
+  _colorScaleTooltip?: boolean;
   _timeline?: boolean;
   _total?: boolean | ((d: DataPoint[], i: number) => number);
 

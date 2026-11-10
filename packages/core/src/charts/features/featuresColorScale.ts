@@ -22,6 +22,7 @@ import type {FacetAccessor} from "../facet/facetConfig.js";
 import {facetKey} from "../facet/facetData.js";
 import {colorScaleBucketRows} from "./colorScaleBucket.js";
 import {colorScaleValue, linkColorScaleRows} from "./colorScaleValue.js";
+import {bivariateFieldNames, bivariateSpec} from "./colorScaleBivariate.js";
 import {resolveAccessor, shapeConfigFor} from "./emitHelpers.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 
@@ -132,8 +133,14 @@ function paintColorScale(
   const value = colorScaleValue(viz);
   if (!value) return;
 
-  viz
-    ._colorScaleClass!.renderMode("compute")
+  const cs = viz._colorScaleClass!;
+  const bivariate = bivariateSpec(viz);
+  cs._bivariateFields = bivariate
+    ? bivariateFieldNames(viz, bivariate)
+    : undefined;
+
+  cs.renderMode("compute")
+    .bivariate(Boolean(bivariate))
     .align(frame.align)
     .duration(effectiveDuration(viz))
     .data(colorScaleData(viz))

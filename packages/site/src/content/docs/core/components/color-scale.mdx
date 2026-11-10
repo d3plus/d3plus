@@ -13,6 +13,7 @@ import logScale from "~/examples/core/components/color-scale/log-scale.js?raw";
 import divergingScale from "~/examples/core/components/color-scale/diverging-scale.js?raw";
 import scaleFunction from "~/examples/core/components/color-scale/scale-function.js?raw";
 import hoverMark from "~/examples/core/components/color-scale/hover-mark.js?raw";
+import bivariateScale from "~/examples/core/components/color-scale/bivariate-scale.js?raw";
 
 Creates an SVG color scale based on an array of data.
 
@@ -63,5 +64,11 @@ When the data spans both sides of the midpoint (default `0`), the scale becomes 
 `hover` marks a value on the scale, as a chart does while one of its shapes is hovered: an extra axis tick marks the value on the bar, and a badge reads it where that tick's label would sit. A bucketed bar (`bucketAxis`) also outlines the value's bucket; a scale drawn as swatches draws no mark. `hoverMark(false)` turns it off; `hoverMarkConfig` styles the `tickConfig`, `badgeConfig`, and `outlineConfig`.
 
 <Playground chart="ColorScale" code={hoverMark} controls={["hover","hoverMark","hoverMarkConfig","scale"]} height={100} />
+
+## Bivariate scale
+
+`bivariate: true` colors by two variables at once: `value` returns a `[first, second]` pair for each row, and each variable is split into `bivariateBuckets` quantile bins (2 to 4, default 3), every bin holding about the same number of rows, with tied values sharing one. The pair of bins picks a color from `bivariateColors`, a square grid listed row by row from the low/low corner (each row one bin of the second variable, each column one of the first). It defaults to Joshua Stevens' blue–red 3×3 scheme, the first variable rising toward red and the second toward blue, and a grid of another size is blended bilinearly to fit, so 2×2 keeps its corners and 4×4 blends between its colors. The key turns the grid 45° into a diamond, low/low at the bottom, with `bivariateLabels` naming each variable along its lower edge. A chart sets all but the colors and labels for you when its `colorScale` names two fields (see Geomap's [bivariate choropleth](/core/charts/geomap/#bivariate-choropleth)).
+
+<Playground chart="ColorScale" code={bivariateScale} controls={["bivariateBuckets","bivariateColors","bivariateLabels"]} height={200} />
 
 <ApiReference name="ColorScale" pkg="core" />

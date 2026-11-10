@@ -147,6 +147,12 @@ interface ChartDefinitionBase {
   */
   decorateScene?: (viz: VizInstance, scene: Scene) => Scene;
   /**
+      `false` when the chart's tooltip already shows its colorScale value
+      (Calendar's "Value" row, Hexbin's measure), so shape tooltips don't
+      add the colorScale's value rows (see `colorScaleTooltipRows`).
+  */
+  colorScaleTooltip?: false;
+  /**
       Imperative per-instance setup hook — runs once after `applyDefinition`
       seeds the chart. Use for event handler overrides and shadowed methods
       that don't fit the declarative `fields`/`ctx` surface.

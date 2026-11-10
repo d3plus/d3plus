@@ -63,11 +63,16 @@ export const matrixDef: ChartDefinition = {
       const colorScale = viz.schema.colorScale as
         ((d: DataPoint, i: number) => unknown) | undefined;
       type HoverFn = (fn: (h: DataPoint, ii: number) => boolean) => unknown;
+      const hasValue = (h: DataPoint, ii: number): boolean => {
+        if (typeof colorScale !== "function") return true;
+        const value = colorScale(h, ii);
+        // A bivariate colorScale reads a pair of values.
+        return typeof value === "number" || Array.isArray(value);
+      };
       const hover = (h: DataPoint, ii: number) =>
         (getProp.bind(viz)("row", h, ii) === row ||
           getProp.bind(viz)("column", h, ii) === column) &&
-        (typeof colorScale !== "function" ||
-          typeof colorScale(h, ii) === "number");
+        hasValue(h, ii);
       // The crosshair lights the whole row and column; only the hovered
       // cell's row and column labels stay bright.
       viz._hoverFocus = {hover, rows: [{row, column} as DataPoint]};

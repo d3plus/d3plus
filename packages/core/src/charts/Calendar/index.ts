@@ -64,6 +64,9 @@ export const calendarDef: DataDrivenChartDefinition = {
     },
   },
 
+  // Its tooltip has a "Value" row of its own.
+  colorScaleTooltip: false,
+
   ctx: {},
 
   fields: [

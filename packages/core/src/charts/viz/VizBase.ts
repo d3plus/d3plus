@@ -217,6 +217,7 @@ Defaults to an empty array (`[]`).
     _?: ((d: DataPoint, i: number) => boolean) | false,
   ): this | ((d: DataPoint, i: number) => boolean) | false | undefined {
     if (!arguments.length) return this._hover;
+    const hadHover = typeof this._hover === "function";
     let hoverFunction = (this._hover = _);
 
     if (this.schema.shapeConfig.hoverOpacity !== 1 && _ !== undefined) {
@@ -259,11 +260,13 @@ Defaults to an empty array (`[]`).
     // (`hoverOpacity: 1`, e.g. Geomap): the bucket highlight is applied by that
     // same pass, so without a repaint the map would never re-compose. Coalesced
     // to one paint per frame so a fast pointer sweep doesn't saturate the main
-    // thread.
+    // thread. Clearing a highlight always repaints: leaving a colorScale
+    // swatch clears its highlight a moment after the next shape's hover has
+    // already reset `_hoverBucket`.
     if (
       this._sceneRenderer &&
       _ !== undefined &&
-      (shapeHoverEnabled(this) || this._hoverBucket)
+      (shapeHoverEnabled(this) || this._hoverBucket || hadHover)
     )
       this._scheduleSceneRepaint();
 

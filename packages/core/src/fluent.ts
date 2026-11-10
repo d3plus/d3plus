@@ -242,6 +242,49 @@ function mergeFieldValue(
   return mergeConfigBag(host, key, value);
 }
 
+/**
+    The entries of each config-bag field that its setter (the user's config,
+    through `viz.<key>(…)` or `config()`) has set, per host: defaults and
+    factories seed a field without going through its setter, so they never
+    count.
+*/
+const setEntries = new WeakMap<object, Map<string, Set<string>>>();
+
+/**
+    Notes the entries a config-bag setter call sets: each key of a plain
+    object `patch`, except one set to `RESET` or `undefined`, which clears
+    it; a whole-field `RESET` clears them all.
+*/
+function noteSetEntries(host: object, key: string, patch: unknown): void {
+  let fields = setEntries.get(host);
+  if (!fields) setEntries.set(host, (fields = new Map()));
+  if (patch === RESET) {
+    fields.delete(key);
+    return;
+  }
+  if (!isPlainObject(patch)) return;
+  let entries = fields.get(key);
+  if (!entries) fields.set(key, (entries = new Set()));
+  for (const [k, v] of Object.entries(patch)) {
+    if (v === RESET || v === undefined) entries.delete(k);
+    else entries.add(k);
+  }
+}
+
+/**
+    Whether the user has set `entry` of the config-bag field `key` (such as
+    `tooltipConfig`'s `tbody`) through its setter, as opposed to the value a
+    chart seeds by default. Cleared by setting the entry to `RESET` or
+    `undefined`, or the whole field to `RESET`.
+    @param host The chart or component.
+    @param key The config-bag field.
+    @param entry The entry within it.
+    @private
+*/
+export function isSetEntry(host: object, key: string, entry: string): boolean {
+  return Boolean(setEntries.get(host)?.get(key)?.has(entry));
+}
+
 const FLUENT_ACCESSOR = Symbol("d3plus.fluentAccessor");
 
 /** The schemas already installed on each prototype. */
@@ -360,6 +403,7 @@ export function installFluent(
     proto[key] = function (this: FluentHost, ...args: unknown[]) {
       if (!args.length) return this.schema[key];
       const value = coerceValue(field, args[0]);
+      if (field.merge) noteSetEntries(this, key, value);
       const next = field.merge ? mergeFieldValue(this, key, value) : value;
       this.schema[key] = next;
       // `onSet` is declared only by Viz chart defs; at runtime `this` is that

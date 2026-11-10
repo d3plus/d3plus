@@ -46,6 +46,10 @@ import type {
 } from "../charts/Hexbin/settings.js";
 
 type Position = "top" | "right" | "bottom" | "left";
+/** One variable of a bivariate `colorScale`: a data key, or an accessor returning a number. */
+export type ColorScaleField =
+  string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]);
+
 /** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
 type PanelPosition = Position | "auto";
 
@@ -746,6 +750,23 @@ export interface ColorScaleConfig {
       `strokeWidth`). Each is a value or a function of the hovered value.
   */
   hoverMarkConfig?: ColorScaleHoverMarkConfig;
+  /**
+      Draws the scale as a bivariate key: each row's `value` is a pair of
+      numbers, and a chart sets this when its `colorScale` names two fields.
+      Defaults to `false`.
+  */
+  bivariate?: boolean;
+  /** How many quantile bins a bivariate scale splits each variable into, from `2` to `4`. Defaults to `3`. */
+  bivariateBuckets?: number;
+  /**
+      A bivariate scale's colors: a square grid, row-major from the low/low
+      corner, each row one bin of the second variable and each column one bin
+      of the first. A grid of another size than `bivariateBuckets` is blended
+      to fit. Defaults to Joshua Stevens' blue–red 3×3 scheme.
+  */
+  bivariateColors?: string[];
+  /** A bivariate key's names for its two variables, in `colorScale` order. Defaults to the two field names. */
+  bivariateLabels?: [string, string];
 }
 
 /** `colorDefaults` input: any subset of the color defaults, with `scale` also accepting an array of colors. */
@@ -1069,10 +1090,13 @@ export interface D3plusConfig {
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
   colorOrdinal?: boolean;
   /**
-      Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
+      Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point. Two of them (`["a", "b"]`) make a bivariate scale: each variable is split into quantile bins, the pair of bins picks a color from a grid, and the key is that grid turned into a diamond (see `colorScaleConfig.bivariateBuckets`, `bivariateColors`, and `bivariateLabels`). A row missing either value gets no colorScale color.
   */
   colorScale?:
-    string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) | false;
+    | string
+    | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])
+    | [ColorScaleField, ColorScaleField]
+    | false;
   /** A pass-through to the config method of ColorScale. */
   colorScaleConfig?: {
     axisConfig?: AxisConfig;
@@ -1090,6 +1114,12 @@ export interface D3plusConfig {
     hoverMark?: boolean;
     /** Styles the hover mark (see `ColorScaleConfig.hoverMarkConfig`). */
     hoverMarkConfig?: ColorScaleHoverMarkConfig;
+    /** How many quantile bins a bivariate `colorScale` splits each variable into, from `2` to `4`. Defaults to `3`. */
+    bivariateBuckets?: number;
+    /** A bivariate `colorScale`'s colors (see `ColorScaleConfig.bivariateColors`). Defaults to Joshua Stevens' blue–red 3×3 scheme. */
+    bivariateColors?: string[];
+    /** A bivariate key's names for its two variables. Defaults to the two field names. */
+    bivariateLabels?: [string, string];
     /** Holds the palest step of a light theme's single-hue ramp darker (see `ColorScaleConfig.ordinalRamp`). Defaults to `true` when links are colored by number (`linkColor`), so the lowest-valued links still read as lines, and `false` otherwise. */
     ordinalRamp?: boolean;
   };

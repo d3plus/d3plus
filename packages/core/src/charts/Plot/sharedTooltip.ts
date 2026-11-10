@@ -19,6 +19,7 @@ import {
   tooltipSwatch,
   withSwatch,
 } from "../features/tooltipSwatch.js";
+import {colorScaleTooltipRows} from "../features/colorScaleTooltip.js";
 import {thresholdMemberRows} from "../features/thresholdMembers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
@@ -239,7 +240,7 @@ export function renderSharedTooltip(
     The single-mark tooltip (one series, `tooltipShared(false)`, or a
     side-by-side bar): the default title (the mark's label, unless
     `tooltipConfig` sets one), its x and y values, its `confidence` bounds,
-    then any rows the chart's `tooltipConfig` adds, and a threshold bucket's
+    its colorScale value, then any rows the chart's `tooltipConfig` adds, and a threshold bucket's
     series.
 */
 export function renderSingleTooltip(
@@ -276,6 +277,7 @@ export function renderSingleTooltip(
         : confidenceRows(viz, row.datum, row.index, v =>
             axisValue(viz, other(hover.axis), v),
           )),
+      ...colorScaleTooltipRows(viz, row.datum, row.index),
       ...(Array.isArray(extra) ? extra : []),
       ...thresholdMemberRows(viz, row.datum),
     ])
