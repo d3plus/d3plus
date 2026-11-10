@@ -149,7 +149,8 @@ export const sankeyDef: ChartDefinition = {
     /**
         The nodes to draw, including any that no link touches (see
         `value`). When empty, the nodes are the unique source and target
-        values in `links`. Accepts an array of node objects, or a
+        values in `links`, plus each data row with an id no link uses.
+        Accepts an array of node objects, or a
         URL/filepath string to load them from. `nodesFormat` transforms them;
         a function passed as a second argument sets it.
         @type {object[] | string}

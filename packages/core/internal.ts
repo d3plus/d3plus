@@ -33,6 +33,7 @@ export {applyNetworkLayout} from "./src/charts/Network/applyLayout.js";
 export {
   graphLinkEnd,
   graphNodeId,
+  graphNodeRows,
   resolveGraphLinks,
   resolveGraphNodes,
   zoomToNodeBounds,

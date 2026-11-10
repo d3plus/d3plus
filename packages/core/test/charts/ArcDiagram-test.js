@@ -19,6 +19,7 @@ import {
   emitArcLabels,
   fitLabels,
   graphNodeId,
+  graphNodeRows,
   labelReach,
   labelWidthLimit,
   naturalCompare,
@@ -345,6 +346,29 @@ it("graphNodeId reads a row's groupBy id, else its nodeGroupBy id", () => {
   const viz = graphViz({nodeGroupBy: [d => d.key]}, {_id: d => d.id});
   assert.strictEqual(graphNodeId(viz, {id: "a", key: "k"}, 0), "a");
   assert.strictEqual(graphNodeId(viz, {key: "k"}, 0), "k");
+});
+
+it("graphNodeRows: nodes when set, else data rows then unmatched link ends", () => {
+  const nodes = [{id: "a"}];
+  assert.strictEqual(graphNodeRows(graphViz({nodes})), nodes);
+  const ends = {id: "o"};
+  const viz = graphViz(
+    {
+      links: [
+        {source: "a", target: "b"},
+        {source: "b", target: ends},
+        {source: 0, target: 1},
+      ],
+    },
+    {_filteredData: [{id: "a"}, {id: "lonely"}]},
+  );
+  assert.deepStrictEqual(graphNodeRows(viz), [
+    {id: "a"},
+    {id: "lonely"},
+    {id: "b"},
+    ends,
+  ]);
+  assert.strictEqual(graphNodeRows(viz)[3], ends, "an object end is its row");
 });
 
 it("resolveGraphNodes merges data rows onto nodes by id", () => {

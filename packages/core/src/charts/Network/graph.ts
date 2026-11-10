@@ -69,10 +69,36 @@ export function graphNodeId(
 }
 
 /**
-    Resolves the filtered data and `nodes` into node records, in the order the
-    ids first appear (data rows, then nodes). Only ids present in `nodes`
-    become nodes; a matching data row supplies a node's values. `fx`/`fy` read
-    the chart's `x`/`y` accessors when it has them.
+    The chart's node rows: `nodes` when set, else one row per data row and
+    one per link end no data row stands for (the link's own object, or
+    `{id}` for an id), so a chart given only `data` and `links` still draws
+    its nodes, linked or not.
+*/
+export function graphNodeRows(v: VizInstance): DataPoint[] {
+  const nodes = v.schema.nodes as DataPoint[];
+  if (nodes.length) return nodes;
+  const data = v._filteredData as DataPoint[];
+  const rows: DataPoint[] = [...data];
+  const ids = new Set(data.map((d, i) => graphNodeId(v, d, i)));
+  for (const l of v.schema.links as RawLink[])
+    for (const end of [l.source, l.target]) {
+      if (typeof end === "number" || end === undefined || end === null)
+        continue;
+      const row = (typeof end === "object" ? end : {id: end}) as DataPoint;
+      const id = graphNodeId(v, row, rows.length);
+      if (ids.has(id)) continue;
+      ids.add(id);
+      rows.push(row);
+    }
+  return rows;
+}
+
+/**
+    Resolves the filtered data and the node rows (see `graphNodeRows`) into
+    node records, in the order the ids first appear (data rows, then nodes).
+    Only ids present in the node rows become nodes; a matching data row
+    supplies a node's values. `fx`/`fy` read the chart's `x`/`y` accessors
+    when it has them.
 */
 export function resolveGraphNodes(v: VizInstance): GraphNode[] {
   const data = (v._filteredData as DataPoint[]).reduce(
@@ -83,12 +109,13 @@ export function resolveGraphNodes(v: VizInstance): GraphNode[] {
     {},
   );
 
-  const rawNodes: Record<string, DataPoint> = (
-    v.schema.nodes as DataPoint[]
-  ).reduce((obj: Record<string, DataPoint>, d, i) => {
-    obj[graphNodeId(v, d as Record<string, unknown>, i)] = d;
-    return obj;
-  }, {});
+  const rawNodes: Record<string, DataPoint> = graphNodeRows(v).reduce(
+    (obj: Record<string, DataPoint>, d, i) => {
+      obj[graphNodeId(v, d as Record<string, unknown>, i)] = d;
+      return obj;
+    },
+    {},
+  );
 
   const position = (
     acc: VizInstance["_x"],
