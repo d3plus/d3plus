@@ -27,10 +27,10 @@ export interface RingsNode {
   x?: number;
   y?: number;
   r?: number;
-  ring?: 1 | 2;
+  /** The ring the node sits on, 1 innermost (unset on the center). */
+  ring?: number;
   radians?: number;
-  // Set by the per-link traversal.
-  edges?: RingsEdge[] | Record<string, {angle: number; radius: number}>;
+  // Set by sizing.
   size?: number;
   // Set by the label-bounds pass.
   labelBounds?: {x: number; y: number; width: number; height: number};
@@ -62,6 +62,17 @@ export interface RingsEdge {
   targetBisectY?: number;
   /** The loop a link from a node to itself draws as, once laid out. */
   loop?: SelfLoopGeometry;
+  /**
+      A link along one ring: the circle its middle runs along (centered on
+      the chart's center), and the curves it draws as, from source to target.
+  */
+  arc?: {cx: number; cy: number; radius: number};
+  segments?: [
+    [number, number],
+    [number, number],
+    [number, number],
+    [number, number],
+  ][];
 }
 
 /** A node record as a link end. */

@@ -8,7 +8,7 @@ const geom = {
   height: 400,
   ringWidth: 60,
   primaryRing: 60,
-  secondaryRing: 120,
+  rings: [60, 120],
 };
 
 /** A center at (200, 200) with primaries right and below it, and a secondary beyond the right one. */

@@ -2335,7 +2335,33 @@ export {
   parallelOffsets,
   slideOnRim,
 } from "./src/charts/Rings/ringsParallel.js";
-export {polylineArrowEdge} from "./src/charts/features/curvedArrows.js";
+export {
+  buildRingsEdges,
+  claimRings,
+  placeRings,
+  ringWeights,
+} from "./src/charts/Rings/ringsPlacement.js";
+export {
+  applyRingArc,
+  arcCubics,
+  curveRingsEdge,
+  gapMiddle,
+  ringArcRadius,
+  ringArcCubics,
+  ringRadius,
+} from "./src/charts/Rings/ringsCurves.js";
+export type {RingsTree} from "./src/charts/Rings/ringsPlacement.js";
+export {
+  ringNodeRadii,
+  ringsGeometry,
+  ringsHops,
+  ringsNodeRadii,
+} from "./src/charts/Rings/ringsSizing.js";
+export {
+  cubicsArrowEdge,
+  cubicsPathD,
+  polylineArrowEdge,
+} from "./src/charts/features/curvedArrows.js";
 export {polylineReach} from "./src/charts/features/polyline.js";
 export {
   EDGE_BUNDLE_DEFAULTS,

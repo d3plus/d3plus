@@ -1,5 +1,5 @@
 /**
-    Rings' ring geometry and node sizing: where the two rings sit for a chart
+    Rings' ring geometry and node sizing: where the rings sit for a chart
     area, each node's radius — fixed per ring, or from a `size` scale shared
     by every node (center included) that the size legend reads back — and
     whether the center's label still fits inside it.
@@ -21,7 +21,7 @@ interface SizedNode {
   data: DataPoint;
   i: number;
   r?: number;
-  ring?: 1 | 2;
+  ring?: number;
   size?: number;
 }
 
@@ -37,22 +37,74 @@ type RadiusScale = SizeLegendScale & ((n: number) => number);
 export interface RingGeometry {
   width: number;
   height: number;
+  /** The distance between neighboring rings, and the room outside the last for its labels. */
   ringWidth: number;
+  /** The first ring's radius. */
   primaryRing: number;
-  secondaryRing: number;
+  /**
+      The ring spacing nodes are sized by: the center, its label, and the
+      first ring's nodes. With one ring, the two-ring chart's, so they keep
+      that size.
+  */
+  baseRing: number;
+  /** Each ring's radius, innermost first. */
+  rings: number[];
 }
 
-/** Ring geometry for a chart area: the center plus two rings, each a third of the radius apart. */
-export function ringsGeometry(width: number, height: number): RingGeometry {
+/** The number of rings a `hops` value asks for: a whole number, at least 1 (2 when unset or not a number). */
+export function ringsHops(hops: unknown): number {
+  const n = Number(hops);
+  return hops != null && Number.isFinite(n) ? Math.max(1, Math.floor(n)) : 2;
+}
+
+/**
+    Ring geometry for a chart area: the center plus `hops` rings, evenly
+    spaced so the last leaves one more spacing of room for its labels.
+*/
+export function ringsGeometry(
+  width: number,
+  height: number,
+  hops = 2,
+): RingGeometry {
   const radius = (min([height, width]) || 0) / 2;
-  const ringWidth = radius / 3;
-  return {
-    width,
-    height,
-    ringWidth,
-    primaryRing: ringWidth,
-    secondaryRing: ringWidth * 2,
-  };
+  const ringWidth = radius / (hops + 1);
+  const baseRing = hops === 1 ? radius / 3 : ringWidth;
+  const rings = Array.from({length: hops}, (_, k) => ringWidth + ringWidth * k);
+  return {width, height, ringWidth, primaryRing: ringWidth, baseRing, rings};
+}
+
+/**
+    The largest radius an unsized node may take on each of `count` rings
+    `ringWidth` apart, innermost first. Each ring's room halves the one
+    inside it, so outer nodes are smaller, and an inner ring's nodes stay
+    within half again the size of the ring outside it.
+*/
+export function ringNodeRadii(ringWidth: number, count: number): number[] {
+  const radii: number[] = [];
+  for (let k = 1; k <= count; k++) {
+    const room = ringWidth / 2 ** k;
+    const floor = k === 1 ? 8 : 4;
+    let r = room / 2 - 4;
+    if (r < floor) r = min([room / 2, floor]) || 0;
+    if (k > 1 && r > ringWidth / 10) r = ringWidth / 10;
+    radii.push(r);
+  }
+  for (let k = 1; k < count; k++)
+    if (radii[k] > radii[k - 1] && radii[k] > 10)
+      radii[k] = radii[k - 1] * 0.75;
+  for (let k = count - 2; k >= 0; k--)
+    if (radii[k] > radii[k + 1] * 1.5) radii[k] = radii[k + 1] * 1.5;
+  return radii.map(r => Math.floor(r));
+}
+
+/**
+    Each ring's unsized node radius, innermost first: the first ring's
+    nodes take the two-ring chart's first-ring size for the `baseRing`
+    spacing, and every ring past it the second ring's.
+*/
+export function ringsNodeRadii(geom: RingGeometry): number[] {
+  const [first, outer] = ringNodeRadii(geom.baseRing, 2);
+  return geom.rings.map((_, k) => (k ? outer : first));
 }
 
 /** Clamps a radius into `[sizeMin, sizeMax]` (either bound optional). */
@@ -65,9 +117,9 @@ function clampRadius(v: VizInstance, r: number): number {
 /**
     The radius scale for sized Rings: `sizeScale` over every placed node's
     `size` value. Its top radius is capped so neighbors can't overlap — a
-    quarter of the ring width radially, and half the gap between adjacent
+    quarter of the `baseRing` spacing radially, and half the gap between adjacent
     slots around each ring (`slots` is how many evenly spaced positions the
-    outer ring is divided into) — then by `sizeMax`; its bottom is `sizeMin`,
+    rings are divided into) — then by `sizeMax`; its bottom is `sizeMin`,
     held to at most half the top so small values still read smaller.
 */
 function ringsSizeScale(
@@ -76,13 +128,11 @@ function ringsSizeScale(
   slots: number,
   values: number[],
 ): RadiusScale {
-  const {ringWidth, primaryRing, secondaryRing} = geom;
+  const {baseRing, rings} = geom;
   const half = Math.sin(Math.PI / Math.max(slots, 2));
   const cap = Math.max(
     1,
-    Math.floor(
-      min([ringWidth / 4, primaryRing * half - 1, secondaryRing * half - 1])!,
-    ),
+    Math.floor(min([baseRing / 4, ...rings.map(ring => ring * half - 1)])!),
   );
   const rMax = Math.min(
     (v.schema.sizeMax as number | undefined) ?? Infinity,
@@ -104,24 +154,22 @@ function ringsSizeScale(
 }
 
 /**
-    Assigns each ring node its `ring` + `r`, and `center.r`. Sized charts
-    (`size` set) run every node, center included, through one
-    `ringsSizeScale`, and return it; unsized charts use the fixed ring radii
-    and return null.
+    Assigns each ring node its `ring` (1 innermost) + `r`, and `center.r`.
+    Sized charts (`size` set) run every node, center included, through one
+    `ringsSizeScale`, and return it; unsized charts give each ring its
+    `ringsNodeRadii` radius and return null.
 */
 export function sizeRingsNodes(
   v: VizInstance,
   center: SizedNode,
   geom: RingGeometry,
   slots: number,
-  primaries: SizedNode[],
-  secondaries: SizedNode[],
+  rings: SizedNode[][],
 ): RadiusScale | null {
-  primaries.forEach(p => (p.ring = 1));
-  secondaries.forEach(s => (s.ring = 2));
+  rings.forEach((ring, k) => ring.forEach(n => (n.ring = k + 1)));
 
   if (v._size) {
-    const all = [center, ...primaries, ...secondaries];
+    const all = [center, ...rings.flat()];
     all.forEach(n => (n.size = Number(v._size!(n.data, n.i))));
     const values = all
       .map(n => n.size as number)
@@ -138,24 +186,10 @@ export function sizeRingsNodes(
     }
   }
 
-  const {ringWidth} = geom;
-  const primaryDistance = ringWidth / 2;
-  const secondaryDistance = ringWidth / 4;
-
-  let primaryMax = primaryDistance / 2 - 4;
-  if (primaryDistance / 2 - 4 < 8)
-    primaryMax = min([primaryDistance / 2, 8]) || 0;
-
-  let secondaryMax = secondaryDistance / 2 - 4;
-  if (secondaryDistance / 2 - 4 < 4)
-    secondaryMax = min([secondaryDistance / 2, 4]) || 0;
-  if (secondaryMax > ringWidth / 10) secondaryMax = ringWidth / 10;
-  if (secondaryMax > primaryMax && secondaryMax > 10)
-    secondaryMax = primaryMax * 0.75;
-  if (primaryMax > secondaryMax * 1.5) primaryMax = secondaryMax * 1.5;
-
-  primaries.forEach(p => (p.r = clampRadius(v, Math.floor(primaryMax))));
-  secondaries.forEach(s => (s.r = clampRadius(v, Math.floor(secondaryMax))));
+  const radii = ringsNodeRadii(geom);
+  rings.forEach((ring, k) =>
+    ring.forEach(n => (n.r = clampRadius(v, radii[k]))),
+  );
   return null;
 }
 
@@ -180,7 +214,7 @@ export function ringsCenterLabel(
   bounds: {x: number; y: number; width: number; height: number};
   inside: boolean;
 } {
-  const {primaryRing} = geom;
+  const {baseRing: primaryRing} = geom;
   if (!v._size)
     return {
       bounds: {

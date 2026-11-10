@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Hops</title>
+    <meta
+      name="description"
+      content="Rings with hops 1, 2, or 3 (how many rings of connections surround the center) and ringLinks, switched with the controls."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      #controls {
+        font-family: sans-serif;
+        left: 50%;
+        position: absolute;
+        top: 8px;
+        transform: translateX(-50%);
+        z-index: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      hops:
+      <button data-hops="1">1</button>
+      <button data-hops="2">2</button>
+      <button data-hops="3">3</button>
+      <label><input type="checkbox" id="ringLinks" /> ringLinks</label>
+    </div>
+  </body>
+
+  <script>
+    // Each ring holds the unclaimed neighbors of the ring inside it, placed
+    // under their parent. Click a node to re-center the rings on it.
+    var pairs = [
+      ["Hub", "A"],
+      ["Hub", "B"],
+      ["Hub", "C"],
+      ["Hub", "D"],
+      ["Hub", "E"],
+      ["A", "A1"],
+      ["A", "A2"],
+      ["A", "A3"],
+      ["A", "B"],
+      ["B", "B1"],
+      ["B", "B2"],
+      ["C", "C1"],
+      ["D", "D1"],
+      ["D", "D2"],
+      ["A1", "A1a"],
+      ["A1", "A1b"],
+      ["A2", "A2a"],
+      ["A3", "B1a"],
+      ["B1", "B1a"],
+      ["B1", "B1b"],
+      ["B2", "B2a"],
+      ["B2", "C1"],
+      ["C1", "C1a"],
+      ["C1", "C1b"],
+      ["D1", "D1a"],
+      ["D2", "D2a"],
+      ["A1a", "X"],
+      ["D2a", "Y"],
+      ["A1b", "A2a"],
+      ["C1b", "D1a"],
+    ];
+    var links = pairs.map(function (p) {
+      return {source: p[0], target: p[1]};
+    });
+
+    var viz = new d3plus.Rings().links(links).center("Hub").hops(3);
+    viz.render();
+
+    document.querySelectorAll("#controls button").forEach(function (button) {
+      button.addEventListener("click", function () {
+        viz.hops(+button.dataset.hops).render();
+      });
+    });
+    document
+      .querySelector("#ringLinks")
+      .addEventListener("change", function (e) {
+        viz.ringLinks(e.target.checked).render();
+      });
+  </script>
+</html>

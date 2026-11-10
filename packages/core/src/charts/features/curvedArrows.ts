@@ -127,6 +127,54 @@ export function cubicArrowEdge(
   return {d: chordEndsPathD(cubicPathD(body), source, target), source, target};
 }
 
+/** Joined cubic Bézier curves as one path's `d`. */
+export function cubicsPathD(curves: readonly Cubic[]): string {
+  return curves
+    .map((curve, k) => {
+      const d = cubicPathD(curve);
+      return k ? d.replace(/^M[^C]*/, "") : d;
+    })
+    .join("");
+}
+
+/**
+    `cubicArrowEdge` for a path of joined cubics, from the first's start to
+    the last's end: each arrowed end is taken on its end's cubic.
+*/
+export function cubicsArrowEdge(
+  curves: readonly Cubic[],
+  trims: EdgeArrowTrims,
+  tipBack: {source: number; target: number} = {source: 0, target: 0},
+): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
+  if (curves.length === 1) return cubicArrowEdge(curves[0], trims, tipBack);
+  const {ends, size} = trims;
+  if (!ends.source && !ends.target) return {d: cubicsPathD(curves)};
+  const first = curves[0];
+  const last = curves[curves.length - 1];
+  const body = curves.slice();
+  body[0] = trimCubic(first, ends.source ? tipBack.source + size : 0, 0);
+  body[body.length - 1] = trimCubic(
+    last,
+    0,
+    ends.target ? tipBack.target + size : 0,
+  );
+  const target = ends.target
+    ? arrowAlongChord(
+        pathPointBack(cubicPolyline(last), tipBack.target),
+        body[body.length - 1][3],
+        trims.target,
+      )
+    : undefined;
+  const source = ends.source
+    ? arrowAlongChord(
+        pathPointBack([...cubicPolyline(first)].reverse(), tipBack.source),
+        body[0][0],
+        trims.source,
+      )
+    : undefined;
+  return {d: chordEndsPathD(cubicsPathD(body), source, target), source, target};
+}
+
 /** Whether `points` is a list of runs rather than one polyline. */
 const isRuns = (points: Point[] | Point[][]): points is Point[][] =>
   Array.isArray(points[0]?.[0]);

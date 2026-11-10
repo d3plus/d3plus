@@ -1,10 +1,10 @@
 /**
     `applyRingsLayout` — Rings' chart-specific layout stage. Lays out the
-    focal center node + two concentric rings of connected nodes, sizes
+    focal center node + `hops` concentric rings of connected nodes, sizes
     each by extent, builds bezier link `d` accessor, and stashes
     `ringsCtx` + `nodeLookup`/`linkLookup` on `viz.ctx`.
 */
-import {extent, groups, max, min} from "d3-array";
+import {extent, groups, min} from "d3-array";
 import * as scales from "d3-scale";
 
 import {colorContrast} from "@d3plus/color";
@@ -16,21 +16,15 @@ import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 
-import {
-  ringsCenterLabel,
-  ringsGeometry,
-  sizeRingsNodes,
-} from "./ringsSizing.js";
+import {ringsCenterLabel, ringsGeometry, ringsHops} from "./ringsSizing.js";
 import type {RingGeometry} from "./ringsSizing.js";
 import {publishLinkGraph} from "../features/linkInteraction.js";
 import {linkWidthRange} from "../features/linkWidths.js";
 import {buildRingsGraph, ringsLinkEnd} from "./ringsGraph.js";
 import {ringsLoops} from "./ringsLoops.js";
-import {
-  edgesBetween,
-  fanParallelEdges,
-  firstPerNeighbor,
-} from "./ringsParallel.js";
+import {fanParallelEdges} from "./ringsParallel.js";
+import {ringsSegmentsD} from "./ringsCurves.js";
+import {buildRingsEdges, placeRingsNodes} from "./ringsPlacement.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 
@@ -49,196 +43,6 @@ const emptyRingsCtx = () => ({
   linkD: () => "",
   nodeShapeConfig: {},
 });
-
-/**
-    Claim the center node + two rings, compute each node's angle/position, build
-    the radius scale, and size every node. Returns the rebuilt `nodes` array
-    plus the `primaries`/`secondaries` rings.
-*/
-function placeRingsNodes(
-  v: VizInstance,
-  nodeLookup: Record<string, RingsNode>,
-  linkMap: Record<string, RingsEdge[]>,
-  center: RingsNode,
-  geom: RingGeometry,
-): {
-  nodes: RingsNode[];
-  primaries: RingsNode[];
-  secondaries: RingsNode[];
-  radius: SizeLegendScale | null;
-} {
-  const {width, height, primaryRing, secondaryRing} = geom;
-
-  center.x = width / 2;
-  center.y = height / 2;
-  center.r = v.schema.sizeMin
-    ? max([v.schema.sizeMin, primaryRing * 0.65])
-    : v.schema.sizeMax
-      ? min([v.schema.sizeMax, primaryRing * 0.65])
-      : primaryRing * 0.65;
-
-  const claimed: RingsNode[] = [center];
-  const primaries: RingsNode[] = [];
-  const centerLinks = linkMap[v.schema.center as string] || [];
-  centerLinks.forEach(edge => {
-    const node = edge.source.id === v.schema.center ? edge.target : edge.source;
-    // A node takes one place however many center links reach it.
-    if (primaries.includes(node)) return;
-    node.edges = linkMap[node.id].filter(
-      link =>
-        link.source.id !== v.schema.center ||
-        link.target.id !== v.schema.center,
-    );
-    claimed.push(node);
-    primaries.push(node);
-  });
-
-  primaries.sort(
-    (a, b) => (a.edges as RingsEdge[]).length - (b.edges as RingsEdge[]).length,
-  );
-  const secondaries: RingsNode[] = [];
-  let totalEndNodes = 0;
-
-  primaries.forEach(p => {
-    const primaryId = p.id;
-    p.edges = firstPerNeighbor(
-      (p.edges as RingsEdge[]).filter(
-        edge =>
-          (!claimed.includes(edge.source) && edge.target.id === primaryId) ||
-          (!claimed.includes(edge.target) && edge.source.id === primaryId),
-      ),
-      primaryId,
-    );
-    totalEndNodes += (p.edges as RingsEdge[]).length || 1;
-    (p.edges as RingsEdge[]).forEach(edge => {
-      const {source, target} = edge;
-      const claim = target.id === primaryId ? source : target;
-      claimed.push(claim);
-    });
-  });
-
-  const tau = Math.PI * 2;
-  let offset = 0;
-
-  primaries.forEach((p, i) => {
-    const pEdges = p.edges as RingsEdge[];
-    const children = pEdges.length || 1;
-    const space = (tau / totalEndNodes) * children;
-    if (i === 0) offset -= space / 2;
-    const angle = offset + space / 2 - tau / 4;
-    p.radians = angle;
-    p.x = width / 2 + primaryRing * Math.cos(angle);
-    p.y = height / 2 + primaryRing * Math.sin(angle);
-    offset += space;
-
-    pEdges.forEach((edge, j) => {
-      const node = edge.source.id === p.id ? edge.target : edge.source;
-      const s = tau / totalEndNodes;
-      const a = angle - (s * children) / 2 + s / 2 + s * j;
-      node.radians = a;
-      node.x = width / 2 + secondaryRing * Math.cos(a);
-      node.y = height / 2 + secondaryRing * Math.sin(a);
-      secondaries.push(node);
-    });
-  });
-
-  const radius = sizeRingsNodes(
-    v,
-    center,
-    geom,
-    totalEndNodes,
-    primaries,
-    secondaries,
-  );
-
-  const nodes = [center].concat(primaries).concat(secondaries);
-
-  return {nodes, primaries, secondaries, radius};
-}
-
-/**
-    Resolve link endpoints to placed nodes, compute bezier control points for
-    spline edges, and push every edge onto `edges` once (mutated in place):
-    an edge between two primaries is reached from both.
-*/
-function buildRingsEdges(
-  v: VizInstance,
-  nodes: RingsNode[],
-  primaries: RingsNode[],
-  secondaries: RingsNode[],
-  linkMap: Record<string, RingsEdge[]>,
-  center: RingsNode,
-  geom: RingGeometry,
-  edges: RingsEdge[],
-): void {
-  const {width, height, ringWidth, primaryRing, secondaryRing} = geom;
-
-  primaries.forEach(p => {
-    type EndKey = "source" | "target";
-    const checks: EndKey[] = ["source", "target"];
-    edgesBetween(linkMap[p.id], p.id, center.id).forEach(pEdge => {
-      checks.forEach(node => {
-        pEdge[node] = nodes.find(n => n.id === pEdge[node].id) as RingsNode;
-      });
-      if (!edges.includes(pEdge)) edges.push(pEdge);
-    });
-
-    linkMap[p.id].forEach(edge => {
-      const otherNode = edge.source.id === p.id ? edge.target : edge.source;
-      if (otherNode.id === center.id) return;
-      let target = secondaries.find(s => s.id === otherNode.id);
-      if (!target) target = primaries.find(s => s.id === otherNode.id);
-      if (!target) return;
-      edge.spline = true;
-
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const middleRing = primaryRing + (secondaryRing - primaryRing) * 0.5;
-      const checks2: EndKey[] = ["source", "target"];
-
-      checks2.forEach((endKey, i) => {
-        const endNode = edge[endKey];
-        const endRadians = endNode.radians as number;
-        const endRing = endNode.ring;
-        const endRX = endNode.x as number;
-        const endRY = endNode.y as number;
-        const endRR = endNode.r as number;
-        const rotated = endRing === 2 ? endRadians + Math.PI : endRadians;
-        edge[`${endKey}X` as const] = endRX + Math.cos(rotated) * endRR;
-        edge[`${endKey}Y` as const] = endRY + Math.sin(rotated) * endRR;
-        edge[`${endKey}BisectX` as const] =
-          centerX + middleRing * Math.cos(endRadians);
-        edge[`${endKey}BisectY` as const] =
-          centerY + middleRing * Math.sin(endRadians);
-        edge[endKey] = nodes.find(n => n.id === endNode.id) as RingsNode;
-        const ringNode = edge[endKey];
-        if (ringNode.edges === undefined) {
-          ringNode.edges = {} as Record<
-            string,
-            {angle: number; radius: number}
-          >;
-        }
-        const oppId = (i === 0 ? edge.target.id : edge.source.id) as string;
-        const edgeMap = ringNode.edges as Record<
-          string,
-          {angle: number; radius: number}
-        >;
-        if (ringNode.id === p.id) {
-          edgeMap[oppId] = {
-            angle: (p.radians as number) + Math.PI,
-            radius: ringWidth / 2,
-          };
-        } else {
-          edgeMap[oppId] = {
-            angle: target!.radians as number,
-            radius: ringWidth / 2,
-          };
-        }
-      });
-      if (!edges.includes(edge)) edges.push(edge);
-    });
-  });
-}
 
 /** Compute each node's label bounds, rotation, and text anchor (mutated in place). */
 function applyRingsLabelBounds(
@@ -343,9 +147,11 @@ function publishRingsCtx(
   const linkD = (d: RingsEdge) =>
     d.loop
       ? d.loop.d
-      : d.spline
-        ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
-        : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
+      : d.segments
+        ? ringsSegmentsD(d.segments)
+        : d.spline
+          ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
+          : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
 
   // The center's label sits inside its circle unless the circle is too small
   // (see `ringsCenterLabel`), in which case it sits below like any other.
@@ -473,10 +279,9 @@ export function ringsSizeLegendScale(
   const {graph, center} = prepared;
   return placeRingsNodes(
     v,
-    graph.nodeLookup,
     graph.linkMap,
     center,
-    ringsGeometry(width, height),
+    ringsGeometry(width, height, ringsHops(v.schema.hops)),
   ).radius;
 }
 
@@ -506,27 +311,17 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   }
 
   const {width, height} = chartBounds(v);
-  const edges: RingsEdge[] = [];
-  const geom = ringsGeometry(width, height);
+  const geom = ringsGeometry(width, height, ringsHops(v.schema.hops));
 
-  const {nodes, primaries, secondaries, radius} = placeRingsNodes(
-    v,
-    nodeLookup,
-    linkMap,
-    center,
-    geom,
-  );
+  const {nodes, rings, radius} = placeRingsNodes(v, linkMap, center, geom);
   v._sizeLegendFinal = radius;
 
-  buildRingsEdges(
-    v,
-    nodes,
-    primaries,
-    secondaries,
+  const edges = buildRingsEdges(
+    rings,
     linkMap,
     center,
     geom,
-    edges,
+    !!v.schema.ringLinks,
   );
 
   applyRingsLabelBounds(v, nodes, geom);
