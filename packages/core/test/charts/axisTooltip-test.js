@@ -65,6 +65,22 @@ it("resolveAxisTooltip — a string is the body", () => {
   );
 });
 
+it("resolveAxisTooltip — a tick's string is the body on every tick", () => {
+  for (const [value, index] of [
+    ["A", 0],
+    [2020, 3],
+  ])
+    assert.deepStrictEqual(
+      resolveAxisTooltip(target({value, index, option: "Fiscal year"})),
+      {title: false, body: "Fiscal year"},
+    );
+  assert.deepStrictEqual(
+    resolveAxisTooltip(target({truncated: true, option: "Fiscal year"})),
+    {title: "A long label", body: "Fiscal year"},
+    "under a cut label's whole text",
+  );
+});
+
 it("resolveAxisTooltip — a title function receives the title", () => {
   const option = vi.fn(title => `About ${title}`);
   const content = resolveAxisTooltip(
@@ -94,6 +110,50 @@ it("resolveAxisTooltip — a function returning nothing shows nothing", () => {
     resolveAxisTooltip(target({option: () => 0})),
     {title: false, body: "0"},
     "zero is text",
+  );
+});
+
+for (const part of ["tick", "title"]) {
+  it(`resolveAxisTooltip — a ${part} function returning false shows nothing, cut or not`, () => {
+    const option = () => false;
+    assert.strictEqual(resolveAxisTooltip(target({part, option})), null);
+    assert.strictEqual(
+      resolveAxisTooltip(target({part, option, truncated: true})),
+      null,
+      "a cut label keeps its whole text to itself",
+    );
+    assert.strictEqual(
+      resolveAxisTooltip(target({part, option, truncated: true}), false),
+      null,
+    );
+  });
+
+  it(`resolveAxisTooltip — a ${part} function returning nothing leaves a cut label its whole text`, () => {
+    for (const empty of [undefined, null, ""]) {
+      const option = () => empty;
+      assert.deepStrictEqual(
+        resolveAxisTooltip(target({part, option, truncated: true})),
+        {title: "A long label", body: false},
+        `${empty} on a cut label`,
+      );
+      assert.strictEqual(
+        resolveAxisTooltip(target({part, option})),
+        null,
+        `${empty} on a whole label`,
+      );
+    }
+  });
+}
+
+it("resolveAxisTooltip — a function decides label by label", () => {
+  const option = value => (value === "A" ? false : undefined);
+  assert.strictEqual(
+    resolveAxisTooltip(target({option, truncated: true})),
+    null,
+  );
+  assert.deepStrictEqual(
+    resolveAxisTooltip(target({value: "B", option, truncated: true})),
+    {title: "A long label", body: false},
   );
 });
 

@@ -1,12 +1,17 @@
 import {it} from "vitest";
 import assert from "assert";
+import {useJsdom} from "~test/jsdom.js";
+import {AxisBottom, AxisLeft} from "../../index.ts";
 import {
   axisTooltipTarget,
   inertAxis,
   labelCut,
   stampTickTooltips,
   stampTitleTooltip,
+  tickRank,
 } from "../../src/components/Axis/axisTooltipTargets.ts";
+
+useJsdom();
 
 /** A laid-out text node drawing `lines`. */
 const text = (lines, extra = {}) => ({
@@ -87,6 +92,187 @@ it("stampTickTooltips — stamps each label's nodes with its value, text and ind
   assert.deepStrictEqual(
     [second[1].value, second[1].index, second[1].text],
     [2020, 1, "2,020"],
+  );
+});
+
+it("stampTickTooltips — a rank orders the indices, whatever order the labels come in", () => {
+  const nodes = [6, 4, 2, 0].map(id => tickLabel(id, `${id}`));
+  stampTickTooltips(nodes, "note", value => value);
+  const index = node => axisTooltipTarget(node.children[1]).index;
+  assert.deepStrictEqual(nodes.map(index), [3, 2, 1, 0]);
+  assert.deepStrictEqual(
+    nodes.map(n => n.key),
+    ["6-label", "4-label", "2-label", "0-label"],
+    "the labels stay where they were",
+  );
+});
+
+it("tickRank — a value or time axis counts up from its lowest value", () => {
+  const axis = scale => ({schema: {scale}, _givenDomain: () => [100, 0]});
+  for (const scale of ["linear", "log", "pow", "sqrt", "time"]) {
+    const rank = tickRank(axis(scale));
+    assert.ok(rank(0.1) < rank(10), scale);
+    assert.ok(rank(-10) < rank(0.1), scale);
+  }
+  const time = tickRank(axis("time"));
+  assert.ok(time(new Date(2020, 0, 1)) < time(new Date(2021, 0, 1)));
+  assert.ok(time(new Date(2020, 0, 1)) < time(+new Date(2021, 0, 1)));
+});
+
+it("tickRank — a categorical axis counts from its domain's first category", () => {
+  for (const scale of ["band", "point", "ordinal"]) {
+    const rank = tickRank({
+      schema: {scale},
+      _givenDomain: () => ["B", "A", "C"],
+    });
+    assert.deepStrictEqual(["A", "B", "C", "?"].map(rank), [1, 0, 2, 3], scale);
+  }
+  const dates = [new Date(2021, 0, 1), new Date(2020, 0, 1)];
+  const byDate = tickRank({schema: {scale: "band"}, _givenDomain: () => dates});
+  assert.strictEqual(byDate(new Date(2020, 0, 1)), 1, "a date by its time");
+});
+
+it("tickRank — an axis holding its domain end first counts from its last category", () => {
+  const domain = ["Sea", "Bee", "Ann"];
+  const rank = tickRank({
+    schema: {scale: "band"},
+    _domainEndFirst: true,
+    _givenDomain: () => domain,
+  });
+  assert.deepStrictEqual(["Ann", "Bee", "Sea"].map(rank), [0, 1, 2]);
+  assert.deepStrictEqual(domain, ["Sea", "Bee", "Ann"], "the domain is kept");
+});
+
+/** A laid-out axis's tick labels as `[value, index]`, in the order drawn along its range. */
+function drawn(axis) {
+  axis.tickTooltip("note").renderMode("compute").select(null).render();
+  const targets = new Set();
+  const walk = nodes =>
+    nodes.forEach(node => {
+      const target = axisTooltipTarget(node);
+      if (target && target.part === "tick") targets.add(target);
+      walk(node.children ?? []);
+    });
+  walk(axis.toScene().children);
+  return Array.from(targets)
+    .sort((a, b) => axis._getPosition(a.value) - axis._getPosition(b.value))
+    .map(target => [+target.value || target.value, target.index]);
+}
+
+const bottom = config =>
+  drawn(new AxisBottom().width(600).height(100).config(config));
+const left = config =>
+  drawn(new AxisLeft().width(100).height(400).config(config));
+
+/** `[value, index]` pairs counting up from `values`' first. */
+const counted = values => values.map((value, index) => [value, index]);
+
+it("tick index — a horizontal value axis counts from its left label", () => {
+  const ticks = [0, 20, 40, 60, 80, 100];
+  assert.deepStrictEqual(
+    bottom({domain: [0, 100], labels: ticks}),
+    counted(ticks),
+  );
+});
+
+it("tick index — a vertical value axis counts from its lowest value", () => {
+  const ticks = [0, 25, 50, 75, 100];
+  // A Plot hands its y axes their domain from the top: 0 is drawn last, at the bottom.
+  assert.deepStrictEqual(
+    left({domain: [100, 0], labels: ticks}),
+    counted(ticks).reverse(),
+  );
+  assert.deepStrictEqual(
+    left({domain: [0, 100], labels: ticks}),
+    counted(ticks),
+    "at the top when the axis runs downward",
+  );
+});
+
+it("tick index — a log axis counts from its lowest value", () => {
+  assert.deepStrictEqual(
+    left({domain: [1000, 1], scale: "log", labels: [1, 10, 100, 1000]}),
+    counted([1, 10, 100, 1000]).reverse(),
+  );
+});
+
+it("tick index — a time axis counts from its earliest label", () => {
+  const years = [2020, 2021, 2022, 2023].map(year => +new Date(year, 0, 1));
+  const config = {
+    domain: [new Date(2020, 0, 1), new Date(2023, 0, 1)],
+    labels: years,
+    scale: "time",
+  };
+  assert.deepStrictEqual(bottom(config), counted(years));
+  assert.deepStrictEqual(
+    bottom({...config, reverse: true}),
+    counted(years).reverse(),
+    "reversed, the earliest label is drawn last and still counts first",
+  );
+});
+
+it("tick index — a band or point axis counts from its domain's first category", () => {
+  const domain = ["Bee", "Ann", "Sea"];
+  for (const scale of ["band", "point"]) {
+    assert.deepStrictEqual(bottom({domain, scale}), counted(domain), scale);
+    assert.deepStrictEqual(left({domain, scale}), counted(domain), scale);
+  }
+});
+
+it("tick index — a reversed axis keeps each label's index", () => {
+  const ticks = [0, 20, 40, 60, 80, 100];
+  assert.deepStrictEqual(
+    bottom({domain: [0, 100], labels: ticks, reverse: true}),
+    counted(ticks).reverse(),
+    "a value axis: 0 is drawn at the right and still counts first",
+  );
+  assert.deepStrictEqual(
+    bottom({domain: [100, 0], labels: ticks}),
+    counted(ticks).reverse(),
+    "a descending domain counts the same way",
+  );
+  assert.deepStrictEqual(
+    left({domain: [100, 0], labels: ticks, reverse: true}),
+    counted(ticks),
+    "a Plot's reversed y axis: 0 is drawn at the top",
+  );
+  const domain = ["Bee", "Ann", "Sea"];
+  assert.deepStrictEqual(
+    bottom({domain, scale: "band", reverse: true}),
+    counted(domain).reverse(),
+    "a category axis: the first category is drawn last",
+  );
+});
+
+it("tick index — a Plot's y axis counts its categories from the bottom", () => {
+  // A Plot hands a y axis its categories from the top and says so.
+  const axis = () => {
+    const axis = new AxisLeft().width(100).height(400);
+    axis._domainEndFirst = true;
+    return axis;
+  };
+  assert.deepStrictEqual(
+    drawn(axis().config({domain: ["Sea", "Bee", "Ann"], scale: "band"})),
+    [
+      ["Sea", 2],
+      ["Bee", 1],
+      ["Ann", 0],
+    ],
+  );
+  assert.deepStrictEqual(
+    drawn(
+      axis().config({
+        domain: ["Sea", "Bee", "Ann"],
+        scale: "band",
+        reverse: true,
+      }),
+    ),
+    [
+      ["Ann", 0],
+      ["Bee", 1],
+      ["Sea", 2],
+    ],
+    "reversed, the bottom category is drawn at the top",
   );
 });
 

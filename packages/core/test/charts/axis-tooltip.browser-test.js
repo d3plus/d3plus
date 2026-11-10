@@ -20,6 +20,7 @@ import {
 */
 
 const LONG = "A rather long category name that will not fit";
+const OTHER_LONG = "Another long category name that is cut short as well";
 const LONG_TITLE =
   "A very long y axis title that goes on and on and on and on and on and on and on and on and on and on and on";
 
@@ -176,10 +177,10 @@ for (const renderer of ["svg", "canvas"]) {
         const calls = await page.evaluate(() => window.__calls);
         assert.deepStrictEqual(calls.at(0), ["Bee", 1, true]);
         assert.deepStrictEqual(calls.at(-1), ["Sea", 2, true]);
-        // A value axis's ticks are numbers, counted in the axis's own order.
+        // A value axis's ticks are numbers, counted up from its lowest.
         assert.deepStrictEqual(await over(page, label("4")), {
           title: "",
-          body: "Four, tick 2",
+          body: "Four, tick 4",
           rows: [],
         });
         assert.strictEqual(await over(page, label("5")), null);
@@ -206,6 +207,124 @@ for (const renderer of ["svg", "canvas"]) {
           body: "",
           rows: [["Index", "1"]],
         });
+      },
+    ));
+
+  it(`axis tooltip (${renderer}): a tick's string shows on every tick`, () =>
+    withChart(
+      bars(`xConfig: {tickTooltip: "A letter"}`),
+      renderer,
+      async page => {
+        for (const letter of ["Bee", "Sea"])
+          assert.deepStrictEqual(await over(page, label(letter)), {
+            title: "",
+            body: "A letter",
+            rows: [],
+          });
+        assert.strictEqual(await over(page, label("4")), null);
+      },
+    ));
+
+  it(`axis tooltip (${renderer}): a y axis counts its ticks from the bottom label`, () =>
+    withChart(
+      bars(
+        `yConfig: {tickTooltip: (value, index) => value + " is tick " + index}`,
+      ),
+      renderer,
+      async page => {
+        const [bottom, top] = [
+          await nodePoint(page, tickLabel("0")),
+          await nodePoint(page, tickLabel("6")),
+        ];
+        assert.ok(bottom[1] > top[1] + 100, "0 is the bottom label");
+        assert.deepStrictEqual(await over(page, tickLabel("0")), {
+          title: "",
+          body: "0 is tick 0",
+          rows: [],
+        });
+        assert.deepStrictEqual(await over(page, tickLabel("1")), {
+          title: "",
+          body: "1 is tick 1",
+          rows: [],
+        });
+        assert.deepStrictEqual(await over(page, tickLabel("6")), {
+          title: "",
+          body: "6 is tick 6",
+          rows: [],
+        });
+      },
+    ));
+
+  it(`axis tooltip (${renderer}): a reversed axis keeps each tick's index`, () =>
+    withChart(
+      bars(
+        `xConfig: {reverse: true, tickTooltip: (value, index) => value + " is tick " + index},
+         yConfig: {reverse: true, tickTooltip: (value, index) => value + " is tick " + index}`,
+      ),
+      renderer,
+      async page => {
+        const [zero, six] = [
+          await nodePoint(page, tickLabel("0")),
+          await nodePoint(page, tickLabel("6")),
+        ];
+        assert.ok(zero[1] < six[1] - 100, "0 is the top label");
+        assert.deepStrictEqual(await over(page, tickLabel("0")), {
+          title: "",
+          body: "0 is tick 0",
+          rows: [],
+        });
+        const [bee, sea] = [
+          await nodePoint(page, tickLabel("Bee")),
+          await nodePoint(page, tickLabel("Sea")),
+        ];
+        assert.ok(sea[0] < bee[0] - 50, "Sea is drawn before Bee");
+        assert.deepStrictEqual(await over(page, tickLabel("Sea")), {
+          title: "",
+          body: "Sea is tick 2",
+          rows: [],
+        });
+        assert.deepStrictEqual(await over(page, tickLabel("Bee")), {
+          title: "",
+          body: "Bee is tick 1",
+          rows: [],
+        });
+      },
+    ));
+
+  it(`axis tooltip (${renderer}): a function returning false hides a cut label's whole text`, () =>
+    withChart(
+      `lib => new lib.BarChart().config({
+        data: [
+          {id: "alpha", x: ${JSON.stringify(LONG)}, y: 4},
+          {id: "beta", x: ${JSON.stringify(OTHER_LONG)}, y: 6},
+          {id: "gamma", x: "Sea", y: 2},
+        ],
+        groupBy: "id", x: "x", y: "y", legend: false,
+        xConfig: {
+          maxSize: 40, labelRotation: false,
+          tickTooltip: value => value === ${JSON.stringify(LONG)} ? false : undefined,
+        },
+        yConfig: {
+          title: ${JSON.stringify(LONG_TITLE)}, titleConfig: {maxLines: 1},
+          titleTooltip: () => false,
+        },
+      })`,
+      renderer,
+      async page => {
+        const cutLabel = start =>
+          `(node, drawn) => !!node.axisTooltip && node.axisTooltip.truncated && drawn.startsWith(${JSON.stringify(start)})`;
+        for (const start of ["A rather", "Another"])
+          assert.ok(await nodePoint(page, cutLabel(start)), `${start} is cut`);
+        assert.strictEqual(await over(page, cutLabel("A rather")), null);
+        // Its neighbor, which the function returns nothing for, keeps its own.
+        assert.deepStrictEqual(await over(page, cutLabel("Another")), {
+          title: OTHER_LONG,
+          body: "",
+          rows: [],
+        });
+        const cutTitle = `node => !!node.axisTooltip && node.axisTooltip.part === "title" && node.axisTooltip.truncated`;
+        assert.ok(await nodePoint(page, cutTitle), "the title is cut");
+        assert.strictEqual(await over(page, cutTitle), null);
       },
     ));
 
