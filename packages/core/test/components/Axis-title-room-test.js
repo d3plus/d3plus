@@ -1,7 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 import {AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../index.ts";
-import {measureAxis} from "../../src/components/Axis/axisLayout.ts";
+import {measureAxis} from "../../src/components/Axis/axisLimit.ts";
 import {titleRoom} from "../../src/components/Axis/axisTitle.ts";
 import {useJsdom} from "~test/jsdom.js";
 

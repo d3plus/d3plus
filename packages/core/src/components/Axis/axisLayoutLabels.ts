@@ -86,7 +86,8 @@ export interface AxisTextDatum {
     Applies the axis title's wrapped height to the orient-side margin, as
     the title TextBox draws it across `range` (see `titleRoom`). Given the
     range it was `measured` across before, it measures again only when the
-    range has changed. Returns the range measured across.
+    range has changed. Returns the range measured across. A title left out
+    (see `measureAxis` in `axisLimit.ts`) claims no room.
 */
 export function applyTitleMargin(
   axis: Axis,
@@ -103,7 +104,7 @@ export function applyTitleMargin(
     measured &&
     measured[0] === range[0] &&
     measured[measured.length - 1] === range[range.length - 1];
-  if (!axis.schema.title || same) return range;
+  if (!axis.schema.title || axis._dropTitle || same) return range;
   margin[axis.schema.orient] = titleRoom(
     axis,
     range,
@@ -403,6 +404,39 @@ export function labelDepth(t: AxisTextDatum, horizontal: boolean): number {
   return t[t.rotate || !horizontal ? "width" : "height"];
 }
 
+/**
+    Leaves out each label that reaches further out from the axis than
+    `room` (what its strict `maxSize` leaves the labels, see
+    `strictMaxSize`), a staggered one by its row's offset too: it is hidden,
+    and claims no room. A label with no lines left in that room is hidden
+    too. Returns how many of the labels shown it left out for reaching too
+    far.
+*/
+export function limitLabels(
+  textData: AxisTextDatum[],
+  horizontal: boolean,
+  room: number,
+): number {
+  let dropped = 0;
+  textData.forEach((t: AxisTextDatum) => {
+    if (!t.lines.length) {
+      t.truncated = true;
+      return;
+    }
+    const depth = Math.ceil(labelDepth(t, horizontal) + (t.offset ?? 0));
+    if (depth <= room) return;
+    if (!t.truncated) dropped++;
+    Object.assign(t, {
+      truncated: true,
+      lines: [],
+      widths: [],
+      width: 0,
+      height: 0,
+    });
+  });
+  return dropped;
+}
+
 /** Derives `_outerBounds` + axis margins from the measured text data. */
 export function computeAxisBounds(
   axis: Axis,
@@ -434,11 +468,16 @@ export function computeAxisBounds(
     margin,
   } = ctx;
   const tBuff = axis.schema.shape === "Line" ? 0 : hBuff;
+  // The labels' padding comes with them: none when there are no labels, or
+  // when a strict `maxSize` left every one out (see `limitLabels`).
+  const labeled = axis._limited
+    ? textData.some((t: AxisTextDatum) => t.lines.length)
+    : textData.length > 0;
   const bounds: Record<string, number> = (axis._outerBounds = {
     [height]:
       (max(textData, (t: AxisTextDatum) =>
         Math.ceil(labelDepth(t, horizontal) + (t.offset ?? 0)),
-      ) || 0) + (textData.length ? p : 0),
+      ) || 0) + (labeled ? p : 0),
     [width]: rangeOuter[rangeOuter.length - 1] - rangeOuter[0],
     [x]: rangeOuter[0],
   });

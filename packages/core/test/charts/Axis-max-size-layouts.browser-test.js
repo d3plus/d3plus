@@ -51,8 +51,7 @@ const depths = arg =>
     Promise.resolve([]),
   );
 
-// From room for a line of labels and a title up.
-const sizes = Array.from({length: 46}, (_, i) => 60 + i * 4);
+const sizes = Array.from({length: 46}, (_, i) => 20 + i * 4);
 const eleven = "labels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]";
 
 const layouts = {

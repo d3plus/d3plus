@@ -1,7 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 import {AxisLeft} from "../../index.ts";
-import {measureAxis} from "../../src/components/Axis/axisLayout.ts";
+import {measureAxis} from "../../src/components/Axis/axisLimit.ts";
 import {
   axisLabelEllipsis,
   labelEllipsis,

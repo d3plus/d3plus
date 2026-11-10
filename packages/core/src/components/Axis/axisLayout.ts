@@ -34,6 +34,7 @@ import {
   createTextData,
   isDiscreteScale,
   labelDepth,
+  limitLabels,
   wholeLineLabels,
 } from "./axisLayoutLabels.js";
 import {labelRoom} from "./axisLabelSize.js";
@@ -65,14 +66,26 @@ export interface AxisLayoutResult {
   bounds: Record<string, number>;
 }
 
+/** A tick's pixel size along the axis, read from its shape config. */
+function tickSize(axis: Axis, width: string): TickGet {
+  const tickValue =
+    axis.schema.shape === "Circle"
+      ? axis.schema.shapeConfig.r
+      : axis.schema.shape === "Rect"
+        ? axis.schema.shapeConfig[width]
+        : axis.schema.shapeConfig.strokeWidth;
+  return typeof tickValue !== "function" ? () => tickValue : tickValue;
+}
+
 /**
     The standalone axis layout pass. Accepts any object satisfying the
     Axis-instance shape (the production `Axis` class is the canonical input).
     Pure compute — no DOM, no rendering. Mutates the input to set
     `_d3Scale`/`_outerBounds`/`_margin`/etc. for callers that read those off
-    the instance afterward.
+    the instance afterward. `measureAxis` (see `axisLimit.ts`) runs it again
+    without the title when the labels don't fit `maxSize` beside it.
 */
-export function measureAxis(axis: Axis): AxisLayoutResult {
+export function layoutAxis(axis: Axis): AxisLayoutResult {
   const timeLocaleObj = axisTimeLocale(axis);
   timeFormatDefaultLocale(
     timeLocaleObj as Parameters<typeof timeFormatDefaultLocale>[0],
@@ -82,13 +95,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     p = axis.schema.padding,
     rangeOuter = [p, (axis.schema[width] as number) - p];
 
-  const tickValue =
-    axis.schema.shape === "Circle"
-      ? axis.schema.shapeConfig.r
-      : axis.schema.shape === "Rect"
-        ? axis.schema.shapeConfig[width]
-        : axis.schema.shapeConfig.strokeWidth;
-  const tickGet = typeof tickValue !== "function" ? () => tickValue : tickValue;
+  const tickGet = tickSize(axis, width);
 
   const margin: Record<string, number> = (axis._margin = {
     top: 0,
@@ -164,6 +171,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
 
   hideTruncatedTicks(axis, textData, ticks);
   alignLabelOffsets(axis, textData);
+  limitAxis(axis, textData, labelCtx);
   axis._labelOverflow = slantedOverflow(axis, textData, range);
 
   // The title is drawn across the final range, which the label passes can
@@ -226,6 +234,23 @@ export function slantedOverflow(
     Math.max(0, reach(first)[0] - (first.position - lo)),
     Math.max(0, reach(last)[1] - (hi - last.position)),
   ];
+}
+
+/**
+    Under a strict `maxSize` (see `strictMaxSize`), leaves out each label
+    reaching further out than the limit leaves room for (see
+    `limitLabels`); its tick stays. Records what it did on `axis._limited`.
+*/
+function limitAxis(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  ctx: {horizontal: boolean; hBuff: number; p: number; strict: boolean},
+): void {
+  const {horizontal, hBuff, p, strict} = ctx;
+  const room = labelRoom(axis, horizontal, hBuff, p);
+  axis._limited = strict
+    ? {dropped: limitLabels(textData, horizontal, room), room}
+    : undefined;
 }
 
 /** The ticks whose labels the layout hides no longer count as visible. */

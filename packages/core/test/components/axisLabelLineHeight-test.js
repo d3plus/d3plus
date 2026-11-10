@@ -2,7 +2,7 @@ import {it} from "vitest";
 import assert from "assert";
 import {AxisLeft} from "../../index.ts";
 import TextBox from "../../src/components/TextBox.ts";
-import {measureAxis} from "../../src/components/Axis/axisLayout.ts";
+import {measureAxis} from "../../src/components/Axis/axisLimit.ts";
 import {labelLineHeight} from "../../src/components/Axis/axisLabelLineHeight.ts";
 import {useJsdom} from "~test/jsdom.js";
 
