@@ -39,6 +39,7 @@
 import {max} from "d3-array";
 
 import type Axis from "../../components/Axis/Axis.js";
+import {pinMaxSize} from "../../components/Axis/axisMaxSize.js";
 import {frozenAxis} from "./frozenAxis.js";
 
 import {alignAxisLine, placeEndLabels} from "./plotEndLabels.js";
@@ -155,6 +156,8 @@ function renderXAxes(
     .config(plotAxisConfig(viz, "x"))
     .config(pCtx.zoomAxes?.x ?? {})
     .scale(xConfigScale);
+  // A `maxSize` function reads the height the test axis measured with.
+  pinMaxSize(xAxis, height);
   // Labeling its ends, the axis draws only its gridlines, up from the plot's bottom edge.
   const gridOnly = Boolean(pCtx.xLabelMode && pCtx.xLabelMode !== "axis");
   if (gridOnly) alignAxisLine(xAxis, plotBottom);
@@ -182,8 +185,8 @@ function renderXAxes(
       .config(defaultX2Config)
       .config(viz._x2Config)
       .config(pCtx.zoomAxes?.x2 ?? {})
-      .scale(x2ConfigScale)
-      .render();
+      .scale(x2ConfigScale);
+    pinMaxSize(x2Axis, height).render();
     axisSceneQueue.push({
       key: "plot-x2-axis",
       transform: axisRelativeTransform("x2"),
@@ -242,8 +245,9 @@ function renderYAxes(
     .config({...UNZOOMED_AXIS, ...yC})
     .config(plotAxisConfig(viz, "y"))
     .config(pCtx.zoomAxes?.y ?? {})
-    .scale(yConfigScale)
-    .render();
+    .scale(yConfigScale);
+  // A `maxSize` function reads the width the test axis measured with.
+  pinMaxSize(yAxis, width).render();
   if (showY) {
     axisSceneQueue.push({
       key: "plot-y-axis",
@@ -266,8 +270,8 @@ function renderYAxes(
       .config(viz._y2Config)
       .config(defaultY2Config)
       .config(pCtx.zoomAxes?.y2 ?? {})
-      .scale(y2ConfigScale)
-      .render();
+      .scale(y2ConfigScale);
+    pinMaxSize(y2Axis, width).render();
     axisSceneQueue.push({
       key: "plot-y2-axis",
       transform: axisRelativeTransform("y2"),

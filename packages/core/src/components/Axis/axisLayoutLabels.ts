@@ -12,6 +12,7 @@ import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
 import {slantedDepth, slantedWrapSize} from "./axisLabelAngle.js";
+import {axisMaxSize} from "./axisMaxSize.js";
 import {slantedLineWidth, slantedLines} from "./axisSlantWrap.js";
 import {
   fitOwnSpaces,
@@ -82,11 +83,18 @@ function labelRoom(
   hBuff: number,
   p: number,
 ): number {
-  const wSize = min([axis.schema.maxSize, axis.schema.width])!;
-  const hSize = min([axis.schema.maxSize, axis.schema.height])!;
+  const maxSize = axisMaxSize(axis.schema, horizontal);
   return horizontal
-    ? hSize - hBuff - p - axis._margin.top - axis._margin.bottom
-    : wSize - hBuff - p - axis._margin.left - axis._margin.right;
+    ? min([maxSize, axis.schema.height])! -
+        hBuff -
+        p -
+        axis._margin.top -
+        axis._margin.bottom
+    : min([maxSize, axis.schema.width])! -
+        hBuff -
+        p -
+        axis._margin.left -
+        axis._margin.right;
 }
 
 /** Applies the axis title's wrapped height to the orient-side margin. */
@@ -168,7 +176,7 @@ function calculateLabelSize(
     ? axis.schema.shapeConfig.lineHeight(d, i)
     : undefined;
   const text = tickFormat(d);
-  const wSize = min([axis.schema.maxSize, axis.schema.width]);
+  const wSize = min([axisMaxSize(axis.schema, horizontal), axis.schema.width]);
   const depth = labelRoom(axis, horizontal, hBuff, p);
   const slanted = slant
     ? slantedWrapSize(

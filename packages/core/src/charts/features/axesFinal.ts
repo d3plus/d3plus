@@ -10,6 +10,7 @@
 import {max} from "d3-array";
 
 import type Axis from "../../components/Axis/Axis.js";
+import {pinMaxSize} from "../../components/Axis/axisMaxSize.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {PlotMeasureResult, PlotPaintContext} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -108,8 +109,9 @@ function solveFinalYAxes(
       .title(false)
       .config(viz._y2Config)
       .config(defaultY2Config)
-      .scale(y2ConfigScale)
-      .measure();
+      .scale(y2ConfigScale);
+    // A `maxSize` function reads the width the axis first measured with.
+    pinMaxSize(y2Test, width).measure();
   }
 
   const y2Bounds = y2Test.outerBounds() as AxisBounds;

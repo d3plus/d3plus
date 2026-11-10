@@ -180,8 +180,17 @@ export interface AxisConfig {
       line; zooming pins a rescaled axis this way so it doesn't shift.
   */
   fixedSize?: number;
-  /** Maximum size allowed for the space that contains the axis tick labels and title. */
-  maxSize?: number;
+  /**
+      Maximum size allowed for the space that contains the axis tick labels
+      and title: a number of pixels, or a function that is given the room the
+      axis has across its labels and returns that maximum. The room is a
+      horizontal axis's `height` or a vertical axis's `width`; in a chart, it
+      is the chart's height (for a horizontal axis) or width (for a vertical
+      one) inside its margins.
+      @example
+      {maxSize: size => size / 3}
+  */
+  maxSize?: number | ((size: number) => number);
   /** Minimum size alloted for the space that contains the axis tick labels and title. */
   minSize?: number;
   /**
