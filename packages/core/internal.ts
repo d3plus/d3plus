@@ -493,8 +493,12 @@ export {
   labelCut,
   stampTickTooltips,
   stampTitleTooltip,
+  tickRank,
 } from "./src/components/Axis/axisTooltipTargets.js";
-export type {AxisTooltipTarget} from "./src/components/Axis/axisTooltipTargets.js";
+export type {
+  AxisTooltipTarget,
+  RankedAxis,
+} from "./src/components/Axis/axisTooltipTargets.js";
 export {
   clearGraphFocus,
   withinArea,

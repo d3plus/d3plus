@@ -258,16 +258,19 @@ export interface AxisConfig {
   */
   timeLocale?: Record<string, unknown>;
   /**
-      The tooltip shown when a tick label is hovered, in a chart: a function
-      that receives the tick's value (as `tickFormat` does) and its index
-      among the axis's labels and returns the tooltip's text (nothing for a
-      tick without one), or a tooltip config (as `tooltipConfig`) whose
-      accessors receive the same. Unset (the default), a label cut short with
-      an ellipsis shows its whole text; `false` shows no tooltip.
+      The tooltip shown when a tick label is hovered, in a chart: its text
+      (the same on every tick), a function that receives the tick's value (as
+      `tickFormat` does) and its index and returns the text, or a tooltip
+      config (as `tooltipConfig`) whose accessors receive the same. The index
+      counts the axis's labels from the start of its domain (0 is the bottom
+      label of a y axis, the left one of an x axis). Unset (the default) or
+      when the function returns nothing, a label cut short with an ellipsis
+      shows its whole text; `false`, set or returned, shows no tooltip.
       @example
       {tickTooltip: value => notes[value]}
   */
   tickTooltip?:
+    | string
     | ((value: number | string, index: number) => string | false | void)
     | AxisTooltipConfig<[value: number | string, index: number]>
     | false;
@@ -279,8 +282,9 @@ export interface AxisConfig {
       The tooltip shown when the axis title is hovered, in a chart: the
       tooltip's text, a function that receives the title and returns it, or a
       tooltip config (as `tooltipConfig`) whose accessors receive the title.
-      Unset (the default), a title cut short with an ellipsis shows its whole
-      text; `false` shows no tooltip.
+      Unset (the default) or when the function returns nothing, a title cut
+      short with an ellipsis shows its whole text; `false`, set or returned,
+      shows no tooltip.
       @example
       {title: "GDP per capita", titleTooltip: "Constant 2015 US$"}
   */

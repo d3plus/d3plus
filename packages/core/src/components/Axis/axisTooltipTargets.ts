@@ -13,7 +13,7 @@ export interface AxisTooltipTarget {
   part: "title" | "tick";
   /** The tick's value, or the title. */
   value: unknown;
-  /** The tick's index among the axis's labels (0 for a title). */
+  /** The tick's index among the axis's labels, from the start of its domain (0 for a title). */
   index: number;
   /** The label's whole text. */
   text: string;
@@ -75,17 +75,53 @@ function tickOf(node: SceneNode): TickRecord["data"] {
     : undefined;
 }
 
+/** The scales whose domain lists categories. */
+const CATEGORICAL = ["band", "ordinal", "point"];
+
+/** What `tickRank` reads of an axis. */
+export interface RankedAxis {
+  schema: {scale?: unknown};
+  _domainEndFirst?: boolean;
+  _givenDomain(): unknown[];
+}
+
+/** A category as a map key: a date by its time. */
+const category = (value: unknown): unknown =>
+  value instanceof Date ? +value : value;
+
+/**
+    Where a tick's value falls along an axis's domain, counted from the
+    domain's start: the lowest value of a value or time axis, the first
+    category of a categorical one (its last when the axis holds its domain
+    end first). Neither `reverse` nor a descending domain moves a value's
+    place.
+    @param axis A laid-out axis.
+*/
+export function tickRank(axis: RankedAxis): (value: unknown) => number {
+  if (!CATEGORICAL.includes(`${axis.schema.scale}`))
+    return value => Number(value);
+  const domain = axis._givenDomain().slice();
+  if (axis._domainEndFirst) domain.reverse();
+  const places = new Map(domain.map((d, i) => [category(d), i]));
+  return value => places.get(category(value)) ?? domain.length;
+}
+
 /**
     Stamps an axis's tick label nodes (each label's text, and its hitbox when
     it has one) with their tooltip target.
-    @param nodes The tick labels' scene nodes, in axis order.
+    @param nodes The tick labels' scene nodes.
     @param option The axis's `tickTooltip`.
+    @param rank Each tick value's place along the axis (see `tickRank`):
+    labels are indexed in that order, or in the order of `nodes` without it.
 */
-export function stampTickTooltips(nodes: SceneNode[], option: unknown): void {
+export function stampTickTooltips(
+  nodes: SceneNode[],
+  option: unknown,
+  rank?: (value: unknown) => number,
+): void {
   if (option === false) return;
   const all = flatten(nodes);
   const targets = new Map<unknown, AxisTooltipTarget>();
-  let index = 0;
   for (const node of all) {
     const tick = tickOf(node);
     if (node.type !== "text" || !tick || targets.has(node.datum)) continue;
@@ -93,12 +129,15 @@ export function stampTickTooltips(nodes: SceneNode[], option: unknown): void {
     targets.set(node.datum, {
       part: "tick",
       value: tick.id,
-      index: index++,
+      index: 0,
       text,
       truncated: labelCut(node, text),
       option,
     });
   }
+  const ordered = Array.from(targets.values());
+  if (rank) ordered.sort((a, b) => rank(a.value) - rank(b.value));
+  ordered.forEach((target, index) => (target.index = index));
   for (const node of all) {
     const target = targets.get(node.datum);
     if (target && canShow(option, target.truncated))

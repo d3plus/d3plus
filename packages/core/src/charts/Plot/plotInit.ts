@@ -187,6 +187,7 @@ export function initPlotAxes(viz: Plot): void {
   viz._y = accessor("y");
   viz._yKey = "y";
   viz._yAxis = new AxisLeft().align("start");
+  viz._yAxis._domainEndFirst = true;
   viz._yKey = "y";
   viz._yConfig = {
     gridConfig: {
@@ -205,5 +206,6 @@ export function initPlotAxes(viz: Plot): void {
   viz._y2 = accessor("y2");
   viz._y2Key = "y2";
   viz._y2Axis = new AxisRight().align("end");
+  viz._y2Axis._domainEndFirst = true;
   viz._y2Config = {};
 }

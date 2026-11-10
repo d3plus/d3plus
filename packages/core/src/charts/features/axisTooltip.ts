@@ -55,8 +55,8 @@ const hasText = (text: unknown): boolean =>
     title, or the tick's value and index), and an object is a tooltip config
     whose accessors receive the same. A label drawn cut short adds its whole
     text as the title. Null when there is nothing to show: the option is
-    `false`, or the label is drawn whole and the option is unset or its
-    function returns nothing.
+    `false`, its function returns `false`, or the label is drawn whole and
+    the option is unset or its function returns nothing.
     @param target The hovered label.
     @param fullText Whether a cut label shows its whole text.
     @param self The `this` the option's function is called with.
@@ -82,6 +82,7 @@ export function resolveAxisTooltip(
       : typeof option === "string"
         ? option
         : undefined;
+  if (text === false) return null;
   const body = hasText(text) ? `${text}` : false;
   return title === false && body === false ? null : {title, body};
 }

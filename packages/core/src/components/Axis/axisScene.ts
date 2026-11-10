@@ -6,7 +6,11 @@ import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 
 import type Axis from "./Axis.js";
 import {axisBarNodes} from "./axisBreak.js";
-import {stampTickTooltips, stampTitleTooltip} from "./axisTooltipTargets.js";
+import {
+  stampTickTooltips,
+  stampTitleTooltip,
+  tickRank,
+} from "./axisTooltipTargets.js";
 
 /**
     Converts an attribute-style config (e.g. gridConfig, barConfig) into a Paint.
@@ -190,7 +194,7 @@ export function axisToScene(axis: Axis): GroupNode {
       const lblScene = lbl.toScene();
       if (lblScene && Array.isArray(lblScene.children)) {
         const labels = lblScene.children as SceneNode[];
-        stampTickTooltips(labels, axis.schema.tickTooltip);
+        stampTickTooltips(labels, axis.schema.tickTooltip, tickRank(axis));
         children.push(...labels);
       }
     }
