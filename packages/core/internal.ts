@@ -133,6 +133,7 @@ export type {
   NetworkMeasures,
 } from "./src/charts/features/networkMeasures.js";
 export {
+  cancelIdleWork,
   IDLE_BUDGET,
   IdleQueue,
   idleQueue,

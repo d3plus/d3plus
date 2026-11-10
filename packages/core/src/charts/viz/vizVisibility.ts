@@ -1,5 +1,6 @@
 import {select} from "d3-selection";
 
+import {cancelIdleWork} from "../features/idleQueue.js";
 import type Viz from "./Viz.js";
 
 interface Target {
@@ -120,15 +121,27 @@ export function vizUnload(viz: Viz): void {
   const parent = viz._select.node()?.parentNode;
   if (parent) viz._resizeObserver?.unobserve(parent);
   viz._tooltipClass.data([]).render();
+  releaseScene(viz);
+  viz._select.selectAll("g.data-table").remove();
+}
+
+/**
+    Stops what a chart's drawn scene keeps running: its idle work (network
+    measures, queued again when it redraws), a pending repaint, and the
+    scene renderer with its DOM, listeners, and timers.
+    @private
+*/
+export function releaseScene(viz: Viz): void {
+  cancelIdleWork(viz);
   if (viz._sceneRepaintRAF != null) {
-    cancelAnimationFrame(viz._sceneRepaintRAF);
+    if (typeof cancelAnimationFrame === "function")
+      cancelAnimationFrame(viz._sceneRepaintRAF);
     viz._sceneRepaintRAF = undefined;
   }
   if (viz._sceneRenderer && typeof viz._sceneRenderer.destroy === "function") {
     viz._sceneRenderer.destroy();
     viz._sceneRenderer = undefined;
   }
-  viz._select.selectAll("g.data-table").remove();
 }
 
 /**

@@ -69,6 +69,12 @@ export class IdleQueue {
       if (!keys.has(key)) this.jobs.delete(key);
   }
 
+  /** Cancels every job and every `beforeNext` callback. */
+  clear(): void {
+    this.jobs.clear();
+    this.before.length = 0;
+  }
+
   /** Runs `fn` at the start of the next idle turn. */
   beforeNext(fn: () => void): void {
     this.before.push(fn);
@@ -106,4 +112,9 @@ export function idleQueue(owner: object): IdleQueue {
   let queue = queues.get(owner);
   if (!queue) queues.set(owner, (queue = new IdleQueue()));
   return queue;
+}
+
+/** Cancels the idle work of `owner` (a chart), if it has any. */
+export function cancelIdleWork(owner: object): void {
+  queues.get(owner)?.clear();
 }
