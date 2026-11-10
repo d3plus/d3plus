@@ -48,9 +48,11 @@ export function installGraphFluent(v: VizInstance & GraphFluent): void {
     return this.schema.links;
   };
   /**
-      The nodes to draw. Accepts an array of node objects, or a URL/filepath
-      string to load them from. `nodesFormat` transforms them; a function
-      passed as a second argument sets it.
+      The nodes to draw. When empty, every data row is a node, linked or
+      not, and so is every link end no data row stands for. Accepts an array
+      of node objects, or a URL/filepath string to load them from.
+      `nodesFormat` transforms them; a function passed as a second argument
+      sets it.
       @type {object[] | string}
   */
   v.nodes = function (this: VizInstance) {

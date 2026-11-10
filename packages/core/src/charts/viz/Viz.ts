@@ -38,7 +38,7 @@ import {handlerDatum, shapeClassTargets} from "./shapeClassTargets.js";
 import {reportHandlerError} from "./reportHandlerError.js";
 import {vizClassNameTargets} from "./vizClassName.js";
 import {themeBackground, unwatchPageTheme} from "./vizTheme.js";
-import {stopVisibilityWatch} from "./vizVisibility.js";
+import {releaseScene, stopVisibilityWatch} from "./vizVisibility.js";
 import {applyClassName, withRootClasses} from "../../utils/className.js";
 import {handleColorScaleHover} from "../features/colorScaleHover.js";
 import {
@@ -814,7 +814,7 @@ export default class Viz extends VizBase {
   }
 
   /**
-      Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads and polling for data, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+      Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads and polling for data, cancels work waiting for idle time, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
   */
   destroy(): this {
     unregisterLink(this as unknown as VizInstance);
@@ -828,20 +828,7 @@ export default class Viz extends VizBase {
     this._tooltipClass.data([]).render();
     select("body").on(`touchstart.${this._uuid}`, null);
     stopVisibilityWatch(this);
-    if (this._sceneRepaintRAF != null) {
-      if (typeof cancelAnimationFrame === "function")
-        cancelAnimationFrame(this._sceneRepaintRAF);
-      this._sceneRepaintRAF = undefined;
-    }
-    // Destroy the active scene renderer (clears its own pointer-rect
-    // listeners, overlay host, canvas/svg DOM, timers).
-    if (
-      this._sceneRenderer &&
-      typeof this._sceneRenderer.destroy === "function"
-    ) {
-      this._sceneRenderer.destroy();
-      this._sceneRenderer = undefined;
-    }
+    releaseScene(this);
     return this;
   }
 }

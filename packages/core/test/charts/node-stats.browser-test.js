@@ -167,6 +167,33 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
+  it(`Network ${renderer}: destroy() cancels the measures still to come`, async () => {
+    const {page, errors, close} = await openPage(box);
+    try {
+      await page.evaluate(draw, ["Network", {nodes, links}, renderer, true]);
+      await page.waitForTimeout(50);
+      assert.ok(
+        await page.evaluate(() => window.__held.length > 0),
+        "idle work waiting",
+      );
+      await page.evaluate(() => window.__viz.destroy());
+      await page.evaluate(release);
+      await page.waitForTimeout(300);
+      assert.strictEqual(
+        await page.evaluate(worked),
+        false,
+        "never worked out",
+      );
+      assert.strictEqual(
+        await page.evaluate(() => window.d3plus.idleQueue(window.__viz).size),
+        0,
+      );
+      assert.deepStrictEqual(errors, [], "no page errors");
+    } finally {
+      await close();
+    }
+  });
+
   it(`Network ${renderer}: arrows split the degree in and out`, async () => {
     await nodeTip(
       "Network",

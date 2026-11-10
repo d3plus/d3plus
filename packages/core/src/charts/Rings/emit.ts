@@ -38,6 +38,7 @@ import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
 import {curvePoints} from "../features/linkLabelPath.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
+import {textHalo} from "../features/textHalo.js";
 import {
   chordArrowNodes,
   cubicPolyline,
@@ -48,6 +49,7 @@ import {polylineMidpoint} from "../features/polyline.js";
 import {uniqueLinkKeys} from "../features/linkKeys.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 export interface RingsEdge {
@@ -277,7 +279,12 @@ interface RingsNodeConfig {
   rotate?: (d: RingsNode) => number;
 }
 
-/** One node group's labels, each rotated out from the center along its ring. */
+/**
+    One node group's labels, each rotated out from the center along its
+    ring. Every label outside its node draws over a halo in the chart's
+    background (see `textHalo`) that keeps it readable where links pass
+    behind it; the center's label, inside its circle, draws without one.
+*/
 function ringsNodeLabels(
   viz: VizInstance,
   c: RingsCtx,
@@ -288,7 +295,7 @@ function ringsNodeLabels(
   if (!values.length || !nodeCfg.label || !nodeCfg.labelBounds) return [];
   const labelFn = nodeCfg.label;
   const boundsFn = nodeCfg.labelBounds;
-  return emitLabels({
+  const labels = emitLabels({
     data: values as DataPoint[],
     label: (d, i) => labelFn(d as RingsNode, i),
     x: d => (d as RingsNode).x,
@@ -302,6 +309,20 @@ function ringsNodeLabels(
       ...nodeCfg.labelConfig,
     },
   });
+  const center = values.find(
+    d => d.id === viz.schema.center && d.labelInside !== false,
+  );
+  const insideKey = center ? `rings-label-${center.id}_` : undefined;
+  const inside = (node: SceneNode) =>
+    insideKey !== undefined &&
+    String(node.key).startsWith(insideKey) &&
+    /^\d+$/.test(String(node.key).slice(insideKey.length));
+  const haloed = textHalo(
+    labels.filter(node => !inside(node)),
+    chartBackground(viz),
+    text => Math.max(2, Math.round((text.font.size ?? 10) / 4)),
+  );
+  return [...haloed, ...labels.filter(inside)];
 }
 
 /** The edge labels, clear of every node and node label. */

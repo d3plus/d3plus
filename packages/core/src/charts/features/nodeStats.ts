@@ -239,6 +239,8 @@ function queueMeasures(viz: VizInstance, memo: Memo, refresh: () => void) {
   const task = measuresTask(memo.stats.nodes, memo.stats.arcs);
   queue.add(key, {
     step(budget) {
+      // A chart taken off the page stops; a tooltip queues it again.
+      if (viz._select?.node()?.isConnected === false) return true;
       if (!task.step(budget)) return false;
       measuresCache(viz).set(key, task.result());
       refresh();

@@ -2,6 +2,7 @@ import {afterEach, it} from "vitest";
 import assert from "assert";
 
 import {
+  cancelIdleWork,
   IDLE_BUDGET,
   IdleQueue,
   idleQueue,
@@ -116,6 +117,23 @@ it("IdleQueue — keep cancels the jobs it doesn't name", async () => {
   assert.strictEqual(idleQueue(ran), idleQueue(ran), "one queue per owner");
 });
 
+it("IdleQueue — clear cancels every job and beforeNext callback; cancelIdleWork clears an owner's", async () => {
+  const queue = new IdleQueue();
+  const ran = [];
+  queue.add("job", {step: () => (ran.push("job"), false)});
+  queue.beforeNext(() => ran.push("before"));
+  queue.clear();
+  assert.strictEqual(queue.size, 0);
+  await tick();
+  await tick();
+  assert.deepStrictEqual(ran, []);
+  const owner = {};
+  idleQueue(owner).add("job", {step: () => false});
+  cancelIdleWork(owner);
+  assert.strictEqual(idleQueue(owner).size, 0);
+  cancelIdleWork({}); // an owner with no queue is a no-op
+});
+
 /** A stand-in chart in a page, with a tooltip that records its renders. */
 function pageViz(schema = {}) {
   globalThis.window = globalThis;
@@ -224,6 +242,24 @@ it("a redraw with new links cancels the run for the old ones", async () => {
     ["Betweenness", "0.17"],
     ["Closeness", "0.75"],
   ]);
+});
+
+it("a chart taken off the page stops its run; a tooltip queues it again", async () => {
+  const viz = pageViz();
+  let connected = false;
+  let checks = 0;
+  viz._select = {node: () => (checks++, {isConnected: connected})};
+  publish(viz, path);
+  // The run is queued and stops in the same idle turn.
+  await until(() => checks > 0 && idleQueue(viz).size === 0);
+  assert.strictEqual(
+    viz.ctx.nodeStatsCache?.size ?? 0,
+    0,
+    "nothing worked out",
+  );
+  connected = true;
+  assert.strictEqual(nodeConnectionRows(viz, nodeData[1])[1][1], STAT_PENDING);
+  await until(() => viz.ctx.nodeStatsCache?.size === 1);
 });
 
 it("a redraw of the same network reuses its measures", async () => {

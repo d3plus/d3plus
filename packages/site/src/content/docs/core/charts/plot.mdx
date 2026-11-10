@@ -26,6 +26,7 @@ import sizeLegend from "~/examples/core/charts/plot/size-legend.js?raw";
 import sizeLegendConfig from "~/examples/core/charts/plot/size-legend-config.js?raw";
 import legendInset from "~/examples/core/charts/plot/legend-inset.js?raw";
 import colorByCategory from "~/examples/core/charts/plot/color-by-category.js?raw";
+import plotBackground from "~/examples/core/charts/plot/plot-background.js?raw";
 
 Creates an x/y plot based on an array of data.
 
@@ -154,5 +155,11 @@ When the points leave a corner of the plot empty, the legend is drawn there, ove
 When `color` is a category that isn't one of the `groupBy` levels, here each country's point is colored by its region, the legend shows one entry per category, labelled by the category. Click an entry to hide every point in that region (click again to bring them back), shift+click it to show only that region, or hover it to highlight the region's points. When `color` returns actual CSS colors there is no category to name, so the legend stays hidden.
 
 <Playground chart="Plot" code={colorByCategory} controls={["color","groupBy","legend","legendPosition"]} />
+
+## Plot background
+
+`backgroundConfig` styles a rectangle drawn behind the gridlines and shapes, filling the area between the axes. It takes the same options as a Rect shape (`fill`, `stroke`, `strokeWidth`, …); the default `fill` of `"transparent"` draws nothing.
+
+<Playground chart="Plot" code={plotBackground} controls={["backgroundConfig"]} />
 
 <ApiReference name="Plot" pkg="core" />

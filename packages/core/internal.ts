@@ -29,10 +29,14 @@ export {applyFunnelLayout} from "./src/charts/Funnel/applyLayout.js";
 export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
-export {applyNetworkLayout} from "./src/charts/Network/applyLayout.js";
+export {
+  applyNetworkLayout,
+  placeLoneNodes,
+} from "./src/charts/Network/applyLayout.js";
 export {
   graphLinkEnd,
   graphNodeId,
+  graphNodeRows,
   resolveGraphLinks,
   resolveGraphNodes,
   zoomToNodeBounds,
@@ -132,6 +136,7 @@ export type {
   NetworkMeasures,
 } from "./src/charts/features/networkMeasures.js";
 export {
+  cancelIdleWork,
   IDLE_BUDGET,
   IdleQueue,
   idleQueue,

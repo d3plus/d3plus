@@ -19,6 +19,7 @@ import {
   emitArcLabels,
   fitLabels,
   graphNodeId,
+  graphNodeRows,
   labelReach,
   labelWidthLimit,
   naturalCompare,
@@ -347,6 +348,29 @@ it("graphNodeId reads a row's groupBy id, else its nodeGroupBy id", () => {
   assert.strictEqual(graphNodeId(viz, {key: "k"}, 0), "k");
 });
 
+it("graphNodeRows: nodes when set, else data rows then unmatched link ends", () => {
+  const nodes = [{id: "a"}];
+  assert.strictEqual(graphNodeRows(graphViz({nodes})), nodes);
+  const ends = {id: "o"};
+  const viz = graphViz(
+    {
+      links: [
+        {source: "a", target: "b"},
+        {source: "b", target: ends},
+        {source: 0, target: 1},
+      ],
+    },
+    {_filteredData: [{id: "a"}, {id: "lonely"}]},
+  );
+  assert.deepStrictEqual(graphNodeRows(viz), [
+    {id: "a"},
+    {id: "lonely"},
+    {id: "b"},
+    ends,
+  ]);
+  assert.strictEqual(graphNodeRows(viz)[3], ends, "an object end is its row");
+});
+
 it("resolveGraphNodes merges data rows onto nodes by id", () => {
   const nodes = [{id: "a", size: 1}, {id: "b", size: 2}, {id: "c"}];
   const viz = graphViz(
@@ -513,6 +537,19 @@ it("textHalo strokes every text node in the halo color, under its fill", () => {
   assert.strictEqual(group.children[0].halo, true);
   assert.strictEqual(plain, rect, "other nodes pass through");
   assert.strictEqual(text.halo, undefined, "the input is untouched");
+  const sized = textHalo(
+    [
+      {...text, font: {size: 20}},
+      {...text, font: {}},
+    ],
+    "#fff",
+    t => (t.font.size ?? 8) / 4,
+  );
+  assert.deepStrictEqual(
+    sized.map(t => t.paint.strokeWidth),
+    [5, 2],
+    "a width per text node",
+  );
 });
 
 it("emitArcLabels draws its labels over a halo in the chart's background on request", () => {

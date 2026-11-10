@@ -3,19 +3,20 @@
     color, painted under the text's fill, that clears the marks just around
     each glyph.
 */
-import type {SceneNode} from "@d3plus/render";
+import type {SceneNode, TextNode} from "@d3plus/render";
 
 /**
     Copies of `nodes` with every text node (at any depth) haloed in `color`,
     `width` pixels wide (half of it past each glyph's edge).
     @param nodes The scene nodes.
     @param color The halo color, usually the chart's background.
-    @param width The halo's stroke width.
+    @param width The halo's stroke width, or a function of each text node
+    that gives it (to scale it with the text's size).
 */
 export function textHalo(
   nodes: SceneNode[],
   color: string,
-  width: number,
+  width: number | ((node: TextNode) => number),
 ): SceneNode[] {
   return nodes.map((node): SceneNode => {
     if (node.type === "group")
@@ -27,7 +28,7 @@ export function textHalo(
       paint: {
         ...node.paint,
         stroke: color,
-        strokeWidth: width,
+        strokeWidth: typeof width === "function" ? width(node) : width,
         strokeOpacity: 1,
       },
     };

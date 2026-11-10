@@ -82,6 +82,27 @@ function nodesFromLinks(
 }
 
 /**
+    The nodes a Sankey without `nodes` draws: one per link end, then each
+    data row with an id no link uses, so a node without links still draws.
+*/
+function nodesFromLinksAndData(
+  v: Parameters<TransformStage>[0]["viz"],
+): DataPoint[] {
+  const nodes = nodesFromLinks((v.schema.links ?? []) as SankeyRawLink[], [
+    v.schema.linksSource as string,
+    v.schema.linksTarget as string,
+  ]);
+  const ids = new Set(nodes.map((n, i) => String(v.schema.nodeId(n, i))));
+  ((v._filteredData ?? []) as DataPoint[]).forEach((d, i) => {
+    const id = v.schema.nodeId(d, i);
+    if (id === undefined || id === null || ids.has(String(id))) return;
+    ids.add(String(id));
+    nodes.push(d);
+  });
+  return nodes;
+}
+
+/**
     Gives each node no drawn link touches a `fixedValue` (see
     `unlinkedNodeValue`), so it draws with a height like the rest.
 */
@@ -168,10 +189,7 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
 
   const _nodes = hasNodes
     ? (v.schema.nodes as DataPoint[])
-    : nodesFromLinks(v.schema.links as SankeyRawLink[], [
-        v.schema.linksSource as string,
-        v.schema.linksTarget as string,
-      ]);
+    : nodesFromLinksAndData(v);
 
   const nodes: SankeyWrappedNode[] = _nodes.map((n, i) => ({
     __d3plus__: true,
