@@ -130,6 +130,16 @@ for (const inert of [true, false]) {
     );
     renderer.destroy();
   });
+
+  it(`SvgRenderer: a group with ${label} decides hit-testing for everything inside it`, () => {
+    const renderer = mounted(SvgRenderer);
+    renderer.drawScene(scene({inert}));
+    assert.deepStrictEqual(
+      svgPicks(renderer, inert),
+      leaves(inert).map(([key, , hit]) => (hit ? key : null)),
+    );
+    renderer.destroy();
+  });
 }
 
 it("CanvasRenderer: an inert group's z-sorted children stay out of hit-testing", () => {
@@ -227,5 +237,17 @@ it("SvgRenderer: only the node that sets `interactive: false` carries pointer-ev
     "inert-optin",
     "inert-deep",
   ]);
+  renderer.destroy();
+});
+
+it("SvgRenderer: an inert leaf does not hand its events to the group around it", () => {
+  const renderer = mounted(SvgRenderer);
+  renderer.drawScene(scene({inert: true}));
+  const picks = [];
+  renderer.on(e => picks.push(e.pick ? e.pick.node.key : null));
+  byKey("live-off").dispatchEvent(
+    new window.MouseEvent("mousemove", {bubbles: true}),
+  );
+  assert.deepStrictEqual(picks, [null]);
   renderer.destroy();
 });
