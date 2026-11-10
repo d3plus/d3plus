@@ -4,6 +4,8 @@ import {csvParse, tsvParse} from "d3-dsv";
 import type {DataPoint} from "./DataPoint.js";
 import cacheKey from "./cacheKey.js";
 import copyPayload from "./copyPayload.js";
+import {inFlightFor, isCurrent} from "./dataCache.js";
+import type {LoadCache} from "./dataCache.js";
 import fold from "./fold.js";
 import validateData from "./validateData.js";
 
@@ -14,20 +16,11 @@ export interface LoadRequestConfig {
   [key: string]: unknown;
 }
 
-/** A chart's data cache: response text by `cacheKey`. */
-export interface LoadCache {
-  get(key: string): unknown;
-  set(key: string, value: unknown): void;
-}
-
 /** A parsed response. */
 export type Payload = DataPoint[] | Record<string, unknown> | string;
 
 /** Receives a request's parsed payload, or the error that ended it. */
 type Receiver = (error: Error | undefined, payload?: Payload) => void;
-
-/** The receivers waiting on each in-flight request, per cache. */
-const inFlight = new WeakMap<LoadCache, Map<string, Receiver[]>>();
 
 /**
   Parses a response body by its URL's file extension (CSV, TSV, plain text, or
@@ -76,7 +69,7 @@ function deliver(receivers: Receiver[], payload: Payload): void {
   each receiver getting its own copy. The response text is cached once it
   parses; a failed request is not.
   @param item The URL or request object.
-  @param cache The chart's data cache, when it caches.
+  @param cache The data cache, when the load caches.
   @param receive Called with the parsed payload, or the error.
   @private
 */
@@ -89,14 +82,13 @@ export default function request(
   const init = (typeof item === "object" ? item : {}) as RequestInit;
   const key = cache ? cacheKey(item) : "";
   const receivers = [receive];
-  if (cache) {
+  const pending = cache ? inFlightFor<Receiver>(cache) : undefined;
+  if (cache && pending) {
     const body = cache.get(key);
     if (typeof body === "string") {
       receive(undefined, parsePayload(url, body));
       return;
     }
-    let pending = inFlight.get(cache);
-    if (!pending) inFlight.set(cache, (pending = new Map()));
     const waiting = pending.get(key);
     if (waiting) {
       waiting.push(receive);
@@ -106,13 +98,14 @@ export default function request(
   }
   /** The receivers of this request, which stops being in flight. */
   const settle = (): Receiver[] => {
-    if (cache) inFlight.get(cache)?.delete(key);
+    pending?.delete(key);
     return receivers;
   };
   text(url, init)
     .then(body => {
       const payload = parsePayload(url, body);
-      if (cache) cache.set(key, body);
+      // A request the cache was cleared during delivers without caching.
+      if (cache && pending && isCurrent(cache, pending)) cache.set(key, body);
       return payload;
     })
     .then(

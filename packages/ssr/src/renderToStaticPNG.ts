@@ -48,6 +48,9 @@ export async function renderToCanvas(
       viz._scenePixelRatio = opts.pixelRatio ?? 2;
       // `_ssr` tells Geomap to composite its ocean/tiles into the scene (canvas).
       viz._ssr = true;
+      // The chart keeps the files it fetches to itself, so one server render
+      // never draws another's (possibly stale or per-user) data.
+      viz._lrucache ??= new Map();
       viz
         .select(container)
         .renderer("canvas")

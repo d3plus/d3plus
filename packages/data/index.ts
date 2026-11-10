@@ -2,6 +2,7 @@ export type {DataPoint} from "./src/DataPoint.js";
 export type {MergedDataPoint} from "./src/merge.js";
 export {default as addToQueue} from "./src/addToQueue.js";
 export {default as cacheKey} from "./src/cacheKey.js";
+export {default as clearDataCache} from "./src/dataCache.js";
 export {default as concat} from "./src/concat.js";
 export {default as fold} from "./src/fold.js";
 export {default as isData} from "./src/isData.js";

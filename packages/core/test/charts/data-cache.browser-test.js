@@ -237,15 +237,84 @@ it("data cache: a failed request is not cached, so loading it again retries", as
   });
 });
 
-it("data cache: each chart has its own cache", async () => {
+for (const renderer of ["svg", "canvas"]) {
+  it(`data cache (${renderer}): charts loading one URL at once share one request, each with its own rows`, async () => {
+    window.__renderer = renderer;
+    const out = await render(
+      '<div id="c" style="width:400px;height:300px"></div><div id="d" style="width:400px;height:300px"></div>',
+      async () => {
+        const server = serve({"/__cache/shared.json": rows(1, 2)});
+        const charts = [0, 1, 2, 3].map(i => {
+          const viz = bar().select(i % 2 ? "#d" : "#c");
+          // The first chart's formatter changes its rows in place.
+          return i === 0
+            ? viz.data("/__cache/shared.json", data => {
+                data.forEach(d => (d.value *= 10));
+                return data;
+              })
+            : viz.data("/__cache/shared.json");
+        });
+        await Promise.all(charts.map(draw));
+        const requests = server.requests["/__cache/shared.json"];
+        const later = bar().data("/__cache/shared.json");
+        await draw(later);
+        return {
+          requests,
+          laterRequests: server.requests["/__cache/shared.json"] - requests,
+          values: charts.map(values),
+          later: values(later),
+        };
+      },
+    );
+    assert.deepStrictEqual(out, {
+      requests: 1,
+      laterRequests: 0,
+      values: [
+        {a: 10, b: 20},
+        {a: 1, b: 2},
+        {a: 1, b: 2},
+        {a: 1, b: 2},
+      ],
+      later: {a: 1, b: 2},
+    });
+  });
+}
+
+it("data cache: cache(false) on one chart leaves the others sharing", async () => {
   window.__renderer = "svg";
   const out = await render(BODY, async () => {
-    const server = serve({"/__cache/own.json": rows(1, 2)});
-    await draw(bar().data("/__cache/own.json"));
-    await draw(bar().data("/__cache/own.json"));
-    return server.requests["/__cache/own.json"];
+    const server = serve({"/__cache/mixed.json": rows(1, 2)});
+    await Promise.all([
+      draw(bar().data("/__cache/mixed.json")),
+      draw(bar().data("/__cache/mixed.json")),
+      draw(bar().cache(false).data("/__cache/mixed.json")),
+    ]);
+    const first = server.requests["/__cache/mixed.json"];
+    await draw(bar().cache(false).data("/__cache/mixed.json"));
+    await draw(bar().data("/__cache/mixed.json"));
+    return {first, total: server.requests["/__cache/mixed.json"]};
   });
-  assert.strictEqual(out, 2);
+  assert.deepStrictEqual(out, {first: 2, total: 3});
+});
+
+it("data cache: clearDataCache makes the next chart fetch again", async () => {
+  window.__renderer = "svg";
+  const out = await render(BODY, async () => {
+    const server = serve({"/__cache/clear.json": rows(1, 2)});
+    await draw(bar().data("/__cache/clear.json"));
+    await draw(bar().data("/__cache/clear.json"));
+    const cached = server.requests["/__cache/clear.json"];
+    window.d3plus.clearDataCache();
+    server.routes["/__cache/clear.json"] = rows(3, 4);
+    const viz = bar().data("/__cache/clear.json");
+    await draw(viz);
+    return {
+      cached,
+      total: server.requests["/__cache/clear.json"],
+      values: values(viz),
+    };
+  });
+  assert.deepStrictEqual(out, {cached: 1, total: 2, values: {a: 3, b: 4}});
 });
 
 it("data cache: links, nodes, topojson and fitObject naming one URL share its request", async () => {

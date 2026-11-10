@@ -46,34 +46,6 @@ function debounce<A extends unknown[]>(
 }
 
 /**
-    Minimal LRU cache backed by a Map (insertion-order iteration enables O(1) eviction).
-    Only .get() and .set() are used by Viz.
-    @private
-*/
-class LRU {
-  private _cap: number;
-  private _map: Map<string, unknown>;
-
-  constructor(capacity: number) {
-    this._cap = capacity;
-    this._map = new Map();
-  }
-  get(key: string): unknown {
-    if (!this._map.has(key)) return undefined;
-    const val = this._map.get(key);
-    this._map.delete(key);
-    this._map.set(key, val);
-    return val;
-  }
-  set(key: string, val: unknown): void {
-    this._map.delete(key);
-    if (this._map.size >= this._cap)
-      this._map.delete(this._map.keys().next().value!);
-    this._map.set(key, val);
-  }
-}
-
-/**
     Renderer backend, accessibility, attribution, and back-button defaults.
     @private
 */
@@ -236,7 +208,6 @@ function initMessageDefaults(viz: Viz): void {
   </div>`;
 
   viz.schema.loadingMessage = true;
-  viz._lrucache = new LRU(10);
   viz._messageClass = new Message();
   viz.schema.messageMask = "rgba(0, 0, 0, 0.05)";
   viz.schema.messageStyle = {
