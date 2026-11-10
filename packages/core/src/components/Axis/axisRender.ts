@@ -313,6 +313,7 @@ export function buildTickData(
               },
         rotate: data ? data.rotate : false,
         angle: data ? data.angle : 0,
+        cut: !!data?.cut,
         lineHeight: data?.lineHeight,
         size:
           labels.includes(d) ||
@@ -372,6 +373,9 @@ export function configureTickShape(
     .duration(axis.schema.duration)
     .labelConfig({
       ellipsis: axisLabelEllipsis,
+      // A label measured cut short mid-word (see `cutLabel`) is drawn so.
+      truncateWord: (d: DataPoint) =>
+        !!((d.cut !== undefined ? d : d.data) as DataPoint | undefined)?.cut,
       // Slanted labels wrap between words, as they were measured.
       ...(axis._labelRotation && axis._labelSlant
         ? {split: wholeWordSplit}

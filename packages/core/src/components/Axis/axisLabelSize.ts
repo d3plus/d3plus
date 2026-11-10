@@ -6,11 +6,12 @@
 import {max, min} from "d3-array";
 
 import {textWrap} from "@d3plus/text";
+import type {TextWrapGenerator, TextWrapResult} from "@d3plus/text";
 
 import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
-import {labelEllipsis} from "./axisDefaults.js";
+import {axisLabelEllipsis, labelEllipsis} from "./axisDefaults.js";
 import {slantedWrapSize} from "./axisLabelAngle.js";
 import type {AxisTextDatum} from "./axisLayoutLabels.js";
 import {axisMaxSize} from "./axisMaxSize.js";
@@ -29,6 +30,55 @@ export interface LabelLayoutCtx {
   ownSpace?: boolean;
   /** The width slanted labels wrap at (see `slantedLineWidth`). */
   slantWidth?: number;
+  /**
+      Whether a flat label too long for its share stays within it, cut short
+      (see `cutLabel`), rather than being measured across the axis.
+  */
+  keepShare?: boolean;
+}
+
+/**
+    Cuts a label short to fit `width`: for a label whose first word is wider
+    than its room, which wraps to nothing. The word is cut to as many
+    characters as fit with the ellipsis after them (the wrap's own, else
+    `axisLabelEllipsis`), on one line; with no room for even one, the label
+    has no lines.
+*/
+export function cutLabel(
+  wrap: TextWrapGenerator,
+  text: string,
+  width: number,
+): TextWrapResult {
+  return wrap
+    .width(width)
+    .truncateWord(true)
+    .ellipsis(wrap.ellipsis() ?? axisLabelEllipsis)(text);
+}
+
+/**
+    Measures a flat label whose first word is wider than its room (`space`),
+    which wraps to nothing there. On a horizontal axis, where `space` is the
+    label's share of the axis: across the whole axis (`across` wide) instead,
+    so the overlap pass thins the labels out, or when it is too wide for that
+    as well, cut short within its share (see `cutLabel`). Labels in their own
+    shares are cut only when none fits whole (`keepShare`, see
+    `fitOwnSpaces`). On a vertical axis, where `space` is how far labels
+    reach out from the axis, the label is cut short within it (`keepShare`).
+*/
+export function longWordLabel(
+  wrap: TextWrapGenerator,
+  text: string,
+  space: number,
+  across: number,
+  ctx: Pick<LabelLayoutCtx, "keepShare" | "ownSpace">,
+): {res: TextWrapResult; cut: boolean} {
+  if (!ctx.keepShare) {
+    const wide = wrap.width(across)(text);
+    if (ctx.ownSpace || wide.lines.some((l: string) => l !== ""))
+      return {res: wide, cut: false};
+  }
+  const res = cutLabel(wrap, text, space);
+  return {res, cut: res.lines.length > 0};
 }
 
 /** How far labels may reach out from the axis, past its ticks and margins. */
@@ -59,7 +109,31 @@ export type LabelSize = {
   width: number;
   height: number;
   fits: boolean;
+  /** Whether the label is cut short mid-word to fit (see `cutLabel`). */
+  cut: boolean;
 };
+
+/** What a label's measurement depends on, to tell two labels measure alike. */
+function labelSizeKey(
+  text: string,
+  datum: AxisTextDatum,
+  ctx: LabelLayoutCtx,
+): string {
+  const {fF, fP, fS, lineHeight, rotate, space, angle, slant, room} = datum;
+  return JSON.stringify([
+    text,
+    fF,
+    fP,
+    fS,
+    lineHeight,
+    rotate,
+    slant && angle,
+    slant && ctx.slantWidth,
+    space,
+    room,
+    ctx.keepShare,
+  ]);
+}
 
 /**
     Wraps + measures a single label, returning its sized text result. Given a
@@ -83,20 +157,7 @@ export function calculateLabelSize(
   const slanted = slant
     ? slantedWrapSize(angle!, horizontal, depth, space, lineHeight)
     : undefined;
-  const key =
-    cache &&
-    JSON.stringify([
-      text,
-      fF,
-      fP,
-      fS,
-      lineHeight,
-      rotate,
-      slant && angle,
-      slant && ctx.slantWidth,
-      space,
-      datum.room,
-    ]);
+  const key = cache && labelSizeKey(text, datum, ctx);
   const cached = key ? cache!.get(key) : undefined;
   if (cached)
     return {
@@ -128,8 +189,10 @@ export function calculateLabelSize(
     width: number;
     height: number;
     fits: boolean;
+    cut: boolean;
   };
   let res: Sized, fits: boolean;
+  let cut = false;
   if (ctx.wholeLine) {
     // Measured across the whole axis (`maxSize` caps its depth, not its
     // length), a label that still breaks onto a second line can't be drawn
@@ -145,19 +208,15 @@ export function calculateLabelSize(
       res,
       () => wrap.split(wholeWordSplit)(text) as Sized,
     ).fits;
-    // A label wider than its share of the axis wraps to nothing; measure it
-    // across the whole axis instead, so the overlap pass thins the labels out.
-    if (
-      horizontal &&
-      !rotate &&
-      `${text}`.trim() &&
-      !res.lines.some((l: string) => l !== "")
-    ) {
-      wrap.width(wSize! - p * 2);
-      res = wrap(text) as Sized;
-    }
+    if (!rotate && `${text}`.trim() && !res.lines.some((l: string) => l !== ""))
+      ({res, cut} = (
+        horizontal
+          ? longWordLabel(wrap, text, space, wSize! - p * 2, ctx)
+          : longWordLabel(wrap, text, depth, depth, {keepShare: true})
+      ) as {res: Sized; cut: boolean});
   }
   res.fits = fits;
+  res.cut = cut;
   res.lines = res.lines.filter((d: string) => d !== "");
   res.width = res.lines.length ? Math.ceil(max(res.widths)!) : 0;
   res.height = res.lines.length
@@ -170,6 +229,7 @@ export function calculateLabelSize(
       width: res.width,
       height: res.height,
       fits,
+      cut,
     });
   return res;
 }

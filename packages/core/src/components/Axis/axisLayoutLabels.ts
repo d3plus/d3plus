@@ -69,6 +69,8 @@ export interface AxisTextDatum {
       cut off, and none broken across lines with a hyphen.
   */
   fits: boolean;
+  /** Whether the label is drawn cut short mid-word (see `cutLabel`). */
+  cut?: boolean;
   /** Whether the overlap pass hides the label to make room for its neighbors. */
   truncated?: boolean;
   offset?: number;
@@ -265,6 +267,7 @@ export function createTextData(
     p,
     tickFormat,
     wholeLine,
+    ownSpace,
   };
   let textData = baseTextData(axis, labels);
   const maxSpace = maxLabelSpace(axis, textData, rangeOuter);
@@ -286,12 +289,13 @@ export function createTextData(
   const size = (
     datum: AxisTextDatum,
     space = (spaces ? spaces[datum.i] : maxSpace) - datum.fP * 2,
+    keepShare = false,
   ): AxisTextDatum => {
     datum.space = space;
-    const {lines, widths, width, height, fits} = calculateLabelSize(
+    const {lines, widths, width, height, fits, cut} = calculateLabelSize(
       axis,
       datum,
-      labelCtx,
+      keepShare ? {...labelCtx, keepShare} : labelCtx,
       measured,
     );
     // A label measured wider than its share (see `calculateLabelSize`) is
@@ -302,7 +306,7 @@ export function createTextData(
     // own height, leaving the overlap pass to thin out its neighbors.
     else if (!horizontal && !datum.rotate && height - datum.fP > datum.space)
       datum.space = Math.ceil(height);
-    return Object.assign(datum, {lines, widths, width, height, fits});
+    return Object.assign(datum, {lines, widths, width, height, fits, cut});
   };
   textData = textData.map((datum: AxisTextDatum) => size(datum));
 
@@ -326,7 +330,7 @@ export function createTextData(
         : undefined,
     );
   else if (spaces && horizontal && !axis._labelRotation)
-    fitOwnSpaces(textData, spaces, axis._d3Scale!.range(), size);
+    fitOwnSpaces(textData, spaces, axis._d3Scale!.range(), size, rangeOuter);
   else if (wholeLine) thinGreedilyShown(textData, horizontal, show);
   else thinGreedily(textData, horizontal);
 

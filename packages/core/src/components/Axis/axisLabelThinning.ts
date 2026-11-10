@@ -53,15 +53,25 @@ export function labelExtent(
     scale's `range`, each tick at its slot's center: one bar each, for one
     label per bar), so where two narrow neighbors can't both fit, the
     narrower bar's label is the one hidden; every other label stays as it
-    is. `resize` measures a label again at a given width.
+    is. A label with none shown beside it widens no further than the ends
+    of the axis (`bounds`, the scale's `range` by default) allow, centered
+    on its tick. When no label fits whole, each is drawn in its own share
+    instead, cut short if need be. `resize` measures a label again at a
+    given width, within that width when `keepShare`.
 */
 export function fitOwnSpaces(
   textData: AxisTextDatum[],
   spaces: number[],
   range: number[],
-  resize: (datum: AxisTextDatum, space: number) => AxisTextDatum,
+  resize: (
+    datum: AxisTextDatum,
+    space: number,
+    keepShare?: boolean,
+  ) => AxisTextDatum,
+  bounds: number[] = range,
 ): void {
   const share = (t: AxisTextDatum) => spaces[t.i] - t.fP * 2;
+  const around = (t: AxisTextDatum) => roomAround(t.position, bounds);
   const pending = new Set(textData.filter((t: AxisTextDatum) => !t.fits));
   // A label still waiting to widen keeps to its own share for now.
   const extent = (t: AxisTextDatum) =>
@@ -82,11 +92,9 @@ export function fitOwnSpaces(
           2 *
           (Math.abs(t.position - datum.position) - extent(t) / 2 - datum.fP),
       );
-    // With no label shown beside it, a label may span the whole range.
+    // With no label shown beside it, a label may reach the nearer end of the axis.
     const space = Math.floor(
-      widths.length
-        ? Math.min(...widths)
-        : Math.max(...range) - Math.min(...range),
+      widths.length ? Math.min(...widths) : around(datum),
     );
     if (space > share(datum)) resize(datum, space);
     return datum.fits;
@@ -108,6 +116,23 @@ export function fitOwnSpaces(
       if (!widen(datum, false)) widen(datum, true);
       datum.truncated = !datum.fits;
     });
+  if (textData.every((t: AxisTextDatum) => t.truncated))
+    textData.forEach((datum: AxisTextDatum) => {
+      const space = Math.floor(Math.min(share(datum), around(datum)));
+      if (space <= 0) return;
+      resize(datum, space, true);
+      datum.truncated = !datum.lines.length;
+    });
+}
+
+/**
+    The widest a label centered on its tick at `position` can be without
+    reaching past either end of `bounds` (0 for a tick outside them).
+*/
+export function roomAround(position: number, bounds: number[]): number {
+  const lo = Math.min(...bounds);
+  const hi = Math.max(...bounds);
+  return Math.max(0, 2 * Math.min(position - lo, hi - position));
 }
 
 /**

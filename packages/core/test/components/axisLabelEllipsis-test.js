@@ -93,6 +93,34 @@ it("fitLabelRoom wraps cut labels again until the widest label holds", () => {
   assert.strictEqual(none.room, 0);
 });
 
+it("fitLabelRoom records a label cut short in the box", () => {
+  // Cut short in any box narrower than its 100px wrap.
+  const measure = t =>
+    t.room < 100
+      ? {
+          lines: ["Professio..."],
+          widths: [78],
+          width: 78,
+          height: 15,
+          cut: true,
+        }
+      : {lines: t.lines, widths: [100], width: 100, height: 30, cut: false};
+  const long = {
+    lines: ["Professional,", "Scientific"],
+    width: 100,
+    fits: false,
+  };
+  const short = {lines: ["Health Care"], width: 80, fits: true};
+  fitLabelRoom([long, short], measure);
+  assert.strictEqual(long.room, 100, "the widest label holds the box");
+  assert.strictEqual(long.cut, false);
+  long.width = 90;
+  fitLabelRoom([long, short], measure);
+  assert.strictEqual(long.room, 80, "narrowed to the widest label left");
+  assert.strictEqual(long.cut, true, "drawn cut short, as measured");
+  assert.deepStrictEqual(long.lines, ["Professio..."]);
+});
+
 it("a vertical axis's labels wrap in the box they are painted in", () => {
   const a = axis({});
   const {textData} = measureAxis(a);

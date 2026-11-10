@@ -311,17 +311,15 @@ for (const renderer of ["svg", "canvas"])
           `the scale takes at most a third (${limited.margin[position]})`,
         );
         assertInMargin(limited, position);
-        // No label fits whole in that third: each is cut short, and a
-        // bucketed bar's, a bucket wide each at the top or bottom, are left
-        // out.
+        // No label fits whole in that third: each is cut short to fit,
+        // a bucketed bar's within its bucket at the top or bottom.
+        assert.ok(
+          limited.labels.length > 0,
+          `labeled (${limited.labels.join(" | ")})`,
+        );
         assert.ok(
           limited.labels.every(l => l.endsWith("...")),
           `its labels are cut short (${limited.labels.join(" | ")})`,
-        );
-        assert.strictEqual(
-          limited.labels.length > 0,
-          !(name === "bucketed bar" && wide(position)),
-          `labeled (${limited.labels.join(" | ")})`,
         );
       });
 
