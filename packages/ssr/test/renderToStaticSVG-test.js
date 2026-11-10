@@ -9,6 +9,7 @@ import {
   Gantt,
   Hexbin,
   LinePlot,
+  Network,
   Scatter,
   SlopeChart,
   Streamgraph,
@@ -292,4 +293,30 @@ it("renderToStaticSVG labels fall back down the font list", async () => {
     mono.includes(`font-family="monospace, 'Courier New', sans-serif"`),
     "a label names the families after the one it measured",
   );
+});
+
+it("renderToStaticSVG leaves a Network's node measures to its tooltips, worked out at once", async () => {
+  const nodes = ["a", "b", "c", "d"].map((id, i) => ({id, x: i * 50, y: 0}));
+  const viz = new Network().nodes(nodes).links([
+    {source: "a", target: "b"},
+    {source: "b", target: "c"},
+    {source: "c", target: "d"},
+  ]);
+  const svg = await renderToStaticSVG(viz, {width: 400, height: 300});
+  assert.ok(svg.startsWith("<svg"));
+  await new Promise(r => setTimeout(r, 50));
+  assert.strictEqual(viz.ctx.nodeStatsCache, undefined, "nothing in idle time");
+  let node;
+  const walk = n => {
+    if (!node && n.type === "circle" && n.datum?.id === "b") node = n.datum;
+    (n.children || []).forEach(walk);
+  };
+  (viz._chartScene || []).forEach(walk);
+  assert.ok(node, "node b is drawn");
+  assert.deepStrictEqual(viz.schema.tooltipConfig.tbody(node, 1), [
+    ["Degree", "2"],
+    ["Betweenness", "0.67"],
+    ["Closeness", "0.75"],
+    ["Cluster", "b cluster"],
+  ]);
 });

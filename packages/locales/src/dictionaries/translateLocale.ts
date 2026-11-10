@@ -5,6 +5,7 @@ export interface TranslationStrings {
   Back: string;
   Band: string;
   "Bar Total": string;
+  Betweenness: string;
   "Brush Zoom": string;
   Change: string;
   Chart: string;
@@ -16,6 +17,8 @@ export interface TranslationStrings {
   "Click to Show All": string;
   "Click to Zoom Out": string;
   Close: string;
+  Closeness: string;
+  Cluster: string;
   Comparison: string;
   Connections: string;
   Count: string;
@@ -24,6 +27,7 @@ export interface TranslationStrings {
   day: string;
   days: string;
   Decrease: string;
+  Degree: string;
   Density: string;
   "Double-click or Escape to Clear": string;
   Download: string;
@@ -36,6 +40,7 @@ export interface TranslationStrings {
   From: string;
   High: string;
   "Hold Shift and use the arrow keys to rotate the globe.": string;
+  "In-degree": string;
   Increase: string;
   "interactive chart": string;
   "JPG image": string;
@@ -61,6 +66,7 @@ export interface TranslationStrings {
   "of first": string;
   "of previous": string;
   Open: string;
+  "Out-degree": string;
   "Percent of Total": string;
   "PNG image": string;
   Polynomial: string;
@@ -115,6 +121,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Band: "\u0646\u0637\u0627\u0642",
     "Bar Total":
       "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0639\u0645\u0648\u062f",
+    Betweenness:
+      "\u0645\u0631\u0643\u0632\u064a\u0629 \u0627\u0644\u0628\u064a\u0646\u064a\u0629",
     "Brush Zoom":
       "\u062a\u0643\u0628\u064a\u0631 \u0628\u0627\u0644\u062a\u062d\u062f\u064a\u062f",
     Change: "\u0627\u0644\u062a\u063a\u064a\u064a\u0631",
@@ -132,6 +140,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out":
       "\u0627\u0646\u0642\u0631 \u0644\u0644\u062a\u0635\u063a\u064a\u0631",
     Close: "\u0627\u0644\u0625\u063a\u0644\u0627\u0642",
+    Closeness:
+      "\u0645\u0631\u0643\u0632\u064a\u0629 \u0627\u0644\u0642\u0631\u0628",
+    Cluster: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0629",
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
     Connections: "\u0627\u0644\u0627\u062a\u0635\u0627\u0644\u0627\u062a",
     Count: "\u0627\u0644\u0639\u062f\u062f",
@@ -142,6 +153,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     day: "\u064a\u0648\u0645",
     days: "\u0623\u064a\u0627\u0645",
     Decrease: "\u0627\u0646\u062e\u0641\u0627\u0636",
+    Degree: "\u0627\u0644\u062f\u0631\u062c\u0629",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     "Double-click or Escape to Clear":
       "\u0627\u0646\u0642\u0631 \u0646\u0642\u0631\u064b\u0627 \u0645\u0632\u062f\u0648\u062c\u064b\u0627 \u0623\u0648 \u0627\u0636\u063a\u0637 Esc \u0644\u0644\u0645\u0633\u062d",
@@ -157,6 +169,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062f\u0648\u064a\u0631 \u0627\u0644\u0643\u0631\u0629 \u0627\u0644\u0623\u0631\u0636\u064a\u0629.",
+    "In-degree":
+      "\u0627\u0644\u062f\u0631\u062c\u0629 \u0627\u0644\u062f\u0627\u062e\u0644\u0629",
     Increase: "\u0632\u064a\u0627\u062f\u0629",
     "interactive chart":
       "\u0645\u062e\u0637\u0637 \u062a\u0641\u0627\u0639\u0644\u064a",
@@ -190,6 +204,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "of first": "\u0645\u0646 \u0627\u0644\u0623\u0648\u0644\u0649",
     "of previous": "\u0645\u0646 \u0627\u0644\u0633\u0627\u0628\u0642\u0629",
     Open: "\u0627\u0644\u0627\u0641\u062a\u062a\u0627\u062d",
+    "Out-degree":
+      "\u0627\u0644\u062f\u0631\u062c\u0629 \u0627\u0644\u062e\u0627\u0631\u062c\u0629",
     "Percent of Total":
       "\u0627\u0644\u0646\u0633\u0628\u0629 \u0645\u0646 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a",
     "PNG image": "\u0635\u0648\u0631\u0629 PNG",
@@ -249,6 +265,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Back: "Atr\u00e1s",
     Band: "Banda",
     "Bar Total": "Total de la Barra",
+    Betweenness: "Intermediaci\u00f3n",
     "Brush Zoom": "Zoom de Selecci\u00f3n",
     Change: "Variaci\u00f3n",
     Chart: "Gr\u00e1fico",
@@ -260,6 +277,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show All": "Clic para Mostrar Todo",
     "Click to Zoom Out": "Clic para Alejar",
     Close: "Cierre",
+    Closeness: "Cercan\u00eda",
+    Cluster: "Grupo",
     Comparison: "Comparaci\u00f3n",
     Connections: "Conexiones",
     Count: "Recuento",
@@ -268,6 +287,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     day: "d\u00eda",
     days: "d\u00edas",
     Decrease: "Disminuci\u00f3n",
+    Degree: "Grado",
     Density: "Densidad",
     "Double-click or Escape to Clear": "Doble Clic o Escape para Borrar",
     Download: "Descargar",
@@ -281,6 +301,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     High: "M\u00e1ximo",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenga pulsada May\u00fas y use las flechas para girar el globo.",
+    "In-degree": "Grado de entrada",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interactivo",
     "JPG image": "Imagen JPG",
@@ -306,6 +327,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "of first": "de la primera",
     "of previous": "de la anterior",
     Open: "Apertura",
+    "Out-degree": "Grado de salida",
     "Percent of Total": "Porcentaje del Total",
     "PNG image": "Imagen PNG",
     Polynomial: "Polin\u00f3mica",
@@ -353,6 +375,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Back: "Voltar",
     Band: "Faixa",
     "Bar Total": "Total da Barra",
+    Betweenness: "Intermedia\u00e7\u00e3o",
     "Brush Zoom": "Zoom de Seleção",
     Change: "Varia\u00e7\u00e3o",
     Chart: "Gr\u00e1fico",
@@ -364,6 +387,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show All": "Clique para Mostrar Tudo",
     "Click to Zoom Out": "Clique para Afastar",
     Close: "Fechamento",
+    Closeness: "Proximidade",
+    Cluster: "Grupo",
     Comparison: "Compara\u00e7\u00e3o",
     Connections: "Conex\u00f5es",
     Count: "Contagem",
@@ -372,6 +397,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     day: "dia",
     days: "dias",
     Decrease: "Redu\u00e7\u00e3o",
+    Degree: "Grau",
     Density: "Densidade",
     "Double-click or Escape to Clear": "Clique Duplo ou Esc para Limpar",
     Download: "Baixar",
@@ -385,6 +411,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     High: "M\u00e1xima",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenha Shift pressionada e use as setas para girar o globo.",
+    "In-degree": "Grau de entrada",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interativo",
     "JPG image": "Imagem JPG",
@@ -410,6 +437,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "of first": "da primeira",
     "of previous": "da anterior",
     Open: "Abertura",
+    "Out-degree": "Grau de sa\u00edda",
     "Percent of Total": "Porcentagem do Total",
     "PNG image": "Imagem PNG",
     Polynomial: "Polinomial",
@@ -459,6 +487,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Back: "\u540e\u9762",
     Band: "\u533a\u95f4",
     "Bar Total": "\u67f1\u603b\u8ba1",
+    Betweenness: "\u4e2d\u4ecb\u4e2d\u5fc3\u6027",
     "Brush Zoom": "\u6846\u9009\u7f29\u653e",
     Change: "\u6da8\u8dcc\u5e45",
     Chart: "\u56fe\u8868",
@@ -470,6 +499,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show All": "\u5355\u51fb\u663e\u793a\u5168\u90e8",
     "Click to Zoom Out": "\u5355\u51fb\u7f29\u5c0f",
     Close: "\u6536\u76d8",
+    Closeness: "\u63a5\u8fd1\u4e2d\u5fc3\u6027",
+    Cluster: "\u96c6\u7fa4",
     Comparison: "\u5bf9\u6bd4",
     Connections: "\u8fde\u63a5\u6570",
     Count: "\u8ba1\u6570",
@@ -478,6 +509,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     day: "\u5929",
     days: "\u5929",
     Decrease: "\u51cf\u5c11",
+    Degree: "\u5ea6\u6570",
     Density: "\u5bc6\u5ea6",
     "Double-click or Escape to Clear":
       "\u53cc\u51fb\u6216\u6309 Esc \u6e05\u9664",
@@ -492,6 +524,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     High: "\u6700\u9ad8",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u65b9\u5411\u952e\u65cb\u8f6c\u5730\u7403\u4eea\u3002",
+    "In-degree": "\u5165\u5ea6",
     Increase: "\u589e\u52a0",
     "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
     "JPG image": "JPG \u56fe\u7247",
@@ -517,6 +550,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "of first": "\u5360\u7b2c\u4e00\u9636\u6bb5",
     "of previous": "\u5360\u4e0a\u4e00\u9636\u6bb5",
     Open: "\u5f00\u76d8",
+    "Out-degree": "\u51fa\u5ea6",
     "Percent of Total": "\u5360\u603b\u6570\u767e\u5206\u6bd4",
     "PNG image": "PNG \u56fe\u7247",
     Polynomial: "\u591a\u9879\u5f0f",

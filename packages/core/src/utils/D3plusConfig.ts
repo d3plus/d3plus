@@ -1849,6 +1849,28 @@ export interface D3plusConfig {
   */
   nodeTooltipLinks?: number | false;
   /**
+      Network, Rings, ArcDiagram, and Sankey: the network measures a node's
+      tooltip lists. `true` (the default) lists them all, `false` none, or
+      an Array picks some, in the order to list them: `"degree"` (its number
+      of links, as "In-degree" and "Out-degree" when the chart draws arrows
+      and in Sankey; it replaces the "Connections" count), `"betweenness"`
+      (the share of shortest paths between other nodes that pass through
+      it, 0 to 1), `"closeness"` (how near it is to the nodes it can reach,
+      0 to 1), and `"cluster"` (the name of its cluster, when clusters color
+      the chart). Betweenness and closeness are worked out while the browser
+      is idle after the chart draws, and an open tooltip fills them in once
+      they are ready.
+  */
+  nodeTooltipStats?:
+    boolean | ("degree" | "betweenness" | "closeness" | "cluster")[];
+  /**
+      Network, Rings, ArcDiagram, and Sankey: settings for the network
+      measures in node tooltips. `weighted: true` counts a strong link (by
+      `linkSize`, or Sankey's `value`) as a shorter step than a weak one for
+      betweenness and closeness; by default every link is one step.
+  */
+  nodeTooltipStatsConfig?: {weighted?: boolean};
+  /**
       Ocean color for geomaps (any CSS value including 'transparent'), or a
       `{light, dark}` pair chosen by the chart's `theme` (the page behind it
       in `"auto"` mode). Defaults to the default basemap's own water colors.

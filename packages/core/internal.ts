@@ -122,6 +122,37 @@ export type {
   LinkGraph,
   LinkMeta,
 } from "./src/charts/features/linkInteraction.js";
+export {
+  measuresTask,
+  networkMeasures,
+} from "./src/charts/features/networkMeasures.js";
+export type {
+  MeasureArc,
+  MeasuresTask,
+  NetworkMeasures,
+} from "./src/charts/features/networkMeasures.js";
+export {
+  IDLE_BUDGET,
+  IdleQueue,
+  idleQueue,
+  requestIdle,
+} from "./src/charts/features/idleQueue.js";
+export type {IdleJob} from "./src/charts/features/idleQueue.js";
+export {
+  NODE_STATS,
+  nodeStatRows,
+  nodeStatsFields,
+  nodeStatsGraph,
+  nodeStatsInIdle,
+  scheduleNodeStats,
+  STAT_PENDING,
+  nodeTooltipStatList,
+} from "./src/charts/features/nodeStats.js";
+export type {
+  NodeStat,
+  NodeStatsGraph,
+  StatLink,
+} from "./src/charts/features/nodeStats.js";
 export {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
 export {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
 export {applyPackLayout} from "./src/charts/Pack/applyLayout.js";

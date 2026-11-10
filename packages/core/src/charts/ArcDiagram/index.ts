@@ -27,6 +27,7 @@ import {isPointShape} from "../viz/nearestHover.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {linkMeta, linkTooltipConfig} from "../features/linkInteraction.js";
+import {nodeStatsFields} from "../features/nodeStats.js";
 import {isSelfLoopMark} from "../features/selfLoops.js";
 import {installGraphFluent} from "../Network/graphFluent.js";
 import {clusterFields, installClusters} from "../Network/clusters.js";
@@ -149,6 +150,7 @@ export const arcDiagramDef: ChartDefinition = {
         to 3 when the links differ in `linkSize`, and none otherwise.
     */
     {key: "nodeTooltipLinks"},
+    ...nodeStatsFields(),
     /**
         The order of the nodes along the line: `"data"` (the default, their
         order in `nodes`), `"label"`, `"group"`, `"degree"` (most connected

@@ -275,7 +275,7 @@ for (const renderer of ["svg", "canvas"]) {
         await page.evaluate(() => window.__viz.nodeTooltipLinks(3));
         await hover(page, center);
         const tip = await page.evaluate(tooltip);
-        assert.ok(tip.includes("Connections2"), `counts the loop once: ${tip}`);
+        assert.ok(tip.includes("Degree2"), `counts the loop once: ${tip}`);
         assert.ok(tip.includes("↻Delta"), `lists the loop: ${tip}`);
 
         const visited = await page.evaluate(async () => {

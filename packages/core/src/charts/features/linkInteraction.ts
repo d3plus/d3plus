@@ -20,6 +20,8 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 import {colorCategory} from "./legendCategory.js";
+import {nodeStatRows, scheduleNodeStats} from "./nodeStats.js";
+import type {StatLink} from "./nodeStats.js";
 
 /**
     A link as accessors and tooltips receive it: the link's own fields, with
@@ -140,6 +142,12 @@ export function publishLinkGraph(
     if (n.data && typeof n.data === "object")
       entries.set(n.data, {id: n.id, graph});
   viz.ctx.linkGraph = graph;
+  scheduleNodeStats(
+    viz,
+    graph,
+    () => statLinks(graph),
+    () => refreshNodeTooltip(viz),
+  );
   return graph;
 }
 
@@ -370,10 +378,36 @@ export function nodeTooltipLinkLimit(
 /** The arrow a node's tooltip marks a link from the node to itself with. */
 export const LOOP_ARROW = "↻";
 
+/** A graph's links as the node measures read them (see `nodeStatRows`). */
+function statLinks(graph: LinkGraph): StatLink[] {
+  return graph.links.map(datum => {
+    const meta = linkMeta(datum)!;
+    return {
+      source: meta.source.id,
+      target: meta.target.id,
+      index: meta.index,
+      value: meta.value,
+      datum,
+    };
+  });
+}
+
 /**
-    A node's tooltip rows: its number of connections, then its strongest
-    links ("→ Target" or "← Source", or "↻ Node" for a link to itself, with
-    the link's value when the links differ in value), up to
+    Renders the chart's tooltip again while it shows one of its nodes, so
+    measures that became ready since it opened fill in.
+*/
+function refreshNodeTooltip(viz: VizInstance): void {
+  const tooltip = viz._tooltipClass;
+  const shown = tooltip?.data();
+  if (Array.isArray(shown) && shown.some(d => linkNodeOf(viz, d)))
+    tooltip!.render();
+}
+
+/**
+    A node's tooltip rows: its number of connections (left out when its
+    degree takes its place) and the network measures `nodeTooltipStats`
+    lists (see `nodeStatRows`), then its strongest links ("→ Target" or "← Source", or "↻ Node" for a link to
+    itself, with the link's value when the links differ in value), up to
     `nodeTooltipLinkLimit`. The arrows mirror right to left (see
     `linkArrows`).
 */
@@ -382,9 +416,22 @@ export function nodeConnectionRows(viz: VizInstance, d: DataPoint): Row[] {
   if (!entry) return [];
   const {graph, id} = entry;
   const connections = nodeConnections(graph, id);
-  const rows: Row[] = [
-    [viz.schema.translate("Connections") as string, `${connections.length}`],
-  ];
+  const stats = nodeStatRows(
+    viz,
+    graph,
+    id,
+    () => statLinks(graph),
+    () => refreshNodeTooltip(viz),
+  );
+  const rows: Row[] = stats.degree
+    ? stats.rows
+    : [
+        [
+          viz.schema.translate("Connections") as string,
+          `${connections.length}`,
+        ],
+        ...stats.rows,
+      ];
   const [forward, back] = linkArrows(viz);
   for (const c of connections.slice(0, nodeTooltipLinkLimit(viz, graph))) {
     const value =

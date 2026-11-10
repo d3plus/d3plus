@@ -59,4 +59,8 @@ A link whose `source` and `target` are the same node draws as a small loop on th
 
 <Playground chart="ArcDiagram" code={selfLoops} controls={["arcSide","orient","arrows"]} />
 
+## Network measures
+
+Hovering a node lists its degree (in and out when the chart draws `arrows`), betweenness, closeness, and cluster. `nodeTooltipStats` picks the measures or turns them off, and `nodeTooltipStatsConfig.weighted` counts strong links as shorter steps; see [Network measures](/core/charts/network/#network-measures).
+
 <ApiReference name="ArcDiagram" pkg="core" />

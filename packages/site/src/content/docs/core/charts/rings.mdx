@@ -50,4 +50,8 @@ A link whose `source` and `target` are the same node draws as a loop on that nod
 
 <Playground chart="Rings" code={selfLoops} controls={["center","arrows"]} />
 
+## Network measures
+
+Hovering a node lists its degree (in and out when the chart draws `arrows`), betweenness, and closeness across the whole network, not only the rings on screen. `nodeTooltipStats` picks the measures or turns them off, and `nodeTooltipStatsConfig.weighted` counts strong links as shorter steps; see [Network measures](/core/charts/network/#network-measures).
+
 <ApiReference name="Rings" pkg="core" />

@@ -32,6 +32,7 @@ import {
   linkTooltipConfig,
   nodeHighlight,
 } from "../features/linkInteraction.js";
+import {nodeStatsFields} from "../features/nodeStats.js";
 import {applySankeyLayout} from "./applyLayout.js";
 import {sankeyEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
@@ -217,6 +218,9 @@ export const sankeyDef: ChartDefinition = {
   },
 
   ctx: {
+    // Flows run from source to target: node tooltips split the degree in
+    // and out, and shortest paths follow the flows.
+    linksDirected: true,
     sankey: sankey(),
   },
 
@@ -261,6 +265,7 @@ export const sankeyDef: ChartDefinition = {
         @type {number | false}
     */
     {key: "nodeTooltipLinks"},
+    ...nodeStatsFields(),
     /** The width of each node, in pixels. */
     {key: "nodeWidth", default: 30},
     {key: "value", default: constant(1)},
