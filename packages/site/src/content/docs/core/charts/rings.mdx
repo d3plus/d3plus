@@ -31,7 +31,7 @@ Nodes one hop from the center sit on the inner ring; their neighbors fan out to 
 
 `hops` sets how many rings of connections surround the center: `1` shows only the nodes linked to it, and each step adds the next ring out. The rings sit evenly spaced, so past two rings the nodes, the center too, get smaller. A node linked from several places sits once, on the innermost ring that reaches it, under its first parent. Clicking a node re-centers the chart on it.
 
-A link between two nodes on the same ring runs a third of the way into the gap outside that ring, around it the shorter way, and back in. Links between two nodes on the outermost ring are left out unless `ringLinks` is `true`; they then circle a third of a ring spacing past it.
+A link between two nodes on the same ring runs a little over a quarter of the way into the gap outside that ring, around it the shorter way, and back in. Links between two nodes on the outermost ring are left out unless `ringLinks` is `true`; they then circle just outside it.
 
 <Playground chart="Rings" code={hops} controls={["hops","ringLinks","center"]} height={600} />
 

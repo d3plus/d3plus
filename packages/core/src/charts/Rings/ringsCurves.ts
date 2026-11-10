@@ -1,7 +1,8 @@
 /**
     Rings' curved links between ring nodes: a link across rings bends
-    through the gap between them, and a link along one ring runs a third
-    of the way into the gap outside it, around that circle, and back in.
+    through the gap between them, and a link along one ring runs a little
+    over a quarter of the way into the gap outside it, around that circle,
+    and back in.
 
     @module
 */
@@ -25,8 +26,15 @@ export const gapMiddle = (geom: RingGeometry, k: number): number =>
   ringRadius(geom, k) + (ringRadius(geom, k + 1) - ringRadius(geom, k)) * 0.5;
 
 /**
-    The circle a link along ring `k` runs around: a third of the way into
-    the gap outside the ring, and clear of both nodes.
+    How far into the gap outside a ring a link along it runs: a little over
+    a quarter, close enough to the ring that it usually turns inside the
+    links leaving its nodes outward instead of crossing them.
+*/
+const RING_ARC_SHARE = 0.28;
+
+/**
+    The circle a link along ring `k` runs around: `RING_ARC_SHARE` of the
+    way into the gap outside the ring, and clear of both nodes.
 */
 export const ringArcRadius = (
   geom: RingGeometry,
@@ -34,7 +42,8 @@ export const ringArcRadius = (
   nodes: Pick<RingsNode, "r">[],
 ): number =>
   Math.max(
-    ringRadius(geom, k) + (ringRadius(geom, k + 1) - ringRadius(geom, k)) / 3,
+    ringRadius(geom, k) +
+      (ringRadius(geom, k + 1) - ringRadius(geom, k)) * RING_ARC_SHARE,
     ringRadius(geom, k) + Math.max(...nodes.map(n => n.r ?? 0)) + 2,
   );
 
@@ -152,8 +161,8 @@ export function applyRingArc(edge: RingsEdge): void {
 /**
     Sets a link's curve between two ring nodes. Across rings, it leaves each
     node on the side facing the other's ring and bends through the middle of
-    the gap between them. Along one ring, it runs a third of the way into
-    the gap outside that ring (a third of a spacing past the last ring),
+    the gap between them. Along one ring, it runs a little over a quarter
+    of the way into the gap outside that ring (or past the last ring),
     around it, and back in (see `ringArcCubics`).
 */
 export function curveRingsEdge(edge: RingsEdge, geom: RingGeometry): void {

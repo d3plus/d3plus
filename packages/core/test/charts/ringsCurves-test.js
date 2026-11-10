@@ -68,17 +68,17 @@ const node = (geom, id, ring, angle, r = 5) => ({
   y: 200 + geom.rings[ring - 1] * Math.sin(angle),
 });
 
-it("ringArcRadius sits a third of the way into the gap, clear of big nodes", () => {
+it("ringArcRadius sits a little over a quarter of the way into the gap, clear of big nodes", () => {
   const geom = ringsGeometry(400, 400, 3);
   close(
     ringArcRadius(geom, 1, [{r: 1}, {r: 2}]),
-    geom.rings[0] + geom.ringWidth / 3,
-    "a third of the gap",
+    geom.rings[0] + geom.ringWidth * 0.28,
+    "0.28 of the gap",
   );
   close(
     ringArcRadius(geom, 3, [{r: 1}]),
-    geom.rings[2] + geom.ringWidth / 3,
-    "a third of a spacing past the last",
+    geom.rings[2] + geom.ringWidth * 0.28,
+    "0.28 of a spacing past the last",
   );
   const big = geom.ringWidth / 2;
   close(ringArcRadius(geom, 2, [{r: 1}, {r: big}]), geom.rings[1] + big + 2);
@@ -189,7 +189,7 @@ it("curveRingsEdge: across rings, each end faces the other's ring and bends in t
   close(edge.sourceBisectX, 200 + gapMiddle(geom, 2), "bends in the gap");
 });
 
-it("curveRingsEdge: along a ring, every hops (the first ring too) runs a third of the way into the gap", () => {
+it("curveRingsEdge: along a ring, every hops (the first ring too) runs a little over a quarter of the way into the gap", () => {
   for (const hops of [1, 2, 3]) {
     const geom = ringsGeometry(400, 400, hops);
     const a = node(geom, "a", 1, 0);
@@ -199,7 +199,7 @@ it("curveRingsEdge: along a ring, every hops (the first ring too) runs a third o
     assert.deepStrictEqual(edge.arc, {
       cx: 200,
       cy: 200,
-      radius: geom.rings[0] + (ringRadius(geom, 2) - geom.rings[0]) / 3,
+      radius: geom.rings[0] + (ringRadius(geom, 2) - geom.rings[0]) * 0.28,
     });
     assert.ok(edge.segments.length >= 2);
     assert.deepStrictEqual([edge.sourceX, edge.sourceY], edge.segments[0][0]);
@@ -222,7 +222,7 @@ it("fanParallelEdges circles parallel links along a ring at different distances"
   close(
     radii[1],
     ringArcRadius(geom, 2, [a, b]),
-    "the middle one keeps the third circle",
+    "the middle one keeps the ring's circle",
   );
   edges.forEach(e => {
     const {near, far} = reach(e.segments, [200, 200]);
