@@ -3,8 +3,8 @@
     `groupData` + `pathConfig` stashed on `viz.ctx`, each followed by its
     background image and a Circle on each of its vertices (see
     `points.ts`), so a later polygon covers an earlier one's dots as it
-    covers its fill. Emits flat SceneNodes directly (no transient Shape
-    compute pass).
+    covers its fill. The dots, not the polygons, answer the pointer. Emits
+    flat SceneNodes directly (no transient Shape compute pass).
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -45,6 +45,7 @@ export const radarEmit: ChartEmit = ({viz}) => {
       ...paintFromShapeConfig(pathConfig, datum, i),
       ...(typeof fillOpacity === "number" ? {fillOpacity} : {}),
     };
+    const dots = radarGroupPointNodes(viz, g, i, circleConfig);
     const path = {
       type: "path",
       key: `radar-${g.id}`,
@@ -53,6 +54,8 @@ export const radarEmit: ChartEmit = ({viz}) => {
       // The labels of the metrics it has a value for stay bright on hover.
       hoverKeys: {metric: g.metrics ?? []},
       paint,
+      // Its dots take the pointer; without them, the polygon does.
+      interactive: !dots.length,
       aria: {label: `${viz._drawLabel(datum, i)}.`},
     } as SceneNode;
     out.push(path);
@@ -60,7 +63,7 @@ export const radarEmit: ChartEmit = ({viz}) => {
       ? backgroundImageNode(pathConfig, path, datum, i)
       : null;
     if (image) out.push(image);
-    out.push(...radarGroupPointNodes(viz, g, i, circleConfig));
+    out.push(...dots);
   }
   return out;
 };

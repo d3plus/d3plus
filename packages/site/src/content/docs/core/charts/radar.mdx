@@ -31,7 +31,7 @@ Two series overlaid on the same axes, one polygon per group. Each is a see-throu
 
 ## Vertex dots
 
-Every polygon has a dot on each of its vertices, in the polygon's color; a metric a group has no value for gets no dot. Hovering a dot (or coming within `hoverDistance` pixels of one) shows that group's value for that metric (formatted by `levelFormat` when it is set, like the ring labels), keeps the group's polygon highlighted, and dims every metric name but the dot's own. `shapeConfig.Circle` styles the dots, here larger and outlined in a darker shade; set its `r` to `0` to hide them.
+Every polygon has a dot on each of its vertices, in the polygon's color; a metric a group has no value for gets no dot. Hovering a dot (or coming within `hoverDistance` pixels of one) shows that group's value for that metric (formatted by `levelFormat` when it is set, like the ring labels), keeps the group's polygon highlighted, and dims every metric name but the dot's own. The polygons themselves don't respond to the pointer. `shapeConfig.Circle` styles the dots, here larger and outlined in a darker shade; set its `r` to `0` to hide them, and the polygons take the pointer instead.
 
 <Playground chart="Radar" code={vertexDots} controls={["shapeConfig","hoverDistance"]} />
 

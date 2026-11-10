@@ -45,6 +45,7 @@ const paintedNodes = pattern => {
         r: node.r,
         paint: node.paint || {},
         hoverKeys: node.hoverKeys,
+        interactive: node.interactive,
         aria: node.aria?.label,
         at: [
           surface.left + nx + (node.cx ?? 0) * nk,
@@ -161,6 +162,11 @@ describe.each(["svg", "canvas"])("Radar points (%s)", renderer => {
         assert.strictEqual(p.paint.fillOpacity, 0.25, `${p.key}: see-through`);
         assert.strictEqual(p.paint.stroke, p.paint.fill, `${p.key}: outline`);
         assert.strictEqual(p.paint.strokeWidth, 2, p.key);
+        assert.strictEqual(
+          p.interactive,
+          false,
+          `${p.key}: its dots take the pointer`,
+        );
       }
     } finally {
       await tinted.close();
@@ -188,6 +194,14 @@ describe.each(["svg", "canvas"])("Radar points (%s)", renderer => {
         title: "A",
         rows: [["Range", "4"]],
       });
+      assert.ok(
+        !(await run(page, () =>
+          document
+            .querySelector(".d3plus-tooltip")
+            .textContent.includes("false"),
+        )),
+        'no stray "false" in the tooltip',
+      );
       assert.deepStrictEqual(await run(page, labelOpacity), {
         Speed: 0.5,
         Power: 0.5,
@@ -204,8 +218,8 @@ describe.each(["svg", "canvas"])("Radar points (%s)", renderer => {
       assert.strictEqual(opacity["radar-point-B-Speed"], 0.5);
       assert.strictEqual(opacity["radar-point-A-Speed"], 1);
 
-      // Over the polygon body, away from every vertex: the group, every
-      // metric it has a value for lit, and no value row.
+      // Over the polygon body, away from every vertex: the polygon takes
+      // no pointer, so nothing shows and every label is bright again.
       const [speed] = await probe(page, "^radar-point-A-Speed$");
       const [power] = await probe(page, "^radar-point-A-Power$");
       const body = [
@@ -215,15 +229,7 @@ describe.each(["svg", "canvas"])("Radar points (%s)", renderer => {
       await page.mouse.move(5, 5);
       await page.mouse.move(body[0], body[1], {steps: 3});
       await page.waitForTimeout(80);
-      assert.deepStrictEqual(await run(page, tooltip), {title: "A", rows: []});
-      assert.ok(
-        !(await run(page, () =>
-          document
-            .querySelector(".d3plus-tooltip")
-            .textContent.includes("false"),
-        )),
-        'no stray "false" in the polygon tooltip',
-      );
+      assert.strictEqual(await run(page, tooltip), null);
       assert.deepStrictEqual(await run(page, labelOpacity), {
         Speed: 1,
         Power: 1,
@@ -270,6 +276,9 @@ describe.each(["svg", "canvas"])("Radar points (%s)", renderer => {
         (await probe(hidden.page, "^radar-[AB]$")).length,
         2,
         "the polygons still draw",
+      );
+      (await probe(hidden.page, "^radar-[AB]$")).forEach(p =>
+        assert.strictEqual(p.interactive, true, `${p.key}: takes the pointer`),
       );
     } finally {
       await hidden.close();

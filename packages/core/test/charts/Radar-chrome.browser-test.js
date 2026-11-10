@@ -224,16 +224,30 @@ const hoverProbe = rows =>
           setTimeout(() => {
             const ringTip = tip();
             const ringTag = ringEl.tagName;
-            // Inside the beta polygon, near its Central (3 o'clock) vertex.
+            // Inside the beta polygon: not hit-tested, its dots are.
             const polyEl = hover(cx + R * 0.7, cy);
+            // beta's Central (3 o'clock) vertex dot, the rightmost.
+            const dot = Array.from(svg.querySelectorAll("circle"))
+              .filter(c => +c.getAttribute("r") === 3)
+              .map(c => c.getBoundingClientRect())
+              .reduce((a, b) => (b.left > a.left ? b : a));
             requestAnimationFrame(() =>
               setTimeout(() => {
-                resolve({
-                  ringTag,
-                  ringTip,
-                  polyTag: polyEl.tagName,
-                  polyTip: tip(),
-                });
+                const dotEl = hover(
+                  dot.left + dot.width / 2,
+                  dot.top + dot.height / 2,
+                );
+                requestAnimationFrame(() =>
+                  setTimeout(() => {
+                    resolve({
+                      ringTag,
+                      ringTip,
+                      polyTag: polyEl.tagName,
+                      dotTag: dotEl.tagName,
+                      dotTip: tip(),
+                    });
+                  }, 50),
+                );
               }, 50),
             );
           }, 50),
@@ -244,7 +258,7 @@ const hoverProbe = rows =>
     }
   });
 
-it("hovering a ring shows no tooltip; hovering a polygon still does", async function () {
+it("hovering a ring or a polygon hits nothing; a vertex dot shows its tooltip", async function () {
   const r = await render(box(), hoverProbe, data);
   assert.notStrictEqual(
     r.ringTag.toLowerCase(),
@@ -252,11 +266,13 @@ it("hovering a ring shows no tooltip; hovering a polygon still does", async func
     "the ring isn't hit-tested",
   );
   assert.strictEqual(r.ringTip, null, "no tooltip over a ring");
-  assert.strictEqual(r.polyTag.toLowerCase(), "path");
-  assert.ok(
-    r.polyTip && r.polyTip.includes("beta"),
-    `polygon tooltip: ${r.polyTip}`,
+  assert.notStrictEqual(
+    r.polyTag.toLowerCase(),
+    "path",
+    "the polygon isn't hit-tested",
   );
+  assert.strictEqual(r.dotTag.toLowerCase(), "circle");
+  assert.ok(r.dotTip && r.dotTip.includes("beta"), `dot tooltip: ${r.dotTip}`);
 });
 
 const metricData = (names, groups = ["A", "B"]) =>

@@ -146,7 +146,8 @@ export const radarDef: ChartDefinition = {
 /**
     Creates a radar visualization based on an array of data. Each polygon is
     a see-through fill outlined in its color (`shapeConfig.Path`), with a dot
-    on every vertex, styled by `shapeConfig.Circle` (`r: 0` hides them);
-    hovering one shows that group's value for its metric.
+    on every vertex, styled by `shapeConfig.Circle`. The dots, not the
+    polygons, answer the pointer: hovering one shows that group's value for
+    its metric. `r: 0` hides them, and the polygons answer instead.
 */
 export default makeChart(radarDef);
