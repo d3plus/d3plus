@@ -1400,7 +1400,8 @@ export interface D3plusConfig {
   /**
       ParallelCoordinates: per-dimension options, keyed by dimension — `domain`
       (either end of a numeric domain may be `undefined`), `reverse`, `title`,
-      and any Axis config (`tickFormat`, `ticks`, `scale`, …).
+      and any Axis config (`tickFormat`, `ticks`, `scale`, `tickTooltip`,
+      `titleTooltip`, …).
   */
   dimensionConfig?: Record<string, DimensionOptions>;
   /** Alluvial: styles the column titles drawn above each column (any TextBox config). */

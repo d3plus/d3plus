@@ -7,6 +7,9 @@
 import type {SceneNode} from "@d3plus/render";
 
 import {TextBox} from "../../components/index.js";
+import {stampTitleTooltip} from "../../components/Axis/axisTooltipTargets.js";
+
+import {chromeNode} from "./chrome.js";
 
 /** A title's text and the box it's drawn in, in chart coordinates. */
 export interface DimensionTitle {
@@ -72,23 +75,26 @@ export function titleHeight(
   return Math.ceil(Math.max(0, ...data.map(d => d.lines.length * d.lH)));
 }
 
-/** The title text nodes. Titles are chrome: no datum, no pointer events. */
+/**
+    The title text nodes, as chrome (see `chromeNode`). With `tooltips`, each
+    dimension's `titleTooltip` by key, a title with a tooltip to show (the
+    option's, or its whole text when it is drawn cut short) takes the
+    pointer; without it none does.
+*/
 export function titleNodes(
   titles: DimensionTitle[],
   style: Record<string, unknown>,
   locale?: string,
+  tooltips?: Map<string, unknown>,
 ): SceneNode[] {
   if (!titles.length) return [];
+  const byId = new Map(titles.map(t => [`pc-title-${t.key}`, t]));
   return titleBox(titles, {...style, padding: 0}, locale)
     .toScene()
     .children.map(node => {
-      const next = {
-        ...node,
-        interactive: false,
-        interactionGroup: "axis",
-      } as SceneNode;
-      delete next.datum;
-      delete next.index;
-      return next;
+      const title = byId.get(`${(node.datum as {id?: unknown})?.id}`);
+      if (tooltips && title)
+        stampTitleTooltip([node], title.text, tooltips.get(title.key));
+      return chromeNode(node);
     });
 }
