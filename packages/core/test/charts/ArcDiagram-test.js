@@ -537,6 +537,19 @@ it("textHalo strokes every text node in the halo color, under its fill", () => {
   assert.strictEqual(group.children[0].halo, true);
   assert.strictEqual(plain, rect, "other nodes pass through");
   assert.strictEqual(text.halo, undefined, "the input is untouched");
+  const sized = textHalo(
+    [
+      {...text, font: {size: 20}},
+      {...text, font: {}},
+    ],
+    "#fff",
+    t => (t.font.size ?? 8) / 4,
+  );
+  assert.deepStrictEqual(
+    sized.map(t => t.paint.strokeWidth),
+    [5, 2],
+    "a width per text node",
+  );
 });
 
 it("emitArcLabels draws its labels over a halo in the chart's background on request", () => {
