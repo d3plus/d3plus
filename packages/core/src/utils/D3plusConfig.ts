@@ -1185,7 +1185,7 @@ export interface D3plusConfig {
     | false;
   /** A pass-through to the config method of ColorScale. */
   colorScaleConfig?: {
-    /** Configures the axis that labels a gradient or `bucketAxis` scale: `labels` lists the values it labels, `ticks` the values it marks, and `tickFormat` writes their text. */
+    /** Configures the axis that labels a gradient or `bucketAxis` scale: `labels` lists the values it labels, `ticks` the values it marks, and `tickFormat` writes their text. Along a side of the chart, the whole scale (its bar, ticks, labels and title) takes at most a third of the chart's width (a scale at the left or right) or height (top or bottom), though at the top or bottom it keeps its bar, a line of labels and its title; `maxSize` sets the room for the axis's labels and title instead. */
     axisConfig?: AxisConfig;
     /** Draws a bucket-type scale as one bar with an axis along it instead of a labeled swatch for each bucket (see `ColorScaleConfig.bucketAxis`). Defaults to `false`. */
     bucketAxis?: boolean;
@@ -1207,6 +1207,8 @@ export interface D3plusConfig {
     hoverMark?: boolean;
     /** Styles the hover mark (see `ColorScaleConfig.hoverMarkConfig`). */
     hoverMarkConfig?: ColorScaleHoverMarkConfig;
+    /** Configures the Legend that draws a bucket-type scale as a swatch for each bucket. Along a side of the chart, the swatches and their labels take at most a third of the chart's width (a scale at the left or right) or height (top or bottom): labels that need more wrap onto more lines or are left out. Its `width` (left or right) or `height` (top or bottom) sets another limit. */
+    legendConfig?: Record<string, unknown>;
     /** How many quantile bins a bivariate `colorScale` splits each variable into, from `2` to `4`. Defaults to `3`. */
     bivariateBuckets?: number;
     /** A bivariate `colorScale`'s colors (see `ColorScaleConfig.bivariateColors`). Defaults to Joshua Stevens' blue–red 3×3 scheme. */
