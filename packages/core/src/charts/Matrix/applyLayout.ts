@@ -11,6 +11,7 @@
 import type {SceneNode} from "@d3plus/render";
 
 import {inertAxis} from "../../components/Axis/axisTooltipTargets.js";
+import {defaultMaxSize} from "../../components/Axis/axisMaxSize.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {tagHoverTicks} from "../features/hoverTicks.js";
@@ -22,6 +23,8 @@ type AxisLike = {
   height: (h: number) => AxisLike;
   width: (w: number) => AxisLike;
   maxSize: (n: number) => AxisLike;
+  /** Whether `maxSize` is the chart's own default limit (see `defaultMaxSize`). */
+  _softMaxSize?: boolean;
   labelRotation: (b: boolean | undefined) => AxisLike;
   config: (c: unknown) => AxisLike;
   measure: () => AxisLike;
@@ -62,8 +65,8 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
     .height(height - viz._padding.bottom - viz._padding.top)
     .maxSize(width / 4)
     .width(width)
-    .config(rowConfig)
-    .measure();
+    .config(rowConfig);
+  defaultMaxSize(rowAxis, rowConfig).measure();
   const rowPadding = rowAxis.outerBounds().width;
   viz._padding.left += rowPadding;
 
@@ -81,8 +84,8 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
     .maxSize(height / 4)
     .width(width)
     .labelRotation(columnRotation)
-    .config(columnConfig)
-    .measure();
+    .config(columnConfig);
+  defaultMaxSize(columnAxis, columnConfig).measure();
   const columnPadding = columnAxis.outerBounds().height;
   viz._padding.top += columnPadding;
 

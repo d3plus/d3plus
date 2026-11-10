@@ -12,7 +12,7 @@ import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
 import {axisLabelEllipsis, labelEllipsis} from "./axisDefaults.js";
-import {slantedWrapSize} from "./axisLabelAngle.js";
+import {axisCrossing, slantedWrapSize} from "./axisLabelAngle.js";
 import type {AxisTextDatum} from "./axisLayoutLabels.js";
 import {axisMaxSize} from "./axisMaxSize.js";
 
@@ -30,6 +30,8 @@ export interface LabelLayoutCtx {
   ownSpace?: boolean;
   /** The width slanted labels wrap at (see `slantedLineWidth`). */
   slantWidth?: number;
+  /** Whether the labels keep within the axis's `maxSize` (see `strictMaxSize`). */
+  strict?: boolean;
   /**
       Whether a flat label too long for its share stays within it, cut short
       (see `cutLabel`), rather than being measured across the axis.
@@ -79,6 +81,46 @@ export function longWordLabel(
   }
   const res = cutLabel(wrap, text, space);
   return {res, cut: res.lines.length > 0};
+}
+
+/**
+    Wraps a slanted label onto fewer lines, each as long as the lines left
+    leave room for, until it reaches no further out from the axis than
+    `depth`. A label's every line adds its height to how far it reaches,
+    across the slant, so giving one up lets the others run further out. A
+    wrap that leaves no lines (a word too long for the line) doesn't count:
+    the next, longer line is tried, and a label cut short is measured with
+    the ellipsis its TextBox ends it with (the wrap's own, else
+    `axisLabelEllipsis`). `width` caps how long a line may be; `res` is the
+    label as first wrapped.
+*/
+export function slantWithin(
+  wrap: TextWrapGenerator,
+  text: string,
+  res: TextWrapResult,
+  slant: {angle: number; horizontal: boolean; depth: number; width: number},
+): TextWrapResult {
+  const phi = axisCrossing(slant.angle, slant.horizontal);
+  const sin = Math.sin(phi),
+    cos = Math.cos(phi);
+  const lineHeight = wrap.lineHeight() as number;
+  const count = (r: TextWrapResult): number =>
+    r.lines.filter((l: string) => l !== "").length;
+  const fits = (r: TextWrapResult): boolean => {
+    const lines = count(r);
+    const width = Math.ceil(Math.max(0, ...r.widths.slice(0, lines)));
+    return width * sin + Math.ceil(lines * lineHeight) * cos <= slant.depth;
+  };
+  if (!count(res) || fits(res)) return res;
+  // Measured as drawn: a label cut short ends in an ellipsis.
+  wrap.ellipsis(wrap.ellipsis() ?? axisLabelEllipsis);
+  for (let n = count(res) - 1; n >= 1; n--) {
+    const room = (slant.depth - Math.ceil(n * lineHeight) * cos) / sin;
+    wrap.height(n * lineHeight).width(Math.max(0, Math.min(slant.width, room)));
+    res = wrap(text);
+    if (count(res) && fits(res)) return res;
+  }
+  return res;
 }
 
 /** How far labels may reach out from the axis, past its ticks and margins. */
@@ -203,6 +245,15 @@ export function calculateLabelSize(
       !res.truncated && res.lines.filter((l: string) => l !== "").length <= 1;
   } else {
     res = wrap(text) as Sized;
+    // Within a strict `maxSize`, a slanted label reaches out no further
+    // than the room it has, its padding with it.
+    if (slanted && ctx.strict)
+      res = slantWithin(wrap, text, res, {
+        angle: angle!,
+        horizontal,
+        depth: Math.floor(depth - (horizontal ? fP : 0)),
+        width: Math.min(slanted.width, ctx.slantWidth ?? Infinity),
+      }) as Sized;
     // A label that only fits by breaking a word mid-word doesn't fit.
     fits = wholeWordFit(
       res,

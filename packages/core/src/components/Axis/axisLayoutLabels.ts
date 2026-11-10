@@ -260,6 +260,7 @@ export function createTextData(
     offset = 1,
     ownSpace,
     regrow,
+    strict,
   } = ctx;
   const wholeLine =
     horizontal && !axis._labelRotation && wholeLineLabels(axis, labels);
@@ -272,6 +273,7 @@ export function createTextData(
     tickFormat,
     wholeLine,
     ownSpace,
+    strict,
   };
   let textData = baseTextData(axis, labels);
   const maxSpace = maxLabelSpace(axis, textData, rangeOuter);

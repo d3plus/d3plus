@@ -10,7 +10,7 @@
 import {max} from "d3-array";
 
 import type Axis from "../../components/Axis/Axis.js";
-import {pinMaxSize} from "../../components/Axis/axisMaxSize.js";
+import {defaultMaxSize, pinMaxSize} from "../../components/Axis/axisMaxSize.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {PlotMeasureResult, PlotPaintContext} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -73,6 +73,7 @@ function solveFinalYAxes(
   let {xOffsetRight} = pCtx;
 
   if (showY) {
+    const yPlotConfig = plotAxisConfig(viz, "y");
     yTest
       .domain(yDomain)
       .height(height)
@@ -81,9 +82,9 @@ function solveFinalYAxes(
       .ticks(yTicks)
       .width(width)
       .config(yC)
-      .config(plotAxisConfig(viz, "y"))
-      .scale(yConfigScale)
-      .measure();
+      .config(yPlotConfig)
+      .scale(yConfigScale);
+    defaultMaxSize(yTest, yC, yPlotConfig).measure();
   }
 
   const yBounds = yTest.outerBounds() as AxisBounds;

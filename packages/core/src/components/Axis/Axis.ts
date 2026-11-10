@@ -111,6 +111,12 @@ export default class Axis extends BaseClass {
       when its range is fixed.
   */
   _labelOverflow: [number, number] = [0, 0];
+  /**
+      Whether the `maxSize` is the chart's own default limit (see
+      `defaultMaxSize`), which lets one line of labels and the title take
+      more than it.
+  */
+  _softMaxSize = false;
   _position!: {
     horizontal: boolean;
     width: string;
