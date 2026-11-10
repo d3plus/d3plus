@@ -17,6 +17,7 @@ import {
 } from "../features/emitHelpers.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {nodeLabel} from "./nodeLabel.js";
 
 interface ShapeGroup {
   key: string;
@@ -108,7 +109,7 @@ export const treeEmit: ChartEmit = ({viz}) => {
         datum,
         paint,
         transform: {x: tx, y: ty},
-        aria: {label: `${viz._drawLabel(datum, d.i ?? i)}.`},
+        aria: {label: `${nodeLabel(viz, datum, d.i ?? i)}.`},
       } as SceneNode);
     }
   }
@@ -142,7 +143,7 @@ export const treeEmit: ChartEmit = ({viz}) => {
         key: `tree-${shapeKind}-${id}`,
         datum,
         paint,
-        aria: {label: `${viz._drawLabel(datum, i)}.`},
+        aria: {label: `${nodeLabel(viz, datum, i)}.`},
       } as SceneNode;
       out.push(node);
       const image = backgroundImageNode(merged, node, datum, i);
