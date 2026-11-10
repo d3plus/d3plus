@@ -15,15 +15,32 @@ import type {VizInstance} from "./vizTypes.js";
 export type CursorHost = Pick<VizInstance, "schema"> &
   Partial<Pick<VizInstance, "_renderer" | "_sceneRenderer" | "_select">>;
 
+/** The canvas the chart's renderer draws on, if it draws on one. */
+function canvasOf(viz: CursorHost): HTMLCanvasElement | undefined {
+  const elements: Element[] = viz._sceneRenderer?.elements?.() ?? [];
+  return elements.find(el => el.localName === "canvas") as
+    HTMLCanvasElement | undefined;
+}
+
 /**
     Sets the cursor shown over the chart's drawing surface.
     @param viz The chart.
     @param cursor A CSS cursor.
 */
 export function setCursor(viz: CursorHost, cursor: string): void {
-  const elements: Element[] =
-    viz._renderer === "canvas" ? (viz._sceneRenderer?.elements?.() ?? []) : [];
-  const canvas = elements.find(el => el.localName === "canvas");
-  if (canvas) (canvas as HTMLCanvasElement).style.cursor = cursor;
+  const canvas = viz._renderer === "canvas" ? canvasOf(viz) : undefined;
+  if (canvas) canvas.style.cursor = cursor;
   else viz._select?.style("cursor", cursor);
+}
+
+/**
+    Returns both of the chart's drawing surfaces to the default cursor. Run
+    before the renderer is swapped for another: the pointer may rest on a
+    clickable shape, and the outgoing surface would keep its hand cursor.
+    @param viz The chart, still holding the outgoing renderer.
+*/
+export function resetCursor(viz: CursorHost): void {
+  const canvas = canvasOf(viz);
+  if (canvas) canvas.style.cursor = "auto";
+  viz._select?.style("cursor", "auto");
 }

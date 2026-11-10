@@ -1,11 +1,11 @@
 import assert from "assert";
 import {select} from "d3-selection";
-import {setCursor} from "../../src/charts/viz/setCursor.ts";
+import {resetCursor, setCursor} from "../../src/charts/viz/setCursor.ts";
 import {jsdomit} from "~test/jsdom.js";
 
 /**
     The chart cursor goes on the element under the pointer: the root svg, or
-    the Canvas renderer's canvas.
+    the Canvas renderer's canvas. A reset returns both to the default.
 */
 
 /** A chart stand-in: a root svg in a container, and a renderer's elements beside it. */
@@ -70,4 +70,34 @@ jsdomit("setCursor does nothing for a chart with no element", () => {
   assert.doesNotThrow(() =>
     setCursor({schema: {}, _renderer: "canvas"}, "pointer"),
   );
+});
+
+jsdomit("resetCursor returns the root svg to the default cursor", () => {
+  const {viz, svg} = chart("svg");
+  setCursor(viz, "pointer");
+  // The chart is set to draw on a canvas next; its renderer is still SVG.
+  viz._renderer = "canvas";
+  resetCursor(viz);
+  assert.strictEqual(svg.style.cursor, "auto");
+});
+
+jsdomit(
+  "resetCursor returns the canvas and the root svg to the default",
+  () => {
+    const {viz, svg, elements} = chart("canvas", ["canvas", "div"]);
+    const [canvas, overlays] = elements;
+    setCursor(viz, "pointer");
+    svg.style.cursor = "pointer";
+    // The chart is set to draw in SVG next; its renderer is still Canvas.
+    viz._renderer = "svg";
+    resetCursor(viz);
+    assert.strictEqual(canvas.style.cursor, "auto");
+    assert.strictEqual(svg.style.cursor, "auto");
+    assert.strictEqual(overlays.style.cursor, "", "the overlay layer is left");
+  },
+);
+
+jsdomit("resetCursor does nothing for a chart with no element", () => {
+  assert.doesNotThrow(() => resetCursor({schema: {}}));
+  assert.doesNotThrow(() => resetCursor({schema: {}, _renderer: "canvas"}));
 });
