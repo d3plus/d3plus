@@ -6,6 +6,7 @@ import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
+import {hasOwnClick, hasUserClick} from "../viz/userClick.js";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import type Viz from "../viz/Viz.js";
@@ -40,24 +41,18 @@ export default function (
   if (id instanceof Array) id = id[0];
 
   const t = this.schema.translate;
-  const defaultClick = clickLegend.bind(this).toString();
+  const defaultClick = clickLegend.bind(this);
 
   // does the legend have any user-defined click events?
-  const hasUserClick = Object.keys(this.schema.on).some(
-    (e: string) =>
-      // all valid click event keys,
-      ["click", "click.legend"].includes(e) &&
-      // truthy values (no nulls),
-      this.schema.on[e] &&
-      // and it is not our default click.legend function
-      this.schema.on[e].toString() !== defaultClick,
-  );
+  const userClick = hasUserClick(this.schema.on, "click.legend", defaultClick);
 
   // does the legend still have our default "click.legend" event?
   // (if the user only sets "click", both functions will fire)
-  const hasDefaultClick =
-    this.schema.on["click.legend"] &&
-    this.schema.on["click.legend"].toString() === defaultClick;
+  const hasDefaultClick = hasOwnClick(
+    this.schema.on,
+    "click.legend",
+    defaultClick,
+  );
 
   // can the viz show deeper data?
   const hasDeeperLevel = this._drawDepth < this.schema.groupBy.length - 1;
@@ -66,7 +61,7 @@ export default function (
   // not it shows a tooltip
   setCursor(
     this,
-    hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
+    userClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
   );
 
   if (!tooltipEnabled(this, d, i, true)) return;

@@ -13,6 +13,7 @@ import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {latestDrillEntry, removeLatestDrillEntry} from "../viz/history.js";
 import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
+import {hasUserClick} from "../viz/userClick.js";
 import type {DrillDownHistoryEntry, VizInstance} from "../viz/vizTypes.js";
 
 import {partitionLineage} from "./hierarchy.js";
@@ -244,7 +245,7 @@ export function partitionHandlers<N extends PartitionNode>(
     hover(h => rows.has(h));
   };
 
-  return {
+  const handlers: Record<string, Handler> = {
     mouseenter: (d, i, x, event) => {
       const node = nodeOf(d);
       if (node) hoverNode(node);
@@ -255,7 +256,12 @@ export function partitionHandlers<N extends PartitionNode>(
       const node = nodeOf(d);
       if (!node) return;
       if (viz.ctx[`${prefix}Hovered`] !== node) hoverNode(node);
-      const userClick = Boolean(viz.schema.on.click);
+      // The hand shows where a click zooms, or runs a handler of the user's.
+      const userClick = hasUserClick(
+        viz.schema.on,
+        "click.shape",
+        handlers["click.shape"],
+      );
       setCursor(
         viz,
         userClick || partitionClickable(viz, node) ? "pointer" : "auto",
@@ -272,4 +278,5 @@ export function partitionHandlers<N extends PartitionNode>(
         partitionZoomIn(viz, node, options);
     },
   };
+  return handlers;
 }

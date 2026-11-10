@@ -9,6 +9,7 @@ import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {pointTooltipAnchor} from "../viz/pointTooltipAnchor.js";
 import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
+import {hasOwnClick, hasUserClick} from "../viz/userClick.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -26,24 +27,18 @@ export default function (
   event: MouseEvent & TouchEvent,
 ): void {
   if (!d) return;
-  const defaultClick = clickShape.bind(this).toString();
+  const defaultClick = clickShape.bind(this);
 
   // does the shape have any user-defined click events?
-  const hasUserClick = Object.keys(this.schema.on).some(
-    (e: string) =>
-      // all valid click event keys,
-      ["click", "click.shape"].includes(e) &&
-      // truthy values (no nulls),
-      this.schema.on[e] &&
-      // and it is not our default click.shape function
-      this.schema.on[e].toString() !== defaultClick,
-  );
+  const userClick = hasUserClick(this.schema.on, "click.shape", defaultClick);
 
   // does the shape still have our default "click.shape" event?
   // (if the user only sets "click", both functions will fire)
-  const hasDefaultClick =
-    this.schema.on["click.shape"] &&
-    this.schema.on["click.shape"].toString() === defaultClick;
+  const hasDefaultClick = hasOwnClick(
+    this.schema.on,
+    "click.shape",
+    defaultClick,
+  );
 
   // can the viz show deeper data? A group row zooms into its group.
   const groupDepth = groupDepthOf(d);
@@ -60,7 +55,7 @@ export default function (
   // not it shows a tooltip
   setCursor(
     this,
-    hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
+    userClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
   );
 
   if (!tooltipEnabled(this, d, i)) return;

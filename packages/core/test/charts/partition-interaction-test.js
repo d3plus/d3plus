@@ -328,6 +328,34 @@ describe.each(charts)("$chart interaction", c => {
     assert.strictEqual(viz.log.cursor[1], "auto");
   });
 
+  it("handlers show the pointer on a leaf only with a click handler of the user's", () => {
+    const viz = mockViz();
+    const handlers = c.handlers(viz, []);
+    Object.assign(viz.schema.on, handlers);
+    const leaf = nodeAt(viz, ["B", "m3", "f4"]).datum;
+    const branch = nodeAt(viz, ["A", "m1"]).datum;
+    const cursorOver = d => {
+      viz.schema.on["mousemove.shape"](d, 0, undefined, {});
+      return viz.log.cursor.at(-1);
+    };
+    assert.strictEqual(cursorOver(leaf), "auto", "the chart's own click");
+    assert.strictEqual(cursorOver(branch), "pointer", "a node that zooms");
+
+    viz.schema.on = {...viz.schema.on, "click.shape": () => undefined};
+    assert.strictEqual(cursorOver(leaf), "pointer", "a click.shape handler");
+    assert.strictEqual(cursorOver(branch), "pointer");
+
+    viz.schema.on = {...viz.schema.on, "click.shape": null};
+    assert.strictEqual(cursorOver(leaf), "auto", "no click.shape handler");
+    assert.strictEqual(cursorOver(branch), "pointer");
+
+    viz.schema.on = {...viz.schema.on, ...handlers, click: () => undefined};
+    assert.strictEqual(cursorOver(leaf), "pointer", "a click handler");
+
+    viz.schema.on = {...viz.schema.on, click: null, "click.Rect": () => 1};
+    assert.strictEqual(cursorOver(leaf), "auto", "a handler for another event");
+  });
+
   it("handlers leave a user-configured tooltip title and footer alone", () => {
     const viz = mockViz();
     viz.schema.tooltipConfig = {title: "mine", footer: "mine", tbody: []};
