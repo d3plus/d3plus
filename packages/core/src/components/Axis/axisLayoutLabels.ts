@@ -243,7 +243,8 @@ function calculateLabelSize(
       .height(slanted.height);
   } else {
     wrap[w](horizontal ? space : depth);
-    wrap[h](horizontal ? depth : space);
+    // A flat label's lines share its room with its padding (see `res.height`).
+    wrap[h](horizontal ? depth - (rotate ? 0 : fP) : space);
   }
 
   type Sized = ReturnType<typeof wrap> & {
