@@ -29,6 +29,8 @@ async function open() {
   await opened.page.evaluate(data => {
     window.TOOLTIPS = {
       deepest: (d, i, {depth, maxDepth}) => depth === maxDepth,
+      legendOrDeepest: (d, i, {depth, maxDepth, legend}) =>
+        legend || depth === maxDepth,
       west: d => d.region === "West",
       off: false,
       calls: (d, i, levels) => (window.__calls.push(levels), true),
@@ -178,6 +180,23 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
+  it(`tooltip depth (${renderer}): the legend flag keeps a legend entry's tooltip above the deepest level`, async () => {
+    const {page, close} = await open();
+    const config = {depth: 0, color: "state", tooltip: "legendOrDeepest"};
+    try {
+      await draw(page, "Treemap", config, renderer);
+      const west = await shapePoint(page, "treemap-West");
+      assert.deepStrictEqual(await hover(page, west), [], "a region tile");
+      assert.deepStrictEqual(
+        await hoverLegend(page, "Treemap", config, "West"),
+        ["West"],
+        "a region's legend entry",
+      );
+    } finally {
+      await close();
+    }
+  });
+
   it(`tooltip depth (${renderer}): an Icicle shows tooltips only on its deepest nodes`, async () => {
     const {page, close} = await open();
     const config = {tooltip: "deepest"};
@@ -263,11 +282,11 @@ for (const renderer of ["svg", "canvas"]) {
       await draw(page, "Icicle", {tooltip: "calls"}, renderer);
       assert.deepStrictEqual(await levels('icicle-["South"]'), [
         ["South"],
-        [{depth: 0, maxDepth: 1}],
+        [{depth: 0, maxDepth: 1, legend: false}],
       ]);
       assert.deepStrictEqual(await levels('icicle-["South","Texas"]'), [
         ["Texas"],
-        [{depth: 1, maxDepth: 1}],
+        [{depth: 1, maxDepth: 1, legend: false}],
       ]);
 
       // A single groupBy level is its own deepest level.
@@ -279,7 +298,7 @@ for (const renderer of ["svg", "canvas"]) {
       );
       assert.deepStrictEqual(await levels("treemap-Texas"), [
         ["Texas"],
-        [{depth: 0, maxDepth: 0}],
+        [{depth: 0, maxDepth: 0, legend: false}],
       ]);
     } finally {
       await close();

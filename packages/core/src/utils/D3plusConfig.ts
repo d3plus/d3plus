@@ -253,7 +253,10 @@ export interface AxisConfig {
   titleConfig?: Record<string, unknown>;
 }
 
-/** The `groupBy` levels a `tooltip` accessor receives as its third argument. */
+/**
+    The `groupBy` levels a `tooltip` accessor receives as its third argument,
+    and whether it is asked about a legend entry.
+*/
 export interface TooltipLevels {
   /**
       The `groupBy` level, from 0, the hovered item stands for: the level the
@@ -264,6 +267,8 @@ export interface TooltipLevels {
   depth: number;
   /** The deepest `groupBy` level: `groupBy.length - 1`. */
   maxDepth: number;
+  /** Whether the hovered item is a legend entry, not a mark. */
+  legend: boolean;
 }
 
 export interface TooltipConfig {
@@ -2371,11 +2376,12 @@ export interface D3plusConfig {
   */
   todayConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2" | "ref">;
   /**
-      Whether to show tooltips, or a `(datum, index, {depth, maxDepth})`
-      accessor deciding per mark and legend entry. `depth` is the `groupBy`
-      level (from 0) the hovered item stands for and `maxDepth` the deepest
-      level, so `depth === maxDepth` keeps tooltips to the deepest level.
-      Defaults to `true`.
+      Whether to show tooltips, or a
+      `(datum, index, {depth, maxDepth, legend})` accessor deciding per mark
+      and legend entry. `depth` is the `groupBy` level (from 0) the hovered
+      item stands for and `maxDepth` the deepest level, so
+      `depth === maxDepth` keeps tooltips to the deepest level; `legend` is
+      true for a legend entry. Defaults to `true`.
   */
   tooltip?:
     boolean | ((d: DataPoint, i: number, levels: TooltipLevels) => boolean);

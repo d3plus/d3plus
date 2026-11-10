@@ -47,6 +47,10 @@ columns of an Icicle, the nodes of a Tree, the header strips of a nested
 Treemap), each mark reports its own level, so the same function keeps tooltips
 to the leaves.
 
+The third argument also has `legend`, true when the hovered item is a legend
+entry, so `(d, i, {depth, maxDepth, legend}) => legend || depth === maxDepth`
+keeps the legend's tooltips at every level.
+
 ## Axis guides
 
 Hovering a mark on a Plot chart (LinePlot, BarChart, AreaPlot, a scatter or

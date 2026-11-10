@@ -21,19 +21,29 @@ const host = (tooltip, rest = {}) => ({
 
 describe("tooltipLevels", () => {
   it("reports the level the chart draws and the deepest level", () => {
-    assert.deepStrictEqual(tooltipLevels(host(), row), {depth: 0, maxDepth: 1});
+    assert.deepStrictEqual(tooltipLevels(host(), row), {
+      depth: 0,
+      maxDepth: 1,
+      legend: false,
+    });
     assert.deepStrictEqual(tooltipLevels(host(null, {_drawDepth: 1}), row), {
       depth: 1,
       maxDepth: 1,
+      legend: false,
     });
   });
 
   it("is 0 of 0 with a single groupBy level, or none", () => {
     const single = {schema: {groupBy: [groupBy[0]]}, _drawDepth: 0};
-    assert.deepStrictEqual(tooltipLevels(single, row), {depth: 0, maxDepth: 0});
+    assert.deepStrictEqual(tooltipLevels(single, row), {
+      depth: 0,
+      maxDepth: 0,
+      legend: false,
+    });
     assert.deepStrictEqual(tooltipLevels({schema: {}}, row), {
       depth: 0,
       maxDepth: 0,
+      legend: false,
     });
   });
 
@@ -67,6 +77,13 @@ describe("tooltipLevels", () => {
     assert.strictEqual(tooltipLevels(unset, row, true).depth, 1, "falls back");
   });
 
+  it("says whether the item is a legend entry", () => {
+    const viz = host(null, {_legendDepth: 0});
+    assert.strictEqual(tooltipLevels(viz, row, true).legend, true);
+    assert.strictEqual(tooltipLevels(viz, row, false).legend, false);
+    assert.strictEqual(tooltipLevels(viz, row).legend, false);
+  });
+
   it("keeps depth within 0 and maxDepth", () => {
     assert.strictEqual(
       tooltipLevels(host(null, {_shapeDepth: () => -1}), row).depth,
@@ -85,6 +102,7 @@ describe("tooltipLevels", () => {
     assert.deepStrictEqual(tooltipLevels(viz, undefined), {
       depth: 0,
       maxDepth: 1,
+      legend: false,
     });
   });
 });
@@ -100,7 +118,15 @@ describe("tooltipEnabled", () => {
     const calls = [];
     const viz = host((...args) => (calls.push(args), true), {_drawDepth: 1});
     assert.strictEqual(tooltipEnabled(viz, row, 3), true);
-    assert.deepStrictEqual(calls, [[row, 3, {depth: 1, maxDepth: 1}]]);
+    assert.deepStrictEqual(calls, [
+      [row, 3, {depth: 1, maxDepth: 1, legend: false}],
+    ]);
+    assert.strictEqual(tooltipEnabled(viz, row, 3, true), true);
+    assert.deepStrictEqual(calls[1], [
+      row,
+      3,
+      {depth: 1, maxDepth: 1, legend: true},
+    ]);
   });
 
   it("leaves a two-argument accessor's result unchanged", () => {

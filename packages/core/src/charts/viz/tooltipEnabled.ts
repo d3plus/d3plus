@@ -20,7 +20,8 @@ export type TooltipHost = Pick<VizInstance, "schema"> &
     level `d` stands for: a group row's own level (see `groupRow.ts`), else
     the level its chart reports for the shape (`ChartDefinition.shapeDepth`),
     else the level the chart draws. A legend entry stands for the level its
-    label is read at. `maxDepth` is the deepest `groupBy` level.
+    label is read at. `maxDepth` is the deepest `groupBy` level, and `legend`
+    says which of the two `d` is.
     @param viz The chart.
     @param d The hovered shape's row, or the legend entry's.
     @param legend Whether `d` is a legend entry.
@@ -36,7 +37,7 @@ export function tooltipLevels(
     ? viz._legendDepth
     : (groupDepthOf(d) ?? (d ? viz._shapeDepth?.(d) : undefined));
   const depth = own ?? viz._drawDepth ?? 0;
-  return {depth: Math.min(Math.max(depth, 0), maxDepth), maxDepth};
+  return {depth: Math.min(Math.max(depth, 0), maxDepth), maxDepth, legend};
 }
 
 /**
