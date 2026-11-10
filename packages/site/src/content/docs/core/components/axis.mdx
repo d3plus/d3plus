@@ -53,7 +53,7 @@ A linear `[0, 100]` domain is spread across the 600px width with auto-generated 
 
 ## Label room
 
-`maxSize` caps the space the tick labels and title take, and labels that need more wrap or are cut short to fit. It is a number of pixels, or a function of the room the axis has across its labels: its `width` on a vertical axis like this one, its `height` on a horizontal one. Here the labels wrap within a quarter of the width, however wide the axis is. A chart's axis configs (`xConfig`, `yConfig`, …) take it the same way, the function receiving the chart's height or width.
+`maxSize` caps the space the tick labels and title take, and labels that need more wrap or are cut short to fit. It is a number of pixels, or a function of the room the axis has across its labels: its `width` on a vertical axis like this one, its `height` on a horizontal one. Here the labels wrap within a quarter of the width, however wide the axis is. A chart's axis configs (`xConfig`, `yConfig`, …) take it the same way, the function receiving the chart's height or width. A chart can call the function more than once in a draw, so it should depend only on its argument.
 
 <Playground chart="Axis" code={maxSize} controls={["width","orient","scale"]} height={220} />
 

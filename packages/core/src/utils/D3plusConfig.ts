@@ -186,7 +186,8 @@ export interface AxisConfig {
       axis has across its labels and returns that maximum. The room is a
       horizontal axis's `height` or a vertical axis's `width`; in a chart, it
       is the chart's height (for a horizontal axis) or width (for a vertical
-      one) inside its margins.
+      one) inside its margins. A chart can call the function more than once
+      in a draw, so it should depend only on its argument.
       @example
       {maxSize: size => size / 3}
   */
