@@ -152,6 +152,31 @@ describe.each(["svg", "canvas"])("Radar points (%s)", renderer => {
     }
   });
 
+  it("polygons are see-through fills outlined in their own color", async () => {
+    const tinted = await chart(renderer, "{}");
+    try {
+      const polys = await probe(tinted.page, "^radar-[AB]$");
+      assert.strictEqual(polys.length, 2);
+      for (const p of polys) {
+        assert.strictEqual(p.paint.fillOpacity, 0.25, `${p.key}: see-through`);
+        assert.strictEqual(p.paint.stroke, p.paint.fill, `${p.key}: outline`);
+        assert.strictEqual(p.paint.strokeWidth, 2, p.key);
+      }
+    } finally {
+      await tinted.close();
+    }
+    const solid = await chart(
+      renderer,
+      "{shapeConfig: {Path: {fillOpacity: 1}}}",
+    );
+    try {
+      const polys = await probe(solid.page, "^radar-[AB]$");
+      polys.forEach(p => assert.strictEqual(p.paint.fillOpacity, 1, p.key));
+    } finally {
+      await solid.close();
+    }
+  });
+
   it("hovering a dot shows its metric's value and keeps only that name bright", async () => {
     const {page, close} = await chart(renderer, "{}");
     try {

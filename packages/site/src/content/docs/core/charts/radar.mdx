@@ -25,7 +25,7 @@ Creates a radar visualization based on an array of data.
 
 ## Multiple series
 
-Two series overlaid on the same axes, one filled polygon per group.
+Two series overlaid on the same axes, one polygon per group. Each is a see-through fill outlined in its color, so overlapping groups stay readable; `shapeConfig.Path` restyles them (`fillOpacity: 1` for solid shapes).
 
 <Playground chart="Radar" code={multipleSeries} controls={["metric","value"]} />
 

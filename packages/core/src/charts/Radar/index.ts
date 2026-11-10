@@ -77,8 +77,25 @@ export const radarDef: ChartDefinition = {
     },
     {key: "outerPadding", default: "auto"},
     {key: "shape", default: constant("Path"), coerce: "const"},
-    // A dot on each vertex, styled by `shapeConfig.Circle` (`r: 0` hides them).
-    {key: "shapeConfig", merge: true, default: {Circle: {r: 3}}},
+    // See-through polygons outlined in their own color, so overlapping
+    // groups all stay readable, and a dot on each vertex, styled by
+    // `shapeConfig.Circle` (`r: 0` hides them).
+    {
+      key: "shapeConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        Path: {
+          fillOpacity: 0.25,
+          stroke: (d: DataPoint, i: number) => {
+            const sc = viz.schema.shapeConfig;
+            const fill = sc.Path?.fill ?? sc.fill;
+            return typeof fill === "function" ? fill(d, i) : fill;
+          },
+          strokeWidth: 2,
+        },
+        Circle: {r: 3},
+      }),
+    },
     {
       key: "tooltipConfig",
       merge: true,
@@ -127,8 +144,9 @@ export const radarDef: ChartDefinition = {
 };
 
 /**
-    Creates a radar visualization based on an array of data. Each polygon has
-    a dot on every vertex, styled by `shapeConfig.Circle` (`r: 0` hides them);
+    Creates a radar visualization based on an array of data. Each polygon is
+    a see-through fill outlined in its color (`shapeConfig.Path`), with a dot
+    on every vertex, styled by `shapeConfig.Circle` (`r: 0` hides them);
     hovering one shows that group's value for its metric.
 */
 export default makeChart(radarDef);

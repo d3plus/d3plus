@@ -10,7 +10,11 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
+import {
+  paintFromShapeConfig,
+  resolveAccessor,
+  shapeConfigFor,
+} from "../features/emitHelpers.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
@@ -32,7 +36,15 @@ export const radarEmit: ChartEmit = ({viz}) => {
   for (let i = 0; i < groupData.length; i++) {
     const g = groupData[i];
     const datum = (g.data ?? g) as DataPoint;
-    const paint = paintFromShapeConfig(pathConfig, datum, i);
+    const fillOpacity = resolveAccessor<number>(
+      pathConfig.fillOpacity,
+      datum,
+      i,
+    );
+    const paint = {
+      ...paintFromShapeConfig(pathConfig, datum, i),
+      ...(typeof fillOpacity === "number" ? {fillOpacity} : {}),
+    };
     const path = {
       type: "path",
       key: `radar-${g.id}`,
