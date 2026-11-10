@@ -275,17 +275,22 @@ export default class CanvasRenderer implements Renderer {
       1,
       [this._ratio, 0, 0, this._ratio, 0, 0],
       [],
+      true,
     );
     ctx.restore();
   }
 
-  /** Draws a node list in z-order, accumulating alpha and the transform matrix for picking. */
+  /**
+      Draws a node list in z-order, accumulating alpha and the transform matrix
+      for picking. `hittable` is false inside a group with `interactive: false`.
+  */
   private _drawChildren(
     ctx: Ctx,
     children: SceneNode[],
     alpha: number,
     abs: Mat,
     clips: ClipEntry[],
+    hittable: boolean,
   ): void {
     // Skip sort allocation + comparator runs when no child has z set.
     // The common case (every node lacks z; paint in source order).
@@ -299,7 +304,8 @@ export default class CanvasRenderer implements Renderer {
     const ordered = needsSort
       ? [...children].sort((a, b) => (a.z ?? 0) - (b.z ?? 0))
       : children;
-    for (const node of ordered) this._drawNode(ctx, node, alpha, abs, clips);
+    for (const node of ordered)
+      this._drawNode(ctx, node, alpha, abs, clips, hittable);
   }
 
   private _drawNode(
@@ -308,6 +314,7 @@ export default class CanvasRenderer implements Renderer {
     alpha: number,
     parentAbs: Mat,
     clips: ClipEntry[],
+    hittable: boolean,
   ): void {
     const localAbs = multiply(parentAbs, nodeMatrix(node.transform));
     const a = alpha * (node.paint?.opacity ?? 1);
@@ -322,7 +329,10 @@ export default class CanvasRenderer implements Renderer {
       localAbs[5],
     );
 
-    if (node.interactive !== false && node.type !== "group")
+    // A group's `interactive: false` covers everything inside it, as the
+    // `pointer-events: none` SVG writes on the group is inherited.
+    const live = hittable && node.interactive !== false;
+    if (live && node.type !== "group")
       this._pickIndex.push({node, inverse: invert(localAbs), clips});
 
     // On-screen scale relative to CSS px: the accumulated transform's scale with
@@ -376,7 +386,7 @@ export default class CanvasRenderer implements Renderer {
         const inner = node.clip
           ? [...clips, {clip: node.clip, inverse: invert(localAbs)}]
           : clips;
-        this._drawChildren(ctx, node.children, a, localAbs, inner);
+        this._drawChildren(ctx, node.children, a, localAbs, inner, live);
         break;
       }
       case "htmlOverlay":

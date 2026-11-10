@@ -261,7 +261,13 @@ export interface NodeBase {
   hoverKeys?: Record<string, unknown>;
   paint?: Paint;
   transform?: Transform;
-  /** When false, the node is ignored by hit-testing (= SVG pointer-events: none). */
+  /**
+      When false, hit-testing ignores the node and the pointer passes through
+      to whatever is painted beneath it. On a group this covers everything
+      inside it, on both backends (SVG writes `pointer-events: none`, which
+      the group's contents inherit): a child's own `interactive: true` does
+      not opt it back in.
+  */
   interactive?: boolean;
   hit?: HitShape;
   aria?: AriaSpec;
