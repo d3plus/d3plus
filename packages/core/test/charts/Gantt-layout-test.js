@@ -155,14 +155,17 @@ it("Gantt: measureTimeAxis and renderTimeAxis size, draw, and return the axis sc
   assert.deepStrictEqual(group.transform, {x: 10, y: 0});
   assert.ok(group.children.length > 0);
 
-  // A `finish` function has the last word on the scene pushed.
-  renderTimeAxis(viz, {...frame, key: "finished-axis"}, axis => ({
-    ...axis,
-    opacity: 0.5,
-  }));
-  const finished = viz._chartScene.find(n => n.key === "finished-axis");
-  assert.strictEqual(finished.opacity, 0.5);
-  assert.strictEqual(finished.children.length, group.children.length);
+  // The axis is pushed as chrome: in the "axis" group, out of hit-testing.
+  const nodes = [];
+  const walk = node => {
+    nodes.push(node);
+    (node.children ?? []).forEach(walk);
+  };
+  walk(group);
+  const leaves = nodes.filter(n => n.type !== "group");
+  assert.ok(leaves.some(n => n.type === "text"));
+  assert.ok(nodes.every(n => n.interactionGroup === "axis"));
+  assert.ok(leaves.every(n => n.interactive === false));
 });
 
 it("Gantt: taskTimes fills a missing end, swaps reversed times, and reads milestones and progress", () => {

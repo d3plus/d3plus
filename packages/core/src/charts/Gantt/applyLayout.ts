@@ -11,7 +11,6 @@ import {scaleBand} from "d3-scale";
 
 import type {DataPoint} from "@d3plus/data";
 
-import {inertAxis} from "../../components/Axis/axisTooltipTargets.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {
@@ -184,16 +183,12 @@ export const applyGanttLayout: TransformStage = ({viz}) => {
   // The axis box ends below the rows, so its grid spans them and a bottom
   // axis sits right under the last row. The pointer passes through it to
   // the rows, all but its labels with a tooltip.
-  const scale = renderTimeAxis(
-    v,
-    {
-      ...frame,
-      height: block + size.height + size.padding * 2,
-      transform: {x: column, y: 0},
-      key: "gantt-axis",
-    },
-    inertAxis,
-  );
+  const scale = renderTimeAxis(v, {
+    ...frame,
+    height: block + size.height + size.padding * 2,
+    transform: {x: column, y: 0},
+    key: "gantt-axis",
+  });
   const x = (t: TimeValue) => column + scale(t);
 
   const bands = scaleBand<number>()
