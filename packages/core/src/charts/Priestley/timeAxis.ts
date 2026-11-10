@@ -157,13 +157,13 @@ export function measureTimeAxis(
 
 /**
     Renders the chart's time axis (`viz.ctx.axis`) over `frame`, pushes its
-    scene onto `viz._chartScene` (with any extra `group` fields), and returns
-    its scale.
+    scene onto `viz._chartScene` (as `finish` returns it, when given), and
+    returns its scale.
 */
 export function renderTimeAxis(
   viz: VizInstance,
   frame: TimeAxisFrame,
-  group: Partial<SceneNode> = {},
+  finish: (axis: SceneNode) => SceneNode = axis => axis,
 ): (v: TimeValue) => number {
   const axis = viz.ctx.axis as TimeAxisLike;
   // A `maxSize` function reads the height the test axis measured with.
@@ -174,13 +174,14 @@ export function renderTimeAxis(
     .render();
   const axisScene = axis.toScene();
   if (axisScene) {
-    (viz._chartScene ||= []).push({
-      type: "group",
-      key: frame.key,
-      transform: frame.transform,
-      children: (axisScene.children ?? []) as unknown as SceneNode[],
-      ...group,
-    } as SceneNode);
+    (viz._chartScene ||= []).push(
+      finish({
+        type: "group",
+        key: frame.key,
+        transform: frame.transform,
+        children: (axisScene.children ?? []) as unknown as SceneNode[],
+      }),
+    );
   }
   return axis._d3Scale;
 }

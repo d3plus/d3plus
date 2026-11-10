@@ -133,3 +133,17 @@ export function stampTitleTooltip(
   for (const node of all)
     if (node.datum !== undefined) (node as Stamped).axisTooltip = target;
 }
+
+/**
+    An axis's scene as chrome under a chart's marks: every node takes the
+    "axis" interaction group, and each one that draws leaves hit-testing
+    unless it is stamped with a tooltip target, so the pointer reaches the
+    axis only on a label with a tooltip to show.
+    @param node An axis's scene, or a node in it.
+*/
+export function inertAxis(node: SceneNode): SceneNode {
+  const next = {...node, interactionGroup: "axis"} as Stamped;
+  if (next.type === "group") next.children = next.children.map(inertAxis);
+  else if (!next.axisTooltip) next.interactive = false;
+  return next;
+}

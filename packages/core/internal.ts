@@ -489,6 +489,7 @@ export {
 export type {AxisTooltipContent} from "./src/charts/features/axisTooltip.js";
 export {
   axisTooltipTarget,
+  inertAxis,
   labelCut,
   stampTickTooltips,
   stampTitleTooltip,

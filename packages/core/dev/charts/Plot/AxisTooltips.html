@@ -56,6 +56,10 @@
       <h3>Matrix (rowConfig, columnConfig)</h3>
       <div class="viz" id="matrix"></div>
     </div>
+    <div>
+      <h3>Gantt (axisConfig)</h3>
+      <div class="viz" id="gantt"></div>
+    </div>
   </body>
 
   <script>
@@ -200,6 +204,23 @@
         },
       })
       .select("#matrix")
+      .render();
+
+    new d3plus.Gantt()
+      .data([
+        {task: "Plan", start: "2024-03-04", end: "2024-03-08"},
+        {task: "Design", start: "2024-03-11", end: "2024-03-22"},
+        {task: "Ship", start: "2024-03-25", end: "2024-04-05"},
+      ])
+      .groupBy("task")
+      .axisConfig({
+        title: "Schedule",
+        titleTooltip: "When each task runs",
+        tickTooltip: function (value) {
+          return new Date(value).toDateString();
+        },
+      })
+      .select("#gantt")
       .render();
   </script>
 </html>
