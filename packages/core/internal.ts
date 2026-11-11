@@ -1013,6 +1013,7 @@ export {
   alluvialTitleBoxes,
   alluvialTitleNodes,
   alluvialTitleStyle,
+  alluvialTitleTooltip,
   sizeAlluvialTitles,
 } from "./src/charts/Alluvial/titles.js";
 export type {AlluvialTitle} from "./src/charts/Alluvial/titles.js";
