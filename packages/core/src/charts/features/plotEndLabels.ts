@@ -15,6 +15,7 @@ import type {SceneNode} from "@d3plus/render";
 import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
 
 import type Axis from "../../components/Axis/Axis.js";
+import {labelLineHeight} from "../../components/Axis/axisLabelLineHeight.js";
 import TextBox from "../../components/TextBox.js";
 import configValue from "../../utils/configValue.js";
 import {swarmHidesAxis} from "../Plot/swarm.js";
@@ -105,25 +106,18 @@ export function domainEnds(axis: Axis): unknown[] {
 
 /**
     Formats an axis's domain ends with its tick format and measures them with
-    its label font (`shapeConfig.labelConfig` and `shapeConfig.lineHeight`).
+    its label font and line height (see `labelLineHeight`).
     Read after the axis has been measured or rendered.
 */
 export function measureEndLabels(axis: Axis): EndLabelMeasure {
-  const shapeConfig = axis.schema.shapeConfig as {
-    labelConfig?: LabelConfig;
-    lineHeight?: Accessor<number>;
-  };
+  const shapeConfig = axis.schema.shapeConfig as {labelConfig?: LabelConfig};
   const labelConfig = shapeConfig.labelConfig || {};
   const format = axis._labelFormat || ((d: unknown) => `${d}`);
   let height = 0,
     padding = 0;
   const labels = domainEnds(axis).map((value, i) => {
     const fontSize = configValue(labelConfig.fontSize ?? 12, value, i);
-    const lineHeight = configValue(
-      shapeConfig.lineHeight ?? fontSize * 1.4,
-      value,
-      i,
-    );
+    const lineHeight = labelLineHeight(shapeConfig, value, i, fontSize);
     const text = `${format(value) ?? ""}`;
     const wrap = textWrap()
       .fontFamily(
@@ -137,7 +131,10 @@ export function measureEndLabels(axis: Axis): EndLabelMeasure {
       .width(Number.MAX_SAFE_INTEGER)
       .height(lineHeight)(text);
     const lines = wrap.lines.filter(l => l !== "");
-    height = Math.max(height, Math.ceil(lines.length * lineHeight));
+    // The whole pixel above the text: TextBox draws a line only in a box
+    // taller than the line.
+    if (lines.length)
+      height = Math.max(height, Math.floor(lines.length * lineHeight) + 1);
     padding = Math.max(
       padding,
       configValue(labelConfig.padding ?? 0, value, i),
@@ -272,6 +269,9 @@ export function emitEndLabels(
     .config(labelConfig)
     .config({
       fontResize: false,
+      // Painted with the line height they were measured with.
+      lineHeight: (d: EndLabelBox & {i: number}) =>
+        labelLineHeight(axis.schema.shapeConfig, d.value, d.i),
       padding: 0,
       rotate: 0,
       textAnchor: (d: EndLabelBox) => d.textAnchor,

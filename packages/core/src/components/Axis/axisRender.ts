@@ -22,6 +22,7 @@ import {ceilPow, fixFloat, floorPow, isNegative} from "./axisRounding.js";
 import {powTicks} from "./powTicks.js";
 import {timeDataInDomain} from "./timeValues.js";
 import {slantedLabelBox} from "./axisLabelAngle.js";
+import {labelLineHeight} from "./axisLabelLineHeight.js";
 import type {AxisOrient} from "./axisLabelAngle.js";
 
 const maxTimezoneOffset = 1000 * 60 * 60 * 26;
@@ -308,6 +309,7 @@ export function buildTickData(
               },
         rotate: data ? data.rotate : false,
         angle: data ? data.angle : 0,
+        lineHeight: data?.lineHeight,
         size:
           labels.includes(d) ||
           (axis.schema.scale === "log" &&
@@ -388,7 +390,17 @@ export function configureTickShape(
         axis.schema.shapeConfig,
       ) as Partial<BaseShapeConfig>,
     )
-    .labelConfig({padding: 0})
+    .labelConfig({
+      // Each label is painted with the line height it was measured with.
+      lineHeight: (d: DataPoint, i: number) => {
+        const datum = (d.lineHeight !== undefined ? d : d.data) as
+          DataPoint | undefined;
+        return typeof datum?.lineHeight === "number"
+          ? datum.lineHeight
+          : labelLineHeight(axis.schema.shapeConfig, datum?.id, i);
+      },
+      padding: 0,
+    })
     .render();
 }
 
