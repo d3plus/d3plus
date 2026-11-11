@@ -10,8 +10,15 @@ import type {DataPoint} from "@d3plus/data";
 
 import type ColorScale from "./ColorScale.js";
 import type {ColorScaleCompute} from "./colorScaleScale.js";
+import {resetKeys} from "../../fluent.js";
 import type {AccessorFn, D3plusConfig} from "../../utils/index.js";
 import type {RectConfig} from "../../shapes/shapeConfig.js";
+
+/** The config a Legend merges each render's into, rather than replaces. */
+const LEGEND_BAGS = ["shapeConfig", "titleConfig"];
+
+/** The config keys each ColorScale's Legend was last given. */
+const legendKeys = new WeakMap<object, string[]>();
 
 /** Shared <g> groups and transition params created by ColorScale.render. */
 export interface ColorScaleGroups {
@@ -459,12 +466,18 @@ export function renderLegendVariant(
     cs.schema.legendConfig,
   );
 
-  cs._legendClass
+  // Each render starts from the Legend's defaults, so config an earlier
+  // render gave it and this one doesn't is dropped.
+  const legend = cs._legendClass;
+  legend.config(
+    resetKeys(legend, [...LEGEND_BAGS, ...(legendKeys.get(legend) ?? [])]),
+  );
+  legendKeys.set(legend, Object.keys(legendConfig));
+  legend
     .renderMode("compute")
     .data(legendData)
     .select(groups.legendGroup.node())
     .config(legendConfig)
     .render();
-
   cs._outerBounds = cs._legendClass.outerBounds();
 }

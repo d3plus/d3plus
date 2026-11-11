@@ -3,11 +3,13 @@ import assert from "assert";
 import {assign} from "@d3plus/dom";
 import {
   mergeConfigBag,
+  resetKeys,
   resolvesReset,
   RESOLVES_RESET,
 } from "../../src/fluent.ts";
 import {default as BaseClass} from "../../src/utils/BaseClass.ts";
 import {default as RESET} from "../../src/utils/RESET.ts";
+import {ColorScale} from "../../index.ts";
 
 const defaults = () => ({
   a: {b: {c: {d: 1, e: 2}, f: 3}, g: 4},
@@ -213,4 +215,22 @@ it("config() restores falsy defaults for setters that leave RESET to it", () => 
     {Circle: {trail: RESET, size: RESET}, label: RESET},
     "caller's patch untouched",
   );
+});
+
+it("resetKeys: RESET for each key the host has a setter for", () => {
+  const host = new Untagged();
+  assert.deepStrictEqual(resetKeys(host, ["opts", "locale", "unknown"]), {
+    opts: RESET,
+    locale: RESET,
+  });
+  assert.deepStrictEqual(resetKeys(host, []), {});
+});
+
+it("resetKeys: config() with it restores the keys' defaults", () => {
+  const cs = new ColorScale();
+  cs.config({legendConfig: {width: 60}, size: 20});
+  cs.config(resetKeys(cs, ["legendConfig", "size"]));
+  assert.strictEqual(cs.legendConfig().width, undefined);
+  assert.strictEqual(cs.legendConfig().shapeConfig.strokeWidth, 1);
+  assert.strictEqual(cs.size(), 10);
 });

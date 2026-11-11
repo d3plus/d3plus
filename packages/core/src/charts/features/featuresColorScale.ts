@@ -32,6 +32,7 @@ import {
 } from "./colorScaleLimit.js";
 import {resolveAccessor, shapeConfigFor} from "./emitHelpers.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {resetKeys} from "../../fluent.js";
 
 /** Where and how the colorScale lays itself out for one render. */
 interface ColorScaleFrame {
@@ -80,6 +81,12 @@ function dataRows(viz: VizInstance): MergedDataPoint[] {
     return c !== undefined && c !== null;
   });
 }
+
+/** The config a ColorScale merges each render's into, rather than replaces. */
+const CONFIG_BAGS = ["axisConfig", "labelConfig", "legendConfig", "rectConfig"];
+
+/** The `colorScaleConfig` keys each chart's ColorScale was last given. */
+const configKeys = new WeakMap<object, string[]>();
 
 /** The paint a bucket swatch takes from the chart's shapes: all but its fill. */
 const SWATCH_STYLES = [
@@ -149,6 +156,11 @@ function paintColorScale(
   if (!value) return;
 
   const cs = viz._colorScaleClass!;
+  // Each render starts from the ColorScale's defaults, so config the chart's
+  // colorScaleConfig gave it before and no longer gives it is dropped.
+  const config = viz.schema.colorScaleConfig;
+  cs.config(resetKeys(cs, [...CONFIG_BAGS, ...(configKeys.get(cs) ?? [])]));
+  configKeys.set(cs, Object.keys(config));
   const {limit} = frame;
   const bivariate = bivariateSpec(viz);
   cs._bivariateFields = bivariate
@@ -175,7 +187,7 @@ function paintColorScale(
           ? undefined
           : () => axisRoom(limit, cs.size(), cs.padding()),
     })
-    .config(viz.schema.colorScaleConfig)
+    .config(config)
     .width(frame.width)
     .height(frame.height)
     .hover(false)

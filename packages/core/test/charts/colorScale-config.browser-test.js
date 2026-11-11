@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import RESET from "../../src/utils/RESET.ts";
 
 /**
     A chart's `colorScaleConfig`, in a real browser on both renderers:
@@ -9,6 +10,8 @@ import {render} from "~test/browser/render.js";
       is the most of the chart the scale takes, in place of a third, with the
       scale drawn against its edge of the chart in the margin it claims; at
       the top or bottom, a `width` is the scale's length.
+    - each render starts from the config the chart has then, so config set
+      and then reset doesn't carry over.
 */
 
 const rows = Array.from({length: 30}, (_, i) => ({
@@ -24,7 +27,9 @@ const scales = {
 };
 
 /**
-    Draws the chart into `#${arg.target}` and reports its painted colorScale.
+    Draws the chart into `#${arg.target}` and reports its painted colorScale;
+    with `arg.then`, merges that into its colorScaleConfig and draws it again,
+    reporting the second draw.
 */
 const draw = arg =>
   new Promise(resolve => {
@@ -74,7 +79,10 @@ const draw = arg =>
       if (scale) walk(scale, 0, 0);
       return {...out, margin: viz._margin};
     };
-    viz.render(() => resolve(report()));
+    viz.render(() => {
+      if (!arg.then) return resolve(report());
+      viz.colorScaleConfig(arg.then).render(() => resolve(report()));
+    });
   });
 
 /** Draws `arg` once per entry of `arg.variants`, each with that entry's changes. */
@@ -172,3 +180,48 @@ for (const renderer of ["svg", "canvas"])
           `drawn within 150 to 450 (${x0} to ${x1})`,
         );
       });
+
+/** What a draw shows: its labels, where its colors are, and the margin. */
+const shown = ({labels, box, margin}) => ({labels, box, margin});
+
+for (const renderer of ["svg", "canvas"])
+  it(`[${renderer}] a legendConfig.width reset no longer limits a swatches colorScale`, async () => {
+    const arg = {renderer, position: "right"};
+    const [reset, fresh] = await drawVariants(arg, [
+      {
+        config: {...scales.swatches, legendConfig: {width: 60}},
+        then: {legendConfig: {width: RESET}},
+      },
+      {config: scales.swatches},
+    ]);
+    assert.ok(fresh.labels.length > 0, "the fresh scale is labeled");
+    assert.deepStrictEqual(shown(reset), shown(fresh), "as if never set");
+  });
+
+for (const renderer of ["svg", "canvas"])
+  it(`[${renderer}] a colorScaleConfig.bucketAxis reset draws swatches again`, async () => {
+    const arg = {renderer, position: "right"};
+    const [reset, fresh] = await drawVariants(arg, [
+      {config: scales["bucketed bar"], then: {bucketAxis: RESET}},
+      {config: scales.swatches},
+    ]);
+    assert.deepStrictEqual(shown(reset), shown(fresh), "as if never set");
+  });
+
+for (const renderer of ["svg", "canvas"])
+  for (const position of ["bottom", "right"])
+    it(`[${renderer}] swatches whose long labels are reset draw as a fresh chart's at the ${position}`, async () => {
+      const size = [250, 200];
+      const arg = {renderer, position, config: scales.swatches};
+      const [limited, after, fresh] = await drawVariants(
+        arg,
+        [{prefix}, {prefix, then: {axisConfig: {tickFormat: RESET}}}, {}],
+        size,
+      );
+      assert.ok(
+        limited.labels.every(l => !l.startsWith(prefix)),
+        "long labels are left out at first",
+      );
+      assert.ok(fresh.labels.length > 0, "the fresh scale is labeled");
+      assert.deepStrictEqual(shown(after), shown(fresh), "as a fresh chart");
+    });
