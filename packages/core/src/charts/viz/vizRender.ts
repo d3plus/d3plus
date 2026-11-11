@@ -20,6 +20,7 @@ import {
 } from "./vizVisibility.js";
 import {queuedFormatter, syncLoaderFormats} from "./loaderFormat.js";
 import {recordDataSignature, syncDataPolling} from "./vizDataPolling.js";
+import {reportDrawError} from "./reportDrawError.js";
 
 /**
     Whether the chart counts as on-screen for this render. `_forceVisible` is set
@@ -275,12 +276,19 @@ function queuePromises(viz: Viz): Promise<void>[] {
       const formatter = queuedFormatter(viz, p[3], p[2]);
       let done = false;
       const promise = new Promise<void>(resolve => {
-        p[0](p[1], formatter, p[3], (err: unknown, data: unknown) => {
+        const loaded = (err: unknown, data?: unknown): void => {
           done = true;
           if (err) console.error(err);
           else if (p[3] === "data") recordDataSignature(viz, data);
           resolve();
-        });
+        };
+        // A load served from the cache formats synchronously; a formatter
+        // that throws there fails the load as it would when fetched.
+        try {
+          p[0](p[1], formatter, p[3], loaded);
+        } catch (err) {
+          loaded(err);
+        }
       });
       if (!done) promises.push(promise);
     },
@@ -392,6 +400,15 @@ function finishDraw(viz: Viz, callback?: () => void): void {
     viz._resizeObserver?.unobserve(viz._select.node().parentNode);
   }
 
+  scheduleCallback(viz, callback);
+}
+
+/**
+    Calls the render callback once the draw's transitions have had time to
+    finish.
+    @private
+*/
+function scheduleCallback(viz: Viz, callback?: () => void): void {
   if (callback)
     setTimeout(
       () => {
@@ -403,15 +420,36 @@ function finishDraw(viz: Viz, callback?: () => void): void {
 }
 
 /**
+    Handles an error thrown while drawing: logs it, hides the loading message
+    this render showed, and still calls the render callback, so callers
+    waiting on it don't hang. The chart keeps whatever it last painted.
+    @param loading Whether this render showed the loading message.
+    @private
+*/
+function drawFailed(
+  viz: Viz,
+  error: unknown,
+  loading: boolean,
+  callback?: () => void,
+): void {
+  reportDrawError(viz, error);
+  if (loading && viz._messageClass._isVisible)
+    viz._messageClass.hide({duration: effectiveDuration(viz)});
+  scheduleCallback(viz, callback);
+}
+
+/**
     Loads any queued data (showing the loading message while in flight) then
-    draws the chart.
+    draws the chart. An error thrown while drawing is reported rather than
+    left as an unhandled rejection (see `drawFailed`).
     @private
 */
 function loadAndDraw(viz: Viz, callback?: () => void): void {
   syncLoaderFormats(viz);
   const promises = queuePromises(viz);
 
-  if (viz.schema.loadingMessage && promises.length) {
+  const loading = Boolean(viz.schema.loadingMessage && promises.length);
+  if (loading) {
     viz._messageClass.render({
       container: viz._select.node().parentNode,
       duration: effectiveDuration(viz),
@@ -421,7 +459,9 @@ function loadAndDraw(viz: Viz, callback?: () => void): void {
     });
   }
 
-  Promise.all(promises).then(() => finishDraw(viz, callback));
+  Promise.all(promises)
+    .then(() => finishDraw(viz, callback))
+    .catch(error => drawFailed(viz, error, loading, callback));
 }
 
 /**
