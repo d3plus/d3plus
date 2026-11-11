@@ -305,3 +305,182 @@ for (const renderer of ["svg", "canvas"]) {
         },
       ));
 }
+
+/** The tiles' opacities, whether the hover is a bucket's, and the hover mark. */
+const bucketState = page =>
+  tiles(page).then(async opacity => ({
+    opacity,
+    ...(await page.evaluate(() => ({
+      bucket: window.__viz._hoverBucket,
+      mark: window.__viz._colorScaleClass.hover() || false,
+    }))),
+  }));
+
+// The "20 - 49" bucket lit: only tile d (score 20) stays bright.
+const LIT_D = {
+  opacity: {a: 0.5, b: 0.5, c: 0.5, d: 1, e: 0.5},
+  bucket: true,
+  mark: false,
+};
+
+/** The first text node on the color scale whose stamp is cut short, as drawn. */
+const cutLabel = (page, part) =>
+  page.evaluate(part => {
+    let found = null;
+    const walk = node => {
+      if (
+        !found &&
+        node.axisTooltip?.part === part &&
+        node.axisTooltip.truncated
+      )
+        found = node.lines.map(l => l.text).join(" ");
+      (node.children || []).forEach(walk);
+    };
+    walk(window.__viz._paintedScene.root);
+    return found;
+  }, part);
+
+// A title too long for one line of the scale, so it is drawn cut.
+const LONG_TITLE =
+  "The average score of each region over the whole of the reporting period "
+    .repeat(4)
+    .trim();
+
+for (const renderer of ["svg", "canvas"])
+  for (const position of ["bottom", "right"]) {
+    it(`swatch tooltips (${renderer}, ${position}): a label shows tickTooltip with its bucket's value and index, and lights its bucket`, () =>
+      withChart(
+        treemap(
+          `colorScalePosition: "${position}", colorScaleConfig: {axisConfig: {title: "Score", titleTooltip: "The score", tickTooltip: (v, i) => "Bucket " + i + " from " + v}}`,
+        ),
+        renderer,
+        async page => {
+          await hover(page, await nodePoint(page, label("20 - 49")));
+          assert.strictEqual((await tooltip(page))?.body, "Bucket 1 from 20");
+          assert.strictEqual(await pointer(page), false, "label cursor");
+          assert.deepStrictEqual(await bucketState(page), LIT_D, "lit");
+          await leave(page);
+          assert.strictEqual(await tooltip(page), null, "label left");
+          assert.deepStrictEqual(await tiles(page), UNDIMMED, "label left");
+
+          await hover(page, await nodePoint(page, label("Score")));
+          assert.strictEqual((await tooltip(page))?.body, "The score");
+          await leave(page);
+          assert.strictEqual(await tooltip(page), null, "title left");
+          assert.deepStrictEqual(await events(page), [], "no shape events");
+        },
+      ));
+
+    it(`swatch tooltips (${renderer}, ${position}): from a label onto its swatch, the bucket stays lit`, () =>
+      withChart(
+        treemap(
+          `colorScalePosition: "${position}", colorScaleConfig: {axisConfig: {tickTooltip: v => "Score " + v}}`,
+        ),
+        renderer,
+        async page => {
+          await hover(page, await nodePoint(page, label("20 - 49")));
+          assert.deepStrictEqual(
+            await bucketState(page),
+            LIT_D,
+            "on the label",
+          );
+          await hover(page, await nodePoint(page, segment("20 - 49")));
+          assert.strictEqual((await tooltip(page))?.title, "20 - 49");
+          assert.deepStrictEqual(
+            await bucketState(page),
+            LIT_D,
+            "on the swatch",
+          );
+          await leave(page);
+          assert.strictEqual(await tooltip(page), null);
+          assert.deepStrictEqual(await tiles(page), UNDIMMED);
+        },
+      ));
+
+    it(`swatch tooltips (${renderer}, ${position}): the swatch keeps its bucket's tooltip and highlight`, () =>
+      withChart(
+        treemap(
+          `colorScalePosition: "${position}", colorScaleConfig: {axisConfig: {tickTooltip: v => "Score " + v}}`,
+        ),
+        renderer,
+        async page => {
+          await hover(page, await nodePoint(page, segment("0 - 19")));
+          assert.strictEqual((await tooltip(page))?.title, "0 - 19");
+          assert.strictEqual(await pointer(page), true);
+          assert.deepStrictEqual(
+            await tiles(page),
+            {a: 1, b: 0.5, c: 0.5, d: 0.5, e: 0.5},
+            "the tiles outside the bucket dim",
+          );
+          await leave(page);
+          assert.deepStrictEqual(await tiles(page), UNDIMMED);
+        },
+      ));
+
+    it(`swatch tooltips (${renderer}, ${position}): a cut title shows its whole text`, () =>
+      withChart(
+        treemap(
+          `colorScalePosition: "${position}", colorScaleConfig: {axisConfig: {title: ${JSON.stringify(LONG_TITLE)}, titleConfig: {maxLines: 1}}}`,
+        ),
+        renderer,
+        async page => {
+          const cut = await cutLabel(page, "title");
+          assert.ok(cut, "the title is drawn cut short");
+          await hover(page, await nodePoint(page, label(cut)));
+          assert.strictEqual((await tooltip(page))?.title, LONG_TITLE);
+          await leave(page);
+          assert.strictEqual(await tooltip(page), null);
+          assert.deepStrictEqual(await events(page), [], "no shape events");
+        },
+      ));
+  }
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`swatch tooltips (${renderer}): a function returning false, or false, shows nothing`, () =>
+    withChart(
+      treemap(
+        `colorScalePosition: "bottom", colorScaleConfig: {axisConfig: {title: "Score", titleTooltip: false, tickTooltip: (v, i) => i === 1 ? false : "Score " + v}}`,
+      ),
+      renderer,
+      async page => {
+        await hover(page, await nodePoint(page, label("50 - 74")));
+        assert.strictEqual((await tooltip(page))?.body, "Score 50");
+        assert.deepStrictEqual(
+          await tiles(page),
+          {a: 0.5, b: 1, c: 0.5, d: 0.5, e: 0.5},
+          "a label with a tooltip lights its bucket",
+        );
+        for (const name of ["20 - 49", "Score"]) {
+          await hover(page, await nodePoint(page, label(name)));
+          assert.strictEqual(await tooltip(page), null, name);
+          assert.strictEqual(await pointer(page), false, `${name}, cursor`);
+          assert.deepStrictEqual(
+            await tiles(page),
+            UNDIMMED,
+            `${name} lights nothing`,
+          );
+        }
+        await leave(page);
+        assert.deepStrictEqual(await events(page), [], "no shape events");
+      },
+    ));
+
+  it(`swatch tooltips (${renderer}): an untouched title is chrome`, () =>
+    withChart(
+      treemap(
+        `colorScalePosition: "bottom", colorScaleConfig: {axisConfig: {title: "Score"}}`,
+      ),
+      renderer,
+      async page => {
+        const at = await nodePoint(page, label("Score"));
+        await hover(page, at);
+        assert.strictEqual(await tooltip(page), null);
+        assert.strictEqual(await pointer(page), false);
+        assert.deepStrictEqual(await tiles(page), UNDIMMED);
+        await page.mouse.click(at[0], at[1]);
+        await page.waitForTimeout(120);
+        await leave(page);
+        assert.deepStrictEqual(await events(page), [], "no shape events");
+      },
+    ));
+}
