@@ -67,10 +67,39 @@ export function limitFrame<T extends LimitedFrame>(frame: T, limit: number): T {
 }
 
 /**
+    `frame` with the `limit` a colorScale along a side of the chart keeps to:
+    `set`, the size across the scale its `colorScaleConfig` gives it (its
+    `width` at the left or right, its `height` at the top or bottom), up to
+    the frame's own, with the frame cut down to it against its edge; else a
+    third of the frame across the scale.
+*/
+export function sideFrame<T extends LimitedFrame>(
+  frame: T,
+  set: number | undefined,
+): T & {limit: number} {
+  const across = frame[isWide(frame.orient) ? "height" : "width"];
+  if (set === undefined) return {...frame, limit: across * MAX_SHARE};
+  const limit = Math.max(0, Math.min(set, across));
+  return {...limitFrame(frame, limit), limit};
+}
+
+/** The number `config` sets for `key`, or undefined when it sets none. */
+export function configSize(
+  config: Record<string, unknown>,
+  key: "width" | "height",
+): number | undefined {
+  const value = config[key];
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : undefined;
+}
+
+/**
     The frame a scale drawn as swatches is laid out in again, or undefined
     when it keeps `frame`: one as far across the scale as its Legend may
     reach, the size the scale's `legendConfig` gives it there or else the
-    frame's `limit`, once its swatches claim more than that limit.
+    frame's `limit`, once its swatches claim more than that limit (a frame
+    already cut down to the limit keeps it).
 */
 export function swatchFrame<T extends LimitedFrame & {limit?: number}>(
   cs: ColorScale,
@@ -82,5 +111,7 @@ export function swatchFrame<T extends LimitedFrame & {limit?: number}>(
   if (typeof set === "number")
     return set === frame[across] ? undefined : limitFrame(frame, set);
   const claim = cs.outerBounds()[across] + cs.padding() * 2;
-  return claim > frame.limit ? limitFrame(frame, frame.limit) : undefined;
+  return claim > frame.limit && frame[across] !== frame.limit
+    ? limitFrame(frame, frame.limit)
+    : undefined;
 }

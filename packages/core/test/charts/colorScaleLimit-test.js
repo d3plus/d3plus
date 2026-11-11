@@ -3,10 +3,12 @@ import assert from "assert";
 
 import {
   axisRoom,
+  configSize,
   drawsSwatches,
   isWide,
   limitFrame,
   MAX_SHARE,
+  sideFrame,
   swatchFrame,
 } from "../../src/charts/features/colorScaleLimit.ts";
 
@@ -171,4 +173,58 @@ it("swatchFrame: only swatches along a side of the chart are limited", () => {
     swatchFrame(swatches(500), {...right, limit: undefined}),
     undefined,
   );
+});
+
+it("swatchFrame: a frame already cut down to the limit keeps it", () => {
+  const cut = {...right, x: 420, width: 200};
+  assert.strictEqual(swatchFrame(swatches(260), cut), undefined);
+});
+
+const side = {x: 20, y: 30, width: 600, height: 300};
+
+it("sideFrame: with no size set, the limit is a third of the frame across the scale", () => {
+  const r = {...side, orient: "right", align: "end"};
+  assert.deepStrictEqual(sideFrame(r, undefined), {...r, limit: 200});
+  const t = {...side, orient: "top", align: "start"};
+  assert.deepStrictEqual(sideFrame(t, undefined), {...t, limit: 100});
+});
+
+it("sideFrame: a size set across the scale is its limit, the frame cut to it against its edge", () => {
+  const r = {...side, orient: "right", align: "end"};
+  assert.deepStrictEqual(sideFrame(r, 120), {
+    ...r,
+    x: 500,
+    width: 120,
+    limit: 120,
+  });
+  const l = {...side, orient: "left", align: "start"};
+  assert.deepStrictEqual(sideFrame(l, 120), {...l, width: 120, limit: 120});
+  const b = {...side, orient: "bottom", align: "end"};
+  assert.deepStrictEqual(sideFrame(b, 50), {
+    ...b,
+    y: 280,
+    height: 50,
+    limit: 50,
+  });
+  const t = {...side, orient: "top", align: "start"};
+  assert.deepStrictEqual(sideFrame(t, 50), {...t, height: 50, limit: 50});
+});
+
+it("sideFrame: a size set past the frame keeps the frame", () => {
+  const r = {...side, orient: "right", align: "end"};
+  assert.deepStrictEqual(sideFrame(r, 900), {...r, limit: 600});
+  assert.deepStrictEqual(sideFrame(r, -10), {
+    ...r,
+    x: 620,
+    width: 0,
+    limit: 0,
+  });
+});
+
+it("configSize: a finite number the config sets, or undefined", () => {
+  assert.strictEqual(configSize({width: 120}, "width"), 120);
+  assert.strictEqual(configSize({width: 120}, "height"), undefined);
+  assert.strictEqual(configSize({height: "50"}, "height"), undefined);
+  assert.strictEqual(configSize({height: NaN}, "height"), undefined);
+  assert.strictEqual(configSize({}, "width"), undefined);
 });
