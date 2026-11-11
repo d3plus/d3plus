@@ -4,6 +4,7 @@
     Implementation files in this folder:
       - `applyLayout.ts` — chart-specific `TransformStage`.
       - `emit.ts` — Circle + label scene nodes from the laid-out data.
+      - `nodeNames.ts` — each circle's scene key and accessible name.
       - `recursionCircles.ts` — descendant-walk helper used by hover handlers.
 */
 
