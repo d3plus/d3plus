@@ -9,6 +9,7 @@ import {max} from "d3-array";
 
 import AxisBottom from "../../components/Axis/AxisBottom.js";
 import type Axis from "../../components/Axis/Axis.js";
+import configValue from "../../utils/configValue.js";
 import {barLabelsNeedAxis, type BarLabelCheck} from "../Plot/barLabelFit.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -296,11 +297,7 @@ function measureXTestAxes(
     startLabelSpace && (yWidth ?? 0) + startLabelSpace,
   ] as number[])!;
 
-  const yLabelConfig = yTest.shapeConfig().labelConfig as {
-    fontSize: () => number;
-  };
-  const topOffset =
-    (showY ? yLabelConfig.fontSize() / 2 : 0) + (viz._plotInsetTop ?? 0);
+  const topOffset = yLabelTopOffset(viz, yTest, showY);
 
   const xOffsetRight = xRightInset(
     {xTest, x2Test, showX, x2Exists, xRangeMax, width},
@@ -434,10 +431,20 @@ function barPlot(
 function provisionalTopOffset(viz: Viz, inputs: AxisMeasureInputs): number {
   const {yTest, yC, showY} = inputs;
   if (showY) yTest.config(yC).config(plotAxisConfig(viz, "y"));
-  const labelConfig = yTest.shapeConfig().labelConfig as {
-    fontSize: () => number;
+  return yLabelTopOffset(viz, yTest, showY);
+}
+
+/**
+    The room above the plot for half of the y axis's top label: its font
+    size (a constant or a function, as label config accepts) over 2, plus
+    the chart's own top inset.
+*/
+function yLabelTopOffset(viz: Viz, yTest: Axis, showY: boolean): number {
+  const {fontSize} = yTest.shapeConfig().labelConfig as {
+    fontSize: number | (() => number);
   };
-  return (showY ? labelConfig.fontSize() / 2 : 0) + (viz._plotInsetTop ?? 0);
+  const half = showY ? configValue(fontSize) / 2 : 0;
+  return half + (viz._plotInsetTop ?? 0);
 }
 
 /** The x axis's height, from a throwaway measure ahead of the joint solve. */
