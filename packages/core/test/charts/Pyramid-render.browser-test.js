@@ -964,3 +964,201 @@ it("Pyramid renders its stories' configs without warnings", async function () {
   );
   assert.deepStrictEqual(warnings, []);
 });
+
+/** Age bands too long for the gutter of a narrow chart. */
+const longRows = (count, label) =>
+  Array.from({length: count}, (_, i) => label(i * 10, i * 10 + 9)).flatMap(
+    (age, b) => [
+      {age, sex: "Male", pop: 1000 - b * 30},
+      {age, sex: "Female", pop: 1100 - b * 30},
+    ],
+  );
+const ageLabel = (lo, hi) => `Ages ${lo} to ${hi} years old, inclusive`;
+
+/**
+    Renders a Pyramid on `renderer` into a `size` #viz and reads its gutter,
+    category labels, category axis labels, and bars off the painted scene, in
+    the scene root's coordinates.
+*/
+const sceneProbe = ([data, renderer, size]) =>
+  new Promise(resolve => {
+    const host = document.querySelector("#viz");
+    Object.assign(host.style, {width: `${size[0]}px`, height: `${size[1]}px`});
+    const viz = new window.d3plus.Pyramid()
+      .data(data)
+      .groupBy("sex")
+      .y("age")
+      .x("pop")
+      .renderer(renderer)
+      .duration(0)
+      .detectVisible(false)
+      .select("#viz");
+    viz.render(() => {
+      const ct = viz._chartTransform;
+      const e = viz.ctx.pyramid.inset;
+      const x = v => ct.x + viz._xFunc(v);
+      const [lo, hi] = viz._xAxis._d3Scale.domain();
+      const found = {labels: [], yLabels: [], bars: []};
+      const walk = (n, offset, group) => {
+        const at = offset + ((n.transform && n.transform.x) || 0);
+        const g = [
+          "pyramid-categories",
+          "plot-y-axis",
+          "plot-zoom-content",
+        ].includes(n.key)
+          ? n.key
+          : group;
+        if (n.type === "text" && g === "pyramid-categories")
+          found.labels.push({
+            key: n.key,
+            text: n.lines.map(l => l.text).join(" "),
+            lines: n.lines.map(l => l.text),
+            widest: Math.max(0, ...n.lines.map(l => l.width)),
+            left: at,
+            right: at + n.width,
+          });
+        else if (n.type === "text" && g === "plot-y-axis")
+          found.yLabels.push(n.lines.map(l => l.text).join(" "));
+        else if (
+          n.type === "rect" &&
+          g === "plot-zoom-content" &&
+          /^(Male|Female)_/.test(n.key)
+        )
+          found.bars.push({
+            sex: n.key.split("_")[0],
+            left: at + n.x,
+            right: at + n.x + n.width,
+          });
+        (n.children || []).forEach(c => walk(c, at, g));
+      };
+      walk(viz._paintedScene.root, 0, undefined);
+      resolve({
+        canvas: !!host.querySelector("canvas.d3plus-render-canvas"),
+        inset: e,
+        inner: [x(-e), x(e)],
+        ends: [x(lo), x(hi)],
+        padding: viz._yAxis.shapeConfig().labelConfig.padding,
+        ...found,
+      });
+    });
+  });
+
+/** Asserts both halves of the value axis are as wide, and each side's bars reach its gutter edge. */
+const assertSymmetric = (out, label) => {
+  assert.ok(
+    near(out.inner[0] - out.ends[0], out.ends[1] - out.inner[1], 1),
+    `${label}: halves ${out.inner[0] - out.ends[0]} and ${out.ends[1] - out.inner[1]}px`,
+  );
+  const male = out.bars.filter(b => b.sex === "Male");
+  const female = out.bars.filter(b => b.sex === "Female");
+  assert.ok(male.length && female.length, `${label}: bars on both sides`);
+  male.forEach(b =>
+    assert.ok(near(b.right, out.inner[0]), `${label}: Male bar meets its edge`),
+  );
+  female.forEach(b =>
+    assert.ok(
+      near(b.left, out.inner[1]),
+      `${label}: Female bar meets its edge`,
+    ),
+  );
+};
+
+const minGutter = 12 * 5 + 5 * 2;
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`Pyramid narrows its gutter and wraps long category labels on a narrow chart (${renderer})`, async function () {
+    const data = longRows(4, ageLabel);
+    const full = await render(body, sceneProbe, [data, renderer, [900, 420]]);
+    assert.strictEqual(full.canvas, renderer === "canvas");
+    const natural = full.inner[1] - full.inner[0];
+    assert.ok(
+      full.labels.every(l => l.lines.length === 1),
+      "a wide chart fits each label on one line",
+    );
+    for (const width of [400, 600]) {
+      const out = await render(body, sceneProbe, [
+        data,
+        renderer,
+        [width, 420],
+      ]);
+      const gutter = out.inner[1] - out.inner[0];
+      assert.ok(
+        gutter >= minGutter && gutter < natural,
+        `${width}px chart: gutter ${gutter}px, between ${minGutter} and ${natural}`,
+      );
+      assert.strictEqual(
+        out.labels.length,
+        4,
+        `${width}px: one label per band`,
+      );
+      out.labels.forEach(l => {
+        assert.ok(l.text.trim().length, `${width}px: ${l.key} has text`);
+        assert.ok(
+          l.widest <= l.right - l.left + 0.5 &&
+            l.left >= out.inner[0] + out.padding - 0.5 &&
+            l.right <= out.inner[1] - out.padding + 0.5,
+          `${width}px: "${l.text}" (${l.widest}px) fits in the gutter`,
+        );
+      });
+      assert.ok(
+        out.labels.some(l => l.lines.length > 1),
+        `${width}px: long labels wrap`,
+      );
+      assert.ok(
+        out.labels.every(l => !l.text.endsWith("...")),
+        `${width}px: wrapped labels have room for their whole text`,
+      );
+      assertSymmetric(out, `${width}px`);
+    }
+  });
+
+  it(`Pyramid cuts gutter labels short with an ellipsis (${renderer})`, async function () {
+    const data = longRows(11, ageLabel);
+    const out = await render(body, sceneProbe, [data, renderer, [400, 260]]);
+    const gutter = out.inner[1] - out.inner[0];
+    assert.ok(gutter >= minGutter, `gutter ${gutter}px`);
+    assert.ok(out.labels.length >= 2, `${out.labels.length} labels`);
+    out.labels.forEach(l => {
+      assert.ok(
+        /[^\s.]\.\.\.$/.test(l.text) && l.lines.length === 1,
+        `"${l.text}" is cut short on one line`,
+      );
+      assert.ok(
+        l.widest <= l.right - l.left + 0.5 &&
+          l.left >= out.inner[0] - 0.5 &&
+          l.right <= out.inner[1] + 0.5,
+        `"${l.text}" fits in the gutter`,
+      );
+    });
+    assertSymmetric(out, "cut labels");
+    const word = await render(body, sceneProbe, [
+      longRows(11, (lo, hi) => `Pneumonoultramicroscopic${lo}to${hi}`),
+      renderer,
+      [400, 260],
+    ]);
+    assert.ok(word.labels.length >= 2, `${word.labels.length} labels`);
+    word.labels.forEach(l =>
+      assert.ok(
+        /^Pneumono\S*\.\.\.$/.test(l.text) && l.lines.length === 1,
+        `a word too wide for the gutter is cut mid-word: "${l.text}"`,
+      ),
+    );
+  });
+
+  it(`Pyramid draws its category labels at the left on a chart too narrow for the gutter (${renderer})`, async function () {
+    const data = longRows(4, ageLabel);
+    const out = await render(body, sceneProbe, [data, renderer, [200, 420]]);
+    assert.strictEqual(out.inset, 0, "no gutter");
+    assert.strictEqual(out.labels.length, 0, "no gutter labels");
+    assert.strictEqual(
+      out.yLabels.length,
+      4,
+      `the category axis labels each band: ${out.yLabels}`,
+    );
+    out.yLabels.forEach(t => assert.ok(t.trim().length, `"${t}" has text`));
+    assertSymmetric(out, "left layout");
+    const wider = await render(body, sceneProbe, [data, renderer, [400, 420]]);
+    assert.ok(wider.inset > 0, "a wider chart keeps the center layout");
+    assert.strictEqual(wider.yLabels.length, 0);
+  });
+}
