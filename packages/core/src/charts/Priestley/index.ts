@@ -22,9 +22,6 @@ export const priestleyDef: ChartDefinition = {
   layoutStage: applyPriestleyLayout,
   emit: priestleyEmit,
 
-  // Priestley positions in absolute scale coordinates — no chart transform.
-  chartTransform: () => undefined,
-
   // The default start/end accessors are functions, so the fields' `onSet`
   // can't infer a data key to register. Seed the band-edge reducers here so
   // the time domain spans min(start)…max(end) instead of summing them.
