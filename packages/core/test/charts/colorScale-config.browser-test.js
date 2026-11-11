@@ -12,6 +12,8 @@ import RESET from "../../src/utils/RESET.ts";
       the top or bottom, a `width` is the scale's length.
     - each render starts from the config the chart has then, so config set
       and then reset doesn't carry over.
+    - a title over swatches wraps within the scale's third and is left out
+      before the swatches' labels when they don't fit together.
 */
 
 const rows = Array.from({length: 30}, (_, i) => ({
@@ -224,4 +226,54 @@ for (const renderer of ["svg", "canvas"])
       );
       assert.ok(fresh.labels.length > 0, "the fresh scale is labeled");
       assert.deepStrictEqual(shown(after), shown(fresh), "as a fresh chart");
+    });
+
+const title = "Median income";
+
+for (const renderer of ["svg", "canvas"])
+  for (const position of ["left", "right"])
+    it(`[${renderer}] a title wraps within a swatches colorScale's third at the ${position}`, async () => {
+      const size = [250, 400];
+      const [titled] = await drawVariants(
+        {renderer, position, title, config: scales.swatches},
+        [{}],
+        size,
+      );
+      assert.ok(
+        titled.labels.includes(title),
+        `the title is drawn (${titled.labels.join(" | ")})`,
+      );
+      assert.ok(
+        titled.margin[position] <= size[0] / 3,
+        `the scale takes at most a third (${titled.margin[position]})`,
+      );
+      assertInMargin(titled, position, size);
+    });
+
+for (const renderer of ["svg", "canvas"])
+  for (const position of ["left", "right"])
+    it(`[${renderer}] a title is left out before the labels of a swatches colorScale at the ${position} of a small chart`, async () => {
+      const size = [250, 200];
+      const arg = {renderer, position, config: scales.swatches};
+      const [titled, plain] = await drawVariants(arg, [{title}, {}], size);
+      assert.ok(
+        !titled.labels.includes(title),
+        `the title is left out (${titled.labels.join(" | ")})`,
+      );
+      assert.deepStrictEqual(titled.labels, plain.labels, "every label drawn");
+      assert.ok(
+        titled.margin[position] <= size[0] / 3,
+        `the scale takes at most a third (${titled.margin[position]})`,
+      );
+      assertInMargin(titled, position, size);
+    });
+
+for (const renderer of ["svg", "canvas"])
+  for (const position of ["top", "bottom"])
+    it(`[${renderer}] a title is left out before the labels of a swatches colorScale at the ${position} of a short chart`, async () => {
+      const size = [600, 105];
+      const arg = {renderer, position, config: scales.swatches};
+      const [titled, plain] = await drawVariants(arg, [{title}, {}], size);
+      assert.ok(plain.labels.length > 0, "with no title, labeled");
+      assert.deepStrictEqual(shown(titled), shown(plain), "as with no title");
     });

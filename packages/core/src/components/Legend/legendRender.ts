@@ -20,7 +20,12 @@ interface WrapState {
   maxLines: number | undefined;
 }
 
-/** Wraps + measures the title, setting `_titleHeight` / `_titleWidth`. */
+/**
+    Wraps + measures the title, setting `_titleHeight` / `_titleWidth`: it
+    wraps within the width the title is drawn in, the legend's less its
+    padding on both sides, and is left out (both zero) when it doesn't fit
+    there whole.
+*/
 export function measureLegendTitle(legend: Legend): void {
   legend._titleHeight = 0;
   legend._titleWidth = 0;
@@ -41,9 +46,10 @@ export function measureLegendTitle(legend: Legend): void {
       .fontFamily(f)
       .fontSize(s)
       .lineHeight(lH)
-      .width(legend.schema.width)
+      .width(legend.schema.width - legend.schema.padding * 2)
       .height(legend.schema.height)(legend.schema.title);
-    legend._titleHeight = lH + res.lines.length + legend.schema.padding;
+    if (res.truncated || !res.lines.length) return;
+    legend._titleHeight = res.lines.length * (lH + 1) + legend.schema.padding;
     legend._titleWidth = max(res.widths)!;
   }
 }
@@ -345,7 +351,8 @@ export function computeLegendBounds(legend: Legend, spaceNeeded: number): void {
 export function renderLegendTitle(legend: Legend): void {
   legend._titleClass
     .renderMode("compute")
-    .data(legend.schema.title ? [{text: legend.schema.title}] : [])
+    // A title left out for want of room measures no height.
+    .data(legend._titleHeight ? [{text: legend.schema.title}] : [])
     .duration(legend.schema.duration)
     .select(legend._titleGroup.node())
     .textAnchor(

@@ -242,7 +242,13 @@ export default class Legend extends BaseClass {
 
     let spaceNeeded: number | false = this._rowWidth(this._lineData);
     const availableWidth = this.schema.width - this.schema.padding * 2;
-    if (this.schema.direction === "column" || spaceNeeded > availableWidth)
+    // A single row fits when it is no wider and no taller than the room left.
+    const rowFits =
+      spaceNeeded <= availableWidth &&
+      (!this._lineData.length ||
+        this._rowHeight(this._lineData) + this.schema.padding <=
+          availableHeight);
+    if (this.schema.direction === "column" || !rowFits)
       spaceNeeded = wrapLegendRows(this, availableWidth, availableHeight);
 
     if (spaceNeeded === false) clearLegend(this);

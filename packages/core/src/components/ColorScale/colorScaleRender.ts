@@ -395,6 +395,15 @@ export function renderGradient(
   renderGradientLabels(cs, compute, groups, labelConfig, rectConfig, labelData);
 }
 
+/** Whether the Legend's last render left out its swatches' labels, or drew nothing. */
+function labelsLeftOut(legend: ColorScale["_legendClass"]): boolean {
+  if (!legend.data().length) return false;
+  return (
+    !legend.outerBounds().width ||
+    legend._lineData.some(d => d.sentence && !d.width)
+  );
+}
+
 /** Renders the discrete legend ColorScale variant (jenks/buckets/quantile). */
 export function renderLegendVariant(
   cs: ColorScale,
@@ -479,5 +488,9 @@ export function renderLegendVariant(
     .select(groups.legendGroup.node())
     .config(legendConfig)
     .render();
+  // Like the axis of a gradient, the swatches leave out their title before
+  // their labels.
+  if (legend.title() && labelsLeftOut(legend)) legend.title(undefined).render();
+
   cs._outerBounds = cs._legendClass.outerBounds();
 }
