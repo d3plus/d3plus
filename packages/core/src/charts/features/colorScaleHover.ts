@@ -8,7 +8,7 @@ import type {SceneEvent, SceneNode} from "@d3plus/render";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 import {isBivariatePair} from "../../components/ColorScale/bivariateScale.js";
-import {colorScaleBucketOf} from "./colorScaleBucket.js";
+import {colorScaleBucketOf, hoverColorScaleBucket} from "./colorScaleBucket.js";
 import {colorScaleValue} from "./colorScaleValue.js";
 
 type Wrapped = DataPoint & {__d3plus__?: boolean; data?: DataPoint};
@@ -109,4 +109,29 @@ export function hoveredSwatch(
     dimOpacity:
       typeof hoverOpacity === "number" && hoverOpacity < 1 ? hoverOpacity : 0.5,
   };
+}
+
+/**
+    A swatch label showing its axis tooltip lights its bucket, as hovering its
+    swatch does (see `hoverColorScaleBucket`); moving off it, or onto a label
+    with nothing to show, clears that highlight.
+    @param viz The chart.
+    @param event The pointer event.
+    @param shown Whether an axis tooltip shows for the event (see `handleAxisTooltip`).
+*/
+export function handleSwatchLabelHover(
+  viz: VizInstance,
+  event: SceneEvent,
+  shown: boolean,
+): void {
+  const moving = event.type === "mousemove" || event.type === "mouseenter";
+  const bucket =
+    shown && moving ? colorScaleBucketOf(event.pick?.node?.datum) : null;
+  if (bucket === (viz._swatchLabelBucket ?? null)) return;
+  if (viz._swatchLabelBucket) {
+    viz._swatchLabelBucket = undefined;
+    viz.hover?.(false);
+  }
+  if (bucket && hoverColorScaleBucket(viz, bucket))
+    viz._swatchLabelBucket = bucket;
 }

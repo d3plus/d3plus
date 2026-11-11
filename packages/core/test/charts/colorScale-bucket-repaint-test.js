@@ -6,6 +6,7 @@ import {shapeHoverEnabled} from "../../src/charts/viz/shapeHover.ts";
 import {
   colorScaleBucketOf,
   colorScaleBucketRows,
+  hoverColorScaleBucket,
 } from "../../src/charts/features/colorScaleBucket.ts";
 
 /**
@@ -130,4 +131,49 @@ it("colorScaleBucketRows: the first row in each bucket, keyed by bucket color", 
     null,
     "null without a colorScale",
   );
+});
+
+/** A chart whose colorScale splits values at 4, recording its hovers. */
+const bucketViz = () => ({
+  _colorScaleClass: {_colorScale: v => (v < 4 ? "low" : "high")},
+  schema: {colorScale: d => d.v},
+  hovers: [],
+  hover(_) {
+    this.hovers.push(_);
+  },
+});
+
+it("hoverColorScaleBucket: lights the rows in a bucket, from a swatch or its label", () => {
+  const low = {_isColorScaleBucket: true, color: "low"};
+  for (const d of [
+    low,
+    {__d3plus__: true, data: {__d3plus__: true, data: low}},
+  ]) {
+    const viz = bucketViz();
+    assert.strictEqual(hoverColorScaleBucket(viz, d), true);
+    assert.strictEqual(viz._hoverBucket, true);
+    assert.strictEqual(viz.hovers.length, 1);
+    const [predicate] = viz.hovers;
+    assert.deepStrictEqual(
+      [{v: 1}, {v: 5}, {v: 3}].map((row, i) => predicate(row, i)),
+      [true, false, true],
+    );
+    assert.strictEqual(predicate(low, 0), true, "the swatch itself matches");
+  }
+});
+
+it("hoverColorScaleBucket: leaves anything but a bucket alone", () => {
+  const viz = bucketViz();
+  assert.strictEqual(hoverColorScaleBucket(viz, {v: 1}), false);
+  assert.strictEqual(hoverColorScaleBucket(viz, undefined), false);
+  assert.strictEqual(viz._hoverBucket, undefined);
+  assert.deepStrictEqual(viz.hovers, []);
+});
+
+it("hoverColorScaleBucket: a bucket without a colorScale to read lights nothing", () => {
+  const viz = {...bucketViz(), _colorScaleClass: {}};
+  const bucket = {_isColorScaleBucket: true, color: "low"};
+  assert.strictEqual(hoverColorScaleBucket(viz, bucket), true);
+  assert.strictEqual(viz._hoverBucket, undefined);
+  assert.deepStrictEqual(viz.hovers, []);
 });

@@ -299,3 +299,38 @@ it("toScene — a gradient's end labels are chrome", () => {
     assert.strictEqual(label.interactionGroup, "axis");
   }
 });
+
+it("toScene — swatch labels take the scale's tickTooltip, counted from the lowest bucket", () => {
+  for (const orient of ["bottom", "right"]) {
+    const scene = laidOut({
+      scale: "jenks",
+      orient,
+      height: orient === "right" ? 300 : 100,
+      axisConfig: {title: "Score", titleTooltip: "About", tickTooltip: "Note"},
+    }).toScene();
+    const stamped = drawn(scene)
+      .map(({node}) => node)
+      .filter(node => node.axisTooltip);
+    const ticks = stamped
+      .filter(node => node.axisTooltip.part === "tick")
+      .map(({axisTooltip: {value, index, text}}) => [value, index, text])
+      .sort((a, b) => a[1] - b[1]);
+    assert.deepStrictEqual(
+      ticks,
+      [
+        [0, 0, "0 - 19"],
+        [20, 1, "20 - 49"],
+        [50, 2, "50 - 74"],
+        [75, 3, "75 - 99"],
+        [100, 4, "100"],
+      ],
+      orient,
+    );
+    const title = stamped.filter(node => node.axisTooltip.part === "title");
+    assert.strictEqual(title.length, 1, `${orient}: the title`);
+    for (const node of stamped) {
+      assert.strictEqual(node.interactive, true);
+      assert.strictEqual(node.interactionGroup, "axis");
+    }
+  }
+});

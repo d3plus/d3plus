@@ -41,7 +41,10 @@ import {themeBackground, unwatchPageTheme} from "./vizTheme.js";
 import {releaseScene, stopVisibilityWatch} from "./vizVisibility.js";
 import {applyClassName, withRootClasses} from "../../utils/className.js";
 import {handleAxisTooltip} from "../features/axisTooltip.js";
-import {handleColorScaleHover} from "../features/colorScaleHover.js";
+import {
+  handleColorScaleHover,
+  handleSwatchLabelHover,
+} from "../features/colorScaleHover.js";
 import {
   appendFocusRing,
   syncKeyboardNav,
@@ -703,8 +706,11 @@ export default class Viz extends VizBase {
     this._sharedHover(event);
     handleColorScaleHover(this as unknown as VizInstance, event);
     // An axis title or tick label with a tooltip of its own (see
-    // `handleAxisTooltip`), shown last so nothing above replaces it.
-    if (handleAxisTooltip(this as unknown as VizInstance, event)) return;
+    // `handleAxisTooltip`), shown last so nothing above replaces it; a
+    // swatch label showing one also lights its bucket.
+    const axisTip = handleAxisTooltip(this as unknown as VizInstance, event);
+    handleSwatchLabelHover(this as unknown as VizInstance, event, axisTip);
+    if (axisTip) return;
     if (this._transitionEndsAt && Date.now() < this._transitionEndsAt) return;
     const pick = event.pick;
     // Dispatch helper shared by the live-pick path and the leave path.

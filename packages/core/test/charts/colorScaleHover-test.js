@@ -3,6 +3,7 @@ import assert from "assert";
 import {
   colorScaleHoverValue,
   handleColorScaleHover,
+  handleSwatchLabelHover,
   hoveredSwatch,
 } from "../../src/charts/features/colorScaleHover.ts";
 
@@ -166,4 +167,65 @@ it("hoveredSwatch — null when the chart's hover drives it, on a bar, or with h
   cs._hoverMark = true;
   cs.hover(NaN);
   assert.strictEqual(hoveredSwatch(viz), null, "no finite value");
+});
+
+/** A chart whose colorScale splits values at 4, recording its hovers. */
+const labelViz = () => ({
+  _colorScaleClass: {_colorScale: v => (v < 4 ? "low" : "high")},
+  schema: {colorScale: d => d.v},
+  hovers: [],
+  hover(_) {
+    this.hovers.push(_);
+  },
+});
+
+const lowBucket = {_isColorScaleBucket: true, color: "low"};
+const highBucket = {_isColorScaleBucket: true, color: "high"};
+
+/** A swatch label's node for `bucket`, its datum wrapped as the legend wraps it. */
+const swatchLabel = bucket => ({
+  type: "text",
+  key: "label",
+  datum: {__d3plus__: true, data: {__d3plus__: true, data: bucket}},
+});
+
+const move = node => ({type: "mousemove", pick: node && {node}});
+
+it("handleSwatchLabelHover — a label showing its tooltip lights its bucket, once", () => {
+  const viz = labelViz();
+  handleSwatchLabelHover(viz, move(swatchLabel(lowBucket)), true);
+  handleSwatchLabelHover(viz, move(swatchLabel(lowBucket)), true);
+  assert.strictEqual(viz.hovers.length, 1, "lit once while on the label");
+  assert.strictEqual(typeof viz.hovers[0], "function");
+  assert.strictEqual(viz._hoverBucket, true);
+  assert.strictEqual(viz._swatchLabelBucket, lowBucket);
+});
+
+it("handleSwatchLabelHover — leaving the label clears the highlight", () => {
+  const viz = labelViz();
+  handleSwatchLabelHover(viz, move(swatchLabel(lowBucket)), true);
+  handleSwatchLabelHover(viz, {type: "mouseleave"}, false);
+  assert.deepStrictEqual(viz.hovers.slice(1), [false]);
+  assert.strictEqual(viz._swatchLabelBucket, undefined);
+  handleSwatchLabelHover(viz, {type: "mouseleave"}, false);
+  assert.strictEqual(viz.hovers.length, 2, "nothing more to clear");
+});
+
+it("handleSwatchLabelHover — moving to another label lights its bucket instead", () => {
+  const viz = labelViz();
+  handleSwatchLabelHover(viz, move(swatchLabel(lowBucket)), true);
+  handleSwatchLabelHover(viz, move(swatchLabel(highBucket)), true);
+  assert.strictEqual(viz.hovers.length, 3);
+  assert.strictEqual(viz.hovers[1], false);
+  assert.strictEqual(viz.hovers[2]({v: 9}, 0), true);
+  assert.strictEqual(viz._swatchLabelBucket, highBucket);
+});
+
+it("handleSwatchLabelHover — a label with nothing to show, or anything else, lights nothing", () => {
+  const viz = labelViz();
+  handleSwatchLabelHover(viz, move(swatchLabel(lowBucket)), false);
+  handleSwatchLabelHover(viz, move(shape({v: 1})), true);
+  handleSwatchLabelHover(viz, move(undefined), false);
+  assert.deepStrictEqual(viz.hovers, []);
+  assert.strictEqual(viz._hoverBucket, undefined);
 });

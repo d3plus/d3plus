@@ -112,6 +112,26 @@ export function colorScaleBucketPredicate(
 }
 
 /**
+    Highlights a colorScale bucket's data shapes, as hovering its swatch does:
+    every datum whose colorScale value falls in the bucket's color range stays
+    bright while the rest dim, and `_hoverBucket` marks the hover as a
+    bucket's.
+    @param viz The chart.
+    @param d A swatch's datum, or its label's, at any depth of wrapping.
+    @returns Whether `d` is a bucket's, highlighted or not.
+*/
+export function hoverColorScaleBucket(viz: VizInstance, d: unknown): boolean {
+  const bucket = colorScaleBucketOf(d);
+  if (!bucket) return false;
+  const predicate = colorScaleBucketPredicate(viz, bucket.color);
+  if (predicate) {
+    viz._hoverBucket = true;
+    viz.hover?.(predicate);
+  }
+  return true;
+}
+
+/**
     The set of bucket colors that contain at least one datum satisfying
     `predicate` — i.e. the swatches that should stay bright while the rest dim.
     Lets the colorScale self-dim consistently for any hover source: hovering a
