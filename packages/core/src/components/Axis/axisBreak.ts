@@ -31,6 +31,11 @@ export interface AxisBreak {
   baseline: boolean;
   /** Whether shapes crossing the break get a gap cut across them (see `mask`). */
   mask: boolean;
+  /**
+      The share of its `space` an explicit break takes when shrunk to fit the
+      axis (see `fitBreakSpace`); its gap shrinks by the same share.
+  */
+  fit?: number;
 }
 
 /** The style of a break glyph, read from `breakConfig`/`baselineBreakConfig`. */
@@ -107,10 +112,29 @@ export function resolveBaselineBreak(
 }
 
 /**
+    The pixels each of `count` explicit breaks takes on an axis `length`
+    pixels long: `space`, or less when the axis can't hold that and still
+    leave twice a break's room for the data, down to `spaceMin`. `null` when
+    even `spaceMin` doesn't fit, and the breaks are dropped.
+*/
+export function fitBreakSpace(
+  length: number,
+  count: number,
+  space: number,
+  spaceMin = space,
+): number | null {
+  if (!count) return space;
+  const room = length / (count + 2);
+  if (room >= space) return space;
+  return room >= Math.min(spaceMin, space) ? room : null;
+}
+
+/**
     Replaces a linear axis's scale with a broken one when it has a baseline
     break or any `break` ranges inside its domain, and records the resolved
-    breaks on `axis._breaks`. Explicit breaks are dropped when the range
-    can't hold them and still leave twice a break's space for the data.
+    breaks on `axis._breaks`. Explicit breaks shrink when the range can't
+    hold them and still leave twice a break's space for the data (down to
+    `breakConfig.spaceMin`), and are dropped below that.
 */
 export function applyAxisBreaks(axis: Axis, range: number[]): void {
   axis._baselineBreak = resolveBaselineBreak(axis, range);
@@ -121,14 +145,21 @@ export function applyAxisBreaks(axis: Axis, range: number[]): void {
   const inner = range
     .slice(0, 2)
     .map(r => (edge && r === edge.position ? edge.edgePosition : r));
-  const {space, mask} = breakStyle(axis);
+  const style = breakStyle(axis);
   let breaks = normalizeBreaks(
     axis.schema.break,
     Math.min(...domain),
     Math.max(...domain),
   );
-  if (Math.abs(inner[1] - inner[0]) - breaks.length * space < space * 2)
-    breaks = [];
+  const config = (axis.schema.breakConfig || {}) as Record<string, unknown>;
+  const fitted = fitBreakSpace(
+    Math.abs(inner[1] - inner[0]),
+    breaks.length,
+    style.space,
+    Math.max(0, num(config.spaceMin, style.space)),
+  );
+  if (fitted === null) breaks = [];
+  const space = fitted ?? style.space;
   if (!edge && !breaks.length) return;
 
   const scale = brokenScale({domain, range: inner, breaks, space, edge});
@@ -153,7 +184,8 @@ export function applyAxisBreaks(axis: Axis, range: number[]): void {
       startPosition: scale(start),
       endPosition: scale(end),
       baseline: false,
-      mask,
+      mask: style.mask,
+      ...(space < style.space ? {fit: space / style.space} : {}),
     });
   });
 }
@@ -183,12 +215,16 @@ export function breakTickValues(
   return kept;
 }
 
-/** The pixel gap (`[from, to]`, ascending) a break leaves in the axis line. */
+/**
+    The pixel gap (`[from, to]`, ascending) a break leaves in the axis line,
+    shrunk with a break shrunk to fit the axis.
+*/
 export function breakGap(axis: Axis, brk: AxisBreak): [number, number] {
-  const {gap} = breakStyle(
+  const {gap: full} = breakStyle(
     axis,
     brk.baseline ? "baselineBreakConfig" : "breakConfig",
   );
+  const gap = full * (brk.fit ?? 1);
   const center = (brk.startPosition + brk.endPosition) / 2;
   return [center - gap / 2, center + gap / 2];
 }
