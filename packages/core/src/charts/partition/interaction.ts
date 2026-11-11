@@ -13,7 +13,7 @@ import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {latestDrillEntry, removeLatestDrillEntry} from "../viz/history.js";
 import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
-import {hasUserClick} from "../viz/userClick.js";
+import {hasOwnClick, hasUserClick} from "../viz/userClick.js";
 import type {DrillDownHistoryEntry, VizInstance} from "../viz/vizTypes.js";
 
 import {partitionLineage} from "./hierarchy.js";
@@ -183,6 +183,7 @@ function partitionTooltip(
   viz: VizInstance,
   node: PartitionNode,
   shareRow: unknown[],
+  zooms: boolean,
 ): void {
   const tooltip = viz._tooltipClass!;
   const config = viz.schema.tooltipConfig as Record<string, unknown>;
@@ -201,7 +202,7 @@ function partitionTooltip(
     );
   }
   if (config.footer === undefined) {
-    const hint = !partitionClickable(viz, node)
+    const hint = !zooms
       ? false
       : viz.schema.translate(
           partitionDrillable(viz, node)
@@ -256,15 +257,16 @@ export function partitionHandlers<N extends PartitionNode>(
       const node = nodeOf(d);
       if (!node) return;
       if (viz.ctx[`${prefix}Hovered`] !== node) hoverNode(node);
-      // The hand shows where a click zooms, or runs a handler of the user's.
+      // The hand shows where a click zooms, or runs a handler of the user's;
+      // a click zooms only while the chart's own handler is in place.
+      const zooms =
+        hasOwnClick(viz, "click.shape") && partitionClickable(viz, node);
       setCursor(
         viz,
-        hasUserClick(viz, "click.shape") || partitionClickable(viz, node)
-          ? "pointer"
-          : "auto",
+        zooms || hasUserClick(viz, "click.shape") ? "pointer" : "auto",
       );
       if (viz._tooltipClass && tooltipEnabled(viz, d, i))
-        partitionTooltip(viz, node, shareRow);
+        partitionTooltip(viz, node, shareRow, zooms);
     },
     "click.shape": (d, _i, _x, event) => {
       (event as Event | undefined)?.stopPropagation?.();

@@ -367,6 +367,55 @@ describe.each(charts)("$chart interaction", c => {
     assert.strictEqual(cursorOver(leaf), "auto", "a handler for another event");
   });
 
+  it("handlers offer a zoom on a node with children only while the chart's own click is installed", () => {
+    const viz = mockViz();
+    const handlers = install(viz);
+    const branch = nodeAt(viz, ["A", "m1"]).datum;
+    const zoom = {cursor: "pointer", footer: "Click to Expand"};
+    assert.deepStrictEqual(hoverOver(viz, branch), zoom);
+
+    viz.schema.on = {...viz.schema.on, click: () => undefined};
+    assert.deepStrictEqual(
+      hoverOver(viz, branch),
+      zoom,
+      "with a click handler",
+    );
+
+    viz.schema.on = {...viz.schema.on, click: null, "click.shape": () => 1};
+    assert.deepStrictEqual(
+      hoverOver(viz, branch),
+      {cursor: "pointer", footer: false},
+      "the user's click.shape runs in its place",
+    );
+
+    viz.schema.on = {...viz.schema.on, "click.shape": null};
+    assert.deepStrictEqual(
+      hoverOver(viz, branch),
+      {cursor: "auto", footer: false},
+      "no click.shape handler",
+    );
+
+    viz.schema.on = {...viz.schema.on, "click.shape": handlers["click.shape"]};
+    assert.deepStrictEqual(hoverOver(viz, branch), zoom, "reinstalled");
+  });
+
+  it("handlers offer a zoom out on the root only while the chart's own click is installed", () => {
+    const viz = mockViz();
+    install(viz);
+    viz._history.push({});
+    const root = {...nodeAt(viz, ["A"]), depth: 0};
+    viz.ctx[`${c.prefix}Nodes`].set(root.datum, root);
+    assert.deepStrictEqual(hoverOver(viz, root.datum), {
+      cursor: "pointer",
+      footer: "Click to Zoom Out",
+    });
+    viz.schema.on = {...viz.schema.on, "click.shape": null};
+    assert.deepStrictEqual(hoverOver(viz, root.datum), {
+      cursor: "auto",
+      footer: false,
+    });
+  });
+
   it("handlers leave a user-configured tooltip title and footer alone", () => {
     const viz = mockViz();
     viz.schema.tooltipConfig = {title: "mine", footer: "mine", tbody: []};

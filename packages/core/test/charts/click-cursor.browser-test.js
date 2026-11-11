@@ -39,6 +39,7 @@ async function open() {
       click: {tooltip: false, on: {"click.shape": () => {}}},
       anyClick: {tooltip: false, on: {click: () => {}}},
       count: {on: {"click.shape": () => window.__clicks++}},
+      none: {on: {"click.shape": null}},
       // Handlers made with `bind`, as the chart makes its own.
       bound: {tooltip: false, on: {"click.shape": function () {}.bind(null)}},
       boundLegend: {
@@ -117,6 +118,13 @@ async function open() {
         legend: Boolean(window.__viz._lastScenePick?.isLegend),
       };
     };
+    // The footers of the tooltips showing.
+    window.footers = () =>
+      [...document.querySelectorAll(".d3plus-tooltip")]
+        .filter(t => getComputedStyle(t).visibility === "visible")
+        .map(t =>
+          (t.querySelector(".d3plus-tooltip-footer")?.textContent ?? "").trim(),
+        );
     // The chart's drawing surfaces that hold the hand cursor, by tag name.
     window.hands = () =>
       [...document.querySelectorAll("#viz svg, #viz canvas")]
@@ -418,6 +426,44 @@ for (const renderer of ["svg", "canvas"]) {
           "with a click.shape handler",
         );
         assert.strictEqual(await leave(page), "auto", "off the node");
+      } finally {
+        await close();
+      }
+    });
+
+    it(`click cursor (${renderer}): ${chart} offers a zoom only while its own click handler is installed`, async () => {
+      const {page, close} = await open();
+      const footers = () => page.evaluate(() => window.footers());
+      const history = () => page.evaluate(() => window.__viz._history.length);
+      const point = () =>
+        page.evaluate(key => window.tilePoint(key), branch.tile);
+      try {
+        assert.strictEqual(
+          (await hover(page, {chart}, renderer, branch)).cursor,
+          "pointer",
+        );
+        assert.deepStrictEqual(await footers(), ["Click to Expand"]);
+
+        // The user's click.shape runs in place of the zoom.
+        assert.deepStrictEqual(
+          await hover(page, {chart, settings: "count"}, renderer, branch),
+          {cursor: "pointer", tooltips: ["West"], legend: false},
+          "with a click.shape handler",
+        );
+        assert.deepStrictEqual(await footers(), [""], "no click hint");
+        await click(page, await point());
+        assert.strictEqual(await page.evaluate(() => window.__clicks), 1);
+        assert.strictEqual(await history(), 0, "no zoom");
+
+        // Without a click.shape handler, a click does nothing.
+        assert.deepStrictEqual(
+          await hover(page, {chart, settings: "none"}, renderer, branch),
+          {cursor: "auto", tooltips: ["West"], legend: false},
+          "with click.shape unset",
+        );
+        assert.deepStrictEqual(await footers(), [""], "no click hint");
+        await click(page, await point());
+        assert.strictEqual(await history(), 0, "no zoom");
       } finally {
         await close();
       }
