@@ -245,7 +245,7 @@ export function partitionHandlers<N extends PartitionNode>(
     hover(h => rows.has(h));
   };
 
-  const handlers: Record<string, Handler> = {
+  return {
     mouseenter: (d, i, x, event) => {
       const node = nodeOf(d);
       if (node) hoverNode(node);
@@ -257,14 +257,11 @@ export function partitionHandlers<N extends PartitionNode>(
       if (!node) return;
       if (viz.ctx[`${prefix}Hovered`] !== node) hoverNode(node);
       // The hand shows where a click zooms, or runs a handler of the user's.
-      const userClick = hasUserClick(
-        viz.schema.on,
-        "click.shape",
-        handlers["click.shape"],
-      );
       setCursor(
         viz,
-        userClick || partitionClickable(viz, node) ? "pointer" : "auto",
+        hasUserClick(viz, "click.shape") || partitionClickable(viz, node)
+          ? "pointer"
+          : "auto",
       );
       if (viz._tooltipClass && tooltipEnabled(viz, d, i))
         partitionTooltip(viz, node, shareRow);
@@ -278,5 +275,4 @@ export function partitionHandlers<N extends PartitionNode>(
         partitionZoomIn(viz, node, options);
     },
   };
-  return handlers;
 }

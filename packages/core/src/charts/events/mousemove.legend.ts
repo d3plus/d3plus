@@ -1,6 +1,5 @@
 import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
-import clickLegend from "./click.legend.js";
 import {legendLabel} from "../features/legendLabel.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
@@ -41,18 +40,12 @@ export default function (
   if (id instanceof Array) id = id[0];
 
   const t = this.schema.translate;
-  const defaultClick = clickLegend.bind(this);
-
   // does the legend have any user-defined click events?
-  const userClick = hasUserClick(this.schema.on, "click.legend", defaultClick);
+  const userClick = hasUserClick(this, "click.legend");
 
   // does the legend still have our default "click.legend" event?
   // (if the user only sets "click", both functions will fire)
-  const hasDefaultClick = hasOwnClick(
-    this.schema.on,
-    "click.legend",
-    defaultClick,
-  );
+  const hasDefaultClick = hasOwnClick(this, "click.legend");
 
   // can the viz show deeper data?
   const hasDeeperLevel = this._drawDepth < this.schema.groupBy.length - 1;

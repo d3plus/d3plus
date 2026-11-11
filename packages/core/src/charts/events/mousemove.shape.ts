@@ -1,7 +1,6 @@
 import type {DataPoint} from "@d3plus/data";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
-import clickShape from "./click.shape.js";
 import {groupDepthOf, groupNarrows, groupPath} from "../viz/groupRow.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
@@ -27,18 +26,12 @@ export default function (
   event: MouseEvent & TouchEvent,
 ): void {
   if (!d) return;
-  const defaultClick = clickShape.bind(this);
-
   // does the shape have any user-defined click events?
-  const userClick = hasUserClick(this.schema.on, "click.shape", defaultClick);
+  const userClick = hasUserClick(this, "click.shape");
 
   // does the shape still have our default "click.shape" event?
   // (if the user only sets "click", both functions will fire)
-  const hasDefaultClick = hasOwnClick(
-    this.schema.on,
-    "click.shape",
-    defaultClick,
-  );
+  const hasDefaultClick = hasOwnClick(this, "click.shape");
 
   // can the viz show deeper data? A group row zooms into its group.
   const groupDepth = groupDepthOf(d);

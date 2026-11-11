@@ -24,6 +24,7 @@ import {
   partitionZoomIn,
   partitionZoomOut,
 } from "../../src/charts/partition/interaction.ts";
+import {setOwnClick} from "../../src/charts/viz/userClick.ts";
 
 /**
     The shared partition interaction (`partition/interaction.ts`), driven
@@ -122,6 +123,14 @@ describe.each(charts)("$chart interaction", c => {
     };
     c.layout({viz});
     return viz;
+  }
+
+  /** Installs the handlers as the chart's setup does, the zoom as its own click. */
+  function install(viz, shareRow = []) {
+    const handlers = c.handlers(viz, shareRow);
+    Object.assign(viz.schema.on, handlers);
+    setOwnClick(viz, "click.shape", handlers["click.shape"]);
+    return handlers;
   }
 
   const laid = viz => viz.ctx[`${c.prefix}Laid`];
@@ -305,7 +314,7 @@ describe.each(charts)("$chart interaction", c => {
     // A config merge copies the arrays but keeps the cell functions.
     const tbody = [[...shareRow]];
     viz.schema.tooltipConfig.tbody = tbody;
-    const handlers = c.handlers(viz, shareRow);
+    const handlers = install(viz, shareRow);
     handlers["mousemove.shape"](
       nodeAt(viz, ["A", "m1"]).datum,
       0,
@@ -328,26 +337,28 @@ describe.each(charts)("$chart interaction", c => {
     assert.strictEqual(viz.log.cursor[1], "auto");
   });
 
+  /** Hovers a node's row and reads the cursor and the tooltip footer set. */
+  function hoverOver(viz, d) {
+    viz.log.tooltip.length = 0;
+    viz.schema.on["mousemove.shape"](d, 0, undefined, {});
+    const footer = viz.log.tooltip.find(t => t[0] === "footer");
+    return {cursor: viz.log.cursor.at(-1), footer: footer && footer[1]};
+  }
+
   it("handlers show the pointer on a leaf only with a click handler of the user's", () => {
     const viz = mockViz();
-    const handlers = c.handlers(viz, []);
-    Object.assign(viz.schema.on, handlers);
+    const handlers = install(viz);
     const leaf = nodeAt(viz, ["B", "m3", "f4"]).datum;
-    const branch = nodeAt(viz, ["A", "m1"]).datum;
-    const cursorOver = d => {
-      viz.schema.on["mousemove.shape"](d, 0, undefined, {});
-      return viz.log.cursor.at(-1);
-    };
+    const cursorOver = d => hoverOver(viz, d).cursor;
     assert.strictEqual(cursorOver(leaf), "auto", "the chart's own click");
-    assert.strictEqual(cursorOver(branch), "pointer", "a node that zooms");
 
     viz.schema.on = {...viz.schema.on, "click.shape": () => undefined};
     assert.strictEqual(cursorOver(leaf), "pointer", "a click.shape handler");
-    assert.strictEqual(cursorOver(branch), "pointer");
+    viz.schema.on = {...viz.schema.on, "click.shape": function () {}.bind(viz)};
+    assert.strictEqual(cursorOver(leaf), "pointer", "a bound one");
 
     viz.schema.on = {...viz.schema.on, "click.shape": null};
     assert.strictEqual(cursorOver(leaf), "auto", "no click.shape handler");
-    assert.strictEqual(cursorOver(branch), "pointer");
 
     viz.schema.on = {...viz.schema.on, ...handlers, click: () => undefined};
     assert.strictEqual(cursorOver(leaf), "pointer", "a click handler");

@@ -39,6 +39,12 @@ async function open() {
       click: {tooltip: false, on: {"click.shape": () => {}}},
       anyClick: {tooltip: false, on: {click: () => {}}},
       count: {on: {"click.shape": () => window.__clicks++}},
+      // Handlers made with `bind`, as the chart makes its own.
+      bound: {tooltip: false, on: {"click.shape": function () {}.bind(null)}},
+      boundLegend: {
+        tooltip: false,
+        on: {"click.legend": function () {}.bind(null)},
+      },
     };
     window.__clicks = 0;
     // Draws a `chart` (a Treemap unless named) into `sel`, in place of the
@@ -230,6 +236,26 @@ for (const renderer of ["svg", "canvas"]) {
         await hover(page, {...flat, settings: "click"}, renderer, texas),
         {cursor: "pointer", tooltips: [], legend: false},
         "a click handler of the chart's own brings the pointer back",
+      );
+    } finally {
+      await close();
+    }
+  });
+
+  it(`click cursor (${renderer}): a bound click handler of the chart's own shows the pointer`, async () => {
+    const {page, close} = await open();
+    try {
+      assert.deepStrictEqual(
+        await hover(page, {...flat, settings: "bound"}, renderer, texas),
+        {cursor: "pointer", tooltips: [], legend: false},
+        "on a tile",
+      );
+      assert.deepStrictEqual(
+        await hover(page, {...flat, settings: "boundLegend"}, renderer, {
+          legend: "Texas",
+        }),
+        {cursor: "pointer", tooltips: [], legend: true},
+        "on a legend entry",
       );
     } finally {
       await close();
