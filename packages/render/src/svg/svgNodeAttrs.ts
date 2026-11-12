@@ -127,14 +127,44 @@ export function textFontTween(
     };
 }
 
-/** Recursively records every node by its (stringified) key for hit-testing. */
+/**
+    Recursively records every node by its (stringified) key for hit-testing.
+    Nodes that share a key are also listed together in `shared`, so an element
+    can be matched to its own node among them (see `elementNode`).
+*/
 export function buildIndex(
   node: SceneNode,
   index: Map<string, SceneNode>,
+  shared?: Map<string, SceneNode[]>,
 ): void {
-  index.set(String(node.key), node);
+  const key = String(node.key);
+  const twin = index.get(key);
+  if (twin && shared) {
+    const twins = shared.get(key);
+    if (twins) twins.push(node);
+    else shared.set(key, [twin, node]);
+  }
+  index.set(key, node);
   if (node.type === "group")
-    for (const c of node.children) buildIndex(c, index);
+    for (const c of node.children) buildIndex(c, index, shared);
+}
+
+/**
+    The scene node an element draws: the node with its key or, when several
+    nodes share that key, the one of them the element was drawn from.
+    @param el An element carrying `data-key`.
+    @param key The element's key.
+    @param index Every node by key (see `buildIndex`).
+    @param shared The nodes that share a key.
+*/
+export function elementNode(
+  el: Element,
+  key: string,
+  index: Map<string, SceneNode>,
+  shared: Map<string, SceneNode[]>,
+): SceneNode | undefined {
+  const drawn = (el as Element & {__data__?: SceneNode}).__data__;
+  return drawn && shared.get(key)?.includes(drawn) ? drawn : index.get(key);
 }
 
 /** Applies non-animated attributes: classes, accessibility, pointer behavior, content. */
