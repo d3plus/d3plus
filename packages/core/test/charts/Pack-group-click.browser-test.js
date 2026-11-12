@@ -169,8 +169,13 @@ for (const renderer of ["svg", "canvas"]) {
       );
       assert.match(tooltip ?? "", /^East\b/, "the tooltip names the group");
       assert.match(tooltip, /Click to Expand/);
+      // The cursor of the element under the pointer: a circle inside the
+      // chart's svg or, with the Canvas renderer, its canvas.
       assert.strictEqual(
-        await page.evaluate(() => window.__viz._select.style("cursor")),
+        await page.evaluate(
+          ([x, y]) => getComputedStyle(document.elementFromPoint(x, y)).cursor,
+          point,
+        ),
         "pointer",
       );
       const hovered = await scene(page);
