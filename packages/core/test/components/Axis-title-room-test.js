@@ -2,6 +2,7 @@ import {it} from "vitest";
 import assert from "assert";
 import {AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../index.ts";
 import {measureAxis} from "../../src/components/Axis/axisLayout.ts";
+import {titleRoom} from "../../src/components/Axis/axisTitle.ts";
 import {useJsdom} from "~test/jsdom.js";
 
 useJsdom();
@@ -68,4 +69,78 @@ it("an axis title is measured with its titleConfig", () => {
       JSON.stringify(config),
     );
   }
+});
+
+it("a title word too wide for its axis is cut short with an ellipsis", () => {
+  // No break points: hyphenation skips a word with capitals inside it.
+  const word = "GrossDomesticProductPerCapitaInConstantInternationalDollars";
+  for (const Type of [AxisBottom, AxisTop, AxisLeft, AxisRight]) {
+    const a = axis(Type, word);
+    const {t, room} = title(a);
+    const name = `${a.schema.orient}`;
+    assert.ok(t, `${name}: paints the title`);
+    assert.strictEqual(t.lines.length, 1, `${name}: on one line`);
+    const [line] = t.lines;
+    assert.ok(line.endsWith("..."), `${name}: "${line}" is cut short`);
+    assert.ok(word.startsWith(line.slice(0, -3)), `${name}: "${line}"`);
+    assert.ok(line.length > 3, `${name}: keeps the start of the word`);
+    assert.ok(t.widths[0] <= t.w, `${name}: fits the axis`);
+    assert.strictEqual(room, Math.ceil(t.lH), `${name}: claims its line`);
+  }
+});
+
+const words = Array(12)
+  .fill("the quick brown fox jumps over the lazy dog")
+  .join(" ");
+// Breaks only where its words hyphenate.
+const url =
+  "https://example.com/a/very/long/path/to/some/resource/and/more/segments/of/the/path/that/keep/going/on/and/on/for/a/while/longer/still";
+
+it("a title cut short for height ends at a word break", () => {
+  for (const [Type, size] of [
+    [AxisBottom, {height: 70}],
+    [AxisLeft, {width: 70}],
+  ])
+    for (const text of [words, url]) {
+      const a = axis(Type, text, size);
+      const {t, room} = title(a);
+      const name = `${a.schema.orient} "${text.slice(0, 20)}"`;
+      assert.ok(t.lines.length > 1, `${name}: wraps`);
+      assert.ok(t.truncated, `${name}: is cut short`);
+      const last = t.lines[t.lines.length - 1];
+      assert.ok(last.endsWith("..."), `${name}: "${last}" ends in "..."`);
+      assert.strictEqual(room, Math.ceil(t.lines.length * t.lH), name);
+      // Cut where whole words stop, as without `truncateWord`.
+      const [whole] = a._titleClass.truncateWord(false)._textData();
+      assert.deepStrictEqual(t.lines, whole.lines, `${name}: at a word break`);
+      if (text === words) {
+        const kept = t.lines.join(" ").slice(0, -3);
+        assert.strictEqual(text[kept.length], " ", `${name}: "${last}"`);
+      }
+    }
+});
+
+it("a title's own truncateWord decides how it is cut", () => {
+  const word = "GrossDomesticProductPerCapitaInConstantInternationalDollars";
+  const kept = axis(AxisBottom, word, {titleConfig: {truncateWord: false}});
+  const untitled = axis(AxisBottom, "");
+  assert.strictEqual(
+    (measureAxis(kept), kept._margin.bottom),
+    (measureAxis(untitled), untitled._margin.bottom),
+    "a word left uncut draws nothing",
+  );
+  const cut = axis(AxisBottom, words, {
+    height: 70,
+    titleConfig: {truncateWord: true},
+  });
+  const [mid] = cut._titleClass._textData();
+  const [whole] = cut._titleClass.truncateWord(false)._textData();
+  assert.notDeepStrictEqual(mid.lines, whole.lines, "cut mid-word");
+});
+
+it("a title that draws nothing claims no room", () => {
+  const a = axis(AxisBottom, "Year");
+  // Narrower than one character and its ellipsis.
+  assert.strictEqual(titleRoom(a, [0, 8], 100), 0);
+  assert.strictEqual(titleRoom(a, [0, 300], 100), Math.ceil(12 * 1.2) + 5);
 });
