@@ -226,3 +226,72 @@ for (const key of [null, ""]) {
     });
   }
 }
+
+for (const key of [undefined, null, ""]) {
+  const name = JSON.stringify(key) ?? "undefined";
+
+  it(`nest keeps a group's keyed rows beside a row whose deepest key is ${name}`, () => {
+    const data = [
+      {g1: "A", g2: "x", v: 1},
+      {g1: "A", g2: key, v: 2},
+    ];
+    assert.deepStrictEqual(nest(data, [d => d.g1, d => d.g2]), [
+      {
+        key: "A",
+        values: [{key: "x", values: [data[0]]}, data[1]],
+      },
+    ]);
+  });
+
+  it(`nest keeps a group's keyed rows after a first row whose deepest key is ${name}`, () => {
+    const data = [
+      {g1: "A", g2: key, v: 1},
+      {g1: "A", g2: "x", v: 2},
+    ];
+    assert.deepStrictEqual(nest(data, [d => d.g1, d => d.g2]), [
+      {
+        key: "A",
+        values: [data[0], {key: "x", values: [data[1]]}],
+      },
+    ]);
+  });
+
+  it(`nest makes a row whose middle key is ${name} a leaf of its group, beside its sub-groups`, () => {
+    const data = [
+      {g1: "A", g2: "x", g3: 1, v: 1},
+      {g1: "A", g2: key, g3: 2, v: 2},
+      {g1: "A", g2: "y", v: 3},
+    ];
+    assert.deepStrictEqual(nest(data, [d => d.g1, d => d.g2, d => d.g3]), [
+      {
+        key: "A",
+        values: [
+          {key: "x", values: [{key: 1, values: [data[0]]}]},
+          data[1],
+          data[2],
+        ],
+      },
+    ]);
+  });
+
+  it(`nest replaces a group holding only a row whose middle key is ${name} with the row`, () => {
+    const data = [
+      {g1: "A", g2: key, g3: 1, v: 1},
+      {g1: "B", g2: "y", g3: 2, v: 2},
+    ];
+    assert.deepStrictEqual(nest(data, [d => d.g1, d => d.g2, d => d.g3]), [
+      data[0],
+      {key: "B", values: [{key: "y", values: [{key: 2, values: [data[1]]}]}]},
+    ]);
+  });
+
+  it(`nest keeps every row of a group whose rows all lack a deepest key of ${name}`, () => {
+    const data = [
+      {g1: "A", g2: key, v: 1},
+      {g1: "A", g2: key, v: 2},
+    ];
+    assert.deepStrictEqual(nest(data, [d => d.g1, d => d.g2]), [
+      {key: "A", values: [data[0], data[1]]},
+    ]);
+  });
+}
