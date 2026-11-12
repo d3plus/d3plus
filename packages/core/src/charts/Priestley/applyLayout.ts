@@ -14,6 +14,7 @@ import {date} from "@d3plus/dom";
 import {nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
+import {chartBounds} from "../features/chartGeometry.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {measureTimeAxis, renderTimeAxis} from "./timeAxis.js";
 
@@ -50,7 +51,11 @@ const packLanes = (nested: Branch[]): number => {
   return maxLane;
 };
 
-/** Runs both axes, pushes the axis scene, and stashes scales/bandWidth on `viz.ctx`. */
+/**
+    Runs both axes, pushes the axis scene, and stashes scales/bandWidth on
+    `viz.ctx`. Everything is placed in the chart area's own coordinates: the
+    default `_chartTransform` moves the area to the margin origin.
+*/
 const runAxesAndScales = (
   viz: Parameters<TransformStage>[0]["viz"],
   data: PriestleyDatum[],
@@ -61,13 +66,12 @@ const runAxesAndScales = (
       min(data, d => Number(d.start)) ?? 0,
       max(data, d => Number(d.end)) ?? 0,
     ],
-    height: viz.schema.height - viz._margin.top - viz._margin.bottom,
-    width: viz.schema.width - viz._margin.left - viz._margin.right,
+    ...chartBounds(viz),
   };
   const axis = measureTimeAxis(viz, frame);
   const xScale = renderTimeAxis(viz, {
     ...frame,
-    transform: {x: viz._margin.left, y: viz._margin.top},
+    transform: {x: 0, y: 0},
     key: "priestley-axis",
   });
 
@@ -88,10 +92,7 @@ const runAxesAndScales = (
     .domain(range(0, maxLane, 1).map(String))
     .paddingInner(viz.schema.paddingInner as number)
     .paddingOuter(viz.schema.paddingOuter as number)
-    .rangeRound([
-      viz.schema.height - viz._margin.bottom - axis.height - axis.padding,
-      viz._margin.top + axis.padding,
-    ]);
+    .rangeRound([frame.height - axis.height - axis.padding, axis.padding]);
 
   viz.ctx.xScale = xScale;
   viz.ctx.yScale = yScale;
