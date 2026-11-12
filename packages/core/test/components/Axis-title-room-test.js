@@ -93,8 +93,9 @@ const words = Array(12)
   .fill("the quick brown fox jumps over the lazy dog")
   .join(" ");
 // Breaks only where its words hyphenate.
-const url =
-  "https://example.com/a/very/long/path/to/some/resource/and/more/segments/of/the/path/that/keep/going/on/and/on/for/a/while/longer/still";
+const url = `https://example.com/${Array(4)
+  .fill("a/very/long/path/to/some/resource/and/more/segments")
+  .join("/")}`;
 
 it("a title cut short for height ends at a word break", () => {
   for (const [Type, size] of [
