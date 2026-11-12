@@ -1,7 +1,10 @@
 import {it} from "vitest";
 import assert from "assert";
 import {Legend} from "../../index.ts";
-import {cutLegendLabels} from "../../src/components/Legend/legendCut.ts";
+import {
+  cutLegendLabels,
+  labelRoom,
+} from "../../src/components/Legend/legendCut.ts";
 import {useJsdom} from "~test/jsdom.js";
 
 useJsdom();
@@ -97,6 +100,40 @@ it("cutLegendLabels: a label that fits its room keeps its whole text", () => {
   assert.strictEqual(l._lineData[0].cut, false);
   assert.strictEqual(l._lineData[0].height, 15);
   assert.ok(l._lineData[0].width > 0 && l._lineData[0].width < 200);
+});
+
+it("labelRoom: more rows give each label more width and less height", () => {
+  const l = new Legend();
+  l._lineData = Array.from({length: 5}, () => ({shapeWidth: 12}));
+  l.schema.direction = "row";
+  // Each row: 5, 3, then 2 swatches across 240px, 100px tall.
+  assert.deepStrictEqual(labelRoom(l, 240, 100, 1), {width: 25, height: 90});
+  assert.deepStrictEqual(labelRoom(l, 240, 100, 2), {width: 57, height: 42});
+  assert.deepStrictEqual(labelRoom(l, 240, 100, 3), {width: 97, height: 26});
+  l.schema.direction = "column";
+  assert.deepStrictEqual(labelRoom(l, 240, 100, 3), {width: 217, height: 14});
+});
+
+it("cutLegendLabels: a row takes the count of rows that cuts the fewest labels", () => {
+  const l = legend({cut: false, direction: "row"});
+  l._lineData = Array.from({length: 5}, (_, i) => ({
+    sentence: `$${i}35,000 - $${i}40,000`,
+    f: "Arial",
+    s: 10,
+    lh: 14,
+    shapeWidth: 12,
+    shapeHeight: 12,
+  }));
+  assert.strictEqual(cutLegendLabels(l, 240, 66), true);
+  // In one row each label has 25px, too few for a number of seven figures.
+  assert.ok(
+    l._lineData.every(d => !d.cut),
+    "every label whole",
+  );
+  assert.ok(
+    l._lineData.every(d => d.width > 25),
+    `wider than one row's room (${l._lineData.map(d => d.width)})`,
+  );
 });
 
 for (const direction of ["column", "row"])
