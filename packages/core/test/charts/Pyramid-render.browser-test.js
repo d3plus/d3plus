@@ -1075,16 +1075,37 @@ for (const renderer of ["svg", "canvas"]) {
       full.labels.every(l => l.lines.length === 1),
       "a wide chart fits each label on one line",
     );
-    for (const width of [400, 600]) {
+    // The gutter takes a third of the value axis at most (see
+    // `fitBreakSpace`), so it narrows on a chart whose axis is shorter than
+    // three natural gutters. How wide that chart is depends on the font the
+    // labels are measured in, so each width is checked against its axis.
+    const narrowed = [];
+    const kept = [];
+    for (const width of [400, 500, 600, 700]) {
       const out = await render(body, sceneProbe, [
         data,
         renderer,
         [width, 420],
       ]);
       const gutter = out.inner[1] - out.inner[0];
+      const third = (out.ends[1] - out.ends[0]) / 3;
+      if (gutter >= natural - 0.5) {
+        assert.ok(
+          third >= natural - 0.5,
+          `${width}px chart: the gutter keeps its ${natural}px on a ${third * 3}px axis`,
+        );
+        assert.ok(
+          out.labels.every(l => l.lines.length === 1),
+          `${width}px: an unnarrowed gutter fits each label on one line`,
+        );
+        assertSymmetric(out, `${width}px`);
+        kept.push(width);
+        continue;
+      }
+      narrowed.push(width);
       assert.ok(
-        gutter >= minGutter && gutter < natural,
-        `${width}px chart: gutter ${gutter}px, between ${minGutter} and ${natural}`,
+        gutter >= minGutter && near(gutter, third),
+        `${width}px chart: gutter ${gutter}px, a third of the axis and at least ${minGutter}`,
       );
       assert.strictEqual(
         out.labels.length,
@@ -1110,6 +1131,10 @@ for (const renderer of ["svg", "canvas"]) {
       );
       assertSymmetric(out, `${width}px`);
     }
+    assert.ok(
+      narrowed.length >= 2 && kept.length,
+      `narrowed at ${narrowed}, kept at ${kept}`,
+    );
   });
 
   it(`Pyramid cuts gutter labels short with an ellipsis (${renderer})`, async function () {
