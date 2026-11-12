@@ -85,15 +85,18 @@ it("Legend: a title with a number too wide for the legend is left out", () => {
 
 it("Legend: a single row taller than the legend leaves out its labels", () => {
   const roomy = legend({direction: "row", height: 100});
-  const short = legend({direction: "row", height: 23});
-  const pad = short.padding() * 2;
+  const pad = roomy.padding() * 2;
   assert.ok(
-    roomy.outerBounds().height + pad > 23,
-    `with its labels, the row needs more (${roomy.outerBounds().height})`,
+    roomy._lineData.some(d => d.width),
+    "with room, its swatches are drawn with labels",
   );
+  // A pixel less than the row needs with its labels (as they are measured).
+  const height = roomy.outerBounds().height + pad - 1;
+  const short = legend({direction: "row", height});
   assert.ok(
-    short.outerBounds().height > 0 && short.outerBounds().height + pad <= 23,
-    `the row keeps within the height (${short.outerBounds().height})`,
+    short.outerBounds().height > 0 &&
+      short.outerBounds().height + pad <= height,
+    `the row keeps within the height (${short.outerBounds().height} + ${pad} <= ${height})`,
   );
   assert.ok(
     short._lineData.every(d => !d.width),
