@@ -7,8 +7,10 @@ import {render} from "~test/browser/render.js";
     for one line, in a real browser on both renderers: drawn as a
     `bucketAxis` bar, its labels wrap onto as many lines as the gradient's
     do for the same labels (the labels left shown take the room the hidden
-    ones leave them), with no two of them overlapping. The scale's room is
-    an explicit `axisConfig.maxSize`.
+    ones leave them), with no two of them overlapping. When hiding a label
+    would give the rest more lines, it is hidden, as a gradient shows few
+    labels with many lines. The scale's room is an explicit
+    `axisConfig.maxSize`.
 */
 
 const rows = Array.from({length: 30}, (_, i) => ({
@@ -86,3 +88,37 @@ for (const renderer of ["svg", "canvas"])
           );
       });
     });
+
+for (const renderer of ["svg", "canvas"])
+  it(`[${renderer}] a bucketAxis color scale hides a label when that gives the rest another line`, async () => {
+    // At 300 × 180, the five buckets' labels cut short on two lines each
+    // with every other one hidden; with only the first and last shown, they
+    // take a third line. 80px is a third of 300, less the bar and padding.
+    const drawn = {};
+    for (const [name, scale] of Object.entries(scales))
+      drawn[name] = await render(
+        "<div id='viz' style='width:300px;height:180px'></div>",
+        draw,
+        {rows, renderer, position: "right", prefix, scale, maxSize: 80},
+      );
+    const lines = labels => labels.map(l => l.length);
+    const fewest = labels => Math.min(...lines(labels));
+    assert.strictEqual(
+      drawn.bucketAxis.length,
+      2,
+      `the first and last labels are shown (${lines(drawn.bucketAxis)})`,
+    );
+    assert.ok(
+      fewest(drawn.bucketAxis) >= 3,
+      `each takes a third line (${lines(drawn.bucketAxis)})`,
+    );
+    assert.ok(
+      fewest(drawn.bucketAxis) >= fewest(drawn.gradient),
+      `as many lines as the gradient's (${lines(drawn.bucketAxis)} vs ${lines(drawn.gradient)})`,
+    );
+    assert.ok(
+      drawn.bucketAxis[0][drawn.bucketAxis[0].length - 1].y <
+        drawn.bucketAxis[1][0].y,
+      "they don't overlap",
+    );
+  });

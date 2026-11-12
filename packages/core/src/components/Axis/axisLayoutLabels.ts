@@ -24,6 +24,7 @@ import {slantedLineWidth, slantedLines} from "./axisSlantWrap.js";
 import {
   fitOwnSpaces,
   regrowShown,
+  thinForLines,
   thinEvenly,
   thinGreedily,
   thinGreedilyShown,
@@ -238,6 +239,25 @@ function maxLabelSpace(
 }
 
 /**
+    Wraps a vertical axis's flat labels again in the box they are painted
+    in (see `fitLabelRoom`): painted only as wide as the widest label, a cut
+    label is cut there.
+*/
+function fitPaintedRoom(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  horizontal: boolean,
+  measure: (t: AxisTextDatum) => LabelSize,
+): void {
+  if (
+    !horizontal &&
+    typeof axis.schema.fixedSize !== "number" &&
+    !textData.some((t: AxisTextDatum) => t.rotate || t.slant)
+  )
+    fitLabelRoom(textData, measure);
+}
+
+/**
     Measures every label, computes per-label space, sizes via `textWrap`, and
     resolves truncation (and optional offset). Returns the `textData` array.
 */
@@ -340,18 +360,15 @@ export function createTextData(
     fitOwnSpaces(textData, spaces, axis._d3Scale!.range(), size, rangeOuter);
   else if (wholeLine) thinGreedilyShown(textData, horizontal, show);
   else thinGreedily(textData, horizontal);
-  if (regrow && !horizontal && !axis._labelRotation)
+  if (regrow && !horizontal && !axis._labelRotation) {
     regrowShown(textData, size, rangeOuter);
+    if (axis._thinForLines)
+      thinForLines(textData, size, Math.min(...textData.map(t => t.space)));
+  }
 
-  // Painted only as wide as the widest label, a cut label is cut there.
-  if (
-    !horizontal &&
-    typeof axis.schema.fixedSize !== "number" &&
-    !textData.some((t: AxisTextDatum) => t.rotate || t.slant)
-  )
-    fitLabelRoom(textData, (t: AxisTextDatum) =>
-      calculateLabelSize(axis, t, labelCtx, measured),
-    );
+  fitPaintedRoom(axis, textData, horizontal, (t: AxisTextDatum) =>
+    calculateLabelSize(axis, t, labelCtx, measured),
+  );
   if (offset > 1) calculateOffset(textData, horizontal);
   return textData;
 }

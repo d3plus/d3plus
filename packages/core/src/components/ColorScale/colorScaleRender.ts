@@ -148,6 +148,10 @@ function renderGradientAxes(
   scaleRange: unknown[];
 } {
   const {horizontal, height, width, x, y} = compute;
+  // A bucketed bar labels every bucket, and hides some to give the rest
+  // as many lines as a gradient's labels take.
+  cs._axisTest._thinForLines = cs._axisClass._thinForLines =
+    !!cs.schema.bucketAxis;
 
   cs._axisTest
     .renderMode("compute")

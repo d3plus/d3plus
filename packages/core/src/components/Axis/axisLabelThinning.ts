@@ -166,6 +166,68 @@ export function regrowShown(
 }
 
 /**
+    Picks which labels a vertical axis shows so that each takes as many
+    lines as it can, as a gradient color scale's few labels do: for a
+    bucketed color scale, whose every bucket has a label. While some label
+    shown is cut short, labels are hidden at an even interval, the first
+    and last always kept, until every label shown fits whole, or else as far
+    as gives the labels shown the most lines (the fewest any of them has),
+    hiding no more labels than that takes. Each label shown is measured in
+    the room between the nearest labels shown on either side, up to its
+    padding short of them (a label at an end, twice its distance to the one
+    beside it), and never less than every label had at first (`floor`):
+    one at an end reaching past the end of the axis narrows the axis's
+    range, as a gradient's do. `resize` measures a label again in a room.
+*/
+export function thinForLines(
+  textData: AxisTextDatum[],
+  resize: (datum: AxisTextDatum, space: number) => AxisTextDatum,
+  floor: number,
+): void {
+  const n = textData.length;
+  const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
+  if (n < 3 || shown.every((t: AxisTextDatum) => t.fits)) return;
+  const rooms = (set: AxisTextDatum[]) =>
+    set.map((datum: AxisTextDatum, i: number) => {
+      const gaps = [set[i - 1], set[i + 1]]
+        .filter((t?: AxisTextDatum): t is AxisTextDatum => t !== undefined)
+        .map((t: AxisTextDatum) => Math.abs(t.position - datum.position));
+      const gap = gaps.length ? Math.min(...gaps) : 0;
+      return Math.max(floor, Math.floor(gap - datum.fP));
+    });
+  // How a set of labels shown measures: the fewest lines any has, and
+  // whether every one fits whole.
+  const score = (set: AxisTextDatum[]) => {
+    const sized = rooms(set).map((room: number, i: number) =>
+      resize(set[i], room),
+    );
+    return {
+      set,
+      lines: Math.min(...sized.map((t: AxisTextDatum) => t.lines.length)),
+      whole: sized.every((t: AxisTextDatum) => t.fits),
+    };
+  };
+  const even = (m: number) =>
+    Array.from(
+      {length: m},
+      (_: unknown, j: number) => textData[Math.round((j * (n - 1)) / (m - 1))],
+    );
+  let best = score(shown);
+  for (let m = shown.length - 1; m >= 2 && !best.whole; m--) {
+    const next = score(even(m));
+    if (next.whole || next.lines > best.lines) best = next;
+  }
+  const keep = new Set(best.set);
+  const chosen = rooms(best.set);
+  textData.forEach((datum: AxisTextDatum) => {
+    datum.truncated = !keep.has(datum);
+  });
+  best.set.forEach((datum: AxisTextDatum, i: number) =>
+    resize(datum, chosen[i]),
+  );
+}
+
+/**
     Whether label `b` sits too close to label `a` before it, leaving less
     than `b`'s padding between their text.
 */

@@ -117,6 +117,11 @@ export default class Axis extends BaseClass {
       more than it.
   */
   _softMaxSize = false;
+  /**
+      Whether a vertical axis hides labels to give the ones it shows more
+      lines (see `thinForLines`): a bucketed ColorScale's.
+  */
+  _thinForLines = false;
   /** Whether the last layout pass left the title out to fit `maxSize` (see `measureAxis`). */
   _dropTitle = false;
   /**
