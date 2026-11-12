@@ -8,6 +8,7 @@ import {max, min} from "d3-array";
 
 import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
 
+import configValue from "../../utils/configValue.js";
 import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
@@ -164,9 +165,7 @@ function calculateLabelSize(
   const h = rotate ? "width" : "height",
     w = rotate ? "height" : "width";
 
-  const lineHeight = axis.schema.shapeConfig.lineHeight
-    ? axis.schema.shapeConfig.lineHeight(d, i)
-    : undefined;
+  const lineHeight = configValue(axis.schema.shapeConfig.lineHeight, d, i);
   const text = tickFormat(d);
   const wSize = min([axis.schema.maxSize, axis.schema.width]);
   const depth = labelRoom(axis, horizontal, hBuff, p);
@@ -309,9 +308,11 @@ function baseTextData(axis: Axis, labels: unknown[]): AxisTextDatum[] {
       fS = typeof fontSize === "function" ? fontSize(d, i) : fontSize,
       position = axis._getPosition(d);
 
-    const lineHeight = axis.schema.shapeConfig.lineHeight
-      ? axis.schema.shapeConfig.lineHeight(d, i)
-      : fS * 1.4;
+    const lineHeight = configValue(
+      axis.schema.shapeConfig.lineHeight ?? fS * 1.4,
+      d,
+      i,
+    );
     // Base record — `space`/`lines`/`width`/`height` are filled later.
     return {
       d,
@@ -476,9 +477,11 @@ function slantedWidth(
   if (!first?.slant) return undefined;
   const {horizontal, hBuff, p, tickFormat, space} = ctx;
   const lineHeight = (d: AxisTextDatum) =>
-    axis.schema.shapeConfig.lineHeight
-      ? axis.schema.shapeConfig.lineHeight(d.d, d.i)
-      : Math.ceil(d.fS * 1.4);
+    configValue(
+      axis.schema.shapeConfig.lineHeight ?? Math.ceil(d.fS * 1.4),
+      d.d,
+      d.i,
+    );
   const limit = slantedWrapSize(
     first.angle!,
     horizontal,

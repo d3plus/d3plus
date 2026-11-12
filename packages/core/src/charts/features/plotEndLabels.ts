@@ -16,6 +16,7 @@ import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
 
 import type Axis from "../../components/Axis/Axis.js";
 import TextBox from "../../components/TextBox.js";
+import configValue from "../../utils/configValue.js";
 import {swarmHidesAxis} from "../Plot/swarm.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -61,11 +62,6 @@ export interface EndLabelBox {
 }
 
 type Accessor<T> = T | ((d: unknown, i: number) => T);
-
-const resolve = <T>(value: Accessor<T>, d: unknown, i: number): T =>
-  typeof value === "function"
-    ? (value as (d: unknown, i: number) => T)(d, i)
-    : value;
 
 /** The axis label config these labels read their font from. */
 interface LabelConfig {
@@ -115,32 +111,37 @@ export function domainEnds(axis: Axis): unknown[] {
 export function measureEndLabels(axis: Axis): EndLabelMeasure {
   const shapeConfig = axis.schema.shapeConfig as {
     labelConfig?: LabelConfig;
-    lineHeight?: (d: unknown, i: number) => number;
+    lineHeight?: Accessor<number>;
   };
   const labelConfig = shapeConfig.labelConfig || {};
   const format = axis._labelFormat || ((d: unknown) => `${d}`);
   let height = 0,
     padding = 0;
   const labels = domainEnds(axis).map((value, i) => {
-    const fontSize = resolve(labelConfig.fontSize ?? 12, value, i);
-    const lineHeight = shapeConfig.lineHeight
-      ? shapeConfig.lineHeight(value, i)
-      : fontSize * 1.4;
+    const fontSize = configValue(labelConfig.fontSize ?? 12, value, i);
+    const lineHeight = configValue(
+      shapeConfig.lineHeight ?? fontSize * 1.4,
+      value,
+      i,
+    );
     const text = `${format(value) ?? ""}`;
     const wrap = textWrap()
       .fontFamily(
         fontExists(
-          resolve(labelConfig.fontFamily ?? d3plusFontFamily, value, i),
+          configValue(labelConfig.fontFamily ?? d3plusFontFamily, value, i),
         ) as string,
       )
       .fontSize(fontSize)
-      .fontWeight(resolve(labelConfig.fontWeight ?? 400, value, i))
+      .fontWeight(configValue(labelConfig.fontWeight ?? 400, value, i))
       .lineHeight(lineHeight)
       .width(Number.MAX_SAFE_INTEGER)
       .height(lineHeight)(text);
     const lines = wrap.lines.filter(l => l !== "");
     height = Math.max(height, Math.ceil(lines.length * lineHeight));
-    padding = Math.max(padding, resolve(labelConfig.padding ?? 0, value, i));
+    padding = Math.max(
+      padding,
+      configValue(labelConfig.padding ?? 0, value, i),
+    );
     return {
       value,
       text,
