@@ -517,6 +517,11 @@ export default class SvgRenderer implements Renderer {
       buildIndex(this._scene.root, this._index);
       this._indexDirty = false;
     }
+    // `interactive: false` is written as `pointer-events="none"`, which covers
+    // everything inside the element. A real pointer never targets it; an event
+    // dispatched by script is held to the same rule.
+    for (let up = el; up && up !== this._svg; up = up.parentElement)
+      if (up.getAttribute("pointer-events") === "none") return null;
     let cur: Element | null = el;
     while (cur && cur !== this._svg) {
       const k = cur.getAttribute("data-key");
