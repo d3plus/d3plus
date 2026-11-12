@@ -7,9 +7,10 @@ import {openPage} from "~test/browser/page.js";
     real pointer on both backends: the pointer passes through the group's
     contents (a child that sets `interactive: true` included) to the mark
     beneath, and nodes outside the group still catch it. Gantt's time axis is
-    such a group: its tick labels and tick lines show no tooltip, fire no
-    handler and leave the cursor alone, and a task bar still gets its hover
-    and click.
+    chrome node by node: its group stays open, so a label with a tooltip can
+    take the pointer, but each tick label and tick line without one is inert,
+    shows no tooltip, fires no handler and leaves the cursor alone, and a task
+    bar beneath it still gets its hover and click.
 */
 
 const rect = (key, x, y, extra = {}) => ({
@@ -239,6 +240,8 @@ const draw = ([config, renderer]) =>
       resolve({
         layout,
         axisPointerEvents: axis.getAttribute("pointer-events"),
+        // Whether each of the axis's leaves sits in an inert node.
+        leavesInert: leaves.every(el => el.closest('[pointer-events="none"]')),
         points: {
           label: [label.left + label.width / 2, label.top + label.height / 2],
           tick: [tick.left + tick.width / 2, tick.top + 2],
@@ -280,7 +283,10 @@ const measure = () =>
 for (const renderer of ["svg", "canvas"]) {
   it(`Gantt [${renderer}]: the time axis is inert, and a task bar still gets hover and click`, async () => {
     const reference = await measure();
-    assert.strictEqual(reference.axisPointerEvents, "none");
+    // The axis group stays open (a label with a tooltip would take the
+    // pointer), and each of its leaves here, having none, is inert.
+    assert.strictEqual(reference.axisPointerEvents, null);
+    assert.strictEqual(reference.leavesInert, true);
     const {label, tick, bar} = reference.points;
     const {page, errors, close} = await openPage(body);
     try {
