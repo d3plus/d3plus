@@ -13,6 +13,7 @@ import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 import type Axis from "./Axis.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
 import {titleRoom} from "./axisTitle.js";
+import {labelEllipsis} from "./axisDefaults.js";
 import {slantedDepth, slantedWrapSize} from "./axisLabelAngle.js";
 import {
   isDiscreteScale,
@@ -220,7 +221,12 @@ function calculateLabelSize(
       widths: cached.widths.slice(),
     };
 
-  const wrap = textWrap().fontFamily(fF).fontSize(fS).lineHeight(lineHeight);
+  // A cut label ends with the ellipsis it is painted with.
+  const wrap = textWrap()
+    .fontFamily(fF)
+    .fontSize(fS)
+    .lineHeight(lineHeight)
+    .ellipsis(labelEllipsis(axis.schema.shapeConfig));
 
   if (slanted) {
     // Slanted labels wrap between words, never mid-word.

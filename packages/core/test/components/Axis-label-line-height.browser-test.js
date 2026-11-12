@@ -45,13 +45,14 @@ const charts = {
         bucketAxis: scale !== "linear",
         axisConfig: {tickFormat: d => prefix + d},
       })`,
-  line: `(lib, data, [axis]) =>
+  line: `(lib, data, [axis, config]) =>
     new lib.LinePlot()
       .data(data)
       .groupBy("group")
       .discrete(axis)
       .x(axis === "x" ? "id" : "v")
       .y(axis === "x" ? "v" : "id")
+      .config({[axis + "Config"]: config || {}})
       .legend(false)`,
 };
 
@@ -226,13 +227,31 @@ for (const renderer of ["svg", "canvas"]) {
           painted.height <= measured.height + 0.5,
           `${label}: ${painted.height}px tall in ${measured.height}px`,
         );
-        // A label cut short ends in the ellipsis it is painted with, which
-        // the measure leaves off, so only a whole label's width is compared.
-        if (measured.fits)
-          assert.ok(
-            painted.width <= measured.width + 0.5,
-            `${label}: ${painted.width}px wide in ${measured.width}px (painted ${JSON.stringify(painted.lines)}, measured ${JSON.stringify(measured.lines)})`,
-          );
+        assert.ok(
+          painted.width <= measured.width + 0.5,
+          `${label}: ${painted.width}px wide in ${measured.width}px (painted ${JSON.stringify(painted.lines)}, measured ${JSON.stringify(measured.lines)})`,
+        );
+      }
+    }
+  });
+
+  it(`[${renderer}] a cut axis label is measured with the ellipsis it is painted with`, async () => {
+    const cases = [
+      [["y"], "y", [400, 220]],
+      [["x", {maxSize: 40}], "x", [500, 300]],
+    ];
+    for (const [arg, axis, size] of cases) {
+      const name = `${axis} ${JSON.stringify(arg[1] || {})} ${size.join("×")}`;
+      const {labels} = await run("line", categories, arg, axis, size, renderer);
+      const cut = labels.filter(l => /\.\.\.$/.test(l.painted.lines.at(-1)));
+      assert.ok(cut.length, `${name}: some labels are cut`);
+      for (const {text, painted, measured} of cut) {
+        const label = `${name}: "${text}"`;
+        assert.deepStrictEqual(painted.lines, measured.lines, label);
+        assert.ok(
+          Math.abs(painted.width - measured.width) < 1,
+          `${label}: ${painted.width}px wide, measured ${measured.width}px`,
+        );
       }
     }
   });

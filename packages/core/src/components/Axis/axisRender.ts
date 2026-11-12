@@ -12,7 +12,6 @@ import type {AxisTextDatum} from "./axisLayoutLabels.js";
 import {addDomainEnds, crowdsEndLabel} from "./axisEndLabels.js";
 import {configPrep} from "../../utils/index.js";
 import {wholeWordSplit} from "../../utils/wholeWords.js";
-import {textEllipsis} from "../textEllipsis.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
@@ -24,6 +23,7 @@ import {timeDataInDomain} from "./timeValues.js";
 import {slantedLabelBox} from "./axisLabelAngle.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
 import {configureTitle} from "./axisTitle.js";
+import {axisLabelEllipsis} from "./axisDefaults.js";
 import type {AxisOrient} from "./axisLabelAngle.js";
 
 const maxTimezoneOffset = 1000 * 60 * 60 * 26;
@@ -368,8 +368,7 @@ export function configureTickShape(
     .data(tickData)
     .duration(axis.schema.duration)
     .labelConfig({
-      ellipsis: (d: unknown) =>
-        d && (d as string).length ? textEllipsis(`${d}`) : "",
+      ellipsis: axisLabelEllipsis,
       // Slanted labels wrap between words, as they were measured.
       ...(axis._labelRotation && axis._labelSlant
         ? {split: wholeWordSplit}
