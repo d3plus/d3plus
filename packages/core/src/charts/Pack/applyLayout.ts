@@ -12,9 +12,13 @@ import {nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../pipeline/stages.js";
+import {attachGroupRows, packDatum, packPaintDatum} from "./groupRows.js";
+import type {GroupedNode} from "./groupRows.js";
 
 type PackLeaf = Omit<HierarchyCircularNode<DataPoint>, "id"> & {
   __d3plus__: true;
+  /** A group circle's row (see `groupRows.ts`), which its circle carries. */
+  groupRow?: DataPoint;
   i: number;
   id: string | number;
 };
@@ -48,7 +52,7 @@ export const applyPackLayout: TransformStage = ({viz}) => {
     .padding(viz.schema.layoutPadding as number)
     .size([diameter, diameter]);
 
-  const packed = built(
+  const root = built(
     hierarchy<Branch>(
       {key: nestedData.key, values: nestedData} as unknown as Branch,
       d => d.values as Branch[] | undefined,
@@ -60,23 +64,29 @@ export const applyPackLayout: TransformStage = ({viz}) => {
           b: HierarchyNode<Branch>,
         ) => number,
       ),
-  )
-    .descendants()
-    .filter((d, i) => {
-      const node = d as unknown as PackLeaf;
-      node.__d3plus__ = true;
-      node.i = i;
-      node.id = node.parent
-        ? (node.parent.data.key as string | number)
-        : "root";
-      const data = node.data as DataPoint & {
-        __d3plusOpacity__?: number;
-        __d3plusTooltip__?: boolean;
-      };
-      data.__d3plusOpacity__ = node.height ? packOpacityFn(data, i) : 1;
-      data.__d3plusTooltip__ = !node.height;
-      return !node.children || node.children.length > 1;
-    });
+  );
+  attachGroupRows(
+    root as unknown as GroupedNode,
+    viz.schema.aggs as Parameters<typeof attachGroupRows>[1],
+  );
+
+  const packed = root.descendants().filter((d, i) => {
+    const node = d as unknown as PackLeaf;
+    node.__d3plus__ = true;
+    node.i = i;
+    node.id = node.parent ? (node.parent.data.key as string | number) : "root";
+    const grouped = node as unknown as GroupedNode;
+    const opacity = node.height
+      ? packOpacityFn(packPaintDatum(grouped, !node.parent), i)
+      : 1;
+    // A group circle's tooltip names its group; the outermost circle,
+    // holding every group, has none.
+    for (const data of new Set([node.data, packDatum(grouped)])) {
+      data.__d3plusOpacity__ = opacity;
+      data.__d3plusTooltip__ = !!node.parent;
+    }
+    return !node.children || node.children.length > 1;
+  });
 
   viz.ctx.packDiameter = diameter;
   viz.ctx.packOffsetX = (width - diameter) / 2;

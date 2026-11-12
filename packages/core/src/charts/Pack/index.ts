@@ -6,6 +6,8 @@
       - `emit.ts` — Circle + label scene nodes from the laid-out data.
       - `nodeNames.ts` — each circle's scene key and accessible name.
       - `recursionCircles.ts` — descendant-walk helper used by hover handlers.
+      - `groupRows.ts` — the group row each enclosing circle carries.
+      - `neutralPaint.ts` — the fill and stroke of the neutral circles.
 */
 
 import {pack} from "d3-hierarchy";

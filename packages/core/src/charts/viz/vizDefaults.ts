@@ -27,6 +27,7 @@ import mousemoveShape from "../events/mousemove.shape.js";
 
 import {colorScaleColor} from "../features/colorScaleValue.js";
 import {backgroundInk} from "./backgroundInk.js";
+import {fillStroke} from "./fillStroke.js";
 import {defaultPadding, initLabelDefaults} from "./labelDefaults.js";
 import {linkedColorDefaults} from "./linkGroup.js";
 import type Viz from "./Viz.js";
@@ -326,16 +327,14 @@ function initShapeDefaults(viz: Viz): void {
       }),
     },
     opacity: constant(1),
-    stroke: (d: DataPoint, i: number) => {
-      const c =
+    // Marked so a chart can tell it from a user's own stroke.
+    stroke: markDefault((d: DataPoint, i: number) =>
+      fillStroke(
         typeof viz.schema.shapeConfig.fill === "function"
           ? viz.schema.shapeConfig.fill(d, i)
-          : viz.schema.shapeConfig.fill;
-      // A fill that doesn't parse as a color (e.g. "none"/"transparent" on a
-      // confidence band) has no darker shade — fall back to the fill itself.
-      const col = color(c as string);
-      return col ? col.darker(0.25).toString() : c;
-    },
+          : viz.schema.shapeConfig.fill,
+      ),
+    ),
     role: "presentation",
     strokeWidth: constant(0),
   };

@@ -1,3 +1,5 @@
+import {interpolateRgb} from "d3-interpolate";
+
 import {inkBackground, inkGrid, inkText} from "../../utils/themeInk.js";
 import type {VizInstance} from "./vizTypes.js";
 
@@ -32,4 +34,15 @@ export function backgroundInk(viz: InkTarget): string {
 */
 export function chartGridline(viz: InkTarget): string {
   return inkGrid(viz);
+}
+
+/**
+    A neutral fill between the chart's background and its ink, for a mark
+    that stands for a group rather than one value: Treemap's group headers
+    and Pack's group circles while a colorScale colors the rest, and Pack's
+    outermost circle.
+    @private
+*/
+export function neutralFill(viz: InkTarget): string {
+  return interpolateRgb(chartBackground(viz), backgroundInk(viz))(0.7);
 }
