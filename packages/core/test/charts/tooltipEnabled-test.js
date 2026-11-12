@@ -199,15 +199,23 @@ describe("partitionShapeDepth", () => {
 
 describe("Tree shapeDepth", () => {
   it("turns a row's stamped hierarchy depth into its groupBy level", () => {
-    assert.strictEqual(treeDef.shapeDepth({}, {depth: 1}), 0);
-    assert.strictEqual(treeDef.shapeDepth({}, {depth: 2}), 1);
+    assert.strictEqual(treeDef.shapeDepth({}, {__d3plusDepth: 1}), 0);
+    assert.strictEqual(treeDef.shapeDepth({}, {__d3plusDepth: 2}), 1);
     assert.strictEqual(
-      treeDef.shapeDepth({}, {__d3plus__: true, data: {depth: 2}}),
+      treeDef.shapeDepth({}, {__d3plus__: true, data: {__d3plusDepth: 2}}),
+      1,
+    );
+  });
+
+  it("reads past a depth field of the row's own", () => {
+    assert.strictEqual(
+      treeDef.shapeDepth({}, {depth: 300, __d3plusDepth: 2}),
       1,
     );
   });
 
   it("is undefined for a row without one", () => {
     assert.strictEqual(treeDef.shapeDepth({}, {id: "a"}), undefined);
+    assert.strictEqual(treeDef.shapeDepth({}, {id: "a", depth: 2}), undefined);
   });
 });

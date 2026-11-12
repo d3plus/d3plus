@@ -15,6 +15,7 @@ import {assign} from "@d3plus/dom";
 import {merge, nest} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
+import {stampDepth} from "../features/depthKey.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -80,15 +81,17 @@ function buildTreeData(
 
   treeData.forEach((d, i) => {
     const dd = d.data as Branch;
-    if (dd.key && dd.values) {
-      (d as TreeNode).data = flattenBranchData(viz, dd);
-    }
+    // Each node gets a row of its own: a branch's merged leaves, or a copy of
+    // the row it wraps, so the rows the legend and `data()` hold are never
+    // written to.
+    const row: DataPoint =
+      dd.key && dd.values ? flattenBranchData(viz, dd) : {...(dd as DataPoint)};
+    d.data = row;
     d.__d3plus__ = true;
     d.i = i;
     // The tooltip binds the unwrapped row, so the per-node hierarchy depth
     // (needed to label the node at its own level) must live on the row.
-    // Mirrors Treemap stamping `share`/`rank` onto `d.data`.
-    (d.data as TreeNode).depth = d.depth;
+    stampDepth(row, d.depth ?? 1);
   });
 
   return treeData;
