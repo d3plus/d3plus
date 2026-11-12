@@ -349,9 +349,10 @@ export interface TextBoxConfig {
   overflow?: Accessor<boolean>;
   /**
       Handles truncated lines, returning the new line value. Passed the line's
-      text and number; by default appends an ellipsis to every line except a
-      first word that cannot fit (which returns ""). The ended line is
-      measured, and words come off its end until it fits the box.
+      text and number; by default drops the line's trailing periods, commas,
+      and spaces and appends "...", except for a first word that cannot fit
+      (which returns ""). The ended line is measured, and words come off its
+      end until it fits the box.
   */
   ellipsis?: (text: string, line: number) => string;
   /**

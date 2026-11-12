@@ -12,6 +12,7 @@ import type {AxisTextDatum} from "./axisLayoutLabels.js";
 import {addDomainEnds, crowdsEndLabel} from "./axisEndLabels.js";
 import {configPrep} from "../../utils/index.js";
 import {wholeWordSplit} from "../../utils/wholeWords.js";
+import {textEllipsis} from "../textEllipsis.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
@@ -364,7 +365,8 @@ export function configureTickShape(
     .data(tickData)
     .duration(axis.schema.duration)
     .labelConfig({
-      ellipsis: (d: unknown) => (d && (d as string).length ? `${d}...` : ""),
+      ellipsis: (d: unknown) =>
+        d && (d as string).length ? textEllipsis(`${d}`) : "",
       // Slanted labels wrap between words, as they were measured.
       ...(axis._labelRotation && axis._labelSlant
         ? {split: wholeWordSplit}

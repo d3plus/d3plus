@@ -14,6 +14,7 @@ import type {ConfigField} from "../fluent.js";
 import {computeTextBoxDatum} from "./textBoxLayout.js";
 import type {TextBoxDatum} from "./textBoxLayout.js";
 import {textBoxNodes} from "./textBoxScene.js";
+import {textEllipsis} from "./textEllipsis.js";
 
 const defaultHtmlLookup: Record<string, string> = {
   i: "font-style: italic;",
@@ -30,8 +31,7 @@ const textBoxSchema: ConfigField[] = [
   {
     key: "ellipsis",
     coerce: "const",
-    default: (text: string, line: number) =>
-      line ? `${text.replace(/\.|,$/g, "")}...` : "",
+    default: (text: string, line: number) => (line ? textEllipsis(text) : ""),
   },
   {key: "fontColor", coerce: "const", default: constant("black")},
   {key: "fontFamily", coerce: "const", default: constant(fontFamily)},
