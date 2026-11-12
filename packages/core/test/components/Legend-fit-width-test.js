@@ -91,3 +91,41 @@ it("Legend: a row fits the items whose reported width fits", () => {
   const rows = narrow._lineData.map(d => d.y);
   assert.ok(rows[1] > rows[0], "1px short: b starts a new row");
 });
+
+it("Legend: a label wrapped to fit keeps the lines and width it paints", () => {
+  for (const fontSize of [10, 14]) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    document.body.appendChild(svg);
+    const l = new Legend()
+      .renderMode("compute")
+      .select(svg.appendChild(document.createElementNS(svg.namespaceURI, "g")))
+      .duration(0)
+      .data(names.map(id => ({id})))
+      .direction("column")
+      .width(200)
+      .height(300)
+      .shapeConfig({labelConfig: {fontSize}})
+      .render();
+    const painted = new Map();
+    for (const shape of l._shapes)
+      for (const t of shape._labelClass._textData())
+        painted.set(t.data.data.id, t);
+    const wrapped = l._lineData.filter(
+      d => painted.get(d.id)?.lines.length > 1,
+    );
+    assert.ok(wrapped.length, `${fontSize}px: some labels wrap`);
+    for (const d of l._lineData) {
+      const t = painted.get(d.id);
+      if (!t) continue;
+      const name = `${fontSize}px "${d.id}"`;
+      assert.deepStrictEqual(d.lines, t.lines, `${name}: lines`);
+      // The widest painted line and the padding either side of it.
+      assert.strictEqual(
+        d.width,
+        Math.ceil(Math.max(...t.widths)) + l.padding() * 2,
+        `${name}: width`,
+      );
+      assert.strictEqual(t.w, d.width, `${name}: painted in its width`);
+    }
+  }
+});

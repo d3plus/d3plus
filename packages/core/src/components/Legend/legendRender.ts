@@ -173,6 +173,9 @@ function tryWrapLines(
         .width(w)
         .height(h)(label.sentence as string);
       if (!res.truncated) {
+        // Measured as `computeLegendLineData` measures a label: the lines
+        // its TextBox paints, and the widest with the padding either side.
+        label.lines = res.lines;
         label.width =
           Math.ceil(
             max(
@@ -183,7 +186,8 @@ function tryWrapLines(
                 }),
               ),
             )!,
-          ) + (label.s as number);
+          ) +
+          padding * 2;
         label.height = res.lines.length * ((label.lh as number) + 1);
       } else {
         truncated = true;

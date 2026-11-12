@@ -107,14 +107,8 @@ for (const renderer of ["svg", "canvas"]) {
         assert.ok(painted, `${label}: paints a label`);
         if (lineHeight) assert.strictEqual(painted.lineHeight, lineHeight);
         assert.strictEqual(measured.lineHeight, painted.lineHeight, label);
-        // A label wrapped to fit its row keeps its first-measured `lines`;
-        // its height holds the lines it was measured as.
-        const lines = Math.round(measured.height / (measured.lineHeight + 1));
-        assert.strictEqual(
-          painted.lines.length,
-          lines,
-          `${label}: painted ${JSON.stringify(painted.lines)}, measured ${lines} lines`,
-        );
+        assert.deepStrictEqual(painted.lines, measured.lines, label);
+        const lines = measured.lines.length;
         if (lines > 1) wrapped++;
         // The room measured holds the painted lines, a pixel above each.
         assert.ok(
