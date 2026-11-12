@@ -70,6 +70,8 @@ A scale drawn as swatches keeps to the same third: its labels wrap onto more lin
 
 The scale's own `width` (at the left or right) or `height` (at the top or bottom), as in `colorScaleConfig: {width: 120}`, replaces the third for any kind of scale, keeping it against its edge of the chart. Along the top or bottom, `width` is the scale's length instead, as `height` is at the left or right.
 
+A scale at the top keeps clear of the chart's corner buttons, as a top legend does: it sits between them when it draws as well there, its swatches keeping every label and its bar at least half of its labels, and otherwise drops below them, where it takes at most a third of the chart.
+
 <Playground chart="ColorScale" code={choosingLabels} controls={["scale","bucketAxis"]} height={100} />
 
 ## Hover mark

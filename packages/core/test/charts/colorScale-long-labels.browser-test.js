@@ -51,6 +51,14 @@ const draw = arg =>
       .sum("v")
       .colorScale("v")
       .colorScalePosition(arg.position)
+      // A scale at the top keeps clear of the corner buttons, beside or
+      // below them (see colorScale-top-controls); these charts have none,
+      // so the scale has the chart's whole width.
+      .config(
+        arg.position === "top"
+          ? {zoom: false, saveControl: false, search: false, tableView: false}
+          : {},
+      )
       .colorScaleConfig({
         ...arg.scale,
         ...(legend ? {legendConfig: legend} : {}),

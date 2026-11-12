@@ -30,6 +30,7 @@ import {
   sideFrame,
   swatchFrame,
 } from "./colorScaleLimit.js";
+import {paintTopColorScale} from "./colorScaleTop.js";
 import {resolveAccessor, shapeConfigFor} from "./emitHelpers.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {resetKeys} from "../../fluent.js";
@@ -341,13 +342,20 @@ export const colorScaleFeature: FeatureModule = {
       },
       wide ? setHeight : setWidth,
     );
-    paintColorScale(viz, frame, Boolean(showColorScale));
-    // A Legend lays the swatches out within its own width and height.
-    const swatches =
-      showColorScale && !viz.schema.colorScaleConfig.select
-        ? swatchFrame(viz._colorScaleClass, frame)
+    const placed = showColorScale && !viz.schema.colorScaleConfig.select;
+    const paint = (at: ColorScaleFrame): void => {
+      paintColorScale(viz, at, Boolean(showColorScale));
+      // A Legend lays the swatches out within its own width and height.
+      const swatches = placed
+        ? swatchFrame(viz._colorScaleClass, at)
         : undefined;
-    if (swatches) paintColorScale(viz, swatches, true);
+      if (swatches) paintColorScale(viz, swatches, true);
+    };
+    // A scale at the top keeps clear of the corner control panels.
+    const topDrop =
+      placed && position === "top"
+        ? paintTopColorScale(viz, frame, height, paint)
+        : (paint(frame), 0);
 
     const margin: Record<string, number> = {};
     if (showColorScale) {
@@ -362,7 +370,8 @@ export const colorScaleFeature: FeatureModule = {
             ? viz._colorScaleClass.padding()
             : viz._legendClass.padding();
         if (wide)
-          margin[position as string] = scaleBounds.height + csPadding * 2;
+          margin[position as string] =
+            topDrop + scaleBounds.height + csPadding * 2;
         else margin[position as string] = scaleBounds.width + csPadding * 2;
       }
     }
