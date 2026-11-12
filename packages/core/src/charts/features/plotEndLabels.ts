@@ -161,6 +161,30 @@ export function endLabelSpace(
   return available - space >= space ? space : 0;
 }
 
+/** How a Plot labels its x axis, and the height those labels claim below the plot. */
+export interface XLabelClaim {
+  xLabelMode: XLabelMode;
+  xHeight: number;
+}
+
+/**
+    The x labels a Plot keeps once its chrome (title, legend, the corner
+    controls' reach, …) has claimed its margins. End labels claim their room
+    against the chart area as it stood before; when `room`, the height left
+    for the plot and its x labels, no longer holds both (see
+    `endLabelSpace`), they are dropped and the plot takes their height.
+*/
+export function endLabelsInRoom(
+  claim: XLabelClaim,
+  measure: () => EndLabelMeasure,
+  room: number,
+): XLabelClaim {
+  const {xLabelMode, xHeight} = claim;
+  return xLabelMode === "ends" && !endLabelSpace(measure(), room)
+    ? {xLabelMode: "none", xHeight: 0}
+    : {xLabelMode, xHeight};
+}
+
 /**
     Splits `span` between a start and an end label of natural widths `start`
     and `end`, at least `gap` apart. Labels that fit keep room to their
