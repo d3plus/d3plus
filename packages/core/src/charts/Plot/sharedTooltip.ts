@@ -21,6 +21,7 @@ import {
 } from "../features/tooltipSwatch.js";
 import {colorScaleTooltipRows} from "../features/colorScaleTooltip.js";
 import {thresholdMemberRows} from "../features/thresholdMembers.js";
+import {hasOwnClick} from "../viz/userClick.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   confidenceRows,
@@ -237,6 +238,18 @@ export function renderSharedTooltip(
 }
 
 /**
+    The single-mark tooltip's click hint: "Click to Expand" while the chart's
+    own `click.shape` handler is installed and a deeper `groupBy` level
+    exists for a click to drill into, else none.
+*/
+export function singleTooltipFooter(viz: VizInstance): string | false {
+  const deeper = viz._drawDepth < viz.schema.groupBy.length - 1;
+  return deeper && hasOwnClick(viz, "click.shape")
+    ? viz.schema.translate("Click to Expand")
+    : false;
+}
+
+/**
     The single-mark tooltip (one series, `tooltipShared(false)`, or a
     side-by-side bar): the default title (the mark's label, unless
     `tooltipConfig` sets one), its x and y values, its `confidence` bounds,
@@ -249,15 +262,10 @@ export function renderSingleTooltip(
   event: SceneEvent,
 ): void {
   const row = hover.rows[0];
-  const deeper = viz._drawDepth < viz.schema.groupBy.length - 1;
   const tip = prepareTooltip(viz)
     .data([row.datum])
     .title(() => viz._drawLabel(row.datum, row.index))
-    .footer(
-      deeper && viz.schema.on["click.shape"]
-        ? viz.schema.translate("Click to Expand")
-        : false,
-    )
+    .footer(singleTooltipFooter(viz))
     .config(
       configPrep.bind(viz as unknown as ConfigPrepHost)(
         viz.schema.tooltipConfig,
