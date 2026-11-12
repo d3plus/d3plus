@@ -64,6 +64,10 @@ When the data spans both sides of the midpoint (default `0`), the scale becomes 
 
 A gradient, or a bucketed scale drawn as one bar (`bucketAxis: true`), is labeled by an [Axis](/core/components/axis/) that `axisConfig` configures. The axis picks round values to label, wraps long labels, and hides the ones that would crowd their neighbors, keeping the labels at its two ends. To choose the labels yourself, list their values in `labels` (and the values to mark in `ticks`); `tickFormat` writes their text. A bucketed scale drawn as swatches labels every bucket instead, with text from `bucketFormat` and `bucketJoiner`. In a chart, these go in `colorScaleConfig`, as in `colorScaleConfig: {axisConfig: {labels: [200, 6400]}}`.
 
+In a chart, a scale along one of its sides takes at most a third of the chart's width (a scale at the left or right) or a third of its height (top or bottom), its bar, ticks, labels and title together: labels that need more wrap, are cut short, or are left out. A gradient or a bucketed bar at the top or bottom still keeps its bar, a line of labels and its title, so on a chart shorter than about 165px (230px with a title) it takes more than a third. `colorScaleConfig: {axisConfig: {maxSize: …}}` sets the room for the labels and title instead, as a number of pixels or a function of that width or height.
+
+A scale drawn as swatches keeps to the same third: its labels wrap onto more lines, and when they still don't fit, the swatches are drawn without them. A title can take swatches at the left or right of a narrow chart past that third. `colorScaleConfig: {legendConfig: {width: …}}` (or `height`, for a scale at the top or bottom) sets another limit, in pixels.
+
 <Playground chart="ColorScale" code={choosingLabels} controls={["scale","bucketAxis"]} height={100} />
 
 ## Hover mark

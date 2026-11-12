@@ -169,3 +169,51 @@ it("Gantt axisConfig: a maxSize function reads one size on every pass", async ()
   assert.ok(out.calls > 0, "the function is called");
   assert.strictEqual(out.sizes.length, 1, `one size (${out.sizes})`);
 });
+
+/**
+    Draws an axis along the bottom once per `maxSize`, its labels long enough
+    to wrap onto several lines, and reads back how deep each one is.
+*/
+const depths = sizes =>
+  sizes.reduce(
+    (done, maxSize) =>
+      done.then(
+        out =>
+          new Promise(resolve => {
+            const axis = new window.d3plus.Axis()
+              .domain([0, 100])
+              .labels([0, 50, 100])
+              .tickFormat(
+                d => `A long label of ${d} units that wraps onto lines`,
+              )
+              .labelRotation(false)
+              .gridSize(0)
+              .maxSize(maxSize)
+              .width(400)
+              .height(300)
+              .duration(0)
+              .select("#viz");
+            axis.render(() => resolve([...out, axis.outerBounds().height]));
+          }),
+      ),
+    Promise.resolve([]),
+  );
+
+it("flat labels and their padding stay within any maxSize", async () => {
+  // From one line of labels to all of their lines, a pixel at a time.
+  const sizes = Array.from({length: 91}, (_, i) => 40 + i);
+  const drawn = await render(
+    "<div id='viz' style='width:400px;height:300px'></div>",
+    depths,
+    sizes,
+  );
+  assert.deepStrictEqual(
+    sizes.filter((maxSize, i) => drawn[i] > maxSize),
+    [],
+    `no axis is deeper than its maxSize (${drawn.join(", ")})`,
+  );
+  assert.ok(
+    new Set(drawn).size >= 3,
+    `the labels wrap onto more lines as maxSize grows (${[...new Set(drawn)].join(", ")})`,
+  );
+});

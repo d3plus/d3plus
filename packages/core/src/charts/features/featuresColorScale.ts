@@ -23,6 +23,7 @@ import {facetKey} from "../facet/facetData.js";
 import {colorScaleBucketRows} from "./colorScaleBucket.js";
 import {colorScaleValue, linkColorScaleRows} from "./colorScaleValue.js";
 import {bivariateFieldNames, bivariateSpec} from "./colorScaleBivariate.js";
+import {axisRoom, isWide, MAX_SHARE, swatchFrame} from "./colorScaleLimit.js";
 import {resolveAccessor, shapeConfigFor} from "./emitHelpers.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 
@@ -35,6 +36,12 @@ interface ColorScaleFrame {
   /** The side the scale's labels face, which also sets its direction. */
   orient: string | false;
   align: string;
+  /**
+      The most the whole scale takes across its bar (the bar, its padding,
+      ticks, labels and title), when the chart's `colorScaleConfig` sets no
+      limit of its own.
+  */
+  limit?: number;
 }
 
 /**
@@ -134,6 +141,7 @@ function paintColorScale(
   if (!value) return;
 
   const cs = viz._colorScaleClass!;
+  const {limit} = frame;
   const bivariate = bivariateSpec(viz);
   cs._bivariateFields = bivariate
     ? bivariateFieldNames(viz, bivariate)
@@ -154,6 +162,13 @@ function paintColorScale(
     // Links colored by number are thin lines: keep the ramp's low end
     // visible against a light background.
     .ordinalRamp(linkColorScaleRows(viz).length > 0)
+    // Read as the axis is laid out, once the chart's own config is applied.
+    .axisConfig({
+      maxSize:
+        limit === undefined
+          ? undefined
+          : () => axisRoom(limit, cs.size(), cs.padding()),
+    })
     .config(viz.schema.colorScaleConfig)
     .hover(false)
     .render();
@@ -230,7 +245,7 @@ export const colorScaleFeature: FeatureModule = {
     }
 
     const position = colorScalePosition(viz);
-    const wide = ["top", "bottom"].includes(position as string);
+    const wide = isWide(position);
     const showColorScale = colorScaleValue(viz) && position;
     const padding = viz.schema.colorScalePadding(viz)
       ? viz._padding
@@ -269,33 +284,38 @@ export const colorScaleFeature: FeatureModule = {
       ? min([viz.schema.colorScaleMaxSize, availableHeight])!
       : viz.schema.height - (layoutMargin.bottom + layoutMargin.top);
 
-    paintColorScale(
-      viz,
-      {
-        x: wide
-          ? layoutMargin.left + padding.left + (availableWidth - width) / 2
-          : layoutMargin.left,
-        y: wide
-          ? layoutMargin.top
-          : layoutMargin.top +
-            padding.top +
-            drop +
-            (availableHeight - height) / 2,
-        width,
-        height,
-        orient: position,
-        align:
-          (
-            {
-              bottom: "end",
-              left: "start",
-              right: "end",
-              top: "start",
-            } as Record<string, string>
-          )[position as string] || "bottom",
-      },
-      Boolean(showColorScale),
-    );
+    const frame: ColorScaleFrame = {
+      x: wide
+        ? layoutMargin.left + padding.left + (availableWidth - width) / 2
+        : layoutMargin.left,
+      y: wide
+        ? layoutMargin.top
+        : layoutMargin.top +
+          padding.top +
+          drop +
+          (availableHeight - height) / 2,
+      width,
+      height,
+      // The scale's share of the chart across it.
+      limit: (wide ? height : width) * MAX_SHARE,
+      orient: position,
+      align:
+        (
+          {
+            bottom: "end",
+            left: "start",
+            right: "end",
+            top: "start",
+          } as Record<string, string>
+        )[position as string] || "bottom",
+    };
+    paintColorScale(viz, frame, Boolean(showColorScale));
+    // A Legend lays the swatches out within its own width and height.
+    const swatches =
+      showColorScale && !viz.schema.colorScaleConfig.select
+        ? swatchFrame(viz._colorScaleClass, frame)
+        : undefined;
+    if (swatches) paintColorScale(viz, swatches, true);
 
     const margin: Record<string, number> = {};
     if (showColorScale) {
