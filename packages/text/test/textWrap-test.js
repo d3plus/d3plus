@@ -357,3 +357,21 @@ it("textWrap lineHeight defaults to 1.4 times the font size, rounded up", () => 
     );
   }
 });
+
+it("textWrap reused at another font size takes that size's default line height", () => {
+  const sentence = "one two three four five six seven eight nine ten";
+  const wrap = textWrap().width(40);
+  // 10px: two 14px lines fit in 28px.
+  assert.strictEqual(wrap.fontSize(10).height(28)(sentence).lines.length, 2);
+  assert.strictEqual(wrap.lineHeight(), 14);
+  // 20px: 28px lines, so one fits in 55px and two in 56px.
+  wrap.fontSize(20);
+  assert.strictEqual(wrap.lineHeight(), 28);
+  assert.strictEqual(wrap.height(55)(sentence).lines.length, 1);
+  assert.strictEqual(wrap.height(56)(sentence).lines.length, 2);
+  // A set line height holds at any size, until unset.
+  wrap.lineHeight(30);
+  assert.strictEqual(wrap.height(59)(sentence).lines.length, 1);
+  wrap.lineHeight(undefined);
+  assert.strictEqual(wrap.lineHeight(), 28);
+});

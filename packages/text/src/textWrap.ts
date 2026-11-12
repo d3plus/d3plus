@@ -70,8 +70,8 @@ export interface TextWrapGenerator {
   fontWeight(value: number | string): TextWrapGenerator;
   height(): number;
   height(value: number): TextWrapGenerator;
-  lineHeight(): number | undefined;
-  lineHeight(value: number): TextWrapGenerator;
+  lineHeight(): number;
+  lineHeight(value: number | undefined): TextWrapGenerator;
   maxLines(): number | null;
   maxLines(value: number | null): TextWrapGenerator;
   overflow(): boolean;
@@ -562,19 +562,22 @@ export default function (): TextWrapGenerator {
     truncateWord = false,
     width = 200;
 
+  /** The set line height, else the default for the current font size. */
+  const currentLineHeight = (): number =>
+    lineHeight ?? Math.ceil(fontSize * 1.4);
+
   /**
       The inner return object and wraps the text and returns the line data array.
       @private
 */
   function textWrap(phrase: unknown): TextWrapResult {
-    if (lineHeight === void 0) lineHeight = Math.ceil(fontSize * 1.4);
     return wrapSentence(phrase, {
       ellipsis,
       fontFamily,
       fontSize,
       fontWeight,
       height,
-      lineHeight,
+      lineHeight: currentLineHeight(),
       maxLines,
       overflow,
       shape,
@@ -629,12 +632,14 @@ export default function (): TextWrapGenerator {
   };
 
   /**
-      The line height in pixels. Defaults to 1.4 times the [font size](#textWrap.fontSize), rounded up to a whole pixel.
+      The line height in pixels. Defaults to 1.4 times the [font size](#textWrap.fontSize), rounded up to a whole pixel, at each wrap's font size; `undefined` returns to the default.
 */
   textWrap.lineHeight = function (
-    _?: number,
-  ): number | undefined | typeof textWrap {
-    return arguments.length ? ((lineHeight = _!), textWrap) : lineHeight;
+    _?: number | undefined,
+  ): number | typeof textWrap {
+    return arguments.length
+      ? ((lineHeight = _), textWrap)
+      : currentLineHeight();
   };
 
   /**
