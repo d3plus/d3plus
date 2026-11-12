@@ -12,6 +12,7 @@ import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
+import {titleRoom} from "./axisTitle.js";
 import {slantedDepth, slantedWrapSize} from "./axisLabelAngle.js";
 import {
   isDiscreteScale,
@@ -110,7 +111,12 @@ function labelRoom(
         axis._margin.right;
 }
 
-/** Applies the axis title's wrapped height to the orient-side margin. */
+/**
+    Applies the axis title's wrapped height to the orient-side margin, as
+    the title TextBox draws it across `range` (see `titleRoom`). Given the
+    range it was `measured` across before, it measures again only when the
+    range has changed. Returns the range measured across.
+*/
 export function applyTitleMargin(
   axis: Axis,
   ctx: {
@@ -118,19 +124,21 @@ export function applyTitleMargin(
     p: number;
     height: string;
     margin: Record<string, number>;
+    measured?: number[];
   },
-): void {
-  if (!axis.schema.title) return;
-  const {range, p, height, margin} = ctx;
-  const {fontFamily, fontSize, lineHeight} = axis.schema.titleConfig;
-  const titleWrap = textWrap()
-    .fontFamily(typeof fontFamily === "function" ? fontFamily() : fontFamily)
-    .fontSize(typeof fontSize === "function" ? fontSize() : fontSize)
-    .lineHeight(typeof lineHeight === "function" ? lineHeight() : lineHeight)
-    .width(range[range.length - 1] - range[0] - p * 2)
-    .height((axis.schema[height] as number) - axis.schema.tickSize - p * 2);
-  const lines = titleWrap(axis.schema.title).lines.length;
-  margin[axis.schema.orient] = lines * titleWrap.lineHeight()! + p;
+): number[] {
+  const {range, p, height, margin, measured} = ctx;
+  const same =
+    measured &&
+    measured[0] === range[0] &&
+    measured[measured.length - 1] === range[range.length - 1];
+  if (!axis.schema.title || same) return range;
+  margin[axis.schema.orient] = titleRoom(
+    axis,
+    range,
+    (axis.schema[height] as number) - axis.schema.tickSize - p * 2,
+  );
+  return range;
 }
 
 /** Resolves the tick height/width buffers from the shape config. */

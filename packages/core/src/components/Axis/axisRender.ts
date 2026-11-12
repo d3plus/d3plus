@@ -23,6 +23,7 @@ import {powTicks} from "./powTicks.js";
 import {timeDataInDomain} from "./timeValues.js";
 import {slantedLabelBox} from "./axisLabelAngle.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
+import {configureTitle} from "./axisTitle.js";
 import type {AxisOrient} from "./axisLabelAngle.js";
 
 const maxTimezoneOffset = 1000 * 60 * 60 * 26;
@@ -424,24 +425,12 @@ export function renderAxisTitle(
   // DOM mount — its scene comes via toScene() anyway.
   axis._titleClass
     .renderMode("compute")
-    .data(axis.schema.title ? [{text: axis.schema.title}] : [])
     .duration(axis.schema.duration)
-    .height(margin[axis.schema.orient])
-    .rotate(
-      axis.schema.orient === "left"
-        ? -90
-        : axis.schema.orient === "right"
-          ? 90
-          : 0,
-    )
     .select(
       !group
         ? (null as unknown as HTMLElement)
         : elem("g.d3plus-Axis-title", {parent: group}).node(),
     )
-    .text(((d: DataPoint) => d.text) as unknown as string)
-    .verticalAlign("middle")
-    .width(range[range.length - 1] - range[0])
     .x(
       horizontal
         ? range[0]
@@ -462,11 +451,12 @@ export function renderAxisTitle(
         : range[0] +
             (range[range.length - 1] - range[0]) / 2 -
             margin[axis.schema.orient] / 2,
-    )
-    .config(
-      configPrep.bind(axis as unknown as ConfigPrepHost)(
-        axis.schema.titleConfig,
-      ),
-    )
-    .render();
+    );
+  // Wrapped as it was measured (see `titleRoom`), in the room it claimed.
+  configureTitle(
+    axis._titleClass,
+    axis,
+    range,
+    margin[axis.schema.orient],
+  ).render();
 }
