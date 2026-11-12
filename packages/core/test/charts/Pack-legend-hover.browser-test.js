@@ -45,7 +45,7 @@ it("Pack — hovering a legend entry highlights its circles without throwing", a
               for (const id of ["1", "2", "3", "4"]) {
                 const circle = Array.from(svg.querySelectorAll("circle")).find(
                   c =>
-                    new RegExp(`^pack-${id}-`).test(
+                    new RegExp(`^pack-leaf-.+/${id}$`).test(
                       c.getAttribute("data-key") || "",
                     ),
                 );

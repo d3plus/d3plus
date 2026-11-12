@@ -17,6 +17,7 @@ import {
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PackLeaf} from "./applyLayout.js";
+import {packNodeKey, packNodeLabel} from "./nodeNames.js";
 
 export const packEmit: ChartEmit = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as PackLeaf[];
@@ -38,7 +39,7 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
     const strokeWidth = resolveAccessor<number>(sc.strokeWidth, datum, i);
     return {
       type: "circle",
-      key: `pack-${d.id}-${d.i}`,
+      key: packNodeKey(d),
       cx: d.x,
       cy: d.y,
       r: d.r,
@@ -55,9 +56,7 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
         opacity: datum.__d3plusOpacity__,
         strokeWidth,
       },
-      aria: {
-        label: `${viz._drawLabel(datum, d.i)}, ${d.value}.`,
-      },
+      aria: {label: packNodeLabel(viz, d)},
     } as SceneNode;
   });
 
@@ -81,7 +80,7 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
       return {r, width: 2 * r, height: 2 * r};
     },
     rotate: constant(0),
-    id: d => (d as unknown as PackLeaf).id,
+    id: d => packNodeKey(d as unknown as PackLeaf),
     labelBounds: (_d, _i, aes) => {
       const r = (aes as {r: number}).r;
       return {width: r * 1.6, height: r * 0.8, x: -r * 0.8, y: -r * 0.4};

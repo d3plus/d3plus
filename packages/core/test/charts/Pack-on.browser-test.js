@@ -36,7 +36,7 @@ it("Pack — on(typename, handler) registers, reads back, merges, and fires", as
           const circle = Array.from(
             document.querySelectorAll('#viz circle[data-key^="pack-"]'),
           )
-            .filter(c => !/root|undefined/.test(c.getAttribute("data-key")))
+            .filter(c => !/root|group/.test(c.getAttribute("data-key")))
             .sort(
               (a, b) =>
                 a.getBoundingClientRect().width -
