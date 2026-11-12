@@ -1,7 +1,8 @@
 import {it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
-import {TextBox} from "../../index.ts";
+import {Axis, TextBox} from "../../index.ts";
+import {textEllipsis} from "../../src/components/textEllipsis.ts";
 import textWidth from "../../../dom/src/textWidth.ts";
 import fontExists from "../../../dom/src/fontExists.ts";
 
@@ -51,4 +52,19 @@ it("TextBox keeps the decimals in a cut line", () => {
   const [line] = box.toScene().children[0].lines;
   assert.strictEqual(line.text, kept);
   assert.ok(textWidth(line.text, style) <= width);
+});
+
+it("textEllipsis drops only trailing periods, commas, and spaces", () => {
+  assert.strictEqual(textEllipsis("Ages 0.5 to 4.5"), "Ages 0.5 to 4.5...");
+  assert.strictEqual(textEllipsis("4.5."), "4.5...");
+  assert.strictEqual(textEllipsis("4.5, "), "4.5...");
+});
+
+it("an axis tick label ends like a TextBox line", () => {
+  const axis = new Axis().domain([0, 10]).render();
+  const {ellipsis: tick} = axis._tickShape.schema.labelConfig;
+  assert.strictEqual(tick("4.5."), "4.5...");
+  assert.strictEqual(tick("Ages 0.5 to 4.5,"), ellipsis("Ages 0.5 to 4.5,", 1));
+  // A tick label with no text left draws nothing.
+  assert.strictEqual(tick(""), "");
 });

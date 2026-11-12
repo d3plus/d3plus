@@ -14,6 +14,7 @@ import type {ConfigField} from "../fluent.js";
 import {computeTextBoxDatum} from "./textBoxLayout.js";
 import type {TextBoxDatum} from "./textBoxLayout.js";
 import {textBoxNodes} from "./textBoxScene.js";
+import {textEllipsis} from "./textEllipsis.js";
 
 const defaultHtmlLookup: Record<string, string> = {
   i: "font-style: italic;",
@@ -30,10 +31,7 @@ const textBoxSchema: ConfigField[] = [
   {
     key: "ellipsis",
     coerce: "const",
-    // Drops only the line's trailing periods, commas, and spaces, so a
-    // decimal or an abbreviation inside the kept text survives.
-    default: (text: string, line: number) =>
-      line ? `${text.replace(/[.,\s]+$/, "")}...` : "",
+    default: (text: string, line: number) => (line ? textEllipsis(text) : ""),
   },
   {key: "fontColor", coerce: "const", default: constant("black")},
   {key: "fontFamily", coerce: "const", default: constant(fontFamily)},
