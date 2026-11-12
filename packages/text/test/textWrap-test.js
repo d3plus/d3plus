@@ -331,3 +331,29 @@ it("textWrap counts the spaces between words, not the one after the last", () =>
     "the gaps count toward the line width",
   );
 });
+
+it("textWrap lineHeight defaults to 1.4 times the font size, rounded up", () => {
+  const sentence = "one two three four five six seven eight nine ten";
+  for (const [fontSize, lineHeight] of [
+    [10, 14],
+    [12, 17],
+    [14, 20],
+  ]) {
+    const wrap = textWrap().fontSize(fontSize).width(40);
+    // Two lines fit in twice the line height, and not a pixel less.
+    assert.strictEqual(
+      wrap.height(lineHeight * 2)(sentence).lines.length,
+      2,
+      `${fontSize}px: two ${lineHeight}px lines`,
+    );
+    assert.strictEqual(wrap.lineHeight(), lineHeight);
+    assert.strictEqual(
+      textWrap()
+        .fontSize(fontSize)
+        .width(40)
+        .height(lineHeight * 2 - 1)(sentence).lines.length,
+      1,
+      `${fontSize}px: one line in ${lineHeight * 2 - 1}px`,
+    );
+  }
+});

@@ -629,7 +629,7 @@ export default function (): TextWrapGenerator {
   };
 
   /**
-      The line height in pixels. Defaults to 1.1 times the [font size](#textWrap.fontSize).
+      The line height in pixels. Defaults to 1.4 times the [font size](#textWrap.fontSize), rounded up to a whole pixel.
 */
   textWrap.lineHeight = function (
     _?: number,
