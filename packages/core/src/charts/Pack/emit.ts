@@ -48,7 +48,9 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
       // subdivide-a-container circles, not a scatter chart's — only applies
       // here.
       shapeType: "Pack",
-      datum,
+      // A group circle carries its group's row; its paint, as each leaf's,
+      // reads the nest entry it was laid out from.
+      datum: d.groupRow ?? datum,
       paint: {
         fill: textureFill(sc, datum, i, fill),
         stroke,

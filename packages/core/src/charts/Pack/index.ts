@@ -5,6 +5,7 @@
       - `applyLayout.ts` — chart-specific `TransformStage`.
       - `emit.ts` — Circle + label scene nodes from the laid-out data.
       - `recursionCircles.ts` — descendant-walk helper used by hover handlers.
+      - `groupRows.ts` — the group row each enclosing circle carries.
 */
 
 import {pack} from "d3-hierarchy";
