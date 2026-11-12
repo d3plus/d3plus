@@ -137,3 +137,81 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(wrapped, "some labels wrap onto more than one line");
   });
 }
+
+/**
+    Renders a LinePlot with a right legend `legendWidth` wide and reads each
+    legend item's painted label lines, the width the legend reports for each
+    item alone (`_rowWidth`), and its outer width.
+*/
+const fitProbe = ([names, legendWidth, renderer]) =>
+  new Promise((resolve, reject) => {
+    const el = document.createElement("div");
+    el.style.cssText = "width:600px;height:300px";
+    document.body.appendChild(el);
+    const data = names.flatMap((id, i) => [
+      {id, x: 1, y: i + 1},
+      {id, x: 2, y: i + 3},
+    ]);
+    const viz = new window.d3plus.LinePlot()
+      .lineLabels(false)
+      .data(data)
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .legendPosition("right")
+      .legendConfig({width: legendWidth})
+      .renderer(renderer)
+      .duration(0)
+      .select(el);
+    viz.render(() => {
+      try {
+        const legend = viz._legendClass;
+        const lines = new Map();
+        for (const shape of legend._shapes)
+          for (const t of shape._labelClass._textData())
+            lines.set(t.data.data.id, t.lines);
+        const result = {
+          room: legend.width() - legend.padding() * 2,
+          outer: legend.outerBounds().width,
+          items: legend._lineData.map(d => ({
+            id: d.id,
+            reported: legend._rowWidth([d]),
+            lines: lines.get(d.id),
+          })),
+        };
+        el.remove();
+        resolve(result);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  });
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`[${renderer}] legend labels wrap only when wider than the width the legend reports`, async () => {
+    const fit = width => render("", fitProbe, [names, width, renderer]);
+    const wide = await fit(500);
+    const widest = Math.max(...wide.items.map(d => d.reported));
+    assert.ok(
+      wide.items.every(d => d.lines.length === 1),
+      "a wide legend draws each label on one line",
+    );
+    for (const slack of [0, 3, 9]) {
+      const {room, outer, items} = await fit(widest + 10 + slack);
+      assert.strictEqual(room, widest + slack);
+      for (const d of items)
+        assert.strictEqual(
+          d.lines?.length,
+          1,
+          `${slack}px slack: "${d.id}" (${d.reported}px in ${room}px) keeps one line, painted ${JSON.stringify(d.lines)}`,
+        );
+      assert.ok(outer <= room, `${slack}px slack: ${outer}px in ${room}px`);
+    }
+    const narrow = await fit(widest + 10 - 1);
+    assert.ok(
+      narrow.items.some(d => d.lines?.length > 1),
+      "1px short of the widest item, its label wraps",
+    );
+    assert.ok(narrow.outer <= narrow.room, "and the legend fits its room");
+  });
+}

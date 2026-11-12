@@ -123,6 +123,14 @@ export function computeLegendLineData(
   });
 }
 
+/**
+    An item's width as `_rowWidth` reports it when it ends a row: its swatch
+    and label, without the padding that only separates it from a next item.
+*/
+function itemWidth(d: Record<string, unknown>): number {
+  return (d.width as number) + (d.shapeWidth as number);
+}
+
 /** Attempts to wrap labels onto an additional line, recursing into rows. */
 function tryWrapLines(
   legend: Legend,
@@ -140,10 +148,8 @@ function tryWrapLines(
       : legend._lineData
           .filter(
             (d: Record<string, unknown>) =>
-              (d.width as number) +
-                (d.shapeWidth as number) +
-                legend.schema.padding * (d.width ? 2 : 1) >
-                availableWidth && (d.words as unknown[]).length >= state.lines,
+              itemWidth(d) > availableWidth &&
+              (d.words as unknown[]).length >= state.lines,
           )
           .sort(
             (a: Record<string, unknown>, b: Record<string, unknown>) =>
@@ -203,10 +209,8 @@ function buildRows(
     rowWidth = 0;
   for (let i = 0; i < legend._lineData.length; i++) {
     const d = legend._lineData[i],
-      w =
-        (d.width as number) +
-        legend.schema.padding * (d.width ? 2 : 1) +
-        (d.shapeWidth as number);
+      // The padding after an item counts only when another follows it.
+      w = itemWidth(d) + legend.schema.padding * (d.width ? 2 : 1);
     if (
       sum(
         state.newRows.map((row: Record<string, unknown>[]) =>
@@ -219,11 +223,11 @@ function buildRows(
       state.newRows = [];
       break;
     }
-    if (w > availableWidth) {
+    if (itemWidth(d) > availableWidth) {
       state.newRows = [];
       legend._wrapLines!();
       break;
-    } else if (rowWidth + w < availableWidth) {
+    } else if (rowWidth + itemWidth(d) <= availableWidth) {
       rowWidth += w;
     } else if (legend.schema.direction !== "column") {
       rowWidth = w;
