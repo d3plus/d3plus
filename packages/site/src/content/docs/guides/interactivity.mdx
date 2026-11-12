@@ -4,6 +4,10 @@ description: "D3plus charts are interactive out of the box: hovering a shape hig
 sidebar:
   order: 5
 ---
+
+import Playground from "~/components/Playground/Playground.astro";
+import tooltipDeepestLevel from "~/examples/guides/interactivity/tooltip-deepest-level.js?raw";
+
 D3plus charts are interactive out of the box: hovering a shape highlights it and
 shows a tooltip, and a legend lets viewers toggle series. Everything below works
 identically on the SVG and Canvas backends.
@@ -26,6 +30,26 @@ their contents and styling with `tooltipConfig` (a
   }
 }} />
 ```
+
+### Only at the deepest level
+
+`tooltip` also takes a function, called as `(d, i, {depth, maxDepth})` for each
+hovered mark and legend entry, that returns whether to show its tooltip.
+`depth` is the `groupBy` level the item stands for, counted from 0, and
+`maxDepth` is the deepest level (`groupBy.length - 1`), so
+`depth === maxDepth` leaves the levels above without tooltips. Here the regions
+show none; click one to drill into its states, which do:
+
+<Playground chart="Treemap" code={tooltipDeepestLevel} controls={["depth"]} height={300} />
+
+On a chart that draws several levels at once (the rings of a Sunburst, the
+columns of an Icicle, the nodes of a Tree, the header strips of a nested
+Treemap), each mark reports its own level, so the same function keeps tooltips
+to the leaves.
+
+The third argument also has `legend`, true when the hovered item is a legend
+entry, so `(d, i, {depth, maxDepth, legend}) => legend || depth === maxDepth`
+keeps the legend's tooltips at every level.
 
 ## Axis guides
 

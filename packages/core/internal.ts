@@ -1664,6 +1664,11 @@ export {
   surfaceOrigin,
 } from "./src/charts/viz/pointTooltipAnchor.js";
 export type {ClientOrigin} from "./src/charts/viz/pointTooltipAnchor.js";
+export {
+  tooltipEnabled,
+  tooltipLevels,
+} from "./src/charts/viz/tooltipEnabled.js";
+export type {TooltipHost} from "./src/charts/viz/tooltipEnabled.js";
 export {pointVoronoi, polygonDistance} from "./src/charts/viz/pointVoronoi.js";
 export {
   boxCoverage,

@@ -11,6 +11,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {latestDrillEntry, removeLatestDrillEntry} from "../viz/history.js";
+import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type {DrillDownHistoryEntry, VizInstance} from "../viz/vizTypes.js";
 
 import {partitionLineage} from "./hierarchy.js";
@@ -258,7 +259,7 @@ export function partitionHandlers<N extends PartitionNode>(
         "cursor",
         userClick || partitionClickable(viz, node) ? "pointer" : "auto",
       );
-      if (viz._tooltipClass && viz.schema.tooltip(d, i))
+      if (viz._tooltipClass && tooltipEnabled(viz, d, i))
         partitionTooltip(viz, node, shareRow);
     },
     "click.shape": (d, _i, _x, event) => {

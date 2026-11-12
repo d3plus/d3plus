@@ -455,6 +455,7 @@ it("setupGeomapLinks hovers and focuses links, and clears the focus on another c
   const calls = [];
   viz._tooltipClass = {data: () => ({render: () => calls.push("tooltip")})};
   viz._scheduleSceneRepaint = () => calls.push("repaint");
+  viz._select = {style: () => viz._select};
   on["mousemove.shape"](link.datum, 0, link.datum, {});
   assert.strictEqual(typeof viz._hover, "function");
   assert.ok(viz._hover(cities[0], 0), "the link's end is emphasized");

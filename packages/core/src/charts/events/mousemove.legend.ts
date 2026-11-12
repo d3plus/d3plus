@@ -4,6 +4,7 @@ import clickLegend from "./click.legend.js";
 import {legendLabel} from "../features/legendLabel.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
+import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import type Viz from "../viz/Viz.js";
@@ -33,90 +34,88 @@ export default function (
     }),
   ).length;
 
-  if (d && this.schema.tooltip(d, i)) {
-    let id = this._id(d, i);
-    if (id instanceof Array) id = id[0];
+  if (!d) return;
+  let id = this._id(d, i);
+  if (id instanceof Array) id = id[0];
 
-    const t = this.schema.translate;
-    const defaultClick = clickLegend.bind(this).toString();
+  const t = this.schema.translate;
+  const defaultClick = clickLegend.bind(this).toString();
 
-    // does the legend have any user-defined click events?
-    const hasUserClick = Object.keys(this.schema.on).some(
-      (e: string) =>
-        // all valid click event keys,
-        ["click", "click.legend"].includes(e) &&
-        // truthy values (no nulls),
-        this.schema.on[e] &&
-        // and it is not our default click.legend function
-        this.schema.on[e].toString() !== defaultClick,
+  // does the legend have any user-defined click events?
+  const hasUserClick = Object.keys(this.schema.on).some(
+    (e: string) =>
+      // all valid click event keys,
+      ["click", "click.legend"].includes(e) &&
+      // truthy values (no nulls),
+      this.schema.on[e] &&
+      // and it is not our default click.legend function
+      this.schema.on[e].toString() !== defaultClick,
+  );
+
+  // does the legend still have our default "click.legend" event?
+  // (if the user only sets "click", both functions will fire)
+  const hasDefaultClick =
+    this.schema.on["click.legend"] &&
+    this.schema.on["click.legend"].toString() === defaultClick;
+
+  // can the viz show deeper data?
+  const hasDeeperLevel = this._drawDepth < this.schema.groupBy.length - 1;
+
+  // only show the hand cursor when the entry has a click event, whether or
+  // not it shows a tooltip
+  this._select.style(
+    "cursor",
+    hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
+  );
+
+  if (!tooltipEnabled(this, d, i, true)) return;
+
+  const invertedBehavior = this.schema.legendFilterInvert.bind(this)(this);
+
+  const solo = this._solo.includes(id);
+  const hidden = this._hidden.includes(id);
+
+  this._tooltipClass
+    .data([x || d])
+    .footer(
+      hasDefaultClick
+        ? invertedBehavior
+          ? (this._solo.length && !solo) || hidden
+            ? t("Click to Highlight")
+            : (this._solo.length === 1 && solo) ||
+                this._hidden.length === dataLength - 1
+              ? t("Click to Show All")
+              : `${t("Click to Highlight")}<br />${t("Shift+Click to Hide")}`
+          : (this._solo.length && !solo) || hidden
+            ? `${t("Click to Show")}<br />${t("Shift+Click to Highlight")}`
+            : (this._solo.length === 1 && solo) ||
+                this._hidden.length === dataLength - 1
+              ? t("Click to Show All")
+              : `${t("Click to Hide")}<br />${t("Shift+Click to Highlight")}`
+        : false,
+    )
+    .title(
+      this.schema.legendConfig.label
+        ? this._legendClass.label()
+        : legendLabel.bind(this),
+    )
+    .titleSwatch(true)
+    .position(position)
+    .config(
+      configPrep.bind(this as unknown as ConfigPrepHost)(
+        this.schema.tooltipConfig,
+      ),
+    )
+    .config(
+      configPrep.bind(this as unknown as ConfigPrepHost)(
+        this.schema.legendTooltip,
+      ),
     );
-
-    // does the legend still have our default "click.legend" event?
-    // (if the user only sets "click", both functions will fire)
-    const hasDefaultClick =
-      this.schema.on["click.legend"] &&
-      this.schema.on["click.legend"].toString() === defaultClick;
-
-    // can the viz show deeper data?
-    const hasDeeperLevel = this._drawDepth < this.schema.groupBy.length - 1;
-
-    // only show the hand cursor when the shape has a click event
-    this._select.style(
-      "cursor",
-      hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
-    );
-
-    const invertedBehavior = this.schema.legendFilterInvert.bind(this)(this);
-
-    const solo = this._solo.includes(id);
-    const hidden = this._hidden.includes(id);
-
-    this._tooltipClass
-      .data([x || d])
-      .footer(
-        hasDefaultClick
-          ? invertedBehavior
-            ? (this._solo.length && !solo) || hidden
-              ? t("Click to Highlight")
-              : (this._solo.length === 1 && solo) ||
-                  this._hidden.length === dataLength - 1
-                ? t("Click to Show All")
-                : `${t("Click to Highlight")}<br />${t("Shift+Click to Hide")}`
-            : (this._solo.length && !solo) || hidden
-              ? `${t("Click to Show")}<br />${t("Shift+Click to Highlight")}`
-              : (this._solo.length === 1 && solo) ||
-                  this._hidden.length === dataLength - 1
-                ? t("Click to Show All")
-                : `${t("Click to Hide")}<br />${t("Shift+Click to Highlight")}`
-          : false,
-      )
-      .title(
-        this.schema.legendConfig.label
-          ? this._legendClass.label()
-          : legendLabel.bind(this),
-      )
-      .titleSwatch(true)
-      .position(position)
-      .config(
-        configPrep.bind(this as unknown as ConfigPrepHost)(
-          this.schema.tooltipConfig,
-        ),
-      )
-      .config(
-        configPrep.bind(this as unknown as ConfigPrepHost)(
-          this.schema.legendTooltip,
-        ),
-      );
-    // A threshold bucket's entry lists what it holds.
-    appendThresholdMembers(
-      this._tooltipClass,
-      this as unknown as VizInstance,
-      d,
-    );
-    // The title leads with the hovered entry's swatch, as on the chart.
-    leadTitleWithSwatch(
-      this._tooltipClass,
-      pickSwatch(this as unknown as VizInstance, this._lastScenePick),
-    ).render();
-  }
+  // A threshold bucket's entry lists what it holds.
+  appendThresholdMembers(this._tooltipClass, this as unknown as VizInstance, d);
+  // The title leads with the hovered entry's swatch, as on the chart.
+  leadTitleWithSwatch(
+    this._tooltipClass,
+    pickSwatch(this as unknown as VizInstance, this._lastScenePick),
+  ).render();
 }

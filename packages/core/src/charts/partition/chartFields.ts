@@ -14,7 +14,7 @@ import {thresholdFunction} from "../Treemap/thresholdFunction.js";
 
 import {partitionSort} from "./hierarchy.js";
 import type {PartitionNode, PartitionSort} from "./hierarchy.js";
-import {partitionHandlers} from "./interaction.js";
+import {partitionHandlers, partitionNodeOf} from "./interaction.js";
 import type {PartitionInteraction} from "./interaction.js";
 
 /** Buckets small branches into a "Values" node per `threshold` (Treemap's algorithm). */
@@ -56,6 +56,16 @@ export function partitionSumOnSet(viz: VizInstance, v: unknown): void {
 /** Legend entries ordered by value, largest first. */
 export function partitionLegendSort(viz: VizInstance) {
   return legendLargestFirst(viz, "sum");
+}
+
+/**
+    A def's `shapeDepth`: the `groupBy` level of the node a row is laid out
+    as, so a `tooltip` accessor can tell a parent node from the deepest ones.
+*/
+export function partitionShapeDepth<N extends PartitionNode>(
+  interaction: PartitionInteraction<N>,
+): (viz: VizInstance, d: DataPoint) => number | undefined {
+  return (viz, d) => partitionNodeOf<N>(viz, d, interaction.prefix)?.level;
 }
 
 /**

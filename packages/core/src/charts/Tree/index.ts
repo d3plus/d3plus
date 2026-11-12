@@ -29,6 +29,14 @@ export const treeDef: ChartDefinition = {
   emit: treeEmit,
   insetRegion: sceneInsetRegion,
 
+  // A node's `groupBy` level, from the hierarchy depth applyTreeLayout stamps
+  // onto its row.
+  shapeDepth: (_viz: VizInstance, d: DataPoint) => {
+    let row = d as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
+    while (row && row.__d3plus__ && row.data) row = row.data as typeof row;
+    return row && typeof row.depth === "number" ? row.depth - 1 : undefined;
+  },
+
   ctx: {
     tree: tree(),
     previousShapes: [],

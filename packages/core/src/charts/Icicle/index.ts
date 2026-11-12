@@ -23,6 +23,7 @@ import {
   partitionDefaultSort,
   partitionLegendSort,
   partitionSetup,
+  partitionShapeDepth,
   partitionSortDecorate,
   partitionSumCoerce,
   partitionSumOnSet,
@@ -45,6 +46,9 @@ export const icicleDef: DataDrivenChartDefinition = {
 
   // Shading applies only while the default colors stay in place.
   setup: (viz: VizInstance) => partitionSetup(viz, icicleInteraction),
+
+  // Each node reports its own `groupBy` level to the `tooltip` accessor.
+  shapeDepth: partitionShapeDepth(icicleInteraction),
 
   ctx: {},
 

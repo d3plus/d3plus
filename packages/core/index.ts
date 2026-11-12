@@ -106,6 +106,7 @@ export type {
   TextBoxConfig,
   TimelineConfig,
   TooltipConfig,
+  TooltipLevels,
   TrendLineConfig,
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";

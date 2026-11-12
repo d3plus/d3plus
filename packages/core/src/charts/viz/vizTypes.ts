@@ -708,6 +708,8 @@ export interface VizInstance {
   _tableData?(): DataPoint[] | null;
   /** The shape a colorScale row draws as (see `ChartDefinition.colorScaleShape`). */
   _colorScaleShape?(d: DataPoint, i: number): string;
+  /** The `groupBy` level a shape's row stands for (see `ChartDefinition.shapeDepth`). */
+  _shapeDepth?(d: DataPoint): number | undefined;
   /** The chart's small-multiple hooks (see `ChartDefinition.facet`). */
   _facetHooks?(): FacetHooks;
   toScene?(): SceneNode;
