@@ -12,7 +12,7 @@ import {nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../pipeline/stages.js";
-import {attachGroupRows, packDatum} from "./groupRows.js";
+import {attachGroupRows, packDatum, packPaintDatum} from "./groupRows.js";
 import type {GroupedNode} from "./groupRows.js";
 
 type PackLeaf = Omit<HierarchyCircularNode<DataPoint>, "id"> & {
@@ -75,18 +75,15 @@ export const applyPackLayout: TransformStage = ({viz}) => {
     node.__d3plus__ = true;
     node.i = i;
     node.id = node.parent ? (node.parent.data.key as string | number) : "root";
-    const data = node.data as DataPoint & {
-      __d3plusOpacity__?: number;
-      __d3plusTooltip__?: boolean;
-    };
-    data.__d3plusOpacity__ = node.height ? packOpacityFn(data, i) : 1;
-    data.__d3plusTooltip__ = !node.height;
+    const grouped = node as unknown as GroupedNode;
+    const opacity = node.height
+      ? packOpacityFn(packPaintDatum(grouped, !node.parent), i)
+      : 1;
     // A group circle's tooltip names its group; the outermost circle,
     // holding every group, has none.
-    const row = packDatum(node as unknown as GroupedNode);
-    if (row !== data) {
-      row.__d3plusOpacity__ = data.__d3plusOpacity__;
-      row.__d3plusTooltip__ = !!node.parent;
+    for (const data of new Set([node.data, packDatum(grouped)])) {
+      data.__d3plusOpacity__ = opacity;
+      data.__d3plusTooltip__ = !!node.parent;
     }
     return !node.children || node.children.length > 1;
   });

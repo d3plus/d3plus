@@ -4,7 +4,6 @@
 */
 
 import {color} from "d3-color";
-import {interpolateRgb} from "d3-interpolate";
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
@@ -15,7 +14,7 @@ import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
 import {summedShare} from "../features/shareKey.js";
-import {backgroundInk, chartBackground} from "../viz/backgroundInk.js";
+import {neutralFill} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import type {GroupLabelStyle, TreemapGroupHeader} from "./groupHeaders.js";
@@ -30,12 +29,10 @@ export function defaultGroupFill(
   row: DataPoint,
   i: number,
 ): string {
-  const neutral = () =>
-    interpolateRgb(chartBackground(viz), backgroundInk(viz))(0.7);
-  if (viz.schema.colorScale) return neutral();
+  if (viz.schema.colorScale) return neutralFill(viz);
   const sc = shapeConfigFor(viz, "Rect");
   const base = color(`${resolveAccessor<string>(sc.fill, row, i)}`);
-  return base ? base.darker(0.8).formatHex() : neutral();
+  return base ? base.darker(0.8).formatHex() : neutralFill(viz);
 }
 
 /** The strip rects and name labels for `headers`. */

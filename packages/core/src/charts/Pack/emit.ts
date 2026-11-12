@@ -16,6 +16,8 @@ import {
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {packDatum, packNeutral, packPaintDatum} from "./groupRows.js";
+import {packNeutralPaint} from "./neutralPaint.js";
 import type {PackLeaf} from "./applyLayout.js";
 
 export const packEmit: ChartEmit = ({viz, shapeData}) => {
@@ -23,6 +25,8 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
   if (!nodes.length) return [];
 
   const sc = shapeConfigFor(viz, "Circle");
+  const colorScaled = !!viz.schema.colorScale;
+  const neutralPaint = packNeutralPaint(viz);
   // Pack's label accessor is nested under `Circle`.
   const circleConfig = (viz.schema.shapeConfig.Circle ?? {}) as Record<
     string,
@@ -32,9 +36,17 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
     ((d: DataPoint, i: number) => unknown) | undefined;
 
   const circleNodes: SceneNode[] = nodes.map((d, i) => {
-    const datum = d.data as DataPoint & {__d3plusOpacity__?: number};
-    const fill = resolveAccessor<string>(sc.fill, datum, i);
-    const stroke = resolveAccessor<string>(sc.stroke, datum, i);
+    const neutral = packNeutral(d, colorScaled);
+    const datum = packPaintDatum(d, neutral) as DataPoint & {
+      __d3plusOpacity__?: number;
+    };
+    const fill = neutral
+      ? neutralPaint.fill
+      : resolveAccessor<string>(sc.fill, datum, i);
+    const stroke =
+      neutral && neutralPaint.stroke !== undefined
+        ? neutralPaint.stroke
+        : resolveAccessor<string>(sc.stroke, datum, i);
     const strokeWidth = resolveAccessor<number>(sc.strokeWidth, datum, i);
     return {
       type: "circle",
@@ -48,9 +60,8 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
       // subdivide-a-container circles, not a scatter chart's — only applies
       // here.
       shapeType: "Pack",
-      // A group circle carries its group's row; its paint, as each leaf's,
-      // reads the nest entry it was laid out from.
-      datum: d.groupRow ?? datum,
+      // A group circle carries its group's row (see `groupRows.ts`).
+      datum: packDatum(d),
       paint: {
         fill: textureFill(sc, datum, i, fill),
         stroke,
@@ -92,7 +103,7 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
   });
 
   const imageNodes = backgroundImageNodes(sc, circleNodes, k => [
-    nodes[k].data as DataPoint,
+    packPaintDatum(nodes[k], packNeutral(nodes[k], colorScaled)),
     k,
   ]);
 

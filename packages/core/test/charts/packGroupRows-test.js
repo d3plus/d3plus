@@ -4,7 +4,12 @@ import {hierarchy} from "d3-hierarchy";
 
 import {nestGroups} from "@d3plus/data";
 
-import {attachGroupRows, packDatum} from "../../src/charts/Pack/groupRows.ts";
+import {
+  attachGroupRows,
+  packDatum,
+  packNeutral,
+  packPaintDatum,
+} from "../../src/charts/Pack/groupRows.ts";
 import {MEMBERS_KEY} from "../../src/charts/features/thresholdMembers.ts";
 import {
   GROUP_DEPTH_KEY,
@@ -91,5 +96,30 @@ describe("attachGroupRows", () => {
     assert.strictEqual(west._threshold, undefined);
     assert.strictEqual(west[MEMBERS_KEY], undefined);
     assert.strictEqual(west.value, 34);
+  });
+});
+
+describe("packNeutral", () => {
+  it("paints the outermost circle neutral, and groups under a colorScale", () => {
+    const root = packTree();
+    const east = child(root, "East");
+    const leaf = east.children[0];
+    assert.deepStrictEqual(
+      [root, east, leaf].map(n => packNeutral(n, false)),
+      [true, false, false],
+    );
+    assert.deepStrictEqual(
+      [root, east, leaf].map(n => packNeutral(n, true)),
+      [true, true, false],
+    );
+  });
+});
+
+describe("packPaintDatum", () => {
+  it("paints a neutral circle from its nest entry, any other from its datum", () => {
+    const east = child(packTree(), "East");
+    assert.strictEqual(packPaintDatum(east, false), packDatum(east));
+    assert.strictEqual(packPaintDatum(east, true), east.data);
+    assert.strictEqual(packPaintDatum(east.children[0], false), rows[0]);
   });
 });
