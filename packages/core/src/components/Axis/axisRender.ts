@@ -12,7 +12,6 @@ import type {AxisTextDatum} from "./axisLayoutLabels.js";
 import {addDomainEnds, crowdsEndLabel} from "./axisEndLabels.js";
 import {configPrep} from "../../utils/index.js";
 import {wholeWordSplit} from "../../utils/wholeWords.js";
-import {textEllipsis} from "../textEllipsis.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
@@ -22,6 +21,9 @@ import {ceilPow, fixFloat, floorPow, isNegative} from "./axisRounding.js";
 import {powTicks} from "./powTicks.js";
 import {timeDataInDomain} from "./timeValues.js";
 import {slantedLabelBox} from "./axisLabelAngle.js";
+import {labelLineHeight} from "./axisLabelLineHeight.js";
+import {configureTitle} from "./axisTitle.js";
+import {axisLabelEllipsis} from "./axisDefaults.js";
 import type {AxisOrient} from "./axisLabelAngle.js";
 
 const maxTimezoneOffset = 1000 * 60 * 60 * 26;
@@ -268,13 +270,16 @@ export function buildTickData(
       const labelOffset =
         data && axis.schema.labelOffset ? (data.offset ?? 0) : 0;
 
+      // A vertical axis's flat label is painted in the box it was measured
+      // in (see `fitLabelRoom`).
       const fitWidth = horizontal
         ? space
-        : bounds.width -
-          margin[axis._position.opposite] -
-          hBuff -
-          margin[axis.schema.orient] +
-          p;
+        : (data?.room ??
+          bounds.width -
+            margin[axis._position.opposite] -
+            hBuff -
+            margin[axis.schema.orient] +
+            p);
       // A `fixedSize` label space can be narrower than a label: widen that
       // label's box (outward, away from the axis line) instead of dropping it.
       const labelWidth =
@@ -308,6 +313,7 @@ export function buildTickData(
               },
         rotate: data ? data.rotate : false,
         angle: data ? data.angle : 0,
+        lineHeight: data?.lineHeight,
         size:
           labels.includes(d) ||
           (axis.schema.scale === "log" &&
@@ -365,8 +371,7 @@ export function configureTickShape(
     .data(tickData)
     .duration(axis.schema.duration)
     .labelConfig({
-      ellipsis: (d: unknown) =>
-        d && (d as string).length ? textEllipsis(`${d}`) : "",
+      ellipsis: axisLabelEllipsis,
       // Slanted labels wrap between words, as they were measured.
       ...(axis._labelRotation && axis._labelSlant
         ? {split: wholeWordSplit}
@@ -388,7 +393,17 @@ export function configureTickShape(
         axis.schema.shapeConfig,
       ) as Partial<BaseShapeConfig>,
     )
-    .labelConfig({padding: 0})
+    .labelConfig({
+      // Each label is painted with the line height it was measured with.
+      lineHeight: (d: DataPoint, i: number) => {
+        const datum = (d.lineHeight !== undefined ? d : d.data) as
+          DataPoint | undefined;
+        return typeof datum?.lineHeight === "number"
+          ? datum.lineHeight
+          : labelLineHeight(axis.schema.shapeConfig, datum?.id, i);
+      },
+      padding: 0,
+    })
     .render();
 }
 
@@ -412,24 +427,12 @@ export function renderAxisTitle(
   // DOM mount — its scene comes via toScene() anyway.
   axis._titleClass
     .renderMode("compute")
-    .data(axis.schema.title ? [{text: axis.schema.title}] : [])
     .duration(axis.schema.duration)
-    .height(margin[axis.schema.orient])
-    .rotate(
-      axis.schema.orient === "left"
-        ? -90
-        : axis.schema.orient === "right"
-          ? 90
-          : 0,
-    )
     .select(
       !group
         ? (null as unknown as HTMLElement)
         : elem("g.d3plus-Axis-title", {parent: group}).node(),
     )
-    .text(((d: DataPoint) => d.text) as unknown as string)
-    .verticalAlign("middle")
-    .width(range[range.length - 1] - range[0])
     .x(
       horizontal
         ? range[0]
@@ -450,11 +453,12 @@ export function renderAxisTitle(
         : range[0] +
             (range[range.length - 1] - range[0]) / 2 -
             margin[axis.schema.orient] / 2,
-    )
-    .config(
-      configPrep.bind(axis as unknown as ConfigPrepHost)(
-        axis.schema.titleConfig,
-      ),
-    )
-    .render();
+    );
+  // Wrapped as it was measured (see `titleRoom`), in the room it claimed.
+  configureTitle(
+    axis._titleClass,
+    axis,
+    range,
+    margin[axis.schema.orient],
+  ).render();
 }

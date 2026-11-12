@@ -115,7 +115,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   axis._labelSet = 0;
   rescale();
 
-  applyTitleMargin(axis, {range, p, height, margin});
+  const titleRange = applyTitleMargin(axis, {range, p, height, margin});
 
   const {hBuff, wBuff} = computeBuffers(axis, ticks, tickGet, height);
 
@@ -157,6 +157,10 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
 
   hideTruncatedTicks(axis, textData, ticks);
   axis._labelOverflow = slantedOverflow(axis, textData, range);
+
+  // The title is drawn across the final range, which the label passes can
+  // have changed.
+  applyTitleMargin(axis, {range, p, height, margin, measured: titleRange});
 
   const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
 

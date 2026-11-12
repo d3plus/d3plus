@@ -123,10 +123,19 @@ it("a slanted label's depth is its text projected across the axis", () => {
 });
 
 it("a slanted label narrows the range on the side it runs toward", () => {
-  const back = compute(AxisBottom, -45)._d3Scale.range();
+  const backAxis = compute(AxisBottom, -45);
+  const back = backAxis._d3Scale.range();
   const on = compute(AxisBottom, 30)._d3Scale.range();
   const upright = compute(AxisBottom, -90)._d3Scale.range();
-  assert.ok(back[0] > upright[0] + 30, `-45 leaves room before: ${back}`);
+  // The first label wraps to two lines at -45, so how far it reaches back
+  // depends on the font: the range starts as far in as it reaches.
+  const [before] = backAxis._labelOverflow;
+  assert.ok(before > 15, `-45 labels reach back ${before}px`);
+  assert.ok(
+    Math.abs(back[0] - upright[0] - before) < 1,
+    `-45 leaves room before: ${back}`,
+  );
+  assert.strictEqual(back[1], upright[1], "and none after");
   assert.ok(on[1] < upright[1] - 30, `30 leaves room after: ${on}`);
   const left = compute(AxisLeft, -45, [260, 400])._d3Scale.range();
   const right = compute(AxisRight, -45, [260, 400])._d3Scale.range();

@@ -8,10 +8,13 @@ import {max, min} from "d3-array";
 
 import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
 
-import configValue from "../../utils/configValue.js";
 import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
+import {labelLineHeight} from "./axisLabelLineHeight.js";
+import {titleRoom} from "./axisTitle.js";
+import {labelEllipsis} from "./axisDefaults.js";
+import {fitLabelRoom} from "./axisLabelRoom.js";
 import {slantedDepth, slantedWrapSize} from "./axisLabelAngle.js";
 import {
   isDiscreteScale,
@@ -50,6 +53,7 @@ export interface AxisTextDatum {
   fF: string;
   fP: number;
   fS: number;
+  /** The label's line height, measured and painted (see `labelLineHeight`). */
   lineHeight: number;
   position: number;
   rotate?: boolean;
@@ -70,6 +74,11 @@ export interface AxisTextDatum {
   /** Whether the overlap pass hides the label to make room for its neighbors. */
   truncated?: boolean;
   offset?: number;
+  /**
+      The width a flat label on a vertical axis wraps in, and is painted in
+      (see `fitLabelRoom`); unset, it wraps in all the room the axis allows.
+  */
+  room?: number;
 }
 
 interface LabelLayoutCtx {
@@ -109,7 +118,12 @@ function labelRoom(
         axis._margin.right;
 }
 
-/** Applies the axis title's wrapped height to the orient-side margin. */
+/**
+    Applies the axis title's wrapped height to the orient-side margin, as
+    the title TextBox draws it across `range` (see `titleRoom`). Given the
+    range it was `measured` across before, it measures again only when the
+    range has changed. Returns the range measured across.
+*/
 export function applyTitleMargin(
   axis: Axis,
   ctx: {
@@ -117,19 +131,21 @@ export function applyTitleMargin(
     p: number;
     height: string;
     margin: Record<string, number>;
+    measured?: number[];
   },
-): void {
-  if (!axis.schema.title) return;
-  const {range, p, height, margin} = ctx;
-  const {fontFamily, fontSize, lineHeight} = axis.schema.titleConfig;
-  const titleWrap = textWrap()
-    .fontFamily(typeof fontFamily === "function" ? fontFamily() : fontFamily)
-    .fontSize(typeof fontSize === "function" ? fontSize() : fontSize)
-    .lineHeight(typeof lineHeight === "function" ? lineHeight() : lineHeight)
-    .width(range[range.length - 1] - range[0] - p * 2)
-    .height((axis.schema[height] as number) - axis.schema.tickSize - p * 2);
-  const lines = titleWrap(axis.schema.title).lines.length;
-  margin[axis.schema.orient] = lines * titleWrap.lineHeight()! + p;
+): number[] {
+  const {range, p, height, margin, measured} = ctx;
+  const same =
+    measured &&
+    measured[0] === range[0] &&
+    measured[measured.length - 1] === range[range.length - 1];
+  if (!axis.schema.title || same) return range;
+  margin[axis.schema.orient] = titleRoom(
+    axis,
+    range,
+    (axis.schema[height] as number) - axis.schema.tickSize - p * 2,
+  );
+  return range;
 }
 
 /** Resolves the tick height/width buffers from the shape config. */
@@ -180,22 +196,15 @@ function calculateLabelSize(
   cache?: Map<string, LabelSize>,
 ): LabelSize {
   const {horizontal, hBuff, p, tickFormat} = ctx;
-  const {d, i, fF, fP, fS, rotate, space, angle, slant} = datum;
+  const {d, fF, fP, fS, lineHeight, rotate, space, angle, slant} = datum;
   const h = rotate ? "width" : "height",
     w = rotate ? "height" : "width";
 
-  const lineHeight = configValue(axis.schema.shapeConfig.lineHeight, d, i);
   const text = tickFormat(d);
   const wSize = min([axisMaxSize(axis.schema, horizontal), axis.schema.width]);
-  const depth = labelRoom(axis, horizontal, hBuff, p);
+  const depth = datum.room ?? labelRoom(axis, horizontal, hBuff, p);
   const slanted = slant
-    ? slantedWrapSize(
-        angle!,
-        horizontal,
-        depth,
-        space,
-        lineHeight ?? Math.ceil(fS * 1.4),
-      )
+    ? slantedWrapSize(angle!, horizontal, depth, space, lineHeight)
     : undefined;
   const key =
     cache &&
@@ -209,6 +218,7 @@ function calculateLabelSize(
       slant && angle,
       slant && ctx.slantWidth,
       space,
+      datum.room,
     ]);
   const cached = key ? cache!.get(key) : undefined;
   if (cached)
@@ -218,7 +228,12 @@ function calculateLabelSize(
       widths: cached.widths.slice(),
     };
 
-  const wrap = textWrap().fontFamily(fF).fontSize(fS).lineHeight(lineHeight);
+  // A cut label ends with the ellipsis it is painted with.
+  const wrap = textWrap()
+    .fontFamily(fF)
+    .fontSize(fS)
+    .lineHeight(lineHeight)
+    .ellipsis(labelEllipsis(axis.schema.shapeConfig));
 
   if (slanted) {
     // Slanted labels wrap between words, never mid-word.
@@ -327,11 +342,9 @@ function baseTextData(axis: Axis, labels: unknown[]): AxisTextDatum[] {
       fS = typeof fontSize === "function" ? fontSize(d, i) : fontSize,
       position = axis._getPosition(d);
 
-    const lineHeight = configValue(
-      axis.schema.shapeConfig.lineHeight ?? fS * 1.4,
-      d,
-      i,
-    );
+    // Measured with the line height the label is painted with (see
+    // `configureTickShape`).
+    const lineHeight = labelLineHeight(axis.schema.shapeConfig, d, i, fS);
     // Base record — `space`/`lines`/`width`/`height` are filled later.
     return {
       d,
@@ -477,6 +490,15 @@ export function createTextData(
   else if (wholeLine) thinGreedilyShown(textData, horizontal, show);
   else thinGreedily(textData, horizontal);
 
+  // Painted only as wide as the widest label, a cut label is cut there.
+  if (
+    !horizontal &&
+    typeof axis.schema.fixedSize !== "number" &&
+    !textData.some((t: AxisTextDatum) => t.rotate || t.slant)
+  )
+    fitLabelRoom(textData, (t: AxisTextDatum) =>
+      calculateLabelSize(axis, t, labelCtx, measured),
+    );
   if (offset > 1) calculateOffset(textData, horizontal);
   return textData;
 }
@@ -495,27 +517,21 @@ function slantedWidth(
   const first = textData[0];
   if (!first?.slant) return undefined;
   const {horizontal, hBuff, p, tickFormat, space} = ctx;
-  const lineHeight = (d: AxisTextDatum) =>
-    configValue(
-      axis.schema.shapeConfig.lineHeight ?? Math.ceil(d.fS * 1.4),
-      d.d,
-      d.i,
-    );
   const limit = slantedWrapSize(
     first.angle!,
     horizontal,
     labelRoom(axis, horizontal, hBuff, p),
     space - first.fP * 2,
-    lineHeight(first),
+    first.lineHeight,
   );
   return slantedLineWidth(
     textData.map((d: AxisTextDatum) => ({
       text: tickFormat(d.d),
       fontFamily: d.fF,
       fontSize: d.fS,
-      lineHeight: lineHeight(d),
+      lineHeight: d.lineHeight,
     })),
-    slantedLines(limit.height, lineHeight(first)),
+    slantedLines(limit.height, first.lineHeight),
     limit.width,
   );
 }

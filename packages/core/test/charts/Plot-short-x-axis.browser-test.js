@@ -231,10 +231,11 @@ it("the end labels sit the axis's label padding below the plot", async function 
 it("the plot claims the end labels' measured text height", async function () {
   const big = `lib => (${LINE})(lib).xConfig({shapeConfig: {labelConfig: {fontSize: 20}}})`;
   const [base, large] = await renderCharts([{src: LINE}, {src: big}]);
-  // 12px and 20px labels measure ceil(1.4 × fontSize) tall: 17 and 28.
+  // 12px and 20px labels measure the whole pixel above 1.2 × fontSize: 15
+  // and 25.
   near(
     base.area.height - large.area.height,
-    11,
+    10,
     0,
     "the plot shrinks by the text-height difference",
   );
@@ -417,14 +418,14 @@ it("the y cutoff boundary: 150px labels the ends, 151px draws both axes", async 
 });
 
 it("very short charts drop the end labels rather than crush the plot", async function () {
-  const charts = [20, 40, 60, 80].map(height => ({src: LINE, height}));
+  const charts = [20, 36, 60, 80].map(height => ({src: LINE, height}));
   const results = await renderCharts(charts);
   for (const r of results) {
     assert.strictEqual(r.nan, 0, "no NaN attributes");
     if (r.endLabels.length) assertNoOverlap(r, `${r.root.height}px`);
   }
   assert.deepStrictEqual(results[0].endLabels, [], "20px: no room for labels");
-  assert.deepStrictEqual(results[1].endLabels, [], "40px: no room for labels");
+  assert.deepStrictEqual(results[1].endLabels, [], "36px: no room for labels");
   assert.deepStrictEqual(
     results[3].endLabels.map(l => l.text),
     ["0", "30"],
@@ -584,7 +585,7 @@ it("measureEndLabels formats and measures an axis's ends with its label config",
     ["0", "2.5k"],
   );
   assert.strictEqual(out.plain.padding, 7);
-  assert.strictEqual(out.plain.height, 14, "ceil(1.4 × 10px)");
+  assert.strictEqual(out.plain.height, 13, "the pixel above 1.2 × 10px");
   assert.ok(out.plain.labels.every(l => l.width > 0));
   assert.ok(out.plain.labels[1].width > out.plain.labels[0].width);
   assert.deepStrictEqual(
@@ -613,8 +614,8 @@ it("placeEndLabels positions a rendered axis's ends flush with the plot edges", 
   assert.deepStrictEqual(
     out.map(b => [b.text, b.textAnchor, b.y, b.height]),
     [
-      ["10", "start", 65, 17],
-      ["90", "end", 65, 17],
+      ["10", "start", 65, 15],
+      ["90", "end", 65, 15],
     ],
   );
   assert.strictEqual(out[0].x, 20);

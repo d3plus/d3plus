@@ -279,7 +279,8 @@ it("Violin grows each violin out of its center line, vertical and horizontal", a
           n =>
             n.enterD &&
             n.enterD
-              .match(/-?[\d.]+/g)
+              // a coordinate can carry float noise, written as 2.8e-14
+              .match(/-?[\d.]+(?:e[-+]?\d+)?/g)
               .filter((_, i) => i % 2 === (axis === "x" ? 0 : 1))
               .every(v => Math.abs(v) < 1e-6),
         ),

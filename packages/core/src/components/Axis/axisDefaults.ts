@@ -4,6 +4,7 @@ import {constant} from "../../utils/index.js";
 import {inkAxis, inkGrid} from "../../utils/themeInk.js";
 import {rotatedTextAnchor} from "./axisLabelAngle.js";
 import type Axis from "./Axis.js";
+import {textEllipsis} from "../textEllipsis.js";
 
 /** The axis color of the axis's chart theme, or one that contrasts with the background behind it. */
 function contrastInk(axis: Axis): () => string {
@@ -39,6 +40,24 @@ export function axisGridConfig(axis: Axis): Record<string, unknown> {
     stroke: () => inkGrid(axis),
     "stroke-width": 1,
   };
+}
+
+/** How a cut tick label ends: as a TextBox line does, or nothing when no text fits. */
+export const axisLabelEllipsis = (d: unknown): string =>
+  d && (d as string).length ? textEllipsis(`${d}`) : "";
+
+/**
+    The ellipsis a cut tick label is measured and painted with: the label
+    config's `ellipsis` (a string standing in for the cut line, as TextBox
+    reads one), else `axisLabelEllipsis`.
+*/
+export function labelEllipsis(shapeConfig?: {
+  labelConfig?: {ellipsis?: unknown};
+}): (text: string, line: number) => string {
+  const ellipsis = shapeConfig?.labelConfig?.ellipsis;
+  if (typeof ellipsis === "function")
+    return ellipsis as (text: string, line: number) => string;
+  return typeof ellipsis === "string" ? () => ellipsis : axisLabelEllipsis;
 }
 
 /** The default `shapeConfig` (tick marks and their labels). */

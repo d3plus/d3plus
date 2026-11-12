@@ -12,7 +12,7 @@ import {textWrap} from "@d3plus/text";
 
 import {configPrep} from "../../utils/index.js";
 import {applyClassName} from "../../utils/className.js";
-import configValue from "../../utils/configValue.js";
+import {labelLineHeight} from "../Axis/axisLabelLineHeight.js";
 import {parseTimeValues} from "../Axis/timeValues.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
@@ -105,7 +105,7 @@ export function measureTicksWidth(
       const wrap = textWrap()
         .fontFamily(f)
         .fontSize(s)
-        .lineHeight(configValue(tl.schema.shapeConfig.lineHeight, d, i));
+        .lineHeight(labelLineHeight(tl.schema.shapeConfig, d, i, s));
 
       const res = wrap(tickFormat(d as Date));
 
