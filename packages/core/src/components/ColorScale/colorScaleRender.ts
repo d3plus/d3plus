@@ -395,12 +395,12 @@ export function renderGradient(
   renderGradientLabels(cs, compute, groups, labelConfig, rectConfig, labelData);
 }
 
-/** Whether the Legend's last render left out its swatches' labels, or drew nothing. */
+/** Whether the Legend's last render left out or cut short its swatches' labels, or drew nothing. */
 function labelsLeftOut(legend: ColorScale["_legendClass"]): boolean {
   if (!legend.data().length) return false;
   return (
     !legend.outerBounds().width ||
-    legend._lineData.some(d => d.sentence && !d.width)
+    legend._lineData.some(d => d.sentence && (!d.width || d.cut))
   );
 }
 
@@ -489,7 +489,7 @@ export function renderLegendVariant(
     .config(legendConfig)
     .render();
   // Like the axis of a gradient, the swatches leave out their title before
-  // their labels.
+  // they cut short or leave out their labels.
   if (legend.title() && labelsLeftOut(legend)) legend.title(undefined).render();
 
   cs._outerBounds = cs._legendClass.outerBounds();

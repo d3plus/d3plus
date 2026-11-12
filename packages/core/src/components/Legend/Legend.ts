@@ -68,6 +68,11 @@ export default class Legend extends BaseClass {
   _titleHeight: number;
   _titleWidth: number;
   _wrapLines: (() => void) | undefined;
+  /**
+      Whether labels that don't fit whole are cut short with "..." rather
+      than left out, as a ColorScale's swatches are (see `legendCut.ts`).
+  */
+  _cutLabels = false;
   _wrapRows: (() => void) | undefined;
   // Standalone scene renderer (used when rendered on its own, not inside a
   // Viz). Reused across re-renders by paintComponentScene().

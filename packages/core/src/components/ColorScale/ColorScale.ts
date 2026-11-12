@@ -163,6 +163,8 @@ export default class ColorScale extends BaseClass {
       fontSize: 12,
     };
     this._legendClass = new Legend();
+    // Swatch labels that don't fit whole are cut short, not left out.
+    this._legendClass._cutLabels = true;
     this.schema.legendConfig = {
       shapeConfig: {
         stroke: () => this.schema.colorDefaults.dark,

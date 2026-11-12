@@ -1225,7 +1225,7 @@ export interface D3plusConfig {
     hoverMark?: boolean;
     /** Styles the hover mark (see `ColorScaleConfig.hoverMarkConfig`). */
     hoverMarkConfig?: ColorScaleHoverMarkConfig;
-    /** Configures the Legend that draws a bucket-type scale as a swatch for each bucket. Along a side of the chart, the swatches, their labels and title take at most a third of the chart's width (a scale at the left or right) or height (top or bottom): the title and labels wrap onto more lines, and when they still don't fit, the title and then the labels are left out. Its `width` (left or right) or `height` (top or bottom) sets another limit. */
+    /** Configures the Legend that draws a bucket-type scale as a swatch for each bucket. Along a side of the chart, the swatches, their labels and title take at most a third of the chart's width (a scale at the left or right) or height (top or bottom): the title and labels wrap onto more lines, and when they still don't fit, the title is left out and then the labels are cut short. Its `width` (left or right) or `height` (top or bottom) sets another limit. */
     legendConfig?: Record<string, unknown>;
     /** How many quantile bins a bivariate `colorScale` splits each variable into, from `2` to `4`. Defaults to `3`. */
     bivariateBuckets?: number;

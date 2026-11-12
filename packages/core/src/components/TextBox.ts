@@ -23,16 +23,19 @@ const defaultHtmlLookup: Record<string, string> = {
   strong: "font-weight: bold;",
 };
 
+/** The ellipsis a TextBox ends a cut line with by default: none for a line with nothing kept. */
+export const textBoxEllipsis = (text: string, line: number): string =>
+  line ? textEllipsis(text) : "";
+
+/** A TextBox's default line height, as a multiple of its font size. */
+export const TEXTBOX_LINE_HEIGHT = 1.2;
+
 /** TextBox's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const textBoxSchema: ConfigField[] = [
   {key: "ariaHidden", coerce: "const", default: constant("false")},
   {key: "delay", coerce: "identity", default: 0},
   {key: "duration", coerce: "identity", default: 0},
-  {
-    key: "ellipsis",
-    coerce: "const",
-    default: (text: string, line: number) => (line ? textEllipsis(text) : ""),
-  },
+  {key: "ellipsis", coerce: "const", default: textBoxEllipsis},
   {key: "fontColor", coerce: "const", default: constant("black")},
   {key: "fontFamily", coerce: "const", default: constant(fontFamily)},
   {key: "fontMax", coerce: "const", default: constant(50)},
@@ -106,7 +109,7 @@ export default class TextBox extends BaseClass {
     super();
     installFluent(this, textBoxSchema);
     this.schema.lineHeight = (d: DataPoint, i?: number) =>
-      this.schema.fontSize(d, i) * 1.2;
+      this.schema.fontSize(d, i) * TEXTBOX_LINE_HEIGHT;
     this.schema.html = defaultHtmlLookup;
   }
 

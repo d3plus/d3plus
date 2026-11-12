@@ -252,15 +252,19 @@ for (const renderer of ["svg", "canvas"])
 
 for (const renderer of ["svg", "canvas"])
   for (const position of ["left", "right"])
-    it(`[${renderer}] a title is left out before the labels of a swatches colorScale at the ${position} of a small chart`, async () => {
+    it(`[${renderer}] a title and whole labels share a swatches colorScale's third at the ${position} of a small chart`, async () => {
       const size = [250, 200];
       const arg = {renderer, position, config: scales.swatches};
       const [titled, plain] = await drawVariants(arg, [{title}, {}], size);
       assert.ok(
-        !titled.labels.includes(title),
-        `the title is left out (${titled.labels.join(" | ")})`,
+        titled.labels.includes(title),
+        `the title is drawn (${titled.labels.join(" | ")})`,
       );
-      assert.deepStrictEqual(titled.labels, plain.labels, "every label drawn");
+      assert.deepStrictEqual(
+        titled.labels.filter(l => l !== title),
+        plain.labels,
+        "every label drawn whole",
+      );
       assert.ok(
         titled.margin[position] <= size[0] / 3,
         `the scale takes at most a third (${titled.margin[position]})`,

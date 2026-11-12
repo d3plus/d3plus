@@ -11,6 +11,7 @@ import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {labelLineHeight} from "../Axis/axisLabelLineHeight.js";
 
 import type Legend from "./Legend.js";
+import {cutLegendLabels} from "./legendCut.js";
 
 const padding = 5;
 
@@ -276,26 +277,32 @@ export function wrapLegendRows(
   legend._wrapRows = () =>
     buildRows(legend, state, availableWidth, availableHeight);
 
-  legend._wrapRows();
-
-  if (
+  const overflows = (): boolean =>
     !state.newRows.length ||
     sum(state.newRows, legend._rowHeight.bind(legend)) + legend.schema.padding >
-      availableHeight
+      availableHeight;
+
+  legend._wrapRows();
+
+  // Labels that don't fit whole are cut short (a ColorScale's Legend), or
+  // else left out.
+  if (
+    overflows() &&
+    !(
+      legend._cutLabels &&
+      cutLegendLabels(legend, availableWidth, availableHeight) &&
+      (legend._wrapRows(), !overflows())
+    )
   ) {
     for (let i = 0; i < legend._lineData.length; i++) {
       legend._lineData[i].width = 0;
       legend._lineData[i].height = 0;
+      legend._lineData[i].cut = false;
     }
     legend._wrapRows();
   }
 
-  if (
-    !state.newRows.length ||
-    sum(state.newRows, legend._rowHeight.bind(legend)) + legend.schema.padding >
-      availableHeight
-  )
-    return false;
+  if (overflows()) return false;
 
   state.newRows.forEach((row: Record<string, unknown>[], i: number) => {
     row.forEach((d: Record<string, unknown>) => {
