@@ -46,6 +46,25 @@ export function isBranch(d: Branch): boolean {
   return !noKey(d.key) && Array.isArray(d.values);
 }
 
+/**
+    The first level of a Tree's nest, with each entry that has no key (one
+    `nest` groups the rows without a first-level key under) replaced by the
+    rows under it, so each of those rows is a leaf under the root.
+    @param entries The first level of the nest.
+    @param levels The number of key levels the nest has.
+*/
+export function rootEntries(entries: Branch[], levels: number): Branch[] {
+  return entries.flatMap(e =>
+    noKey(e.key) && Array.isArray(e.values) ? rowsUnder(e, levels - 1) : [e],
+  );
+}
+
+/** Every row under a nest entry with `levels` entry levels inside it. */
+function rowsUnder(entry: Branch, levels: number): Branch[] {
+  const values = entry.values as Branch[];
+  return levels < 1 ? values : values.flatMap(e => rowsUnder(e, levels - 1));
+}
+
 /** Merge a branch's leaf values (recursively) through the schema aggs. */
 function flattenBranchData(viz: VizInstance, branch: Branch): DataPoint {
   return merge(
@@ -76,10 +95,13 @@ function buildTreeData(
     hierarchy<Branch>(
       {
         key: "root",
-        values: nest(
-          viz._filteredData as DataPoint[],
-          viz.schema.groupBy.slice(0, viz._drawDepth + 1),
-        ) as unknown as Branch[],
+        values: rootEntries(
+          nest(
+            viz._filteredData as DataPoint[],
+            viz.schema.groupBy.slice(0, viz._drawDepth + 1),
+          ) as unknown as Branch[],
+          viz._drawDepth + 1,
+        ),
       } as Branch,
       d => (isBranch(d) ? (d.values as Branch[]) : null),
     ).sort(viz.schema.sort as (a: unknown, b: unknown) => number),

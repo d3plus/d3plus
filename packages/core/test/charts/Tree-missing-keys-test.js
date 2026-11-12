@@ -4,6 +4,7 @@ import {it} from "vitest";
 import {useJsdom} from "~test/jsdom.js";
 import {Tree} from "../../index.ts";
 import {applyTreeLayout, runStages} from "../../internal.ts";
+import {rootEntries} from "../../src/charts/Tree/applyLayout.ts";
 import {treeEmit} from "../../src/charts/Tree/emit.ts";
 import {nameLevel, noKey, nodeId} from "../../src/charts/Tree/keys.ts";
 import {nodeLabel} from "../../src/charts/Tree/nodeLabel.ts";
@@ -213,3 +214,95 @@ it("Tree names a row without a key at its level by its label accessor", () => {
     ],
   );
 });
+
+it("rootEntries — keeps keyed entries and rows as they are", () => {
+  const row = {parent: "P1", value: 1};
+  const entry = {key: "P2", values: [{key: "c", values: [{id: "c"}]}]};
+  assert.deepStrictEqual(rootEntries([row, entry], 2), [row, entry]);
+});
+
+for (const key of missing) {
+  const name = JSON.stringify(key) ?? "undefined";
+
+  it(`rootEntries — replaces an entry keyed ${name} with the rows under it`, () => {
+    const a = {id: "a"};
+    const b = {id: "b"};
+    const c = {id: "c"};
+    const other = {key: "P", values: [{key: "d", values: [{id: "d"}]}]};
+    assert.deepStrictEqual(rootEntries([{key, values: [a, b]}, other], 1), [
+      a,
+      b,
+      other,
+    ]);
+    assert.deepStrictEqual(
+      rootEntries(
+        [
+          {
+            key,
+            values: [
+              {key: "x", values: [a, b]},
+              {key: "y", values: [c]},
+            ],
+          },
+          other,
+        ],
+        2,
+      ),
+      [a, b, c, other],
+    );
+  });
+
+  it(`Tree draws a row whose first key is ${name} as a leaf under the root`, () => {
+    const rows = [
+      {parent: key, id: "x"},
+      {parent: key, id: "y"},
+      {parent: "P2", id: "c"},
+    ];
+    const tree = layout(rows, {groupBy: ["parent", "id"]});
+    assert.deepStrictEqual(outline(tree), [
+      [1, "x", null, false],
+      [1, "y", null, false],
+      [1, "P2", null, true],
+      [2, "c", "P2", false],
+    ]);
+    const own = d =>
+      Object.fromEntries(
+        Object.entries(d).filter(
+          ([k]) => !k.startsWith("__d3plus") && k !== "depth",
+        ),
+      );
+    assert.deepStrictEqual(own(tree.nodes[0].data), {...rows[0], value: 1});
+    assert.deepStrictEqual(own(tree.nodes[1].data), {...rows[1], value: 1});
+    assert.deepStrictEqual(drawn(tree), {
+      marks: [
+        ["tree-link-c", "c."],
+        [`tree-Circle-${key}/x`, "x."],
+        [`tree-Circle-${key}/y`, "y."],
+        ["tree-Circle-P2", "P2."],
+        ["tree-Circle-c", "c."],
+      ],
+      labels: ["x", "y", "P2", "c"],
+    });
+  });
+
+  it(`Tree draws a row whose only key is ${name} as a leaf named by its label`, () => {
+    const tree = layout(
+      [
+        {parent: key, name: "Other"},
+        {parent: "P2", name: "Two"},
+      ],
+      {groupBy: ["parent"], label: d => d.name},
+    );
+    assert.deepStrictEqual(outline(tree), [
+      [1, "Other", null, false],
+      [1, "Two", null, false],
+    ]);
+    assert.deepStrictEqual(drawn(tree), {
+      marks: [
+        [`tree-Circle-${key}`, "Other."],
+        ["tree-Circle-P2", "Two."],
+      ],
+      labels: ["Other", "Two"],
+    });
+  });
+}
