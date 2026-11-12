@@ -95,9 +95,8 @@ export const treeEmit: ChartEmit = ({viz}) => {
       const d = linksData[i];
       const datum = (d.data ?? d) as DataPoint;
       const paint = paintFromShapeConfig(pathConfig, datum, i);
-      // Link id: id at the source's depth (d.depth-1), matching the
-      // layout's `id` config in `shapeConfig`.
-      const id = (viz._ids(datum, i) as string[])[(d.depth ?? 1) - 1];
+      // The link is keyed by the node it leads to.
+      const id = chartShapeConfig.id(d, d.i ?? i);
       // Translate the path's local coords (relative to the source's
       // position) by the node's x/y.
       const tx = d.x ?? 0;

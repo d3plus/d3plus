@@ -19,6 +19,9 @@ import {stampDepth} from "../features/depthKey.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+import {nameLevel, noKey, nodeId} from "./keys.js";
+import {nodeLabel} from "./nodeLabel.js";
+
 type TreeNode = DataPoint & {
   __d3plus__?: true;
   depth?: number;
@@ -40,12 +43,7 @@ type Branch = {
     are no key.
 */
 export function isBranch(d: Branch): boolean {
-  return (
-    d.key !== undefined &&
-    d.key !== null &&
-    d.key !== "" &&
-    Array.isArray(d.values)
-  );
+  return !noKey(d.key) && Array.isArray(d.values);
 }
 
 /** Merge a branch's leaf values (recursively) through the schema aggs. */
@@ -196,10 +194,12 @@ function buildTreeShapeConfig(
     ((d: DataPoint, i: number) => unknown) | undefined;
 
   return {
-    id: (d: TreeNode, i: number) =>
-      (viz._ids(d.data as DataPoint, i) as string[])[(d.depth ?? 1) - 1],
+    id: (d: TreeNode, i: number) => nodeId(viz, d, i),
     label: (d: TreeNode, i: number) => {
       if (labelFn) return labelFn(d.data as DataPoint, i);
+      const level = (d.depth ?? 1) - 1;
+      if (nameLevel(viz, d.data as DataPoint, i, level) !== level)
+        return nodeLabel(viz, d.data as DataPoint, i);
       const ids = viz._ids(d.data as DataPoint, i).slice(0, d.depth ?? 1);
       return ids[ids.length - 1];
     },
