@@ -27,7 +27,7 @@ Pass positive values: the first `groupBy` level splits the rows into two sides, 
 
 ## Left labels
 
-`categoryPosition("left")` moves the categories onto a regular axis beside the chart, so the two halves meet on a single zero line.
+`categoryPosition("left")` moves the categories onto a regular axis beside the chart, so the two halves meet on a single zero line. In either position the category labels take `yConfig`'s [axis tooltip](/guides/interactivity/#axis-tooltips), `tickTooltip`, and its index counts the rows from the bottom.
 
 <Playground chart="Pyramid" code={leftLabels} controls={["categoryPosition","yConfig"]} />
 

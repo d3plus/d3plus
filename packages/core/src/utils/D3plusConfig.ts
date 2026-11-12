@@ -1400,11 +1400,28 @@ export interface D3plusConfig {
   /**
       ParallelCoordinates: per-dimension options, keyed by dimension — `domain`
       (either end of a numeric domain may be `undefined`), `reverse`, `title`,
-      and any Axis config (`tickFormat`, `ticks`, `scale`, …).
+      and any Axis config (`tickFormat`, `ticks`, `scale`, `tickTooltip`,
+      `titleTooltip`, …).
   */
   dimensionConfig?: Record<string, DimensionOptions>;
-  /** Alluvial: styles the column titles drawn above each column (any TextBox config). */
-  dimensionTitleConfig?: Record<string, unknown>;
+  /**
+      Alluvial: styles the column titles drawn above each column (any TextBox
+      config), and takes a `titleTooltip`: the tooltip shown when a title is
+      hovered, as its text, a function that receives the title and returns it,
+      or a tooltip config (as `tooltipConfig`) whose accessors receive the
+      title. Unset (the default) or when the
+      function returns nothing, a title cut short with an ellipsis shows its
+      whole text; `false`, set or returned, shows no tooltip.
+      @example
+      {maxLines: 1, titleTooltip: title => notes[title]}
+  */
+  dimensionTitleConfig?: Record<string, unknown> & {
+    titleTooltip?:
+      | string
+      | ((title: string) => string | false | void)
+      | AxisTooltipConfig<[title: string]>
+      | false;
+  };
   /**
       ParallelCoordinates: the data keys to draw an axis for, in order.
       Defaults to every numeric key except the `groupBy` keys and `id`; a key

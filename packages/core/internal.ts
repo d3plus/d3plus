@@ -921,6 +921,7 @@ export type {
   AxesLayout,
   PlacedAxis,
 } from "./src/charts/ParallelCoordinates/axes.js";
+export {chromeNode} from "./src/charts/ParallelCoordinates/chrome.js";
 export {
   brushTarget,
   parallelDimensionKeys,
@@ -1012,6 +1013,7 @@ export {
   alluvialTitleBoxes,
   alluvialTitleNodes,
   alluvialTitleStyle,
+  alluvialTitleTooltip,
   sizeAlluvialTitles,
 } from "./src/charts/Alluvial/titles.js";
 export type {AlluvialTitle} from "./src/charts/Alluvial/titles.js";

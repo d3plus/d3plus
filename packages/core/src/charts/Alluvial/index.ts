@@ -111,7 +111,13 @@ export const alluvialDef: DataDrivenChartDefinition = {
     */
     {key: "dimensions", default: []},
     /**
-        Styles the column titles above each column (any TextBox config).
+        Styles the column titles above each column (any TextBox config), and
+        takes a `titleTooltip`: the tooltip shown when a title is hovered,
+        as its text, a function that receives the title and returns it, or
+        a tooltip config (as `tooltipConfig`) whose accessors receive the
+        title. Unset (the default) or when the
+        function returns nothing, a title cut short with an ellipsis shows
+        its whole text; `false`, set or returned, shows no tooltip.
         @type {object}
     */
     {key: "dimensionTitleConfig", merge: true, default: {}},

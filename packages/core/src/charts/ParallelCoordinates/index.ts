@@ -6,6 +6,7 @@
       - `dimensions.ts` — which keys get an axis, their types and domains.
       - `axes.ts` — one Axis per dimension, laid out with its title.
       - `titles.ts` — dimension titles (TextBox).
+      - `chrome.ts` — axes and titles as chrome, hoverable where a label has a tooltip.
       - `paths.ts` — each row's crossing points and path.
       - `applyLayout.ts` — chart-specific `TransformStage`.
       - `emit.ts` — a path (plus hit path) per row.
@@ -174,7 +175,8 @@ export const parallelCoordinatesDef: DataDrivenChartDefinition = {
     },
     /**
         Per-dimension options, keyed by dimension: `domain`, `reverse`,
-        `title`, and any Axis config (`tickFormat`, `ticks`, `scale`, …).
+        `title`, and any Axis config (`tickFormat`, `ticks`, `scale`,
+        `tickTooltip`, `titleTooltip`, …).
         @type {Record<string, object>}
     */
     {key: "dimensionConfig", merge: true, default: {}},

@@ -24,7 +24,7 @@ Each entry in `dimensions` is a column, and each category in it a node. With no 
 
 ## Summed values
 
-When each row is already a count, `value` sums it. A `{value, title}` dimension names its column; here the Titanic's 2,201 passengers and crew flow from class to survival.
+When each row is already a count, `value` sums it. A `{value, title}` dimension names its column, and `dimensionTitleConfig` styles the titles and takes an [axis tooltip](/guides/interactivity/#axis-tooltips)'s `titleTooltip`; here the Titanic's 2,201 passengers and crew flow from class to survival.
 
 <Playground chart="Alluvial" code={summedValues} controls={["value","dimensions"]} />
 

@@ -67,9 +67,14 @@ it("ParallelCoordinates draws a line per row and an axis + title per numeric dim
         hits: hits.length,
         hitPaint: hits[0].paint,
         axes: axes.map(a => a.key),
-        axisChrome: axes.every(
-          a => a.interactionGroup === "axis" && a.interactive === false,
-        ),
+        axisChrome: axes.every(function chrome(node) {
+          return (
+            node.interactionGroup === "axis" &&
+            (node.type === "group"
+              ? node.children.every(chrome)
+              : node.interactive === false)
+          );
+        }),
         lastIsAxis:
           scene[scene.length - 1].key.startsWith("pc-") &&
           !scene[scene.length - 1].key.startsWith("pc-line"),

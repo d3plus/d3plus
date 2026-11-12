@@ -70,12 +70,22 @@ export function alluvialTitleBoxes(
   return titles;
 }
 
-/** The column title style: `dimensionTitleConfig` over the chart's background ink. */
+/** The column titles' `titleTooltip`, from `dimensionTitleConfig`. */
+export function alluvialTitleTooltip(viz: VizInstance): unknown {
+  return (
+    viz.schema.dimensionTitleConfig as Record<string, unknown> | undefined
+  )?.titleTooltip;
+}
+
+/**
+    The column title style: `dimensionTitleConfig` over the chart's background
+    ink, without its `titleTooltip` (see `alluvialTitleTooltip`).
+*/
 export function alluvialTitleStyle(
   viz: VizInstance,
   titles: AlluvialTitle[],
 ): Record<string, unknown> {
-  return {
+  const style: Record<string, unknown> = {
     fontColor: backgroundInk(viz),
     fontSize: 12,
     fontWeight: 600,
@@ -83,6 +93,8 @@ export function alluvialTitleStyle(
     verticalAlign: "bottom",
     ...((viz.schema.dimensionTitleConfig ?? {}) as Record<string, unknown>),
   };
+  delete style.titleTooltip;
+  return style;
 }
 
 /**
@@ -99,13 +111,23 @@ export function sizeAlluvialTitles(
   return height;
 }
 
-/** The title text nodes: chrome, so no datum and no pointer events. */
+/**
+    The title text nodes, as chrome with no datum: a title takes the pointer
+    only when it has a tooltip to show, the option's or, drawn cut short, its
+    whole text.
+    @param titles The sized title boxes.
+    @param style The title style.
+    @param locale The chart's locale.
+    @param tooltip `dimensionTitleConfig`'s `titleTooltip`.
+*/
 export function alluvialTitleNodes(
   titles: AlluvialTitle[],
   style: Record<string, unknown>,
   locale?: string,
+  tooltip?: unknown,
 ): SceneNode[] {
-  return titleNodes(titles, style, locale).map(node => ({
+  const tooltips = new Map(titles.map(t => [t.key, tooltip]));
+  return titleNodes(titles, style, locale, tooltips).map(node => ({
     ...node,
     key: `alluvial-${String(node.key)}`,
   }));

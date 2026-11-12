@@ -19,7 +19,7 @@ import {sankeyLabels} from "../Sankey/labels.js";
 import type {AlluvialCtx} from "./applyLayout.js";
 import {alluvialRibbon} from "./layout.js";
 import {alluvialMeta} from "./meta.js";
-import {alluvialTitleNodes} from "./titles.js";
+import {alluvialTitleNodes, alluvialTitleTooltip} from "./titles.js";
 
 /** A value as the chart prints it. */
 export function formatAlluvialValue(viz: VizInstance, value: number): string {
@@ -91,6 +91,7 @@ export const alluvialEmit: ChartEmit = ({viz}) => {
       c.titles,
       c.titleStyle,
       v.schema.locale as string | undefined,
+      alluvialTitleTooltip(v),
     ),
   );
   return out;

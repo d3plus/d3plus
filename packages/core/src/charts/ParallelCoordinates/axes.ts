@@ -13,6 +13,7 @@ import {withAxisInk} from "../Plot/axisInk.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+import {chromeNode} from "./chrome.js";
 import {axisPositions} from "./dimensions.js";
 import type {DimensionOptions, ParallelDimension} from "./dimensions.js";
 import type {ParallelOrient} from "./paths.js";
@@ -118,6 +119,8 @@ function makeAxis(
   if (dim.type === "numeric" && (scale === "point" || scale === "band"))
     axis.scale("linear");
   axis.domain(axisDomain(dim, orient));
+  // A reversed categorical axis is handed its domain last category first.
+  axis._domainEndFirst = dim.type === "categorical" && dim.reverse;
   return axis;
 }
 
@@ -133,26 +136,22 @@ function commonRange(axes: Axis[], length: number): [number, number] {
   return end > start ? [start, end] : [0, length];
 }
 
-/** Wraps an axis's scene in a group at `transform`, tagged as chrome. */
+/** Wraps an axis's scene in a group at `transform`, as chrome (see `chromeNode`). */
 function axisNode(axis: Axis, key: string, transform: Transform): SceneNode {
-  const tag = (node: SceneNode): SceneNode => {
-    const kids = (node as {children?: SceneNode[]}).children;
-    const next = {
-      ...node,
-      interactionGroup: "axis",
-      interactive: false,
-    } as SceneNode;
-    delete next.datum;
-    if (kids) (next as {children: SceneNode[]}).children = kids.map(tag);
-    return next;
-  };
-  const scene = axis.toScene();
-  return tag({
+  return chromeNode({
     type: "group",
     key: `pc-axis-${key}`,
     transform,
-    children: scene.children,
+    children: axis.toScene().children,
   } as SceneNode);
+}
+
+/** Each dimension's `titleTooltip`, by key: its axis's, from `axisConfig` and its `dimensionConfig` entry. */
+function titleTooltips(
+  dims: ParallelDimension[],
+  axes: Axis[],
+): Map<string, unknown> {
+  return new Map(dims.map((dim, i) => [dim.key, axes[i].schema.titleTooltip]));
 }
 
 function placedAxis(
@@ -242,7 +241,7 @@ function layoutHorizontal(
     nodes.push(axisNode(axis, dims[i].key, {x: offsets[i] - barX, y: top}));
     return placedAxis(axis, dims[i], offsets[i], top, range);
   });
-  nodes.push(...titleNodes(titles, style, locale));
+  nodes.push(...titleNodes(titles, style, locale, titleTooltips(dims, axes)));
   return {axes: placed, nodes};
 }
 
@@ -312,7 +311,7 @@ function layoutVertical(
         }))
         .filter(t => t.text)
     : [];
-  nodes.push(...titleNodes(titles, style, locale));
+  nodes.push(...titleNodes(titles, style, locale, titleTooltips(dims, axes)));
   return {axes: placed, nodes};
 }
 

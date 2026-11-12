@@ -12,7 +12,11 @@ import {
   fontFamilyStringify,
 } from "@d3plus/text";
 
-import {inertAxis} from "../../components/Axis/axisTooltipTargets.js";
+import {
+  inertAxis,
+  stampTickTooltips,
+  tickRank,
+} from "../../components/Axis/axisTooltipTargets.js";
 import type TextBox from "../../components/TextBox.js";
 import {stackOffsetDiverging} from "../Plot/stackHelpers.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
@@ -152,13 +156,25 @@ export interface GutterLabel {
   width: number;
   height: number;
   font: LabelFont;
+  /** The label as the category axis's tick: its category and whole text, read for its axis tooltip. */
+  data: {id: unknown; text: string; tick: true};
 }
 
-/** Lays out the gutter labels as scene text nodes, chrome as an axis's are. */
+/**
+    Lays out the gutter labels as scene text nodes, chrome as an axis's are:
+    a label takes the pointer only when it has an axis tooltip to show.
+    @param box The TextBox that lays the labels out.
+    @param labels The labels and their boxes.
+    @param color The labels' ink.
+    @param tickTooltip The category axis's `tickTooltip`.
+    @param rank Each category's place along the category axis (see `tickRank`).
+*/
 export function gutterLabelNodes(
   box: TextBox,
   labels: GutterLabel[],
   color: string,
+  tickTooltip?: unknown,
+  rank?: (value: unknown) => number,
 ): SceneNode[] {
   box
     .renderMode("compute")
@@ -176,14 +192,9 @@ export function gutterLabelNodes(
       truncateWord: true,
     })
     .render();
-  const group = box.toScene();
-  return [
-    inertAxis({
-      type: "group",
-      key: "pyramid-categories",
-      children: group.children ?? [],
-    }),
-  ];
+  const children = box.toScene().children ?? [];
+  stampTickTooltips(children, tickTooltip, rank);
+  return [inertAxis({type: "group", key: "pyramid-categories", children})];
 }
 
 /** The category axis's label config: its own defaults under the user's `yConfig` labels. */
@@ -216,7 +227,8 @@ export const labelHeight = (font: LabelFont): number =>
 
 /**
     The category labels centered in the gutter between `edges` (pixels), one
-    per band that has room, as scene nodes.
+    per band that has room, as scene nodes. Each takes the category axis's
+    `tickTooltip`, with the index its tick has on that axis.
 */
 export function gutterLabels(
   viz: VizInstance,
@@ -236,17 +248,19 @@ export function gutterLabels(
     if (!keep[i]) return [];
     // The box must be taller than one line for TextBox to fill it.
     const height = Math.max(step, fonts[i].size * 1.5);
+    const text = categoryText(viz, c);
     // Inside its padding, so a label cut to a narrow gutter clears the bars.
     const {padding} = fonts[i];
     return [
       {
         id: `pyramid-category-${i}`,
-        text: categoryText(viz, c),
+        text,
         x: left + padding,
         y: positions[i] - height / 2,
         width: Math.max(0, right - left - padding * 2),
         height,
         font: fonts[i],
+        data: {id: c, text, tick: true},
       },
     ];
   });
@@ -254,7 +268,13 @@ export function gutterLabels(
     typeof config.fontColor === "string"
       ? config.fontColor
       : backgroundInk(viz);
-  return gutterLabelNodes(box, labels, color);
+  return gutterLabelNodes(
+    box,
+    labels,
+    color,
+    viz._yAxis.schema.tickTooltip,
+    tickRank(viz._yAxis),
+  );
 }
 
 /** Saved category- and value-axis styles the center layout overrides, restored for the left layout. */

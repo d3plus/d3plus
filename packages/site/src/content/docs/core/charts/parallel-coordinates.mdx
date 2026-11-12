@@ -24,7 +24,7 @@ Each row is a line crossing one axis per dimension. With no `dimensions` set, ev
 
 ## Categorical axes
 
-A key holding text gets a categorical axis, and `scale: "point"` turns a numeric key into one. `dimensionConfig` sets each axis's `title`, `domain`, `reverse`, and any Axis option such as `tickFormat`; `curve("bump")` eases each line into and out of every axis.
+A key holding text gets a categorical axis, and `scale: "point"` turns a numeric key into one. `dimensionConfig` sets each axis's `title`, `domain`, `reverse`, and any Axis option such as `tickFormat`; `curve("bump")` eases each line into and out of every axis. A `tickTooltip` or `titleTooltip` there (or in `axisConfig`, for every axis) gives the axis's tick labels or its title an [axis tooltip](/guides/interactivity/#axis-tooltips).
 
 <Playground chart="ParallelCoordinates" code={categoricalAxes} controls={["dimensions","dimensionConfig","curve"]} />
 
