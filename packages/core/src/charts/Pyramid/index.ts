@@ -8,6 +8,7 @@
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
+import {fitBreakSpace} from "../../components/Axis/axisBreak.js";
 import TextBox from "../../components/TextBox.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -36,6 +37,7 @@ import {
   gutterInset,
   gutterLabels,
   gutterStackOffset,
+  gutterMinWidth,
   gutterWidth,
   labelFont,
   type AxisRestore,
@@ -66,6 +68,13 @@ interface PyramidState {
   titleBox: TextBox;
   /** Each side's distance from zero: the center gutter's half-width in values, or 0. */
   inset: number;
+  /** The largest single-side category total, from the last pre-draw. */
+  extent: number;
+  /**
+      The center gutter's widest and narrowest pixel widths, and how many
+      breaks the value axis holds with it; unset in the left layout.
+  */
+  gutter?: {width: number; min: number; breaks: number};
   labelBox: TextBox;
   /** The axes' own styles, captured before the center layout changes them. */
   restore?: AxisRestore;
@@ -209,18 +218,20 @@ function syncDomain(
 
 /**
     Lays out the center gutter: each side starts `inset` from zero, and the
-    value axis breaks there as wide as the widest category label.
+    value axis breaks there as wide as the widest category label (or as
+    wide as the axis can hold, down to a minimum).
 */
 function syncGutter(
   viz: VizInstance,
   state: PyramidState,
   extent: number,
+  position = viz.schema.categoryPosition as CategoryPosition,
 ): void {
-  const position = viz.schema.categoryPosition as CategoryPosition;
   state.restore ??= captureAxisStyles(viz);
   const center = position === "center";
   state.inset = center ? gutterInset(extent) : 0;
   let width = 0;
+  let min = 0;
   if (center) {
     const categories = allCategories(viz);
     const config = categoryLabelConfig(viz);
@@ -229,14 +240,57 @@ function syncGutter(
       categories.map(c => categoryText(viz, c)),
       fonts,
     );
+    min = gutterMinWidth(width, fonts);
   }
-  viz._plotAxisDefaults = gutterAxisDefaults(
+  const defaults = gutterAxisDefaults(
     position,
     state.inset,
     width,
     viz.schema.xBreak,
     state.restore,
+    min,
   );
+  viz._plotAxisDefaults = defaults;
+  state.gutter = center
+    ? {width, min, breaks: (defaults.x.break as unknown[]).length}
+    : undefined;
+}
+
+/**
+    Whether the plot just drawn is too narrow for even the narrowest center
+    gutter, so the value axis dropped it (see `fitBreakSpace`).
+*/
+function gutterDropped(viz: VizInstance, state: PyramidState): boolean {
+  const {gutter} = state;
+  if (!gutter || viz._facetStep === "chrome" || !viz._filteredData?.length)
+    return false;
+  const range = (viz._xAxis?._getRange() ?? []) as number[];
+  if (range.length < 2 || !range.every(Number.isFinite)) return false;
+  const length = Math.abs(range[range.length - 1] - range[0]);
+  return (
+    fitBreakSpace(length, gutter.breaks, gutter.width, gutter.min) === null
+  );
+}
+
+/**
+    Draws the chart, falling back to the left layout (drawn again from the
+    same margins) when the plot is too narrow for the center gutter.
+*/
+function drawPyramid(
+  viz: VizInstance,
+  draw: VizInstance["_draw"],
+): VizInstance["_draw"] {
+  return callback => {
+    const state = pyramidState(viz);
+    const start = {margin: {...viz._margin}, padding: {...viz._padding}};
+    draw(callback);
+    if (!gutterDropped(viz, state)) return;
+    syncGutter(viz, state, state.extent, "left");
+    syncDomain(viz, state, state.extent);
+    viz._margin = start.margin;
+    viz._padding = start.padding;
+    draw(callback);
+  };
 }
 
 /** In percent mode, titles the value axis "Percent of Total" unless the user titled it. */
@@ -276,7 +330,7 @@ function preparePyramid(viz: VizInstance): void {
   const comparison = viz.schema.comparison as RowAccessor | undefined;
   state.comparisonTotal = comparison ? pyramidTotal(frame, comparison) : 0;
   syncTickFormat(viz, state);
-  const extent = valueExtent(viz, state);
+  const extent = (state.extent = valueExtent(viz, state));
   syncGutter(viz, state, extent);
   syncDomain(viz, state, extent);
   syncTitle(viz, state);
@@ -369,6 +423,7 @@ export const pyramidDef: ChartDefinition = {
       wrapped: new WeakSet(),
       titleBox: new TextBox(),
       inset: 0,
+      extent: 0,
       labelBox: new TextBox(),
     } satisfies PyramidState;
     interceptValue(viz);
@@ -402,6 +457,7 @@ export const pyramidDef: ChartDefinition = {
       preDraw();
       preparePyramid(viz);
     };
+    viz._draw = drawPyramid(viz, viz._draw.bind(viz));
   },
 
   // Small multiples add these to each panel as it draws (see `facet` below).
@@ -424,7 +480,10 @@ export const pyramidDef: ChartDefinition = {
         Where the category labels (e.g. age bands) are drawn: `"center"`
         (default) down a gutter between the two halves, as wide as the widest
         label, with each half reading outward from zero at its edge; or
-        `"left"`, on a regular category axis beside the chart.
+        `"left"`, on a regular category axis beside the chart. On a narrow
+        chart the gutter narrows (to a few characters at least), wrapping
+        its labels and cutting them short with an ellipsis; a chart too
+        narrow even for that draws its labels at the left.
         @type {"center" | "left"}
     */
     {key: "categoryPosition", default: "center"},

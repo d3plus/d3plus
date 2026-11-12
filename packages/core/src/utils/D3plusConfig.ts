@@ -135,7 +135,9 @@ export interface AxisConfig {
   /**
       Style of the ranges set with `break`: the same `space`, `gap`, `size`,
       `angle`, `lines`, `lineConfig`, `mask`, and mark line styles, with the
-      same defaults, as `baselineBreakConfig`.
+      same defaults, as `baselineBreakConfig`, plus `spaceMin`: the least
+      `space` a break shrinks to on an axis too short for it (by default it
+      is dropped instead).
   */
   breakConfig?: Record<
     string,

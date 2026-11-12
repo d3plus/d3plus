@@ -99,6 +99,21 @@ export function gutterWidth(
   return Math.ceil(widest + padding * 2);
 }
 
+/** The least room a gutter label gets, in multiples of its font size. */
+const MIN_LABEL_EMS = 5;
+
+/**
+    The narrowest the gutter shrinks to on a chart too narrow for `width`
+    (see `gutterWidth`): room for a few characters of the largest font plus
+    its padding on both sides, or `width` itself when that is narrower.
+*/
+export function gutterMinWidth(width: number, fonts: LabelFont[]): number {
+  if (!fonts.length) return width;
+  const size = Math.max(...fonts.map(f => f.size));
+  const padding = Math.max(...fonts.map(f => f.padding));
+  return Math.min(width, Math.ceil(size * MIN_LABEL_EMS + padding * 2));
+}
+
 /**
     Which band labels fit: keeps the first label, each next one that clears
     the last kept one, and always the last label (dropping kept neighbors it
@@ -155,6 +170,9 @@ export function gutterLabelNodes(
       fontWeight: (d: GutterLabel) => d.font.weight,
       textAnchor: "middle",
       verticalAlign: "middle",
+      // A label too long for the gutter wraps, and is cut short with an
+      // ellipsis (mid-word when even its first word is too wide).
+      truncateWord: true,
     })
     .render();
   const group = box.toScene();
@@ -218,13 +236,15 @@ export function gutterLabels(
     if (!keep[i]) return [];
     // The box must be taller than one line for TextBox to fill it.
     const height = Math.max(step, fonts[i].size * 1.5);
+    // Inside its padding, so a label cut to a narrow gutter clears the bars.
+    const {padding} = fonts[i];
     return [
       {
         id: `pyramid-category-${i}`,
         text: categoryText(viz, c),
-        x: left,
+        x: left + padding,
         y: positions[i] - height / 2,
-        width: right - left,
+        width: Math.max(0, right - left - padding * 2),
         height,
         font: fonts[i],
       },
@@ -250,14 +270,16 @@ export function captureAxisStyles(viz: VizInstance): AxisRestore {
       barConfig: {...viz._yAxis!.barConfig()},
       tickSize: viz._yAxis!.tickSize(),
     },
-    x: {breakConfig: {...viz._xAxis!.breakConfig()}},
+    // `spaceMin` is no axis default, so it is captured as unset.
+    x: {breakConfig: {spaceMin: undefined, ...viz._xAxis!.breakConfig()}},
   };
 }
 
 /**
     The chart's own axis config for a layout: in the center layout, the value
-    axis breaks around zero to make the gutter (`width` pixels, the axis line
-    gapped, no break marks or lines) and the category axis draws nothing.
+    axis breaks around zero to make the gutter (`width` pixels, shrinking to
+    `minWidth` on an axis too short for it; the axis line gapped, no break
+    marks or lines) and the category axis draws nothing.
 */
 export function gutterAxisDefaults(
   position: CategoryPosition,
@@ -265,6 +287,7 @@ export function gutterAxisDefaults(
   width: number,
   userBreak: unknown,
   restore: AxisRestore,
+  minWidth = width,
 ): {x: Record<string, unknown>; y: Record<string, unknown>} {
   if (position !== "center") return {x: {...restore.x}, y: {...restore.y}};
   const user = Array.isArray(userBreak)
@@ -281,6 +304,7 @@ export function gutterAxisDefaults(
         mask: false,
         size: 0,
         space: width,
+        spaceMin: minWidth,
         stroke: "transparent",
       },
     },

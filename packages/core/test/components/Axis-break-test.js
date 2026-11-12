@@ -5,6 +5,7 @@ import {
   applyAxisBreaks,
   breakGap,
   breakStyle,
+  fitBreakSpace,
   isBrokenScale,
 } from "../../internal.ts";
 import {useJsdom} from "~test/jsdom.js";
@@ -202,6 +203,49 @@ it("breaks that don't fit are ignored", () => {
     )._breaks.length,
     0,
     "log scales don't break",
+  );
+});
+
+it("fitBreakSpace shrinks breaks to fit the axis, down to spaceMin", () => {
+  assert.strictEqual(fitBreakSpace(400, 1, 36), 36, "room to spare");
+  assert.strictEqual(fitBreakSpace(100, 1, 36), null, "too short: dropped");
+  assert.strictEqual(fitBreakSpace(108, 1, 36), 36, "exactly three spaces");
+  assert.strictEqual(fitBreakSpace(90, 1, 36, 20), 30, "shrunk to fit");
+  assert.strictEqual(fitBreakSpace(120, 2, 36, 20), 30, "shared by breaks");
+  assert.strictEqual(fitBreakSpace(50, 1, 36, 20), null, "below spaceMin");
+  assert.strictEqual(fitBreakSpace(10, 0, 36), 36, "no breaks");
+});
+
+it("breakConfig.spaceMin shrinks a break the axis is too short for", () => {
+  const short = config =>
+    compute(
+      new AxisLeft()
+        .domain([1000, 0])
+        .height(100)
+        .width(300)
+        .break([100, 900])
+        .breakConfig({gap: 36, ...config}),
+    );
+  assert.strictEqual(short({})._breaks.length, 0, "dropped by default");
+  const axis = short({spaceMin: 10});
+  assert.strictEqual(axis._breaks.length, 1, "kept, shrunk");
+  const [brk] = axis._breaks;
+  const span = brk.startPosition - brk.endPosition;
+  const range = axis._getRange();
+  assert.ok(
+    span >= 10 && span < 36,
+    `the break takes ${span}px of a ${range}px axis`,
+  );
+  assert.ok(
+    Math.abs(Math.abs(range[1] - range[0]) / 3 - span) < 1e-6,
+    "leaving twice its space for the data",
+  );
+  const [g0, g1] = breakGap(axis, brk);
+  assert.ok(Math.abs(g1 - g0 - span) < 1e-6, "its gap shrinks with it");
+  assert.strictEqual(
+    short({spaceMin: 60})._breaks.length,
+    0,
+    "dropped when even spaceMin doesn't fit",
   );
 });
 

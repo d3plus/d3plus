@@ -431,8 +431,11 @@ export default class Axis extends BaseClass {
 
   /**
       Style of the breaks set with `break`: `space` (pixels of axis each break
-      occupies), `gap` (pixels between its two marks, where the axis line is
-      not drawn), `size` (length of each mark, drawn outward from the axis
+      occupies), `spaceMin` (the least `space` a break shrinks to when the
+      axis is too short to hold `space` and leave twice that for the data;
+      by default such a break is dropped), `gap` (pixels between its two
+      marks, where the axis line is not drawn; it shrinks with the break),
+      `size` (length of each mark, drawn outward from the axis
       line on the tick side so it never reaches into the plot), `angle`
       (degrees each mark tilts from perpendicular), `lines` (whether a Plot
       runs a line across the plot from each mark, default `true`),

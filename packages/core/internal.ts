@@ -1441,6 +1441,7 @@ export {
   breakStyleOf,
   breakTickValues,
   brokenBarScene,
+  fitBreakSpace,
   resolveBaselineBreak,
 } from "./src/components/Axis/axisBreak.js";
 export type {

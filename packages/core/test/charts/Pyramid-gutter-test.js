@@ -21,6 +21,7 @@ import {
   categoryText,
   gutterAxisDefaults,
   gutterInset,
+  gutterMinWidth,
   gutterStackOffset,
   gutterWidth,
   labelFont,
@@ -121,6 +122,20 @@ it("Pyramid gutterWidth is the widest label plus its padding", () => {
   assert.strictEqual(gutterWidth([], [], measure), 0);
 });
 
+it("Pyramid gutterMinWidth leaves room for a few characters of the largest font", () => {
+  const fonts = [
+    {family: "x", size: 10, weight: 400, padding: 5},
+    {family: "x", size: 12, weight: 400, padding: 2},
+  ];
+  assert.strictEqual(gutterMinWidth(200, fonts), 12 * 5 + 5 * 2);
+  assert.strictEqual(
+    gutterMinWidth(40, fonts),
+    40,
+    "never wider than the gutter itself",
+  );
+  assert.strictEqual(gutterMinWidth(30, []), 30);
+});
+
 it("Pyramid thinBands keeps every band that fits, and always the last", () => {
   assert.deepStrictEqual(thinBands([0, 20, 40], 15), [true, true, true]);
   assert.deepStrictEqual(thinBands([0, 10, 20, 30, 40], 15), [
@@ -152,6 +167,17 @@ it("Pyramid gutterAxisDefaults breaks the value axis and blanks the category axi
     center.x.breakConfig.gap,
     40,
     "the axis line is gapped across the gutter",
+  );
+  assert.strictEqual(
+    center.x.breakConfig.spaceMin,
+    40,
+    "without a minimum, the gutter never shrinks",
+  );
+  assert.strictEqual(
+    gutterAxisDefaults("center", 0.5, 40, undefined, restore, 25).x.breakConfig
+      .spaceMin,
+    25,
+    "the gutter shrinks to its minimum on a short axis",
   );
   assert.strictEqual(center.x.breakConfig.lines, false);
   assert.strictEqual(center.x.breakConfig.mask, false);
@@ -208,6 +234,11 @@ it("Pyramid reads the category axis's labels", () => {
   const styles = captureAxisStyles(pyramid());
   assert.strictEqual(styles.y.tickSize, 8);
   assert.ok(styles.y.barConfig.stroke && styles.x.breakConfig.space === 36);
+  assert.ok(
+    "spaceMin" in styles.x.breakConfig &&
+      styles.x.breakConfig.spaceMin === undefined,
+    "the left layout unsets the gutter's minimum",
+  );
 });
 
 it("Pyramid's center layout gives the axes a gutter around zero", () => {
