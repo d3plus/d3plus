@@ -8,6 +8,7 @@ import * as shapes from "../../shapes/index.js";
 import type Shape from "../../shapes/Shape.js";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
+import {labelLineHeight} from "../Axis/axisLabelLineHeight.js";
 
 import type Legend from "./Legend.js";
 
@@ -28,10 +29,13 @@ export function measureLegendTitle(legend: Legend): void {
         legend._titleClass.fontFamily()()) as string,
       s = (legend.schema.titleConfig.fontSize ||
         legend._titleClass.fontSize()()) as number;
-    let lH = (legend.schema.titleConfig.lineHeight ||
-      legend._titleClass.lineHeight()) as
-      ((...args: unknown[]) => number) | number | undefined;
-    lH = typeof lH === "function" ? lH() : (lH ?? s * 1.4);
+    // Measured at the line height its TextBox paints with.
+    const lH = labelLineHeight(
+      legend.schema.titleConfig,
+      {text: legend.schema.title},
+      0,
+      s,
+    );
 
     const res = textWrap()
       .fontFamily(f)
