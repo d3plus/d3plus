@@ -180,8 +180,18 @@ export interface AxisConfig {
       line; zooming pins a rescaled axis this way so it doesn't shift.
   */
   fixedSize?: number;
-  /** Maximum size allowed for the space that contains the axis tick labels and title. */
-  maxSize?: number;
+  /**
+      Maximum size allowed for the space that contains the axis tick labels
+      and title: a number of pixels, or a function that is given the room the
+      axis has across its labels and returns that maximum. The room is a
+      horizontal axis's `height` or a vertical axis's `width`; in a chart, it
+      is the chart's height (for a horizontal axis) or width (for a vertical
+      one) inside its margins. A chart can call the function more than once
+      in a draw, so it should depend only on its argument.
+      @example
+      {maxSize: size => size / 3}
+  */
+  maxSize?: number | ((size: number) => number);
   /** Minimum size alloted for the space that contains the axis tick labels and title. */
   minSize?: number;
   /**
@@ -724,6 +734,12 @@ export interface ColorScaleConfig {
   */
   domain?: number[];
   /**
+      Draws a bucket-type scale ("jenks", "quantile", …) as one bar with an
+      axis along it, labeled where the buckets start, instead of a labeled
+      swatch for each bucket. Defaults to `false`.
+  */
+  bucketAxis?: boolean;
+  /**
       Formats the label for each bucket in a bucket-type scale ("jenks",
       "quantile", …). Passed the bucket's start value, its index, the full
       bucket array, and every data value used to build the buckets.
@@ -1118,7 +1134,14 @@ export interface D3plusConfig {
     | false;
   /** A pass-through to the config method of ColorScale. */
   colorScaleConfig?: {
+    /** Configures the axis that labels a gradient or `bucketAxis` scale: `labels` lists the values it labels, `ticks` the values it marks, and `tickFormat` writes their text. */
     axisConfig?: AxisConfig;
+    /** Draws a bucket-type scale as one bar with an axis along it instead of a labeled swatch for each bucket (see `ColorScaleConfig.bucketAxis`). Defaults to `false`. */
+    bucketAxis?: boolean;
+    /** Formats the label for each bucket in a bucket-type scale (see `ColorScaleConfig.bucketFormat`). */
+    bucketFormat?: ColorScaleConfig["bucketFormat"];
+    /** Given a bucket's minimum and maximum labels, returns the full label (see `ColorScaleConfig.bucketJoiner`). */
+    bucketJoiner?: ColorScaleConfig["bucketJoiner"];
     centered?: boolean;
     colors?: string[];
     /** The negative pole of a diverging scale, and the hue of an all-negative ramp. Defaults to `colorDefaults.off`, or the theme's `colorScale.min` on a dark or custom theme. */

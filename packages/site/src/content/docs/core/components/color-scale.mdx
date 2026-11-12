@@ -12,6 +12,7 @@ import quantileScale from "~/examples/core/components/color-scale/quantile-scale
 import logScale from "~/examples/core/components/color-scale/log-scale.js?raw";
 import divergingScale from "~/examples/core/components/color-scale/diverging-scale.js?raw";
 import scaleFunction from "~/examples/core/components/color-scale/scale-function.js?raw";
+import choosingLabels from "~/examples/core/components/color-scale/choosing-labels.js?raw";
 import hoverMark from "~/examples/core/components/color-scale/hover-mark.js?raw";
 import bivariateScale from "~/examples/core/components/color-scale/bivariate-scale.js?raw";
 
@@ -58,6 +59,12 @@ When the data spans both sides of the midpoint (default `0`), the scale becomes 
 `scale` also accepts a function that picks the scale on every render. It receives the numeric values the scale is built from (sorted, without null or NaN) and their `[min, max]` extent, and returns a scale name. Here a range wider than 5 gets jenks buckets and a narrower one gets a linear gradient, so new data (from a timeline or a filter) can switch between them.
 
 <Playground chart="ColorScale" code={scaleFunction} controls={["scale","data"]} height={100} />
+
+## Choosing the labels
+
+A gradient, or a bucketed scale drawn as one bar (`bucketAxis: true`), is labeled by an [Axis](/core/components/axis/) that `axisConfig` configures. The axis picks round values to label, wraps long labels, and hides the ones that would crowd their neighbors, keeping the labels at its two ends. To choose the labels yourself, list their values in `labels` (and the values to mark in `ticks`); `tickFormat` writes their text. A bucketed scale drawn as swatches labels every bucket instead, with text from `bucketFormat` and `bucketJoiner`. In a chart, these go in `colorScaleConfig`, as in `colorScaleConfig: {axisConfig: {labels: [200, 6400]}}`.
+
+<Playground chart="ColorScale" code={choosingLabels} controls={["scale","bucketAxis"]} height={100} />
 
 ## Hover mark
 

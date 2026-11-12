@@ -1,6 +1,6 @@
 import {it} from "vitest";
 import assert from "assert";
-import {Axis, AxisBottom} from "../../index.ts";
+import {Axis, AxisBottom, AxisLeft} from "../../index.ts";
 import {computeAxisLayout, measureAxis} from "../../internal.ts";
 import {useJsdom} from "~test/jsdom.js";
 
@@ -183,5 +183,58 @@ it("Axis.measure() populates outerBounds without touching the DOM", () => {
     typeof layout.bounds.width,
     "number",
     "computeAxisLayout returns bounds",
+  );
+});
+
+const longLabels = [
+  "Professional, Scientific, and Technical Services",
+  "Health Care and Social Assistance",
+  "Arts, Entertainment, and Recreation",
+];
+
+/** A measured category axis with long labels, `maxSize` set when given. */
+const measured = (AxisClass, maxSize) => {
+  const axis = new AxisClass()
+    .domain(longLabels)
+    .scale("band")
+    .width(400)
+    .height(300)
+    .gridSize(0);
+  if (maxSize !== undefined) axis.maxSize(maxSize);
+  return axis.measure();
+};
+
+it("Axis maxSize takes a function of the axis's size across its labels", () => {
+  const sizes = [];
+  const quarter = size => (sizes.push(size), size / 4);
+
+  // A vertical axis hands the function its width.
+  const byFunction = measured(AxisLeft, quarter);
+  assert.deepStrictEqual([...new Set(sizes)], [400], "called with the width");
+  assert.strictEqual(byFunction.maxSize(), quarter, "the function stays set");
+  const byNumber = measured(AxisLeft, 100);
+  assert.deepStrictEqual(
+    byFunction.outerBounds(),
+    byNumber.outerBounds(),
+    "width / 4 lays out as the number 100 does",
+  );
+  const unset = measured(AxisLeft);
+  assert.ok(
+    byFunction.outerBounds().width < unset.outerBounds().width,
+    `narrower than the unlimited axis (${byFunction.outerBounds().width} < ${unset.outerBounds().width})`,
+  );
+  assert.ok(
+    byFunction.outerBounds().width <= 100,
+    `within the limit (${byFunction.outerBounds().width})`,
+  );
+
+  // A horizontal axis hands it its height.
+  sizes.length = 0;
+  const bottom = measured(AxisBottom, quarter);
+  assert.deepStrictEqual([...new Set(sizes)], [300], "called with the height");
+  assert.deepStrictEqual(
+    bottom.outerBounds(),
+    measured(AxisBottom, 75).outerBounds(),
+    "height / 4 lays out as the number 75 does",
   );
 });

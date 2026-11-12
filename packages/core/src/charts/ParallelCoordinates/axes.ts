@@ -92,10 +92,12 @@ export function dimensionTitleStyle(
   };
 }
 
+/** A dimension's axis, its labels given `labelRoom` unless its config sets a `maxSize`. */
 function makeAxis(
   viz: VizInstance,
   dim: ParallelDimension,
   orient: ParallelOrient,
+  labelRoom: number,
 ): Axis {
   const dimensionConfig = (viz.schema.dimensionConfig ?? {}) as Record<
     string,
@@ -104,7 +106,7 @@ function makeAxis(
   const axis = new Axis()
     .orient(orient === "horizontal" ? "left" : "bottom")
     .align("start");
-  axis.renderMode("compute").select(null);
+  axis.renderMode("compute").select(null).maxSize(labelRoom);
   axis
     .config(withAxisInk(viz, {}))
     .config((viz.schema.axisConfig ?? {}) as Record<string, unknown>)
@@ -197,10 +199,7 @@ function layoutHorizontal(
   );
   const maxLabel = Math.max(30, (width / n) * 0.6);
   const axes = dims.map(dim =>
-    makeAxis(viz, dim, "horizontal")
-      .height(height)
-      .width(maxLabel)
-      .maxSize(maxLabel),
+    makeAxis(viz, dim, "horizontal", maxLabel).height(height).width(maxLabel),
   );
   axes.forEach(a => a.measure());
   const labelSpace = axes.map(a => (a.outerBounds().width as number) || 0);
@@ -270,10 +269,7 @@ function layoutVertical(
   const length = Math.max(0, width - left);
   const maxLabel = Math.max(20, (height / n) * 0.5);
   const axes = dims.map(dim =>
-    makeAxis(viz, dim, "vertical")
-      .width(length)
-      .height(maxLabel)
-      .maxSize(maxLabel),
+    makeAxis(viz, dim, "vertical", maxLabel).width(length).height(maxLabel),
   );
   axes.forEach(a => a.measure());
   const labelSpace = axes.map(a => (a.outerBounds().height as number) || 0);

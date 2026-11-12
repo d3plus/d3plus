@@ -11,7 +11,9 @@ import {date} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode, Transform} from "@d3plus/render";
 
+import {pinMaxSize} from "../../components/Axis/axisMaxSize.js";
 import accessor from "../../utils/accessor.js";
+import type {AxisConfig} from "../../utils/D3plusConfig.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {ConfigField} from "../../fluent.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -28,7 +30,12 @@ export interface TimeAxisLike {
   render: () => TimeAxisLike;
   outerBounds: () => {height: number};
   toScene: () => {children?: unknown[]} | undefined;
-  schema: {padding: number; orient?: string};
+  schema: {
+    padding: number;
+    orient?: string;
+    height: number;
+    maxSize?: AxisConfig["maxSize"];
+  };
   _d3Scale: (v: TimeValue) => number;
 }
 
@@ -159,7 +166,9 @@ export function renderTimeAxis(
   group: Partial<SceneNode> = {},
 ): (v: TimeValue) => number {
   const axis = viz.ctx.axis as TimeAxisLike;
-  configure(viz, axis, frame)
+  // A `maxSize` function reads the height the test axis measured with.
+  const measured = (viz.ctx.axisTest as TimeAxisLike).schema.height;
+  pinMaxSize(configure(viz, axis, frame), measured)
     .renderMode("compute")
     .select(undefined as unknown as HTMLElement)
     .render();
