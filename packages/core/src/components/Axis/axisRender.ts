@@ -270,13 +270,16 @@ export function buildTickData(
       const labelOffset =
         data && axis.schema.labelOffset ? (data.offset ?? 0) : 0;
 
+      // A vertical axis's flat label is painted in the box it was measured
+      // in (see `fitLabelRoom`).
       const fitWidth = horizontal
         ? space
-        : bounds.width -
-          margin[axis._position.opposite] -
-          hBuff -
-          margin[axis.schema.orient] +
-          p;
+        : (data?.room ??
+          bounds.width -
+            margin[axis._position.opposite] -
+            hBuff -
+            margin[axis.schema.orient] +
+            p);
       // A `fixedSize` label space can be narrower than a label: widen that
       // label's box (outward, away from the axis line) instead of dropping it.
       const labelWidth =

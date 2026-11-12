@@ -6,6 +6,7 @@ import {
   axisLabelEllipsis,
   labelEllipsis,
 } from "../../src/components/Axis/axisDefaults.ts";
+import {fitLabelRoom} from "../../src/components/Axis/axisLabelRoom.ts";
 import {useJsdom} from "~test/jsdom.js";
 
 useJsdom();
@@ -62,8 +63,47 @@ const painted = a =>
   new Map(
     a._tickShape._labelClass
       ._textData()
-      .map(t => [t.data.data.id, {lines: t.lines, widths: t.widths}]),
+      .map(t => [t.data.data.id, {lines: t.lines, widths: t.widths, w: t.w}]),
   );
+
+it("fitLabelRoom wraps cut labels again until the widest label holds", () => {
+  const cut = {lines: ["Professional, Scien..."], width: 100, fits: false};
+  const whole = {lines: ["Health Care"], width: 90, fits: true};
+  const rooms = [];
+  fitLabelRoom([cut, whole], t => {
+    rooms.push(t.room);
+    return {
+      lines: ["Professional, Sci..."],
+      widths: [94.5],
+      width: 95,
+      height: 15,
+    };
+  });
+  assert.deepStrictEqual(rooms, [100, 95], "wrapped in each narrower box");
+  assert.strictEqual(cut.room, 95);
+  assert.strictEqual(whole.room, 95, "every label gets the box");
+  assert.deepStrictEqual(cut.lines, ["Professional, Sci..."]);
+  assert.deepStrictEqual(
+    whole.lines,
+    ["Health Care"],
+    "a label that fits is kept",
+  );
+  const none = {lines: [], width: 0, fits: false};
+  fitLabelRoom([none], () => ({lines: [], widths: [], width: 0, height: 0}));
+  assert.strictEqual(none.room, 0);
+});
+
+it("a vertical axis's labels wrap in the box they are painted in", () => {
+  const a = axis({});
+  const {textData} = measureAxis(a);
+  const room = Math.max(...textData.map(t => t.width));
+  assert.ok(
+    textData.every(t => t.room === room),
+    `each label wraps as wide as the widest (${room}px)`,
+  );
+  for (const [id, p] of painted(a))
+    assert.strictEqual(p.w, room, `${id} is painted ${room}px wide`);
+});
 
 it("a cut axis label is measured as it is painted", () => {
   for (const [config, end] of [

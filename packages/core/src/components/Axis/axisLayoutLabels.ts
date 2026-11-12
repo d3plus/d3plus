@@ -14,6 +14,7 @@ import type Axis from "./Axis.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
 import {titleRoom} from "./axisTitle.js";
 import {labelEllipsis} from "./axisDefaults.js";
+import {fitLabelRoom} from "./axisLabelRoom.js";
 import {slantedDepth, slantedWrapSize} from "./axisLabelAngle.js";
 import {
   isDiscreteScale,
@@ -73,6 +74,11 @@ export interface AxisTextDatum {
   /** Whether the overlap pass hides the label to make room for its neighbors. */
   truncated?: boolean;
   offset?: number;
+  /**
+      The width a flat label on a vertical axis wraps in, and is painted in
+      (see `fitLabelRoom`); unset, it wraps in all the room the axis allows.
+  */
+  room?: number;
 }
 
 interface LabelLayoutCtx {
@@ -196,7 +202,7 @@ function calculateLabelSize(
 
   const text = tickFormat(d);
   const wSize = min([axisMaxSize(axis.schema, horizontal), axis.schema.width]);
-  const depth = labelRoom(axis, horizontal, hBuff, p);
+  const depth = datum.room ?? labelRoom(axis, horizontal, hBuff, p);
   const slanted = slant
     ? slantedWrapSize(angle!, horizontal, depth, space, lineHeight)
     : undefined;
@@ -212,6 +218,7 @@ function calculateLabelSize(
       slant && angle,
       slant && ctx.slantWidth,
       space,
+      datum.room,
     ]);
   const cached = key ? cache!.get(key) : undefined;
   if (cached)
@@ -483,6 +490,15 @@ export function createTextData(
   else if (wholeLine) thinGreedilyShown(textData, horizontal, show);
   else thinGreedily(textData, horizontal);
 
+  // Painted only as wide as the widest label, a cut label is cut there.
+  if (
+    !horizontal &&
+    typeof axis.schema.fixedSize !== "number" &&
+    !textData.some((t: AxisTextDatum) => t.rotate || t.slant)
+  )
+    fitLabelRoom(textData, (t: AxisTextDatum) =>
+      calculateLabelSize(axis, t, labelCtx, measured),
+    );
   if (offset > 1) calculateOffset(textData, horizontal);
   return textData;
 }
