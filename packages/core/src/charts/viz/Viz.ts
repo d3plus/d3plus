@@ -48,6 +48,7 @@ import {
   teardownKeyboardNav,
 } from "./keyboardNav.js";
 import {mountTargetFor} from "./mountTarget.js";
+import {resetCursor} from "./setCursor.js";
 import {routePointerEvent} from "./nearestHover.js";
 import {nearestHoverSurface} from "./nearestHoverSurface.js";
 
@@ -629,6 +630,8 @@ export default class Viz extends VizBase {
       // transition timers; without this, switching kind (svg<->canvas) or
       // container orphans that DOM in the user's element, stacking the old
       // mode's output behind the new one and accumulating on every switch.
+      // The surface it leaves behind drops the hand cursor it may hold.
+      if (this._sceneRenderer) resetCursor(this);
       if (
         this._sceneRenderer &&
         typeof this._sceneRenderer.destroy === "function"

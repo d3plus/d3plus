@@ -15,6 +15,7 @@ import {thresholdFunction} from "../Treemap/thresholdFunction.js";
 import {partitionSort} from "./hierarchy.js";
 import type {PartitionNode, PartitionSort} from "./hierarchy.js";
 import {partitionHandlers, partitionNodeOf} from "./interaction.js";
+import {setOwnClick} from "../viz/userClick.js";
 import type {PartitionInteraction} from "./interaction.js";
 
 /** Buckets small branches into a "Values" node per `threshold` (Treemap's algorithm). */
@@ -72,7 +73,7 @@ export function partitionShapeDepth<N extends PartitionNode>(
     Records the chart's own default `color` and `shapeConfig.fill` (shading
     applies only while they stay in place) as `<prefix>DefaultColor` and
     `<prefix>DefaultFill`, and installs the shared hover, tooltip, and
-    click-to-zoom handlers.
+    click-to-zoom handlers, the last as the chart's own click.
 */
 export function partitionSetup<N extends PartitionNode>(
   viz: VizInstance,
@@ -83,13 +84,11 @@ export function partitionSetup<N extends PartitionNode>(
   viz.ctx[`${prefix}DefaultFill`] = (
     viz.schema.shapeConfig as Record<string, unknown>
   ).fill;
-  Object.assign(
-    viz.schema.on,
-    partitionHandlers(
-      viz,
-      ((viz.schema.tooltipConfig as {tbody?: unknown[][]}).tbody ?? [])[0] ??
-        [],
-      interaction,
-    ),
+  const handlers = partitionHandlers(
+    viz,
+    ((viz.schema.tooltipConfig as {tbody?: unknown[][]}).tbody ?? [])[0] ?? [],
+    interaction,
   );
+  Object.assign(viz.schema.on, handlers);
+  setOwnClick(viz, "click.shape", handlers["click.shape"]);
 }

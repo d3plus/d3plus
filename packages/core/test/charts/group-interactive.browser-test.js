@@ -251,8 +251,12 @@ const draw = ([config, renderer]) =>
     });
   });
 
-/** Runs in the page: what the pointer's position shows and fired since the last read. */
-const state = () => {
+/**
+    Runs in the page: what the pointer's position `[x, y]` shows and what
+    fired since the last read. The cursor is that of the element under the
+    pointer: a shape inside the chart's svg or, with Canvas, its canvas.
+*/
+const state = ([x, y]) => {
   const fired = [...new Set(window.__fired)];
   window.__fired.length = 0;
   return {
@@ -261,8 +265,7 @@ const state = () => {
       .filter(el => getComputedStyle(el).opacity !== "0")
       .map(el => el.textContent)
       .join(" "),
-    cursor: getComputedStyle(document.querySelector("#viz svg, #viz canvas"))
-      .cursor,
+    cursor: getComputedStyle(document.elementFromPoint(x, y)).cursor,
   };
 };
 
@@ -303,15 +306,15 @@ for (const renderer of ["svg", "canvas"]) {
       const hover = async ([x, y]) => {
         await page.mouse.move(1, 1);
         await page.waitForTimeout(60);
-        await page.evaluate(state);
+        await page.evaluate(state, [1, 1]);
         await page.mouse.move(x, y - 1);
         await page.mouse.move(x, y);
         await page.waitForTimeout(150);
-        return page.evaluate(state);
+        return page.evaluate(state, [x, y]);
       };
       const click = async ([x, y]) => {
         await page.mouse.click(x, y);
-        return (await page.evaluate(state)).fired.filter(e =>
+        return (await page.evaluate(state, [x, y])).fired.filter(e =>
           e.startsWith("click"),
         );
       };

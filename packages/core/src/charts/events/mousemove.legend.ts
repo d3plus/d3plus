@@ -1,10 +1,11 @@
 import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
-import clickLegend from "./click.legend.js";
 import {legendLabel} from "../features/legendLabel.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
+import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
+import {hasOwnClick, hasUserClick} from "../viz/userClick.js";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import type Viz from "../viz/Viz.js";
@@ -39,33 +40,21 @@ export default function (
   if (id instanceof Array) id = id[0];
 
   const t = this.schema.translate;
-  const defaultClick = clickLegend.bind(this).toString();
-
   // does the legend have any user-defined click events?
-  const hasUserClick = Object.keys(this.schema.on).some(
-    (e: string) =>
-      // all valid click event keys,
-      ["click", "click.legend"].includes(e) &&
-      // truthy values (no nulls),
-      this.schema.on[e] &&
-      // and it is not our default click.legend function
-      this.schema.on[e].toString() !== defaultClick,
-  );
+  const userClick = hasUserClick(this, "click.legend");
 
   // does the legend still have our default "click.legend" event?
   // (if the user only sets "click", both functions will fire)
-  const hasDefaultClick =
-    this.schema.on["click.legend"] &&
-    this.schema.on["click.legend"].toString() === defaultClick;
+  const hasDefaultClick = hasOwnClick(this, "click.legend");
 
   // can the viz show deeper data?
   const hasDeeperLevel = this._drawDepth < this.schema.groupBy.length - 1;
 
   // only show the hand cursor when the entry has a click event, whether or
   // not it shows a tooltip
-  this._select.style(
-    "cursor",
-    hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
+  setCursor(
+    this,
+    userClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
   );
 
   if (!tooltipEnabled(this, d, i, true)) return;

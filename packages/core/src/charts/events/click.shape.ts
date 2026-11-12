@@ -7,6 +7,7 @@ import {
   inGroup,
 } from "../viz/groupRow.js";
 import {takeLegendState} from "../viz/history.js";
+import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -21,7 +22,7 @@ function zoomIntoGroup(viz: Viz, d: DataPoint, depth: number): void {
   const groupBy = viz.schema.groupBy;
   const path = groupPath(groupBy, d, depth);
   if (!groupNarrows(groupBy, path, viz._filteredData ?? [])) return;
-  viz._select.style("cursor", "auto");
+  setCursor(viz, "auto");
   viz.hover(false);
   viz._tooltipClass.data([]).render();
   const oldFilter = viz.schema.filter;
@@ -55,7 +56,7 @@ export default function (
   }
 
   if (this._drawDepth < this.schema.groupBy.length - 1) {
-    this._select.style("cursor", "auto");
+    setCursor(this, "auto");
 
     const filterGroup = this.schema.groupBy[this._drawDepth],
       filterId = filterGroup(d, i);

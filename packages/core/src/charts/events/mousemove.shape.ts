@@ -1,13 +1,14 @@
 import type {DataPoint} from "@d3plus/data";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
-import clickShape from "./click.shape.js";
 import {groupDepthOf, groupNarrows, groupPath} from "../viz/groupRow.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {pointTooltipAnchor} from "../viz/pointTooltipAnchor.js";
+import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
+import {hasOwnClick, hasUserClick} from "../viz/userClick.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -25,24 +26,12 @@ export default function (
   event: MouseEvent & TouchEvent,
 ): void {
   if (!d) return;
-  const defaultClick = clickShape.bind(this).toString();
-
   // does the shape have any user-defined click events?
-  const hasUserClick = Object.keys(this.schema.on).some(
-    (e: string) =>
-      // all valid click event keys,
-      ["click", "click.shape"].includes(e) &&
-      // truthy values (no nulls),
-      this.schema.on[e] &&
-      // and it is not our default click.shape function
-      this.schema.on[e].toString() !== defaultClick,
-  );
+  const userClick = hasUserClick(this, "click.shape");
 
   // does the shape still have our default "click.shape" event?
   // (if the user only sets "click", both functions will fire)
-  const hasDefaultClick =
-    this.schema.on["click.shape"] &&
-    this.schema.on["click.shape"].toString() === defaultClick;
+  const hasDefaultClick = hasOwnClick(this, "click.shape");
 
   // can the viz show deeper data? A group row zooms into its group.
   const groupDepth = groupDepthOf(d);
@@ -57,9 +46,9 @@ export default function (
 
   // only show the hand cursor when the shape has a click event, whether or
   // not it shows a tooltip
-  this._select.style(
-    "cursor",
-    hasUserClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
+  setCursor(
+    this,
+    userClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
   );
 
   if (!tooltipEnabled(this, d, i)) return;

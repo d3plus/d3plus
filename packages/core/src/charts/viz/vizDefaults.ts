@@ -20,6 +20,7 @@ import {legendCategoryOf} from "../features/legendCategory.js";
 import {legendLabel} from "../features/legendLabel.js";
 import clickShape from "../events/click.shape.js";
 import clickLegend from "../events/click.legend.js";
+import {setOwnClick} from "./userClick.js";
 import mouseenter from "../events/mouseenter.js";
 import mouseleave from "../events/mouseleave.js";
 import mousemoveLegend from "../events/mousemove.legend.js";
@@ -233,9 +234,14 @@ function initMessageDefaults(viz: Viz): void {
     @private
 */
 function initEventDefaults(viz: Viz): void {
-  viz.schema.on = {
+  const ownClick = {
     "click.shape": clickShape.bind(viz),
     "click.legend": clickLegend.bind(viz),
+  };
+  for (const [key, handler] of Object.entries(ownClick))
+    setOwnClick(viz, key, handler);
+  viz.schema.on = {
+    ...ownClick,
     mouseenter: mouseenter.bind(viz),
     mouseleave: mouseleave.bind(viz),
     "mousemove.shape": mousemoveShape.bind(viz),

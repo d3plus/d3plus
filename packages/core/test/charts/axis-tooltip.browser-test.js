@@ -81,9 +81,15 @@ async function leave(page) {
   await page.waitForTimeout(120);
 }
 
-/** The cursor the chart asks for. */
-const cursor = page =>
-  page.evaluate(() => window.__viz._select.node().style.cursor);
+/**
+    The cursor under `point`: the computed cursor of the element there, a
+    shape inside the chart's svg or, with the Canvas renderer, its canvas.
+*/
+const cursor = (page, point) =>
+  page.evaluate(
+    ([x, y]) => getComputedStyle(document.elementFromPoint(x, y)).cursor,
+    point,
+  );
 
 /** `src` with a `click.shape` handler recording each clicked row's `field`. */
 const clickable = (src, field) =>
@@ -103,7 +109,7 @@ async function assertChrome(page, match, id, names) {
   assert.ok(mark, "the shape is drawn");
   await hover(page, mark);
   assert.ok(await tooltip(page), "the shape shows its tooltip");
-  assert.strictEqual(await cursor(page), "pointer", "the shape's cursor");
+  assert.strictEqual(await cursor(page, mark), "pointer", "the shape's cursor");
   await page.mouse.click(mark[0], mark[1]);
   await page.waitForTimeout(120);
   assert.deepStrictEqual(await clicks(page), [id]);
@@ -114,7 +120,7 @@ async function assertChrome(page, match, id, names) {
     await hover(page, mark);
     await hover(page, at);
     assert.strictEqual(await tooltip(page), null, name);
-    assert.strictEqual(await cursor(page), "auto", `${name}, cursor`);
+    assert.strictEqual(await cursor(page, at), "auto", `${name}, cursor`);
     await page.mouse.click(at[0], at[1]);
     await page.waitForTimeout(120);
     assert.strictEqual(await tooltip(page), null, `${name}, clicked`);
