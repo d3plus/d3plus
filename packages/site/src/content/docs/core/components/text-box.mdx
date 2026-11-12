@@ -58,7 +58,7 @@ A percentage places each line that share of the way across the box: the space le
 
 ## Truncation
 
-Text that does not fit is cut at the last whole line that fits the `height`, and `maxLines` caps the line count regardless of height. The cut line is passed through `ellipsis`, a function `(text, line) => string` that appends `…` by default and can be replaced to end truncated text any other way.
+Text that does not fit is cut at the last whole line that fits the `height`, and `maxLines` caps the line count regardless of height. The cut line is passed through `ellipsis`, a function `(text, line) => string` that by default drops a trailing period or comma and appends `...`, and can be replaced to end truncated text any other way.
 
 <Playground chart="TextBox" code={truncation} controls={["maxLines","height"]} height={48} />
 
