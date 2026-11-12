@@ -100,11 +100,11 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     range: number[] = [],
     ticks: unknown[] = [];
 
-  const tickFormat = buildTickFormat(axis, timeLocaleObj, () => ticks);
+  const tickFormat = buildTickFormat(axis, timeLocaleObj, () => labels);
   axis._labelFormat = tickFormat;
 
   // Rebuilds the scale (over `newRange`, else the configured range) and
-  // keeps the ticks the formatter reads in step with it.
+  // keeps the labels the formatter reads in step with it.
   const rescale = (newRange?: number[]) =>
     ({range, ticks, labels} = setAxisScale(
       axis,

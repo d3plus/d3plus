@@ -31,20 +31,22 @@ import {
 } from "./timeValues.js";
 import {axisIsYearLike, formatYear} from "./yearValues.js";
 import type {D3Scale} from "../../utils/index.js";
-import {floorPow, isNegative, roundedDomain} from "./axisRounding.js";
+import {floorPow, isNegative, openEnd, roundedDomain} from "./axisRounding.js";
 import {powExponent} from "./powTicks.js";
 
 /**
     Builds the tick label formatter (user-supplied or scale-derived). With a
     `rotatedTickFormat`, the formatter reads `axis._labelRotation` on every
     call, so labels measured and painted rotated use that one instead.
+    `getLabels` returns the values the axis labels, which decide the
+    open-ended labels of an axis rounded "inside".
 */
 export function buildTickFormat(
   axis: Axis,
   timeLocaleObj: TimeLocaleDefinition,
-  getTicks: () => unknown[],
+  getLabels: () => unknown[],
 ): (d: unknown) => string {
-  const format = baseTickFormat(axis, timeLocaleObj, getTicks);
+  const format = baseTickFormat(axis, timeLocaleObj, getLabels);
   const rotated = axis.schema.rotatedTickFormat as
     ((d: unknown) => string) | undefined;
   return rotated
@@ -56,7 +58,7 @@ export function buildTickFormat(
 function baseTickFormat(
   axis: Axis,
   timeLocaleObj: TimeLocaleDefinition,
-  getTicks: () => unknown[],
+  getLabels: () => unknown[],
 ): (d: unknown) => string {
   let years: boolean | undefined;
   let categories: Date[] | undefined;
@@ -115,26 +117,22 @@ function baseTickFormat(
           );
           return `${number}${separator}${suff}`;
         } else {
-          const ticks = getTicks();
-          const inverted = (ticks[1] as number) < (ticks[0] as number);
-          const minTick = inverted ? ticks.length - 1 : 0;
-          const maxTick = inverted ? 0 : ticks.length - 1;
+          const end =
+            axis.schema.rounding === "inside"
+              ? openEnd(d, getLabels(), axis.schema.domain)
+              : undefined;
           const prefix =
-            axis.schema.rounding === "inside"
-              ? ticks.indexOf(d) === minTick
-                ? axis.schema.roundingInsideMinPrefix
-                : ticks.indexOf(d) === maxTick
-                  ? axis.schema.roundingInsideMaxPrefix
-                  : ""
-              : "";
+            end === "min"
+              ? axis.schema.roundingInsideMinPrefix
+              : end === "max"
+                ? axis.schema.roundingInsideMaxPrefix
+                : "";
           const suffix =
-            axis.schema.rounding === "inside"
-              ? ticks.indexOf(d) === minTick
-                ? axis.schema.roundingInsideMinSuffix
-                : ticks.indexOf(d) === maxTick
-                  ? axis.schema.roundingInsideMaxSuffix
-                  : ""
-              : "";
+            end === "min"
+              ? axis.schema.roundingInsideMinSuffix
+              : end === "max"
+                ? axis.schema.roundingInsideMaxSuffix
+                : "";
           years ??= axisIsYearLike(axis);
           const number = years
             ? formatYear(d as number, axis.schema.locale)
