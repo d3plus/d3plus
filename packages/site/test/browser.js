@@ -4,11 +4,7 @@
  * Hosts some examples load their data from, as a reader's browser would: the
  * check fetches these for real, so those pages need the network.
  */
-const DATA_HOSTS = new Set([
-  "datausa.io",
-  "api.datausa.io",
-  "api.datasaudi.sa",
-]);
+const DATA_HOSTS = new Set(["api.datasaudi.sa"]);
 
 /** A transparent 1×1 PNG, standing in for map tiles and remote icons. */
 const PIXEL = Buffer.from(
@@ -87,14 +83,19 @@ export async function check(browser, origin, url, {timeout = 15000} = {}) {
     const count = await playgrounds.count();
     for (let i = 0; i < count; i++) {
       const playground = playgrounds.nth(i);
-      await playground.scrollIntoViewIfNeeded();
-      if (await playground.evaluate(el => el.matches(".d3p-calls")))
-        await checkCalls(tab, playground, i, problems, timeout);
+      const calls = await playground.evaluate(el => el.matches(".d3p-calls"));
+      // A chart draws once it is on screen, and a long example's code can
+      // push it above the fold when the whole playground is scrolled to.
+      await (
+        calls ? playground : playground.locator(".d3p-chart")
+      ).scrollIntoViewIfNeeded();
+      if (calls) await checkCalls(tab, playground, i, problems, timeout);
       else
         await playground
-          // Something drawn: an svg's shapes or a canvas, or a tooltip (which
-          // mounts outside the playground, so the box can't clip it).
-          .locator(".d3p-chart svg > *, .d3p-chart canvas")
+          // Something drawn: an svg's shapes (not just its title and desc) or
+          // a canvas, or a tooltip (which mounts outside the playground, so
+          // the box can't clip it).
+          .locator(".d3p-chart svg > :not(title, desc), .d3p-chart canvas")
           .or(tab.locator(".d3plus-tooltip"))
           .first()
           .waitFor({state: "attached", timeout})
@@ -104,7 +105,7 @@ export async function check(browser, origin, url, {timeout = 15000} = {}) {
       if (await error.count())
         problems.push(`playground ${i + 1}: ${await error.innerText()}`);
       if (
-        !(await playground.evaluate(el => el.matches(".d3p-calls"))) &&
+        !calls &&
         (await playground.innerText()).includes("No Data Available")
       )
         problems.push(`playground ${i + 1} has no data`);
