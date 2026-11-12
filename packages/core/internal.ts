@@ -481,6 +481,25 @@ export {
 } from "./src/charts/features/referenceAnnotations.js";
 export {textHalo} from "./src/charts/features/textHalo.js";
 export {
+  bindAccessors,
+  handleAxisTooltip,
+  isAxisTooltipDatum,
+  resolveAxisTooltip,
+} from "./src/charts/features/axisTooltip.js";
+export type {AxisTooltipContent} from "./src/charts/features/axisTooltip.js";
+export {
+  axisTooltipTarget,
+  inertAxis,
+  labelCut,
+  stampTickTooltips,
+  stampTitleTooltip,
+  tickRank,
+} from "./src/components/Axis/axisTooltipTargets.js";
+export type {
+  AxisTooltipTarget,
+  RankedAxis,
+} from "./src/components/Axis/axisTooltipTargets.js";
+export {
   clearGraphFocus,
   withinArea,
 } from "./src/charts/features/ensureZoomDom.js";

@@ -7,6 +7,7 @@ sidebar:
 
 import Playground from "~/components/Playground/Playground.astro";
 import tooltipDeepestLevel from "~/examples/guides/interactivity/tooltip-deepest-level.js?raw";
+import axisTooltips from "~/examples/guides/interactivity/axis-tooltips.js?raw";
 
 D3plus charts are interactive out of the box: hovering a shape highlights it and
 shows a tooltip, and a legend lets viewers toggle series. Everything below works
@@ -73,6 +74,38 @@ nearest the pointer); a bar is badged on its value axis only. Turn it off with
 ```
 
 See the [axis guides example](/core/charts/plot/#axis-hover-guides).
+
+## Axis tooltips
+
+An axis title or tick label that is shortened with an ellipsis shows its full
+text in the chart's tooltip when hovered or tapped. To say more about an axis,
+give its config (`xConfig`, `yConfig`, `x2Config` or `y2Config`) a
+`titleTooltip` or a `tickTooltip`:
+
+- `titleTooltip` is the text shown when hovering the axis title, or a function
+  that receives the title and returns it.
+- `tickTooltip` is the text shown when hovering any tick label, or a function
+  that receives a tick's value (the one `tickFormat` receives) and its index,
+  and returns the text for that tick's label. The index counts the axis's
+  labels from the start of its domain: 0 is the lowest value on a value or
+  time axis (the bottom label of a y axis, the left one of an x axis) and the
+  first category on a categorical one, even when `reverse` or a descending
+  `domain` draws the axis the other way round.
+
+Either one also takes a [Tooltip](/core/components/tooltip/) configuration,
+applied on top of the chart's `tooltipConfig`, whose accessors receive the
+title (or the tick's value and index) in place of a data point. `false` turns
+the tooltip off, including the full text of a shortened label. A function
+that returns `false` does the same for that one label, while one that returns
+nothing leaves a shortened label its full text.
+
+Hover the y-axis title, "Brazil" or "Vietnam", and the shortened country names:
+
+<Playground chart="BarChart" code={axisTooltips} controls={["xConfig","yConfig"]} />
+
+The same two options work on the other axes a chart draws from an axis config:
+a Matrix's `rowConfig` and `columnConfig`, the `axisConfig` of a Priestley or a
+Gantt, and a color scale's `axisConfig`.
 
 ## Hovering near a point
 

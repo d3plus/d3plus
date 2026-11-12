@@ -40,6 +40,7 @@ import {vizClassNameTargets} from "./vizClassName.js";
 import {themeBackground, unwatchPageTheme} from "./vizTheme.js";
 import {releaseScene, stopVisibilityWatch} from "./vizVisibility.js";
 import {applyClassName, withRootClasses} from "../../utils/className.js";
+import {handleAxisTooltip} from "../features/axisTooltip.js";
 import {handleColorScaleHover} from "../features/colorScaleHover.js";
 import {
   appendFocusRing,
@@ -698,6 +699,9 @@ export default class Viz extends VizBase {
     // the transition guard below, so leaving mid-transition still clears it.
     this._sharedHover(event);
     handleColorScaleHover(this as unknown as VizInstance, event);
+    // An axis title or tick label with a tooltip of its own (see
+    // `handleAxisTooltip`), shown last so nothing above replaces it.
+    if (handleAxisTooltip(this as unknown as VizInstance, event)) return;
     if (this._transitionEndsAt && Date.now() < this._transitionEndsAt) return;
     const pick = event.pick;
     // Dispatch helper shared by the live-pick path and the leave path.

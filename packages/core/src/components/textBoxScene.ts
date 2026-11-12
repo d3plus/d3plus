@@ -230,6 +230,7 @@ export function textBoxNode(
     aria: ariaHidden ? {hidden: true} : undefined,
     interactive: d.pE !== "none",
     ...(d.path ? {path: {d: d.path.d, side: d.path.side}} : {}),
+    ...(d.truncated ? {truncated: true} : {}),
   };
 }
 

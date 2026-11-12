@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AxisTooltips · Plot</title>
+    <meta
+      name="description"
+      content="Hovering an axis title or tick label shows a tooltip: titleTooltip, tickTooltip, and the whole text of cut labels (issues #441, #167)."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 20px;
+        grid-template-columns: repeat(2, 560px);
+        margin: 10px;
+      }
+
+      h3 {
+        font-size: 13px;
+        margin: 0 0 4px;
+      }
+
+      .viz {
+        height: 320px;
+        width: 560px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>titleTooltip (string) and tickTooltip (function)</h3>
+      <div class="viz" id="text"></div>
+    </div>
+    <div>
+      <h3>titleTooltip (function) and tickTooltip (tooltip config)</h3>
+      <div class="viz" id="config"></div>
+    </div>
+    <div>
+      <h3>Unset: cut labels show their whole text</h3>
+      <div class="viz" id="cut"></div>
+    </div>
+    <div>
+      <h3>titleTooltip: false, tickTooltip: false</h3>
+      <div class="viz" id="off"></div>
+    </div>
+    <div>
+      <h3>LinePlot (shared tooltip, x2 and y2 axes)</h3>
+      <div class="viz" id="line"></div>
+    </div>
+    <div>
+      <h3>Matrix (rowConfig, columnConfig)</h3>
+      <div class="viz" id="matrix"></div>
+    </div>
+    <div>
+      <h3>Gantt (axisConfig)</h3>
+      <div class="viz" id="gantt"></div>
+    </div>
+  </body>
+
+  <script>
+    var countries = [
+      {
+        country: "Democratic Republic of the Congo",
+        continent: "Africa",
+        gdp: 650,
+      },
+      {country: "Brazil", continent: "Americas", gdp: 10300},
+      {country: "Bosnia and Herzegovina", continent: "Europe", gdp: 8600},
+      {country: "Vietnam", continent: "Asia", gdp: 4300},
+      {
+        country: "Saint Vincent and the Grenadines",
+        continent: "Americas",
+        gdp: 10100,
+      },
+    ];
+    var notes = {Brazil: "2023 estimate", Vietnam: "Preliminary figure"};
+    var longTitle =
+      "Gross domestic product per capita, in constant 2015 US dollars, as reported by each national statistics office";
+
+    function bars(id, xConfig, yConfig) {
+      new d3plus.BarChart()
+        .data(countries)
+        .groupBy("continent")
+        .x("country")
+        .y("gdp")
+        .xConfig(xConfig)
+        .yConfig(yConfig)
+        .select(id)
+        .render();
+    }
+
+    bars(
+      "#text",
+      {
+        tickTooltip: function (value) {
+          return notes[value];
+        },
+      },
+      {title: "GDP per capita", titleTooltip: "Constant 2015 US$"},
+    );
+
+    bars(
+      "#config",
+      {
+        tickTooltip: {
+          title: function (value) {
+            return value;
+          },
+          tbody: [
+            [
+              "Position",
+              function (value, index) {
+                return index + 1;
+              },
+            ],
+          ],
+        },
+      },
+      {
+        title: "GDP per capita",
+        titleTooltip: function (title) {
+          return title + ", in constant 2015 US$";
+        },
+      },
+    );
+
+    bars(
+      "#cut",
+      {labelRotation: false, maxSize: 40},
+      {title: longTitle, titleConfig: {maxLines: 1}},
+    );
+
+    bars(
+      "#off",
+      {labelRotation: false, maxSize: 40, tickTooltip: false},
+      {title: longTitle, titleConfig: {maxLines: 1}, titleTooltip: false},
+    );
+
+    var series = [];
+    ["alpha", "beta"].forEach(function (id, s) {
+      for (var year = 2018; year <= 2024; year++) {
+        var t = year - 2018;
+        series.push({
+          id: id,
+          year: year,
+          value: 10 + s * 6 + t * (2 + s),
+          share: 20 + s * 30 + t * 3,
+          month: t * 12,
+        });
+      }
+    });
+    new d3plus.LinePlot()
+      .data(series)
+      .groupBy("id")
+      .x("year")
+      .discrete("x")
+      .y("value")
+      .x2("month")
+      .y2("share")
+      .xConfig({
+        title: "Year",
+        titleTooltip: "Fiscal years",
+        tickTooltip: function (value) {
+          return "FY" + value;
+        },
+      })
+      .yConfig({title: "Value", titleTooltip: "Left axis"})
+      .x2Config({title: "Months", titleTooltip: "Months since 2018"})
+      .y2Config({
+        title: "Share",
+        titleTooltip: "Right axis",
+        tickTooltip: function (value) {
+          return value + "% of the total";
+        },
+      })
+      .select("#line")
+      .render();
+
+    var cells = [];
+    ["North", "South", "East"].forEach(function (row, r) {
+      ["Apples", "Pears", "Plums"].forEach(function (column, c) {
+        cells.push({row: row, column: column, value: (r + 1) * (c + 2)});
+      });
+    });
+    new d3plus.Matrix()
+      .data(cells)
+      .groupBy(["row", "column"])
+      .row("row")
+      .column("column")
+      .colorScale("value")
+      .rowConfig({
+        tickTooltip: function (value) {
+          return "Region: " + value;
+        },
+      })
+      .columnConfig({
+        tickTooltip: function (value) {
+          return "Fruit: " + value;
+        },
+      })
+      .select("#matrix")
+      .render();
+
+    new d3plus.Gantt()
+      .data([
+        {task: "Plan", start: "2024-03-04", end: "2024-03-08"},
+        {task: "Design", start: "2024-03-11", end: "2024-03-22"},
+        {task: "Ship", start: "2024-03-25", end: "2024-04-05"},
+      ])
+      .groupBy("task")
+      .axisConfig({
+        title: "Schedule",
+        titleTooltip: "When each task runs",
+        tickTooltip: function (value) {
+          return new Date(value).toDateString();
+        },
+      })
+      .select("#gantt")
+      .render();
+  </script>
+</html>

@@ -12,6 +12,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode, Transform} from "@d3plus/render";
 
 import {pinMaxSize} from "../../components/Axis/axisMaxSize.js";
+import {inertAxis} from "../../components/Axis/axisTooltipTargets.js";
 import accessor from "../../utils/accessor.js";
 import type {AxisConfig} from "../../utils/D3plusConfig.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
@@ -157,13 +158,12 @@ export function measureTimeAxis(
 
 /**
     Renders the chart's time axis (`viz.ctx.axis`) over `frame`, pushes its
-    scene onto `viz._chartScene` (with any extra `group` fields), and returns
-    its scale.
+    scene onto `viz._chartScene` as chrome (see `inertAxis`), and returns its
+    scale.
 */
 export function renderTimeAxis(
   viz: VizInstance,
   frame: TimeAxisFrame,
-  group: Partial<SceneNode> = {},
 ): (v: TimeValue) => number {
   const axis = viz.ctx.axis as TimeAxisLike;
   // A `maxSize` function reads the height the test axis measured with.
@@ -174,13 +174,14 @@ export function renderTimeAxis(
     .render();
   const axisScene = axis.toScene();
   if (axisScene) {
-    (viz._chartScene ||= []).push({
-      type: "group",
-      key: frame.key,
-      transform: frame.transform,
-      children: (axisScene.children ?? []) as unknown as SceneNode[],
-      ...group,
-    } as SceneNode);
+    (viz._chartScene ||= []).push(
+      inertAxis({
+        type: "group",
+        key: frame.key,
+        transform: frame.transform,
+        children: (axisScene.children ?? []) as unknown as SceneNode[],
+      }),
+    );
   }
   return axis._d3Scale;
 }

@@ -6,6 +6,11 @@ import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 
 import type Axis from "./Axis.js";
 import {axisBarNodes} from "./axisBreak.js";
+import {
+  stampTickTooltips,
+  stampTitleTooltip,
+  tickRank,
+} from "./axisTooltipTargets.js";
 
 /**
     Converts an attribute-style config (e.g. gridConfig, barConfig) into a Paint.
@@ -187,8 +192,11 @@ export function axisToScene(axis: Axis): GroupNode {
       lbl._data.length
     ) {
       const lblScene = lbl.toScene();
-      if (lblScene && Array.isArray(lblScene.children))
-        children.push(...(lblScene.children as SceneNode[]));
+      if (lblScene && Array.isArray(lblScene.children)) {
+        const labels = lblScene.children as SceneNode[];
+        stampTickTooltips(labels, axis.schema.tickTooltip, tickRank(axis));
+        children.push(...labels);
+      }
     }
   }
 
@@ -204,7 +212,9 @@ export function axisToScene(axis: Axis): GroupNode {
     (axis._titleClass as {_data?: unknown[]})._data &&
     ((axis._titleClass as {_data?: unknown[]})._data as unknown[]).length
   ) {
-    children.push((axis._titleClass as {toScene: () => GroupNode}).toScene());
+    const title = (axis._titleClass as {toScene: () => GroupNode}).toScene();
+    stampTitleTooltip([title], axis.schema.title, axis.schema.titleTooltip);
+    children.push(title);
   }
 
   // The axis was placed inside a container the caller positioned (e.g. Plot's

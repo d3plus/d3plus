@@ -176,6 +176,13 @@ it("textBoxNode — positions lines and nudges rotated start text", () => {
   assert.deepStrictEqual(quiet.aria, {hidden: true});
 });
 
+it("textBoxNode — flags text its layout cut short", () => {
+  const whole = textBoxNode(datum(), [0, 0], false);
+  assert.strictEqual("truncated" in whole, false);
+  const cut = textBoxNode(datum({truncated: true}), [0, 0], false);
+  assert.strictEqual(cut.truncated, true);
+});
+
 const font = "DejaVu Sans";
 // Measured the way TextBox measures: with the family fontExists finds.
 const style = {"font-family": fontExists(font), "font-size": 14};

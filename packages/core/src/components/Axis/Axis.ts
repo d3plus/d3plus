@@ -73,8 +73,10 @@ const axisSchema: ConfigField[] = [
   {key: "ticks", coerce: "identity"},
   {key: "tickSize", coerce: "identity", default: 8},
   {key: "tickSuffix", coerce: "identity", default: "normal"},
+  {key: "tickTooltip", coerce: "identity"},
   {key: "timeLocale", coerce: "identity", default: undefined},
   {key: "title", coerce: "identity"},
+  {key: "titleTooltip", coerce: "identity"},
   {key: "width", coerce: "identity", default: 400},
 ];
 
@@ -126,6 +128,12 @@ export default class Axis extends BaseClass {
   _gridLineData?: {id: unknown}[];
   _d3Scale: D3Scale | null = null;
   _d3ScaleNegative: D3Scale | null = null;
+  /**
+      Whether the domain is handed over last value first, as a Plot hands its
+      y axes theirs (they run bottom to top). Tick tooltips count a
+      categorical axis's labels from the domain's start (see `tickRank`).
+  */
+  _domainEndFirst = false;
   /** The active baseline break, set by the layout pass (see `baselineBreak`). */
   _baselineBreak: AxisBaselineBreak | null = null;
   /** Every active break (baseline and explicit), set by the layout pass. */

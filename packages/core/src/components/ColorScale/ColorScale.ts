@@ -19,6 +19,7 @@ import type {ConfigField} from "../../fluent.js";
 import {inkText} from "../../utils/themeInk.js";
 
 import Legend from "../Legend/Legend.js";
+import {inertAxis} from "../Axis/axisTooltipTargets.js";
 import {formatYear, isYearLike} from "../Axis/yearValues.js";
 import {bucketBounds, labelValue} from "./bucketBounds.js";
 import {computeColorScale} from "./colorScaleScale.js";
@@ -244,10 +245,11 @@ export default class ColorScale extends BaseClass {
   /**
       Produces a backend-agnostic scene graph for this ColorScale with no DOM
       dependency. The discrete variant (jenks/buckets/quantile) delegates to the
-      internal Legend's toScene(); the gradient variant composes the Rect, Axis,
-      and label TextBox scenes. The scaleGroup's translate (set by the chart's
-      colorScale feature on `g.d3plus-viz-colorScale`) is read off `_select` so
-      the content lands at its on-screen position.
+      internal Legend's toScene(); the gradient variant composes the Rect, Axis
+      (as chrome, see `inertAxis`), and label TextBox scenes. The scaleGroup's
+      translate (set by the chart's colorScale feature on
+      `g.d3plus-viz-colorScale`) is read off `_select` so the content lands at
+      its on-screen position.
 
       A smooth (non-bucketed) gradient paints its Rect with a `gradient:<json>`
       fill token (see renderGradientStops); the backend materializes it into a
@@ -258,10 +260,13 @@ export default class ColorScale extends BaseClass {
     const children: SceneNode[] = [];
     const gradient = this.schema.bucketAxis || !isBucketScale(this._scaleType);
 
-    const pushScene = (cls: {toScene?: () => GroupNode} | undefined): void => {
+    const pushScene = (
+      cls: {toScene?: () => GroupNode} | undefined,
+      finish: (scene: SceneNode) => SceneNode = scene => scene,
+    ): void => {
       if (cls && typeof cls.toScene === "function") {
         const s = cls.toScene();
-        if (s) children.push(s);
+        if (s) children.push(finish(s));
       }
     };
 
@@ -269,7 +274,10 @@ export default class ColorScale extends BaseClass {
       children.push(...this._bivariateNodes);
     } else if (gradient) {
       pushScene(this._rectClass as unknown as {toScene?: () => GroupNode});
-      pushScene(this._axisClass as unknown as {toScene?: () => GroupNode});
+      pushScene(
+        this._axisClass as unknown as {toScene?: () => GroupNode},
+        inertAxis,
+      );
       pushScene(this._labelClass as unknown as {toScene?: () => GroupNode});
     } else {
       pushScene(this._legendClass as unknown as {toScene?: () => GroupNode});

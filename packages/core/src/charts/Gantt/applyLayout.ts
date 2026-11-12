@@ -181,17 +181,14 @@ export const applyGanttLayout: TransformStage = ({viz}) => {
   const rowsTop = top ? size.height + size.padding : size.padding;
 
   // The axis box ends below the rows, so its grid spans them and a bottom
-  // axis sits right under the last row.
-  const scale = renderTimeAxis(
-    v,
-    {
-      ...frame,
-      height: block + size.height + size.padding * 2,
-      transform: {x: column, y: 0},
-      key: "gantt-axis",
-    },
-    {interactive: false, interactionGroup: "axis"} as Record<string, unknown>,
-  );
+  // axis sits right under the last row. The pointer passes through it to
+  // the rows, all but its labels with a tooltip.
+  const scale = renderTimeAxis(v, {
+    ...frame,
+    height: block + size.height + size.padding * 2,
+    transform: {x: column, y: 0},
+    key: "gantt-axis",
+  });
   const x = (t: TimeValue) => column + scale(t);
 
   const bands = scaleBand<number>()

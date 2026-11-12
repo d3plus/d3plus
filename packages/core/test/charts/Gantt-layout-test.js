@@ -145,16 +145,27 @@ it("Gantt: measureTimeAxis and renderTimeAxis size, draw, and return the axis sc
   const size = measureTimeAxis(viz, frame);
   assert.ok(size.height > 0);
   assert.strictEqual(size.padding, 5);
-  const scale = renderTimeAxis(
-    viz,
-    {...frame, transform: {x: 10, y: 0}, key: "test-axis"},
-    {interactive: false},
-  );
+  const scale = renderTimeAxis(viz, {
+    ...frame,
+    transform: {x: 10, y: 0},
+    key: "test-axis",
+  });
   assert.strictEqual(typeof scale, "function");
   const group = viz._chartScene.find(n => n.key === "test-axis");
   assert.deepStrictEqual(group.transform, {x: 10, y: 0});
-  assert.strictEqual(group.interactive, false);
   assert.ok(group.children.length > 0);
+
+  // The axis is pushed as chrome: in the "axis" group, out of hit-testing.
+  const nodes = [];
+  const walk = node => {
+    nodes.push(node);
+    (node.children ?? []).forEach(walk);
+  };
+  walk(group);
+  const leaves = nodes.filter(n => n.type !== "group");
+  assert.ok(leaves.some(n => n.type === "text"));
+  assert.ok(nodes.every(n => n.interactionGroup === "axis"));
+  assert.ok(leaves.every(n => n.interactive === false));
 });
 
 it("Gantt: taskTimes fills a missing end, swaps reversed times, and reads milestones and progress", () => {
@@ -227,6 +238,31 @@ it("Gantt: the layout gives one row per task, top down, beside the label column"
   const axis = viz._chartScene.find(n => n.key === "gantt-axis");
   assert.strictEqual(axis.interactionGroup, "axis");
   assert.strictEqual(axis.transform.x, l.column);
+});
+
+it("Gantt: the pointer reaches its axis only on a label with a tooltip", () => {
+  const leaves = node =>
+    node.type === "group" ? node.children.flatMap(leaves) : [node];
+  const axisLeaves = viz => {
+    layout(viz);
+    return leaves(viz._chartScene.find(n => n.key === "gantt-axis"));
+  };
+
+  const plain = axisLeaves(gantt());
+  assert.ok(
+    plain.some(n => n.type === "text"),
+    "labels are drawn",
+  );
+  assert.ok(plain.every(n => n.interactive === false));
+  assert.ok(plain.every(n => n.interactionGroup === "axis"));
+
+  const tipped = axisLeaves(
+    gantt().axisConfig({title: "Schedule", titleTooltip: "When"}),
+  );
+  const open = tipped.filter(n => n.interactive !== false);
+  assert.ok(open.length > 0, "the title takes the pointer");
+  assert.ok(open.every(n => n.axisTooltip.part === "title"));
+  assert.ok(tipped.every(n => n.interactionGroup === "axis"));
 });
 
 it("Gantt: groups add header rows and indented tasks", () => {
