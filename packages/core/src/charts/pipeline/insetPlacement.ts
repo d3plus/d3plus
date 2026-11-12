@@ -22,6 +22,7 @@ import {negativeSpace} from "@d3plus/math";
 import type {Bounds} from "@d3plus/math";
 import type {SceneNode} from "@d3plus/render";
 
+import {labelLineHeight} from "../../components/Axis/axisLabelLineHeight.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {colorScaleValue} from "../features/colorScaleValue.js";
 import {paintColorScaleInset} from "../features/featuresColorScale.js";
@@ -75,8 +76,13 @@ function insetEnabled(viz: VizInstance): boolean {
     : Boolean(flag);
 }
 
-/** The smallest a legend entry can be: a swatch (1.4× the 12px label font) plus its padding. */
-const MIN_LEGEND_ENTRY = 12 * 1.4 + 5;
+/**
+    The smallest a legend entry can be: the row a 12px label line takes, as
+    the Legend measures it (the line at the height it paints, see
+    `labelLineHeight`, and the pixel above it), plus the Legend's padding.
+*/
+export const MIN_LEGEND_ENTRY =
+  Math.ceil(labelLineHeight(undefined, null, 0, 12) + 1) + 5;
 
 /**
     Whether the legend could possibly lay out inside the chart: its entries,

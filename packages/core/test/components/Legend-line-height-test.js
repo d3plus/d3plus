@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 import {Legend} from "../../index.ts";
+import {MIN_LEGEND_ENTRY} from "../../src/charts/pipeline/insetPlacement.ts";
 import {useJsdom} from "~test/jsdom.js";
 
 useJsdom();
@@ -98,4 +99,11 @@ it("Legend: its title is measured at the line height it paints with", () => {
       `${name}: claims its painted line`,
     );
   }
+});
+
+it("Legend: the inset legend's smallest entry is the row a 12px label line takes", () => {
+  const l = legend({shapeConfig: {labelConfig: {fontSize: 12}}});
+  const [d] = l._lineData;
+  assert.strictEqual(d.lines.length, 1);
+  assert.strictEqual(l._rowHeight([d]), MIN_LEGEND_ENTRY);
 });
