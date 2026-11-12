@@ -66,9 +66,17 @@ const tiles = page =>
 
 const UNDIMMED = {a: 1, b: 1, c: 1, d: 1, e: 1};
 
-/** Whether the chart asks for the pointer cursor. */
+/**
+    Whether the element under the pointer (a shape inside the chart's svg or,
+    with the Canvas renderer, its canvas) shows the pointer cursor.
+*/
 const pointer = page =>
-  page.evaluate(() => window.__viz._select.node().style.cursor === "pointer");
+  page.evaluate(() => {
+    const [x, y] = window.__pointerAt;
+    return (
+      getComputedStyle(document.elementFromPoint(x, y)).cursor === "pointer"
+    );
+  });
 
 /** Moves the pointer off the chart. */
 async function leave(page) {
@@ -79,6 +87,12 @@ async function leave(page) {
 /** Runs `run(page)` on a 700×450 chart built from `src`. */
 async function withChart(src, renderer, run) {
   const {page, errors, close} = await chart(src, renderer, [700, 450]);
+  // Where the real pointer last moved, for `pointer`.
+  await page.evaluate(() =>
+    document.addEventListener("mousemove", e => {
+      window.__pointerAt = [e.clientX, e.clientY];
+    }),
+  );
   try {
     await run(page);
     assert.deepStrictEqual(errors, [], "no page errors");
