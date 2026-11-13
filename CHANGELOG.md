@@ -2,6 +2,96 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## 4.12.0
+
+This release adds center labels to Donut, Sunburst, and RadialBar, a bivariate color scale, network measures in node tooltips, more rings on Rings, vertex dots on Radar, and ways to zoom without the zoom buttons. Axis titles and tick labels take tooltips, and a `tooltip` function learns which `groupBy` level it is showing. Axes and color scales keep within their room: labels are cut short instead of left out, `maxSize` holds, and a color scale takes at most a third of the chart. Every chart on a page shares one data cache. Several defaults change what existing charts look like; see Changed.
+
+### Added
+
+#### Charts
+
+- **`centerLabel`** writes text in the empty middle of a Donut (any Pie with an `innerRadius`), Sunburst, or RadialBar. `true` draws the total of the drawn rows, abbreviated like the `total` bar; a string draws itself; a function `(data, total) => text` gets the drawn rows and their total. It shrinks to fit the hole (or a half donut's open sector), follows hidden legend entries, and takes no pointer events. `centerLabelConfig` styles it. (#1157; closes #1130) [Donut ↗](https://d3plus.org/core/charts/donut/#center-label) · [Sunburst ↗](https://d3plus.org/core/charts/sunburst/#center-label) · [RadialBar ↗](https://d3plus.org/core/charts/radial-bar/#center-label)
+- **Bivariate color scales.** `colorScale: ["a", "b"]` splits each field into quantile bins and colors each shape from a grid (3×3 by default, Joshua Stevens' blue–red scheme). The key draws the grid as a diamond, and hovering a cell highlights its shapes, or a shape lights its cell. `colorScaleConfig` gains `bivariateBuckets`, `bivariateColors`, and `bivariateLabels`. (#1125; closes #298) [Geomap ↗](https://d3plus.org/core/charts/geomap/#bivariate-choropleth) · [ColorScale ↗](https://d3plus.org/core/components/color-scale/#bivariate-scale)
+- **Network measures in node tooltips.** Network, Rings, ArcDiagram, and Sankey node tooltips list degree (in- and out-degree when the chart draws arrows, and always on Sankey), betweenness, and closeness, plus the cluster when clusters color the chart. Betweenness and closeness are computed in idle time after the draw and show "…" until ready. `nodeTooltipStats` picks the measures, and `nodeTooltipStatsConfig: {weighted: true}` treats stronger links as shorter steps. (#1126; closes #293) [Example ↗](https://d3plus.org/core/charts/network/#network-measures)
+- **Rings `hops`** sets how many rings of connections surround the center (default 2, as before). At 3 or more, the rings are evenly spaced and the center shrinks to match. `ringLinks: true` draws links between nodes on the outermost ring. (#1124; closes #205) [Example ↗](https://d3plus.org/core/charts/rings/#hops)
+- **Radar vertex dots.** Each polygon has a dot on every vertex, styled by `shapeConfig.Circle` (`r: 0` hides them). Hovering a dot shows that group's value for that metric and dims every other metric name. (#1123; closes #436) [Example ↗](https://d3plus.org/core/charts/radar/#vertex-dots)
+- **Nodes from data.** Network and ArcDiagram given `data` and `links` but no `nodes` draw a node for every data row and every link end, where they drew nothing. Sankey without `nodes` adds the data rows no link uses. (#1127; closes #118)
+- **Curved polar category names.** PolarArea, RadialBar with `discrete: "angle"`, and RadialMatrix curve their category names just outside the circle, as Radar does, when they fit. `labelPosition: "inside"` or `"outside"` keeps them straight. (#1113) [Example ↗](https://d3plus.org/core/charts/polar-area/#crowded-categories)
+- **Color scale values in tooltips.** Every chart with a `colorScale` starts its shape tooltips with the hovered row's value (both for a bivariate scale), named by `colorScaleConfig.axisConfig.title` and formatted by its `tickFormat`. (#1125)
+
+#### Zoom
+
+- **Zooming without the buttons.** `zoomControls: false` hides the zoom buttons and gives their room back to the title, legend, and color scale, while zoom stays on. `zoomDrag: "brush"` makes a drag draw a box to zoom into (Shift + drag pans, Escape cancels). `zoomDoubleClick` takes `"in"` (the default), `"reset"`, or `false`. Every chart gains `zoomIn()`, `zoomOut()`, `zoomReset()`, and `zoomBrush(on?)`, so a page can drive zoom from its own buttons. (#1158; closes #1129) [Guide ↗](https://d3plus.org/guides/interactivity/#zooming-without-the-buttons)
+
+#### Axes, color scales, and tooltips
+
+- **Axis tooltips.** Axis configs take `titleTooltip` and `tickTooltip`: text, a function of the title or of the tick's value and index, or a tooltip config. With neither set, a title or label cut short shows its whole text when hovered, and `false` shows nothing. They work on the Plot family, Matrix, Priestley, Gantt, ParallelCoordinates (per axis through `dimensionConfig`), Pyramid's center labels, Alluvial's column titles (`dimensionTitleConfig.titleTooltip`), and every kind of color scale. New `AxisTooltipConfig` type. (#1141, #1144, #1145; closes #167, #441) [Guide ↗](https://d3plus.org/guides/interactivity/#axis-tooltips)
+- **Tooltips that know their level.** A `tooltip` function receives a third argument, `{depth, maxDepth, legend}`, so `tooltip: (d, i, {depth, maxDepth}) => depth === maxDepth` keeps tooltips to the deepest level of a chart that drills down. Charts that draw several levels at once report each mark's own. New `TooltipLevels` type. (#1147; closes #364) [Example ↗](https://d3plus.org/guides/interactivity/#only-at-the-deepest-level)
+- **`maxSize` as a function.** An axis's `maxSize` takes a function of the room across its labels, such as `yConfig: {maxSize: size => size / 3}`, on a standalone Axis, the Plot family, Priestley, and ParallelCoordinates. (#1148; closes #765) [Example ↗](https://d3plus.org/core/components/axis/#label-room)
+- **Color scale size.** `colorScaleConfig.width` (at the left or right) or `height` (at the top or bottom) replaces the third of the chart a color scale may take, and along the top or bottom `width` sets its length in place of `colorScaleMaxSize`. `colorScaleConfig.axisConfig.maxSize` and `legendConfig.width`/`height` set the room for its labels. (#1152, #1154)
+- **`breakConfig.spaceMin`** lets axis breaks shrink, down to that many pixels, on an axis too short to hold them, instead of being dropped. (#1134)
+
+#### Data
+
+- **One data cache per page.** Every chart on a page shares one cache of fetched responses, so charts loading the same URL make one request between them, including requests already under way. Each chart still gets its own copy of the rows. The cache drops the least recently used responses past about 50 MB, and `clearDataCache()` (from `@d3plus/data`, and `d3plus.clearDataCache` on the core UMD global) empties it. `@d3plus/ssr` renders each keep a private cache. (#1122) [Guide ↗](https://d3plus.org/guides/data/#caching) · [`clearDataCache` ↗](https://d3plus.org/data/clear-data-cache/)
+- Spanish, Portuguese, Chinese, and Arabic translations for the network measure labels. (#1126)
+
+### Changed
+
+- **Color scales take at most a third of the chart**, counting bar, ticks, labels, and title. Long labels wrap, are cut short, or are left out instead of squeezing the chart. A scale at the top keeps clear of the corner buttons. Swatch labels that don't fit are cut short with "..." instead of left out, and a swatch scale's title wraps within its room. (#1152, #1154; closes #533)
+- **Axes keep within their `maxSize`.** Slanted labels wrap onto fewer, longer lines, and labels stagger only when both rows fit. Labels that still reach past the limit are left out (or the title gives way, when that lets every label fit). Axes with no `maxSize`, or a chart's own default limit, lay out as before. (#1153)
+- **Labels and titles are cut short instead of left out.** An axis label or title whose first word is too wide is cut mid-word with "...", and labels with their own share of the axis are cut within it instead of leaving the axis unlabeled. (#1138, #1153)
+- **Axis labels, axis titles, and legends are measured as they are painted**, at 1.2 times the font size (or the configured `lineHeight`) instead of 1.4. A one-line Plot axis title claims 20px (was 22), legends with several rows are shorter, and legend labels no longer wrap about 10px early. (#1136, #1137)
+- **A brushed box fills a Plot's plot** along the axes it zooms, so each zoomed axis shows the brushed range. It was fit to the whole chart, margins included, with one scale for both directions, and `zoomPadding` no longer pads it. (#1159)
+- **A Plot's default legend hides** when every Circle, Rect, and Bar shows its whole label and it reads as its legend entry would, as it already did for lines and stacked areas named along their marks. (#1116)
+- **Radar polygons are see-through**: 25% fill with a 2px outline, so overlapping groups stay readable. Only the vertex dots take the pointer, unless they are hidden. (#1123)
+- **Degree replaces the "Connections" row** in node tooltips. (#1126)
+- **Links between two nodes on the same Rings ring** follow the ring the shorter way around, outside it, instead of cutting across the chart. (#1124)
+- **Rings node labels outside their nodes** draw over a halo in the chart's background, so links behind them don't run through the text. (#1127)
+- **Network nodes without links** are placed in rows under the linked nodes instead of drifting away and shrinking the rest of the chart. Networks where every node has a link lay out as before. (#1127)
+- **Pack group circles** are filled with their group's color (at `packOpacity`) instead of gray, and the outermost circle takes the neutral tone Treemap uses for group headers. Their `shapeConfig` accessors and `packOpacity` receive the group's merged row instead of the nest entry `{key, values}`. (#1133)
+- **RadialMatrix draws larger**: the circle is no longer inset by a fixed label box when its column names curve. (#1113)
+- **Areas grow from their baseline** when they enter, a stack rising as one, and sink back onto it when they exit. Band names fade in as their bands arrive. (#1115)
+- **Draw errors are reported.** An error thrown while a chart draws is logged as `d3plus: <Chart> could not draw.` instead of an unhandled promise rejection, the `render(callback)` callback still runs, and the chart keeps what it last painted. (#1131)
+- **Pointer cursor.** A shape or legend entry that does something on click shows the pointer even with its tooltip off, and a `click.shape` handler made with `bind` counts as the user's. "Click to Expand" shows only while the chart's own drill-down or zoom click is installed. (#1147, #1149)
+- **`nest` (`@d3plus/data`)** makes each row without a key at some level a leaf of the group above, beside its other rows and sub-groups. Before, a keyless first child replaced the whole group with its first row. `0` and `false` are keys; `undefined`, `null`, and `""` are not. (#1151)
+- **`textWrap` (`@d3plus/text`)** works out its default line height from each wrap's font size instead of keeping its first wrap's. `lineHeight()` returns that default when none is set, and `lineHeight(undefined)` returns to it. (#1137)
+- `colorScaleConfig` is typed with `buckets`, `bucketAxis`, `bucketFormat`, `bucketJoiner`, `color`, `domain`, `midpoint`, `size`, `padding`, `rectConfig`, `legendConfig`, `width`, and `height`, and drops `colors`, which no color scale reads (use `color`). (#1148, #1152, #1154)
+
+### Fixed
+
+- Hovering a `lineMarkers` circle showed the series' last point instead of its own. (#1121; closes #1112)
+- Hovering a Network or ArcDiagram legend entry highlighted nothing, and a cluster entry's tooltip listed every member instead of the cluster's name. (#1114)
+- Clicking a Pack group circle drilled down with an undefined id and drew an empty chart. Group circles were named "undefined" to screen readers and were keyed by layout position, so a reordering redraw animated one circle into another. (#1132, #1133)
+- Tree overwrote a data field named `depth`, drawing duplicate nodes with numeric labels. `depth` didn't stop a Tree at that level, a group keyed `0` or `false` drew as a leaf labeled "undefined", and a row missing a `groupBy` key was labeled "undefined" or "null". Branch nodes' accessible names listed their leaves' ids. (#1150, #1151)
+- Canvas charts kept the default cursor over clickable shapes, legend entries, and Icicle and Sunburst nodes. (#1149)
+- On Canvas, a group with `interactive: false` still took the pointer, so a Gantt's time axis showed tooltips and fired shape handlers. (#1140)
+- On SVG, every element sharing a scene key resolved to the last such node, so the four titles of a chart with `x2` and `y2` axes all picked the last one. (#1146)
+- Hovering a plain tick label or axis title on a Priestley, Matrix, Pyramid, Gantt, or color scale showed a tooltip built from the tick (or "undefined"), asked for the pointer, and fired the shape events. Hovering a color scale's gradient or bucket bar did the same and left every shape dimmed. (#1141, #1145)
+- A number for a y axis label's `fontSize`, or for an axis's or timeline's `shapeConfig.lineHeight`, threw during the draw and left the chart unrendered. (#1143)
+- A Priestley's bars slid behind its axis under a left margin, and with `facet` every panel's bars landed in the first column. (#1142)
+- A Pyramid's center gutter collapsed on a narrow chart and blanked every category label. It now narrows and cuts its labels, and moves them to the left axis when even that doesn't fit. (#1134)
+- A short Plot drew its x-axis end labels over a plot collapsed to nothing. (#1137)
+- With `rounding: "inside"` and custom `ticks`, "800+" could land beside "1k": the open-ended markers now go on the lowest and highest labels drawn. (#1139)
+- TextBox's ellipsis stripped every period from the text it kept, so "Ages 0.5 to 4.5 years" read "Ages 05 to 45...". (#1135)
+- A tooltip title, body, or footer turned off with `false` still held the text "false". (#1123)
+- Moving off a color scale swatch onto a chart with shape hover off (such as Geomap) left the dimming in place. (#1125)
+- `colorScaleConfig` set once and later reset kept applying on later renders. (#1154)
+- A `maxSize` in a ParallelCoordinates `axisConfig` was overridden by the chart's default. A horizontal axis's flat labels could run 5px past its `maxSize`. (#1148, #1152)
+- `destroy()` and off-screen unloading left a Network's queued betweenness and closeness work running. (#1127)
+- A `dataFormat` that threw on a cached load didn't fail that load. (#1131)
+
+### Documentation
+
+- The Geomap and Treemap examples that loaded from datausa.io carry their data inline and draw states from a local `us-atlas` file, since datausa.io stopped sending CORS headers and left the Geomap page empty. (#1155)
+- About 50 config descriptions are cut to what the option does, its values, and its default; `labelPosition` goes from 88 lines to 19. (#1118)
+- New examples for center labels, bivariate scales, network measures, Rings hops, Radar dots, axis tooltips, tooltip levels, zooming without the buttons, axis label room, choosing color scale labels, and Plot backgrounds. (#1113, #1123–#1127, #1141, #1147, #1148, #1157, #1158; closes #299)
+
+### Developer & tooling
+
+- Fixed the intermittent CI failure "Browser connection was closed": the browser test helpers collect garbage in Chromium every eighth load of d3plus, before its shared-memory buffers hit the 32 GiB cap. (#1128)
+- `pnpm test:site` no longer reaches out to datausa.io, scrolls each chart into view, and no longer counts an svg with only its title as drawn. (#1155)
+
 ## 4.11.0
 
 This release adds eight chart types and gives the node-link charts (Network, Rings, Sankey, ArcDiagram, and Geomap's new flow links) link tooltips, colors, labels, self-loops, clusters, and edge bundling. Every chart gains themes, keyboard navigation, and reduced motion. Labels now run along lines, bands, rings, and links, and small Pie slices are labeled outside the ring. TextBox can justify text and set it along a path. Profiling made large charts several times faster. d3plus.org moves from Storybook to a new docs site where every example is editable. Many new defaults change what existing charts look like, and link accessors now receive node data; see the breaking changes.
