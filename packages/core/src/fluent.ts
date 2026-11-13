@@ -208,6 +208,23 @@ export function mergeConfigBag(
   return mergeConfig(base, isPlainObject(patch) ? patch : {}, defaults);
 }
 
+/**
+    The `config()` argument that restores each of `keys` that `host` has a
+    setter for to its default, as `RESET` does: a component that a chart
+    configures again on every render starts from its defaults, so config the
+    chart gave it before and no longer gives it is dropped.
+*/
+export function resetKeys(
+  host: object,
+  keys: Iterable<string>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const key of keys)
+    if (typeof (host as Record<string, unknown>)[key] === "function")
+      out[key] = RESET;
+  return out;
+}
+
 type ResetResolver = ((...args: never[]) => unknown) & {
   [RESOLVES_RESET]?: boolean;
 };

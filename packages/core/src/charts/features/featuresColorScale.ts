@@ -23,9 +23,17 @@ import {facetKey} from "../facet/facetData.js";
 import {colorScaleBucketRows} from "./colorScaleBucket.js";
 import {colorScaleValue, linkColorScaleRows} from "./colorScaleValue.js";
 import {bivariateFieldNames, bivariateSpec} from "./colorScaleBivariate.js";
-import {axisRoom, isWide, MAX_SHARE, swatchFrame} from "./colorScaleLimit.js";
+import {
+  axisRoom,
+  configSize,
+  isWide,
+  sideFrame,
+  swatchFrame,
+} from "./colorScaleLimit.js";
+import {paintTopColorScale} from "./colorScaleTop.js";
 import {resolveAccessor, shapeConfigFor} from "./emitHelpers.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {resetKeys} from "../../fluent.js";
 
 /** Where and how the colorScale lays itself out for one render. */
 interface ColorScaleFrame {
@@ -38,8 +46,8 @@ interface ColorScaleFrame {
   align: string;
   /**
       The most the whole scale takes across its bar (the bar, its padding,
-      ticks, labels and title), when the chart's `colorScaleConfig` sets no
-      limit of its own.
+      ticks, labels and title): a third of the chart, or the `width` or
+      `height` the chart's `colorScaleConfig` sets.
   */
   limit?: number;
 }
@@ -74,6 +82,12 @@ function dataRows(viz: VizInstance): MergedDataPoint[] {
     return c !== undefined && c !== null;
   });
 }
+
+/** The config a ColorScale merges each render's into, rather than replaces. */
+const CONFIG_BAGS = ["axisConfig", "labelConfig", "legendConfig", "rectConfig"];
+
+/** The `colorScaleConfig` keys each chart's ColorScale was last given. */
+const configKeys = new WeakMap<object, string[]>();
 
 /** The paint a bucket swatch takes from the chart's shapes: all but its fill. */
 const SWATCH_STYLES = [
@@ -115,7 +129,9 @@ function bucketSwatchConfig(viz: VizInstance): Record<string, unknown> {
 /**
     Configures and lays out the chart's `_colorScaleClass` into `frame`. It
     always runs in compute mode: Viz.toScene composes its scene, so the
-    colorScale never paints a DOM copy of its own.
+    colorScale never paints a DOM copy of its own. The frame sets the
+    scale's width and height over the chart's `colorScaleConfig`, which
+    sizes the frame instead.
 */
 function paintColorScale(
   viz: VizInstance,
@@ -141,6 +157,11 @@ function paintColorScale(
   if (!value) return;
 
   const cs = viz._colorScaleClass!;
+  // Each render starts from the ColorScale's defaults, so config the chart's
+  // colorScaleConfig gave it before and no longer gives it is dropped.
+  const config = viz.schema.colorScaleConfig;
+  cs.config(resetKeys(cs, [...CONFIG_BAGS, ...(configKeys.get(cs) ?? [])]));
+  configKeys.set(cs, Object.keys(config));
   const {limit} = frame;
   const bivariate = bivariateSpec(viz);
   cs._bivariateFields = bivariate
@@ -152,12 +173,10 @@ function paintColorScale(
     .align(frame.align)
     .duration(effectiveDuration(viz))
     .data(colorScaleData(viz))
-    .height(frame.height)
     .locale(viz.schema.locale)
     .orient(frame.orient)
     .select(scaleGroup)
     .value(value)
-    .width(frame.width)
     .legendConfig({shapeConfig: bucketSwatchConfig(viz)})
     // Links colored by number are thin lines: keep the ramp's low end
     // visible against a light background.
@@ -169,7 +188,9 @@ function paintColorScale(
           ? undefined
           : () => axisRoom(limit, cs.size(), cs.padding()),
     })
-    .config(viz.schema.colorScaleConfig)
+    .config(config)
+    .width(frame.width)
+    .height(frame.height)
     .hover(false)
     .render();
 }
@@ -201,14 +222,18 @@ export function paintColorScaleInset(
     !viz.schema.colorScaleConfig.select;
   const frame = insetFrame(orient, area);
   const maxSize = viz.schema.colorScaleMaxSize;
+  const config = viz.schema.colorScaleConfig;
   paintColorScale(
     viz,
     {
       x: 0,
       y: 0,
-      width: orient === "row" ? min([maxSize, frame.width])! : frame.width,
+      width:
+        configSize(config, "width") ??
+        (orient === "row" ? min([maxSize, frame.width])! : frame.width),
       height:
-        orient === "column" ? min([maxSize, frame.height])! : frame.height,
+        configSize(config, "height") ??
+        (orient === "column" ? min([maxSize, frame.height])! : frame.height),
       orient: orient === "column" ? "right" : "bottom",
       align: "start",
     },
@@ -267,12 +292,19 @@ export const colorScaleFeature: FeatureModule = {
       layoutMargin.right + padding.right,
     );
 
+    // The `width` or `height` a chart's colorScaleConfig sets is the scale's
+    // length along its side, in place of colorScaleMaxSize, and its limit
+    // across it.
+    const config = viz.schema.colorScaleConfig;
+    const setWidth = configSize(config, "width");
+    const setHeight = configSize(config, "height");
+
     const availableWidth =
       viz.schema.width -
       (layoutMargin.left + layoutMargin.right + padding.left + padding.right) -
       corner.inset;
     const width = wide
-      ? min([viz.schema.colorScaleMaxSize, availableWidth])!
+      ? min([setWidth ?? viz.schema.colorScaleMaxSize, availableWidth])!
       : viz.schema.width - (layoutMargin.left + layoutMargin.right);
 
     const availableHeight =
@@ -281,41 +313,49 @@ export const colorScaleFeature: FeatureModule = {
       drop -
       corner.drop;
     const height = !wide
-      ? min([viz.schema.colorScaleMaxSize, availableHeight])!
+      ? min([setHeight ?? viz.schema.colorScaleMaxSize, availableHeight])!
       : viz.schema.height - (layoutMargin.bottom + layoutMargin.top);
 
-    const frame: ColorScaleFrame = {
-      x: wide
-        ? layoutMargin.left + padding.left + (availableWidth - width) / 2
-        : layoutMargin.left,
-      y: wide
-        ? layoutMargin.top
-        : layoutMargin.top +
-          padding.top +
-          drop +
-          (availableHeight - height) / 2,
-      width,
-      height,
-      // The scale's share of the chart across it.
-      limit: (wide ? height : width) * MAX_SHARE,
-      orient: position,
-      align:
-        (
-          {
-            bottom: "end",
-            left: "start",
-            right: "end",
-            top: "start",
-          } as Record<string, string>
-        )[position as string] || "bottom",
-    };
-    paintColorScale(viz, frame, Boolean(showColorScale));
-    // A Legend lays the swatches out within its own width and height.
-    const swatches =
-      showColorScale && !viz.schema.colorScaleConfig.select
-        ? swatchFrame(viz._colorScaleClass, frame)
+    const frame: ColorScaleFrame = sideFrame(
+      {
+        x: wide
+          ? layoutMargin.left + padding.left + (availableWidth - width) / 2
+          : layoutMargin.left,
+        y: wide
+          ? layoutMargin.top
+          : layoutMargin.top +
+            padding.top +
+            drop +
+            (availableHeight - height) / 2,
+        width,
+        height,
+        orient: position,
+        align:
+          (
+            {
+              bottom: "end",
+              left: "start",
+              right: "end",
+              top: "start",
+            } as Record<string, string>
+          )[position as string] || "bottom",
+      },
+      wide ? setHeight : setWidth,
+    );
+    const placed = showColorScale && !viz.schema.colorScaleConfig.select;
+    const paint = (at: ColorScaleFrame): void => {
+      paintColorScale(viz, at, Boolean(showColorScale));
+      // A Legend lays the swatches out within its own width and height.
+      const swatches = placed
+        ? swatchFrame(viz._colorScaleClass, at)
         : undefined;
-    if (swatches) paintColorScale(viz, swatches, true);
+      if (swatches) paintColorScale(viz, swatches, true);
+    };
+    // A scale at the top keeps clear of the corner control panels.
+    const topDrop =
+      placed && position === "top"
+        ? paintTopColorScale(viz, frame, height, paint)
+        : (paint(frame), 0);
 
     const margin: Record<string, number> = {};
     if (showColorScale) {
@@ -330,7 +370,8 @@ export const colorScaleFeature: FeatureModule = {
             ? viz._colorScaleClass.padding()
             : viz._legendClass.padding();
         if (wide)
-          margin[position as string] = scaleBounds.height + csPadding * 2;
+          margin[position as string] =
+            topDrop + scaleBounds.height + csPadding * 2;
         else margin[position as string] = scaleBounds.width + csPadding * 2;
       }
     }

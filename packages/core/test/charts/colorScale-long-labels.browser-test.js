@@ -51,6 +51,14 @@ const draw = arg =>
       .sum("v")
       .colorScale("v")
       .colorScalePosition(arg.position)
+      // A scale at the top keeps clear of the corner buttons, beside or
+      // below them (see colorScale-top-controls); these charts have none,
+      // so the scale has the chart's whole width.
+      .config(
+        arg.position === "top"
+          ? {zoom: false, saveControl: false, search: false, tableView: false}
+          : {},
+      )
       .colorScaleConfig({
         ...arg.scale,
         ...(legend ? {legendConfig: legend} : {}),
@@ -498,8 +506,12 @@ for (const renderer of ["svg", "canvas"])
         unlimited.rects,
         "every bucket keeps its swatch",
       );
-      // Labels that don't fit in a third of the chart are left out.
-      assert.deepStrictEqual(limited.labels, [], "without labels");
+      // Labels that don't fit in a third of the chart are cut short.
+      assert.ok(
+        limited.labels.length === unlimited.labels.length &&
+          limited.labels.every(l => l.endsWith("...")),
+        `its labels are cut short (${limited.labels.join(" | ")})`,
+      );
       assertInMargin(limited, position);
     });
 
@@ -543,14 +555,13 @@ for (const renderer of ["svg", "canvas"])
         [{}, {legend: {[key]: side - 10}}],
         small,
       );
-      assert.deepStrictEqual(
-        limited.labels,
-        [],
-        "no labels in a third of the chart",
+      assert.ok(
+        limited.labels.every(l => l.endsWith("...")),
+        `labels cut short in a third of the chart (${limited.labels.join(" | ")})`,
       );
       assert.ok(
         larger.labels.length >= 2 &&
-          larger.labels.every(l => l.startsWith(prefix)),
+          larger.labels.every(l => l.startsWith(prefix) && !l.endsWith("...")),
         `its swatches are labeled (${larger.labels.join(" | ")})`,
       );
       assert.ok(

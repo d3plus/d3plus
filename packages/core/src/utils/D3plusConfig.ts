@@ -1193,8 +1193,26 @@ export interface D3plusConfig {
     bucketFormat?: ColorScaleConfig["bucketFormat"];
     /** Given a bucket's minimum and maximum labels, returns the full label (see `ColorScaleConfig.bucketJoiner`). */
     bucketJoiner?: ColorScaleConfig["bucketJoiner"];
+    /** How many buckets a bucket-type scale splits its values into, or the value each bucket starts at. Defaults to `5`. */
+    buckets?: number | number[];
+    /** Splits a diverging scale evenly on either side of its `midpoint`. Defaults to `true`. */
     centered?: boolean;
-    colors?: string[];
+    /** The scale's colors (see `ColorScaleConfig.color`). */
+    color?: ColorScaleConfig["color"];
+    /** The `[min, max]` values a linear scale spans (see `ColorScaleConfig.domain`). */
+    domain?: number[];
+    /** The value a diverging scale turns at. Defaults to `0`. */
+    midpoint?: number;
+    /** The thickness of a gradient's or a `bucketAxis` scale's bar, in pixels. Defaults to `10`. */
+    size?: number;
+    /** The space around the scale, in pixels. Defaults to `5`. */
+    padding?: number;
+    /** Styles the bar of a gradient or a `bucketAxis` scale, as a Rect config (`stroke`, `strokeWidth`, …). */
+    rectConfig?: Record<string, unknown>;
+    /** A scale at the left or right takes at most this many pixels of the chart's width, in place of a third of it. At the top or bottom, it is the scale's length, in place of `colorScaleMaxSize`. */
+    width?: number;
+    /** A scale at the top or bottom takes at most this many pixels of the chart's height, in place of a third of it. At the left or right, it is the scale's length, in place of `colorScaleMaxSize`. */
+    height?: number;
     /** The negative pole of a diverging scale, and the hue of an all-negative ramp. Defaults to `colorDefaults.off`, or the theme's `colorScale.min` on a dark or custom theme. */
     colorMin?: CssColor;
     /** The midpoint of a diverging scale. Defaults to `colorDefaults.light`, or the theme's `colorScale.mid` on a dark or custom theme. */
@@ -1207,7 +1225,7 @@ export interface D3plusConfig {
     hoverMark?: boolean;
     /** Styles the hover mark (see `ColorScaleConfig.hoverMarkConfig`). */
     hoverMarkConfig?: ColorScaleHoverMarkConfig;
-    /** Configures the Legend that draws a bucket-type scale as a swatch for each bucket. Along a side of the chart, the swatches and their labels take at most a third of the chart's width (a scale at the left or right) or height (top or bottom): labels that need more wrap onto more lines or are left out. Its `width` (left or right) or `height` (top or bottom) sets another limit. */
+    /** Configures the Legend that draws a bucket-type scale as a swatch for each bucket. Along a side of the chart, the swatches, their labels and title take at most a third of the chart's width (a scale at the left or right) or height (top or bottom): the title and labels wrap onto more lines, and when they still don't fit, the title is left out and then the labels are cut short. Its `width` (left or right) or `height` (top or bottom) sets another limit. */
     legendConfig?: Record<string, unknown>;
     /** How many quantile bins a bivariate `colorScale` splits each variable into, from `2` to `4`. Defaults to `3`. */
     bivariateBuckets?: number;
