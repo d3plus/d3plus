@@ -569,7 +569,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
     "Running Total": "\u7d2f\u8ba1\u603b\u6570",
     Search: "\u641c\u7d22",
-    Share: "\u5171\u4eab",
+    Share: "\u5360\u6bd4",
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
