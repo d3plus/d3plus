@@ -8,6 +8,7 @@ import {
   bundleNetworkLinks,
   bundledLinkAnchor,
   bundledLinkEdge,
+  bundledOutlineBack,
   bundledTipBack,
   runStages,
 } from "../../internal.ts";
@@ -176,7 +177,31 @@ it("bundledLinkEdge ends the stroke inside heads tipped a pixel off each node", 
   viz.schema.arrows = false;
   const plain = bundledLinkEdge(viz, link, {datum: {}, i: 0, keyPrefix: "k"});
   assert.deepStrictEqual(plain.arrows, []);
-  assert.strictEqual(plain.d, "M0,0L50,30L100,0");
+  // With no heads, the 1px stroke runs between the nodes' outlines.
+  const ends = numbers(plain.d);
+  close(Math.hypot(ends[0], ends[1]), Math.sqrt(80.75), 0.01);
+  close(Math.hypot(ends.at(-2) - 100, ends.at(-1)), Math.sqrt(15.75), 0.01);
+  assert.ok(plain.d.includes("50,30"), "the path keeps its bend");
+});
+
+it("bundledOutlineBack measures along the path to each node's outline", () => {
+  const circles = bundledOutlineBack(bent, {r: 9}, {r: 4}, 2);
+  close(circles.source, Math.sqrt(80), 0.01);
+  close(circles.target, Math.sqrt(15), 0.01);
+  const gap = bundledOutlineBack(bent, {r: 9}, {r: 4}, 0, 1);
+  close(gap.source, 10, 0.01);
+  close(gap.target, 5, 0.01);
+  // A square node: the path leaves it through its corner, not a circle.
+  const square = bundledOutlineBack(
+    [
+      [0, 0],
+      [100, 100],
+    ],
+    {r: 5, shape: "Rect"},
+    null,
+  );
+  close(square.source, 5 * Math.SQRT2, 0.01);
+  assert.strictEqual(square.target, 0, "no node, no cut");
 });
 
 it("bundledLinkAnchor sits halfway along the run between the nodes' edges", () => {

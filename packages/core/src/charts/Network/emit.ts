@@ -87,15 +87,15 @@ interface NetworkCtx {
 /**
     A link's visible stroke and arrowheads (straight, center-to-center,
     along its loop, or along its bundle), drawn `scale` times as wide (see
-    `emphasizedArrowEdge`): `d` cut short inside its arrowheads (see
-    `edgeArrowTrims`) so the line doesn't show past their sides.
+    `emphasizedArrowEdge`): cut short at each node's outline, or inside its
+    arrowheads (see `edgeArrowTrims`) so the line doesn't show past their
+    sides.
 */
 function networkLinkEdge(
   viz: VizInstance,
   link: NetworkLink,
   datum: DataPoint,
   i: number,
-  d: string,
   paint: Paint,
   keyPrefix: string,
   scale: number,
@@ -113,7 +113,6 @@ function networkLinkEdge(
     fill: typeof paint.stroke === "string" ? paint.stroke : undefined,
   };
   const trims = edgeArrowTrims(common);
-  if (!trims.source && !trims.target) return {d, arrows: []};
   if (link.loop)
     return {
       d: selfLoopD(link.loop, trims),
@@ -158,7 +157,6 @@ function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
         link,
         datum,
         i,
-        d,
         paint,
         `network-arrow-${srcId}-${tgtId}-${i}`,
         scale,

@@ -16,7 +16,7 @@ import {
   straightEdgeArrows,
   straightEdgeD,
 } from "../features/edgeArrows.js";
-import type {ArrowValue} from "../features/edgeArrows.js";
+import type {ArrowValue, EdgeNode} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
   paintFromShapeConfig,
@@ -139,8 +139,8 @@ function ringsEdgeArrows(
       i,
       keyPrefix: `rings-arrow-${baseKey}`,
       fill,
-      source: edge.source as unknown as {x: number; y: number; r?: number},
-      target: edge.target as unknown as {x: number; y: number; r?: number},
+      source: edge.source as EdgeNode,
+      target: edge.target as EdgeNode,
     });
   }
   const curves = ringsCurves(edge);
@@ -207,7 +207,8 @@ const ringsTrims = (
     An edge's visible stroke: `d`, cut short inside its arrowheads (see
     `edgeArrowTrims`). A spline edge or a loop follows its curve up to each
     head's base, then runs along the head's axis (see `cubicsArrowEdge`); a
-    spline's arrow tips sit on the node's edge, where the curve ends.
+    spline's arrow tips sit on the node's edge, where the curve ends. A
+    straight edge stops at each node's outline (see `straightEdgeD`).
     `scale` widens the stroke (see `emphasizedArrowEdge`).
 */
 export function ringsVisibleD(
@@ -219,15 +220,11 @@ export function ringsVisibleD(
   scale = 1,
 ): string {
   const trims = ringsTrims(viz, edge, i, strokeWidth, scale);
-  if (!trims.source && !trims.target) return d;
-  if (edge.loop) return selfLoopD(edge.loop, trims);
+  const arrowed = trims.source || trims.target;
+  if (edge.loop) return arrowed ? selfLoopD(edge.loop, trims) : d;
   const curves = ringsCurves(edge);
-  if (curves) return cubicsArrowEdge(curves, trims).d;
-  return straightEdgeD(
-    edge.source as unknown as {x: number; y: number; r?: number},
-    edge.target as unknown as {x: number; y: number; r?: number},
-    trims,
-  );
+  if (curves) return arrowed ? cubicsArrowEdge(curves, trims).d : d;
+  return straightEdgeD(edge.source as EdgeNode, edge.target as EdgeNode, trims);
 }
 
 /** An edge's base scene key (a loop's names its index, as a node can have several). */

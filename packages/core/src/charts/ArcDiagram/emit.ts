@@ -24,7 +24,8 @@ import {linkColorResolver} from "../features/linkColor.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
 import {curvePoints, trimToNodes} from "../features/linkLabelPath.js";
-import {arcApex, arcArrowEdge, arcPathD} from "./arcGeometry.js";
+import {arcApex, arcArrowEdge, arcPathD, arcPoint} from "./arcGeometry.js";
+import {outlineReach} from "../features/nodeOutline.js";
 import {chordArrowNodes} from "../features/curvedArrows.js";
 import {emitArcLabels} from "./arcLabels.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
@@ -112,8 +113,9 @@ function arcArrows(
 /**
     An arc's (or loop's) visible stroke: along it up to each arrowhead's
     base, then along the head's axis to end inside it (see `arcArrowEdge`),
-    whose tips sit a pixel out past the nodes. `scale` widens the stroke
-    (see `emphasizedArrowEdge`).
+    whose tips sit a pixel out past the nodes, and from the outline of a
+    node at an end with no head. `scale` widens the stroke (see
+    `emphasizedArrowEdge`).
 */
 export function arcVisibleD(
   viz: VizInstance,
@@ -121,9 +123,14 @@ export function arcVisibleD(
   scale = 1,
 ): string {
   const trims = arcTrims(viz, link, scale);
-  if (!trims.source && !trims.target) return link.d;
-  if (link.loop) return selfLoopD(link.loop, trims);
-  return arcArrowEdge(link.arc, trims, arcInsets(link)).d;
+  if (link.loop)
+    return trims.source || trims.target ? selfLoopD(link.loop, trims) : link.d;
+  return arcArrowEdge(
+    link.arc,
+    trims,
+    arcInsets(link),
+    arcOutlines(link, trims.strokeWidth),
+  ).d;
 }
 
 /** An arc's arrow ends, size, and stroke trims, `scale` times as wide. */
@@ -135,6 +142,21 @@ const arcTrims = (viz: VizInstance, link: ArcLink, scale = 1) =>
     datum: link.datum,
     i: link.index,
   });
+
+/**
+    How far out from the line a stroke `strokeWidth` wide leaving each of an
+    arc's nodes starts, to sit on the node's outline (see `outlineReach`):
+    an arc leaves its node square to the line.
+*/
+const arcOutlines = (link: ArcLink, strokeWidth: number) => {
+  const [x0, y0] = arcPoint(link.arc, link.arc.from, 0);
+  const [x1, y1] = arcPoint(link.arc, link.arc.from, 1);
+  const out = Math.atan2(y1 - y0, x1 - x0);
+  return {
+    source: outlineReach(link.source, out, strokeWidth),
+    target: outlineReach(link.target, out, strokeWidth),
+  };
+};
 
 /** How far out from the line each of an arc's arrow tips sits: a pixel past its node. */
 const arcInsets = (link: ArcLink) => ({

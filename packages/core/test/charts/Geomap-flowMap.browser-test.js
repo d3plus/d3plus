@@ -85,10 +85,11 @@ const marks = ([keys, along]) => {
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   svg.appendChild(path);
   document.body.appendChild(svg);
-  const walk = (n, m) => {
+  const walk = (n, m, scale) => {
     const t = n.transform || {};
     const s = t.scale ?? 1;
     const map = ([x, y]) => m([(t.x || 0) + x * s, (t.y || 0) + y * s]);
+    const k = scale * s;
     const at = p => {
       const [x, y] = map(p);
       return [rect.left + x, rect.top + y];
@@ -105,14 +106,19 @@ const marks = ([keys, along]) => {
           mid: at([mid.x, mid.y]),
           aria: n.aria?.label,
           stroke: n.paint?.stroke,
+          strokeWidth: (n.paint?.strokeWidth ?? 1) * k,
         };
       } else if (n.type === "circle")
-        out[n.key] = {type: n.type, center: at([n.cx || 0, n.cy || 0])};
+        out[n.key] = {
+          type: n.type,
+          center: at([n.cx || 0, n.cy || 0]),
+          r: (n.r || 0) * k,
+        };
       else out[n.key] = {type: n.type};
     }
-    (n.children || []).forEach(c => walk(c, map));
+    (n.children || []).forEach(c => walk(c, map, k));
   };
-  walk(window.__viz._paintedScene.root, p => p);
+  walk(window.__viz._paintedScene.root, p => p, 1);
   svg.remove();
   return out;
 };
@@ -201,6 +207,16 @@ const near = (a, b, tol, msg) =>
     `${msg}: ${a} vs ${b}`,
   );
 
+/**
+    Asserts a link's stroke starts on a point's outline, give or take `tol`
+    pixels: its square end's corners on the circle.
+*/
+const onOutline = ({start, strokeWidth}, {center, r}, tol, msg) => {
+  const reach = Math.sqrt(r * r - (strokeWidth / 2) ** 2);
+  const off = Math.hypot(start[0] - center[0], start[1] - center[1]) - reach;
+  assert.ok(r > 0 && Math.abs(off) <= tol, `${msg}: ${off}px off its outline`);
+};
+
 for (const renderer of ["svg", "canvas"]) {
   it(`Geomap ${renderer}: links draw between the shapes and the points`, async () => {
     const {page, errors, close} = await openPage(box);
@@ -216,7 +232,7 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(order.indexOf(POINT) > link, "below the points");
       const found = await page.evaluate(marks, [[LINK, POINT], 0.5]);
       assert.strictEqual(found[LINK].aria, "New York to London, 3200.");
-      near(found[LINK].start, found[POINT].center, 1, "starts at New York");
+      onOutline(found[LINK], found[POINT], 1, "starts at New York");
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {
       await close();
@@ -427,12 +443,7 @@ for (const renderer of ["svg", "canvas"]) {
         after[POINT].center[1] - before[POINT].center[1],
       );
       assert.ok(moved > 20, `the map zoomed (New York moved ${moved}px)`);
-      near(
-        after[LINK].start,
-        after[POINT].center,
-        1.5,
-        "still starts at New York",
-      );
+      onOutline(after[LINK], after[POINT], 1.5, "still starts at New York");
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {
       await close();

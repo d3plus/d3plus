@@ -2033,11 +2033,17 @@ export {
   cubicPathD,
   defaultArrowSize,
   edgeArrowTrims,
+  straightEdgeCuts,
   straightEdgeD,
   trimCubic,
   trimSegment,
 } from "./src/charts/features/edgeArrows.js";
-export type {EdgeArrowTrims} from "./src/charts/features/edgeArrows.js";
+export type {
+  EdgeArrowTrims,
+  EdgeNode,
+} from "./src/charts/features/edgeArrows.js";
+export {outlineReach} from "./src/charts/features/nodeOutline.js";
+export type {NodeOutline} from "./src/charts/features/nodeOutline.js";
 export {selfLoopD} from "./src/charts/features/selfLoops.js";
 export {
   arcArrowEdge,
@@ -2471,6 +2477,7 @@ export {
   bundledLinkAnchor,
   bundledLinkEdge,
   bundledLinkPath,
+  bundledOutlineBack,
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";

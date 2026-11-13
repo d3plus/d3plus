@@ -17,6 +17,7 @@ import {
   selfLoopArrows,
   selfLoopD,
   selfLoopGeometry,
+  straightEdgeCuts,
   straightEdgeD,
   trimCubic,
   trimSegment,
@@ -67,13 +68,21 @@ it("edgeArrowTrims resolves an edge's arrow ends, size, and stroke trims", () =>
     size: 0,
     source: 0,
     target: 0,
+    strokeWidth: 2,
   });
   assert.deepStrictEqual(edgeArrowTrims({...base, arrows: true}), {
     ends: {source: false, target: true},
     size: 6,
     source: 0,
     target: 3,
+    strokeWidth: 2,
   });
+  assert.strictEqual(
+    edgeArrowTrims({...base, strokeWidth: undefined, arrows: false})
+      .strokeWidth,
+    1,
+    "an unset stroke counts as 1px wide",
+  );
   const both = edgeArrowTrims({
     ...base,
     arrows: "both",
@@ -143,18 +152,45 @@ it("cubicPathD writes a rounded cubic path", () => {
   );
 });
 
-it("straightEdgeD stops a center-to-center link inside each arrowhead", () => {
+it("straightEdgeD stops a center-to-center link inside each arrowhead, else at each node's outline", () => {
   const source = {x: 0, y: 0, r: 5};
   const target = {x: 100, y: 0, r: 10};
   assert.strictEqual(
     straightEdgeD(source, target, {source: 0, target: 4}),
-    "M0,0 85,0",
+    "M5,0 85,0",
     "the tip sits at r + 1 from the target's center; the stroke 4px before it",
   );
   assert.strictEqual(
     straightEdgeD(source, target, {source: 3, target: 0}),
-    "M9,0 100,0",
+    "M9,0 90,0",
   );
+  assert.strictEqual(
+    straightEdgeD(source, target, {source: 0, target: 0}),
+    "M5,0 90,0",
+    "a hairline stops on each circle",
+  );
+  // An 8px stroke's square end has both corners on the circle.
+  const [x0, , x1] = numbers(
+    straightEdgeD(source, target, {source: 0, target: 0, strokeWidth: 8}),
+  );
+  close(x0, 3);
+  close(x1, 100 - Math.sqrt(84));
+  // A Rect node's box: the target's side is 10px out from its center.
+  const box = {x: 100, y: 0, r: 4, shape: "Rect", width: 20, height: 8};
+  assert.strictEqual(
+    straightEdgeD(source, box, {source: 0, target: 0}),
+    "M5,0 90,0",
+  );
+});
+
+it("straightEdgeCuts measures each end's cut along the edge", () => {
+  const cuts = straightEdgeCuts(
+    {x: 0, y: 0, r: 5},
+    {x: 0, y: 50, r: 6, shape: "Rect"},
+    {source: 2, target: 0, strokeWidth: 2},
+  );
+  close(cuts.source, 8, 1e-9);
+  close(cuts.target, 6);
 });
 
 it("selfLoopD follows a loop to each head's base, then runs along its axis", () => {
@@ -302,7 +338,14 @@ it("arcVisibleD and ringsVisibleD stop strokes inside arrowheads", () => {
     arc,
     d: arcPathD(arc),
   };
-  assert.strictEqual(arcVisibleD(off, arcLink), arcLink.d);
+  // With no heads, the arc runs between its nodes' outlines.
+  const bare = numbers(arcVisibleD(off, arcLink));
+  close(Math.hypot(bare[0], bare[1] - 200), Math.sqrt(15.75), 0.05);
+  close(
+    Math.hypot(bare.at(-2) - 100, bare.at(-1) - 200),
+    Math.sqrt(15.75),
+    0.05,
+  );
   assert.notStrictEqual(arcVisibleD(on, arcLink), arcLink.d);
 
   const straight = {
@@ -310,15 +353,11 @@ it("arcVisibleD and ringsVisibleD stop strokes inside arrowheads", () => {
     source: {id: "a", x: 0, y: 0, r: 5},
     target: {id: "b", x: 100, y: 0, r: 5},
   };
-  assert.strictEqual(
-    ringsVisibleD(off, straight, 0, 1, "M0,0 100,0"),
-    "M0,0 100,0",
-  );
+  const [s0, , s1] = numbers(ringsVisibleD(off, straight, 0, 1, "M0,0 100,0"));
+  close(s0, Math.sqrt(24.75));
+  close(s1, 100 - Math.sqrt(24.75));
   // A 6px head on a 1px link: the stroke ends 3px inside it.
-  assert.strictEqual(
-    ringsVisibleD(on, straight, 0, 1, "M0,0 100,0"),
-    "M0,0 91,0",
-  );
+  assert.match(ringsVisibleD(on, straight, 0, 1, "M0,0 100,0"), / 91,0$/);
   const spline = {
     ...straight,
     spline: true,

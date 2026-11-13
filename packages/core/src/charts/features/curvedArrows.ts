@@ -189,11 +189,14 @@ const isRuns = (points: Point[] | Point[][]): points is Point[][] =>
       whose first run starts at the source and last run ends at the target.
     @param trims The edge's arrow ends, size, and stroke trims (see `edgeArrowTrims`).
     @param tipBack How far back along the polyline each end's tip sits.
+    @param bare How far back along the polyline the stroke ends at each end
+      without an arrowhead.
 */
 export function polylineArrowEdge(
   points: Point[] | Point[][],
   trims: EdgeArrowTrims,
   tipBack: {source: number; target: number} = {source: 0, target: 0},
+  bare: {source: number; target: number} = {source: 0, target: 0},
 ): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
   const runs = (isRuns(points) ? points : [points]).filter(r => r.length);
   const {ends, size} = trims;
@@ -214,8 +217,8 @@ export function polylineArrowEdge(
   const body = runs.map((run, k) =>
     trimPolyline(
       run,
-      k === 0 && source ? tipBack.source + size : 0,
-      k === runs.length - 1 && target ? tipBack.target + size : 0,
+      k ? 0 : source ? tipBack.source + size : bare.source,
+      k < runs.length - 1 ? 0 : target ? tipBack.target + size : bare.target,
     ),
   );
   return {

@@ -20,6 +20,8 @@ import type {PathNode, SceneNode} from "@d3plus/render";
 
 import {STROKE_EMPHASIS} from "../viz/emphasis.js";
 import {cubicPoint} from "./linkLabelGeometry.js";
+import {outlineReach} from "./nodeOutline.js";
+import type {NodeOutline} from "./nodeOutline.js";
 
 /** Which end(s) of an edge carry an arrowhead. `true` is equivalent to `"target"`. */
 export type ArrowEndValue = boolean | "target" | "source" | "both";
@@ -177,9 +179,13 @@ export function emphasizedArrowEdge(
   draw: (scale: number) => ArrowEdge,
 ): ArrowEdge {
   const rest = draw(1);
-  if (!rest.arrows.length) return rest;
   const hover = draw(STROKE_EMPHASIS.hover.width);
   const active = draw(STROKE_EMPHASIS.active.width);
+  // A stroke cut at a node's outline (see `outlineReach`) ends further in when wider.
+  if (!rest.arrows.length)
+    return hover.d === rest.d && active.d === rest.d
+      ? rest
+      : {...rest, emphasis: {d: {hover: hover.d, active: active.d}}};
   const pathD = (node: SceneNode | undefined) =>
     node?.type === "path" ? node.d : undefined;
   return {
@@ -209,6 +215,8 @@ export interface EdgeArrowTrims {
   /** How far the stroke ends back from each end's arrow tip (0 without an arrow). */
   source: number;
   target: number;
+  /** The edge's stroke width. */
+  strokeWidth: number;
 }
 
 /** Resolves an edge's `arrows`/`arrowSize` into its arrowhead ends, size, and stroke trims. */
@@ -231,6 +239,7 @@ export function edgeArrowTrims(opts: {
     size,
     source: ends.source ? trim : 0,
     target: ends.target ? trim : 0,
+    strokeWidth: sw,
   };
 }
 
@@ -338,29 +347,53 @@ export function cubicPathD([p0, p1, p2, p3]: [
   return `M${round(p0[0])},${round(p0[1])}C${round(p1[0])},${round(p1[1])} ${round(p2[0])},${round(p2[1])} ${round(p3[0])},${round(p3[1])}`;
 }
 
+/** A node an edge runs between: its center and outline. */
+export type EdgeNode = NodeOutline & {x: number; y: number};
+
 /**
-    The visible stroke of a straight, center-to-center edge between nodes
-    of radius `source.r` and `target.r`: cut short inside each arrowhead
-    (whose tip sits a pixel off the node's edge, see `straightArrowTip`).
+    How far in from each end a straight, center-to-center edge `strokeWidth`
+    wide is cut: at an end with an arrowhead, inside the head, whose tip
+    sits a pixel off the node's outline (see `straightArrowTip`); at any
+    other end, at the node's outline (see `outlineReach`).
+*/
+export function straightEdgeCuts(
+  source: EdgeNode,
+  target: EdgeNode,
+  trims: {source: number; target: number; strokeWidth?: number},
+): {source: number; target: number} {
+  const angle = Math.atan2(target.y - source.y, target.x - source.x);
+  const sw = trims.strokeWidth ?? 0;
+  const cut = (node: EdgeNode, out: number, trim: number): number =>
+    trim ? outlineReach(node, out) + 1 + trim : outlineReach(node, out, sw);
+  return {
+    source: cut(source, angle, trims.source),
+    target: cut(target, angle + Math.PI, trims.target),
+  };
+}
+
+/**
+    The visible stroke of a straight, center-to-center edge: cut short at
+    each node's outline, or inside its arrowhead (see `straightEdgeCuts`).
     The full center-to-center path stays the edge's hit area.
 */
 export function straightEdgeD(
-  source: {x: number; y: number; r?: number},
-  target: {x: number; y: number; r?: number},
-  trims: {source: number; target: number},
+  source: EdgeNode,
+  target: EdgeNode,
+  trims: {source: number; target: number; strokeWidth?: number},
 ): string {
+  const cuts = straightEdgeCuts(source, target, trims);
   const [a, b] = trimSegment(
     [source.x, source.y],
     [target.x, target.y],
-    trims.source ? (source.r ?? 0) + 1 + trims.source : 0,
-    trims.target ? (target.r ?? 0) + 1 + trims.target : 0,
+    cuts.source,
+    cuts.target,
   );
   return `M${a[0]},${a[1]} ${b[0]},${b[1]}`;
 }
 
 /**
-    Emit arrowhead nodes for a straight, center-to-center edge between two nodes
-    (radii `source.r`/`target.r`), insetting each tip to the node boundary.
+    Emit arrowhead nodes for a straight, center-to-center edge between two
+    nodes, insetting each tip to a pixel off the node's outline.
     Returns `[]` when `arrows` selects neither end. Used by Network and Rings'
     straight center-links.
 */
@@ -372,8 +405,8 @@ export function straightEdgeArrows(opts: {
   i: number;
   keyPrefix: string;
   fill?: string;
-  source: {x: number; y: number; r?: number};
-  target: {x: number; y: number; r?: number};
+  source: EdgeNode;
+  target: EdgeNode;
 }): SceneNode[] {
   const ends = arrowEnds(opts.arrows, opts.datum, opts.i);
   if (!ends.source && !ends.target) return [];
@@ -385,8 +418,10 @@ export function straightEdgeArrows(opts: {
   );
   const {source: s, target: t, datum, fill, keyPrefix} = opts;
   const out: SceneNode[] = [];
+  const angle = Math.atan2(t.y - s.y, t.x - s.x);
   if (ends.target) {
-    const tip = straightArrowTip(s.x, s.y, t.x, t.y, t.r ?? 0, 1);
+    const r = outlineReach(t, angle + Math.PI);
+    const tip = straightArrowTip(s.x, s.y, t.x, t.y, r, 1);
     out.push(
       arrowNode({
         key: `${keyPrefix}-t`,
@@ -400,7 +435,8 @@ export function straightEdgeArrows(opts: {
     );
   }
   if (ends.source) {
-    const tip = straightArrowTip(t.x, t.y, s.x, s.y, s.r ?? 0, 1);
+    const r = outlineReach(s, angle);
+    const tip = straightArrowTip(t.x, t.y, s.x, s.y, r, 1);
     out.push(
       arrowNode({
         key: `${keyPrefix}-s`,

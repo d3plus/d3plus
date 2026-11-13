@@ -265,16 +265,19 @@ export function arcPointAlong(
     arc `insets` pixels out from the line (see `arcEndTip`), its base `size`
     further along the arc, and it is aimed along the chord from base to tip.
     The stroke follows the arc between the bases, then runs along each
-    head's axis to end inside it (see `cubicArrowEdge`). The full arc stays
-    its hit area.
+    head's axis to end inside it (see `cubicArrowEdge`). At an end with no
+    head, the stroke starts on the arc `bare` pixels out from the line. The
+    full arc stays its hit area.
 */
 export function arcArrowEdge(
   arc: ArcGeometry,
   trims: EdgeArrowTrims,
   insets: {source: number; target: number},
+  bare: {source: number; target: number} = {source: 0, target: 0},
 ): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
   const {ends, size} = trims;
-  if (!ends.source && !ends.target) return {d: arcPathD(arc)};
+  if (!ends.source && !ends.target && !bare.source && !bare.target)
+    return {d: arcPathD(arc)};
   const arrowed = (end: "source" | "target"): ArrowedEnd | undefined => {
     if (!ends[end]) return undefined;
     const tip = arcEndTip(arc, end, insets[end]);
@@ -288,8 +291,12 @@ export function arcArrowEdge(
   const target = arrowed("target");
   const half = Math.abs(arc.to - arc.from) / 2;
   const height = half * arc.scale;
-  const [x1, y1] = source ? source.base : arcPoint(arc, arc.from, 0);
-  const [x2, y2] = target ? target.base : arcPoint(arc, arc.to, 0);
+  const bareEnd = (end: "source" | "target"): [number, number] => {
+    const tip = arcEndTip(arc, end, bare[end]);
+    return [tip.x, tip.y];
+  };
+  const [x1, y1] = source ? source.base : bareEnd("source");
+  const [x2, y2] = target ? target.base : bareEnd("target");
   const forward = arc.to > arc.from;
   const sweep = forward === (arc.side === "above") ? 1 : 0;
   const [rx, ry] = arc.orient === "vertical" ? [height, half] : [half, height];

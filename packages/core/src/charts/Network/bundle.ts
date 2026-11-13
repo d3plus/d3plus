@@ -20,13 +20,18 @@ import {
   trimPolyline,
 } from "../features/polyline.js";
 import type {Point} from "../features/polyline.js";
+import {outlineReach} from "../features/nodeOutline.js";
+import type {NodeOutline} from "../features/nodeOutline.js";
 import {isSelfLoop} from "../features/selfLoops.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+/** A bundled link's node: its id, center, and outline. */
+type BundledNode = NodeOutline & {id?: unknown; x?: number; y?: number};
+
 /** What the bundling reads and writes on a laid-out link. */
 export interface BundledLink {
-  source?: {id?: unknown; x?: number; y?: number; r?: number} | null;
-  target?: {id?: unknown; x?: number; y?: number; r?: number} | null;
+  source?: BundledNode | null;
+  target?: BundledNode | null;
   loop?: unknown;
   points?: Point[];
 }
@@ -79,6 +84,30 @@ export function bundledTipBack(
   };
 }
 
+/**
+    How far along a bundled path each end leaves its node's outline, for a
+    stroke `strokeWidth` wide (see `outlineReach`), taken the way the path
+    first heads out from the node, and `gap` pixels further out.
+*/
+export function bundledOutlineBack(
+  points: Point[],
+  source: NodeOutline | null | undefined,
+  target: NodeOutline | null | undefined,
+  strokeWidth = 0,
+  gap = 0,
+): {source: number; target: number} {
+  const back = (line: Point[], node: NodeOutline | null | undefined) => {
+    if (!node || line.length < 2) return 0;
+    const [[x0, y0], [x1, y1]] = line;
+    const angle = Math.atan2(y1 - y0, x1 - x0);
+    return polylineReach(line, outlineReach(node, angle, strokeWidth) + gap);
+  };
+  return {
+    source: back(points, source),
+    target: back([...points].reverse(), target),
+  };
+}
+
 /** A bundled link's arrowhead ends, size, and stroke trims. */
 function bundledTrims(
   viz: VizInstance,
@@ -98,9 +127,9 @@ function bundledTrims(
 
 /**
     A bundled link's visible stroke and arrowheads: the stroke follows the
-    path and ends inside each head, and each head's tip sits a pixel off its
-    node, aimed along the path (see `polylineArrowEdge`). `arrowSize`
-    defaults to the chart's.
+    path and ends inside each head, or at the outline of a node with no
+    head, and each head's tip sits a pixel off its node, aimed along the
+    path (see `polylineArrowEdge`). `arrowSize` defaults to the chart's.
 */
 export function bundledLinkEdge(
   viz: VizInstance,
@@ -121,12 +150,25 @@ export function bundledLinkEdge(
     opts.strokeWidth,
     "arrowSize" in opts ? opts.arrowSize : viz.schema.arrowSize,
   );
-  const tipBack = bundledTipBack(
+  const tipBack = bundledOutlineBack(
     link.points,
-    link.source?.r ?? 0,
-    link.target?.r ?? 0,
+    link.source,
+    link.target,
+    0,
+    1,
   );
-  const {d, source, target} = polylineArrowEdge(link.points, trims, tipBack);
+  const bare = bundledOutlineBack(
+    link.points,
+    link.source,
+    link.target,
+    trims.strokeWidth,
+  );
+  const {d, source, target} = polylineArrowEdge(
+    link.points,
+    trims,
+    tipBack,
+    bare,
+  );
   return {
     d,
     arrows: chordArrowNodes({
