@@ -57,23 +57,6 @@ export const packDef: ChartDefinition = {
     return {x: 0, y: 0, width: d, height: d};
   },
 
-  // `hover` shadows the prototype method per-instance so it also drives
-  // the legend's hover state. Method shadowing doesn't fit the field
-  // model (it's a method, not a value with a default); setup is the
-  // right escape hatch for the genuine method-override case.
-  setup: (viz: VizInstance) => {
-    const supHover = (viz as VizInstance & {hover: HoverFn}).hover.bind(viz);
-    (viz as VizInstance & {hover: HoverFn}).hover = ((
-      fn: (h: DataPoint) => boolean,
-    ) => {
-      supHover(fn);
-      if (viz.schema.legend) {
-        (viz._legendClass as {hover: (fn: unknown) => unknown}).hover(fn);
-      }
-      return viz;
-    }) as HoverFn;
-  },
-
   // Small-multiple panels as close to square as the grid allows.
   facet: {aspect: 1},
 

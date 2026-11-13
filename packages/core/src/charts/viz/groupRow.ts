@@ -68,3 +68,37 @@ export function groupNarrows(
 ): boolean {
   return rows.some((d, i) => !inGroup(groupBy, path, d, i));
 }
+
+/** A key, or a merged row's keys, as a list. */
+const keyList = (v: unknown): unknown[] => (Array.isArray(v) ? v : [v]);
+
+/**
+    Whether a row shares a key with any of `rows` at every `groupBy` level
+    down to `depth` (a merged row holds each key in its array): the legend
+    entry a chart's lit marks belong to.
+*/
+export function sharesGroup(
+  groupBy: GroupKey[],
+  depth: number,
+  rows: DataPoint[],
+): (d: DataPoint, i: number) => boolean {
+  const levels = groupBy.slice(0, depth + 1);
+  const keysOf = (d: DataPoint, i: number): unknown[][] | undefined => {
+    const row = unwrap(d);
+    if (!row) return undefined;
+    const keys = levels.map(g => keyList(g(row, i)).filter(k => k != null));
+    return keys.every(k => k.length) ? keys : undefined;
+  };
+  const paths = new Map<string, unknown[][]>();
+  rows.forEach((d, i) => {
+    const keys = keysOf(d, i);
+    if (keys) paths.set(JSON.stringify(keys), keys);
+  });
+  return (d, i) => {
+    const keys = keysOf(d, i);
+    if (!keys) return false;
+    for (const path of paths.values())
+      if (path.every((p, j) => p.some(k => keys[j].includes(k)))) return true;
+    return false;
+  };
+}
