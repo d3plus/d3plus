@@ -95,6 +95,7 @@ const hiddenMethods = {
     "swarm",
     "swarmConfig",
   ],
+  Pareto: ["shape"],
   Pyramid: ["shape", "discrete", "stacked"],
   Ridgeline: [
     "shape",

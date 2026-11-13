@@ -24,6 +24,7 @@ export interface TranslationStrings {
   Count: string;
   "Cumulative Count": string;
   "Cumulative Relative Frequency": string;
+  "Cumulative Share": string;
   day: string;
   days: string;
   Decrease: string;
@@ -150,6 +151,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0644\u0639\u062f\u062f \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     "Cumulative Relative Frequency":
       "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
+    "Cumulative Share":
+      "\u0627\u0644\u0646\u0633\u0628\u0629 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a\u0629",
     day: "\u064a\u0648\u0645",
     days: "\u0623\u064a\u0627\u0645",
     Decrease: "\u0627\u0646\u062e\u0641\u0627\u0636",
@@ -284,6 +287,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Recuento",
     "Cumulative Count": "Recuento Acumulado",
     "Cumulative Relative Frequency": "Frecuencia Relativa Acumulada",
+    "Cumulative Share": "Porcentaje Acumulado",
     day: "d\u00eda",
     days: "d\u00edas",
     Decrease: "Disminuci\u00f3n",
@@ -394,6 +398,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Contagem",
     "Cumulative Count": "Contagem Acumulada",
     "Cumulative Relative Frequency": "Frequ\u00eancia Relativa Acumulada",
+    "Cumulative Share": "Porcentagem Acumulada",
     day: "dia",
     days: "dias",
     Decrease: "Redu\u00e7\u00e3o",
@@ -506,6 +511,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "\u8ba1\u6570",
     "Cumulative Count": "\u7d2f\u8ba1\u8ba1\u6570",
     "Cumulative Relative Frequency": "\u7d2f\u8ba1\u76f8\u5bf9\u9891\u7387",
+    "Cumulative Share": "\u7d2f\u8ba1\u5360\u6bd4",
     day: "\u5929",
     days: "\u5929",
     Decrease: "\u51cf\u5c11",

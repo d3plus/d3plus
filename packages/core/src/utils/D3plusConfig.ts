@@ -2090,6 +2090,20 @@ export interface D3plusConfig {
   paddingInner?: number;
   /** Priestley and Gantt: the space before the first row and after the last, as a share of a row (d3's band `paddingOuter`). */
   paddingOuter?: number;
+  /**
+      Pareto: draws a reference line across the cumulative-share axis at this
+      share of the total (0–1), labeled with it: `0.8` (default) marks the 80%
+      that the Pareto principle expects the largest few categories to reach.
+      `false` hides it.
+  */
+  paretoThreshold?: number | false;
+  /**
+      Pareto: styles the `paretoThreshold` line like a `referenceLines` entry:
+      `label` (defaults to the share, such as "80%"; `false` hides it),
+      `labelPosition`, font keys, `stroke`, `strokeOpacity`, `strokeWidth`,
+      `dash` (`true` by default), and `layer`.
+  */
+  paretoThresholdConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2">;
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
   /** Calendar: what each block covers — `"year"` (the default; whole years, stacked) or `"month"` (whole months, as a grid of small calendars). */
