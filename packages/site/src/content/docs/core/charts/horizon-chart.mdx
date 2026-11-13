@@ -22,12 +22,24 @@ the height one area chart would take, and the shades still read as values.
 Pass the rows a LinePlot would take: `groupBy` names the series, `x` the
 time, and `y` the value. Each series' area is cut into 3 bands (`bands`),
 and the bands are stacked on top of each other inside the row, darker the
-higher they reach. Every row shares one band size, the largest value
-divided by `bands`, so the same shade means the same values in every row.
-The legend is a key to the value range of each shade, and hovering one of
-its entries lights that shade in every row. Hover the chart to read every
-row's value at that date under a crosshair; with `tooltipShared: false`,
-the tooltip shows only the row under the pointer.
+higher they reach. Every row shares one band size: the largest value
+divided by `bands`, rounded up to a round number (1, 2, 2.5, or 5 times a
+power of ten), so the same shade means the same values in every row and
+the key reads in round steps such as "25 – 50". The band size is measured
+from all of the data, before the timeline and hidden rows cut it, so the
+shades hold still as you step through time. The legend is a key to the
+value range of each shade, and hovering one of its entries lights that
+shade in every row. Hover the chart to read every row's value at that date
+under a crosshair; with `tooltipShared: false`, the tooltip shows only the
+row under the pointer.
+
+## Hiding rows
+
+The band key stands for shades rather than series, so the row labels take
+the legend's other job: click a row's label to hide its series, and click
+it again to bring it back. Shift+click a label to show only that series.
+A hidden row keeps its place, with its label dimmed, and the Back button
+undoes each change. Hiding rows never changes the band size.
 
 <Playground chart="HorizonChart" code={basicExample} controls={["bands","rowGap","tooltipShared"]} />
 
@@ -44,8 +56,8 @@ and brighter away from it), so the chart follows dark and custom themes.
 ## Bands and colors
 
 `bands` sets how many bands each sign is cut into, and `bandSize` fixes the
-range of values each band spans, for round numbers in the key or to compare
-charts; values past the top band fill it. `colors` takes a base color to
+range of values each band spans, used as given, to compare charts or to
+give the key steps of your choosing; values past the top band fill it. `colors` takes a base color to
 ramp for `positive` or `negative` values, or a list of colors from the band
 nearest zero up.
 
