@@ -320,6 +320,11 @@ export interface VizInstance {
   /** The colorScale bucket a hovered swatch label lights (see `handleSwatchLabelHover`). */
   _swatchLabelBucket?: DataPoint;
   /**
+      The swatches' outline a colorScale bucket's highlight holds across while
+      the pointer is between swatches (see `holdColorScaleBucket`).
+  */
+  _bucketHold?: [number, number][];
+  /**
       Hovering a shape outlines it even when nothing else dims
       (`hoverOpacity` 1), as Calendar's days do (see `shapeHoverEnabled`).
   */
@@ -339,6 +344,8 @@ export interface VizInstance {
   _searchMatchIndex?: number;
   _ordinalColorScale?: ((value: string) => string) | undefined;
   _hoverDatum?: DataPoint | null;
+  /** The node the pointer last entered, and the datum it reports to handlers. */
+  _lastScenePick?: {node?: SceneNode; d?: unknown; isLegend?: boolean} | null;
   /** Epoch ms until which an animated transition is in flight (pointer routing pauses). */
   _transitionEndsAt?: number;
   /** Keyboard navigation's host element and focused mark (see `keyboardNav.ts`). */

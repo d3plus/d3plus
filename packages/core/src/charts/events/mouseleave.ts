@@ -1,5 +1,6 @@
 import type {DataPoint} from "@d3plus/data";
 import {isAxisTooltipDatum} from "../features/axisTooltip.js";
+import {colorScaleBucketOf} from "../features/colorScaleBucket.js";
 import {setCursor} from "../viz/setCursor.js";
 import {shapeHoverEnabled} from "../viz/shapeHover.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
@@ -51,9 +52,15 @@ export default function (this: Viz, d: DataPoint, i: number): void {
     // The shared multi-series tooltip (Plot) owns hover + tooltip while active
     // and clears both itself on leaving the plot area.
     if (this._sharedHoverActive) return;
-    if (shapeHoverEnabled(this) && this._hover ? this._hover(d, i) : true) {
-      this.hover(false);
-    }
+    // A colorScale swatch clears only its own highlight: crossing straight
+    // to the next swatch has lit that one already, and crossing the gap
+    // between them holds this one (see `holdColorScaleBucket`).
+    const bucket = colorScaleBucketOf(d);
+    const own =
+      (shapeHoverEnabled(this) || bucket) && this._hover
+        ? this._hover(d, i)
+        : true;
+    if (own && !(bucket && this._bucketHold)) this.hover(false);
     const tooltipData = this._tooltipClass.data();
     // An axis label's tooltip, shown since, isn't this shape's to hide.
     if (

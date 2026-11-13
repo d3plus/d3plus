@@ -9,6 +9,7 @@ import type {SceneEvent, SceneNode} from "@d3plus/render";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {isBivariatePair} from "../../components/ColorScale/bivariateScale.js";
 import {colorScaleBucketOf, hoverColorScaleBucket} from "./colorScaleBucket.js";
+import {holdColorScaleBucket} from "./colorScaleBucketHold.js";
 import {colorScaleValue} from "./colorScaleValue.js";
 
 type Wrapped = DataPoint & {__d3plus__?: boolean; data?: DataPoint};
@@ -55,7 +56,9 @@ function sameHover(a: unknown, b: unknown): boolean {
 /**
     Updates the colorScale's hover mark for a pointer event, repainting only
     when the marked value changes. Moves are ignored while a transition is
-    in flight; leaving the chart always clears the mark.
+    in flight; leaving the chart always clears the mark. Ahead of that, it
+    holds a swatch's highlight across the gap to the next swatch (see
+    `holdColorScaleBucket`), as it runs before the chart's own handlers.
     @param viz The chart.
     @param event The pointer event.
 */
@@ -63,6 +66,7 @@ export function handleColorScaleHover(
   viz: VizInstance,
   event: SceneEvent,
 ): void {
+  holdColorScaleBucket(viz, event);
   const cs = viz._colorScaleClass;
   if (!cs || !colorScaleValue(viz)) return;
   let next: number | [number, number] | false = false;
