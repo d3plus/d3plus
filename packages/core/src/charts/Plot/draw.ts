@@ -20,6 +20,9 @@ import * as shapes from "../../shapes/index.js";
 import type {D3Scale} from "../../utils/index.js";
 
 import {measureAxes} from "../features/axesMeasure.js";
+import type {AxisMeasureResult} from "../features/axesMeasure.js";
+import {endLabelsInRoom, measureEndLabels} from "../features/plotEndLabels.js";
+import type {XLabelClaim} from "../features/plotEndLabels.js";
 import type {
   AxisMeasureInputs,
   LineLabelMeasurement,
@@ -282,6 +285,37 @@ function makePlotLineLabelMeasure(
   };
 }
 
+/**
+    Draws the chart's chrome (title, legend, …) through the base Viz draw,
+    then settles the axes measured against the chart area as it stood before,
+    `height` tall: the margins the chrome claimed (the paint phase shrinks
+    the axes' ranges by them; a small-multiples panel arrives with its
+    margins set and claims nothing more), and the x labels the plot keeps in
+    the room left (see `endLabelsInRoom`).
+*/
+function drawChrome(
+  viz: VizInstance,
+  callback: (() => void) | undefined,
+  measured: AxisMeasureResult,
+  xTest: Axis,
+  height: number,
+): XLabelClaim & {horizontalMargin: number; verticalMargin: number} {
+  const pre = {...viz._margin};
+  superDraw(viz, callback);
+  const horizontalMargin =
+    viz._margin.left + viz._margin.right - pre.left - pre.right;
+  const verticalMargin =
+    viz._margin.top + viz._margin.bottom - pre.top - pre.bottom;
+  const {topOffset, x2Height} = measured;
+  const xLabels = endLabelsInRoom(
+    measured,
+    () => measureEndLabels(xTest),
+    height - verticalMargin - topOffset - x2Height,
+  );
+  viz._padding.bottom += xLabels.xHeight - measured.xHeight;
+  return {horizontalMargin, verticalMargin, ...xLabels};
+}
+
 export function drawPlot(viz: VizInstance, callback?: () => void) {
   // The axis hover's positions belong to the previous layout.
   viz._axisHoverState = null;
@@ -385,16 +419,7 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     measureLineLabels,
   );
 
-  // The axes measured against the chart area as it stood before the chrome
-  // claimed its margins; the paint phase shrinks their ranges by what the
-  // chrome claimed. (A small-multiples panel arrives with its margins set
-  // and claims nothing more.)
-  const pre = {...viz._margin};
-  superDraw(viz, callback);
-  const horizontalMargin =
-    viz._margin.left + viz._margin.right - pre.left - pre.right;
-  const verticalMargin =
-    viz._margin.top + viz._margin.bottom - pre.top - pre.bottom;
+  const chrome = drawChrome(viz, callback, measured, testAxes.xTest, height);
   // The local layout types (DomainValue domains, D3Scale scales, dynamically-
   // keyed rows) are broader than PlotPaintContext's; the emit reads each field
   // as the concrete type its producer guaranteed, so bridge at this boundary.
@@ -416,8 +441,7 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     width,
     opp,
     showLineLabels,
-    horizontalMargin,
-    verticalMargin,
+    ...chrome,
   } as unknown as PlotPaintContext;
   return viz._paint!(pCtx);
 }

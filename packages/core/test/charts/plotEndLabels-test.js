@@ -5,6 +5,7 @@ import {
   domainEnds,
   END_LABEL_AXIS_CONFIG,
   endLabelSpace,
+  endLabelsInRoom,
   labelsXEnds,
   layoutEndLabels,
 } from "../../src/charts/features/plotEndLabels.ts";
@@ -97,6 +98,37 @@ it("plotEndLabels endLabelSpace claims nothing when the plot would end up shorte
 
 it("plotEndLabels endLabelSpace claims nothing for labels with no text", () => {
   assert.strictEqual(endLabelSpace(measure([], 5, 0), 150), 0);
+});
+
+it("plotEndLabels endLabelsInRoom keeps end labels the room left by the chrome holds", () => {
+  const ends = {xLabelMode: "ends", xHeight: 22};
+  assert.deepStrictEqual(
+    endLabelsInRoom(ends, () => measure([], 5, 17), 44),
+    ends,
+  );
+});
+
+it("plotEndLabels endLabelsInRoom drops end labels the room left by the chrome can't hold", () => {
+  // Measured against a 44px chart area, then left 15px by a 29px top margin.
+  for (const room of [43, 15, 0, -10])
+    assert.deepStrictEqual(
+      endLabelsInRoom(
+        {xLabelMode: "ends", xHeight: 22},
+        () => measure([], 5, 17),
+        room,
+      ),
+      {xLabelMode: "none", xHeight: 0},
+      `${room}px`,
+    );
+});
+
+it("plotEndLabels endLabelsInRoom leaves an axis's own labels to it", () => {
+  const measureNot = () => assert.fail("measured labels it doesn't draw");
+  for (const claim of [
+    {xLabelMode: "axis", xHeight: 30},
+    {xLabelMode: "none", xHeight: 0},
+  ])
+    assert.deepStrictEqual(endLabelsInRoom(claim, measureNot, 0), claim);
 });
 
 it("plotEndLabels allotEndLabelWidths gives fitting labels room to their natural widths", () => {

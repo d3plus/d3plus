@@ -17,6 +17,7 @@ import {
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
+import {labelLineHeight} from "../Axis/axisLabelLineHeight.js";
 import {buildLegendShapeConfig} from "./legendConfig.js";
 import {
   clearLegend,
@@ -105,12 +106,18 @@ export default class Legend extends BaseClass {
   _fetchConfig(key: string, d: DataPoint, i: number): unknown {
     const labelConfig = this.schema.shapeConfig.labelConfig as
       Record<string, unknown> | undefined;
+    // Labels are measured at the line height their TextBoxes paint with.
+    if (key === "lineHeight")
+      return labelLineHeight(
+        this.schema.shapeConfig,
+        d,
+        i,
+        this._fetchConfig("fontSize", d, i) as number,
+      );
     const val =
       this.schema.shapeConfig[key] !== undefined
         ? this.schema.shapeConfig[key]
         : labelConfig?.[key];
-    if (!val && key === "lineHeight")
-      return (this._fetchConfig("fontSize", d, i) as number) * 1.4;
     return typeof val === "function"
       ? (val as (d: DataPoint, i: number) => unknown)(d, i)
       : val;

@@ -8,6 +8,7 @@ import * as shapes from "../../shapes/index.js";
 import type Shape from "../../shapes/Shape.js";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
+import {labelLineHeight} from "../Axis/axisLabelLineHeight.js";
 
 import type Legend from "./Legend.js";
 
@@ -28,10 +29,13 @@ export function measureLegendTitle(legend: Legend): void {
         legend._titleClass.fontFamily()()) as string,
       s = (legend.schema.titleConfig.fontSize ||
         legend._titleClass.fontSize()()) as number;
-    let lH = (legend.schema.titleConfig.lineHeight ||
-      legend._titleClass.lineHeight()) as
-      ((...args: unknown[]) => number) | number | undefined;
-    lH = typeof lH === "function" ? lH() : (lH ?? s * 1.4);
+    // Measured at the line height its TextBox paints with.
+    const lH = labelLineHeight(
+      legend.schema.titleConfig,
+      {text: legend.schema.title},
+      0,
+      s,
+    );
 
     const res = textWrap()
       .fontFamily(f)
@@ -119,6 +123,14 @@ export function computeLegendLineData(
   });
 }
 
+/**
+    An item's width as `_rowWidth` reports it when it ends a row: its swatch
+    and label, without the padding that only separates it from a next item.
+*/
+function itemWidth(d: Record<string, unknown>): number {
+  return (d.width as number) + (d.shapeWidth as number);
+}
+
 /** Attempts to wrap labels onto an additional line, recursing into rows. */
 function tryWrapLines(
   legend: Legend,
@@ -136,10 +148,8 @@ function tryWrapLines(
       : legend._lineData
           .filter(
             (d: Record<string, unknown>) =>
-              (d.width as number) +
-                (d.shapeWidth as number) +
-                legend.schema.padding * (d.width ? 2 : 1) >
-                availableWidth && (d.words as unknown[]).length >= state.lines,
+              itemWidth(d) > availableWidth &&
+              (d.words as unknown[]).length >= state.lines,
           )
           .sort(
             (a: Record<string, unknown>, b: Record<string, unknown>) =>
@@ -163,6 +173,9 @@ function tryWrapLines(
         .width(w)
         .height(h)(label.sentence as string);
       if (!res.truncated) {
+        // Measured as `computeLegendLineData` measures a label: the lines
+        // its TextBox paints, and the widest with the padding either side.
+        label.lines = res.lines;
         label.width =
           Math.ceil(
             max(
@@ -173,7 +186,8 @@ function tryWrapLines(
                 }),
               ),
             )!,
-          ) + (label.s as number);
+          ) +
+          padding * 2;
         label.height = res.lines.length * ((label.lh as number) + 1);
       } else {
         truncated = true;
@@ -199,10 +213,8 @@ function buildRows(
     rowWidth = 0;
   for (let i = 0; i < legend._lineData.length; i++) {
     const d = legend._lineData[i],
-      w =
-        (d.width as number) +
-        legend.schema.padding * (d.width ? 2 : 1) +
-        (d.shapeWidth as number);
+      // The padding after an item counts only when another follows it.
+      w = itemWidth(d) + legend.schema.padding * (d.width ? 2 : 1);
     if (
       sum(
         state.newRows.map((row: Record<string, unknown>[]) =>
@@ -215,11 +227,11 @@ function buildRows(
       state.newRows = [];
       break;
     }
-    if (w > availableWidth) {
+    if (itemWidth(d) > availableWidth) {
       state.newRows = [];
       legend._wrapLines!();
       break;
-    } else if (rowWidth + w < availableWidth) {
+    } else if (rowWidth + itemWidth(d) <= availableWidth) {
       rowWidth += w;
     } else if (legend.schema.direction !== "column") {
       rowWidth = w;
