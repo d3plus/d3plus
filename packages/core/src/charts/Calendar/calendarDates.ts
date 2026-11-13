@@ -6,6 +6,7 @@
     shifts never move a day into the wrong cell.
 */
 
+import {date as parseDate} from "@d3plus/dom";
 import {findWeekStart} from "@d3plus/locales";
 
 /** A block of consecutive days drawn as one grid: a whole year or a whole month. */
@@ -40,19 +41,36 @@ export function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
+/** The local midnight of `date`'s UTC calendar day. */
+export function startOfUtcDay(date: Date): Date {
+  const day = new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  );
+  day.setFullYear(date.getUTCFullYear());
+  return day;
+}
+
 /**
     Reads a day from a data value: a `Date`, a millisecond timestamp, or a
     date string. A bare `"YYYY-MM-DD"` string is that local calendar day (the
     `Date` constructor would read it as UTC midnight, the previous day west of
     Greenwich). An array (the value a merged row carries when its rows
     disagree) reads its first entry. Returns `null` for anything unparseable.
+    With `utc`, a Date or timestamp falls on its UTC calendar day, and a
+    string without a time zone reads in UTC; the day returned is still that
+    day's local midnight, as every Calendar day is.
+    @param value The data value.
+    @param utc Read the day in UTC instead of local time.
 */
-export function parseCalendarDate(value: unknown): Date | null {
+export function parseCalendarDate(value: unknown, utc = false): Date | null {
   if (Array.isArray(value))
-    return value.length ? parseCalendarDate(value[0]) : null;
-  if (value instanceof Date) return isNaN(+value) ? null : startOfDay(value);
+    return value.length ? parseCalendarDate(value[0], utc) : null;
+  const dayOf = utc ? startOfUtcDay : startOfDay;
+  if (value instanceof Date) return isNaN(+value) ? null : dayOf(value);
   if (typeof value === "number") {
-    return Number.isFinite(value) ? startOfDay(new Date(value)) : null;
+    return Number.isFinite(value) ? dayOf(new Date(value)) : null;
   }
   if (typeof value !== "string" || !value.trim()) return null;
   const match = isoDay.exec(value.trim());
@@ -62,8 +80,8 @@ export function parseCalendarDate(value: unknown): Date | null {
     date.setFullYear(y);
     return date.getMonth() === m && date.getDate() === d ? date : null;
   }
-  const parsed = new Date(value);
-  return isNaN(+parsed) ? null : startOfDay(parsed);
+  const parsed = utc ? parseDate(value, {utc}) : new Date(value);
+  return parsed instanceof Date && !isNaN(+parsed) ? dayOf(parsed) : null;
 }
 
 /** A day's `"YYYY-MM-DD"` key, from its local calendar fields. */

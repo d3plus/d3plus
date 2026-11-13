@@ -56,7 +56,10 @@ export function rowDate(
 ): Date | null {
   const date = viz.schema.date as
     ((d: DataPoint, i: number) => unknown) | undefined;
-  return parseCalendarDate(typeof date === "function" ? date(d, i) : undefined);
+  return parseCalendarDate(
+    typeof date === "function" ? date(d, i) : undefined,
+    viz.schema.utc === true,
+  );
 }
 
 /** The first and last day among `rows`, or `null` when none has a readable day. */

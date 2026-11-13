@@ -4,8 +4,7 @@
     labels, and records each marked gap as an axis break so it draws the
     break marker (and, in a Plot, the break lines) like `break` does.
 */
-import {timeDay} from "d3-time";
-import {timeFormat} from "d3-time-format";
+import {timeDay, utcDay} from "d3-time";
 
 import {dateFormatter} from "@d3plus/format";
 
@@ -13,7 +12,12 @@ import type Axis from "./Axis.js";
 import {breakStyle} from "./axisBreak.js";
 import {brokenTimeScale, isBrokenTimeScale} from "./brokenTimeScale.js";
 import {normalizeRangeBreaks} from "./rangeBreaks.js";
-import {axisShownDates, axisTimeReference} from "./timeValues.js";
+import {
+  axisShownDates,
+  axisTimeReference,
+  axisUtc,
+  defaultTimeFormat,
+} from "./timeValues.js";
 
 /**
     Replaces a time axis's scale with a broken time scale when it has
@@ -26,7 +30,7 @@ export function applyAxisRangeBreaks(axis: Axis): void {
   const rules = normalizeRangeBreaks(axis.schema.rangeBreaks);
   if (!rules.length) return;
   const {space, mask} = breakStyle(axis);
-  const scale = brokenTimeScale(rules, {space});
+  const scale = brokenTimeScale(rules, {space, utc: axisUtc(axis)});
   scale.domain(current.domain() as Date[]);
   scale.range(current.range());
   axis._d3Scale = scale;
@@ -66,16 +70,21 @@ export function rangeBreakOpenedDay(
   const scale = axis._d3Scale;
   const t = Number(value instanceof Date ? +value : value);
   if (!isBrokenTimeScale(scale) || !Number.isFinite(t)) return undefined;
-  const start = timeDay.floor(new Date(t));
+  const start = (axisUtc(axis) ? utcDay : timeDay).floor(new Date(t));
   if (+start === t) return undefined;
   return scale.visible(start, t) === 0 ? start : undefined;
 }
 
-/** The distinct days (as midnights, ascending) of a list of dates. */
-export function datesDays(dates: Date[]): Date[] {
+/**
+    The distinct days (as midnights, ascending) of a list of dates.
+    @param dates The dates.
+    @param utc Read the days in UTC instead of local time.
+*/
+export function datesDays(dates: Date[], utc = false): Date[] {
+  const day = utc ? utcDay : timeDay;
   const seen = new Set<number>();
   return dates
-    .map(d => timeDay.floor(d))
+    .map(d => day.floor(d))
     .filter(d => !seen.has(+d) && !!seen.add(+d))
     .sort((a, b) => +a - +b);
 }
@@ -89,10 +98,11 @@ export function datesDays(dates: Date[]): Date[] {
 export function rangeBreakDayLabel(
   axis: Axis,
 ): (value: unknown) => string | undefined {
+  const utc = axisUtc(axis);
   let memo:
     | {
         dates: Date[];
-        format: typeof timeFormat;
+        format: ReturnType<typeof defaultTimeFormat>;
         label: (d: Date, shown?: Date[]) => string;
       }
     | undefined;
@@ -100,11 +110,12 @@ export function rangeBreakDayLabel(
     const day = rangeBreakOpenedDay(axis, value);
     if (!day) return undefined;
     const dates = axisTimeReference(axis);
-    if (!memo || memo.dates !== dates || memo.format !== timeFormat)
+    const format = defaultTimeFormat(utc);
+    if (!memo || memo.dates !== dates || memo.format !== format)
       memo = {
         dates,
-        format: timeFormat,
-        label: dateFormatter(datesDays(dates), timeFormat),
+        format,
+        label: dateFormatter(datesDays(dates, utc), format, {utc}),
       };
     return memo.label(day, axisShownDates(axis));
   };

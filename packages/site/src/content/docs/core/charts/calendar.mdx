@@ -11,6 +11,7 @@ import monthGrid from "~/examples/core/charts/calendar/month-grid.js?raw";
 import localized from "~/examples/core/charts/calendar/localized.js?raw";
 import customStyling from "~/examples/core/charts/calendar/custom-styling.js?raw";
 import smallMultiples from "~/examples/core/charts/calendar/small-multiples.js?raw";
+import utc from "~/examples/core/charts/calendar/utc.js?raw";
 
 Draws one square cell per day in a calendar grid, each colored by its
 `colorScale` value: weekdays down the side and weeks across, one block per
@@ -51,5 +52,11 @@ Square cells with wider gaps, a fixed `emptyFill`, a four-step green `colorScale
 `facet` draws one calendar per repo. The panels share one date range, so a day sits in the same cell in each, and one color scale.
 
 <Playground chart="Calendar" code={smallMultiples} controls={["facet","facetConfig"]} height={600} />
+
+## UTC days
+
+These values are timestamps at UTC midnight. A Calendar reads days in the viewer's time zone, so west of UTC each one lands on the day before and March starts on February 29; `utc: true` reads every day in UTC, so March 1 is March 1 everywhere. Bare `"YYYY-MM-DD"` strings are that day either way.
+
+<Playground chart="Calendar" code={utc} controls={["utc"]} />
 
 <ApiReference name="Calendar" pkg="core" />

@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>UtcAxes · Plot</title>
+    <meta
+      name="description"
+      content="Time axes in UTC (utc: true): dates stored at UTC midnight land on their own day for every viewer, in a LinePlot, a timeline, a Gantt and a standalone Axis."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin: 16px;
+        font-family: sans-serif;
+      }
+      .chart {
+        height: 300px;
+      }
+      .axis {
+        height: 60px;
+      }
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+      p {
+        margin: 0 0 8px;
+        font-size: 12px;
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>Daily values at UTC midnight, local time (the default)</h3>
+      <p>
+        West of UTC (the Americas) each point reads as the evening before: the
+        ticks fall on local midnights, between the points, and the last point
+        (March 10 in UTC) reads as <span class="tz"></span>.
+      </p>
+      <div class="chart" id="local"></div>
+    </div>
+    <div>
+      <h3>The same values with <code>xConfig: {utc: true}</code></h3>
+      <p>
+        Ticks fall on UTC days and the labels, tooltips and hover badges read
+        March 1 to March 10 for every viewer.
+      </p>
+      <div class="chart" id="utc"></div>
+    </div>
+    <div>
+      <h3>Monthly values, a timeline, and date strings</h3>
+      <p>
+        <code>"2024-01"</code> strings parse at UTC midnight; the timeline
+        follows the x axis's <code>utc</code>.
+      </p>
+      <div class="chart" id="timeline"></div>
+    </div>
+    <div>
+      <h3>A Gantt with <code>axisConfig: {utc: true}</code></h3>
+      <p>Tasks start and end on UTC dates, labeled the same anywhere.</p>
+      <div class="chart" id="gantt"></div>
+    </div>
+    <div>
+      <h3>A standalone Axis, local time</h3>
+      <p>The domain is two UTC midnights a week apart.</p>
+      <svg class="axis" id="axis-local" width="100%"></svg>
+    </div>
+    <div>
+      <h3>The same Axis with <code>utc: true</code></h3>
+      <p>Its ticks fall on the UTC days of the domain.</p>
+      <svg class="axis" id="axis-utc" width="100%"></svg>
+    </div>
+  </body>
+
+  <script>
+    const day = d => new Date(Date.UTC(2024, 2, d));
+    const shown = day(10).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+    });
+    document.querySelector(".tz").textContent = `${shown} here`;
+
+    const daily = [];
+    for (let d = 1; d <= 10; d++) {
+      daily.push({id: "Visits", date: day(d), value: 40 + ((d * 7) % 13)});
+      daily.push({id: "Signups", date: day(d), value: 12 + ((d * 5) % 9)});
+    }
+
+    const plot = {
+      data: daily,
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      timeline: false,
+      legendPosition: "bottom",
+    };
+
+    new d3plus.LinePlot().config(plot).select("#local").render();
+
+    new d3plus.LinePlot()
+      .config({...plot, xConfig: {utc: true}})
+      .select("#utc")
+      .render();
+
+    const monthly = [];
+    ["2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03"].forEach(
+      (month, k) => {
+        monthly.push({id: "Revenue", month, value: 120 + k * 9});
+        monthly.push({id: "Costs", month, value: 90 + ((k * 13) % 25)});
+      },
+    );
+
+    new d3plus.BarChart()
+      .config({
+        data: monthly,
+        groupBy: "id",
+        x: "month",
+        time: "month",
+        y: "value",
+        stacked: true,
+        timeline: true,
+        timelineConfig: {brushing: true},
+        legend: false,
+        xConfig: {utc: true},
+      })
+      .select("#timeline")
+      .render();
+
+    new d3plus.Gantt()
+      .config({
+        data: [
+          {id: "Plan", start: "2024-03-01", end: "2024-03-05"},
+          {id: "Build", start: "2024-03-04", end: "2024-03-14"},
+          {id: "Test", start: "2024-03-12", end: "2024-03-18"},
+          {id: "Ship", start: "2024-03-18", end: "2024-03-18"},
+        ],
+        groupBy: "id",
+        start: "start",
+        end: "end",
+        axisConfig: {utc: true},
+      })
+      .select("#gantt")
+      .render();
+
+    const axis = (id, utc) =>
+      new d3plus.Axis()
+        .select(`#${id}`)
+        .domain([day(1), day(8)])
+        .scale("time")
+        .utc(utc)
+        .height(60)
+        .width(document.getElementById(id).getBoundingClientRect().width)
+        .render();
+    axis("axis-local", false);
+    axis("axis-utc", true);
+  </script>
+</html>

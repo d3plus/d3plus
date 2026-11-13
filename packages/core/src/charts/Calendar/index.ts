@@ -79,7 +79,9 @@ export const calendarDef: DataDrivenChartDefinition = {
     /**
         The day each row falls on: a data key or accessor returning a `Date`,
         a millisecond timestamp, or a date string (a bare `"YYYY-MM-DD"` is
-        read as that local day). Defaults to the row's `date`, else its `time`.
+        read as that day). Defaults to the row's `date`, else its `time`.
+        Dates and timestamps fall on their day in the viewer's time zone,
+        or in UTC with `utc`.
     */
     {
       key: "date",
@@ -115,6 +117,15 @@ export const calendarDef: DataDrivenChartDefinition = {
         stacked) or `"month"` (every whole month, as a grid of small calendars).
     */
     {key: "period", default: "year"},
+    /**
+        Whether to read each row's day in UTC instead of the viewer's time
+        zone: a Date or timestamp at UTC midnight (`"2024-03-01T00:00:00Z"`,
+        or a server's timestamp) then falls on its own day everywhere, where
+        west of UTC it lands on the day before, and so do its label and
+        tooltip. Date strings without a time zone read in UTC too. Defaults
+        to `false`.
+    */
+    {key: "utc", default: false},
     /**
         The first day of the week: `0` (Sunday) through `6` (Saturday), or a
         day name such as `"monday"`. Defaults to the first day of the week in

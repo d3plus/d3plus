@@ -6,7 +6,7 @@
     `GanttMark` per task.
 */
 
-import {timeDay} from "d3-time";
+import {timeDay, utcDay} from "d3-time";
 import {scaleBand} from "d3-scale";
 
 import type {DataPoint} from "@d3plus/data";
@@ -15,6 +15,7 @@ import {chartBounds} from "../features/chartGeometry.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {
   isTimeAxis,
+  isUtcAxis,
   measureTimeAxis,
   renderTimeAxis,
 } from "../Priestley/timeAxis.js";
@@ -100,15 +101,23 @@ export function ganttTasks(viz: VizInstance, data: DataPoint[]): GanttTask[] {
 /**
     The time domain the tasks span, widened by a day (or by 1 on a numeric
     axis) on each side when every task falls on one time.
+    @param tasks The tasks.
+    @param time Whether the axis plots dates.
+    @param utc Whether a day is a UTC day rather than a local one.
 */
-export function ganttDomain(tasks: GanttTask[], time: boolean): number[] {
+export function ganttDomain(
+  tasks: GanttTask[],
+  time: boolean,
+  utc = false,
+): number[] {
   if (!tasks.length) return [0, 1];
   let lo = Math.min(...tasks.map(t => +t.start));
   let hi = Math.max(...tasks.map(t => +t.end));
   if (lo === hi) {
     if (time) {
-      lo = +timeDay.offset(new Date(lo), -1);
-      hi = +timeDay.offset(new Date(hi), 1);
+      const day = utc ? utcDay : timeDay;
+      lo = +day.offset(new Date(lo), -1);
+      hi = +day.offset(new Date(hi), 1);
     } else {
       lo -= 1;
       hi += 1;
@@ -170,7 +179,7 @@ export const applyGanttLayout: TransformStage = ({viz}) => {
   const axisConfig = (v.schema.axisConfig ?? {}) as {orient?: string};
   const top = axisConfig.orient !== "bottom";
   const frame = {
-    domain: ganttDomain(tasks, time),
+    domain: ganttDomain(tasks, time, isUtcAxis(v)),
     width: Math.max(0, width - column),
     height,
     config: {orient: top ? "top" : "bottom", align: top ? "start" : "end"},

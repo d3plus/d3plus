@@ -7,6 +7,8 @@
 import {extent} from "d3-array";
 
 import {breakStyleOf} from "../../components/Axis/axisBreak.js";
+import {isTimeScaleName} from "../../components/Axis/axisScaleType.js";
+import {configUtc} from "../../components/Axis/timeValues.js";
 import {brokenTimeScale} from "../../components/Axis/brokenTimeScale.js";
 import {
   normalizeRangeBreaks,
@@ -32,7 +34,7 @@ export function plotRangeBreaks(
   axis: AxisName,
 ): RangeBreakRule[] {
   const config = viz[`_${axis}Config`] as Record<string, unknown> | undefined;
-  if (!viz[`_${axis}Time`] && config?.scale !== "time") return [];
+  if (!viz[`_${axis}Time`] && !isTimeScaleName(config?.scale)) return [];
   return normalizeRangeBreaks(config?.rangeBreaks);
 }
 
@@ -58,25 +60,62 @@ export function rangeBreaksTimeAxis(
 }
 
 /**
-    The `rangeBreaks` a chart's timeline takes by default: those of the axis
-    that plots the chart's `time` values (the first row's time equals that
-    axis's value), else none.
+    The axes that plot a chart's `time` values: those whose value on the
+    first row equals its time.
 */
-export function timelineRangeBreaks(viz: PlotViz): RangeBreakRule[] {
+export function timeValueAxes(viz: PlotViz): AxisName[] {
   const row = viz._data?.[0];
   const time = viz.schema.time as
     ((d: unknown, i: number) => unknown) | undefined;
   if (!row || typeof time !== "function") return [];
   const value = time(row, 0);
-  for (const axis of AXES) {
+  return AXES.filter(axis => {
     const read = viz[`_${axis}`] as
       ((d: unknown, i: number) => unknown) | undefined;
-    if (typeof read !== "function" || read(row, 0) !== value) continue;
+    return typeof read === "function" && read(row, 0) === value;
+  });
+}
+
+/**
+    The `rangeBreaks` a chart's timeline takes by default: those of the axis
+    that plots the chart's `time` values (see `timeValueAxes`), else none.
+*/
+export function timelineRangeBreaks(viz: PlotViz): RangeBreakRule[] {
+  for (const axis of timeValueAxes(viz)) {
     const config = viz[`_${axis}Config`] as Record<string, unknown> | undefined;
     const rules = normalizeRangeBreaks(config?.rangeBreaks);
     if (rules.length) return rules;
   }
   return [];
+}
+
+/** Whether a Plot axis reads its time in UTC (its axis config's `utc`). */
+export const plotAxisUtc = (viz: PlotViz, axis: AxisName): boolean =>
+  configUtc(viz[`_${axis}Config`]);
+
+/**
+    Whether a chart reads its dates in UTC: any of its axes does (its axis
+    config's `utc`), or its timeline does (see `timelineUtc`). Small-multiple
+    titles that show dates follow it.
+*/
+export function chartUtc(viz: PlotViz): boolean {
+  return AXES.some(axis => plotAxisUtc(viz, axis)) || timelineUtc(viz);
+}
+
+/**
+    Whether a chart's timeline, and the chart's `time` values, read time in
+    UTC: `timelineConfig.utc` when set, else whether an axis that plots the
+    `time` values does (see `timeValueAxes`), else the chart's own `utc`
+    (such as a Calendar's).
+*/
+export function timelineUtc(viz: PlotViz): boolean {
+  const config = viz.schema.timelineConfig as
+    Record<string, unknown> | undefined;
+  if (config && config.utc !== undefined) return Boolean(config.utc);
+  return (
+    timeValueAxes(viz).some(axis => plotAxisUtc(viz, axis)) ||
+    viz.schema.utc === true
+  );
 }
 
 /** A plotted time value as a timestamp (`NaN` when it isn't one). */
@@ -98,7 +137,7 @@ export function dropHiddenRows<T extends Record<string, unknown>>(
     const times = out.map(d => timeOf(d[axis])).filter(Number.isFinite);
     if (!times.length) return;
     const [lo, hi] = extent(times) as [number, number];
-    const hidden = rangeBreakTest(rules, lo, hi);
+    const hidden = rangeBreakTest(rules, lo, hi, plotAxisUtc(viz, axis));
     const kept = out.filter(d => !hidden(timeOf(d[axis])));
     if (kept.length < out.length)
       warnConfigOnce(
@@ -125,7 +164,7 @@ export function plotTimeScale(
   if (!rules.length) return scale;
   const config = viz[`_${axis}Config`] as Record<string, unknown> | undefined;
   const {space} = breakStyleOf(config?.breakConfig);
-  const broken = brokenTimeScale(rules, {space});
+  const broken = brokenTimeScale(rules, {space, utc: plotAxisUtc(viz, axis)});
   broken.domain(scale.domain() as Date[]);
   broken.range(scale.range());
   return broken;

@@ -3,6 +3,7 @@ import {date} from "@d3plus/dom";
 import type {D3Scale} from "../../utils/index.js";
 import type Axis from "./Axis.js";
 import {isNegative} from "./axisRounding.js";
+import {axisUtc} from "./timeValues.js";
 
 /**
     The share of the regular tick spacing a forced domain-end label must clear
@@ -72,7 +73,9 @@ export function addDomainEnds(
   const regular = ticks.map(Number);
   const userTicks = ((axis.schema.ticks ?? []) as unknown[]).map(d =>
     Number(
-      axis.schema.scale === "time" ? date(d as string | number | false) : d,
+      axis.schema.scale === "time"
+        ? date(d as string | number | false, {utc: axisUtc(axis)})
+        : d,
     ),
   );
   const keep = (d: unknown): boolean =>

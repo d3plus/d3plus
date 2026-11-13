@@ -12,6 +12,7 @@ import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 import {fitBrush, timelineBrushSpan} from "./brushSpan.js";
+import {axisUtc} from "../Axis/timeValues.js";
 import {
   brushOverlayCursor,
   byValue,
@@ -422,7 +423,7 @@ export default class Timeline extends Axis {
       this._buttonBehaviorCurrent === "ticks"
         ? byValue(
             (domain as (string | number | false | undefined)[])
-              .map(date)
+              .map(d => date(d, {utc: axisUtc(this)}))
               .map(d => this._d3Scale!(d as Date)) as number[],
           )
         : (domain as number[]);
@@ -490,7 +491,7 @@ export default class Timeline extends Axis {
       ]) as unknown[];
       if (!(selection instanceof Array)) selection = [selection];
       selection = (selection as (string | number | false | undefined)[])
-        .map(date)
+        .map(d => date(d, {utc: axisUtc(this)}))
         .map(Number);
       if (selection.length === 1) selection.push(selection[0]);
       const ticks = periods.map(Number);
@@ -551,7 +552,7 @@ export default class Timeline extends Axis {
         ? this.schema.selection
         : [this.schema.selection]
     ) as (string | number | false | undefined)[];
-    const nums = sel.map(date).map(Number);
+    const nums = sel.map(d => date(d, {utc: axisUtc(this)})).map(Number);
     const ticks = periods.map(Number);
     return (
       Math.min(...nums) <= Math.min(...ticks) &&

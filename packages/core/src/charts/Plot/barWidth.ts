@@ -9,6 +9,7 @@ import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate, formatDate} from "@d3plus/format";
 
+import {configUtc} from "../../components/Axis/timeValues.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -193,9 +194,11 @@ export function applyBarWidths(
   return [placed, placedAxis];
 }
 
-/** A category's axis label. */
-function categoryLabel(value: unknown): string {
-  return value instanceof Date ? formatDate(value, [value]) : String(value);
+/** A category's axis label: a date in UTC with `utc` (the axis config's). */
+function categoryLabel(value: unknown, utc: boolean): string {
+  return value instanceof Date
+    ? formatDate(value, [value], {utc})
+    : String(value);
 }
 
 /**
@@ -315,14 +318,17 @@ export function barSpanAxisConfig(
   const layout = viz._barSpans;
   if (!layout || layout.axis !== axis) return {};
   const mids = layout.spans.map(s => s.mid);
-  const names = new Map(layout.spans.map(s => [s.mid, categoryLabel(s.value)]));
+  const utc = configUtc(viz[`_${axis}Config`]);
+  const names = new Map(
+    layout.spans.map(s => [s.mid, categoryLabel(s.value, utc)]),
+  );
   const name = (v: number) => names.get(v) ?? "";
   if (viz.schema.barWidthShare !== true)
     return {labels: mids, ticks: mids, tickFormat: name};
   const shared = new Map(
     layout.spans.map(s => [
       s.mid,
-      shareLabel(categoryLabel(s.value), shareText(viz, layout, s), axis),
+      shareLabel(categoryLabel(s.value, utc), shareText(viz, layout, s), axis),
     ]),
   );
   return {

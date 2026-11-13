@@ -527,6 +527,11 @@ export interface VizInstance {
   _lineMarkers?: boolean;
   _groupPadding?: number;
   _annotations?: Record<string, unknown>[];
+  /**
+      Reference lines a chart draws on a Plot of its own, after the user's
+      `referenceLines` (e.g. Pareto's 80% line), as `referenceLines` entries.
+  */
+  _plotReferenceLines?: () => Record<string, unknown>[];
   _axisPersist?: boolean;
   _labelConnectorConfig?: Record<string, unknown>;
   _lineMarkerConfig?: Record<string, unknown>;

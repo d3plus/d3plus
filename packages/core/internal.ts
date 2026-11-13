@@ -576,6 +576,15 @@ export type {
   WaterfallStep,
 } from "./src/charts/Waterfall/steps.js";
 export {
+  categoryKey as paretoCategoryKey,
+  paretoComparator,
+  paretoSteps,
+} from "./src/charts/Pareto/paretoSteps.js";
+export type {
+  ParetoAccessors,
+  ParetoStep,
+} from "./src/charts/Pareto/paretoSteps.js";
+export {
   connectorBars,
   connectorNodes,
   connectorSegments,
@@ -1394,6 +1403,7 @@ export {
   parallelCoordinatesDef,
   resolveBrushStyle,
 } from "./src/charts/ParallelCoordinates/index.js";
+export {paretoDef} from "./src/charts/Pareto/index.js";
 export {pieDef} from "./src/charts/Pie/index.js";
 export {polarAreaDef} from "./src/charts/PolarArea/index.js";
 export {priestleyDef} from "./src/charts/Priestley/index.js";

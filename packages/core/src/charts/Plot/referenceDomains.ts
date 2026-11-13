@@ -15,6 +15,7 @@ import {
 import type {Annotation} from "../features/annotationTypes.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {DomainValue} from "./pipelineScales.js";
+import {plotAxisUtc} from "./plotRangeBreaks.js";
 
 /** The viz a Plot pipeline stage reads. */
 type PlotViz = Parameters<TransformStage>[0]["viz"];
@@ -46,10 +47,11 @@ export function referenceDomainValues(
 }
 
 /** A value as a number on a continuous or time axis, or NaN. */
-function numeric(value: unknown, time: boolean): number {
+function numeric(value: unknown, time: boolean, utc = false): number {
   if (value === undefined || value === null || value === "") return NaN;
   if (time) {
-    const d = value instanceof Date ? value : date(value as string | number);
+    const d =
+      value instanceof Date ? value : date(value as string | number, {utc});
     return d instanceof Date ? +d : NaN;
   }
   return typeof value === "number" || typeof value === "string"
@@ -64,19 +66,24 @@ function numeric(value: unknown, time: boolean): number {
     itself when nothing changes.
     @param domain The axis's `[start, end]` domain.
     @param values The values to take in.
-    @param options Whether the axis is a time or log axis, and which ends may move.
+    @param options Whether the axis is a time (read in UTC, with `utc`) or log axis, and which ends may move.
 */
 export function widenToValues(
   domain: DomainValue[],
   values: unknown[],
-  options: {time?: boolean; log?: boolean; open?: [boolean, boolean]} = {},
+  options: {
+    time?: boolean;
+    utc?: boolean;
+    log?: boolean;
+    open?: [boolean, boolean];
+  } = {},
 ): DomainValue[] {
-  const {time = false, log = false, open = [true, true]} = options;
+  const {time = false, utc = false, log = false, open = [true, true]} = options;
   if (!domain || domain.length !== 2 || !values.length) return domain;
-  const ends = domain.map(d => numeric(d, time));
+  const ends = domain.map(d => numeric(d, time, utc));
   if (!ends.every(Number.isFinite)) return domain;
   const nums = values
-    .map(v => numeric(v, time))
+    .map(v => numeric(v, time, utc))
     .filter(n => Number.isFinite(n) && (!log || n > 0));
   if (!nums.length) return domain;
   const ascending = ends[0] <= ends[1];
@@ -129,6 +136,7 @@ export function widenReferenceDomains(
   const values = referenceDomainValues([
     ...expandReferenceBands(viz.schema.referenceBands),
     ...expandReferenceLines(viz.schema.referenceLines),
+    ...expandReferenceLines(viz._plotReferenceLines?.()),
     ...((viz._annotations || []) as Annotation[]),
   ]);
   const out = {...autoDomains};
@@ -144,6 +152,7 @@ export function widenReferenceDomains(
         : (viz.schema[`${axis}Domain`] ?? config);
     out[axis] = widenToValues(domain, values[axis], {
       time: scales[axis].type === "Time",
+      utc: plotAxisUtc(viz, axis),
       log: scales[axis].config === "log",
       open: openDomainEnds(given),
     });
