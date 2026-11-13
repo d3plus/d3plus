@@ -152,7 +152,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Cumulative Relative Frequency":
       "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     "Cumulative Share":
-      "\u0627\u0644\u0646\u0633\u0628\u0629 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a\u0629",
+      "\u0627\u0644\u062d\u0635\u0629 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a\u0629",
     day: "\u064a\u0648\u0645",
     days: "\u0623\u064a\u0627\u0645",
     Decrease: "\u0627\u0646\u062e\u0641\u0627\u0636",
@@ -227,7 +227,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Running Total":
       "\u0627\u0644\u0645\u062c\u0645\u0648\u0639 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     Search: "\u0628\u062d\u062b",
-    Share: "\u0645\u0634\u0627\u0631\u0643\u0629",
+    Share: "\u062d\u0635\u0629",
     "Share of Parent":
       "\u0627\u0644\u062d\u0635\u0629 \u0645\u0646 \u0627\u0644\u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0623\u0639\u0644\u0649",
     "Shift+Click to Hide":
