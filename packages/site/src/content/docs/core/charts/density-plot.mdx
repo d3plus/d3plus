@@ -1,0 +1,56 @@
+---
+title: DensityPlot
+description: "Creates a density plot from an array of raw observations: the value of each row is smoothed into a kernel density curve per group, every curve with the same bandwidth, drawn as overlaid translucent areas along a shared value axis (or stacked with stacked)."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/density-plot/basic-example.js?raw";
+import stacked from "~/examples/core/charts/density-plot/stacked.js?raw";
+import bandwidth from "~/examples/core/charts/density-plot/bandwidth.js?raw";
+import relativeDensity from "~/examples/core/charts/density-plot/relative-density.js?raw";
+import rug from "~/examples/core/charts/density-plot/rug.js?raw";
+import smallMultiples from "~/examples/core/charts/density-plot/small-multiples.js?raw";
+
+Creates a density plot from an array of raw observations: the `value` of
+each row is smoothed into a kernel density curve per group, every curve
+with the same bandwidth, drawn as overlaid translucent areas along a
+shared value axis (or stacked with `stacked`).
+
+## Basic example
+
+Pass raw observations, name the numeric field with `value`, and split them with `groupBy`. Each group's curve is a kernel density estimate, so its area is 1 and the y axis reads in density units. Every curve is smoothed with the same bandwidth (Silverman's rule of thumb on all the observations together), so their shapes compare directly. Hover the chart to read every group's density at that value; hover a legend entry for the group's observation count and median.
+
+<Playground chart="DensityPlot" code={basicExample} controls={["groupBy","value","densityConfig"]} />
+
+## Stacked
+
+`stacked: true` piles the curves on top of each other. Each curve is then weighted by its group's share of the observations (`densityScale: "count"`), so the top edge is the density of every observation together and each band shows how much of it one group makes up.
+
+<Playground chart="DensityPlot" code={stacked} controls={["stacked","densityScale"]} />
+
+## Bandwidth
+
+`densityConfig.bandwidth` sets how far each observation's kernel spreads, in data units. A smaller bandwidth shows more detail and more noise; a larger one smooths more. `kernel` switches to `"epanechnikov"`, and `cut` sets how far the curves run past the smallest and largest observation, in bandwidths.
+
+<Playground chart="DensityPlot" code={bandwidth} controls={["densityConfig"]} />
+
+## Relative density
+
+`densityScale: "width"` scales each curve to its own peak, so every group reaches the same height and the comparison is of shape alone. The y axis reads "Relative Density".
+
+<Playground chart="DensityPlot" code={relativeDensity} controls={["densityScale"]} />
+
+## Rug
+
+`rug: true` hangs a short tick for every observation just below the value axis, in its group's color, so the curves can be read against the data they smooth; the axis's labels move down to make room. The rug works the same with `stacked` and `facet`, and follows the legend and the timeline. `rugConfig` sets the ticks' `size`, `strokeWidth`, and `opacity`. The ticks leave hovering to the curves.
+
+<Playground chart="DensityPlot" code={rug} controls={["rug","rugConfig"]} />
+
+## Small multiples
+
+`facet` draws one panel per island. Every panel shares the value axis and the bandwidth, and each draws only its own island's observations.
+
+<Playground chart="DensityPlot" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="DensityPlot" pkg="core" />

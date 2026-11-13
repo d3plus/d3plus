@@ -59,6 +59,7 @@ const hiddenMethods = {
     "trendLineConfig",
   ],
   Chord: ["shape"],
+  DensityPlot: ["shape", "x", "x2", "y", "y2", "discrete"],
   Donut: ["shape"],
   Dumbbell: [
     "shape",

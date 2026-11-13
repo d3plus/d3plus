@@ -553,7 +553,7 @@ export default class Plot extends Viz {
   }
 
   /**
-      Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or one of `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.
+      Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, one of `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`, or `"movingAverage"` for a rolling mean through the data with bands either side. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.
 */
   trendLine(_?: TrendLineType): this | TrendLineType {
     return arguments.length
@@ -565,10 +565,13 @@ export default class Plot extends Viz {
       Options for the trend lines drawn by `trendLine`, merged into the current config:
       - `group`: `"series"` (default) fits one line per series, colored to match it; `"all"` fits a single line to every point.
       - `order`: the polynomial degree when `trendLine` is `"polynomial"` (default `2`).
+      - `window`: how many points a moving average spans (default `7`; the first `window − 1` points have no average), or on a time axis a span of time such as `{days: 30}` (`seconds`, `minutes`, `hours`, `days`, `weeks`, `months`, `years`), which averages the points in the span ending at each point, so gaps and uneven spacing average over the same length of time. A span starts at the first point, averaging the points it holds so far; on any other axis it falls back to 7 points, with a console warning.
+      - `center`: centers a moving average's window on each point instead of ending it there (default `false`).
+      - `bands`: a moving average's bands (Bollinger bands), as how many standard deviations of each window they sit from the average (default `2`); `false` drops them. `confidenceConfig` styles them.
       - `confidence`: draws a confidence band around a linear fit (default `false`).
       - `confidenceLevel`: the band's confidence level (default `0.95`).
       - `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).
-      - `projection`: extends each line past the end of its data, by a number of steps at the data's own spacing (e.g. `5` more years), or to an end value with `{to: 2030}` (default `0`, off). The axis widens to fit, and a linear fit's band becomes a prediction interval that fans out over the projection. Hovering a projected step lists each series' projected value. Ignored on a category axis.
+      - `projection`: extends each regression line (not a moving average) past the end of its data, by a number of steps at the data's own spacing (e.g. `5` more years), or to an end value with `{to: 2030}` (default `0`, off). The axis widens to fit, and a linear fit's band becomes a prediction interval that fans out over the projection. Hovering a projected step lists each series' projected value. Ignored on a category axis.
       - `projectionConfig`: Line shape config for the projected stretch, over the line's own styles (default `{strokeDasharray: "2 4"}`).
       - `tooltip`: shows the fitted equation and R² when hovering a line (default `true`).
       - Any other key (`stroke`, `strokeWidth`, `strokeDasharray`, …) styles the Line shape.

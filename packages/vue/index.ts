@@ -11,6 +11,7 @@ import {
   Calendar as CalendarClass,
   Candlestick as CandlestickClass,
   Chord as ChordClass,
+  DensityPlot as DensityPlotClass,
   Donut as DonutClass,
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
@@ -103,6 +104,8 @@ export const Calendar = createD3plusComponent(CalendarClass, "chart");
 export const Candlestick = createD3plusComponent(CandlestickClass, "chart");
 /** Vue component for rendering a d3plus Chord visualization. */
 export const Chord = createD3plusComponent(ChordClass, "chart");
+/** Vue component for rendering a d3plus DensityPlot visualization. */
+export const DensityPlot = createD3plusComponent(DensityPlotClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */
 export const Donut = createD3plusComponent(DonutClass, "chart");
 /** Vue component for rendering a d3plus Dumbbell visualization. */

@@ -11,6 +11,7 @@ import type {PickResult, SceneEvent, SceneNode} from "@d3plus/render";
 
 import {gestureHolds} from "../drawSteps/gestureHover.js";
 import {facetPanelAt} from "../facet/facetPanel.js";
+import {holdKeyHover} from "../features/keyHold.js";
 import {focusTargets} from "./focusTargets.js";
 import type {FocusTarget} from "./focusTargets.js";
 import {pointVoronoi} from "./pointVoronoi.js";
@@ -175,7 +176,12 @@ export function nearestPick(
 export function routePointerEvent(viz: VizInstance, event: SceneEvent): void {
   // A zoom gesture moving the chart holds pointer events until it ends.
   if (gestureHolds(viz)) return;
-  const route = (e: SceneEvent): void => viz._routeSceneEvent?.(e);
+  // A key's hover held across the gap between its entries (see
+  // `holdKeyHover`) sees each event ahead of the chart's own handlers.
+  const route = (e: SceneEvent): void => {
+    holdKeyHover(viz, e);
+    viz._routeSceneEvent?.(e);
+  };
   const state = (viz._nearestHover ??= {key: null});
   const native = (event.nativeEvent as Event | undefined)?.type;
   const fromMove = native === "mousemove";

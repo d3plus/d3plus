@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>MovingAverage · Plot</title>
+    <meta
+      name="description"
+      content="Moving-average trend lines with Bollinger bands: trailing and centered windows, a band multiplier, bands off, one average across series, a BarChart, a time axis, and a dark background."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin: 16px;
+        font-family: sans-serif;
+      }
+      .chart {
+        height: 360px;
+      }
+      .dark {
+        background: #1b1d21;
+        color: #e9ecef;
+        padding: 8px;
+      }
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>Trailing 20-point window, ±2σ bands (the default)</h3>
+      <div class="chart" id="trailing"></div>
+    </div>
+    <div>
+      <h3>Centered 15-day window, ±1σ bands (bands: 1)</h3>
+      <div class="chart" id="centered"></div>
+    </div>
+    <div>
+      <h3>Two series, bands off, labeled with their series</h3>
+      <div class="chart" id="series"></div>
+    </div>
+    <div>
+      <h3>group: "all" averages across the series</h3>
+      <div class="chart" id="all"></div>
+    </div>
+    <div>
+      <h3>BarChart, 3-month window</h3>
+      <div class="chart" id="bar"></div>
+    </div>
+    <div class="dark">
+      <h3>Dark background</h3>
+      <div class="chart" id="dark"></div>
+    </div>
+  </body>
+
+  <script>
+    // A deterministic random walk, so every load draws the same prices.
+    function walk(seed, start, days) {
+      let s = seed;
+      const rand = () => (s = (s * 16807) % 2147483647) / 2147483647 - 0.5;
+      let price = start;
+      return Array.from({length: days}, (_, k) => {
+        price = Math.max(5, price + rand() * 6 + Math.sin(k / 9) * 0.8);
+        return {date: new Date(2024, 0, k + 1), price: +price.toFixed(2)};
+      });
+    }
+    const acme = walk(7, 100, 120).map(d => ({...d, ticker: "ACME"}));
+    const globex = walk(31, 70, 120).map(d => ({...d, ticker: "GLOBEX"}));
+
+    new d3plus.LinePlot()
+      .select("#trailing")
+      .data(acme)
+      .groupBy("ticker")
+      .x("date")
+      .y("price")
+      .trendLine("movingAverage")
+      .trendLineConfig({window: 20})
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#centered")
+      .data(acme)
+      .groupBy("ticker")
+      .x("date")
+      .y("price")
+      .trendLine("movingAverage")
+      .trendLineConfig({window: {days: 15}, center: true, bands: 1})
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#series")
+      .data(acme.concat(globex))
+      .groupBy("ticker")
+      .x("date")
+      .y("price")
+      .trendLine("movingAverage")
+      .trendLineConfig({window: 10, bands: false, label: true})
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#all")
+      .data(acme.concat(globex))
+      .groupBy("ticker")
+      .x("date")
+      .y("price")
+      .trendLine("movingAverage")
+      .trendLineConfig({window: 20, group: "all"})
+      .render();
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const sales = [42, 51, 38, 60, 64, 49, 72, 80, 66, 85, 91, 78].map(
+      (value, i) => ({store: "Downtown", month: months[i], value}),
+    );
+
+    new d3plus.BarChart()
+      .select("#bar")
+      .data(sales)
+      .groupBy("store")
+      .x("month")
+      .y("value")
+      .shapeConfig({Bar: {label: false}})
+      .trendLine("movingAverage")
+      .trendLineConfig({window: 3})
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#dark")
+      .data(acme)
+      .groupBy("ticker")
+      .x("date")
+      .y("price")
+      .trendLine("movingAverage")
+      .trendLineConfig({window: 20})
+      .render();
+  </script>
+</html>

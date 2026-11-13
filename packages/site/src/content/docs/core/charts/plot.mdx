@@ -104,7 +104,7 @@ Set `trendLine: true` to fit a least-squares line to the plotted data. Each seri
 
 ## Trend line types
 
-Besides `"linear"`, `trendLine` accepts `"exponential"`, `"logarithmic"`, `"power"` and `"polynomial"` (with `trendLineConfig.order` setting the degree). Other `trendLineConfig` keys style the line: here a solid red cubic fit. Points with a single `groupBy` level are each their own series, so they share one trend line.
+Besides `"linear"`, `trendLine` accepts `"exponential"`, `"logarithmic"`, `"power"` and `"polynomial"` (with `trendLineConfig.order` setting the degree), and `"movingAverage"` for a rolling mean with bands (see [LinePlot](/core/charts/line-plot/#moving-average)). Other `trendLineConfig` keys style the line: here a solid red cubic fit. Points with a single `groupBy` level are each their own series, so they share one trend line.
 
 <Playground chart="Plot" code={trendLineTypes} controls={["trendLine","trendLineConfig"]} />
 

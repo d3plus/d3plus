@@ -11,6 +11,7 @@ export {
   Calendar,
   Candlestick,
   Chord,
+  DensityPlot,
   Donut,
   Dumbbell,
   FanChart,
