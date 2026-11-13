@@ -32,7 +32,7 @@ Plotting two measures against each other over time can loop: here gas prices fal
 
 ## Direction marks
 
-`pathArrows: false` drops the arrowheads, and `pathLabels` takes a function `(d, i) => string` for the end labels' text (or `false` for none).
+`pathArrows: false` drops the arrowheads, and `pathLabels` takes a function `(d, i) => string` for the end labels' text (or `false` for none). Each end label sits beside its point on the most open side, clear of the points, arrowheads, and other labels; where paths crowd together and no side is clear, the label hides.
 
 <Playground chart="ConnectedScatter" code={directionMarks} controls={["pathArrows","pathLabels"]} />
 
