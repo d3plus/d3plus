@@ -2106,7 +2106,9 @@ export interface D3plusConfig {
   /**
       With `order`: labels each series' first and last points. `true` (the
       default) shows their order values (such as the years), `false` none,
-      and a function `(d, i) => string` any text.
+      and a function `(d, i) => string` any text. Each label sits beside
+      its point on the most open side that keeps it in the plot and clear of
+      the points, arrowheads, and other labels, and hides when no side is.
   */
   pathLabels?: boolean | ((d: DataPoint, i: number) => string | false | null);
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */

@@ -5,7 +5,7 @@
     <title>ConnectedScatter</title>
     <meta
       name="description"
-      content="ConnectedScatter variants: three countries' paths by year, one looping path, Scatter with order and no arrows, a Line with markers doubling back, data order with custom labels, and small multiples."
+      content="ConnectedScatter variants: three countries' paths by year, one looping path, Scatter with order and no arrows, a Line with markers doubling back, data order with custom labels, crowded paths whose end labels hide when they collide, and small multiples."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -58,6 +58,10 @@
       <div>
         <h3>Data order, pathLabels as a function</h3>
         <div class="viz" id="data-order"></div>
+      </div>
+      <div class="wide">
+        <h3>Crowded paths: end labels that would collide hide</h3>
+        <div class="viz" id="crowded"></div>
       </div>
       <div>
         <h3>Small multiples (facet: "country")</h3>
@@ -158,6 +162,23 @@
       .x("Miles Driven per Person")
       .y("Gas Price")
       .pathLabels(d => `${d.year}`)
+      .render();
+
+    // Ten series that start apart and end close together.
+    const crowded = Array.from({length: 10}, (_, s) =>
+      Array.from({length: 8}, (_, i) => ({
+        series: `Series ${s + 1}`,
+        year: 2010 + i,
+        x: round(10 + s * 8 * (1 - i / 8) + i * 4 + random() * 2),
+        y: round(20 + s * 6 * (1 - i / 9) + i * 3 + random() * 2),
+      })),
+    ).flat();
+
+    new d3plus.ConnectedScatter()
+      .select("#crowded")
+      .data(crowded)
+      .groupBy("series")
+      .order("year")
       .render();
 
     new d3plus.ConnectedScatter()

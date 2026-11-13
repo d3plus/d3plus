@@ -195,73 +195,17 @@ export function segmentArrows(
   return arrows;
 }
 
-/** Where an end label sits: the straight path its text runs along, and its anchor. */
-export interface EndLabelSpot {
-  d: string;
-  anchor: "start" | "middle" | "end";
-}
-
-/** The sides of a point an end label can sit on. */
-type Side = "right" | "left" | "above" | "below";
-
 /**
-    Where the label of a path's first or last point goes: just past its mark,
-    on the side facing away from the rest of the path (beside it when the
-    path leaves sideways, above or below it when it leaves up or down). When
-    that side would run the text out of `bounds`, the first side that keeps
-    it inside is used instead.
-    @param point The labeled point.
-    @param neighbor The path's next point in from it, if any.
-    @param r The point's mark radius.
-    @param width The label's text width.
+    The straight path an end label's text runs along inside the box it was
+    placed in (see `placeCircleLabels`): across the box at its text's
+    baseline.
+    @param box The label's box.
     @param fontSize The label's font size.
-    @param bounds The `[left, right, top, bottom]` the label should stay in.
 */
-export function endLabelSpot(
-  point: Pt,
-  neighbor: Pt | undefined,
-  r: number,
-  width: number,
+export function endLabelPath(
+  box: {x: number; y: number; width: number; height: number},
   fontSize: number,
-  bounds?: [number, number, number, number],
-): EndLabelSpot {
-  const [x, y] = point;
-  const dx = neighbor ? x - neighbor[0] : 1,
-    dy = neighbor ? y - neighbor[1] : 0;
-  const gap = r + 4;
-  const w = width + 2;
-  const spot = (side: Side) => {
-    const sideways = side === "right" || side === "left";
-    const baseline = sideways
-      ? y + fontSize * 0.35
-      : side === "above"
-        ? y - gap
-        : y + gap + fontSize * 0.75;
-    const x0 =
-      side === "right" ? x + gap : side === "left" ? x - gap - w : x - w / 2;
-    const anchor: EndLabelSpot["anchor"] =
-      side === "right" ? "start" : side === "left" ? "end" : "middle";
-    return {
-      d: `M${x0},${baseline}L${x0 + w},${baseline}`,
-      anchor,
-      box: [x0, x0 + w, baseline - fontSize * 0.75, baseline + fontSize * 0.25],
-    };
-  };
-  const away: Side =
-    Math.abs(dx) >= Math.abs(dy)
-      ? dx >= 0
-        ? "right"
-        : "left"
-      : dy < 0
-        ? "above"
-        : "below";
-  const sides: Side[] = [away, "above", "below", "right", "left"];
-  const fits = (box: number[]) =>
-    !bounds ||
-    (box[0] >= bounds[0] &&
-      box[1] <= bounds[1] &&
-      box[2] >= bounds[2] &&
-      box[3] <= bounds[3]);
-  const chosen = sides.map(spot).find(c => fits(c.box)) ?? spot(away);
-  return {d: chosen.d, anchor: chosen.anchor};
+): string {
+  const baseline = box.y + (box.height + fontSize * 0.7) / 2;
+  return `M${box.x},${baseline}L${box.x + box.width},${baseline}`;
 }

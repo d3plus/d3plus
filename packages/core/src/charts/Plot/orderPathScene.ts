@@ -12,6 +12,9 @@ import type {SceneNode} from "@d3plus/render";
 import {fontFamily as defaultFontFamily} from "@d3plus/text";
 
 import {fieldNameOf} from "../../utils/fieldAccessor.js";
+import {placeCircleLabels} from "../features/circleLabelPlacement.js";
+import type {LabelCircle} from "../features/circleLabelPlacement.js";
+import {sideAnchor} from "../features/circleLabels.js";
 import {arrowNode, defaultArrowSize} from "../features/edgeArrows.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
 import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
@@ -25,7 +28,7 @@ import {
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   DATA_ORDER,
-  endLabelSpot,
+  endLabelPath,
   orderOf,
   orderedPointKeys,
   orderedSeries,
@@ -161,7 +164,22 @@ function labelText(
   return orderValueText(order(d.data, d.i), dates, viz.schema.locale) || null;
 }
 
-/** The arrowheads and end labels for every series' path. */
+/** An end label waiting for a spot: its text, series, and point. */
+interface EndLabel {
+  key: string;
+  text: string;
+  color: string;
+  d: PlotDatum;
+  /** The index of its point among every path point. */
+  circle: number;
+}
+
+/**
+    The arrowheads and end labels for every series' path. Each end label sits
+    beside its point on the most open side that keeps it in the plot, clear
+    of every point, arrowhead, and label placed before it (the placement
+    Circle labels use, see `placeCircleLabels`), and hides when no side is.
+*/
 function pathDecor(
   ctx: ShapeEmitContext,
   rows: PlotDatum[],
@@ -171,21 +189,22 @@ function pathDecor(
   const {viz, x, y} = ctx;
   const radius = radiusOf(viz);
   const arrows: SceneNode[] = [];
-  const labels: PathLabel[] = [];
+  const circles: LabelCircle[] = [];
+  const pending: EndLabel[] = [];
   const style = {
     "font-family": fontExists(defaultFontFamily) as string,
     "font-size": PATH_LABEL_FONT_SIZE,
     "font-weight": 600,
   };
-  const [left, right] = [Math.min(...ctx.xRange), Math.max(...ctx.xRange)];
-  const [top, bottom] = [Math.min(...ctx.yRange), Math.max(...ctx.yRange)];
-  const bounds: [number, number, number, number] = [left, right, top, bottom];
   orderedSeries(rows, order).forEach((series, id) => {
     const points = series.map((d): Pt => [x(d.x), y(d.y)]);
     const radii = series.map(radius);
+    const first = circles.length;
+    points.forEach(([px, py], n) => circles.push({x: px, y: py, r: radii[n]}));
     const {stroke, width} = strokes.get(id) ?? {stroke: "#888", width: 1};
+    const size = defaultArrowSize(width);
     if (viz.schema.pathArrows)
-      segmentArrows(points, defaultArrowSize(width), radii).forEach(a =>
+      segmentArrows(points, size, radii).forEach(a => {
         arrows.push(
           arrowNode({
             key: `order-arrow-${id}-${a.segment}`,
@@ -193,32 +212,62 @@ function pathDecor(
             x: a.x,
             y: a.y,
             angle: a.angle,
-            size: defaultArrowSize(width),
+            size,
             fill: stroke,
           }),
-        ),
-      );
+        );
+        // Labels keep clear of the arrowhead, centered half its length back.
+        circles.push({
+          x: a.x - (Math.cos(a.angle) * size) / 2,
+          y: a.y - (Math.sin(a.angle) * size) / 2,
+          r: size / 2,
+        });
+      });
     const ends = series.length > 1 ? [0, series.length - 1] : [0];
     ends.forEach(n => {
       const text = labelText(viz, order, series, series[n]);
-      if (!text) return;
-      const neighbor = points[n === 0 ? 1 : n - 1];
-      const spot = endLabelSpot(
-        points[n],
-        neighbor,
-        radii[n],
-        textWidth(text, style) as number,
-        PATH_LABEL_FONT_SIZE,
-        bounds,
-      );
-      labels.push({
-        key: `order-label-${id}-${n === 0 ? "first" : "last"}`,
-        text,
-        color: stroke,
-        datum: asRow(series[n]),
-        index: series[n].i,
-        ...spot,
-      });
+      if (text)
+        pending.push({
+          key: `order-label-${id}-${n === 0 ? "first" : "last"}`,
+          text,
+          color: stroke,
+          d: series[n],
+          circle: first + n,
+        });
+    });
+  });
+  const xs = ctx.xRange.slice(0, 2).map(Number);
+  const ys = ctx.yRange.slice(0, 2).map(r => Number(r) - (ctx.x2Height ?? 0));
+  const bounds = {
+    x: Math.min(...xs),
+    y: Math.min(...ys),
+    width: Math.abs(xs[1] - xs[0]),
+    height: Math.abs(ys[1] - ys[0]),
+  };
+  const height = PATH_LABEL_FONT_SIZE * 1.2;
+  const spots = placeCircleLabels(
+    circles,
+    pending.map(l => ({
+      circle: l.circle,
+      width: (textWidth(l.text, style) as number) + 2,
+      height,
+      position: "outside" as const,
+      fitsInside: false,
+    })),
+    bounds,
+  );
+  const labels: PathLabel[] = [];
+  pending.forEach((l, k) => {
+    const spot = spots[k];
+    if (spot.position !== "outside") return;
+    labels.push({
+      key: l.key,
+      text: l.text,
+      color: l.color,
+      datum: asRow(l.d),
+      index: l.d.i,
+      d: endLabelPath(spot.box, PATH_LABEL_FONT_SIZE),
+      anchor: sideAnchor(spot.side),
     });
   });
   return [...arrows, ...pathLabelNodes(viz, labels)];

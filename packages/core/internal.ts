@@ -1305,7 +1305,7 @@ export {
   DATA_ORDER,
   coerceOrder,
   compareOrder,
-  endLabelSpot,
+  endLabelPath,
   keepOrderField,
   orderOf,
   orderedPointKeys,
@@ -1313,11 +1313,7 @@ export {
   segmentArrows,
   sortByOrder,
 } from "./src/charts/Plot/orderPath.js";
-export type {
-  EndLabelSpot,
-  OrderAccessor,
-  PathArrow,
-} from "./src/charts/Plot/orderPath.js";
+export type {OrderAccessor, PathArrow} from "./src/charts/Plot/orderPath.js";
 export {
   ORDER_POINT_SHAPES,
   orderTooltipRows,
