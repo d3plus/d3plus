@@ -9,7 +9,6 @@ import {BaseClass, constant} from "../../utils/index.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {coerceFacet} from "../facet/facetConfig.js";
 import type {FacetConfig} from "../facet/facetConfig.js";
-import {groupDepthOf} from "./groupRow.js";
 import {dropLegendHistory} from "./history.js";
 import {broadcastLink} from "./linkGroup.js";
 import {shapeHoverEnabled} from "./shapeHover.js";
@@ -62,12 +61,10 @@ class VizBase extends BaseClass {
     if (!arguments.length) return this._active;
     this._active = _;
 
-    if (this.schema.shapeConfig.activeOpacity !== 1) {
-      if (this.schema.legend) this._legendClass.active(_);
-      // See hover(): scene-rendered charts dim via the scene's
-      // interaction-opacity pass, so repaint to apply/clear active state.
-      if (this._sceneRenderer) this._scheduleSceneRepaint();
-    }
+    // See hover(): scene-rendered charts dim via the scene's
+    // interaction-opacity pass, so repaint to apply/clear active state.
+    if (this.schema.shapeConfig.activeOpacity !== 1 && this._sceneRenderer)
+      this._scheduleSceneRepaint();
 
     broadcastLink(this as unknown as VizInstance, "active", _);
     return this;
@@ -220,41 +217,7 @@ Defaults to an empty array (`[]`).
   ): this | ((d: DataPoint, i: number) => boolean) | false | undefined {
     if (!arguments.length) return this._hover;
     const hadHover = typeof this._hover === "function";
-    let hoverFunction = (this._hover = _);
-
-    if (this.schema.shapeConfig.hoverOpacity !== 1 && _ !== undefined) {
-      if (typeof _ === "function") {
-        const shapeData: DataPoint[] = [
-          ...(this._filteredData ?? []),
-          ...(this._legendClass.data() ?? []),
-        ];
-        const activeData = shapeData.filter(_ as (d: DataPoint) => boolean);
-
-        // Every id prefix of each matching row (chart data and legend
-        // entries), in a Set for O(1) membership on every repaint.
-        const activeIds = new Set<string>();
-        (activeData.map(this._ids) as string[][]).forEach((ids: string[]) => {
-          for (let x = 1; x <= ids.length; x++) {
-            activeIds.add(JSON.stringify(ids.slice(0, x)));
-          }
-        });
-
-        // A group row (see `groupRow.ts`) matches by its ids down to its
-        // own level, so it stays bright while any row in its group does.
-        if (activeIds.size)
-          hoverFunction = (d: DataPoint, i: number) => {
-            const ids = this._ids(d, i);
-            const depth = groupDepthOf(d);
-            return activeIds.has(
-              JSON.stringify(
-                depth === undefined ? ids : ids.slice(0, depth + 1),
-              ),
-            );
-          };
-      }
-
-      if (this.schema.legend) this._legendClass.hover(hoverFunction);
-    }
+    this._hover = _;
 
     // Repaint so the scene's interaction-opacity pass re-reads `_hover` and
     // dims the non-matching nodes (or restores them when `_` is `false`). Also
