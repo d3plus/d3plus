@@ -1,5 +1,6 @@
 import {it} from "vitest";
 import assert from "assert";
+import {formatLocale} from "@d3plus/locales";
 import {default as abbreviate} from "../src/formatAbbreviate.ts";
 
 it("abbreviate", () => {
@@ -70,4 +71,64 @@ it("abbreviate", () => {
     abbreviate(1000, "et-EE", ",.4r"),
     "trillion in estonian",
   );
+});
+
+it("abbreviate: whole numbers have no decimals in es-ES", () => {
+  assert.strictEqual(abbreviate(30, "es-ES"), "30");
+  assert.strictEqual(abbreviate(-30, "es-ES"), "-30");
+  assert.strictEqual(abbreviate(1, "es-ES"), "1");
+  assert.strictEqual(abbreviate(99, "es-ES"), "99");
+  assert.strictEqual(abbreviate(1.5, "es-ES"), "1,5");
+  assert.strictEqual(abbreviate(0.5, "es-ES"), "0,5");
+  assert.strictEqual(abbreviate(12.5, "es-ES"), "12,5");
+  assert.strictEqual(abbreviate(1500, "es-ES"), "1,5k");
+});
+
+it("abbreviate: explicit precision strips only the locale's decimals", () => {
+  assert.strictEqual(abbreviate(1000, "es-ES", ",.0f"), "1.000");
+  assert.strictEqual(abbreviate(1500.5, "es-ES", ",.2f"), "1.500,5");
+  assert.strictEqual(abbreviate(1000, "fr-FR", ",.2f"), "1 000");
+  assert.strictEqual(abbreviate(1.5, "en-US", ".2f"), "1.5");
+  assert.strictEqual(abbreviate(1.505, "en-US", ".4f"), "1.505");
+});
+
+it("abbreviate: every locale", () => {
+  for (const [name, locale] of Object.entries(formatLocale)) {
+    const point = locale.delimiters.decimal;
+    const sep = locale.separator || "";
+    const [k, m] = [locale.suffixes[9], locale.suffixes[10]];
+    const dec = s => s.replace(".", point);
+    const cases = [
+      [0, "0"],
+      [1, "1"],
+      [5, "5"],
+      [30, "30"],
+      [-30, "-30"],
+      [99, "99"],
+      [100, "100"],
+      [101, "101"],
+      [999, "999"],
+      [-999, "-999"],
+      [999.5, `1${sep}${k}`],
+      [1000, `1${sep}${k}`],
+      [-1000, `-1${sep}${k}`],
+      [1001, `1${sep}${k}`],
+      [1500, `${dec("1.5")}${sep}${k}`],
+      [9999, `10${sep}${k}`],
+      [999999, `1${sep}${m}`],
+      [1000000, `1${sep}${m}`],
+      [2500000, `${dec("2.5")}${sep}${m}`],
+      [1.5, dec("1.5")],
+      [12.5, dec("12.5")],
+      [-12.5, dec("-12.5")],
+      [0.5, dec("0.5")],
+      [-0.25, dec("-0.25")],
+      [0.012, dec("0.012")],
+      [2.25, dec("2.25")],
+      [30.05, dec("30.1")],
+    ];
+    for (const [n, expected] of cases) {
+      assert.strictEqual(abbreviate(n, name), expected, `${name}: ${n}`);
+    }
+  }
 });

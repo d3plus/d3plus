@@ -91,14 +91,15 @@ export default function formatAbbreviate(
     );
     const num = parseFloat(f.number).toString().replace(".", decimal);
     const char = f.symbol;
-    val = `${num}${separator}${char}`;
+    val = char ? `${num}${separator}${char}` : num;
   } else if (length === 3) val = d3plusFormatLocale.format(",f")(n as number);
   else if ((n as number) < 1 && (n as number) > -1)
     val = d3plusFormatLocale.format(".2g")(n as number);
   else val = d3plusFormatLocale.format(".3g")(n as number);
 
+  const point = decimal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return `${negative && val.charAt(0) !== "\u2212" ? "\u2212" : ""}${val}`
     .replace(/\u2212/g, "-") // replace new d3 default minus sign (\u2212) to hyphen-minus (-)
-    .replace(/(\.[0]*[1-9]*)[0]*$/g, "$1") // removes any trailing zeros
-    .replace(/\.[0]*$/g, ""); // removes any trailing decimal point
+    .replace(new RegExp(`(${point}\\d*?[1-9])0+$`), "$1") // removes any trailing zeros
+    .replace(new RegExp(`${point}0*$`), ""); // removes any trailing decimal point
 }
