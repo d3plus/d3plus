@@ -180,3 +180,124 @@ it("tooltipPlacement — an anchor's own side, else above", () => {
     "top",
   );
 });
+
+/** A legend of two entries (swatch, hit area, label) at (200, 350), a row or a column. */
+const legendViz = direction => {
+  const rowA = {id: "a"};
+  const rowB = {id: "b"};
+  const legend = {interactionGroup: "legend"};
+  const wrap = row => ({__d3plus__: true, data: row});
+  const nodes = {
+    a: {
+      type: "rect",
+      key: "a_1_",
+      x: 0,
+      y: 0,
+      width: 10,
+      height: 10,
+      datum: wrap(rowA),
+      ...legend,
+    },
+    aHit: {
+      type: "rect",
+      key: "a_1_::hit",
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 10,
+      datum: wrap(rowA),
+      ...legend,
+    },
+    aLabel: {
+      type: "text",
+      key: "a_1__0",
+      x: 15,
+      y: 0,
+      lines: [],
+      datum: wrap(wrap(rowA)),
+      ...legend,
+    },
+    b: {
+      type: "rect",
+      key: "b_1_",
+      x: 60,
+      y: 0,
+      width: 10,
+      height: 10,
+      datum: wrap(rowB),
+      ...legend,
+    },
+    bHit: {
+      type: "rect",
+      key: "b_1_::hit",
+      x: 60,
+      y: 0,
+      width: 50,
+      height: 10,
+      datum: wrap(rowB),
+      ...legend,
+    },
+    backdrop: {
+      type: "rect",
+      key: "viz-inset-background",
+      x: -10,
+      y: -10,
+      width: 200,
+      height: 40,
+      ...legend,
+    },
+  };
+  return {
+    nodes,
+    viz: {
+      _legendClass: {schema: {direction}},
+      _paintedScene: {
+        width: 600,
+        height: 400,
+        root: {
+          type: "group",
+          key: "root",
+          children: [
+            {
+              type: "group",
+              key: "viz-legend",
+              transform: {x: 200, y: 350},
+              ...legend,
+              children: Object.values(nodes),
+            },
+          ],
+        },
+      },
+    },
+  };
+};
+
+it("keyTooltipAnchor — a bottom legend's entry opens above, across all entries", () => {
+  const {viz, nodes} = legendViz("row");
+  const anchor = keyTooltipAnchor(viz, nodes.b);
+  assert.strictEqual(anchor.placement, "top");
+  const r = anchor.getBoundingClientRect();
+  assert.deepStrictEqual(
+    [r.left, r.right, r.top, r.bottom],
+    [260, 270, 350, 360],
+    "the entry's span, the entries' height (not the backdrop's)",
+  );
+});
+
+it("keyTooltipAnchor — a legend entry's label anchors at its entry", () => {
+  const {viz, nodes} = legendViz("row");
+  const r = keyTooltipAnchor(viz, nodes.aLabel).getBoundingClientRect();
+  assert.deepStrictEqual([r.left, r.right], [200, 210], "entry a's swatch");
+});
+
+it("keyTooltipAnchor — a column legend opens beside it, toward the middle", () => {
+  const {viz, nodes} = legendViz("column");
+  assert.strictEqual(keyTooltipAnchor(viz, nodes.a).placement, "right");
+  viz._paintedScene.root.children[0].transform = {x: 500, y: 100};
+  assert.strictEqual(keyTooltipAnchor(viz, nodes.a).placement, "left");
+});
+
+it("keyTooltipAnchor — undefined for the legend's backdrop", () => {
+  const {viz, nodes} = legendViz("row");
+  assert.strictEqual(keyTooltipAnchor(viz, nodes.backdrop), undefined);
+});

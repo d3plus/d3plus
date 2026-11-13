@@ -67,8 +67,8 @@ const geomap = (kind, position) => `lib => new lib.Geomap()
     The client box of every colorScale entry (swatch, cell, or hit area),
     the middle entry's color, and the key's box around them all.
 */
-function keyBoxes(page) {
-  return page.evaluate(() => {
+function keyBoxes(page, legend = false) {
+  return page.evaluate(legend => {
     const unwrap = d => {
       while (d && d.__d3plus__ && d.data) d = d.data;
       return d;
@@ -85,6 +85,13 @@ function keyBoxes(page) {
     const own = node => {
       if (node.type === "rect")
         return [node.x, node.y, node.x + node.width, node.y + node.height];
+      if (node.type === "circle")
+        return [
+          node.cx - node.r,
+          node.cy - node.r,
+          node.cx + node.r,
+          node.cy + node.r,
+        ];
       const n = (node.d.match(/-?[\d.]+(e-?\d+)?/g) || []).map(Number);
       const xs = n.filter((_, i) => i % 2 === 0);
       const ys = n.filter((_, i) => i % 2 === 1);
@@ -99,11 +106,10 @@ function keyBoxes(page) {
     const walk = (node, chain) => {
       const next = node.transform ? [...chain, node.transform] : chain;
       const d = unwrap(node.datum);
-      if (
-        (node.type === "rect" || node.type === "path") &&
-        d &&
-        d._isColorScaleBucket
-      ) {
+      const entry = legend
+        ? node.interactionGroup === "legend" && node.datum !== undefined
+        : d && d._isColorScaleBucket;
+      if (["rect", "path", "circle"].includes(node.type) && entry) {
         const b = own(node);
         const map = p =>
           toClient(
@@ -118,7 +124,7 @@ function keyBoxes(page) {
         const [x0, y0] = map([b[0], b[1]]);
         const [x1, y1] = map([b[2], b[3]]);
         entries.push({
-          color: d.color,
+          color: legend ? String(node.key).replace("::hit", "") : d.color,
           hit: String(node.key).endsWith("::hit"),
           left: x0,
           top: y0,
@@ -137,7 +143,7 @@ function keyBoxes(page) {
     };
     const colors = [...new Set(entries.map(e => e.color))];
     return {entries, key, color: colors[Math.floor(colors.length / 2)]};
-  });
+  }, legend);
 }
 
 /** The visible tooltip's box and its arrow's center and turn. */
@@ -171,44 +177,105 @@ const SIDES = {
   bottom: {turn: "rotate(45deg)", clear: (t, k) => t.bottom <= k.top + 1},
 };
 
+/**
+    Hovers the middle entry of the key and checks its tooltip opens on
+    `side` of it: clear of the key and every entry, its arrow turned toward
+    the key and meeting the entry, inside the viewport.
+*/
+async function checkBeside(page, side, label, legend = false) {
+  const {entries, key, color} = await keyBoxes(page, legend);
+  const swatch = entries.find(e => e.color === color && !e.hit);
+  await hover(page, [
+    (swatch.left + swatch.right) / 2,
+    (swatch.top + swatch.bottom) / 2,
+  ]);
+  const tip = await tooltipBox(page);
+  assert.ok(tip, `${label}: a tooltip shows`);
+  const at = `${label}: ${JSON.stringify({tip, key})}`;
+  assert.ok(SIDES[side].clear(tip, key), `${at} — clear of the key`);
+  for (const e of entries)
+    assert.ok(!overlaps(tip, e), `${at} — covers ${e.color}`);
+  assert.strictEqual(tip.turn, SIDES[side].turn, `${at} — arrow's turn`);
+  const [ax, ay] = tip.arrow;
+  if (side === "left" || side === "right")
+    assert.ok(ay >= swatch.top - 1 && ay <= swatch.bottom + 1, `${at} — arrow`);
+  else
+    assert.ok(ax >= swatch.left - 1 && ax <= swatch.right + 1, `${at} — arrow`);
+  assert.ok(
+    tip.left >= 0 && tip.top >= 0 && tip.right <= 1280 && tip.bottom <= 720,
+    `${at} — in the viewport`,
+  );
+}
+
+const treemap = position => `lib => new lib.Treemap()
+  .data(${JSON.stringify(rows.slice(0, 6).map((d, i) => ({...d, size: 10 + i})))})
+  .groupBy("id")
+  .sum("size")
+  .legend(true)
+  .legendPosition("${position}")`;
+
+// Three color groups in the top half and bottom-left: the legend goes
+// inside the open bottom-right.
+const scatter = `lib => new lib.Plot()
+  .data([
+    {id: "a", x: 1, y: 9}, {id: "a", x: 2, y: 10},
+    {id: "b", x: 9, y: 9}, {id: "b", x: 10, y: 10},
+    {id: "c", x: 1, y: 1}, {id: "c", x: 2, y: 2},
+  ].map((d, i) => ({...d, key: i})))
+  .groupBy(["id", "key"]).x("x").y("y")`;
+
 for (const renderer of ["svg", "canvas"]) {
   for (const kind of Object.keys(kinds)) {
     it(`${renderer}: a ${kind} colorScale's tooltip opens beside the key, away from it`, async () => {
-      for (const [position, side] of Object.entries(SIDES)) {
+      for (const position of Object.keys(SIDES)) {
         const {page, close} = await chart(geomap(kind, position), renderer);
         try {
-          const {entries, key, color} = await keyBoxes(page);
-          const swatch = entries.find(e => e.color === color && !e.hit);
-          await hover(page, [
-            (swatch.left + swatch.right) / 2,
-            (swatch.top + swatch.bottom) / 2,
-          ]);
-          const tip = await tooltipBox(page);
-          assert.ok(tip, `${position}: a tooltip shows`);
-          const at = `${position} key: ${JSON.stringify({tip, key})}`;
-          assert.ok(side.clear(tip, key), `${at} — clear of the key`);
-          for (const e of entries)
-            assert.ok(!overlaps(tip, e), `${at} — covers ${e.color}`);
-          assert.strictEqual(tip.turn, side.turn, `${at} — arrow's turn`);
-          // The arrow meets the hovered entry along the key.
-          const [ax, ay] = tip.arrow;
-          if (position === "left" || position === "right")
-            assert.ok(ay >= swatch.top - 1 && ay <= swatch.bottom + 1, at);
-          else assert.ok(ax >= swatch.left - 1 && ax <= swatch.right + 1, at);
-          // Inside the 1280×720 viewport.
-          assert.ok(
-            tip.left >= 0 &&
-              tip.top >= 0 &&
-              tip.right <= 1280 &&
-              tip.bottom <= 720,
-            `${at} — in the viewport`,
-          );
+          await checkBeside(page, position, `${position} key`);
         } finally {
           await close();
         }
       }
     });
   }
+
+  it(`${renderer}: a legend entry's tooltip opens beside the legend, away from it`, async () => {
+    for (const position of Object.keys(SIDES)) {
+      const {page, close} = await chart(treemap(position), renderer);
+      try {
+        await checkBeside(page, position, `${position} legend`, true);
+      } finally {
+        await close();
+      }
+    }
+  });
+
+  it(`${renderer}: an inset legend's entry tooltip opens toward the chart's middle`, async () => {
+    const {page, close} = await chart(scatter, renderer);
+    try {
+      const inset = await page.evaluate(() => {
+        const viz = window.__viz;
+        const r = document.querySelector("#viz").getBoundingClientRect();
+        return {
+          key: viz._insetPlacement?.key,
+          column: viz._legendClass.schema.direction === "column",
+          middle: [r.left + r.width / 2, r.top + r.height / 2],
+        };
+      });
+      assert.strictEqual(inset.key, "legend", "the legend is inside the plot");
+      const {key} = await keyBoxes(page, true);
+      const [cx, cy] = [(key.left + key.right) / 2, (key.top + key.bottom) / 2];
+      const side = inset.column
+        ? cx > inset.middle[0]
+          ? "right"
+          : "left"
+        : cy > inset.middle[1]
+          ? "bottom"
+          : "top";
+      await checkBeside(page, side, "inset legend", true);
+    } finally {
+      await close();
+    }
+  });
 
   it(`${renderer}: a chart shape's tooltip still opens above the pointer`, async () => {
     const {page, close} = await chart(geomap("jenks", "right"), renderer);

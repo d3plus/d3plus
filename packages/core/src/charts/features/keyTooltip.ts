@@ -1,7 +1,8 @@
 /**
-    Where a colorScale swatch's (or bivariate cell's) tooltip opens: beside
-    the key, on the side away from it, so it covers none of the key's other
-    entries, with its arrow meeting the hovered entry.
+    Where a key entry's tooltip opens (a colorScale swatch or bivariate cell,
+    or a legend entry): beside the key, on the side facing the chart, so it
+    covers none of the key's other entries, with its arrow meeting the
+    hovered entry.
 */
 import type {VirtualElement} from "@floating-ui/dom";
 import type {Bounds} from "@d3plus/math";
@@ -10,7 +11,27 @@ import type {SceneNode} from "@d3plus/render";
 import type {TooltipPlacement} from "../../components/tooltipDom.js";
 import {clientAnchor, surfaceOrigin} from "../viz/pointTooltipAnchor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {colorScaleBucketOf} from "./colorScaleBucket.js";
 import {keyEntries, keyOf} from "./keyHold.js";
+import type {KeyName} from "./keyHold.js";
+
+type Wrapped = {__d3plus__?: boolean; data?: unknown};
+
+/** A datum unwrapped to the row it wraps. */
+function unwrap(d: unknown): unknown {
+  let row = d as Wrapped | undefined;
+  while (row && row.__d3plus__ && row.data) row = row.data as Wrapped;
+  return row;
+}
+
+/** The key a hovered node is an entry of, or labels an entry of. */
+function hoveredKey(node: SceneNode): KeyName | null {
+  if (node.type !== "text") return keyOf(node);
+  if (node.datum === undefined) return null;
+  if (colorScaleBucketOf(node.datum)) return "colorScale";
+  const group = (node as {interactionGroup?: string}).interactionGroup;
+  return group === "legend" ? "legend" : null;
+}
 
 /** The box around a set of points. */
 function boundsOf(points: [number, number][]): Bounds {
@@ -27,7 +48,8 @@ function boundsOf(points: [number, number][]): Bounds {
     bottom, whichever faces the middle of the chart.
     @param key The key's box.
     @param surface The chart's size.
-    @param vertical Whether the key runs down a side (`orient` left or right).
+    @param vertical Whether the key runs down a side: a colorScale with
+    `orient` left or right, or a legend whose `direction` is a column.
 */
 export function keyTooltipPlacement(
   key: Bounds,
@@ -58,10 +80,10 @@ export function keyTooltipBox(
 }
 
 /**
-    The tooltip anchor, in client coordinates, for a hovered colorScale
-    swatch or bivariate cell: beside the colorScale (see
-    `keyTooltipPlacement` and `keyTooltipBox`). Undefined for any other
-    node, for the tooltip to follow the pointer.
+    The tooltip anchor, in client coordinates, for a hovered key entry (a
+    colorScale swatch or bivariate cell, or a legend entry) or its label:
+    beside its key (see `keyTooltipPlacement` and `keyTooltipBox`).
+    Undefined for any other node, for the tooltip to follow the pointer.
     @param viz The chart.
     @param node The hovered scene node.
 */
@@ -70,19 +92,21 @@ export function keyTooltipAnchor(
   node: SceneNode | null | undefined,
 ): (VirtualElement & {placement: TooltipPlacement}) | undefined {
   const scene = viz._paintedScene;
-  if (!node || !scene || keyOf(node) !== "colorScale") return undefined;
-  const entries = keyEntries(scene.root, "colorScale");
+  const key = node && hoveredKey(node);
+  if (!node || !scene || !key) return undefined;
+  const entries = keyEntries(scene.root, key);
+  const row = unwrap(node.datum);
   const own =
     entries.find(e => e.node === node) ??
-    entries.find(e => e.node.key === node.key);
+    entries.find(e => e.node.key === node.key) ??
+    entries.find(e => row !== undefined && unwrap(e.node.datum) === row);
   if (!own) return undefined;
-  const key = boundsOf(entries.flatMap(e => e.points));
-  const orient = viz._colorScaleClass?.schema?.orient;
-  const placement = keyTooltipPlacement(
-    key,
-    scene,
-    orient === "left" || orient === "right",
-  );
-  const box = keyTooltipBox(key, boundsOf(own.points), placement);
-  return {...clientAnchor(box, surfaceOrigin(viz)), placement};
+  const box = boundsOf(entries.flatMap(e => e.points));
+  const vertical =
+    key === "colorScale"
+      ? ["left", "right"].includes(viz._colorScaleClass?.schema?.orient)
+      : viz._legendClass?.schema?.direction === "column";
+  const placement = keyTooltipPlacement(box, scene, vertical);
+  const anchor = keyTooltipBox(box, boundsOf(own.points), placement);
+  return {...clientAnchor(anchor, surfaceOrigin(viz)), placement};
 }

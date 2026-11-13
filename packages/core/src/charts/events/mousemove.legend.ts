@@ -1,5 +1,6 @@
 import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
+import {keyTooltipAnchor} from "../features/keyTooltip.js";
 import {legendLabel} from "../features/legendLabel.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
@@ -24,9 +25,16 @@ export default function (
   x: DataPoint,
   event: MouseEvent & TouchEvent,
 ): void {
-  const position = event.touches
-    ? [event.touches[0].clientX, event.touches[0].clientY]
-    : [event.clientX, event.clientY];
+  // The entry's tooltip opens beside the legend (an entry missing from the
+  // painted scene puts it at the pointer).
+  const position =
+    keyTooltipAnchor(
+      this as unknown as VizInstance,
+      this._lastScenePick?.node,
+    ) ??
+    (event.touches
+      ? [event.touches[0].clientX, event.touches[0].clientY]
+      : [event.clientX, event.clientY]);
   const dataLength = merge(
     this._legendClass.data().map((d: DataPoint, i: number) => {
       let id = this._id(d, i);
