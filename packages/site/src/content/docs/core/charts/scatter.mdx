@@ -9,6 +9,8 @@ import basicExample from "~/examples/core/charts/scatter/basic-example.js?raw";
 import sizedPoints from "~/examples/core/charts/scatter/sized-points.js?raw";
 import trendLine from "~/examples/core/charts/scatter/trend-line.js?raw";
 import pointLabels from "~/examples/core/charts/scatter/point-labels.js?raw";
+import errorBars from "~/examples/core/charts/scatter/error-bars.js?raw";
+import errorBarsBothAxes from "~/examples/core/charts/scatter/error-bars-both-axes.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
 its `x` and `y` values, on continuous axes (set `discrete` to place points
@@ -40,5 +42,17 @@ Set `trendLine: true` to fit a least-squares line to each series (here each `spe
 Points too small to hold their label get it beside them instead, on the side facing the most open room (the point's Voronoi cell), where it overlaps no other point or label and stays inside the plot. Where the points crowd together there is no such room, so those labels hide; hover a point for its name. `labelPosition: "inside"` keeps labels inside the points, and `pointLabelConfig` sets the size and style of the labels beside them.
 
 <Playground chart="Scatter" code={pointLabels} controls={["labelPosition","pointLabelConfig"]} />
+
+## Error bars
+
+`confidence` names each point's lower and upper bounds, drawn as a capped error bar through the point; the y axis widens to fit them, and the tooltip lists them.
+
+<Playground chart="Scatter" code={errorBars} controls={["confidence","confidenceConfig"]} />
+
+## Error bars on both axes
+
+Give `confidence` an object, `{x: [lower, upper], y: [lower, upper]}`, to bound each axis: a point with both draws a cross. Each axis widens for its own bounds, and the tooltip lists both, named for their axes. Style the bars with `confidenceConfig` (or `confidenceConfig.Circle` for points alone), and `capWidth` for the caps, which match each point's width by default.
+
+<Playground chart="Scatter" code={errorBarsBothAxes} controls={["confidence","confidenceConfig"]} />
 
 <ApiReference name="Scatter" pkg="core" />
