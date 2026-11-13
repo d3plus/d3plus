@@ -1359,7 +1359,9 @@ export {
 export {
   handleRowLabel,
   rowHidden,
+  labelAnchor,
   rowLabelOf,
+  rowLabelTabStop,
   rowToggle,
 } from "./src/charts/HorizonChart/rowFilter.js";
 export type {RowFilter} from "./src/charts/HorizonChart/rowFilter.js";
@@ -1758,6 +1760,7 @@ export {
 export type {
   FocusDirection,
   FocusTarget,
+  TabStopTest,
 } from "./src/charts/viz/focusTargets.js";
 export {focusRingNode} from "./src/charts/viz/focusRing.js";
 export type {FocusRingStyle} from "./src/charts/viz/focusRing.js";
@@ -2179,6 +2182,7 @@ export {
   appendFocusRing,
   focusRingStyle,
   syncKeyboardNav,
+  tabTarget,
   targetLabel,
   teardownKeyboardNav,
 } from "./src/charts/viz/keyboardNav.js";

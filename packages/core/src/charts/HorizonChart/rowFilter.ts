@@ -6,12 +6,14 @@
     Each change goes on the chart's Back history.
 */
 import type {DataPoint} from "@d3plus/data";
+import type {Bounds} from "@d3plus/math";
 import type {SceneEvent, SceneNode} from "@d3plus/render";
 
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {prepareTooltip, restoreTooltip} from "../Plot/sharedTooltip.js";
 import {legendSnapshot, recordLegendChange} from "../viz/history.js";
+import {focusTargets, type TabStopTest} from "../viz/focusTargets.js";
 import {broadcastLegend} from "../viz/linkGroup.js";
 import {setCursor} from "../viz/setCursor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -87,7 +89,42 @@ export function rowHidden(viz: VizInstance, series: string): boolean {
   );
 }
 
-type Parent = SceneNode & {children?: SceneNode[]};
+/** The series a scene node's tick datum names, if it names one of the chart's. */
+function tickSeries(viz: VizInstance, node: SceneNode): string | undefined {
+  const tick = (node.datum as {data?: {id?: unknown; tick?: unknown}})?.data;
+  if (node.type !== "text" || !tick || !("tick" in tick)) return;
+  const series = `${tick.id}`;
+  return horizonState(viz).labels.has(series) ? series : undefined;
+}
+
+/**
+    HorizonChart's keyboard Tab stops (see `TabStopTest`): the y axis's row
+    labels, each named for its series and what Enter does to it, such as
+    "Oslo, Click to Hide".
+*/
+export function rowLabelTabStop(viz: VizInstance): TabStopTest {
+  return (node, ancestors) => {
+    const series = tickSeries(viz, node);
+    if (!series || !ancestors.some(a => `${a.key}`.endsWith("plot-y-axis")))
+      return undefined;
+    const label = horizonState(viz).labels.get(series) ?? series;
+    return `${label}, ${rowHints(viz, series).split("<br />")[0]}`;
+  };
+}
+
+/** The painted row label for a picked scene node, with its series and surface box. */
+function paintedLabel(
+  viz: VizInstance,
+  node: SceneNode | undefined,
+): {series: string; box: Bounds} | undefined {
+  const series = node && tickSeries(viz, node);
+  if (!series) return;
+  const target = focusTargets(
+    viz._paintedScene?.root.children ?? [],
+    rowLabelTabStop(viz),
+  ).find(t => t.tab && (t.node === node || t.node.key === node.key));
+  return target ? {series, box: target.box} : undefined;
+}
 
 /**
     The series a picked scene node labels, when it is one of the y axis's
@@ -99,25 +136,31 @@ export function rowLabelOf(
   viz: VizInstance,
   node: SceneNode | undefined,
 ): string | undefined {
-  const tick = (node?.datum as {data?: {id?: unknown; tick?: unknown}})?.data;
-  if (!node || node.type !== "text" || !tick || !("tick" in tick)) return;
-  const series = `${tick.id}`;
-  if (!horizonState(viz).labels.has(series)) return;
-  let found = false;
-  const walk = (n: Parent, inAxis: boolean): void => {
-    if (found) return;
-    const axis = inAxis || `${n.key}`.endsWith("plot-y-axis");
-    if (axis && n.key === node.key) found = true;
-    (n.children ?? []).forEach(child => walk(child as Parent, axis));
-  };
-  (viz._chartScene ?? []).forEach(n => walk(n as Parent, false));
-  return found ? series : undefined;
+  return paintedLabel(viz, node)?.series;
 }
 
-/** A point as a virtual anchor the tooltip opens to the right of. */
-function beside([x, y]: [number, number]) {
-  const box = {x, y, left: x, top: y, right: x, bottom: y, width: 0, height: 0};
-  return {getBoundingClientRect: () => box, placement: "right"};
+/**
+    A virtual anchor at a label's right edge, which the tooltip opens to the
+    right of: just past the end of the label, over the chart.
+    @param viz The chart.
+    @param box The label's box, in surface pixels.
+*/
+export function labelAnchor(viz: VizInstance, box: Bounds) {
+  const svg = viz._select?.node?.() as Element | undefined;
+  const origin = svg?.getBoundingClientRect?.() ?? {left: 0, top: 0};
+  const x = origin.left + box.x + box.width,
+    top = origin.top + box.y;
+  const rect = {
+    x,
+    y: top,
+    left: x,
+    right: x,
+    top,
+    bottom: top + box.height,
+    width: 0,
+    height: box.height,
+  };
+  return {getBoundingClientRect: () => rect, placement: "right"};
 }
 
 /** The legend's click hints for a row label, by what a click would do. */
@@ -152,11 +195,11 @@ function rowHints(viz: VizInstance, series: string): string {
 */
 export function handleRowLabel(viz: VizInstance, event: SceneEvent): boolean {
   const state = horizonState(viz);
-  const series =
+  const label =
     event.type === "mouseleave"
       ? undefined
-      : rowLabelOf(viz, event.pick?.node as SceneNode | undefined);
-  if (!series) {
+      : paintedLabel(viz, event.pick?.node as SceneNode | undefined);
+  if (!label) {
     if (state.labelHover !== undefined) {
       state.labelHover = undefined;
       setCursor(viz, "auto");
@@ -167,6 +210,7 @@ export function handleRowLabel(viz: VizInstance, event: SceneEvent): boolean {
     }
     return false;
   }
+  const {series, box} = label;
   if (event.type === "click") {
     const id = filterId(viz, series);
     const native = event.nativeEvent as MouseEvent | undefined;
@@ -196,7 +240,6 @@ export function handleRowLabel(viz: VizInstance, event: SceneEvent): boolean {
   if (event.type !== "mousemove" && event.type !== "mouseenter") return true;
   state.labelHover = series;
   setCursor(viz, "pointer");
-  const native = event.nativeEvent as MouseEvent | undefined;
   prepareTooltip(viz)
     .data([state.first.get(series) as DataPoint])
     .config(
@@ -208,8 +251,7 @@ export function handleRowLabel(viz: VizInstance, event: SceneEvent): boolean {
     .thead([])
     .tbody([])
     .footer(rowHints(viz, series))
-    // Opens beside the label, over the chart, rather than off its edge.
-    .position(beside(native ? [native.clientX, native.clientY] : event.point))
+    .position(labelAnchor(viz, box))
     .render();
   return true;
 }

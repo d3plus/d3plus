@@ -20,7 +20,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {horizonEmit} from "./emit.js";
 import {handleHorizonHover} from "./hover.js";
 import {applyRowDomain, measureBands} from "./measure.js";
-import {rowHidden} from "./rowFilter.js";
+import {rowHidden, rowLabelTabStop} from "./rowFilter.js";
 import {
   bandLabel,
   bandMeta,
@@ -172,6 +172,8 @@ export const horizonChartDef: ChartDefinition = {
     configureLegend(viz);
     viz._plotShapeEmitters = {...viz._plotShapeEmitters, Area: horizonEmit};
     viz._crosshairFullSpan = true;
+    // Tab steps through the row labels, which Enter hides and Shift+Enter solos.
+    viz._keyboardTabStop = rowLabelTabStop(viz);
     (
       viz as VizInstance & {_sharedHover: (e: SceneEvent) => void}
     )._sharedHover = e => handleHorizonHover(viz, e);
