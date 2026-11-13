@@ -15,6 +15,8 @@ import {broadcastLink} from "./linkGroup.js";
 import {shapeHoverEnabled} from "./shapeHover.js";
 import {setLoaderValue} from "./loaderFormat.js";
 import {stopDataPolling} from "./vizDataPolling.js";
+import {setZoomBrush, zoomBy} from "../drawSteps/zoomActions.js";
+import {isBrushing} from "../drawSteps/zoomControlsMarkup.js";
 import type Viz from "./Viz.js";
 import type {VizFieldKey} from "./vizFields.js";
 import type {VizInstance} from "./vizTypes.js";
@@ -39,8 +41,8 @@ interface VizBase extends VizFieldAccessors {}
 
 /**
     The fluent config accessors shared by every Viz chart that need more than
-    storing their value (most are generated from `vizFields.ts`); `Viz` adds
-    the render lifecycle.
+    storing their value (most are generated from `vizFields.ts`), and the
+    zoom actions; `Viz` adds the render lifecycle.
 */
 class VizBase extends BaseClass {
   static readonly _displayName: string = "VizBase";
@@ -423,6 +425,53 @@ Defaults to an empty array (`[]`).
       else this.schema.total = false;
       return this;
     } else return this.schema.total;
+  }
+
+  /**
+      Zooms the chart in by `zoomFactor` about the center of the chart area,
+      as the zoom-in button does. Works whether or not the zoom-control
+      buttons show (see `zoomControls`), so a page's own button can call it;
+      does nothing while `zoom` is off or before the chart first renders.
+  */
+  zoomIn(): this {
+    zoomBy(this as unknown as Viz, this.schema.zoomFactor);
+    return this;
+  }
+
+  /**
+      Zooms the chart out by `zoomFactor` about the center of the chart
+      area, as the zoom-out button does. Does nothing while `zoom` is off or
+      before the chart first renders.
+  */
+  zoomOut(): this {
+    zoomBy(this as unknown as Viz, 1 / this.schema.zoomFactor);
+    return this;
+  }
+
+  /**
+      Returns the chart to its initial, unzoomed view, as the reset button
+      does. Does nothing while `zoom` is off or before the chart first
+      renders.
+  */
+  zoomReset(): this {
+    zoomBy(this as unknown as Viz, 0);
+    return this;
+  }
+
+  /**
+      Turns brush mode on or off, as the brush button does: while it is on,
+      a drag anywhere on the chart draws a box, and releasing zooms into
+      the box and turns brush mode off again. With no argument, returns
+      whether brush mode is on. Does nothing while `zoom` is off or before
+      the chart first renders.
+      @param _ Whether brush mode is on.
+  */
+  zoomBrush(): boolean;
+  zoomBrush(_: boolean): this;
+  zoomBrush(_?: boolean): boolean | this {
+    if (!arguments.length) return isBrushing(this as unknown as Viz);
+    setZoomBrush(this as unknown as Viz, Boolean(_));
+    return this;
   }
 }
 
