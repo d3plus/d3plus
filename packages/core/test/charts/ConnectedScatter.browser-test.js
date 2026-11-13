@@ -219,3 +219,86 @@ it("ConnectedScatter draws a path per facet panel", async function () {
     );
   });
 });
+
+it("ConnectedScatter end labels move aside or hide rather than collide", async function () {
+  const counts = {};
+  for (const renderer of RENDERERS)
+    await withPage(BODY, async page => {
+      const out = await page.evaluate(
+        renderer =>
+          new Promise(resolve => {
+            // Ten series that start apart and end on top of each other.
+            const rows = Array.from({length: 10}, (_, s) =>
+              Array.from({length: 6}, (_, i) => ({
+                id: `s${s}`,
+                year: 2000 + i,
+                x: 10 + s * 8 * (1 - i / 6) + i * 4,
+                y: 20 + s * 6 * (1 - i / 7) + i * 3,
+              })),
+            ).flat();
+            const viz = new window.d3plus.ConnectedScatter()
+              .config({data: rows, groupBy: "id", order: "year"})
+              .renderer(renderer)
+              .duration(0)
+              .select("#viz");
+            viz.render(() => {
+              const labels = new Map(),
+                circles = [];
+              const walk = (node, dx, dy) => {
+                const x = dx + (node.transform?.x ?? 0),
+                  y = dy + (node.transform?.y ?? 0);
+                const match = `${node.key}`.match(
+                  /order-label-\w+-(first|last)/,
+                );
+                if (match && node.type === "text" && node.path) {
+                  const [x0, base, x1] = node.path.d
+                    .match(/-?[\d.]+/g)
+                    .map(Number);
+                  const size = node.font?.size ?? 11;
+                  labels.set(match[0], {
+                    x0: x + x0,
+                    x1: x + x1,
+                    y0: y + base - size * 0.75,
+                    y1: y + base + size * 0.2,
+                  });
+                }
+                if (node.shapeType === "Circle" && node.type === "circle")
+                  circles.push({x: x + node.cx, y: y + node.cy, r: node.r});
+                (node.children || []).forEach(c => walk(c, x, y));
+              };
+              (viz._chartScene || []).forEach(n => walk(n, 0, 0));
+              resolve({labels: [...labels.values()], circles});
+            });
+          }),
+        renderer,
+      );
+      counts[renderer] = out.labels.length;
+      assert.ok(
+        out.labels.length > 0 && out.labels.length < 20,
+        `${renderer}: some of the 20 end labels hide (${out.labels.length} shown)`,
+      );
+      const overlap = (a, b) =>
+        a.x0 < b.x1 - 0.5 &&
+        b.x0 < a.x1 - 0.5 &&
+        a.y0 < b.y1 - 0.5 &&
+        b.y0 < a.y1 - 0.5;
+      out.labels.forEach((a, i) =>
+        out.labels
+          .slice(i + 1)
+          .forEach(b =>
+            assert.ok(!overlap(a, b), `${renderer}: labels overlap`),
+          ),
+      );
+      out.labels.forEach(a =>
+        out.circles.forEach(c => {
+          const dx = Math.max(a.x0 - c.x, 0, c.x - a.x1);
+          const dy = Math.max(a.y0 - c.y, 0, c.y - a.y1);
+          assert.ok(
+            dx * dx + dy * dy >= (c.r - 1) * (c.r - 1),
+            `${renderer}: a label covers a point`,
+          );
+        }),
+      );
+    });
+  assert.strictEqual(counts.svg, counts.canvas, "both backends agree");
+});

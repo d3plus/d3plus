@@ -5,7 +5,7 @@ import {
   DATA_ORDER,
   coerceOrder,
   compareOrder,
-  endLabelSpot,
+  endLabelPath,
   keepOrderField,
   orderOf,
   orderedPointKeys,
@@ -127,32 +127,11 @@ it("segmentArrows: one centered arrow per segment with room", () => {
   );
 });
 
-it("endLabelSpot: past the mark, away from the path, inside the bounds", () => {
-  const right = endLabelSpot([100, 100], [50, 100], 5, 30, 10);
-  assert.strictEqual(right.anchor, "start");
-  assert.ok(right.d.startsWith("M109,103.5"));
-  const left = endLabelSpot([100, 100], [150, 110], 5, 30, 10);
-  assert.strictEqual(left.anchor, "end");
-  assert.ok(left.d.endsWith("L91,103.5"));
-  const above = endLabelSpot([100, 100], [100, 160], 5, 30, 10);
-  assert.strictEqual(above.anchor, "middle");
-  assert.ok(above.d.startsWith("M84,91"));
-  const below = endLabelSpot([100, 100], [100, 40], 0, 30, 10);
-  assert.ok(below.d.startsWith("M84,111.5"));
+it("endLabelPath: a baseline across the label's box", () => {
   assert.strictEqual(
-    endLabelSpot([0, 0], undefined, 0, 10, 10).anchor,
-    "start",
+    endLabelPath({x: 10, y: 20, width: 30, height: 12}, 10),
+    "M10,29.5L40,29.5",
   );
-  // Running out of the right edge, it moves above the point.
-  const kept = endLabelSpot(
-    [190, 100],
-    [150, 100],
-    5,
-    30,
-    10,
-    [0, 200, 0, 200],
-  );
-  assert.strictEqual(kept.anchor, "end", "or to its left");
 });
 
 it("orderValueText: years as is, other numbers abbreviated, dates as dates", () => {
