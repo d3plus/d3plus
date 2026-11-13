@@ -17,10 +17,17 @@ import {
 } from "../../src/components/Axis/rangeBreaks.ts";
 import {datesDays} from "../../src/components/Axis/axisRangeBreaks.ts";
 import {
+  chartUtc,
   plotAxisUtc,
   timelineUtc,
   timeValueAxes,
 } from "../../src/charts/Plot/plotRangeBreaks.ts";
+import {
+  parseCalendarDate,
+  startOfUtcDay,
+} from "../../src/charts/Calendar/calendarDates.ts";
+import {formatFacetValue} from "../../src/charts/facet/facetData.ts";
+import {facetTitleTexts} from "../../src/charts/facet/drawFacets.ts";
 import {widenToValues} from "../../src/charts/Plot/referenceDomains.ts";
 import {
   projectionPositions,
@@ -285,4 +292,55 @@ it("widenToValues reads zoneless values in UTC with utc", () => {
     utc: true,
   });
   assert.strictEqual(+out[1], +utcDay(8));
+});
+
+it("timelineUtc falls back to the chart's own utc", () => {
+  const calendar = {_data: [{date: 1}], schema: {time: d => d.date, utc: true}};
+  assert.strictEqual(timelineUtc(calendar), true);
+  assert.strictEqual(
+    timelineUtc({...calendar, schema: {...calendar.schema, utc: false}}),
+    false,
+  );
+});
+
+it("chartUtc reads any axis's utc, else the timeline's", () => {
+  assert.strictEqual(chartUtc(plotViz({})), false);
+  assert.strictEqual(chartUtc({...plotViz({}), _yConfig: {utc: true}}), true);
+  assert.strictEqual(chartUtc(plotViz({}, {utc: true})), true);
+});
+
+it("startOfUtcDay is the local midnight of a date's UTC day", () => {
+  const day = startOfUtcDay(utcDay(1));
+  assert.deepStrictEqual(
+    [day.getFullYear(), day.getMonth(), day.getDate(), day.getHours()],
+    [2024, 2, 1, 0],
+  );
+});
+
+it("parseCalendarDate reads days in UTC with utc", () => {
+  const key = d => [d.getFullYear(), d.getMonth() + 1, d.getDate()].join("-");
+  assert.strictEqual(key(parseCalendarDate(utcDay(1), true)), "2024-3-1");
+  assert.strictEqual(key(parseCalendarDate(+utcDay(1), true)), "2024-3-1");
+  assert.strictEqual(key(parseCalendarDate(utcDay(1))), "2024-2-29");
+  assert.strictEqual(key(parseCalendarDate("2024-03-01", true)), "2024-3-1");
+  assert.strictEqual(
+    key(parseCalendarDate("2024-03-01T23:00:00", true)),
+    "2024-3-1",
+  );
+  assert.strictEqual(
+    key(parseCalendarDate([utcDay(2), utcDay(3)], true)),
+    "2024-3-2",
+  );
+  assert.strictEqual(parseCalendarDate("garbage", true), null);
+});
+
+it("formatFacetValue and facetTitleTexts write dates in UTC with utc", () => {
+  const months = [1, 2].map(utcMonth);
+  assert.strictEqual(formatFacetValue(months[0], months, true), "Feb 2024");
+  assert.strictEqual(formatFacetValue(months[0], months), "Jan 2024");
+  const panels = months.map(value => ({value, data: []}));
+  assert.deepStrictEqual(facetTitleTexts({}, panels, true), [
+    "Feb 2024",
+    "Mar 2024",
+  ]);
 });

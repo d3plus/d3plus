@@ -193,3 +193,65 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 }
+
+/** Three days of values at UTC midnight, March 1 to 3, 2024. */
+const utcDays = () =>
+  [1, 2, 3].map(d => ({date: Date.UTC(2024, 2, d), value: d}));
+
+/** Draws a Calendar and reads the days its data cells fall on, and their labels. */
+const calendarDays = (renderer, utc) =>
+  draw("Calendar", {data: utcDays(), utc}, renderer, viz =>
+    viz._chartScene
+      .filter(n => n.type === "rect" && n.datum)
+      .map(n => [n.key, viz._drawLabel(n.datum.data ?? n.datum, 0)]),
+  );
+
+/** Draws a small-multiple LinePlot faceted by a Date and reads its panel titles. */
+const facetTitles = (renderer, extra) =>
+  draw(
+    "LinePlot",
+    {
+      data: [1, 2].flatMap(m =>
+        [1, 2, 3].map(x => ({
+          id: "a",
+          month: new Date(Date.UTC(2024, m, 1)),
+          x,
+          y: x * m,
+        })),
+      ),
+      groupBy: "id",
+      x: "x",
+      y: "y",
+      facet: "month",
+      ...extra,
+    },
+    renderer,
+    viz =>
+      sceneNodes(viz._chartScene)
+        .filter(n => n.type === "text" && n.interactionGroup === "facet")
+        .map(n => n.lines.map(l => l.text).join(" ")),
+  );
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`[${renderer}] a Calendar with utc puts UTC midnights on their own day`, async () => {
+    const utc = await calendarDays(renderer, true);
+    assert.deepStrictEqual(
+      utc.map(([key]) => key),
+      ["calendar-2024-03-01", "calendar-2024-03-02", "calendar-2024-03-03"],
+    );
+    assert.ok(/3\/1\/2024/.test(utc[0][1]), `labeled March 1 (${utc[0][1]})`);
+    const local = await calendarDays(renderer, false);
+    assert.deepStrictEqual(
+      local.map(([key]) => key),
+      ["calendar-2024-02-29", "calendar-2024-03-01", "calendar-2024-03-02"],
+    );
+  });
+
+  it(`[${renderer}] small-multiple date titles follow the chart's utc`, async () => {
+    const utc = await facetTitles(renderer, {xConfig: {utc: true}});
+    assert.deepStrictEqual(utc, ["Feb 2024", "Mar 2024"]);
+    const local = await facetTitles(renderer, {});
+    // Locally each UTC month start is the evening before, in the month before.
+    assert.deepStrictEqual(local, ["Jan 2024", "Feb 2024"]);
+  });
+}

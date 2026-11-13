@@ -94,15 +94,28 @@ export const plotAxisUtc = (viz: PlotViz, axis: AxisName): boolean =>
   configUtc(viz[`_${axis}Config`]);
 
 /**
+    Whether a chart reads its dates in UTC: any of its axes does (its axis
+    config's `utc`), or its timeline does (see `timelineUtc`). Small-multiple
+    titles that show dates follow it.
+*/
+export function chartUtc(viz: PlotViz): boolean {
+  return AXES.some(axis => plotAxisUtc(viz, axis)) || timelineUtc(viz);
+}
+
+/**
     Whether a chart's timeline, and the chart's `time` values, read time in
     UTC: `timelineConfig.utc` when set, else whether an axis that plots the
-    `time` values does (see `timeValueAxes`).
+    `time` values does (see `timeValueAxes`), else the chart's own `utc`
+    (such as a Calendar's).
 */
 export function timelineUtc(viz: PlotViz): boolean {
   const config = viz.schema.timelineConfig as
     Record<string, unknown> | undefined;
   if (config && config.utc !== undefined) return Boolean(config.utc);
-  return timeValueAxes(viz).some(axis => plotAxisUtc(viz, axis));
+  return (
+    timeValueAxes(viz).some(axis => plotAxisUtc(viz, axis)) ||
+    viz.schema.utc === true
+  );
 }
 
 /** A plotted time value as a timestamp (`NaN` when it isn't one). */

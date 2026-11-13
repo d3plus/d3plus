@@ -541,7 +541,8 @@ export interface TimelineConfig {
       Whether the timeline reads its periods in UTC instead of the viewer's
       time zone (see the axis config's `utc`), which also parses the chart's
       `time` values. By default the timeline follows the axis that plots the
-      chart's `time` values (such as `xConfig.utc`), else local time.
+      chart's `time` values (such as `xConfig.utc`), else the chart's own
+      `utc` (a Calendar's), else local time.
   */
   utc?: boolean;
   /**
