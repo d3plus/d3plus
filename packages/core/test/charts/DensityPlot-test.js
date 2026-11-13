@@ -12,7 +12,12 @@ import Treemap from "../../src/charts/Treemap/index.ts";
 import {drawnRawRows} from "../../src/charts/pipeline/preDrawData.ts";
 import {spanTicks} from "../../src/charts/Plot/discreteSpan.ts";
 import {valueField} from "../../src/charts/helpers/valueTitle.ts";
-import {rugGroups, rugSegments} from "../../src/charts/DensityPlot/rug.ts";
+import {
+  rugGroups,
+  rugSegments,
+  rugSettings,
+  rugTickSize,
+} from "../../src/charts/DensityPlot/rug.ts";
 
 useJsdom();
 
@@ -203,18 +208,44 @@ it("rugGroups / rugSegments: each group's observations as ticks", () => {
   assert.strictEqual(groups.get("a").datum.data.g, "a");
   assert.deepStrictEqual(rugGroups([{id: "x"}]).size, 0);
   assert.deepStrictEqual(
-    rugSegments([1, 2, NaN], v => v * 10, 100, 8),
+    rugSegments([1, 2, NaN, 9], v => v * 10, 100, 8, [0, 50]),
     [
       [
-        [10, 100],
-        [10, 92],
+        [10, 102],
+        [10, 110],
       ],
       [
-        [20, 100],
-        [20, 92],
+        [20, 102],
+        [20, 110],
       ],
     ],
+    "ticks hang below the axis line; values out of view get none",
   );
+});
+
+it("rugSettings / rugTickSize: defaults and the axis room", () => {
+  assert.deepStrictEqual(rugSettings(), {
+    size: 8,
+    strokeWidth: 1,
+    opacity: 0.7,
+  });
+  assert.deepStrictEqual(rugSettings({size: -3, opacity: 0.2}), {
+    size: 0,
+    strokeWidth: 1,
+    opacity: 0.2,
+  });
+  assert.strictEqual(rugTickSize(), 13);
+  assert.strictEqual(rugTickSize({size: 4}), 9);
+});
+
+it("curvesBeforePreDraw: the rug moves the value axis labels down", () => {
+  const viz = curves(rows, v => v.rug(true));
+  assert.strictEqual(viz._xConfig.tickSize, 13);
+  viz.rug(false);
+  curvesBeforePreDraw(viz);
+  assert.strictEqual(viz._xConfig.tickSize, undefined, "and back up");
+  const mine = curves(rows, v => v.rug(true).xConfig({tickSize: 3}));
+  assert.strictEqual(mine._xConfig.tickSize, 3, "a user's tickSize stays");
 });
 
 it("DensityPlot rug defaults: off, 8px ticks", () => {

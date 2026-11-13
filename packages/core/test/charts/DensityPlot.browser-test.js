@@ -216,8 +216,18 @@ const drawRug = (page, renderer, extra = "{}", hidden = []) =>
         viz.render(() => {
           const ticks = {},
             areas = {};
-          let inert = true;
+          let inert = true,
+            below = true,
+            painted = true;
+          // The value axis line, in the chart body's frame.
+          // (Small multiples draw each panel in its own frame.)
+          const axisLine =
+            viz._yFunc && !viz._facetPanels?.length
+              ? viz._yFunc(0, "y")
+              : -Infinity;
           const walk = node => {
+            if (node.key === "density-rug" && node.interactionGroup !== "axis")
+              painted = false;
             const key = `${node.key}`;
             const rug = key.match(/rug-(\w+)-\d+$/);
             if (rug && node.type === "line") {
@@ -225,6 +235,8 @@ const drawRug = (page, renderer, extra = "{}", hidden = []) =>
               (ticks[id] ||= {n: 0, colors: new Set()}).n++;
               ticks[id].colors.add(node.paint.stroke);
               if (node.interactive !== false) inert = false;
+              if (Math.min(...node.points.map(p => p[1])) < axisLine)
+                below = false;
             }
             if (node.shapeType === "Area" && node.datum?.id)
               areas[node.datum.id] ||= node.paint.stroke;
@@ -240,6 +252,9 @@ const drawRug = (page, renderer, extra = "{}", hidden = []) =>
             ),
             areas,
             inert,
+            below,
+            painted,
+            tickSize: viz._xConfig.tickSize,
           });
         });
       }),
@@ -262,6 +277,9 @@ it("DensityPlot rug ticks every drawn observation in its group's color", async f
         assert.deepStrictEqual(t.colors, [out.areas[id]], `${renderer}: ${id}`),
       );
       assert.ok(out.inert, `${renderer}: ticks leave hover to the curves`);
+      assert.ok(out.below, `${renderer}: ticks hang below the axis line`);
+      assert.ok(out.painted, `${renderer}: the rug paints with the axes`);
+      assert.strictEqual(out.tickSize, 13, `${renderer}: labels move down`);
 
       const hidden = await drawRug(page, renderer, "{}", ["mid"]);
       assert.deepStrictEqual(Object.keys(hidden.ticks).sort(), ["high", "low"]);
@@ -278,6 +296,7 @@ it("DensityPlot rug ticks every drawn observation in its group's color", async f
 
       const off = await drawRug(page, renderer, "{rug: false}");
       assert.deepStrictEqual(off.ticks, {});
+      assert.strictEqual(off.tickSize, undefined);
     });
 });
 
