@@ -5,9 +5,12 @@
 */
 import {date} from "@d3plus/dom";
 import * as scales from "d3-scale";
-import {deviation, max, mean, min, range} from "d3-array";
+import {max, min, range} from "d3-array";
 
-import {drawnAxisScale} from "../../components/Axis/axisScaleType.js";
+import {
+  autoAxisScale,
+  drawnAxisScale,
+} from "../../components/Axis/axisScaleType.js";
 import {userDomainBreaksBaseline} from "./baselineBreak.js";
 import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
@@ -126,8 +129,8 @@ function domainScaleSetup(
 }
 
 /**
-    An axis config's `scale`, with `"auto"` resolved to "log" when the
-    values' spread is over three times their mean (else "linear"),
+    An axis config's `scale`, with `"auto"` resolved for the axis's values
+    (see `autoAxisScale`; a discrete axis keeps its own scale),
     `"utc"` to "time", and a scale the axis doesn't draw to "linear" (with a
     warning).
 */
@@ -140,10 +143,7 @@ function autoScale(
   const userScale = viz[`_${axis}Config`].scale;
   if (userScale === "auto") {
     if (viz.schema.discrete === axis) return fallback;
-    const values = axisData.map(
-      (d: Record<string, unknown>) => d[axis],
-    ) as number[];
-    return deviation(values)! / mean(values)! > 3 ? "log" : "linear";
+    return autoAxisScale(axisData.map((d: Record<string, unknown>) => d[axis]));
   }
   if (!userScale) return fallback;
   const drawn = drawnAxisScale(userScale);

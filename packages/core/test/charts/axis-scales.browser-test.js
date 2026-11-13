@@ -6,7 +6,8 @@ import {sceneNodes} from "~test/browser/helpers.js";
 /**
     Every axis `scale` a Plot takes draws an axis, on both backends: the
     value axis's continuous scales (and `"auto"`), and `"time"` and `"utc"`
-    on a time axis. A name an axis doesn't draw warns and draws linear.
+    (or `"auto"`, which picks time for dates) on a time axis. A name an
+    axis doesn't draw warns and draws linear.
 */
 
 const box = "<div id='viz' style='width:700px;height:360px'></div>";
@@ -74,7 +75,7 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(out.yLabels.length >= 2, `y labels (${out.yLabels})`);
     });
 
-  for (const scale of ["time", "utc"])
+  for (const scale of ["time", "utc", "auto"])
     it(`[${renderer}] xConfig.scale "${scale}" draws the time axis`, async () => {
       const out = await draw({rows, extra: {xConfig: {scale}}}, renderer);
       assert.deepStrictEqual(out.warnings, []);

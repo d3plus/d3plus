@@ -3,9 +3,11 @@ import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {AxisBottom} from "../../index.ts";
 import {
+  autoAxisScale,
   axisScales,
   drawnAxisScale,
   isTimeScaleName,
+  resolveAutoScale,
 } from "../../src/components/Axis/axisScaleType.ts";
 import {configUtc} from "../../src/components/Axis/timeValues.ts";
 import {configWarnings} from "../../src/utils/configWarnings.ts";
@@ -118,4 +120,47 @@ it("isTimeScaleName reads time and utc as time", () => {
 it('configUtc reads scale: "utc" as utc', () => {
   assert.ok(configUtc({scale: "utc"}));
   assert.ok(!configUtc({scale: "time"}));
+});
+
+it("autoAxisScale picks time, band, log or linear for the values", () => {
+  assert.strictEqual(autoAxisScale([new Date(2024, 0, 1), new Date()]), "time");
+  assert.strictEqual(autoAxisScale(["Apples", "Bananas"]), "band");
+  assert.strictEqual(autoAxisScale([1, "Bananas"]), "band");
+  assert.strictEqual(autoAxisScale([1, 2, 3, 4]), "linear");
+  assert.strictEqual(autoAxisScale([1, 1, 1, 1, 1, 1, 1, 1, 1, 10000]), "log");
+  assert.strictEqual(autoAxisScale([undefined, null, NaN, 5, 6]), "linear");
+  assert.strictEqual(autoAxisScale([]), "linear");
+});
+
+it("resolveAutoScale sets an auto axis's scale from its data, else its domain", () => {
+  const axis = new AxisBottom().scale("auto").domain(["a", "b"]);
+  resolveAutoScale(axis);
+  assert.strictEqual(axis.scale(), "band");
+  axis.data([new Date(2024, 0, 1), new Date(2024, 5, 1)]);
+  resolveAutoScale(axis);
+  assert.strictEqual(axis.scale(), "time");
+  const fixed = new AxisBottom().scale("linear").domain(["a", "b"]);
+  resolveAutoScale(fixed);
+  assert.strictEqual(fixed.scale(), "linear");
+});
+
+for (const [name, domain, scale] of [
+  ["dates", domains.time, "time"],
+  ["numbers", [0, 100], "linear"],
+  ["strings", domains.band, "band"],
+])
+  it(`scale "auto" draws ${name} on a ${scale} scale without warning`, () => {
+    let out;
+    const warned = warnings(() => (out = draw("auto", domain)));
+    assert.deepStrictEqual(warned, []);
+    assert.strictEqual(out.axis.scale(), scale);
+    assert.deepStrictEqual(out.labels, draw(scale, domain).labels);
+  });
+
+it('scale "auto" picks again for new data, and another scale stops it', () => {
+  const axis = draw("auto", [0, 100]).axis;
+  axis.domain(domains.band).render();
+  assert.strictEqual(axis.scale(), "band");
+  axis.scale("point").domain([0, 100]).render();
+  assert.strictEqual(axis.scale(), "point");
 });

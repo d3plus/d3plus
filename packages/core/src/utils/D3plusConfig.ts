@@ -212,10 +212,11 @@ export interface AxisConfig {
       The axis's scale: `"linear"`, `"log"` (which splits around 0 to draw
       negative and positive values), `"pow"` (see `exponent`), `"sqrt"`,
       `"time"`, `"utc"` (a time scale read in UTC, as `utc: true` does), or
-      the category scales `"band"`, `"point"`, and `"ordinal"`. In a Plot,
-      `"auto"` picks `"log"` when the values' spread is over three times
-      their mean, else `"linear"`. Any other name logs a warning and draws
-      linear.
+      the category scales `"band"`, `"point"`, and `"ordinal"`. `"auto"`
+      picks one for the axis's values (a standalone Axis's data, else its
+      domain): `"time"` for Dates, `"band"` for strings, and for numbers
+      `"log"` when their spread is over three times their mean, else
+      `"linear"`. Any other name logs a warning and draws linear.
   */
   scale?: AxisScale;
   /**
