@@ -32,7 +32,7 @@ const config = {
   trendLineConfig: {
     window: 3,
     center: true,
-    bandDeviations: 1,
+    bands: 1,
     label: true,
   },
 };

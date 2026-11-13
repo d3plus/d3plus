@@ -131,13 +131,13 @@ A number projects that many steps past the last value, at the data's own spacing
 
 ## Moving average
 
-`trendLine: "movingAverage"` draws a rolling mean through each series instead of fitting a curve: each point averages itself and the points before it, `trendLineConfig.window` points in all (here 20 days), so the line starts once a full window has passed. Bands two standard deviations either side of the average (Bollinger bands) shade where values usually fall; `confidenceConfig` styles them. The window counts points, not time, so on an uneven time axis each average spans as many points as `window` says, however far apart they are. Hover the line for the average and band at the nearest point, and the window.
+`trendLine: "movingAverage"` draws a rolling mean through each series instead of fitting a curve: each point averages itself and the points before it. `trendLineConfig.window` sets how far back: a number of points (7 by default), or on a time axis a span of time, here `{days: 30}` (also `seconds`, `minutes`, `hours`, `weeks`, `months`, and `years`). A span averages the points in the 30 days up to each one, so gaps and uneven spacing average over the same stretch of time, and the line starts once a full span has passed. Bands two standard deviations either side of the average (Bollinger bands) shade where values usually fall; `bands` sets how many, and `confidenceConfig` styles them. Hover the line for the average and band at the nearest point, and the window.
 
 <Playground chart="LinePlot" code={movingAverage} controls={["trendLine","trendLineConfig"]} />
 
 ## Centered moving average
 
-`center: true` centers each window on its point, so the average lines up with the swings it smooths and leaves half a window out at each end. `bandDeviations` sets how many standard deviations wide the bands are (here 1), and `bands: false` drops them. With `label: true` each average is labeled with its series; the default label names the average and its window, such as "Moving Average (3)". A moving average follows the data, so `projection` doesn't extend it.
+`center: true` centers each window on its point, so the average lines up with the swings it smooths and leaves half a window out at each end. `bands` sets how many standard deviations wide the bands are (here 1, against the default 2), and `bands: false` drops them. With `label: true` each average is labeled with its series; the default label names the average and its window, such as "Moving Average (3)". A moving average follows the data, so `projection` doesn't extend it.
 
 <Playground chart="LinePlot" code={movingAverageCentered} controls={["trendLine","trendLineConfig"]} />
 

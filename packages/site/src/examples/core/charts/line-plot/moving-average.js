@@ -17,5 +17,5 @@ const config = {
   x: "date",
   y: "price",
   trendLine: "movingAverage",
-  trendLineConfig: {window: 20},
+  trendLineConfig: {window: {days: 30}},
 };
