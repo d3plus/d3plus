@@ -12,6 +12,7 @@ export {
   Candlestick,
   Chord,
   ConnectedScatter,
+  DensityPlot,
   Donut,
   Dumbbell,
   FanChart,

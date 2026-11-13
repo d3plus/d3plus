@@ -14,6 +14,7 @@ import {
   Candlestick as CandlestickClass,
   Chord as ChordClass,
   ConnectedScatter as ConnectedScatterClass,
+  DensityPlot as DensityPlotClass,
   Donut as DonutClass,
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
@@ -135,6 +136,10 @@ export const Chord = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus ConnectedScatter visualization. */
 export const ConnectedScatter = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={ConnectedScatterClass} {...props} />
+);
+/** React component for rendering a d3plus DensityPlot visualization. */
+export const DensityPlot = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={DensityPlotClass} {...props} />
 );
 /** React component for rendering a d3plus Donut visualization. */
 export const Donut = (props: D3plusComponentProps) => (

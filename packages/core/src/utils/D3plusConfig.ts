@@ -652,8 +652,35 @@ export interface SizeLegendConfig {
 }
 
 export interface TrendLineConfig {
-  /** `"series"` (default) fits one line per series, colored to match it; `"all"` fits one line to every point. Stacked charts always fit the stack totals. */
+  /** `"series"` (default) fits one line per series, colored to match it; `"all"` fits one line to every point (a moving average averages the points sharing a position). Stacked charts always fit the stack totals. */
   group?: "series" | "all";
+  /**
+      A moving average's window: how many points each average spans,
+      counting each distinct position along the axis once, or on a time axis
+      a span of time, such as `{days: 30}` (`seconds`, `minutes`, `hours`,
+      `days`, `weeks`, `months`, `years`), which averages the points in the
+      span ending at each point (centered on it, with `center`), so gaps and
+      uneven spacing average over the same length of time. A span starts at
+      the first point, averaging the points it holds so far; on any other
+      axis it falls back to 7 points, with a console warning. With a number
+      of points, the first `window − 1` (with `center`, the ends) have no
+      average. Defaults to 7.
+  */
+  window?:
+    | number
+    | {
+        seconds?: number;
+        minutes?: number;
+        hours?: number;
+        days?: number;
+        weeks?: number;
+        months?: number;
+        years?: number;
+      };
+  /** Centers a moving average's window on each point instead of ending it there. Defaults to `false` (a trailing window). */
+  center?: boolean;
+  /** Draws bands either side of a moving average (Bollinger bands), this many standard deviations of each window from it, styled by `confidenceConfig`. Defaults to 2; `false` drops them. */
+  bands?: boolean | number;
   /** The polynomial degree when `trendLine` is `"polynomial"`. Defaults to 2. */
   order?: number;
   /** Draws a confidence band around a linear fit. Defaults to `false`. */
@@ -663,7 +690,7 @@ export interface TrendLineConfig {
   /** Area shape config for the confidence band. Its fill defaults to the line color. */
   confidenceConfig?: Record<string, unknown>;
   /**
-      Extends each trend line past the end of its data: a number of steps (at the data's own spacing — the median gap between values, or the calendar interval of dates), or `{to}` an end value to step up to (a number, or on a time axis a Date or a parseable date such as a year). Widens the axis to fit. Ignored on a category axis. Defaults to `0` (off).
+      Extends each regression trend line (not a moving average) past the end of its data: a number of steps (at the data's own spacing — the median gap between values, or the calendar interval of dates), or `{to}` an end value to step up to (a number, or on a time axis a Date or a parseable date such as a year). Widens the axis to fit. Ignored on a category axis. Defaults to `0` (off).
   */
   projection?: number | {to: number | string | Date};
   /** Line shape config for the projected stretch, merged over the line's own styles. Defaults to `{strokeDasharray: "2 4"}`. */
@@ -679,8 +706,10 @@ export interface TrendLineConfig {
   /**
       Labels each trend line along its path, near its end, in the line's
       color: `true` names the series, `"equation"` shows its fitted equation
-      and R², and a function of the fit (`label`, `color`, and `fit` with
-      `coefficients` and `r2`) returns any text. Defaults to `"equation"`;
+      and R² (a moving average's name and window, such as "Moving Average
+      (7)" or "Moving Average (30 days)"), and a function of the fit (`label`, `color`, and `fit` with the
+      regression's `coefficients` and `r2`, or the moving average's `window`,
+      `center`, and `deviations`) returns any text. Defaults to `"equation"`;
       `false` turns labels off.
   */
   label?:
@@ -689,7 +718,14 @@ export interface TrendLineConfig {
     | ((fit: {
         label: string;
         color: string;
-        fit: {coefficients: number[]; r2: number; type: string};
+        fit: {
+          type: string;
+          coefficients?: number[];
+          r2?: number;
+          window?: number;
+          center?: boolean;
+          deviations?: number;
+        };
       }) => string | false | null | undefined);
   /** TextBox config for the trend line labels, such as `fontSize` (default 11) or `fontColor`. */
   labelConfig?: Record<string, unknown>;
@@ -1380,12 +1416,16 @@ export interface D3plusConfig {
   /** Waterfall: fill for bars that lower the running total. Defaults to `colorDefaults.off`. */
   decreaseColor?: string;
   /**
-      Kernel density options for Violin and Ridgeline curves: `kernel`
-      (`"gaussian"` or `"epanechnikov"`), `bandwidth` (in data units; each
-      group's own Silverman rule-of-thumb bandwidth by default), `points` (how
-      many values each curve is evaluated at, default 80), and `cut` (how far
-      each curve runs past its group's smallest and largest value, in
-      bandwidths: 2 for Violin, 3 for Ridgeline).
+      Kernel density options for Violin, Ridgeline, and DensityPlot curves:
+      `kernel` (`"gaussian"` or `"epanechnikov"`), `bandwidth` (in data units,
+      or a function of the observations returning one; by default Silverman's
+      rule of thumb, on each group's own values for Violin and Ridgeline and
+      on every group's values together for DensityPlot, so its curves are
+      smoothed alike), `points` (how many values each curve is evaluated at:
+      80, or about 100 for DensityPlot, which evaluates every curve in the
+      same round steps), and `cut` (how far each curve runs past the
+      smallest and largest value, in bandwidths: 2 for Violin, 3 for Ridgeline
+      and DensityPlot).
   */
   densityConfig?: {
     kernel?: "gaussian" | "epanechnikov" | ((u: number) => number);
@@ -1394,10 +1434,13 @@ export interface D3plusConfig {
     cut?: number;
   };
   /**
-      How Violin and Ridgeline curves are sized against each other: `"area"`
-      (default) gives every shape the same area, `"count"` makes areas
+      How Violin, Ridgeline, and DensityPlot curves are sized against each
+      other: `"area"` gives every shape the same area, `"count"` makes areas
       proportional to each group's observations, and `"width"` scales every
-      shape to the full width (Violin) or height (Ridgeline).
+      shape to the full width (Violin), height (Ridgeline), or a peak of 1
+      (DensityPlot). Defaults to `"area"`, except on a stacked DensityPlot,
+      where `"count"` makes the stack's top edge the density of every
+      observation.
   */
   densityScale?: "area" | "count" | "width";
   /**
@@ -2196,6 +2239,10 @@ export interface D3plusConfig {
   referenceLines?: ReferenceLineConfig[];
   /** Row key for matrix-style layouts. */
   row?: string;
+  /** DensityPlot: draws a short tick for every observation just below the value axis, in its group's color, moving the axis's labels down to make room (default `false`; see `rugConfig`). */
+  rug?: boolean;
+  /** DensityPlot: the `rug` ticks' `size` (length in pixels, default 8), `strokeWidth` (1), and `opacity` (0.7). */
+  rugConfig?: {size?: number; strokeWidth?: number; opacity?: number};
   /** Shows a top-left download button that saves the chart, as the reader sees it, as a PNG, SVG, or JPG file. On by default for every chart. */
   saveControl?: boolean;
   /**
@@ -2561,14 +2608,23 @@ export interface D3plusConfig {
   trackPadding?: number;
   /**
       Draws an automatic trend line fit to the plotted data: `true` (or
-      `"linear"`) for a least-squares line, or `"exponential"`,
-      `"logarithmic"`, `"power"`, or `"polynomial"`. `false` removes it.
+      `"linear"`) for a least-squares line, `"exponential"`,
+      `"logarithmic"`, `"power"`, or `"polynomial"`, or `"movingAverage"`
+      for a rolling mean with bands ±2 standard deviations either side.
+      `false` removes it.
   */
   trendLine?:
-    boolean | "linear" | "exponential" | "logarithmic" | "power" | "polynomial";
+    | boolean
+    | "linear"
+    | "exponential"
+    | "logarithmic"
+    | "power"
+    | "polynomial"
+    | "movingAverage";
   /**
       Options for the trend lines: `group` (`"series"` or `"all"`), the
-      polynomial `order`, a `confidence` band with `confidenceLevel` and
+      polynomial `order`, a moving average's `window`, `center`, and
+      `bands`, a `confidence` band with `confidenceLevel` and
       `confidenceConfig`, a `projection` into the future with
       `projectionConfig`, `tooltip`, and Line styles (`stroke`,
       `strokeWidth`, `strokeDasharray`, …).

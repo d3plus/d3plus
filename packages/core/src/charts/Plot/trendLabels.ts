@@ -9,7 +9,7 @@ import {pathTextBoxes} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 import {fontFamily as defaultFontFamily} from "@d3plus/text";
 
-import {labelsOverlap} from "../features/linkLabelGeometry.js";
+import {labelCorners, labelsOverlap} from "../features/linkLabelGeometry.js";
 import type {LinkLabelBox} from "../features/linkLabelGeometry.js";
 import {textLineBoxes} from "../features/linkLabels.js";
 import type {PlotAxisFn} from "../features/plotPaint.js";
@@ -25,6 +25,7 @@ import type {Edges, Pt} from "../features/pathLabelGeometry.js";
 import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {TrendFit} from "./trendLines.js";
+import {movingAverageWindowText} from "./trendMovingAverage.js";
 import {coefficientFormat, trendEquation} from "./trendTooltip.js";
 
 /** What `trendLineConfig.label` takes. */
@@ -38,7 +39,8 @@ const END_INSET = 6;
     A fit's equation and R² as label text, e.g. `y = 2.1x + 3.4, R² = 0.84`,
     its coefficients abbreviated as the axes abbreviate numbers. A fit along
     a time axis shows only its R² (an equation in milliseconds since 1970
-    says nothing a reader can use).
+    says nothing a reader can use), and a moving average, which has
+    neither, shows nothing.
     @param fit The fitted trend line.
     @param locale The chart's locale.
     @param time Whether the fit runs along a time axis.
@@ -48,6 +50,7 @@ export function trendEquationLabel(
   locale: string,
   time = false,
 ): string {
+  if (fit.fit.type === "movingAverage") return "";
   const r2 = `R² = ${fit.fit.r2.toFixed(2)}`;
   if (time) return r2;
   return `${trendEquation(fit.fit, coefficientFormat(locale), fit.axis)}, ${r2}`;
@@ -56,7 +59,9 @@ export function trendEquationLabel(
 /**
     A fit's label text for a `trendLineConfig.label` setting, or null for
     none: `true` names the series ("Trend" for a line fit to every point),
-    `"equation"` gives its equation and R², and a function returns any text.
+    `"equation"` gives its equation and R² (a moving average's name and
+    window, such as "Moving Average (7)" or "Moving Average (30 days)"), and
+    a function returns any text.
     @param viz The chart.
     @param fit The fitted trend line.
     @param setting The configured label.
@@ -73,6 +78,8 @@ export function trendLabelText(
       ? null
       : `${text}`;
   }
+  if (setting === "equation" && fit.fit.type === "movingAverage")
+    return `${viz.schema.translate("Moving Average")} (${movingAverageWindowText(viz, fit.fit)})`;
   if (setting === "equation")
     return trendEquationLabel(
       fit,
@@ -115,13 +122,24 @@ const blocked = (box: Box, obstacles: Box[]) => {
   return obstacles.some(o => labelsOverlap(grown, o));
 };
 
+/** Whether any corner of a box falls outside the plot area. */
+const outside = (box: Box, rect: Edges) =>
+  labelCorners(box).some(
+    ([x, y]) =>
+      x < rect.x0 - 0.5 ||
+      x > rect.x1 + 0.5 ||
+      y < rect.y0 - 0.5 ||
+      y > rect.y1 + 0.5,
+  );
+
 /**
     The path a fit's label follows and the boxes it covers, or null when its
     line has no clear spot for it: the drawn (not projected) stretch inside
     the plot, upright, stopped short of its end. The label prefers the end of
-    the line, just above it; when that spot overlaps an earlier label it
-    slides back along the line to the nearest clear stretch, then tries the
-    same below the line. A line too short for a few letters gets none.
+    the line, just above it; when that spot overlaps an earlier label or runs
+    out of the plot area it slides back along the line to the nearest clear
+    stretch, then tries the same below the line. A line too short for a few
+    letters gets none.
     @param points The fitted stretch's points, in pixels.
     @param rect The plot area.
     @param place The font, lift, text width, and labels to clear.
@@ -145,7 +163,8 @@ export function trendLabelSpot(
         offsetPolyline(trimPolyline(run, Math.max(0, to - span), to), baseline),
       );
       const boxes = pathBoxes(d, span, fontSize);
-      if (!boxes.some(b => blocked(b, obstacles))) return {d, boxes};
+      if (!boxes.some(b => blocked(b, obstacles) || outside(b, rect)))
+        return {d, boxes};
       if (span >= end) break;
     }
   return null;

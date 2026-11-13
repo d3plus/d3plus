@@ -320,7 +320,7 @@ export default class Tooltip extends BaseClass {
   }
 
   /**
-      The position of each tooltip. Can be an HTMLElement to anchor to, a virtual element (any object with a `getBoundingClientRect()` returning a box in client coordinates), a selection string, or coordinate points in reference to the client viewport (not the overall page). An element or box anchors the tooltip's arrow to the middle of its top edge (or its bottom edge when the tooltip flips below).
+      The position of each tooltip. Can be an HTMLElement to anchor to, a virtual element (any object with a `getBoundingClientRect()` returning a box in client coordinates), a selection string, or coordinate points in reference to the client viewport (not the overall page). An element or box anchors the tooltip's arrow to the middle of its top edge (or its bottom edge when the tooltip flips below). A virtual element may also carry a `placement` (`"top"`, the default, `"bottom"`, `"left"` or `"right"`): the side of it the tooltip opens on, flipping to the opposite side when there is no room.
 
 @example <caption>default accessor</caption>
    function value(d) {

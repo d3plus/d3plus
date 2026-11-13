@@ -4,6 +4,7 @@ import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {groupDepthOf, groupNarrows, groupPath} from "../viz/groupRow.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
+import {keyTooltipAnchor} from "../features/keyTooltip.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {pointTooltipAnchor} from "../viz/pointTooltipAnchor.js";
 import {setCursor} from "../viz/setCursor.js";
@@ -57,12 +58,12 @@ export default function (
   if (this._sharedHoverActive) return;
 
   // A point mark's tooltip points at the mark, wherever the pointer is
-  // within reach of it; anything else follows the pointer.
+  // within reach of it, and a colorScale swatch's opens beside the key;
+  // anything else follows the pointer.
+  const node = this._lastScenePick?.node;
   const position =
-    pointTooltipAnchor(
-      this as unknown as VizInstance,
-      this._lastScenePick?.node,
-    ) ??
+    pointTooltipAnchor(this as unknown as VizInstance, node) ??
+    keyTooltipAnchor(this as unknown as VizInstance, node) ??
     (event.touches
       ? [event.touches[0].clientX, event.touches[0].clientY]
       : [event.clientX, event.clientY]);
