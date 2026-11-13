@@ -345,25 +345,25 @@ Defined in: [textWrap.ts:72](https://github.com/d3plus/d3plus/blob/main/packages
 
 ###### Call Signature
 
-> **lineHeight**(): `number` \| `undefined`
+> **lineHeight**(): `number`
 
 Defined in: [textWrap.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.ts#L73)
 
 ###### Returns
 
-`number` \| `undefined`
+`number`
 
 ###### Call Signature
 
-> **lineHeight**(`value`: `number`): [`TextWrapGenerator`](#textwrapgenerator)
+> **lineHeight**(`value`: `number` \| `undefined`): [`TextWrapGenerator`](#textwrapgenerator)
 
 Defined in: [textWrap.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.ts#L74)
 
 ###### Parameters
 
-| Parameter | Type     |
-| --------- | -------- |
-| `value`   | `number` |
+| Parameter | Type                   |
+| --------- | ---------------------- |
+| `value`   | `number` \| _required_ |
 
 ###### Returns
 

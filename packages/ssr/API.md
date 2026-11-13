@@ -80,7 +80,7 @@ Prefer [renderToStaticPNG](#rendertostaticpng) when you just want PNG bytes.
 
 > **renderToStaticPNG**(`viz`: [`RenderableViz`](#renderableviz), `opts?`: [`RasterRenderOptions`](#rasterrenderoptions)): `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
-Defined in: [renderToStaticPNG.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L102)
+Defined in: [renderToStaticPNG.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L105)
 
 Renders a d3plus chart to a PNG `Buffer` in Node, with no browser.
 

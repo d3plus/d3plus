@@ -1,17 +1,18 @@
 # @d3plus/data API Reference
 
-| Functions                   | Description                                                                                                                                                                                          |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`addToQueue`](#addtoqueue) | Adds the provided value to the internal queue to be loaded, if necessary.                                                                                                                            |
-| [`cacheKey`](#cachekey)     | The key a chart's data cache stores a fetched response under: the JSON of the URL or request object, so a request object's `fetch` options are part of it.                                           |
-| [`concat`](#concat)         | Reduce and concat all the elements included in arrayOfArrays if they are arrays.                                                                                                                     |
-| [`fold`](#fold)             | Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects. |
-| [`isData`](#isdata)         | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request.                                                                                     |
-| [`load`](#load)             | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.                                                                                        |
-| [`merge`](#merge)           | Combines an Array of Objects together and returns a new Object.                                                                                                                                      |
-| [`nest`](#nest)             | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor.                                                                                  |
-| [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.                                                                                          |
-| [`unique`](#unique)         | Reduces an Array of values to unique instances, keeping the first of each.                                                                                                                           |
+| Functions                           | Description                                                                                                                                                                                          |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`addToQueue`](#addtoqueue)         | Adds the provided value to the internal queue to be loaded, if necessary.                                                                                                                            |
+| [`cacheKey`](#cachekey)             | The key the data cache stores a fetched response under: the JSON of the URL or request object, so a request object's `fetch` options are part of it.                                                 |
+| [`clearDataCache`](#cleardatacache) | Empties the data cache that every chart shares, so the next load of each URL fetches it again (after a user logs out, say).                                                                          |
+| [`concat`](#concat)                 | Reduce and concat all the elements included in arrayOfArrays if they are arrays.                                                                                                                     |
+| [`fold`](#fold)                     | Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects. |
+| [`isData`](#isdata)                 | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request.                                                                                     |
+| [`load`](#load)                     | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.                                                                                        |
+| [`merge`](#merge)                   | Combines an Array of Objects together and returns a new Object.                                                                                                                                      |
+| [`nest`](#nest)                     | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor.                                                                                  |
+| [`nestGroups`](#nestgroups)         | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.                                                                                          |
+| [`unique`](#unique)                 | Reduces an Array of values to unique instances, keeping the first of each.                                                                                                                           |
 
 | Interfaces                            | Description                                                                  |
 | ------------------------------------- | ---------------------------------------------------------------------------- |
@@ -53,7 +54,7 @@ Adds the provided value to the internal queue to be loaded, if necessary. This i
 
 Defined in: [cacheKey.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/data/src/cacheKey.ts#L5)
 
-The key a chart's data cache stores a fetched response under: the JSON of the URL or request object, so a request object's `fetch` options are part of it. Every loader (`data`, `links`, `nodes`, `topojson`, `fitObject`) shares these keys, so two loaders naming the same request share one response.
+The key the data cache stores a fetched response under: the JSON of the URL or request object, so a request object's `fetch` options are part of it. Every loader (`data`, `links`, `nodes`, `topojson`, `fitObject`) shares these keys, so two loaders naming the same request share one response.
 
 #### Parameters
 
@@ -64,6 +65,22 @@ The key a chart's data cache stores a fetched response under: the JSON of the UR
 #### Returns
 
 `string`
+
+---
+
+<a id="cleardatacache"></a>
+
+### clearDataCache()
+
+> **clearDataCache**(): `void`
+
+Defined in: [dataCache.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/data/src/dataCache.ts#L104)
+
+Empties the data cache that every chart shares, so the next load of each URL fetches it again (after a user logs out, say). Requests already in flight still reach the charts waiting on them, but their responses are not cached, and a load started after the clear fetches anew rather than joining one of them.
+
+#### Returns
+
+`void`
 
 ---
 
@@ -142,11 +159,11 @@ Returns true/false whether the argument provided to the function should be loade
 
 > **load**(`this`: `VizContext`, `path`: `string` \| [`DataPoint`](#datapoint)[] \| (`string` \| [`DataPoint`](#datapoint)[] \| `LoadRequestConfig`)[], `formatter?`: `DataFormatter`, `key?`: `string`, `callback?`: (`error`: `Error` \| `null` \| `undefined`, `data`: [`DataPoint`](#datapoint)[] \| [`DataPoint`](#datapoint)[][] \| `undefined`) => `void`): `void`
 
-Defined in: [load.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/data/src/load.ts#L132)
+Defined in: [load.ts:136](https://github.com/d3plus/d3plus/blob/main/packages/data/src/load.ts#L136)
 
 Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.
 
-When the context caches (its `_cache` flag, else its `schema.cache`), each response's text is kept in its `_lrucache` under `cacheKey(request)`, and a later load of the same request parses it again at once, calling back synchronously, instead of fetching. Loads of a request already in flight share its fetch and parse, each getting its own copy, so a formatter that changes its rows never affects another load. A failed request is not cached.
+When the context caches (its `_cache` flag, else its `schema.cache`), each response's text is kept under `cacheKey(request)` in one cache shared by every chart on the page (about 50 MB of memory, least recently used dropped first; `clearDataCache()` empties it), and a later load of the same request parses it again at once, calling back synchronously, instead of fetching. Loads of a request already in flight share its fetch and parse, each getting its own copy, so a formatter that changes its rows never affects another load. A failed request is not cached.
 
 #### Parameters
 
@@ -212,7 +229,7 @@ merge([
 
 Defined in: [nest.ts:17](https://github.com/d3plus/d3plus/blob/main/packages/data/src/nest.ts#L17)
 
-Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.
+Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level (a key of `undefined`, `null` or `""`) becomes a leaf of the group where they stopped, beside that group's other rows and sub-groups, and a group holding only that one row is replaced by it. Rows without a first-level key stay grouped under that missing key.
 
 #### Parameters
 
