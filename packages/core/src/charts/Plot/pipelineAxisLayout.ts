@@ -24,7 +24,7 @@ import {
   plotAxisRounding,
   secondaryAxisRounding,
 } from "./baselineDomain.js";
-import {isSpanAxis, spanEdges} from "./discreteSpan.js";
+import {isSpanAxis, spanTicks} from "./discreteSpan.js";
 import {swarmHidesAxis} from "./swarm.js";
 import type {DomainValue} from "./pipelineScales.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
@@ -162,7 +162,7 @@ export const preparePlotAxisLayout: TransformStage = ({
   let barLabelCheck: BarLabelCheck | undefined;
 
   const tickFor = (axis: string, axisScale: string) => {
-    if (isSpanAxis(viz, axis)) return spanEdges(viz, axisData);
+    if (isSpanAxis(viz, axis)) return spanTicks(viz, axisData);
     if (axisScale !== "Point") return null;
     const ticks = unique(axisData.map((d: Record<string, unknown>) => d[axis]));
     if (!ticks.every(t => barLabels.includes(`${t}`))) return null;
