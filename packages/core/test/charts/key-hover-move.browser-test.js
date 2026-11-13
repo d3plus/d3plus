@@ -252,6 +252,20 @@ for (const renderer of ["svg", "canvas"]) {
         "the pointer is in the gap",
       );
       assert.deepStrictEqual(lit((await painted(page)).shapes), ["a2"]);
+      // So does its legend entry, while the others dim.
+      const entries = await page.evaluate(() => {
+        const out = {};
+        const walk = (node, opacity) => {
+          const own = opacity * (node.paint?.opacity ?? 1);
+          if (node.interactionGroup === "legend" && node.type === "rect")
+            out[node.key] = own;
+          (node.children || []).forEach(c => walk(c, own));
+        };
+        walk(window.__viz._paintedScene.root, 1);
+        return out;
+      });
+      assert.strictEqual(entries.a2_1_, 1, "the held entry");
+      assert.ok(entries.a1_1_ < 1, "the entry left before");
       // Out of the chart from the gap clears it.
       await glide(page, [pb[0] + 400, 600]);
       assert.deepStrictEqual(lit((await painted(page)).shapes), everything);
@@ -264,6 +278,83 @@ for (const renderer of ["svg", "canvas"]) {
         undefined,
       );
       assert.strictEqual(lit((await painted(page)).shapes).length, 1);
+    } finally {
+      await close();
+    }
+  });
+  it(`${renderer}: a nested legend holds its entry across the gap`, async () => {
+    const files = [
+      ["Frontend", "Components", "Button", 120],
+      ["Frontend", "Pages", "Dashboard", 520],
+      ["Backend", "API", "Users", 330],
+      ["Backend", "Database", "Models", 290],
+      ["Docs", "Guides", "Theming", 140],
+      ["Docs", "Reference", "API Reference", 260],
+    ].map(([area, module, file, size]) => ({id: file, area, module, size}));
+    const {page, close} = await chart(
+      `lib => new lib.Treemap()
+        .data(${JSON.stringify(files)})
+        .groupBy(["area", "module", "id"])
+        .sum("size")
+        .legend(true)
+        .legendPosition("right")`,
+      renderer,
+    );
+    try {
+      /** The legend entries' painted opacity by area, and the lit files. */
+      const state = () =>
+        page.evaluate(() => {
+          const unwrap = d => {
+            while (d && d.__d3plus__ && d.data) d = d.data;
+            return d;
+          };
+          const entries = {};
+          const files = [];
+          const walk = (node, opacity) => {
+            const own = opacity * (node.paint?.opacity ?? 1);
+            const d = unwrap(node.datum);
+            if (
+              node.type === "rect" &&
+              d &&
+              !String(node.key).endsWith("::hit")
+            ) {
+              if (node.interactionGroup === "legend") entries[d.area] = own;
+              else if (own === 1 && typeof d.id === "string") files.push(d.id);
+            }
+            (node.children || []).forEach(c => walk(c, own));
+          };
+          walk(window.__viz._paintedScene.root, 1);
+          return {entries, files: [...new Set(files)].sort()};
+        });
+      const entry = area =>
+        `n => n.type === "rect" && n.interactionGroup === "legend" && !String(n.key).endsWith("::hit") && (d => { while (d && d.__d3plus__ && d.data) d = d.data; return d && d.area === "${area}"; })(n.datum)`;
+      const [pa, pb] = [
+        await pointOf(page, entry("Frontend")),
+        await pointOf(page, entry("Backend")),
+      ];
+      const [first, second] = pa[1] < pb[1] ? [pa, pb] : [pb, pa];
+      const firstArea = first === pa ? "Frontend" : "Backend";
+      await hover(page, first);
+      await glide(page, [
+        (first[0] + second[0]) / 2,
+        (first[1] + second[1]) / 2,
+      ]);
+      assert.strictEqual(
+        await page.evaluate(() => window.__viz._lastScenePick),
+        null,
+        "the pointer is in the gap",
+      );
+      const {entries, files: lit} = await state();
+      assert.strictEqual(entries[firstArea], 1, "the held entry stays lit");
+      assert.ok(
+        Object.keys(entries).every(a => a === firstArea || entries[a] < 1),
+        JSON.stringify(entries),
+      );
+      const held = files
+        .filter(d => d.area === firstArea)
+        .map(d => d.id)
+        .sort();
+      assert.deepStrictEqual(lit, held, "its files stay lit");
     } finally {
       await close();
     }
