@@ -196,7 +196,7 @@ for (const renderer of ["svg", "canvas"]) {
         await glide(page, [(pa[0] + pb[0]) / 2 - 200, (pa[1] + pb[1]) / 2]);
         assert.deepStrictEqual(
           await page.evaluate(() => [
-            window.__viz._bucketHold,
+            window.__viz._keyHold,
             window.__viz._hoverBucket,
           ]),
           [undefined, false],
@@ -214,7 +214,7 @@ for (const renderer of ["svg", "canvas"]) {
     });
   }
 
-  it(`${renderer}: Treemap — moving between legend entries lights the next entry`, async () => {
+  it(`${renderer}: Treemap — moving between legend entries never lights everything`, async () => {
     const {page, close} = await chart(
       `lib => ${charts.Treemap}.legend(true)`,
       renderer,
@@ -222,10 +222,48 @@ for (const renderer of ["svg", "canvas"]) {
     try {
       const entry = id =>
         `n => n.type !== "text" && n.interactionGroup === "legend" && String(n.key) === "${id}_1_"`;
-      await hover(page, await pointOf(page, entry("a1")));
+      const {shapes} = await painted(page);
+      const everything = Object.keys(shapes).sort();
+      const pa = await pointOf(page, entry("a1"));
+      const pb = await pointOf(page, entry("a2"));
+      const gap = [(pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2];
+      await hover(page, pa);
       assert.deepStrictEqual(lit((await painted(page)).shapes), ["a1"]);
-      await glide(page, await pointOf(page, entry("a2")));
+      // Step across, reading what's lit at each step.
+      const seen = [];
+      for (let k = 1; k <= 10; k++) {
+        await page.mouse.move(
+          pa[0] + ((pb[0] - pa[0]) * k) / 10,
+          pa[1] + ((pb[1] - pa[1]) * k) / 10,
+        );
+        await page.waitForTimeout(40);
+        seen.push(lit((await painted(page)).shapes).join(","));
+      }
+      assert.ok(
+        seen.every(ids => ids === "a1" || ids === "a2"),
+        `lit along the way: ${seen.join(" | ")}`,
+      );
+      assert.strictEqual(seen[seen.length - 1], "a2", "the next entry");
+      // The gap between them holds the entry the pointer left.
+      await glide(page, gap);
+      assert.strictEqual(
+        await page.evaluate(() => window.__viz._lastScenePick),
+        null,
+        "the pointer is in the gap",
+      );
       assert.deepStrictEqual(lit((await painted(page)).shapes), ["a2"]);
+      // Out of the chart from the gap clears it.
+      await glide(page, [pb[0] + 400, 600]);
+      assert.deepStrictEqual(lit((await painted(page)).shapes), everything);
+      // Into the chart area from the gap releases it to the shape there.
+      await hover(page, pa);
+      await glide(page, gap);
+      await glide(page, [gap[0] - 300, gap[1]]);
+      assert.strictEqual(
+        await page.evaluate(() => window.__viz._keyHold),
+        undefined,
+      );
+      assert.strictEqual(lit((await painted(page)).shapes).length, 1);
     } finally {
       await close();
     }

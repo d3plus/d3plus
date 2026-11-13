@@ -53,14 +53,13 @@ export default function (this: Viz, d: DataPoint, i: number): void {
     // and clears both itself on leaving the plot area.
     if (this._sharedHoverActive) return;
     // A colorScale swatch clears only its own highlight: crossing straight
-    // to the next swatch has lit that one already, and crossing the gap
-    // between them holds this one (see `holdColorScaleBucket`).
-    const bucket = colorScaleBucketOf(d);
+    // to the next swatch has lit that one already. Crossing the gap between
+    // two entries of a key holds the highlight (see `holdKeyHover`).
     const own =
-      (shapeHoverEnabled(this) || bucket) && this._hover
+      (shapeHoverEnabled(this) || colorScaleBucketOf(d)) && this._hover
         ? this._hover(d, i)
         : true;
-    if (own && !(bucket && this._bucketHold)) this.hover(false);
+    if (own && !this._keyHold) this.hover(false);
     const tooltipData = this._tooltipClass.data();
     // An axis label's tooltip, shown since, isn't this shape's to hide.
     if (
