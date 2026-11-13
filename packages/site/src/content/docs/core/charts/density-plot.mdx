@@ -9,6 +9,7 @@ import basicExample from "~/examples/core/charts/density-plot/basic-example.js?r
 import stacked from "~/examples/core/charts/density-plot/stacked.js?raw";
 import bandwidth from "~/examples/core/charts/density-plot/bandwidth.js?raw";
 import relativeDensity from "~/examples/core/charts/density-plot/relative-density.js?raw";
+import rug from "~/examples/core/charts/density-plot/rug.js?raw";
 import smallMultiples from "~/examples/core/charts/density-plot/small-multiples.js?raw";
 
 Creates a density plot from an array of raw observations: the `value` of
@@ -39,6 +40,12 @@ Pass raw observations, name the numeric field with `value`, and split them with 
 `densityScale: "width"` scales each curve to its own peak, so every group reaches the same height and the comparison is of shape alone. The y axis reads "Relative Density".
 
 <Playground chart="DensityPlot" code={relativeDensity} controls={["densityScale"]} />
+
+## Rug
+
+`rug: true` adds a short tick for every observation along the value axis, in its group's color, so the curves can be read against the data they smooth. `rugConfig` sets the ticks' `size`, `strokeWidth`, and `opacity`. The ticks leave hovering to the curves.
+
+<Playground chart="DensityPlot" code={rug} controls={["rug","rugConfig"]} />
 
 ## Small multiples
 
