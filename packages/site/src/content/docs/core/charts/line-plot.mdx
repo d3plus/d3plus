@@ -20,6 +20,8 @@ import nestedConfidenceBands from "~/examples/core/charts/line-plot/nested-confi
 import trendLine from "~/examples/core/charts/line-plot/trend-line.js?raw";
 import trendLineProjection from "~/examples/core/charts/line-plot/trend-line-projection.js?raw";
 import trendLineProjectionSteps from "~/examples/core/charts/line-plot/trend-line-projection-steps.js?raw";
+import movingAverage from "~/examples/core/charts/line-plot/moving-average.js?raw";
+import movingAverageCentered from "~/examples/core/charts/line-plot/moving-average-centered.js?raw";
 import dashedLines from "~/examples/core/charts/line-plot/dashed-lines.js?raw";
 import customLineColors from "~/examples/core/charts/line-plot/custom-line-colors.js?raw";
 import fillBetween from "~/examples/core/charts/line-plot/fill-between.js?raw";
@@ -126,6 +128,18 @@ Each line gets its own trend line and, with `trendLineConfig.confidence`, a shad
 A number projects that many steps past the last value, at the data's own spacing: here 5 more years. Dates step by their calendar interval (years, quarters, months, days…). Any fit type projects, and `projectionConfig` styles the projected stretch over the line's own styles. Hover a projected line for its value at the nearest projected year.
 
 <Playground chart="LinePlot" code={trendLineProjectionSteps} controls={["trendLine","trendLineConfig"]} />
+
+## Moving average
+
+`trendLine: "movingAverage"` draws a rolling mean through each series instead of fitting a curve: each point averages itself and the points before it, `trendLineConfig.window` points in all (here 20 days), so the line starts once a full window has passed. Bands two standard deviations either side of the average (Bollinger bands) shade where values usually fall; `confidenceConfig` styles them. The window counts points, not time, so on an uneven time axis each average spans as many points as `window` says, however far apart they are. Hover the line for the average and band at the nearest point, and the window.
+
+<Playground chart="LinePlot" code={movingAverage} controls={["trendLine","trendLineConfig"]} />
+
+## Centered moving average
+
+`center: true` centers each window on its point, so the average lines up with the swings it smooths and leaves half a window out at each end. `bandDeviations` sets how many standard deviations wide the bands are (here 1), and `bands: false` drops them. With `label: true` each average is labeled with its series; the default label names the average and its window, such as "Moving Average (3)". A moving average follows the data, so `projection` doesn't extend it.
+
+<Playground chart="LinePlot" code={movingAverageCentered} controls={["trendLine","trendLineConfig"]} />
 
 ## Dashed lines
 
