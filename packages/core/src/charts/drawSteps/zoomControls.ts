@@ -21,6 +21,7 @@ import {
 } from "./zoomControlsMarkup.js";
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 import {startsOnBrush} from "./zoomGesture.js";
+import {bindZoomGestures, unbindZoomGestures} from "./zoomDrag.js";
 import {
   gestureHoverEnd,
   gestureHoverMove,
@@ -254,8 +255,8 @@ function retargetZoom(
 ): void {
   const prev = viz._zoomEventTarget;
   if (prev && prev.node() === target.node()) return;
-  if (prev) prev.on(".zoom", null);
-  if (viz._container) viz._container.on(".zoom", null);
+  if (prev) unbindZoomGestures(prev.on(".zoom", null));
+  if (viz._container) unbindZoomGestures(viz._container.on(".zoom", null));
   viz._zoomEventTarget = target;
 }
 
@@ -333,10 +334,12 @@ function resetZoom(viz: Viz): void {
 
 /**
     @name zoomEvents
-    Handles adding/removing zoom event listeners.
-    @private
+    Turns brush mode on or off, binding the zoom gestures to match: brush
+    mode hands every press to the zoom brush, and otherwise d3-zoom takes the
+    wheel, pinch, and pan (as `zoomScroll` and `zoomPan` allow) and the
+    `zoomDrag`/`zoomDoubleClick` gestures are bound beside it.
 */
-function zoomEvents(this: Viz, brush: boolean = false): void {
+export function zoomEvents(this: Viz, brush: boolean = false): void {
   setBrushing(this, brush);
 
   if (brush) this._brushGroup.style("display", "inline");
@@ -364,8 +367,9 @@ function zoomEvents(this: Viz, brush: boolean = false): void {
           null,
         );
     }
+    bindZoomGestures(this, tgt, () => zoomMath.bind(this)(0));
   } else {
-    tgt.on(".zoom", null);
+    unbindZoomGestures(tgt.on(".zoom", null));
   }
 }
 
@@ -384,8 +388,10 @@ function isZoomedIn(viz: Viz): boolean {
     zooms — until the chart is zoomed in, when one finger pans it. d3-zoom
     registers every current touch when a gesture starts, so skipping the
     first finger still gives a full pinch. A press on a brush (the timeline)
-    is left to the brush (see `startsOnBrush`). Everything else follows d3-zoom's
-    default filter (no Ctrl + drag, primary button only).
+    is left to the brush (see `startsOnBrush`). With `zoomDrag: "brush"`, a
+    mouse drag draws a zoom box (see `zoomDrag.ts`), so only Shift + drag
+    pans. Everything else follows d3-zoom's default filter (no Ctrl + drag,
+    primary button only).
     @private
 */
 function zoomGestureFilter(viz: Viz, event: MouseEvent & TouchEvent): boolean {
@@ -393,6 +399,12 @@ function zoomGestureFilter(viz: Viz, event: MouseEvent & TouchEvent): boolean {
   if (event.type === "wheel")
     return !modifier || event.ctrlKey || event.metaKey;
   if (startsOnBrush(event)) return false;
+  if (
+    event.type === "mousedown" &&
+    viz.schema.zoomDrag === "brush" &&
+    !event.shiftKey
+  )
+    return false;
   if (event.type === "touchstart" && modifier)
     return (event.touches?.length ?? 0) > 1 || isZoomedIn(viz);
   return !event.ctrlKey && !event.button;
@@ -493,10 +505,11 @@ function zoomed(
 
 /**
     @name zoomMath
-    Zooms in or out based on the provided multiplier.
-    @param factor @private
+    Zooms in or out by a multiplier about the chart area's center, as the
+    zoom-in and zoom-out buttons do; `0` resets to the initial view.
+    @param factor
 */
-function zoomMath(this: Viz, factor: number = 0): void {
+export function zoomMath(this: Viz, factor: number = 0): void {
   if (!this._container) return;
 
   const [[x0, y0], [x1, y1]] = this._zoomBehavior.extent().bind(document)(),
@@ -594,8 +607,13 @@ function brushBrush(this: Viz): void {
     Triggered on brush "end".
     @private
 */
-function brushEnd(this: Viz, event: {selection: number[][] | null}): void {
-  if (!event.selection) return; // Only transition after input.
+function brushEnd(
+  this: Viz,
+  event: {selection: number[][] | null; sourceEvent?: Event | null},
+): void {
+  // Only zoom on a selection made by input, not one a drag gesture shows
+  // with `_zoomBrush.move` (see `zoomDrag.ts`).
+  if (!event.selection || !event.sourceEvent) return;
 
   this._brushGroup.call(this._zoomBrush.move, null);
   // A selection is a one-shot zoom: leave brush mode so the chart takes

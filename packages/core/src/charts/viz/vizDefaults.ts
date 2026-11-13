@@ -451,9 +451,12 @@ function initZoomDefaults(viz: Viz): void {
   };
   viz.schema.zoomControlClassName = undefined;
   viz.schema.zoomControlIcons = undefined;
+  viz.schema.zoomControls = true;
   viz.schema.zoomControlStyle = zoomControlStyleDefault;
   viz.schema.zoomControlStyleActive = zoomControlStyleActiveDefault;
   viz.schema.zoomControlStyleHover = zoomControlStyleHoverDefault;
+  viz.schema.zoomDoubleClick = "in";
+  viz.schema.zoomDrag = "pan";
   viz.schema.zoomFactor = 2;
   viz.schema.zoomMax = undefined;
   viz.schema.zoomPadding = 20;
