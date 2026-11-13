@@ -13,7 +13,12 @@ import {
   applyRowDomain,
   rowDomain,
 } from "../../src/charts/HorizonChart/measure.ts";
-import {rowHidden, rowToggle} from "../../src/charts/HorizonChart/rowFilter.ts";
+import {
+  labelAnchor,
+  rowHidden,
+  rowLabelTabStop,
+  rowToggle,
+} from "../../src/charts/HorizonChart/rowFilter.ts";
 import {
   horizonBandSize,
   niceCeil,
@@ -670,4 +675,54 @@ it("rowHidden and rowLabelOpacity: a hidden or un-solo'd row's label dims", () =
   assert.strictEqual(rowHidden(viz, "a"), true);
   assert.strictEqual(rowHidden(viz, "b"), false);
   assert.strictEqual(rowHidden(viz, "nope"), false, "an unknown series");
+});
+
+it("rowLabelTabStop: the y axis's row labels, named for what Enter does", () => {
+  const viz = measured(rows);
+  viz._hidden = [];
+  viz._solo = [];
+  viz.schema.legendFilterInvert = () => false;
+  const test = rowLabelTabStop(viz);
+  const label = id => ({
+    type: "text",
+    key: `${id}_0`,
+    datum: {data: {id, tick: id}},
+  });
+  const yAxis = [{type: "group", key: "p/plot-y-axis", children: []}];
+  const xAxis = [{type: "group", key: "plot-x-axis", children: []}];
+  assert.strictEqual(test(label("a"), yAxis), "Series a, Click to Hide");
+  viz._hidden = ["a"];
+  assert.strictEqual(test(label("a"), yAxis), "Series a, Click to Show");
+  assert.strictEqual(test(label("a"), xAxis), undefined, "not on the x axis");
+  assert.strictEqual(test(label("zzz"), yAxis), undefined, "not a series");
+  assert.strictEqual(
+    test({...label("a"), type: "rect"}, yAxis),
+    undefined,
+    "text only",
+  );
+});
+
+it("labelAnchor: a zero-width anchor on the label's right edge, opening right", () => {
+  const viz = {
+    _select: {
+      node: () => ({getBoundingClientRect: () => ({left: 100, top: 50})}),
+    },
+  };
+  const anchor = labelAnchor(viz, {x: 10, y: 20, width: 30, height: 12});
+  assert.strictEqual(anchor.placement, "right");
+  assert.deepStrictEqual(anchor.getBoundingClientRect(), {
+    x: 140,
+    y: 70,
+    left: 140,
+    right: 140,
+    top: 70,
+    bottom: 82,
+    width: 0,
+    height: 12,
+  });
+  assert.strictEqual(
+    labelAnchor({}, {x: 5, y: 6, width: 1, height: 2}).getBoundingClientRect()
+      .left,
+    6,
+  );
 });

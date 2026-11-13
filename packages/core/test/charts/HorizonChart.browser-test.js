@@ -75,7 +75,9 @@ const helpers = () => {
       t => t.textContent === text,
     );
     const b = label.getBoundingClientRect();
-    return [b.left + b.width / 2, b.top + b.height / 2];
+    const at = [b.left + b.width / 2, b.top + b.height / 2];
+    at.box = {left: b.left, right: b.right, top: b.top, bottom: b.bottom};
+    return at;
   };
   // Pointer events at a client point, on whatever element is there.
   window.__at = async ([x, y], type, init = {}) => {
@@ -283,13 +285,19 @@ for (const renderer of ["svg", "canvas"]) {
         return {
           first,
           right: await key("ArrowRight"),
+          next: await key("ArrowRight"),
           down: await key("ArrowDown"),
         };
       }, renderer);
-      assert.strictEqual(out.first.title, "0", JSON.stringify(out.first));
-      assert.strictEqual(out.right.title, "1", JSON.stringify(out.right));
+      assert.strictEqual(
+        out.first.live,
+        "north, Click to Hide",
+        "focus starts on the top row label",
+      );
+      assert.strictEqual(out.right.title, "0", JSON.stringify(out.right));
+      assert.strictEqual(out.next.title, "1", JSON.stringify(out.next));
       assert.strictEqual(out.down.title, "1", "down stays at x 1");
-      assert.notStrictEqual(out.down.live, out.right.live, "on another row");
+      assert.notStrictEqual(out.down.live, out.next.live, "on another row");
     });
 
     it("small multiples share x and band size, each panel drawing its own rows", async () => {
@@ -452,6 +460,120 @@ for (const renderer of ["svg", "canvas"]) {
       assert.strictEqual(out.drawn, 9, "three dates of three series");
       assert.strictEqual(out.step, out.all);
       assert.deepStrictEqual(out.key, [-10, -5, -0, 5, 10, 15]);
+    });
+  });
+}
+
+for (const renderer of ["svg", "canvas"]) {
+  describe(`HorizonChart row labels by keyboard [${renderer}]`, () => {
+    it("Tab steps through the row labels, Enter hides, Shift+Enter solos", async () => {
+      const out = await run(async renderer => {
+        const {el, viz} = await window.__draw(renderer, v => v);
+        const host = el.querySelector(".d3plus-keyboard-nav");
+        const live = () => host.querySelector("[aria-live]").textContent;
+        const key = async (k, shiftKey = false) => {
+          const event = new KeyboardEvent("keydown", {
+            key: k,
+            shiftKey,
+            bubbles: true,
+            cancelable: true,
+          });
+          host.dispatchEvent(event);
+          await window.__wait();
+          await window.__wait();
+          return {live: live(), kept: event.defaultPrevented};
+        };
+        const ring = () => {
+          const group = viz._paintedScene.root.children.find(
+            n => n.key === "viz-focus",
+          );
+          const rect = group
+            ? window.__nodes([group]).find(n => n.type === "rect")
+            : null;
+          return rect ? {x: rect.x, width: rect.width} : null;
+        };
+        host.focus();
+        await window.__wait();
+        const steps = [live()];
+        const ringAtLabel = ring();
+        steps.push((await key("Tab")).live);
+        steps.push((await key("Tab")).live);
+        const past = await key("Tab");
+        const backTab = await key("Tab", true);
+        const hide = await key("Enter");
+        const hidden = [...viz._hidden];
+        const soloStart = await key("Tab", true);
+        const solo = await key("Enter", true);
+        return {
+          steps,
+          ringAtLabel,
+          area: viz._plotArea,
+          past,
+          backTab,
+          hide,
+          hidden,
+          soloStart,
+          solo,
+          soloIds: [...viz._solo],
+          after: [...viz._hidden],
+        };
+      }, renderer);
+      assert.deepStrictEqual(out.steps, [
+        "north, Click to Hide",
+        "south, Click to Hide",
+        "west, Click to Hide",
+      ]);
+      assert.ok(out.ringAtLabel, "a focus ring is drawn");
+      assert.ok(
+        out.ringAtLabel.x + out.ringAtLabel.width <= out.area.x + 1,
+        "around the label, left of the plot",
+      );
+      assert.strictEqual(
+        out.past.kept,
+        false,
+        "Tab leaves past the last label",
+      );
+      assert.strictEqual(out.past.live, "west, Click to Hide");
+      assert.strictEqual(out.backTab.live, "south, Click to Hide");
+      assert.strictEqual(out.backTab.kept, true);
+      assert.deepStrictEqual(out.hidden, ["south"], "Enter hides the row");
+      assert.strictEqual(
+        out.hide.live,
+        "south, Click to Show",
+        "the live region announces the change",
+      );
+      assert.strictEqual(out.soloStart.live, "north, Click to Hide");
+      assert.deepStrictEqual(out.soloIds, ["north"], "Shift+Enter solos it");
+      assert.deepStrictEqual(out.after, []);
+    });
+
+    it("the row label tooltip opens just right of the label", async () => {
+      const out = await run(async renderer => {
+        const at = await window.__labelAt("south");
+        await window.__draw(renderer, v => v);
+        await window.__at(at, "mousemove");
+        const tip = Array.from(document.querySelectorAll(".d3plus-tooltip"))
+          .filter(t => t.innerText.trim())
+          .map(t => t.getBoundingClientRect())[0];
+        return {
+          label: at.box,
+          tip: tip && {left: tip.left, top: tip.top, bottom: tip.bottom},
+        };
+      }, renderer);
+      assert.ok(out.tip, "a tooltip shows");
+      assert.ok(
+        out.tip.left >= out.label.right - 1,
+        `the tooltip starts past the label: ${out.tip.left} vs ${out.label.right}`,
+      );
+      assert.ok(
+        out.tip.left - out.label.right < 30,
+        "just past it, not far off",
+      );
+      const middle = (out.label.top + out.label.bottom) / 2;
+      assert.ok(
+        out.tip.top < middle && out.tip.bottom > middle,
+        "beside the label",
+      );
     });
   });
 }
