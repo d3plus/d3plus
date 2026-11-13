@@ -1,7 +1,14 @@
 /** Options for `movingAverage`. */
 export interface MovingAverageOptions {
-  /** How many points each average spans. Defaults to 5. */
+  /** How many points each average spans, unless `span` is given. Defaults to 7. */
   window?: number;
+  /**
+      Spans each average across a stretch of x instead of a number of points:
+      given a point's x, returns where the stretch ending at it starts (such
+      as 30 days earlier). The stretch runs from just after that start up to
+      the point, or, with `center`, is as long and centered on it.
+  */
+  span?: (x: number) => number;
   /**
       Centers each window on its point instead of ending it there. Defaults to
       `false`: each point averages itself and the `window − 1` points before it.
@@ -31,8 +38,10 @@ export interface MovingAveragePoint {
 /** A moving average of a set of points. */
 export interface MovingAverageResult {
   type: "movingAverage";
-  /** How many points each average spans. */
+  /** How many points each average spans (0 when it spans a stretch of x). */
   window: number;
+  /** Whether each average spans a stretch of x (`span`) rather than a number of points. */
+  spanned: boolean;
   /** Whether each window is centered on its point. */
   center: boolean;
   /** How many standard deviations the bands sit from the average. */
@@ -67,12 +76,45 @@ export function movingWindow(
 }
 
 /**
+    The points averaged at index `i` of the ordered x values `xs` when each
+    average spans a stretch of x, as `[start, end]` indices (inclusive), or
+    null when the stretch reaches past the first or last x. A trailing
+    stretch runs from just after `span(x)` up to x; a centered one is as long
+    and centered on x, from just after its start up to its end.
+    @param xs The x values, in ascending order.
+    @param i The point's index.
+    @param span Returns where the stretch ending at an x starts.
+    @param center Whether the stretch is centered on the point.
+*/
+export function movingSpan(
+  xs: number[],
+  i: number,
+  span: (x: number) => number,
+  center = false,
+): [number, number] | null {
+  const x = xs[i];
+  const length = x - span(x);
+  if (!(length > 0)) return null;
+  const from = center ? x - length / 2 : x - length;
+  const to = center ? x + length / 2 : x;
+  if (from < xs[0] || to > xs[xs.length - 1]) return null;
+  let start = i;
+  while (start > 0 && xs[start - 1] > from) start--;
+  let end = i;
+  while (end < xs.length - 1 && xs[end + 1] <= to) end++;
+  return [start, end];
+}
+
+/**
     Computes a rolling mean over `points` (ordered by x), with bands a set
     number of standard deviations either side of it (Bollinger bands). Points
     sharing an x value are first averaged into one, so the window counts
     distinct x values; non-finite pairs are ignored. Points without a full
     window (the first `window − 1`, or the ends of a centered window) have no
-    average. Returns `null` when no point has a full window.
+    average. With a `span`, each average takes the points within a stretch
+    of x instead (see `movingSpan`), so gaps and uneven spacing average over
+    the same length of x; points whose stretch reaches past the data have
+    none. Returns `null` when no point has an average.
     @param points An array of `[x, y]` pairs.
     @param options The window, its alignment, and the band width.
 */
@@ -80,7 +122,8 @@ export default function movingAverage(
   points: [number, number][],
   options: MovingAverageOptions = {},
 ): MovingAverageResult | null {
-  const window = Math.max(1, Math.floor(Number(options.window ?? 5)) || 1);
+  const window = Math.max(1, Math.floor(Number(options.window ?? 7)) || 1);
+  const {span} = options;
   const center = Boolean(options.center);
   const deviations = Number.isFinite(options.deviations)
     ? Math.max(0, options.deviations as number)
@@ -97,14 +140,18 @@ export default function movingAverage(
   const series = Array.from(byX, ([x, [sum, count]]) => [x, sum / count]).sort(
     (a, b) => a[0] - b[0],
   );
+  const xs = series.map(p => p[0]);
   const out: MovingAveragePoint[] = [];
   series.forEach(([x], i) => {
-    const span = movingWindow(i, series.length, window, center);
-    if (!span) return;
-    const values = series.slice(span[0], span[1] + 1).map(p => p[1]);
-    const mean = values.reduce((s, v) => s + v, 0) / window;
+    const range = span
+      ? movingSpan(xs, i, span, center)
+      : movingWindow(i, series.length, window, center);
+    if (!range) return;
+    const values = series.slice(range[0], range[1] + 1).map(p => p[1]);
+    const count = values.length;
+    const mean = values.reduce((s, v) => s + v, 0) / count;
     const deviation = Math.sqrt(
-      values.reduce((s, v) => s + (v - mean) ** 2, 0) / window,
+      values.reduce((s, v) => s + (v - mean) ** 2, 0) / count,
     );
     out.push({
       x,
@@ -117,7 +164,8 @@ export default function movingAverage(
   if (!out.length) return null;
   return {
     type: "movingAverage",
-    window,
+    window: span ? 0 : window,
+    spanned: Boolean(span),
     center,
     deviations,
     points: out,
