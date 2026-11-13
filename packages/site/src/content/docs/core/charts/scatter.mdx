@@ -9,6 +9,7 @@ import basicExample from "~/examples/core/charts/scatter/basic-example.js?raw";
 import sizedPoints from "~/examples/core/charts/scatter/sized-points.js?raw";
 import trendLine from "~/examples/core/charts/scatter/trend-line.js?raw";
 import pointLabels from "~/examples/core/charts/scatter/point-labels.js?raw";
+import jitter from "~/examples/core/charts/scatter/jitter.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
 its `x` and `y` values, on continuous axes (set `discrete` to place points
@@ -40,5 +41,11 @@ Set `trendLine: true` to fit a least-squares line to each series (here each `spe
 Points too small to hold their label get it beside them instead, on the side facing the most open room (the point's Voronoi cell), where it overlaps no other point or label and stays inside the plot. Where the points crowd together there is no such room, so those labels hide; hover a point for its name. `labelPosition: "inside"` keeps labels inside the points, and `pointLabelConfig` sets the size and style of the labels beside them.
 
 <Playground chart="Scatter" code={pointLabels} controls={["labelPosition","pointLabelConfig"]} />
+
+## Jittered categories
+
+On a category axis (`discrete: "x"`), points that share a category and a value would hide each other. `jitter: true` spreads them across 0.6 of their category's band (a number sets another share), each by an offset seeded from its id, so a point never jumps between draws. StripPlot is a Scatter with this on by default.
+
+<Playground chart="Scatter" code={jitter} controls={["jitter","discrete"]} />
 
 <ApiReference name="Scatter" pkg="core" />
