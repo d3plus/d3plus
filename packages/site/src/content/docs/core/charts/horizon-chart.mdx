@@ -1,0 +1,71 @@
+---
+title: HorizonChart
+description: "Creates a horizon chart from time series rows: each series gets a short row of its own, with its values cut into equal bands folded onto the row's baseline and shaded darker the higher they reach, so many series fit in little space."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/horizon-chart/basic-example.js?raw";
+import negativeValues from "~/examples/core/charts/horizon-chart/negative-values.js?raw";
+import bandsAndColors from "~/examples/core/charts/horizon-chart/bands-and-colors.js?raw";
+import manyRows from "~/examples/core/charts/horizon-chart/many-rows.js?raw";
+import smallMultiples from "~/examples/core/charts/horizon-chart/small-multiples.js?raw";
+
+Creates a horizon chart from time series rows (the same rows a LinePlot
+takes): each `groupBy` series gets a short row of its own, labeled on the y
+axis, with its `y` values cut into equal bands that fold down onto the row's
+baseline and are shaded darker the higher they reach. Many series fit in
+the height one area chart would take, and the shades still read as values.
+
+## Basic example
+
+Pass the rows a LinePlot would take: `groupBy` names the series, `x` the
+time, and `y` the value. Each series' area is cut into 3 bands (`bands`),
+and the bands are stacked on top of each other inside the row, darker the
+higher they reach. Every row shares one band size, the largest value
+divided by `bands`, so the same shade means the same values in every row.
+The legend is a key to the value range of each shade, and hovering one of
+its entries lights that shade in every row. Hover the chart to read every
+row's value at that date under a crosshair; with `tooltipShared: false`,
+the tooltip shows only the row under the pointer.
+
+<Playground chart="HorizonChart" code={basicExample} controls={["bands","rowGap","tooltipShared"]} />
+
+## Negative values
+
+Negative values are mirrored upward from the same baseline, drawn in a
+contrasting hue. By default the positive bands ramp toward the theme's
+colorScale `max` color and the negative bands toward its `min` color, pale
+nearest zero and darker away from it (on a dark theme, dim nearest zero
+and brighter away from it), so the chart follows dark and custom themes.
+
+<Playground chart="HorizonChart" code={negativeValues} controls={["bands"]} />
+
+## Bands and colors
+
+`bands` sets how many bands each sign is cut into, and `bandSize` fixes the
+range of values each band spans, for round numbers in the key or to compare
+charts; values past the top band fill it. `colors` takes a base color to
+ramp for `positive` or `negative` values, or a list of colors from the band
+nearest zero up.
+
+<Playground chart="HorizonChart" code={bandsAndColors} controls={["bands","bandSize","colors"]} />
+
+## Many rows
+
+Rows share the chart's height evenly, so a taller chart gives each series
+more room. `rowGap` sets the space between rows, in pixels (1 by default).
+Arrow keys move along a row's points and between rows once the chart has
+keyboard focus, and the table view lists every row's values.
+
+<Playground chart="HorizonChart" code={manyRows} controls={["rowGap"]} />
+
+## Small multiples
+
+`facet` draws one panel per continent. Every panel shares the x axis and
+the band size, so shades compare across panels, and each panel draws and
+labels only its own series' rows.
+
+<Playground chart="HorizonChart" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="HorizonChart" pkg="core" />
