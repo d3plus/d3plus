@@ -11,6 +11,7 @@ export {
   Calendar,
   Candlestick,
   Chord,
+  ConnectedScatter,
   Donut,
   Dumbbell,
   FanChart,

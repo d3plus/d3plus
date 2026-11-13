@@ -59,6 +59,7 @@ const hiddenMethods = {
     "trendLineConfig",
   ],
   Chord: ["shape"],
+  ConnectedScatter: ["shape"],
   Donut: ["shape"],
   Dumbbell: [
     "shape",
