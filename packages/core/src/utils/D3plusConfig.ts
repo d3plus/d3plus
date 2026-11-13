@@ -1097,8 +1097,10 @@ export interface D3plusConfig {
       ) => (number | {min?: number; max?: number; color?: string})[]);
   /**
       HorizonChart: the range of values each band spans. Defaults to the
-      largest absolute value across every row divided by `bands`, so every
-      row shares one scale; values past the top band fill it.
+      largest absolute value in all of the data (before the timeline,
+      `filter`, and hidden rows cut it) divided by `bands`, rounded up to 1,
+      2, 2.5, or 5 times a power of ten. Every row shares it; values past
+      the top band fill it.
   */
   bandSize?: number;
   /**

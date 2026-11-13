@@ -5,7 +5,7 @@
     <title>HorizonChart</title>
     <meta
       name="description"
-      content="HorizonChart variants: positive series, mirrored negatives, many rows, more bands with custom colors, per-row tooltips, gaps, small multiples, a timeline, and zoom."
+      content="HorizonChart variants: positive series, mirrored negatives, many rows, more bands with custom colors, per-row tooltips, gaps, small multiples, a timeline with a fixed band size, zoom, and row labels that hide or solo their series."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -43,7 +43,10 @@
   <body>
     <div class="grid">
       <div>
-        <h3>Positive series (default: 3 bands)</h3>
+        <h3>
+          Positive series (default: 3 bands). Click a row label to hide it,
+          Shift+click to solo it
+        </h3>
         <div class="viz" id="default"></div>
       </div>
       <div>
@@ -67,7 +70,7 @@
         <div class="viz" id="facet"></div>
       </div>
       <div>
-        <h3>Timeline (time: "date")</h3>
+        <h3>Timeline (time: "date"): shades hold across steps</h3>
         <div class="viz" id="time"></div>
       </div>
       <div>

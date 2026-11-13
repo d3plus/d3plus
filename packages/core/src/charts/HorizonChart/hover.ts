@@ -21,6 +21,7 @@ import {
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {HORIZON_ROW} from "./emit.js";
+import {handleRowLabel} from "./rowFilter.js";
 import {
   horizonState,
   rowValue,
@@ -172,9 +173,18 @@ function renderHorizonTooltip(
     HorizonChart's `_sharedHover`: inside the plot area, snaps a crosshair to
     the nearest x value and shows its tooltip (see `resolveHorizonHover`),
     in place of the default shape tooltip. Clears on leaving the plot area or
-    the chart.
+    the chart. Over a row label, hands the event to `handleRowLabel`.
 */
 export function handleHorizonHover(viz: VizInstance, event: SceneEvent): void {
+  // A row label takes the pointer over to hiding and showing its series.
+  if (handleRowLabel(viz, event)) {
+    if (viz._sharedHoverActive) {
+      viz._sharedHoverActive = false;
+      viz._sharedHoverState = null;
+      viz._scheduleSceneRepaint();
+    }
+    return;
+  }
   let hover: HorizonHover | null = null;
   const area = viz._plotArea;
   if (event.type === "mousemove" || event.type === "mouseenter") {

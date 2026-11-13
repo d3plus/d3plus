@@ -38,6 +38,14 @@ export interface HorizonState {
   order: Map<string, number>;
   /** Each series' label, by id. */
   labels: Map<string, string>;
+  /** Each series' first row, by id. */
+  first: Map<string, DataPoint>;
+  /** The small-multiples panels each series appears in, by id. */
+  panels: Map<string, Set<string>>;
+  /** The row order `yConfig.domain` last set automatically, so a user's is left alone. */
+  domain?: string[];
+  /** The series whose row label the pointer is over. */
+  labelHover?: string;
   /** The row order `ySort` last set automatically, so a user's is left alone. */
   sort?: (a: DataPoint, b: DataPoint) => number;
   /** The axis config values last set automatically, so a user's are left alone. */

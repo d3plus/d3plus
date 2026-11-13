@@ -18,20 +18,20 @@ import Plot from "../Plot/index.js";
 import {sharePlotScales} from "../Plot/plotFacet.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {horizonEmit} from "./emit.js";
-import {horizonBandSize} from "./horizonBands.js";
-import {horizonPalette, type HorizonColorConfig} from "./horizonColors.js";
 import {handleHorizonHover} from "./hover.js";
+import {applyRowDomain, measureBands} from "./measure.js";
+import {rowHidden} from "./rowFilter.js";
 import {
-  bandKeyRows,
   bandLabel,
   bandMeta,
   horizonState,
-  rowValue,
   seriesId,
   valueFormat,
   type HorizonState,
   type RowFn,
 } from "./state.js";
+
+export {bandCount, measureBands} from "./measure.js";
 
 type Handler = (
   this: unknown,
@@ -40,12 +40,6 @@ type Handler = (
   x?: unknown,
   event?: unknown,
 ) => void;
-
-/** How many bands each sign is cut into. */
-export function bandCount(viz: VizInstance): number {
-  const n = Math.floor(Number(viz.schema.bands));
-  return Number.isFinite(n) && n >= 1 ? n : 1;
-}
 
 /**
     Takes over `y`: it reads each row's value (the chart's own `_y` places
@@ -63,45 +57,6 @@ function interceptY(viz: VizInstance, state: HorizonState): void {
   viz._y = (d: DataPoint, i: number) => seriesId(viz, d, i);
 }
 
-/**
-    After Plot's pre-draw: each series' order and label, the band size every
-    row shares, the band colors, and the band key's rows.
-*/
-export function measureBands(viz: VizInstance): void {
-  const state = horizonState(viz);
-  const rows: DataPoint[] = viz._filteredData || [];
-  const values: number[] = [];
-  state.order = new Map();
-  state.labels = new Map();
-  let positive = false,
-    negative = false;
-  rows.forEach((d, i) => {
-    const id = seriesId(viz, d, i);
-    if (!state.order.has(id)) {
-      state.order.set(id, state.order.size);
-      state.labels.set(id, `${viz._drawLabel(d, i)}`);
-    }
-    const v = rowValue(viz, d, i);
-    if (!Number.isFinite(v)) return;
-    values.push(v);
-    if (v > 0) positive = true;
-    if (v < 0) negative = true;
-  });
-  const bands = bandCount(viz);
-  state.size =
-    Number(viz.schema.bandSize) > 0
-      ? Number(viz.schema.bandSize)
-      : horizonBandSize(values, bands);
-  state.signs = {positive, negative};
-  state.palette = horizonPalette(
-    viz._theme,
-    bands,
-    viz.schema.colors as HorizonColorConfig | undefined,
-    viz.schema.colorDefaults,
-  );
-  viz._legendData = bandKeyRows(state, bands);
-}
-
 /** Orders the rows as the series first appear in the data, first on top. */
 function rowSort(viz: VizInstance) {
   return (a: DataPoint, b: DataPoint) => {
@@ -111,10 +66,16 @@ function rowSort(viz: VizInstance) {
   };
 }
 
+/** A row label's opacity: dimmed while its series is hidden. */
+export function rowLabelOpacity(viz: VizInstance, d: DataPoint): number {
+  const tick = (d?.data ?? d) as {id?: unknown} | undefined;
+  return tick && rowHidden(viz, `${tick.id}`) ? 0.4 : 1;
+}
+
 /**
     The y axis: no gridlines, a half row of padding at each end so every
-    row gets an equal share of the plot, and each tick labeled with its
-    series' label.
+    row gets an equal share of the plot, each tick labeled with its series'
+    label, and a hidden series' label dimmed.
 */
 function configureRows(viz: VizInstance, state: HorizonState): void {
   state.sort = rowSort(viz);
@@ -123,6 +84,9 @@ function configureRows(viz: VizInstance, state: HorizonState): void {
     ...viz._yConfig,
     gridConfig: {stroke: "transparent"},
     scalePadding: 0.5,
+    shapeConfig: {
+      labelConfig: {fontOpacity: (d: DataPoint) => rowLabelOpacity(viz, d)},
+    },
     tickFormat: state.tickFormat,
   };
 }
@@ -199,6 +163,8 @@ export const horizonChartDef: ChartDefinition = {
       signs: {positive: false, negative: false},
       order: new Map(),
       labels: new Map(),
+      first: new Map(),
+      panels: new Map(),
     };
     viz.ctx.horizon = state;
     interceptY(viz, state);
@@ -216,6 +182,11 @@ export const horizonChartDef: ChartDefinition = {
       preDraw();
       measureBands(viz);
     };
+    const draw = viz._draw.bind(viz);
+    viz._draw = (callback?: () => void) => {
+      applyRowDomain(viz);
+      return draw(callback);
+    };
   },
 
   ctx: {},
@@ -229,9 +200,11 @@ export const horizonChartDef: ChartDefinition = {
     {key: "bands", default: 3},
     /**
         The range of values each band spans. Defaults to the largest absolute
-        value across every row divided by `bands`, so every row shares one
-        scale and the tallest value fills the top band; values past the top
-        band fill it.
+        value in all of the data divided by `bands`, rounded up to a nice
+        number (1, 2, 2.5, or 5 times a power of ten), so the band key reads
+        in round steps. It is measured before the timeline, `filter`, and
+        hidden rows cut the data, so a shade means the same values at every
+        timeline step. Every row shares it; values past the top band fill it.
     */
     {key: "bandSize"},
     /**
@@ -256,7 +229,8 @@ export const horizonChartDef: ChartDefinition = {
     the y axis, with its `y` values cut into `bands` equal bands folded onto
     the row's baseline and shaded darker the higher they reach. Negative
     values are mirrored upward in a contrasting hue, and every row shares one
-    band size. Hovering shows every row's value at the nearest `x`, and the
-    legend is a key to the bands' value ranges.
+    band size. Hovering shows every row's value at the nearest `x`, the
+    legend is a key to the bands' value ranges, and clicking a row's label
+    hides its series (Shift+click solos it).
 */
 export default makeChart(horizonChartDef, Plot);

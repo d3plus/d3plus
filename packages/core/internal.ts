@@ -1346,14 +1346,27 @@ export {geomapDef} from "./src/charts/Geomap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
 export {
-  bandCount,
   horizonChartDef,
-  measureBands,
+  rowLabelOpacity,
   shareHorizonScales,
 } from "./src/charts/HorizonChart/index.js";
 export {
+  applyRowDomain,
+  bandCount,
+  measureBands,
+  rowDomain,
+} from "./src/charts/HorizonChart/measure.js";
+export {
+  handleRowLabel,
+  rowHidden,
+  rowLabelOf,
+  rowToggle,
+} from "./src/charts/HorizonChart/rowFilter.js";
+export type {RowFilter} from "./src/charts/HorizonChart/rowFilter.js";
+export {
   horizonBandSize,
   horizonSlices,
+  niceCeil,
 } from "./src/charts/HorizonChart/horizonBands.js";
 export type {HorizonSlice} from "./src/charts/HorizonChart/horizonBands.js";
 export {horizonPalette} from "./src/charts/HorizonChart/horizonColors.js";

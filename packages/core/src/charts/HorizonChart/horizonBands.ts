@@ -16,10 +16,28 @@ export interface HorizonSlice {
   points: [number, number][];
 }
 
+/** The steps a nice band size takes, within each power of ten. */
+const NICE_STEPS = [1, 2, 2.5, 5, 10];
+
+/**
+    The smallest nice number (1, 2, 2.5, or 5 times a power of ten) at least
+    `value`, so band edges read as round numbers. Zero for anything not
+    positive.
+    @param value The number to round up.
+*/
+export function niceCeil(value: number): number {
+  if (!(value > 0) || !Number.isFinite(value)) return 0;
+  const power = Math.pow(10, Math.floor(Math.log10(value)));
+  // Absorbs float noise, so 0.3 / 0.1 stays a step of 3, not past it.
+  const scaled = value / power - 1e-9;
+  return (NICE_STEPS.find(step => step >= scaled) ?? 10) * power;
+}
+
 /**
     The value range each band spans: the largest absolute value divided into
-    `bands` equal parts, so the tallest value just fills the top band. Zero
-    when there is nothing to draw.
+    `bands` parts, rounded up to a nice number (see `niceCeil`), so every
+    value fits in the bands and the band edges are round. Zero when there is
+    nothing to draw.
     @param values Every value the bands are shared across.
     @param bands How many bands to cut each sign into.
 */
@@ -27,7 +45,7 @@ export function horizonBandSize(values: number[], bands: number): number {
   let peak = 0;
   for (const v of values)
     if (Number.isFinite(v)) peak = Math.max(peak, Math.abs(v));
-  return bands >= 1 && peak > 0 ? peak / Math.floor(bands) : 0;
+  return bands >= 1 && peak > 0 ? niceCeil(peak / Math.floor(bands)) : 0;
 }
 
 /**
