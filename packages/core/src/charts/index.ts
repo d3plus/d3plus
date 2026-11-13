@@ -10,6 +10,7 @@ export {default as BumpChart} from "./BumpChart/index.js";
 export {default as Calendar} from "./Calendar/index.js";
 export {default as Candlestick} from "./Candlestick/index.js";
 export {default as Chord} from "./Chord/index.js";
+export {default as DensityPlot} from "./DensityPlot/index.js";
 export {default as Donut} from "./Donut/index.js";
 export {default as Dumbbell} from "./Dumbbell/index.js";
 export {default as FanChart} from "./FanChart/index.js";

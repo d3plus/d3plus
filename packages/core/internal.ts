@@ -855,6 +855,17 @@ export {
   growRectsFromCenter,
 } from "./src/charts/helpers/densityEnter.js";
 export {
+  densityCurves,
+  densityHeightLabel,
+  densityHeightScale,
+  pooledBandwidth,
+  resolveDensityScale,
+} from "./src/charts/DensityPlot/densityCurves.js";
+export type {
+  DensityCurveOptions,
+  DensityCurves,
+} from "./src/charts/DensityPlot/densityCurves.js";
+export {
   categoryStep,
   violinEdges,
   violinOutline,
@@ -1300,6 +1311,23 @@ export {bulletDef} from "./src/charts/Bullet/index.js";
 export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {candlestickDef} from "./src/charts/Candlestick/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
+export {
+  DENSITY_POINT,
+  curvesBeforePreDraw,
+  densityPlotDef,
+  densityPointMeta,
+  densityPointTooltipRows,
+} from "./src/charts/DensityPlot/index.js";
+export type {DensityPointMeta} from "./src/charts/DensityPlot/index.js";
+export {
+  densityAreaEmit,
+  rugGroups,
+  rugNodes,
+  rugSegments,
+  rugSettings,
+  rugTickSize,
+} from "./src/charts/DensityPlot/rug.js";
+export type {RugConfig} from "./src/charts/DensityPlot/rug.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {funnelDef} from "./src/charts/Funnel/index.js";
@@ -2189,6 +2217,7 @@ export type {PlotFacetScales} from "./src/charts/Plot/facetScales.js";
 export {
   computeFilteredData,
   computeTimeFilter,
+  drawnRawRows,
   startingSelection,
 } from "./src/charts/pipeline/preDrawData.js";
 export {

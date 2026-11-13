@@ -43,3 +43,16 @@ export function spanEdges(
     .forEach(d => rowSpan(viz, d).forEach(e => edges.add(e)));
   return Array.from(edges).sort((a, b) => a - b);
 }
+
+/**
+    A span axis's tick values: every span boundary, or null (the axis's own
+    ticks) when every span is a single point, as along a sampled curve.
+*/
+export function spanTicks(
+  viz: VizInstance,
+  rows: Record<string, unknown>[],
+): number[] | null {
+  const spans = rows.filter(d => d.data).map(d => rowSpan(viz, d));
+  const points = spans.length > 0 && spans.every(([a, b]) => a === b);
+  return points ? null : spanEdges(viz, rows);
+}

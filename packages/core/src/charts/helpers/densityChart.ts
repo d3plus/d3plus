@@ -14,8 +14,7 @@ import type {D3Scale} from "../../utils/index.js";
 import type {ConfigField} from "../../fluent.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {fieldAccessor} from "../../utils/fieldAccessor.js";
-import {autoTitle, keyedAccessor, valueKeyOf} from "./valueTitle.js";
+import {autoTitle, valueField, valueKeyOf} from "./valueTitle.js";
 import {
   densityGroups,
   densityWidthScale,
@@ -280,16 +279,7 @@ export function densityAccessorFields(): ConfigField[] {
         Accessor function or string key for each row's numeric observation.
         @type {string | function}
     */
-    {
-      key: "value",
-      default: keyedAccessor("value"),
-      coerce: v =>
-        typeof v === "string"
-          ? fieldAccessor(v)
-          : typeof v === "function"
-            ? v
-            : constant(v as never),
-    },
+    valueField(),
   ];
 }
 

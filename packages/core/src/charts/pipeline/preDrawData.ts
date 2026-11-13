@@ -131,6 +131,38 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
 }
 
 /**
+    The raw rows a chart that turns observations into rows of its own
+    (Histogram bins, DensityPlot curves) draws from: the rows in the selected
+    time period (the configured `timeFilter`, else the one `computeTimeFilter`
+    synthesizes) that pass `filter`, and the rows outside that period, which
+    stay in the data as given so the timeline still lists their periods.
+    @param viz The chart.
+    @param rows The raw rows.
+*/
+export function drawnRawRows(
+  viz: Viz,
+  rows: DataPoint[],
+): {drawn: DataPoint[]; offstage: DataPoint[]} {
+  let timeFilter = viz.schema.timeFilter as TimeFilterFn | undefined;
+  if (!timeFilter) {
+    const data = viz._data;
+    viz._data = rows;
+    try {
+      timeFilter = computeTimeFilter(viz);
+    } finally {
+      viz._data = data;
+    }
+  }
+  const filter = viz.schema.filter as
+    ((d: DataPoint, i: number) => boolean) | undefined;
+  const period = timeFilter ? rows.filter(timeFilter) : rows;
+  return {
+    drawn: filter ? period.filter(filter) : period,
+    offstage: timeFilter ? rows.filter((d, i) => !timeFilter(d, i)) : [],
+  };
+}
+
+/**
     `rows.indexOf`, for looking up many rows: it scans like `indexOf` until
     the scans add up to the length of `rows`, then indexes every row (by its
     first position) and looks the rest up.

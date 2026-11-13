@@ -4,8 +4,10 @@
     until the user sets a title of their own.
 */
 
+import type {ConfigField} from "../../fluent.js";
 import accessor from "../../utils/accessor.js";
-import {fieldNameOf} from "../../utils/fieldAccessor.js";
+import constant from "../../utils/constant.js";
+import {fieldAccessor, fieldNameOf} from "../../utils/fieldAccessor.js";
 
 /** Data keys behind string `value` accessors. */
 const valueKeys = new WeakMap<object, string>();
@@ -46,4 +48,22 @@ export function autoTitle(
 ): void {
   if (config && (config.title === undefined || config.title === previous))
     config.title = next;
+}
+
+/**
+    The `value` field of a chart drawn from raw observations: a string becomes
+    a `fieldAccessor`, a function is used as is, and anything else a constant.
+    Defaults to each row's `value`.
+*/
+export function valueField(): ConfigField {
+  return {
+    key: "value",
+    default: keyedAccessor("value"),
+    coerce: v =>
+      typeof v === "string"
+        ? fieldAccessor(v)
+        : typeof v === "function"
+          ? v
+          : constant(v as never),
+  };
 }

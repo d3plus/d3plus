@@ -1416,12 +1416,16 @@ export interface D3plusConfig {
   /** Waterfall: fill for bars that lower the running total. Defaults to `colorDefaults.off`. */
   decreaseColor?: string;
   /**
-      Kernel density options for Violin and Ridgeline curves: `kernel`
-      (`"gaussian"` or `"epanechnikov"`), `bandwidth` (in data units; each
-      group's own Silverman rule-of-thumb bandwidth by default), `points` (how
-      many values each curve is evaluated at, default 80), and `cut` (how far
-      each curve runs past its group's smallest and largest value, in
-      bandwidths: 2 for Violin, 3 for Ridgeline).
+      Kernel density options for Violin, Ridgeline, and DensityPlot curves:
+      `kernel` (`"gaussian"` or `"epanechnikov"`), `bandwidth` (in data units,
+      or a function of the observations returning one; by default Silverman's
+      rule of thumb, on each group's own values for Violin and Ridgeline and
+      on every group's values together for DensityPlot, so its curves are
+      smoothed alike), `points` (how many values each curve is evaluated at:
+      80, or about 100 for DensityPlot, which evaluates every curve in the
+      same round steps), and `cut` (how far each curve runs past the
+      smallest and largest value, in bandwidths: 2 for Violin, 3 for Ridgeline
+      and DensityPlot).
   */
   densityConfig?: {
     kernel?: "gaussian" | "epanechnikov" | ((u: number) => number);
@@ -1430,10 +1434,13 @@ export interface D3plusConfig {
     cut?: number;
   };
   /**
-      How Violin and Ridgeline curves are sized against each other: `"area"`
-      (default) gives every shape the same area, `"count"` makes areas
+      How Violin, Ridgeline, and DensityPlot curves are sized against each
+      other: `"area"` gives every shape the same area, `"count"` makes areas
       proportional to each group's observations, and `"width"` scales every
-      shape to the full width (Violin) or height (Ridgeline).
+      shape to the full width (Violin), height (Ridgeline), or a peak of 1
+      (DensityPlot). Defaults to `"area"`, except on a stacked DensityPlot,
+      where `"count"` makes the stack's top edge the density of every
+      observation.
   */
   densityScale?: "area" | "count" | "width";
   /**
@@ -2211,6 +2218,10 @@ export interface D3plusConfig {
   referenceLines?: ReferenceLineConfig[];
   /** Row key for matrix-style layouts. */
   row?: string;
+  /** DensityPlot: draws a short tick for every observation just below the value axis, in its group's color, moving the axis's labels down to make room (default `false`; see `rugConfig`). */
+  rug?: boolean;
+  /** DensityPlot: the `rug` ticks' `size` (length in pixels, default 8), `strokeWidth` (1), and `opacity` (0.7). */
+  rugConfig?: {size?: number; strokeWidth?: number; opacity?: number};
   /** Shows a top-left download button that saves the chart, as the reader sees it, as a PNG, SVG, or JPG file. On by default for every chart. */
   saveControl?: boolean;
   /**
