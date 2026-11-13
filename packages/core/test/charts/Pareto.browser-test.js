@@ -302,6 +302,94 @@ it("Pareto's shared-scale panels share one category order", async function () {
   });
 });
 
+/** Renders a Pareto, hovers one of its bars, and reads each mark's fill and opacity. */
+const paint = ([data, config, hover]) =>
+  new Promise(resolve => {
+    const viz = new window.d3plus.Pareto()
+      .data(data)
+      .groupBy("cause")
+      .x("cause")
+      .y("count")
+      .duration(0)
+      .detectVisible(false)
+      .config(config)
+      .select("#viz");
+    viz.render(() => {
+      const read = () =>
+        window.d3plus
+          ? sceneNodes(viz.toScene().root || [])
+              .filter(
+                n =>
+                  (n.shapeType === "Bar" ||
+                    `${n.key}`.includes("Cumulative Share")) &&
+                  !`${n.key}`.endsWith("::hit"),
+              )
+              .map(n => ({
+                key: `${n.key}`,
+                fill: n.paint.fill,
+                opacity: n.paint.opacity ?? 1,
+              }))
+          : [];
+      const legend = !!document.querySelector("[data-key='viz-legend'] text");
+      const before = read();
+      if (!hover) return resolve({before, legend});
+      viz.hover(d => (d.data || d).cause === hover);
+      requestAnimationFrame(() =>
+        setTimeout(() => resolve({before, legend, after: read()}), 30),
+      );
+    });
+  });
+
+it("Pareto colors every bar alike, unless series split a category or color is set", async function () {
+  const one = await render(body, paint, [defects, {}]);
+  const fills = new Set(
+    one.before.filter(n => !n.key.includes("Cumulative")).map(n => n.fill),
+  );
+  assert.deepStrictEqual([...fills], ["#4c6ef5"], "the palette's first color");
+  assert.strictEqual(one.legend, false, "no legend of one color");
+  const own = await render(body, paint, [defects, {color: "cause"}]);
+  assert.strictEqual(
+    new Set(
+      own.before.filter(n => !n.key.includes("Cumulative")).map(n => n.fill),
+    ).size,
+    4,
+    "a user color colors by its key",
+  );
+  const rows = defects.flatMap(d => [
+    {...d, shift: "Day", count: d.count / 2},
+    {...d, shift: "Night", count: d.count / 2},
+  ]);
+  const series = await render(body, paint, [
+    rows,
+    {groupBy: "shift", stacked: true},
+  ]);
+  assert.strictEqual(
+    new Set(
+      series.before.filter(n => !n.key.includes("Cumulative")).map(n => n.fill),
+    ).size,
+    2,
+    "series inside a category color by series",
+  );
+  assert.strictEqual(series.legend, true);
+});
+
+it("Pareto keeps its line bright while a bar is hovered", async function () {
+  const out = await render(body, paint, [defects, {}, "Scratches"]);
+  const opacity = key => out.after.find(n => n.key === key).opacity;
+  assert.strictEqual(opacity("Scratches_Scratches"), 1, "the hovered bar");
+  assert.ok(opacity("Cracks_Cracks") < 1, "other bars dim");
+  assert.strictEqual(opacity("Cumulative Share"), 1, "the line stays bright");
+  assert.strictEqual(
+    opacity("Cumulative Share_Scratches"),
+    1,
+    "with the hovered category's point",
+  );
+  assert.ok(
+    opacity("Cumulative Share_Cracks") < 1,
+    "which stands out from the other points",
+  );
+});
+
 it("Pareto renders on Canvas", async function () {
   const out = await render(body, probe, [defects, {renderer: "canvas"}]);
   assert.strictEqual(out.canvas, true);

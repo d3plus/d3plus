@@ -32,6 +32,10 @@ export interface ParetoState {
   accessors: Record<Axis, RowAccessor>;
   /** Each row array's steps, computed once. */
   steps: WeakMap<DataPoint[], ParetoStep[]>;
+  /** The default `color` the chart installed, so a user's is told apart. */
+  color?: RowAccessor;
+  /** Whether each row array's bars share one color, computed once. */
+  oneColor: WeakMap<DataPoint[], boolean>;
   /**
       The order every small-multiples panel shares when panels share
       scales: the categories of every panel's rows, largest total first.

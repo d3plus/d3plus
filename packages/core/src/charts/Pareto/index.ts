@@ -17,6 +17,8 @@ import {
   tooltipRows,
   tooltipTitle,
 } from "./labels.js";
+import {paretoColor, sharesOneColor} from "./color.js";
+import {keepLineBright} from "./hover.js";
 import {paretoThreshold, syncPooledOrder, syncSort} from "./order.js";
 import {
   barRows,
@@ -41,9 +43,13 @@ export const paretoDef: ChartDefinition = {
     const state: ParetoState = {
       accessors: {} as ParetoState["accessors"],
       steps: new WeakMap(),
+      oneColor: new WeakMap(),
     };
     viz.ctx.pareto = state;
     interceptAxes(viz);
+    // Bars share one color while each category draws a single bar.
+    viz.schema.color = state.color = paretoColor(viz);
+    keepLineBright(viz);
     // A point on the line has no bar value, so the tooltip lists its own rows.
     viz._tooltipAxisRows = false;
     const percent = percentFormat(viz);
@@ -85,8 +91,10 @@ export const paretoDef: ChartDefinition = {
           config: VizInstance,
           arr: DataPoint[],
         ) => unknown;
-        // BarChart's rule (no legend that only repeats the bars) reads the bars alone.
+        // BarChart's rule (no legend that only repeats the bars) reads the
+        // bars alone, and bars sharing one color have no legend to show.
         return (config: VizInstance, arr: DataPoint[]) => {
+          if (sharesOneColor(viz)) return false;
           const rows = viz._filteredData;
           viz._filteredData = barRows(rows);
           try {
@@ -156,6 +164,9 @@ export const paretoDef: ChartDefinition = {
     the smallest, and a line of the running share of the total through each
     category, on a 0–100% axis to the right of the bars (above horizontal
     ones). A dashed reference line marks 80% (see `paretoThreshold`).
+    Every bar takes the first color of the chart's palette, unless `groupBy`
+    splits a category into series (colored by series) or `color` is set;
+    hovering a bar keeps the line, and its point over that bar, bright.
     `threshold` folds the smallest categories into one bar, drawn last.
     Tooltips show each bar's value, its share of the total, and the
     cumulative share through its category.

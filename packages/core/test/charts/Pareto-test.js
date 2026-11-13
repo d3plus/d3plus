@@ -43,6 +43,18 @@ import {
   valueFormat,
   valueName,
 } from "../../src/charts/Pareto/labels.ts";
+import {
+  barColor,
+  oneBarPerCategory,
+  paretoColor,
+  sharesOneColor,
+} from "../../src/charts/Pareto/color.ts";
+import {
+  hoveredCategories,
+  isLinePath,
+  keepLineBright,
+  withLine,
+} from "../../src/charts/Pareto/hover.ts";
 import {fieldNameOf} from "../../src/utils/fieldAccessor.ts";
 
 useJsdom();
@@ -479,4 +491,110 @@ it("syncPooledOrder shares one order across panels only when they share scales",
   viz.facet(false);
   syncPooledOrder(viz, state, panels);
   assert.strictEqual(state.pooled, undefined, "no facet, no shared order");
+});
+
+it("barColor is the first color of the chart's palette", () => {
+  const viz = pareto();
+  assert.strictEqual(barColor(viz), "#4c6ef5");
+  viz.colorDefaults({scale: d3ScaleOf(["#123456", "#abcdef"])});
+  assert.strictEqual(barColor(viz), "#123456");
+});
+
+/** A minimal ordinal scale over `range`. */
+function d3ScaleOf(range) {
+  const scale = () => range[0];
+  scale.range = () => range;
+  return scale;
+}
+
+it("oneBarPerCategory: within each panel, no category draws two bars", () => {
+  const cause = d => d.cause;
+  assert.strictEqual(oneBarPerCategory(rows, cause), true);
+  assert.strictEqual(oneBarPerCategory([...rows, rows[0]], cause), false);
+  const panels = [
+    {plant: "N", cause: "A"},
+    {plant: "S", cause: "A"},
+  ];
+  assert.strictEqual(oneBarPerCategory(panels, cause), false);
+  assert.strictEqual(
+    oneBarPerCategory(panels, cause, d => d.plant),
+    true,
+    "the same category in two panels",
+  );
+});
+
+it("sharesOneColor and paretoColor: one color until series split a category or a color is set", () => {
+  const viz = drawn();
+  assert.strictEqual(viz.schema.color, paretoState(viz).color);
+  assert.strictEqual(sharesOneColor(viz), true);
+  assert.strictEqual(viz.schema.color(rows[0], 0), "#4c6ef5");
+  assert.strictEqual(paretoColor(viz)(rows[1], 1), "#4c6ef5");
+  const split = drawn(
+    pareto(
+      rows.flatMap(d => [
+        {...d, shift: "Day"},
+        {...d, shift: "Night"},
+      ]),
+    ).groupBy("shift"),
+  );
+  assert.strictEqual(sharesOneColor(split), false);
+  assert.strictEqual(split.schema.color(split._filteredData[0], 0), "Day");
+  viz.color("cause");
+  assert.strictEqual(sharesOneColor(viz), false, "a user color wins");
+  assert.strictEqual(viz.schema.color(rows[0], 0), "Scratches");
+});
+
+it("withLine and keepLineBright: a hover also matches the cumulative line", () => {
+  const line = lineRow({});
+  const hovered = withLine(d => d.cause === "Dents");
+  assert.strictEqual(hovered(rows[2], 2), true);
+  assert.strictEqual(hovered(rows[0], 0), false);
+  assert.strictEqual(hovered({__d3plus__: true, data: line}, 0), true);
+  assert.strictEqual(withLine(false), false);
+  assert.strictEqual(withLine(undefined), undefined);
+  const viz = drawn();
+  viz._sceneRenderer = undefined;
+  viz.hover(d => d.cause === "Dents");
+  assert.strictEqual(
+    viz.hover()(lineRow({key: ["A", "B"]}), 0),
+    true,
+    "keepLineBright is installed",
+  );
+  const calls = [];
+  const fake = {hover: (...args) => (calls.push(args), "base")};
+  keepLineBright(fake);
+  assert.strictEqual(fake.hover(), "base", "a read passes through");
+  fake.hover(false);
+  assert.deepStrictEqual(calls, [[], [false]]);
+});
+
+it("isLinePath and hoveredCategories tell the line's path and hovered points apart", () => {
+  assert.strictEqual(isLinePath(lineRow({key: ["A", "B"]})), true);
+  assert.strictEqual(
+    isLinePath({__d3plus__: true, data: lineRow({key: ["A"]})}),
+    true,
+  );
+  assert.strictEqual(isLinePath(lineRow({key: "A"})), false);
+  assert.strictEqual(isLinePath(rows[0]), false);
+  const viz = drawn();
+  assert.deepStrictEqual(
+    [...hoveredCategories(viz, d => d.count > 20)],
+    ["Scratches", "Cracks"],
+  );
+  assert.deepStrictEqual([...hoveredCategories(viz, () => false)], []);
+});
+
+it("keepLineBright keeps only the hovered categories' points bright", () => {
+  const viz = drawn();
+  viz._sceneRenderer = undefined;
+  viz.hover(d => (d.data || d).cause === "Dents");
+  const steps = stepsFor(viz, viz._filteredData);
+  const point = cause => lineRow(steps.find(s => s.category === cause));
+  const path = lineRow({...steps[0], key: steps.map(s => s.key)});
+  const hover = viz.hover();
+  assert.strictEqual(hover(path, 0), true, "the line");
+  assert.strictEqual(hover(point("Dents"), 0), true, "the hovered point");
+  assert.strictEqual(hover(point("Cracks"), 0), false, "not the others");
+  assert.strictEqual(hover(rows[2], 2), true, "the hovered bar");
+  assert.strictEqual(hover(rows[0], 0), false);
 });
