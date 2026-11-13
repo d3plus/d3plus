@@ -395,17 +395,30 @@ it("tooltipRows and tooltipTitle: the value, its share, and the running share", 
 it("thresholdLines: a dashed, labeled line on the share axis, movable and hideable", () => {
   const viz = drawn();
   assert.deepStrictEqual(thresholdLines(viz), [
-    {dash: true, label: "80%", y2: 0.8},
+    {dash: true, label: "80%", labelPosition: "end", y2: 0.8},
   ]);
   assert.deepStrictEqual(viz._plotReferenceLines(), thresholdLines(viz));
   viz
     .paretoThreshold(0.7)
     .paretoThresholdConfig({label: "Target", stroke: "red", y2: 0.1});
   assert.deepStrictEqual(thresholdLines(viz), [
-    {dash: true, label: "Target", stroke: "red", y2: 0.7},
+    {
+      dash: true,
+      label: "Target",
+      labelPosition: "end",
+      stroke: "red",
+      y2: 0.7,
+    },
   ]);
   viz.discrete("y");
   assert.strictEqual(thresholdLines(viz)[0].x2, 0.7);
+  assert.strictEqual(
+    thresholdLines(viz)[0].labelPosition,
+    "start",
+    "the label sits at the bottom, over the smallest horizontal bars",
+  );
+  viz.paretoThresholdConfig({labelPosition: "end"});
+  assert.strictEqual(thresholdLines(viz)[0].labelPosition, "end");
   viz.paretoThreshold(false);
   assert.deepStrictEqual(thresholdLines(viz), []);
   viz.paretoThreshold(0.8);

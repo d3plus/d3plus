@@ -177,6 +177,74 @@ it("Pareto marks 80% with a dashed, labeled reference line on the share axis", a
   );
 });
 
+/** Renders a Pareto and reads its bars' and reference label's boxes, in chart space. */
+const boxes = ([data, config]) =>
+  new Promise(resolve => {
+    const viz = new window.d3plus.Pareto()
+      .data(data)
+      .groupBy("cause")
+      .x("cause")
+      .y("count")
+      .duration(0)
+      .detectVisible(false)
+      .config(config)
+      .select("#viz");
+    viz.render(() => {
+      const bars = [];
+      const labels = [];
+      const walk = (node, ox, oy) => {
+        const x = ox + (node.transform?.x || 0),
+          y = oy + (node.transform?.y || 0);
+        const key = `${node.key}`;
+        if (node.shapeType === "Bar" && !key.endsWith("::hit"))
+          bars.push({
+            x0: x + node.x,
+            x1: x + node.x + node.width,
+            y0: y + node.y,
+            y1: y + node.y + node.height,
+          });
+        if (/annotation-back-\d+-label$/.test(key)) {
+          const width = Math.max(...node.lines.map(l => l.width));
+          const left = node.font.anchor === "end" ? x - width : x;
+          labels.push({
+            x0: left,
+            x1: left + width,
+            y0: y,
+            y1: y + node.lines.length * node.font.size,
+          });
+        }
+        (node.children || []).forEach(c => walk(c, x, y));
+      };
+      viz._chartScene.forEach(n => walk(n, 0, 0));
+      resolve({
+        bars,
+        labels,
+        canvas: !!document.querySelector("#viz canvas"),
+      });
+    });
+  });
+
+const overlap = (a, b) =>
+  a.x0 < b.x1 - 0.5 &&
+  b.x0 < a.x1 - 0.5 &&
+  a.y0 < b.y1 - 0.5 &&
+  b.y0 < a.y1 - 0.5;
+
+for (const renderer of ["svg", "canvas"])
+  for (const horizontal of [false, true])
+    it(`Pareto (${renderer}, ${horizontal ? "horizontal" : "upright"}): the 80% label sits clear of the bars`, async function () {
+      const config = horizontal
+        ? {discrete: "y", x: "count", y: "cause", renderer}
+        : {renderer};
+      const out = await render(body, boxes, [defects, config]);
+      assert.strictEqual(out.canvas, renderer === "canvas");
+      assert.strictEqual(out.labels.length, 1);
+      assert.ok(
+        out.bars.every(b => !overlap(b, out.labels[0])),
+        `label ${JSON.stringify(out.labels[0])} clear of ${JSON.stringify(out.bars)}`,
+      );
+    });
+
 it("Pareto's tooltips show the value, its share, and the running share", async function () {
   const out = await render(body, probe, [defects, {}, "Scratches_Scratches"]);
   assert.deepStrictEqual(out.tooltip, {

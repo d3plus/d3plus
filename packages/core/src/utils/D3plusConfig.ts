@@ -2100,8 +2100,10 @@ export interface D3plusConfig {
   /**
       Pareto: styles the `paretoThreshold` line like a `referenceLines` entry:
       `label` (defaults to the share, such as "80%"; `false` hides it),
-      `labelPosition`, font keys, `stroke`, `strokeOpacity`, `strokeWidth`,
-      `dash` (`true` by default), and `layer`.
+      `labelPosition` (defaults to the end of the line over the smallest
+      bars: `"end"` for upright bars, `"start"` for horizontal ones), font
+      keys, `stroke`, `strokeOpacity`, `strokeWidth`, `dash` (`true` by
+      default), and `layer`.
   */
   paretoThresholdConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2">;
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */

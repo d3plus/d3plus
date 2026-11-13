@@ -79,8 +79,8 @@ export function tooltipTitle(viz: VizInstance, d: DataPoint, i: number) {
 /**
     The reference line at the `paretoThreshold` share, across the secondary
     axis and styled by `paretoThresholdConfig`: dashed, and labeled with the
-    share (such as "80%"). None when `paretoThreshold` isn't a number, or
-    nothing is drawn.
+    share (such as "80%") at the end of the line over the smallest bars.
+    None when `paretoThreshold` isn't a number, or nothing is drawn.
     @param viz The chart.
 */
 export function thresholdLines(viz: VizInstance): Record<string, unknown>[] {
@@ -95,6 +95,9 @@ export function thresholdLines(viz: VizInstance): Record<string, unknown>[] {
     {
       dash: true,
       label: percentFormat(viz)(at),
+      // The label sits at the line's end over the smallest bars: the right
+      // of upright bars, the bottom of horizontal ones.
+      labelPosition: categoryAxis(viz) === "y" ? "start" : "end",
       ...config,
       [shareAxis(viz)]: at,
     },

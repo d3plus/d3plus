@@ -116,8 +116,10 @@ export const paretoDef: ChartDefinition = {
     /**
         Styles the `paretoThreshold` line like a `referenceLines` entry:
         `label` (defaults to the share, such as "80%"; `false` hides it),
-        `labelPosition`, font keys, `stroke`, `strokeOpacity`, `strokeWidth`,
-        `dash` (`true` by default), and `layer`.
+        `labelPosition` (defaults to the end of the line over the smallest
+        bars: `"end"` for upright bars, `"start"` for horizontal ones), font
+        keys, `stroke`, `strokeOpacity`, `strokeWidth`, `dash` (`true` by
+        default), and `layer`.
         @type {ReferenceLineConfig}
     */
     {key: "paretoThresholdConfig", merge: true, default: {}},
