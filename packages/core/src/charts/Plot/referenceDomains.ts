@@ -129,6 +129,7 @@ export function widenReferenceDomains(
   const values = referenceDomainValues([
     ...expandReferenceBands(viz.schema.referenceBands),
     ...expandReferenceLines(viz.schema.referenceLines),
+    ...expandReferenceLines(viz._plotReferenceLines?.()),
     ...((viz._annotations || []) as Annotation[]),
   ]);
   const out = {...autoDomains};

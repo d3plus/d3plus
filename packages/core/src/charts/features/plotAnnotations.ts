@@ -155,7 +155,8 @@ export function annotationLayer(annotation: Annotation): string {
 
 /**
     Every annotation a Plot draws: its `referenceBands`, then its
-    `referenceLines` (so lines draw over bands), then its own `annotations`.
+    `referenceLines` and the chart's own (so lines draw over bands), then its
+    own `annotations`.
     @param viz The chart.
 */
 export function plotAnnotationList(viz: Viz): Annotation[] {
@@ -163,6 +164,7 @@ export function plotAnnotationList(viz: Viz): Annotation[] {
   return [
     ...expandReferenceBands(viz.schema.referenceBands),
     ...expandReferenceLines(viz.schema.referenceLines),
+    ...expandReferenceLines(viz._plotReferenceLines?.()),
     ...own.filter(d => !!d && typeof d.shape === "string"),
   ];
 }
