@@ -1,5 +1,5 @@
 import {extent} from "d3-array";
-import {timeFormatLocale} from "d3-time-format";
+import {timeFormat, timeFormatLocale, utcFormat} from "d3-time-format";
 
 import {date} from "@d3plus/dom";
 import {dateFullFormatter, formatDateFull} from "@d3plus/format";
@@ -9,21 +9,56 @@ import type Axis from "./Axis.js";
 import {normalizeRangeBreaks, rangeBreakTest} from "./rangeBreaks.js";
 
 /**
+    Whether an axis config asks for its time in UTC (its `utc`).
+    @param config An axis config, such as a Plot's `xConfig`.
+*/
+export function configUtc(config: unknown): boolean {
+  return (
+    typeof config === "object" &&
+    config !== null &&
+    Boolean((config as {utc?: unknown}).utc)
+  );
+}
+
+/**
+    Whether an axis places, labels, and parses its time in UTC (see `utc`).
+    @param axis The axis.
+*/
+export const axisUtc = (axis: Axis): boolean => configUtc(axis.schema);
+
+/**
+    The d3 formatter dates are labeled with in the current default time
+    locale: `utcFormat` in UTC, else `timeFormat`.
+    @param utc Whether to write UTC.
+*/
+export const defaultTimeFormat = (utc: boolean): typeof timeFormat =>
+  utc ? utcFormat : timeFormat;
+
+/**
     Parses a value (Date, timestamp, or date string) into a valid Date, or `undefined` when it does not parse.
+    @param d The value.
+    @param utc Read a value that names no time zone (a year, or a date string) in UTC.
     @private
 */
-export function parseTime(d: unknown): Date | undefined {
+export function parseTime(d: unknown, utc = false): Date | undefined {
   if (d === null || d === undefined) return undefined;
-  const parsed = date(d as string | number | false);
+  const parsed = date(d as string | number | false, utc);
   return parsed instanceof Date && !isNaN(+parsed) ? parsed : undefined;
 }
 
 /**
     Parses values into Dates, dropping any that do not parse to a valid date.
+    @param values The values.
+    @param utc Read values that name no time zone in UTC (see `parseTime`).
     @private
 */
-export function parseTimeValues(values: readonly unknown[]): Date[] {
-  return values.map(parseTime).filter((d): d is Date => d !== undefined);
+export function parseTimeValues(
+  values: readonly unknown[],
+  utc = false,
+): Date[] {
+  return values
+    .map(d => parseTime(d, utc))
+    .filter((d): d is Date => d !== undefined);
 }
 
 /**
@@ -32,8 +67,11 @@ export function parseTimeValues(values: readonly unknown[]): Date[] {
 */
 export function axisScaleData(axis: Axis): unknown[] {
   if (axis.schema.scale !== "time") return axis._data ?? [];
-  const data = visibleDates(axis, parseTimeValues(axis._data ?? []));
-  const domain = ((axis.schema.domain ?? []) as unknown[]).map(parseTime);
+  const utc = axisUtc(axis);
+  const data = visibleDates(axis, parseTimeValues(axis._data ?? [], utc));
+  const domain = ((axis.schema.domain ?? []) as unknown[]).map(d =>
+    parseTime(d, utc),
+  );
   if (domain.length < 2 || domain.some(d => d === undefined)) return data;
   const [lo, hi] = extent(domain as Date[]) as [Date, Date];
   return data.filter(d => d >= lo && d <= hi);
@@ -44,7 +82,7 @@ function visibleDates(axis: Axis, dates: Date[]): Date[] {
   const rules = normalizeRangeBreaks(axis.schema.rangeBreaks);
   if (!rules.length || !dates.length) return dates;
   const [lo, hi] = extent(dates, Number) as [number, number];
-  const hidden = rangeBreakTest(rules, lo, hi);
+  const hidden = rangeBreakTest(rules, lo, hi, axisUtc(axis));
   return dates.filter(d => !hidden(d));
 }
 
@@ -65,7 +103,8 @@ export function timeDataInDomain(
     @private
 */
 export function axisTimeDomain(axis: Axis): Date[] {
-  const domain = (axis.schema.domain as unknown[]).map(parseTime);
+  const utc = axisUtc(axis);
+  const domain = (axis.schema.domain as unknown[]).map(d => parseTime(d, utc));
   const data = axis._scaleData as Date[];
   if (domain.some(d => d === undefined) && data.length)
     return extent(data) as [Date, Date];
@@ -101,6 +140,7 @@ export function axisTimeReference(axis: Axis): Date[] {
       const offered = !data.length && scale ? axis._getLabels() : [];
       return parseTimeValues(
         data.length ? data : offered.length > 1 ? offered : domain,
+        axisUtc(axis),
       ).sort((a: Date, b: Date) => +a - +b);
     },
   );
@@ -113,31 +153,38 @@ export function axisTimeReference(axis: Axis): Date[] {
 export function axisDateLabel(axis: Axis, d: Date): string {
   const timeLocale = axisTimeLocale(axis);
   const dates = axisDateReference(axis);
+  const utc = axisUtc(axis);
+  const format = localeFormat(timeLocale, utc);
   // Every mark reads its date this way, so the interval is read once per set of dates.
   const label = dates.length
-    ? axisMemo(axis, "dateLabel", [dates, timeLocale], () =>
-        dateFullFormatter(dates, localeFormat(timeLocale)),
+    ? axisMemo(axis, "dateLabel", [dates, timeLocale, utc], () =>
+        dateFullFormatter(dates, format, utc),
       )(d)
-    : formatDateFull(d, [d], localeFormat(timeLocale));
+    : formatDateFull(d, [d], format, utc);
   return label.replace(/^Q/, timeLocale.quarter);
 }
 
-/** The `format` of a time locale, built once per locale definition. */
+type SpecifierFormat = (specifier: string) => (date: Date) => string;
+
+/** The `format` (or, in UTC, `utcFormat`) of a time locale, built once per locale definition. */
 function localeFormat(
   timeLocale: TimeLocaleDefinition,
-): (specifier: string) => (date: Date) => string {
-  let format = localeFormats.get(timeLocale);
-  if (!format)
+  utc: boolean,
+): SpecifierFormat {
+  let formats = localeFormats.get(timeLocale);
+  if (!formats) {
+    const built = timeFormatLocale(timeLocale);
     localeFormats.set(
       timeLocale,
-      (format = timeFormatLocale(timeLocale).format),
+      (formats = {local: built.format, utc: built.utcFormat}),
     );
-  return format;
+  }
+  return utc ? formats.utc : formats.local;
 }
 
 const localeFormats = new WeakMap<
   TimeLocaleDefinition,
-  (specifier: string) => (date: Date) => string
+  {local: SpecifierFormat; utc: SpecifierFormat}
 >();
 
 /** Whether a value is a Date that holds a valid time. */
@@ -188,7 +235,7 @@ export function axisShownDates(axis: Axis): Date[] | undefined {
   if (!shown) return undefined;
   const cached = shownDatesCache.get(axis);
   if (cached && cached[0] === shown) return cached[1];
-  const dates = parseTimeValues(shown).sort((a, b) => +a - +b);
+  const dates = parseTimeValues(shown, axisUtc(axis)).sort((a, b) => +a - +b);
   shownDatesCache.set(axis, [shown, dates]);
   return dates;
 }

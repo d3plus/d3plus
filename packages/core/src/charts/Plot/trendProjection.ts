@@ -10,6 +10,12 @@ import {
   timeMonth,
   timeSecond,
   timeYear,
+  utcDay,
+  utcHour,
+  utcMinute,
+  utcMonth,
+  utcSecond,
+  utcYear,
 } from "d3-time";
 import type {CountableTimeInterval} from "d3-time";
 
@@ -35,6 +41,16 @@ const intervals: CountableTimeInterval[] = [
   timeSecond,
 ];
 
+/** The same intervals in UTC. */
+const utcIntervals: CountableTimeInterval[] = [
+  utcYear,
+  utcMonth,
+  utcDay,
+  utcHour,
+  utcMinute,
+  utcSecond,
+];
+
 /** The median of a non-empty list of numbers. */
 function median(values: number[]): number {
   const sorted = values.slice().sort((a, b) => a - b);
@@ -52,8 +68,9 @@ const clean = (n: number): number => +n.toPrecision(12);
     between dates, falling back to the median gap in milliseconds. Null for a
     category axis or fewer than two distinct values.
     @param order The independent axis's values.
+    @param utc Read the dates' calendar in UTC instead of local time.
 */
-export function trendStep(order: unknown[]): TrendOffset | null {
+export function trendStep(order: unknown[], utc = false): TrendOffset | null {
   const time = order.some(v => v instanceof Date);
   if (order.some(v => !(v instanceof Date) && typeof v !== "number"))
     return null;
@@ -69,7 +86,9 @@ export function trendStep(order: unknown[]): TrendOffset | null {
   }
 
   const dates = values.map(v => new Date(v));
-  const interval = intervals.find(t => dates.every(d => +t.floor(d) === +d));
+  const interval = (utc ? utcIntervals : intervals).find(t =>
+    dates.every(d => +t.floor(d) === +d),
+  );
   if (interval) {
     const step = Math.round(
       median(dates.slice(1).map((d, i) => interval.count(dates[i], d))),
@@ -90,13 +109,15 @@ const MAX_STEPS = 1000;
     isn't past the last value.
     @param order The independent axis's values.
     @param projection The `trendLineConfig.projection` setting.
+    @param utc Step dates, and read a `to` that names no time zone, in UTC.
 */
 export function projectionPositions(
   order: unknown[],
   projection: unknown,
+  utc = false,
 ): unknown[] {
   if (!projection) return [];
-  const offset = trendStep(order);
+  const offset = trendStep(order, utc);
   if (!offset) return [];
   const time = order.some(v => v instanceof Date);
   const last = order.reduce<unknown>(
@@ -113,7 +134,7 @@ export function projectionPositions(
 
   const to = (projection as {to?: unknown}).to;
   if (to === undefined || to === null) return [];
-  const end = time ? date(to as string | number) : +(to as number);
+  const end = time ? date(to as string | number, utc) : +(to as number);
   if (!Number.isFinite(+(end as number))) return [];
   const out: unknown[] = [];
   for (let k = 1; k <= MAX_STEPS; k++) {

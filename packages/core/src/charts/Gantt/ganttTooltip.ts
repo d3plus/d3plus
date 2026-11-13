@@ -16,7 +16,12 @@ import {
 } from "../../components/Axis/rangeBreaks.js";
 import type {RangeBreakRule} from "../../components/Axis/rangeBreaks.js";
 import {calendarTimeLocale} from "../Calendar/calendarFormat.js";
-import {isTimeAxis, parseTime, rowTime} from "../Priestley/timeAxis.js";
+import {
+  isTimeAxis,
+  isUtcAxis,
+  parseTime,
+  rowTime,
+} from "../Priestley/timeAxis.js";
 import type {TimeValue} from "../Priestley/timeAxis.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {isMilestone, normalizeProgress} from "./ganttRows.js";
@@ -44,7 +49,12 @@ export function timeFormatter(
   const locale = timeFormatLocale(
     calendarTimeLocale(viz.schema.locale) as unknown as D3TimeLocale,
   );
-  const format = dateFullFormatter(dates, locale.format);
+  const utc = isUtcAxis(viz);
+  const format = dateFullFormatter(
+    dates,
+    utc ? locale.utcFormat : locale.format,
+    utc,
+  );
   return v => format(v instanceof Date ? v : new Date(v));
 }
 
@@ -74,7 +84,9 @@ export function ganttDuration(
   const span = +end - +start;
   if (!isTimeAxis(viz)) return formatAbbreviate(span, viz.schema.locale);
   const rules = ganttDayBreaks(viz);
-  const shown = rules.length ? visibleBetween(rules, +start, +end) : span;
+  const shown = rules.length
+    ? visibleBetween(rules, +start, +end, isUtcAxis(viz))
+    : span;
   const days = Math.round((shown / DAY) * 10) / 10;
   const unit = viz.schema.translate(
     `${rules.length ? "working " : ""}${days === 1 ? "day" : "days"}`,
@@ -118,8 +130,9 @@ export function taskTimes(
   i: number,
 ): TaskTimes | null {
   const time = isTimeAxis(viz);
-  let start = parseTime(rowTime(viz, "start", d, i), time);
-  let end = parseTime(rowTime(viz, "end", d, i), time);
+  const utc = isUtcAxis(viz);
+  let start = parseTime(rowTime(viz, "start", d, i), time, utc);
+  let end = parseTime(rowTime(viz, "end", d, i), time, utc);
   if (start === null && end === null) return null;
   start ??= end;
   end ??= start;

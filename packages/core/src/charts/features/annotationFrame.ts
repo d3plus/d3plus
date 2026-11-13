@@ -6,6 +6,7 @@
 import {date} from "@d3plus/dom";
 
 import type Axis from "../../components/Axis/Axis.js";
+import {axisUtc} from "../../components/Axis/timeValues.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {AnnotationRef} from "./annotationTypes.js";
 import type {PlotAxisFn} from "./plotPaint.js";
@@ -27,6 +28,8 @@ export interface AxisFrame {
   scale: (value: unknown) => number;
   /** Whether the axis plots dates, so values parse as dates. */
   time?: boolean;
+  /** Whether dates that name no time zone parse as UTC (the axis's `utc`). */
+  utc?: boolean;
   /** A category axis's categories, which values must match (or fall between, when numeric). */
   categories?: unknown[];
   /** Whether each category fills a slot along the axis (bars), which spans take in whole. */
@@ -72,7 +75,7 @@ export function axisPixel(
   }
   const a = frame.axes[axis];
   if (!a) return NaN;
-  const v = a.time ? date(value as string | number) : value;
+  const v = a.time ? date(value as string | number, a.utc) : value;
   if (v === false || v === undefined) return NaN;
   if (a.categories) {
     const key = valueKey(v);
@@ -229,7 +232,11 @@ function axisFrame(
 ): AxisFrame | undefined {
   if (!axis || !axis._d3Scale) return undefined;
   const type = axis.schema.scale as string;
-  const frame: AxisFrame = {scale, time: time || type === "time"};
+  const frame: AxisFrame = {
+    scale,
+    time: time || type === "time",
+    utc: axisUtc(axis),
+  };
   if (CATEGORY_SCALES.has(type)) {
     frame.categories = axis._d3Scale.domain();
     if (slots) frame.slots = true;

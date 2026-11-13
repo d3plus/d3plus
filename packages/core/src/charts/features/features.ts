@@ -33,7 +33,7 @@ import {
   topLeftControlsReach,
 } from "../drawSteps/topLeftControlsMarkup.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
-import {timelineRangeBreaks} from "../Plot/plotRangeBreaks.js";
+import {timelineRangeBreaks, timelineUtc} from "../Plot/plotRangeBreaks.js";
 import {startingSelection} from "../pipeline/preDrawData.js";
 import {classTimelineMode} from "../../components/Timeline/timelineMode.js";
 
@@ -568,8 +568,9 @@ function setTimeFilter(viz: VizInstance, s: Date | Date[] | number[]): void {
   if (JSON.stringify(s) !== JSON.stringify(viz._timelineSelection)) {
     viz._timelineSelection = s;
     const nums = (s as Array<Date | number>).map(Number) as number[];
+    const utc = timelineUtc(viz);
     viz.timeFilter!((d: DataPoint) => {
-      const ms = (date(viz.schema.time(d)) as Date).getTime();
+      const ms = (date(viz.schema.time(d), utc) as Date).getTime();
       return ms >= nums[0] && ms <= nums[1];
     }).render!();
   }
@@ -588,10 +589,11 @@ export const timelineFeature: FeatureModule = {
   configFields: ["timeline", "timelineConfig", "timelinePadding"],
   layout: ({viz, layoutMargin}) => {
     let timelinePossible = viz.schema.time && viz.schema.timeline;
+    const utc = timelineUtc(viz);
     const ticks = (
       timelinePossible
         ? unique(viz._data.map(viz.schema.time)).map((d: unknown) =>
-            date(d as string | number),
+            date(d as string | number, utc),
           )
         : []
     ) as Date[];
@@ -643,7 +645,7 @@ export const timelineFeature: FeatureModule = {
       const filtered = extent(
         (viz._filteredData || [])
           .flatMap((d: DataPoint, i: number) => viz.schema.time(d, i))
-          .map((d: unknown) => date(d as string | number)) as Date[],
+          .map((d: unknown) => date(d as string | number, utc)) as Date[],
       ) as [Date, Date];
       viz._timelineSelection =
         startingSelection(viz) || (filtered[0] ? filtered : fullExtent);
@@ -663,6 +665,8 @@ export const timelineFeature: FeatureModule = {
     // sets its own `rangeBreaks`.
     const inherited = timelineRangeBreaks(viz);
     timeline.rangeBreaks(inherited.length ? inherited : false);
+    // It reads time in UTC when its time axis does (see `timelineUtc`).
+    timeline.utc(utc);
     // `timelineConfig.selection` is where the timeline starts (see
     // `startingSelection`); after that the viewer's selection stands.
     const config = {...viz.schema.timelineConfig};

@@ -43,11 +43,15 @@ export interface TimeGap {
 
 const DAY = 864e5;
 
-/** A rule value read as a timestamp, or `NaN` when it doesn't parse. */
-export function rangeBreakTime(value: unknown): number {
+/**
+    A rule value read as a timestamp, or `NaN` when it doesn't parse.
+    @param value The value: a Date, a timestamp, a year, or a date string.
+    @param utc Read a value that names no time zone in UTC.
+*/
+export function rangeBreakTime(value: unknown, utc = false): number {
   if (value instanceof Date) return +value;
   if (typeof value !== "number" && typeof value !== "string") return NaN;
-  const parsed = date(value);
+  const parsed = date(value, utc);
   return parsed instanceof Date ? +parsed : NaN;
 }
 
@@ -148,13 +152,13 @@ function ruleGaps(
   } else if ("values" in rule) {
     const interval = utc ? utcDay : timeDay;
     rule.values.forEach(v => {
-      const t = rangeBreakTime(v);
+      const t = rangeBreakTime(v, utc);
       if (!Number.isFinite(t)) return;
       const day = interval.floor(new Date(t));
       out.push([+day, +interval.offset(day, 1)]);
     });
   } else {
-    const [a, b] = rule.bounds.map(rangeBreakTime);
+    const [a, b] = rule.bounds.map(v => rangeBreakTime(v, utc));
     if (a !== b) out.push(a < b ? [a, b] : [b, a]);
   }
   return out;

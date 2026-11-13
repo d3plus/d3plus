@@ -23,6 +23,7 @@ import {applySwarmLanes, resolveSwarm} from "./swarm.js";
 import {applyPaddedDomains} from "./facetScales.js";
 import {
   dropHiddenRows,
+  plotAxisUtc,
   rangeBreaksTimeAxis,
   type AxisName,
 } from "./plotRangeBreaks.js";
@@ -205,6 +206,10 @@ function detectTimeAxes(viz: PlotViz) {
 function plotRowPrep(viz: PlotViz, times: ReturnType<typeof detectTimeAxes>) {
   const {xTime, x2Time, yTime, y2Time} = times;
   const timeAxis = xTime || x2Time || yTime || y2Time;
+  const xUtc = plotAxisUtc(viz, "x"),
+    x2Utc = plotAxisUtc(viz, "x2"),
+    yUtc = plotAxisUtc(viz, "y"),
+    y2Utc = plotAxisUtc(viz, "y2");
 
   const stackSeries = (d: DataPoint, i: number) =>
     viz._stackGroup
@@ -231,10 +236,10 @@ function plotRowPrep(viz: PlotViz, times: ReturnType<typeof detectTimeAxes>) {
         .join("_"),
       lci: viz._confidence && viz._confidence[0] && viz._confidence[0](d, i),
       shape: viz.schema.shape(d, i),
-      x: xTime ? date(viz._x(d, i)) : viz._x(d, i),
-      x2: x2Time ? date(viz._x2(d, i)) : viz._x2(d, i),
-      y: yTime ? date(viz._y(d, i)) : viz._y(d, i),
-      y2: y2Time ? date(viz._y2(d, i)) : viz._y2(d, i),
+      x: xTime ? date(viz._x(d, i), xUtc) : viz._x(d, i),
+      x2: x2Time ? date(viz._x2(d, i), x2Utc) : viz._x2(d, i),
+      y: yTime ? date(viz._y(d, i), yUtc) : viz._y(d, i),
+      y2: y2Time ? date(viz._y2(d, i), y2Utc) : viz._y2(d, i),
     };
     newD.discrete =
       newD.shape === "Bar"
@@ -411,7 +416,10 @@ export const computePlotAxisValues: TransformStage = ({
             })
             .map(([key]: [unknown, unknown]) =>
               timeData
-                ? date(key as string | number)
+                ? date(
+                    key as string | number,
+                    plotAxisUtc(viz, axis as AxisName),
+                  )
                 : numericValue
                   ? parseFloat(key as string)
                   : key,

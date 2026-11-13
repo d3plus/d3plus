@@ -12,6 +12,7 @@ import {finite} from "@d3plus/math";
 
 import type {PlotDatum} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {plotAxisUtc, type AxisName} from "./plotRangeBreaks.js";
 
 /**
     The `forecast` setting: `"auto"` (or `true`), a predicate that flags
@@ -219,7 +220,9 @@ function settingForecastStart(
     return {value: first.value, next: first.next, series};
   }
   const time = discrete === "x" ? viz._xTime : viz._yTime;
-  const value = time ? date(setting as string | number) : setting;
+  const value = time
+    ? date(setting as string | number, plotAxisUtc(viz, discrete as AxisName))
+    : setting;
   const values = rows.map(d => d[discrete]);
   const rank = discreteRank([...values, value]);
   const at = rank(value);

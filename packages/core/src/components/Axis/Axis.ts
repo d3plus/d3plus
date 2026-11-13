@@ -77,6 +77,7 @@ const axisSchema: ConfigField[] = [
   {key: "timeLocale", coerce: "identity", default: undefined},
   {key: "title", coerce: "identity"},
   {key: "titleTooltip", coerce: "identity"},
+  {key: "utc", coerce: "identity", default: false},
   {key: "width", coerce: "identity", default: 400},
 ];
 

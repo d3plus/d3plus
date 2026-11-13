@@ -13,6 +13,7 @@ import type {SceneNode, Transform} from "@d3plus/render";
 
 import {pinMaxSize} from "../../components/Axis/axisMaxSize.js";
 import {inertAxis} from "../../components/Axis/axisTooltipTargets.js";
+import {configUtc} from "../../components/Axis/timeValues.js";
 import accessor from "../../utils/accessor.js";
 import type {AxisConfig} from "../../utils/D3plusConfig.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
@@ -96,14 +97,24 @@ export function isTimeAxis(viz: VizInstance): boolean {
   return axisConfig?.scale === "time";
 }
 
+/** Whether the chart's time axis reads its time in UTC (`axisConfig.utc`). */
+export function isUtcAxis(viz: VizInstance): boolean {
+  return configUtc(viz.schema.axisConfig);
+}
+
 /**
-    Reads a start or end value: parsed as a date on a time axis, else a
-    number. Missing or unparseable values return null.
+    Reads a start or end value: parsed as a date on a time axis (in UTC,
+    with `utc`, when it names no time zone), else a number. Missing or
+    unparseable values return null.
 */
-export function parseTime(value: unknown, time: boolean): TimeValue | null {
+export function parseTime(
+  value: unknown,
+  time: boolean,
+  utc = false,
+): TimeValue | null {
   if (value === undefined || value === null || value === "") return null;
   if (time) {
-    const d = date(value as string);
+    const d = date(value as string, utc);
     return d instanceof Date && !isNaN(+d) ? d : null;
   }
   const n = Number(value);

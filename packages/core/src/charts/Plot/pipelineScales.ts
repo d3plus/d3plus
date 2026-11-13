@@ -12,7 +12,7 @@ import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
 import {isSpanAxis} from "./discreteSpan.js";
 import {widenReferenceDomains} from "./referenceDomains.js";
-import {plotTimeScale, type AxisName} from "./plotRangeBreaks.js";
+import {plotAxisUtc, plotTimeScale, type AxisName} from "./plotRangeBreaks.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 
@@ -37,10 +37,11 @@ type PlotViz = Parameters<TransformStage>[0]["viz"];
 function userDomain(
   domain: DomainValue[],
   time: boolean | undefined,
+  utc: boolean,
 ): DomainValue[] {
   return time
     ? domain.map(d =>
-        d === undefined ? d : (date(d as string | number) as Date),
+        d === undefined ? d : (date(d as string | number, utc) as Date),
       )
     : domain.slice();
 }
@@ -101,10 +102,18 @@ function domainScaleSetup(
       ? "Point"
       : "Linear";
   const domain = user[axis]
-      ? userDomain(user[axis]!, viz[`_${axis}Time`])
+      ? userDomain(
+          user[axis]!,
+          viz[`_${axis}Time`],
+          plotAxisUtc(viz, axis as AxisName),
+        )
       : domains[axis],
     domain2 = viz.schema[`${axis}2Domain`]
-      ? userDomain(viz.schema[`${axis}2Domain`], viz[`_${axis}2Time`])
+      ? userDomain(
+          viz.schema[`${axis}2Domain`],
+          viz[`_${axis}2Time`],
+          plotAxisUtc(viz, `${axis}2` as AxisName),
+        )
       : domains[`${axis}2`];
   if (scale !== "Point") {
     if (domain && domain[0] === void 0) domain[0] = domains[axis][0];

@@ -29,6 +29,7 @@ import {
   rangeSuffix,
 } from "./confidenceTooltip.js";
 import type {SharedHover, SharedRow} from "./sharedHover.js";
+import {plotAxisUtc} from "./plotRangeBreaks.js";
 
 type Axis = "x" | "y";
 const other = (k: Axis): Axis => (k === "x" ? "y" : "x");
@@ -53,12 +54,12 @@ function timeValue(
   value: unknown,
 ): string | undefined {
   if (!viz[`_${k}Time`]) return undefined;
-  const parsed = parseTime(value);
+  const parsed = parseTime(value, plotAxisUtc(viz, k));
   if (!parsed) return undefined;
   const axis = viz[`_${k}Axis`];
   return axis && axis.schema.scale === "time"
     ? axisDateLabel(axis, parsed)
-    : formatDateFull(parsed, [parsed]);
+    : formatDateFull(parsed, [parsed], undefined, plotAxisUtc(viz, k));
 }
 
 /**
@@ -82,7 +83,9 @@ export function axisValue(
   if (time !== undefined) return time;
   if (isValidDate(value)) {
     const axis = viz[`_${k}Axis`];
-    return axis ? axisDateLabel(axis, value) : formatDateFull(value, [value]);
+    return axis
+      ? axisDateLabel(axis, value)
+      : formatDateFull(value, [value], undefined, plotAxisUtc(viz, k));
   }
   if (typeof value === "number" && k !== viz.schema.discrete) {
     const axis = viz[`_${k}Axis`];

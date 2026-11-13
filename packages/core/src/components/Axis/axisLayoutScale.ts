@@ -6,7 +6,6 @@
 */
 import {range as d3Range, min, sum} from "d3-array";
 import * as scales from "d3-scale";
-import {timeFormat} from "d3-time-format";
 
 import {dateFormatter, formatAbbreviate} from "@d3plus/format";
 import {formatLocale, type TimeLocaleDefinition} from "@d3plus/locales";
@@ -25,6 +24,8 @@ import {
   axisShownDates,
   axisTimeDomain,
   axisTimeReference,
+  axisUtc,
+  defaultTimeFormat,
   isCategoryAxis,
   isValidDate,
   parseTimeValues,
@@ -64,20 +65,18 @@ function baseTickFormat(
   let categories: Date[] | undefined;
   // Every label reads all of the axis's dates, so they are read once per set
   // of dates (see `dateFormatter`) in the current default time locale.
+  const utc = axisUtc(axis);
   let memo:
     | {
         dates: Date[];
-        format: typeof timeFormat;
+        format: ReturnType<typeof defaultTimeFormat>;
         label: (d: Date, shown?: Date[]) => string;
       }
     | undefined;
   const dateLabel = (dates: Date[], d: Date): string => {
-    if (!memo || memo.dates !== dates || memo.format !== timeFormat)
-      memo = {
-        dates,
-        format: timeFormat,
-        label: dateFormatter(dates, timeFormat),
-      };
+    const format = defaultTimeFormat(utc);
+    if (!memo || memo.dates !== dates || memo.format !== format)
+      memo = {dates, format, label: dateFormatter(dates, format, utc)};
     return memo
       .label(d, axisShownDates(axis))
       .replace(/^Q/g, timeLocaleObj.quarter);
@@ -271,10 +270,11 @@ function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
     : axis.schema.labels;
   const ownTicks: unknown[] | undefined =
     axis.schema.ticks || (sets ? ownLabels : undefined);
+  const utc = axisUtc(axis);
   let ticks = (
     ownTicks
       ? axis.schema.scale === "time"
-        ? parseTimeValues(ownTicks)
+        ? parseTimeValues(ownTicks, utc)
         : ownTicks
       : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative?.ticks)
         ? axis._getTicks()
@@ -283,7 +283,7 @@ function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
   let labels = (
     ownLabels
       ? axis.schema.scale === "time"
-        ? parseTimeValues(ownLabels)
+        ? parseTimeValues(ownLabels, utc)
         : ownLabels
       : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative?.ticks)
         ? axis._getLabels()
@@ -374,15 +374,20 @@ export function setAxisScale(
   const newRange = newRangeArg !== undefined ? newRangeArg : axis.schema.range;
   const range = resolveRange(axis, rangeOuter, newRange);
 
-  const scale = `scale${axis.schema.scale
-    .charAt(0)
-    .toUpperCase()}${axis.schema.scale.slice(1)}`;
+  const time = axis.schema.scale === "time";
+  // A time axis in UTC ticks and rounds on UTC's calendar.
+  const scale =
+    time && axisUtc(axis)
+      ? "scaleUtc"
+      : `scale${axis.schema.scale
+          .charAt(0)
+          .toUpperCase()}${axis.schema.scale.slice(1)}`;
 
   const initialDomain = axis.schema.domain.slice();
 
   axis._d3Scale = (scales as unknown as Record<string, () => D3Scale>)
     [scale]()
-    .domain(axis.schema.scale === "time" ? axisTimeDomain(axis) : initialDomain)
+    .domain(time ? axisTimeDomain(axis) : initialDomain)
     .range(range);
 
   if (axis.schema.scale === "pow" && axis._d3Scale!.exponent)

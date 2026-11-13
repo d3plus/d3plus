@@ -8,14 +8,17 @@
     @module
 */
 
-import {timeMonday} from "d3-time";
-import {timeFormat} from "d3-time-format";
+import {timeMonday, utcMonday} from "d3-time";
 
 import type {DataPoint} from "@d3plus/data";
 import {date} from "@d3plus/dom";
 
 import type Axis from "../../components/Axis/Axis.js";
-import {axisShownDates} from "../../components/Axis/timeValues.js";
+import {
+  axisShownDates,
+  configUtc,
+  defaultTimeFormat,
+} from "../../components/Axis/timeValues.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A calendar unit the axis can tick on. */
@@ -42,11 +45,12 @@ const VALUE_AXIS_ROOM = 60;
     parse through d3plus's `date`. A value that doesn't parse comes back as
     given.
     @param value The row's period value.
+    @param utc Read a value that names no time zone in UTC.
 */
-export function periodDate(value: unknown): unknown {
+export function periodDate(value: unknown, utc = false): unknown {
   if (value instanceof Date) return value;
   if (typeof value !== "string" && typeof value !== "number") return value;
-  const parsed = date(value);
+  const parsed = date(value, utc);
   return parsed instanceof Date && !isNaN(+parsed) ? parsed : value;
 }
 
@@ -54,21 +58,36 @@ export function periodDate(value: unknown): unknown {
     A period as a tooltip shows it: the full date (e.g. "Jan 3, 2023"), with
     the time of day when it isn't midnight.
     @param d The period's date.
+    @param utc Write the date in UTC instead of local time.
 */
-export function formatPeriod(d: Date): string {
-  const midnight = !d.getHours() && !d.getMinutes() && !d.getSeconds();
-  return timeFormat(midnight ? "%b %-d, %Y" : "%b %-d, %Y %-I:%M %p")(d);
+export function formatPeriod(d: Date, utc = false): string {
+  const midnight = utc
+    ? !d.getUTCHours() && !d.getUTCMinutes() && !d.getUTCSeconds()
+    : !d.getHours() && !d.getMinutes() && !d.getSeconds();
+  return defaultTimeFormat(utc)(
+    midnight ? "%b %-d, %Y" : "%b %-d, %Y %-I:%M %p",
+  )(d);
 }
 
-/** The calendar `unit` a date falls in, as a comparable number. */
-export function unitIndex(d: Date, unit: PeriodUnit): number {
-  const year = d.getFullYear(),
-    month = d.getMonth();
+/** A date's year, month, and day of the month, in UTC or local time. */
+const calendarFields = (d: Date, utc: boolean) =>
+  utc
+    ? {year: d.getUTCFullYear(), month: d.getUTCMonth(), day: d.getUTCDate()}
+    : {year: d.getFullYear(), month: d.getMonth(), day: d.getDate()};
+
+/**
+    The calendar `unit` a date falls in, as a comparable number.
+    @param d The date.
+    @param unit The calendar unit.
+    @param utc Read the calendar in UTC instead of local time.
+*/
+export function unitIndex(d: Date, unit: PeriodUnit, utc = false): number {
+  const {year, month, day} = calendarFields(d, utc);
   switch (unit) {
     case "day":
-      return (year * 12 + month) * 31 + d.getDate();
+      return (year * 12 + month) * 31 + day;
     case "week":
-      return +timeMonday.floor(d);
+      return +(utc ? utcMonday : timeMonday).floor(d);
     case "month":
       return year * 12 + month;
     case "quarter":
@@ -83,11 +102,16 @@ export function unitIndex(d: Date, unit: PeriodUnit): number {
     in.
     @param dates The periods' dates, ascending.
     @param unit The calendar unit.
+    @param utc Read the calendar in UTC instead of local time.
 */
-export function periodBoundaries(dates: Date[], unit: PeriodUnit): Date[] {
+export function periodBoundaries(
+  dates: Date[],
+  unit: PeriodUnit,
+  utc = false,
+): Date[] {
   const out: Date[] = [];
   for (let k = 1; k < dates.length; k++)
-    if (unitIndex(dates[k], unit) !== unitIndex(dates[k - 1], unit))
+    if (unitIndex(dates[k], unit, utc) !== unitIndex(dates[k - 1], unit, utc))
       out.push(dates[k]);
   return out;
 }
@@ -103,15 +127,22 @@ export function periodBoundaries(dates: Date[], unit: PeriodUnit): Date[] {
     none has fewer, as are repeats.
     @param dates The periods' dates, ascending.
     @param maxTicks The most boundary ticks to offer.
+    @param utc Read the calendar in UTC instead of local time.
 */
-export function periodTickSets(dates: Date[], maxTicks: number): Date[][] {
+export function periodTickSets(
+  dates: Date[],
+  maxTicks: number,
+  utc = false,
+): Date[][] {
   if (!dates.length) return [];
   const most = Math.max(1, Math.floor(maxTicks));
-  const units = PERIOD_UNITS.map(unit => periodBoundaries(dates, unit));
+  const units = PERIOD_UNITS.map(unit => periodBoundaries(dates, unit, utc));
   const years = units[units.length - 1];
   const lists = units
     .concat(
-      YEAR_STEPS.map(step => years.filter(d => d.getFullYear() % step === 0)),
+      YEAR_STEPS.map(step =>
+        years.filter(d => calendarFields(d, utc).year % step === 0),
+      ),
     )
     .filter(
       (list, k, all) => list.length && !(k && sameDates(list, all[k - 1])),
@@ -137,18 +168,22 @@ function sameDates(a: Date[], b: Date[]): boolean {
     @param d The tick's date.
     @param prev The previous tick's date, if any.
     @param unit The calendar unit the ticks mark.
+    @param utc Read and write the dates in UTC instead of local time.
 */
 export function periodLabel(
   d: Date,
   prev: Date | undefined,
   unit: PeriodUnit,
+  utc = false,
 ): string {
-  const newYear = !prev || prev.getFullYear() !== d.getFullYear();
-  if (unit === "year") return timeFormat("%Y")(d);
+  const format = defaultTimeFormat(utc);
+  const newYear =
+    !prev || calendarFields(prev, utc).year !== calendarFields(d, utc).year;
+  if (unit === "year") return format("%Y")(d);
   if (unit === "day" || unit === "week")
-    return timeFormat(newYear ? "%b %-d, %Y" : "%b %-d")(d);
-  if (!prev) return timeFormat("%b %Y")(d);
-  return timeFormat(newYear ? "%Y" : "%b")(d);
+    return format(newYear ? "%b %-d, %Y" : "%b %-d")(d);
+  if (!prev) return format("%b %Y")(d);
+  return format(newYear ? "%Y" : "%b")(d);
 }
 
 /**
@@ -172,28 +207,30 @@ export function shownUnit(
     shown tick of each year (see `formatDate`'s `shown`); called on its own,
     it formats the period in full.
     @param dates The periods' dates, ascending.
+    @param utc Read and write the dates in UTC instead of local time.
 */
 export function periodTickFormat(
   dates: Date[],
+  utc = false,
 ): (this: Axis | void, d: unknown) => string {
   const index = new Map(dates.map((d, k) => [+d, k]));
   const opens = (d: Date, unit: PeriodUnit) => {
     const k = index.get(+d);
     return (
       Boolean(k) &&
-      unitIndex(dates[k!], unit) !== unitIndex(dates[k! - 1], unit)
+      unitIndex(dates[k!], unit, utc) !== unitIndex(dates[k! - 1], unit, utc)
     );
   };
   const units = new WeakMap<Date[], PeriodUnit>();
   return function (this: Axis | void, d: unknown): string {
     if (!(d instanceof Date)) return String(d);
     const shown = this ? axisShownDates(this) : undefined;
-    if (!shown?.length) return formatPeriod(d);
+    if (!shown?.length) return formatPeriod(d, utc);
     let unit = units.get(shown);
     if (!unit) units.set(shown, (unit = shownUnit(shown, opens)));
     let prev: Date | undefined;
     for (const s of shown) if (+s < +d) prev = s;
-    return periodLabel(d, prev, unit);
+    return periodLabel(d, prev, unit, utc);
   };
 }
 
@@ -217,10 +254,11 @@ function rowDates(viz: VizInstance): Date[] {
 */
 export function bandAxisDefaults(viz: VizInstance): Record<string, unknown> {
   const dates = rowDates(viz);
+  const utc = configUtc(viz._xConfig);
   const width =
     viz.schema.width - viz._margin.left - viz._margin.right - VALUE_AXIS_ROOM;
   return {
-    labels: periodTickSets(dates, width / MIN_TICK_SPACING),
-    tickFormat: periodTickFormat(dates),
+    labels: periodTickSets(dates, width / MIN_TICK_SPACING, utc),
+    tickFormat: periodTickFormat(dates, utc),
   };
 }

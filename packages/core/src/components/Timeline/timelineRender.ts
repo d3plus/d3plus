@@ -1,7 +1,6 @@
 import {extent, max} from "d3-array";
 import {brushX} from "d3-brush";
-import {scaleTime} from "d3-scale";
-import {timeFormat} from "d3-time-format";
+import {scaleTime, scaleUtc} from "d3-scale";
 
 import {date, elem, textWidth} from "@d3plus/dom";
 import {dateFormatter} from "@d3plus/format";
@@ -13,7 +12,11 @@ import {textWrap} from "@d3plus/text";
 import {configPrep} from "../../utils/index.js";
 import {applyClassName} from "../../utils/className.js";
 import {labelLineHeight} from "../Axis/axisLabelLineHeight.js";
-import {parseTimeValues} from "../Axis/timeValues.js";
+import {
+  axisUtc,
+  defaultTimeFormat,
+  parseTimeValues,
+} from "../Axis/timeValues.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type Timeline from "./Timeline.js";
@@ -54,12 +57,15 @@ export function prepareTicks(tl: Timeline): {
   ticks: unknown[];
   tickFormat: (d: Date) => string;
 } {
-  if (tl.schema.ticks) tl.schema.ticks = parseTimeValues(tl.schema.ticks);
-  if (tl._data) tl._data = parseTimeValues(tl._data);
+  const utc = axisUtc(tl);
+  if (tl.schema.ticks) tl.schema.ticks = parseTimeValues(tl.schema.ticks, utc);
+  if (tl._data) tl._data = parseTimeValues(tl._data, utc);
 
-  let ticks = tl.schema.ticks ? tl.schema.ticks : tl.schema.domain.map(date);
+  let ticks = tl.schema.ticks
+    ? tl.schema.ticks
+    : tl.schema.domain.map((d: string | number) => date(d, utc));
   if (!tl.schema.ticks) {
-    const d3Scale = scaleTime()
+    const d3Scale = (utc ? scaleUtc : scaleTime)()
       .domain(ticks as Date[])
       .range([0, tl.schema.width]);
     ticks = d3Scale.ticks();
@@ -71,15 +77,18 @@ export function prepareTicks(tl: Timeline): {
     tl._userFormat = tl.schema.tickFormat || false;
   // Every label reads all of the ticks, so they are read once (see
   // `dateFormatter`) in the current default time locale.
-  let memo: {format: typeof timeFormat; label: (d: Date) => string} | undefined;
+  let memo:
+    | {
+        format: ReturnType<typeof defaultTimeFormat>;
+        label: (d: Date) => string;
+      }
+    | undefined;
   const tickFormat = (tl.schema.tickFormat = tl._userFormat
     ? tl._userFormat
     : (d: Date) => {
-        if (!memo || memo.format !== timeFormat)
-          memo = {
-            format: timeFormat,
-            label: dateFormatter(ticks as Date[], timeFormat),
-          };
+        const format = defaultTimeFormat(utc);
+        if (!memo || memo.format !== format)
+          memo = {format, label: dateFormatter(ticks as Date[], format, utc)};
         return memo.label(d).replace(/^Q/g, timeLocale.quarter as string);
       }) as (d: Date) => string;
 
@@ -210,7 +219,7 @@ export function clampSelection(
     periods[hi],
   ]);
   tl.schema.selection = [dates[lo], dates[hi]].map(d =>
-    date(d as string | number),
+    date(d as string | number, axisUtc(tl)),
   );
 }
 
@@ -260,6 +269,7 @@ export function setupBrush(
   };
   const defaultData =
     tl._buttonBehaviorCurrent === "ticks" ? ticks : ticks.map(button);
+  const parse = (d: unknown) => date(d as string | number, axisUtc(tl));
 
   // the default selection, if needed
   const defaultSelection = byValue([
@@ -275,10 +285,10 @@ export function setupBrush(
       ? defaultSelection
       : tl.schema.selection instanceof Array
         ? tl._buttonBehaviorCurrent === "buttons"
-          ? byValue(tl.schema.selection.map(date).map(button))
-          : tl.schema.selection.map(date)
+          ? byValue(tl.schema.selection.map(parse).map(button))
+          : tl.schema.selection.map(parse)
         : tl._buttonBehaviorCurrent === "buttons"
-          ? [button(date(tl.schema.selection as number))]
+          ? [button(parse(tl.schema.selection))]
           : [tl.schema.selection];
 
   if (selection.length === 1) selection.push(selection[0]);

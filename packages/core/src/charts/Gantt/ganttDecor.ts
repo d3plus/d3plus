@@ -9,6 +9,7 @@ import type {LineNode, PathNode, SceneNode, TextNode} from "@d3plus/render";
 import {arrowNode} from "../features/edgeArrows.js";
 import {referenceLineNodes} from "../features/referenceAnnotations.js";
 import type {Annotation} from "../features/annotationTypes.js";
+import {isUtcAxis} from "../Priestley/timeAxis.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {LABEL_INDENT, LABEL_PADDING} from "./applyLayout.js";
@@ -209,7 +210,13 @@ export function todayNodes(viz: VizInstance, layout: GanttLayout): SceneNode[] {
     annotation,
     {
       plot: layout.plot,
-      axes: {x: {scale: v => layout.x(v as number | Date), time: layout.time}},
+      axes: {
+        x: {
+          scale: v => layout.x(v as number | Date),
+          time: layout.time,
+          utc: isUtcAxis(viz),
+        },
+      },
     },
     "gantt-today",
   );

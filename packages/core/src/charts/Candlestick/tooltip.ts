@@ -13,6 +13,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {ohlcAccessors} from "./aggregate.js";
 import {candleChange, readOhlc} from "./ohlc.js";
 import {formatPeriod, periodDate} from "./periods.js";
+import {configUtc} from "../../components/Axis/timeValues.js";
 import {formatVolume, readVolume} from "./volume.js";
 
 type Locale = Parameters<typeof formatAbbreviate>[1];
@@ -56,9 +57,10 @@ function priceFormat(viz: VizInstance): (v: number) => string {
 function periodText(viz: VizInstance, d: DataPoint, i: number): string {
   const raw = viz._x ? viz._x(d, i) : undefined;
   const tickFormat = viz._xConfig?.tickFormat;
-  const value = periodDate(raw);
+  const utc = configUtc(viz._xConfig);
+  const value = periodDate(raw, utc);
   if (typeof tickFormat === "function") return String(tickFormat(value));
-  return value instanceof Date ? formatPeriod(value) : String(raw ?? "");
+  return value instanceof Date ? formatPeriod(value, utc) : String(raw ?? "");
 }
 
 /**

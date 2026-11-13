@@ -148,13 +148,24 @@ export interface AxisConfig {
       so the data closes up around them: one rule or a list of them.
       `"weekends"`; `{days: [5, 6]}` (0 is Sunday); `{hours: [17, 9]}`, daily,
       wrapping past midnight (`9.5` is 9:30); `{values: [date, …]}`, whole
-      days; or `{bounds: [start, end]}`, one range. Rules use local time. A
-      rule's `marker` draws the `break` marker at the gap (on by default for
-      `bounds` only).
+      days; or `{bounds: [start, end]}`, one range. Rules use local time
+      (UTC with `utc`). A rule's `marker` draws the `break` marker at the gap
+      (on by default for `bounds` only).
       @example
       {rangeBreaks: ["weekends", {hours: [16, 9.5]}, {values: ["2024-07-04"]}]}
   */
   rangeBreaks?: false | RangeBreakRule | RangeBreakRule[];
+  /**
+      Whether a time axis reads its calendar in UTC instead of the viewer's
+      time zone: its ticks fall on UTC days, months, and years, its labels,
+      tooltips, and hover badges write UTC dates, its `rangeBreaks` use UTC,
+      and values that name no time zone (years, `"2024-03-01"`) parse as UTC.
+      Defaults to `false` (local time). Use it for dates stored at UTC
+      midnight, which a viewer west of UTC otherwise sees on the previous day.
+      @example
+      {xConfig: {utc: true}}
+  */
+  utc?: boolean;
   /** Grid values of the axis. */
   grid?: unknown[];
   gridConfig?: Record<string, string | number>;
@@ -535,6 +546,13 @@ export interface TimelineConfig {
       `xConfig.rangeBreaks`); set this to use others, or `false` for none.
   */
   rangeBreaks?: false | RangeBreakRule | RangeBreakRule[];
+  /**
+      Whether the timeline reads its periods in UTC instead of the viewer's
+      time zone (see the axis config's `utc`), which also parses the chart's
+      `time` values. By default the timeline follows the axis that plots the
+      chart's `time` values (such as `xConfig.utc`), else local time.
+  */
+  utc?: boolean;
   /**
       The maximum number of ticks (or buttons) a selection can span; unlimited
       by default. A wider brush is pulled in to it on release, keeping the end
