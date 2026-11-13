@@ -18,6 +18,7 @@ import {
   userLabelConfig,
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {centerLabelNodes} from "../features/centerLabel.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 import {sunburstPadAngle} from "./geometry.js";
@@ -244,5 +245,12 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
 
   const labelNodes = sunburstLabels(viz, nodes, fillOf, {padAngle, padPixel});
 
-  return [...ghosts, ...pathNodes, ...imageNodes, ...labelNodes];
+  // The center slot is hollow until a drill-down fills it with the focused node.
+  const radii = viz.ctx.sunburstRadii as [number, number][] | undefined;
+  const hollow = radii && !nodes.some(n => n.depth === 0);
+  const center = hollow
+    ? centerLabelNodes(viz, {radius: radii[0][1]}, sumFn)
+    : [];
+
+  return [...ghosts, ...pathNodes, ...imageNodes, ...labelNodes, ...center];
 };

@@ -17,6 +17,7 @@ import {formatAbbreviate} from "@d3plus/format";
 import accessor from "../../utils/accessor.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
+import {centerLabelDefaults} from "../features/centerLabel.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {mergeConfig} from "../../fluent.js";
@@ -67,6 +68,8 @@ export const radialBarDef: DataDrivenChartDefinition = {
   ctx: {},
 
   fields: [
+    {key: "centerLabel", default: false},
+    {key: "centerLabelConfig", merge: true, factory: centerLabelDefaults},
     /**
         Which polar dimension holds the categories: `"radius"` (default) gives
         each row a concentric track whose arc length shows its value;
