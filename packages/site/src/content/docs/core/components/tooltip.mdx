@@ -25,4 +25,12 @@ A tooltip is a small HTML panel positioned next to an element or a point. Give i
 
 <Playground chart="Tooltip" code={styling} controls={["background","padding","borderRadius"]} height={240} />
 
+## Stacking above sticky headers
+
+A chart's tooltips sit in one fixed layer on `<body>`, so they can overflow the chart, but a page's own fixed or sticky elements with a `z-index` (a header, a sidebar) still draw over them. A `z-index` in `tooltipStyle` goes on that layer too, lifting the tooltips above them:
+
+```js
+new Treemap().tooltipConfig({tooltipStyle: {"z-index": "100"}});
+```
+
 <ApiReference name="Tooltip" pkg="core" />
