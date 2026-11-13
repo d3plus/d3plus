@@ -264,8 +264,8 @@ it(
     assert.deepStrictEqual(
       es.slice(2),
       [
-        ["Banda 1", "11,0 – 27,0"],
-        ["Banda 2", "15,0 – 23,0"],
+        ["Banda 1", "11 – 27"],
+        ["Banda 2", "15 – 23"],
       ],
       "unlabeled bands, translated and locale-formatted",
     );
