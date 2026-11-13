@@ -53,7 +53,7 @@ export function timeFormatter(
   const format = dateFullFormatter(
     dates,
     utc ? locale.utcFormat : locale.format,
-    utc,
+    {utc},
   );
   return v => format(v instanceof Date ? v : new Date(v));
 }

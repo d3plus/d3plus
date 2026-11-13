@@ -570,7 +570,7 @@ function setTimeFilter(viz: VizInstance, s: Date | Date[] | number[]): void {
     const nums = (s as Array<Date | number>).map(Number) as number[];
     const utc = timelineUtc(viz);
     viz.timeFilter!((d: DataPoint) => {
-      const ms = (date(viz.schema.time(d), utc) as Date).getTime();
+      const ms = (date(viz.schema.time(d), {utc}) as Date).getTime();
       return ms >= nums[0] && ms <= nums[1];
     }).render!();
   }
@@ -593,7 +593,7 @@ export const timelineFeature: FeatureModule = {
     const ticks = (
       timelinePossible
         ? unique(viz._data.map(viz.schema.time)).map((d: unknown) =>
-            date(d as string | number, utc),
+            date(d as string | number, {utc}),
           )
         : []
     ) as Date[];
@@ -645,7 +645,7 @@ export const timelineFeature: FeatureModule = {
       const filtered = extent(
         (viz._filteredData || [])
           .flatMap((d: DataPoint, i: number) => viz.schema.time(d, i))
-          .map((d: unknown) => date(d as string | number, utc)) as Date[],
+          .map((d: unknown) => date(d as string | number, {utc})) as Date[],
       ) as [Date, Date];
       viz._timelineSelection =
         startingSelection(viz) || (filtered[0] ? filtered : fullExtent);

@@ -74,7 +74,7 @@ export function addDomainEnds(
   const userTicks = ((axis.schema.ticks ?? []) as unknown[]).map(d =>
     Number(
       axis.schema.scale === "time"
-        ? date(d as string | number | false, axisUtc(axis))
+        ? date(d as string | number | false, {utc: axisUtc(axis)})
         : d,
     ),
   );

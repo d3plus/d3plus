@@ -77,7 +77,7 @@ function baseTickFormat(
   const dateLabel = (dates: Date[], d: Date): string => {
     const format = defaultTimeFormat(utc);
     if (!memo || memo.dates !== dates || memo.format !== format)
-      memo = {dates, format, label: dateFormatter(dates, format, utc)};
+      memo = {dates, format, label: dateFormatter(dates, format, {utc})};
     return memo
       .label(d, axisShownDates(axis))
       .replace(/^Q/g, timeLocaleObj.quarter);

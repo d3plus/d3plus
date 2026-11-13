@@ -197,7 +197,7 @@ export function applyBarWidths(
 /** A category's axis label: a date in UTC with `utc` (the axis config's). */
 function categoryLabel(value: unknown, utc: boolean): string {
   return value instanceof Date
-    ? formatDate(value, [value], undefined, undefined, utc)
+    ? formatDate(value, [value], {utc})
     : String(value);
 }
 

@@ -221,7 +221,9 @@ function settingForecastStart(
   }
   const time = discrete === "x" ? viz._xTime : viz._yTime;
   const value = time
-    ? date(setting as string | number, plotAxisUtc(viz, discrete as AxisName))
+    ? date(setting as string | number, {
+        utc: plotAxisUtc(viz, discrete as AxisName),
+      })
     : setting;
   const values = rows.map(d => d[discrete]);
   const rank = discreteRank([...values, value]);

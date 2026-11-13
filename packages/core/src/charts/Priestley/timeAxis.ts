@@ -115,7 +115,7 @@ export function parseTime(
 ): TimeValue | null {
   if (value === undefined || value === null || value === "") return null;
   if (time) {
-    const d = date(value as string, utc);
+    const d = date(value as string, {utc});
     return d instanceof Date && !isNaN(+d) ? d : null;
   }
   const n = Number(value);

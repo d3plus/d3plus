@@ -119,12 +119,12 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
       __d3plus__: true,
       data: datum,
       end: isTimeScale
-        ? (date(endFn(datum, i) as string, utc) as Date)
+        ? (date(endFn(datum, i) as string, {utc}) as Date)
         : (endFn(datum, i) as number),
       i,
       id: idFn(datum, i),
       start: isTimeScale
-        ? (date(startFn(datum, i) as string, utc) as Date)
+        ? (date(startFn(datum, i) as string, {utc}) as Date)
         : (startFn(datum, i) as number),
     }))
     .filter(d => Number(d.end) - Number(d.start) > 0)

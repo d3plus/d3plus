@@ -134,7 +134,7 @@ export function projectionPositions(
 
   const to = (projection as {to?: unknown}).to;
   if (to === undefined || to === null) return [];
-  const end = time ? date(to as string | number, utc) : +(to as number);
+  const end = time ? date(to as string | number, {utc}) : +(to as number);
   if (!Number.isFinite(+(end as number))) return [];
   const out: unknown[] = [];
   for (let k = 1; k <= MAX_STEPS; k++) {

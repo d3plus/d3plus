@@ -59,7 +59,7 @@ function timeValue(
   const axis = viz[`_${k}Axis`];
   return axis && axis.schema.scale === "time"
     ? axisDateLabel(axis, parsed)
-    : formatDateFull(parsed, [parsed], undefined, plotAxisUtc(viz, k));
+    : formatDateFull(parsed, [parsed], {utc: plotAxisUtc(viz, k)});
 }
 
 /**
@@ -85,7 +85,7 @@ export function axisValue(
     const axis = viz[`_${k}Axis`];
     return axis
       ? axisDateLabel(axis, value)
-      : formatDateFull(value, [value], undefined, plotAxisUtc(viz, k));
+      : formatDateFull(value, [value], {utc: plotAxisUtc(viz, k)});
   }
   if (typeof value === "number" && k !== viz.schema.discrete) {
     const axis = viz[`_${k}Axis`];

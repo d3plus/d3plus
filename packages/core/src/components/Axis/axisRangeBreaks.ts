@@ -115,7 +115,7 @@ export function rangeBreakDayLabel(
       memo = {
         dates,
         format,
-        label: dateFormatter(datesDays(dates, utc), format, utc),
+        label: dateFormatter(datesDays(dates, utc), format, {utc}),
       };
     return memo.label(day, axisShownDates(axis));
   };

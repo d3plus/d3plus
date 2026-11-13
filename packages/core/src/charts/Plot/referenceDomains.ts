@@ -51,7 +51,7 @@ function numeric(value: unknown, time: boolean, utc = false): number {
   if (value === undefined || value === null || value === "") return NaN;
   if (time) {
     const d =
-      value instanceof Date ? value : date(value as string | number, utc);
+      value instanceof Date ? value : date(value as string | number, {utc});
     return d instanceof Date ? +d : NaN;
   }
   return typeof value === "number" || typeof value === "string"

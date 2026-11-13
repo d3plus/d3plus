@@ -56,9 +56,41 @@ const utcCalendar: Calendar = {
 const calendarOf = (utc: boolean): Calendar =>
   utc ? utcCalendar : localCalendar;
 
-/** The formatter dates are written with by default: d3's `utcFormat` in UTC, else `timeFormat`. */
-const defaultFormatter = (utc: boolean): DateFormatter =>
-  utc ? utcFormat : timeFormat;
+/** Options for the date formatters. */
+export interface DateFormatOptions {
+  /** A function that turns a specifier into a formatter, such as d3's `timeFormat` or a locale's `format`. Defaults to d3's `timeFormat`, or `utcFormat` with `utc`; with `utc`, a custom one should write UTC too (such as a locale's `utcFormat`). */
+  formatter?: DateFormatter;
+  /** Read the dates' calendar in UTC instead of local time. */
+  utc?: boolean;
+}
+
+/** Options for [formatDate](#formatDate). */
+export interface FormatDateOptions extends DateFormatOptions {
+  /** Dates drawn alongside the date, which decide which labels carry the year (and, at hourly and finer steps, the date). */
+  shown?: Date[];
+}
+
+/**
+    The options a formatter was called with: a formatter function and its
+    options, or the options alone in the formatter's place, with the
+    formatter defaulting to d3's `timeFormat` (`utcFormat` in UTC).
+*/
+function readOptions<T extends DateFormatOptions>(
+  formatter: DateFormatter | T | undefined,
+  options: T | undefined,
+): T & {formatter: DateFormatter; utc: boolean} {
+  const opts = (
+    typeof formatter === "function"
+      ? {...options, formatter}
+      : {...options, ...formatter}
+  ) as T;
+  const utc = Boolean(opts.utc);
+  return {
+    ...opts,
+    utc,
+    formatter: opts.formatter ?? (utc ? utcFormat : timeFormat),
+  };
+}
 
 /**
     A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
@@ -66,19 +98,27 @@ const defaultFormatter = (utc: boolean): DateFormatter =>
     Without `shown`, the year rides on the first and last dates and on each January 1st. Given `shown` (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly and finer steps, the date rides with the time on the first shown date of each day. A label carrying the year at these steps reads its date, year, and time. Times of day follow the formatter's locale: "3 PM" and "3:30 PM" on a 12-hour clock, "15:00" and "15:30" on a 24-hour one.
     @param d The date to format.
     @param dataArray The full array of ordered Date Objects.
-    @param formatter Optional custom format string or function.
-    @param shown Optional dates drawn alongside `d`, which decide which labels carry the year (and, at hourly and finer steps, the date).
-    @param utc Read the dates' calendar in UTC instead of local time. The default formatter is then d3's `utcFormat`; a custom one should write UTC too (such as a locale's `utcFormat`).
+    @param formatter Optional custom format function, or the options (see `options`) in its place.
+    @param options Optional dates `shown` alongside `d`, which decide which labels carry the year (and, at hourly and finer steps, the date), as an array or as `{shown}`; `utc: true` reads the dates in UTC (see `DateFormatOptions`).
+@example
+formatDate(date, dates, {utc: true});
+formatDate(date, dates, locale.utcFormat, {shown, utc: true});
 */
 export default function formatDate(
   d: Date,
   dataArray: Date[],
-  formatter?: DateFormatter,
-  shown?: Date[],
-  utc = false,
+  formatter?: DateFormatter | FormatDateOptions,
+  options?: Date[] | FormatDateOptions,
 ): string {
+  const {
+    formatter: format,
+    shown,
+    utc,
+  } = readOptions<FormatDateOptions>(
+    formatter,
+    Array.isArray(options) ? {shown: options} : options,
+  );
   const cal = calendarOf(utc);
-  const format = formatter ?? defaultFormatter(utc);
   const {withYear, withDay} = shown
     ? shownBoundaries(d, shown, cal)
     : arrayBoundaries(d, dataArray, cal);
@@ -89,7 +129,7 @@ export default function formatDate(
     withDay,
     !!shown,
     format,
-    uses24Hour(format, utc),
+    uses24Hour(format, {utc}),
     cal,
   )(d);
 }
@@ -97,16 +137,16 @@ export default function formatDate(
 /**
     Returns a function that labels any date in `dataArray` exactly as [formatDate](#formatDate) would, reading the interval and position of every date once up front, so labeling all of them takes linear time. Pass the returned function the date to format and, optionally, the dates `shown` alongside it (sorted once for each new array it is given).
     @param dataArray The full array of ordered Date Objects.
-    @param formatter Optional custom format string or function.
-    @param utc Read the dates' calendar in UTC instead of local time (see [formatDate](#formatDate)).
+    @param formatter Optional custom format function, or the options (see `options`) in its place.
+    @param options `utc: true` reads the dates in UTC (see `DateFormatOptions`).
 */
 export function dateFormatter(
   dataArray: Date[],
-  formatter?: DateFormatter,
-  utc = false,
+  formatter?: DateFormatter | DateFormatOptions,
+  options?: DateFormatOptions,
 ): (d: Date, shown?: Date[]) => string {
+  const {formatter: base, utc} = readOptions(formatter, options);
   const cal = calendarOf(utc);
-  const base = formatter ?? defaultFormatter(utc);
   const interval = dateInterval(dataArray, cal);
   const smallArray = dataArray.length <= 5;
   const last = dataArray.length - 1;
@@ -116,7 +156,7 @@ export function dateFormatter(
     if (!isNaN(t) && !firstIndex.has(t)) firstIndex.set(t, i);
   });
   const format = cachedFormatter(base);
-  const hour24 = uses24Hour(base, utc);
+  const hour24 = uses24Hour(base, {utc});
   // The shown dates in time order, and the one before each of them.
   let shownArray: Date[] | undefined,
     shownSorted: Date[] = [];
@@ -207,10 +247,14 @@ const utcHourCycles = new WeakMap<DateFormatter, boolean>();
 /**
     Whether `formatter` writes the time of day on a 24-hour clock, read from how its locale's time format (`%X`) writes 3 PM. Formatters that fail to format it read as 12-hour.
     @param formatter A function that turns a specifier into a formatter, such as d3's `timeFormat` or a locale's `format`.
-    @param utc Whether `formatter` writes UTC (such as d3's `utcFormat`), so 3 PM is read in UTC.
+    @param options `utc: true` when `formatter` writes UTC (such as d3's `utcFormat`), so 3 PM is read in UTC.
     @private
 */
-export function uses24Hour(formatter: DateFormatter, utc = false): boolean {
+export function uses24Hour(
+  formatter: DateFormatter,
+  options: {utc?: boolean} = {},
+): boolean {
+  const utc = Boolean(options.utc);
   const cycles = utc ? utcHourCycles : hourCycles;
   let hour24 = cycles.get(formatter);
   if (hour24 === undefined) {
@@ -313,22 +357,22 @@ function prevBoundaries(
     Formats a date to be read on its own, such as in a tooltip: the same interval as [formatDate](#formatDate) picks from `dataArray` (year, quarter, month, day, hour, or finer), always with the year and, below a day, the time of day.
     @param d The date to format.
     @param dataArray The full array of ordered Date Objects.
-    @param formatter Optional custom format string or function.
-    @param utc Read the dates' calendar in UTC instead of local time (see [formatDate](#formatDate)).
+    @param formatter Optional custom format function, or the options (see `options`) in its place.
+    @param options `utc: true` reads the dates in UTC (see `DateFormatOptions`).
 */
 export function formatDateFull(
   d: Date,
   dataArray: Date[],
-  formatter?: DateFormatter,
-  utc = false,
+  formatter?: DateFormatter | DateFormatOptions,
+  options?: DateFormatOptions,
 ): string {
+  const {formatter: format, utc} = readOptions(formatter, options);
   const cal = calendarOf(utc);
-  const format = formatter ?? defaultFormatter(utc);
   return format(
     fullSpecifier(
       d,
       dateInterval(dataArray, cal),
-      uses24Hour(format, utc),
+      uses24Hour(format, {utc}),
       cal,
     ),
   )(d);
@@ -337,19 +381,19 @@ export function formatDateFull(
 /**
     Returns a function that labels any date exactly as [formatDateFull](#formatDateFull) would against `dataArray`, reading the interval its dates step by once up front.
     @param dataArray The full array of ordered Date Objects.
-    @param formatter Optional custom format string or function.
-    @param utc Read the dates' calendar in UTC instead of local time (see [formatDate](#formatDate)).
+    @param formatter Optional custom format function, or the options (see `options`) in its place.
+    @param options `utc: true` reads the dates in UTC (see `DateFormatOptions`).
 */
 export function dateFullFormatter(
   dataArray: Date[],
-  formatter?: DateFormatter,
-  utc = false,
+  formatter?: DateFormatter | DateFormatOptions,
+  options?: DateFormatOptions,
 ): (d: Date) => string {
+  const {formatter: base, utc} = readOptions(formatter, options);
   const cal = calendarOf(utc);
-  const base = formatter ?? defaultFormatter(utc);
   const interval = dateInterval(dataArray, cal);
   const format = cachedFormatter(base);
-  const hour24 = uses24Hour(base, utc);
+  const hour24 = uses24Hour(base, {utc});
   return (d: Date): string =>
     format(fullSpecifier(d, interval, hour24, cal))(d);
 }

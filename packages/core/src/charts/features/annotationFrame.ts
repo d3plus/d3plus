@@ -75,7 +75,7 @@ export function axisPixel(
   }
   const a = frame.axes[axis];
   if (!a) return NaN;
-  const v = a.time ? date(value as string | number, a.utc) : value;
+  const v = a.time ? date(value as string | number, {utc: a.utc}) : value;
   if (v === false || v === undefined) return NaN;
   if (a.categories) {
     const key = valueKey(v);

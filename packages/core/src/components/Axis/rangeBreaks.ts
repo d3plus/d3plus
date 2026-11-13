@@ -51,7 +51,7 @@ const DAY = 864e5;
 export function rangeBreakTime(value: unknown, utc = false): number {
   if (value instanceof Date) return +value;
   if (typeof value !== "number" && typeof value !== "string") return NaN;
-  const parsed = date(value, utc);
+  const parsed = date(value, {utc});
   return parsed instanceof Date ? +parsed : NaN;
 }
 

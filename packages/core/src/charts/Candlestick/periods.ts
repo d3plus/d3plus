@@ -50,7 +50,7 @@ const VALUE_AXIS_ROOM = 60;
 export function periodDate(value: unknown, utc = false): unknown {
   if (value instanceof Date) return value;
   if (typeof value !== "string" && typeof value !== "number") return value;
-  const parsed = date(value, utc);
+  const parsed = date(value, {utc});
   return parsed instanceof Date && !isNaN(+parsed) ? parsed : value;
 }
 

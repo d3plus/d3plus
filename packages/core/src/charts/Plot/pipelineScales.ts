@@ -42,7 +42,7 @@ function userDomain(
 ): DomainValue[] {
   return time
     ? domain.map(d =>
-        d === undefined ? d : (date(d as string | number, utc) as Date),
+        d === undefined ? d : (date(d as string | number, {utc}) as Date),
       )
     : domain.slice();
 }

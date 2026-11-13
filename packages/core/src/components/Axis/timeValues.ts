@@ -41,7 +41,7 @@ export const defaultTimeFormat = (utc: boolean): typeof timeFormat =>
 */
 export function parseTime(d: unknown, utc = false): Date | undefined {
   if (d === null || d === undefined) return undefined;
-  const parsed = date(d as string | number | false, utc);
+  const parsed = date(d as string | number | false, {utc});
   return parsed instanceof Date && !isNaN(+parsed) ? parsed : undefined;
 }
 
@@ -157,9 +157,9 @@ export function axisDateLabel(axis: Axis, d: Date): string {
   // Every mark reads its date this way, so the interval is read once per set of dates.
   const label = dates.length
     ? axisMemo(axis, "dateLabel", [dates, timeLocale, utc], () =>
-        dateFullFormatter(dates, format, utc),
+        dateFullFormatter(dates, format, {utc}),
       )(d)
-    : formatDateFull(d, [d], format, utc);
+    : formatDateFull(d, [d], format, {utc});
   return label.replace(/^Q/, timeLocale.quarter);
 }
 

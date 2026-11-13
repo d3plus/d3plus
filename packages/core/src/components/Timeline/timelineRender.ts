@@ -63,7 +63,7 @@ export function prepareTicks(tl: Timeline): {
 
   let ticks = tl.schema.ticks
     ? tl.schema.ticks
-    : tl.schema.domain.map((d: string | number) => date(d, utc));
+    : tl.schema.domain.map((d: string | number) => date(d, {utc}));
   if (!tl.schema.ticks) {
     const d3Scale = (utc ? scaleUtc : scaleTime)()
       .domain(ticks as Date[])
@@ -88,7 +88,7 @@ export function prepareTicks(tl: Timeline): {
     : (d: Date) => {
         const format = defaultTimeFormat(utc);
         if (!memo || memo.format !== format)
-          memo = {format, label: dateFormatter(ticks as Date[], format, utc)};
+          memo = {format, label: dateFormatter(ticks as Date[], format, {utc})};
         return memo.label(d).replace(/^Q/g, timeLocale.quarter as string);
       }) as (d: Date) => string;
 
@@ -219,7 +219,7 @@ export function clampSelection(
     periods[hi],
   ]);
   tl.schema.selection = [dates[lo], dates[hi]].map(d =>
-    date(d as string | number, axisUtc(tl)),
+    date(d as string | number, {utc: axisUtc(tl)}),
   );
 }
 
@@ -269,7 +269,7 @@ export function setupBrush(
   };
   const defaultData =
     tl._buttonBehaviorCurrent === "ticks" ? ticks : ticks.map(button);
-  const parse = (d: unknown) => date(d as string | number, axisUtc(tl));
+  const parse = (d: unknown) => date(d as string | number, {utc: axisUtc(tl)});
 
   // the default selection, if needed
   const defaultSelection = byValue([

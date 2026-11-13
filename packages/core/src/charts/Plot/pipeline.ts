@@ -236,10 +236,10 @@ function plotRowPrep(viz: PlotViz, times: ReturnType<typeof detectTimeAxes>) {
         .join("_"),
       lci: viz._confidence && viz._confidence[0] && viz._confidence[0](d, i),
       shape: viz.schema.shape(d, i),
-      x: xTime ? date(viz._x(d, i), xUtc) : viz._x(d, i),
-      x2: x2Time ? date(viz._x2(d, i), x2Utc) : viz._x2(d, i),
-      y: yTime ? date(viz._y(d, i), yUtc) : viz._y(d, i),
-      y2: y2Time ? date(viz._y2(d, i), y2Utc) : viz._y2(d, i),
+      x: xTime ? date(viz._x(d, i), {utc: xUtc}) : viz._x(d, i),
+      x2: x2Time ? date(viz._x2(d, i), {utc: x2Utc}) : viz._x2(d, i),
+      y: yTime ? date(viz._y(d, i), {utc: yUtc}) : viz._y(d, i),
+      y2: y2Time ? date(viz._y2(d, i), {utc: y2Utc}) : viz._y2(d, i),
     };
     newD.discrete =
       newD.shape === "Bar"
@@ -416,10 +416,9 @@ export const computePlotAxisValues: TransformStage = ({
             })
             .map(([key]: [unknown, unknown]) =>
               timeData
-                ? date(
-                    key as string | number,
-                    plotAxisUtc(viz, axis as AxisName),
-                  )
+                ? date(key as string | number, {
+                    utc: plotAxisUtc(viz, axis as AxisName),
+                  })
                 : numericValue
                   ? parseFloat(key as string)
                   : key,

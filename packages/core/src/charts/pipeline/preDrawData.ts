@@ -62,7 +62,7 @@ function latestPeriods(viz: Viz, dates: Date[], count: number): TimeFilterFn {
   const from = periods[periods.length - count];
   const snapTime = viz.schema.time;
   const utc = timelineUtc(viz);
-  return (d: DataPoint, i: number) => +date(snapTime(d, i), utc)! >= from;
+  return (d: DataPoint, i: number) => +date(snapTime(d, i), {utc})! >= from;
 }
 
 /**
@@ -80,7 +80,7 @@ export function startingSelection(viz: Viz): Date[] | undefined {
   const utc = timelineUtc(viz);
   const dates = ([] as unknown[])
     .concat(start)
-    .map(d => date(d as Parameters<typeof date>[0], utc))
+    .map(d => date(d as Parameters<typeof date>[0], {utc}))
     .filter((d): d is Date => d instanceof Date && !isNaN(+d))
     .sort((a, b) => +a - +b);
   return dates.length ? [dates[0], dates[dates.length - 1]] : undefined;
@@ -99,14 +99,14 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
   if (time && start && viz._data.length) {
     const [from, to] = start.map(Number);
     return (d: DataPoint, i: number) => {
-      const ms = Number(date(time(d, i) as Parameters<typeof date>[0], utc));
+      const ms = Number(date(time(d, i) as Parameters<typeof date>[0], {utc}));
       return ms >= from && ms <= to;
     };
   }
   if (viz.schema.time && !viz.schema.timeFilter && viz._data.length) {
     const dates = viz._data
       .map(viz.schema.time)
-      .map(d => date(d as Parameters<typeof date>[0], utc));
+      .map(d => date(d as Parameters<typeof date>[0], {utc}));
     const d = viz._data[0],
       i = 0;
     if (

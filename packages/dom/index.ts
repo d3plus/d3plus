@@ -3,6 +3,7 @@ export {default as assign} from "./src/assign.js";
 export {default as backgroundColor} from "./src/backgroundColor.js";
 export {default as attrize} from "./src/attrize.js";
 export {default as date} from "./src/date.js";
+export type {DateOptions} from "./src/date.js";
 export {default as elem} from "./src/elem.js";
 export {default as fontExists} from "./src/fontExists.js";
 export {onFontsLoaded} from "./src/fontLoading.js";
