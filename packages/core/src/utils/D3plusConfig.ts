@@ -1708,6 +1708,16 @@ export interface D3plusConfig {
     points?: Record<string, unknown>;
   };
   /**
+      Spreads a Plot's point marks (Circle and Rect) across their category's
+      band, so points sharing a category don't hide each other: `true` spreads
+      them over 0.6 of the band, a number over that share of it (0–1), and
+      `false` (the default; `true` for StripPlot) keeps each on its
+      category's center. The band runs across the `discrete` axis; without
+      one, nothing moves. Each point's offset is seeded from its id, so a
+      redraw, resize, or filter never moves it. A `swarm` takes precedence.
+  */
+  jitter?: boolean | number;
+  /**
       Lets keyboard users move between the chart's marks: the chart is one Tab
       stop, the arrow keys move to the nearest mark in that direction, Home and
       End jump to the ends, Enter or Space click the focused mark, and Escape

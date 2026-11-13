@@ -45,6 +45,7 @@ import {
   SlopeChart,
   StackedArea,
   Streamgraph,
+  StripPlot,
   Sunburst,
   Tree,
   Treemap,
@@ -72,6 +73,7 @@ import {
   Path,
   Rect,
   Shape,
+  Tick,
   Whisker,
   BaseClass,
 } from "@d3plus/core";
@@ -140,6 +142,7 @@ export const CLASSES: Record<string, new (...args: any[]) => any> = {
   SlopeChart,
   StackedArea,
   Streamgraph,
+  StripPlot,
   Sunburst,
   Tree,
   Treemap,
@@ -167,6 +170,7 @@ export const CLASSES: Record<string, new (...args: any[]) => any> = {
   Path,
   Rect,
   Shape,
+  Tick,
   Whisker,
   BaseClass,
 };

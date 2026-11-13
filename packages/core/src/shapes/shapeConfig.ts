@@ -211,6 +211,16 @@ export interface RectConfig extends BaseShapeConfig {
   trailPersist?: number | boolean;
 }
 
+/** Tick-specific config: a short bar centered on each point. */
+export interface TickConfig extends RectConfig {
+  /** The tick's length in pixels (default `20`; a Plot sizes it to its band). */
+  length?: ConstOrAccessor<number>;
+  /** `"horizontal"` (default) runs the tick along x, `"vertical"` along y. */
+  orient?: ConstOrAccessor<Orient>;
+  /** The tick's thickness in pixels (default `2`). */
+  thickness?: ConstOrAccessor<number>;
+}
+
 /** Circle-specific config (radius). */
 export interface CircleConfig extends BaseShapeConfig {
   r?: ConstOrAccessor<number>;
@@ -352,6 +362,7 @@ export interface WhiskerConfig {
 export type AnyShapeConfig =
   | BaseShapeConfig
   | RectConfig
+  | TickConfig
   | CircleConfig
   | LineConfig
   | AreaConfig
