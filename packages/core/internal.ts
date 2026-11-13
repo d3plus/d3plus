@@ -1319,6 +1319,13 @@ export {
   densityPointTooltipRows,
 } from "./src/charts/DensityPlot/index.js";
 export type {DensityPointMeta} from "./src/charts/DensityPlot/index.js";
+export {
+  densityAreaEmit,
+  rugGroups,
+  rugNodes,
+  rugSegments,
+} from "./src/charts/DensityPlot/rug.js";
+export type {RugConfig} from "./src/charts/DensityPlot/rug.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {funnelDef} from "./src/charts/Funnel/index.js";

@@ -14,8 +14,6 @@ import {makeChart} from "../definition/makeChart.js";
 import {facetActive} from "../facet/facetConfig.js";
 import type {FacetAccessor} from "../facet/facetConfig.js";
 import {facetKey, toFacetValue} from "../facet/facetData.js";
-import {unwrapRow} from "../helpers/densityChart.js";
-import type {DensitySummary} from "../helpers/densityData.js";
 import {autoTitle, valueField, valueKeyOf} from "../helpers/valueTitle.js";
 import {drawnRawRows} from "../pipeline/preDrawData.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -25,16 +23,15 @@ import {
   densityHeightScale,
   resolveDensityScale,
 } from "./densityCurves.js";
+import {
+  DENSITY_POINT,
+  densityPointMeta,
+  type DensityPointMeta,
+} from "./densityPoint.js";
+import {densityAreaEmit} from "./rug.js";
 
-/** The key each curve point keeps its group's distribution under. */
-export const DENSITY_POINT = "__d3plusDensityPoint";
-
-/** What a curve point carries under `DENSITY_POINT`. */
-export interface DensityPointMeta {
-  summary: DensitySummary;
-  /** The group's unscaled density at this point. */
-  density: number;
-}
+export {DENSITY_POINT, densityPointMeta};
+export type {DensityPointMeta};
 
 /** Per-instance state kept on `viz.ctx.densityPlot`. */
 interface DensityPlotState {
@@ -50,15 +47,6 @@ interface DensityPlotState {
 }
 
 type RowFn = (d: DataPoint, i: number) => unknown;
-
-/** The distribution a (possibly wrapped) curve point carries, if any. */
-export function densityPointMeta(d: DataPoint): DensityPointMeta | undefined {
-  const row = unwrapRow(d);
-  const meta = row?.[DENSITY_POINT];
-  return meta && typeof meta === "object" && !Array.isArray(meta)
-    ? (meta as unknown as DensityPointMeta)
-    : undefined;
-}
 
 /**
     Replaces the raw rows with each group's density curve before Plot's
@@ -165,6 +153,7 @@ export const densityPlotDef: ChartDefinition = {
     // out to its nearest ticks.
     viz._discreteExtent = (d: DataPoint) => [Number(d.x), Number(d.x)];
     viz._xConfig = {...viz._xConfig, rounding: "outside"};
+    viz._plotShapeEmitters = {...viz._plotShapeEmitters, Area: densityAreaEmit};
     const preDraw = viz._preDraw.bind(viz);
     viz._preDraw = () => {
       curvesBeforePreDraw(viz);
@@ -199,6 +188,21 @@ export const densityPlotDef: ChartDefinition = {
         @type {"area" | "count" | "width"}
     */
     {key: "densityScale"},
+    /**
+        Draws a short tick for every observation along the value axis, in
+        its group's color (see `rugConfig`).
+    */
+    {key: "rug", default: false},
+    /**
+        The `rug` ticks' `size` (length in pixels, default 8), `strokeWidth`
+        (1), and `opacity` (0.7).
+        @type {{size?: number, strokeWidth?: number, opacity?: number}}
+    */
+    {
+      key: "rugConfig",
+      merge: true,
+      default: {size: 8, strokeWidth: 1, opacity: 0.7},
+    },
     {
       key: "shapeConfig",
       merge: true,

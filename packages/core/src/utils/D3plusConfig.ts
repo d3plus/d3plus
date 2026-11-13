@@ -2182,6 +2182,10 @@ export interface D3plusConfig {
   referenceLines?: ReferenceLineConfig[];
   /** Row key for matrix-style layouts. */
   row?: string;
+  /** DensityPlot: draws a short tick for every observation along the value axis, in its group's color (default `false`; see `rugConfig`). */
+  rug?: boolean;
+  /** DensityPlot: the `rug` ticks' `size` (length in pixels, default 8), `strokeWidth` (1), and `opacity` (0.7). */
+  rugConfig?: {size?: number; strokeWidth?: number; opacity?: number};
   /** Shows a top-left download button that saves the chart, as the reader sees it, as a PNG, SVG, or JPG file. On by default for every chart. */
   saveControl?: boolean;
   /**

@@ -5,7 +5,7 @@
     <title>DensityPlot</title>
     <meta
       name="description"
-      content="DensityPlot variants: overlaid groups, stacked groups, one bimodal distribution, per-curve peaks with an Epanechnikov kernel, small multiples, and a timeline."
+      content="DensityPlot variants: overlaid groups, stacked groups, one bimodal distribution, per-curve peaks with an Epanechnikov kernel, rugs of observations, small multiples, and a timeline."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -54,6 +54,14 @@
       <div>
         <h3>densityScale: "width", Epanechnikov kernel</h3>
         <div class="viz" id="width"></div>
+      </div>
+      <div>
+        <h3>rug: true</h3>
+        <div class="viz" id="rug"></div>
+      </div>
+      <div>
+        <h3>rug: true, stacked: true</h3>
+        <div class="viz" id="rug-stacked"></div>
       </div>
       <div class="wide">
         <h3>Small multiples (facet: "island")</h3>
@@ -136,6 +144,23 @@
       .value("Flipper Length (mm)")
       .densityScale("width")
       .densityConfig({kernel: "epanechnikov"})
+      .render();
+
+    new d3plus.DensityPlot()
+      .select("#rug")
+      .data(penguins)
+      .groupBy("species")
+      .value("Flipper Length (mm)")
+      .rug(true)
+      .render();
+
+    new d3plus.DensityPlot()
+      .select("#rug-stacked")
+      .data(penguins)
+      .groupBy("species")
+      .value("Flipper Length (mm)")
+      .rug(true)
+      .stacked(true)
       .render();
 
     new d3plus.DensityPlot()
