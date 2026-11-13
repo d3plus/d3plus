@@ -12,6 +12,7 @@ import {date} from "@d3plus/dom";
 
 import {brushSpan} from "../../components/Timeline/brushSpan.js";
 import type {BrushSpan} from "../../components/Timeline/brushSpan.js";
+import {DATA_ORDER} from "../Plot/orderPath.js";
 import {discreteNestKeys} from "./stages.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -181,6 +182,11 @@ export function computeFilteredData(
     ) => DataPoint[keyof DataPoint])[] = [];
     for (let i = 0; i <= drawDepth; i++) nestKeys.push(viz.schema.groupBy[i]);
     nestKeys.push(...discreteNestKeys(viz));
+    // A path's steps stay apart: rows merge only when they share an order
+    // value, and rows joined as they come don't merge at all.
+    const order = typeof viz.schema.order === "function" && viz.schema.order;
+    const dataOrder = order === DATA_ORDER;
+    if (order && !dataOrder) nestKeys.push(order);
 
     const indexOf = rowIndex(viz._data);
     const tree = rollup(
@@ -200,6 +206,7 @@ export function computeFilteredData(
         ) {
           if (
             (!viz.schema.discrete && shape === "Line") ||
+            dataOrder ||
             viz._unmergedShapes?.includes(shape)
           )
             filteredData.push(...leaves);
