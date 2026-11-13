@@ -20,6 +20,7 @@ export {default as Gauge} from "./Gauge/index.js";
 export {default as Geomap} from "./Geomap/index.js";
 export {default as Hexbin} from "./Hexbin/index.js";
 export {default as Histogram} from "./Histogram/index.js";
+export {default as HorizonChart} from "./HorizonChart/index.js";
 export {default as Icicle} from "./Icicle/index.js";
 export {default as LinePlot} from "./LinePlot/index.js";
 export {default as Lollipop} from "./Lollipop/index.js";

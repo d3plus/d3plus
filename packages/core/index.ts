@@ -21,6 +21,7 @@ export {
   Geomap,
   Hexbin,
   Histogram,
+  HorizonChart,
   Icicle,
   LinePlot,
   Lollipop,

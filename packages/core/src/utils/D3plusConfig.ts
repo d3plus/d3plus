@@ -1071,13 +1071,35 @@ export interface D3plusConfig {
       (BarChart, AreaPlot, Histogram, Lollipop), else `false`.
   */
   baselineBreak?: boolean;
-  /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */
+  /**
+      Bullet: the qualitative ranges behind each measure, as threshold values
+      (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) =>
+      bands` accessor for per-row bands. HorizonChart: how many bands each
+      sign of a series is cut into (default 3), each a darker shade folded
+      over the one below.
+  */
   bands?:
+    | number
     | (number | {min?: number; max?: number; color?: string})[]
     | ((
         d: DataPoint,
         i: number,
       ) => (number | {min?: number; max?: number; color?: string})[]);
+  /**
+      HorizonChart: the range of values each band spans. Defaults to the
+      largest absolute value across every row divided by `bands`, so every
+      row shares one scale; values past the top band fill it.
+  */
+  bandSize?: number;
+  /**
+      HorizonChart: the band colors. `positive` and `negative` each take a
+      base color to ramp from pale (the band nearest zero) to the base, or a
+      list of colors from the band nearest zero up. Defaults to ramps toward
+      the theme's colorScale `max` (positive) and `min` (negative) colors.
+  */
+  colors?: {positive?: string | string[]; negative?: string | string[]};
+  /** HorizonChart: the space between rows, in pixels. Defaults to `1`. */
+  rowGap?: number;
   /**
       Hexbin: the bin shape, `"hex"` (default) for hexagons or `"square"`
       for squares, or `false` to draw no bins (for contours alone).

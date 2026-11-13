@@ -471,6 +471,8 @@ export interface VizInstance {
   _plotFacetScales?: PlotFacetScales;
   /** Crosshair guide-line paint for the shared tooltip. */
   _crosshairConfig?: Record<string, unknown>;
+  /** Whether the shared tooltip's crosshair spans the whole plot area, not just the drawn domain. */
+  _crosshairFullSpan?: boolean;
   /**
       The active shared-tooltip hover, if any: the snapped discrete position
       (pixel + data value), the hovered Line points to mark, and which side of

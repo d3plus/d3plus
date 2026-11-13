@@ -1336,6 +1336,56 @@ export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {
+  bandCount,
+  horizonChartDef,
+  measureBands,
+  shareHorizonScales,
+} from "./src/charts/HorizonChart/index.js";
+export {
+  horizonBandSize,
+  horizonSlices,
+} from "./src/charts/HorizonChart/horizonBands.js";
+export type {HorizonSlice} from "./src/charts/HorizonChart/horizonBands.js";
+export {horizonPalette} from "./src/charts/HorizonChart/horizonColors.js";
+export type {
+  HorizonColorConfig,
+  HorizonColorSetting,
+  HorizonPalette,
+} from "./src/charts/HorizonChart/horizonColors.js";
+export {
+  HORIZON_ROW,
+  horizonEmit,
+  horizonRowBox,
+  horizonSlicePath,
+} from "./src/charts/HorizonChart/emit.js";
+export type {HorizonRowBox} from "./src/charts/HorizonChart/emit.js";
+export {
+  handleHorizonHover,
+  horizonHitRows,
+  resolveHorizonHover,
+} from "./src/charts/HorizonChart/hover.js";
+export type {
+  HorizonHitRow,
+  HorizonHover,
+  HorizonHoverRow,
+} from "./src/charts/HorizonChart/hover.js";
+export {
+  HORIZON_BAND,
+  bandKeyRows,
+  bandLabel,
+  bandMeta,
+  horizonState,
+  rowValue,
+  seriesId,
+  userRow as horizonUserRow,
+  valueColor,
+  valueFormat as horizonValueFormat,
+} from "./src/charts/HorizonChart/state.js";
+export type {
+  HorizonBandMeta,
+  HorizonState,
+} from "./src/charts/HorizonChart/state.js";
 export {icicleDef} from "./src/charts/Icicle/index.js";
 export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {marimekkoDef} from "./src/charts/Marimekko/index.js";
