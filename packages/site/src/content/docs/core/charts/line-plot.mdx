@@ -36,6 +36,7 @@ import connectGaps from "~/examples/core/charts/line-plot/connect-gaps.js?raw";
 import rangeBreaks from "~/examples/core/charts/line-plot/range-breaks.js?raw";
 import rangeBreaksTradingHours from "~/examples/core/charts/line-plot/range-breaks-trading-hours.js?raw";
 import rangeBreaksMarkedRange from "~/examples/core/charts/line-plot/range-breaks-marked-range.js?raw";
+import utcAxis from "~/examples/core/charts/line-plot/utc-axis.js?raw";
 
 Creates a line plot based on an array of data.
 
@@ -224,5 +225,11 @@ Daily closing prices only exist on trading days. `xConfig.rangeBreaks` hides wee
 `{bounds: [start, end]}` removes one range, here a month with no readings, and draws the axis break marker where it was. Add `marker: false` to close the range without a marker. Other rules repeat too often to mark, so they default to no marker.
 
 <Playground chart="LinePlot" code={rangeBreaksMarkedRange} controls={["xConfig"]} />
+
+## UTC time axis
+
+These daily values are stored at UTC midnight. A time axis reads dates in the viewer's time zone, so west of UTC each one lands on the evening before; `xConfig: {utc: true}` ticks, labels and parses the axis in UTC, so March 1 reads as March 1 everywhere. Turn it off to see the axis in your own time zone.
+
+<Playground chart="LinePlot" code={utcAxis} controls={["xConfig"]} />
 
 <ApiReference name="LinePlot" pkg="core" />
