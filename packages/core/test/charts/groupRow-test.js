@@ -7,6 +7,7 @@ import {
   groupNarrows,
   groupPath,
   inGroup,
+  sharesGroup,
 } from "../../src/charts/viz/groupRow.ts";
 
 const groupBy = [d => d.sector, d => d.industry, d => d.company];
@@ -85,5 +86,46 @@ describe("groupNarrows", () => {
   it("is false when the group is everything drawn", () => {
     assert.ok(!groupNarrows(groupBy, ["Tech"], rows.slice(0, 3)));
     assert.ok(!groupNarrows(groupBy, ["Tech"], []));
+  });
+});
+
+describe("sharesGroup", () => {
+  const legend = [
+    {sector: "Tech", industry: ["Software", "Chips"]},
+    {sector: "Energy", industry: "Oil"},
+  ];
+
+  it("matches the entries holding a row's key at every level down to the depth", () => {
+    const lit = sharesGroup(groupBy, 0, [rows[2]]);
+    assert.deepStrictEqual(
+      legend.map((d, i) => lit(d, i)),
+      [true, false],
+    );
+  });
+
+  it("matches through a merged row's keys, on either side", () => {
+    const lit = sharesGroup(groupBy, 1, [header]);
+    assert.ok(lit(legend[0], 0));
+    assert.ok(!lit(legend[1], 1));
+    const merged = sharesGroup(groupBy, 0, [{sector: ["Tech", "Energy"]}]);
+    assert.ok(merged(legend[0], 0) && merged(legend[1], 1));
+  });
+
+  it("compares every level down to the depth", () => {
+    const lit = sharesGroup(groupBy, 1, [rows[3]]);
+    assert.ok(!lit({sector: "Energy", industry: "Gas"}, 0));
+    assert.ok(lit({sector: "Energy", industry: "Oil"}, 0));
+  });
+
+  it("unwraps a label record or laid-out node", () => {
+    const lit = sharesGroup(groupBy, 0, [{__d3plus__: true, data: rows[3]}]);
+    assert.ok(lit({__d3plus__: true, data: legend[1]}, 0));
+  });
+
+  it("matches nothing without a key or without rows", () => {
+    assert.ok(!sharesGroup(groupBy, 0, [rows[0]])({industry: "Software"}, 0));
+    assert.ok(!sharesGroup(groupBy, 0, [{}])({}, 0));
+    assert.ok(!sharesGroup(groupBy, 0, [])(legend[0], 0));
+    assert.ok(!sharesGroup(groupBy, 0, [rows[0]])(undefined, 0));
   });
 });

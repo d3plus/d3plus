@@ -13,6 +13,7 @@ import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout
 import {
   applyColorScaleBucketOpacity,
   applyInteractionOpacity,
+  applyLegendOpacity,
 } from "./interactionOpacity.js";
 import {chartAreaRect} from "../features/chartGeometry.js";
 import {
@@ -98,6 +99,7 @@ export default class Viz extends VizBase {
       - `_featurePanels` (from FeatureModule layouts) wrapped in viz-features
   */
   toScene(): Scene {
+    const viz = this as unknown as VizInstance;
     const children: SceneNode[] = themeBackground(this);
     // Chart cells stashed on _chartScene — via `chartDef.emit(ctx)` for
     // data-driven charts, or `Plot._paint` for the paint-driven Plot family.
@@ -113,10 +115,7 @@ export default class Viz extends VizBase {
     // a wheel zoom stays anchored under the cursor regardless of margins or
     // a chart's own centering transform (Pie, Radar, …).
     if (this._chartScene && this._chartScene.length) {
-      const sliced = applyInteractionOpacity(
-        this._chartScene,
-        this as unknown as VizInstance,
-      );
+      const sliced = applyInteractionOpacity(this._chartScene, viz);
       // Always emit the viz-zoom group (identity transform when no zoom is
       // active) so its key is stable across the first zoom. Otherwise the first
       // zoom adds a brand-new group → the renderer treats the chart cells as
@@ -145,9 +144,7 @@ export default class Viz extends VizBase {
       // so zoomed content can't spill over the legend/title/timeline.
       const clip =
         this._chartClip ??
-        (this.schema.zoom && this._margin
-          ? chartAreaRect(this as unknown as VizInstance)
-          : undefined);
+        (this.schema.zoom && this._margin ? chartAreaRect(viz) : undefined);
       children.push({
         type: "group",
         key: "viz-chart-cells",
@@ -176,21 +173,16 @@ export default class Viz extends VizBase {
           tagInteractionGroup(compScene, "legend");
           // Hovering a legend swatch dims the others, like the chart marks:
           // run the legend subtree through the same interaction-opacity pass
-          // (a no-op when no hover/active predicate is set).
-          compScene = applyInteractionOpacity(
-            [compScene],
-            this as unknown as VizInstance,
-          )[0];
+          // (a no-op when no hover/active predicate is set), where an entry
+          // stays lit while a lit chart mark belongs to it.
+          compScene = applyLegendOpacity(compScene, viz);
         }
         // Hovering a colorScale swatch (or a data shape) dims the sibling
         // swatches by bucket color — leaving the colorScale title/axis/gradient
         // untouched. Not tagged "legend": colorScale swatches keep the shape
         // event path (range-based tooltip + hover), unlike groupBy legend items.
         else if (name === "colorScale") {
-          compScene = applyColorScaleBucketOpacity(
-            [compScene],
-            this as unknown as VizInstance,
-          )[0];
+          compScene = applyColorScaleBucketOpacity([compScene], viz)[0];
         }
         // Tag the timeline subtree so its ticks/labels are exempt from shape
         // tooltips and hover/active dimming (it's chrome, not data marks).
@@ -203,7 +195,7 @@ export default class Viz extends VizBase {
             name === "timeline"
               ? [compScene]
               : insetComponentScene(
-                  this as unknown as VizInstance,
+                  viz,
                   name as InsetKey,
                   compScene,
                   (comp as Legend | ColorScale).outerBounds(),
@@ -221,7 +213,7 @@ export default class Viz extends VizBase {
       });
     }
     // Keyboard navigation's focus ring, above everything else.
-    appendFocusRing(this as unknown as VizInstance, children);
+    appendFocusRing(viz, children);
     return {
       width: this.schema.width,
       height: this.schema.height,

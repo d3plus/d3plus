@@ -20,6 +20,7 @@ import {hoveredSwatch} from "../features/colorScaleHover.js";
 import {datumValues} from "../features/hoverTicks.js";
 import {STROKE_EMPHASIS} from "./emphasis.js";
 import type {EmphasisKind} from "./emphasis.js";
+import {sharesGroup} from "./groupRow.js";
 import {MARK_TYPES} from "./sceneRows.js";
 import type {VizInstance} from "./vizTypes.js";
 
@@ -259,6 +260,49 @@ function matchedValues(
   return out;
 }
 
+/** The rows of the marks in `nodes` that `predicate` matches, chrome skipped. */
+function matchedRows(nodes: SceneNode[], predicate: Predicate): DataPoint[] {
+  const rows: DataPoint[] = [];
+  const walk = (node: SceneNode) => {
+    const group = node.interactionGroup;
+    if (group === "axis" || group === "timeline" || node.hoverMatch) return;
+    if (nodeMatches(node, predicate)) {
+      const datum = node.datum as (DataPoint & {data?: DataPoint}) | undefined;
+      if (datum) rows.push(datum.data ?? datum);
+      else
+        for (const p of node.interactionPoints ?? [])
+          if (matchesChain(predicate, p.datum, 0)) rows.push(p.datum);
+    }
+    const kids = (node as {children?: SceneNode[]}).children;
+    if (kids) kids.forEach(walk);
+  };
+  nodes.forEach(walk);
+  return rows;
+}
+
+/**
+    `predicate` for a legend: an entry also matches while a mark in `marks`
+    that `predicate` matches belongs to it (see `sharesGroup`), so a hover on
+    a chart's own rows (a nested node, a merged group row) reaches the entry
+    its group falls under.
+*/
+function followMarks(
+  viz: VizInstance,
+  predicate: Predicate,
+  marks: SceneNode[],
+): Predicate {
+  let member: Predicate | undefined;
+  return (d, i) => {
+    if (predicate(d, i)) return true;
+    member ??= sharesGroup(
+      viz.schema.groupBy,
+      viz._legendDepth ?? 0,
+      matchedRows(marks, predicate),
+    );
+    return member(d, i);
+  };
+}
+
 /** The values `rows` hold under each of `fields` (see `_hoverFocus`). */
 function focusValues(
   rows: DataPoint[],
@@ -269,17 +313,36 @@ function focusValues(
   );
 }
 
+/**
+    Dims a legend's entries the way `applyInteractionOpacity` dims chart
+    marks, keeping an entry lit while a lit mark in the chart's scene
+    belongs to it.
+*/
+export function applyLegendOpacity(
+  legend: SceneNode,
+  viz: VizInstance,
+): SceneNode {
+  return applyInteractionOpacity([legend], viz, viz._chartScene ?? [])[0];
+}
+
+/**
+    Dims the nodes the chart's predicate leaves out. Given `marks`, `nodes`
+    are a legend's (see `applyLegendOpacity`).
+*/
 export function applyInteractionOpacity(
   nodes: SceneNode[],
   viz: VizInstance,
+  marks?: SceneNode[],
 ): SceneNode[] {
   // Precedence (hover → active → highlight) and the dim-vs-gray treatment are
   // resolved once in dimSettings; picking one source avoids ambiguous
   // compounding when several are momentarily set.
   const settings = dimSettings(viz);
   if (!settings) return nodes;
-  const {predicate, dimOpacity, isHover, gray, kind, activePredicate} =
-    settings;
+  const {dimOpacity, isHover, gray, kind, activePredicate} = settings;
+  const predicate = marks
+    ? followMarks(viz, settings.predicate, marks)
+    : settings.predicate;
   const fields = hoverFields(nodes);
   const focus = viz._hoverFocus;
   const values = !fields.size
