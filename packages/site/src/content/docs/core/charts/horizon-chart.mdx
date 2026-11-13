@@ -39,7 +39,13 @@ The band key stands for shades rather than series, so the row labels take
 the legend's other job: click a row's label to hide its series, and click
 it again to bring it back. Shift+click a label to show only that series.
 A hidden row keeps its place, with its label dimmed, and the Back button
-undoes each change. Hiding rows never changes the band size.
+undoes each change. Hiding rows never changes the band size. Hovering a
+label opens a tooltip just past its end with what a click will do.
+
+From the keyboard, Tab steps through the row labels, top to bottom, once
+the chart has focus: Enter hides or shows the focused row, Shift+Enter
+shows only that row, and each label is announced with what Enter does
+("Oslo, Click to Hide"), again after every change.
 
 <Playground chart="HorizonChart" code={basicExample} controls={["bands","rowGap","tooltipShared"]} />
 
@@ -68,7 +74,8 @@ nearest zero up.
 Rows share the chart's height evenly, so a taller chart gives each series
 more room. `rowGap` sets the space between rows, in pixels (1 by default).
 Arrow keys move along a row's points and between rows once the chart has
-keyboard focus, and the table view lists every row's values.
+keyboard focus (left of a row's first point is its label), and the table
+view lists every row's values.
 
 <Playground chart="HorizonChart" code={manyRows} controls={["rowGap"]} />
 
