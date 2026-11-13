@@ -6,6 +6,7 @@ import {
   trendTooltipRows,
   trendTypeNames,
 } from "../../src/charts/Plot/trendTooltip.ts";
+import {trendTypes} from "../../src/charts/Plot/trendLines.ts";
 
 useJsdom();
 
@@ -117,11 +118,8 @@ it("trendTooltipRows", () => {
 });
 
 it("trendTypeNames covers every type", () => {
-  assert.deepStrictEqual(Object.keys(trendTypeNames).sort(), [
-    "exponential",
-    "linear",
-    "logarithmic",
-    "polynomial",
-    "power",
-  ]);
+  assert.deepStrictEqual(
+    Object.keys(trendTypeNames).sort(),
+    trendTypes.slice().sort(),
+  );
 });

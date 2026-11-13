@@ -1,11 +1,12 @@
 /**
     The tooltip shown when hovering a trend line: the series (or "Trend
     Line"), the regression type, its fitted equation, R², and the number of
-    observations it was fit to.
+    observations it was fit to. A moving average leads with its value (and
+    band) at the point nearest the pointer, then its window.
 */
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
-import type {RegressionResult} from "@d3plus/math";
+import type {MovingAverageResult, RegressionResult} from "@d3plus/math";
 import type {SceneEvent} from "@d3plus/render";
 
 import {configPrep} from "../../utils/index.js";
@@ -14,6 +15,7 @@ import {leadTitleWithSwatch, tooltipSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {axisName, axisValue, prepareTooltip} from "./sharedTooltip.js";
 import type {TrendFit, TrendSample} from "./trendLines.js";
+import {countText, movingAverageWindowText} from "./trendMovingAverage.js";
 
 const SUPERSCRIPTS: Record<string, string> = {2: "²", 3: "³"};
 
@@ -22,6 +24,7 @@ export const trendTypeNames: Record<string, string> = {
   exponential: "Exponential",
   linear: "Linear",
   logarithmic: "Logarithmic",
+  movingAverage: "Moving Average",
   polynomial: "Polynomial",
   power: "Power",
 };
@@ -95,10 +98,57 @@ export function coefficientFormat(locale: string): (n: number) => string {
 }
 
 /**
+    The tooltip rows for a moving average: given the sample nearest the
+    pointer, its independent-axis value, the average there, and its band;
+    then its window (and whether it is centered), and the number of points
+    it averages. Without a sample, the average's row names the trend type.
+    @param viz The chart.
+    @param trend The moving average's trend line.
+    @param fit Its fit.
+    @param sample The sample nearest the pointer, if any.
+*/
+export function movingAverageTooltipRows(
+  viz: VizInstance,
+  trend: TrendFit,
+  fit: MovingAverageResult,
+  sample?: TrendSample,
+): string[][] {
+  const {axis} = trend;
+  const dep = axis === "x" ? "y" : "x";
+  const t = (s: string) => viz.schema.translate(s);
+  const value = (n: unknown) => axisValue(viz, dep, n);
+  const rows: string[][] = [];
+  const name = t(trendTypeNames[fit.type]);
+  if (!sample) rows.push([t("Trend Line"), name]);
+  else {
+    rows.push(
+      [axisName(viz, axis), axisValue(viz, axis, sample[axis])],
+      [name, value(sample[dep])],
+    );
+    if (sample.lci !== undefined)
+      rows.push([
+        t("Band"),
+        `${value(sample.lci)} – ${value(sample.hci)} (±${countText(fit.deviations, viz.schema.locale)}σ)`,
+      ]);
+  }
+  rows.push(
+    [
+      t("Window"),
+      fit.center
+        ? `${movingAverageWindowText(viz, fit)} (${t("Centered")})`
+        : movingAverageWindowText(viz, fit),
+    ],
+    [t("Observations"), `${fit.n}`],
+  );
+  return rows;
+}
+
+/**
     The tooltip rows for a fit: type, equation, R², and observations. Given a
     projected sample, it leads with that projection: its independent-axis
     value (marked "Projected") and its predicted value, with the band's
-    bounds when drawn.
+    bounds when drawn. A moving average lists its own (see
+    `movingAverageTooltipRows`).
 */
 export function trendTooltipRows(
   viz: VizInstance,
@@ -106,6 +156,8 @@ export function trendTooltipRows(
   sample?: TrendSample,
 ): string[][] {
   const {fit, axis} = trend;
+  if (fit.type === "movingAverage")
+    return movingAverageTooltipRows(viz, trend, fit, sample);
   const t = (s: string) => viz.schema.translate(s);
   const rows: string[][] = [];
   if (sample && sample.projected) {
@@ -135,6 +187,33 @@ export function trendTooltipRows(
 }
 
 /**
+    The sample nearest a content-space pointer along the fit's independent
+    axis, among `samples` (every sample by default); undefined when there are
+    none or the axis can't be placed.
+    @param viz The chart.
+    @param trend The trend line.
+    @param cursor The pointer, in content space.
+    @param samples The samples to choose from.
+*/
+export function nearestSample(
+  viz: VizInstance,
+  trend: TrendFit,
+  cursor: [number, number],
+  samples: TrendSample[] = trend.samples,
+): TrendSample | undefined {
+  const position = trend.axis === "x" ? viz._xFunc : viz._yFunc;
+  if (!position) return undefined;
+  const target = trend.axis === "x" ? cursor[0] : cursor[1];
+  let best: TrendSample | undefined;
+  let gap = Infinity;
+  for (const sample of samples) {
+    const d = Math.abs(position(sample[trend.axis] as DataPoint) - target);
+    if (d < gap) [best, gap] = [sample, d];
+  }
+  return best;
+}
+
+/**
     The projected step nearest a content-space pointer along the fit's
     independent axis, when the pointer is over the projection; undefined over
     the fitted stretch (or for a fit with no projection).
@@ -144,21 +223,14 @@ export function nearestProjectedSample(
   trend: TrendFit,
   cursor: [number, number],
 ): TrendSample | undefined {
-  const position = trend.axis === "x" ? viz._xFunc : viz._yFunc;
-  if (!position) return undefined;
-  const target = trend.axis === "x" ? cursor[0] : cursor[1];
-  const nearest = (samples: TrendSample[]): TrendSample | undefined => {
-    let best: TrendSample | undefined;
-    let gap = Infinity;
-    for (const sample of samples) {
-      const d = Math.abs(position(sample[trend.axis] as DataPoint) - target);
-      if (d < gap) [best, gap] = [sample, d];
-    }
-    return best;
-  };
-  const best = nearest(trend.samples);
+  const best = nearestSample(viz, trend, cursor);
   return best && best.projected
-    ? nearest(trend.samples.filter(s => s.step))
+    ? nearestSample(
+        viz,
+        trend,
+        cursor,
+        trend.samples.filter(s => s.step),
+      )
     : undefined;
 }
 
@@ -190,7 +262,11 @@ export function renderTrendTooltip(
       trendTooltipRows(
         viz,
         trend,
-        cursor ? nearestProjectedSample(viz, trend, cursor) : undefined,
+        !cursor
+          ? undefined
+          : trend.fit.type === "movingAverage"
+            ? nearestSample(viz, trend, cursor)
+            : nearestProjectedSample(viz, trend, cursor),
       ),
     )
     .footer(false)

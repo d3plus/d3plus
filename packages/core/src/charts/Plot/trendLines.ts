@@ -2,29 +2,40 @@
     Automatic trend lines: fits a regression per series (or across all data)
     from the formatted Plot rows, samples it along the independent axis, and
     widens the dependent axis's values so the fitted line and its confidence
-    band stay inside the plot. Painted by `trendScene.ts`.
+    band stay inside the plot. A moving average (see `trendMovingAverage.ts`)
+    runs through the data instead, with bands either side. Painted by
+    `trendScene.ts`.
 */
 import {groups} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
 import {linearConfidence, linearPrediction, regression} from "@d3plus/math";
-import type {RegressionResult, RegressionType} from "@d3plus/math";
+import type {
+  MovingAverageResult,
+  RegressionResult,
+  RegressionType,
+} from "@d3plus/math";
 
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {isSpanAxis} from "./discreteSpan.js";
+import {fitMovingAverage, warnSpanOffTime} from "./trendMovingAverage.js";
 import {projectionPositions} from "./trendProjection.js";
 
 type Row = Record<string, unknown>;
 type Axis = "x" | "y";
 
-/** The regression types `trendLine` accepts. */
-export const trendTypes: RegressionType[] = [
+/** The kinds of trend line `trendLine` draws: a regression, or a moving average. */
+export type TrendType = RegressionType | "movingAverage";
+
+/** The trend types `trendLine` accepts. */
+export const trendTypes: TrendType[] = [
   "linear",
   "exponential",
   "logarithmic",
   "power",
   "polynomial",
+  "movingAverage",
 ];
 
 /** Number of points sampled along a continuous independent axis. */
@@ -54,18 +65,20 @@ export interface TrendFit {
   color: string;
   /** The independent axis the fit runs along. */
   axis: Axis;
-  fit: RegressionResult;
+  fit: RegressionResult | MovingAverageResult;
   samples: TrendSample[];
   /** A source row of the series, so hover dimming treats the line as part of it. */
   row?: DataPoint;
 }
 
-/** The values `trendLine` accepts: a regression type, `true` (linear), or `false` (off). */
-export type TrendLineType = boolean | RegressionType;
+/** The values `trendLine` accepts: a trend type, `true` (linear), or `false` (off). */
+export type TrendLineType = boolean | TrendType;
 
 /** The default `trendLineConfig`. */
 export function trendLineDefaults(): Record<string, unknown> {
   return {
+    bands: 2,
+    center: false,
     confidence: false,
     confidenceConfig: {fillOpacity: 0.15},
     confidenceLevel: 0.95,
@@ -77,15 +90,14 @@ export function trendLineDefaults(): Record<string, unknown> {
     strokeDasharray: "6 4",
     strokeWidth: 2,
     tooltip: true,
+    window: 7,
   };
 }
 
-/** Resolves the `trendLine` setting to a regression type, or null when off. */
-export function resolveTrendType(value: unknown): RegressionType | null {
+/** Resolves the `trendLine` setting to a trend type, or null when off. */
+export function resolveTrendType(value: unknown): TrendType | null {
   if (value === true) return "linear";
-  return trendTypes.includes(value as RegressionType)
-    ? (value as RegressionType)
-    : null;
+  return trendTypes.includes(value as TrendType) ? (value as TrendType) : null;
 }
 
 /**
@@ -234,6 +246,70 @@ function fitGroups(
   return depth > 0 ? bySeries(depth - 1) : all;
 }
 
+/** How a fit's samples are placed: the axis it runs along, and the dependent axis's scale. */
+export interface TrendSampling {
+  /** The independent axis. */
+  axis: Axis;
+  /** Maps a fitted number back to an axis value. */
+  fromNumber: (n: number) => unknown;
+  /** Whether the dependent axis is logarithmic, so values at or below 0 drop out. */
+  logDep: boolean;
+  /** Whether the independent axis is a time axis. */
+  time?: boolean;
+}
+
+/**
+    Fits a regression to one set of points and samples it along its extent
+    and any projection: one sample per category on a point scale, else
+    evenly spaced, with a linear fit's confidence band (and, over the
+    projection, its prediction interval) when `confidence` is on. Null when
+    the points can't be fit.
+    @param points The `[x, y]` points to fit.
+    @param type The regression type.
+    @param config The `trendLineConfig`.
+    @param place The sampling axis and scale, the point scale's positions
+    (`categories`, or null on a continuous axis), and the projected `steps`.
+*/
+export function fitRegression(
+  points: [number, number][],
+  type: RegressionType,
+  config: Record<string, unknown>,
+  place: TrendSampling & {categories: number[] | null; steps: number[]},
+): {fit: RegressionResult; samples: TrendSample[]} | null {
+  const {axis, fromNumber, logDep, categories, steps} = place;
+  const dep = axis === "x" ? "y" : "x";
+  const fit = regression(points, type, {
+    order: config.order as number | undefined,
+  });
+  if (!fit) return null;
+  const banded = config.confidence && type === "linear";
+  const level = config.confidenceLevel as number | undefined;
+  // The fitted stretch bands the mean response; the projection widens to
+  // where a new observation could fall.
+  const band = banded ? linearConfidence(points, level) : null;
+  const fan = banded ? linearPrediction(points, level) : null;
+  const samples: TrendSample[] = [];
+  const sampleAt = (n: number, projectedRun: boolean) => {
+    const value = fit.predict(n);
+    if (!Number.isFinite(value) || (logDep && value <= 0)) return;
+    const sample = {
+      [axis]: fromNumber(n),
+      [dep]: value,
+    } as unknown as TrendSample;
+    const bounds = projectedRun ? fan : band;
+    if (bounds) [sample.lci, sample.hci] = bounds(n);
+    if (projectedRun) sample.projected = true;
+    if (projectedRun && n > fit.extent[1] && steps.includes(n))
+      sample.step = true;
+    samples.push(sample);
+  };
+  trendSamplePositions(fit.extent, categories).forEach(n => sampleAt(n, false));
+  trendProjectionPositions(fit.extent, steps, categories).forEach(n =>
+    sampleAt(n, true),
+  );
+  return {fit, samples};
+}
+
 /**
     Fits the trend lines for the current data; empty when `trendLine` is off.
     `projected` lists future independent-axis positions (from
@@ -260,6 +336,8 @@ export function computeTrendFits(
     ? order.concat(projected).map(toNumber).filter(Number.isFinite)
     : [];
   const logDep = `${viz[`_${dep}Config`]?.scale}`.toLowerCase() === "log";
+  const time = order.some(v => v instanceof Date);
+  if (type === "movingAverage") warnSpanOffTime(viz, config, time);
   const fill = viz.schema.shapeConfig.fill;
 
   const fits: TrendFit[] = [];
@@ -269,37 +347,18 @@ export function computeTrendFits(
     axis,
     toNumber,
   )) {
-    const fit = regression(points, type, {
-      order: config.order as number | undefined,
-    });
-    if (!fit) continue;
-    const banded = config.confidence && type === "linear";
-    const level = config.confidenceLevel as number | undefined;
-    // The fitted stretch bands the mean response; the projection widens to
-    // where a new observation could fall.
-    const band = banded ? linearConfidence(points, level) : null;
-    const fan = banded ? linearPrediction(points, level) : null;
-    const samples: TrendSample[] = [];
-    const sampleAt = (n: number, projectedRun: boolean) => {
-      const value = fit.predict(n);
-      if (!Number.isFinite(value) || (logDep && value <= 0)) return;
-      const sample = {
-        [axis]: fromNumber(n),
-        [dep]: value,
-      } as unknown as TrendSample;
-      const bounds = projectedRun ? fan : band;
-      if (bounds) [sample.lci, sample.hci] = bounds(n);
-      if (projectedRun) sample.projected = true;
-      if (projectedRun && n > fit.extent[1] && steps.includes(n))
-        sample.step = true;
-      samples.push(sample);
-    };
-    trendSamplePositions(fit.extent, categories).forEach(n =>
-      sampleAt(n, false),
-    );
-    trendProjectionPositions(fit.extent, steps, categories).forEach(n =>
-      sampleAt(n, true),
-    );
+    const fitted =
+      type === "movingAverage"
+        ? fitMovingAverage(points, config, {axis, fromNumber, logDep, time})
+        : fitRegression(points, type, config, {
+            axis,
+            fromNumber,
+            logDep,
+            categories,
+            steps,
+          });
+    if (!fitted) continue;
+    const {fit, samples} = fitted;
     if (samples.length < 2) continue;
     const row = source ? (source.data as DataPoint) : undefined;
     const color = config.stroke

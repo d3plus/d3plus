@@ -9,6 +9,7 @@ import {
   trendLabelText,
 } from "../../src/charts/Plot/trendLabels.ts";
 import {pathLabelNodes} from "../../src/charts/features/pathLabels.ts";
+import {labelCorners} from "../../src/charts/features/linkLabelGeometry.ts";
 import {trendLineDefaults} from "../../src/charts/Plot/trendLines.ts";
 
 useJsdom();
@@ -240,4 +241,23 @@ it("pathLabelNodes — legible color on the theme, cut short to its path", () =>
   assert.ok(node.lines[0].width <= 60);
   assert.notStrictEqual(node.paint.fill, "#000080", "lightened on dark");
   assert.strictEqual(node.aria.hidden, true);
+});
+
+it("trendLabelSpot — slides back along its line to stay inside the plot", () => {
+  // A line falling steeply into the plot's right edge: just above its end,
+  // the label would run out past the edge.
+  const line = [
+    [100, 40],
+    [300, 120],
+    [400, 280],
+  ];
+  const spot = trendLabelSpot(line, rect, place({width: 120, lift: 6}));
+  assert.ok(spot, "the line has room for the label");
+  const corners = spot.boxes.flatMap(labelCorners);
+  assert.ok(
+    corners.every(
+      ([x, y]) => x >= rect.x0 && x <= rect.x1 && y >= rect.y0 && y <= rect.y1,
+    ),
+    `inside the plot: ${JSON.stringify(corners)}`,
+  );
 });

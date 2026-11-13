@@ -22,6 +22,8 @@ export type TrendNode = SceneNode & {
 
 /** `trendLineConfig` keys that drive the fit or band; the rest style the Line. */
 const FIT_KEYS = [
+  "bands",
+  "center",
   "group",
   "order",
   "confidence",
@@ -33,6 +35,7 @@ const FIT_KEYS = [
   "stroke",
   "label",
   "labelConfig",
+  "window",
 ];
 
 /**
