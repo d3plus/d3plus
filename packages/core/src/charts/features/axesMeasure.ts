@@ -11,6 +11,7 @@ import AxisBottom from "../../components/Axis/AxisBottom.js";
 import type Axis from "../../components/Axis/Axis.js";
 import configValue from "../../utils/configValue.js";
 import {barLabelsNeedAxis, type BarLabelCheck} from "../Plot/barLabelFit.js";
+import {defaultMaxSize} from "../../components/Axis/axisMaxSize.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {xRightInset} from "./axesFinal.js";
@@ -127,6 +128,7 @@ function measureYTestAxes(viz: Viz, inputs: AxisMeasureInputs): YAxisMeasure {
   } = inputs;
 
   if (showY) {
+    const yPlotConfig = plotAxisConfig(viz, "y");
     yTest
       .domain(yDomain)
       .height(height)
@@ -135,9 +137,9 @@ function measureYTestAxes(viz: Viz, inputs: AxisMeasureInputs): YAxisMeasure {
       .ticks(yTicks)
       .width(width)
       .config(yC)
-      .config(plotAxisConfig(viz, "y"))
-      .scale(yConfigScale)
-      .measure();
+      .config(yPlotConfig)
+      .scale(yConfigScale);
+    defaultMaxSize(yTest, yC, yPlotConfig).measure();
   }
 
   const yBounds = yTest.outerBounds() as AxisBounds;
@@ -196,6 +198,7 @@ function measureXTestPasses(
   const xOverrides = ends ? END_LABEL_AXIS_CONFIG : {};
 
   if (showX) {
+    const xPlotConfig = plotAxisConfig(viz, "x");
     xTest
       .domain(xDomain)
       .height(height)
@@ -204,10 +207,10 @@ function measureXTestPasses(
       .ticks(xTicks)
       .width(width)
       .config(xC)
-      .config(plotAxisConfig(viz, "x"))
+      .config(xPlotConfig)
       .config(xOverrides)
-      .scale(xConfigScale)
-      .measure();
+      .scale(xConfigScale);
+    defaultMaxSize(xTest, xC, xPlotConfig, xOverrides).measure();
   }
 
   const {
@@ -219,6 +222,7 @@ function measureXTestPasses(
   if (measuredXRangeMax !== undefined) xRangeMax = measuredXRangeMax;
 
   if (showX && xRangeMax) {
+    const xPlotConfig = plotAxisConfig(viz, "x");
     xTest
       .domain(xDomain)
       .height(height)
@@ -227,10 +231,10 @@ function measureXTestPasses(
       .ticks(xTicks)
       .width(width)
       .config(xC)
-      .config(plotAxisConfig(viz, "x"))
+      .config(xPlotConfig)
       .config(xOverrides)
-      .scale(xConfigScale)
-      .measure();
+      .scale(xConfigScale);
+    defaultMaxSize(xTest, xC, xPlotConfig, xOverrides).measure();
   }
 
   if (x2Exists) {
@@ -451,6 +455,8 @@ function yLabelTopOffset(viz: Viz, yTest: Axis, showY: boolean): number {
 function provisionalXHeight(viz: Viz, inputs: AxisMeasureInputs): number {
   if (!inputs.showX) return 0;
   const axis = new AxisBottom().align("end").gridSize(0);
+  const xC = buildXConfig(viz, inputs);
+  const xPlotConfig = plotAxisConfig(viz, "x");
   axis
     .domain(inputs.xDomain)
     .height(inputs.height)
@@ -458,9 +464,9 @@ function provisionalXHeight(viz: Viz, inputs: AxisMeasureInputs): number {
     .range([undefined, undefined])
     .ticks(inputs.xTicks)
     .width(inputs.width)
-    .config(buildXConfig(viz, inputs))
-    .config(plotAxisConfig(viz, "x"))
-    .scale(inputs.xConfigScale)
-    .measure();
+    .config(xC)
+    .config(xPlotConfig)
+    .scale(inputs.xConfigScale);
+  defaultMaxSize(axis, xC, xPlotConfig).measure();
   return (axis.outerBounds() as AxisBounds).height + axis.padding();
 }

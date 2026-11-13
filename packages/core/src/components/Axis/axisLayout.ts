@@ -33,8 +33,12 @@ import {
   computeBuffers,
   createTextData,
   isDiscreteScale,
+  labelDepth,
+  limitLabels,
   wholeLineLabels,
 } from "./axisLayoutLabels.js";
+import {labelRoom} from "./axisLabelSize.js";
+import {strictMaxSize} from "./axisMaxSize.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, labelSets, setAxisScale} from "./axisLayoutScale.js";
 import {FLAT, autoAngle, settingTurn, slantedReach} from "./axisLabelAngle.js";
@@ -62,14 +66,26 @@ export interface AxisLayoutResult {
   bounds: Record<string, number>;
 }
 
+/** A tick's pixel size along the axis, read from its shape config. */
+function tickSize(axis: Axis, width: string): TickGet {
+  const tickValue =
+    axis.schema.shape === "Circle"
+      ? axis.schema.shapeConfig.r
+      : axis.schema.shape === "Rect"
+        ? axis.schema.shapeConfig[width]
+        : axis.schema.shapeConfig.strokeWidth;
+  return typeof tickValue !== "function" ? () => tickValue : tickValue;
+}
+
 /**
     The standalone axis layout pass. Accepts any object satisfying the
     Axis-instance shape (the production `Axis` class is the canonical input).
     Pure compute — no DOM, no rendering. Mutates the input to set
     `_d3Scale`/`_outerBounds`/`_margin`/etc. for callers that read those off
-    the instance afterward.
+    the instance afterward. `measureAxis` (see `axisLimit.ts`) runs it again
+    without the title when the labels don't fit `maxSize` beside it.
 */
-export function measureAxis(axis: Axis): AxisLayoutResult {
+export function layoutAxis(axis: Axis): AxisLayoutResult {
   const timeLocaleObj = axisTimeLocale(axis);
   timeFormatDefaultLocale(
     timeLocaleObj as Parameters<typeof timeFormatDefaultLocale>[0],
@@ -79,13 +95,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     p = axis.schema.padding,
     rangeOuter = [p, (axis.schema[width] as number) - p];
 
-  const tickValue =
-    axis.schema.shape === "Circle"
-      ? axis.schema.shapeConfig.r
-      : axis.schema.shape === "Rect"
-        ? axis.schema.shapeConfig[width]
-        : axis.schema.shapeConfig.strokeWidth;
-  const tickGet = typeof tickValue !== "function" ? () => tickValue : tickValue;
+  const tickGet = tickSize(axis, width);
 
   const margin: Record<string, number> = (axis._margin = {
     top: 0,
@@ -119,11 +129,13 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
 
   const {hBuff, wBuff} = computeBuffers(axis, ticks, tickGet, height);
 
-  // Labels at given values naming things (one per variable-width bar) wrap
-  // within their own share of the axis, so a wide bar's label lies flat
-  // across it while a narrow one's wraps (see `fitOwnSpaces`).
-  const ownSpace =
-    horizontal &&
+  // Labels at given values naming things (one per variable-width bar, or a
+  // bucketed color scale's) wrap within their own share of the axis: along
+  // a horizontal axis, a wide bar's label lies flat across it while a
+  // narrow one's wraps (see `fitOwnSpaces`); along a vertical one, the
+  // labels left shown take the room the hidden ones leave (see
+  // `regrowShown`).
+  const named =
     !isDiscreteScale(axis.schema.scale) &&
     rotatesLabels(axis, labels, tickFormat);
   const labelCtx = {
@@ -133,7 +145,9 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     p,
     tickFormat,
     rescale,
-    ownSpace,
+    ownSpace: horizontal && named,
+    regrow: !horizontal && named,
+    strict: strictMaxSize(axis, horizontal),
   };
   const setting = axis._labelRotationSetting;
   turnLabels(axis, settingTurn(setting, horizontal));
@@ -150,12 +164,14 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     textData = autoRotateLabels(axis, textData, {
       labels,
       tickFormat,
-      ownSpace,
+      ownSpace: labelCtx.ownSpace,
       rangeOuter,
       relayout: () => layoutLabels(axis, rescale(), labelCtx),
     });
 
   hideTruncatedTicks(axis, textData, ticks);
+  alignLabelOffsets(axis, textData);
+  limitAxis(axis, textData, labelCtx);
   axis._labelOverflow = slantedOverflow(axis, textData, range);
 
   // The title is drawn across the final range, which the label passes can
@@ -163,8 +179,6 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   applyTitleMargin(axis, {range, p, height, margin, measured: titleRange});
 
   const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
-
-  alignLabelOffsets(axis, textData);
 
   const bounds = computeAxisBounds(axis, {
     textData,
@@ -220,6 +234,23 @@ export function slantedOverflow(
     Math.max(0, reach(first)[0] - (first.position - lo)),
     Math.max(0, reach(last)[1] - (hi - last.position)),
   ];
+}
+
+/**
+    Under a strict `maxSize` (see `strictMaxSize`), leaves out each label
+    reaching further out than the limit leaves room for (see
+    `limitLabels`); its tick stays. Records what it did on `axis._limited`.
+*/
+function limitAxis(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  ctx: {horizontal: boolean; hBuff: number; p: number; strict: boolean},
+): void {
+  const {horizontal, hBuff, p, strict} = ctx;
+  const room = labelRoom(axis, horizontal, hBuff, p);
+  axis._limited = strict
+    ? {dropped: limitLabels(textData, horizontal, room), room}
+    : undefined;
 }
 
 /** The ticks whose labels the layout hides no longer count as visible. */
@@ -335,33 +366,28 @@ function layoutLabels(
     tickFormat: (d: unknown) => string;
     rescale: (newRange?: number[]) => {range: number[]; labels: unknown[]};
     ownSpace?: boolean;
+    regrow?: boolean;
+    strict?: boolean;
   },
 ): AxisTextDatum[] {
-  const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace} = ctx;
+  const {rangeOuter, horizontal, hBuff, p, rescale, strict} = ctx;
   let {labels} = scale;
+  const measure = (offset = 1) =>
+    createTextData(axis, {...ctx, labels, offset});
 
-  let textData = createTextData(axis, {
-    labels,
-    rangeOuter,
-    horizontal,
-    hBuff,
-    p,
-    tickFormat,
-    ownSpace,
-  });
-  const offsetEnabled =
+  let textData = measure();
+  let offsetEnabled =
     axis.schema.labelOffset && textData.some((d: AxisTextDatum) => d.truncated);
-  if (offsetEnabled)
-    textData = createTextData(axis, {
-      labels,
-      rangeOuter,
-      horizontal,
-      hBuff,
-      p,
-      tickFormat,
-      ownSpace,
-      offset: 2,
-    });
+  if (offsetEnabled) {
+    const staggered = measure(2);
+    // Under a strict `maxSize`, labels stagger only when both rows fit.
+    if (
+      strict &&
+      !staggerFits(staggered, labelRoom(axis, horizontal, hBuff, p), horizontal)
+    )
+      offsetEnabled = false;
+    else textData = staggered;
+  }
 
   // Narrowing the range can change which labels a time axis draws (its ticks
   // follow the range); a new first or last label is measured again, a few
@@ -411,22 +437,31 @@ function layoutLabels(
     const ends = endLabels(textData);
     [first, last] = newRange;
     ({labels} = rescale(newRange));
-    textData = createTextData(axis, {
-      labels,
-      rangeOuter,
-      horizontal,
-      hBuff,
-      p,
-      tickFormat,
-      ownSpace,
-      offset: offsetEnabled ? 2 : 1,
-    });
+    textData = measure(offsetEnabled ? 2 : 1);
     // A slanted label's reach is lopsided, so its range narrows again until
     // the label fits; others stop once the same labels end the axis.
     if (endLabels(textData) === ends && !textData.some(t => t.slant)) break;
   }
 
   return textData;
+}
+
+/**
+    Whether staggered labels, each row as deep as its labels and the second
+    row set out past the first, reach out from the axis no further than
+    `room`.
+*/
+export function staggerFits(
+  textData: AxisTextDatum[],
+  room: number,
+  horizontal: boolean,
+): boolean {
+  const offset = max(textData, (t: AxisTextDatum) => t.offset || 0) || 0;
+  return textData.every(
+    (t: AxisTextDatum) =>
+      !t.lines.length ||
+      Math.ceil(labelDepth(t, horizontal) + (t.offset ? offset : 0)) <= room,
+  );
 }
 
 /** The values of the first and last labels shown, to tell when they change. */

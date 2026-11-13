@@ -39,7 +39,7 @@
 import {max} from "d3-array";
 
 import type Axis from "../../components/Axis/Axis.js";
-import {pinMaxSize} from "../../components/Axis/axisMaxSize.js";
+import {defaultMaxSize, pinMaxSize} from "../../components/Axis/axisMaxSize.js";
 import {frozenAxis} from "./frozenAxis.js";
 
 import {alignAxisLine, placeEndLabels} from "./plotEndLabels.js";
@@ -141,6 +141,7 @@ function renderXAxes(
   const xAxis = viz._xAxis!;
   const x2Axis = viz._x2Axis!;
 
+  const xPlotConfig = plotAxisConfig(viz, "x");
   xAxis
     .renderMode("compute")
     .select(null)
@@ -153,9 +154,10 @@ function renderXAxes(
     // Rotate the labels as the test axis did when it claimed their height.
     .labelRotation(testRotation(pCtx.xTest))
     .config({...UNZOOMED_AXIS, ...xC})
-    .config(plotAxisConfig(viz, "x"))
+    .config(xPlotConfig)
     .config(pCtx.zoomAxes?.x ?? {})
     .scale(xConfigScale);
+  defaultMaxSize(xAxis, xC, xPlotConfig);
   // A `maxSize` function reads the height the test axis measured with.
   pinMaxSize(xAxis, height);
   // Labeling its ends, the axis draws only its gridlines, up from the plot's bottom edge.
@@ -233,6 +235,7 @@ function renderYAxes(
   const yAxis = viz._yAxis!;
   const y2Axis = viz._y2Axis!;
 
+  const yPlotConfig = plotAxisConfig(viz, "y");
   yAxis
     .renderMode("compute")
     .select(null)
@@ -243,9 +246,10 @@ function renderYAxes(
     .ticks(yTicks)
     .width(xRange[xRange.length - 1])
     .config({...UNZOOMED_AXIS, ...yC})
-    .config(plotAxisConfig(viz, "y"))
+    .config(yPlotConfig)
     .config(pCtx.zoomAxes?.y ?? {})
     .scale(yConfigScale);
+  defaultMaxSize(yAxis, yC, yPlotConfig);
   // A `maxSize` function reads the width the test axis measured with.
   pinMaxSize(yAxis, width).render();
   if (showY) {

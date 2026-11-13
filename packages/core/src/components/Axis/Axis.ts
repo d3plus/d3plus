@@ -10,7 +10,7 @@ import type {SvgRenderer} from "@d3plus/render";
 
 import {TextBox} from "../index.js";
 import type Shape from "../../shapes/Shape.js";
-import {measureAxis} from "./axisLayout.js";
+import {measureAxis} from "./axisLimit.js";
 import {
   axisBarConfig,
   axisBreakConfig,
@@ -111,6 +111,24 @@ export default class Axis extends BaseClass {
       when its range is fixed.
   */
   _labelOverflow: [number, number] = [0, 0];
+  /**
+      Whether the `maxSize` is the chart's own default limit (see
+      `defaultMaxSize`), which lets one line of labels and the title take
+      more than it.
+  */
+  _softMaxSize = false;
+  /**
+      Whether a vertical axis hides labels to give the ones it shows more
+      lines (see `thinForLines`): a bucketed ColorScale's.
+  */
+  _thinForLines = false;
+  /** Whether the last layout pass left the title out to fit `maxSize` (see `measureAxis`). */
+  _dropTitle = false;
+  /**
+      How the last layout pass fit `maxSize`: how many shown labels it left
+      out, and the room the labels had (see `limitLabels`).
+  */
+  _limited?: {dropped: number; room: number};
   _position!: {
     horizontal: boolean;
     width: string;
@@ -695,5 +713,5 @@ resolvesReset(
 
 // Re-export the standalone `measureAxis` and its result type so consumers
 // can import them from the same module as the Axis class.
-export {measureAxis} from "./axisLayout.js";
+export {measureAxis} from "./axisLimit.js";
 export type {AxisLayoutResult} from "./axisLayout.js";

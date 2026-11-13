@@ -15,8 +15,8 @@ import {render} from "~test/browser/render.js";
     together, unless `axisConfig.maxSize` (a gradient or a bucketed bar) or
     `legendConfig`'s width or height (swatches) says otherwise; a scale that
     fits in that third draws as it does with no limit. A gradient or a
-    bucketed bar at the top or bottom keeps its bar, a line of labels and
-    its title, which is more than a third of a short chart.
+    bucketed bar keeps to its third on a short chart too, leaving out its
+    title when its labels don't fit beside it.
 */
 
 const width = 600;
@@ -311,17 +311,15 @@ for (const renderer of ["svg", "canvas"])
           `the scale takes at most a third (${limited.margin[position]})`,
         );
         assertInMargin(limited, position);
-        // No label fits whole in that third: each is cut short, and a
-        // bucketed bar's, a bucket wide each at the top or bottom, are left
-        // out.
+        // No label fits whole in that third: each is cut short to fit,
+        // a bucketed bar's within its bucket at the top or bottom.
+        assert.ok(
+          limited.labels.length > 0,
+          `labeled (${limited.labels.join(" | ")})`,
+        );
         assert.ok(
           limited.labels.every(l => l.endsWith("...")),
           `its labels are cut short (${limited.labels.join(" | ")})`,
-        );
-        assert.strictEqual(
-          limited.labels.length > 0,
-          !(name === "bucketed bar" && wide(position)),
-          `labeled (${limited.labels.join(" | ")})`,
         );
       });
 
@@ -388,12 +386,12 @@ for (const renderer of ["svg", "canvas"])
         );
       });
 
-// A gradient or a bucketed bar along the chart's width keeps its bar, a line
-// of labels and its title, whatever the chart's height.
+// On a chart too short for a line of labels and a title in a third, a
+// gradient or a bucketed bar along its width leaves its title out.
 for (const renderer of ["svg", "canvas"])
   for (const name of ["gradient", "bucketed bar"])
     for (const position of ["top", "bottom"])
-      it(`[${renderer}] a titled ${name} colorScale keeps its labels and title at the ${position} of a short chart`, async () => {
+      it(`[${renderer}] a titled ${name} colorScale leaves out its title to keep to a third at the ${position} of a short chart`, async () => {
         const side = across(position);
         const title = "What the colors show";
         const [titled, plain, unlimited] = await drawVariants(
@@ -405,20 +403,16 @@ for (const renderer of ["svg", "canvas"])
           plain.margin[position] <= side / 3,
           `with no title, the scale fits in a third (${plain.margin[position]})`,
         );
-        assert.deepStrictEqual(
-          titled.labels.filter(l => l !== title).sort(),
-          [...plain.labels].sort(),
-          `its labels and title are drawn (${titled.labels.join(" | ")})`,
+        assert.ok(
+          unlimited.labels.includes(title) &&
+            unlimited.margin[position] > side / 3,
+          `with no limit, the title is drawn and the scale takes more than a third (${unlimited.margin[position]})`,
         );
         assert.ok(
-          titled.labels.includes(title),
-          `the title is drawn (${titled.labels.join(" | ")})`,
+          !titled.labels.includes(title),
+          `the title is left out (${titled.labels.join(" | ")})`,
         );
-        assert.ok(
-          titled.margin[position] > side / 3,
-          `the scale takes more than a third (${titled.margin[position]})`,
-        );
-        assert.deepStrictEqual(titled, unlimited, "as with no limit");
+        assert.deepStrictEqual(titled, plain, "as with no title");
       });
 
 for (const renderer of ["svg", "canvas"])

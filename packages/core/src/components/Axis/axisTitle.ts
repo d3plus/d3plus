@@ -43,6 +43,8 @@ export function firstWordOverflows(
     word too wide for the axis is cut mid-word with the ellipsis
     (`truncateWord`), so the title still draws; any other title cut short
     ends at a word break. A `truncateWord` in `titleConfig` overrides both.
+    A title left out (see `measureAxis` in `axisLimit.ts`) has no data, so
+    draws nothing.
 */
 export function configureTitle(
   box: TextBox,
@@ -52,7 +54,9 @@ export function configureTitle(
 ): TextBox {
   const {orient} = axis.schema;
   return box
-    .data(axis.schema.title ? [{text: axis.schema.title}] : [])
+    .data(
+      axis.schema.title && !axis._dropTitle ? [{text: axis.schema.title}] : [],
+    )
     .height(height)
     .rotate(orient === "left" ? -90 : orient === "right" ? 90 : 0)
     .text(((d: DataPoint) => d.text) as unknown as string)

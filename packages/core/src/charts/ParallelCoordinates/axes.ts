@@ -8,6 +8,7 @@
 import type {SceneNode, Transform} from "@d3plus/render";
 
 import {Axis} from "../../components/index.js";
+import {defaultMaxSize} from "../../components/Axis/axisMaxSize.js";
 import {barLinePoints} from "../../components/Axis/axisScene.js";
 import {withAxisInk} from "../Plot/axisInk.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
@@ -108,10 +109,12 @@ function makeAxis(
     .orient(orient === "horizontal" ? "left" : "bottom")
     .align("start");
   axis.renderMode("compute").select(null).maxSize(labelRoom);
+  const own = dimensionAxisConfig(dimensionConfig[dim.key]);
   axis
     .config(withAxisInk(viz, {}))
     .config((viz.schema.axisConfig ?? {}) as Record<string, unknown>)
-    .config(dimensionAxisConfig(dimensionConfig[dim.key]));
+    .config(own);
+  defaultMaxSize(axis, viz.schema.axisConfig, own);
   axis.gridSize(0).title(false);
   const scale = axis.scale() as string;
   if (dim.type === "categorical" && scale !== "point" && scale !== "band")

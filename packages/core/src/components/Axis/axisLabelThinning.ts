@@ -53,15 +53,25 @@ export function labelExtent(
     scale's `range`, each tick at its slot's center: one bar each, for one
     label per bar), so where two narrow neighbors can't both fit, the
     narrower bar's label is the one hidden; every other label stays as it
-    is. `resize` measures a label again at a given width.
+    is. A label with none shown beside it widens no further than the ends
+    of the axis (`bounds`, the scale's `range` by default) allow, centered
+    on its tick. When no label fits whole, each is drawn in its own share
+    instead, cut short if need be. `resize` measures a label again at a
+    given width, within that width when `keepShare`.
 */
 export function fitOwnSpaces(
   textData: AxisTextDatum[],
   spaces: number[],
   range: number[],
-  resize: (datum: AxisTextDatum, space: number) => AxisTextDatum,
+  resize: (
+    datum: AxisTextDatum,
+    space: number,
+    keepShare?: boolean,
+  ) => AxisTextDatum,
+  bounds: number[] = range,
 ): void {
   const share = (t: AxisTextDatum) => spaces[t.i] - t.fP * 2;
+  const around = (t: AxisTextDatum) => roomAround(t.position, bounds);
   const pending = new Set(textData.filter((t: AxisTextDatum) => !t.fits));
   // A label still waiting to widen keeps to its own share for now.
   const extent = (t: AxisTextDatum) =>
@@ -82,11 +92,9 @@ export function fitOwnSpaces(
           2 *
           (Math.abs(t.position - datum.position) - extent(t) / 2 - datum.fP),
       );
-    // With no label shown beside it, a label may span the whole range.
+    // With no label shown beside it, a label may reach the nearer end of the axis.
     const space = Math.floor(
-      widths.length
-        ? Math.min(...widths)
-        : Math.max(...range) - Math.min(...range),
+      widths.length ? Math.min(...widths) : around(datum),
     );
     if (space > share(datum)) resize(datum, space);
     return datum.fits;
@@ -108,6 +116,115 @@ export function fitOwnSpaces(
       if (!widen(datum, false)) widen(datum, true);
       datum.truncated = !datum.fits;
     });
+  if (textData.every((t: AxisTextDatum) => t.truncated))
+    textData.forEach((datum: AxisTextDatum) => {
+      const space = Math.floor(Math.min(share(datum), around(datum)));
+      if (space <= 0) return;
+      resize(datum, space, true);
+      datum.truncated = !datum.lines.length;
+    });
+}
+
+/**
+    The widest a label centered on its tick at `position` can be without
+    reaching past either end of `bounds` (0 for a tick outside them).
+*/
+export function roomAround(position: number, bounds: number[]): number {
+  const lo = Math.min(...bounds);
+  const hi = Math.max(...bounds);
+  return Math.max(0, 2 * Math.min(position - lo, hi - position));
+}
+
+/**
+    Measures each label left shown along a vertical axis again in the room
+    the hidden labels beside it leave: up to its padding short of the
+    nearest label shown on either side, and of the ends of the axis
+    (`bounds`), centered on its tick. Labels are first measured in room for
+    one at every tick, so the ones left shown after thinning could take more
+    lines. Only labels that don't fit whole are measured again, and only in
+    more room than they had; that room keeps them clear of their neighbors
+    and within the axis, so no two shown labels crowd and none reaches
+    further past an end than before.
+*/
+export function regrowShown(
+  textData: AxisTextDatum[],
+  resize: (datum: AxisTextDatum, space: number) => AxisTextDatum,
+  bounds: number[],
+): void {
+  const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
+  if (shown.length === textData.length) return;
+  const rooms = shown.map((datum: AxisTextDatum, i: number) => {
+    const gaps = [shown[i - 1], shown[i + 1]]
+      .filter((t?: AxisTextDatum): t is AxisTextDatum => t !== undefined)
+      .map((t: AxisTextDatum) => Math.abs(t.position - datum.position));
+    const room = Math.min(roomAround(datum.position, bounds), ...gaps);
+    return Math.floor(room - datum.fP);
+  });
+  shown.forEach((datum: AxisTextDatum, i: number) => {
+    if (!datum.fits && rooms[i] > datum.space) resize(datum, rooms[i]);
+  });
+}
+
+/**
+    Picks which labels a vertical axis shows so that each takes as many
+    lines as it can, as a gradient color scale's few labels do: for a
+    bucketed color scale, whose every bucket has a label. While some label
+    shown is cut short, labels are hidden at an even interval, the first
+    and last always kept, until every label shown fits whole, or else as far
+    as gives the labels shown the most lines (the fewest any of them has),
+    hiding no more labels than that takes. Each label shown is measured in
+    the room between the nearest labels shown on either side, up to its
+    padding short of them (a label at an end, twice its distance to the one
+    beside it), and never less than every label had at first (`floor`):
+    one at an end reaching past the end of the axis narrows the axis's
+    range, as a gradient's do. `resize` measures a label again in a room.
+*/
+export function thinForLines(
+  textData: AxisTextDatum[],
+  resize: (datum: AxisTextDatum, space: number) => AxisTextDatum,
+  floor: number,
+): void {
+  const n = textData.length;
+  const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
+  if (n < 3 || shown.every((t: AxisTextDatum) => t.fits)) return;
+  const rooms = (set: AxisTextDatum[]) =>
+    set.map((datum: AxisTextDatum, i: number) => {
+      const gaps = [set[i - 1], set[i + 1]]
+        .filter((t?: AxisTextDatum): t is AxisTextDatum => t !== undefined)
+        .map((t: AxisTextDatum) => Math.abs(t.position - datum.position));
+      const gap = gaps.length ? Math.min(...gaps) : 0;
+      return Math.max(floor, Math.floor(gap - datum.fP));
+    });
+  // How a set of labels shown measures: the fewest lines any has, and
+  // whether every one fits whole.
+  const score = (set: AxisTextDatum[]) => {
+    const sized = rooms(set).map((room: number, i: number) =>
+      resize(set[i], room),
+    );
+    return {
+      set,
+      lines: Math.min(...sized.map((t: AxisTextDatum) => t.lines.length)),
+      whole: sized.every((t: AxisTextDatum) => t.fits),
+    };
+  };
+  const even = (m: number) =>
+    Array.from(
+      {length: m},
+      (_: unknown, j: number) => textData[Math.round((j * (n - 1)) / (m - 1))],
+    );
+  let best = score(shown);
+  for (let m = shown.length - 1; m >= 2 && !best.whole; m--) {
+    const next = score(even(m));
+    if (next.whole || next.lines > best.lines) best = next;
+  }
+  const keep = new Set(best.set);
+  const chosen = rooms(best.set);
+  textData.forEach((datum: AxisTextDatum) => {
+    datum.truncated = !keep.has(datum);
+  });
+  best.set.forEach((datum: AxisTextDatum, i: number) =>
+    resize(datum, chosen[i]),
+  );
 }
 
 /**

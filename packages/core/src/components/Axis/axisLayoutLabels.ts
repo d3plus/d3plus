@@ -4,16 +4,13 @@
     resolves truncation/offset, and returns the `textData` array the paint
     phase consumes; `computeAxisBounds` derives `_outerBounds` + margins.
 */
-import {max, min} from "d3-array";
+import {max} from "d3-array";
 
-import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
-
-import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
+import {fontFamily as d3plusFontFamily} from "@d3plus/text";
 
 import type Axis from "./Axis.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
 import {titleRoom} from "./axisTitle.js";
-import {labelEllipsis} from "./axisDefaults.js";
 import {fitLabelRoom} from "./axisLabelRoom.js";
 import {slantedDepth, slantedWrapSize} from "./axisLabelAngle.js";
 import {
@@ -21,10 +18,13 @@ import {
   ownLabelSpaces,
   wholeLineLabels,
 } from "./axisLabelKinds.js";
-import {axisMaxSize} from "./axisMaxSize.js";
+import {calculateLabelSize, labelRoom} from "./axisLabelSize.js";
+import type {LabelLayoutCtx, LabelSize} from "./axisLabelSize.js";
 import {slantedLineWidth, slantedLines} from "./axisSlantWrap.js";
 import {
   fitOwnSpaces,
+  regrowShown,
+  thinForLines,
   thinEvenly,
   thinGreedily,
   thinGreedilyShown,
@@ -71,6 +71,8 @@ export interface AxisTextDatum {
       cut off, and none broken across lines with a hyphen.
   */
   fits: boolean;
+  /** Whether the label is drawn cut short mid-word (see `cutLabel`). */
+  cut?: boolean;
   /** Whether the overlap pass hides the label to make room for its neighbors. */
   truncated?: boolean;
   offset?: number;
@@ -81,48 +83,12 @@ export interface AxisTextDatum {
   room?: number;
 }
 
-interface LabelLayoutCtx {
-  horizontal: boolean;
-  hBuff: number;
-  p: number;
-  tickFormat: (d: unknown) => string;
-  /** Whether each label is measured on a single line (see `wholeLineLabels`). */
-  wholeLine?: boolean;
-  /**
-      Whether each label wraps within its own share of the axis (see
-      `ownLabelSpaces`) rather than the widest share any label has.
-  */
-  ownSpace?: boolean;
-  /** The width slanted labels wrap at (see `slantedLineWidth`). */
-  slantWidth?: number;
-}
-
-/** How far labels may reach out from the axis, past its ticks and margins. */
-function labelRoom(
-  axis: Axis,
-  horizontal: boolean,
-  hBuff: number,
-  p: number,
-): number {
-  const maxSize = axisMaxSize(axis.schema, horizontal);
-  return horizontal
-    ? min([maxSize, axis.schema.height])! -
-        hBuff -
-        p -
-        axis._margin.top -
-        axis._margin.bottom
-    : min([maxSize, axis.schema.width])! -
-        hBuff -
-        p -
-        axis._margin.left -
-        axis._margin.right;
-}
-
 /**
     Applies the axis title's wrapped height to the orient-side margin, as
     the title TextBox draws it across `range` (see `titleRoom`). Given the
     range it was `measured` across before, it measures again only when the
-    range has changed. Returns the range measured across.
+    range has changed. Returns the range measured across. A title left out
+    (see `measureAxis` in `axisLimit.ts`) claims no room.
 */
 export function applyTitleMargin(
   axis: Axis,
@@ -139,7 +105,7 @@ export function applyTitleMargin(
     measured &&
     measured[0] === range[0] &&
     measured[measured.length - 1] === range[range.length - 1];
-  if (!axis.schema.title || same) return range;
+  if (!axis.schema.title || axis._dropTitle || same) return range;
   margin[axis.schema.orient] = titleRoom(
     axis,
     range,
@@ -173,128 +139,6 @@ export function computeBuffers(
   if (axis.schema.shape !== "Circle") wBuff /= 2;
 
   return {hBuff, wBuff};
-}
-
-/** A label's wrapped lines and measured size (see `calculateLabelSize`). */
-type LabelSize = {
-  lines: string[];
-  widths: number[];
-  width: number;
-  height: number;
-  fits: boolean;
-};
-
-/**
-    Wraps + measures a single label, returning its sized text result. Given a
-    `cache`, a label whose text, font, and space match one measured before
-    reuses that measurement.
-*/
-function calculateLabelSize(
-  axis: Axis,
-  datum: AxisTextDatum,
-  ctx: LabelLayoutCtx,
-  cache?: Map<string, LabelSize>,
-): LabelSize {
-  const {horizontal, hBuff, p, tickFormat} = ctx;
-  const {d, fF, fP, fS, lineHeight, rotate, space, angle, slant} = datum;
-  const h = rotate ? "width" : "height",
-    w = rotate ? "height" : "width";
-
-  const text = tickFormat(d);
-  const wSize = min([axisMaxSize(axis.schema, horizontal), axis.schema.width]);
-  const depth = datum.room ?? labelRoom(axis, horizontal, hBuff, p);
-  const slanted = slant
-    ? slantedWrapSize(angle!, horizontal, depth, space, lineHeight)
-    : undefined;
-  const key =
-    cache &&
-    JSON.stringify([
-      text,
-      fF,
-      fP,
-      fS,
-      lineHeight,
-      rotate,
-      slant && angle,
-      slant && ctx.slantWidth,
-      space,
-      datum.room,
-    ]);
-  const cached = key ? cache!.get(key) : undefined;
-  if (cached)
-    return {
-      ...cached,
-      lines: cached.lines.slice(),
-      widths: cached.widths.slice(),
-    };
-
-  // A cut label ends with the ellipsis it is painted with.
-  const wrap = textWrap()
-    .fontFamily(fF)
-    .fontSize(fS)
-    .lineHeight(lineHeight)
-    .ellipsis(labelEllipsis(axis.schema.shapeConfig));
-
-  if (slanted) {
-    // Slanted labels wrap between words, never mid-word.
-    wrap
-      .split(wholeWordSplit)
-      .width(Math.min(slanted.width, ctx.slantWidth ?? Infinity))
-      .height(slanted.height);
-  } else {
-    wrap[w](horizontal ? space : depth);
-    // A flat label's lines share its room with its padding (see `res.height`).
-    wrap[h](horizontal ? depth - (rotate ? 0 : fP) : space);
-  }
-
-  type Sized = ReturnType<typeof wrap> & {
-    width: number;
-    height: number;
-    fits: boolean;
-  };
-  let res: Sized, fits: boolean;
-  if (ctx.wholeLine) {
-    // Measured across the whole axis (`maxSize` caps its depth, not its
-    // length), a label that still breaks onto a second line can't be drawn
-    // whole on one.
-    wrap.width((axis.schema.width as number) - p * 2);
-    res = wrap(text) as Sized;
-    fits =
-      !res.truncated && res.lines.filter((l: string) => l !== "").length <= 1;
-  } else {
-    res = wrap(text) as Sized;
-    // A label that only fits by breaking a word mid-word doesn't fit.
-    fits = wholeWordFit(
-      res,
-      () => wrap.split(wholeWordSplit)(text) as Sized,
-    ).fits;
-    // A label wider than its share of the axis wraps to nothing; measure it
-    // across the whole axis instead, so the overlap pass thins the labels out.
-    if (
-      horizontal &&
-      !rotate &&
-      `${text}`.trim() &&
-      !res.lines.some((l: string) => l !== "")
-    ) {
-      wrap.width(wSize! - p * 2);
-      res = wrap(text) as Sized;
-    }
-  }
-  res.fits = fits;
-  res.lines = res.lines.filter((d: string) => d !== "");
-  res.width = res.lines.length ? Math.ceil(max(res.widths)!) : 0;
-  res.height = res.lines.length
-    ? Math.ceil(res.lines.length * (wrap.lineHeight() as number)) + fP
-    : 0;
-  if (key)
-    cache!.set(key, {
-      lines: res.lines.slice(),
-      widths: res.widths.slice(),
-      width: res.width,
-      height: res.height,
-      fits,
-    });
-  return res;
 }
 
 /** Assigns vertical offsets to alternating labels that would overlap. */
@@ -395,6 +239,25 @@ function maxLabelSpace(
 }
 
 /**
+    Wraps a vertical axis's flat labels again in the box they are painted
+    in (see `fitLabelRoom`): painted only as wide as the widest label, a cut
+    label is cut there.
+*/
+function fitPaintedRoom(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  horizontal: boolean,
+  measure: (t: AxisTextDatum) => LabelSize,
+): void {
+  if (
+    !horizontal &&
+    typeof axis.schema.fixedSize !== "number" &&
+    !textData.some((t: AxisTextDatum) => t.rotate || t.slant)
+  )
+    fitLabelRoom(textData, measure);
+}
+
+/**
     Measures every label, computes per-label space, sizes via `textWrap`, and
     resolves truncation (and optional offset). Returns the `textData` array.
 */
@@ -404,6 +267,8 @@ export function createTextData(
     labels: unknown[];
     rangeOuter: number[];
     offset?: number;
+    /** Whether the labels left shown take the room hidden ones leave (see `regrowShown`). */
+    regrow?: boolean;
   },
 ): AxisTextDatum[] {
   const {
@@ -415,6 +280,8 @@ export function createTextData(
     tickFormat,
     offset = 1,
     ownSpace,
+    regrow,
+    strict,
   } = ctx;
   const wholeLine =
     horizontal && !axis._labelRotation && wholeLineLabels(axis, labels);
@@ -426,6 +293,8 @@ export function createTextData(
     p,
     tickFormat,
     wholeLine,
+    ownSpace,
+    strict,
   };
   let textData = baseTextData(axis, labels);
   const maxSpace = maxLabelSpace(axis, textData, rangeOuter);
@@ -447,12 +316,13 @@ export function createTextData(
   const size = (
     datum: AxisTextDatum,
     space = (spaces ? spaces[datum.i] : maxSpace) - datum.fP * 2,
+    keepShare = false,
   ): AxisTextDatum => {
     datum.space = space;
-    const {lines, widths, width, height, fits} = calculateLabelSize(
+    const {lines, widths, width, height, fits, cut} = calculateLabelSize(
       axis,
       datum,
-      labelCtx,
+      keepShare ? {...labelCtx, keepShare} : labelCtx,
       measured,
     );
     // A label measured wider than its share (see `calculateLabelSize`) is
@@ -463,7 +333,7 @@ export function createTextData(
     // own height, leaving the overlap pass to thin out its neighbors.
     else if (!horizontal && !datum.rotate && height - datum.fP > datum.space)
       datum.space = Math.ceil(height);
-    return Object.assign(datum, {lines, widths, width, height, fits});
+    return Object.assign(datum, {lines, widths, width, height, fits, cut});
   };
   textData = textData.map((datum: AxisTextDatum) => size(datum));
 
@@ -487,19 +357,18 @@ export function createTextData(
         : undefined,
     );
   else if (spaces && horizontal && !axis._labelRotation)
-    fitOwnSpaces(textData, spaces, axis._d3Scale!.range(), size);
+    fitOwnSpaces(textData, spaces, axis._d3Scale!.range(), size, rangeOuter);
   else if (wholeLine) thinGreedilyShown(textData, horizontal, show);
   else thinGreedily(textData, horizontal);
+  if (regrow && !horizontal && !axis._labelRotation) {
+    regrowShown(textData, size, rangeOuter);
+    if (axis._thinForLines)
+      thinForLines(textData, size, Math.min(...textData.map(t => t.space)));
+  }
 
-  // Painted only as wide as the widest label, a cut label is cut there.
-  if (
-    !horizontal &&
-    typeof axis.schema.fixedSize !== "number" &&
-    !textData.some((t: AxisTextDatum) => t.rotate || t.slant)
-  )
-    fitLabelRoom(textData, (t: AxisTextDatum) =>
-      calculateLabelSize(axis, t, labelCtx, measured),
-    );
+  fitPaintedRoom(axis, textData, horizontal, (t: AxisTextDatum) =>
+    calculateLabelSize(axis, t, labelCtx, measured),
+  );
   if (offset > 1) calculateOffset(textData, horizontal);
   return textData;
 }
@@ -552,6 +421,39 @@ export function labelDepth(t: AxisTextDatum, horizontal: boolean): number {
   return t[t.rotate || !horizontal ? "width" : "height"];
 }
 
+/**
+    Leaves out each label that reaches further out from the axis than
+    `room` (what its strict `maxSize` leaves the labels, see
+    `strictMaxSize`), a staggered one by its row's offset too: it is hidden,
+    and claims no room. A label with no lines left in that room is hidden
+    too. Returns how many of the labels shown it left out for reaching too
+    far.
+*/
+export function limitLabels(
+  textData: AxisTextDatum[],
+  horizontal: boolean,
+  room: number,
+): number {
+  let dropped = 0;
+  textData.forEach((t: AxisTextDatum) => {
+    if (!t.lines.length) {
+      t.truncated = true;
+      return;
+    }
+    const depth = Math.ceil(labelDepth(t, horizontal) + (t.offset ?? 0));
+    if (depth <= room) return;
+    if (!t.truncated) dropped++;
+    Object.assign(t, {
+      truncated: true,
+      lines: [],
+      widths: [],
+      width: 0,
+      height: 0,
+    });
+  });
+  return dropped;
+}
+
 /** Derives `_outerBounds` + axis margins from the measured text data. */
 export function computeAxisBounds(
   axis: Axis,
@@ -583,11 +485,16 @@ export function computeAxisBounds(
     margin,
   } = ctx;
   const tBuff = axis.schema.shape === "Line" ? 0 : hBuff;
+  // The labels' padding comes with them: none when there are no labels, or
+  // when a strict `maxSize` left every one out (see `limitLabels`).
+  const labeled = axis._limited
+    ? textData.some((t: AxisTextDatum) => t.lines.length)
+    : textData.length > 0;
   const bounds: Record<string, number> = (axis._outerBounds = {
     [height]:
       (max(textData, (t: AxisTextDatum) =>
         Math.ceil(labelDepth(t, horizontal) + (t.offset ?? 0)),
-      ) || 0) + (textData.length ? p : 0),
+      ) || 0) + (labeled ? p : 0),
     [width]: rangeOuter[rangeOuter.length - 1] - rangeOuter[0],
     [x]: rangeOuter[0],
   });

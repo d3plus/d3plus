@@ -37,10 +37,17 @@ const bars = (extra = "") => `lib => new lib.BarChart().config({
 })`;
 
 // Draws the long category cut short, and the long title on one cut line.
-const cut = `xConfig: {maxSize: 40, labelRotation: false, CUTX},
+// The x axis's maxSize leaves its labels one line, beside an x title when
+// `x` gives one: with no room for both, the title would give way.
+const cut = `xConfig: {maxSize: MAXX, labelRotation: false, CUTX},
   yConfig: {title: ${JSON.stringify(LONG_TITLE)}, titleConfig: {maxLines: 1}, CUTY}`;
 const cutBars = (x = "", y = "") =>
-  bars(cut.replace("CUTX", x).replace("CUTY", y));
+  bars(
+    cut
+      .replace("MAXX", /\btitle:/.test(x) ? "60" : "40")
+      .replace("CUTX", x)
+      .replace("CUTY", y),
+  );
 
 const LONG_TICK =
   "The long week that begins on the eighteenth day of March in the year 2024, a Monday, and ends on a Sunday, with the design review on its Wednesday afternoon and the sprint demo on its Friday morning";

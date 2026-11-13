@@ -4,7 +4,11 @@ import {
   labelMisses,
   rotatesLabels,
 } from "../../src/components/Axis/axisLayout.ts";
-import {thinEvenly} from "../../src/components/Axis/axisLabelThinning.ts";
+import {
+  regrowShown,
+  thinEvenly,
+  thinForLines,
+} from "../../src/components/Axis/axisLabelThinning.ts";
 import {isDiscreteScale} from "../../src/components/Axis/axisLayoutLabels.ts";
 import {buildTickFormat} from "../../src/components/Axis/axisLayoutScale.ts";
 
@@ -157,4 +161,126 @@ it("labelMisses — counts labels cut short or hidden", () => {
   ];
   assert.strictEqual(labelMisses(textData), 3);
   assert.strictEqual(labelMisses([{fits: true, truncated: false}]), 0);
+});
+
+/** A measured label stacked across a vertical axis, `lines` long, at `position`. */
+const stacked = (i, position, fits = false) => ({
+  ...label(i, position, 90),
+  fits,
+  space: 40,
+  lines: ["x", "x"],
+});
+
+it("regrowShown — labels left shown take the room the hidden ones leave", () => {
+  // Ticks 25px apart; every second label hidden, so the shown ones sit 50
+  // apart: up to their 5px padding short of each other.
+  const textData = [0, 1, 2, 3, 4].map(i => stacked(i, 50 + i * 25));
+  textData.forEach(t => (t.truncated = t.i % 2 === 1));
+  const rooms = [];
+  regrowShown(
+    textData,
+    (d, space) => {
+      rooms.push([d.i, space]);
+      return Object.assign(d, {space});
+    },
+    [0, 200],
+  );
+  // The end labels are also held to twice their distance to the axis ends.
+  assert.deepStrictEqual(rooms, [
+    [0, 45],
+    [2, 45],
+    [4, 45],
+  ]);
+});
+
+it("regrowShown — leaves labels alone when none is hidden, or when they fit", () => {
+  const all = [0, 1, 2].map(i => stacked(i, 50 + i * 50));
+  regrowShown(all, () => assert.fail("nothing hidden"), [0, 200]);
+  const fitting = [0, 1, 2].map(i => stacked(i, 50 + i * 25, true));
+  fitting[1].truncated = true;
+  regrowShown(fitting, () => assert.fail("they fit"), [0, 200]);
+});
+
+it("regrowShown — never less room than a label had, nor past an end of the axis", () => {
+  // Shown labels 60 apart, but the first sits 10px from the start of the
+  // axis: it keeps the 40px it had rather than shrink to 2 × 10 − 5.
+  const textData = [10, 40, 70].map((position, i) => stacked(i, position));
+  textData[1].truncated = true;
+  const rooms = [];
+  regrowShown(
+    textData,
+    (d, space) => {
+      rooms.push([d.i, space]);
+      return d;
+    },
+    [0, 100],
+  );
+  // The last label: min(60 apart, 2 × 30 to the end) − 5 = 55.
+  assert.deepStrictEqual(rooms, [[2, 55]]);
+});
+
+/**
+    Five labels 25px apart, each measured at a line per 15px of room (up to
+    six), fitting whole in `whole` px: as `thinForLines` sees a bucketed
+    color scale's.
+*/
+const buckets = whole => {
+  const textData = [0, 1, 2, 3, 4].map(i => ({
+    ...stacked(i, 50 + i * 25),
+    space: 20,
+    lines: ["x"],
+  }));
+  const resize = (d, space) =>
+    Object.assign(d, {
+      space,
+      lines: Array(Math.min(6, Math.floor(space / 15))).fill("x"),
+      fits: space >= whole,
+    });
+  return {textData, resize};
+};
+const shownOf = textData => textData.filter(t => !t.truncated).map(t => t.i);
+
+it("thinForLines — hides labels until the ones shown fit whole, keeping the first and last", () => {
+  // Every other label leaves 45px (3 lines); first and last alone, 95px.
+  const {textData, resize} = buckets(90);
+  thinForLines(textData, resize, 20);
+  assert.deepStrictEqual(shownOf(textData), [0, 4]);
+  assert.deepStrictEqual(
+    textData.filter(t => !t.truncated).map(t => t.space),
+    [95, 95],
+    "measured in the room between them",
+  );
+});
+
+it("thinForLines — hides no more labels than fitting whole takes", () => {
+  const {textData, resize} = buckets(45);
+  thinForLines(textData, resize, 20);
+  assert.deepStrictEqual(shownOf(textData), [0, 2, 4]);
+});
+
+it("thinForLines — with none fitting whole, the most lines for the labels shown", () => {
+  // Never whole: first and last alone take 6 lines, every other one 3.
+  const {textData, resize} = buckets(Infinity);
+  thinForLines(textData, resize, 20);
+  assert.deepStrictEqual(shownOf(textData), [0, 4]);
+});
+
+it("thinForLines — keeps labels that already fit whole, or too few to thin", () => {
+  const fitting = buckets(10);
+  fitting.textData.forEach(t => (t.fits = true));
+  thinForLines(fitting.textData, () => assert.fail("they fit"), 20);
+  assert.deepStrictEqual(shownOf(fitting.textData), [0, 1, 2, 3, 4]);
+  const two = buckets(90);
+  const pair = two.textData.slice(0, 2);
+  thinForLines(pair, () => assert.fail("too few"), 20);
+  assert.deepStrictEqual(shownOf(pair), [0, 1]);
+});
+
+it("thinForLines — leaves the labels shown as they are when hiding more gains no line", () => {
+  // Lines capped at one: thinning buys nothing.
+  const {textData} = buckets(Infinity);
+  const flat = (d, space) =>
+    Object.assign(d, {space, lines: ["x"], fits: false});
+  thinForLines(textData, flat, 20);
+  assert.deepStrictEqual(shownOf(textData), [0, 1, 2, 3, 4]);
 });

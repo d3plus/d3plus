@@ -7,7 +7,10 @@ import {max} from "d3-array";
 import type {AxisTextDatum} from "./axisLayoutLabels.js";
 
 /** A label's wrapped lines and size, as `measure` gives them. */
-type Wrapped = Pick<AxisTextDatum, "lines" | "widths" | "width" | "height">;
+type Wrapped = Pick<
+  AxisTextDatum,
+  "lines" | "widths" | "width" | "height" | "cut"
+>;
 
 /**
     A vertical axis paints its flat labels in a box as wide as the widest
@@ -15,8 +18,9 @@ type Wrapped = Pick<AxisTextDatum, "lines" | "widths" | "width" | "height">;
     in. Where a cut label's line breaks decides where it is cut, so each
     label that doesn't fit is wrapped again in that box (by `measure`, which
     wraps a label within its `room`) until the widest label holds; a label
-    that fits wraps the same in any box as wide as it. Records the box on
-    each label as its `room`.
+    that fits wraps the same in any box as wide as it, and a label whose
+    first word no longer fits is cut short in it (see `cutLabel`). Records
+    the box on each label as its `room`.
     @param textData The axis's measured labels.
     @param measure Wraps a label within its `room`.
 */
@@ -33,8 +37,8 @@ export function fitLabelRoom(
     textData
       .filter((t: AxisTextDatum) => !t.fits)
       .forEach((t: AxisTextDatum) => {
-        const {lines, widths, width, height} = measure(t);
-        Object.assign(t, {lines, widths, width, height});
+        const {lines, widths, width, height, cut} = measure(t);
+        Object.assign(t, {lines, widths, width, height, cut});
       });
     const next = widest();
     if (next >= room) return;
