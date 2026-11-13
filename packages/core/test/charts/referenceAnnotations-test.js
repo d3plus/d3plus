@@ -451,3 +451,16 @@ it("plotAnnotationList: bands, then lines, then the chart's own annotations", ()
     [REFERENCE_BAND, REFERENCE_LINE, "Circle"],
   );
 });
+
+it("plotAnnotationList: a chart's own reference lines follow the user's", () => {
+  const viz = new LinePlot().referenceLines([{y: 1}]);
+  viz._plotReferenceLines = () => [{y2: 0.8, label: "80%"}];
+  const list = plotAnnotationList(viz);
+  assert.deepStrictEqual(
+    list.map(d => [d.shape, d.y ?? d.y2, d.layer]),
+    [
+      [REFERENCE_LINE, 1, "back"],
+      [REFERENCE_LINE, 0.8, "back"],
+    ],
+  );
+});

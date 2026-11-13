@@ -244,8 +244,9 @@ function measureXTestPasses(
       .range([undefined, xRangeMax])
       .ticks(x2Ticks)
       .width(width)
+      // Measured with the ticks the x2 axis draws, so the plot starts below
+      // its line rather than under its ticks.
       .config(xC)
-      .tickSize(0)
       .config(defaultX2Config)
       .config(viz._x2Config)
       .scale(x2ConfigScale)
