@@ -8,6 +8,7 @@ sidebar:
 import Playground from "~/components/Playground/Playground.astro";
 import tooltipDeepestLevel from "~/examples/guides/interactivity/tooltip-deepest-level.js?raw";
 import axisTooltips from "~/examples/guides/interactivity/axis-tooltips.js?raw";
+import zoomWithoutButtons from "~/examples/guides/interactivity/zoom-without-buttons.js?raw";
 
 D3plus charts are interactive out of the box: hovering a shape highlights it and
 shows a tooltip, and a legend lets viewers toggle series. Everything below works
@@ -357,7 +358,8 @@ trails** by default, and `trailPersist` can keep the whole path visible. See
 
 Charts zoom and pan their content by default, with controls in the
 chart's top-right corner (zoom in, zoom out, reset, and a drag-to-zoom brush
-that ends after one selection), wheel zoom, and drag-to-pan.
+that ends after one selection), wheel zoom, drag-to-pan, and double-click to
+zoom in.
 
 Charts leave page scrolling alone: Ctrl/⌘ + wheel (or a trackpad pinch)
 zooms, a plain wheel scrolls the page, and on touch screens one finger
@@ -418,3 +420,47 @@ into its smallest path. Set `zoomMax` to fix the limit instead. Tune the rest
 with `zoomFactor`, `zoomScroll`, `zoomPan`, and `zoomPadding` — see the
 [Geomap](/core/charts/geomap/) examples for custom zoom,
 disabling zoom, and zoom limits.
+
+### Zooming without the buttons
+
+`zoomControls: false` hides the four buttons and gives their corner back to
+the title, legend, and other top content, which no longer leave room for
+them; zoom itself stays on (`zoom: false` still turns everything off). Two
+more options change what the pointer does:
+
+- `zoomDrag: "brush"` makes a mouse drag draw a box and zoom into it when
+  you let go, as the brush button does but without switching brush mode on.
+  A press that doesn't move more than a few pixels is still a click, so it
+  reaches the shape under it, and hovering still shows tooltips; once a
+  drag begins, the tooltip hides until the next move after it. Hold
+  <kbd>Shift</kbd> while dragging to pan instead (when `zoomPan` allows),
+  and press <kbd>Escape</kbd> mid-drag to cancel the box. The wheel, a
+  pinch, and one-finger touch panning work as with the default `"pan"`.
+- `zoomDoubleClick` sets what a double-click (or a double-tap) does:
+  `"in"` (the default) doubles the zoom around the pointer, `"reset"`
+  returns to the chart's initial view, and `false` does nothing.
+
+Drag across this chart to zoom into part of it, and double-click to reset:
+
+<Playground chart="LinePlot" code={zoomWithoutButtons} controls={["zoomControls","zoomDrag","zoomDoubleClick"]} height={300} />
+
+Every chart also has `zoomIn()`, `zoomOut()`, `zoomReset()`, and
+`zoomBrush(on)` methods that do exactly what the buttons do, whether or not
+they show, so buttons of your own (beside the rest of a page's toolbar, say)
+can drive the zoom. `zoomIn` and `zoomOut` step by `zoomFactor` about the
+center of the chart area, and `zoomBrush()` with no argument reports whether
+brush mode is on (it turns itself off once a box zooms). They do nothing
+while `zoom` is off or before the chart first renders:
+
+```js
+const chart = new d3plus.LinePlot()
+  .select("#chart")
+  .config({data, groupBy: "id", x: "x", y: "y", zoomControls: false})
+  .render();
+
+document.querySelector("#zoom-in").onclick = () => chart.zoomIn();
+document.querySelector("#zoom-out").onclick = () => chart.zoomOut();
+document.querySelector("#reset").onclick = () => chart.zoomReset();
+document.querySelector("#brush").onclick = () =>
+  chart.zoomBrush(!chart.zoomBrush());
+```

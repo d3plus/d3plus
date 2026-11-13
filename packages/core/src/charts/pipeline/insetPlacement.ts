@@ -46,7 +46,10 @@ import {bottomRightControlsBox} from "../drawSteps/bottomRightControlsMarkup.js"
 import {MINIMAP_RIGHT_INSET} from "../drawSteps/minimapMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {topLeftControlsBox} from "../drawSteps/topLeftControlsMarkup.js";
-import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
+import {
+  minimapAnchor,
+  zoomControlsBox,
+} from "../drawSteps/zoomControlsMarkup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveSpec} from "./resolveSpec.js";
 
@@ -252,7 +255,9 @@ const ATTRIBUTION_HEIGHT = 22;
 function chromeBoxes(viz: VizInstance): Bounds[] {
   const boxes: Bounds[] = [];
   const {width, height} = chartBounds(viz);
-  const zoom = zoomControlsBox(viz as never);
+  const zoom = viz.schema.minimap
+    ? minimapAnchor(viz as never)
+    : zoomControlsBox(viz as never);
   if (zoom) {
     const minimap = viz.schema.minimap
       ? (zoom.width - MINIMAP_RIGHT_INSET) * (height / Math.max(1, width))

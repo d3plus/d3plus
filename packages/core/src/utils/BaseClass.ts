@@ -64,6 +64,10 @@ const REFLECT_SKIP = new Set([
   "toCanvas",
   "toSVGString",
   "toScene",
+  "zoomBrush",
+  "zoomIn",
+  "zoomOut",
+  "zoomReset",
 ]);
 
 /**
@@ -85,7 +89,8 @@ function getAllMethods(obj: object): string[] {
       // axis-layout pass; `destroy` tears down the scene renderer (which defeats
       // keyed reconcile and forces a full remount on the next draw);
       // `toSVGString` serializes the drawn chart (through a throwaway SVG
-      // backend on Canvas), and `layout` recomputes a SizeLegend's layout.
+      // backend on Canvas), `layout` recomputes a SizeLegend's layout, and
+      // the zoom methods zoom a rendered chart.
       !REFLECT_SKIP.has(e),
   );
 }

@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Zoom Gestures · Viz</title>
+    <meta
+      name="description"
+      content="Zooming without the zoom buttons: drag to zoom into a box, double-click to reset, and a page's own buttons calling the zoom methods."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        padding: 24px;
+      }
+
+      .card {
+        border: 1px solid #ddd;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .toolbar button[aria-pressed="true"] {
+        background: #333;
+        color: #fff;
+      }
+
+      .status {
+        padding: 4px;
+        border-top: 1px solid #ddd;
+      }
+
+      .viz {
+        width: 400px;
+        height: 300px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <div class="toolbar" data-chart="line">
+        <button type="button" data-action="zoomIn">Zoom in</button>
+        <button type="button" data-action="zoomOut">Zoom out</button>
+        <button type="button" data-action="zoomReset">Reset</button>
+        <button type="button" data-action="zoomBrush" aria-pressed="false">
+          Brush
+        </button>
+      </div>
+      <div class="viz" id="line"></div>
+    </div>
+    <div class="card">
+      <div class="toolbar" data-chart="treemap">
+        <button type="button" data-action="zoomIn">Zoom in</button>
+        <button type="button" data-action="zoomOut">Zoom out</button>
+        <button type="button" data-action="zoomReset">Reset</button>
+        <button type="button" data-action="zoomBrush" aria-pressed="false">
+          Brush
+        </button>
+      </div>
+      <div class="viz" id="treemap"></div>
+      <div class="status" id="clicked">Clicked: none</div>
+    </div>
+    <div class="card">
+      <div class="toolbar" data-chart="network">
+        <button type="button" data-action="zoomIn">Zoom in</button>
+        <button type="button" data-action="zoomOut">Zoom out</button>
+        <button type="button" data-action="zoomReset">Reset</button>
+        <button type="button" data-action="zoomBrush" aria-pressed="false">
+          Brush
+        </button>
+      </div>
+      <div class="viz" id="network"></div>
+    </div>
+    <div class="card">
+      <div class="viz" id="defaults"></div>
+    </div>
+  </body>
+
+  <script>
+    var series = [];
+    ["a", "b", "c"].forEach(function (id, j) {
+      for (var x = 0; x < 40; x++)
+        series.push({id: id, x: x, y: Math.sin(x / 4 + j) * 10 + 20});
+    });
+
+    var flat = [
+      {parent: "Group 1", id: "alpha", value: 29},
+      {parent: "Group 1", id: "beta", value: 10},
+      {parent: "Group 1", id: "gamma", value: 2},
+      {parent: "Group 2", id: "delta", value: 29},
+      {parent: "Group 2", id: "eta", value: 25},
+      {parent: "Group 2", id: "theta", value: 1},
+      {parent: "Group 2", id: "iota", value: 0.5},
+    ];
+
+    // No zoom buttons and no room kept for them: a drag draws a box to zoom
+    // into, a double-click resets, Shift + drag pans, and Ctrl/⌘ + wheel (or
+    // a pinch) still zooms. A click that doesn't drag still clicks a shape,
+    // and hovering still shows tooltips.
+    var gestures = {
+      zoomControls: false,
+      zoomDrag: "brush",
+      zoomDoubleClick: "reset",
+    };
+
+    var charts = {
+      line: new d3plus.LinePlot()
+        .select("#line")
+        .config(gestures)
+        .title("LinePlot: drag to zoom, double-click to reset")
+        .data(series)
+        .groupBy("id")
+        .x("x")
+        .y("y"),
+      treemap: new d3plus.Treemap()
+        .select("#treemap")
+        .config(gestures)
+        .title("Treemap: a click still logs the shape")
+        .data(flat)
+        .groupBy(["parent", "id"])
+        .sum("value")
+        .on("click.shape", function (d) {
+          document.querySelector("#clicked").textContent = "Clicked: " + d.id;
+        }),
+      network: new d3plus.Network()
+        .select("#network")
+        .config(gestures)
+        .title("Network: click a node to focus it")
+        .nodes([
+          {id: "alpha", x: 0, y: 0},
+          {id: "beta", x: 100, y: 20},
+          {id: "gamma", x: 40, y: 80},
+          {id: "delta", x: 160, y: 90},
+          {id: "epsilon", x: 200, y: 10},
+        ])
+        .links([
+          {source: "alpha", target: "beta"},
+          {source: "alpha", target: "gamma"},
+          {source: "beta", target: "delta"},
+          {source: "delta", target: "epsilon"},
+        ]),
+    };
+
+    Object.keys(charts).forEach(function (key) {
+      charts[key].render();
+    });
+
+    // The page's own buttons drive each chart through its zoom methods.
+    document.querySelectorAll(".toolbar").forEach(function (bar) {
+      var chart = charts[bar.dataset.chart];
+      var brush = bar.querySelector('[data-action="zoomBrush"]');
+      bar.addEventListener("click", function (event) {
+        var button = event.target.closest("button");
+        if (!button) return;
+        var action = button.dataset.action;
+        if (action === "zoomBrush") chart.zoomBrush(!chart.zoomBrush());
+        else chart[action]();
+        brush.setAttribute("aria-pressed", String(chart.zoomBrush()));
+      });
+      // Brush mode ends once a box zooms; keep the toggle in step.
+      bar.parentNode.addEventListener("mouseup", function () {
+        setTimeout(function () {
+          brush.setAttribute("aria-pressed", String(chart.zoomBrush()));
+        });
+      });
+    });
+
+    // For comparison: the default buttons, drag to pan, double-click to zoom in.
+    new d3plus.Treemap()
+      .select("#defaults")
+      .title("Defaults: buttons, drag to pan")
+      .data(flat)
+      .groupBy(["parent", "id"])
+      .sum("value")
+      .render();
+  </script>
+</html>

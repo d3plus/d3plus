@@ -13,7 +13,7 @@ import {
   minimapStyles,
   paintMinimapStyle,
 } from "./minimapMarkup.js";
-import {showsZoomControls, zoomControlsBox} from "./zoomControlsMarkup.js";
+import {minimapAnchor} from "./zoomControlsMarkup.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 
 type MinimapStyles = ReturnType<typeof minimapStyles>;
@@ -421,12 +421,11 @@ export const minimapFeature: FeatureModule = {
       !viz.schema.zoom ||
       !viz.schema.minimap ||
       !viz._container ||
-      !viz._zoomBehavior ||
-      !showsZoomControls(viz)
+      !viz._zoomBehavior
     )
       return {panel: null, margin: {}};
 
-    const box = zoomControlsBox(viz);
+    const box = minimapAnchor(viz);
     if (!box) return {panel: null, margin: {}};
 
     // The same width/height `zoomFeature` sizes `translateExtent` from —

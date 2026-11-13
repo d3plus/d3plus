@@ -1935,7 +1935,7 @@ export interface D3plusConfig {
   messageStyle?: Record<string, unknown>;
   /** Metric key for the visualization. */
   metric?: string;
-  /** Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. */
+  /** Shows a small overview + draggable-viewport minimap in the chart's top-right corner (beneath the zoom controls, when they show) once the chart is zoomed in. On by default whenever `zoom` is enabled. */
   minimap?: boolean;
   /**
       An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.
@@ -2637,7 +2637,13 @@ export interface D3plusConfig {
   y2Sort?: (a: DataPoint, b: DataPoint) => number;
   /** Calendar: formats the year beside each year block — a d3-time-format specifier (default `"%Y"`), a function of the year's first day, or `false` for none. */
   yearFormat?: string | ((date: Date) => string) | false;
-  /** Enables pan/zoom with zoom-control buttons. On by default for every chart. */
+  /**
+      Enables pan and zoom: the mouse wheel or a pinch (see `zoomScroll`), a
+      drag (see `zoomDrag`), a double-click (see `zoomDoubleClick`), the
+      zoom-control buttons (see `zoomControls`), and the `zoomIn`, `zoomOut`,
+      `zoomReset`, and `zoomBrush` methods. On by default for every chart;
+      `false` turns all of them off.
+  */
   zoom?: boolean;
   /** The pixel stroke-width of the zoom brush area. */
   zoomBrushHandleSize?: number;
@@ -2653,6 +2659,16 @@ export interface D3plusConfig {
       An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
   */
   zoomControlClassName?: string;
+  /**
+      Whether the zoom-control buttons (zoom in, zoom out, reset, and brush)
+      show in the chart's top-right corner. `false` hides them and gives the
+      room they take back to the chart's title, legend, and other top
+      content, while zooming stays on: the wheel, pinch, drag, and
+      double-click gestures still work, and the chart's `zoomIn`, `zoomOut`,
+      `zoomReset`, and `zoomBrush` methods let buttons of your own drive it.
+      Defaults to `true`.
+  */
+  zoomControls?: boolean;
   /**
       Overrides the zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`,
       `zoomBrush`). Each value is an HTML string, or a mount function
@@ -2678,6 +2694,22 @@ export interface D3plusConfig {
       An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
   */
   zoomControlStyleHover?: Record<string, unknown> | false;
+  /**
+      What a double-click on the chart does: `"in"` (the default) doubles
+      the zoom around the pointer (Shift + double-click halves it),
+      `"reset"` returns to the chart's initial view, like the reset button,
+      and `false` does nothing.
+  */
+  zoomDoubleClick?: "in" | "reset" | false;
+  /**
+      What a mouse drag on the chart does. `"pan"` (the default) pans it
+      (see `zoomPan`). `"brush"` draws a box and zooms into it on release,
+      as the brush button does, without turning brush mode on: a click that
+      doesn't drag still reaches the shape under it, and hovering still
+      shows tooltips. Shift + drag pans in `"brush"` mode, and touch keeps
+      panning and pinching as in `"pan"`.
+  */
+  zoomDrag?: "pan" | "brush";
   /** Multiplier applied to programmatic zoom steps. */
   zoomFactor?: number;
   /** Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. */

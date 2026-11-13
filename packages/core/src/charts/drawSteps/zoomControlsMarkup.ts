@@ -274,9 +274,11 @@ export function syncBrushButton(viz: Viz): void {
   paintZoomButton(viz, btn, btn.matches(":hover"));
 }
 
-/** Whether a chart shows the zoom-control panel. */
+/** Whether a chart shows the zoom-control panel: it zooms, and `zoomControls` isn't false. */
 export function showsZoomControls(viz: Viz): boolean {
-  return Boolean(viz.schema.zoom) && !viz._ssr;
+  return (
+    Boolean(viz.schema.zoom) && viz.schema.zoomControls !== false && !viz._ssr
+  );
 }
 
 /** Panel size before it has been measured (the default 20px buttons). */
@@ -327,6 +329,23 @@ export function zoomControlsBox(
   }
   viz._zoomControlsBox = {...box, signature};
   return viz._zoomControlsBox;
+}
+
+/**
+    The box the minimap hangs beneath: the zoom-control panel, or, with the
+    buttons hidden (`zoomControls: false`), a strip as wide as the default
+    panel down to the chart area's top, so the minimap overlays the chart
+    area rather than the title and other top content that take the
+    buttons' room. Null when the chart doesn't zoom.
+*/
+export function minimapAnchor(
+  viz: Viz,
+): {width: number; height: number} | null {
+  const box = zoomControlsBox(viz);
+  if (box) return box;
+  return viz.schema.zoom && !viz._ssr
+    ? {width: ESTIMATED_BOX.width, height: viz._margin?.top ?? 0}
+    : null;
 }
 
 /**
