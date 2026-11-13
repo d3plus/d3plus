@@ -13,6 +13,7 @@ import {date} from "@d3plus/dom";
 import {brushSpan} from "../../components/Timeline/brushSpan.js";
 import type {BrushSpan} from "../../components/Timeline/brushSpan.js";
 import {discreteNestKeys} from "./stages.js";
+import {timelineUtc} from "../Plot/plotRangeBreaks.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 /** A time filter synthesized from the chart's `time` key. */
@@ -60,7 +61,8 @@ function latestPeriods(viz: Viz, dates: Date[], count: number): TimeFilterFn {
   if (periods.length <= count) return () => true;
   const from = periods[periods.length - count];
   const snapTime = viz.schema.time;
-  return (d: DataPoint, i: number) => +date(snapTime(d, i))! >= from;
+  const utc = timelineUtc(viz);
+  return (d: DataPoint, i: number) => +date(snapTime(d, i), {utc})! >= from;
 }
 
 /**
@@ -75,9 +77,10 @@ export function startingSelection(viz: Viz): Date[] | undefined {
       ? viz.schema.timelineDefault
       : config.selection;
   if (start === undefined || start === null || start === false) return;
+  const utc = timelineUtc(viz);
   const dates = ([] as unknown[])
     .concat(start)
-    .map(d => date(d as Parameters<typeof date>[0]))
+    .map(d => date(d as Parameters<typeof date>[0], {utc}))
     .filter((d): d is Date => d instanceof Date && !isNaN(+d))
     .sort((a, b) => +a - +b);
   return dates.length ? [dates[0], dates[dates.length - 1]] : undefined;
@@ -92,17 +95,18 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
   let computedTimeFilter: TimeFilterFn | undefined;
   const time = viz.schema.time;
   const start = time && !viz.schema.timeFilter && startingSelection(viz);
+  const utc = timelineUtc(viz);
   if (time && start && viz._data.length) {
     const [from, to] = start.map(Number);
     return (d: DataPoint, i: number) => {
-      const ms = Number(date(time(d, i) as Parameters<typeof date>[0]));
+      const ms = Number(date(time(d, i) as Parameters<typeof date>[0], {utc}));
       return ms >= from && ms <= to;
     };
   }
   if (viz.schema.time && !viz.schema.timeFilter && viz._data.length) {
     const dates = viz._data
       .map(viz.schema.time)
-      .map(d => date(d as Parameters<typeof date>[0]));
+      .map(d => date(d as Parameters<typeof date>[0], {utc}));
     const d = viz._data[0],
       i = 0;
     if (

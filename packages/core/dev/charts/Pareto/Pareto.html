@@ -1,0 +1,169 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Pareto</title>
+    <meta
+      name="description"
+      content="Pareto bars sorted largest first with a cumulative-share line and an 80% reference line: horizontal bars, a threshold bucket, a moved or hidden reference line, numeric categories, small multiples, and a dark background."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 380px;
+      }
+      .wide {
+        grid-column: span 2;
+      }
+      .dark {
+        background: #1b1d21;
+        color: #e9ecef;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Defects by cause</h3>
+        <div class="viz" id="defects"></div>
+      </div>
+      <div>
+        <h3>Horizontal: discrete("y")</h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+      <div>
+        <h3>threshold(0.05): small causes folded into one bar, drawn last</h3>
+        <div class="viz" id="threshold"></div>
+      </div>
+      <div>
+        <h3>paretoThreshold(0.7) with a styled, relabeled line</h3>
+        <div class="viz" id="moved"></div>
+      </div>
+      <div>
+        <h3>paretoThreshold(false), numeric categories</h3>
+        <div class="viz" id="years"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark background</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+      <div class="wide">
+        <h3>Small multiples (facet by plant)</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const defects = [
+      {cause: "Scratches", count: 34},
+      {cause: "Misalignment", count: 82},
+      {cause: "Loose screws", count: 19},
+      {cause: "Cracked casing", count: 51},
+      {cause: "Wrong label", count: 9},
+      {cause: "Dead pixels", count: 128},
+      {cause: "Paint drips", count: 6},
+      {cause: "Missing parts", count: 23},
+    ];
+
+    new d3plus.Pareto()
+      .select("#defects")
+      .data(defects)
+      .groupBy("cause")
+      .x("cause")
+      .y("count")
+      .render();
+
+    new d3plus.Pareto()
+      .select("#horizontal")
+      .data(defects)
+      .groupBy("cause")
+      .discrete("y")
+      .y("cause")
+      .x("count")
+      .render();
+
+    new d3plus.Pareto()
+      .select("#threshold")
+      .data(defects)
+      .groupBy("cause")
+      .x("cause")
+      .y("count")
+      .threshold(0.05)
+      .thresholdName("Other")
+      .render();
+
+    new d3plus.Pareto()
+      .select("#moved")
+      .data(defects)
+      .groupBy("cause")
+      .x("cause")
+      .y("count")
+      .paretoThreshold(0.7)
+      .paretoThresholdConfig({
+        label: "70% of defects",
+        stroke: "#e03131",
+        strokeOpacity: 1,
+      })
+      .render();
+
+    const complaints = [
+      {year: 2019, complaints: 140},
+      {year: 2020, complaints: 410},
+      {year: 2021, complaints: 260},
+      {year: 2022, complaints: 95},
+      {year: 2023, complaints: 180},
+    ];
+
+    new d3plus.Pareto()
+      .select("#years")
+      .data(complaints)
+      .groupBy("year")
+      .x("year")
+      .y("complaints")
+      .paretoThreshold(false)
+      .render();
+
+    new d3plus.Pareto()
+      .select("#dark")
+      .data(defects)
+      .groupBy("cause")
+      .x("cause")
+      .y("count")
+      .render();
+
+    const plants = ["Austin", "Dayton"].flatMap((plant, p) =>
+      defects.map((d, i) => ({
+        plant,
+        cause: d.cause,
+        count: p ? Math.round(d.count * (0.4 + ((i * 37) % 11) / 8)) : d.count,
+      })),
+    );
+
+    new d3plus.Pareto()
+      .select("#facet")
+      .data(plants)
+      .groupBy("cause")
+      .x("cause")
+      .y("count")
+      .facet("plant")
+      .render();
+  </script>
+</html>

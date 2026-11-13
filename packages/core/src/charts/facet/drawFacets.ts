@@ -20,6 +20,7 @@ import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
 import {drawWithInset} from "../pipeline/insetPlacement.js";
 import {drawWithAlongLegend} from "../Plot/alongLegend.js";
+import {chartUtc} from "../Plot/plotRangeBreaks.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
@@ -172,10 +173,14 @@ export function facetTitleStyle(
   return {...config.titleConfig, fontColor: backgroundInk(viz)};
 }
 
-/** Each panel's title text (empty when titles are off). */
+/**
+    Each panel's title text (empty when titles are off), with dates written
+    in UTC with `utc`.
+*/
 export function facetTitleTexts(
   config: Pick<ResolvedFacetConfig, "title">,
   panels: {value: FacetValue; data: DataPoint[]}[],
+  utc = false,
 ): string[] {
   const {title} = config;
   const values = panels.map(p => p.value);
@@ -184,7 +189,7 @@ export function facetTitleTexts(
       ? ""
       : title
         ? `${title(p.value, p.data)}`
-        : formatFacetValue(p.value, values),
+        : formatFacetValue(p.value, values, utc),
   );
 }
 
@@ -359,7 +364,7 @@ function drawPanels(
   plan: FacetPlan,
 ): {states: FacetPanelState[]; zoomShapes: SceneNode[]} {
   const style = facetTitleStyle(viz, plan.config);
-  const texts = facetTitleTexts(plan.config, plan.panels);
+  const texts = facetTitleTexts(plan.config, plan.panels, chartUtc(viz));
   const layout = layoutGrid(viz, plan, texts, style);
   const {cells, expansions} = layout;
   const bases = cells.map(cell =>

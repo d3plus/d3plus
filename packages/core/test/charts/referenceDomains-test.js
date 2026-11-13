@@ -116,3 +116,16 @@ it("widenReferenceDomains: an explicit user domain is not widened", () => {
   );
   assert.deepStrictEqual(open.y, [0, 100], "an end left open still widens");
 });
+
+it("widenReferenceDomains: a chart's own reference lines widen their axes too", () => {
+  const viz = new LinePlot().referenceLines([{y: 100}]);
+  viz._plotReferenceLines = () => [{y2: 40}];
+  const out = widenReferenceDomains(
+    viz,
+    {x: [0, 1], y: [0, 50], x2: undefined, y2: [0, 10]},
+    scales,
+    {},
+  );
+  assert.deepStrictEqual(out.y, [0, 100]);
+  assert.deepStrictEqual(out.y2, [0, 40]);
+});

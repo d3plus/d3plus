@@ -30,6 +30,7 @@ export {
   Network,
   Pack,
   ParallelCoordinates,
+  Pareto,
   Pie,
   Plot,
   PolarArea,

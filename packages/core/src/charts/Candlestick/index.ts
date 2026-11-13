@@ -27,6 +27,7 @@ import {
 import {candlestickBuffer} from "./buffer.js";
 import {CANDLESTICK_SHAPE, emitCandlesticks} from "./emit.js";
 import {bandAxisDefaults, periodDate} from "./periods.js";
+import {configUtc} from "../../components/Axis/timeValues.js";
 import {candleTooltipRows} from "./tooltip.js";
 import {
   installVolumeStrip,
@@ -111,7 +112,8 @@ export const candlestickDef: ChartDefinition = {
     const x = accessor("date") as RowAccessor;
     viz.ctx.candlestick = {
       x,
-      xDate: (d: DataPoint, i: number) => periodDate(candleState(viz).x(d, i)),
+      xDate: (d: DataPoint, i: number) =>
+        periodDate(candleState(viz).x(d, i), configUtc(viz._xConfig)),
     } satisfies CandlestickState;
     viz._xKey = "date";
     interceptAccessors(viz);

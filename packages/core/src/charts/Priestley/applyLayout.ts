@@ -16,7 +16,12 @@ import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../features/chartGeometry.js";
 import type {TransformStage} from "../pipeline/stages.js";
-import {measureTimeAxis, renderTimeAxis} from "./timeAxis.js";
+import {
+  isTimeAxis,
+  isUtcAxis,
+  measureTimeAxis,
+  renderTimeAxis,
+} from "./timeAxis.js";
 
 interface PriestleyDatum extends Record<string, unknown> {
   __d3plus__: true;
@@ -106,20 +111,20 @@ export const applyPriestleyLayout: TransformStage = ({viz}) => {
   const startFn = viz.schema.start as (d: DataPoint, i: number) => unknown;
   const endFn = viz.schema.end as (d: DataPoint, i: number) => unknown;
   const idFn = viz._id as (d: DataPoint, i: number) => string | number;
-  const axisConfig = viz.schema.axisConfig as {scale?: string};
-  const isTimeScale = axisConfig?.scale === "time";
+  const isTimeScale = isTimeAxis(viz);
+  const utc = isUtcAxis(viz);
 
   const data: PriestleyDatum[] = filtered
     .map((datum, i): PriestleyDatum => ({
       __d3plus__: true,
       data: datum,
       end: isTimeScale
-        ? (date(endFn(datum, i) as string) as Date)
+        ? (date(endFn(datum, i) as string, {utc}) as Date)
         : (endFn(datum, i) as number),
       i,
       id: idFn(datum, i),
       start: isTimeScale
-        ? (date(startFn(datum, i) as string) as Date)
+        ? (date(startFn(datum, i) as string, {utc}) as Date)
         : (startFn(datum, i) as number),
     }))
     .filter(d => Number(d.end) - Number(d.start) > 0)

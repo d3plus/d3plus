@@ -21,6 +21,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {isSpanAxis} from "./discreteSpan.js";
 import {fitMovingAverage, warnSpanOffTime} from "./trendMovingAverage.js";
 import {projectionPositions} from "./trendProjection.js";
+import {plotAxisUtc} from "./plotRangeBreaks.js";
 
 type Row = Record<string, unknown>;
 type Axis = "x" | "y";
@@ -405,7 +406,11 @@ export const computePlotTrendFits: TransformStage = ({
   const axis = trendAxis(viz.schema.discrete);
   const order = (axis === "x" ? xData : yData) || [];
   const projected = resolveTrendType(viz._trendLine)
-    ? projectionPositions(order, viz._trendLineConfig?.projection)
+    ? projectionPositions(
+        order,
+        viz._trendLineConfig?.projection,
+        plotAxisUtc(viz, axis),
+      )
     : [];
   const fits = (viz._trendFits = viz._swarm
     ? []

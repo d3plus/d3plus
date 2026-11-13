@@ -1,0 +1,63 @@
+---
+title: Pareto
+description: "Creates a Pareto chart: one bar per category, sorted from the largest total to the smallest, and a line of the running share of the total through each category."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/pareto/basic-example.js?raw";
+import horizontal from "~/examples/core/charts/pareto/horizontal.js?raw";
+import referenceLine from "~/examples/core/charts/pareto/reference-line.js?raw";
+import threshold from "~/examples/core/charts/pareto/threshold.js?raw";
+import stackedSeries from "~/examples/core/charts/pareto/stacked-series.js?raw";
+import smallMultiples from "~/examples/core/charts/pareto/small-multiples.js?raw";
+
+Creates a Pareto chart: one bar per category (`x`, or `y` with
+`discrete("y")` for horizontal bars), sorted from the largest total to
+the smallest, and a line of the running share of the total through each
+category, on a 0–100% axis to the right of the bars (above horizontal
+ones). A dashed reference line marks 80% (see `paretoThreshold`).
+Every bar takes the first color of the chart's palette, unless `groupBy`
+splits a category into series (colored by series) or `color` is set;
+hovering a bar keeps the line, and its point over that bar, bright.
+`threshold` folds the smallest categories into one bar, drawn last.
+Tooltips show each bar's value, its share of the total, and the
+cumulative share through its category.
+
+## Basic example
+
+The bars run from the most common cause to the least, and the line climbs through each bar's running share of every defect, reaching 100% at the last one. Where it crosses the dashed 80% line shows how few causes account for most of the defects. Hover a bar: the others dim, while the line, and its point over that bar, stay bright.
+
+<Playground chart="Pareto" code={basicExample} controls={["paretoThreshold"]} />
+
+## Horizontal
+
+`discrete("y")` lays the bars along the y axis, largest at the top, with the cumulative share on an axis across the top.
+
+<Playground chart="Pareto" code={horizontal} controls={["discrete","x","y"]} />
+
+## Moving the reference line
+
+`paretoThreshold` moves the reference line to another share (here 70%), and `paretoThresholdConfig` styles it like a `referenceLines` entry: its `label`, `stroke`, `strokeOpacity`, `strokeWidth`, and `dash`. `paretoThreshold(false)` hides it.
+
+<Playground chart="Pareto" code={referenceLine} controls={["paretoThreshold","paretoThresholdConfig"]} />
+
+## Other
+
+`threshold` folds every category under that share of the total into one bar, named by `thresholdName`. It is drawn last, whatever its size, so the line still runs from the largest category down, and its tooltip lists the categories it holds.
+
+<Playground chart="Pareto" code={threshold} controls={["threshold","thresholdName"]} />
+
+## Stacked series
+
+With `groupBy` naming series inside each category and `stacked(true)`, each category's bar stacks its series, colored by series with a legend, and categories are sorted, and the line accumulates, by the stack's total.
+
+<Playground chart="Pareto" code={stackedSeries} controls={["stacked"]} />
+
+## Small multiples
+
+`facet` draws one Pareto chart per value. Each panel sorts its own categories and runs its own line, so panels fit their own scales by default; `facetConfig({scales: "shared"})` gives them one value axis.
+
+<Playground chart="Pareto" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="Pareto" pkg="core" />

@@ -25,6 +25,7 @@ export interface TranslationStrings {
   Count: string;
   "Cumulative Count": string;
   "Cumulative Relative Frequency": string;
+  "Cumulative Share": string;
   day: string;
   days: string;
   Decrease: string;
@@ -167,6 +168,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0644\u0639\u062f\u062f \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     "Cumulative Relative Frequency":
       "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
+    "Cumulative Share":
+      "\u0627\u0644\u062d\u0635\u0629 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a\u0629",
     day: "\u064a\u0648\u0645",
     days: "\u0623\u064a\u0627\u0645",
     Decrease: "\u0627\u0646\u062e\u0641\u0627\u0636",
@@ -253,7 +256,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Search: "\u0628\u062d\u062b",
     second: "\u062b\u0627\u0646\u064a\u0629",
     seconds: "\u062b\u0648\u0627\u0646",
-    Share: "\u0645\u0634\u0627\u0631\u0643\u0629",
+    Share: "\u062d\u0635\u0629",
     "Share of Parent":
       "\u0627\u0644\u062d\u0635\u0629 \u0645\u0646 \u0627\u0644\u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0623\u0639\u0644\u0649",
     "Shift+Click to Hide":
@@ -319,6 +322,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Recuento",
     "Cumulative Count": "Recuento Acumulado",
     "Cumulative Relative Frequency": "Frecuencia Relativa Acumulada",
+    "Cumulative Share": "Porcentaje Acumulado",
     day: "d\u00eda",
     days: "d\u00edas",
     Decrease: "Disminuci\u00f3n",
@@ -445,6 +449,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Contagem",
     "Cumulative Count": "Contagem Acumulada",
     "Cumulative Relative Frequency": "Frequ\u00eancia Relativa Acumulada",
+    "Cumulative Share": "Porcentagem Acumulada",
     day: "dia",
     days: "dias",
     Decrease: "Redu\u00e7\u00e3o",
@@ -573,6 +578,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "\u8ba1\u6570",
     "Cumulative Count": "\u7d2f\u8ba1\u8ba1\u6570",
     "Cumulative Relative Frequency": "\u7d2f\u8ba1\u76f8\u5bf9\u9891\u7387",
+    "Cumulative Share": "\u7d2f\u8ba1\u5360\u6bd4",
     day: "\u5929",
     days: "\u5929",
     Decrease: "\u51cf\u5c11",
@@ -640,7 +646,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Search: "\u641c\u7d22",
     second: "\u79d2",
     seconds: "\u79d2",
-    Share: "\u5171\u4eab",
+    Share: "\u5360\u6bd4",
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",

@@ -8,3 +8,4 @@ export {
   dateFullFormatter,
   formatDateFull,
 } from "./src/formatDate.js";
+export type {DateFormatOptions, FormatDateOptions} from "./src/formatDate.js";
