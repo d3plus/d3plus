@@ -172,6 +172,9 @@ export const ZOOM_PANEL_PADDING = 4;
     `padding` (with `box-sizing: border-box`) one 4px inset from the chart's
     top/right edge. This isn't part of the auto-disable `zoomControlClassName`
     triggers, so a host page never has to re-add its own spacing utility.
+    The panel spans the chart's width, so it lets the pointer through to
+    whatever it covers (a color scale's axis, a title) and only its buttons
+    (see `zoomControlsHtml`) take it.
 */
 export const ZOOM_PANEL_STYLE: Record<string, string> = {
   display: "flex",
@@ -181,6 +184,7 @@ export const ZOOM_PANEL_STYLE: Record<string, string> = {
   boxSizing: "border-box",
   paddingTop: `${ZOOM_PANEL_PADDING}px`,
   paddingRight: `${ZOOM_PANEL_PADDING}px`,
+  pointerEvents: "none",
 };
 
 /**
@@ -191,6 +195,7 @@ export const ZOOM_PANEL_STYLE: Record<string, string> = {
     consumer's own class onto each button without losing the fixed classes
     event delegation depends on. The brush toggle carries `aria-pressed` (and
     the `.active` class frameworks like Bootstrap style) while brush mode is on.
+    Each button takes the pointer back from the panel (`ZOOM_PANEL_STYLE`).
 */
 export function zoomControlsHtml(viz: Viz): string {
   const extraClass = viz.schema.zoomControlClassName
@@ -202,7 +207,7 @@ export function zoomControlsHtml(viz: Viz): string {
     glyph: string,
     pressed?: boolean,
   ) =>
-    `<button type="button" class="zoom-control ${cls}${pressed ? " active" : ""}${extraClass}" aria-label="${viz.schema.translate(label)}"${pressed === undefined ? "" : ` aria-pressed="${pressed}"`}>${glyph}</button>`;
+    `<button type="button" style="pointer-events:auto" class="zoom-control ${cls}${pressed ? " active" : ""}${extraClass}" aria-label="${viz.schema.translate(label)}"${pressed === undefined ? "" : ` aria-pressed="${pressed}"`}>${glyph}</button>`;
   return (
     button("zoom-in", "Zoom In", iconFor(viz, "zoomIn", ZOOM_IN_ICON)) +
     button("zoom-out", "Zoom Out", iconFor(viz, "zoomOut", ZOOM_OUT_ICON)) +

@@ -4,6 +4,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {AxisBottom, AxisLeft} from "../../index.ts";
 import {
   axisTooltipTarget,
+  canShow,
   inertAxis,
   labelCut,
   stampTickTooltips,
@@ -395,4 +396,17 @@ it("inertAxis — leaves the scene it is given as it was", () => {
   assert.deepStrictEqual(axis, {type: "group", key: "axis", children: [leaf]});
   assert.deepStrictEqual(leaf, text(["1"], {key: "tick"}));
   assert.strictEqual(inert.children[0].interactive, false);
+});
+
+it("canShow — a set option, or a cut label unless the option is false", () => {
+  assert.strictEqual(canShow("Note", false), true);
+  assert.strictEqual(
+    canShow(() => "Note", false),
+    true,
+  );
+  assert.strictEqual(canShow({title: "Note"}, false), true);
+  assert.strictEqual(canShow(undefined, false), false, "unset, drawn whole");
+  assert.strictEqual(canShow(null, false), false);
+  assert.strictEqual(canShow(undefined, true), true, "unset, cut");
+  assert.strictEqual(canShow(false, true), false, "false, cut");
 });

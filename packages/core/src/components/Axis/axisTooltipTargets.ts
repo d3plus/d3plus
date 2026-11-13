@@ -50,8 +50,12 @@ export function labelCut(node: SceneNode, text: string): boolean {
   return solid(node.lines.map(line => line.text).join("")) !== solid(text);
 }
 
-/** Whether a label with `option` for its tooltip option could show one. */
-const canShow = (option: unknown, truncated: boolean): boolean =>
+/**
+    Whether a label with `option` for its tooltip option could show one.
+    @param option An axis's `titleTooltip` or `tickTooltip`.
+    @param truncated Whether the label is drawn cut short.
+*/
+export const canShow = (option: unknown, truncated: boolean): boolean =>
   option !== false && (truncated || (option !== undefined && option !== null));
 
 /** Every node of a scene subtree, depth-first. */

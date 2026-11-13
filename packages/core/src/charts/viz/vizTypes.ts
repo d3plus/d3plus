@@ -317,6 +317,8 @@ export interface VizInstance {
   };
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
+  /** The colorScale bucket a hovered swatch label lights (see `handleSwatchLabelHover`). */
+  _swatchLabelBucket?: DataPoint;
   /**
       Hovering a shape outlines it even when nothing else dims
       (`hoverOpacity` 1), as Calendar's days do (see `shapeHoverEnabled`).

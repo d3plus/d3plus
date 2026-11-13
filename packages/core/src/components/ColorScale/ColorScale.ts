@@ -27,6 +27,8 @@ import {renderGradient, renderLegendVariant} from "./colorScaleRender.js";
 import {isBucketScale} from "./colorScaleType.js";
 import type {ColorScaleType} from "./colorScaleType.js";
 import {addHoverMark, hoverMarkDefaults} from "./colorScaleHoverMark.js";
+import {swatchTooltips} from "./colorScaleSwatchTooltips.js";
+import type {SwatchBucket} from "./colorScaleSwatchTooltips.js";
 import {renderBivariate} from "./bivariateRender.js";
 import type {ColorScaleBarGeometry} from "./colorScaleHoverMark.js";
 import type {ColorScaleGroups} from "./colorScaleRender.js";
@@ -111,6 +113,8 @@ export default class ColorScale extends BaseClass {
   _bivariateFields?: string[];
   /** The bivariate key's nodes, laid out by the last render. */
   _bivariateNodes?: SceneNode[];
+  /** Each swatch's legend row, with its bucket, set when the swatch variant renders. */
+  _swatchBuckets: Map<unknown, SwatchBucket> = new Map();
   /** Smooth-gradient fill token (`gradient:<json>`), set by renderGradientStops. */
   _gradientFill?: string;
   // Standalone scene renderer (used when rendered on its own, not inside a
@@ -245,8 +249,10 @@ export default class ColorScale extends BaseClass {
   /**
       Produces a backend-agnostic scene graph for this ColorScale with no DOM
       dependency. The discrete variant (jenks/buckets/quantile) delegates to the
-      internal Legend's toScene(); the gradient variant composes the Rect, Axis
-      (as chrome, see `inertAxis`), and label TextBox scenes. The scaleGroup's
+      internal Legend's toScene(), its title and swatch labels taking the axis
+      tooltips (see `swatchTooltips`); the gradient variant composes the Rect,
+      Axis, and label TextBox scenes, all as chrome (see `inertAxis`): only an
+      axis label with a tooltip takes the pointer. The scaleGroup's
       translate (set by the chart's colorScale feature on
       `g.d3plus-viz-colorScale`) is read off `_select` so the content lands at
       its on-screen position.
@@ -273,14 +279,30 @@ export default class ColorScale extends BaseClass {
     if (this._bivariateNodes) {
       children.push(...this._bivariateNodes);
     } else if (gradient) {
-      pushScene(this._rectClass as unknown as {toScene?: () => GroupNode});
+      pushScene(
+        this._rectClass as unknown as {toScene?: () => GroupNode},
+        inertAxis,
+      );
       pushScene(
         this._axisClass as unknown as {toScene?: () => GroupNode},
         inertAxis,
       );
-      pushScene(this._labelClass as unknown as {toScene?: () => GroupNode});
+      pushScene(
+        this._labelClass as unknown as {toScene?: () => GroupNode},
+        inertAxis,
+      );
     } else {
-      pushScene(this._legendClass as unknown as {toScene?: () => GroupNode});
+      pushScene(
+        this._legendClass as unknown as {toScene?: () => GroupNode},
+        scene =>
+          swatchTooltips(scene, {
+            title: this._legendClass.schema.title,
+            titleDatum: this._legendClass._titleClass.data()[0],
+            titleTooltip: this.schema.axisConfig.titleTooltip,
+            tickTooltip: this.schema.axisConfig.tickTooltip,
+            buckets: this._swatchBuckets,
+          }),
+      );
     }
 
     // Preserve the placement of the scaleGroup the chart's colorScale feature
@@ -309,7 +331,7 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
+      The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis. A scale drawn as swatches has no Axis: its `title` and `titleTooltip` apply to the swatches' title, and its `tickTooltip` to each swatch's label, given the value and index of the label at that bucket's start on a `bucketAxis` bar.
 */
   axisConfig(): Record<string, unknown>;
   axisConfig(_: Record<string, unknown>): this;

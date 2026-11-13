@@ -398,6 +398,7 @@ export function renderLegendVariant(
     Object.assign({condition: groups.gradient}, groups.groupParams),
   );
 
+  cs._swatchBuckets = new Map();
   let legendData = ticks!.reduce(
     (
       arr: {color: string; id: string; _isColorScaleBucket: boolean}[],
@@ -408,7 +409,9 @@ export function renderLegendVariant(
       // `_isColorScaleBucket` marks these as range buckets (not groupBy rows)
       // so a parent Viz's `_drawLabel` titles their tooltip with the bucket
       // label (`id`) instead of resolving to "undefined" via groupBy.
-      arr.push({color: colors[i + 1], id: label, _isColorScaleBucket: true});
+      const row = {color: colors[i + 1], id: label, _isColorScaleBucket: true};
+      cs._swatchBuckets.set(row, {value: tick, index: i});
+      arr.push(row);
 
       return arr;
     },
