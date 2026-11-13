@@ -1,4 +1,4 @@
-import {it} from "vitest";
+import {it, vi} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {movingAverage} from "@d3plus/math";
@@ -13,6 +13,7 @@ import {
 import {
   bandDeviations,
   countText,
+  warnSpanOffTime,
   fitMovingAverage,
   movingAverageOptions,
   movingAverageSamples,
@@ -495,7 +496,7 @@ it("emitTrendLines: a moving average's band draws under its line", () => {
   assert.ok(rest.some(n => n.type === "path" && n.paint.stroke === "red"));
 });
 
-it("computeTrendFits: a span of time averages each point's last stretch of days", () => {
+it("computeTrendFits: a span of time averages each point's last stretch of days, from the first", () => {
   const days = [1, 2, 3, 5, 6].map(d => new Date(2024, 0, d));
   const data = days.map((x, i) => ({
     data: {id: "A"},
@@ -513,11 +514,13 @@ it("computeTrendFits: a span of time averages each point's last stretch of days"
   assert.deepStrictEqual(
     fit.samples.map(s => [s.x.getDate(), s.y]),
     [
+      [1, 10],
+      [2, 15],
       [3, 25],
       [5, 40],
       [6, 45],
     ],
-    "the gap before the 5th leaves it alone in its two days",
+    "partial at the start; the gap before the 5th leaves it alone in its two days",
   );
   const viz = {
     _trendLineConfig: {window: {days: 2}},
@@ -533,4 +536,32 @@ it("countText: a count in the chart's locale, without padded decimals", () => {
   assert.strictEqual(countText(30, "es-ES"), "30");
   assert.strictEqual(countText(1.5, "es-ES"), "1,5");
   assert.strictEqual(countText(2, "nope-NOPE-x"), "2");
+});
+
+it("warnSpanOffTime: a span off a time axis averages 7 points, and warns once per chart", () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  try {
+    const config = {window: {days: 3}};
+    const chart = {};
+    assert.strictEqual(warnSpanOffTime(chart, config, true), false);
+    assert.strictEqual(warnSpanOffTime(chart, {window: 3}, false), false);
+    assert.strictEqual(warn.mock.calls.length, 0);
+    assert.strictEqual(warnSpanOffTime(chart, config, false), true);
+    assert.strictEqual(warnSpanOffTime(chart, config, false), true);
+    assert.strictEqual(warn.mock.calls.length, 1, "once per chart");
+    assert.match(
+      warn.mock.calls[0][0],
+      /needs a time axis; averaging 7 points/,
+    );
+    const viz = fakeViz({window: {days: 3}, bands: false});
+    const data = rows(series("A", [1, 2, 3, 4, 5, 6, 7, 8]));
+    const [fit] = computeTrendFits(viz, data, [1, 2, 3, 4, 5, 6, 7, 8]);
+    assert.strictEqual(fit.fit.spanned, false);
+    assert.strictEqual(fit.fit.window, 7);
+    assert.strictEqual(warn.mock.calls.length, 2, "the chart warns for itself");
+    computeTrendFits(viz, data, [1, 2, 3, 4, 5, 6, 7, 8]);
+    assert.strictEqual(warn.mock.calls.length, 2, "and only once");
+  } finally {
+    warn.mockRestore();
+  }
 });

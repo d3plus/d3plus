@@ -19,7 +19,7 @@ import type {
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {isSpanAxis} from "./discreteSpan.js";
-import {fitMovingAverage} from "./trendMovingAverage.js";
+import {fitMovingAverage, warnSpanOffTime} from "./trendMovingAverage.js";
 import {projectionPositions} from "./trendProjection.js";
 
 type Row = Record<string, unknown>;
@@ -336,6 +336,8 @@ export function computeTrendFits(
     ? order.concat(projected).map(toNumber).filter(Number.isFinite)
     : [];
   const logDep = `${viz[`_${dep}Config`]?.scale}`.toLowerCase() === "log";
+  const time = order.some(v => v instanceof Date);
+  if (type === "movingAverage") warnSpanOffTime(viz, config, time);
   const fill = viz.schema.shapeConfig.fill;
 
   const fits: TrendFit[] = [];
@@ -347,12 +349,7 @@ export function computeTrendFits(
   )) {
     const fitted =
       type === "movingAverage"
-        ? fitMovingAverage(points, config, {
-            axis,
-            fromNumber,
-            logDep,
-            time: order.some(v => v instanceof Date),
-          })
+        ? fitMovingAverage(points, config, {axis, fromNumber, logDep, time})
         : fitRegression(points, type, config, {
             axis,
             fromNumber,

@@ -660,9 +660,11 @@ export interface TrendLineConfig {
       a span of time, such as `{days: 30}` (`seconds`, `minutes`, `hours`,
       `days`, `weeks`, `months`, `years`), which averages the points in the
       span ending at each point (centered on it, with `center`), so gaps and
-      uneven spacing average over the same length of time. The first
-      `window − 1` points (or those whose span reaches before the first
-      point; with `center`, the ends) have no average. Defaults to 7.
+      uneven spacing average over the same length of time. A span starts at
+      the first point, averaging the points it holds so far; on any other
+      axis it falls back to 7 points, with a console warning. With a number
+      of points, the first `window − 1` (with `center`, the ends) have no
+      average. Defaults to 7.
   */
   window?:
     | number

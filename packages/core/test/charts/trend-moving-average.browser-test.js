@@ -204,11 +204,12 @@ it("movingAverage — a span of time averages over gaps, and names its span", as
   const [fit] = r.fits;
   assert.deepStrictEqual(
     fit.xs.map(x => new Date(x).getDate()),
-    [4, 8, 9, 10, 11, 12],
+    [1, 2, 3, 4, 8, 9, 10, 11, 12],
+    "from the first point",
   );
   assert.deepStrictEqual(
     fit.ys,
-    [30, 80, 85, 90, 100, 110],
+    [10, 15, 20, 30, 80, 85, 90, 100, 110],
     "each averages its last three days, the gap included",
   );
   assert.deepStrictEqual(r.labels, ["Moving Average (3 days)"]);

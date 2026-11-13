@@ -19,6 +19,7 @@ import {
 } from "d3-time";
 import type {CountableTimeInterval} from "d3-time";
 
+import {warnConfigOnce} from "../../utils/configWarnings.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {TrendSample, TrendSampling} from "./trendLines.js";
 
@@ -75,6 +76,28 @@ export function windowSpanStart(span: [string, number][]) {
 export function bandDeviations(bands: unknown): number {
   if (bands === true || bands === undefined) return DEFAULT_BANDS;
   return typeof bands === "number" && bands > 0 ? bands : 0;
+}
+
+/**
+    Warns, once per chart, when a `window` span of time is set on an axis
+    that isn't a time axis, where the average falls back to the default
+    number of points. Returns whether it applies.
+    @param viz The chart.
+    @param config The `trendLineConfig`.
+    @param time Whether the axis the average runs along is a time axis.
+*/
+export function warnSpanOffTime(
+  viz: object,
+  config: Record<string, unknown>,
+  time: boolean,
+): boolean {
+  if (time || !windowSpan(config.window).length) return false;
+  warnConfigOnce(
+    viz,
+    "trendLineConfig.window span",
+    `trendLineConfig.window: a span of time (such as {days: 30}) needs a time axis; averaging ${DEFAULT_WINDOW} points instead.`,
+  );
+  return true;
 }
 
 /**
