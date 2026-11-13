@@ -9,15 +9,14 @@ import type Axis from "./Axis.js";
 import {normalizeRangeBreaks, rangeBreakTest} from "./rangeBreaks.js";
 
 /**
-    Whether an axis config asks for its time in UTC (its `utc`).
+    Whether an axis config asks for its time in UTC: its `utc`, or
+    `scale: "utc"`.
     @param config An axis config, such as a Plot's `xConfig`.
 */
 export function configUtc(config: unknown): boolean {
-  return (
-    typeof config === "object" &&
-    config !== null &&
-    Boolean((config as {utc?: unknown}).utc)
-  );
+  if (typeof config !== "object" || config === null) return false;
+  const {utc, scale} = config as {utc?: unknown; scale?: unknown};
+  return Boolean(utc) || scale === "utc";
 }
 
 /**

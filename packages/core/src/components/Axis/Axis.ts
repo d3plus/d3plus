@@ -65,7 +65,6 @@ const axisSchema: ConfigField[] = [
   {key: "roundingInsideMinSuffix", coerce: "identity", default: ""},
   {key: "roundingInsideMaxPrefix", coerce: "identity", default: ""},
   {key: "roundingInsideMaxSuffix", coerce: "identity", default: "+"},
-  {key: "scale", coerce: "identity", default: "linear"},
   {key: "scaleAlign", coerce: "identity", default: 0.5},
   {key: "scalePadding", coerce: "identity", default: 0.5},
   {key: "shape", coerce: "identity", default: "Line"},
@@ -190,6 +189,7 @@ export default class Axis extends BaseClass {
     super();
     installFluent(this, axisSchema);
 
+    this.schema.scale = "linear";
     this._data = [];
     this._labelRotation = false;
     this._labelRotationSetting = undefined;
@@ -550,6 +550,21 @@ export default class Axis extends BaseClass {
     return arguments.length
       ? ((this._labelRotationSetting = _), this)
       : this._labelRotationSetting;
+  }
+
+  /**
+      The axis's scale (see `AxisConfig.scale`). `"utc"` sets a time scale
+      read in UTC, as `scale("time")` with `utc(true)` does.
+*/
+  scale(): string;
+  scale(_: string): this;
+  scale(_?: string): string | this {
+    if (!arguments.length) return this.schema.scale;
+    if (_ === "utc") {
+      this.schema.scale = "time";
+      this.schema.utc = true;
+    } else this.schema.scale = _;
+    return this;
   }
 
   /**

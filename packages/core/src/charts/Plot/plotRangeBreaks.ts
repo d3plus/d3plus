@@ -7,6 +7,7 @@
 import {extent} from "d3-array";
 
 import {breakStyleOf} from "../../components/Axis/axisBreak.js";
+import {isTimeScaleName} from "../../components/Axis/axisScaleType.js";
 import {configUtc} from "../../components/Axis/timeValues.js";
 import {brokenTimeScale} from "../../components/Axis/brokenTimeScale.js";
 import {
@@ -33,7 +34,7 @@ export function plotRangeBreaks(
   axis: AxisName,
 ): RangeBreakRule[] {
   const config = viz[`_${axis}Config`] as Record<string, unknown> | undefined;
-  if (!viz[`_${axis}Time`] && config?.scale !== "time") return [];
+  if (!viz[`_${axis}Time`] && !isTimeScaleName(config?.scale)) return [];
   return normalizeRangeBreaks(config?.rangeBreaks);
 }
 

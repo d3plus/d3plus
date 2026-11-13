@@ -13,6 +13,7 @@ import type {SceneNode, Transform} from "@d3plus/render";
 
 import {pinMaxSize} from "../../components/Axis/axisMaxSize.js";
 import {inertAxis} from "../../components/Axis/axisTooltipTargets.js";
+import {isTimeScaleName} from "../../components/Axis/axisScaleType.js";
 import {configUtc} from "../../components/Axis/timeValues.js";
 import accessor from "../../utils/accessor.js";
 import type {AxisConfig} from "../../utils/D3plusConfig.js";
@@ -94,7 +95,7 @@ export function seedTimeAggs(viz: VizInstance): void {
 /** Whether the chart's `axisConfig` plots dates. */
 export function isTimeAxis(viz: VizInstance): boolean {
   const axisConfig = viz.schema.axisConfig as {scale?: string} | undefined;
-  return axisConfig?.scale === "time";
+  return isTimeScaleName(axisConfig?.scale);
 }
 
 /** Whether the chart's time axis reads its time in UTC (`axisConfig.utc`). */

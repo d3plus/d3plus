@@ -31,6 +31,7 @@ import {
   parseTimeValues,
 } from "./timeValues.js";
 import {axisIsYearLike, formatYear} from "./yearValues.js";
+import {drawnAxisScale, isTimeScaleName} from "./axisScaleType.js";
 import type {D3Scale} from "../../utils/index.js";
 import {floorPow, isNegative, openEnd, roundedDomain} from "./axisRounding.js";
 import {powExponent} from "./powTicks.js";
@@ -374,14 +375,15 @@ export function setAxisScale(
   const newRange = newRangeArg !== undefined ? newRangeArg : axis.schema.range;
   const range = resolveRange(axis, rangeOuter, newRange);
 
-  const time = axis.schema.scale === "time";
+  const drawn = drawnAxisScale(axis.schema.scale);
+  const time = isTimeScaleName(drawn);
   // A time axis in UTC ticks and rounds on UTC's calendar.
   const scale =
-    time && axisUtc(axis)
+    time && (drawn === "utc" || axisUtc(axis))
       ? "scaleUtc"
-      : `scale${axis.schema.scale
-          .charAt(0)
-          .toUpperCase()}${axis.schema.scale.slice(1)}`;
+      : time
+        ? "scaleTime"
+        : `scale${drawn.charAt(0).toUpperCase()}${drawn.slice(1)}`;
 
   const initialDomain = axis.schema.domain.slice();
 

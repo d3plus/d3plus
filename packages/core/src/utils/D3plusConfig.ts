@@ -58,34 +58,16 @@ type DataPointAccessor<T> = string | ((d: DataPoint) => T);
 /** A config value that is either a constant or a `(datum, index)` accessor. */
 type Accessor<T> = T | ((d: DataPoint, i?: number) => T);
 
+/** A scale an axis draws (see `axisScales`), or `"auto"` (see `AxisConfig.scale`). */
 type AxisScale =
   | "auto"
   | "band"
-  | "diverging"
-  | "divergingLog"
-  | "divergingPow"
-  | "divergingSqrt"
-  | "divergingSymlog"
-  | "identity"
-  | "implicit"
-  | "jenks"
   | "linear"
   | "log"
   | "ordinal"
   | "point"
   | "pow"
-  | "quantile"
-  | "quantize"
-  | "radial"
-  | "sequential"
-  | "sequentialLog"
-  | "sequentialPow"
-  | "sequentialQuantile"
-  | "sequentialSqrt"
-  | "sequentialSymlog"
   | "sqrt"
-  | "symlog"
-  | "threshold"
   | "time"
   | "utc";
 
@@ -226,7 +208,15 @@ export interface AxisConfig {
       `rounding` is set here.
   */
   rounding?: "none" | "outside" | "inside";
-  /** Scale of the axis. */
+  /**
+      The axis's scale: `"linear"`, `"log"` (which splits around 0 to draw
+      negative and positive values), `"pow"` (see `exponent`), `"sqrt"`,
+      `"time"`, `"utc"` (a time scale read in UTC, as `utc: true` does), or
+      the category scales `"band"`, `"point"`, and `"ordinal"`. In a Plot,
+      `"auto"` picks `"log"` when the values' spread is over three times
+      their mean, else `"linear"`. Any other name logs a warning and draws
+      linear.
+  */
   scale?: AxisScale;
   /**
       The exponent of a `"pow"` axis (`scale: "pow"`): below 1 it spreads the

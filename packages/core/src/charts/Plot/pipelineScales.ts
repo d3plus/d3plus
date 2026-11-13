@@ -7,6 +7,7 @@ import {date} from "@d3plus/dom";
 import * as scales from "d3-scale";
 import {deviation, max, mean, min, range} from "d3-array";
 
+import {drawnAxisScale} from "../../components/Axis/axisScaleType.js";
 import {userDomainBreaksBaseline} from "./baselineBreak.js";
 import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
@@ -126,7 +127,9 @@ function domainScaleSetup(
 
 /**
     An axis config's `scale`, with `"auto"` resolved to "log" when the
-    values' spread is over three times their mean (else "linear").
+    values' spread is over three times their mean (else "linear"),
+    `"utc"` to "time", and a scale the axis doesn't draw to "linear" (with a
+    warning).
 */
 function autoScale(
   viz: PlotViz,
@@ -142,7 +145,10 @@ function autoScale(
     ) as number[];
     return deviation(values)! / mean(values)! > 3 ? "log" : "linear";
   }
-  return userScale || fallback;
+  if (!userScale) return fallback;
+  const drawn = drawnAxisScale(userScale);
+  // `"utc"` is a time axis read in UTC (see `configUtc`).
+  return drawn === "utc" ? "time" : drawn;
 }
 
 /** An axis's plottable values (those not `NaN`, `undefined` or `false`). */
