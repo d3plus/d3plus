@@ -15,6 +15,7 @@ import {leadTitleWithSwatch, tooltipSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {axisName, axisValue, prepareTooltip} from "./sharedTooltip.js";
 import type {TrendFit, TrendSample} from "./trendLines.js";
+import {countText, movingAverageWindowText} from "./trendMovingAverage.js";
 
 const SUPERSCRIPTS: Record<string, string> = {2: "²", 3: "³"};
 
@@ -127,16 +128,15 @@ export function movingAverageTooltipRows(
     if (sample.lci !== undefined)
       rows.push([
         t("Band"),
-        `${value(sample.lci)} – ${value(sample.hci)} (±${formatAbbreviate(
-          fit.deviations,
-          viz.schema.locale,
-        )}σ)`,
+        `${value(sample.lci)} – ${value(sample.hci)} (±${countText(fit.deviations, viz.schema.locale)}σ)`,
       ]);
   }
   rows.push(
     [
       t("Window"),
-      fit.center ? `${fit.window} (${t("Centered")})` : `${fit.window}`,
+      fit.center
+        ? `${movingAverageWindowText(viz, fit)} (${t("Centered")})`
+        : movingAverageWindowText(viz, fit),
     ],
     [t("Observations"), `${fit.n}`],
   );

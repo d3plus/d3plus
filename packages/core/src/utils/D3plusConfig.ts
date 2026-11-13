@@ -656,17 +656,29 @@ export interface TrendLineConfig {
   group?: "series" | "all";
   /**
       A moving average's window: how many points each average spans,
-      counting each distinct position along the axis once. The first
-      `window − 1` points (or, with `center`, the first and last half window)
-      have no average. Defaults to 5.
+      counting each distinct position along the axis once, or on a time axis
+      a span of time, such as `{days: 30}` (`seconds`, `minutes`, `hours`,
+      `days`, `weeks`, `months`, `years`), which averages the points in the
+      span ending at each point (centered on it, with `center`), so gaps and
+      uneven spacing average over the same length of time. The first
+      `window − 1` points (or those whose span reaches before the first
+      point; with `center`, the ends) have no average. Defaults to 7.
   */
-  window?: number;
+  window?:
+    | number
+    | {
+        seconds?: number;
+        minutes?: number;
+        hours?: number;
+        days?: number;
+        weeks?: number;
+        months?: number;
+        years?: number;
+      };
   /** Centers a moving average's window on each point instead of ending it there. Defaults to `false` (a trailing window). */
   center?: boolean;
-  /** Draws bands either side of a moving average (Bollinger bands), styled by `confidenceConfig`. Defaults to `true`. */
-  bands?: boolean;
-  /** How many standard deviations of each window a moving average's bands sit from it. Defaults to 2. */
-  bandDeviations?: number;
+  /** Draws bands either side of a moving average (Bollinger bands), this many standard deviations of each window from it, styled by `confidenceConfig`. Defaults to 2; `false` drops them. */
+  bands?: boolean | number;
   /** The polynomial degree when `trendLine` is `"polynomial"`. Defaults to 2. */
   order?: number;
   /** Draws a confidence band around a linear fit. Defaults to `false`. */
@@ -693,7 +705,7 @@ export interface TrendLineConfig {
       Labels each trend line along its path, near its end, in the line's
       color: `true` names the series, `"equation"` shows its fitted equation
       and R² (a moving average's name and window, such as "Moving Average
-      (5)"), and a function of the fit (`label`, `color`, and `fit` with the
+      (7)" or "Moving Average (30 days)"), and a function of the fit (`label`, `color`, and `fit` with the
       regression's `coefficients` and `r2`, or the moving average's `window`,
       `center`, and `deviations`) returns any text. Defaults to `"equation"`;
       `false` turns labels off.
@@ -2577,8 +2589,8 @@ export interface D3plusConfig {
     | "movingAverage";
   /**
       Options for the trend lines: `group` (`"series"` or `"all"`), the
-      polynomial `order`, a moving average's `window`, `center`, `bands`,
-      and `bandDeviations`, a `confidence` band with `confidenceLevel` and
+      polynomial `order`, a moving average's `window`, `center`, and
+      `bands`, a `confidence` band with `confidenceLevel` and
       `confidenceConfig`, a `projection` into the future with
       `projectionConfig`, `tooltip`, and Line styles (`stroke`,
       `strokeWidth`, `strokeDasharray`, …).

@@ -77,8 +77,7 @@ export type TrendLineType = boolean | TrendType;
 /** The default `trendLineConfig`. */
 export function trendLineDefaults(): Record<string, unknown> {
   return {
-    bandDeviations: 2,
-    bands: true,
+    bands: 2,
     center: false,
     confidence: false,
     confidenceConfig: {fillOpacity: 0.15},
@@ -91,7 +90,7 @@ export function trendLineDefaults(): Record<string, unknown> {
     strokeDasharray: "6 4",
     strokeWidth: 2,
     tooltip: true,
-    window: 5,
+    window: 7,
   };
 }
 
@@ -255,6 +254,8 @@ export interface TrendSampling {
   fromNumber: (n: number) => unknown;
   /** Whether the dependent axis is logarithmic, so values at or below 0 drop out. */
   logDep: boolean;
+  /** Whether the independent axis is a time axis. */
+  time?: boolean;
 }
 
 /**
@@ -346,7 +347,12 @@ export function computeTrendFits(
   )) {
     const fitted =
       type === "movingAverage"
-        ? fitMovingAverage(points, config, {axis, fromNumber, logDep})
+        ? fitMovingAverage(points, config, {
+            axis,
+            fromNumber,
+            logDep,
+            time: order.some(v => v instanceof Date),
+          })
         : fitRegression(points, type, config, {
             axis,
             fromNumber,

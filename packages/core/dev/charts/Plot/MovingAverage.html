@@ -34,11 +34,11 @@
 
   <body>
     <div>
-      <h3>Trailing 20-day window, ±2σ bands (the default)</h3>
+      <h3>Trailing 20-point window, ±2σ bands (the default)</h3>
       <div class="chart" id="trailing"></div>
     </div>
     <div>
-      <h3>Centered window, ±1σ bands (bandDeviations: 1)</h3>
+      <h3>Centered 15-day window, ±1σ bands (bands: 1)</h3>
       <div class="chart" id="centered"></div>
     </div>
     <div>
@@ -90,7 +90,7 @@
       .x("date")
       .y("price")
       .trendLine("movingAverage")
-      .trendLineConfig({window: 15, center: true, bandDeviations: 1})
+      .trendLineConfig({window: {days: 15}, center: true, bands: 1})
       .render();
 
     new d3plus.LinePlot()

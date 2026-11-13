@@ -54,6 +54,9 @@ const probe = ([config, data, hover]) =>
           hci: f.samples.map(s => s.hci),
         })),
         yDomain: viz._yAxis._d3Scale.domain().map(Number),
+        labels: nodes
+          .filter(n => /^trend-label-/.test(`${n.key}`) && n.lines)
+          .map(n => n.lines.map(l => l.text).join("")),
       };
       const svg = document.querySelector("#viz svg.d3plus-render-svg");
       if (!hover || !svg) return resolve(out);
@@ -141,7 +144,7 @@ it("movingAverage — a trailing mean per series with ±2σ bands", async () => 
 it("movingAverage — a centered window, a band multiplier, and bands off", async () => {
   const centered = await run({
     trendLine: "movingAverage",
-    trendLineConfig: {window: 3, center: true, bandDeviations: 1},
+    trendLineConfig: {window: 3, center: true, bands: 1},
   });
   assert.deepStrictEqual(centered.fits[0].xs, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   assert.strictEqual(centered.fits[0].center, true);
@@ -152,7 +155,7 @@ it("movingAverage — a centered window, a band multiplier, and bands off", asyn
   const width = r => r.fits[0].hci[0] - r.fits[0].lci[0];
   assert.ok(
     Math.abs(width(two) - 2 * width(centered)) < 1e-9,
-    "bandDeviations scales the band",
+    "bands sets the multiplier",
   );
   const off = await run({
     trendLine: "movingAverage",
@@ -185,6 +188,35 @@ it("movingAverage — along a time axis", async () => {
     r.fits[0].xs,
     daily.slice(6).map(d => +d.month),
     "an average from the seventh day on",
+  );
+});
+
+it("movingAverage — a span of time averages over gaps, and names its span", async function () {
+  const days = [1, 2, 3, 4, 8, 9, 10, 11, 12].map(d => ({
+    id: "Alpha",
+    month: new Date(2024, 0, d),
+    value: 10 * d,
+  }));
+  const r = await run(
+    {trendLine: "movingAverage", trendLineConfig: {window: {days: 3}}},
+    days,
+  );
+  const [fit] = r.fits;
+  assert.deepStrictEqual(
+    fit.xs.map(x => new Date(x).getDate()),
+    [4, 8, 9, 10, 11, 12],
+  );
+  assert.deepStrictEqual(
+    fit.ys,
+    [30, 80, 85, 90, 100, 110],
+    "each averages its last three days, the gap included",
+  );
+  assert.deepStrictEqual(r.labels, ["Moving Average (3 days)"]);
+  const points = await run({trendLine: "movingAverage"}, days);
+  assert.deepStrictEqual(
+    points.fits[0].xs.map(x => new Date(x).getDate()),
+    [10, 11, 12],
+    "seven points by default",
   );
 });
 

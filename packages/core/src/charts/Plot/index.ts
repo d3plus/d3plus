@@ -565,10 +565,9 @@ export default class Plot extends Viz {
       Options for the trend lines drawn by `trendLine`, merged into the current config:
       - `group`: `"series"` (default) fits one line per series, colored to match it; `"all"` fits a single line to every point.
       - `order`: the polynomial degree when `trendLine` is `"polynomial"` (default `2`).
-      - `window`: how many points a moving average spans (default `5`). The first `window − 1` points have no average.
+      - `window`: how many points a moving average spans (default `7`; the first `window − 1` points have no average), or on a time axis a span of time such as `{days: 30}` (`seconds`, `minutes`, `hours`, `days`, `weeks`, `months`, `years`), which averages the points in the span ending at each point, so gaps and uneven spacing average over the same length of time; points whose span reaches before the first point have no average.
       - `center`: centers a moving average's window on each point instead of ending it there (default `false`).
-      - `bands`: draws a moving average's bands, styled by `confidenceConfig` (default `true`).
-      - `bandDeviations`: how many standard deviations of each window the bands sit from the average (default `2`).
+      - `bands`: a moving average's bands (Bollinger bands), as how many standard deviations of each window they sit from the average (default `2`); `false` drops them. `confidenceConfig` styles them.
       - `confidence`: draws a confidence band around a linear fit (default `false`).
       - `confidenceLevel`: the band's confidence level (default `0.95`).
       - `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).

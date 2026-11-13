@@ -25,6 +25,7 @@ import type {Edges, Pt} from "../features/pathLabelGeometry.js";
 import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {TrendFit} from "./trendLines.js";
+import {movingAverageWindowText} from "./trendMovingAverage.js";
 import {coefficientFormat, trendEquation} from "./trendTooltip.js";
 
 /** What `trendLineConfig.label` takes. */
@@ -59,7 +60,8 @@ export function trendEquationLabel(
     A fit's label text for a `trendLineConfig.label` setting, or null for
     none: `true` names the series ("Trend" for a line fit to every point),
     `"equation"` gives its equation and R² (a moving average's name and
-    window, such as "Moving Average (5)"), and a function returns any text.
+    window, such as "Moving Average (7)" or "Moving Average (30 days)"), and
+    a function returns any text.
     @param viz The chart.
     @param fit The fitted trend line.
     @param setting The configured label.
@@ -77,7 +79,7 @@ export function trendLabelText(
       : `${text}`;
   }
   if (setting === "equation" && fit.fit.type === "movingAverage")
-    return `${viz.schema.translate("Moving Average")} (${fit.fit.window})`;
+    return `${viz.schema.translate("Moving Average")} (${movingAverageWindowText(viz, fit.fit)})`;
   if (setting === "equation")
     return trendEquationLabel(
       fit,

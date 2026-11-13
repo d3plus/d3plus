@@ -11,9 +11,15 @@ import {
   trendTypes,
 } from "../../src/charts/Plot/trendLines.ts";
 import {
+  bandDeviations,
+  countText,
   fitMovingAverage,
   movingAverageOptions,
   movingAverageSamples,
+  movingAverageWindowText,
+  windowSpan,
+  windowSpanStart,
+  WINDOW_UNITS,
 } from "../../src/charts/Plot/trendMovingAverage.ts";
 import {
   movingAverageTooltipRows,
@@ -70,39 +76,118 @@ it("resolveTrendType and trendTypes include movingAverage", () => {
   assert.strictEqual(trendTypeNames.movingAverage, "Moving Average");
 });
 
-it("trendLineDefaults: a trailing window of 5 with ±2σ bands", () => {
+it("trendLineDefaults: a trailing window of 7 with ±2σ bands", () => {
   const d = trendLineDefaults();
+  assert.deepStrictEqual([d.window, d.center, d.bands], [7, false, 2]);
+  assert.strictEqual("bandDeviations" in d, false);
+});
+
+it("bandDeviations: bands as a number of standard deviations, or none", () => {
+  assert.strictEqual(bandDeviations(true), 2);
+  assert.strictEqual(bandDeviations(undefined), 2);
+  assert.strictEqual(bandDeviations(1.5), 1.5);
+  assert.strictEqual(bandDeviations(false), 0);
+  assert.strictEqual(bandDeviations(0), 0);
+  assert.strictEqual(bandDeviations(-1), 0);
+  assert.strictEqual(bandDeviations("x"), 0);
+});
+
+it("windowSpan and windowSpanStart: a window of time, stepped back on the calendar", () => {
+  assert.deepStrictEqual(windowSpan(7), []);
+  assert.deepStrictEqual(windowSpan(undefined), []);
+  assert.deepStrictEqual(windowSpan({days: 30}), [["days", 30]]);
   assert.deepStrictEqual(
-    [d.window, d.center, d.bands, d.bandDeviations],
-    [5, false, true, 2],
+    windowSpan({hours: 12, days: 1, weeks: 0, fortnights: 2}),
+    [
+      ["days", 1],
+      ["hours", 12],
+    ],
+    "largest unit first, positive counts of known units only",
+  );
+  assert.deepStrictEqual(Object.keys(WINDOW_UNITS), [
+    "years",
+    "months",
+    "weeks",
+    "days",
+    "hours",
+    "minutes",
+    "seconds",
+  ]);
+  const start = windowSpanStart([["months", 1]]);
+  assert.strictEqual(
+    start(+new Date(2024, 2, 15)),
+    +new Date(2024, 1, 15),
+    "a month back on the calendar",
+  );
+  assert.strictEqual(
+    windowSpanStart([
+      ["days", 1],
+      ["hours", 12],
+    ])(+new Date(2024, 0, 3, 12)),
+    +new Date(2024, 0, 2),
   );
 });
 
 it("movingAverageOptions reads window, center, and the band width", () => {
   assert.deepStrictEqual(movingAverageOptions(trendLineDefaults()), {
-    window: 5,
+    window: 7,
     center: false,
     deviations: 2,
   });
   assert.deepStrictEqual(
-    movingAverageOptions({window: 3, center: true, bandDeviations: 1.5}),
+    movingAverageOptions({window: 3, center: true, bands: 1.5}),
     {window: 3, center: true, deviations: 1.5},
   );
-  assert.strictEqual(
-    movingAverageOptions({bands: false, bandDeviations: 3}).deviations,
-    0,
-    "bands off",
-  );
-  assert.strictEqual(
-    movingAverageOptions({bandDeviations: "x"}).deviations,
-    0,
-    "a width that isn't a number draws none",
-  );
+  assert.strictEqual(movingAverageOptions({bands: false}).deviations, 0);
   assert.deepStrictEqual(movingAverageOptions({}), {
-    window: 5,
+    window: 7,
     center: false,
     deviations: 2,
   });
+  const span = movingAverageOptions({window: {days: 2}}, true);
+  assert.strictEqual(
+    span.span(+new Date(2024, 0, 3)),
+    +new Date(2024, 0, 1),
+    "a span on a time axis",
+  );
+  assert.strictEqual(
+    movingAverageOptions({window: {days: 2}}).span,
+    undefined,
+    "a span off a time axis falls back to points",
+  );
+  assert.strictEqual(movingAverageOptions({window: {days: 2}}).window, 7);
+});
+
+it("movingAverageWindowText: points, or a span of time in the chart's language", () => {
+  const viz = (window, locale = "en-US") => ({
+    _trendLineConfig: {window},
+    schema: {
+      locale,
+      translate: s => (locale === "es-ES" ? {days: "días", day: "día"}[s] : s),
+    },
+  });
+  assert.strictEqual(
+    movingAverageWindowText(viz(7), {window: 7, spanned: false}),
+    "7",
+  );
+  assert.strictEqual(
+    movingAverageWindowText(viz({days: 30}), {window: 0, spanned: true}),
+    "30 days",
+  );
+  assert.strictEqual(
+    movingAverageWindowText(viz({days: 1, hours: 12}), {
+      window: 0,
+      spanned: true,
+    }),
+    "1 day 12 hours",
+  );
+  assert.strictEqual(
+    movingAverageWindowText(viz({days: 30}, "es-ES"), {
+      window: 0,
+      spanned: true,
+    }),
+    "30 días",
+  );
 });
 
 it("movingAverageSamples: a sample per full window, banded when the bands have width", () => {
@@ -408,4 +493,44 @@ it("emitTrendLines: a moving average's band draws under its line", () => {
     "confidenceConfig styles it",
   );
   assert.ok(rest.some(n => n.type === "path" && n.paint.stroke === "red"));
+});
+
+it("computeTrendFits: a span of time averages each point's last stretch of days", () => {
+  const days = [1, 2, 3, 5, 6].map(d => new Date(2024, 0, d));
+  const data = days.map((x, i) => ({
+    data: {id: "A"},
+    i,
+    id: "A",
+    x,
+    y: (i + 1) * 10,
+  }));
+  const [fit] = computeTrendFits(
+    fakeViz({window: {days: 2}, bands: false}),
+    data,
+    days,
+  );
+  assert.strictEqual(fit.fit.spanned, true);
+  assert.deepStrictEqual(
+    fit.samples.map(s => [s.x.getDate(), s.y]),
+    [
+      [3, 25],
+      [5, 40],
+      [6, 45],
+    ],
+    "the gap before the 5th leaves it alone in its two days",
+  );
+  const viz = {
+    _trendLineConfig: {window: {days: 2}},
+    schema: {locale: "en-US", translate: s => s},
+  };
+  assert.strictEqual(
+    trendLabelText(viz, fit, "equation"),
+    "Moving Average (2 days)",
+  );
+});
+
+it("countText: a count in the chart's locale, without padded decimals", () => {
+  assert.strictEqual(countText(30, "es-ES"), "30");
+  assert.strictEqual(countText(1.5, "es-ES"), "1,5");
+  assert.strictEqual(countText(2, "nope-NOPE-x"), "2");
 });

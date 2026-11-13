@@ -41,6 +41,8 @@ export interface TranslationStrings {
   From: string;
   High: string;
   "Hold Shift and use the arrow keys to rotate the globe.": string;
+  hour: string;
+  hours: string;
   "In-degree": string;
   Increase: string;
   "interactive chart": string;
@@ -59,6 +61,10 @@ export interface TranslationStrings {
   Median: string;
   Milestone: string;
   Minimum: string;
+  minute: string;
+  minutes: string;
+  month: string;
+  months: string;
   more: string;
   "Moving Average": string;
   "No Data": string;
@@ -81,6 +87,8 @@ export interface TranslationStrings {
   "Reset Zoom": string;
   "Running Total": string;
   Search: string;
+  second: string;
+  seconds: string;
   Share: string;
   "Share of Parent": string;
   "Shift+Click to Hide": string;
@@ -101,10 +109,14 @@ export interface TranslationStrings {
   Value: string;
   Values: string;
   Volume: string;
+  week: string;
+  weeks: string;
   Width: string;
   Window: string;
   "working day": string;
   "working days": string;
+  year: string;
+  years: string;
   "Zoom In": string;
   "Zoom Out": string;
   "{node} cluster": string;
@@ -173,6 +185,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062f\u0648\u064a\u0631 \u0627\u0644\u0643\u0631\u0629 \u0627\u0644\u0623\u0631\u0636\u064a\u0629.",
+    hour: "\u0633\u0627\u0639\u0629",
+    hours: "\u0633\u0627\u0639\u0627\u062a",
     "In-degree":
       "\u0627\u0644\u062f\u0631\u062c\u0629 \u0627\u0644\u062f\u0627\u062e\u0644\u0629",
     Increase: "\u0632\u064a\u0627\u062f\u0629",
@@ -190,6 +204,10 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0644\u0631\u0628\u064a\u0639 \u0627\u0644\u0623\u062f\u0646\u0649",
     "Lower Whisker":
       "\u0627\u0644\u0634\u0627\u0631\u0628 \u0627\u0644\u0633\u0641\u0644\u064a",
+    minute: "\u062f\u0642\u064a\u0642\u0629",
+    minutes: "\u062f\u0642\u0627\u0626\u0642",
+    month: "\u0634\u0647\u0631",
+    months: "\u0623\u0634\u0647\u0631",
     "No Data":
       "\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Data Available":
@@ -230,6 +248,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Running Total":
       "\u0627\u0644\u0645\u062c\u0645\u0648\u0639 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     Search: "\u0628\u062d\u062b",
+    second: "\u062b\u0627\u0646\u064a\u0629",
+    seconds: "\u062b\u0648\u0627\u0646",
     Share: "\u0645\u0634\u0627\u0631\u0643\u0629",
     "Share of Parent":
       "\u0627\u0644\u062d\u0635\u0629 \u0645\u0646 \u0627\u0644\u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0623\u0639\u0644\u0649",
@@ -257,10 +277,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
+    week: "\u0623\u0633\u0628\u0648\u0639",
+    weeks: "\u0623\u0633\u0627\u0628\u064a\u0639",
     Width: "\u0627\u0644\u0639\u0631\u0636",
     Window: "\u0627\u0644\u0646\u0627\u0641\u0630\u0629",
     "working day": "\u064a\u0648\u0645 \u0639\u0645\u0644",
     "working days": "\u0623\u064a\u0627\u0645 \u0639\u0645\u0644",
+    year: "\u0633\u0646\u0629",
+    years: "\u0633\u0646\u0648\u0627\u062a",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
     "{node} cluster": "\u0645\u062c\u0645\u0648\u0639\u0629 {node}",
@@ -309,6 +333,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     High: "M\u00e1ximo",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenga pulsada May\u00fas y use las flechas para girar el globo.",
+    hour: "hora",
+    hours: "horas",
     "In-degree": "Grado de entrada",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interactivo",
@@ -327,6 +353,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     Median: "Mediana",
     Milestone: "Hito",
     Minimum: "M\u00ednimo",
+    minute: "minuto",
+    minutes: "minutos",
+    month: "mes",
+    months: "meses",
     more: "m\u00e1s",
     "Moving Average": "Media M\u00f3vil",
     "No Data": "Sin Datos",
@@ -349,6 +379,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "Restablecer Zoom",
     "Running Total": "Total Acumulado",
     Search: "Buscar",
+    second: "segundo",
+    seconds: "segundos",
     Share: "Porcentaje",
     "Share of Parent": "Porcentaje del Nivel Superior",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
@@ -370,10 +402,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "Valor",
     Values: "Valores",
     Volume: "Volumen",
+    week: "semana",
+    weeks: "semanas",
     Width: "Ancho",
     Window: "Ventana",
     "working day": "d\u00eda laborable",
     "working days": "d\u00edas laborables",
+    year: "a\u00f1o",
+    years: "a\u00f1os",
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
     "{node} cluster": "Grupo de {node}",
@@ -422,6 +458,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     High: "M\u00e1xima",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenha Shift pressionada e use as setas para girar o globo.",
+    hour: "hora",
+    hours: "horas",
     "In-degree": "Grau de entrada",
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interativo",
@@ -440,6 +478,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     Median: "Mediana",
     Milestone: "Marco",
     Minimum: "M\u00ednimo",
+    minute: "minuto",
+    minutes: "minutos",
+    month: "m\u00eas",
+    months: "meses",
     more: "mais",
     "Moving Average": "M\u00e9dia M\u00f3vel",
     "No Data": "Sem Dados",
@@ -462,6 +504,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "Redefinir Zoom",
     "Running Total": "Total Acumulado",
     Search: "Pesquisar",
+    second: "segundo",
+    seconds: "segundos",
     Share: "Porcentagem",
     "Share of Parent": "Porcentagem do N\u00edvel Superior",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
@@ -483,10 +527,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "Valor",
     Values: "Valores",
     Volume: "Volume",
+    week: "semana",
+    weeks: "semanas",
     Width: "Largura",
     Window: "Janela",
     "working day": "dia \u00fatil",
     "working days": "dias \u00fateis",
+    year: "ano",
+    years: "anos",
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
     "{node} cluster": "Grupo de {node}",
@@ -538,6 +586,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     High: "\u6700\u9ad8",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u65b9\u5411\u952e\u65cb\u8f6c\u5730\u7403\u4eea\u3002",
+    hour: "\u5c0f\u65f6",
+    hours: "\u5c0f\u65f6",
     "In-degree": "\u5165\u5ea6",
     Increase: "\u589e\u52a0",
     "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
@@ -556,6 +606,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     Median: "\u4e2d\u4f4d\u6570",
     Milestone: "\u91cc\u7a0b\u7891",
     Minimum: "\u6700\u5c0f\u503c",
+    minute: "\u5206\u949f",
+    minutes: "\u5206\u949f",
+    month: "\u4e2a\u6708",
+    months: "\u4e2a\u6708",
     more: "\u66f4\u591a",
     "Moving Average": "\u79fb\u52a8\u5e73\u5747",
     "No Data": "\u65e0\u6570\u636e",
@@ -578,6 +632,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
     "Running Total": "\u7d2f\u8ba1\u603b\u6570",
     Search: "\u641c\u7d22",
+    second: "\u79d2",
+    seconds: "\u79d2",
     Share: "\u5171\u4eab",
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
@@ -599,10 +655,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "\u503c",
     Values: "\u503c",
     Volume: "\u6210\u4ea4\u91cf",
+    week: "\u5468",
+    weeks: "\u5468",
     Width: "\u5bbd\u5ea6",
     Window: "\u7a97\u53e3",
     "working day": "\u5de5\u4f5c\u65e5",
     "working days": "\u5de5\u4f5c\u65e5",
+    year: "\u5e74",
+    years: "\u5e74",
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
     "{node} cluster": "{node}\u96c6\u7fa4",
