@@ -9,7 +9,7 @@ import {pathTextBoxes} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 import {fontFamily as defaultFontFamily} from "@d3plus/text";
 
-import {labelsOverlap} from "../features/linkLabelGeometry.js";
+import {labelCorners, labelsOverlap} from "../features/linkLabelGeometry.js";
 import type {LinkLabelBox} from "../features/linkLabelGeometry.js";
 import {textLineBoxes} from "../features/linkLabels.js";
 import type {PlotAxisFn} from "../features/plotPaint.js";
@@ -120,13 +120,24 @@ const blocked = (box: Box, obstacles: Box[]) => {
   return obstacles.some(o => labelsOverlap(grown, o));
 };
 
+/** Whether any corner of a box falls outside the plot area. */
+const outside = (box: Box, rect: Edges) =>
+  labelCorners(box).some(
+    ([x, y]) =>
+      x < rect.x0 - 0.5 ||
+      x > rect.x1 + 0.5 ||
+      y < rect.y0 - 0.5 ||
+      y > rect.y1 + 0.5,
+  );
+
 /**
     The path a fit's label follows and the boxes it covers, or null when its
     line has no clear spot for it: the drawn (not projected) stretch inside
     the plot, upright, stopped short of its end. The label prefers the end of
-    the line, just above it; when that spot overlaps an earlier label it
-    slides back along the line to the nearest clear stretch, then tries the
-    same below the line. A line too short for a few letters gets none.
+    the line, just above it; when that spot overlaps an earlier label or runs
+    out of the plot area it slides back along the line to the nearest clear
+    stretch, then tries the same below the line. A line too short for a few
+    letters gets none.
     @param points The fitted stretch's points, in pixels.
     @param rect The plot area.
     @param place The font, lift, text width, and labels to clear.
@@ -150,7 +161,8 @@ export function trendLabelSpot(
         offsetPolyline(trimPolyline(run, Math.max(0, to - span), to), baseline),
       );
       const boxes = pathBoxes(d, span, fontSize);
-      if (!boxes.some(b => blocked(b, obstacles))) return {d, boxes};
+      if (!boxes.some(b => blocked(b, obstacles) || outside(b, rect)))
+        return {d, boxes};
       if (span >= end) break;
     }
   return null;
