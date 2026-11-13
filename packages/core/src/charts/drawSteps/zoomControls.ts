@@ -21,6 +21,8 @@ import {
 } from "./zoomControlsMarkup.js";
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 import {startsOnBrush} from "./zoomGesture.js";
+import {fitBounds} from "./zoomFit.js";
+import type {Bounds} from "./zoomFit.js";
 import {bindZoomGestures, unbindZoomGestures} from "./zoomDrag.js";
 import {
   gestureHoverEnd,
@@ -561,7 +563,7 @@ export function zoomTo(
 /**
     @name zoomToBounds
     Zooms so the given on-screen bounds (surface pixels, as currently
-    displayed) fill the chart area, less `zoomPadding`. `null` resets.
+    displayed) fill the chart's zoom area (see `fitBounds`). `null` resets.
     @param bounds
     @private
 */
@@ -572,27 +574,13 @@ function zoomToBounds(
 ): void {
   if (!bounds) return zoomTo(this, 1, 0, 0, duration);
 
-  const [[x0, y0], [x1, y1]] = this._zoomBehavior.translateExtent(),
-    pad = this.schema.zoomPadding,
-    t = zoomTransform((this._zoomEventTarget || this._container).node()),
-    // Un-apply the current transform: bounds → unzoomed surface space.
-    bx0 = (bounds[0][0] - t.x) / t.k,
-    by0 = (bounds[0][1] - t.y) / t.k,
-    bx1 = (bounds[1][0] - t.x) / t.k,
-    by1 = (bounds[1][1] - t.y) / t.k;
-
-  const k = Math.min(
-    (x1 - x0 - pad * 2) / (bx1 - bx0),
-    (y1 - y0 - pad * 2) / (by1 - by0),
-  );
-  // Center the bounds in the chart area.
-  zoomTo(
+  const t = zoomTransform((this._zoomEventTarget || this._container).node());
+  // Un-apply the current transform: bounds → unzoomed surface space.
+  const fit = fitBounds(
     this,
-    k,
-    (x0 + x1) / 2 - (k * (bx0 + bx1)) / 2,
-    (y0 + y1) / 2 - (k * (by0 + by1)) / 2,
-    duration,
+    bounds.map(([x, y]) => [(x - t.x) / t.k, (y - t.y) / t.k]) as Bounds,
   );
+  zoomTo(this, fit.k, fit.x, fit.y, duration);
 }
 
 /**

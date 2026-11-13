@@ -2736,7 +2736,7 @@ export interface D3plusConfig {
   zoomFactor?: number;
   /** Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. */
   zoomMax?: number;
-  /** A pixel value to be used to pad all sides of a zoomed area. */
+  /** A pixel value to be used to pad all sides of a zoomed area. A Plot's brushed box fills its plot without it, so its axes show the brushed range. */
   zoomPadding?: number;
   /** Whether panning (drag) is enabled while zoomed. */
   zoomPan?: boolean;
