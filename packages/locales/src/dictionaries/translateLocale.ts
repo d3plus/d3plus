@@ -7,6 +7,7 @@ export interface TranslationStrings {
   "Bar Total": string;
   Betweenness: string;
   "Brush Zoom": string;
+  Centered: string;
   Change: string;
   Chart: string;
   Clear: string;
@@ -59,6 +60,7 @@ export interface TranslationStrings {
   Milestone: string;
   Minimum: string;
   more: string;
+  "Moving Average": string;
   "No Data": string;
   "No Data Available": string;
   "No Matches": string;
@@ -100,6 +102,7 @@ export interface TranslationStrings {
   Values: string;
   Volume: string;
   Width: string;
+  Window: string;
   "working day": string;
   "working days": string;
   "Zoom In": string;
@@ -125,6 +128,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0645\u0631\u0643\u0632\u064a\u0629 \u0627\u0644\u0628\u064a\u0646\u064a\u0629",
     "Brush Zoom":
       "\u062a\u0643\u0628\u064a\u0631 \u0628\u0627\u0644\u062a\u062d\u062f\u064a\u062f",
+    Centered: "\u0645\u0631\u0643\u0632\u064a",
     Change: "\u0627\u0644\u062a\u063a\u064a\u064a\u0631",
     Chart: "\u0645\u062e\u0637\u0637",
     Clear: "\u0645\u0633\u062d",
@@ -200,6 +204,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Milestone: "\u0645\u0639\u0644\u0645",
     Minimum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     more: "\u0623\u062e\u0631\u0649",
+    "Moving Average":
+      "\u0627\u0644\u0645\u062a\u0648\u0633\u0637 \u0627\u0644\u0645\u062a\u062d\u0631\u0643",
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
     "of first": "\u0645\u0646 \u0627\u0644\u0623\u0648\u0644\u0649",
     "of previous": "\u0645\u0646 \u0627\u0644\u0633\u0627\u0628\u0642\u0629",
@@ -252,6 +258,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Values: "\u0627\u0644\u0642\u064a\u0645",
     Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
     Width: "\u0627\u0644\u0639\u0631\u0636",
+    Window: "\u0627\u0644\u0646\u0627\u0641\u0630\u0629",
     "working day": "\u064a\u0648\u0645 \u0639\u0645\u0644",
     "working days": "\u0623\u064a\u0627\u0645 \u0639\u0645\u0644",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
@@ -267,6 +274,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Bar Total": "Total de la Barra",
     Betweenness: "Intermediaci\u00f3n",
     "Brush Zoom": "Zoom de Selecci\u00f3n",
+    Centered: "Centrado",
     Change: "Variaci\u00f3n",
     Chart: "Gr\u00e1fico",
     Clear: "Borrar",
@@ -320,6 +328,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Milestone: "Hito",
     Minimum: "M\u00ednimo",
     more: "m\u00e1s",
+    "Moving Average": "Media M\u00f3vil",
     "No Data": "Sin Datos",
     "No Data Available": "Datos No Disponibles",
     "No Matches": "Sin Coincidencias",
@@ -362,6 +371,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Values: "Valores",
     Volume: "Volumen",
     Width: "Ancho",
+    Window: "Ventana",
     "working day": "d\u00eda laborable",
     "working days": "d\u00edas laborables",
     "Zoom In": "Acercar",
@@ -377,6 +387,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Bar Total": "Total da Barra",
     Betweenness: "Intermedia\u00e7\u00e3o",
     "Brush Zoom": "Zoom de Seleção",
+    Centered: "Centralizado",
     Change: "Varia\u00e7\u00e3o",
     Chart: "Gr\u00e1fico",
     Clear: "Limpar",
@@ -430,6 +441,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Milestone: "Marco",
     Minimum: "M\u00ednimo",
     more: "mais",
+    "Moving Average": "M\u00e9dia M\u00f3vel",
     "No Data": "Sem Dados",
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
     "No Matches": "Sem Correspond\u00eancias",
@@ -472,6 +484,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Values: "Valores",
     Volume: "Volume",
     Width: "Largura",
+    Window: "Janela",
     "working day": "dia \u00fatil",
     "working days": "dias \u00fateis",
     "Zoom In": "Aproximar",
@@ -489,6 +502,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Bar Total": "\u67f1\u603b\u8ba1",
     Betweenness: "\u4e2d\u4ecb\u4e2d\u5fc3\u6027",
     "Brush Zoom": "\u6846\u9009\u7f29\u653e",
+    Centered: "\u5c45\u4e2d",
     Change: "\u6da8\u8dcc\u5e45",
     Chart: "\u56fe\u8868",
     Clear: "\u6e05\u9664",
@@ -543,6 +557,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Milestone: "\u91cc\u7a0b\u7891",
     Minimum: "\u6700\u5c0f\u503c",
     more: "\u66f4\u591a",
+    "Moving Average": "\u79fb\u52a8\u5e73\u5747",
     "No Data": "\u65e0\u6570\u636e",
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
     "No Matches": "\u65e0\u5339\u914d\u9879",
@@ -585,6 +600,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Values: "\u503c",
     Volume: "\u6210\u4ea4\u91cf",
     Width: "\u5bbd\u5ea6",
+    Window: "\u7a97\u53e3",
     "working day": "\u5de5\u4f5c\u65e5",
     "working days": "\u5de5\u4f5c\u65e5",
     "Zoom In": "\u653e\u5927",

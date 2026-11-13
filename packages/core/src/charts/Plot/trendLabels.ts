@@ -38,7 +38,8 @@ const END_INSET = 6;
     A fit's equation and R² as label text, e.g. `y = 2.1x + 3.4, R² = 0.84`,
     its coefficients abbreviated as the axes abbreviate numbers. A fit along
     a time axis shows only its R² (an equation in milliseconds since 1970
-    says nothing a reader can use).
+    says nothing a reader can use), and a moving average, which has
+    neither, shows nothing.
     @param fit The fitted trend line.
     @param locale The chart's locale.
     @param time Whether the fit runs along a time axis.
@@ -48,6 +49,7 @@ export function trendEquationLabel(
   locale: string,
   time = false,
 ): string {
+  if (fit.fit.type === "movingAverage") return "";
   const r2 = `R² = ${fit.fit.r2.toFixed(2)}`;
   if (time) return r2;
   return `${trendEquation(fit.fit, coefficientFormat(locale), fit.axis)}, ${r2}`;
@@ -56,7 +58,8 @@ export function trendEquationLabel(
 /**
     A fit's label text for a `trendLineConfig.label` setting, or null for
     none: `true` names the series ("Trend" for a line fit to every point),
-    `"equation"` gives its equation and R², and a function returns any text.
+    `"equation"` gives its equation and R² (a moving average's name and
+    window, such as "Moving Average (5)"), and a function returns any text.
     @param viz The chart.
     @param fit The fitted trend line.
     @param setting The configured label.
@@ -73,6 +76,8 @@ export function trendLabelText(
       ? null
       : `${text}`;
   }
+  if (setting === "equation" && fit.fit.type === "movingAverage")
+    return `${viz.schema.translate("Moving Average")} (${fit.fit.window})`;
   if (setting === "equation")
     return trendEquationLabel(
       fit,
