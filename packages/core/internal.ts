@@ -1324,6 +1324,8 @@ export {
   rugGroups,
   rugNodes,
   rugSegments,
+  rugSettings,
+  rugTickSize,
 } from "./src/charts/DensityPlot/rug.js";
 export type {RugConfig} from "./src/charts/DensityPlot/rug.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";

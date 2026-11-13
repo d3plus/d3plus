@@ -68,6 +68,10 @@
         <div class="viz" id="facet"></div>
       </div>
       <div class="wide">
+        <h3>rug: true with small multiples</h3>
+        <div class="viz" id="rug-facet"></div>
+      </div>
+      <div class="wide">
         <h3>Timeline (time: "year")</h3>
         <div class="viz" id="time"></div>
       </div>
@@ -169,6 +173,15 @@
       .groupBy("species")
       .value("Flipper Length (mm)")
       .facet("island")
+      .render();
+
+    new d3plus.DensityPlot()
+      .select("#rug-facet")
+      .data(penguins)
+      .groupBy("species")
+      .value("Flipper Length (mm)")
+      .facet("island")
+      .rug(true)
       .render();
 
     new d3plus.DensityPlot()

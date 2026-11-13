@@ -28,7 +28,7 @@ import {
   densityPointMeta,
   type DensityPointMeta,
 } from "./densityPoint.js";
-import {densityAreaEmit} from "./rug.js";
+import {densityAreaEmit, rugTickSize, type RugConfig} from "./rug.js";
 
 export {DENSITY_POINT, densityPointMeta};
 export type {DensityPointMeta};
@@ -41,6 +41,8 @@ interface DensityPlotState {
   rows: DataPoint[];
   /** The curve points among `rows`, all estimated from rows that passed `filter`. */
   curves: Set<DataPoint>;
+  /** The value axis's `tickSize` last set for the rug, so a user's is left alone. */
+  rugTickSize?: number;
   /** The axis titles last set automatically, so user titles are left alone. */
   xTitle?: string;
   yTitle?: string;
@@ -117,6 +119,24 @@ export function curvesBeforePreDraw(viz: VizInstance): void {
   state.yTitle = yTitle;
   autoTitle(viz._xConfig!, state.xTitle, valueKey);
   state.xTitle = valueKey;
+  rugAxisRoom(viz, state);
+}
+
+/**
+    Moves the value axis's labels down to clear the rug while `rug` is on
+    (through its `tickSize`), and back when it's off, leaving a `tickSize`
+    the user set alone.
+*/
+function rugAxisRoom(viz: VizInstance, state: DensityPlotState): void {
+  const config = viz._xConfig!;
+  const next = viz.schema.rug
+    ? rugTickSize(viz.schema.rugConfig as RugConfig)
+    : undefined;
+  if (config.tickSize === undefined || config.tickSize === state.rugTickSize) {
+    if (next === undefined) delete config.tickSize;
+    else config.tickSize = next;
+  }
+  state.rugTickSize = next;
 }
 
 /**
@@ -189,8 +209,9 @@ export const densityPlotDef: ChartDefinition = {
     */
     {key: "densityScale"},
     /**
-        Draws a short tick for every observation along the value axis, in
-        its group's color (see `rugConfig`).
+        Draws a short tick for every observation just below the value axis,
+        in its group's color, moving the axis's labels down to make room
+        (see `rugConfig`).
     */
     {key: "rug", default: false},
     /**

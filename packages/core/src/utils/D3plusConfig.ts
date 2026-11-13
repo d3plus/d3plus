@@ -2182,7 +2182,7 @@ export interface D3plusConfig {
   referenceLines?: ReferenceLineConfig[];
   /** Row key for matrix-style layouts. */
   row?: string;
-  /** DensityPlot: draws a short tick for every observation along the value axis, in its group's color (default `false`; see `rugConfig`). */
+  /** DensityPlot: draws a short tick for every observation just below the value axis, in its group's color, moving the axis's labels down to make room (default `false`; see `rugConfig`). */
   rug?: boolean;
   /** DensityPlot: the `rug` ticks' `size` (length in pixels, default 8), `strokeWidth` (1), and `opacity` (0.7). */
   rugConfig?: {size?: number; strokeWidth?: number; opacity?: number};
