@@ -410,7 +410,10 @@ BumpChart, Plot itself, and the other charts built on Plot) zoom their data
 instead of the picture: each linear or time axis stays in place and rescales
 its domain, re-ticking for the window it shows, while category and log axes
 stay fixed. A bar chart of categories zooms and pans along its value axis
-only; a scatter plot with two linear axes zooms in both directions.
+only; a scatter plot with two linear axes zooms in both directions. A brushed
+box fills the plot along the axes that zoom, so a LinePlot brushed across its
+width shows exactly the brushed y range, and a scatter plot shows the box's
+range on its tighter axis with the box centered on the other.
 
 How far you can zoom in adapts to what's drawn:
 by default, the limit is the scale at which the chart's smallest shape fills
