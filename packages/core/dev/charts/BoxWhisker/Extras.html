@@ -1,0 +1,157 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>BoxWhisker Extras</title>
+    <meta
+      name="description"
+      content="BoxWhisker extras: the default mean marker and jittered points, notches, widths by group size, horizontal boxes, extras off, and precomputed boxes with a mean, count, and notch."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 24px;
+      }
+      .viz {
+        height: 360px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Default (boxMean and boxPoints on)</h3>
+        <div class="viz" id="defaults"></div>
+      </div>
+      <div>
+        <h3>boxNotch: true</h3>
+        <div class="viz" id="notch"></div>
+      </div>
+      <div>
+        <h3>boxWidthByCount: true</h3>
+        <div class="viz" id="count"></div>
+      </div>
+      <div>
+        <h3>Horizontal, notched, jitter: 0.3</h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+      <div>
+        <h3>boxMean: false, boxPoints: false</h3>
+        <div class="viz" id="off"></div>
+      </div>
+      <div>
+        <h3>Precomputed, with boxMean, boxCount, boxNotch</h3>
+        <div class="viz" id="precomputed"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Seeded rows so the page renders identically every load.
+    let seed = 5;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const normal = () =>
+      Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
+    const groups = [
+      {name: "North", n: 120, mean: 52, sd: 9},
+      {name: "South", n: 30, mean: 61, sd: 14},
+      {name: "East", n: 70, mean: 48, sd: 6},
+      {name: "West", n: 12, mean: 57, sd: 11},
+    ];
+    const rows = groups.flatMap(g =>
+      Array.from({length: g.n}, (_, i) => ({
+        id: `${g.name} ${i + 1}`,
+        region: g.name,
+        // A right skew pulls each mean above its median.
+        score: Math.round(g.mean + g.sd * normal() + 6 * random() ** 4),
+      })),
+    );
+    rows.push({id: "North outlier", region: "North", score: 105});
+
+    const box = (id, config) =>
+      new d3plus.BoxWhisker()
+        .select(`#${id}`)
+        .data(rows)
+        .groupBy("id")
+        .x("region")
+        .y("score")
+        .color("region")
+        .legend(false)
+        .config(config)
+        .render();
+
+    box("defaults", {});
+    box("notch", {boxNotch: true});
+    box("count", {boxWidthByCount: true, boxNotch: true});
+    box("horizontal", {
+      discrete: "y",
+      x: "score",
+      y: "region",
+      boxNotch: true,
+      jitter: 0.3,
+      shapeConfig: {Box: {orient: "horizontal"}},
+    });
+    box("off", {boxMean: false, boxPoints: false});
+
+    new d3plus.BoxWhisker()
+      .select("#precomputed")
+      .data([
+        {
+          id: "A",
+          min: 12,
+          q1: 30,
+          median: 41,
+          q3: 50,
+          max: 70,
+          mean: 43,
+          n: 80,
+        },
+        {
+          id: "B",
+          min: 20,
+          q1: 38,
+          median: 52,
+          q3: 60,
+          max: 85,
+          mean: 49,
+          n: 25,
+        },
+        {
+          id: "C",
+          min: 5,
+          q1: 22,
+          median: 28,
+          q3: 35,
+          max: 48,
+          mean: 30,
+          n: 140,
+        },
+      ])
+      .groupBy("id")
+      .x("id")
+      .boxMin("min")
+      .boxQ1("q1")
+      .boxMedian("median")
+      .boxQ3("q3")
+      .boxMax("max")
+      .boxMean("mean")
+      .boxCount("n")
+      .boxNotch(true)
+      .boxWidthByCount(true)
+      .legend(false)
+      .render();
+  </script>
+</html>
