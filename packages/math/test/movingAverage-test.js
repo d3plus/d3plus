@@ -132,9 +132,18 @@ it("movingSpan: the points within a stretch of x ending at (or centered on) a po
   assert.deepStrictEqual(movingSpan(xs, 3, back3), [2, 3], "(1, 4]");
   assert.deepStrictEqual(movingSpan(xs, 4, back3), [4, 4], "a gap leaves one");
   assert.deepStrictEqual(movingSpan(xs, 6, back3), [4, 6], "(7, 10]");
-  assert.strictEqual(movingSpan(xs, 2, back3), null, "reaches before 0");
+  assert.deepStrictEqual(
+    movingSpan(xs, 2, back3),
+    [0, 2],
+    "reaching before the first x, it holds what it covers",
+  );
+  assert.deepStrictEqual(movingSpan(xs, 0, back3), [0, 0], "the first alone");
   assert.deepStrictEqual(movingSpan(xs, 2, back3, true), [1, 2], "(0.5, 3.5]");
-  assert.strictEqual(movingSpan(xs, 6, back3, true), null, "past the end");
+  assert.deepStrictEqual(
+    movingSpan(xs, 6, back3, true),
+    [5, 6],
+    "(8.5, 11.5], past the end",
+  );
   assert.strictEqual(
     movingSpan(xs, 3, x => x),
     null,
@@ -142,7 +151,7 @@ it("movingSpan: the points within a stretch of x ending at (or centered on) a po
   );
 });
 
-it("movingAverage: a span averages the points in a stretch of x, however they're spaced", () => {
+it("movingAverage: a span averages the points in a stretch of x, from the first point on", () => {
   const points = [
     [0, 10],
     [1, 20],
@@ -152,18 +161,27 @@ it("movingAverage: a span averages the points in a stretch of x, however they're
     [9, 60],
     [10, 70],
   ];
-  const result = movingAverage(points, {span: x => x - 3, deviations: 0});
+  const result = movingAverage(points, {span: x => x - 3, deviations: 2});
   assert.strictEqual(result.spanned, true);
   assert.strictEqual(result.window, 0);
   assert.deepStrictEqual(
     result.points.map(p => [p.x, p.mean]),
     [
+      [0, 10],
+      [1, 15],
+      [2, 20],
       [4, 35],
       [8, 50],
       [9, 55],
       [10, 60],
     ],
-    "the gap before 8 leaves it alone in its stretch",
+    "partial at the start; the gap before 8 leaves it alone in its stretch",
+  );
+  const [first] = result.points;
+  assert.deepStrictEqual(
+    [first.deviation, first.lower, first.upper],
+    [0, 10, 10],
+    "a lone point has no spread",
   );
   const centered = movingAverage(points, {
     span: x => x - 4,
@@ -173,9 +191,13 @@ it("movingAverage: a span averages the points in a stretch of x, however they're
   assert.deepStrictEqual(
     centered.points.map(p => [p.x, p.mean]),
     [
+      [0, 20],
+      [1, 20],
       [2, 30],
       [4, 40],
       [8, 60],
+      [9, 60],
+      [10, 65],
     ],
   );
 });

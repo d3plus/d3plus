@@ -6,7 +6,9 @@ export interface MovingAverageOptions {
       Spans each average across a stretch of x instead of a number of points:
       given a point's x, returns where the stretch ending at it starts (such
       as 30 days earlier). The stretch runs from just after that start up to
-      the point, or, with `center`, is as long and centered on it.
+      the point, or, with `center`, is as long and centered on it. Every point
+      has an average: where its stretch reaches past the data, it averages
+      the points it holds so far.
   */
   span?: (x: number) => number;
   /**
@@ -78,9 +80,10 @@ export function movingWindow(
 /**
     The points averaged at index `i` of the ordered x values `xs` when each
     average spans a stretch of x, as `[start, end]` indices (inclusive), or
-    null when the stretch reaches past the first or last x. A trailing
-    stretch runs from just after `span(x)` up to x; a centered one is as long
-    and centered on x, from just after its start up to its end.
+    null when the stretch has no length. A trailing stretch runs from just
+    after `span(x)` up to x; a centered one is as long and centered on x,
+    from just after its start up to its end. A stretch reaching past the
+    first or last x holds the points it covers so far.
     @param xs The x values, in ascending order.
     @param i The point's index.
     @param span Returns where the stretch ending at an x starts.
@@ -97,7 +100,6 @@ export function movingSpan(
   if (!(length > 0)) return null;
   const from = center ? x - length / 2 : x - length;
   const to = center ? x + length / 2 : x;
-  if (from < xs[0] || to > xs[xs.length - 1]) return null;
   let start = i;
   while (start > 0 && xs[start - 1] > from) start--;
   let end = i;
@@ -113,8 +115,9 @@ export function movingSpan(
     window (the first `window − 1`, or the ends of a centered window) have no
     average. With a `span`, each average takes the points within a stretch
     of x instead (see `movingSpan`), so gaps and uneven spacing average over
-    the same length of x; points whose stretch reaches past the data have
-    none. Returns `null` when no point has an average.
+    the same length of x, and every point has one: where the stretch reaches
+    past the data, it averages the points it holds so far (a lone point has
+    a deviation of 0). Returns `null` when no point has an average.
     @param points An array of `[x, y]` pairs.
     @param options The window, its alignment, and the band width.
 */
