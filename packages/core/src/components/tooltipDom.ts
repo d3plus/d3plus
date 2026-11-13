@@ -39,6 +39,38 @@ function generateReference(position: number[] = [0, 0]): VirtualElement {
   };
 }
 
+/** The side of its anchor a tooltip opens on. */
+export type TooltipPlacement = "top" | "bottom" | "left" | "right";
+
+/** Each side's opposite, the side a tooltip flips to without room. */
+const OPPOSITE: Record<TooltipPlacement, TooltipPlacement> = {
+  top: "bottom",
+  bottom: "top",
+  left: "right",
+  right: "left",
+};
+
+/** The arrow's edge of the tooltip, and its turn, for each placement. */
+const ARROW: Record<TooltipPlacement, [TooltipPlacement, number]> = {
+  top: ["bottom", 45],
+  bottom: ["top", 225],
+  left: ["right", -45],
+  right: ["left", 135],
+};
+
+/**
+    The side of its anchor a tooltip opens on: the anchor's own `placement`
+    (a virtual element may carry one), else above it.
+*/
+export function tooltipPlacement(
+  reference: VirtualElement | HTMLElement,
+): TooltipPlacement {
+  const placement = (reference as {placement?: unknown}).placement;
+  return typeof placement === "string" && placement in OPPOSITE
+    ? (placement as TooltipPlacement)
+    : "top";
+}
+
 /**
  * Positions a tooltip using Floating UI.
  * @private
@@ -51,6 +83,7 @@ async function positionTooltip(
   arrowDistance: number,
   arrowHeight: number,
 ) {
+  const side = tooltipPlacement(reference);
   const {x, y, placement, middlewareData} = await computePosition(
     reference,
     tooltip,
@@ -60,10 +93,10 @@ async function positionTooltip(
       // (not the chart container). Pairs with the body-level portal in
       // `resolvePortal` and `position: fixed` below.
       strategy: "fixed",
-      placement: "top",
+      placement: side,
       middleware: [
         offset(offsetVal + arrowDistance),
-        flip({fallbackPlacements: ["bottom"], padding: 5}),
+        flip({fallbackPlacements: [OPPOSITE[side]], padding: 5}),
         shift({padding: 5}),
         arrowMiddleware({element: arrowEl}),
       ],
@@ -77,19 +110,16 @@ async function positionTooltip(
     visibility: "visible",
   });
 
-  const flipped = placement === "bottom";
+  // The arrow sits on the edge facing the anchor, pointing at it.
+  const [edge, turn] = ARROW[placement as TooltipPlacement] ?? ARROW.top;
   const border = parseFloat(arrowEl.style.borderRightWidth) || 0;
-  if (flipped) {
-    arrowEl.style.transform = "rotate(225deg)";
-    arrowEl.style.top = `-${arrowHeight / 2 + border}px`;
-    arrowEl.style.bottom = "";
-  } else {
-    arrowEl.style.transform = "rotate(45deg)";
-    arrowEl.style.bottom = `-${arrowHeight / 2 + border}px`;
-    arrowEl.style.top = "";
-  }
-  arrowEl.style.left =
-    middlewareData.arrow?.x != null ? `${middlewareData.arrow.x}px` : "";
+  arrowEl.style.transform = `rotate(${turn}deg)`;
+  for (const s of Object.keys(OPPOSITE) as TooltipPlacement[])
+    arrowEl.style[s] = "";
+  arrowEl.style[edge] = `-${arrowHeight / 2 + border}px`;
+  const across = edge === "top" || edge === "bottom";
+  const at = across ? middlewareData.arrow?.x : middlewareData.arrow?.y;
+  arrowEl.style[across ? "left" : "top"] = at != null ? `${at}px` : "";
 }
 
 /**
