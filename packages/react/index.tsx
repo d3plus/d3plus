@@ -13,6 +13,7 @@ import {
   Calendar as CalendarClass,
   Candlestick as CandlestickClass,
   Chord as ChordClass,
+  DensityPlot as DensityPlotClass,
   Donut as DonutClass,
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
@@ -130,6 +131,10 @@ export const Candlestick = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Chord visualization. */
 export const Chord = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={ChordClass} {...props} />
+);
+/** React component for rendering a d3plus DensityPlot visualization. */
+export const DensityPlot = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={DensityPlotClass} {...props} />
 );
 /** React component for rendering a d3plus Donut visualization. */
 export const Donut = (props: D3plusComponentProps) => (

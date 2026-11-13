@@ -1,0 +1,157 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>DensityPlot</title>
+    <meta
+      name="description"
+      content="DensityPlot variants: overlaid groups, stacked groups, one bimodal distribution, per-curve peaks with an Epanechnikov kernel, small multiples, and a timeline."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Inter, sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 400px;
+      }
+      .wide {
+        grid-column: 1 / span 2;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Overlaid groups (default)</h3>
+        <div class="viz" id="overlaid"></div>
+      </div>
+      <div>
+        <h3>stacked: true</h3>
+        <div class="viz" id="stacked"></div>
+      </div>
+      <div>
+        <h3>One distribution (no groupBy)</h3>
+        <div class="viz" id="single"></div>
+      </div>
+      <div>
+        <h3>densityScale: "width", Epanechnikov kernel</h3>
+        <div class="viz" id="width"></div>
+      </div>
+      <div class="wide">
+        <h3>Small multiples (facet: "island")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div class="wide">
+        <h3>Timeline (time: "year")</h3>
+        <div class="viz" id="time"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Seeded rows so the page renders identically every load.
+    let seed = 11;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const normal = () =>
+      Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
+    const round = v => Math.round(v * 10) / 10;
+
+    const species = [
+      {
+        species: "Adelie",
+        n: 150,
+        mean: 190,
+        sd: 6.5,
+        islands: ["Biscoe", "Dream", "Torgersen"],
+      },
+      {species: "Chinstrap", n: 68, mean: 196, sd: 7, islands: ["Dream"]},
+      {species: "Gentoo", n: 124, mean: 217, sd: 6.5, islands: ["Biscoe"]},
+    ];
+    const years = [2007, 2008, 2009];
+    const penguins = species.flatMap(({species, n, mean, sd, islands}) =>
+      Array.from({length: n}, (_, i) => {
+        const year = years[i % 3];
+        return {
+          species,
+          island: islands[i % islands.length],
+          year,
+          "Flipper Length (mm)": round(
+            mean + (year - 2008) * 2 + sd * normal(),
+          ),
+        };
+      }),
+    );
+
+    // Two eruption types: short and long.
+    const eruptions = Array.from({length: 272}, (_, i) => ({
+      eruption: i + 1,
+      "Eruption (minutes)": round(
+        i % 3 === 0 ? 2 + 0.3 * normal() : 4.3 + 0.4 * normal(),
+      ),
+    }));
+
+    new d3plus.DensityPlot()
+      .select("#overlaid")
+      .data(penguins)
+      .groupBy("species")
+      .value("Flipper Length (mm)")
+      .render();
+
+    new d3plus.DensityPlot()
+      .select("#stacked")
+      .data(penguins)
+      .groupBy("species")
+      .value("Flipper Length (mm)")
+      .stacked(true)
+      .render();
+
+    new d3plus.DensityPlot()
+      .select("#single")
+      .data(eruptions)
+      .value("Eruption (minutes)")
+      .render();
+
+    new d3plus.DensityPlot()
+      .select("#width")
+      .data(penguins)
+      .groupBy("species")
+      .value("Flipper Length (mm)")
+      .densityScale("width")
+      .densityConfig({kernel: "epanechnikov"})
+      .render();
+
+    new d3plus.DensityPlot()
+      .select("#facet")
+      .data(penguins)
+      .groupBy("species")
+      .value("Flipper Length (mm)")
+      .facet("island")
+      .render();
+
+    new d3plus.DensityPlot()
+      .select("#time")
+      .data(penguins)
+      .groupBy("species")
+      .value("Flipper Length (mm)")
+      .time("year")
+      .render();
+  </script>
+</html>
