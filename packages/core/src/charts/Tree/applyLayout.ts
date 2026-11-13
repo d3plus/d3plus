@@ -19,6 +19,9 @@ import {stampDepth} from "../features/depthKey.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+import {nameLevel, noKey, nodeId} from "./keys.js";
+import {nodeLabel} from "./nodeLabel.js";
+
 type TreeNode = DataPoint & {
   __d3plus__?: true;
   depth?: number;
@@ -29,16 +32,44 @@ type TreeNode = DataPoint & {
   children?: TreeNode[];
 };
 
-type Branch = {key?: string | number; values?: Branch[] | DataPoint[]} & Record<
-  string,
-  unknown
->;
+type Branch = {
+  key?: string | number | boolean | null;
+  values?: Branch[] | DataPoint[];
+} & Record<string, unknown>;
+
+/**
+    Whether a nest entry is a group rather than a data row: it has a key, `0`
+    or `false` included, and a list of values. `undefined`, `null` and `""`
+    are no key.
+*/
+export function isBranch(d: Branch): boolean {
+  return !noKey(d.key) && Array.isArray(d.values);
+}
+
+/**
+    The first level of a Tree's nest, with each entry that has no key (one
+    `nest` groups the rows without a first-level key under) replaced by the
+    rows under it, so each of those rows is a leaf under the root.
+    @param entries The first level of the nest.
+    @param levels The number of key levels the nest has.
+*/
+export function rootEntries(entries: Branch[], levels: number): Branch[] {
+  return entries.flatMap(e =>
+    noKey(e.key) && Array.isArray(e.values) ? rowsUnder(e, levels - 1) : [e],
+  );
+}
+
+/** Every row under a nest entry with `levels` entry levels inside it. */
+function rowsUnder(entry: Branch, levels: number): Branch[] {
+  const values = entry.values as Branch[];
+  return levels < 1 ? values : values.flatMap(e => rowsUnder(e, levels - 1));
+}
 
 /** Merge a branch's leaf values (recursively) through the schema aggs. */
 function flattenBranchData(viz: VizInstance, branch: Branch): DataPoint {
   return merge(
     (branch.values as Branch[]).map(l =>
-      l.key && l.values ? flattenBranchData(viz, l) : (l as DataPoint),
+      isBranch(l) ? flattenBranchData(viz, l) : (l as DataPoint),
     ),
     viz.schema.aggs as Parameters<typeof merge>[1],
   ) as DataPoint;
@@ -64,19 +95,22 @@ function buildTreeData(
     hierarchy<Branch>(
       {
         key: "root",
-        values: nest(
-          viz._filteredData as DataPoint[],
-          viz.schema.groupBy.slice(0, viz._drawDepth + 1),
-        ) as unknown as Branch[],
+        values: rootEntries(
+          nest(
+            viz._filteredData as DataPoint[],
+            viz.schema.groupBy.slice(0, viz._drawDepth + 1),
+          ) as unknown as Branch[],
+          viz._drawDepth + 1,
+        ),
       } as Branch,
-      d => (d.key && d.values ? (d.values as Branch[]) : null),
+      d => (isBranch(d) ? (d.values as Branch[]) : null),
     ).sort(viz.schema.sort as (a: unknown, b: unknown) => number),
   );
 
   const treeData = (root as unknown as {descendants: () => TreeNode[]})
     .descendants()
     .filter(
-      d => (d.depth ?? 0) <= viz.schema.groupBy.length && !!d.parent,
+      d => (d.depth ?? 0) <= viz._drawDepth + 1 && !!d.parent,
     ) as TreeNode[];
 
   treeData.forEach((d, i) => {
@@ -84,8 +118,9 @@ function buildTreeData(
     // Each node gets a row of its own: a branch's merged leaves, or a copy of
     // the row it wraps, so the rows the legend and `data()` hold are never
     // written to.
-    const row: DataPoint =
-      dd.key && dd.values ? flattenBranchData(viz, dd) : {...(dd as DataPoint)};
+    const row: DataPoint = isBranch(dd)
+      ? flattenBranchData(viz, dd)
+      : {...(dd as DataPoint)};
     d.data = row;
     d.__d3plus__ = true;
     d.i = i;
@@ -130,7 +165,7 @@ function measureTreeLabels(
   const yExtent = extent(treeData, d => d.y) as [number, number];
   const labelHeight = min([
     isVertical ? 50 : 100,
-    (yExtent[1] - rBufferRoot - rBufferEnd) / (viz.schema.groupBy.length + 1),
+    (yExtent[1] - rBufferRoot - rBufferEnd) / (viz._drawDepth + 2),
   ]) as number;
   viz.ctx.labelHeight = labelHeight;
 
@@ -181,10 +216,12 @@ function buildTreeShapeConfig(
     ((d: DataPoint, i: number) => unknown) | undefined;
 
   return {
-    id: (d: TreeNode, i: number) =>
-      (viz._ids(d.data as DataPoint, i) as string[])[(d.depth ?? 1) - 1],
+    id: (d: TreeNode, i: number) => nodeId(viz, d, i),
     label: (d: TreeNode, i: number) => {
       if (labelFn) return labelFn(d.data as DataPoint, i);
+      const level = (d.depth ?? 1) - 1;
+      if (nameLevel(viz, d.data as DataPoint, i, level) !== level)
+        return nodeLabel(viz, d.data as DataPoint, i);
       const ids = viz._ids(d.data as DataPoint, i).slice(0, d.depth ?? 1);
       return ids[ids.length - 1];
     },
@@ -216,12 +253,12 @@ function buildTreeShapeConfig(
         height: isHorizontal ? h : offset * 2 + h,
         x: isVertical
           ? -w / 2
-          : d.children && d.depth !== viz.schema.groupBy.length
+          : d.children && d.depth !== viz._drawDepth + 1
             ? -(offset + w)
             : -offset,
         y: isHorizontal
           ? -h / 2
-          : d.children && d.depth !== viz.schema.groupBy.length
+          : d.children && d.depth !== viz._drawDepth + 1
             ? -(offset + labelHeight)
             : -offset,
       };
@@ -243,9 +280,7 @@ function buildTreeShapeConfig(
         [heightKey]: h,
         [xKey]: -w / 2,
         [yKey]:
-          d.children && d.depth !== viz.schema.groupBy.length
-            ? -(offset + h)
-            : offset,
+          d.children && d.depth !== viz._drawDepth + 1 ? -(offset + h) : offset,
       };
     },
   };

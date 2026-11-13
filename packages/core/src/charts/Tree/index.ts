@@ -20,6 +20,7 @@ import type Viz from "../viz/Viz.js";
 
 import {applyTreeLayout} from "./applyLayout.js";
 import {treeEmit} from "./emit.js";
+import {nodeLabel} from "./nodeLabel.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 
@@ -66,14 +67,7 @@ export const treeDef: ChartDefinition = {
       key: "shapeConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
-        ariaLabel: (d: DataPoint, i: number) => {
-          const treeData = viz.ctx.linksData ? viz._chartScene : undefined;
-          // The original ariaLabel used `_treeData[i].depth`; under the new
-          // model the depth is on the source node so the accessor needs to
-          // walk shapeData differently. Keep the simpler form: drawLabel only.
-          void treeData;
-          return viz._drawLabel(d, i);
-        },
+        ariaLabel: (d: DataPoint, i: number) => nodeLabel(viz, d, i),
         labelConfig: {
           fontColor: () => backgroundInk(viz),
         },
@@ -91,11 +85,7 @@ export const treeDef: ChartDefinition = {
       key: "tooltipConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
-        // The Tooltip calls `title(d, i)` with the bound row; the node's
-        // hierarchy depth is stamped onto that row in applyTreeLayout, so the
-        // label resolves at the node's own level rather than the leaf level.
-        title: (d: DataPoint, i: number) =>
-          viz._drawLabel(d, i, (depthOf(d) ?? 1) - 1),
+        title: (d: DataPoint, i: number) => nodeLabel(viz, d, i),
       }),
     },
     {
