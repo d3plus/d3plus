@@ -1130,6 +1130,28 @@ export interface D3plusConfig {
   /** Calendar: each cell's corner radius, in pixels (kept below a third of the cell). Defaults to `2`. */
   cellRadius?: number;
   /**
+      Pie (when `innerRadius` leaves a hole, as in a Donut), Sunburst and
+      RadialBar: text drawn in the chart's empty middle. `true` draws the sum
+      of every drawn row's value (Sunburst's `sum`), formatted the way the
+      tooltips format values; a string draws that string; a function
+      receives the drawn rows (after filters and hidden legend entries) and
+      their total and returns the text. The text wraps and shrinks to fit
+      the hole (see `centerLabelConfig`) and is left out when it can't fit
+      whole, or, on a Sunburst, once a click zooms into a node. Defaults to
+      `false`.
+  */
+  centerLabel?:
+    boolean | string | ((data: DataPoint[], total: number) => string | false);
+  /**
+      Pie, Sunburst and RadialBar: styles the `centerLabel` with TextBox keys
+      (`fontColor`, `fontFamily`, `fontWeight`, `lineHeight`, `padding`, …).
+      The text shrinks from `fontMax` (default `40`) to fit the hole, down to
+      `fontMin` (default `10`); a `fontSize` fixes its size instead. Defaults
+      to the chart's text color and `padding: 5`. Merged into the current
+      config.
+  */
+  centerLabelConfig?: TextBoxConfig;
+  /**
       Sankey: draws links that loop back to a node they left (A → B → A, or a
       node to itself) as bands that run in a lane above or below the nodes.
       `false` leaves them out, with a warning. Defaults to `true`.

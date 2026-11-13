@@ -13,6 +13,7 @@ import {
   resolveAccessor,
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {centerLabelNodes} from "../features/centerLabel.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 import {sweepFraction} from "./arcFit.js";
@@ -253,11 +254,22 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     slices[k].i ?? 0,
   ]);
 
+  // The hole is as wide as the narrowest slice's inner radius leaves it.
+  const hole = slices.reduce(
+    (m, d) => Math.min(m, Number(resolveInnerRadius(d, d.i ?? 0)) || 0),
+    Infinity,
+  );
+
   return [
     ...pathNodes,
     ...imageNodes,
     ...straight,
     ...curved,
     ...outside.nodes,
+    ...centerLabelNodes(
+      viz,
+      {radius: hole, startAngle: sweep.start, endAngle: sweep.end},
+      value,
+    ),
   ];
 };

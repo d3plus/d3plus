@@ -12,6 +12,7 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {chartBounds, centerChartTransform} from "../features/chartGeometry.js";
+import {centerLabelDefaults} from "../features/centerLabel.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {
   legendLargestFirst,
@@ -79,6 +80,8 @@ export const pieDef: DataDrivenChartDefinition = {
         @type {number | function}
     */
     {key: "innerRadius", default: 0},
+    {key: "centerLabel", default: false},
+    {key: "centerLabelConfig", merge: true, factory: centerLabelDefaults},
     /**
         Where the slices start, in degrees clockwise from 12 o'clock, the same
         convention Gauge, PolarArea and RadialBar use. With `endAngle`, draws a

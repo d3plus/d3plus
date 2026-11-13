@@ -3,11 +3,13 @@
     whole track (so a short bar is still easy to hover).
 */
 
+import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 import {arcPath} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {centerLabelNodes} from "../features/centerLabel.js";
 import {polarWedgeNodes} from "../polar/config.js";
 import type {PolarFrame, PolarWedge} from "../polar/wedgeLayout.js";
 
@@ -47,5 +49,10 @@ export const radialBarEmit: ChartEmit = ({viz, shapeData}) => {
   const labels = angular
     ? []
     : radialBarCurvedLabels(viz, wedges, frame as RadialBarFrame);
-  return [...hits, ...bars, ...labels];
+  const center = centerLabelNodes(
+    viz,
+    {radius: frame.inner},
+    viz.schema.value as (d: DataPoint, i: number) => unknown,
+  );
+  return [...hits, ...bars, ...labels, ...center];
 };

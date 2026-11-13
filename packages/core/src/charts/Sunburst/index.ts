@@ -13,6 +13,7 @@
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
+import {centerLabelDefaults} from "../features/centerLabel.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {rowLegend, shareRow} from "../features/sharedFields.js";
@@ -69,6 +70,8 @@ export const sunburstDef: DataDrivenChartDefinition = {
   ctx: {},
 
   fields: [
+    {key: "centerLabel", default: false},
+    {key: "centerLabelConfig", merge: true, factory: centerLabelDefaults},
     /**
         The radius of the center slot, in pixels, or a function that receives
         the outer radius and returns one. The center is hollow until a click
