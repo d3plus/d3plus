@@ -5,14 +5,18 @@
 */
 import {date} from "@d3plus/dom";
 import * as scales from "d3-scale";
-import {deviation, max, mean, min, range} from "d3-array";
+import {max, min, range} from "d3-array";
 
+import {
+  autoAxisScale,
+  drawnAxisScale,
+} from "../../components/Axis/axisScaleType.js";
 import {userDomainBreaksBaseline} from "./baselineBreak.js";
 import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
 import {isSpanAxis} from "./discreteSpan.js";
 import {widenReferenceDomains} from "./referenceDomains.js";
-import {plotTimeScale, type AxisName} from "./plotRangeBreaks.js";
+import {plotAxisUtc, plotTimeScale, type AxisName} from "./plotRangeBreaks.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 
@@ -37,10 +41,11 @@ type PlotViz = Parameters<TransformStage>[0]["viz"];
 function userDomain(
   domain: DomainValue[],
   time: boolean | undefined,
+  utc: boolean,
 ): DomainValue[] {
   return time
     ? domain.map(d =>
-        d === undefined ? d : (date(d as string | number) as Date),
+        d === undefined ? d : (date(d as string | number, {utc}) as Date),
       )
     : domain.slice();
 }
@@ -101,10 +106,18 @@ function domainScaleSetup(
       ? "Point"
       : "Linear";
   const domain = user[axis]
-      ? userDomain(user[axis]!, viz[`_${axis}Time`])
+      ? userDomain(
+          user[axis]!,
+          viz[`_${axis}Time`],
+          plotAxisUtc(viz, axis as AxisName),
+        )
       : domains[axis],
     domain2 = viz.schema[`${axis}2Domain`]
-      ? userDomain(viz.schema[`${axis}2Domain`], viz[`_${axis}2Time`])
+      ? userDomain(
+          viz.schema[`${axis}2Domain`],
+          viz[`_${axis}2Time`],
+          plotAxisUtc(viz, `${axis}2` as AxisName),
+        )
       : domains[`${axis}2`];
   if (scale !== "Point") {
     if (domain && domain[0] === void 0) domain[0] = domains[axis][0];
@@ -116,8 +129,10 @@ function domainScaleSetup(
 }
 
 /**
-    An axis config's `scale`, with `"auto"` resolved to "log" when the
-    values' spread is over three times their mean (else "linear").
+    An axis config's `scale`, with `"auto"` resolved for the axis's values
+    (see `autoAxisScale`; a discrete axis keeps its own scale),
+    `"utc"` to "time", and a scale the axis doesn't draw to "linear" (with a
+    warning).
 */
 function autoScale(
   viz: PlotViz,
@@ -128,12 +143,12 @@ function autoScale(
   const userScale = viz[`_${axis}Config`].scale;
   if (userScale === "auto") {
     if (viz.schema.discrete === axis) return fallback;
-    const values = axisData.map(
-      (d: Record<string, unknown>) => d[axis],
-    ) as number[];
-    return deviation(values)! / mean(values)! > 3 ? "log" : "linear";
+    return autoAxisScale(axisData.map((d: Record<string, unknown>) => d[axis]));
   }
-  return userScale || fallback;
+  if (!userScale) return fallback;
+  const drawn = drawnAxisScale(userScale);
+  // `"utc"` is a time axis read in UTC (see `configUtc`).
+  return drawn === "utc" ? "time" : drawn;
 }
 
 /** An axis's plottable values (those not `NaN`, `undefined` or `false`). */

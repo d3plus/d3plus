@@ -1,8 +1,54 @@
 /**
+    The same wall-clock time as `local` (read in local time), in UTC.
+    @private
+*/
+function wallClockUtc(local: Date): Date {
+  const out = new Date(0);
+  out.setUTCFullYear(local.getFullYear(), local.getMonth(), local.getDate());
+  out.setUTCHours(
+    local.getHours(),
+    local.getMinutes(),
+    local.getSeconds(),
+    local.getMilliseconds(),
+  );
+  return out;
+}
+
+/** Whether a number reads as a timestamp (in milliseconds) rather than a year. */
+const isTimestamp = (d: number): boolean => `${d}`.length > 5 && d % 1 === 0;
+
+/** A string that names its own time zone, such as a trailing `Z`, `GMT`, or `+05:30`. */
+const zoned = /\d:\d{2}.*(?:Z|GMT|UTC|[+-]\d{2}:?\d{2})(?:\s*\([^)]*\))?$/i;
+
+/** Options for `date`. */
+export interface DateOptions {
+  /** Read a value that names no time zone (a year, a quarter, a month, or a date string without one) in UTC instead of local time. */
+  utc?: boolean;
+}
+
+/**
     Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats.
     @param d The date value to parse (number, string, or Date).
+    @param options `{utc: true}` reads a value that names no time zone in UTC. Anything other than an object is ignored, so `values.map(date)` (which passes each index here) reads local time.
 */
 export default function (
+  d: number | string | false | undefined,
+  options?: DateOptions | number,
+): Date | false | undefined {
+  const parsed = parseLocal(d);
+  const utc =
+    typeof options === "object" && options !== null && options.utc === true;
+  if (!utc || !(parsed instanceof Date) || parsed === (d as unknown))
+    return parsed;
+  const ownZone = typeof d === "number" ? isTimestamp(d) : zoned.test(`${d}`);
+  return ownZone ? parsed : wallClockUtc(parsed);
+}
+
+/**
+    Parses `d` the way `date` does in local time.
+    @private
+*/
+function parseLocal(
   d: number | string | false | undefined,
 ): Date | false | undefined {
   // returns if falsey or already Date object
@@ -14,8 +60,7 @@ export default function (
   // detects if milliseconds
   else if (
     (d as unknown as {constructor: unknown}).constructor === Number &&
-    `${d}`.length > 5 &&
-    (d as number) % 1 === 0
+    isTimestamp(d as number)
   )
     return new Date(d as number);
 

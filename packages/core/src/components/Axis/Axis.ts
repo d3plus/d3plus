@@ -65,7 +65,6 @@ const axisSchema: ConfigField[] = [
   {key: "roundingInsideMinSuffix", coerce: "identity", default: ""},
   {key: "roundingInsideMaxPrefix", coerce: "identity", default: ""},
   {key: "roundingInsideMaxSuffix", coerce: "identity", default: "+"},
-  {key: "scale", coerce: "identity", default: "linear"},
   {key: "scaleAlign", coerce: "identity", default: 0.5},
   {key: "scalePadding", coerce: "identity", default: 0.5},
   {key: "shape", coerce: "identity", default: "Line"},
@@ -77,6 +76,7 @@ const axisSchema: ConfigField[] = [
   {key: "timeLocale", coerce: "identity", default: undefined},
   {key: "title", coerce: "identity"},
   {key: "titleTooltip", coerce: "identity"},
+  {key: "utc", coerce: "identity", default: false},
   {key: "width", coerce: "identity", default: 400},
 ];
 
@@ -91,6 +91,8 @@ export default class Axis extends BaseClass {
   [key: string]: any;
   _select!: D3Selection;
   _data: unknown[];
+  /** Whether `scale("auto")` was set, so each layout pass picks the scale. */
+  _autoScale = false;
   /** The `data` values the scale reads, set by the layout pass (see `axisScaleData`). */
   _scaleData: unknown[] = [];
   /** Whether the last layout pass rotated the labels (see `labelRotation`). */
@@ -189,6 +191,7 @@ export default class Axis extends BaseClass {
     super();
     installFluent(this, axisSchema);
 
+    this.schema.scale = "linear";
     this._data = [];
     this._labelRotation = false;
     this._labelRotationSetting = undefined;
@@ -549,6 +552,26 @@ export default class Axis extends BaseClass {
     return arguments.length
       ? ((this._labelRotationSetting = _), this)
       : this._labelRotationSetting;
+  }
+
+  /**
+      The axis's scale (see `AxisConfig.scale`). `"utc"` sets a time scale
+      read in UTC, as `scale("time")` with `utc(true)` does, and `"auto"`
+      picks one for the axis's data (else its domain) on each render: time
+      for Dates, band for strings, and log or linear for numbers. After a
+      render, the getter returns the scale `"auto"` picked.
+*/
+  scale(): string;
+  scale(_: string): this;
+  scale(_?: string): string | this {
+    if (!arguments.length) return this.schema.scale;
+    // `"auto"` picks a scale on each layout pass (see `resolveAutoScale`).
+    this._autoScale = _ === "auto";
+    if (_ === "utc") {
+      this.schema.scale = "time";
+      this.schema.utc = true;
+    } else this.schema.scale = _;
+    return this;
   }
 
   /**

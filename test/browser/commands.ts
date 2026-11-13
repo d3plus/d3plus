@@ -43,6 +43,32 @@ const emulateColorScheme: BrowserCommand<
   await ctx.page.emulateMedia({colorScheme});
 };
 
+/** The DevTools session holding each page's time zone override, which ends with it. */
+const timezoneSessions = new WeakMap<object, {detach(): Promise<void>}>();
+
+/**
+ * Emulates a time zone (an IANA name such as `"America/Los_Angeles"`), or
+ * with `null` restores the system's, so dates read in local time differ
+ * from UTC as they do for a viewer there.
+ */
+const emulateTimezone: BrowserCommand<[string | null]> = async (
+  ctx,
+  timezoneId,
+) => {
+  const page = ctx.page;
+  const current = timezoneSessions.get(page);
+  if (timezoneId === null) {
+    if (current) {
+      timezoneSessions.delete(page);
+      await current.detach();
+    }
+    return;
+  }
+  const cdp = current ?? (await page.context().newCDPSession(page));
+  timezoneSessions.set(page, cdp);
+  await cdp.send("Emulation.setTimezoneOverride", {timezoneId});
+};
+
 /**
  * Runs a full garbage collection in the page's renderer. Chromium frees the
  * 2 MiB shared-memory buffers each loaded page leaves behind only when it
@@ -60,7 +86,7 @@ const collectGarbage: BrowserCommand<[]> = async ctx => {
 /**
  * Server commands that drive Playwright's mouse at test-page coordinates
  * (`getBoundingClientRect` values), for tests that need real pointer events,
- * and emulate the system color scheme.
+ * and emulate the system color scheme and time zone.
  */
 export const commands = {
   mouseMove,
@@ -68,6 +94,7 @@ export const commands = {
   mouseDown,
   mouseUp,
   emulateColorScheme,
+  emulateTimezone,
   collectGarbage,
 };
 
@@ -80,6 +107,7 @@ declare module "vitest/browser" {
     emulateColorScheme: (
       colorScheme: "light" | "dark" | "no-preference" | null,
     ) => Promise<void>;
+    emulateTimezone: (timezoneId: string | null) => Promise<void>;
     collectGarbage: () => Promise<void>;
   }
 }

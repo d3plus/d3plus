@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Utc · Calendar</title>
+    <meta
+      name="description"
+      content="Calendar utc: timestamps at UTC midnight land on their own day with utc: true, and on the day before west of UTC without it."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin: 16px;
+        font-family: sans-serif;
+      }
+      .chart {
+        height: 320px;
+      }
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+      p {
+        margin: 0 0 8px;
+        font-size: 12px;
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>March at UTC midnight, local time (the default)</h3>
+      <p>
+        West of UTC (the Americas) each day lands on the day before: March 1
+        draws on February 29, and March 31 is empty.
+      </p>
+      <div class="chart" id="local"></div>
+    </div>
+    <div>
+      <h3>The same days with <code>utc: true</code></h3>
+      <p>Every day lands on its own date, for every viewer.</p>
+      <div class="chart" id="utc"></div>
+    </div>
+  </body>
+
+  <script>
+    const rows = [];
+    for (let d = 1; d <= 31; d++)
+      rows.push({date: Date.UTC(2024, 2, d), value: (d * 7) % 11});
+
+    const calendar = utc =>
+      new d3plus.Calendar()
+        .config({data: rows, period: "month", utc})
+        .select(utc ? "#utc" : "#local")
+        .render();
+    calendar(false);
+    calendar(true);
+  </script>
+</html>

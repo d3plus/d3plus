@@ -137,16 +137,23 @@ export function facetTimeFilter(
   return computeTimeFilter(viz);
 }
 
-/** A panel's default title: its facet value, with dates formatted against every panel's date. */
+/**
+    A panel's default title: its facet value, with dates formatted against
+    every panel's date.
+    @param value The panel's facet value.
+    @param values Every panel's facet value.
+    @param utc Write dates in UTC instead of local time (see `chartUtc`).
+*/
 export function formatFacetValue(
   value: FacetValue,
   values: FacetValue[],
+  utc = false,
 ): string {
   if (value instanceof Date) {
     const dates = values
       .filter((v): v is Date => v instanceof Date)
       .sort((a, b) => +a - +b);
-    return formatDate(value, dates);
+    return formatDate(value, dates, {utc});
   }
   return `${value}`;
 }
