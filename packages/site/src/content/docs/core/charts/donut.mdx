@@ -7,6 +7,8 @@ import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/charts/donut/basic-example.js?raw";
 import customHoleSize from "~/examples/core/charts/donut/custom-hole-size.js?raw";
+import centerLabel from "~/examples/core/charts/donut/center-label.js?raw";
+import customCenterLabel from "~/examples/core/charts/donut/custom-center-label.js?raw";
 import sortedWithLegend from "~/examples/core/charts/donut/sorted-with-legend.js?raw";
 import drillDown from "~/examples/core/charts/donut/drill-down.js?raw";
 import halfDonut from "~/examples/core/charts/donut/half-donut.js?raw";
@@ -27,6 +29,18 @@ Each arc's angle is proportional to its `value` (Sold); the default `innerRadius
 Raise `innerRadius` (here 120px) to enlarge the center hole, thinning the ring into a narrow band.
 
 <Playground chart="Donut" code={customHoleSize} controls={["innerRadius"]} />
+
+## Center label
+
+`centerLabel: true` writes the total of every slice's `value` in the hole, formatted like the tooltip's values. It follows the drawn data: click a legend entry to hide a slice, and the total drops to match. The text wraps and shrinks to fit the hole, and is left out when it can't fit whole.
+
+<Playground chart="Donut" code={centerLabel} controls={["centerLabel","innerRadius"]} />
+
+## Custom center label
+
+A string draws itself, and a function receives the drawn rows and their total and returns the text. `centerLabelConfig` styles it with TextBox keys such as `fontColor`, `fontWeight`, `fontMax` and `padding`.
+
+<Playground chart="Donut" code={customCenterLabel} controls={["centerLabelConfig","innerRadius"]} />
 
 ## Sorted with legend
 

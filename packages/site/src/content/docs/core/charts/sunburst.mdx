@@ -12,6 +12,7 @@ import styling from "~/examples/core/charts/sunburst/styling.js?raw";
 import smallDataThreshold from "~/examples/core/charts/sunburst/small-data-threshold.js?raw";
 import shading from "~/examples/core/charts/sunburst/shading.js?raw";
 import curvedLabels from "~/examples/core/charts/sunburst/curved-labels.js?raw";
+import centerLabel from "~/examples/core/charts/sunburst/center-label.js?raw";
 
 Draws a hierarchy as concentric rings, one per `groupBy` level, where each
 node's arc angle is proportional to its summed value. Click an arc to zoom
@@ -58,5 +59,11 @@ Click an arc to zoom into it: it moves to the center and its descendants fill th
 Each arc's name goes where it shows largest: curved along the arc, or straight along the radius. The inner rings' wide arcs take a curve that follows the ring, while the narrow arcs of the outer ring often read better turned along the radius, where a name runs out of arc long before it runs out of ring. This is `labelPosition`'s `"auto"` default; `"along"` curves every name that fits, and `"inside"` keeps the straight labels.
 
 <Playground chart="Sunburst" code={curvedLabels} controls={["labelPosition","ringSize"]} />
+
+## Center label
+
+`centerLabel: true` writes the total `sum` in the hollow center, or pass a string, or a function of the drawn rows and their total. Clicking an arc zooms it into the center, which hides the label until you zoom back out.
+
+<Playground chart="Sunburst" code={centerLabel} controls={["centerLabel","innerRadius"]} />
 
 <ApiReference name="Sunburst" pkg="core" />
