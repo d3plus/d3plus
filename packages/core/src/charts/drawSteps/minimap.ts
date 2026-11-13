@@ -5,6 +5,7 @@ import {chartBounds} from "../features/chartGeometry.js";
 import type {FeatureLayout, FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
 import {zoomTo} from "./zoomControls.js";
+import {zoomedDims} from "./zoomFit.js";
 import {
   MINIMAP_GAP,
   MINIMAP_RIGHT_INSET,
@@ -40,19 +41,6 @@ function zoomTarget(viz: Viz): Viz["_zoomEventTarget"] {
 function liveTransform(viz: Viz): ZoomTransform {
   const node = zoomTarget(viz)?.node();
   return node ? zoomTransform(node) : zoomIdentity;
-}
-
-/**
-    Which screen dimensions the zoom actually scales. Every chart zooms its
-    picture uniformly, except a Plot, which rescales only its linear and time
-    axes — a bar chart with a discrete x axis zooms vertically alone, so the
-    viewport box keeps the minimap's full width.
-    @private
-*/
-function zoomedDims(viz: Viz): {x: boolean; y: boolean} {
-  const scales = viz._plotZoomBase?.scales;
-  if (!scales) return {x: true, y: true};
-  return {x: Boolean(scales.x || scales.x2), y: Boolean(scales.y || scales.y2)};
 }
 
 /** A keyboard nudge step, in minimap pixels — Shift takes a bigger step. */

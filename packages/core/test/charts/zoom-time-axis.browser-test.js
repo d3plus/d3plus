@@ -342,16 +342,16 @@ for (const renderer of ["svg", "canvas"]) {
       renderer,
     );
 
-    // A brushed selection fills the chart area (as on a linear axis), which
-    // takes in the axes' margins too: the plot shows nearly all of it.
+    // A brushed selection fills the plot, as on a linear axis: the axis
+    // shows the brushed dates.
     const selected = span(r.selected);
     assert.ok(
-      span(r.zoomed) > selected * 0.8 && span(r.zoomed) < selected * 1.05,
+      Math.abs(span(r.zoomed) / selected - 1) < 0.01,
       `the brushed dates fill the axis (${span(r.zoomed) / selected})`,
     );
     const mid = (r.selected[0] + r.selected[1]) / 2;
     assert.ok(
-      Math.abs((r.zoomed[0] + r.zoomed[1]) / 2 - mid) < selected * 0.05,
+      Math.abs((r.zoomed[0] + r.zoomed[1]) / 2 - mid) < selected * 0.01,
       "centered on the selection",
     );
     assert.ok(
