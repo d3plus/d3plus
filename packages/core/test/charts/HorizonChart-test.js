@@ -1,0 +1,513 @@
+import {it} from "vitest";
+import assert from "assert";
+import {colorDefaults, colorRamp, colorRampDark} from "@d3plus/color";
+import {useJsdom} from "~test/jsdom.js";
+import HorizonChart, {
+  bandCount,
+  horizonChartDef,
+  measureBands,
+  shareHorizonScales,
+} from "../../src/charts/HorizonChart/index.ts";
+import {
+  horizonBandSize,
+  horizonSlices,
+} from "../../src/charts/HorizonChart/horizonBands.ts";
+import {horizonPalette} from "../../src/charts/HorizonChart/horizonColors.ts";
+import {
+  HORIZON_ROW,
+  horizonEmit,
+  horizonRowBox,
+  horizonSlicePath,
+} from "../../src/charts/HorizonChart/emit.ts";
+import {
+  horizonHitRows,
+  resolveHorizonHover,
+} from "../../src/charts/HorizonChart/hover.ts";
+import {
+  HORIZON_BAND,
+  bandKeyRows,
+  bandLabel,
+  bandMeta,
+  horizonState,
+  rowValue,
+  seriesId,
+  userRow,
+  valueColor,
+  valueFormat,
+} from "../../src/charts/HorizonChart/state.ts";
+import {resolveTheme} from "../../src/utils/theme.ts";
+
+useJsdom();
+
+/** A slice's points rounded to 1e-9, so float noise doesn't fail a match. */
+const rounded = slice =>
+  slice.points.map(p => p.map(n => Math.round(n * 1e9) / 1e9));
+const third = Math.round((10 / 3) * 1e9) / 1e9;
+const twoThirds = Math.round((20 / 3) * 1e9) / 1e9;
+
+it("horizonBandSize: the largest absolute value over the band count", () => {
+  assert.strictEqual(horizonBandSize([1, -9, 6], 3), 3);
+  assert.strictEqual(horizonBandSize([2, NaN, Infinity, 4], 2), 2);
+  assert.strictEqual(horizonBandSize([0, 0], 3), 0, "nothing to draw");
+  assert.strictEqual(horizonBandSize([], 3), 0);
+  assert.strictEqual(horizonBandSize([5], 0), 0, "no bands");
+  assert.strictEqual(horizonBandSize([6], 2.7), 3, "whole bands");
+});
+
+it("horizonSlices: a rising series fills each band in turn", () => {
+  const slices = horizonSlices(
+    [
+      [0, 0],
+      [10, 30],
+    ],
+    3,
+    10,
+  );
+  assert.deepStrictEqual(
+    slices.map(s => [s.sign, s.band]),
+    [
+      [1, 0],
+      [1, 1],
+      [1, 2],
+    ],
+  );
+  // Crossings at 10 and 20 are inserted, so each band runs straight.
+  const [b0, b1, b2] = slices;
+  assert.deepStrictEqual(rounded(b0), [
+    [0, 0],
+    [third, 1],
+    [twoThirds, 1],
+    [10, 1],
+  ]);
+  assert.deepStrictEqual(rounded(b1), [
+    [third, 0],
+    [twoThirds, 1],
+    [10, 1],
+  ]);
+  assert.deepStrictEqual(rounded(b2), [
+    [twoThirds, 0],
+    [10, 1],
+  ]);
+});
+
+it("horizonSlices: negatives are mirrored into bands of their own", () => {
+  const slices = horizonSlices(
+    [
+      [0, 5],
+      [10, -15],
+    ],
+    2,
+    10,
+  );
+  const pos = slices.filter(s => s.sign === 1);
+  const neg = slices.filter(s => s.sign === -1);
+  assert.strictEqual(pos.length, 1);
+  assert.deepStrictEqual(pos[0].points, [
+    [0, 0.5],
+    [2.5, 0],
+  ]);
+  assert.deepStrictEqual(
+    neg.map(s => s.band),
+    [0, 1],
+  );
+  // Zero crossing at x 2.5, the -10 edge at x 7.5.
+  assert.deepStrictEqual(neg[0].points, [
+    [2.5, 0],
+    [7.5, 1],
+    [10, 1],
+  ]);
+  assert.deepStrictEqual(neg[1].points, [
+    [7.5, 0],
+    [10, 0.5],
+  ]);
+});
+
+it("horizonSlices: values past the top band fill it, flat runs make no crossings", () => {
+  const [top] = horizonSlices(
+    [
+      [0, 50],
+      [1, 50],
+    ],
+    1,
+    10,
+  );
+  assert.deepStrictEqual(top.points, [
+    [0, 1],
+    [1, 1],
+  ]);
+});
+
+it("horizonSlices: gaps break runs, and lone points draw nothing", () => {
+  const slices = horizonSlices(
+    [
+      [0, 4],
+      [1, 6],
+      [2, NaN],
+      [3, 8],
+      [4, null],
+      [5, 2],
+      [6, 2],
+    ],
+    1,
+    10,
+  );
+  assert.strictEqual(slices.length, 2, "two runs of two points");
+  assert.deepStrictEqual(
+    slices.map(s => s.points.map(p => p[0])),
+    [
+      [0, 1],
+      [5, 6],
+    ],
+  );
+  assert.deepStrictEqual(horizonSlices([[0, 1]], 3, 1), []);
+  assert.deepStrictEqual(
+    horizonSlices(
+      [
+        [0, 1],
+        [1, 2],
+      ],
+      3,
+      0,
+    ),
+    [],
+    "no band size",
+  );
+});
+
+it("horizonSlices: a band trims to one zero point either side of where it holds values", () => {
+  const [, band1] = horizonSlices(
+    [
+      [0, 1],
+      [1, 2],
+      [2, 15],
+      [3, 2],
+      [4, 1],
+    ],
+    2,
+    10,
+  );
+  assert.strictEqual(band1.band, 1);
+  const xs = band1.points.map(p => p[0]);
+  assert.ok(xs[0] > 1 && xs[0] < 2, "starts at the 10 crossing");
+  assert.ok(xs[xs.length - 1] > 2 && xs[xs.length - 1] < 3);
+  assert.strictEqual(band1.points[0][1], 0);
+  assert.strictEqual(band1.points[band1.points.length - 1][1], 0);
+});
+
+it("horizonPalette: theme colorScale poles, ramped low to high", () => {
+  const light = horizonPalette(undefined, 3, undefined);
+  assert.deepStrictEqual(
+    light.positive,
+    colorRamp(colorDefaults.sequential, 3, {ordinal: true}),
+  );
+  assert.deepStrictEqual(
+    light.negative,
+    colorRamp(colorDefaults.off, 3, {ordinal: true}),
+  );
+  const dark = resolveTheme("dark");
+  const night = horizonPalette(dark, 2, undefined);
+  assert.deepStrictEqual(
+    night.positive,
+    colorRampDark(dark.colorScale.max, 2, {
+      background: dark.background,
+      ordinal: true,
+    }),
+  );
+  assert.deepStrictEqual(
+    night.negative,
+    colorRampDark(dark.colorScale.min, 2, {
+      background: dark.background,
+      ordinal: true,
+    }),
+  );
+});
+
+it("horizonPalette: colors override either sign with a base or a list", () => {
+  const p = horizonPalette(undefined, 3, {
+    positive: "#e8590c",
+    negative: ["#aaa", "#555"],
+  });
+  assert.deepStrictEqual(p.positive, colorRamp("#e8590c", 3, {ordinal: true}));
+  assert.deepStrictEqual(
+    p.negative,
+    ["#aaa", "#555", "#555"],
+    "the last repeats",
+  );
+  const empty = horizonPalette(undefined, 1, {positive: [], negative: ""});
+  assert.deepStrictEqual(empty.positive, [colorDefaults.sequential]);
+  assert.deepStrictEqual(empty.negative, [colorDefaults.off]);
+});
+
+it("horizonRowBox: rows split the step, gap capped at half a row", () => {
+  assert.deepStrictEqual(horizonRowBox(50, 20, 2), {top: 41, bottom: 59});
+  assert.deepStrictEqual(horizonRowBox(50, 20, 40), {top: 45, bottom: 55});
+  assert.deepStrictEqual(horizonRowBox(50, 20, -3), {top: 40, bottom: 60});
+});
+
+it("horizonSlicePath: the topline over the row's baseline", () => {
+  const d = horizonSlicePath(
+    {
+      band: 0,
+      sign: 1,
+      points: [
+        [0, 0],
+        [5, 1],
+        [10, 0.5],
+      ],
+    },
+    {top: 10, bottom: 30},
+  );
+  assert.strictEqual(d, "M0,30L0,30L5,10L10,20L10,30Z");
+});
+
+/** A chart with the state `measureBands` reads, over `rows`. */
+function measured(rows, configure = v => v) {
+  const viz = configure(
+    new HorizonChart().data(rows).groupBy("id").x("x").y("v"),
+  );
+  viz._filteredData = rows;
+  viz._drawDepth = 0;
+  viz._ids = d => [d.id];
+  viz._drawLabel = d => `Series ${d.id}`;
+  measureBands(viz);
+  return viz;
+}
+
+const rows = [
+  {id: "a", x: 1, v: 3},
+  {id: "a", x: 2, v: 9},
+  {id: "b", x: 1, v: -6},
+  {id: "b", x: 2, v: null},
+];
+
+it("HorizonChart defaults and the y accessor it takes over", () => {
+  const viz = new HorizonChart();
+  assert.strictEqual(viz.bands(), 3);
+  assert.strictEqual(viz.bandSize(), undefined);
+  assert.strictEqual(viz.colors(), undefined);
+  assert.strictEqual(viz.rowGap(), 1);
+  assert.strictEqual(viz.discrete(), "x");
+  assert.strictEqual(viz.shape()(), "Area");
+  assert.strictEqual(viz._crosshairFullSpan, true);
+  assert.strictEqual(horizonChartDef.name, "HorizonChart");
+  assert.strictEqual(horizonChartDef.facet.aspect, 2);
+  assert.deepStrictEqual(horizonChartDef.facet.axes, {y: "all"});
+
+  assert.strictEqual(viz.y("v"), viz, "setter chains");
+  assert.strictEqual(viz.y()({v: 4}), 4, "y reads the value");
+  viz.y(d => d.w * 2);
+  assert.strictEqual(viz.y()({w: 4}), 8);
+  viz.config({y: "v"});
+  assert.strictEqual(viz.y()({v: 7}), 7, "config sets it too");
+  viz._ids = d => [d.id];
+  viz._drawDepth = 0;
+  assert.strictEqual(viz._y({id: "a", v: 7}, 0), "a", "_y places the row");
+});
+
+it("bandCount: whole bands, at least one", () => {
+  const viz = new HorizonChart();
+  assert.strictEqual(bandCount(viz.bands(4.6)), 4);
+  assert.strictEqual(bandCount(viz.bands(0)), 1);
+  assert.strictEqual(bandCount(viz.bands("x")), 1);
+});
+
+it("measureBands: series order and labels, shared band size, signs, the band key", () => {
+  const viz = measured(rows);
+  const state = horizonState(viz);
+  assert.deepStrictEqual(
+    [...state.order],
+    [
+      ["a", 0],
+      ["b", 1],
+    ],
+  );
+  assert.deepStrictEqual(
+    [...state.labels],
+    [
+      ["a", "Series a"],
+      ["b", "Series b"],
+    ],
+  );
+  assert.strictEqual(state.size, 3);
+  assert.deepStrictEqual(state.signs, {positive: true, negative: true});
+  assert.strictEqual(state.palette.positive.length, 3);
+  assert.strictEqual(viz._legendData.length, 6);
+  assert.deepStrictEqual(
+    viz._legendData.map(d => bandMeta(d).range),
+    [
+      [-9, -6],
+      [-6, -3],
+      [-3, -0],
+      [0, 3],
+      [3, 6],
+      [6, 9],
+    ],
+  );
+
+  const fixed = measured(rows, v => v.bandSize(5).bands(2));
+  assert.strictEqual(horizonState(fixed).size, 5, "bandSize wins");
+  assert.strictEqual(fixed._legendData.length, 4);
+
+  const positive = measured(rows.slice(0, 2));
+  assert.deepStrictEqual(horizonState(positive).signs, {
+    positive: true,
+    negative: false,
+  });
+  assert.strictEqual(positive._legendData.length, 3, "no negative bands");
+});
+
+it("state helpers: series ids, rows, values, band meta, colors, labels", () => {
+  const viz = measured(rows);
+  const state = horizonState(viz);
+  assert.strictEqual(seriesId(viz, {id: "b"}, 0), "b");
+  assert.strictEqual(seriesId({}, {id: "b"}, 0), "", "before pre-draw");
+  const row = {id: "a", v: 2};
+  const wrapped = {__d3plus__: true, data: {__d3plus__: true, data: row}};
+  assert.strictEqual(userRow(wrapped), row);
+  assert.strictEqual(rowValue(viz, wrapped, 0), 2);
+  assert.ok(Number.isNaN(rowValue(viz, {v: null}, 0)));
+  assert.ok(Number.isNaN(rowValue(viz, {v: ""}, 0)));
+  assert.ok(Number.isNaN(rowValue(viz, {}, 0)));
+
+  const meta = {band: 1, sign: 1, range: [3, 6], color: "red"};
+  assert.strictEqual(bandMeta({[HORIZON_BAND]: meta}), meta);
+  assert.strictEqual(
+    bandMeta({__d3plus__: true, data: {[HORIZON_BAND]: meta}}),
+    meta,
+  );
+  assert.strictEqual(bandMeta({id: "a"}), undefined);
+  assert.strictEqual(bandMeta(undefined), undefined);
+
+  assert.strictEqual(valueColor(state, 2), state.palette.positive[0]);
+  assert.strictEqual(valueColor(state, 3), state.palette.positive[0]);
+  assert.strictEqual(valueColor(state, 3.1), state.palette.positive[1]);
+  assert.strictEqual(valueColor(state, 99), state.palette.positive[2]);
+  assert.strictEqual(valueColor(state, -7), state.palette.negative[2]);
+  assert.strictEqual(valueColor(state, 0), undefined);
+  assert.strictEqual(valueColor(state, NaN), undefined);
+  assert.strictEqual(valueColor({...state, size: 0}, 3), undefined);
+
+  assert.strictEqual(bandLabel(meta, valueFormat(viz)), "3 – 6");
+  assert.strictEqual(valueFormat(viz)(1500), "1.5k");
+  assert.deepStrictEqual(bandKeyRows({...state, size: 0}, 3), []);
+});
+
+/** A HorizonChart emit context over two series rows on a 100px-tall plot. */
+function emitContext(viz) {
+  const wrap = (d, i) => ({
+    __d3plus__: true,
+    data: d,
+    i,
+    id: d.id,
+    x: d.x,
+    y: d.id,
+  });
+  const values = rows.map(wrap);
+  const yPos = {a: 25, b: 75};
+  return {
+    viz,
+    values,
+    x: v => v * 100,
+    y: c => yPos[c],
+    xRange: [100, 200],
+    yRange: [0, 100],
+    yDomain: ["a", "b"],
+  };
+}
+
+it("horizonEmit: a transparent row per series under its band polygons", () => {
+  const viz = measured(rows, v => v.rowGap(4));
+  const nodes = horizonEmit(emitContext(viz), "Area");
+  const row = nodes.filter(n => `${n.key}`.startsWith(HORIZON_ROW));
+  assert.deepStrictEqual(
+    row.map(n => [n.key, n.y, n.height, n.paint.fill]),
+    [
+      ["horizon-row-a", 2, 46, "transparent"],
+      ["horizon-row-b", 52, 46, "transparent"],
+    ],
+  );
+  assert.deepStrictEqual(
+    row[0].interactionPoints.map(p => [p.x, p.y, p.datum.data.v]),
+    [
+      [100, 25, 3],
+      [200, 25, 9],
+    ],
+  );
+  assert.strictEqual(
+    row[1].interactionPoints.length,
+    1,
+    "a missing value has no point",
+  );
+  assert.strictEqual(row[0].aria.label, "Series a");
+
+  const bands = nodes.filter(n => n.type === "path");
+  assert.deepStrictEqual(
+    bands.map(n => n.key),
+    ["horizon-a-p0", "horizon-a-p1", "horizon-a-p2"],
+    "b's lone point draws nothing",
+  );
+  bands.forEach((n, band) => {
+    assert.strictEqual(n.interactive, false);
+    assert.strictEqual(n.aria.hidden, true);
+    assert.strictEqual(n.paint.fill, horizonState(viz).palette.positive[band]);
+    assert.strictEqual(bandMeta(n.datum).band, band);
+    assert.strictEqual(n.datum.id, "a");
+    assert.ok(n.enterD, "grows from the baseline");
+  });
+});
+
+it("horizonHitRows and resolveHorizonHover: every row at the nearest x", () => {
+  const viz = measured(rows);
+  const scene = [
+    {type: "group", key: "g", children: horizonEmit(emitContext(viz))},
+  ];
+  const hit = horizonHitRows(scene);
+  assert.deepStrictEqual(
+    hit.map(r => [r.id, r.label, r.top, r.bottom, r.points.length]),
+    [
+      ["a", "Series a", 0.5, 49.5, 2],
+      ["b", "Series b", 50.5, 99.5, 1],
+    ],
+  );
+
+  const shared = resolveHorizonHover(viz, hit, [110, 10], true);
+  assert.strictEqual(shared.px, 100);
+  assert.strictEqual(shared.value, 1);
+  assert.deepStrictEqual(
+    shared.rows.map(r => [r.id, r.value]),
+    [
+      ["a", 3],
+      ["b", -6],
+    ],
+  );
+  const later = resolveHorizonHover(viz, hit, [190, 10], true);
+  assert.deepStrictEqual(
+    later.rows.map(r => r.id),
+    ["a"],
+    "b has no value at x 2",
+  );
+  const single = resolveHorizonHover(viz, hit, [110, 80], false);
+  assert.deepStrictEqual(
+    single.rows.map(r => r.id),
+    ["b"],
+    "only the row under the pointer",
+  );
+  viz.tooltip(false);
+  assert.strictEqual(resolveHorizonHover(viz, hit, [110, 10], true), null);
+  assert.strictEqual(resolveHorizonHover(viz, [], [0, 0], true), null);
+});
+
+it("shareHorizonScales: panels share x but keep their own rows", () => {
+  const viz = new HorizonChart().groupBy("id").x("x").y("v");
+  viz._ids = d => [d.id];
+  viz._drawDepth = 0;
+  viz._margin = {top: 0, right: 0, bottom: 0, left: 0};
+  viz._filteredData = rows;
+  viz.schema.width = 400;
+  viz.schema.height = 300;
+  viz.schema.ySort = horizonState(viz).sort;
+  const shared = shareHorizonScales(viz, [rows.slice(0, 2), rows.slice(2)]);
+  assert.ok(shared.domains.x, "x is shared");
+  assert.strictEqual(shared.domains.y, undefined);
+  assert.strictEqual(shared.padded.y, undefined);
+});
