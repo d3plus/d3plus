@@ -6,10 +6,17 @@ import HorizonChart, {
   bandCount,
   horizonChartDef,
   measureBands,
+  rowLabelOpacity,
   shareHorizonScales,
 } from "../../src/charts/HorizonChart/index.ts";
 import {
+  applyRowDomain,
+  rowDomain,
+} from "../../src/charts/HorizonChart/measure.ts";
+import {rowHidden, rowToggle} from "../../src/charts/HorizonChart/rowFilter.ts";
+import {
   horizonBandSize,
+  niceCeil,
   horizonSlices,
 } from "../../src/charts/HorizonChart/horizonBands.ts";
 import {horizonPalette} from "../../src/charts/HorizonChart/horizonColors.ts";
@@ -45,13 +52,46 @@ const rounded = slice =>
 const third = Math.round((10 / 3) * 1e9) / 1e9;
 const twoThirds = Math.round((20 / 3) * 1e9) / 1e9;
 
-it("horizonBandSize: the largest absolute value over the band count", () => {
-  assert.strictEqual(horizonBandSize([1, -9, 6], 3), 3);
+it("niceCeil: the next 1, 2, 2.5, or 5 times a power of ten", () => {
+  const cases = [
+    [1, 1],
+    [1.2, 2],
+    [2, 2],
+    [2.1, 2.5],
+    [2.6, 5],
+    [5, 5],
+    [5.01, 10],
+    [9.9, 10],
+    [13.7, 20],
+    [31.9, 50],
+    [0.3, 0.5],
+    [0.24, 0.25],
+    [1380, 2000],
+    [0.000137, 0.0002],
+  ];
+  cases.forEach(([value, nice]) =>
+    assert.ok(
+      Math.abs(niceCeil(value) - nice) < nice * 1e-9,
+      `${value} → ${niceCeil(value)}, not ${nice}`,
+    ),
+  );
+  assert.strictEqual(niceCeil((0.1 + 0.2) / 0.1 / 10), 0.5, "float noise");
+  assert.strictEqual(niceCeil(0.3 / 0.1), 5, "3 rounds up to 5");
+  assert.strictEqual(niceCeil(0), 0);
+  assert.strictEqual(niceCeil(-4), 0);
+  assert.strictEqual(niceCeil(NaN), 0);
+  assert.strictEqual(niceCeil(Infinity), 0);
+});
+
+it("horizonBandSize: the largest absolute value over the band count, rounded up nicely", () => {
+  assert.strictEqual(horizonBandSize([1, -9, 6], 3), 5);
   assert.strictEqual(horizonBandSize([2, NaN, Infinity, 4], 2), 2);
+  assert.strictEqual(horizonBandSize([41, 12], 3), 20);
+  assert.strictEqual(horizonBandSize([75], 3), 25, "the key reads 25 – 50");
   assert.strictEqual(horizonBandSize([0, 0], 3), 0, "nothing to draw");
   assert.strictEqual(horizonBandSize([], 3), 0);
   assert.strictEqual(horizonBandSize([5], 0), 0, "no bands");
-  assert.strictEqual(horizonBandSize([6], 2.7), 3, "whole bands");
+  assert.strictEqual(horizonBandSize([6], 2.7), 5, "whole bands");
 });
 
 it("horizonSlices: a rising series fills each band in turn", () => {
@@ -265,9 +305,11 @@ function measured(rows, configure = v => v) {
   const viz = configure(
     new HorizonChart().data(rows).groupBy("id").x("x").y("v"),
   );
+  viz._data = rows;
   viz._filteredData = rows;
   viz._drawDepth = 0;
   viz._ids = d => [d.id];
+  viz._id = d => d.id;
   viz._drawLabel = d => `Series ${d.id}`;
   measureBands(viz);
   return viz;
@@ -328,24 +370,24 @@ it("measureBands: series order and labels, shared band size, signs, the band key
       ["b", "Series b"],
     ],
   );
-  assert.strictEqual(state.size, 3);
+  assert.strictEqual(state.size, 5, "9 / 3 rounded up");
   assert.deepStrictEqual(state.signs, {positive: true, negative: true});
   assert.strictEqual(state.palette.positive.length, 3);
   assert.strictEqual(viz._legendData.length, 6);
   assert.deepStrictEqual(
     viz._legendData.map(d => bandMeta(d).range),
     [
-      [-9, -6],
-      [-6, -3],
-      [-3, -0],
-      [0, 3],
-      [3, 6],
-      [6, 9],
+      [-15, -10],
+      [-10, -5],
+      [-5, -0],
+      [0, 5],
+      [5, 10],
+      [10, 15],
     ],
   );
 
-  const fixed = measured(rows, v => v.bandSize(5).bands(2));
-  assert.strictEqual(horizonState(fixed).size, 5, "bandSize wins");
+  const fixed = measured(rows, v => v.bandSize(4.5).bands(2));
+  assert.strictEqual(horizonState(fixed).size, 4.5, "bandSize wins, unrounded");
   assert.strictEqual(fixed._legendData.length, 4);
 
   const positive = measured(rows.slice(0, 2));
@@ -357,7 +399,7 @@ it("measureBands: series order and labels, shared band size, signs, the band key
 });
 
 it("state helpers: series ids, rows, values, band meta, colors, labels", () => {
-  const viz = measured(rows);
+  const viz = measured(rows, v => v.bandSize(3));
   const state = horizonState(viz);
   assert.strictEqual(seriesId(viz, {id: "b"}, 0), "b");
   assert.strictEqual(seriesId({}, {id: "b"}, 0), "", "before pre-draw");
@@ -416,7 +458,7 @@ function emitContext(viz) {
 }
 
 it("horizonEmit: a transparent row per series under its band polygons", () => {
-  const viz = measured(rows, v => v.rowGap(4));
+  const viz = measured(rows, v => v.rowGap(4).bandSize(3));
   const nodes = horizonEmit(emitContext(viz), "Area");
   const row = nodes.filter(n => `${n.key}`.startsWith(HORIZON_ROW));
   assert.deepStrictEqual(
@@ -510,4 +552,122 @@ it("shareHorizonScales: panels share x but keep their own rows", () => {
   assert.ok(shared.domains.x, "x is shared");
   assert.strictEqual(shared.domains.y, undefined);
   assert.strictEqual(shared.padded.y, undefined);
+});
+
+it("measureBands: all the data sets the rows and band size, whatever is filtered out", () => {
+  const viz = measured(rows);
+  // Only "a" in the current timeline period, "b" hidden: both still count.
+  viz._filteredData = rows.slice(0, 1);
+  viz._hidden = ["b"];
+  measureBands(viz);
+  const state = horizonState(viz);
+  assert.deepStrictEqual([...state.order.keys()], ["a", "b"]);
+  assert.strictEqual(state.size, 5);
+  assert.deepStrictEqual(state.signs, {positive: true, negative: true});
+  assert.strictEqual(state.first.get("b"), rows[2]);
+
+  // Rows at one x roll up, as the chart draws them.
+  const twice = measured([...rows, {id: "a", x: 2, v: 9}]);
+  assert.strictEqual(horizonState(twice).size, 10, "18 / 3 rounded up");
+});
+
+it("rowDomain and applyRowDomain: every row, or a panel's, unless the user sets a domain", () => {
+  const data = [
+    {id: "a", p: "one", x: 1, v: 1},
+    {id: "b", p: "two", x: 1, v: 2},
+    {id: "c", p: "one", x: 1, v: 3},
+  ];
+  const viz = measured(data, v => v.facet("p"));
+  assert.deepStrictEqual(rowDomain(viz), ["a", "b", "c"]);
+  assert.deepStrictEqual(rowDomain(viz, "one"), ["a", "c"]);
+  assert.deepStrictEqual(rowDomain(viz, "three"), []);
+
+  applyRowDomain(viz);
+  assert.deepStrictEqual(viz._yConfig.domain, ["a", "b", "c"]);
+  viz._facetStep = "panel";
+  viz._filteredData = [data[1]];
+  applyRowDomain(viz);
+  assert.deepStrictEqual(viz._yConfig.domain, ["b"], "the panel's own rows");
+  viz._yConfig.domain = ["c", "a"];
+  applyRowDomain(viz);
+  assert.deepStrictEqual(viz._yConfig.domain, ["c", "a"], "the user's wins");
+});
+
+it("rowToggle: hide, show, and solo by the legend's rules", () => {
+  const none = {hidden: [], solo: []};
+  assert.deepStrictEqual(rowToggle(none, "a", false, 3), {
+    hidden: ["a"],
+    solo: [],
+  });
+  assert.deepStrictEqual(
+    rowToggle({hidden: ["a"], solo: []}, "a", false, 3),
+    none,
+    "a hidden row shows again",
+  );
+  assert.deepStrictEqual(
+    rowToggle({hidden: ["a", "b"], solo: []}, "c", false, 3),
+    none,
+    "hiding every row shows them all",
+  );
+  assert.deepStrictEqual(rowToggle(none, "b", true, 3), {
+    hidden: [],
+    solo: ["b"],
+  });
+  assert.strictEqual(
+    rowToggle({hidden: [], solo: ["b"]}, "b", true, 3),
+    null,
+    "Shift+click on the solo'd row changes nothing",
+  );
+  assert.deepStrictEqual(
+    rowToggle({hidden: [], solo: ["b"]}, "b", false, 3),
+    none,
+    "a click on the solo'd row shows all",
+  );
+  assert.deepStrictEqual(rowToggle({hidden: [], solo: ["b"]}, "a", false, 3), {
+    hidden: [],
+    solo: ["b", "a"],
+  });
+  assert.deepStrictEqual(
+    rowToggle({hidden: [], solo: ["b", "a"]}, "c", false, 3),
+    none,
+    "soloing every row shows them all",
+  );
+  // legendFilterInvert: a click solos, Shift+click hides.
+  assert.deepStrictEqual(rowToggle(none, "a", false, 3, true), {
+    hidden: [],
+    solo: ["a"],
+  });
+  assert.deepStrictEqual(
+    rowToggle({hidden: [], solo: ["a"]}, "a", false, 3, true),
+    none,
+  );
+  assert.deepStrictEqual(rowToggle(none, "a", true, 3, true), {
+    hidden: ["a"],
+    solo: [],
+  });
+  assert.deepStrictEqual(
+    rowToggle({hidden: [], solo: ["a"]}, "a", true, 3, true),
+    none,
+  );
+  assert.strictEqual(
+    rowToggle({hidden: [], solo: ["a"]}, "b", true, 3, true),
+    null,
+  );
+});
+
+it("rowHidden and rowLabelOpacity: a hidden or un-solo'd row's label dims", () => {
+  const viz = measured(rows);
+  viz._hidden = [];
+  viz._solo = [];
+  assert.strictEqual(rowHidden(viz, "a"), false);
+  assert.strictEqual(rowLabelOpacity(viz, {data: {id: "a"}}), 1);
+  viz._hidden = ["a"];
+  assert.strictEqual(rowHidden(viz, "a"), true);
+  assert.strictEqual(rowLabelOpacity(viz, {data: {id: "a"}}), 0.4);
+  assert.strictEqual(rowLabelOpacity(viz, {id: "a"}), 0.4, "a bare tick");
+  viz._hidden = [];
+  viz._solo = ["b"];
+  assert.strictEqual(rowHidden(viz, "a"), true);
+  assert.strictEqual(rowHidden(viz, "b"), false);
+  assert.strictEqual(rowHidden(viz, "nope"), false, "an unknown series");
 });

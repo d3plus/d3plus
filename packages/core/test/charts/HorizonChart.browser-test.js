@@ -18,6 +18,7 @@ const helpers = () => {
         id,
         region: s === 2 ? "B" : "A",
         x,
+        date: new Date(Date.UTC(2024, 0, 1 + x * 7)),
         v: s === 1 ? -(x % 6) * 2 : ((x * (s + 3)) % 11) + (s === 0 ? 1 : 0),
       })),
     );
@@ -66,6 +67,37 @@ const helpers = () => {
       clientX: box.left + x + (t.x || 0),
       clientY: box.top + y + (t.y || 0),
     };
+  };
+  // A row label's center, in client pixels, read off an SVG draw.
+  window.__labelAt = async (text, configure = v => v) => {
+    const {el} = await window.__draw("svg", configure);
+    const label = Array.from(el.querySelectorAll("text")).find(
+      t => t.textContent === text,
+    );
+    const b = label.getBoundingClientRect();
+    return [b.left + b.width / 2, b.top + b.height / 2];
+  };
+  // Pointer events at a client point, on whatever element is there.
+  window.__at = async ([x, y], type, init = {}) => {
+    document
+      .elementFromPoint(x, y)
+      .dispatchEvent(
+        new MouseEvent(type, {clientX: x, clientY: y, bubbles: true, ...init}),
+      );
+    await window.__wait();
+  };
+  // The opacity a row label is painted with.
+  window.__labelOpacity = (viz, text) => {
+    const node = window
+      .__nodes(viz._paintedScene.root.children)
+      .find(
+        n =>
+          n.type === "text" &&
+          (n.lines || []).map(l => l.text).join("") === text,
+      );
+    if (!node) return null;
+    const p = node.paint || {};
+    return p.opacity ?? p.fillOpacity ?? node.opacity ?? 1;
   };
   window.__move = async (el, viz, x, y) => {
     const {target, clientX, clientY} = window.__pointer(el, viz, x, y);
@@ -139,7 +171,11 @@ for (const renderer of ["svg", "canvas"]) {
         "south",
         "west",
       ]);
-      assert.strictEqual(out.size, 11 / 3, "the largest value over 3 bands");
+      assert.strictEqual(
+        out.size,
+        5,
+        "the largest value over 3 bands, rounded up",
+      );
       assert.strictEqual(out.legend, 6, "three bands of each sign");
       const fills = new Set(out.bands.map(b => b.fill));
       assert.ok(
@@ -274,7 +310,7 @@ for (const renderer of ["svg", "canvas"]) {
           })),
         };
       }, renderer);
-      assert.strictEqual(out.size, 11 / 3);
+      assert.strictEqual(out.size, 5);
       assert.deepStrictEqual(
         out.panels.map(p => p.rows),
         [["horizon-row-north", "horizon-row-south"], ["horizon-row-west"]],
@@ -306,6 +342,116 @@ for (const renderer of ["svg", "canvas"]) {
       }, renderer);
       assert.ok(out.theme);
       assert.ok(out.high > out.low, "higher bands are brighter on dark");
+    });
+  });
+}
+
+for (const renderer of ["svg", "canvas"]) {
+  describe(`HorizonChart row labels [${renderer}]`, () => {
+    it("clicking a row label hides its series, Shift+click solos it, and Back undoes it", async () => {
+      const out = await run(async renderer => {
+        const south = await window.__labelAt("south");
+        const north = await window.__labelAt("north");
+        const {el, viz} = await window.__draw(renderer, v => v);
+        const rows = () =>
+          window
+            .__nodes(viz._chartScene)
+            .filter(n => `${n.key}`.startsWith("horizon-row-"))
+            .map(n => `${n.key}`.slice(12));
+        const surface =
+          renderer === "canvas"
+            ? el.querySelector("canvas.d3plus-render-canvas")
+            : el.querySelector("svg");
+        const size = viz.ctx.horizon.size;
+        await window.__at(south, "mousemove");
+        const tip = Array.from(document.querySelectorAll(".d3plus-tooltip"))
+          .map(t => t.innerText.replace(/\s+/g, " ").trim())
+          .find(t => t);
+        const cursor = surface.style.cursor;
+        await window.__at(south, "click");
+        await window.__wait();
+        const hidden = {
+          ids: [...viz._hidden],
+          rows: rows(),
+          domain: viz._yAxis._d3Scale.domain().slice(),
+          south: window.__labelOpacity(viz, "south"),
+          north: window.__labelOpacity(viz, "north"),
+          size: viz.ctx.horizon.size,
+          legend: viz._legendData.length,
+        };
+        await window.__at(south, "click");
+        await window.__wait();
+        const shown = {ids: [...viz._hidden], rows: rows()};
+        await window.__at(north, "click", {shiftKey: true});
+        await window.__wait();
+        const solo = {
+          ids: [...viz._solo],
+          rows: rows(),
+          south: window.__labelOpacity(viz, "south"),
+        };
+        const back = Array.from(el.querySelectorAll("button")).find(b =>
+          /back/i.test(b.getAttribute("aria-label") || b.textContent),
+        );
+        back.click();
+        await window.__wait();
+        await window.__wait();
+        return {
+          size,
+          tip,
+          cursor,
+          hidden,
+          shown,
+          solo,
+          back: {solo: [...viz._solo], hidden: [...viz._hidden], rows: rows()},
+        };
+      }, renderer);
+      assert.ok(out.tip.startsWith("south"), out.tip);
+      assert.ok(
+        out.tip.includes("Click to Hide") &&
+          out.tip.includes("Shift+Click to Highlight"),
+        out.tip,
+      );
+      assert.strictEqual(out.cursor, "pointer");
+      assert.deepStrictEqual(out.hidden.ids, ["south"]);
+      assert.deepStrictEqual(out.hidden.rows, ["north", "west"]);
+      assert.strictEqual(
+        out.hidden.domain.length,
+        3,
+        "the hidden row keeps its place",
+      );
+      assert.strictEqual(out.hidden.south, 0.4, "its label dims");
+      assert.strictEqual(out.hidden.north, 1);
+      assert.strictEqual(out.hidden.size, out.size, "the band size holds");
+      assert.strictEqual(out.hidden.legend, 6, "and so does the band key");
+      assert.deepStrictEqual(out.shown.ids, [], "a second click shows it");
+      assert.deepStrictEqual(out.shown.rows, ["north", "south", "west"]);
+      assert.deepStrictEqual(out.solo.ids, ["north"]);
+      assert.deepStrictEqual(out.solo.rows, ["north"]);
+      assert.strictEqual(out.solo.south, 0.4);
+      assert.deepStrictEqual(out.back.solo, [], "Back undoes the solo");
+      assert.deepStrictEqual(out.back.rows, ["north", "south", "west"]);
+    });
+
+    it("the band size holds across timeline steps", async () => {
+      const out = await run(async renderer => {
+        const {viz} = await window.__draw(renderer, v =>
+          v.x("date").time("date").timeline(true),
+        );
+        const all = viz.ctx.horizon.size;
+        const cut = new Date(Date.UTC(2024, 0, 20));
+        viz.timeFilter(d => new Date(d.date) <= cut);
+        await new Promise(r => viz.render(r));
+        return {
+          all,
+          step: viz.ctx.horizon.size,
+          drawn: viz._filteredData.length,
+          key: viz._legendData.map(d => d.__d3plusHorizonBand.range[1]),
+        };
+      }, renderer);
+      assert.strictEqual(out.all, 5);
+      assert.strictEqual(out.drawn, 9, "three dates of three series");
+      assert.strictEqual(out.step, out.all);
+      assert.deepStrictEqual(out.key, [-10, -5, -0, 5, 10, 15]);
     });
   });
 }
