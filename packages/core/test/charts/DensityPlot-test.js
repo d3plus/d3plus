@@ -12,6 +12,7 @@ import Treemap from "../../src/charts/Treemap/index.ts";
 import {drawnRawRows} from "../../src/charts/pipeline/preDrawData.ts";
 import {spanTicks} from "../../src/charts/Plot/discreteSpan.ts";
 import {valueField} from "../../src/charts/helpers/valueTitle.ts";
+import {rugGroups, rugSegments} from "../../src/charts/DensityPlot/rug.ts";
 
 useJsdom();
 
@@ -188,4 +189,40 @@ it("valueField: strings read a key, functions pass through", () => {
   const fn = d => d.w;
   assert.strictEqual(field.coerce(fn), fn);
   assert.strictEqual(field.coerce(7)(), 7);
+});
+
+it("rugGroups / rugSegments: each group's observations as ticks", () => {
+  const viz = curves(rows);
+  // Plot hands the emitter its formatted rows, which carry the series id.
+  const groups = rugGroups(
+    viz._data.map(d => ({__d3plus__: true, data: d, id: d.g})),
+  );
+  assert.deepStrictEqual([...groups.keys()], ["a", "b"]);
+  assert.deepStrictEqual(groups.get("a").values, [1, 2, 3]);
+  assert.deepStrictEqual(groups.get("b").values, [8, 9, 11]);
+  assert.strictEqual(groups.get("a").datum.data.g, "a");
+  assert.deepStrictEqual(rugGroups([{id: "x"}]).size, 0);
+  assert.deepStrictEqual(
+    rugSegments([1, 2, NaN], v => v * 10, 100, 8),
+    [
+      [
+        [10, 100],
+        [10, 92],
+      ],
+      [
+        [20, 100],
+        [20, 92],
+      ],
+    ],
+  );
+});
+
+it("DensityPlot rug defaults: off, 8px ticks", () => {
+  const viz = new DensityPlot();
+  assert.strictEqual(viz.rug(), false);
+  assert.deepStrictEqual(viz.rugConfig(), {
+    size: 8,
+    strokeWidth: 1,
+    opacity: 0.7,
+  });
 });

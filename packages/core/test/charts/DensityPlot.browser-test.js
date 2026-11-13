@@ -25,6 +25,7 @@ const ROWS = (() => {
     Array.from({length: n}, (_, i) => ({
       g,
       f: i % 2 ? "odd" : "even",
+      year: 2000 + (i % 2),
       v: Math.round((mean + sd * normal()) * 10) / 10,
     })),
   );
@@ -194,4 +195,99 @@ it("DensityPlot draws one panel per facet with a curve per group", async functio
         );
       },
     );
+});
+
+/**
+    Renders a DensityPlot of ROWS with a rug and `extra` config, optionally
+    hiding series, and returns its rug ticks (count and colors per series)
+    and its areas' colors.
+*/
+const drawRug = (page, renderer, extra = "{}", hidden = []) =>
+  page.evaluate(
+    ([rows, renderer, extra, hidden]) =>
+      new Promise(resolve => {
+        const viz = new window.d3plus.DensityPlot()
+          .config({data: rows, groupBy: "g", value: "v", rug: true})
+          .config(new Function(`return (${extra});`)())
+          .renderer(renderer)
+          .duration(0)
+          .select("#viz");
+        viz._hidden = hidden;
+        viz.render(() => {
+          const ticks = {},
+            areas = {};
+          let inert = true;
+          const walk = node => {
+            const key = `${node.key}`;
+            const rug = key.match(/rug-(\w+)-\d+$/);
+            if (rug && node.type === "line") {
+              const id = rug[1];
+              (ticks[id] ||= {n: 0, colors: new Set()}).n++;
+              ticks[id].colors.add(node.paint.stroke);
+              if (node.interactive !== false) inert = false;
+            }
+            if (node.shapeType === "Area" && node.datum?.id)
+              areas[node.datum.id] ||= node.paint.stroke;
+            (node.children || []).forEach(walk);
+          };
+          (viz._chartScene || []).forEach(walk);
+          resolve({
+            ticks: Object.fromEntries(
+              Object.entries(ticks).map(([id, t]) => [
+                id,
+                {n: t.n, colors: [...t.colors]},
+              ]),
+            ),
+            areas,
+            inert,
+          });
+        });
+      }),
+    [ROWS, renderer, extra, hidden],
+  );
+
+it("DensityPlot rug ticks every drawn observation in its group's color", async function () {
+  const counts = {low: 60, mid: 30, high: 45};
+  for (const renderer of RENDERERS)
+    await withPage(BODY, async page => {
+      const out = await drawRug(page, renderer);
+      assert.deepStrictEqual(
+        Object.fromEntries(
+          Object.entries(out.ticks).map(([id, t]) => [id, t.n]),
+        ),
+        counts,
+        `${renderer}: one tick per observation`,
+      );
+      Object.entries(out.ticks).forEach(([id, t]) =>
+        assert.deepStrictEqual(t.colors, [out.areas[id]], `${renderer}: ${id}`),
+      );
+      assert.ok(out.inert, `${renderer}: ticks leave hover to the curves`);
+
+      const hidden = await drawRug(page, renderer, "{}", ["mid"]);
+      assert.deepStrictEqual(Object.keys(hidden.ticks).sort(), ["high", "low"]);
+
+      const stacked = await drawRug(page, renderer, "{stacked: true}");
+      assert.strictEqual(stacked.ticks.low.n, 60, `${renderer}: stacked`);
+
+      const faceted = await drawRug(page, renderer, `{facet: "f"}`);
+      assert.strictEqual(
+        faceted.ticks.low.n,
+        60,
+        `${renderer}: each panel ticks its own half`,
+      );
+
+      const off = await drawRug(page, renderer, "{rug: false}");
+      assert.deepStrictEqual(off.ticks, {});
+    });
+});
+
+it("DensityPlot rug ticks only the selected time period", async function () {
+  await withPage(BODY, async page => {
+    const out = await drawRug(page, "svg", `{time: "year"}`);
+    // The latest year, 2001, holds every second observation.
+    assert.deepStrictEqual(
+      Object.fromEntries(Object.entries(out.ticks).map(([id, t]) => [id, t.n])),
+      {low: 30, mid: 15, high: 22},
+    );
+  });
 });
