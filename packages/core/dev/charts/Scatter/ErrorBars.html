@@ -1,0 +1,176 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Scatter Error Bars</title>
+    <meta
+      name="description"
+      content="Error bars on points: y bounds, x bounds, both as a cross, on a category axis, plus a {x, y} setting on horizontal bars and on lines."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 24px;
+      }
+      .viz {
+        height: 360px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Both axes: {x: [...], y: [...]} draws a cross</h3>
+        <div class="viz" id="cross"></div>
+      </div>
+      <div>
+        <h3>y only: ["yLow", "yHigh"]</h3>
+        <div class="viz" id="vertical"></div>
+      </div>
+      <div>
+        <h3>x only: {x: ["xLow", "xHigh"]}</h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+      <div>
+        <h3>Category axis (discrete: "x") with y bounds</h3>
+        <div class="viz" id="strip"></div>
+      </div>
+      <div>
+        <h3>Horizontal bars, {x: [...]}</h3>
+        <div class="viz" id="bars"></div>
+      </div>
+      <div>
+        <h3>LinePlot, {y: [...]} (band)</h3>
+        <div class="viz" id="lines"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const studies = [
+      {
+        id: "Study A",
+        group: "Trial",
+        x: 12,
+        xLow: 9,
+        xHigh: 15,
+        y: 3.1,
+        yLow: 2.4,
+        yHigh: 3.9,
+      },
+      {
+        id: "Study B",
+        group: "Trial",
+        x: 20,
+        xLow: 17.5,
+        xHigh: 23,
+        y: 4.4,
+        yLow: 3.9,
+        yHigh: 5.2,
+      },
+      {
+        id: "Study C",
+        group: "Cohort",
+        x: 31,
+        xLow: 25,
+        xHigh: 36,
+        y: 5.0,
+        yLow: 4.1,
+        yHigh: 5.6,
+      },
+      {
+        id: "Study D",
+        group: "Cohort",
+        x: 38,
+        xLow: 35,
+        xHigh: 42,
+        y: 6.3,
+        yLow: 5.5,
+        yHigh: 7.4,
+      },
+      {
+        id: "Study E",
+        group: "Trial",
+        x: 47,
+        xLow: 40,
+        xHigh: 51,
+        y: 6.9,
+        yLow: 6.1,
+        yHigh: 7.5,
+      },
+    ];
+
+    const scatter = (id, confidence) =>
+      new d3plus.Scatter()
+        .select(`#${id}`)
+        .data(studies)
+        .groupBy("id")
+        .color("group")
+        .x("x")
+        .y("y")
+        .confidence(confidence)
+        .render();
+
+    scatter("cross", {x: ["xLow", "xHigh"], y: ["yLow", "yHigh"]});
+    scatter("vertical", ["yLow", "yHigh"]);
+    scatter("horizontal", {x: ["xLow", "xHigh"]});
+
+    new d3plus.Scatter()
+      .select("#strip")
+      .data(studies)
+      .groupBy("id")
+      .color("group")
+      .discrete("x")
+      .x("group")
+      .y("y")
+      .confidence(["yLow", "yHigh"])
+      .legend(false)
+      .render();
+
+    new d3plus.BarChart()
+      .select("#bars")
+      .data(studies)
+      .groupBy("id")
+      .discrete("y")
+      .y("id")
+      .x("x")
+      .confidence({x: ["xLow", "xHigh"], y: ["yLow", "yHigh"]})
+      .legend(false)
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#lines")
+      .data(
+        [2019, 2020, 2021, 2022, 2023].flatMap((year, i) =>
+          ["North", "South"].map((region, k) => {
+            const v = 10 + i * (k ? 2 : 3) + k * 4;
+            return {
+              region,
+              year,
+              v,
+              low: v - 1.5 - i * 0.4,
+              high: v + 1.5 + i * 0.4,
+            };
+          }),
+        ),
+      )
+      .groupBy("region")
+      .x("year")
+      .y("v")
+      .confidence({y: ["low", "high"]})
+      .render();
+  </script>
+</html>

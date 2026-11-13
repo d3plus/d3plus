@@ -27,6 +27,7 @@ import type {SceneNode} from "@d3plus/render";
 import type {Shape} from "../../shapes/index.js";
 
 import {emitBarConfidence} from "../Plot/barConfidence.js";
+import {emitPointConfidence} from "../Plot/pointConfidence.js";
 import {labelsOverCircles, plotCircleLabels} from "../Plot/circleLabels.js";
 import {emitLineBands} from "../Plot/lineBands.js";
 import {lineLabelConfig} from "../Plot/lineLabelEmit.js";
@@ -180,8 +181,13 @@ function finishShape(
     key === "Circle" ? plotCircleLabels(ctx, s, userConfig) : null;
   s.render();
   const nodes = collectComputed(s);
+  // Points paint over their error bars.
   if (key === "Circle")
-    return labelsOverCircles([...nodes, ...(besideLabels?.() ?? [])]);
+    return labelsOverCircles([
+      ...emitPointConfidence(ctx, nodes),
+      ...nodes,
+      ...(besideLabels?.() ?? []),
+    ]);
   // Areas grow out of the value axis's baseline.
   if (key === "Area") growAreasFromBaseline(ctx, nodes);
   if (key !== "Bar") return nodes;

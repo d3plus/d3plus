@@ -19,6 +19,12 @@ import {sortedAxisValues} from "./axisValues.js";
 import {applyBarWidths, shareAxis} from "./barWidth.js";
 import {discreteDomainCategories} from "./discreteDomain.js";
 import {extraBandValues} from "./confidenceBands.js";
+import {
+  confidenceValueAxis,
+  crossAxisValues,
+  crossBounds,
+  syncConfidenceAxes,
+} from "./confidenceAxes.js";
 import {applySwarmLanes, resolveSwarm} from "./swarm.js";
 import {applyPaddedDomains} from "./facetScales.js";
 import {
@@ -235,6 +241,7 @@ function plotRowPrep(viz: PlotViz, times: ReturnType<typeof detectTimeAxes>) {
         .slice(0, viz._drawDepth + 1)
         .join("_"),
       lci: viz._confidence && viz._confidence[0] && viz._confidence[0](d, i),
+      ...crossBounds(viz, d, i),
       shape: viz.schema.shape(d, i),
       x: xTime ? date(viz._x(d, i), {utc: xUtc}) : viz._x(d, i),
       x2: x2Time ? date(viz._x2(d, i), {utc: x2Utc}) : viz._x2(d, i),
@@ -308,6 +315,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
     };
   }
 
+  syncConfidenceAxes(viz);
   const {prepData, stackGroup} = plotRowPrep(viz, detectTimeAxes(viz));
 
   const categories = discreteDomainCategories(viz);
@@ -432,7 +440,11 @@ export const computePlotAxisValues: TransformStage = ({
               : undefined,
           );
 
-    if (viz.schema.discrete !== axis.charAt(0) && viz._confidence) {
+    if (
+      axis.charAt(0) === confidenceValueAxis(viz) &&
+      viz.schema.discrete !== axis.charAt(0) &&
+      viz._confidence
+    ) {
       if (viz._confidence[0])
         myData = myData.concat(
           localData.map((d: Record<string, unknown>) => d.lci),
@@ -443,6 +455,8 @@ export const computePlotAxisValues: TransformStage = ({
         );
       myData = myData.concat(extraBandValues(viz, localData));
     }
+    if (viz.schema.discrete !== axis.charAt(0))
+      myData = myData.concat(crossAxisValues(viz, localData, axis));
 
     return extra.length ? myData.concat(extra) : myData;
   }

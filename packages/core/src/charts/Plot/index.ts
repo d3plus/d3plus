@@ -21,6 +21,8 @@ import {
 import type {PlotPaintContext} from "../features/plotPaint.js";
 import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
 import {validateConfidenceConfig} from "./confidenceConfig.js";
+import {resolveConfidenceAxes, syncConfidenceAxes} from "./confidenceAxes.js";
+import type {ConfidenceAxes} from "./confidenceAxes.js";
 import {
   resolveConfidenceBands,
   type ConfidenceBand,
@@ -454,7 +456,7 @@ export default class Plot extends Viz {
   }
 
   /**
-       The confidence interval as `[lower, upper]` bounds (keys or accessors): lines draw a shaded band, bars an error bar. Either bound may be `false` for a one-sided interval, and the value axis widens to fit. Pass an array of bands, outermost first (`[lower, upper, label]` or `{lower, upper, label}`), to draw nested bands (a fan). `false` turns it off.
+       The confidence interval as `[lower, upper]` bounds (keys or accessors): lines draw a shaded band, bars and points an error bar. Either bound may be `false` for a one-sided interval, and the value axis widens to fit. Pass an array of bands, outermost first (`[lower, upper, label]` or `{lower, upper, label}`), to draw nested bands (a fan). Pass `{x: [lower, upper], y: [lower, upper]}` to bound each axis: the value axis's bounds (y, or x when `discrete` is `"y"`) draw as above, and the other axis's draw on points, as a cross where a point has both. `false` turns it off.
 
 @example <caption>Can be called with accessor functions or static keys:</caption>
        var data = {id: "alpha", value: 10, lci: 9, hci: 11};
@@ -467,16 +469,26 @@ export default class Plot extends Viz {
 
        // Or nested bands, outermost first
        .confidence([["p5", "p95", "90%"], ["p25", "p75", "50%"]])
+
+       // Or bounds on each axis
+       .confidence({x: ["xLow", "xHigh"], y: ["yLow", "yHigh"]})
 */
   confidence(
     _?: unknown,
-  ): this | VizInstance["_confidence"] | ConfidenceBand[] {
+  ): this | VizInstance["_confidence"] | ConfidenceBand[] | ConfidenceAxes {
     if (!arguments.length)
-      return this._confidenceBands && this._confidenceBands.length > 1
-        ? this._confidenceBands
-        : this._confidence;
-    const bands = (this._confidenceBands = resolveConfidenceBands(_));
+      return this._confidenceAxes
+        ? this._confidenceAxes
+        : this._confidenceBands && this._confidenceBands.length > 1
+          ? this._confidenceBands
+          : this._confidence;
+    // A `{x, y}` setting resolves to the value axis's pair at each draw.
+    this._confidenceAxes = resolveConfidenceAxes(_);
+    const bands = (this._confidenceBands = this._confidenceAxes
+      ? []
+      : resolveConfidenceBands(_));
     this._confidence = bands.length ? [bands[0].lower, bands[0].upper] : false;
+    syncConfidenceAxes(this as unknown as VizInstance);
     return this;
   }
 

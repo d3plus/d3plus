@@ -27,6 +27,7 @@ import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {BarSpanLayout} from "../Plot/barWidth.js";
+import type {ConfidenceAxes} from "../Plot/confidenceAxes.js";
 import type {ConfidenceBand} from "../Plot/confidenceBands.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {AxisHoverState} from "../Plot/axisHover.js";
@@ -524,6 +525,11 @@ export interface VizInstance {
     [ConfidenceAccessor | false, ConfidenceAccessor | false] | false;
   /** Every `confidence` band, outermost first; `_confidence` holds the first band's pair. */
   _confidenceBands?: ConfidenceBand[];
+  /** A `{x, y}` `confidence` setting's bounds by axis (see `Plot/confidenceAxes.ts`), or null. */
+  _confidenceAxes?: ConfidenceAxes | null;
+  /** The bounds along the axis `_confidence` doesn't bound, from a `{x, y}` setting; `false` when none. */
+  _confidenceCross?:
+    [ConfidenceAccessor | false, ConfidenceAccessor | false] | false;
   _lineMarkers?: boolean;
   _groupPadding?: number;
   _annotations?: Record<string, unknown>[];
