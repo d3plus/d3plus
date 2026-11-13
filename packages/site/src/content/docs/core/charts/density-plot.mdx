@@ -43,7 +43,7 @@ Pass raw observations, name the numeric field with `value`, and split them with 
 
 ## Rug
 
-`rug: true` adds a short tick for every observation along the value axis, in its group's color, so the curves can be read against the data they smooth. `rugConfig` sets the ticks' `size`, `strokeWidth`, and `opacity`. The ticks leave hovering to the curves.
+`rug: true` hangs a short tick for every observation just below the value axis, in its group's color, so the curves can be read against the data they smooth; the axis's labels move down to make room. The rug works the same with `stacked` and `facet`, and follows the legend and the timeline. `rugConfig` sets the ticks' `size`, `strokeWidth`, and `opacity`. The ticks leave hovering to the curves.
 
 <Playground chart="DensityPlot" code={rug} controls={["rug","rugConfig"]} />
 
