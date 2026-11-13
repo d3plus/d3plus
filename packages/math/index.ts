@@ -13,6 +13,7 @@ export {default as lineIntersection} from "./src/lineIntersection.js";
 export {default as louvain} from "./src/louvain.js";
 export {default as linearConfidence} from "./src/linearConfidence.js";
 export {default as linearPrediction} from "./src/linearPrediction.js";
+export {default as movingAverage, movingWindow} from "./src/movingAverage.js";
 export {default as negativeSpace} from "./src/negativeSpace.js";
 export {default as path2polygon} from "./src/path2polygon.js";
 export {default as pathBounds} from "./src/pathBounds.js";
@@ -37,6 +38,11 @@ export type {
   RegressionResult,
   RegressionType,
 } from "./src/regression.js";
+export type {
+  MovingAverageOptions,
+  MovingAveragePoint,
+  MovingAverageResult,
+} from "./src/movingAverage.js";
 export type {Bounds, NegativeSpaceOptions} from "./src/negativeSpace.js";
 export type {
   LouvainGraph,
