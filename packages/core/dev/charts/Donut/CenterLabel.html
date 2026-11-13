@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Center Label</title>
+    <meta
+      name="description"
+      content="centerLabel in a ring chart's empty middle: a Donut's total (click the legend to hide a slice), a styled string, a function, a half donut, a small hole, a Sunburst (zoom in to hide it), and a RadialBar."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 20px;
+      }
+
+      .viz {
+        height: 360px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="viz" id="total"></div>
+    <div class="viz" id="styled"></div>
+    <div class="viz" id="function"></div>
+    <div class="viz" id="half"></div>
+    <div class="viz" id="small"></div>
+    <div class="viz" id="pie"></div>
+    <div class="viz" id="sunburst"></div>
+    <div class="viz" id="radialbar"></div>
+  </body>
+
+  <script>
+    var sales = [
+      {region: "North", sales: 48200},
+      {region: "South", sales: 31500},
+      {region: "East", sales: 27800},
+      {region: "West", sales: 19400},
+    ];
+
+    new d3plus.Donut()
+      .select("#total")
+      .config({
+        data: sales,
+        groupBy: "region",
+        value: "sales",
+        centerLabel: true,
+        legend: true,
+        title: "centerLabel: true (click the legend to hide a slice)",
+      })
+      .render();
+
+    new d3plus.Donut()
+      .select("#styled")
+      .config({
+        data: sales,
+        groupBy: "region",
+        value: "sales",
+        centerLabel: "Sales by region",
+        centerLabelConfig: {fontWeight: 700, fontColor: "#4a7aa8"},
+        title: "A string, styled by centerLabelConfig",
+      })
+      .render();
+
+    new d3plus.Donut()
+      .select("#function")
+      .config({
+        data: sales,
+        groupBy: "region",
+        value: "sales",
+        centerLabel: function (data, total) {
+          return (
+            "$" +
+            Math.round(total / 1000) +
+            "k across " +
+            data.length +
+            " regions"
+          );
+        },
+        title: "A function of the drawn rows and their total",
+      })
+      .render();
+
+    new d3plus.Donut()
+      .select("#half")
+      .config({
+        data: sales,
+        groupBy: "region",
+        value: "sales",
+        startAngle: -90,
+        endAngle: 90,
+        centerLabel: true,
+        title: "A half donut",
+      })
+      .render();
+
+    new d3plus.Donut()
+      .select("#small")
+      .config({
+        data: sales,
+        groupBy: "region",
+        value: "sales",
+        innerRadius: 50,
+        centerLabel: "Total sales across every region",
+        title: "A small hole: the text wraps and shrinks to fit",
+      })
+      .render();
+
+    new d3plus.Pie()
+      .select("#pie")
+      .config({
+        data: sales,
+        groupBy: "region",
+        value: "sales",
+        centerLabel: true,
+        title: "A Pie with no hole draws none",
+      })
+      .render();
+
+    new d3plus.Sunburst()
+      .select("#sunburst")
+      .config({
+        data: [
+          {area: "Frontend", module: "Components", size: 530},
+          {area: "Frontend", module: "Pages", size: 700},
+          {area: "Backend", module: "API", size: 790},
+          {area: "Backend", module: "Jobs", size: 310},
+          {area: "Docs", module: "Guides", size: 300},
+        ],
+        groupBy: ["area", "module"],
+        sum: "size",
+        centerLabel: true,
+        title: "Sunburst (click an arc to zoom in)",
+      })
+      .render();
+
+    new d3plus.RadialBar()
+      .select("#radialbar")
+      .config({
+        data: sales,
+        groupBy: "region",
+        value: "sales",
+        innerRadius: function (outer) {
+          return outer / 2.5;
+        },
+        centerLabel: true,
+        title: "RadialBar",
+      })
+      .render();
+  </script>
+</html>
