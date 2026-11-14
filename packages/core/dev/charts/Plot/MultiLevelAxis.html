@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>MultiLevelAxis · Plot</title>
+    <meta
+      name="description"
+      content="Multi-level category axes from an Array x or y: quarters within years, countries within regions, crowded labels, facets, and both orientations."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 10px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: normal;
+        margin: 12px 0 0;
+      }
+      .chart {
+        height: 300px;
+        width: 680px;
+      }
+      .tall {
+        height: 420px;
+      }
+      .wide {
+        height: 460px;
+        width: 900px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>Bars by year and quarter (x: ["year", "quarter"])</h3>
+    <div class="chart" id="quarters"></div>
+    <h3>Stacked bars, three levels (decade, year, half), styled levels</h3>
+    <div class="chart" id="three"></div>
+    <h3>Line plot by year and month, crowded months</h3>
+    <div class="chart" id="months"></div>
+    <h3>Horizontal bars by region and country (y: ["region", "country"])</h3>
+    <div class="chart tall" id="regions"></div>
+    <h3>Small multiples (facet by product), shared year and quarter axis</h3>
+    <div class="chart wide" id="facets"></div>
+
+    <script>
+      var common = {duration: 0, shapeConfig: {label: false}};
+
+      var sales = [];
+      [2022, 2023, 2024].forEach(function (year, y) {
+        ["Q1", "Q2", "Q3", "Q4"].forEach(function (quarter, q) {
+          sales.push({
+            id: "Sales",
+            year: year,
+            quarter: quarter,
+            value: 40 + y * 12 + Math.round(10 * Math.sin(q + y)),
+          });
+        });
+      });
+
+      new d3plus.BarChart()
+        .select("#quarters")
+        .config(common)
+        .data(sales)
+        .groupBy("id")
+        .legend(false)
+        .x(["year", "quarter"])
+        .y("value")
+        .render();
+
+      var halves = [];
+      [2017, 2018, 2019, 2020, 2021, 2022].forEach(function (year, y) {
+        ["H1", "H2"].forEach(function (half, h) {
+          ["Online", "Retail"].forEach(function (channel, c) {
+            halves.push({
+              channel: channel,
+              decade: year < 2020 ? "2010s" : "2020s",
+              year: year,
+              half: half,
+              value: 20 + y * 4 + h * 3 + c * 8,
+            });
+          });
+        });
+      });
+
+      new d3plus.BarChart()
+        .select("#three")
+        .config(common)
+        .data(halves)
+        .groupBy("channel")
+        .stacked(true)
+        .x(["decade", "year", "half"])
+        .y("value")
+        .xConfig({
+          levelConfig: {fontWeight: 600},
+          levelDividerConfig: {stroke: "#999", "stroke-dasharray": "3 2"},
+        })
+        .render();
+
+      var monthly = [];
+      var names = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      [2023, 2024].forEach(function (year, y) {
+        names.forEach(function (month, m) {
+          ["North", "South"].forEach(function (store, s) {
+            monthly.push({
+              store: store,
+              year: year,
+              month: month,
+              value: 30 + s * 10 + Math.round(12 * Math.sin((m + y * 12) / 3)),
+            });
+          });
+        });
+      });
+
+      new d3plus.LinePlot()
+        .select("#months")
+        .config(common)
+        .data(monthly)
+        .groupBy("store")
+        .x(["year", "month"])
+        .y("value")
+        .render();
+
+      var countries = [
+        {region: "Americas", country: "Brazil", value: 41},
+        {region: "Americas", country: "Canada", value: 33},
+        {region: "Americas", country: "Mexico", value: 28},
+        {region: "Europe", country: "France", value: 37},
+        {region: "Europe", country: "Germany", value: 45},
+        {region: "Asia Pacific", country: "Australia", value: 22},
+        {region: "Asia Pacific", country: "India", value: 52},
+        {region: "Asia Pacific", country: "Japan", value: 39},
+      ];
+
+      new d3plus.BarChart()
+        .select("#regions")
+        .config({duration: 0})
+        .data(countries)
+        .groupBy("country")
+        .discrete("y")
+        .legend(false)
+        .x("value")
+        .y(["region", "country"])
+        .render();
+
+      var products = [];
+      ["Hardware", "Software", "Services"].forEach(function (product, p) {
+        sales.forEach(function (d, i) {
+          products.push({
+            id: product,
+            product: product,
+            year: d.year,
+            quarter: d.quarter,
+            value: d.value + p * 9 + (i % 3),
+          });
+        });
+      });
+
+      new d3plus.BarChart()
+        .select("#facets")
+        .config(common)
+        .data(products)
+        .groupBy("id")
+        .facet("product")
+        .facetConfig({columns: 2})
+        .x(["year", "quarter"])
+        .y("value")
+        .render();
+    </script>
+  </body>
+</html>
