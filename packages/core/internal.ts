@@ -563,6 +563,27 @@ export type {
   SwarmState,
 } from "./src/charts/Plot/swarm.js";
 export {
+  confidenceCrossAxis,
+  confidenceValueAxis,
+  crossAxisValues,
+  crossBounds,
+  resolveConfidenceAxes,
+  rowCrossConfidence,
+  syncConfidenceAxes,
+} from "./src/charts/Plot/confidenceAxes.js";
+export type {ConfidenceAxes} from "./src/charts/Plot/confidenceAxes.js";
+export {
+  emitPointConfidence,
+  pointErrorBoxes,
+  pointErrorObstacles,
+  pointErrorPath,
+} from "./src/charts/Plot/pointConfidence.js";
+export type {PointBars} from "./src/charts/Plot/pointConfidence.js";
+export {
+  anchorAtBase,
+  barErrorReach,
+} from "./src/charts/Plot/barLabelConfidence.js";
+export {
   DEFAULT_TICK_LENGTH,
   jitterAccessor,
   plotBand,
@@ -635,7 +656,12 @@ export type {
   BandBounds,
   ConfidenceBand,
 } from "./src/charts/Plot/confidenceBands.js";
-export {bandRows, rangeText} from "./src/charts/Plot/confidenceTooltip.js";
+export {
+  appendPointConfidence,
+  axisBoundRows,
+  bandRows,
+  rangeText,
+} from "./src/charts/Plot/confidenceTooltip.js";
 export {emitLineBands} from "./src/charts/Plot/lineBands.js";
 export {nestSunburst, sunburstLayout} from "./src/charts/Sunburst/partition.js";
 export {

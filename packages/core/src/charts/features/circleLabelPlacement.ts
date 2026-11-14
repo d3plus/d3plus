@@ -68,6 +68,8 @@ export interface PlaceCircleLabelsOptions {
       0.5): a label mostly in a neighbor's cell would read as the neighbor's.
   */
   cellCoverage?: number;
+  /** Boxes no label beside a circle may overlap, such as a point's error bars. */
+  obstacles?: readonly CircleLabelBox[];
 }
 
 /** The sides in their default order, with each one's direction (y down). */
@@ -315,7 +317,8 @@ const circleBox = (c: LabelCircle): CircleLabelBox => ({
     in `"auto"` mode it stays inside when `fitsInside`, and otherwise (or in
     `"outside"` mode) it takes the first side of its circle, most open first
     (see `sideOrder`), where it lies mostly in the circle's Voronoi cell, stays
-    in `bounds`, and overlaps no circle and no label placed before it. A label
+    in `bounds`, and overlaps no circle, no `options.obstacles` box, and no
+    label placed before it. A label
     with no such side, or whose circle is centered outside `bounds`, is
     hidden. Labels are placed largest circle first
     (ties in input order), so big circles win the room; the result is in
@@ -362,6 +365,7 @@ export function placeCircleLabels(
     if (valid(c)) grid.add(circleBox(c), i);
   });
   const placed = new BoxGrid<CircleLabelBox>(grid.size);
+  for (const box of options.obstacles ?? []) placed.add(box, box);
 
   outside.sort(
     (a, b) =>

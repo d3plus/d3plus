@@ -173,7 +173,7 @@ One outlier would flatten every other bar. `yBreak` removes a value range from t
 
 ## Error bars
 
-Supply `confidence` as a `[lower, upper]` pair of data keys (or accessors) to draw an error bar on every bar: a line from the lower to the upper bound, capped at each end and centered on its bar. The value axis widens to fit the bounds, and a bar's tooltip (hover its bar or its error bar) lists its Lower and Upper Bound; set `confidenceConfig.tooltip` to `false` to leave them out, or `confidence` to `false` to turn the interval off.
+Supply `confidence` as a `[lower, upper]` pair of data keys (or accessors) to draw an error bar on every bar: a line from the lower to the upper bound, capped at each end and centered on its bar. The value axis widens to fit the bounds, and a bar's tooltip (hover its bar or its error bar) lists its Lower and Upper Bound; set `confidenceConfig.tooltip` to `false` to leave them out, or `confidence` to `false` to turn the interval off. A bar with an error bar keeps its label at its base, clear of the whisker at its end; a label outside a short bar starts past the whisker.
 
 <Playground chart="BarChart" code={errorBars} controls={["confidence","confidenceConfig"]} />
 

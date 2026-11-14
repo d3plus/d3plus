@@ -14,13 +14,18 @@ import {finite} from "@d3plus/math";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ConfidenceBounds} from "./barConfidence.js";
 import {confidenceBands, rowBands} from "./confidenceBands.js";
+import {confidenceValueAxis, rowCrossConfidence} from "./confidenceAxes.js";
+import {axisName, axisValue} from "./sharedTooltip.js";
 
 /** Formats a bound the way the tooltip formats the value it bounds. */
 type Format = (value: number) => string;
 
 /** Whether tooltips list the confidence bounds (`confidenceConfig.tooltip`, default `true`). */
 export function confidenceTooltipEnabled(viz: VizInstance): boolean {
-  return !!viz._confidence && viz._confidenceConfig?.tooltip !== false;
+  return (
+    !!(viz._confidence || viz._confidenceCross) &&
+    viz._confidenceConfig?.tooltip !== false
+  );
 }
 
 /**
@@ -62,13 +67,60 @@ export function confidenceRows(
 ): string[][] {
   if (!confidenceTooltipEnabled(viz)) return [];
   if (confidenceBands(viz).length > 1) return bandRows(viz, d, i, format);
-  const {lower, upper} = rowConfidence(viz, d, i);
+  if (viz._confidenceAxes) return axisBoundRows(viz, d, i, format);
+  return boundRows(viz, rowConfidence(viz, d, i), format);
+}
+
+/** "Lower Bound" and "Upper Bound" rows for whichever bounds are finite, each label followed by `suffix`. */
+function boundRows(
+  viz: VizInstance,
+  {lower, upper}: ConfidenceBounds,
+  format: Format,
+  suffix = "",
+): string[][] {
   const rows: string[][] = [];
   if (finite(lower))
-    rows.push([viz.schema.translate("Lower Bound"), format(lower)]);
+    rows.push([
+      `${viz.schema.translate("Lower Bound")}${suffix}`,
+      format(lower),
+    ]);
   if (finite(upper))
-    rows.push([viz.schema.translate("Upper Bound"), format(upper)]);
+    rows.push([
+      `${viz.schema.translate("Upper Bound")}${suffix}`,
+      format(upper),
+    ]);
   return rows;
+}
+
+/**
+    The bound rows of a `{x, y}` setting: each axis's bounds, x first, each
+    labeled with its axis's name, as "Lower Bound (Weight)", and formatted
+    like that axis's values.
+    @param viz The chart.
+    @param d The source data row.
+    @param i The row's index.
+    @param format Formats a value-axis bound.
+*/
+export function axisBoundRows(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+  format: Format,
+): string[][] {
+  const valueAxis = confidenceValueAxis(viz);
+  return (["x", "y"] as const).flatMap(axis => {
+    const value = axis === valueAxis;
+    const bounds = value
+      ? rowConfidence(viz, d, i)
+      : rowCrossConfidence(viz, d, i);
+    const name = axisName(viz, axis);
+    return boundRows(
+      viz,
+      bounds,
+      value ? format : v => axisValue(viz, axis, v),
+      name ? ` (${name})` : "",
+    );
+  });
 }
 
 /**
@@ -144,4 +196,43 @@ export function rangeText(
   if (hasLower) return `≥ ${format(lower)}`;
   if (hasUpper) return `≤ ${format(upper)}`;
   return "";
+}
+
+/** The tooltip surface `appendPointConfidence` extends. */
+interface TbodyHost {
+  tbody(): unknown;
+  tbody(_: (d: DataPoint, i: number) => unknown): unknown;
+}
+
+/**
+    Adds a hovered point's bounds (see `confidenceRows`) after the rows its
+    tooltip already lists, each formatted like its axis's values. Only a
+    point mark (a Circle or Rect, or its error bar) takes them: bars and
+    lines list theirs in Plot's snapped tooltips.
+    @param tooltip The tooltip being rendered.
+    @param viz The chart.
+    @param d The hovered source row.
+    @param i The row's index.
+    @param shapeType The hovered mark's shape type.
+*/
+export function appendPointConfidence<T extends TbodyHost>(
+  tooltip: T,
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+  shapeType: string | undefined,
+): T {
+  if (!shapeType || !["Circle", "Rect"].includes(shapeType)) return tooltip;
+  const axis = confidenceValueAxis(viz);
+  const rows = confidenceRows(viz, d, i, v => axisValue(viz, axis, v));
+  if (!rows.length) return tooltip;
+  const base = tooltip.tbody();
+  tooltip.tbody((dd: DataPoint, ii: number) => {
+    const own =
+      typeof base === "function"
+        ? (base as (d: DataPoint, i: number) => unknown)(dd, ii)
+        : base;
+    return [...(Array.isArray(own) ? own : []), ...rows];
+  });
+  return tooltip;
 }
