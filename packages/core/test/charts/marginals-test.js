@@ -28,6 +28,11 @@ import {
   polygon,
 } from "../../src/charts/Plot/marginalScene.ts";
 import {
+  marginalPaintDefaults,
+  marginalPaintLayers,
+  resolveMarginalPaint,
+} from "../../src/charts/Plot/marginalPaint.ts";
+import {
   marginalTitle,
   marginalTooltipRows,
 } from "../../src/charts/Plot/marginalHover.ts";
@@ -426,6 +431,137 @@ it("polygon: out along the top line and back along the baseline", () => {
     ),
     "M0,5L10,2L10,9L0,9Z",
   );
+});
+
+const mark = (kind = "box", color = "#f00") => ({
+  axis: "x",
+  kind,
+  series: {key: "a", label: "a", color},
+  rows: [],
+});
+
+it("marginalPaintDefaults: each kind in its series' color", () => {
+  const defaults = marginalPaintDefaults();
+  const d = mark();
+  assert.strictEqual(defaults.histogram.fill(d), "#f00");
+  assert.strictEqual(defaults.box.fillOpacity, 0.35);
+  assert.strictEqual(defaults.box.stroke(d), "#f00");
+  assert.deepStrictEqual(defaults.box.outlier, {
+    fillOpacity: 1,
+    stroke: "none",
+    r: 2,
+  });
+  assert.strictEqual(defaults.density.strokeWidth, 1.5);
+  assert.notStrictEqual(
+    marginalPaintDefaults().box,
+    defaults.box,
+    "a fresh copy each call",
+  );
+});
+
+it("marginalPaintLayers: defaults, then every mark, the kind, and the part", () => {
+  const config = {
+    fill: "top",
+    size: 40,
+    box: {stroke: "kind", median: {strokeWidth: 3}},
+  };
+  const layers = marginalPaintLayers(config, "box", "median");
+  assert.strictEqual(layers.length, 4, "the median has no default layer");
+  assert.strictEqual(layers[1], config);
+  assert.strictEqual(layers[2], config.box);
+  assert.deepStrictEqual(layers[3], {strokeWidth: 3});
+  assert.strictEqual(marginalPaintLayers({}, "histogram").length, 2);
+  assert.strictEqual(marginalPaintLayers({}, "box", "outlier").length, 3);
+  // A part's defaults sit above the user's kind keys: outliers stay solid.
+  const dots = resolveMarginalPaint(
+    marginalPaintLayers(
+      {box: {fillOpacity: 0.1, fill: "#0f0"}},
+      "box",
+      "outlier",
+    ),
+    "shape",
+    mark(),
+    0,
+  ).paint;
+  assert.deepStrictEqual([dots.fill, dots.fillOpacity], ["#0f0", 1]);
+});
+
+it("resolveMarginalPaint: last layer wins, accessors, and each role's keys", () => {
+  const layers = marginalPaintLayers(
+    {
+      opacity: 0.8,
+      box: {
+        fill: (d, i) => `${d.series.key}-${i}`,
+        strokeDasharray: "4 2",
+        outlier: {r: 5},
+      },
+    },
+    "box",
+    "outlier",
+  );
+  const shape = resolveMarginalPaint(layers, "shape", mark(), 3);
+  assert.deepStrictEqual(shape, {
+    paint: {
+      fill: "a-3",
+      fillOpacity: 1,
+      stroke: "none",
+      strokeWidth: 1,
+      strokeDasharray: [4, 2],
+      opacity: 0.8,
+    },
+    r: 5,
+  });
+  const line = resolveMarginalPaint(layers, "line", mark(), 0).paint;
+  assert.strictEqual(line.fill, "none");
+  assert.strictEqual(line.fillOpacity, undefined);
+  assert.strictEqual(line.stroke, "none");
+  const fill = resolveMarginalPaint(
+    marginalPaintLayers({}, "density"),
+    "fill",
+    mark("density", "#0a0"),
+    0,
+  ).paint;
+  assert.deepStrictEqual(fill, {fill: "#0a0", fillOpacity: 0.3});
+  assert.deepStrictEqual(
+    resolveMarginalPaint(
+      marginalPaintLayers({strokeDasharray: [3, "x", 1]}, "histogram"),
+      "line",
+      mark(),
+      0,
+    ).paint.strokeDasharray,
+    [3, 1],
+  );
+});
+
+it("emitMarginals: marginalConfig styles every mark, a kind, and a part", () => {
+  const {viz, data, frame} = emitFixture({x: "box", y: "density"});
+  const seen = [];
+  viz.schema.marginalConfig = {
+    opacity: 0.5,
+    box: {
+      fill: (d, i) => (seen.push([d.kind, d.series.label, i]), "#abc"),
+      whisker: {strokeDasharray: "2 2"},
+      outlier: {r: 4},
+    },
+    density: {stroke: "#123", fillOpacity: 0.6},
+  };
+  const nodes = walk(emitMarginals(viz, data, frame)[0]).slice(1);
+  const rect = nodes.find(n => n.marginal.kind === "box" && n.type === "rect");
+  assert.strictEqual(rect.paint.fill, "#abc");
+  assert.strictEqual(rect.paint.opacity, 0.5);
+  assert.strictEqual(rect.marginal.swatch, "#abc");
+  const whisker = nodes.find(n => String(n.key).endsWith("whisker-low"));
+  assert.deepStrictEqual(whisker.paint.strokeDasharray, [2, 2]);
+  const median = nodes.find(n => String(n.key).endsWith("median"));
+  assert.strictEqual(median.paint.strokeDasharray, undefined);
+  assert.ok(
+    seen.some(([kind, label, i]) => kind === "box" && label === "b" && i === 1),
+  );
+  const [fill, outline] = nodes.filter(n => n.marginal.kind === "density");
+  assert.strictEqual(fill.paint.fillOpacity, 0.6);
+  assert.strictEqual(fill.paint.stroke, undefined);
+  assert.strictEqual(outline.paint.stroke, "#123");
+  assert.strictEqual(outline.paint.opacity, 0.5);
 });
 
 /** A stub chart for the tooltip. */

@@ -138,6 +138,59 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
+  it(`marginals ${renderer} — marginalConfig styles the marks`, async () => {
+    const out = await probeChart(
+      src({marginals: {x: "histogram", y: "density"}}) +
+        `.marginalConfig({
+          opacity: 0.9,
+          histogram: {fill: (d, i) => ["#111111", "#222222"][i], stroke: "#000000", strokeWidth: 2},
+          density: {stroke: "#333333", strokeDasharray: "3 1"},
+        })`,
+      viz => {
+        const walk = n => [n, ...(n.children || []).flatMap(walk)];
+        const marks = viz._paintedScene.root.children
+          .flatMap(walk)
+          .filter(n => n.marginal);
+        const bars = marks.filter(n => n.marginal.kind === "histogram");
+        const lines = marks.filter(
+          n => n.marginal.kind === "density" && n.type === "line",
+        );
+        const el = document.querySelector(`#viz [data-key="${bars[0].key}"]`);
+        return {
+          fills: [
+            ...new Set(
+              bars.map(n => `${n.marginal.series.label}:${n.paint.fill}`),
+            ),
+          ].sort(),
+          strokes: [
+            ...new Set(
+              bars.map(
+                n =>
+                  `${n.paint.stroke}/${n.paint.strokeWidth}/${n.paint.opacity}`,
+              ),
+            ),
+          ],
+          dashes: [
+            ...new Set(
+              lines.map(n =>
+                JSON.stringify([n.paint.stroke, n.paint.strokeDasharray]),
+              ),
+            ),
+          ],
+          dom: el ? [el.getAttribute("fill"), el.getAttribute("stroke")] : null,
+        };
+      },
+      {data, renderer},
+    );
+    assert.deepStrictEqual(out.fills, ["a:#111111", "b:#222222"]);
+    assert.deepStrictEqual(out.strokes, ["#000000/2/0.9"]);
+    assert.deepStrictEqual(out.dashes, [JSON.stringify(["#333333", [3, 1]])]);
+    if (renderer === "svg") {
+      assert.ok(["#111111", "#222222"].includes(out.dom[0]), out.dom[0]);
+      assert.strictEqual(out.dom[1], "#000000");
+    }
+  });
+
   it(`marginals ${renderer} — a category axis draws no strips`, async () => {
     const out = await probeChart(
       src({marginals: "histogram", discrete: "x", x: "group"}),
