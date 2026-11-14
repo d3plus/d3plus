@@ -163,6 +163,10 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(label, "Alpha is labeled");
       assert.strictEqual(label.interactive, false, "beside, not inside");
       assert.ok(!hits(label, alpha), "the label clears Alpha");
+      assert.ok(
+        indexOf(painted, label) > indexOf(painted, circleOf(painted, "Beta")),
+        "beside its bubble, it paints over every bubble",
+      );
       // Beta, on top, keeps its own label inside.
       const beta = labelOf(painted, "Beta");
       assert.ok(beta && beta.interactive !== false, "Beta's label is inside");
@@ -289,6 +293,62 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(indexOf(painted, rectOf("Alpha")) < at);
       assert.ok(at < indexOf(painted, rectOf("Beta")));
     });
+  });
+
+  it(`label layering (${renderer}): a label drawn outside its shape stays over a later shape, raised or not`, async () => {
+    const {before, raised} = await render(
+      '<div id="viz" style="width:600px;height:400px"></div>',
+      () =>
+        new Promise(resolve => {
+          const viz = new window.d3plus.Plot()
+            .data([
+              {id: "Alpha", x: 50, y: 50},
+              {id: "Beta", x: 55, y: 50},
+              {id: "C", x: 0, y: 0},
+              {id: "D", x: 100, y: 100},
+            ])
+            .groupBy("id")
+            .x("x")
+            .y("y")
+            .shape("Rect")
+            .shapeConfig({
+              Rect: {
+                width: () => 40,
+                height: () => 40,
+                // Each label sits right of its square.
+                labelBounds: (d, i, s) => ({
+                  x: s.width / 2 + 2,
+                  y: -10,
+                  width: 120,
+                  height: 20,
+                }),
+              },
+            })
+            .renderer(renderer)
+            .duration(0)
+            .legend(false)
+            .select("#viz");
+          viz.render(() => {
+            const before = paintOrder(viz);
+            viz.hover(d => d.id === "Beta");
+            setTimeout(() => resolve({before, raised: paintOrder(viz)}), 100);
+          });
+        }),
+    );
+    for (const [painted, state] of [
+      [before, "at rest"],
+      [raised, "with Beta raised"],
+    ]) {
+      const label = labelOf(painted, "Alpha");
+      const beta = painted.find(
+        n => n.type === "rect" && n.id === "Beta" && !n.key.endsWith("::hit"),
+      );
+      assert.ok(label && beta, `Alpha's label and Beta draw (${state})`);
+      assert.ok(
+        indexOf(painted, label) > indexOf(painted, beta),
+        `Alpha's outside label paints over Beta (${state})`,
+      );
+    }
   });
 
   it(`label layering (${renderer}): stacked bar labels stay over every error bar`, async () => {

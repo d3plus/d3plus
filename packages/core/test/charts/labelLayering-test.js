@@ -5,6 +5,8 @@ import {
   largestFirstRanks,
   labelsWithShapes,
   namesMark,
+  OUTSIDE_LABEL_Z,
+  RAISE_Z,
 } from "../../internal.ts";
 import {collectComputed} from "../../src/charts/features/emitHelpers.ts";
 
@@ -44,7 +46,7 @@ describe("charts/labelLayering labelsWithShapes", () => {
     const nodes = [
       circle("a", rowA),
       circle("b", rowB),
-      {type: "group", key: "a-image", datum: rowA},
+      {type: "group", key: "a-image", datum: rowA, children: []},
       text("a_0", rowA),
     ];
     assert.deepStrictEqual(keys(labelsWithShapes(nodes)), [
@@ -136,6 +138,44 @@ describe("charts/labelLayering labelsWithShapes", () => {
     const out = labelsWithShapes(nodes);
     assert.strictEqual(out[1].key, "c0_0");
     assert.ok(performance.now() - start < 1000, "well under a second");
+  });
+
+  it("leaves a label drawn outside its shape in place, over every shape", () => {
+    // A 20px circle at (50, 50); one label inside it, one beside it.
+    const a = {
+      ...circle("a", rowA),
+      cx: 0,
+      cy: 0,
+      r: 20,
+      transform: {x: 50, y: 50},
+    };
+    const b = {
+      ...circle("b", rowB),
+      cx: 0,
+      cy: 0,
+      r: 20,
+      transform: {x: 60, y: 50},
+    };
+    const line = (key, x) => ({
+      ...text(key, rowA),
+      x: 0,
+      y: 0,
+      width: 20,
+      height: 12,
+      lines: [{text: key, x: 0, y: 10, width: 20}],
+      font: {size: 10},
+      transform: {x, y: 44},
+    });
+    const nodes = [a, b, line("inside", 40), line("beside", 75)];
+    const out = labelsWithShapes(nodes);
+    assert.deepStrictEqual(keys(out), ["a", "inside", "b", "beside"]);
+    assert.strictEqual(out[1].z, undefined, "the inside label paints with a");
+    assert.strictEqual(
+      out[3].z,
+      OUTSIDE_LABEL_Z,
+      "the outside one stays on top",
+    );
+    assert.ok(OUTSIDE_LABEL_Z > RAISE_Z, "even over a raised shape");
   });
 
   it("returns the nodes as they are when there are no labels", () => {

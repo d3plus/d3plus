@@ -10,7 +10,7 @@
     axis chrome drawn among the marks (Candlestick's volume axis) end a run
     and stay outside every clip, so a label placed past the plot edge still
     shows, and points (circles) run separately from lines, areas and
-    rects. A mark's own labels, which paint with it (see
+    rects. A mark's own labels drawn inside it, which paint with it (see
     `labelsWithShapes`), stay in its run, all but one the run's clip or a
     masked axis break would cut, which paints whole over the run. Each run is wrapped in a group, clipped to the plot rect when it
     reaches past it, grown by the run's widest half-stroke (for points,
@@ -25,7 +25,7 @@ import {pathBounds} from "@d3plus/math";
 import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
 import {boxesOverlap} from "../features/circleLabelPlacement.js";
-import {namesMark} from "../features/labelLayering.js";
+import {namesMark, OUTSIDE_LABEL_Z} from "../features/labelLayering.js";
 import {applyTransform, markBoxes} from "../features/sceneBounds.js";
 import type {MaskFrame} from "./plotBreaks.js";
 
@@ -234,7 +234,7 @@ export function clipToPlotArea(
   let mark: SceneNode | undefined;
   for (const node of nodes) {
     if (isLabel(node)) {
-      if (mark && namesMark(node, mark)) {
+      if (mark && namesMark(node, mark) && node.z !== OUTSIDE_LABEL_Z) {
         run.push(node);
         continue;
       }

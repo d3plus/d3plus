@@ -1,14 +1,18 @@
 /**
     Paints each shape's labels together with the shape, so a shape drawn
-    later covers the labels of the shapes beneath it, as it covers the
-    shapes themselves. Every chart's emit runs through it (`runChartDraw`,
+    later covers the labels drawn inside the shapes beneath it, as it covers
+    the shapes themselves; labels drawn outside their shapes stay over every
+    shape. Every chart's emit runs through it (`runChartDraw`,
     `collectComputed`, and the Plot shape emitters).
 
     @module
 */
 
 import type {DataPoint} from "@d3plus/data";
+import type {Bounds} from "@d3plus/math";
 import type {SceneNode} from "@d3plus/render";
+
+import {markBoxes} from "./sceneBounds.js";
 
 /** Suffix of a label hitbox's key (see `textBoxHitbox`). */
 const HIT = "::hit";
@@ -38,13 +42,46 @@ export function namesMark(label: SceneNode, mark: SceneNode): boolean {
   );
 }
 
+/** z that floats a hovered, active or highlighted node above its (z-less, i.e. 0) siblings. */
+export const RAISE_Z = 1e6;
+
+/** z that keeps a label drawn outside its shape over every shape, raised ones too. */
+export const OUTSIDE_LABEL_Z = RAISE_Z + 1;
+
+/** Slack (px) for a label's glyphs sitting on its shape's edge. */
+const EDGE = 1;
+
+/** The box around a list of boxes, or null for none. */
+function union(boxes: Bounds[]): Bounds | null {
+  if (!boxes.length) return null;
+  const x0 = Math.min(...boxes.map(b => b.x)),
+    y0 = Math.min(...boxes.map(b => b.y)),
+    x1 = Math.max(...boxes.map(b => b.x + b.width)),
+    y1 = Math.max(...boxes.map(b => b.y + b.height));
+  return {x: x0, y: y0, width: x1 - x0, height: y1 - y0};
+}
+
+/** Whether every line of a label lies in `box`. */
+function drawnInside(label: SceneNode, box: Bounds | null): boolean {
+  if (!box) return true;
+  return markBoxes([label], undefined, undefined, true).every(
+    b =>
+      b.x >= box.x - EDGE &&
+      b.y >= box.y - EDGE &&
+      b.x + b.width <= box.x + box.width + EDGE &&
+      b.y + b.height <= box.y + box.height + EDGE,
+  );
+}
+
 /**
-    Moves each label (a text node, with the hitbox keyed to it) to just after
-    the last shape node that carries its datum (or a row its datum wraps),
-    taking that node's `z`, so the backends' stable `z` sort keeps the two
-    together. Shapes keep their order; a label with no shape in `nodes`
-    stays in place, and when the shapes are layered by `z`, it goes over the
-    top one.
+    Moves each label drawn inside its shape (a text node, with the hitbox
+    keyed to it) to just after the last shape node that carries its datum
+    (or a row its datum wraps), taking that node's `z`, so the backends'
+    stable `z` sort keeps the two together and a shape drawn later covers
+    it. A label drawn outside its shape's bounds stays in place, over every
+    shape (`OUTSIDE_LABEL_Z`), even a raised one. Shapes keep their order; a
+    label with no shape in `nodes` stays in place, and when the shapes are
+    layered by `z`, it goes over the top one.
     @param nodes One group's shapes and labels.
 */
 export function labelsWithShapes(nodes: SceneNode[]): SceneNode[] {
@@ -60,10 +97,18 @@ export function labelsWithShapes(nodes: SceneNode[]): SceneNode[] {
   };
 
   const shapeAt = new Map<DataPoint, number>();
+  const parts = new Map<DataPoint, SceneNode[]>();
   let top = -Infinity;
   nodes.forEach((n, i) => {
+    if (labelKey(n) !== null) return;
     if (typeof n.z === "number") top = Math.max(top, n.z);
-    if (labelKey(n) === null && n.datum) shapeAt.set(n.datum as DataPoint, i);
+    if (!n.datum) return;
+    const datum = n.datum as DataPoint;
+    shapeAt.set(datum, i);
+    if (String(n.key).endsWith(HIT)) return;
+    const list = parts.get(datum);
+    if (list) list.push(n);
+    else parts.set(datum, [n]);
   });
   const ownerOf = (n: SceneNode): number | undefined => {
     for (const d of datumChain(n.datum)) {
@@ -75,13 +120,25 @@ export function labelsWithShapes(nodes: SceneNode[]): SceneNode[] {
 
   const after = new Map<number, SceneNode[]>();
   const owners = new Map<string, number | undefined>();
+  const outside = new Set<string>();
   const moved = new Set<SceneNode>();
   for (const n of nodes) {
     const key = labelKey(n);
     if (key === null) continue;
-    if (!owners.has(key)) owners.set(key, ownerOf(texts.get(key)!));
+    if (!owners.has(key)) {
+      const text = texts.get(key)!;
+      const owner = ownerOf(text);
+      owners.set(key, owner);
+      const datum = owner === undefined ? undefined : nodes[owner].datum;
+      const shape = datum && parts.get(datum as DataPoint);
+      if (
+        shape &&
+        !drawnInside(text, union(markBoxes(shape, undefined, undefined, true)))
+      )
+        outside.add(key);
+    }
     const owner = owners.get(key);
-    if (owner === undefined) continue;
+    if (owner === undefined || outside.has(key)) continue;
     const z = nodes[owner].z;
     const node = (z === undefined ? n : {...n, z}) as SceneNode;
     const list = after.get(owner);
@@ -93,8 +150,11 @@ export function labelsWithShapes(nodes: SceneNode[]): SceneNode[] {
   const out: SceneNode[] = [];
   nodes.forEach((n, i) => {
     if (moved.has(n)) return;
+    const key = labelKey(n);
+    if (key !== null && outside.has(key))
+      out.push({...n, z: OUTSIDE_LABEL_Z} as SceneNode);
     // An unpaired label goes over every shape when they are layered by `z`.
-    if (labelKey(n) !== null && top !== -Infinity)
+    else if (key !== null && top !== -Infinity)
       out.push({...n, z: top + 1} as SceneNode);
     else out.push(n);
     const labels = after.get(i);

@@ -10,11 +10,11 @@
 */
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
+import {RAISE_Z} from "../features/labelLayering.js";
 import {isBreakMask} from "../Plot/plotBreaks.js";
 import {isDomainClip} from "../Plot/domainClip.js";
 
-/** z that floats a hovered, active or highlighted node above its (z-less, i.e. 0) siblings. */
-export const RAISE_Z = 1e6;
+export {RAISE_Z};
 
 /** Suffix of the key of the copy that carries a clip group's raised marks. */
 export const RAISED_KEY_SUFFIX = "~raised";

@@ -927,6 +927,18 @@
       "a": "middle"
     },
     {
+      "s": "Plan",
+      "a": "start"
+    },
+    {
+      "s": "Build",
+      "a": "start"
+    },
+    {
+      "s": "Today",
+      "a": "start"
+    },
+    {
       "s": "Kickoff",
       "a": "start"
     },
@@ -944,18 +956,6 @@
     },
     {
       "s": "Launch",
-      "a": "start"
-    },
-    {
-      "s": "Plan",
-      "a": "start"
-    },
-    {
-      "s": "Build",
-      "a": "start"
-    },
-    {
-      "s": "Today",
       "a": "start"
     },
     {

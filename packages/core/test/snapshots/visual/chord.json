@@ -179,6 +179,10 @@
   ],
   "texts": [
     {
+      "s": "delta",
+      "a": "start"
+    },
+    {
       "s": "alpha",
       "a": "start"
     },
@@ -188,10 +192,6 @@
     },
     {
       "s": "gamma",
-      "a": "start"
-    },
-    {
-      "s": "delta",
       "a": "start"
     }
   ]
