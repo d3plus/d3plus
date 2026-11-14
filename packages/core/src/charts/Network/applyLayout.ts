@@ -276,7 +276,10 @@ function nodeBoxes(
   r: RScale,
 ): FocusBox[] {
   const sized = new Map(
-    nodes.map(n => [n.id, {id: n.id, x: n.x ?? 0, y: n.y ?? 0, r: r(n.r)}]),
+    nodes.map(n => [
+      n.id,
+      {id: n.id, x: n.x ?? 0, y: n.y ?? 0, r: r(n.r), shape: n.shape},
+    ]),
   );
   const rect = shapeConfigFor(v, "Rect") as RectSizeConfig;
   const boxes: FocusBox[] = nodes.map(node => {
@@ -468,7 +471,15 @@ function placeNetworkLoops(
   const placed = networkLoops(
     nodes,
     links,
-    n => ({id: n.id, x: n.x ?? NaN, y: n.y ?? NaN, r: n.r ?? 0}),
+    n => ({
+      id: n.id,
+      x: n.x ?? NaN,
+      y: n.y ?? NaN,
+      r: n.r ?? 0,
+      shape: n.shape,
+      width: n.width,
+      height: n.height,
+    }),
     l => l.size as number,
     center,
   );

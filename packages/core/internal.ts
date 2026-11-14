@@ -883,8 +883,52 @@ export {
   CONNECTOR_KEY_SUFFIX,
   dumbbellEmit,
   dumbbellSpans,
+  hiddenPoint,
 } from "./src/charts/Dumbbell/emit.js";
 export type {DumbbellSpan} from "./src/charts/Dumbbell/emit.js";
+export {
+  BAR_MAX_THICKNESS,
+  BAR_STEP_SHARE,
+  barThickness,
+  changeText,
+  directionColor,
+  dumbbellChanges,
+  dumbbellConnector,
+  dumbbellDirection,
+} from "./src/charts/Dumbbell/changes.js";
+export type {
+  DirectionColors,
+  DumbbellChange,
+  DumbbellConnector,
+  DumbbellDirection,
+} from "./src/charts/Dumbbell/changes.js";
+export {
+  arrowSegment,
+  barColors,
+  emitArrowConnectors,
+  emitBarConnectors,
+  pointGeometry,
+} from "./src/charts/Dumbbell/changeEmit.js";
+export type {
+  ArrowSegment,
+  PointGeometry,
+} from "./src/charts/Dumbbell/changeEmit.js";
+export {
+  ARROW_GRAY_STRENGTHS,
+  arrowSeriesGray,
+  seriesOrder,
+  seriesStrength,
+} from "./src/charts/Dumbbell/arrowGrays.js";
+export {
+  barColor,
+  categoryValues,
+  changeRow,
+  drawsBarlessDots,
+  hasBarlessCategory,
+  lineColor,
+  rowDirection,
+} from "./src/charts/Dumbbell/categoryChange.js";
+export type {CategoryValues} from "./src/charts/Dumbbell/categoryChange.js";
 export {
   categoryGaps,
   gapComparator,
@@ -1456,6 +1500,51 @@ export {candlestickDef} from "./src/charts/Candlestick/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {connectedScatterDef} from "./src/charts/ConnectedScatter/index.js";
 export {
+  cycleColor,
+  cycleCompare,
+  cycleDate,
+  cyclePlotDef,
+  meanAgg,
+  cycleTitle,
+  cycleTooltipContext,
+  prepareCycle,
+} from "./src/charts/CyclePlot/index.js";
+export type {CycleState} from "./src/charts/CyclePlot/index.js";
+export {cycleMeanLines, cycleMeans} from "./src/charts/CyclePlot/cycleMeans.js";
+export type {CycleMean} from "./src/charts/CyclePlot/cycleMeans.js";
+export {
+  CYCLE_PERIODS,
+  cycleEndLabel,
+  cyclePeriodCount,
+  cyclePeriodLabel,
+  cyclePeriodOf,
+  cyclePeriodOrder,
+  cycleStartOf,
+  resolveCyclePeriod,
+} from "./src/charts/CyclePlot/cyclePeriods.js";
+export type {CyclePeriod} from "./src/charts/CyclePlot/cyclePeriods.js";
+export {
+  CYCLE_INSET,
+  CYCLE_INSET_MAX,
+  END_LABEL_GAP,
+  cycleFacetHooks,
+  cycleFacetPanel,
+  cycleXConfig,
+  cycleYConfig,
+  endLabelInset,
+  insetDomain,
+  shareCycleScales,
+} from "./src/charts/CyclePlot/cycleFacet.js";
+export {
+  cycleAxisLabel,
+  cycleDateLabel,
+  cycleRowMean,
+  cycleTooltipRows,
+  cycleTooltipTitle,
+  noSeries,
+} from "./src/charts/CyclePlot/cycleTooltip.js";
+export type {CycleTooltipContext} from "./src/charts/CyclePlot/cycleTooltip.js";
+export {
   DATA_ORDER,
   coerceOrder,
   compareOrder,
@@ -1723,6 +1812,7 @@ export {
   plotRangeBreaks,
   plotTimeScale,
   rangeBreaksTimeAxis,
+  scaleTimeAxis,
   timelineRangeBreaks,
 } from "./src/charts/Plot/plotRangeBreaks.js";
 export {
@@ -1833,6 +1923,12 @@ export type {
   SizeLegendScale,
   SizeLegendSize,
 } from "./src/components/SizeLegend/sizeLegendLayout.js";
+export {
+  centeredStops,
+  divergingQuantiles,
+  logStops,
+  mergeLogStops,
+} from "./src/components/ColorScale/colorScaleScale.js";
 export {
   drawWithInset,
   fitInset,
@@ -2297,7 +2393,7 @@ export type {
   EdgeArrowTrims,
   EdgeNode,
 } from "./src/charts/features/edgeArrows.js";
-export {outlineReach} from "./src/charts/features/nodeOutline.js";
+export {outlineExit, outlineReach} from "./src/charts/features/nodeOutline.js";
 export type {NodeOutline} from "./src/charts/features/nodeOutline.js";
 export {selfLoopD} from "./src/charts/features/selfLoops.js";
 export {
@@ -2452,7 +2548,22 @@ export {
   labelOverhang,
   NO_SIDES,
   panelBase,
+  settleExpansion,
 } from "./src/charts/facet/facetGutter.js";
+export {
+  layoutDimensions,
+  layoutGridCells,
+  layoutMatcher,
+  layoutTitleTexts,
+  layoutTitleTooltips,
+  missingFacetMessage,
+  placeFacets,
+  resolveFacetLayout,
+} from "./src/charts/facet/facetLayout.js";
+export type {FacetLayout, PlacedFacet} from "./src/charts/facet/facetLayout.js";
+export {FACET_LAYOUTS} from "./src/charts/facet/facetLayouts.js";
+export {tooltipHeading} from "./src/components/tooltipDom.js";
+export type {FacetLayoutCell} from "./src/charts/facet/facetLayouts.js";
 export type {FacetLabels, FacetSides} from "./src/charts/facet/facetGutter.js";
 export {
   drawChart,
@@ -2696,6 +2807,7 @@ export {
   ringArcRadius,
   ringArcCubics,
   ringRadius,
+  spokeReach,
 } from "./src/charts/Rings/ringsCurves.js";
 export type {RingsTree} from "./src/charts/Rings/ringsPlacement.js";
 export {
