@@ -36,6 +36,7 @@ import {
   type StemLayout,
   type StemPoint,
 } from "./stemLayout.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** Each row's lollipop, measured from the bars painted for `ctx.values`. */
 function measure(
@@ -43,7 +44,7 @@ function measure(
   bars: SceneNode[],
 ): Map<PlotDatum, StemLayout> {
   const {viz} = ctx;
-  const discrete = viz.schema.discrete === "y" ? "y" : "x";
+  const discrete = vizDiscrete(viz) === "y" ? "y" : "x";
   const opp = discrete === "x" ? "y" : "x";
   const scale = discrete === "x" ? ctx.y : ctx.x;
   const layouts = new Map<PlotDatum, StemLayout>();

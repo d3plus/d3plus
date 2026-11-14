@@ -517,13 +517,13 @@ export interface VizInstance {
   _insetPending?: Set<InsetKey> | null;
   /** The chrome drawn inside the chart's negative space this draw, and where. */
   _insetPlacement?: InsetPlacement | null;
+  /** The discrete axis a Plot inferred from text values this draw, used when `discrete` is unset (read through `vizDiscrete`). */
+  _discrete?: string;
   /** Per-axis "is this axis time-valued" flags, set by `formatPlotData`. */
   _xTime?: boolean;
   _x2Time?: boolean;
   _yTime?: boolean;
   _y2Time?: boolean;
-  /** The Plot axes placing their values as categories this draw, set by `computePlotAxisValues` (see `Plot/categoryAxis.ts`). */
-  _categoryAxes?: string[];
   _baseline?: number;
   /** The `baseline` the user set: one end of the value axis's domain, like `yDomain([n])` (see `Plot/baselineDomain.ts`). */
   _userBaseline?: number;

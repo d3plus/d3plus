@@ -12,7 +12,6 @@ import type {FacetHooks, FacetPanelContext} from "../facet/facetConfig.js";
 import type {FacetSides} from "../facet/facetGutter.js";
 import {runStages} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {isCategoryAxis} from "./categoryAxis.js";
 import {isSpanAxis} from "./discreteSpan.js";
 import {AXES} from "./facetScales.js";
 import type {DomainValue, PlotFacetScales} from "./facetScales.js";
@@ -30,13 +29,14 @@ import {
 } from "./stackLegendOrder.js";
 import type {StackPositions} from "./stackLegendOrder.js";
 import {computePlotTrendFits} from "./trendLines.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** Whether an axis's domain is a list of values (a category axis) rather than an extent. */
 export function listAxis(viz: VizInstance, axis: string): boolean {
-  if (viz.schema[`${axis}Sort`] || isCategoryAxis(viz, axis)) return true;
+  if (viz.schema[`${axis}Sort`]) return true;
   if (isSpanAxis(viz, axis)) return false;
   const time = (viz as unknown as Record<string, unknown>)[`_${axis}Time`];
-  return viz.schema.discrete === axis.charAt(0) && !time;
+  return vizDiscrete(viz) === axis.charAt(0) && !time;
 }
 
 /** The `[min, max]` covering every extent (dates stay dates); undefined when none are numeric. */

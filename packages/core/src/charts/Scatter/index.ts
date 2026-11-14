@@ -21,8 +21,9 @@ export const scatterDef: ChartDefinition = {
 
 /**
     Creates a scatter plot from an array of data: each row draws as a point at
-    its `x` and `y` values, on continuous axes (an axis of text values, or
-    the `discrete` axis, places points along categories). Points are `sizeMin` pixels in radius; a `size`
+    its `x` and `y` values, on continuous axes. Text `x` values (else `y`
+    values) make that axis a category axis, as `discrete` does, which also
+    sets it explicitly. Points are `sizeMin` pixels in radius; a `size`
     accessor scales them between `sizeMin` and `sizeMax` and adds a size
     legend (see BubbleChart for bubbles sized by area). Hover any point for
     its values.

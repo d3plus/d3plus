@@ -15,13 +15,14 @@ import {shapeConfigFor} from "../features/emitHelpers.js";
 import type {VizLike} from "../features/emitHelpers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {chartWhiskerMode} from "./tooltip.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 type Row = Record<string, unknown>;
 type RowFn = (d: DataPoint, i: number) => unknown;
 
 /** The axis a box's statistics run along: the one that isn't discrete. */
 export const boxValueAxis = (viz: VizInstance): "x" | "y" =>
-  viz.schema.discrete === "y" ? "x" : "y";
+  vizDiscrete(viz) === "y" ? "x" : "y";
 
 /**
     The `outlier` setting of BoxWhisker's boxes (`shapeConfig.Box.outlier`),
@@ -49,7 +50,7 @@ const valueOn = (row: Row, axis: string): number => {
 
 /** The rows of each computed box: by category, within its facet panel. */
 function boxGroups(viz: VizInstance, rows: Row[]): Row[][] {
-  const discrete = viz.schema.discrete as string;
+  const discrete = vizDiscrete(viz) as string;
   const facet =
     typeof viz.schema.facet === "function"
       ? (viz.schema.facet as RowFn)

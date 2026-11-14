@@ -22,6 +22,7 @@ import {curvePolyline, splitDash, splitLength} from "./curveLength.js";
 import {lineCurve} from "./lineCurve.js";
 import {discreteRank, forecastStart, type ForecastStart} from "./forecast.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** Key of the forecast backdrop group. */
 export const FORECAST_KEY = "plot-forecast";
@@ -48,7 +49,7 @@ function discretePixel(
   frame: ForecastFrame,
   value: unknown,
 ): number {
-  return (viz.schema.discrete || "x") === "x" ? frame.x(value) : frame.y(value);
+  return (vizDiscrete(viz) || "x") === "x" ? frame.x(value) : frame.y(value);
 }
 
 /**
@@ -63,7 +64,7 @@ export function discreteDirection(
   frame: ForecastFrame,
   rows: PlotDatum[],
 ): 1 | -1 {
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
   const rank = discreteRank(rows.map(d => d[discrete]));
   const placed = rows
     .map(d => ({
@@ -100,7 +101,7 @@ export function slotEdge(
   if (!Number.isFinite(next)) return NaN;
   const at = discretePixel(viz, frame, start.value);
   if (Number.isFinite(at) && Math.abs(at - next) >= 0.5) return (at + next) / 2;
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
   const pixels = rows
     .map(d => discretePixel(viz, frame, d[discrete]))
     .filter(p => Number.isFinite(p));
@@ -136,7 +137,7 @@ export function emitForecast(
 ): SceneNode[] {
   const start = forecastStart(viz, rows);
   if (!start || !rows.length) return [];
-  const horizontal = (viz.schema.discrete || "x") === "x";
+  const horizontal = (vizDiscrete(viz) || "x") === "x";
   const dir = discreteDirection(viz, frame, rows);
   const p = slots
     ? slotEdge(viz, frame, rows, start, dir)
@@ -350,7 +351,7 @@ export function forecastLineDash(
     const value = start.series ? start.series.get(id) : start.value;
     return value === undefined ? NaN : discretePixel(viz, frame, value);
   };
-  const axis = (viz.schema.discrete || "x") === "x" ? 0 : 1;
+  const axis = (vizDiscrete(viz) || "x") === "x" ? 0 : 1;
   const px = shapeConfig.x as (d: PlotDatum) => number;
   const py = shapeConfig.y as (d: PlotDatum) => number;
   const curve = lineCurve(viz, values[0]);

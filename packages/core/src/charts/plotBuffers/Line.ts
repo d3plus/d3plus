@@ -1,6 +1,7 @@
 import {max} from "d3-array";
 import type Plot from "../Plot/index.js";
 import type {D3Scale} from "../../utils/index.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     @module lineBuffer
@@ -29,23 +30,22 @@ export default function (
   const xKey = x2 ? "x2" : "x";
   const yKey = y2 ? "y2" : "y";
 
-  const s = this.schema.discrete === "x" ? y : x;
+  const s = vizDiscrete(this) === "x" ? y : x;
 
   const d = s.domain().slice() as number[];
 
-  if (this.schema.discrete === "x") d.reverse();
+  if (vizDiscrete(this) === "x") d.reverse();
 
   const vals = data.map(
-    (d: Record<string, unknown>) =>
-      d[this.schema.discrete === "x" ? yKey : xKey],
+    (d: Record<string, unknown>) => d[vizDiscrete(this) === "x" ? yKey : xKey],
   ) as number[];
   const b = s.invert!(
-    s(max(vals) as number) + (this.schema.discrete === "x" ? -10 : 10),
+    s(max(vals) as number) + (vizDiscrete(this) === "x" ? -10 : 10),
   );
 
   if (b > d[1]) d[1] = b;
 
-  if (this.schema.discrete === "x") d.reverse();
+  if (vizDiscrete(this) === "x") d.reverse();
 
   s.domain(d);
 

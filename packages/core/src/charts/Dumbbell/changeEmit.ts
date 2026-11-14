@@ -39,6 +39,7 @@ import {
   dumbbellSpans,
   type ConnectorEnd,
 } from "./connectors.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 type Point = [number, number];
 
@@ -131,7 +132,7 @@ function connectorEnds(
 
 /** The value axis, across from the category axis. */
 const valueAxis = (ctx: ShapeEmitContext): "x" | "y" =>
-  ctx.viz.schema.discrete === "x" ? "y" : "x";
+  vizDiscrete(ctx.viz) === "x" ? "y" : "x";
 
 /**
     The arrow connectors: one Line per category from its first value to the
@@ -146,7 +147,7 @@ export function emitArrowConnectors(
   points: Map<PlotDatum, PointGeometry>,
 ): SceneNode[] {
   const {viz} = ctx;
-  const discrete = viz.schema.discrete === "x" ? "x" : "y";
+  const discrete = vizDiscrete(viz) === "x" ? "x" : "y";
   const opp = valueAxis(ctx);
   const sc = shapeConfigFor(viz, "Line");
   if (viz.schema.shapeConfig.duration === undefined) delete sc.duration;
@@ -258,7 +259,7 @@ export function emitBarConnectors(
   arrows: boolean,
 ): SceneNode[] {
   const {viz} = ctx;
-  const discrete = viz.schema.discrete === "x" ? "x" : "y";
+  const discrete = vizDiscrete(viz) === "x" ? "x" : "y";
   const opp = valueAxis(ctx);
   const rows = ctx.values as unknown as PlotDatum[];
   const spans: DumbbellChange[] = arrows

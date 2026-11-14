@@ -12,6 +12,7 @@ import {
   thresholdMemberList,
 } from "../features/thresholdMembers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 type Accessor = (d: DataPoint, i: number) => unknown;
 type Aggs = Parameters<typeof merge>[1];
@@ -186,7 +187,7 @@ export function foldStackRows(
 
 /** The bucket inputs a stacked Plot reads: its series, positions, and stacked value. */
 export function plotStackInputs(viz: VizInstance): StackThresholdInputs {
-  const discrete = viz.schema.discrete === "y" ? "y" : "x";
+  const discrete = vizDiscrete(viz) === "y" ? "y" : "x";
   const opp = discrete === "x" ? "y" : "x";
   const position: Accessor[] = [viz[`_${discrete}`] as Accessor];
   if (viz.schema.time) position.push(viz.schema.time as Accessor);

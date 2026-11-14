@@ -13,14 +13,14 @@
 */
 import RESET from "../../utils/RESET.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {isCategoryAxis} from "./categoryAxis.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** A domain value for any of the four axes. */
 type DomainValue = number | string | Date;
 
 /** The value (non-discrete) axis of a Plot; a swarm's own value axis when swarming. */
 export const valueAxis = (viz: VizInstance): "x" | "y" =>
-  viz._swarm ? viz._swarm.axis : viz.schema.discrete === "y" ? "x" : "y";
+  viz._swarm ? viz._swarm.axis : vizDiscrete(viz) === "y" ? "x" : "y";
 
 /** Whether a domain sets exactly one end (`[n]`, `[undefined, n]`), leaving the other to the data. */
 export function isOneSided(domain: unknown): domain is DomainValue[] {
@@ -33,9 +33,8 @@ export function isOneSided(domain: unknown): domain is DomainValue[] {
 
 /** Whether an axis is a continuous extent, rather than a list of categories. */
 const continuousAxis = (viz: VizInstance, axis: string): boolean =>
-  viz.schema.discrete !== axis &&
+  vizDiscrete(viz) !== axis &&
   !viz.schema[`${axis}Sort`] &&
-  !isCategoryAxis(viz, axis) &&
   viz._swarm?.cross !== axis;
 
 /**

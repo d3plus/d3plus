@@ -39,6 +39,7 @@ import {
   dumbbellSpans,
   type ConnectorEnd,
 } from "./connectors.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 export {
   asConnector,
@@ -51,7 +52,7 @@ export {
 /** The connectors: one two-point Line per category, styled by `shapeConfig.Line`. */
 function emitConnectors(ctx: ShapeEmitContext): SceneNode[] {
   const {viz} = ctx;
-  const discrete = viz.schema.discrete === "x" ? "x" : "y";
+  const discrete = vizDiscrete(viz) === "x" ? "x" : "y";
   const spans = dumbbellSpans(ctx.values as unknown as PlotDatum[], discrete);
   if (!spans.length) return [];
   const ends: ConnectorEnd[] = spans.flatMap(({category, lo, hi}) => [

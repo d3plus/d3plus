@@ -1,10 +1,13 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {probeChart, sceneNodes} from "~test/browser/helpers.js";
+import {chart, tooltip} from "./axis-tooltip-page.js";
 
 /**
-    A Plot axis with text values and no `discrete` places them as categories
-    on a point scale (see `Plot/categoryAxis.ts`), on both renderers.
+    A Plot with no `discrete` whose x (else y) values include text draws that
+    axis as its discrete axis (see `Plot/inferDiscrete.ts`), exactly as
+    `discrete` would, on both renderers: points, axis, hover badges, and the
+    shared tooltip.
 */
 
 const data = [
@@ -73,7 +76,7 @@ for (const renderer of ["svg", "canvas"]) {
   });
 }
 
-it("Scatter — a category axis places points as `discrete` on that axis does", async () => {
+it("Scatter — an inferred discrete axis draws as `discrete` on that axis does", async () => {
   const inferred = await probeChart(`${scatter}.x("fruit").y("value")`, read, {
     data,
   });
@@ -82,10 +85,33 @@ it("Scatter — a category axis places points as `discrete` on that axis does", 
     read,
     {data},
   );
-  // Its title stays (a discrete axis drops it), so only x is compared.
-  const xs = out => out.points.map(p => [p.id, p.x]).sort();
-  assert.deepStrictEqual(xs(inferred), xs(discrete));
-  assert.ok(inferred.xLabels.includes("fruit"), "titled like any axis");
+  assert.deepStrictEqual(byId(inferred.points), byId(discrete.points));
+  assert.deepStrictEqual(inferred.xLabels, discrete.xLabels);
+  assert.ok(!inferred.xLabels.includes("fruit"), "untitled, as discrete");
+});
+
+it("Scatter — an explicit `discrete` wins over the inferred axis", async () => {
+  const rows = data.map(d => ({...d, grade: `Grade ${d.value % 3}`}));
+  const probe = viz => ({
+    discrete: viz._discrete,
+    setting: viz.discrete(),
+    x: viz._xAxis.scale(),
+    y: viz._yAxis.scale(),
+  });
+  const inferred = await probeChart(`${scatter}.x("fruit").y("grade")`, probe, {
+    data: rows,
+  });
+  assert.strictEqual(inferred.discrete, "x");
+  assert.strictEqual(inferred.setting, undefined);
+  assert.strictEqual(inferred.x, "point");
+  const explicit = await probeChart(
+    `${scatter}.x("fruit").y("grade").discrete("y")`,
+    probe,
+    {data: rows},
+  );
+  assert.strictEqual(explicit.discrete, undefined, "nothing inferred");
+  assert.strictEqual(explicit.setting, "y");
+  assert.strictEqual(explicit.y, "point");
 });
 
 it('Scatter — `scale: "auto"` keeps a category axis\'s point scale', async () => {
@@ -148,3 +174,77 @@ it("Scatter — `jitter` spreads points across a category axis's bands", async (
   assert.ok(new Set(out.points.map(p => p.x)).size > 1, "spread along x");
   assert.strictEqual(new Set(out.points.map(p => p.y)).size, 1);
 });
+
+/** The client point of the circle drawn for `id`. */
+const circlePoint = (page, id) =>
+  page.evaluate(id => {
+    const viz = window.__viz;
+    let found;
+    const walk = nodes =>
+      nodes.forEach(n => {
+        if (!found && n.type === "circle" && n.datum && n.datum.id === id)
+          found = n;
+        if (n.children) walk(n.children);
+      });
+    walk(viz._chartScene);
+    const t = found.transform || {};
+    const surface = document
+      .querySelector("#viz svg, #viz canvas")
+      .getBoundingClientRect();
+    const c = viz._chartTransform || {x: 0, y: 0};
+    return [
+      surface.left + c.x + (t.x || 0) + found.cx,
+      surface.top + c.y + (t.y || 0) + found.cy,
+    ];
+  }, id);
+
+/** Hovers the circle drawn for `id`; returns the axis badges and the tooltip. */
+async function hoverPoint(src, renderer, id) {
+  const {page, close} = await chart(src, renderer);
+  try {
+    const [x, y] = await circlePoint(page, id);
+    await page.mouse.move(5, 5);
+    await page.mouse.move(x, y, {steps: 3});
+    await page.waitForTimeout(120);
+    const badges = await page.evaluate(() => {
+      const out = [];
+      const walk = nodes =>
+        nodes.forEach(n => {
+          const badge = `${n.key}`.match(/plot-axis-hover-badge-(\w+)$/);
+          if (badge) out.push([badge[1], n.children[1].lines[0].text]);
+          if (n.children) walk(n.children);
+        });
+      walk([window.__viz._paintedScene.root]);
+      return out;
+    });
+    const tip = await tooltip(page);
+    return {badges, title: tip && tip.title, rows: tip && tip.rows};
+  } finally {
+    await close();
+  }
+}
+
+/** Two series per category, so the shared tooltip lists a column. */
+const columns = ["Apples", "Bananas", "Cherries"].flatMap((fruit, k) => [
+  {id: "North", fruit, value: 10 + k * 7},
+  {id: "South", fruit, value: 30 - k * 4},
+]);
+const columnChart = extra =>
+  `lib => new lib.Scatter().data(${JSON.stringify(columns)}).groupBy("id").x("fruit").y("value")${extra}`;
+
+for (const renderer of ["svg", "canvas"])
+  it(`Scatter ${renderer} — hover badges and the shared tooltip on an inferred discrete axis`, async () => {
+    const inferred = await hoverPoint(columnChart(""), renderer, "South");
+    const discrete = await hoverPoint(
+      columnChart(`.discrete("x")`),
+      renderer,
+      "South",
+    );
+    assert.ok(
+      inferred.badges.some(([axis]) => axis === "x"),
+      `badges: ${JSON.stringify(inferred.badges)}`,
+    );
+    assert.ok(inferred.title, "a tooltip shows");
+    assert.ok(inferred.rows.length >= 2, "the shared tooltip lists a column");
+    assert.deepStrictEqual(inferred, discrete);
+  });

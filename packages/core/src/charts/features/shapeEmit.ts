@@ -49,6 +49,7 @@ import {boxLabelsOnly} from "../Plot/areaLabelsAlong.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     The cross-phase locals a shape emitter reads. Assembled once per draw by
@@ -286,7 +287,7 @@ const circleEmit: ShapeEmitter = (ctx, key) => {
 */
 function barsInDomain(ctx: ShapeEmitContext): DataPoint[] {
   const {viz, values} = ctx;
-  const axis = viz.schema.discrete as string;
+  const axis = vizDiscrete(viz) as string;
   if ((axis === "x" ? ctx.xScale : ctx.yScale) !== "Time") return values;
   // Zoomed, the domain is the visible window; bars keep to the unzoomed
   // domain, which spans where the unzoomed plot range landed.
@@ -331,21 +332,21 @@ const barEmit: ShapeEmitter = emitCtx => {
     )
     .data(values);
 
-  const scale = viz.schema.discrete === "x" ? x : y;
+  const scale = vizDiscrete(viz) === "x" ? x : y;
   if (viz._discreteExtent) return spanBarEmit(ctx, s, scale);
 
   let space;
-  const scaleType = viz.schema.discrete === "x" ? xScale : yScale;
-  const vals = viz.schema.discrete === "x" ? xDomain : yDomain;
-  const range = viz.schema.discrete === "x" ? xRange : yRange;
+  const scaleType = vizDiscrete(viz) === "x" ? xScale : yScale;
+  const vals = vizDiscrete(viz) === "x" ? xDomain : yDomain;
+  const range = vizDiscrete(viz) === "x" ? xRange : yRange;
   // Zoomed, a time axis's bars keep their unzoomed spacing, scaled: the
   // first and last bars mirror about where the unzoomed plot edges landed,
   // not about the visible edges they may sit on or past.
-  const zoomRange = zoomRanges?.[viz.schema.discrete as "x" | "y"];
+  const zoomRange = zoomRanges?.[vizDiscrete(viz) as "x" | "y"];
   if (scaleType !== "Point" && vals.length === 2) {
     const allPositions = Array.from(
       new Set(
-        values.map((d: DataPoint) => scale(d[viz.schema.discrete as string])),
+        values.map((d: DataPoint) => scale(d[vizDiscrete(viz) as string])),
       ),
     );
     // A reversed axis places the data from its far end.
@@ -379,7 +380,7 @@ const barEmit: ShapeEmitter = emitCtx => {
 
   const barGroups = groups(
     values,
-    (d: DataPoint) => d[viz.schema.discrete as string],
+    (d: DataPoint) => d[vizDiscrete(viz) as string],
     (d: DataPoint) => d.group,
   );
 
@@ -388,7 +389,7 @@ const barEmit: ShapeEmitter = emitCtx => {
   );
   const uniqueIds = Array.from(new Set(ids));
 
-  const discreteKey = viz.schema.discrete as string;
+  const discreteKey = vizDiscrete(viz) as string;
   const discreteFn = ctx.shapeConfig[discreteKey] as (
     d: PlotDatum,
     i: number,
@@ -447,7 +448,7 @@ function spanBarEmit(
     const [start, end] = rowSpan(viz, d);
     return Math.abs(scale(end) - scale(start));
   };
-  const axis = viz.schema.discrete as "x" | "y";
+  const axis = vizDiscrete(viz) as "x" | "y";
   const series = viz._barSpans ? barSeries(values as PlotDatum[], axis) : [];
   if (series.length < 2) {
     s.width(space);
@@ -487,7 +488,7 @@ function barHits(
   if (viz.schema.stacked) return;
   applyBarHitArea(
     s,
-    viz.schema.discrete === "y" ? "y" : "x",
+    vizDiscrete(viz) === "y" ? "y" : "x",
     ctx.valueExtent,
     column as (d: DataPoint, i: number) => [number, number],
   );
@@ -572,7 +573,7 @@ const lineEmit: ShapeEmitter = ctx => {
   out.push(...(gaps ? breakLines(lines, gaps) : lines));
 
   const points = viz._lineMarkers ? (values as PlotDatum[]) : [];
-  const keys = lineMarkerKeys(points, viz.schema.discrete);
+  const keys = lineMarkerKeys(points, vizDiscrete(viz));
   const markers = makeShape("Circle")
     .renderMode("compute")
     .data(points)

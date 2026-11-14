@@ -18,6 +18,7 @@ import {pointVoronoi} from "./pointVoronoi.js";
 import type {PointVoronoi, VoronoiPoint} from "./pointVoronoi.js";
 import {nodeShapeType} from "./shapeClassTargets.js";
 import type {VizInstance} from "./vizTypes.js";
+import {vizDiscrete} from "./discrete.js";
 
 /** The shape classes that draw a point. */
 const POINT_SHAPES = ["Circle", "Rect"];
@@ -87,7 +88,7 @@ export function hoverReach(viz: VizInstance): number {
   const distance = Number(viz.schema.hoverDistance);
   if (!(distance > 0) || !viz._pointMark) return 0;
   // Plot's shared tooltip already snaps to the nearest discrete position.
-  const discrete = viz.schema.discrete === "x" || viz.schema.discrete === "y";
+  const discrete = vizDiscrete(viz) === "x" || vizDiscrete(viz) === "y";
   if (viz.schema.tooltipShared && discrete) return 0;
   return distance;
 }

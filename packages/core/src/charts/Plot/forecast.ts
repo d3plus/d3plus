@@ -13,6 +13,7 @@ import {finite} from "@d3plus/math";
 import type {PlotDatum} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {plotAxisUtc, type AxisName} from "./plotRangeBreaks.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     The `forecast` setting: `"auto"` (or `true`), a predicate that flags
@@ -157,7 +158,7 @@ export function autoForecastStart(rows: ForecastRow[]): unknown {
     @param d The plotted row.
 */
 export function forecastRow(viz: VizInstance, d: PlotDatum): ForecastRow {
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
   const setting = viz.schema.forecast as ForecastSetting | undefined;
   let forecast: boolean;
   if (typeof setting === "function") forecast = Boolean(setting(d.data, d.i));
@@ -208,7 +209,7 @@ function settingForecastStart(
   const setting = viz.schema.forecast as ForecastSetting | undefined;
   if (setting === false || setting === undefined || setting === null)
     return null;
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
   if (setting === true || setting === "auto" || typeof setting === "function") {
     const starts = seriesForecastStarts(
       rows.map(d => forecastRow(viz, d)),
@@ -256,7 +257,7 @@ export function forecastStart(
   if (explicit) return fromSetting;
   const fromTrend = trendForecastStart(viz);
   if (!fromSetting || !fromTrend) return fromSetting || fromTrend;
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
   const rank = discreteRank(rows.map(d => d[discrete]));
   return rank(fromTrend.value) < rank(fromSetting.value)
     ? {...fromTrend, series: fromSetting.series}

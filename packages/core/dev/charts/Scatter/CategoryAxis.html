@@ -5,7 +5,7 @@
     <title>Scatter: Category Axis</title>
     <meta
       name="description"
-      content="Scatter with text values on an axis and no discrete setting: the axis places points along categories, on x or y, jittered, and sized."
+      content="Scatter with text values on an axis and no discrete setting: that axis is the discrete axis, on x or y, with hover badges and a shared tooltip, jittered, and sized."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -35,12 +35,16 @@
   <body>
     <div class="grid">
       <div>
-        <h3>Text x values (x: "species"), no discrete</h3>
+        <h3>Text x values (x: "species"), discrete inferred</h3>
         <div class="viz" id="x"></div>
       </div>
       <div>
         <h3>Text y values (y: "species")</h3>
         <div class="viz" id="y"></div>
+      </div>
+      <div>
+        <h3>Series per island (shared tooltip per column)</h3>
+        <div class="viz" id="islands"></div>
       </div>
       <div>
         <h3>jitter: true</h3>
@@ -73,6 +77,19 @@
 
     chart("x").x("species").y("mass").render();
     chart("y").x("mass").y("species").render();
+    new d3plus.Scatter()
+      .select("#islands")
+      .data([
+        {species: "Adelie", island: "Biscoe", mass: 3710},
+        {species: "Adelie", island: "Dream", mass: 3688},
+        {species: "Adelie", island: "Torgersen", mass: 3706},
+        {species: "Chinstrap", island: "Dream", mass: 3733},
+        {species: "Gentoo", island: "Biscoe", mass: 5076},
+      ])
+      .groupBy("species")
+      .x("island")
+      .y("mass")
+      .render();
     chart("jitter").x("species").y("mass").jitter(true).render();
     chart("bubble", d3plus.BubbleChart)
       .data(penguins.slice(0, 9))
