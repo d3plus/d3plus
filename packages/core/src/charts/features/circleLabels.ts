@@ -17,7 +17,7 @@ import {emitLabels} from "../../shapes/emitLabels.js";
 import constant from "../../utils/constant.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {placeCircleLabels} from "./circleLabelPlacement.js";
+import {coveredInside, placeCircleLabels} from "./circleLabelPlacement.js";
 import type {
   CircleLabelPlacement,
   CircleLabelBox,
@@ -146,6 +146,8 @@ export interface CircleLabelItem<K> {
   text?: unknown;
   /** How an inside label wraps (default: the circle itself, unpadded). */
   inside?: InsideLabelBox & {font?: Pick<LabelFont, "family" | "weight">};
+  /** The circle's paint position: it paints over every circle with a lower one (default: its index). */
+  order?: number;
 }
 
 /** A label's placement, with the mode it was placed in and its text. */
@@ -158,7 +160,8 @@ export type CircleLabelLayout = CircleLabelPlacement & {
     Places every labeled circle's label (see `placeCircleLabels`), reading
     each row's `labelPosition` and the chart's `pointLabelConfig`. An
     `"auto"` label counts as fitting inside when it fits at
-    `pointLabelConfig.fontMin`.
+    `pointLabelConfig.fontMin`, and as covered when a circle painted over
+    its own overlaps it (see `coveredInside`).
     @param viz The chart.
     @param items Every circle, labeled or not.
     @param bounds The box labels must stay in, in the circles' space.
@@ -178,7 +181,7 @@ export function layoutCircleLabels<K>(
     if ((typeof t === "string" && t.trim()) || typeof t === "number")
       labeled.push({item, at, text: `${t}`.trim()});
   });
-  const requests = labeled.map(({item, at, text}) => {
+  const fits = labeled.map(({item, text}) => {
     const mode = labelPositionOf(viz, item.datum, item.index);
     const inside = item.inside ?? {width: item.r * 2, height: item.r * 2};
     const fitsInside =
@@ -187,19 +190,37 @@ export function layoutCircleLabels<K>(
         ...inside.font,
         size: settings.fontMin,
       });
+    return {mode, fitsInside};
+  });
+  const circles = items.map(({x, y, r}) => ({
+    x,
+    y,
+    r: Number.isFinite(r) ? r : 0,
+  }));
+  const covered = coveredInside(
+    circles,
+    labeled.flatMap(({at}, j) => (fits[j].fitsInside ? [at] : [])),
+    items.map((item, at) => item.order ?? at),
+  );
+  const requests = labeled.map(({item, at, text}, j) => {
+    const {mode, fitsInside} = fits[j];
     // Only a label that may go beside its circle needs measuring.
     const size =
-      mode === "inside" || fitsInside
+      mode === "inside" || (fitsInside && !covered.has(at))
         ? {width: 0, height: 0}
         : measureLabel(text, resolveFont(font, item));
-    return {circle: at, ...size, position: mode, fitsInside};
+    return {
+      circle: at,
+      ...size,
+      position: mode,
+      fitsInside,
+      covered: covered.has(at),
+    };
   });
-  const placements = placeCircleLabels(
-    items.map(({x, y, r}) => ({x, y, r: Number.isFinite(r) ? r : 0})),
-    requests,
-    bounds,
-    {gap: settings.padding, obstacles},
-  );
+  const placements = placeCircleLabels(circles, requests, bounds, {
+    gap: settings.padding,
+    obstacles,
+  });
   const out = new Map<K, CircleLabelLayout>();
   labeled.forEach(({item, text}, j) =>
     out.set(item.key, {...placements[j], mode: requests[j].position, text}),

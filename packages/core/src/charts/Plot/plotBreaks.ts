@@ -19,6 +19,7 @@ import type {AxisBreak} from "../../components/Axis/axisBreak.js";
 import {breakGap, breakStyle} from "../../components/Axis/axisBreak.js";
 import {configToPaint} from "../../components/Axis/axisScene.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {pointLabel} from "./domainClip.js";
 
 /** Whether a node is a value or line label, which the mask leaves whole. */
 const isLabel = (node: SceneNode): boolean =>
@@ -180,7 +181,8 @@ export function bandPolygon(
     Wraps `nodes` (the plot content) in a clip group per axis, so every
     shape gets each masked break's gap cut straight across it. Labels split
     the content into runs and stay outside the clip groups, in paint order,
-    so no label is cut. Each run gets both groups whether or not a break
+    so no label is cut, all but a point's own labels, which paint with it
+    (see `pointLabel`). Each run gets both groups whether or not a break
     asks for a mask (a group with none has no clip), so the marks keep their
     parents, and tween in place, when a redraw adds or removes a break.
 */
@@ -234,11 +236,16 @@ export function maskBreaks(
     out.push(...wrapped);
     run = [];
   };
+  let mark: SceneNode | undefined;
   for (const node of nodes) {
-    if (isLabel(node)) {
+    if (isLabel(node) && !(mark && pointLabel(node, mark))) {
       flush();
+      mark = undefined;
       out.push(node);
-    } else run.push(node);
+    } else {
+      run.push(node);
+      if (!isLabel(node)) mark = node;
+    }
   }
   flush();
   return out;

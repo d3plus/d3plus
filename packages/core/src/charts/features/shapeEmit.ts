@@ -28,7 +28,7 @@ import type {Shape} from "../../shapes/index.js";
 
 import {emitBarConfidence} from "../Plot/barConfidence.js";
 import {emitPointConfidence} from "../Plot/pointConfidence.js";
-import {labelsOverCircles, plotCircleLabels} from "../Plot/circleLabels.js";
+import {plotCircleLabels} from "../Plot/circleLabels.js";
 import {emitLineBands} from "../Plot/lineBands.js";
 import {lineLabelConfig} from "../Plot/lineLabelEmit.js";
 import {breakLines, clipBands, lineGaps} from "../Plot/connectGapsScene.js";
@@ -45,6 +45,7 @@ import {DEFAULT_TICK_LENGTH, jitterAccessor, plotBand} from "../Plot/jitter.js";
 import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
 import {lineMarkerKeys} from "../Plot/lineMarkerKeys.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
+import {labelsWithShapes} from "./labelLayering.js";
 import {boxLabelsOnly} from "../Plot/areaLabelsAlong.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -183,9 +184,10 @@ function finishShape(
     key === "Circle" ? plotCircleLabels(ctx, s, userConfig) : null;
   s.render();
   const nodes = collectComputed(s);
-  // Points paint over their error bars.
+  // Points paint over their error bars, and each point's label paints with
+  // it, so a point drawn over another covers that one's label.
   if (key === "Circle")
-    return labelsOverCircles([
+    return labelsWithShapes([
       ...emitPointConfidence(ctx, nodes),
       ...nodes,
       ...(besideLabels?.() ?? []),

@@ -10,7 +10,8 @@
     axis chrome drawn among the marks (Candlestick's volume axis) end a run
     and stay outside every clip, so a label placed past the plot edge still
     shows, and points (circles) run separately from lines, areas and
-    rects. Each run is wrapped in a group, clipped to the plot rect when it
+    rects. A point's own labels, which paint with it (see
+    `labelsWithShapes`), stay in its run. Each run is wrapped in a group, clipped to the plot rect when it
     reaches past it, grown by the run's widest half-stroke (for points,
     radius plus half-stroke) so a mark sitting on the plot edge still draws
     whole. A run that stays inside gets a group with no clip, so its marks
@@ -22,6 +23,7 @@
 import {pathBounds} from "@d3plus/math";
 import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
+import {namesMark} from "../features/labelLayering.js";
 import {applyTransform} from "../features/sceneBounds.js";
 import type {MaskFrame} from "./plotBreaks.js";
 
@@ -210,18 +212,34 @@ export function clipToPlotArea(
     });
     run = [];
   };
+  let mark: SceneNode | undefined;
   for (const node of nodes) {
     if (isLabel(node)) {
+      if (mark && pointLabel(node, mark)) {
+        run.push(node);
+        continue;
+      }
       flush();
+      mark = undefined;
       out.push(node);
       continue;
     }
     if (run.length && isPoint(run[0]) !== isPoint(node)) flush();
     run.push(node);
+    mark = node;
   }
   flush();
   return out;
 }
+
+/**
+    Whether a label paints with the point mark before it (see
+    `labelsWithShapes`), so it stays in the point's run.
+    @param label A label among a Plot's marks.
+    @param mark The last mark before it.
+*/
+export const pointLabel = (label: SceneNode, mark: SceneNode): boolean =>
+  isPoint(mark) && namesMark(label, mark);
 
 /** A clip group's key, also once a small-multiples panel prefixes it. */
 const CLIP_KEY_PATTERN = new RegExp(`(^|/)${DOMAIN_CLIP_KEY}-\\d+$`);

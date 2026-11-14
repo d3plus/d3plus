@@ -1929,6 +1929,7 @@ export {
   clipToPlotArea,
   DOMAIN_CLIP_KEY,
   isDomainClip,
+  pointLabel,
   unwrapDomainClips,
 } from "./src/charts/Plot/domainClip.js";
 export type {ClipFrame} from "./src/charts/Plot/domainClip.js";
@@ -2122,6 +2123,8 @@ export {
   boxCoverage,
   boxesOverlap,
   boxHitsCircle,
+  coveredInside,
+  insideBox,
   placeCircleLabels,
   ringCentroid,
   sideBox,
@@ -2155,10 +2158,11 @@ export type {
   OutsideLabel,
   PointLabelSettings,
 } from "./src/charts/features/circleLabels.js";
+export {plotCircleLabels} from "./src/charts/Plot/circleLabels.js";
 export {
-  labelsOverCircles,
-  plotCircleLabels,
-} from "./src/charts/Plot/circleLabels.js";
+  labelsWithShapes,
+  namesMark,
+} from "./src/charts/features/labelLayering.js";
 export {
   colorScaleColor,
   colorScaleValue,
