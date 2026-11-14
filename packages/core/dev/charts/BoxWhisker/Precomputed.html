@@ -116,16 +116,7 @@
 
     summaryChart("#summary").x("id").render();
     rawChart("#raw").x("id").y("value").render();
-    summaryChart("#summary-horizontal")
-      .discrete("y")
-      .y("id")
-      .shapeConfig({Box: {orient: "horizontal"}})
-      .render();
-    rawChart("#raw-horizontal")
-      .discrete("y")
-      .x("value")
-      .y("id")
-      .shapeConfig({Box: {orient: "horizontal"}})
-      .render();
+    summaryChart("#summary-horizontal").discrete("y").y("id").render();
+    rawChart("#raw-horizontal").discrete("y").x("value").y("id").render();
   </script>
 </html>
