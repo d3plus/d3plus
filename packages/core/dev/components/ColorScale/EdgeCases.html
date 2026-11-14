@@ -5,7 +5,7 @@
     <title>EdgeCases · ColorScale</title>
     <meta
       name="description"
-      content="ColorScale edge cases on a Matrix: a color array through the midpoint color, a log scale whose high pole is exactly 1, a diverging quantile scale over long tails, and a jenks scale over only-negative values. Add ?theme=dark for the dark theme."
+      content="ColorScale edge cases on a Matrix: a color array through the midpoint color, a log scale whose high pole is exactly 1, a diverging quantile scale over long tails, a jenks scale over only-negative values, and log scales whose poles are inside (-1, 1). Add ?theme=dark for the dark theme."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -31,6 +31,8 @@
       <div class="chart" id="log-pole"></div>
       <div class="chart" id="quantile"></div>
       <div class="chart" id="jenks-negative"></div>
+      <div class="chart" id="log-high-under-one"></div>
+      <div class="chart" id="log-inside-one"></div>
     </div>
 
     <script>
@@ -88,6 +90,20 @@
         "Jenks, only negative values",
         [-9, -8, -5, -4, -2, -1],
         {scale: "jenks"},
+      );
+
+      matrix(
+        "#log-high-under-one",
+        "Log, high pole under 1",
+        [-10, -8, -5, -2, 0.2, 0.5],
+        {scale: "log"},
+      );
+
+      matrix(
+        "#log-inside-one",
+        "Log, both poles inside (-1, 1)",
+        [-0.8, -0.4, -0.1, 0.1, 0.3, 0.6],
+        {scale: "log"},
       );
     </script>
   </body>
