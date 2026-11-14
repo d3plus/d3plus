@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Labels Along Bends · Viz</title>
+    <meta
+      name="description"
+      content="Text along a path at sharp bends: trend labels near a kink, a centered moving average's label, line labels along zig-zag lines, stacked area labels along zig-zag bands, Hexbin contour labels, and curved Donut labels, each smoothed or slid to a stretch its letters can follow."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 16px;
+      }
+      h3 {
+        font-size: 14px;
+        margin: 0 0 4px;
+      }
+      .chart {
+        height: 360px;
+      }
+      .dark {
+        background: #1b1d21;
+        color: #e9ecef;
+        padding: 8px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>Centered 15-day moving average, labelled with its window</h3>
+      <div class="chart" id="average"></div>
+    </div>
+    <div>
+      <h3>A trend label slides back from a sharp kink at the line's end</h3>
+      <div class="chart" id="kink"></div>
+    </div>
+    <div>
+      <h3>lineLabels("along") on zig-zag lines</h3>
+      <div class="chart" id="lines"></div>
+    </div>
+    <div>
+      <h3>StackedArea labels along zig-zag bands</h3>
+      <div class="chart" id="bands"></div>
+    </div>
+    <div>
+      <h3>Hexbin contour labels on tight rings</h3>
+      <div class="chart" id="contours"></div>
+    </div>
+    <div>
+      <h3>Curved Donut labels on the bottom half</h3>
+      <div class="chart" id="donut"></div>
+    </div>
+    <div class="dark">
+      <h3>Dark background</h3>
+      <div class="chart" id="dark"></div>
+    </div>
+  </body>
+
+  <script>
+    // A deterministic random walk, so every load draws the same prices.
+    function walk(seed, start, days) {
+      let s = seed;
+      const rand = () => (s = (s * 16807) % 2147483647) / 2147483647 - 0.5;
+      let price = start;
+      return Array.from({length: days}, (_, k) => {
+        price = Math.max(5, price + rand() * 6 + Math.sin(k / 9) * 0.8);
+        return {date: new Date(2024, 0, k + 1), price: +price.toFixed(2)};
+      });
+    }
+    const acme = walk(7, 100, 120).map(d => ({...d, ticker: "ACME"}));
+
+    const average = id =>
+      new d3plus.LinePlot()
+        .select(id)
+        .data(acme)
+        .groupBy("ticker")
+        .x("date")
+        .y("price")
+        .trendLine("movingAverage")
+        .trendLineConfig({
+          window: {days: 15},
+          center: true,
+          bands: 1,
+          label: "equation",
+        })
+        .render();
+    average("#average");
+    average("#dark");
+
+    // A long fall, then a short, sharp climb at the end.
+    new d3plus.LinePlot()
+      .select("#kink")
+      .data(
+        Array.from({length: 41}, (_, x) => ({
+          series: "Visits",
+          x,
+          y: x <= 37 ? 60 - x : 23 + (x - 37) * 3,
+        })),
+      )
+      .groupBy("series")
+      .x("x")
+      .y("y")
+      .shapeConfig({Line: {curve: "linear"}})
+      .trendLine("movingAverage")
+      .trendLineConfig({window: 2, bands: false, label: () => "Rolling mean"})
+      .render();
+
+    const zig = [];
+    for (let x = 0; x < 9; x++) {
+      zig.push({region: "Northern Region", x, y: 40 + (x % 2 ? 1.5 : -1.5)});
+      zig.push({region: "Southern Region", x, y: 10 + (x % 2 ? -1.5 : 1.5)});
+    }
+    new d3plus.LinePlot()
+      .select("#lines")
+      .data(zig)
+      .groupBy("region")
+      .x("x")
+      .y("y")
+      .shapeConfig({Line: {curve: "linear"}})
+      .lineLabels("along")
+      .render();
+
+    const bands = [];
+    for (let x = 0; x < 12; x++) {
+      bands.push({sector: "Consumer Durables", x, y: 30 + (x % 2 ? 14 : 0)});
+      bands.push({sector: "Home and Garden", x, y: 25 + (x % 3 ? 0 : 12)});
+    }
+    new d3plus.StackedArea()
+      .select("#bands")
+      .data(bands)
+      .groupBy("sector")
+      .x("x")
+      .y("y")
+      .shapeConfig({Area: {curve: "linear"}})
+      .render();
+
+    // A seeded bivariate normal.
+    let seed = 42;
+    const random = () => {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+    const normal = () =>
+      Math.sqrt(-2 * Math.log(1 - random())) * Math.cos(2 * Math.PI * random());
+    const points = Array.from({length: 3000}, (_, id) => {
+      const a = normal(),
+        b = normal();
+      return {id, x: 50 + 12 * a, y: 30 + 8 * (0.6 * a + 0.8 * b)};
+    });
+    new d3plus.Hexbin()
+      .select("#contours")
+      .data(points)
+      .x("x")
+      .y("y")
+      .binSize(6)
+      .contours(true)
+      .render();
+
+    new d3plus.Donut()
+      .select("#donut")
+      .data([
+        {id: "Groceries", value: 30},
+        {id: "Utilities", value: 6},
+        {id: "Transport", value: 26},
+        {id: "Insurance", value: 22},
+        {id: "Recreation", value: 16},
+      ])
+      .groupBy("id")
+      .value("value")
+      .labelPosition("along")
+      .render();
+  </script>
+</html>
