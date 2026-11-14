@@ -28,7 +28,22 @@ export interface FocusTarget {
   group: "shape" | "legend";
   /** The transforms above the node, outermost first (not its own). */
   chain: Transform[];
+  /** Whether Tab steps through it (a chart's `_keyboardTabStop`). */
+  tab?: boolean;
+  /** Its accessible name, when the chart gives one. */
+  label?: string;
 }
+
+/**
+    A chart's test for scene nodes that are Tab stops inside its keyboard
+    navigation, even within chrome (such as an axis label that acts on its
+    row): returns the node's accessible name, or undefined for any other node.
+    `ancestors` holds the groups above it, outermost first.
+*/
+export type TabStopTest = (
+  node: SceneNode,
+  ancestors: SceneNode[],
+) => string | undefined;
 
 /** The arrow-key directions. */
 export type FocusDirection = "up" | "down" | "left" | "right";
@@ -146,9 +161,15 @@ export function readingOrder(targets: FocusTarget[]): FocusTarget[] {
     clip hides (a zoomed chart's off-screen marks). A Line or Area node
     becomes one target per point, and a row drawn by several nodes counts
     once.
+    A chart's `tabStop` test adds its Tab stops wherever they are, chrome
+    included.
     @param nodes The scene root's children (`viz._paintedScene.root.children`).
+    @param tabStop The chart's Tab stop test, if it has one.
 */
-export function focusTargets(nodes: SceneNode[]): FocusTarget[] {
+export function focusTargets(
+  nodes: SceneNode[],
+  tabStop?: TabStopTest,
+): FocusTarget[] {
   const lists: Record<FocusTarget["group"], FocusTarget[]> = {
     shape: [],
     legend: [],
@@ -157,8 +178,23 @@ export function focusTargets(nodes: SceneNode[]): FocusTarget[] {
     const group = ROOT_GROUPS[String(top.key)];
     if (!group) continue;
     const seen = new Set<unknown>();
-    const walk = (node: SceneNode, chain: Transform[], clips: Bounds[]) => {
-      if (skipped(node)) return;
+    const ancestors: SceneNode[] = [];
+    // Inside chrome, only the chart's Tab stops are visited.
+    const walk = (
+      node: SceneNode,
+      chain: Transform[],
+      clips: Bounds[],
+      chrome = false,
+    ) => {
+      const label = tabStop?.(node, ancestors);
+      if (label !== undefined) {
+        const target = markTarget(node, chain, group);
+        if (target && clips.every(c => inside(target.center, c)))
+          lists[group].push({...target, tab: true, label});
+        return;
+      }
+      const skip = skipped(node);
+      if (skip && !(tabStop && node.type === "group")) return;
       if (node.type === "group") {
         const next = node.transform ? [...chain, node.transform] : chain;
         const clip = node.clip;
@@ -166,9 +202,13 @@ export function focusTargets(nodes: SceneNode[]): FocusTarget[] {
           clip && clip.type === "rect"
             ? [...clips, mapBox(clip, mapper(next))]
             : clips;
-        for (const child of node.children) walk(child, next, inner);
+        ancestors.push(node);
+        for (const child of node.children)
+          walk(child, next, inner, chrome || skip);
+        ancestors.pop();
         return;
       }
+      if (chrome) return;
       if (!MARK_TYPES.has(node.type) || node.datum === undefined) return;
       if (node.paint?.opacity === 0) return;
       const visible = (t: FocusTarget): boolean =>

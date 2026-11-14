@@ -36,6 +36,10 @@ export interface TranslationStrings {
   "Drag to Filter": string;
   Duration: string;
   End: string;
+  "Enter to Hide": string;
+  "Enter to Highlight": string;
+  "Enter to Show": string;
+  "Enter to Show All": string;
   Equation: string;
   Exponential: string;
   Forecast: string;
@@ -71,6 +75,7 @@ export interface TranslationStrings {
   "No Data": string;
   "No Data Available": string;
   "No Matches": string;
+  Notch: string;
   Observations: string;
   "of first": string;
   "of previous": string;
@@ -95,6 +100,8 @@ export interface TranslationStrings {
   "Share of Parent": string;
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
+  "Shift+Enter to Hide": string;
+  "Shift+Enter to Highlight": string;
   Start: string;
   "SVG vector": string;
   Target: string;
@@ -122,6 +129,9 @@ export interface TranslationStrings {
   "Zoom In": string;
   "Zoom Out": string;
   "{node} cluster": string;
+  "{0} hidden": string;
+  "{0} highlighted": string;
+  "{0} shown": string;
 }
 
 /**
@@ -182,6 +192,11 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
     Duration: "\u0627\u0644\u0645\u062f\u0629",
     End: "\u0627\u0644\u0646\u0647\u0627\u064a\u0629",
+    "Enter to Hide": "Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
+    "Enter to Highlight": "Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
+    "Enter to Show": "Enter \u0644\u0644\u0639\u0631\u0636",
+    "Enter to Show All":
+      "Enter \u0644\u0639\u0631\u0636 \u0627\u0644\u0643\u0644",
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
@@ -223,6 +238,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649",
     Mean: "\u0627\u0644\u0645\u062a\u0648\u0633\u0637",
     Median: "\u0627\u0644\u0648\u0633\u064a\u0637",
+    Notch: "\u0627\u0644\u062b\u0644\u0645\u0629",
     Milestone: "\u0645\u0639\u0644\u0645",
     Minimum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     more: "\u0623\u062e\u0631\u0649",
@@ -263,6 +279,10 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift+\u0627\u0646\u0642\u0631 \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Click to Highlight":
       "Shift + \u0644\u0644\u062a\u062d\u062f\u064a\u062f \u0627\u0636\u063a\u0637",
+    "Shift+Enter to Hide":
+      "Shift+Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
+    "Shift+Enter to Highlight":
+      "Shift+Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
     Start: "\u0627\u0644\u0628\u062f\u0627\u064a\u0629",
     "SVG vector": "\u0631\u0633\u0645 \u0645\u062a\u062c\u0647 SVG",
     Target: "\u0627\u0644\u0647\u062f\u0641",
@@ -294,6 +314,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
     "{node} cluster": "\u0645\u062c\u0645\u0648\u0639\u0629 {node}",
+    "{0} hidden": "\u062a\u0645 \u0625\u062e\u0641\u0627\u0621 {0}",
+    "{0} highlighted": "\u062a\u0645 \u062a\u062d\u062f\u064a\u062f {0}",
+    "{0} shown": "\u062a\u0645 \u0639\u0631\u0636 {0}",
   },
   "es-ES": {
     "% of First Stage": "% de la Primera Etapa",
@@ -333,6 +356,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Drag to Filter": "Arrastrar para Filtrar",
     Duration: "Duraci\u00f3n",
     End: "Fin",
+    "Enter to Hide": "Enter para Ocultar",
+    "Enter to Highlight": "Enter para Resaltar",
+    "Enter to Show": "Enter para Mostrar",
+    "Enter to Show All": "Enter para Mostrar Todo",
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
     Forecast: "Pron\u00f3stico",
@@ -358,6 +385,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "M\u00e1ximo",
     Mean: "Media",
     Median: "Mediana",
+    Notch: "Muesca",
     Milestone: "Hito",
     Minimum: "M\u00ednimo",
     minute: "minuto",
@@ -393,6 +421,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentaje del Nivel Superior",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
+    "Shift+Enter to Hide": "May\u00fas+Enter para Ocultar",
+    "Shift+Enter to Highlight": "May\u00fas+Enter para Resaltar",
     Start: "Inicio",
     "SVG vector": "Vector SVG",
     Target: "Objetivo",
@@ -421,6 +451,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
     "{node} cluster": "Grupo de {node}",
+    "{0} hidden": "{0} oculto",
+    "{0} highlighted": "{0} resaltado",
+    "{0} shown": "{0} mostrado",
   },
   "pt-BR": {
     "% of First Stage": "% da Primeira Etapa",
@@ -460,6 +493,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Drag to Filter": "Arraste para Filtrar",
     Duration: "Dura\u00e7\u00e3o",
     End: "Fim",
+    "Enter to Hide": "Enter para Ocultar",
+    "Enter to Highlight": "Enter para Destacar",
+    "Enter to Show": "Enter para Mostrar",
+    "Enter to Show All": "Enter para Mostrar Tudo",
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
     Forecast: "Previs\u00e3o",
@@ -485,6 +522,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "M\u00e1ximo",
     Mean: "M\u00e9dia",
     Median: "Mediana",
+    Notch: "Entalhe",
     Milestone: "Marco",
     Minimum: "M\u00ednimo",
     minute: "minuto",
@@ -520,6 +558,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentagem do N\u00edvel Superior",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
+    "Shift+Enter to Hide": "Shift+Enter para Ocultar",
+    "Shift+Enter to Highlight": "Shift+Enter para Destacar",
     Start: "In\u00edcio",
     "SVG vector": "Vetor SVG",
     Target: "Meta",
@@ -548,6 +588,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
     "{node} cluster": "Grupo de {node}",
+    "{0} hidden": "{0} oculto",
+    "{0} highlighted": "{0} destacado",
+    "{0} shown": "{0} exibido",
   },
   "zh-CN": {
     "% of First Stage":
@@ -590,6 +633,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
     Duration: "\u6301\u7eed\u65f6\u95f4",
     End: "\u7ed3\u675f",
+    "Enter to Hide": "\u6309 Enter \u9690\u85cf",
+    "Enter to Highlight": "\u6309 Enter \u7a81\u51fa\u663e\u793a",
+    "Enter to Show": "\u6309 Enter \u663e\u793a",
+    "Enter to Show All": "\u6309 Enter \u663e\u793a\u5168\u90e8",
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
     Forecast: "\u9884\u6d4b",
@@ -615,6 +662,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "\u6700\u5927\u503c",
     Mean: "\u5e73\u5747\u503c",
     Median: "\u4e2d\u4f4d\u6570",
+    Notch: "\u51f9\u53e3",
     Milestone: "\u91cc\u7a0b\u7891",
     Minimum: "\u6700\u5c0f\u503c",
     minute: "\u5206\u949f",
@@ -650,6 +698,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
+    "Shift+Enter to Hide": "Shift+Enter \u9690\u85cf",
+    "Shift+Enter to Highlight": "Shift+Enter \u7a81\u51fa\u663e\u793a",
     Start: "\u5f00\u59cb",
     "SVG vector": "SVG \u77e2\u91cf\u56fe",
     Target: "\u76ee\u6807",
@@ -678,6 +728,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
     "{node} cluster": "{node}\u96c6\u7fa4",
+    "{0} hidden": "\u5df2\u9690\u85cf{0}",
+    "{0} highlighted": "\u5df2\u7a81\u51fa\u663e\u793a{0}",
+    "{0} shown": "\u5df2\u663e\u793a{0}",
   },
 };
 

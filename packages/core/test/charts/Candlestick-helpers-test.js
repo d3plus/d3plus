@@ -799,7 +799,8 @@ it("Candlestick formatPrice keeps two decimals at 1 and above, three digits belo
 it("Candlestick formatChange signs a percentage", () => {
   assert.strictEqual(formatChange(0.0128), "+1.28%");
   assert.strictEqual(formatChange(-0.0145), "-1.45%");
-  assert.strictEqual(formatChange(0), "0%");
+  assert.strictEqual(formatChange(0), "0.00%");
+  assert.strictEqual(formatChange(0.015), "+1.50%");
 });
 
 it("Candlestick candleTooltipRows lists the period, open, high, low, close, and change", () => {
@@ -811,7 +812,7 @@ it("Candlestick candleTooltipRows lists the period, open, high, low, close, and 
     ["[High]", "104.00"],
     ["[Low]", "99.50"],
     ["[Close]", "103.00"],
-    ["[Change]", "+3%"],
+    ["[Change]", "+3.00%"],
   ]);
   assert.deepStrictEqual(candleTooltipRows(viz, {close: null}, 0), []);
   const zeroOpen = candleTooltipRows(
@@ -837,7 +838,7 @@ it("Candlestick candleAriaLabel reads the label, period, and values", () => {
   const d = {symbol: "ACME", date: "2024-01-02", ...row(100, 104, 99.5, 103)};
   assert.strictEqual(
     candleAriaLabel(viz, d, 0),
-    "ACME, Jan 2, 2024: Open 100.00, High 104.00, Low 99.50, Close 103.00, Change +3%.",
+    "ACME, Jan 2, 2024: Open 100.00, High 104.00, Low 99.50, Close 103.00, Change +3.00%.",
   );
 });
 

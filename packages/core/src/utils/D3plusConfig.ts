@@ -244,6 +244,21 @@ export interface AxisConfig {
   shapeConfig?: Record<string, unknown>;
   /** Tick formatter, called with the axis as `this`. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
   tickFormat?: (d: number | string) => string | number;
+  /**
+      Where each tick label is drawn: `"tick"` (the default) centers it on
+      its tick, and `"period"` centers a date label in the period it names
+      ("Mar" between the ticks for March 1 and April 1), while the ticks and
+      grid lines stay on the boundaries. The period is the calendar unit
+      the axis's dates step by (a year, quarter, month, day, hour, minute,
+      or second, read in UTC with `utc`); on a linear axis of whole-number
+      years, it is the year. A period the axis shows only part of centers
+      in that part, and the last one, which starts where the axis ends,
+      centers where its whole period would be, past the end. Other axes
+      draw their labels at their ticks.
+      @example
+      {xConfig: {tickLabelPosition: "period"}}
+  */
+  tickLabelPosition?: "tick" | "period";
   /** Tick values of the axis. */
   ticks?: unknown[];
   /**
@@ -990,6 +1005,20 @@ export interface D3plusConfig {
   /** Hides the SVG from assistive technology when true (`aria-hidden`). */
   ariaHidden?: boolean;
   /**
+      Plot: draws one unit of y `aspectRatio` times as long as one unit of
+      x, so `1` makes a unit square square (a 45 degree line rises at 45
+      degrees). The plot area shrinks along one side, centered, to hold it;
+      the axes keep their domains. A log axis measures in powers of ten (one
+      decade is one unit), and a time axis in milliseconds. Each small
+      multiple holds it in its own panel, and a zoom keeps it (both axes
+      zoom together). Ignored, with a warning, when either axis is a
+      category, pow, or sqrt axis, or a log axis spanning zero. Unset (the
+      default), the plot fills its area.
+      @example
+      {aspectRatio: 1}
+  */
+  aspectRatio?: number;
+  /**
       The Radar's axis styles, named after the parts of a Plot axis: the
       inner level rings are its gridlines (`gridConfig`, a faint stroke like
       Plot's gridlines), the outer ring is its axis line (`barConfig`, the
@@ -1086,13 +1115,37 @@ export interface D3plusConfig {
       (BarChart, AreaPlot, Histogram, Lollipop), else `false`.
   */
   baselineBreak?: boolean;
-  /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */
+  /**
+      Bullet: the qualitative ranges behind each measure, as threshold values
+      (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) =>
+      bands` accessor for per-row bands. HorizonChart: how many bands each
+      sign of a series is cut into (default 3), each a darker shade folded
+      over the one below.
+  */
   bands?:
+    | number
     | (number | {min?: number; max?: number; color?: string})[]
     | ((
         d: DataPoint,
         i: number,
       ) => (number | {min?: number; max?: number; color?: string})[]);
+  /**
+      HorizonChart: the range of values each band spans. Defaults to the
+      largest absolute value in all of the data (before the timeline,
+      `filter`, and hidden rows cut it) divided by `bands`, rounded up to 1,
+      2, 2.5, or 5 times a power of ten. Every row shares it; values past
+      the top band fill it.
+  */
+  bandSize?: number;
+  /**
+      HorizonChart: the band colors. `positive` and `negative` each take a
+      base color to ramp from pale (the band nearest zero) to the base, or a
+      list of colors from the band nearest zero up. Defaults to ramps toward
+      the theme's colorScale `max` (positive) and `min` (negative) colors.
+  */
+  colors?: {positive?: string | string[]; negative?: string | string[]};
+  /** HorizonChart: the space between rows, in pixels. Defaults to `1`. */
+  rowGap?: number;
   /**
       Hexbin: the bin shape, `"hex"` (default) for hexagons or `"square"`
       for squares, or `false` to draw no bins (for contours alone).
@@ -1114,8 +1167,18 @@ export interface D3plusConfig {
   binValue?: BinValueOption;
   /** Candlestick: the share of each period's room its candle body (or OHLC ticks) spans, from 0 to 1. Defaults to `0.7`. */
   bodyWidth?: number;
+  /** BoxWhisker: accessor or data key for each summary row's observation count, which `boxNotch` and `boxWidthByCount` need for precomputed boxes. */
+  boxCount?: string | ((d: DataPoint, i: number) => number);
   /** BoxWhisker: accessor or data key for each summary row's upper whisker end. See `boxMedian`. */
   boxMax?: string | ((d: DataPoint, i: number) => number);
+  /**
+      BoxWhisker: marks each box's mean with a diamond (default `true`),
+      listed as "Mean" in its tooltip; `false` turns it off. A computed box
+      takes the mean of its observations; a precomputed box needs a data key
+      or accessor giving each row's mean. Style it with
+      `shapeConfig.Box.meanConfig`.
+  */
+  boxMean?: boolean | string | ((d: DataPoint, i: number) => number);
   /**
       BoxWhisker: accessor or data key for each summary row's median. Setting
       it, `boxMin`, `boxQ1`, `boxQ3`, or `boxMax` draws boxes from statistics
@@ -1129,14 +1192,35 @@ export interface D3plusConfig {
   boxMedian?: string | ((d: DataPoint, i: number) => number);
   /** BoxWhisker: accessor or data key for each summary row's lower whisker end. See `boxMedian`. */
   boxMin?: string | ((d: DataPoint, i: number) => number);
+  /**
+      BoxWhisker: notches each box around its median (default `false`),
+      spanning `median ± 1.58·IQR/√n`, roughly a 95% interval for the median:
+      boxes whose notches don't overlap likely differ. Listed as "Notch" in
+      the tooltip. A precomputed box needs `boxCount`, or an accessor
+      returning each row's `[lower, upper]`.
+  */
+  boxNotch?: boolean | ((d: DataPoint, i: number) => [number, number]);
   /** BoxWhisker: accessor or data key for each summary row's outliers, an array of values drawn as points past the whiskers. Used only with the other box statistics; see `boxMedian`. */
   boxOutliers?: string | ((d: DataPoint, i: number) => number[]);
   /** Alluvial: the fill opacity of the bands between columns (default `0.5`). */
   bandOpacity?: number;
   /** BoxWhisker: accessor or data key for each summary row's lower quartile, where its box starts. See `boxMedian`. */
   boxQ1?: string | ((d: DataPoint, i: number) => number);
+  /**
+      BoxWhisker: draws every observation of a computed box as a small point
+      over it (default `true`), spread across the box's width by `jitter`;
+      outliers keep their own marks. Style them with
+      `shapeConfig.Box.pointConfig`.
+  */
+  boxPoints?: boolean;
   /** BoxWhisker: accessor or data key for each summary row's upper quartile, where its box ends. See `boxMedian`. */
   boxQ3?: string | ((d: DataPoint, i: number) => number);
+  /**
+      BoxWhisker: scales each box's width by the square root of its
+      observation count relative to the largest box's (default `false`), so
+      a box's area tracks its sample size. A precomputed box needs `boxCount`.
+  */
+  boxWidthByCount?: boolean;
   /**
       ParallelCoordinates: the brush strips over each axis — `width` (px), the
       selection's `fill`, `fillOpacity`, `stroke`, and `strokeWidth`, and
@@ -1712,6 +1796,18 @@ export interface D3plusConfig {
     quartiles?: Record<string, unknown>;
     points?: Record<string, unknown>;
   };
+  /**
+      Spreads a Plot's point marks (Circle and Rect) across their category's
+      band, so points sharing a category don't hide each other: `true` spreads
+      them over 0.6 of the band, a number over that share of it (0–1), and
+      `false` (the default; `true` for StripPlot) keeps each on its
+      category's center. The band runs across the `discrete` axis; without
+      one, nothing moves. Each point's offset is seeded from its id, so a
+      redraw, resize, or filter never moves it. A `swarm` takes precedence.
+      In BoxWhisker, it spreads the `boxPoints` across each box's width
+      instead (default `true`).
+  */
+  jitter?: boolean | number;
   /**
       Lets keyboard users move between the chart's marks: the chart is one Tab
       stop, the arrow keys move to the nearest mark in that direction, Home and

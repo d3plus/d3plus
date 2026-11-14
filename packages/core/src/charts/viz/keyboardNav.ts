@@ -35,6 +35,10 @@ export interface KeyboardNavState extends KeyboardNavHost {
   zoom?: Transform;
   /** Set when a redraw moved or replaced the focused mark, so it is re-entered. */
   stale: boolean;
+  /** True while a replayed pointer event runs, so handlers can tell the keyboard from the mouse. */
+  replaying?: boolean;
+  /** A message the next focus announces in place of its target's name (a change it made). */
+  announce?: string;
   /** Replayed events waiting for an animated transition to settle. */
   queue: (() => void)[];
   timer?: ReturnType<typeof setTimeout>;
@@ -52,7 +56,10 @@ const ARROWS: Record<string, FocusDirection> = {
 
 /** The targets in the scene last painted. */
 function paintedTargets(viz: VizInstance): FocusTarget[] {
-  return focusTargets(viz._paintedScene?.root.children ?? []);
+  return focusTargets(
+    viz._paintedScene?.root.children ?? [],
+    viz._keyboardTabStop,
+  );
 }
 
 /** The focused target in `targets`, if it is still there. */
@@ -79,6 +86,7 @@ function targetRow(target: FocusTarget): {d: unknown; i: number} {
     label as the tooltip titles it.
 */
 export function targetLabel(viz: VizInstance, target: FocusTarget): string {
+  if (target.label !== undefined) return target.label;
   const {node, pointIndex} = target;
   const point =
     pointIndex !== undefined ? node.interactionPoints?.[pointIndex] : undefined;
@@ -160,7 +168,13 @@ function send(
     ? {node: target.node, datum: target.node.datum, index: target.node.index}
     : null;
   const event: SceneEvent = {type, point, pick, nativeEvent};
-  viz._routeSceneEvent?.(event);
+  const state = viz._keyboardNav;
+  if (state) state.replaying = true;
+  try {
+    viz._routeSceneEvent?.(event);
+  } finally {
+    if (state) state.replaying = false;
+  }
 }
 
 /** Replays the pointer moving onto `target`, leaving the mark it was over. */
@@ -198,7 +212,8 @@ function updateOutline(viz: VizInstance, state: KeyboardNavState): void {
 }
 
 /**
-    Focuses `target`: announces it, replays the hover over it, and redraws
+    Focuses `target`: announces it (or the change pending in `announce`),
+    replays the hover over it, and redraws
     the ring (unless the paint that called this already drew it).
 */
 function focusOn(
@@ -210,7 +225,8 @@ function focusOn(
   state.current = target.id;
   state.chartScene = viz._chartScene;
   state.zoom = viz._zoomTransform;
-  const label = targetLabel(viz, target);
+  const label = state.announce ?? targetLabel(viz, target);
+  state.announce = undefined;
   if (state.live.textContent !== label) state.live.textContent = label;
   whenSettled(viz, state, () => {
     hover(viz, state, target);
@@ -242,7 +258,26 @@ function moveTarget(
   return undefined;
 }
 
-/** The keydown handler: the chart's own keys, then arrows, Home/End, Enter/Space, and Escape. */
+/**
+    Where Tab goes among a chart's Tab stops (see `TabStopTest`): the next
+    one top to bottom (the first, from any other target), or with Shift the
+    previous one.
+    Undefined past either end, where Tab leaves the chart.
+*/
+export function tabTarget(
+  targets: FocusTarget[],
+  current: FocusTarget | null,
+  back: boolean,
+): FocusTarget | undefined {
+  const stops = targets
+    .filter(t => t.tab)
+    .sort((a, b) => a.box.y - b.box.y || a.box.x - b.box.x);
+  const i = current ? stops.findIndex(t => t.id === current.id) : -1;
+  if (back) return i > 0 ? stops[i - 1] : undefined;
+  return i < 0 ? stops[0] : stops[i + 1];
+}
+
+/** The keydown handler: the chart's own keys, then arrows, Home/End, Tab between its Tab stops, Enter/Space, and Escape. */
 function onKeydown(viz: VizInstance, state: KeyboardNavState, e: Event): void {
   const event = e as KeyboardEvent;
   if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -254,7 +289,12 @@ function onKeydown(viz: VizInstance, state: KeyboardNavState, e: Event): void {
   const targets = paintedTargets(viz);
   const current = currentTarget(state, targets);
   const next = moveTarget(key, targets, current);
-  if (next !== undefined) {
+  const tab =
+    key === "Tab" ? tabTarget(targets, current, event.shiftKey) : undefined;
+  if (tab) {
+    event.preventDefault();
+    focusOn(viz, state, tab);
+  } else if (next !== undefined) {
     event.preventDefault();
     if (next) focusOn(viz, state, next);
   } else if (current && (key === "Enter" || key === " ")) {
@@ -270,10 +310,11 @@ function onKeydown(viz: VizInstance, state: KeyboardNavState, e: Event): void {
   }
 }
 
-/** Focusing the chart focuses its first mark. */
+/** Focusing the chart focuses its first Tab stop, or else its first mark. */
 function onFocus(viz: VizInstance, state: KeyboardNavState): void {
   if (!state.current) {
-    const first = paintedTargets(viz)[0];
+    const targets = paintedTargets(viz);
+    const first = tabTarget(targets, null, false) ?? targets[0];
     if (first) focusOn(viz, state, first);
   }
   updateOutline(viz, state);
@@ -363,7 +404,7 @@ export function syncKeyboardNav(viz: VizInstance): void {
 export function appendFocusRing(viz: VizInstance, children: SceneNode[]): void {
   const state = viz._keyboardNav;
   if (!state || !state.current) return;
-  const targets = focusTargets(children);
+  const targets = focusTargets(children, viz._keyboardTabStop);
   let target = currentTarget(state, targets);
   if (!target) {
     target = targets[0] ?? null;

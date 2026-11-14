@@ -14,6 +14,11 @@ import {defaultMaxSize, pinMaxSize} from "../../components/Axis/axisMaxSize.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {PlotMeasureResult, PlotPaintContext} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {
+  aspectInset,
+  plotAspectRatio,
+  plotAxisUnits,
+} from "../Plot/aspectRatio.js";
 
 /** A measured axis's outer bounding box. */
 export type AxisBounds = {width: number; height: number; x: number; y: number};
@@ -173,13 +178,16 @@ export function solveFinalAxes(
   yBottom: number;
   insetBottom: number;
   solved: FinalYAxes;
+  aspectInsetY: number;
 } {
-  const {x2Height, topOffset, height, horizontalMargin, verticalMargin} = pCtx;
+  // A zoom repaint keeps the room its draw's aspect ratio took.
+  if (frozen?.aspectInsetY) pCtx = shiftPlotY(pCtx, frozen.aspectInsetY);
+  const {x2Height, height, horizontalMargin} = pCtx;
   // The plot's bottom edge for an x axis `xHeight` tall, less the room a
   // chart reserves between the value axis and the x axis, and `labels`
   // more for y-axis labels that reach below the range.
   const bottom = (xHeight: number, labels = 0) => {
-    const yBottom = height - (xHeight + topOffset + verticalMargin);
+    const yBottom = height - (xHeight + pCtx.topOffset + pCtx.verticalMargin);
     const insetBottom =
       frozen?.insetBottom ??
       Math.max(0, viz._plotInsetBottom?.(yBottom - x2Height) ?? 0) + labels;
@@ -203,5 +211,89 @@ export function solveFinalAxes(
     fit = bottom(pCtx.xHeight, below);
     solved = solveFinalYAxes(viz, pCtx, fit.yRange);
   }
-  return {pCtx, ...fit, solved};
+  if (frozen)
+    return {pCtx, ...fit, solved, aspectInsetY: frozen.aspectInsetY ?? 0};
+  const held = holdAspectRatio(
+    viz,
+    pCtx,
+    {fit, solved},
+    (p: PlotPaintContext) => {
+      pCtx = p;
+      fit = bottom(pCtx.xHeight, below);
+      return {fit, solved: solveFinalYAxes(viz, pCtx, fit.yRange)};
+    },
+  );
+  return {pCtx, ...held.fit, solved: held.solved, aspectInsetY: held.insetY};
+}
+
+/** The paint context with the plot moved `half` down from the top and up from the bottom. */
+const shiftPlotY = (
+  pCtx: PlotPaintContext,
+  half: number,
+): PlotPaintContext => ({
+  ...pCtx,
+  topOffset: pCtx.topOffset + half,
+  verticalMargin: pCtx.verticalMargin + half,
+});
+
+/** The plot's y range and the y axes' solve, as `solveFinalAxes` settles them. */
+type Fit = {fit: {yRange: number[]}; solved: FinalYAxes};
+
+/**
+    Shrinks the plot area along one side, centered, so it holds the Plot's
+    `aspectRatio` (see `Plot/aspectRatio.ts`): a narrower plot moves in
+    from both sides, and a shorter one moves down from the top and up
+    from the bottom, its y axes measured again (`resolve`) against the
+    shorter range. The axes' domains, rounded as they draw at the new
+    ranges, decide the ratio, so it settles over a few passes. Returns the
+    y inset (half on each side) a zoom repaint keeps.
+*/
+function holdAspectRatio<T extends Fit["fit"]>(
+  viz: Viz,
+  pCtx: PlotPaintContext,
+  state: {fit: T; solved: FinalYAxes},
+  resolve: (pCtx: PlotPaintContext) => {fit: T; solved: FinalYAxes},
+): {fit: T; solved: FinalYAxes; insetY: number} {
+  let {fit, solved} = state;
+  const scales = {
+    x: pCtx.xScale === "Point" ? "point" : pCtx.xConfigScale,
+    y: pCtx.yScale === "Point" ? "point" : pCtx.yConfigScale,
+  };
+  const ratio = plotAspectRatio(viz, scales);
+  let insetX = 0,
+    insetY = 0;
+  for (let pass = 0; ratio && pass < 4; pass++) {
+    const xRange = [
+      solved.xOffsetLeft + insetX,
+      pCtx.width - (solved.xOffsetRight + insetX + pCtx.horizontalMargin),
+    ];
+    pCtx.xTest.range(xRange).measure();
+    const units = plotAxisUnits({x: pCtx.xTest, y: pCtx.yTest}, scales, {
+      x: pCtx.xDomain,
+      y: pCtx.yDomain,
+    });
+    if (!units) break;
+    const [y0, y1] = fit.yRange;
+    const inset = aspectInset(
+      units,
+      {x: xRange[1] - xRange[0], y: y1 - y0},
+      ratio,
+    );
+    if (inset.x < 0.5 && inset.y < 0.5) break;
+    insetX += inset.x / 2;
+    if (inset.y >= 0.5) {
+      insetY += inset.y / 2;
+      pCtx = shiftPlotY(pCtx, inset.y / 2);
+      ({fit, solved} = resolve(pCtx));
+    }
+  }
+  return {
+    fit,
+    solved: {
+      ...solved,
+      xOffsetLeft: solved.xOffsetLeft + insetX,
+      xOffsetRight: solved.xOffsetRight + insetX,
+    },
+    insetY,
+  };
 }

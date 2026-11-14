@@ -98,3 +98,17 @@ it("BaseClass", () => {
     "built-in translate returns string",
   );
 });
+
+it("BaseClass translate fills numbered placeholders from its arguments", () => {
+  const inst = new BaseClass();
+  const t = inst.translate();
+  assert.strictEqual(t("Back"), "Back", "plain strings as before");
+  assert.strictEqual(t("{0} hidden", undefined, "Oslo"), "Oslo hidden");
+  assert.strictEqual(
+    t("{0} hidden", "pt-BR", "Oslo"),
+    "Oslo oculto",
+    "the locale's own order",
+  );
+  assert.strictEqual(t("{0} hidden"), "{0} hidden", "no argument");
+  assert.strictEqual(t("{0}/{0}", undefined, "a"), "a/a", "repeated");
+});

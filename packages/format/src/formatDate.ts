@@ -16,7 +16,8 @@ import type {TimeInterval} from "d3-time";
 import {timeFormat, utcFormat} from "d3-time-format";
 
 type DateFormatter = (specifier: string) => (date: Date) => string;
-type DateIntervalName =
+/** A calendar interval dates step by (see [dateInterval](#dateInterval)), or `undefined` for steps finer than an hour. */
+export type DateIntervalName =
   "year" | "quarter" | "month" | "day" | "hour" | undefined;
 
 /** The calendar dates are read in: local time, or UTC. */
@@ -124,7 +125,7 @@ export default function formatDate(
     : arrayBoundaries(d, dataArray, cal);
   return pickFormat(
     d,
-    dateInterval(dataArray, cal),
+    calendarInterval(dataArray, cal),
     withYear || dataArray.length <= 5,
     withDay,
     !!shown,
@@ -147,7 +148,7 @@ export function dateFormatter(
 ): (d: Date, shown?: Date[]) => string {
   const {formatter: base, utc} = readOptions(formatter, options);
   const cal = calendarOf(utc);
-  const interval = dateInterval(dataArray, cal);
+  const interval = calendarInterval(dataArray, cal);
   const smallArray = dataArray.length <= 5;
   const last = dataArray.length - 1;
   const firstIndex = new Map<number, number>();
@@ -371,7 +372,7 @@ export function formatDateFull(
   return format(
     fullSpecifier(
       d,
-      dateInterval(dataArray, cal),
+      calendarInterval(dataArray, cal),
       uses24Hour(format, {utc}),
       cal,
     ),
@@ -391,7 +392,7 @@ export function dateFullFormatter(
 ): (d: Date) => string {
   const {formatter: base, utc} = readOptions(formatter, options);
   const cal = calendarOf(utc);
-  const interval = dateInterval(dataArray, cal);
+  const interval = calendarInterval(dataArray, cal);
   const format = cachedFormatter(base);
   const hour24 = uses24Hour(base, {utc});
   return (d: Date): string =>
@@ -441,12 +442,24 @@ function fullSpecifier(
 }
 
 /**
-    The coarsest interval every step between consecutive dates is a whole multiple of: "year", "quarter", "month", "day", or "hour", else undefined for finer steps.
+    The calendar interval a set of dates steps by, which [formatDate](#formatDate) labels them at: the coarsest of "year", "quarter", "month", "day", or "hour" that every step between consecutive dates is a whole multiple of, else `undefined` for finer steps.
     @param dataArray The full array of ordered Date Objects.
-    @param cal The calendar the dates are read in.
+    @param options `utc: true` reads the dates in UTC.
+@example
+dateInterval([new Date(2024, 0, 1), new Date(2024, 3, 1)]); // "quarter"
+*/
+export function dateInterval(
+  dataArray: Date[],
+  options: {utc?: boolean} = {},
+): DateIntervalName {
+  return calendarInterval(dataArray, calendarOf(Boolean(options.utc)));
+}
+
+/**
+    The coarsest interval every step between consecutive dates is a whole multiple of (see `dateInterval`), in the calendar `cal`.
     @private
 */
-function dateInterval(dataArray: Date[], cal: Calendar): DateIntervalName {
+function calendarInterval(dataArray: Date[], cal: Calendar): DateIntervalName {
   const [yearlySteps, monthlySteps, dailySteps, hourlySteps] = dataArray.reduce<
     [number[], number[], number[], number[]]
   >(
