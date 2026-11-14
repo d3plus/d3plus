@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>EdgeCases · ColorScale</title>
+    <meta
+      name="description"
+      content="ColorScale edge cases on a Matrix: a color array through the midpoint color, a log scale whose high pole is exactly 1, a diverging quantile scale over long tails, and a jenks scale over only-negative values. Add ?theme=dark for the dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .chart {
+        height: 260px;
+        width: 480px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="row">
+      <div class="chart" id="color-array"></div>
+      <div class="chart" id="log-pole"></div>
+      <div class="chart" id="quantile"></div>
+      <div class="chart" id="jenks-negative"></div>
+    </div>
+
+    <script>
+      const theme =
+        new URLSearchParams(location.search).get("theme") === "dark"
+          ? "dark"
+          : "light";
+      if (theme === "dark") document.body.style.background = "#16171b";
+
+      /** A one-row Matrix with a cell per value, colored by its value. */
+      const matrix = (selector, title, values, colorScaleConfig) =>
+        new d3plus.Matrix()
+          .select(selector)
+          .config({
+            data: values.map((value, i) => ({
+              row: "Value",
+              column: String(value),
+              value,
+            })),
+            groupBy: ["row", "column"],
+            row: "row",
+            column: "column",
+            columnSort: (a, b) => Number(a) - Number(b),
+            colorScale: "value",
+            colorScaleConfig,
+            theme,
+            title,
+          })
+          .render();
+
+      matrix(
+        "#color-array",
+        "Color array through the midpoint: blue only at 10",
+        [-10, -5, -1, 1, 5, 10],
+        {
+          scale: "linear",
+          color: ["#d73027", "#efefef", "#4575b4"],
+          colorMid: "#efefef",
+        },
+      );
+
+      matrix("#log-pole", "Log, high pole exactly 1", [-10, -5, -2, 1], {
+        scale: "log",
+      });
+
+      matrix(
+        "#quantile",
+        "Quantile, diverging long tails",
+        [-100, -4, -3, -2, -1, 1, 2, 3, 4, 100],
+        {scale: "quantile"},
+      );
+
+      matrix(
+        "#jenks-negative",
+        "Jenks, only negative values",
+        [-9, -8, -5, -4, -2, -1],
+        {scale: "jenks"},
+      );
+    </script>
+  </body>
+</html>
