@@ -15,7 +15,11 @@ import {PLOT_ZOOM_CONTENT_KEY, type PlotAxisFn} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {hasSharedMarks, type ShapeNode} from "./sharedHover.js";
 import type {AxisHoverState} from "./axisHover.js";
-import {axisHoverNodes} from "./axisHoverScene.js";
+import {
+  axisHoverNodes,
+  badgeRect,
+  hideOverlappedTicks,
+} from "./axisHoverScene.js";
 import {isDomainClip} from "./domainClip.js";
 import {isBreakMask} from "./plotBreaks.js";
 import type {FacetPanelState} from "../facet/facetConfig.js";
@@ -202,7 +206,7 @@ function decorateBody(
       : [];
   let children = nodes;
   const crosshair = state && discrete ? crosshairAnnotation(viz, state) : null;
-  const axisNodes = axis ? axisHoverNodes(viz, axis) : null;
+  const axisNodes = axis ? axisHoverNodes(viz, axis, nodes) : null;
   const guides = prefixKeys(
     [...(crosshair ? [crosshair] : []), ...(axisNodes ? axisNodes.guides : [])],
     key,
@@ -226,6 +230,8 @@ function decorateBody(
     } else children = layer(children, guides, markers, side);
   }
   const badges = axisNodes ? prefixKeys(axisNodes.badges, key) : [];
+  // Tick labels under a badge hide while it shows.
+  children = hideOverlappedTicks(children, badges.map(badgeRect));
   return [...surface, ...children, ...badges];
 }
 

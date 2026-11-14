@@ -34,6 +34,8 @@ export interface AxisHoverBadge {
   /** The badge's center along the axis, in chart content space. */
   at: number;
   text: string;
+  /** The value the badge shows, whose tick label it covers. */
+  value?: unknown;
   /** Whether a guide runs from the point to this axis (the crosshair is the discrete axis's guide). */
   guide: boolean;
 }
@@ -256,7 +258,7 @@ export function resolveAxisHover(
             axisInvert(viz, axis, position, raw),
           );
     const text = formatAxisValue(v => axisValue(viz, axis, v, true), value);
-    if (text) badges.push({axis, at, text, guide: !snapped});
+    if (text) badges.push({axis, at, text, value, guide: !snapped});
   }
   if (!badges.length) return null;
   const row = (anchor.datum.data || anchor.datum) as DataPoint;
