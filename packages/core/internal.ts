@@ -2182,6 +2182,11 @@ export {
   rectNodeSize,
   sizeRectNodes,
 } from "./src/charts/features/rectNodeSize.js";
+export {containNodes} from "./src/charts/Network/containNodes.js";
+export type {
+  Containment,
+  NodeReach,
+} from "./src/charts/Network/containNodes.js";
 export type {
   RectSizeConfig,
   RectSizedNode,

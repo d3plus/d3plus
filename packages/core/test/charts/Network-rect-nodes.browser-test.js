@@ -129,3 +129,77 @@ for (const renderer of ["svg", "canvas"]) {
       assert.strictEqual(box.width, box.height);
   });
 }
+
+/** Every Rect node's drawn box, in surface pixels, and the surface's size, for a 300×200 chart of big `size` boxes. */
+const bigBoxes = (layout, size, renderer) =>
+  probeChart(
+    `(lib, data) => new lib.Network().nodes(data.nodes).links(data.links)
+      .shape("Rect").shapeConfig({Rect: {width: data.size[0], height: data.size[1]}})
+      .layout(data.layout).legend(false)`,
+    viz => {
+      const t = viz._chartTransform || {x: 0, y: 0};
+      const boxes = [];
+      const walk = nodes =>
+        nodes.forEach(n => {
+          if (/^network-Rect-/.test(String(n.key)) && n.type === "rect")
+            boxes.push({
+              id: String(n.key),
+              x0: t.x + n.x,
+              y0: t.y + n.y,
+              x1: t.x + n.x + n.width,
+              y1: t.y + n.y + n.height,
+            });
+          if (n.children) walk(n.children);
+        });
+      walk(viz._chartScene);
+      const surface = document
+        .querySelector("#viz svg, #viz canvas")
+        .getBoundingClientRect();
+      return {boxes, width: surface.width, height: surface.height};
+    },
+    {
+      data: {
+        nodes: [
+          {id: "alpha", x: 0, y: 0},
+          {id: "beta", x: 1, y: 0.2},
+          {id: "gamma", x: 2, y: 0},
+          {id: "delta", x: 3, y: 0.2},
+        ],
+        links: [
+          {source: "alpha", target: "beta"},
+          {source: "beta", target: "delta"},
+          {source: "delta", target: "gamma"},
+          {source: "gamma", target: "alpha"},
+        ],
+        layout,
+        size,
+      },
+      renderer,
+      html: '<div id="viz" style="width:300px;height:200px"></div>',
+    },
+  );
+
+for (const renderer of ["svg", "canvas"])
+  for (const [layout, size] of [
+    ["force", [140, 30]],
+    ["circle", [240, 60]],
+  ])
+    it(`${renderer}: big fixed-size Rect nodes stay inside a small chart (${layout} layout)`, async () => {
+      const out = await bigBoxes(layout, size, renderer);
+      assert.strictEqual(out.boxes.length, 4);
+      for (const b of out.boxes) {
+        assert.strictEqual(
+          Math.round(b.x1 - b.x0),
+          size[0],
+          `${b.id} keeps its width`,
+        );
+        assert.ok(
+          b.x0 >= -0.5 && b.x1 <= out.width + 0.5,
+          `${b.id} [${b.x0}, ${b.x1}] inside ${out.width} across`,
+        );
+        assert.ok(
+          b.y0 >= -0.5 && b.y1 <= out.height + 0.5,
+          `${b.id} [${b.y0}, ${b.y1}] inside ${out.height} down`,
+        );
+      }
+    });

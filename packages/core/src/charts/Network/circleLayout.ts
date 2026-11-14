@@ -29,7 +29,10 @@ import {
   selfLoopExtent,
   selfLoopReach,
 } from "../features/selfLoops.js";
+import {shapeConfigFor} from "../features/emitHelpers.js";
 import {linkWidthRange} from "../features/linkWidths.js";
+import {rectNodeSize} from "../features/rectNodeSize.js";
+import type {RectSizeConfig} from "../features/rectNodeSize.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   naturalCompare,
@@ -261,16 +264,34 @@ export function layoutCircleNetwork(
     sizes[0] === sizes[1]
       ? Number(sizes[0]) || 1
       : linkWidthRange(v.schema.linkSizeMin, v.schema.linkSizeMax, rMax)[1];
+  const half = Math.min(width, height) / 2;
+  // A Rect box set larger than 2r reaches past the circle's tighter side by
+  // the rest of its half-width or half-height, however small rMax gets.
+  const rectConfig = shapeConfigFor(v, "Rect") as RectSizeConfig;
+  const rects = nodes.filter(n => n.shape === "Rect");
+  const boxReach = (rMax: number) =>
+    Math.max(
+      0,
+      ...rects.map(n => {
+        const [w, h] = rectNodeSize(rectConfig, n, rMax);
+        return Math.max(
+          w / 2 - (width / 2 - half),
+          h / 2 - (height / 2 - half),
+        );
+      }),
+    );
+  const boxRoom = (rMax: number) => boxReach(rMax) - rMax;
   const loopRoom = (rMax: number) =>
     Math.max(
       looped.size ? selfLoopExtent(selfLoopReach(rMax), loopStroke(rMax)) : 0,
       hasRect ? rMax * (Math.SQRT2 - 1) : 0,
-    );
-  const half = Math.min(width, height) / 2;
+    ) + Math.max(0, boxRoom(rMax));
   let fit = fitCircle(half, nodes.length, widest, 0, sizeMax);
   if (looped.size || hasRect)
     fit = fitCircle(half, nodes.length, widest, loopRoom(fit.rMax), sizeMax);
-  const {radius, rMax} = fit;
+  const {rMax} = fit;
+  // Every box stays inside the chart, whatever the labels' room.
+  const radius = Math.max(0, Math.min(fit.radius, half - boxReach(rMax)));
 
   const scaleName = `${v.schema.sizeScale}`;
   const r = (scales as unknown as Record<string, () => RScale>)

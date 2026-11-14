@@ -35,6 +35,8 @@ import {
 import type {LoopNode, SelfLoopGeometry} from "../features/selfLoops.js";
 import type {FocusBox} from "../features/linkFocus.js";
 import {bundleNetworkLinks} from "./bundle.js";
+import {containNodes} from "./containNodes.js";
+import type {NodeReach} from "./containNodes.js";
 import {minNodeDistance} from "./minNodeDistance.js";
 import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import {
@@ -487,6 +489,45 @@ function placeNetworkLoops(
   for (const [link, loop] of placed) link.loop = loop;
 }
 
+/**
+    Moves the nodes in (see `containNodes`) when a box or loop reaches past
+    the chart's edge: a Rect node's set size doesn't shrink with the radius
+    scale the fit settles. Returns whether any node moved.
+*/
+function keepNodesInside(
+  nodes: NetworkNode[],
+  links: NetworkLink[],
+  width: number,
+  height: number,
+): boolean {
+  const reach = new Map<string, NodeReach>(
+    nodes.map(n => {
+      const x = n.x ?? 0,
+        y = n.y ?? 0;
+      const w = (n.width ?? (n.r ?? 0) * 2) / 2,
+        h = (n.height ?? (n.r ?? 0) * 2) / 2;
+      return [n.id, {x, y, left: w, right: w, top: h, bottom: h}];
+    }),
+  );
+  for (const l of links) {
+    const at = l.loop && reach.get(l.source.id);
+    if (!at) continue;
+    const [[x0, y0], [x1, y1]] = l.loop!.box;
+    at.left = Math.max(at.left, at.x - x0);
+    at.right = Math.max(at.right, x1 - at.x);
+    at.top = Math.max(at.top, at.y - y0);
+    at.bottom = Math.max(at.bottom, y1 - at.y);
+  }
+  // The same room the fit keeps for a hovered node's thicker outline.
+  const {scale, dx, dy} = containNodes([...reach.values()], width, height, 3);
+  if (scale === 1 && dx === 0 && dy === 0) return false;
+  nodes.forEach(n => {
+    n.x = n.fx = (n.x ?? 0) * scale + dx;
+    n.y = n.fy = (n.y ?? 0) * scale + dy;
+  });
+  return true;
+}
+
 export const applyNetworkLayout: TransformStage = ({viz}) => {
   const v = viz;
   const {width, height} = chartBounds(v);
@@ -516,6 +557,8 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
   sizeRectNodes(v, nodes);
   normalizeLinkStrokes(v, links, r);
   placeNetworkLoops(nodes, links, circle?.circle.center);
+  if (!circle && keepNodesInside(nodes, links, width, height))
+    placeNetworkLoops(nodes, links);
   if (circle) placeCircleNetworkLabels(v, nodes, links, circle.circle);
   bundleNetworkLinks(v, links);
   if (circle)
