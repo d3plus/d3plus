@@ -14,6 +14,8 @@ import jitter from "~/examples/core/charts/scatter/jitter.js?raw";
 import errorBars from "~/examples/core/charts/scatter/error-bars.js?raw";
 import errorBarsBothAxes from "~/examples/core/charts/scatter/error-bars-both-axes.js?raw";
 import logAxes from "~/examples/core/charts/scatter/log-axes.js?raw";
+import marginalHistograms from "~/examples/core/charts/scatter/marginal-histograms.js?raw";
+import marginalDistributions from "~/examples/core/charts/scatter/marginal-distributions.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
 its `x` and `y` values, on continuous axes (set `discrete` to place points
@@ -75,5 +77,17 @@ Give `confidence` an object, `{x: [lower, upper], y: [lower, upper]}`, to bound 
 Body and brain masses span several orders of magnitude, so both axes are `scale: "log"`. A log axis draws short, unlabeled minor ticks at 2 through 9 times each power of ten (thinned to 2 and 5, or left off, where they would crowd), and `minorGrid: true` runs fainter grid lines from them across the plot (`minorGridConfig` styles them). `minorTicks: false` turns the minor ticks off.
 
 <Playground chart="Scatter" code={logAxes} controls={["xConfig","yConfig"]} />
+
+## Marginal distributions
+
+`marginals: "histogram"` draws each axis's distribution beside the plot: the x values in a strip above it and the y values in a strip to its right, each lined up with its axis. The points split by legend entry, stacked in their colors, and only the points the chart shows are counted, so hiding a species in the legend (or moving the timeline) redraws the strips. Hover a point to light the bins holding it, or a bin for its range and count and to light its points.
+
+<Playground chart="Scatter" code={marginalHistograms} controls={["marginals","marginalConfig"]} />
+
+## Box plots and density curves
+
+`"box"` draws a box plot per series and `"density"` a kernel density curve per series, each scaled by its share of the points. Give `marginals` an object, `{x, y}`, to pick each strip, and leave one out to draw only the other. `marginalConfig` sets each strip's `size` (pixels, or a share of the chart area's shorter side; `0.15` by default), its `padding` from the plot, and a histogram strip's `binThresholds`. Strips need two continuous axes, so a chart with a category axis draws none.
+
+<Playground chart="Scatter" code={marginalDistributions} controls={["marginals","marginalConfig"]} />
 
 <ApiReference name="Scatter" pkg="core" />
