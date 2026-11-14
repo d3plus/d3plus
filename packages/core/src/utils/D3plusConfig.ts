@@ -1369,7 +1369,10 @@ export interface D3plusConfig {
       bounds each axis: the value axis's bounds (y, or x when `discrete` is
       `"y"`) draw as above, the other axis's draw on points as horizontal (or
       vertical) error bars, a cross where a point has both, and widen that
-      axis; tooltips list each axis's bounds under its name.
+      axis; tooltips list each axis's bounds under its name. A label beside a
+      point keeps clear of every error bar (hiding when no side is clear),
+      and a bar with an error bar anchors its label at its base, or, outside
+      the bar, past the whisker's far end.
   */
   confidence?:
     | ConfidenceBandSetting

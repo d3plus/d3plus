@@ -5,7 +5,7 @@
     <title>Scatter Error Bars</title>
     <meta
       name="description"
-      content="Error bars on points: y bounds, x bounds, both as a cross, on a category axis, plus a {x, y} setting on horizontal bars and on lines."
+      content="Error bars on points: y bounds, x bounds, both as a cross with labels kept clear of them, on a category axis, plus a {x, y} setting on horizontal and upright bars (labels at the base) and on lines."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -51,6 +51,10 @@
       <div>
         <h3>Horizontal bars, {x: [...]}</h3>
         <div class="viz" id="bars"></div>
+      </div>
+      <div>
+        <h3>Upright bars: labels at the base, clear of the whiskers</h3>
+        <div class="viz" id="upright"></div>
       </div>
       <div>
         <h3>LinePlot, {y: [...]} (band)</h3>
@@ -148,6 +152,16 @@
       .y("id")
       .x("x")
       .confidence({x: ["xLow", "xHigh"], y: ["yLow", "yHigh"]})
+      .legend(false)
+      .render();
+
+    new d3plus.BarChart()
+      .select("#upright")
+      .data(studies)
+      .groupBy("id")
+      .x("id")
+      .y("x")
+      .confidence({y: ["xLow", "xHigh"]})
       .legend(false)
       .render();
 

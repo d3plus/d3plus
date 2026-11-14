@@ -52,7 +52,7 @@ Points too small to hold their label get it beside them instead, on the side fac
 
 ## Error bars
 
-`confidence` names each point's lower and upper bounds, drawn as a capped error bar through the point; the y axis widens to fit them, and the tooltip lists them.
+`confidence` names each point's lower and upper bounds, drawn as a capped error bar through the point; the y axis widens to fit them, and the tooltip lists them. A label beside its point keeps clear of every error bar, and hides when no side is clear; hover a point for its name.
 
 <Playground chart="Scatter" code={errorBars} controls={["confidence","confidenceConfig"]} />
 

@@ -29,6 +29,8 @@ import {
 } from "../../src/charts/Plot/barConfidence.ts";
 import {
   emitPointConfidence,
+  pointErrorBoxes,
+  pointErrorObstacles,
   pointErrorPath,
 } from "../../src/charts/Plot/pointConfidence.ts";
 
@@ -284,4 +286,49 @@ it("appendPointConfidence: a point's tooltip lists its bounds after its own rows
   const before = tbody;
   appendPointConfidence(tip, new Scatter(), rows[0], 0, "Circle");
   assert.strictEqual(tbody, before);
+});
+
+it("pointErrorBoxes: a box per stroke, widened by half its width", () => {
+  const caps = {lower: true, upper: true};
+  const bars = {
+    key: "a",
+    x: 50,
+    y: 40,
+    size: 10,
+    bounds: {
+      y: {lower: 60, upper: 20, caps},
+      x: {lower: 30, upper: 70, caps: {lower: false, upper: true}},
+    },
+  };
+  assert.deepStrictEqual(pointErrorBoxes(bars, 10, 2), [
+    // x: the line, then the upper cap (the lower has none)
+    {x: 29, y: 39, width: 42, height: 2},
+    {x: 69, y: 34, width: 2, height: 12},
+    // y: the line, then both caps
+    {x: 49, y: 19, width: 2, height: 42},
+    {x: 44, y: 59, width: 12, height: 2},
+    {x: 44, y: 19, width: 12, height: 2},
+  ]);
+});
+
+it("pointErrorObstacles: every point's error-bar boxes, none without confidence", () => {
+  const viz = new Scatter().confidence(["yl", "yh"]);
+  syncConfidenceAxes(viz);
+  const ctx = {viz, x: v => v * 10, y: v => 100 - v * 10};
+  const points = [{d: {lci: 4, hci: 7}, x: 100, y: 50, r: 5}];
+  const boxes = pointErrorObstacles(ctx, points);
+  // The line (y 30 → 60) and two 10px caps, padded by 1 for the 2px stroke.
+  assert.deepStrictEqual(boxes, [
+    {x: 99, y: 29, width: 2, height: 32},
+    {x: 94, y: 59, width: 12, height: 2},
+    {x: 94, y: 29, width: 12, height: 2},
+  ]);
+  assert.deepStrictEqual(
+    pointErrorObstacles({...ctx, viz: new Scatter()}, points),
+    [],
+  );
+  assert.deepStrictEqual(
+    pointErrorObstacles(ctx, [{d: {}, x: 0, y: 0, r: 5}]),
+    [],
+  );
 });

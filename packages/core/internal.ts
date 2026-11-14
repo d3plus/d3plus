@@ -574,8 +574,15 @@ export {
 export type {ConfidenceAxes} from "./src/charts/Plot/confidenceAxes.js";
 export {
   emitPointConfidence,
+  pointErrorBoxes,
+  pointErrorObstacles,
   pointErrorPath,
 } from "./src/charts/Plot/pointConfidence.js";
+export type {PointBars} from "./src/charts/Plot/pointConfidence.js";
+export {
+  anchorAtBase,
+  barErrorReach,
+} from "./src/charts/Plot/barLabelConfidence.js";
 export {
   compareCategories,
   stepValue,

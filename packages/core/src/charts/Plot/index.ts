@@ -458,7 +458,7 @@ export default class Plot extends Viz {
   }
 
   /**
-       The confidence interval as `[lower, upper]` bounds (keys or accessors): lines draw a shaded band, bars and points an error bar. Either bound may be `false` for a one-sided interval, and the value axis widens to fit. Pass an array of bands, outermost first (`[lower, upper, label]` or `{lower, upper, label}`), to draw nested bands (a fan). Pass `{x: [lower, upper], y: [lower, upper]}` to bound each axis: the value axis's bounds (y, or x when `discrete` is `"y"`) draw as above, and the other axis's draw on points, as a cross where a point has both. `false` turns it off.
+       The confidence interval as `[lower, upper]` bounds (keys or accessors): lines draw a shaded band, bars and points an error bar. Either bound may be `false` for a one-sided interval, and the value axis widens to fit. Pass an array of bands, outermost first (`[lower, upper, label]` or `{lower, upper, label}`), to draw nested bands (a fan). Pass `{x: [lower, upper], y: [lower, upper]}` to bound each axis: the value axis's bounds (y, or x when `discrete` is `"y"`) draw as above, and the other axis's draw on points, as a cross where a point has both. Labels beside points keep clear of error bars, and a bar with an error bar anchors its label at its base (or, outside the bar, past the whisker). `false` turns it off.
 
 @example <caption>Can be called with accessor functions or static keys:</caption>
        var data = {id: "alpha", value: 10, lci: 9, hci: 11};

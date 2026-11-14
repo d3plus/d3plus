@@ -34,9 +34,10 @@ import {
   errorBarPath,
 } from "./barConfidence.js";
 import {confidenceValueAxis} from "./confidenceAxes.js";
+import type {CircleLabelBox} from "../features/circleLabelPlacement.js";
 
 /** The pixel layout of one point's error bars. */
-interface PointBars {
+export interface PointBars {
   key: string | number;
   x: number;
   y: number;
@@ -96,13 +97,40 @@ function axisBounds(
   return {lower: l, upper: u, caps};
 }
 
+/**
+    The error bars of the point `d` drawn at `x`, `y` with radius `r`, in
+    pixels; null when it has no finite bound or the chart no `confidence`.
+*/
+function pointBars(
+  ctx: ShapeEmitContext,
+  d: PlotDatum,
+  key: string | number,
+  x: number,
+  y: number,
+  r: number,
+): PointBars | null {
+  const {viz} = ctx;
+  if (!viz._confidence && !viz._confidenceCross) return null;
+  const valueAxis = confidenceValueAxis(viz);
+  const crossAxis = valueAxis === "y" ? "x" : "y";
+  const at = {x, y};
+  const value = axisBounds(ctx, valueAxis, d.lci, d.hci, at[valueAxis]);
+  const cross = axisBounds(ctx, crossAxis, d.clci, d.chci, at[crossAxis]);
+  if (!value && !cross) return null;
+  return {
+    key,
+    x,
+    y,
+    size: r * 2,
+    bounds: {[valueAxis]: value, [crossAxis]: cross},
+  };
+}
+
 /** Measures each painted point that has a finite bound. */
 function layoutPointBars(
   ctx: ShapeEmitContext,
   nodes: SceneNode[],
 ): Map<PlotDatum, PointBars> {
-  const valueAxis = confidenceValueAxis(ctx.viz);
-  const crossAxis = valueAxis === "y" ? "x" : "y";
   const out = new Map<PlotDatum, PointBars>();
   for (const node of nodes) {
     if (node.type !== "circle" || `${node.key}`.endsWith("::hit")) continue;
@@ -111,19 +139,91 @@ function layoutPointBars(
     const t = node.transform ?? {};
     const x = (t.x ?? 0) + node.cx,
       y = (t.y ?? 0) + node.cy;
-    const at = {x, y};
-    const value = axisBounds(ctx, valueAxis, d.lci, d.hci, at[valueAxis]);
-    const cross = axisBounds(ctx, crossAxis, d.clci, d.chci, at[crossAxis]);
-    if (!value && !cross) continue;
-    out.set(d, {
-      key: node.key,
-      x,
-      y,
-      size: node.r * 2,
-      bounds: {[valueAxis]: value, [crossAxis]: cross},
-    });
+    const bars = pointBars(ctx, d, node.key, x, y, node.r);
+    if (bars) out.set(d, bars);
   }
   return out;
+}
+
+/**
+    The boxes a point's error bars cover: one per stroke (the line along each
+    bounded axis, and each cap), widened by half the stroke's width on every
+    side.
+    @param bars The point's layout.
+    @param cap The cap length, in pixels.
+    @param strokeWidth The error bars' stroke width, in pixels.
+*/
+export function pointErrorBoxes(
+  bars: PointBars,
+  cap: number,
+  strokeWidth: number,
+): CircleLabelBox[] {
+  const pad = Math.max(0, strokeWidth) / 2;
+  const half = cap / 2;
+  const boxes: CircleLabelBox[] = [];
+  const segment = (x1: number, y1: number, x2: number, y2: number) =>
+    boxes.push({
+      x: Math.min(x1, x2) - pad,
+      y: Math.min(y1, y2) - pad,
+      width: Math.abs(x2 - x1) + pad * 2,
+      height: Math.abs(y2 - y1) + pad * 2,
+    });
+  for (const axis of ["x", "y"] as const) {
+    const b = bars.bounds[axis];
+    if (!b) continue;
+    const at = bars[axis],
+      across = axis === "y" ? bars.x : bars.y;
+    const a = finite(b.lower) ? b.lower : at;
+    const z = finite(b.upper) ? b.upper : at;
+    const line = (u1: number, v1: number, u2: number, v2: number) =>
+      axis === "y" ? segment(v1, u1, v2, u2) : segment(u1, v1, u2, v2);
+    line(a, across, z, across);
+    for (const [bound, capped] of [
+      [b.lower, b.caps.lower],
+      [b.upper, b.caps.upper],
+    ] as const)
+      if (finite(bound) && capped && half > 0)
+        line(bound, across - half, bound, across + half);
+  }
+  return boxes;
+}
+
+/** The point error bars' style: `confidenceConfig` over the library's, for Circles. */
+function pointBarConfig(ctx: ShapeEmitContext): Record<string, unknown> {
+  const {viz} = ctx;
+  return shapeConfigFor(viz, "Circle", {
+    ...errorBarDefaults(viz, "Circle"),
+    capWidth: "100%",
+    ...(viz._confidenceConfig ?? {}),
+  });
+}
+
+/** A config value, or an accessor's value for a row. */
+const valueFor = (v: unknown, d: PlotDatum, i: number): unknown =>
+  typeof v === "function"
+    ? (v as (d: PlotDatum, i: number) => unknown)(d, i)
+    : v;
+
+/**
+    The boxes every point's error bars cover, for labels beside points to
+    keep clear of (see `plotCircleLabels`). Empty when the chart draws none.
+    @param ctx The Plot shape-emit context the points are drawn with.
+    @param points Each point's row and its center and radius, in pixels.
+*/
+export function pointErrorObstacles(
+  ctx: ShapeEmitContext,
+  points: {d: PlotDatum; x: number; y: number; r: number}[],
+): CircleLabelBox[] {
+  const {viz} = ctx;
+  if (!viz._confidence && !viz._confidenceCross) return [];
+  const config = pointBarConfig(ctx);
+  return points.flatMap(({d, x, y, r}, i) => {
+    const bars = pointBars(ctx, d, "", x, y, r);
+    if (!bars) return [];
+    const cap = capLength(valueFor(config.capWidth, d, i), bars.size);
+    const width = Number(valueFor(config.strokeWidth, d, i));
+    return pointErrorBoxes(bars, cap, Number.isFinite(width) ? width : 1);
+  });
 }
 
 /**
@@ -143,11 +243,7 @@ export function emitPointConfidence(
   const layouts = layoutPointBars(ctx, nodes);
   if (!layouts.size) return [];
 
-  const config = shapeConfigFor(viz, "Circle", {
-    ...errorBarDefaults(viz, "Circle"),
-    capWidth: "100%",
-    ...(viz._confidenceConfig ?? {}),
-  });
+  const config = pointBarConfig(ctx);
   const capWidth = config.capWidth;
   delete config.capWidth;
   delete config.tooltip;

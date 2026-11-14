@@ -388,4 +388,21 @@ describe("charts/circleLabelPlacement placeCircleLabels", () => {
     const b = placeCircleLabels(circles, labels, bounds);
     assert.deepStrictEqual(a, b);
   });
+
+  it("keeps labels off obstacles, and hides one with no clear side", () => {
+    const circles = [{x: 200, y: 150, r: 5}];
+    // A bar through the point's right side sends its label left.
+    const right = {x: 205, y: 140, width: 60, height: 20};
+    const [p] = placeCircleLabels(circles, [label(0)], bounds, {
+      obstacles: [right],
+    });
+    assert.strictEqual(p.side, "left");
+    assert.ok(!boxesOverlap(p.box, right));
+    // A box around the whole point leaves no side.
+    const all = {x: 100, y: 50, width: 200, height: 200};
+    const [hidden] = placeCircleLabels(circles, [label(0)], bounds, {
+      obstacles: [all],
+    });
+    assert.strictEqual(hidden.position, "hidden");
+  });
 });
