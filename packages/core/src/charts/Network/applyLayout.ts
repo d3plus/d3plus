@@ -18,6 +18,8 @@ import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../features/chartGeometry.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
+import {rectNodeSize, sizeRectNodes} from "../features/rectNodeSize.js";
+import type {RectSizeConfig} from "../features/rectNodeSize.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import {publishLinkGraph} from "../features/linkInteraction.js";
@@ -263,8 +265,8 @@ function linkStrokeScale(
 }
 
 /**
-    The boxes (in pixels, at the radii `r` gives) the nodes and their loops
-    cover. Loops are laid out as they will draw, at the widest their strokes
+    The boxes (in pixels, at the radii `r` gives) the nodes (a Rect node's
+    own box) and their loops cover. Loops are laid out as they will draw, at the widest their strokes
     can be before the nodes shrink to fit.
 */
 function nodeBoxes(
@@ -276,10 +278,19 @@ function nodeBoxes(
   const sized = new Map(
     nodes.map(n => [n.id, {id: n.id, x: n.x ?? 0, y: n.y ?? 0, r: r(n.r)}]),
   );
-  const boxes: FocusBox[] = [...sized.values()].map(n => [
-    [n.x - n.r, n.y - n.r],
-    [n.x + n.r, n.y + n.r],
-  ]);
+  const rect = shapeConfigFor(v, "Rect") as RectSizeConfig;
+  const boxes: FocusBox[] = nodes.map(node => {
+    const n = sized.get(node.id)!;
+    // A Rect node reaches as far as its box.
+    const [w, h] =
+      node.shape === "Rect"
+        ? rectNodeSize(rect, node, n.r).map(s => s / 2)
+        : [n.r, n.r];
+    return [
+      [n.x - w, n.y - h],
+      [n.x + w, n.y + h],
+    ];
+  });
   const stroke = linkStrokeScale(v, links, r.range()[0]);
   const loops = networkLoops(
     nodes,
@@ -490,6 +501,7 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     ? circle.r
     : scaleNetworkNodes(v, nodes, width, height, links);
   v._sizeLegendFinal = v._size ? (r as unknown as SizeLegendScale) : null;
+  sizeRectNodes(v, nodes);
   normalizeLinkStrokes(v, links, r);
   placeNetworkLoops(nodes, links, circle?.circle.center);
   if (circle) placeCircleNetworkLabels(v, nodes, links, circle.circle);

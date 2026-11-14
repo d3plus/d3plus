@@ -2033,6 +2033,14 @@ export {
   linkWidthRange,
 } from "./src/charts/features/linkWidths.js";
 export {
+  rectNodeSize,
+  sizeRectNodes,
+} from "./src/charts/features/rectNodeSize.js";
+export type {
+  RectSizeConfig,
+  RectSizedNode,
+} from "./src/charts/features/rectNodeSize.js";
+export {
   FORMAT_KEYS,
   formatPayload,
   formatterFor,
