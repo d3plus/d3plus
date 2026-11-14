@@ -10,6 +10,7 @@ import twoPeriods from "~/examples/core/charts/bump-chart/two-periods.js?raw";
 import expandedRanking from "~/examples/core/charts/bump-chart/expanded-ranking.js?raw";
 import manyPeriods from "~/examples/core/charts/bump-chart/many-periods.js?raw";
 import lineStyling from "~/examples/core/charts/bump-chart/line-styling.js?raw";
+import bands from "~/examples/core/charts/bump-chart/bands.js?raw";
 
 Creates a bump chart based on an array of data.
 
@@ -42,5 +43,11 @@ Five teams over six seasons: every series is present at every `x` period, which 
 The lines and the points at each period are separate shapes, so `shapeConfig.Line` and `shapeConfig.Circle` style them independently; thicker lines with round caps and larger points make rank swaps easier to follow, and `label` names each series at its ends.
 
 <Playground chart="BumpChart" code={lineStyling} controls={["shapeConfig","label"]} />
+
+## Bands sized by value
+
+Set `size` to draw each series as a band (an area bump chart): its rank still sets its place at each period, and its thickness shows its value, so a platform that climbs the ranking also visibly grows. Each band is centered on its rank, the largest value fills its rank's slot less `bandPadding` (a quarter of the slot by default), and bands bend smoothly from one period's rank to the next. The axes on both sides still name each band at its ends. Hovering a period lists every series' value there; with `tooltipShared(false)`, hovering a band shows that series alone.
+
+<Playground chart="BumpChart" code={bands} controls={["size","bandPadding","tooltipShared"]} />
 
 <ApiReference name="BumpChart" pkg="core" />
