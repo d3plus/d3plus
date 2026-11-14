@@ -3,7 +3,8 @@
 
     Implementation files in this folder:
       - `applyLayout.ts` — `TransformStage` that runs the row+column axes.
-      - `emit.ts` — Rect cells positioned by the stashed scales.
+      - `emit.ts` — Rect (or Circle) cells positioned by the stashed scales.
+      - `bubbles.ts` — Circle cells sized by `size`.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -18,6 +19,11 @@ import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyMatrixLayout} from "./applyLayout.js";
+import {
+  matrixSizeLegendScale,
+  matrixSizeTooltipRows,
+  matrixSizeValues,
+} from "./bubbles.js";
 import {matrixEmit} from "./emit.js";
 
 const defaultAxisConfig: Record<string, unknown> = {
@@ -40,11 +46,31 @@ export const matrixDef: ChartDefinition = {
   name: "Matrix",
 
   layoutStage: applyMatrixLayout,
+  sizeLegendScale: matrixSizeLegendScale,
   emit: matrixEmit,
 
   chartTransform: (viz: VizInstance) => ({x: 0, y: viz._margin.top}),
 
   setup: (viz: VizInstance) => {
+    /**
+        Sizes each circle cell (a cell whose `shape` is `"Circle"`) by the
+        absolute value of a data key or accessor function, so the largest
+        circle fills its cell (see `sizeScale`) and the size legend keys
+        the sizes. A cell without a value draws no circle. When unset,
+        every circle fills its cell.
+        @type {string | function}
+    */
+    (viz as VizInstance & {size: unknown}).size = function (
+      this: VizInstance,
+      _?: unknown,
+    ) {
+      if (!arguments.length) return this._size;
+      this._size = (
+        typeof _ === "function" || !_ ? _ : fieldAccessor(_ as string)
+      ) as VizInstance["_size"];
+      this._sizeKey = typeof _ === "string" ? _ : undefined;
+      return this;
+    };
     const baseMouseMoveShape = viz.schema.on["mousemove.shape"];
     viz.schema.on["mousemove.shape"] = (
       d: DataPoint,
@@ -80,8 +106,20 @@ export const matrixDef: ChartDefinition = {
     };
   },
 
-  // Small-multiple panels as close to square as the grid allows.
-  facet: {aspect: 1},
+  facet: {
+    // Panels as close to square as the grid allows.
+    aspect: 1,
+    // Every panel's circles share one size scale.
+    share: (viz, panels) =>
+      viz._size ? matrixSizeValues(viz, panels.flat()) : undefined,
+    panel: (viz, {shared, scales}) => {
+      const previous = viz.ctx.sharedSizeValues;
+      if (shared && scales) viz.ctx.sharedSizeValues = scales;
+      return () => {
+        viz.ctx.sharedSizeValues = previous;
+      };
+    },
+  },
 
   ctx: {
     rowAxis: new Axis(),
@@ -140,6 +178,20 @@ export const matrixDef: ChartDefinition = {
       key: "columnConfig",
       merge: true,
       default: {orient: "top", ...defaultAxisConfig},
+    },
+    /**
+        How circle cells scale their `size` values to radii, anchored at
+        zero: `"sqrt"` (the default) makes each circle's area proportional
+        to its value, and `"linear"` its radius.
+        @type {"sqrt" | "linear"}
+    */
+    {key: "sizeScale", default: "sqrt"},
+    {
+      key: "tooltipConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        tbody: (d: DataPoint, i: number) => matrixSizeTooltipRows(viz, d, i),
+      }),
     },
     {
       key: "label",
