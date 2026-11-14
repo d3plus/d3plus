@@ -87,6 +87,30 @@ export function isObservation(viz: VizInstance, d: DataPoint): boolean {
   return !drawnBoxes.has(sourceRow(d, 0)[0]);
 }
 
+/**
+    The category a box sits at, labeled as its discrete axis labels it.
+    A computed box reads it from the observations it drew, since its source
+    row merges theirs (summing a numeric category); any other row reads it
+    through the discrete axis's accessor. Undefined when there is none.
+*/
+export function boxCategory(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): string | undefined {
+  if (!d) return undefined;
+  const axis = viz.schema.discrete === "y" ? "y" : "x";
+  const [row, index] = sourceRow(d, i);
+  const observations = drawnBoxes.get(row)?.values as DataPoint[] | undefined;
+  const accessor = viz[`_${axis}`] as RowAccessor | undefined;
+  const value = observations?.length
+    ? observations[0][axis]
+    : accessor?.(row, index);
+  return value === undefined || value === null
+    ? undefined
+    : axisValue(viz, axis, value);
+}
+
 /** A finite number, else undefined. */
 const finiteOr = (v: unknown): number | undefined => {
   const n = typeof v === "number" || v instanceof Date ? +v : NaN;
