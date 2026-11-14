@@ -7,6 +7,7 @@
 import {mergeConfig} from "../../fluent.js";
 import {barSpanAxisConfig} from "./barWidth.js";
 import {openEndAxisConfig, valueAxis} from "./baselineDomain.js";
+import {periodAxisConfig} from "./periodLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
@@ -17,7 +18,8 @@ import type {VizInstance} from "../viz/vizTypes.js";
     clearing `yBreak` clears it from a reused axis; a `break` inside `yConfig`
     wins. When the user's domain leaves an end open, Plot hands the axis the
     domain with that end filled and rounded (see `openDomainEnds.ts`), so the
-    axis gets no `rounding` or one-sided `domain` of the user's.
+    axis gets no `rounding` or one-sided `domain` of the user's. Bars on
+    the axis keep its labels at their ticks (see `periodAxisConfig`).
 */
 export function plotAxisConfig(
   viz: VizInstance,
@@ -25,7 +27,7 @@ export function plotAxisConfig(
 ): Record<string, unknown> {
   const brk = viz.schema[`${axis}Break`];
   const base = {break: brk === undefined ? false : brk};
-  const user = openEndAxisConfig(viz, axis);
+  const user = periodAxisConfig(viz, axis, openEndAxisConfig(viz, axis));
   const own = {
     ...barSpanAxisConfig(viz, axis),
     ...viz._plotAxisDefaults?.[axis],

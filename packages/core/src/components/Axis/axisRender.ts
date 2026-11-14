@@ -236,6 +236,23 @@ function uprightBounds(
 }
 
 /**
+    A label's box moved along the axis from its tick to where the label
+    centers in its period (see `tickLabelPosition`); unchanged when the
+    axis draws its labels at their ticks.
+*/
+function periodShift(
+  axis: Axis,
+  d: unknown,
+  tick: number,
+  bounds: Record<string, number>,
+): Record<string, number> {
+  const center = axis._periodPositions?.get(Number(d));
+  if (center === undefined || center === tick) return bounds;
+  const key = axis._position.horizontal ? "x" : "y";
+  return {...bounds, [key]: bounds[key] + center - tick};
+}
+
+/**
     Builds the per-tick config array consumed by the tick Shape. Extracted from
     `Axis.render` so the render method stays under the per-function line budget;
     behavior is identical.
@@ -291,26 +308,28 @@ export function buildTickData(
         size = (hBuff + labelOffset) * (flip ? -1 : 1),
         yPos = flip ? bounds[y] + bounds[height] - offset : bounds[y] + offset;
 
+      const box = data?.slant
+        ? slantedBounds(axis, data, Math.abs(size) + (horizontal ? fP : p))
+        : rotated && data
+          ? uprightBounds(axis, data, size)
+          : {
+              x: horizontal
+                ? -space / 2
+                : axis.schema.orient === "left"
+                  ? -labelWidth - p + size
+                  : size + p,
+              y: horizontal
+                ? axis.schema.orient === "bottom"
+                  ? size + fP
+                  : size - labelHeight - fP
+                : -space / 2,
+              width: horizontal ? space : labelWidth,
+              height: horizontal ? labelHeight : space,
+            };
+
       const tickConfig: Record<string, unknown> = {
         id: d,
-        labelBounds: data?.slant
-          ? slantedBounds(axis, data, Math.abs(size) + (horizontal ? fP : p))
-          : rotated && data
-            ? uprightBounds(axis, data, size)
-            : {
-                x: horizontal
-                  ? -space / 2
-                  : axis.schema.orient === "left"
-                    ? -labelWidth - p + size
-                    : size + p,
-                y: horizontal
-                  ? axis.schema.orient === "bottom"
-                    ? size + fP
-                    : size - labelHeight - fP
-                  : -space / 2,
-                width: horizontal ? space : labelWidth,
-                height: horizontal ? labelHeight : space,
-              },
+        labelBounds: periodShift(axis, d, xPos, box),
         rotate: data ? data.rotate : false,
         angle: data ? data.angle : 0,
         cut: !!data?.cut,
