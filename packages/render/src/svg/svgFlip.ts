@@ -7,6 +7,7 @@ import {
   collapseTo,
   groupEnterStart,
   isFlipEligible,
+  isWrapperGroup,
   pathEnterStart,
   rectEnterStart,
 } from "../animate/interpolate.js";
@@ -93,6 +94,8 @@ export function reconcileExit(
   const exitTo = flip?.exitTo;
   const exitToBody = flip?.exitToBody;
   exit.each(function (this: Element, d: SceneNode) {
+    // A wrapper group hides at once (see `isWrapperGroup`).
+    if (isWrapperGroup(d)) this.setAttribute("opacity", "0");
     const tsel = trackTransition(select(this).transition(t), t);
     const swap = d.type === "text" ? (d as TextNode).fadeSwap : undefined;
     if (swap) fadeSwapTween(tsel, swap, "exit", d, d);

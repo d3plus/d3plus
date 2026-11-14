@@ -9,6 +9,7 @@ import basicExample from "~/examples/core/charts/scatter/basic-example.js?raw";
 import sizedPoints from "~/examples/core/charts/scatter/sized-points.js?raw";
 import trendLine from "~/examples/core/charts/scatter/trend-line.js?raw";
 import pointLabels from "~/examples/core/charts/scatter/point-labels.js?raw";
+import connectedPoints from "~/examples/core/charts/scatter/connected-points.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
 its `x` and `y` values, on continuous axes (set `discrete` to place points
@@ -40,5 +41,11 @@ Set `trendLine: true` to fit a least-squares line to each series (here each `spe
 Points too small to hold their label get it beside them instead, on the side facing the most open room (the point's Voronoi cell), where it overlaps no other point or label and stays inside the plot. Where the points crowd together there is no such room, so those labels hide; hover a point for its name. `labelPosition: "inside"` keeps labels inside the points, and `pointLabelConfig` sets the size and style of the labels beside them.
 
 <Playground chart="Scatter" code={pointLabels} controls={["labelPosition","pointLabelConfig"]} />
+
+## Connected points
+
+`order` names the field that orders each series' points, here the year. A line joins each country's points in that order, so it can double back when a measure falls, with an arrowhead on each segment pointing along the path and the first and last years labeled. [ConnectedScatter](/core/charts/connected-scatter/) draws the same chart.
+
+<Playground chart="Scatter" code={connectedPoints} controls={["order","pathArrows","pathLabels"]} />
 
 <ApiReference name="Scatter" pkg="core" />

@@ -1,0 +1,45 @@
+---
+title: ConnectedScatter
+description: "Creates a connected scatterplot from an array of data: each row draws as a point at its x and y values, and a line joins each series' points in order, so the line traces the path two measures took together."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/connected-scatter/basic-example.js?raw";
+import loopingPath from "~/examples/core/charts/connected-scatter/looping-path.js?raw";
+import directionMarks from "~/examples/core/charts/connected-scatter/direction-marks.js?raw";
+import smallMultiples from "~/examples/core/charts/connected-scatter/small-multiples.js?raw";
+
+Creates a connected scatterplot from an array of data: each row draws as
+a point at its `x` and `y` values, and a line joins each series' points
+in `order` (a field such as a year; the data's order by default), so the
+line traces the path two measures took together. Arrowheads along the
+line show its direction (`pathArrows`), and its first and last points are
+labeled with their order values (`pathLabels`). Hover a point for its
+row.
+
+## Basic example
+
+`order` names the field that sets each path's order, here the year. Each country's points are joined in year order, so a downturn shows as the path turning back on itself. An arrowhead on each segment points the way the path runs, and the first and last points are labeled with their years. Hover a point (or the line near it) for its year and values.
+
+<Playground chart="ConnectedScatter" code={basicExample} controls={["order","groupBy"]} />
+
+## A looping path
+
+Plotting two measures against each other over time can loop: here gas prices fall, rise, and fall again while driving keeps growing. Without the arrows and the year labels, the direction of a loop is impossible to read.
+
+<Playground chart="ConnectedScatter" code={loopingPath} controls={["order"]} />
+
+## Direction marks
+
+`pathArrows: false` drops the arrowheads, and `pathLabels` takes a function `(d, i) => string` for the end labels' text (or `false` for none). Each end label sits beside its point on the most open side, clear of the points, arrowheads, and other labels; where paths crowd together and no side is clear, the label hides.
+
+<Playground chart="ConnectedScatter" code={directionMarks} controls={["pathArrows","pathLabels"]} />
+
+## Small multiples
+
+`facet` draws one panel per country, each with its own path, on shared axes.
+
+<Playground chart="ConnectedScatter" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="ConnectedScatter" pkg="core" />

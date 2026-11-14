@@ -85,7 +85,14 @@ export type {CanvasBackend} from "./src/canvas/backend.js";
 
 export {patternTileSvg} from "./src/canvas/patternTile.js";
 
-export {curveFor, flattenPath, linePath, areaPath} from "./src/paths.js";
+export {
+  curveFor,
+  explicitPathD,
+  flattenPath,
+  interpolatePathD,
+  linePath,
+  areaPath,
+} from "./src/paths.js";
 
 export {applyDeclarativeEvents, markOverlayHtmlSynced} from "./src/overlay.js";
 

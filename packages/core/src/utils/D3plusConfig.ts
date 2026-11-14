@@ -2143,6 +2143,17 @@ export interface D3plusConfig {
   /** Candlestick: accessor or data key for each period's opening value (default `"open"`). */
   open?: string | ((d: DataPoint, i: number) => number);
   /**
+      Plot charts: accessor function or string key for the field that orders
+      each series' path, such as a year. Each series' points are joined by a
+      line in that order (a Line follows it instead of the discrete axis), so
+      the line can double back to trace the path two measures took together.
+      Rows that share a series and an order value are aggregated. Arrowheads
+      show the direction (`pathArrows`) and the first and last points are
+      labeled (`pathLabels`). ConnectedScatter joins points in the data's
+      order until it is set. Not used by stacked charts.
+  */
+  order?: string | ((d: DataPoint, i: number) => unknown);
+  /**
       Layout direction. Charts that can be drawn either way take
       `"horizontal"` or `"vertical"`, as do Box shapes. Whisker shapes take the
       side they point toward: `"top"`, `"bottom"`, `"left"`, or `"right"`.
@@ -2183,6 +2194,16 @@ export interface D3plusConfig {
       default), and `layer`.
   */
   paretoThresholdConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2">;
+  /** With `order`: draws an arrowhead on each segment of a series' path, pointing along it, wherever the segment has room for one (default `true`). */
+  pathArrows?: boolean;
+  /**
+      With `order`: labels each series' first and last points. `true` (the
+      default) shows their order values (such as the years), `false` none,
+      and a function `(d, i) => string` any text. Each label sits beside
+      its point on the most open side that keeps it in the plot and clear of
+      the points, arrowheads, and other labels, and hides when no side is.
+  */
+  pathLabels?: boolean | ((d: DataPoint, i: number) => string | false | null);
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
   /** Calendar: what each block covers — `"year"` (the default; whole years, stacked) or `"month"` (whole months, as a grid of small calendars). */
