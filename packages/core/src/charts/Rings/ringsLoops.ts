@@ -9,6 +9,7 @@ import {
   selfLoopReach,
   widestGapAngle,
 } from "../features/selfLoops.js";
+import {spokeReach} from "./ringsCurves.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 import type {RingGeometry} from "./ringsSizing.js";
 
@@ -52,9 +53,10 @@ export function ringsLoops(
   }
   for (const n of placed.values()) {
     if (n.id === center.id || typeof n.radians !== "number") continue;
+    const out = spokeReach(n) + 10;
     add(n.id, [
-      n.x + Math.cos(n.radians) * (n.r + 10),
-      n.y + Math.sin(n.radians) * (n.r + 10),
+      n.x + Math.cos(n.radians) * out,
+      n.y + Math.sin(n.radians) * out,
     ]);
   }
   const centerRoom = Math.max(8, (geom.primaryRing - (center.r ?? 0)) * 0.6);

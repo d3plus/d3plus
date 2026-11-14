@@ -109,6 +109,10 @@ export function axisValue(
 /** `[axis name, formatted value]` for one axis of a hovered row. */
 function axisRow(viz: VizInstance, k: Axis, hover: SharedHover): string[] {
   const row = hover.rows[0];
+  const own = row.projected
+    ? undefined
+    : viz._tooltipAxisLabel?.(k, row.datum, row.index);
+  if (typeof own === "string") return [axisName(viz, k), own];
   const accessor = viz[`_${k}`];
   // A projected row's datum is a source row of its series, not this column.
   const raw =
@@ -217,8 +221,9 @@ export const SHARED_MEMBER_LIMIT = 5;
     name led by a swatch in its series stroke and the value followed by its
     `confidence` range, and a threshold bucket's series listed under its row.
     A chart's own value column (`viz._sharedTooltipValue`) replaces the
-    axis's title and values. User `tooltipConfig` styles apply first; the
-    shared title/rows win.
+    axis's title and values, and its own rows (`viz._sharedTooltipRows`)
+    follow the series'. User `tooltipConfig` styles apply first; the shared
+    title/rows win.
 */
 export function renderSharedTooltip(
   viz: VizInstance,
@@ -238,16 +243,18 @@ export function renderSharedTooltip(
     .title(() => (own ? own.title : axisName(viz, cont)))
     .thead(header)
     .tbody(
-      hover.rows.flatMap((r, i) => [
-        [
-          withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
-          own
-            ? own.value(r.datum, r.index)
-            : `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
-        ],
-        // A threshold bucket's series, under its row.
-        ...thresholdMemberRows(viz, r.datum, SHARED_MEMBER_LIMIT),
-      ]),
+      hover.rows
+        .flatMap((r, i) => [
+          [
+            withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
+            own
+              ? own.value(r.datum, r.index)
+              : `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
+          ],
+          // A threshold bucket's series, under its row.
+          ...thresholdMemberRows(viz, r.datum, SHARED_MEMBER_LIMIT),
+        ])
+        .concat(viz._sharedTooltipRows?.(hover.value) ?? []),
     )
     .footer(false)
     .arrow(false)
@@ -297,7 +304,11 @@ export function renderSingleTooltip(
     .tbody([
       ...(viz._tooltipAxisRows === false
         ? []
-        : [axisRow(viz, "x", hover), axisRow(viz, "y", hover)]),
+        : (["x", "y"] as const)
+            .filter(
+              k => viz._tooltipAxisLabel?.(k, row.datum, row.index) !== null,
+            )
+            .map(k => axisRow(viz, k, hover))),
       ...(row.projected
         ? []
         : confidenceRows(viz, row.datum, row.index, v =>

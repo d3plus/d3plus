@@ -518,6 +518,8 @@ export interface VizInstance {
   /** A chart's own value column for the shared tooltip, in place of the continuous axis's: its title and each row's value. Undefined to use the axis's. */
   _sharedTooltipValue?: () =>
     {title: string; value: (d: DataPoint, i: number) => string} | undefined;
+  /** Rows a chart adds under the shared tooltip's series, for the hovered discrete value (Dumbbell's change). */
+  _sharedTooltipRows?: (value: unknown) => [string, string][];
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
   /** The radius scale the chart's layout actually drew with; the size legend paints from it. Null when nothing is sized. */
@@ -563,6 +565,23 @@ export interface VizInstance {
       `referenceLines` (e.g. Pareto's 80% line), as `referenceLines` entries.
   */
   _plotReferenceLines?: () => Record<string, unknown>[];
+  /**
+      Whether the discrete axis plots every period of `time` through
+      values of its own (a CyclePlot's cycles), so the timeline starts on
+      every period, as it does when the axis plots the `time` values.
+  */
+  _timeOnDiscrete?: boolean;
+  /**
+      A chart's own text for an axis's value in a hovered row's tooltip
+      (a CyclePlot's dates, which its x axis places by cycle), undefined to
+      format the axis value, or null to leave the row out of a single-mark
+      tooltip (whose title already shows it).
+  */
+  _tooltipAxisLabel?: (
+    axis: "x" | "y",
+    d: DataPoint,
+    i: number,
+  ) => string | null | undefined;
   _axisPersist?: boolean;
   _labelConnectorConfig?: Record<string, unknown>;
   _lineMarkerConfig?: Record<string, unknown>;
