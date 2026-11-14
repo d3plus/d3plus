@@ -1320,6 +1320,27 @@ export {bulletDef} from "./src/charts/Bullet/index.js";
 export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {candlestickDef} from "./src/charts/Candlestick/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
+export {connectedScatterDef} from "./src/charts/ConnectedScatter/index.js";
+export {
+  DATA_ORDER,
+  coerceOrder,
+  compareOrder,
+  endLabelPath,
+  keepOrderField,
+  orderOf,
+  orderedPointKeys,
+  orderedSeries,
+  segmentArrows,
+  sortByOrder,
+} from "./src/charts/Plot/orderPath.js";
+export type {OrderAccessor, PathArrow} from "./src/charts/Plot/orderPath.js";
+export {
+  ORDER_POINT_SHAPES,
+  orderTooltipRows,
+  orderValueText,
+  orderedMarks,
+  seriesStrokes,
+} from "./src/charts/Plot/orderPathScene.js";
 export {
   DENSITY_POINT,
   curvesBeforePreDraw,
