@@ -27,6 +27,7 @@ const hiddenMethods = {
   ],
   BoxWhisker: ["shape"],
   BubbleChart: ["shape"],
+  BubbleMatrix: ["shape"],
   BumpChart: ["shape"],
   Candlestick: [
     "shape",

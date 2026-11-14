@@ -8,6 +8,7 @@ import {
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
   BubbleChart as BubbleChartClass,
+  BubbleMatrix as BubbleMatrixClass,
   Bullet as BulletClass,
   BumpChart as BumpChartClass,
   Calendar as CalendarClass,
@@ -113,6 +114,10 @@ export const BoxWhisker = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus BubbleChart visualization. */
 export const BubbleChart = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BubbleChartClass} {...props} />
+);
+/** React component for rendering a d3plus BubbleMatrix visualization. */
+export const BubbleMatrix = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={BubbleMatrixClass} {...props} />
 );
 /** React component for rendering a d3plus Bullet visualization. */
 export const Bullet = (props: D3plusComponentProps) => (

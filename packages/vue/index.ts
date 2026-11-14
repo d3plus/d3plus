@@ -6,6 +6,7 @@ import {
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
   BubbleChart as BubbleChartClass,
+  BubbleMatrix as BubbleMatrixClass,
   Bullet as BulletClass,
   BumpChart as BumpChartClass,
   Calendar as CalendarClass,
@@ -95,6 +96,8 @@ export const Beeswarm = createD3plusComponent(BeeswarmClass, "chart");
 export const BoxWhisker = createD3plusComponent(BoxWhiskerClass, "chart");
 /** Vue component for rendering a d3plus BubbleChart visualization. */
 export const BubbleChart = createD3plusComponent(BubbleChartClass, "chart");
+/** Vue component for rendering a d3plus BubbleMatrix visualization. */
+export const BubbleMatrix = createD3plusComponent(BubbleMatrixClass, "chart");
 /** Vue component for rendering a d3plus Bullet visualization. */
 export const Bullet = createD3plusComponent(BulletClass, "chart");
 /** Vue component for rendering a d3plus BumpChart visualization. */
