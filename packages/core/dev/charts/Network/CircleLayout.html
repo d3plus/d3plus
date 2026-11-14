@@ -5,7 +5,7 @@
     <title>Circle Layout</title>
     <meta
       name="description"
-      content="Network layout circle: nodes evenly spaced around a circle by cluster and degree, links bowing toward the center, labels turned outward; with arrows, self-loops and link labels, edge bundling, nodeSort, top-level groups, Rect nodes, and a dark theme."
+      content="Network layout circle: nodes evenly spaced around a circle by cluster and degree, links bowing toward the center (linkBow 1, 0.5, 0), labels turned outward; with arrows, self-loops and link labels, edge bundling, nodeSort, top-level groups, Rect nodes, and a dark theme."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -42,6 +42,14 @@
         <div class="viz" id="lesmis"></div>
       </div>
       <div>
+        <h3>linkBow(0.5)</h3>
+        <div class="viz" id="bowHalf"></div>
+      </div>
+      <div>
+        <h3>linkBow(0): straight lines</h3>
+        <div class="viz" id="bowZero"></div>
+      </div>
+      <div>
         <h3>linkBundle(true)</h3>
         <div class="viz" id="bundled"></div>
       </div>
@@ -75,6 +83,20 @@
           .links(graph.links)
           .linkSize(d => d.value)
           .render();
+
+        [
+          ["#bowHalf", 0.5],
+          ["#bowZero", 0],
+        ].forEach(([el, bow]) =>
+          new d3plus.Network()
+            .select(el)
+            .layout("circle")
+            .linkBow(bow)
+            .nodes(graph.nodes)
+            .links(graph.links)
+            .linkSize(d => d.value)
+            .render(),
+        );
 
         new d3plus.Network()
           .select("#bundled")
