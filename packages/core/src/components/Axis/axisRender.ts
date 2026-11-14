@@ -20,6 +20,7 @@ import {brokenScaleTicks, isBrokenScale} from "./axisBreak.js";
 import {ceilPow, fixFloat, floorPow, isNegative} from "./axisRounding.js";
 import {powTicks} from "./powTicks.js";
 import {timeDataInDomain} from "./timeValues.js";
+import {minorTickCount} from "./axisMinorTicks.js";
 import {slantedLabelBox} from "./axisLabelAngle.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
 import {configureTitle} from "./axisTitle.js";
@@ -253,6 +254,41 @@ function periodShift(
 }
 
 /**
+    The tick Shape's records for an axis's minor ticks (see `minorTicks`):
+    unlabeled, `minor`, and half as long as the axis's shortest tick (a
+    labeled one on a log axis, an unlabeled one between labels on a linear
+    axis), so the three read apart.
+*/
+function minorTickData(
+  axis: Axis,
+  hBuff: number,
+  ticks: Record<string, unknown>[],
+): Record<string, unknown>[] {
+  if (!minorTickCount(axis)) return [];
+  const {height, x, y, opposite} = axis._position;
+  const flip = ["top", "left"].includes(axis.schema.orient);
+  const offset = axis._margin[opposite];
+  const bounds = axis._outerBounds;
+  const yPos = flip ? bounds[y] + bounds[height] - offset : bounds[y] + offset;
+  const lengths = ticks
+    .filter(d => d.tick)
+    .map(d => Math.abs(d.size as number))
+    .filter(l => l > 0);
+  const shortest = lengths.length ? Math.min(...lengths) : hBuff;
+  const size = Math.ceil(shortest / 2) * (flip ? -1 : 1);
+  return axis._minorTickValues.map(d => ({
+    id: d,
+    labelBounds: {x: 0, y: 0, width: 0, height: 0},
+    minor: true,
+    size,
+    text: false,
+    tick: true,
+    [x]: axis._getPosition(d),
+    [y]: yPos,
+  }));
+}
+
+/**
     Builds the per-tick config array consumed by the tick Shape. Extracted from
     `Axis.render` so the render method stays under the per-function line budget;
     behavior is identical.
@@ -354,6 +390,8 @@ export function buildTickData(
 
       return tickConfig;
     });
+
+  tickData = tickData.concat(minorTickData(axis, hBuff, tickData));
 
   if (axis.schema.shape === "Line") {
     tickData = tickData.concat(
