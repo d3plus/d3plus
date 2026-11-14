@@ -2537,14 +2537,16 @@ export interface D3plusConfig {
       chart does. Names the series by its id (matched against each row's
       `groupBy` ids) or with an accessor that is truthy for its rows. Each
       stack's neutral segment straddles the baseline, half on each side,
-      and the other series stack outward from it: positive values on one
-      side, negative values on the other. With `stackOrder` at its default
-      (`"descending"`), the others stack in data order, so rows listed along the scale
-      ("Strongly disagree" … "Strongly agree") draw in that order along the
-      axis; any other `stackOrder` sets the order outward from the neutral
-      series on each side. The legend lists the series along the axis.
-      Tooltips and shares report the full neutral value. Applies only with
-      the default `"diverging"` `stackOffset`.
+      and the other series stack outward from it by their place in the
+      scale: series listed before the neutral one go on the negative side
+      and series after it on the positive side, nearest answers next to it.
+      The scale's order is the order the series first appear in the data,
+      or `stackOrder` when set (an array of series ids, or any other
+      order). Values are placed at their absolute value, so the data needs
+      no negating (negated values work too). The legend and the shared
+      tooltip list the series along the scale; tooltips and shares report
+      the full neutral value. Applies only with the default `"diverging"`
+      `stackOffset`.
   */
   stackNeutral?: string | number | ((d: DataPoint, i: number) => unknown);
   /**

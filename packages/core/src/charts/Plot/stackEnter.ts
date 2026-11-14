@@ -20,7 +20,7 @@ import type {ShapeEmitContext} from "../features/shapeEmit.js";
     Each stacked bar's level in its stack (0 nearest the baseline), and the
     number of levels in the deepest stack. A stack is the bars of one group
     at one discrete position; each side of it counts only its nonzero
-    segments, in stack order, and negative segments form their own side.
+    segments, in stack order, and segments below zero form their own side.
     Bars outside the stack are left out.
     @param rows The stacked bars' rows.
     @param ctx The Plot shape-emit context they were drawn with.
@@ -44,8 +44,12 @@ export function stackLevels(
     const order =
       (series as unknown as {index?: number}).index ??
       stackKeyIndex.get(row.id)!;
-    // Bars in different groups at one position stand side by side, as stacks of their own.
-    const side = `${discrete}|${row.group}|${value < 0 ? "-" : "+"}`;
+    // Bars in different groups at one position stand side by side, as
+    // stacks of their own. A segment's side is where it sits (a neutral-
+    // centered stack places positive values below zero too).
+    const segment = series[discrete];
+    const below = segment ? +segment[0] + +segment[1] < 0 : value < 0;
+    const side = `${discrete}|${row.group}|${below ? "-" : "+"}`;
     if (!sides.has(side)) sides.set(side, []);
     sides.get(side)!.push({row, order});
   }

@@ -5,7 +5,7 @@
     <title>Likert</title>
     <meta
       name="description"
-      content="Diverging stacked bars centered on a neutral series with stackNeutral: horizontal and vertical Likert charts, small multiples, an accessor, and an explicit stackOrder."
+      content="Diverging stacked bars centered on a neutral series with stackNeutral: horizontal and vertical Likert charts placing answers by their order, small multiples, and an accessor with an explicit stackOrder over negated data."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -47,7 +47,7 @@
         <div class="viz" id="facet"></div>
       </section>
       <section>
-        <h3>Accessor, with stackOrder "keyReverse"</h3>
+        <h3>Accessor, stackOrder listing the scale, negated data</h3>
         <div class="viz" id="accessor"></div>
       </section>
     </div>
@@ -72,8 +72,7 @@
             question,
             answer: answers[k],
             year,
-            // Disagreeing answers are negative, so they stack to the left.
-            percent: (k < 2 ? -1 : 1) * Math.max(1, value + (k - 2) * shift),
+            percent: Math.max(1, value + (k - 2) * shift),
           })),
         );
 
@@ -129,10 +128,16 @@
         .select("#accessor")
         .config({
           ...base,
-          data: rows(2024),
+          // Listed out of order, with disagreeing answers already negative.
+          data: rows(2024)
+            .reverse()
+            .map(d => ({
+              ...d,
+              percent: answers.indexOf(d.answer) < 2 ? -d.percent : d.percent,
+            })),
           discrete: "y",
           stackNeutral: d => d.answer.startsWith("Neutral"),
-          stackOrder: "keyReverse",
+          stackOrder: answers,
           x: "percent",
           y: "question",
         })

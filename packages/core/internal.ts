@@ -2395,13 +2395,19 @@ export {
 } from "./src/charts/Plot/stackLegendOrder.js";
 export type {StackPositions} from "./src/charts/Plot/stackLegendOrder.js";
 export {
+  neutralStack,
   neutralStackKeys,
-  stackKeyRanks,
+  seriesDataRanks,
+  seriesListRanks,
+  seriesOrderRanks,
   stackNeutralMatcher,
-  stackOffsetNeutral,
-  stackOrderNeutral,
 } from "./src/charts/Plot/stackNeutral.js";
-export type {StackNeutralSetting} from "./src/charts/Plot/stackNeutral.js";
+export type {
+  NeutralSide,
+  NeutralStack,
+  StackNeutralSetting,
+  StackSeries,
+} from "./src/charts/Plot/stackNeutral.js";
 export {applyPaddedDomains} from "./src/charts/Plot/facetScales.js";
 export type {PlotFacetScales} from "./src/charts/Plot/facetScales.js";
 export {

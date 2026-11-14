@@ -35,11 +35,11 @@ import {
   stackOrderTotalDescending,
 } from "./stackHelpers.js";
 import {
+  neutralStack,
   neutralStackKeys,
-  stackKeyRanks,
+  seriesDataRanks,
+  seriesListRanks,
   stackNeutralMatcher,
-  stackOffsetNeutral,
-  stackOrderNeutral,
   type StackNeutralSetting,
 } from "./stackNeutral.js";
 import {plotSeriesIds, stackPositions} from "./stackLegendOrder.js";
@@ -193,8 +193,9 @@ function stackNeutralKeys(
     Runs d3-stack over the discrete groups with the configured order and
     offset. Sorts `stackKeys` in place when the order is an explicit key array.
     A threshold bucket (see `stackThreshold.ts`) stacks last, on top. With
-    `neutral` keys (see `stackNeutral.ts`), the stack centers on them; the
-    default order then reads outward from them in data order.
+    `neutral` keys (see `stackNeutral.ts`), the stack centers on them, the
+    others placed along the scale by their data order (or the chart's
+    `stackOrder`, when set).
 */
 function runStack(
   viz: VizInstance,
@@ -213,21 +214,36 @@ function runStack(
     stackKeys.sort((a, b) => order.indexOf(a) - order.indexOf(b));
   const baseOrder = Array.isArray(order) ? d3Shape.stackOrderNone : order;
   let stackOrder: unknown = baseOrder;
+  let offset: unknown = viz._stackOffset;
+  viz._stackNeutralRanks = undefined;
   if (neutral) {
-    const ranks =
-      order === stackOrderTotalDescending
-        ? stackKeyRanks(neutral.rows, row =>
-            viz
-              ._ids(row.data as DataPoint, row.i as number)
-              .slice(0, viz._drawDepth + 1)
-              .join("_"),
-          )
-        : undefined;
-    stackOrder = stackOrderNeutral(
-      baseOrder as unknown as Parameters<typeof stackOrderNeutral>[0],
-      neutral.keys,
-      ranks,
+    const nameOf = (row: Row) =>
+      viz
+        ._ids(row.data as DataPoint, row.i as number)
+        .slice(0, viz._drawDepth + 1)
+        .join("_");
+    const seriesOf = new Map(
+      neutral.rows.filter(r => r.data).map(r => [`${r.id}`, nameOf(r)]),
     );
+    const dataRanks = seriesDataRanks(
+      neutral.rows.filter(r => r.data),
+      nameOf,
+    );
+    // The scale's order: the data's by default, else the chart's stackOrder.
+    const fixed = Array.isArray(order)
+      ? seriesListRanks(order, dataRanks)
+      : order === stackOrderTotalDescending
+        ? dataRanks
+        : undefined;
+    const centered = neutralStack(
+      neutral.keys,
+      seriesOf,
+      baseOrder as unknown as Parameters<typeof neutralStack>[2],
+      fixed,
+    );
+    stackOrder = centered.order;
+    offset = centered.offset;
+    viz._stackNeutralRanks = centered.ranks;
   }
 
   // d3-stack's generics don't model d3plus's dynamically-keyed rows; the
@@ -237,11 +253,7 @@ function runStack(
     d3Shape
       .stack()
       .keys(stackKeys as string[])
-      .offset(
-        (neutral
-          ? stackOffsetNeutral(neutral.keys)
-          : viz._stackOffset) as never,
-      )
+      .offset(offset as never)
       .order(
         (bucketKeys.size
           ? orderLast(stackOrder as Parameters<typeof orderLast>[0], bucketKeys)
