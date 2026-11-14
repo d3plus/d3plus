@@ -265,6 +265,7 @@ export {
 export type {TaskTimes} from "./src/charts/Gantt/ganttTooltip.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
 export {applyRadialBarLayout} from "./src/charts/RadialBar/applyLayout.js";
+export {applyRadialLineLayout} from "./src/charts/RadialLine/applyLayout.js";
 export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
 export {applyIcicleLayout} from "./src/charts/Icicle/applyLayout.js";
 export {
@@ -1488,6 +1489,83 @@ export {
 } from "./src/charts/RadialBar/curvedLabels.js";
 export type {RadialBarLabelSpot} from "./src/charts/RadialBar/curvedLabels.js";
 export type {RadialBarFrame} from "./src/charts/RadialBar/trackLayout.js";
+export {
+  RADIAL_MAX_TICKS,
+  radialAngleScale,
+  radialKey,
+  radialPeriod,
+  radialThin,
+} from "./src/charts/RadialLine/angles.js";
+export type {
+  RadialAngleOptions,
+  RadialAngleScale,
+  RadialTick,
+} from "./src/charts/RadialLine/angles.js";
+export {
+  radialClockwise,
+  radialCurveName,
+  radialDomainOf,
+  radialIsArea,
+  radialIsStacked,
+  radialStart,
+  radialXFormatter,
+} from "./src/charts/RadialLine/applyLayout.js";
+export type {
+  RadialFrame,
+  RadialSeriesDatum,
+} from "./src/charts/RadialLine/applyLayout.js";
+export {radialLineEmit, radialPaint} from "./src/charts/RadialLine/emit.js";
+export {
+  polarXY,
+  radialAreaPath,
+  radialCurve,
+  radialLinePath,
+} from "./src/charts/RadialLine/paths.js";
+export type {
+  RadialBandPoint,
+  RadialLinePoint,
+} from "./src/charts/RadialLine/paths.js";
+export {
+  radialDotNodes,
+  radialPointHover,
+  radialPointOf,
+  radialPointTooltipRows,
+  radialValueText,
+  registerRadialPoint,
+} from "./src/charts/RadialLine/points.js";
+export type {
+  RadialDot,
+  RadialPointInfo,
+} from "./src/charts/RadialLine/points.js";
+export {
+  radialDomainValues,
+  radialSeries,
+} from "./src/charts/RadialLine/series.js";
+export type {
+  RadialPoint,
+  RadialSeries,
+  RadialSeriesOptions,
+} from "./src/charts/RadialLine/series.js";
+export {
+  RADIAL_SERIES_LABEL_PADDING,
+  radialBoxDepth,
+  radialBoxHolds,
+  radialBoxWithin,
+  radialInsideCandidates,
+  radialOutsideCandidates,
+  radialSeriesLabels,
+} from "./src/charts/RadialLine/seriesLabels.js";
+export type {
+  RadialLabelBounds,
+  RadialLabelInput,
+  RadialLabelPoint,
+} from "./src/charts/RadialLine/seriesLabels.js";
+export {
+  radialLabelNodes,
+  radialLabelsSeries,
+} from "./src/charts/RadialLine/seriesLabelNodes.js";
+export {radialSpokeNodes} from "./src/charts/RadialLine/spokes.js";
+export type {RadialSpoke} from "./src/charts/RadialLine/spokes.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {alluvialDef, alluvialValue} from "./src/charts/Alluvial/index.js";
@@ -1764,7 +1842,9 @@ export {polarAreaDef} from "./src/charts/PolarArea/index.js";
 export {priestleyDef} from "./src/charts/Priestley/index.js";
 export {pyramidDef} from "./src/charts/Pyramid/index.js";
 export {radarDef} from "./src/charts/Radar/index.js";
+export {radialAreaDef} from "./src/charts/RadialArea/index.js";
 export {radialBarDef} from "./src/charts/RadialBar/index.js";
+export {radialLineDef} from "./src/charts/RadialLine/index.js";
 export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
 export {radialTreeDef} from "./src/charts/RadialTree/index.js";
 export {ridgelineDef} from "./src/charts/Ridgeline/index.js";

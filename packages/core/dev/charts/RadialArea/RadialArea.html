@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>RadialArea</title>
+    <meta
+      name="description"
+      content="RadialArea: overlapping monthly rainfall areas, hourly energy use stacked by source with labels inside the bands, a smooth stacked ring with an inner radius, small multiples with shared value domains, and a dark background."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 420px;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      #dark {
+        background: #212529;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <section>
+        <h3>Monthly rainfall: overlapping see-through areas</h3>
+        <div class="viz" id="rain"></div>
+      </section>
+      <section>
+        <h3>stacked(true) + lineLabels(true): hourly energy use by source</h3>
+        <div class="viz" id="stacked"></div>
+      </section>
+      <section>
+        <h3>
+          stacked(true) + innerRadius(60) + catmullRom curve + no dots +
+          startAngle(-90)
+        </h3>
+        <div class="viz" id="smooth"></div>
+      </section>
+      <section>
+        <h3>closed(false): an open stack over half a year</h3>
+        <div class="viz" id="open"></div>
+      </section>
+      <section class="wide">
+        <h3>
+          facet("region") + stacked(true) + facetConfig({scales: "shared"})
+        </h3>
+        <div class="viz" id="facet"></div>
+      </section>
+      <section>
+        <h3>Dark background + stacked(true)</h3>
+        <div class="viz" id="dark"></div>
+      </section>
+    </div>
+
+    <script>
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      // Average monthly rainfall (mm), rounded.
+      const rain = {
+        Seattle: [142, 96, 94, 69, 48, 38, 18, 23, 38, 89, 155, 150],
+        London: [55, 41, 42, 44, 49, 45, 45, 50, 49, 69, 59, 55],
+      };
+      const rainfall = Object.keys(rain).flatMap(city =>
+        months.map((month, m) => ({city, month, mm: rain[city][m]})),
+      );
+
+      new d3plus.RadialArea()
+        .select("#rain")
+        .data(rainfall)
+        .groupBy("city")
+        .x("month")
+        .y("mm")
+        .render();
+
+      const sources = {
+        Base: () => 30,
+        Heating: h => 25 + 20 * Math.cos(((h - 6) / 24) * Math.PI * 2),
+        Lighting: h => (h >= 17 || h < 7 ? 22 : 4),
+        Appliances: h =>
+          8 +
+          30 * Math.exp(-((h - 8) ** 2) / 2) +
+          40 * Math.exp(-((h - 19) ** 2) / 3),
+      };
+      const energy = Object.keys(sources).flatMap(source =>
+        Array.from({length: 24}, (_v, hour) => ({
+          source,
+          hour,
+          kwh: Math.round(sources[source](hour)),
+        })),
+      );
+
+      new d3plus.RadialArea()
+        .select("#stacked")
+        .data(energy)
+        .groupBy("source")
+        .x("hour")
+        .y("kwh")
+        .xDomain([0, 24])
+        .stacked(true)
+        .lineLabels(true)
+        .render();
+
+      new d3plus.RadialArea()
+        .select("#smooth")
+        .data(energy)
+        .groupBy("source")
+        .x("hour")
+        .y("kwh")
+        .xDomain([0, 24])
+        .stacked(true)
+        .innerRadius(60)
+        .startAngle(-90)
+        .shapeConfig({Area: {curve: "catmullRom"}, Circle: {r: 0}})
+        .render();
+
+      new d3plus.RadialArea()
+        .select("#open")
+        .data(energy.filter(d => d.hour <= 12))
+        .groupBy("source")
+        .x("hour")
+        .y("kwh")
+        .xDomain([0, 24])
+        .stacked(true)
+        .closed(false)
+        .render();
+
+      const regions = ["North", "South", "Coast"];
+      const regional = regions.flatMap((region, r) =>
+        energy.map(d => ({
+          ...d,
+          region,
+          kwh: Math.round(d.kwh * (1 + r * 0.6)),
+        })),
+      );
+
+      new d3plus.RadialArea()
+        .select("#facet")
+        .data(regional)
+        .groupBy("source")
+        .x("hour")
+        .y("kwh")
+        .xDomain([0, 24])
+        .stacked(true)
+        .facet("region")
+        .facetConfig({scales: "shared"})
+        .render();
+
+      new d3plus.RadialArea()
+        .select("#dark")
+        .data(energy)
+        .groupBy("source")
+        .x("hour")
+        .y("kwh")
+        .xDomain([0, 24])
+        .stacked(true)
+        .render();
+    </script>
+  </body>
+</html>
