@@ -675,12 +675,14 @@ it("axisHover: badgeRect reads a drawn badge's box", () => {
     y: rect.y,
     width: rect.width,
     height: rect.height,
+    key: "plot-axis-hover-badge-x",
   });
-  assert.deepStrictEqual(badgeRect({type: "group", children: []}), {
+  assert.deepStrictEqual(badgeRect({type: "group", key: "b", children: []}), {
     x: 0,
     y: 0,
     width: 0,
     height: 0,
+    key: "b",
   });
 });
 
@@ -714,10 +716,15 @@ it("axisHover: hideOverlappedTicks hides the tick labels under a badge", () => {
   };
   const marks = {type: "group", key: "marks", children: [label(4, 50)]};
   const nodes = [marks, xAxis, yAxis];
-  const badge = {x: 45, y: 100, width: 20, height: 20};
+  const badge = {x: 45, y: 100, width: 20, height: 20, key: "badge-x"};
   const out = hideOverlappedTicks(nodes, [badge]);
   const opacity = n => n.paint.opacity;
   assert.deepStrictEqual(out[1].children.map(opacity), [1, 0, 1, 1]);
+  assert.deepStrictEqual(
+    out[1].children.map(n => n.coveredBy),
+    [undefined, "badge-x", undefined, undefined],
+    "a hidden label names the badge over it",
+  );
   assert.strictEqual(out[1].children[1].interactive, false);
   assert.strictEqual(out[0], marks, "only axis groups");
   assert.strictEqual(

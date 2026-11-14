@@ -209,13 +209,18 @@ export function coverLabel(
   });
 }
 
-/** A drawn badge's box: its group's rect (see `badgeNode`). */
-export function badgeRect(badge: SceneNode): BadgeBox {
+/** A drawn badge's box, and the badge's key. */
+export type KeyedBox = BadgeBox & {key?: string};
+
+/** A drawn badge's box: its group's rect (see `badgeNode`), with the badge's key. */
+export function badgeRect(badge: SceneNode): KeyedBox {
   const rect = (badge as {children?: SceneNode[]}).children?.find(
     n => n.type === "rect",
   );
-  if (!rect || rect.type !== "rect") return {x: 0, y: 0, width: 0, height: 0};
-  return {x: rect.x, y: rect.y, width: rect.width, height: rect.height};
+  const key = `${badge.key}`;
+  if (!rect || rect.type !== "rect")
+    return {x: 0, y: 0, width: 0, height: 0, key};
+  return {x: rect.x, y: rect.y, width: rect.width, height: rect.height, key};
 }
 
 /** Whether boxes `a` and `b` overlap by more than half a pixel each way. */
@@ -231,27 +236,32 @@ export function boxesOverlap(a: BadgeBox, b: BadgeBox): boolean {
 const isAxisGroup = (node: SceneNode): boolean =>
   /(^|\/)plot-(x|x2|y|y2)-axis$/.test(`${node.key}`);
 
-/** A node with its paint's opacity at 0, out of hit-testing. */
-function hidden(node: SceneNode): SceneNode {
+/** A tick label hidden under a badge: `coveredBy` names the badge's key. */
+export type CoveredTick = SceneNode & {coveredBy?: string};
+
+/** A node with its paint's opacity at 0, out of hit-testing, naming the badge over it. */
+function hidden(node: SceneNode, by: string | undefined): CoveredTick {
   return {
     ...node,
     interactive: false,
     paint: {...node.paint, opacity: 0},
-  } as SceneNode;
+    coveredBy: by,
+  } as CoveredTick;
 }
 
 /**
     `nodes` with every axis tick label that overlaps one of `boxes` (the
     badges' boxes, in the space of `nodes`) hidden: the label a badge grows
     over, and any neighbor it reaches, so only the badge's value reads there.
-    Rotated labels are tested by their bounding box. Returns copies along the
-    changed paths; `nodes` is left as it is.
+    Rotated labels are tested by their bounding box. A hidden label's
+    `coveredBy` names the badge over it. Returns copies along the changed
+    paths; `nodes` is left as it is.
     @param nodes The chart body's scene nodes.
     @param boxes The drawn badges' boxes.
 */
 export function hideOverlappedTicks(
   nodes: SceneNode[],
-  boxes: BadgeBox[],
+  boxes: KeyedBox[],
 ): SceneNode[] {
   if (!boxes.length) return nodes;
   const visit = (node: SceneNode, chain: Transform[]): SceneNode => {
@@ -259,10 +269,9 @@ export function hideOverlappedTicks(
     const tick = (node.datum as TickDatum | undefined)?.data;
     if (node.type === "text" && tick?.tick) {
       const map = mapper(next);
-      const over = ownBoxes(node).some(b =>
-        boxes.some(box => boxesOverlap(mapBox(b, map), box)),
-      );
-      return over ? hidden(node) : node;
+      const own = ownBoxes(node).map(b => mapBox(b, map));
+      const over = boxes.find(box => own.some(b => boxesOverlap(b, box)));
+      return over ? hidden(node, over.key) : node;
     }
     const children = (node as {children?: SceneNode[]}).children;
     if (!children) return node;

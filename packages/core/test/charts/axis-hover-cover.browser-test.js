@@ -210,6 +210,7 @@ function tickLabels(page, axis) {
             width: line.width,
             height: n.font.size,
             opacity: n.paint?.opacity ?? 1,
+            coveredBy: n.coveredBy,
           };
         }
         if (n.children) walk(n.children, p);
@@ -350,6 +351,11 @@ for (const renderer of ["svg", "canvas"]) {
           assert.strictEqual(label.dom === 0, over, `"${text}" in the svg`);
       }
       assert.strictEqual(during["2"].opacity, 0, 'the "2" neighbor hides');
+      assert.strictEqual(
+        during["2"].coveredBy,
+        "plot-axis-hover-badge-x",
+        "naming the badge over it",
+      );
       assert.notStrictEqual(during["4"].opacity, 0, 'the far "4" shows');
       await page.mouse.move(5, 5);
       await page.waitForTimeout(80);
