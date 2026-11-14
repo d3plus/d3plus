@@ -13,14 +13,15 @@ Creates a bubble matrix from an array of data: a Matrix whose cells draw
 as circles, each centered in its `row` × `column` cell and sized by the
 absolute value of its `size` value, so the largest circle fills its cell
 (by area with the default `"sqrt"` `sizeScale`). Color the circles with
-`colorScale`: a linear scale diverging around zero over a domain symmetric
-about it, so values of equal magnitude take equal color strength on either
-side, which suits a correlation matrix. A size legend keys the sizes, and
+`colorScale`: a linear scale that, when the values cross zero, diverges
+around it over a domain symmetric about it, so values of equal magnitude
+take equal color strength on either side, which suits a correlation
+matrix. Values of one sign take a sequential ramp across their range. A size legend keys the sizes, and
 hovering a circle highlights its row and column.
 
 ## Basic example
 
-A correlation matrix: each circle's area shows how strongly two measures move together, and its color whether they rise together (blue) or one falls as the other rises (red). Sizing by the absolute value draws -0.85 as large as 0.85, so the strongest relationships stand out whichever their direction, and the tooltip shows the signed value. The colorScale is linear and diverges around zero over a domain symmetric about it, spanning the largest magnitude on both sides (here -1 to 1, set by the diagonal), so zero sits at the pale midpoint and equally strong correlations take equally strong colors. Set `colorScaleConfig.domain` or `scale` to replace it.
+A correlation matrix: each circle's area shows how strongly two measures move together, and its color whether they rise together (blue) or one falls as the other rises (red). Sizing by the absolute value draws -0.85 as large as 0.85, so the strongest relationships stand out whichever their direction, and the tooltip shows the signed value. Because the correlations cross zero, the linear colorScale diverges around it over a domain symmetric about it, spanning the largest magnitude on both sides (here -1 to 1, set by the diagonal), so zero sits at the pale midpoint and equally strong correlations take equally strong colors. Values all of one sign would instead take a sequential ramp across their own range. Set `colorScaleConfig.domain` or `scale` to replace either.
 
 <Playground chart="BubbleMatrix" code={basicExample} controls={["size","colorScale","colorScaleConfig"]} />
 
