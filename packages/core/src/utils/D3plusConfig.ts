@@ -366,7 +366,12 @@ export interface TooltipConfig {
       to drop the swatch from legend tooltips only.
   */
   titleSwatch?: boolean;
-  /** Overall CSS styles applied to the tooltip container. */
+  /**
+      Overall CSS styles applied to the tooltip container. A `z-index` here
+      also goes on the tooltip's portal, the fixed layer on `<body>` that
+      holds a chart's tooltips, so a high value (`{"z-index": 100}`) keeps
+      them above a page's sticky header or sidebar.
+  */
   tooltipStyle?: Record<string, string>;
   body?: ((d: DataPoint) => string) | string;
   /**
