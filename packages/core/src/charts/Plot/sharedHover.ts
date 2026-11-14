@@ -437,9 +437,17 @@ function resolveHover(
 
 /**
     Orders rows as they sit on the continuous axis (top/right first), so an
-    inverted axis (BumpChart ranks) reads in visual order too.
+    inverted axis (BumpChart ranks) reads in visual order too. A stack
+    centered on a neutral series (`stackNeutral`) lists its rows along the
+    scale instead, from its low end ("Strongly disagree") up, as its bars
+    and legend read.
 */
 function sortRows(viz: VizInstance, axis: "x" | "y", rows: SharedRow[]): void {
+  const scale = viz.schema.stacked ? viz._stackNeutralRanks : undefined;
+  if (scale && rows.every(r => scale.has(r.id))) {
+    rows.sort((a, b) => scale.get(a.id)! - scale.get(b.id)!);
+    return;
+  }
   const along = axis === "x" ? viz._yFunc : viz._xFunc;
   const rank = (v: number): number => {
     const p = along ? along(v as unknown as DataPoint) : NaN;

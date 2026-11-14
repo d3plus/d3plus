@@ -213,3 +213,28 @@ it("stackEnterWindows leaves unstacked bars, one-deep stacks, and bars already o
     singleNodes,
   );
 });
+
+it("stackLevels sides a segment by where it sits, so a positive value below zero counts down", () => {
+  const rows = rowsOf([
+    ["n", 1, 4],
+    ["d", 1, 3],
+    ["sd", 1, 2],
+    ["a", 1, 5],
+  ]);
+  // A neutral-centered stack: n straddles zero, d and sd below it, a above.
+  const ctx = {
+    opp: "y",
+    stackData: [
+      Object.assign([[-2, 2]], {key: "n", index: 0}),
+      Object.assign([[-5, -2]], {key: "d", index: 1}),
+      Object.assign([[-7, -5]], {key: "sd", index: 2}),
+      Object.assign([[2, 7]], {key: "a", index: 3}),
+    ],
+    stackKeyIndex: new Map(["n", "d", "sd", "a"].map((k, i) => [k, i])),
+    discreteKeyIndex: new Map([[1, 0]]),
+  };
+  const {levels, depth} = stackLevels(rows, ctx);
+  const at = id => levels.get(rows.find(r => r.id === id));
+  assert.deepStrictEqual([at("n"), at("a"), at("d"), at("sd")], [0, 1, 0, 1]);
+  assert.strictEqual(depth, 2);
+});
