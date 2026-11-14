@@ -5,7 +5,7 @@
     <title>Labels Along Bends · Viz</title>
     <meta
       name="description"
-      content="Text along a path at sharp bends: trend labels near a kink, a centered moving average's label, line labels along zig-zag lines, stacked area labels along zig-zag bands, Hexbin contour labels, and curved Donut labels, each smoothed or slid to a stretch its letters can follow."
+      content="Text along a path at sharp bends: trend labels near a kink, a centered moving average's label, line labels along zig-zag lines and spiking daily series (never steeper than 45°), stacked area labels along zig-zag bands, Hexbin contour labels, and curved Donut labels, each smoothed or slid to a stretch its letters can follow."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -23,6 +23,12 @@
       }
       .chart {
         height: 360px;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      .wide .chart {
+        height: 500px;
       }
       .dark {
         background: #1b1d21;
@@ -56,6 +62,13 @@
     <div>
       <h3>Curved Donut labels on the bottom half</h3>
       <div class="chart" id="donut"></div>
+    </div>
+    <div class="wide">
+      <h3>
+        Eight jagged daily series with spikes: along labels run no steeper than
+        45°
+      </h3>
+      <div class="chart" id="daily"></div>
     </div>
     <div class="dark">
       <h3>Dark background</h3>
@@ -161,6 +174,28 @@
       .y("y")
       .binSize(6)
       .contours(true)
+      .render();
+
+    // Eight daily series a year long, each spiking now and then.
+    let daily = 11;
+    const next = () => (daily = (daily * 16807) % 2147483647) / 2147483647;
+    const cities = ["Atlanta", "Boston", "Chicago", "Denver"]
+      .concat(["El Paso", "Fresno", "Houston", "Memphis"])
+      .flatMap((city, s) => {
+        let value = 40 + s * 12;
+        return Array.from({length: 366}, (_, day) => {
+          value += (next() - 0.5) * 1.5;
+          const spike = next() < 0.04 ? (next() - 0.3) * 60 : 0;
+          return {city, date: new Date(2024, 0, day + 1), value: value + spike};
+        });
+      });
+    new d3plus.LinePlot()
+      .select("#daily")
+      .data(cities)
+      .groupBy("city")
+      .x("date")
+      .y("value")
+      .lineLabels("along")
       .render();
 
     new d3plus.Donut()
