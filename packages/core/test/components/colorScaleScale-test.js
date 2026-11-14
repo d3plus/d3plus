@@ -7,6 +7,7 @@ import {
   colorScaleBucketCount,
   divergingQuantiles,
   divergingThresholds,
+  logStops,
   mergeLogStops,
 } from "../../src/components/ColorScale/colorScaleScale.ts";
 import {useJsdom} from "~test/jsdom.js";
@@ -497,4 +498,33 @@ it("jenks — only-negative values take the low pole's ramp, like the other scal
     luminance(colors[0]) < luminance(colors.at(-1)),
     `the darkest color is the most negative: ${colors}`,
   );
+});
+
+it("log — a buckets array is left as given", () => {
+  for (const buckets of [
+    [-10, -5, 0, 5, 10],
+    [1, 2, 4, 8],
+  ]) {
+    const given = buckets.slice();
+    const cs = solve([-10, -3, 2, 10], {scale: "log", buckets});
+    assert.deepStrictEqual(buckets, given, `${given}: unchanged`);
+    const domain = cs._colorScale.domain();
+    cs.render();
+    assert.deepStrictEqual(buckets, given, `${given}: unchanged on redraw`);
+    assert.deepStrictEqual(cs._colorScale.domain(), domain, `${given}: redraw`);
+  }
+});
+
+it("logStops — each side steps in even powers, the midpoint at 1 or -1", () => {
+  const given = [-100, -50, 0, 50, 100];
+  assert.deepStrictEqual(logStops(given), [-100, -10, 1, 10, 100]);
+  assert.deepStrictEqual(given, [-100, -50, 0, 50, 100], "a new array");
+  assert.deepStrictEqual(logStops([0, 50, 100]), [1, 10, 100]);
+  assert.deepStrictEqual(logStops([-100, -50, 0]), [-100, -10, -1]);
+  assert.deepStrictEqual(
+    logStops([-10, 0, 1]),
+    [-10, -1, 1],
+    "a high pole of 1 moves the midpoint to -1",
+  );
+  assert.deepStrictEqual(logStops([1, 10]), [Math.pow(10, 0.1), 10]);
 });

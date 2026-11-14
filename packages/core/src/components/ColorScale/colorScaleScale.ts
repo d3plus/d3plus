@@ -373,6 +373,28 @@ function resolveNonDivergingLinear(
 }
 
 /**
+    Places a linear scale's evenly spaced `stops` on a log scale, as a new
+    array: each side of 0 steps in even powers out to its pole, and the
+    midpoint of 0 draws at 1, or at -1 when the positive side reaches no
+    higher, so it stays between the two sides.
+*/
+export function logStops(stops: number[]): number[] {
+  const low = stops.find((d: number) => d < 0);
+  const high = stops.filter((d: number) => d > 0).pop();
+  const placed = stops.map((d: number) =>
+    d < 0
+      ? -Math.pow(Math.abs(low!), d / low!)
+      : d > 0
+        ? Math.pow(high!, d / high!)
+        : d,
+  );
+  const top = placed[placed.length - 1];
+  const zero = placed.indexOf(0);
+  if (zero >= 0) placed[zero] = low !== undefined && top <= 1 ? -1 : 1;
+  return placed;
+}
+
+/**
     Merges a log scale's stops that land on one value, keeping the color
     farthest from the midpoint: a side whose pole is exactly 1 (or -1) puts
     every stop on that side at the pole, where the midpoint may also draw.
@@ -414,35 +436,8 @@ function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
     ticks = buckets;
     colors = [colors[0]].concat(colors);
   } else if (scale === "log") {
-    const negativeBuckets = (buckets as number[]).filter((d: number) => d < 0);
-    if (negativeBuckets.length) {
-      const minVal = negativeBuckets[0];
-      const newNegativeBuckets = negativeBuckets.map(
-        (d: number) => -Math.pow(Math.abs(minVal), d / minVal),
-      );
-      negativeBuckets.forEach((bucket: number, i: number) => {
-        (buckets as number[])[(buckets as number[]).indexOf(bucket)] =
-          newNegativeBuckets[i];
-      });
-    }
-    const positiveBuckets = (buckets as number[]).filter((d: number) => d > 0);
-    if (positiveBuckets.length) {
-      const maxVal = positiveBuckets[positiveBuckets.length - 1];
-      const newPositiveBuckets = positiveBuckets.map((d: number) =>
-        Math.pow(maxVal, d / maxVal),
-      );
-      positiveBuckets.forEach((bucket: number, i: number) => {
-        (buckets as number[])[(buckets as number[]).indexOf(bucket)] =
-          newPositiveBuckets[i];
-      });
-    }
-    // The midpoint draws at 1, or at -1 when the positive side reaches no
-    // higher, so it stays between the two sides.
-    const top = (buckets as number[])[(buckets as number[]).length - 1];
-    if ((buckets as number[]).includes(0))
-      (buckets as number[])[(buckets as number[]).indexOf(0)] =
-        negativeBuckets.length && top <= 1 ? -1 : 1;
-    ({stops: buckets, colors} = mergeLogStops(buckets as number[], colors));
+    buckets = logStops(buckets as number[]);
+    ({stops: buckets, colors} = mergeLogStops(buckets, colors));
   }
 
   const scaleFn =
