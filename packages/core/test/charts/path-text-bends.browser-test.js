@@ -15,7 +15,8 @@ import {
     follow the path, so no two neighboring glyphs' inked boxes overlap or
     touch (as they do where the text bunches on the inside of a kink). The
     texts avoid kerned pairs (such as "Av"), whose boxes overlap even on a
-    straight line.
+    straight line. Eight jagged daily series, spiking sharply, name every
+    line on a stretch no steeper than 45°, never up a spike.
 */
 
 const box = "<div id='viz' style='width:640px;height:360px'></div>";
@@ -217,3 +218,81 @@ for (const renderer of ["svg", "canvas"])
         );
       }
     });
+
+const cities = [
+  "Atlanta",
+  "Boston",
+  "Chicago",
+  "Denver",
+  "El Paso",
+  "Fresno",
+  "Houston",
+  "Memphis",
+];
+
+/**
+    Runs in the page: eight jagged daily series a year long, each with
+    sharp spikes, 1440px wide, and each along label's text and how steeply
+    its path climbs or falls from end to end, in degrees.
+*/
+const drawDense = renderer =>
+  new Promise(resolve => {
+    let seed = 11;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const data = [];
+    [
+      "Atlanta",
+      "Boston",
+      "Chicago",
+      "Denver",
+      "El Paso",
+      "Fresno",
+      "Houston",
+      "Memphis",
+    ].forEach((city, s) => {
+      let value = 40 + s * 12;
+      for (let day = 0; day < 366; day++) {
+        value += (rand() - 0.5) * 1.5;
+        const spike = rand() < 0.04 ? (rand() - 0.3) * 60 : 0;
+        data.push({city, day, value: value + spike});
+      }
+    });
+    const viz = new window.d3plus.LinePlot()
+      .select("#viz")
+      .renderer(renderer)
+      .duration(0)
+      .data(data)
+      .groupBy("city")
+      .x("day")
+      .y("value")
+      .lineLabels("along");
+    viz.render(() => {
+      const labels = [];
+      const walk = node => {
+        if (node.type === "group") node.children.forEach(walk);
+        if (node.type !== "text" || !node.path) return;
+        if (!/^line-label-along-/.test(`${node.key}`)) return;
+        const pts = [...node.path.d.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)];
+        const [, x0, y0] = pts[0];
+        const [, x1, y1] = pts[pts.length - 1];
+        const slope = Math.atan2(Math.abs(y1 - y0), Math.abs(x1 - x0));
+        labels.push({text: node.lines[0].text, slope: (slope * 180) / Math.PI});
+      };
+      walk(viz._paintedScene.root);
+      resolve(labels);
+    });
+  });
+
+const wide = "<div id='viz' style='width:1440px;height:600px'></div>";
+
+for (const renderer of ["svg", "canvas"])
+  it(`dense daily lines ${renderer}: along labels run no steeper than 45°, never up a spike`, async () => {
+    const labels = await render(wide, drawDense, renderer);
+    const named = [...new Set(labels.map(l => l.text))].sort();
+    assert.deepStrictEqual(named, cities, "every series named");
+    for (const label of labels)
+      assert.ok(
+        label.slope <= 45,
+        `${label.text} climbs ${label.slope.toFixed(0)}°`,
+      );
+  });
