@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CyclePlot</title>
+    <meta
+      name="description"
+      content="Monthly airline passengers, 1949–1960: one touching panel per month across the years, each with its mean."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Monthly international airline passengers, in thousands (Box & Jenkins).
+    new d3plus.CyclePlot()
+      .data("./air-passengers.json")
+      .config({
+        title: "International airline passengers by month, 1949–1960",
+        x: "month",
+        y: "passengers",
+        yConfig: {title: "Passengers (thousands)"},
+      })
+      .render();
+  </script>
+</html>

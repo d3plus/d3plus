@@ -13,6 +13,7 @@ export {
   Candlestick,
   Chord,
   ConnectedScatter,
+  CyclePlot,
   DensityPlot,
   Donut,
   Dumbbell,

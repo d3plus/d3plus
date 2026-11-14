@@ -1456,6 +1456,51 @@ export {candlestickDef} from "./src/charts/Candlestick/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {connectedScatterDef} from "./src/charts/ConnectedScatter/index.js";
 export {
+  cycleColor,
+  cycleCompare,
+  cycleDate,
+  cyclePlotDef,
+  meanAgg,
+  cycleTitle,
+  cycleTooltipContext,
+  prepareCycle,
+} from "./src/charts/CyclePlot/index.js";
+export type {CycleState} from "./src/charts/CyclePlot/index.js";
+export {cycleMeanLines, cycleMeans} from "./src/charts/CyclePlot/cycleMeans.js";
+export type {CycleMean} from "./src/charts/CyclePlot/cycleMeans.js";
+export {
+  CYCLE_PERIODS,
+  cycleEndLabel,
+  cyclePeriodCount,
+  cyclePeriodLabel,
+  cyclePeriodOf,
+  cyclePeriodOrder,
+  cycleStartOf,
+  resolveCyclePeriod,
+} from "./src/charts/CyclePlot/cyclePeriods.js";
+export type {CyclePeriod} from "./src/charts/CyclePlot/cyclePeriods.js";
+export {
+  CYCLE_INSET,
+  CYCLE_INSET_MAX,
+  END_LABEL_GAP,
+  cycleFacetHooks,
+  cycleFacetPanel,
+  cycleXConfig,
+  cycleYConfig,
+  endLabelInset,
+  insetDomain,
+  shareCycleScales,
+} from "./src/charts/CyclePlot/cycleFacet.js";
+export {
+  cycleAxisLabel,
+  cycleDateLabel,
+  cycleRowMean,
+  cycleTooltipRows,
+  cycleTooltipTitle,
+  noSeries,
+} from "./src/charts/CyclePlot/cycleTooltip.js";
+export type {CycleTooltipContext} from "./src/charts/CyclePlot/cycleTooltip.js";
+export {
   DATA_ORDER,
   coerceOrder,
   compareOrder,
@@ -1723,6 +1768,7 @@ export {
   plotRangeBreaks,
   plotTimeScale,
   rangeBreaksTimeAxis,
+  scaleTimeAxis,
   timelineRangeBreaks,
 } from "./src/charts/Plot/plotRangeBreaks.js";
 export {
