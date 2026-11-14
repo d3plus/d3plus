@@ -127,7 +127,7 @@ Defaults to an empty array (`[]`).
       - `axes`: with shared scales, `"outer"` (default) labels the axes only along the grid's left and bottom edges; `"all"` labels every panel. An object sets each axis on its own, as in `{x: "all", y: "outer"}`: every panel labels its x axis, only the left column labels its y axis, and the panels' plot areas line up. BumpChart defaults to `"all"`, and Marimekko labels its categories on every panel and its 0–100% share axis only along the outer edge, even with independent scales.
       - `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.
       - `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).
-      - `layout`: places each panel on a map-shaped grid: `"us-states"`, `"eu-countries"`, `"world-regions"`, or `{[value]: [row, column]}`. Empty cells stay empty, values the grid lacks are left out with a warning, and a named grid titles panels with short codes, showing the full name on hover.
+      - `layout`: places each panel on a map-shaped grid: `"us-states"`, `"eu-countries"`, `"world-regions"`, or `{[value]: [row, column]}`. Empty cells stay empty, values the grid lacks are left out with a warning, and a named grid titles panels with short codes, showing the full name on hover and heading its marks' tooltips with it.
 */
   facetConfig(): FacetConfig;
   facetConfig(_: FacetConfig): this;

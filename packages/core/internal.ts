@@ -2428,6 +2428,7 @@ export {
 } from "./src/charts/facet/facetLayout.js";
 export type {FacetLayout, PlacedFacet} from "./src/charts/facet/facetLayout.js";
 export {FACET_LAYOUTS} from "./src/charts/facet/facetLayouts.js";
+export {tooltipHeading} from "./src/components/tooltipDom.js";
 export type {FacetLayoutCell} from "./src/charts/facet/facetLayouts.js";
 export type {FacetLabels, FacetSides} from "./src/charts/facet/facetGutter.js";
 export {

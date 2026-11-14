@@ -65,7 +65,7 @@ export type FacetConfig = {
       values the grid doesn't hold are left out (with a warning), and
       `columns`, `rows`, and `sort` don't apply. A named grid titles each
       panel with its short code and shows the full name when the title is
-      hovered.
+      hovered, and above the title of each of its marks' tooltips.
   */
   layout?: FacetLayout;
 };
@@ -174,6 +174,8 @@ export interface FacetPanelState {
   scene: SceneNode[];
   /** Chart state captured by `FacetHooks.capture`. */
   state: Record<string, unknown>;
+  /** The panel's place name on a named map-shaped grid (see `FacetConfig.layout`), which heads its marks' tooltips. */
+  name?: string;
 }
 
 /** Default panel title style: smaller than the chart title, centered over its panel. */

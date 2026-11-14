@@ -94,6 +94,12 @@ export default class Tooltip extends BaseClass {
    * sibling Tooltip's.
    */
   _portalEl?: HTMLElement;
+  /**
+      A line drawn above the title, set by the chart that shows the tooltip
+      (a map-shaped small-multiples panel's place name), or undefined for
+      none.
+  */
+  _heading?: string;
   _tooltipRefs: Record<
     string,
     {

@@ -42,6 +42,7 @@ import {themeBackground, unwatchPageTheme} from "./vizTheme.js";
 import {releaseScene, stopVisibilityWatch} from "./vizVisibility.js";
 import {applyClassName, withRootClasses} from "../../utils/className.js";
 import {handleAxisTooltip} from "../features/axisTooltip.js";
+import {axisTooltipTarget} from "../../components/Axis/axisTooltipTargets.js";
 import {
   handleColorScaleHover,
   handleSwatchLabelHover,
@@ -669,9 +670,14 @@ export default class Viz extends VizBase {
   */
   _routeSceneEvent(event: SceneEvent): void {
     const viz = this as unknown as VizInstance;
-    withFacetPanel(viz, facetPanelAt(viz, event.point), () =>
-      this._dispatchSceneEvent(event),
-    );
+    const panel = facetPanelAt(viz, event.point);
+    // A map-shaped grid's panel heads its marks' tooltips with its place's
+    // name; its title's own tooltip already shows it.
+    if (viz._tooltipClass)
+      viz._tooltipClass._heading = axisTooltipTarget(event.pick?.node)
+        ? undefined
+        : panel?.name;
+    withFacetPanel(viz, panel, () => this._dispatchSceneEvent(event));
   }
 
   /**

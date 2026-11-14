@@ -463,6 +463,7 @@ function drawPanels(
       chartTransform: drawn.chartTransform,
       scene: drawn.scene,
       state: drawn.state,
+      ...(plan.places?.[i]?.name ? {name: plan.places[i].name} : {}),
     });
   });
   viz._chartScene = scene;
