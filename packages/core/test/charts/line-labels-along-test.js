@@ -1,10 +1,12 @@
 import {it} from "vitest";
 import assert from "assert";
+import {curvature} from "../../src/charts/features/pathLabelBends.ts";
 import {
   bestStretch,
   bestStretchAt,
-  curvature,
   labelBand,
+  LINE_LABEL_MAX_SLOPE,
+  lineLabelMaxSlope,
   PointGrid,
   resample,
   scoreStretch,
@@ -164,6 +166,51 @@ it("bestStretch — the flat, clear part of a line, upright", () => {
   );
 });
 
+it("bestStretchAt — no steeper than maxSlope, and no tighter than minRadius", () => {
+  const line = (degrees, length = 200) => {
+    const a = (degrees * Math.PI) / 180;
+    return [
+      [50, 250],
+      [50 + length * Math.cos(a), 250 - length * Math.sin(a)],
+    ];
+  };
+  const capped = {...ctx(), maxSlope: Math.PI / 4};
+  assert.ok(bestStretchAt([line(60)], 60, ctx()), "no cap by default");
+  assert.strictEqual(bestStretchAt([line(60)], 60, capped), null);
+  assert.strictEqual(bestStretchAt([line(-60)], 60, capped), null, "falling");
+  assert.ok(bestStretchAt([line(40)], 60, capped));
+  // An arc 3em round (at 10px) under the text: too tight by default.
+  const arc = Array.from({length: 61}, (_, k) => {
+    const a = Math.PI / 2 + 0.6 - (k * 1.2) / 60;
+    return [200 + 30 * Math.cos(a), 100 + 30 * Math.sin(a)];
+  });
+  assert.strictEqual(bestStretchAt([arc], 30, ctx()), null);
+  assert.ok(bestStretchAt([arc], 30, {...ctx(), minRadius: 2}));
+  assert.ok(bestStretchAt([arc], 30, {...ctx(), minRadius: 0}));
+});
+
+it("lineLabelMaxSlope — maxSlope's degrees as radians, none from 90°", () => {
+  const rad = deg => (deg * Math.PI) / 180;
+  assert.strictEqual(LINE_LABEL_MAX_SLOPE, 45);
+  close(lineLabelMaxSlope(undefined), rad(45), 1e-12);
+  close(lineLabelMaxSlope(80), rad(80), 1e-12);
+  close(lineLabelMaxSlope(10), rad(10), 1e-12);
+  assert.strictEqual(lineLabelMaxSlope(90), undefined, "no cap");
+  assert.strictEqual(lineLabelMaxSlope(120), undefined);
+  assert.strictEqual(lineLabelMaxSlope(Infinity), undefined);
+  for (const invalid of [0, -30, NaN, "60", null, {}])
+    close(lineLabelMaxSlope(invalid), rad(45), 1e-12);
+  // The radians cap a stretch as bestStretchAt reads them.
+  const steep = [
+    [50, 250],
+    [50 + 200 * Math.cos(rad(60)), 250 - 200 * Math.sin(rad(60))],
+  ];
+  const at = maxSlope => bestStretchAt([steep], 60, {...ctx(), maxSlope});
+  assert.strictEqual(at(lineLabelMaxSlope(undefined)), null);
+  assert.ok(at(lineLabelMaxSlope(80)));
+  assert.ok(at(lineLabelMaxSlope(90)));
+});
+
 it("scoreStretch — ignores the points of the line it sits on", () => {
   const c = ctx();
   c.grid.add(resample(flat(0, 400, 97), 2), 3);
@@ -196,15 +243,22 @@ it("bestStretchAt — where the stretch lies, within what allow permits and maxT
     null,
     "nothing allowed",
   );
-  // A right-angle corner: under the default turn limit, but not a tighter one.
+  // A right-angle corner bends too tightly for the letters to follow.
   const corner = [
     [100, 100],
     [130, 100],
     [130, 130],
   ];
-  assert.ok(bestStretchAt([corner], 50, ctx()));
+  assert.strictEqual(bestStretchAt([corner], 50, ctx()), null);
+  // A gentle arc turning 1.2 radians: under the default turn limit, but not
+  // a tighter one.
+  const arc = Array.from({length: 61}, (_, k) => {
+    const a = -Math.PI / 2 - 0.6 + (k * 1.2) / 60;
+    return [200 + 50 * Math.cos(a), 150 + 50 * Math.sin(a)];
+  });
+  assert.ok(bestStretchAt([arc], 58, ctx()));
   assert.strictEqual(
-    bestStretchAt([corner], 50, {...ctx(), maxTurn: Math.PI / 3}),
+    bestStretchAt([arc], 58, {...ctx(), maxTurn: Math.PI / 3}),
     null,
   );
 });

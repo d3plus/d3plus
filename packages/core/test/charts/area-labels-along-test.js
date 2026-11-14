@@ -20,6 +20,7 @@ import {
   scoreStretch,
 } from "../../src/charts/Plot/lineLabelsAlong.ts";
 import {pathLabelNodes} from "../../src/charts/features/pathLabels.ts";
+import {textFollows} from "../../src/charts/features/pathLabelBends.ts";
 
 useJsdom();
 
@@ -269,6 +270,21 @@ it("placeBandLabel — reads upright along a band drawn right to left", () => {
   const outline = level(0, 400, 100, 40).map(([x, y]) => [400 - x, y]);
   const placed = placeBandLabel([outline], s => s * 4, [12], rect);
   assert.ok(placed.points[0][0] < placed.points[placed.points.length - 1][0]);
+});
+
+it("placeBandLabel — follows a zig-zag band's smoothed centerline", () => {
+  // A thick band zig-zagging every 40px: its centerline kinks too sharply
+  // for text, but smoothed, its letters follow it.
+  const zig = (y0, k) => [k * 40, y0 + (k % 2 ? 20 : 0)];
+  const top = Array.from({length: 11}, (_, k) => zig(80, k));
+  const bottom = Array.from({length: 11}, (_, k) => zig(160, k));
+  const outline = band(top, bottom);
+  const placed = placeBandLabel([outline], s => s * 5, [12], rect);
+  assert.ok(placed, "labelled");
+  assert.strictEqual(placed.fontSize, 12);
+  assert.ok(textFollows(placed.points, 12));
+  const center = bandSections(outline).map(s => s.point);
+  assert.ok(!textFollows(center, 12), "the centerline itself kinks");
 });
 
 it("bandColor — a fill laid over the background at its opacity", () => {

@@ -17,6 +17,8 @@ import {
   ringLabelStretches,
 } from "../../internal.ts";
 import {PointGrid, resample} from "../../src/charts/Plot/lineLabelsAlong.ts";
+import {textFollows} from "../../src/charts/features/pathLabelBends.ts";
+import {offsetPolyline} from "../../src/charts/features/pathLabelGeometry.ts";
 
 useJsdom();
 
@@ -233,6 +235,29 @@ it("ringLabelStretches: a spacing shorter than a label keeps a label's length ap
     }
 });
 
+it("ringLabelStretches: a stair-stepped ring takes labels its letters can follow", () => {
+  // A contour traced cell by cell: a circle of 6px stairs.
+  const steps = [];
+  for (let k = 0; k < 160; k++) {
+    const a = (k / 160) * 2 * Math.PI;
+    const snap = v => Math.round(v / 6) * 6;
+    const p = [snap(300 + 150 * Math.cos(a)), snap(300 + 150 * Math.sin(a))];
+    const last = steps[steps.length - 1];
+    if (last && last[0] !== p[0] && last[1] !== p[1])
+      steps.push([p[0], last[1]]);
+    if (!last || last[0] !== p[0] || last[1] !== p[1]) steps.push(p);
+  }
+  steps.push(steps[0]);
+  assert.ok(!textFollows(steps.slice(0, 20), 10), "the stairs kink");
+  const stretches = ringLabelStretches(steps, 40, stretchCtx(steps), 300);
+  assert.ok(stretches.length >= 2, `${stretches.length} labels`);
+  for (const s of stretches) {
+    assert.ok(textFollows(offsetPolyline(s, -3), 10), "gentle enough");
+    for (const [x, y] of s)
+      assert.ok(Math.abs(Math.hypot(x - 300, y - 300) - 150) < 6, "on it");
+  }
+});
+
 it("ringLabelStretches: none on a ring too small or too tight", () => {
   const small = circle(300, 300, 8);
   assert.deepStrictEqual(
@@ -368,6 +393,35 @@ it("emitContourLabels: keeps clear of other lines, and follows labelConfig", () 
     [circle(300, 300, 224)],
   );
   assert.deepStrictEqual(blocked, []);
+});
+
+it("emitContourLabels: labelConfig.minRadius sets how tight a ring a label follows", () => {
+  // A ring 1.5em round: its top bends away from the text tighter than the
+  // default allows (2em), but not minRadius 2's half of that (1em).
+  const rows = [contourRow(0, 5, circle(300, 300, 15))];
+  const nodes = [colorNode(0, 5, "#0074D9")];
+  const texts = labelConfig => {
+    const viz = new Hexbin()
+      .binShape(false)
+      .contours(true)
+      .contourConfig({labelConfig: {fontSize: 10, ...labelConfig}});
+    return emitContourLabels(viz, rows, nodes, frame, hexbinSettings(viz))
+      .flatMap(n => walk(n))
+      .filter(n => n.type === "text");
+  };
+  const warn = console.warn;
+  const warnings = [];
+  console.warn = (...args) => warnings.push(args.join(" "));
+  try {
+    assert.strictEqual(texts({}).length, 0, "too tight by default");
+    const loose = texts({minRadius: 2});
+    assert.ok(loose.length > 0, "follows it at minRadius 2");
+    assert.ok(texts({minRadius: 0}).length > 0, "0 sets no limit");
+    assert.ok(loose.every(t => t.font.size === 10));
+  } finally {
+    console.warn = warn;
+  }
+  assert.deepStrictEqual(warnings, [], "minRadius isn't passed to TextBox");
 });
 
 it("emitContourLabels: labelSpacing sets how often a line repeats its label", () => {

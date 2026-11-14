@@ -10,6 +10,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {largestFontSize} from "../partition/labelWords.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {PATH_LABEL_INNER_RADIUS} from "./pathLabelBends.js";
 import {uprightPoints} from "./pathLabelGeometry.js";
 import type {Pt} from "./pathLabelGeometry.js";
 
@@ -65,7 +66,9 @@ export interface RingLabelFitOptions {
   align?: RingLabelAlign;
   /**
       How many font sizes the text's baseline must sit from the center, so
-      its letters don't fan out. Defaults to 2.5.
+      its letters don't fan out. Defaults to 2.5. On the bottom half, where
+      the letters' tops face the center and crowd together, a nonzero
+      `minRadius` is at least `PATH_LABEL_INNER_RADIUS`.
   */
   minRadius?: number;
   /** The most a label turns around the center, in radians. Defaults to a half turn. */
@@ -190,13 +193,17 @@ export function ringLabelFit(
   const clockwise = ringReadsClockwise(mid - 0.01, mid + 0.01);
   const padRadius = Math.sqrt(arc.innerRadius ** 2 + arc.outerRadius ** 2);
   const padLength = (arc.padAngle ?? 0) * padRadius;
+  const least =
+    clockwise || !minRadius
+      ? minRadius
+      : Math.max(minRadius, PATH_LABEL_INNER_RADIUS);
 
   /** The baseline radius and the turn the text may take, at `fontSize`. */
   const room = (fontSize: number) => {
     const center = bandCenter(arc, fontSize, padding, align);
     if (center === null) return null;
     const radius = center + (clockwise ? -0.3 : 0.3) * fontSize;
-    if (radius < minRadius * fontSize) return null;
+    if (radius < least * fontSize) return null;
     // The glyphs' inner edge is where the segment is narrowest.
     const inner = center - fontSize / 2;
     if (!(inner > 0)) return null;

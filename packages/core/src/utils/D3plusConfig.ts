@@ -785,7 +785,14 @@ export interface TrendLineConfig {
           deviations?: number;
         };
       }) => string | false | null | undefined);
-  /** TextBox config for the trend line labels, such as `fontSize` (default 11) or `fontColor`. */
+  /**
+      TextBox config for the trend line labels, such as `fontSize` (default
+      11) or `fontColor`, and `minRadius`: the tightest a label may bend
+      toward its text (where its letters' tops crowd together), as a radius
+      in ems, and away from it twice as tightly. A label slides back from a
+      tighter bend to a gentler stretch, or takes the gentlest one there is.
+      `0` sets no limit. Defaults to `4`.
+  */
   labelConfig?: Record<string, unknown>;
   /** Other Line shape config. */
   [key: string]: unknown;
@@ -2009,7 +2016,9 @@ export interface D3plusConfig {
   /**
       Labels each line with its series name: `true` or `"end"` past its right
       end, `"start"` past its left end, `"both"` at both ends, or `"along"`
-      written along the line itself, following its curve. A function of each
+      written along the line itself, following its curve on a stretch no
+      steeper than 45° (see `lineLabelConfig.maxSlope`; a line with none goes
+      unlabeled). A function of each
       row picks per series (or `false`). End labels that would overlap are
       moved apart, and `lineLabelConfig` can add each end's value. When every
       line is named along it, the default legend hides. Defaults to `"along"`
@@ -2021,7 +2030,11 @@ export interface D3plusConfig {
       labeled end after the series name (e.g. "Brazil 37%"), formatted as the
       y axis formats its ticks (its `tickFormat` when set). `valueFormat`
       formats it instead, as a function of the value, the row it belongs to,
-      and the row's index. Defaults to `{value: false}`.
+      and the row's index. For along labels, `minRadius` sets how tightly a
+      label may bend toward its text, in ems (default `4`), and `maxSlope`
+      how steeply its stretch may climb or fall, in degrees (default `45`;
+      `90` for no limit); see `LineLabelConfig`.
+      Defaults to `{value: false}`.
   */
   lineLabelConfig?: LineLabelConfig;
   /**

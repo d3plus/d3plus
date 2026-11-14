@@ -22,6 +22,12 @@ import {
   visibleRun,
 } from "../features/pathLabelGeometry.js";
 import type {Edges, Pt} from "../features/pathLabelGeometry.js";
+import {
+  bendStrain,
+  labelMinRadius,
+  PATH_LABEL_SMOOTHING,
+  smoothPolyline,
+} from "../features/pathLabelBends.js";
 import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {TrendFit} from "./trendLines.js";
@@ -101,6 +107,8 @@ export interface TrendPlacement {
   width: number;
   /** The boxes of the labels already placed, which this one must clear. */
   obstacles: Box[];
+  /** The tightest the text's baseline may bend toward the text, in ems (see `bendStrain`). Defaults to `PATH_LABEL_INNER_RADIUS`. */
+  minRadius?: number;
 }
 
 /** The boxes a label covers along `d`, `width` long from its start. */
@@ -135,11 +143,14 @@ const outside = (box: Box, rect: Edges) =>
 /**
     The path a fit's label follows and the boxes it covers, or null when its
     line has no clear spot for it: the drawn (not projected) stretch inside
-    the plot, upright, stopped short of its end. The label prefers the end of
-    the line, just above it; when that spot overlaps an earlier label or runs
-    out of the plot area it slides back along the line to the nearest clear
-    stretch, then tries the same below the line. A line too short for a few
-    letters gets none.
+    the plot, upright, smoothed of kinks shorter than a letter, and stopped
+    short of its end. The label prefers the end of the line, just above it;
+    when that spot overlaps an earlier label, runs out of the plot area, or
+    bends too tightly for its letters to follow (see `bendStrain`), it
+    slides back along the line to the nearest clear, gentle stretch, then
+    tries the same below the line. A line bent tightly everywhere takes the
+    clear stretch that bends least. A line too short for a few letters gets
+    none.
     @param points The fitted stretch's points, in pixels.
     @param rect The plot area.
     @param place The font, lift, text width, and labels to clear.
@@ -149,25 +160,35 @@ export function trendLabelSpot(
   rect: Edges,
   place: TrendPlacement,
 ): {d: string; boxes: Box[]} | null {
-  const {fontSize, lift, width, obstacles} = place;
-  const run = uprightPoints(visibleRun(points, rect));
+  const {fontSize, lift, width, obstacles, minRadius} = place;
+  const run = smoothPolyline(
+    uprightPoints(visibleRun(points, rect)),
+    PATH_LABEL_SMOOTHING * fontSize,
+  );
   const end = polylineLength(run) - END_INSET;
   // Room for a few letters and their ellipsis, at least.
   if (end < fontSize * 4) return null;
   const span = Math.min(width, end);
   const step = fontSize / 2;
+  let fallback: {d: string; boxes: Box[]; strain: number} | null = null;
   // Above the line, then below it (its baseline a letter's height lower).
   for (const baseline of [lift, -(lift + fontSize * 0.75)])
     for (let to = end; to - span >= -1e-9; to -= step) {
-      const d = polylineD(
-        offsetPolyline(trimPolyline(run, Math.max(0, to - span), to), baseline),
+      const path = offsetPolyline(
+        trimPolyline(run, Math.max(0, to - span), to),
+        baseline,
       );
+      const d = polylineD(path);
       const boxes = pathBoxes(d, span, fontSize);
-      if (!boxes.some(b => blocked(b, obstacles) || outside(b, rect)))
-        return {d, boxes};
+      if (!boxes.some(b => blocked(b, obstacles) || outside(b, rect))) {
+        const strain = bendStrain(path, fontSize, minRadius);
+        if (strain <= 1) return {d, boxes};
+        if (!fallback || strain < fallback.strain)
+          fallback = {d, boxes, strain};
+      }
       if (span >= end) break;
     }
-  return null;
+  return fallback && {d: fallback.d, boxes: fallback.boxes};
 }
 
 /**
@@ -214,7 +235,10 @@ export function emitTrendLabels(
   const setting = config.label as TrendLabelSetting | undefined;
   const fits = viz._trendFits || [];
   if (!setting || !fits.length) return [];
-  const labelConfig = (config.labelConfig || {}) as Record<string, unknown>;
+  const {minRadius, ...labelConfig} = (config.labelConfig || {}) as Record<
+    string,
+    unknown
+  >;
   const fontSize =
     typeof labelConfig.fontSize === "number"
       ? labelConfig.fontSize
@@ -241,6 +265,7 @@ export function emitTrendLabels(
       // A little past the measured text, for the ellipsis's rounding.
       width: (textWidth(text, style) as number) + 2,
       obstacles,
+      minRadius: labelMinRadius(minRadius),
     });
     if (!spot) return [];
     obstacles.push(...spot.boxes);
