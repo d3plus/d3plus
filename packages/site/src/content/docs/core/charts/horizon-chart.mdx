@@ -45,7 +45,9 @@ label opens a tooltip just past its end with what a click will do.
 From the keyboard, Tab steps through the row labels, top to bottom, once
 the chart has focus: Enter hides or shows the focused row, Shift+Enter
 shows only that row, and each label is announced with what Enter does
-("Oslo, Click to Hide"), again after every change.
+("Oslo, Enter to Hide"), the same wording its tooltip uses while the label
+has keyboard focus. After each change the chart announces what happened:
+"Oslo hidden", "Oslo shown", or "Oslo highlighted".
 
 <Playground chart="HorizonChart" code={basicExample} controls={["bands","rowGap","tooltipShared"]} />
 
