@@ -19,6 +19,7 @@ import {
 } from "./sharedTooltip.js";
 import type {TrendFit, TrendSample} from "./trendLines.js";
 import {renderTrendTooltip} from "./trendTooltip.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** One series' entry in the shared tooltip. */
 export interface SharedRow {
@@ -361,7 +362,7 @@ function resolveHover(
   cursor: [number, number],
   inside: boolean,
 ): SharedHover | null {
-  const discrete = viz.schema.discrete;
+  const discrete = vizDiscrete(viz);
   if (discrete !== "x" && discrete !== "y") return null;
   const axis: "x" | "y" = discrete;
   const target = axis === "x" ? cursor[0] : cursor[1];

@@ -18,6 +18,7 @@ import TextBox from "../../components/TextBox.js";
 import {computeTextBoxDatum} from "../../components/textBoxLayout.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** The label config keys that decide whether a label fits. */
 const FIT_KEYS = [
@@ -145,7 +146,7 @@ export function barCategoryLabelsFit(
   plot: {width: number; height: number},
   labelConfig: Record<string, unknown>,
 ): boolean {
-  const discrete = viz.schema.discrete === "y" ? "y" : "x";
+  const discrete = vizDiscrete(viz) === "y" ? "y" : "x";
   const byCategory = new Map<string, number>();
   for (const row of rows) {
     const key = String(row[discrete]);

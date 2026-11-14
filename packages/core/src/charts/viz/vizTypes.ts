@@ -532,6 +532,8 @@ export interface VizInstance {
   _insetPending?: Set<InsetKey> | null;
   /** The chrome drawn inside the chart's negative space this draw, and where. */
   _insetPlacement?: InsetPlacement | null;
+  /** The discrete axis a Plot inferred from text values this draw, used when `discrete` is unset (read through `vizDiscrete`). */
+  _discrete?: string;
   /** Per-axis "is this axis time-valued" flags, set by `formatPlotData`. */
   _xTime?: boolean;
   _x2Time?: boolean;

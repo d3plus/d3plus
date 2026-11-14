@@ -6,6 +6,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     Default shape size, routed through the chart's internal sizeScale.
@@ -46,9 +47,9 @@ export function outside(this: VizInstance, d: DataPoint, i: number): boolean {
   else if (labelPosition === "inside") return false;
 
   // Run "auto" logic based on available space, against the non-discrete axis.
-  const other = this.schema.discrete.charAt(0) === "x" ? "y" : "x";
-  const nonDiscrete = this.schema.discrete.replace(
-    this.schema.discrete.charAt(0),
+  const other = vizDiscrete(this).charAt(0) === "x" ? "y" : "x";
+  const nonDiscrete = vizDiscrete(this).replace(
+    vizDiscrete(this).charAt(0),
     other,
   );
   const axis = nonDiscrete === "y" ? this._yAxis! : this._xAxis!;

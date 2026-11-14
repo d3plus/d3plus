@@ -26,6 +26,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {outsideBaselineBreak} from "./baselineBreak.js";
 import {bestStretch, labelFont, PointGrid} from "./lineLabelsAlong.js";
 import type {StretchContext} from "./lineLabelsAlong.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** The room a label keeps from its band's edges, above and below it together. */
 export const AREA_LABEL_PADDING = 4;
@@ -378,7 +379,7 @@ export function emitAreaLabels(
   const family = fontExists(
     (font.fontFamily as string | string[]) ?? defaultFontFamily,
   ) as string;
-  const axis = viz.schema.discrete === "y" ? 1 : 0;
+  const axis = vizDiscrete(viz) === "y" ? 1 : 0;
   const position = viz.schema.labelPosition;
   // Counted for the legend (see `alongLegend.ts`).
   const stats = viz._alongStats;

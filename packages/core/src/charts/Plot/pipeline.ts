@@ -35,12 +35,14 @@ import {
   scaleTimeAxis,
   type AxisName,
 } from "./plotRangeBreaks.js";
-import {scaleConstructors} from "./pipelineScales.js";
+import {keepPinnedEnds, userPinnedEnds} from "./openDomainEnds.js";
+import {scaleConstructors, type DomainValue} from "./pipelineScales.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 export {computePlotInitialDomains} from "./pipelineDomains.js";
 export {measurePlotLineLabels} from "./pipelineLineLabels.js";
@@ -86,14 +88,14 @@ function missingLineRows(
   rows: Record<string, unknown>[],
   categories: Set<unknown> | null,
 ): Record<string, unknown>[] {
-  const discrete = viz.schema.discrete === "y" ? "y" : "x";
+  const discrete = vizDiscrete(viz) === "y" ? "y" : "x";
   return rows.filter(
     d =>
       d.shape === "Line" &&
       !isPlottableRow(d) &&
       d[discrete] !== undefined &&
       !isBadAxisValue(d[discrete]) &&
-      (!categories || categories.has(d[viz.schema.discrete])),
+      (!categories || categories.has(d[vizDiscrete(viz)])),
   );
 }
 
@@ -254,12 +256,10 @@ function plotRowPrep(viz: PlotViz, times: ReturnType<typeof detectTimeAxes>) {
     };
     newD.discrete =
       newD.shape === "Bar"
-        ? `${newD[viz.schema.discrete]}_${newD.group}`
-        : `${newD[viz.schema.discrete]}`;
+        ? `${newD[vizDiscrete(viz)]}_${newD.group}`
+        : `${newD[vizDiscrete(viz)]}`;
     newD.id =
-      newD.shape === "Bar"
-        ? `${newD.id}_${newD[viz.schema.discrete]}`
-        : newD.id;
+      newD.shape === "Bar" ? `${newD.id}_${newD[vizDiscrete(viz)]}` : newD.id;
     return newD;
   };
 
@@ -324,8 +324,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
 
   const categories = discreteDomainCategories(viz);
   const keepRow = (d: Record<string, unknown>) =>
-    isPlottableRow(d) &&
-    (!categories || categories.has(d[viz.schema.discrete]));
+    isPlottableRow(d) && (!categories || categories.has(d[vizDiscrete(viz)]));
   const prepped = viz._filteredData.map(prepData);
   // Rows a time axis's `rangeBreaks` hide are left out of the drawing.
   const plotted = dropHiddenRows(viz, prepped.filter(keepRow));
@@ -399,7 +398,7 @@ export const computePlotAxisValues: TransformStage = ({
     const numericValue = typeof filteredData[0][axis] === "number";
 
     let myData =
-      viz.schema.discrete === axis
+      vizDiscrete(viz) === axis
         ? rollups(
             filteredData,
             (leaves: Record<string, unknown>[]) =>
@@ -446,7 +445,7 @@ export const computePlotAxisValues: TransformStage = ({
 
     if (
       axis.charAt(0) === confidenceValueAxis(viz) &&
-      viz.schema.discrete !== axis.charAt(0) &&
+      vizDiscrete(viz) !== axis.charAt(0) &&
       viz._confidence
     ) {
       if (viz._confidence[0])
@@ -459,7 +458,7 @@ export const computePlotAxisValues: TransformStage = ({
         );
       myData = myData.concat(extraBandValues(viz, localData));
     }
-    if (viz.schema.discrete !== axis.charAt(0))
+    if (vizDiscrete(viz) !== axis.charAt(0))
       myData = myData.concat(crossAxisValues(viz, localData, axis));
 
     return extra.length ? myData.concat(extra) : myData;
@@ -482,7 +481,8 @@ export const computePlotAxisValues: TransformStage = ({
     Reads `viz._buffer[shapeKey]({data, x, y, yScale, xScale, config, x2?,
     y2?})` and chains the returned `[x, y]` (or `[x2, y2]`) back into the
     scales. Also calls `discreteBuffer` for Bar/Box to round the discrete
-    scale to integer pixels.
+    scale to integer pixels. An end the user set (see `userPinnedEnds`) stays
+    where they set it.
 
     Returns the extended scales. Side-effect-free on viz (only on the scale
     instances, which are passed through the context).
@@ -493,17 +493,25 @@ export const extendPlotOppScales: TransformStage = ({
   plotAxisData,
   plotScales,
   plotConfigScales,
+  plotOpenEnds,
 }) => {
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
   let {x, y, x2, y2} = plotScales!;
+  // Some buffers set their scale's domain in place, so read the ends first.
+  const before = {
+    x: x.domain() as DomainValue[],
+    y: y.domain() as DomainValue[],
+    x2: x2.domain() as DomainValue[],
+    y2: y2.domain() as DomainValue[],
+  };
   const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} =
     plotConfigScales!;
   const xScale = plotScales!.xScale,
     yScale = plotScales!.yScale;
 
   const oppScale =
-    viz.schema.discrete === "x" || viz._swarm?.axis === "y" ? yScale : xScale;
+    vizDiscrete(viz) === "x" || viz._swarm?.axis === "y" ? yScale : xScale;
   if (oppScale !== "Point") {
     const allShapeData = groups(
       axisData,
@@ -512,9 +520,9 @@ export const extendPlotOppScales: TransformStage = ({
     allShapeData.forEach(([key, values]) => {
       if (["Bar", "Box"].includes(key) && !viz._discreteExtent) {
         discreteBufferFn(
-          viz.schema.discrete === "x" ? x : y,
+          vizDiscrete(viz) === "x" ? x : y,
           data,
-          viz.schema.discrete,
+          vizDiscrete(viz),
         );
       }
       if (viz._buffer[key]) {
@@ -543,6 +551,22 @@ export const extendPlotOppScales: TransformStage = ({
       }
     });
   }
+
+  // Padding never moves an end of the user's domain on a value axis (a
+  // discrete axis's padding makes room for the bars at its ends).
+  const keep = (scale: D3Scale, axis: "x" | "y" | "x2" | "y2") =>
+    axis.charAt(0) === viz.schema.discrete
+      ? scale
+      : keepPinnedEnds(
+          scale,
+          before[axis],
+          userPinnedEnds(viz, axis, plotOpenEnds?.[axis as "x" | "y"]),
+          axis.startsWith("y"),
+        );
+  x = keep(x, "x");
+  y = keep(y, "y");
+  x2 = keep(x2, "x2");
+  y2 = keep(y2, "y2");
 
   // A small-multiples panel with shared scales draws with every panel's padding.
   return {plotScales: applyPaddedDomains(viz, {...plotScales!, x, y, x2, y2})};

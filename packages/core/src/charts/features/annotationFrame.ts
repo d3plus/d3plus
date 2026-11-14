@@ -10,6 +10,7 @@ import {axisUtc} from "../../components/Axis/timeValues.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {AnnotationRef} from "./annotationTypes.js";
 import type {PlotAxisFn} from "./plotPaint.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** A Plot axis an annotation can position against. */
 export type AnnotationAxis = "x" | "y" | "x2" | "y2";
@@ -273,7 +274,7 @@ export function plotAnnotationFrame(
     x1: Math.max(xRange[0], xRange[1]),
     y1: Math.max(ys[0], ys[1]),
   };
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
   const slots = (axis: string): boolean =>
     !!measured.slots && axis[0] === discrete;
   const axes: AnnotationFrame["axes"] = {

@@ -61,6 +61,8 @@ type PlotAxisArg = PlotAccessorArg | PlotAccessorArg[];
 import {defaultBuffers} from "../plotBuffers/defaultBuffers.js";
 import {displayName} from "../../utils/displayName.js";
 import {axisAccessorInput, levelAggs} from "./plotLevels.js";
+import {vizDiscrete} from "../viz/discrete.js";
+import {resolveDiscrete} from "./inferDiscrete.js";
 
 /** A y-axis config patch with its `domain` array reversed (y scales run top-down). */
 function reverseDomain(patch: unknown): unknown {
@@ -99,6 +101,8 @@ export default class Plot extends Viz {
   _preDraw() {
     keepOrderField(this as unknown as VizInstance);
     levelAggs(this as unknown as VizInstance);
+    // `discrete`, else an axis of text values, is the discrete axis.
+    resolveDiscrete(this as unknown as VizInstance);
     // logic repeated for each axis
     ["x", "y", "x2", "y2"].forEach(k => {
       // if user has supplied a String key as the main method value
@@ -106,7 +110,7 @@ export default class Plot extends Viz {
         const str = this[`_${k}Key`];
 
         // if axis is discrete and numerical, do not sum values
-        if (!this.schema.aggs[str] && this.schema.discrete === k) {
+        if (!this.schema.aggs[str] && vizDiscrete(this) === k) {
           this.schema.aggs[str] = (
             a: DataPoint[],
             c: (d: DataPoint) => unknown,
@@ -120,7 +124,7 @@ export default class Plot extends Viz {
         if (
           str !== k &&
           this[`_${k}Title`] === this[`_${k}Config`].title &&
-          this.schema.discrete !== k
+          vizDiscrete(this) !== k
         ) {
           this[`_${k}Title`] = str;
           this[`_${k}Config`].title = str;
@@ -297,7 +301,7 @@ export default class Plot extends Viz {
     point: [number, number],
   ): InteractionPoint | null {
     const [cx, cy] = contentPoint(this as unknown as VizInstance, point);
-    const axis = this.schema.discrete === "y" ? "y" : "x";
+    const axis = vizDiscrete(this) === "y" ? "y" : "x";
     const target = axis === "y" ? cy : cx;
     let best: InteractionPoint | null = null;
     let bestDist = Infinity;

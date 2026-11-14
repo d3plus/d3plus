@@ -31,6 +31,7 @@ import {
 import type {SharedHover, SharedRow} from "./sharedHover.js";
 import {plotAxisUtc} from "./plotRangeBreaks.js";
 import {levelAxisName, levelAxisValue} from "./plotLevels.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 type Axis = "x" | "y";
 const other = (k: Axis): Axis => (k === "x" ? "y" : "x");
@@ -100,7 +101,7 @@ export function axisValue(
       ? axisDateLabel(axis, value)
       : formatDateFull(value, [value], {utc: plotAxisUtc(viz, k)});
   }
-  if (typeof value === "number" && k !== viz.schema.discrete) {
+  if (typeof value === "number" && k !== vizDiscrete(viz)) {
     const axis = viz[`_${k}Axis`];
     return axis && axisIsYearLike(axis)
       ? formatYear(value, viz.schema.locale)

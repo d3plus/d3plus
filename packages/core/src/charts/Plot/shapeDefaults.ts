@@ -25,6 +25,7 @@ import {plotLevels} from "./plotLevels.js";
 import {chartBackground} from "../viz/backgroundInk.js";
 import {legibleOn} from "../../utils/themeInk.js";
 import {themed} from "../../utils/theme.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** Builds the `Area` shape config; `self` is the Plot instance. */
 function areaConfig(self: VizInstance) {
@@ -131,10 +132,10 @@ function barLabelConfig() {
     },
     padding: 3,
     textAnchor(this: VizInstance, d: DataPoint, i: number): string {
-      const other = this.schema.discrete.charAt(0) === "x" ? "y" : "x";
+      const other = vizDiscrete(this).charAt(0) === "x" ? "y" : "x";
       const invert = other === "y";
-      const nonDiscrete: string = this.schema.discrete.replace(
-        this.schema.discrete.charAt(0),
+      const nonDiscrete: string = vizDiscrete(this).replace(
+        vizDiscrete(this).charAt(0),
         other,
       );
       const negative = growsBack(this, nonDiscrete, d, i);
@@ -160,10 +161,10 @@ function barLabelConfig() {
         : anchor;
     },
     verticalAlign(this: VizInstance, d: DataPoint, i: number): string {
-      const other = this.schema.discrete.charAt(0) === "x" ? "y" : "x";
+      const other = vizDiscrete(this).charAt(0) === "x" ? "y" : "x";
       const invert = other === "y";
-      const nonDiscrete: string = this.schema.discrete.replace(
-        this.schema.discrete.charAt(0),
+      const nonDiscrete: string = vizDiscrete(this).replace(
+        vizDiscrete(this).charAt(0),
         other,
       );
       const negative = growsBack(this, nonDiscrete, d, i);
@@ -187,13 +188,13 @@ function barConfig() {
     ) {
       const padding = 1;
 
-      const width = this.schema.discrete === "y" ? "width" : "height";
-      const height = this.schema.discrete === "y" ? "height" : "width";
+      const width = vizDiscrete(this) === "y" ? "width" : "height";
+      const height = vizDiscrete(this) === "y" ? "height" : "width";
 
-      const other = this.schema.discrete.charAt(0) === "x" ? "y" : "x";
+      const other = vizDiscrete(this).charAt(0) === "x" ? "y" : "x";
       const invert = other === "y";
-      const nonDiscrete = this.schema.discrete.replace(
-        this.schema.discrete.charAt(0),
+      const nonDiscrete = vizDiscrete(this).replace(
+        vizDiscrete(this).charAt(0),
         other,
       );
       const axis = nonDiscrete === "y" ? this._yAxis! : this._xAxis!;
@@ -246,8 +247,8 @@ function barConfig() {
 function lineConfig(self: VizInstance) {
   return {
     curve: () =>
-      self.schema.discrete
-        ? `monotone${self.schema.discrete.charAt(0).toUpperCase()}`
+      vizDiscrete(self)
+        ? `monotone${vizDiscrete(self).charAt(0).toUpperCase()}`
         : "linear",
     fill: constant("none"),
     labelConfig: {

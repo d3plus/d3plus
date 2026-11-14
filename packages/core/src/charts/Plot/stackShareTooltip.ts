@@ -8,6 +8,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {shareOf, shareOfRows, unwrapRow} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     A `tooltipConfig` default whose `tbody` resolves per hover, so the Share
@@ -22,7 +23,7 @@ export function stackShareTooltipConfig(viz: VizInstance) {
       // A legend entry merges a series over every discrete position, so its
       // share is of the whole chart: of every legend row's stacked value.
       if (!Number.isFinite(share)) {
-        const value = viz[`_${viz.schema.discrete === "y" ? "x" : "y"}`] as (
+        const value = viz[`_${vizDiscrete(viz) === "y" ? "x" : "y"}`] as (
           d: Record<string, unknown>,
         ) => unknown;
         share = row ? shareOfRows(row, viz._legendData || [], value) : NaN;

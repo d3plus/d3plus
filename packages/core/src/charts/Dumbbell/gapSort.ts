@@ -9,6 +9,7 @@ import type {DataPoint} from "@d3plus/data";
 import {finite} from "@d3plus/math";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** A row accessor. */
 export type RowAccessor = (d: DataPoint, i: number) => unknown;
@@ -92,7 +93,7 @@ export function syncGapSort(viz: VizInstance, state: GapSortState): void {
   state.axis = state.sort = undefined;
   const order = viz.schema.gapSort as GapSort;
   if (order !== "ascending" && order !== "descending") return;
-  const axis = viz.schema.discrete === "x" ? "x" : "y";
+  const axis = vizDiscrete(viz) === "x" ? "x" : "y";
   if (viz.schema[`${axis}Sort`]) return;
   const category = viz[`_${axis}`] as RowAccessor;
   const value = viz[`_${axis === "x" ? "y" : "x"}`] as RowAccessor;

@@ -3,6 +3,7 @@ import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {BoxWhisker} from "../../index.ts";
 import {
+  boxCategory,
   boxTooltipRows,
   chartWhiskerMode,
   drawnBoxStats,
@@ -245,4 +246,25 @@ it("observationRows / isObservation: an observation beside a computed box lists 
   // The axis title names it when set.
   viz.yConfig({title: "Score"});
   assert.deepStrictEqual(observationRows(viz, source, 2), [["Score", "160"]]);
+});
+
+it("boxCategory: a box's category, from its observations or the discrete accessor", () => {
+  const {row, box, nodes} = drawnBox();
+  noteDrawnBoxes(nodes);
+  const viz = new BoxWhisker().groupBy("id").x("id").y("value");
+  // A computed box reads its observations, through any wrapper.
+  assert.strictEqual(boxCategory(viz, row, 0), "alpha");
+  assert.strictEqual(boxCategory(viz, box, 0), "alpha");
+  // A merged numeric category is read from an observation, not summed.
+  box.values.forEach(v => (v.x = 2002));
+  assert.strictEqual(boxCategory(viz, row, 0), "2002");
+  // A horizontal box reads y.
+  const h = drawnBox({vertical: false});
+  noteDrawnBoxes(h.nodes);
+  viz.discrete("y");
+  assert.strictEqual(boxCategory(viz, h.row, 0), "alpha");
+  // Any other row reads the discrete axis's accessor.
+  assert.strictEqual(boxCategory(viz.discrete("x"), {id: "beta"}, 0), "beta");
+  assert.strictEqual(boxCategory(viz, {value: 3}, 0), undefined);
+  assert.strictEqual(boxCategory(viz, undefined, 0), undefined);
 });

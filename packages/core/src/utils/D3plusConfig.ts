@@ -1707,7 +1707,12 @@ export interface D3plusConfig {
       numeric key except the `groupBy` keys and `id`.
   */
   dimensions?: AlluvialDimensionInput[];
-  /** Sets orientation of main category axis. */
+  /**
+      Sets orientation of main category axis. Left unset on a Plot (Scatter,
+      BubbleChart, …), the axis whose values include text is the category
+      axis (when both do, the one with fewer distinct values, `x` on a
+      tie); numbers stored as text stay continuous.
+  */
   discrete?: "x" | "y" | "radius" | "angle";
   /** Candlestick: the color of periods that closed below their open, or an accessor of the row. Defaults to red. */
   downColor?: string | ((d: DataPoint, i: number) => string);
