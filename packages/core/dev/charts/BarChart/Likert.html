@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Likert</title>
+    <meta
+      name="description"
+      content="Diverging stacked bars centered on a neutral series with stackNeutral: horizontal and vertical Likert charts, small multiples, an accessor, and an explicit stackOrder."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 360px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <section>
+        <h3>Horizontal</h3>
+        <div class="viz" id="horizontal"></div>
+      </section>
+      <section>
+        <h3>Vertical</h3>
+        <div class="viz" id="vertical"></div>
+      </section>
+      <section>
+        <h3>Small multiples by year</h3>
+        <div class="viz" id="facet"></div>
+      </section>
+      <section>
+        <h3>Accessor, with stackOrder "keyReverse"</h3>
+        <div class="viz" id="accessor"></div>
+      </section>
+    </div>
+
+    <script>
+      const answers = [
+        "Strongly disagree",
+        "Disagree",
+        "Neutral",
+        "Agree",
+        "Strongly agree",
+      ];
+      const shares = {
+        "The app is easy to use": [5, 10, 20, 40, 25],
+        "Support answers quickly": [12, 18, 25, 30, 15],
+        "Pricing is fair": [20, 25, 30, 15, 10],
+        "I would recommend it": [4, 8, 18, 42, 28],
+      };
+      const rows = (year, shift = 0) =>
+        Object.entries(shares).flatMap(([question, values]) =>
+          values.map((value, k) => ({
+            question,
+            answer: answers[k],
+            year,
+            // Disagreeing answers are negative, so they stack to the left.
+            percent: (k < 2 ? -1 : 1) * Math.max(1, value + (k - 2) * shift),
+          })),
+        );
+
+      const colors = {
+        "Strongly disagree": "#b2182b",
+        Disagree: "#ef8a62",
+        Neutral: "#bababa",
+        Agree: "#67a9cf",
+        "Strongly agree": "#2166ac",
+      };
+      const base = {
+        groupBy: "answer",
+        stacked: true,
+        stackNeutral: "Neutral",
+        shapeConfig: {fill: d => colors[d.answer]},
+        legend: true,
+      };
+
+      new d3plus.BarChart()
+        .select("#horizontal")
+        .config({
+          ...base,
+          data: rows(2024),
+          discrete: "y",
+          x: "percent",
+          y: "question",
+        })
+        .render();
+
+      new d3plus.BarChart()
+        .select("#vertical")
+        .config({
+          ...base,
+          data: rows(2024),
+          x: "question",
+          y: "percent",
+        })
+        .render();
+
+      new d3plus.BarChart()
+        .select("#facet")
+        .config({
+          ...base,
+          data: [...rows(2023, -2), ...rows(2024, 2)],
+          discrete: "y",
+          facet: "year",
+          x: "percent",
+          y: "question",
+        })
+        .render();
+
+      new d3plus.BarChart()
+        .select("#accessor")
+        .config({
+          ...base,
+          data: rows(2024),
+          discrete: "y",
+          stackNeutral: d => d.answer.startsWith("Neutral"),
+          stackOrder: "keyReverse",
+          x: "percent",
+          y: "question",
+        })
+        .render();
+    </script>
+  </body>
+</html>

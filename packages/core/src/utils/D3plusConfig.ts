@@ -2533,6 +2533,21 @@ export interface D3plusConfig {
   /** Whether to stack series. */
   stacked?: boolean;
   /**
+      BarChart: centers a diverging stack on a neutral series, as a Likert
+      chart does. Names the series by its id (matched against each row's
+      `groupBy` ids) or with an accessor that is truthy for its rows. Each
+      stack's neutral segment straddles the baseline, half on each side,
+      and the other series stack outward from it: positive values on one
+      side, negative values on the other. With `stackOrder` at its default
+      (`"descending"`), the others stack in data order, so rows listed along the scale
+      ("Strongly disagree" … "Strongly agree") draw in that order along the
+      axis; any other `stackOrder` sets the order outward from the neutral
+      series on each side. The legend lists the series along the axis.
+      Tooltips and shares report the full neutral value. Applies only with
+      the default `"diverging"` `stackOffset`.
+  */
+  stackNeutral?: string | number | ((d: DataPoint, i: number) => unknown);
+  /**
       Vertical offset applied to stacked series. One of `"diverging"`
       (default — positive and negative values split around zero), `"none"`,
       `"expand"` (normalize each stack to 100%), `"silhouette"` (streamgraph),

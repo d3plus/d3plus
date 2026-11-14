@@ -55,6 +55,14 @@ export const barChartDef: ChartDefinition = {
     {key: "baselineBreak", default: true},
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Bar"), coerce: "const"},
+    /**
+        Centers a diverging stack on a neutral series, as a Likert chart
+        does: the series' id (matched against each row's `groupBy` ids), or
+        an accessor that is truthy for its rows. Each stack's neutral
+        segment straddles the baseline, half on each side, and the other
+        series stack outward from it. Unset by default.
+    */
+    {key: "stackNeutral"},
     {key: "tooltipConfig", merge: true, factory: barTooltipConfig},
     {
       key: "legend",
