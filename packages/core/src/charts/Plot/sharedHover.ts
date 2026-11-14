@@ -19,6 +19,8 @@ import {
 } from "./sharedTooltip.js";
 import type {TrendFit, TrendSample} from "./trendLines.js";
 import {renderTrendTooltip} from "./trendTooltip.js";
+import {handleMarginalHover} from "./marginalHover.js";
+import type {MarginalMark} from "./marginalScene.js";
 import {vizDiscrete} from "../viz/discrete.js";
 
 /** One series' entry in the shared tooltip. */
@@ -476,9 +478,20 @@ export function handleSharedHover(viz: VizInstance, event: SceneEvent): void {
     if (viz._transitionEndsAt && Date.now() < viz._transitionEndsAt) return;
     const pick =
       event.pick &&
-      (event.pick.node as {interactionGroup?: string; trendFit?: TrendFit});
+      (event.pick.node as {
+        interactionGroup?: string;
+        trendFit?: TrendFit;
+        marginal?: MarginalMark;
+      });
     if (pick && pick.trendFit) {
       handleTrendHover(viz, pick.trendFit, event);
+      return;
+    }
+    if (pick && pick.marginal) {
+      const cursor = Array.isArray(event.point)
+        ? contentPoint(viz, event.point)
+        : undefined;
+      handleMarginalHover(viz, pick.marginal, event, cursor);
       return;
     }
     if (

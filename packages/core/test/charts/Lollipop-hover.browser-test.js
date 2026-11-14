@@ -91,9 +91,19 @@ const hover = ([chart, config, renderer, at, target]) =>
       requestAnimationFrame(() =>
         setTimeout(() => {
           const marks = {};
+          // A tick label under a drawn axis hover badge hides, naming that
+          // badge in `coveredBy`; it isn't a mark.
+          const badges = new Set();
+          const findBadges = n => {
+            if (/plot-axis-hover-badge-\w+$/.test(`${n.key}`))
+              badges.add(`${n.key}`);
+            (n.children || []).forEach(findBadges);
+          };
+          findBadges(viz._paintedScene.root);
           const read = n => {
             if (
               n.key !== undefined &&
+              !(n.coveredBy !== undefined && badges.has(n.coveredBy)) &&
               /(_|::)/.test(`${n.key}`) &&
               !/::hit$/.test(`${n.key}`)
             ) {

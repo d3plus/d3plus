@@ -1010,6 +1010,83 @@ export interface PointLabelConfig extends Omit<
   padding?: number;
 }
 
+/**
+    What a `marginalConfig` paint accessor receives: the marginal mark being
+    drawn (a histogram bin, a box or one of its parts, or a density curve).
+*/
+export interface MarginalMarkDatum {
+  /** The axis its strip summarizes: `"x"` (the top strip) or `"y"` (the right). */
+  axis: "x" | "y";
+  kind: "histogram" | "box" | "density";
+  /** Its series: the legend entry's key, name and color (empty for the single series of every point). */
+  series: {key: string; label: string; color: string};
+  /** The source rows of the points it summarizes. */
+  rows: DataPoint[];
+  /** A histogram bin's range, count, and the count stacked below it. */
+  bin?: {x0: number; x1: number; count: number; y0: number};
+  /** A box's statistics. */
+  box?: {
+    min: number;
+    first: number;
+    median: number;
+    third: number;
+    max: number;
+    lowerLimit: number;
+    upperLimit: number;
+  };
+}
+
+/** A paint value for marginal marks: a constant, or an accessor of the mark and its series' index. */
+export type MarginalPaintValue<T> =
+  T | ((d: MarginalMarkDatum, i: number) => T);
+
+/** The paint keys marginal marks take, as `shapeConfig` names them. */
+export interface MarginalPaintConfig {
+  fill?: MarginalPaintValue<string>;
+  fillOpacity?: MarginalPaintValue<number>;
+  stroke?: MarginalPaintValue<string>;
+  strokeWidth?: MarginalPaintValue<number>;
+  strokeOpacity?: MarginalPaintValue<number>;
+  /** Dash and gap lengths, as an array or a space-separated string. */
+  strokeDasharray?: MarginalPaintValue<number[] | string>;
+  opacity?: MarginalPaintValue<number>;
+}
+
+/**
+    `marginalConfig`: each strip's size and spacing, a histogram strip's
+    bins, and how the marks paint. Paint keys at the top level style every
+    mark; `histogram`, `box`, and `density` style one kind, and a box's
+    `median`, `whisker` (its whiskers and caps) and `outlier` keys style one
+    of its parts. Lines take only stroke keys, and a density curve's fill
+    only its fill keys (its outline takes the stroke keys).
+*/
+export interface MarginalConfig extends MarginalPaintConfig {
+  /** Each strip's thickness: pixels, or a share (up to `1`) of the chart area's shorter side (default `0.15`, kept between 16 and 120 pixels). */
+  size?: number;
+  /** The gap between a strip and the plot, in pixels (default `8`). */
+  padding?: number;
+  /** A histogram strip's bins: a count, interior edges, or a d3-array threshold generator (default Sturges' rule). */
+  binThresholds?:
+    | number
+    | number[]
+    | ((
+        values: ArrayLike<number>,
+        min: number,
+        max: number,
+      ) => number | number[]);
+  /** Histogram bars (default: the series' color). */
+  histogram?: MarginalPaintConfig;
+  /** Boxes (default: the series' color at `fillOpacity` 0.35, with a 1px stroke in it). */
+  box?: MarginalPaintConfig & {
+    median?: MarginalPaintConfig;
+    whisker?: MarginalPaintConfig;
+    /** Outlier dots (default: solid, unstroked, `r` 2, kept over the box's own keys). */
+    outlier?: MarginalPaintConfig & {r?: MarginalPaintValue<number>};
+  };
+  /** Density curves (default: filled at `fillOpacity` 0.3, outlined 1.5px in the series' color). */
+  density?: MarginalPaintConfig;
+}
+
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
@@ -2188,6 +2265,43 @@ export interface D3plusConfig {
   loadingHTML?: string | ((viz: VizBase) => string);
   /** Candlestick: accessor or data key for each period's lowest value (default `"low"`). */
   low?: string | ((d: DataPoint, i: number) => number);
+  /**
+      Draws the distribution of a Plot's points along its axes: the x values
+      in a strip above the plot and the y values in a strip to its right,
+      each lined up with its axis. `"histogram"` stacks the points in bins,
+      `"box"` draws a box plot, and `"density"` a kernel density curve; `true`
+      means `"histogram"`. `{x, y}` picks each strip (`false` or leaving one
+      out draws none). Only for a Plot with two continuous axes and no
+      `discrete` axis (Scatter, BubbleChart, ConnectedScatter); on a log or
+      time axis the strip bins and smooths along the axis as drawn. The strips split
+      the points by legend entry in their colors, and draw only the points
+      the chart shows. Hovering a point lights the bins and boxes holding it,
+      and hovering a strip's mark lights its points. Off by default.
+  */
+  marginals?:
+    | boolean
+    | "histogram"
+    | "box"
+    | "density"
+    | {
+        x?: false | "histogram" | "box" | "density";
+        y?: false | "histogram" | "box" | "density";
+      };
+  /**
+      Options for `marginals`: `size`, each strip's thickness in pixels, or
+      as a share (up to `1`) of the chart area's shorter side (default
+      `0.15`, kept between 16 and 120 pixels); `padding`, the gap between a
+      strip and the plot (default `8`); `binThresholds`, a histogram strip's
+      bins, as a count, interior edges, or a d3-array threshold generator
+      (default Sturges' rule); and how the marks paint: `shapeConfig`-style
+      keys (`fill`, `fillOpacity`, `stroke`, `strokeWidth`, `strokeOpacity`,
+      `strokeDasharray`, `opacity`) at the top level style every mark, and
+      under `histogram`, `box` (with its `median`, `whisker` and `outlier`
+      parts) or `density`, one kind. Each takes a value or an accessor
+      `(d, i)` of the mark (its `series`, `rows`, and `bin` or `box`) and
+      its series' index.
+  */
+  marginalConfig?: MarginalConfig;
   /** CyclePlot: draws a line across each panel at each series' mean over the panel's cycles (default `true`). */
   mean?: boolean;
   /**

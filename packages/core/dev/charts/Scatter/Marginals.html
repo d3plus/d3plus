@@ -1,0 +1,202 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Scatter Marginals</title>
+    <meta
+      name="description"
+      content="Marginal histograms, box plots and density curves along a scatter plot's axes: grouped and single series, mixed kinds, a log axis, a timeline, custom paint, facets, and a bubble chart."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+        gap: 24px;
+      }
+      .viz {
+        height: 420px;
+      }
+      .tall {
+        height: 560px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>marginals: "histogram", three groups</h3>
+        <div class="viz" id="histogram"></div>
+      </div>
+      <div>
+        <h3>marginals: "box"</h3>
+        <div class="viz" id="box"></div>
+      </div>
+      <div>
+        <h3>marginals: "density"</h3>
+        <div class="viz" id="density"></div>
+      </div>
+      <div>
+        <h3>One series (each point its own id)</h3>
+        <div class="viz" id="single"></div>
+      </div>
+      <div>
+        <h3>{x: "density", y: "box"} on a log x axis</h3>
+        <div class="viz" id="mixed"></div>
+      </div>
+      <div>
+        <h3>A timeline: the strips follow the selected year</h3>
+        <div class="viz" id="timeline"></div>
+      </div>
+      <div>
+        <h3>BubbleChart, marginalConfig: {size: 48, binThresholds: 20}</h3>
+        <div class="viz" id="bubbles"></div>
+      </div>
+      <div>
+        <h3>marginalConfig paint keys: every mark, per kind, per box part</h3>
+        <div class="viz" id="styled"></div>
+      </div>
+      <div>
+        <h3>Facets: each panel draws its own strips</h3>
+        <div class="viz tall" id="facets"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // A seeded generator, so every load draws the same points.
+    let seed = 7;
+    const random = () => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const normal = (mean, sd) =>
+      mean +
+      sd *
+        Math.sqrt(-2 * Math.log(random() || 1e-9)) *
+        Math.cos(2 * Math.PI * random());
+
+    const groups = [
+      {group: "Alpha", x: 4, y: 12, sx: 1.2, sy: 2.5},
+      {group: "Beta", x: 8, y: 20, sx: 1.6, sy: 3},
+      {group: "Gamma", x: 11, y: 9, sx: 1.1, sy: 2},
+    ];
+    const years = [2021, 2022, 2023];
+    const points = groups.flatMap(g =>
+      years.flatMap((year, y) =>
+        Array.from({length: 30}, (_, i) => ({
+          id: `${g.group} ${year} ${i + 1}`,
+          group: g.group,
+          region: i % 2 ? "North" : "South",
+          year,
+          x: +normal(g.x + y * 0.8, g.sx).toFixed(2),
+          y: +normal(g.y + y, g.sy).toFixed(2),
+          income: +Math.exp(normal(Math.log(g.x * 4000), 0.5)).toFixed(0),
+          population: Math.round(Math.exp(normal(12, 1))),
+        })),
+      ),
+    );
+    const latest = points.filter(d => d.year === 2023);
+
+    const scatter = (id, config) =>
+      new d3plus.Scatter()
+        .select(`#${id}`)
+        .data(latest)
+        .groupBy(["group", "id"])
+        .x("x")
+        .y("y")
+        .config(config)
+        .render();
+
+    scatter("histogram", {marginals: "histogram"});
+    scatter("box", {marginals: "box"});
+    scatter("density", {marginals: "density"});
+
+    new d3plus.Scatter()
+      .select("#single")
+      .data(latest)
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .marginals("histogram")
+      .render();
+
+    new d3plus.Scatter()
+      .select("#mixed")
+      .data(latest)
+      .groupBy(["group", "id"])
+      .x("income")
+      .y("y")
+      .xConfig({scale: "log"})
+      .marginals({x: "density", y: "box"})
+      .render();
+
+    new d3plus.Scatter()
+      .select("#timeline")
+      .data(points)
+      .groupBy(["group", "id"])
+      .x("x")
+      .y("y")
+      .time("year")
+      .marginals("histogram")
+      .render();
+
+    new d3plus.BubbleChart()
+      .select("#bubbles")
+      .data(latest)
+      .groupBy(["group", "id"])
+      .x("x")
+      .y("y")
+      .size("population")
+      .marginals("histogram")
+      .marginalConfig({size: 48, binThresholds: 20})
+      .render();
+
+    new d3plus.Scatter()
+      .select("#styled")
+      .data(latest)
+      .groupBy(["group", "id"])
+      .x("x")
+      .y("y")
+      .marginals({x: "histogram", y: "box"})
+      .marginalConfig({
+        opacity: 0.9,
+        histogram: {
+          fill: (d, i) => ["#364fc7", "#e67700", "#c92a2a"][i],
+          stroke: "#ffffff",
+          strokeWidth: 1,
+        },
+        box: {
+          fillOpacity: 0.15,
+          strokeWidth: 1.5,
+          median: {strokeWidth: 3},
+          whisker: {strokeDasharray: "3 2"},
+          outlier: {r: 3},
+        },
+      })
+      .render();
+
+    new d3plus.Scatter()
+      .select("#facets")
+      .data(latest)
+      .groupBy(["group", "id"])
+      .x("x")
+      .y("y")
+      .facet("region")
+      .marginals("density")
+      .render();
+  </script>
+</html>
