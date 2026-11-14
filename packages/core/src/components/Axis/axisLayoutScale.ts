@@ -32,6 +32,7 @@ import {
 } from "./timeValues.js";
 import {axisIsYearLike, formatYear} from "./yearValues.js";
 import {periodLabelPositions} from "./axisPeriods.js";
+import {majorTicks, minorTickValues} from "./axisMinorTicks.js";
 import {drawnAxisScale, isTimeScaleName} from "./axisScaleType.js";
 import type {D3Scale} from "../../utils/index.js";
 import {floorPow, isNegative, openEnd, roundedDomain} from "./axisRounding.js";
@@ -364,7 +365,8 @@ function filterVisibleTicks(
 
 /**
     Builds the scale, applies rounding/log adjustments, resolves ticks/labels,
-    and filters colliding ticks. Mutates `axis` and returns the layout locals
+    filters colliding ticks, and picks the minor ticks between them (see
+    `minorTickValues`). Mutates `axis` and returns the layout locals
     the caller threads through the rest of `measureAxis`.
 */
 export function setAxisScale(
@@ -429,7 +431,12 @@ export function setAxisScale(
   const {ticks: rawTicks, labels} = resolveTicksLabels(axis);
   axis._periodPositions = periodLabelPositions(axis, labels);
   applyTickSuffixUnit(axis, labels);
-  const ticks = filterVisibleTicks(axis, rawTicks, tickGet);
+  const ticks = filterVisibleTicks(
+    axis,
+    majorTicks(axis, rawTicks, labels),
+    tickGet,
+  );
+  axis._minorTickValues = minorTickValues(axis, ticks, true);
 
   return {range, ticks, labels};
 }

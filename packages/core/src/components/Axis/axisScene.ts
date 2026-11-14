@@ -68,11 +68,15 @@ export function configToPaint(
 
 /**
     Replicates _gridPosition's math to compute each gridline's endpoints in the
-    axis's internal coordinate space.
+    axis's internal coordinate space: of its grid lines, or of `data` (such
+    as its minor grid lines).
     @private
 */
-export function gridLinePoints(axis: Axis): {points: [number, number][]}[] {
-  if (!axis._gridLineData || !axis._gridLineData.length) return [];
+export function gridLinePoints(
+  axis: Axis,
+  data: {id: unknown}[] | undefined = axis._gridLineData,
+): {points: [number, number][]}[] {
+  if (!data || !data.length) return [];
   const {height, x: xKey, y: yKey, opposite} = axis._position;
   const offset = axis._margin[opposite];
   const position = ["top", "left"].includes(axis.schema.orient)
@@ -82,7 +86,7 @@ export function gridLinePoints(axis: Axis): {points: [number, number][]}[] {
   const xDiff =
     axis.schema.scale === "band" ? axis._d3Scale!.bandwidth!() / 2 : 0;
   const isHorizontalAxis = xKey === "x";
-  return (axis._gridLineData ?? []).map(d => {
+  return data.map(d => {
     const xPos = (axis._getPosition(d.id) as number) + xDiff;
     const a: [number, number] = isHorizontalAxis
       ? [xPos, position]
@@ -154,6 +158,22 @@ export function barLinePoints(axis: Axis): {points: [number, number][]} | null {
 */
 export function axisToScene(axis: Axis): GroupNode {
   const children: SceneNode[] = [];
+
+  // Minor grid lines sit beneath the grid lines.
+  const minorData = axis._minorGridLineData ?? [];
+  gridLinePoints(axis, minorData).forEach((g, i) => {
+    children.push({
+      type: "line",
+      key: `grid-minor-${i}`,
+      points: g.points,
+      paint: configToPaint(
+        axis,
+        axis.schema.minorGridConfig as Record<string, unknown>,
+        minorData[i],
+        i,
+      ),
+    });
+  });
 
   const gridData = axis._gridLineData ?? [];
   gridLinePoints(axis).forEach((g, i) => {

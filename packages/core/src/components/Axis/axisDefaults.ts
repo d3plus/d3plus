@@ -42,6 +42,15 @@ export function axisGridConfig(axis: Axis): Record<string, unknown> {
   };
 }
 
+/** The default `minorGridConfig`: the grid's color, fainter. */
+export function axisMinorGridConfig(axis: Axis): Record<string, unknown> {
+  return {
+    stroke: () => inkGrid(axis),
+    "stroke-opacity": 0.5,
+    "stroke-width": 1,
+  };
+}
+
 /** How a cut tick label ends: as a TextBox line does, or nothing when no text fits. */
 export const axisLabelEllipsis = (d: unknown): string =>
   d && (d as string).length ? textEllipsis(`${d}`) : "";
