@@ -86,3 +86,11 @@ pre.d3p-import,
 .d3p-item pre {
   overflow-x: auto;
 }
+
+/* Chart tooltips float above the page's chrome (navbar, sidebars), not under
+   it. Each chart's tooltips sit in a fixed `.d3plus-tooltip-portal` on
+   <body>, which stacks them as one layer, so the layer takes the z-index. */
+.d3plus-tooltip-portal,
+[id="d3plus-portal"] > .d3plus-tooltip {
+  z-index: calc(var(--sl-z-index-skiplink) + 1);
+}

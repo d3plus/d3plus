@@ -19,6 +19,7 @@ import {
   buildTable,
   divElement,
   resolvePortal,
+  stackPortal,
   TOOLTIP_SELECTORS,
 } from "./tooltipDom.js";
 
@@ -206,6 +207,7 @@ export default class Tooltip extends BaseClass {
         setUserClasses(this, that.schema.className, [TOOLTIP_CLASS]);
     });
     stylize(update, this.schema.tooltipStyle);
+    stackPortal(this, update);
 
     /**
         Fetches table contents given functions or values.
@@ -409,7 +411,10 @@ export default class Tooltip extends BaseClass {
   }
 
   /**
-      Overall CSS styles applied to the tooltip container.
+      Overall CSS styles applied to the tooltip container. A `z-index` here
+      also goes on the tooltip's portal, the fixed layer on `<body>` that
+      holds a chart's tooltips, so a high value (`{"z-index": 100}`) keeps
+      them above a page's sticky header or sidebar.
 */
   tooltipStyle(): Record<string, string>;
   tooltipStyle(_: Record<string, string>): this;
