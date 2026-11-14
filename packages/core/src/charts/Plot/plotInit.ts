@@ -47,6 +47,7 @@ export const plotSchema = [
   {key: "baselineBreak", coerce: "identity" as const},
   {key: "fillBetween", coerce: "identity" as const, default: false},
   {key: "fillBetweenConfig", merge: true, factory: fillBetweenDefaults},
+  {key: "jitter", coerce: "identity" as const, default: false},
   {key: "forecast", coerce: "identity" as const},
   {key: "forecastConfig", merge: true, factory: forecastDefaults},
   {key: "lineLabels", coerce: "identity" as const},
@@ -133,7 +134,16 @@ export function initPlotDefaults(viz: Plot): void {
     viz.schema.shapeConfig,
     plotShapeDefaults.call(viz as unknown as VizInstance),
   );
-  viz._shapeOrder = ["Area", "Path", "Bar", "Box", "Line", "Rect", "Circle"];
+  viz._shapeOrder = [
+    "Area",
+    "Path",
+    "Bar",
+    "Box",
+    "Line",
+    "Tick",
+    "Rect",
+    "Circle",
+  ];
   viz.schema.shapeSort = (a: string, b: string) =>
     viz._shapeOrder.indexOf(a) - viz._shapeOrder.indexOf(b);
   viz.schema.tooltipShared = defaults.tooltipShared as boolean;

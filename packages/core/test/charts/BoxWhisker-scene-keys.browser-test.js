@@ -165,8 +165,16 @@ for (const renderer of ["svg", "canvas"]) {
     );
     assert.deepStrictEqual(out.keys, [
       "B-box",
+      "B-mean",
       "B-median",
       "B-outlier-6",
+      // Each point is keyed by its observation's id.
+      "B-point-B0",
+      "B-point-B1",
+      "B-point-B2",
+      "B-point-B3",
+      "B-point-B4",
+      "B-point-B5",
       "B-whisker-bottom",
       "B-whisker-bottom-end",
       "B-whisker-bottom::hit",
@@ -238,6 +246,9 @@ const pointAt = renderer =>
         .groupBy("id")
         .x("x")
         .y("y")
+        // The mean and points sit over the box body this test points at.
+        .boxMean(false)
+        .boxPoints(false)
         .data(rows);
       for (const [k, fn] of Object.entries(on)) viz.on(k, fn);
       viz.render(() => done(viz));
