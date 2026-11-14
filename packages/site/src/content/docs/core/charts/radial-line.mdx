@@ -1,0 +1,57 @@
+---
+title: RadialLine
+description: "Creates a radial line chart from an array of data: each groupBy group is a line around a circle, for cyclical data such as hours or months."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/radial-line/basic-example.js?raw";
+import hoursOfTheDay from "~/examples/core/charts/radial-line/hours-of-the-day.js?raw";
+import seriesLabels from "~/examples/core/charts/radial-line/series-labels.js?raw";
+import directionAndStart from "~/examples/core/charts/radial-line/direction-and-start.js?raw";
+import openSmoothLines from "~/examples/core/charts/radial-line/open-smooth-lines.js?raw";
+import smallMultiples from "~/examples/core/charts/radial-line/small-multiples.js?raw";
+
+Creates a radial line chart from an array of data: each `groupBy` group is a
+line around a circle, for cyclical data such as hours or months. `x` sets
+each point's angle and `y` its distance from the center, and each line loops
+back to its start. To fill the lines, or stack them, use a
+[RadialArea](/core/charts/radial-area/).
+
+## Basic example
+
+Names such as months are categories: each gets an even share of the circle, in the order they first appear, starting at 12 o'clock and running clockwise. The value rings sit on nice values, and each line closes from December back to January. A dot on every point shows its value on hover and keeps only its month's label bright. Each line is named where it has room, and once every line is, the names replace the legend (see [Series labels](#series-labels)).
+
+<Playground chart="RadialLine" code={basicExample} controls={["x","y","groupBy","levels"]} />
+
+## Hours of the day
+
+Numbers spread around the circle by value, over a period that ends where it starts: `xDomain: [0, 24]` puts 0 at the top and 23 just before it, so a missing hour leaves a gap in its place. Without `xDomain`, the period runs from the smallest value to the largest plus one step. `xFormat` formats the labels around the circle and in the tooltip.
+
+<Playground chart="RadialLine" code={hoursOfTheDay} controls={["xDomain","xFormat","startAngle"]} />
+
+## Series labels
+
+Each line is named just outside its outermost point that leaves its label room inside the circle, clear of the dots, the ring values, and the other labels. When every line is named, the names stand in for the legend, which hides; when a line has no room for its name, the legend stays. `lineLabels: false` turns the names off, and a function of each series' row names only some. `levelFormat` formats the ring values and the tooltip values.
+
+<Playground chart="RadialLine" code={seriesLabels} controls={["lineLabels","levelFormat","levelLabelAngle"]} />
+
+## Direction and start angle
+
+`startAngle` sets where the first value sits, in degrees clockwise from 12 o'clock, and `direction: "counterclockwise"` runs the values the other way around the circle. With compass bearings over `xDomain: [0, 360]`, the defaults read like a compass.
+
+<Playground chart="RadialLine" code={directionAndStart} controls={["direction","startAngle","innerRadius"]} />
+
+## Open, smooth lines
+
+`closed: false` leaves each line open between its last value and its first, for data that doesn't wrap around. A `curve` in `shapeConfig.Line` smooths the lines (`"catmullRom"`, `"cardinal"` and `"basis"` stay smooth where they close), `shapeConfig.Circle.r: 0` hides the dots, and `innerRadius` opens an empty center. A category `xDomain` holds a place for months with no data yet.
+
+<Playground chart="RadialLine" code={openSmoothLines} controls={["closed","innerRadius","shapeConfig"]} />
+
+## Small multiples
+
+`facet` draws one chart per city, side by side and sharing one legend. By default each panel's rings fit its own values; `facetConfig: {scales: "shared"}` gives every panel the same value domain.
+
+<Playground chart="RadialLine" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="RadialLine" pkg="core" />
