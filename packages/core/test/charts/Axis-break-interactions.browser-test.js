@@ -38,7 +38,7 @@ const probe = (src, {background = "#ffffff", width = 600, height = 400} = {}) =>
                 out.marks.push(n.paint.stroke);
               if (key.startsWith("break-line"))
                 out.lines.push({stroke: n.paint.stroke, points: n.points});
-              if (key.startsWith("plot-break-mask")) out.masks++;
+              if (key.startsWith("plot-break-mask") && n.clip) out.masks++;
               if (n.type === "text" && path.includes("plot-x-end-labels"))
                 out.endLabels.push({
                   text: n.lines.map(l => l.text).join(" "),
