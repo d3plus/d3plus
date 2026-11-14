@@ -237,7 +237,7 @@ it("emitTrendLabels — one inert, haloed label per fit, on its fitted stretch",
   assert.strictEqual(label.type, "text");
   assert.strictEqual(label.key, "trend-label-A");
   assert.strictEqual(label.interactive, false);
-  assert.strictEqual(label.datum, undefined);
+  assert.deepStrictEqual(label.datum, {id: "A"}, "the fit's row");
   assert.strictEqual(label.halo, true);
   assert.strictEqual(label.font.anchor, "end");
   // The projected sample (x 30) is left off the path.

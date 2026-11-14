@@ -250,9 +250,8 @@ export function emitContourLabels(
   const {labels, labelSpacing, labelStep, strokeWidth} = settings.contourConfig;
   const {minRadius, ...labelConfig} = settings.contourConfig.labelConfig;
   if (!labels || !rows.length) return [];
-  const metas = rows
-    .map(row => hexbinMeta(row))
-    .filter((m): m is ContourMeta => m?.kind === "contour");
+  const levels = rows.filter(row => hexbinMeta(row)?.kind === "contour");
+  const metas = levels.map(row => hexbinMeta(row) as ContourMeta);
   const rings = metas.map(meta => contourRings(meta.path));
   const fontSize =
     typeof labelConfig.fontSize === "number"
@@ -324,6 +323,7 @@ export function emitContourLabels(
           d: polylineD(offsetPolyline(stretch, ctx.lift)),
           color: colors.get(meta.index) ?? backgroundInk(viz),
           anchor: "middle",
+          datum: levels[l],
         });
       });
     });

@@ -30,7 +30,7 @@ const people = Array.from({length: 2000}, () => {
 });
 
 /** Draws a Hexbin and reads its contours, labels, and pads. */
-const draw = async ({renderer, config, perBin}) => {
+const draw = async ({renderer, config, perBin, hoverLevel}) => {
   const d3plus = window.d3plus;
   const chart = new d3plus.Hexbin()
     .data(people)
@@ -43,6 +43,8 @@ const draw = async ({renderer, config, perBin}) => {
     .config(config ?? {})
     .select("#viz");
   if (perBin) chart.levelFormat(d => `${d} per bin`);
+  if (hoverLevel !== undefined)
+    chart.hover(d => d3plus.hexbinMeta(d)?.index === hoverLevel);
   await new Promise(resolve => chart.render(resolve));
   const contours = {};
   const labels = [];
@@ -56,6 +58,7 @@ const draw = async ({renderer, config, perBin}) => {
     if (n.type === "path" && meta?.kind === "contour")
       contours[meta.index] = {
         level: meta.level,
+        opacity: n.paint.opacity ?? 1,
         rings: (n.d.match(/M[^M]*/g) || []).map(d =>
           samplePath(d).points.map(shift),
         ),
@@ -69,6 +72,7 @@ const draw = async ({renderer, config, perBin}) => {
         text: n.lines[0].text,
         fill: n.paint.fill,
         halo: n.paint.stroke,
+        opacity: n.paint.opacity ?? 1,
         interactive: n.interactive,
         path: samplePath(n.path.d).points.map(shift),
         boxes: pathTextBoxes(n).map(b => ({...b, x: b.x + x, y: b.y + y})),
@@ -191,6 +195,26 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(out.labelTargets, 0, "no label is a focus target");
     if (renderer === "svg")
       assert.strictEqual(out.textPaths, out.labels.length);
+  });
+
+  it(`[${renderer}] labels dim with their contour lines`, async () => {
+    const rest = await render(box, draw, {renderer});
+    const level = rest.labels[0].level;
+    const out = await render(box, draw, {renderer, hoverLevel: level});
+    const others = out.labels.filter(l => l.level !== level);
+    assert.ok(others.length > 0, "other levels are labelled");
+    for (const label of out.labels) {
+      const contour = out.contours[label.level];
+      assert.ok(
+        label.level === level ? contour.opacity === 1 : contour.opacity < 1,
+        `level ${label.level}'s line (${contour.opacity})`,
+      );
+      assert.strictEqual(
+        label.opacity,
+        contour.opacity,
+        `${label.key} dims with its line`,
+      );
+    }
   });
 
   it(`[${renderer}] labels follow the theme`, async () => {

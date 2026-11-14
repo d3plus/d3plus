@@ -9,7 +9,7 @@ import {render} from "~test/browser/render.js";
     <textPath>, and Canvas paints it without errors.
 */
 
-const draw = ({renderer, config, reversed, log}) =>
+const draw = ({renderer, config, reversed, log, highlight}) =>
   new Promise(resolve => {
     const data = [];
     for (const [id, a, b] of [
@@ -37,6 +37,7 @@ const draw = ({renderer, config, reversed, log}) =>
       .select("#viz");
     if (reversed) viz.xDomain([20, 0]);
     if (log) viz.yConfig({scale: "log"});
+    if (highlight) viz.highlight(d => d.id === highlight);
     viz.render(() => {
       const nodes = [];
       const walk = n => {
@@ -62,7 +63,13 @@ const draw = ({renderer, config, reversed, log}) =>
           text: n.lines[0].text,
           interactive: n.interactive,
           points: points(n.path.d),
+          fill: n.paint.fill,
         })),
+        trendStrokes: Object.fromEntries(
+          nodes
+            .filter(n => n.interactionGroup === "trend" && n.paint?.stroke)
+            .map(n => [n.datum.id, n.paint.stroke]),
+        ),
         fits,
         textPaths: document.querySelectorAll("#viz textPath").length,
         canvas: !!document.querySelector("#viz canvas"),
@@ -89,6 +96,16 @@ const distance = ([px, py], line) => {
 
 const page = '<div id="viz" style="width:700px;height:400px"></div>';
 
+/** Whether a CSS color is a gray (no saturation). */
+const isGray = c => {
+  const ctx = document.createElement("canvas").getContext("2d");
+  ctx.fillStyle = c;
+  const [r, g, b] = [1, 3, 5].map(i =>
+    parseInt(ctx.fillStyle.slice(i, i + 2), 16),
+  );
+  return Math.max(r, g, b) - Math.min(r, g, b) <= 1;
+};
+
 for (const renderer of ["svg", "canvas"]) {
   it(`trend labels follow their lines (${renderer})`, async () => {
     const out = await render(page, draw, {
@@ -113,6 +130,21 @@ for (const renderer of ["svg", "canvas"]) {
     }
     if (renderer === "svg") assert.strictEqual(out.textPaths, 2);
     else assert.ok(out.canvas);
+  });
+
+  it(`trend labels gray with their lines under highlight (${renderer})`, async () => {
+    const out = await render(page, draw, {
+      renderer,
+      config: {label: true},
+      highlight: "Alpha",
+    });
+    assert.strictEqual(out.labels.length, 2);
+    for (const id of ["Alpha", "Beta"]) {
+      const label = out.labels.find(l => l.key === `trend-label-${id}`);
+      const gray = id !== "Alpha";
+      assert.strictEqual(isGray(out.trendStrokes[id]), gray, `${id}'s line`);
+      assert.strictEqual(isGray(label.fill), gray, `${id}'s label`);
+    }
   });
 
   it(`trend labels stay upright on a reversed axis, and curve on a log fit (${renderer})`, async () => {
