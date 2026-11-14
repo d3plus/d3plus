@@ -15,10 +15,41 @@ export interface NodeOutline {
   /** A Rect node's width and height. */
   width?: number;
   height?: number;
+  /** How far a Rect node's box turns about its center, in degrees clockwise. */
+  rotate?: number;
 }
 
 const size = (n: unknown): number =>
   typeof n === "number" && Number.isFinite(n) ? Math.max(0, n) : 0;
+
+/**
+    How far from a node's center a line, leaving it along `angle` (radians)
+    `offset` pixels to its side (positive to the right of its direction, on
+    screen), meets the node's outline: measured along `angle`. 0 when the
+    line misses the node.
+*/
+export function outlineExit(
+  node: NodeOutline,
+  angle: number,
+  offset = 0,
+): number {
+  const r = size(node.r);
+  if (node.shape !== "Rect")
+    return Math.abs(offset) < r ? Math.sqrt(r * r - offset * offset) : 0;
+  const hw = (node.width === undefined ? r * 2 : size(node.width)) / 2;
+  const hh = (node.height === undefined ? r * 2 : size(node.height)) / 2;
+  const turn = Number.isFinite(node.rotate)
+    ? (node.rotate! * Math.PI) / 180
+    : 0;
+  const ux = Math.cos(angle - turn);
+  const uy = Math.sin(angle - turn);
+  const px = -uy * offset;
+  const py = ux * offset;
+  if (Math.abs(px) > hw || Math.abs(py) > hh) return 0;
+  const tx = Math.abs(ux) > 1e-12 ? (Math.sign(ux) * hw - px) / ux : Infinity;
+  const ty = Math.abs(uy) > 1e-12 ? (Math.sign(uy) * hh - py) / uy : Infinity;
+  return Math.max(0, Math.min(tx, ty));
+}
 
 /**
     How far from a node's center a straight stroke `strokeWidth` wide,
@@ -33,21 +64,12 @@ export function outlineReach(
   strokeWidth = 0,
 ): number {
   const half = size(strokeWidth) / 2;
-  const r = size(node.r);
-  if (node.shape !== "Rect")
+  if (node.shape !== "Rect") {
+    const r = size(node.r);
     return half < r ? Math.sqrt(r * r - half * half) : 0;
-  const hw = (node.width === undefined ? r * 2 : size(node.width)) / 2;
-  const hh = (node.height === undefined ? r * 2 : size(node.height)) / 2;
-  const ux = Math.cos(angle);
-  const uy = Math.sin(angle);
-  // Where the line along one of the stroke's edges, `offset` to its side, leaves the box.
-  const exit = (offset: number): number => {
-    const px = -uy * offset;
-    const py = ux * offset;
-    if (Math.abs(px) > hw || Math.abs(py) > hh) return 0;
-    const tx = Math.abs(ux) > 1e-12 ? (Math.sign(ux) * hw - px) / ux : Infinity;
-    const ty = Math.abs(uy) > 1e-12 ? (Math.sign(uy) * hh - py) / uy : Infinity;
-    return Math.min(tx, ty);
-  };
-  return Math.max(0, Math.min(exit(half), exit(-half)));
+  }
+  return Math.min(
+    outlineExit(node, angle, half),
+    outlineExit(node, angle, -half),
+  );
 }

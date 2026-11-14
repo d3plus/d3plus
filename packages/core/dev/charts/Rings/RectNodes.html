@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Rect Nodes</title>
+    <meta
+      name="description"
+      content="Rings with Rect nodes sized by width and height accessors: links, curves, and loops meet each box as it turns along its spoke."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Each Rect node takes its box from `shapeConfig`'s Rect `width` and
+    // `height`, and turns along its spoke with its label. Straight links
+    // from the center, curved links between rings, and loops all meet the
+    // box, not a square 2r across.
+    var links = [
+      {source: "center", target: "alpha"},
+      {source: "center", target: "beta"},
+      {source: "center", target: "gamma"},
+      {source: "center", target: "delta"},
+      {source: "alpha", target: "epsilon"},
+      {source: "alpha", target: "zeta"},
+      {source: "beta", target: "eta"},
+      {source: "gamma", target: "theta"},
+      {source: "epsilon", target: "eta"},
+      {source: "center", target: "center"},
+      {source: "beta", target: "beta"},
+      {source: "theta", target: "theta"},
+    ];
+
+    new d3plus.Rings()
+      .links(links)
+      .center("center")
+      .shape("Rect")
+      .shapeConfig({
+        Rect: {
+          width: function (d) {
+            return d.id === "center" ? 70 : 18 + d.id.length * 4;
+          },
+          height: function (d) {
+            return d.id === "center" ? 36 : 12;
+          },
+          fillOpacity: 0.6,
+        },
+      })
+      .render();
+  </script>
+</html>

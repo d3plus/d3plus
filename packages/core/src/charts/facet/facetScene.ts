@@ -6,6 +6,7 @@
 */
 import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
+import {stampTitleTooltip} from "../../components/Axis/axisTooltipTargets.js";
 import {TextBox} from "../../components/index.js";
 
 /** A panel's title, ready to measure and draw. */
@@ -14,6 +15,8 @@ export interface FacetTitle {
   x: number;
   y: number;
   width: number;
+  /** What hovering the title shows (a map-shaped grid's full place name), if anything. */
+  tooltip?: string;
 }
 
 /**
@@ -73,7 +76,8 @@ export function measureFacetTitles(
 
 /**
     One text node per panel title, offset by the title padding. Titles are
-    chrome: they carry no datum and take no pointer events.
+    chrome: they carry no datum, and take pointer events only to show their
+    `tooltip` (see `handleAxisTooltip`).
 */
 export function facetTitleNodes(
   titles: FacetTitle[],
@@ -90,11 +94,13 @@ export function facetTitleNodes(
   }));
   const group = titleBox(shifted, {...config, padding: 0}, locale).toScene();
   return group.children.map(node => {
-    const next = {
-      ...node,
-      interactive: false,
-      interactionGroup: "facet",
-    } as SceneNode;
+    const id = `${(node.datum as {id?: unknown} | undefined)?.id ?? ""}`;
+    const title = titles[Number(id.replace("facet-title-", ""))];
+    const next = {...node, interactionGroup: "facet"} as SceneNode & {
+      axisTooltip?: unknown;
+    };
+    if (title?.tooltip) stampTitleTooltip([next], title.text, title.tooltip);
+    if (!next.axisTooltip) next.interactive = false;
     delete next.datum;
     delete next.index;
     return next;

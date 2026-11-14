@@ -201,6 +201,28 @@ function elementId(
   return `${prefix}-${that._uuid}-${d ? that.schema.id(d, i) : ""}`;
 }
 
+/** `text` with HTML's special characters escaped. */
+const escapeHtml = (text: string): string =>
+  text.replace(
+    /[&<>"']/g,
+    c =>
+      ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[
+        c
+      ]!,
+  );
+
+/**
+    A tooltip title led by a heading line: the heading, smaller and lighter,
+    above the title (or alone, when there's no title).
+    @param heading The heading's text.
+    @param title The title's HTML, if any.
+*/
+export function tooltipHeading(heading: string, title: unknown): string {
+  const line = `<div class="d3plus-tooltip-heading" style="font-size: 0.8em; font-weight: 400; opacity: 0.75; margin-bottom: 2px;">${escapeHtml(heading)}</div>`;
+  const shown = title !== false && title !== undefined && title !== null;
+  return shown ? `${line}${title}` : line;
+}
+
 /**
     Creates DIV elements with a unique class and styles.
     @private
@@ -217,11 +239,16 @@ export function divElement(
     .attr("id", ((d: DataPoint, i: number) =>
       elementId(that, d, i, cat)) as never);
 
-  const value = (d: DataPoint, i: number): unknown =>
+  const own = (d: DataPoint, i: number): unknown =>
     (that.schema as Record<string, (d: DataPoint, i: number) => unknown>)[cat](
       d,
       i,
     );
+  // The title leads with the chart's heading line, when it sets one.
+  const value = (d: DataPoint, i: number): unknown =>
+    cat === "title" && that._heading
+      ? tooltipHeading(that._heading, own(d, i))
+      : own(d, i);
   // A part set to `false` (or nothing) is hidden and left empty, rather
   // than holding the text "false".
   const shown = (val: unknown): boolean =>

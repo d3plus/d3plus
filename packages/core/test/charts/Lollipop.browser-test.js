@@ -367,7 +367,15 @@ const hover = ([renderer]) =>
                   ? n.paint.opacity
                   : 1;
           }
-          host.dispatchEvent(new MouseEvent("click", at));
+          // The hover moved the hovered marks in front of the others'
+          // labels, so the click goes to the element drawing it now.
+          const target =
+            renderer === "canvas"
+              ? host
+              : document.querySelector(
+                  "#viz svg.d3plus-render-svg [data-key='Beta_Beta::stem::hit']",
+                );
+          target.dispatchEvent(new MouseEvent("click", at));
           resolve({
             title: tip
               ? tip.querySelector(".d3plus-tooltip-title").textContent
