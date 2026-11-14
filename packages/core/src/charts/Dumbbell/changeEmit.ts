@@ -246,7 +246,8 @@ export function emitArrowConnectors(
     to an arrowhead at its last), across a thickness of 60% of the step
     between categories (see `barThickness`), styled by `shapeConfig.Rect`.
     Like the line connectors, a bar keeps no datum of its own: it hovers and
-    dims with its points.
+    dims with its points. A category with one value, or whose values don't
+    differ, draws no bar.
     @param ctx The shape group's emit context.
     @param points Each drawn point's geometry.
     @param arrows Whether each bar ends in an arrowhead at its last value.
@@ -279,7 +280,8 @@ export function emitBarConnectors(
   for (const span of spans) {
     const from = points.get(span.from);
     const to = points.get(span.to);
-    if (!from || !to) continue;
+    // A category whose values don't differ draws its dots, not a bar.
+    if (!from || !to || (from.x === to.x && from.y === to.y)) continue;
     const ends = connectorEnds(
       span,
       arrows ? dumbbellDirection(span, opp) : undefined,

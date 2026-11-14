@@ -72,9 +72,10 @@ export const dumbbellDef: ChartDefinition = {
         connector behind the dots; `"bar"` draws a floating bar between the
         category's smallest and largest values in place of the dots (a span
         chart), styled by `shapeConfig.Rect` and filled with the color
-        defaults' `sequential` color. With `arrows`, the bar runs from the
-        first value to an arrowhead at the last (a change bar). Tooltips add
-        the category's range (or change).
+        defaults' `sequential` color. A category with one value, or whose
+        values don't differ, keeps its dots. With `arrows`, the bar runs
+        from the first value to an arrowhead at the last (a change bar).
+        Tooltips add the category's range (or change).
         @type {"line" | "bar"}
     */
     {key: "connector", default: "line"},

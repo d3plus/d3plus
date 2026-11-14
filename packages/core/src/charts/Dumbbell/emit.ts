@@ -112,16 +112,15 @@ export const dumbbellEmit: ShapeEmitter = (ctx, key) => {
     A point a bar connector draws in place of: kept for hover, the shared
     tooltip and keyboard focus, but never seen. It keeps its bar's `color`
     (fully transparent), so the shared tooltip's swatch and the axis tag
-    show the bar's color; without one, it is painted with nothing.
+    show the bar's color. A point with no bar (its category's only value,
+    or one that doesn't change) stays as drawn, a dot in its series color.
     @param node The point's scene node.
     @param color Its bar's fill.
 */
 export function hiddenPoint(node: SceneNode, color?: string): SceneNode {
-  if (node.type !== "circle") return node;
+  if (node.type !== "circle" || !color) return node;
   return {
     ...node,
-    paint: color
-      ? {...node.paint, fill: color, stroke: color, opacity: 0}
-      : {...node.paint, fill: "transparent", stroke: "transparent"},
+    paint: {...node.paint, fill: color, stroke: color, opacity: 0},
   };
 }
