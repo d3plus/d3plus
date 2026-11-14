@@ -12,6 +12,7 @@ import {
   line as d3line,
 } from "d3-shape";
 import type {CurveFactory} from "d3-shape";
+import {interpolatePath} from "d3-interpolate-path";
 
 import {pathCommands} from "@d3plus/math";
 
@@ -95,4 +96,39 @@ export function flattenPath(d: string, axis: "x" | "y", at: number): string {
       return command + flattened.flat().join(",");
     })
     .join("");
+}
+
+/**
+    A path's `d` with every segment's command written out. SVG lets a
+    command repeat by listing more arguments after it (`M0,0 10,0` draws a
+    line after its moveto, `L1,1 2,2` two lines); this writes each repeat
+    with its own letter (`M0,0L10,0`), the repeats after a moveto as
+    linetos. A path with no repeats comes back as is.
+    @param d The SVG path data.
+*/
+export function explicitPathD(d: string): string {
+  const commands = pathCommands(d);
+  if (commands.every(c => c.segments.length < 2)) return d;
+  return commands
+    .map(({command, segments}) => {
+      if (!segments.length) return command;
+      const repeat = command === "M" ? "L" : command === "m" ? "l" : command;
+      return segments
+        .map((segment, k) => (k ? repeat : command) + segment.join(","))
+        .join("");
+    })
+    .join("");
+}
+
+/**
+    Tweens one path's `d` into another's, point by point, ending on `b` as
+    given. Both are written out first (see `explicitPathD`): the tween
+    reads one segment per command, so it would drop a repeat's points, and
+    a two-point line would vanish mid-tween.
+    @param a The path data to tween from.
+    @param b The path data to tween to.
+*/
+export function interpolatePathD(a: string, b: string): (t: number) => string {
+  const tween = interpolatePath(explicitPathD(a), explicitPathD(b));
+  return t => (t >= 1 ? b : tween(t));
 }

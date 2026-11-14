@@ -68,6 +68,9 @@ const tooltip: Stage = {
       position ?? (() => target),
     );
     instance.render?.();
+    (instance._portalEl as HTMLElement | undefined)?.classList.add(
+      "d3p-stage-portal",
+    );
     follow(instance, host);
   },
   clear(instance, host) {
