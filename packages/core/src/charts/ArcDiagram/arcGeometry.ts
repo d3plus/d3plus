@@ -6,7 +6,11 @@
 
 import type {DataPoint} from "@d3plus/data";
 
-import {arrowAlongChord, chordEndsPathD} from "../features/curvedArrows.js";
+import {
+  ARROW_JOIN,
+  arrowAlongChord,
+  chordEndsPathD,
+} from "../features/curvedArrows.js";
 import type {ArrowedEnd} from "../features/curvedArrows.js";
 import type {EdgeArrowTrims} from "../features/edgeArrows.js";
 
@@ -264,17 +268,20 @@ export function arcPointAlong(
     An arc's visible stroke and arrowed ends. Each head's tip sits on the
     arc `insets` pixels out from the line (see `arcEndTip`), its base `size`
     further along the arc, and it is aimed along the chord from base to tip.
-    The stroke follows the arc between the bases, then runs along each
-    head's axis to end inside it (see `cubicArrowEdge`). The full arc stays
-    its hit area.
+    The stroke follows the arc to each head's axis, then along it to end at
+    the head's base (see `chordEndsPathD`). At an end with no
+    head, the stroke starts on the arc `bare` pixels out from the line. The
+    full arc stays its hit area.
 */
 export function arcArrowEdge(
   arc: ArcGeometry,
   trims: EdgeArrowTrims,
   insets: {source: number; target: number},
+  bare: {source: number; target: number} = {source: 0, target: 0},
 ): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
   const {ends, size} = trims;
-  if (!ends.source && !ends.target) return {d: arcPathD(arc)};
+  if (!ends.source && !ends.target && !bare.source && !bare.target)
+    return {d: arcPathD(arc)};
   const arrowed = (end: "source" | "target"): ArrowedEnd | undefined => {
     if (!ends[end]) return undefined;
     const tip = arcEndTip(arc, end, insets[end]);
@@ -288,8 +295,15 @@ export function arcArrowEdge(
   const target = arrowed("target");
   const half = Math.abs(arc.to - arc.from) / 2;
   const height = half * arc.scale;
-  const [x1, y1] = source ? source.base : arcPoint(arc, arc.from, 0);
-  const [x2, y2] = target ? target.base : arcPoint(arc, arc.to, 0);
+  const bareEnd = (end: "source" | "target"): [number, number] => {
+    const tip = arcEndTip(arc, end, bare[end]);
+    return [tip.x, tip.y];
+  };
+  // An arrowed end's stretch of arc stops where the stroke turns onto the head's axis.
+  const join = (end: "source" | "target"): [number, number] =>
+    arcPointAlong(arc, end, insets[end], trims[end] + ARROW_JOIN);
+  const [x1, y1] = source ? join("source") : bareEnd("source");
+  const [x2, y2] = target ? join("target") : bareEnd("target");
   const forward = arc.to > arc.from;
   const sweep = forward === (arc.side === "above") ? 1 : 0;
   const [rx, ry] = arc.orient === "vertical" ? [height, half] : [half, height];

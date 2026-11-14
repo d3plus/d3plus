@@ -26,13 +26,7 @@ type Locale = Parameters<typeof formatAbbreviate>[1];
     @param locale The chart's locale.
 */
 export function formatPrice(value: number, locale?: Locale): string {
-  if (Math.abs(value) < 1) return formatAbbreviate(value, locale, ".3~g");
-  // formatAbbreviate drops trailing zeros; put the cents back.
-  const decimal = formatAbbreviate(1.5, locale, ".1f").charAt(1);
-  const [whole, cents = ""] = formatAbbreviate(value, locale, ",.2f").split(
-    decimal,
-  );
-  return `${whole}${decimal}${cents.padEnd(2, "0")}`;
+  return formatAbbreviate(value, locale, Math.abs(value) < 1 ? ".3~g" : ",.2f");
 }
 
 /**

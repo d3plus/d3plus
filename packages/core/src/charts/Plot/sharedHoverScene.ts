@@ -45,15 +45,22 @@ function crosshairAnnotation(
   // The discrete-axis position is the snapped pixel itself — a column's
   // position, or a side-by-side bar's own center within its band.
   const snapped: PlotAxisFn = () => state.px;
-  const x =
-    state.axis === "x" ? snapped : (viz._xFunc as PlotAxisFn | undefined);
-  const y =
-    state.axis === "y" ? snapped : (viz._yFunc as PlotAxisFn | undefined);
+  // A chart that spans the whole plot area gives the crosshair's ends in pixels.
+  const area = viz._crosshairFullSpan ? viz._plotArea : undefined;
+  const pixel: PlotAxisFn = v => v as number;
+  const cross = (k: "x" | "y") =>
+    area ? pixel : (viz[`_${k}Func`] as PlotAxisFn | undefined);
+  const x = state.axis === "x" ? snapped : cross("x");
+  const y = state.axis === "y" ? snapped : cross("y");
   const xDomain = viz._plotAxisDomains?.x;
   const yDomain = viz._plotAxisDomains?.y;
   if (!x || !y || !xDomain?.length || !yDomain?.length) return null;
   const span = (state.axis === "x" ? yDomain : xDomain) as unknown[];
-  const ends = [span[0], span[span.length - 1]];
+  const ends = area
+    ? state.axis === "x"
+      ? [area.y, area.y + area.height]
+      : [area.x, area.x + area.width]
+    : [span[0], span[span.length - 1]];
   const data = ends.map(v =>
     state.axis === "x" ? {x: state.value, y: v} : {x: v, y: state.value},
   );

@@ -3,6 +3,7 @@ import {assign, isObject} from "@d3plus/dom";
 import {scaleOrdinal} from "d3-scale";
 import {
   findLocale,
+  fillPlaceholders,
   translateLocale as dictionaries,
   type TranslationStrings,
 } from "@d3plus/locales";
@@ -157,10 +158,12 @@ export default class BaseClass {
     this.schema.translate = (
       d: string,
       locale: string = this.schema.locale,
+      ...args: unknown[]
     ): string => {
       const dictionary: TranslationStrings | undefined = dictionaries[locale];
       const key = d as keyof TranslationStrings;
-      return dictionary && dictionary[key] ? dictionary[key] : d;
+      const text = dictionary && dictionary[key] ? dictionary[key] : d;
+      return fillPlaceholders(text, args);
     };
     this._uuid = crypto.randomUUID();
   }
@@ -342,18 +345,20 @@ new Plot
   }
 
   /**
-      Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
+      Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. A string with numbered placeholders (`"{0} hidden"`) has them filled from the arguments after the locale, so each language can order its words naturally. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
 @example <caption>For example, if we wanted to only change the string "Back" and allow all other string to return in English:</caption>
 .translate(function(d) {
   return d === "Back" ? "Get outta here" : d;
 })
 */
-  translate(): (d: string, locale?: string) => string;
-  translate(_: (d: string, locale?: string) => string): this;
+  translate(): (d: string, locale?: string, ...args: unknown[]) => string;
   translate(
-    _?: (d: string, locale?: string) => string,
-  ): ((d: string, locale?: string) => string) | this {
+    _: (d: string, locale?: string, ...args: unknown[]) => string,
+  ): this;
+  translate(
+    _?: (d: string, locale?: string, ...args: unknown[]) => string,
+  ): ((d: string, locale?: string, ...args: unknown[]) => string) | this {
     return arguments.length
       ? ((this.schema.translate = _!), this)
       : this.schema.translate;

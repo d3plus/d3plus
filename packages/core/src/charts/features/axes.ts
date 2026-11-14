@@ -244,7 +244,8 @@ function renderYAxes(
     .maxSize(width / 2)
     .range(yRange)
     .ticks(yTicks)
-    .width(xRange[xRange.length - 1])
+    // Its grid lines end at the plot's right edge, wherever the axis sits.
+    .width(xRange[xRange.length - 1] - axisRelativeTransform("y").x)
     .config({...UNZOOMED_AXIS, ...yC})
     .config(yPlotConfig)
     .config(pCtx.zoomAxes?.y ?? {})
@@ -398,5 +399,6 @@ export function renderAxes(
     labelPositions: labelPositions as Record<string, number>,
     xEndLabels,
     insetBottom,
+    aspectInsetY: final.aspectInsetY,
   };
 }

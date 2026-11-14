@@ -184,6 +184,12 @@ right-to-left scripts:
 <BarChart config={{data, groupBy: "region", x: "quarter", y: "revenue", locale: "ar-SA"}} />
 ```
 
+Built-in strings that name something, such as a HorizonChart's `"{0} hidden"`
+announcement, hold numbered placeholders that `translate` fills from the
+arguments after the locale (`translate("{0} hidden", undefined, "Oslo")`), so
+each language puts the name where its word order needs it. A custom
+`translate` function receives those arguments too.
+
 ## Titles & framing
 
 Add framing text around any chart with `title`, `subtitle`, and `total`:

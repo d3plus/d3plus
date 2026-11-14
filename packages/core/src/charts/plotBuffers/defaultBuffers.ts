@@ -3,6 +3,7 @@ import {default as BoxBuffer} from "./Box.js";
 import {default as CircleBuffer} from "./Circle.js";
 import {default as LineBuffer} from "./Line.js";
 import {default as RectBuffer} from "./Rect.js";
+import {default as TickBuffer} from "./Tick.js";
 
 /** Plot's axis buffer function for each shape type (see `Plot.buffer`). */
 export const defaultBuffers = {
@@ -11,4 +12,5 @@ export const defaultBuffers = {
   Circle: CircleBuffer,
   Line: LineBuffer,
   Rect: RectBuffer,
+  Tick: TickBuffer,
 };

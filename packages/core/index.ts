@@ -22,6 +22,7 @@ export {
   Geomap,
   Hexbin,
   Histogram,
+  HorizonChart,
   Icicle,
   LinePlot,
   Lollipop,
@@ -46,6 +47,7 @@ export {
   SlopeChart,
   StackedArea,
   Streamgraph,
+  StripPlot,
   Sunburst,
   Tree,
   Treemap,
@@ -80,6 +82,7 @@ export {
   Path,
   Rect,
   Shape,
+  Tick,
   Whisker,
 } from "./src/shapes/index.js";
 
@@ -181,6 +184,7 @@ export type {
   RectConfig,
   SideOrient,
   StringOrAccessor,
+  TickConfig,
   WhiskerConfig,
 } from "./src/shapes/shapeConfig.js";
 

@@ -3,9 +3,9 @@
     the curve a few pixels back point different ways, so a head aimed along
     the tangent leaves the stroke's end off its axis. Here a head is aimed
     along the chord from where its base sits on the path to its tip, and the
-    stroke follows the path up to the base, then runs straight along that
-    chord to end inside the head (see `arrowTrim`). The join at the base is
-    under the head, so the stroke reads smooth.
+    stroke follows the path to just short of the base, then turns onto that
+    chord to end at the head's base (see `arrowTrim`): its square end lies
+    along the base, so the stroke meets the head without overlapping it.
 
     The path is a polyline (a sampled curve, or projected points such as a
     map's) or a cubic Bézier curve.
@@ -31,7 +31,16 @@ export interface ArrowedEnd {
   base: Point;
   /** Where the stroke ends: on the head's axis, `trim` back from its tip. */
   cut: Point;
+  /** Where the stroke turns onto the head's axis: `ARROW_JOIN` behind `cut`. */
+  join: Point;
 }
+
+/**
+    How far behind its end a stroke into an arrowhead runs along the head's
+    axis, so its square end lies along the head's base however the path
+    bends before it.
+*/
+export const ARROW_JOIN = 1;
 
 /**
     The point `distance` pixels back along a polyline from its last point
@@ -71,8 +80,8 @@ export function chordAngle(base: Point, tip: Point): number {
 
 /**
     A head at `tip` aimed along the chord from `base` (where its base sits
-    on the path), and the stroke's end `trim` back from the tip on that
-    chord.
+    on the path), the stroke's end `trim` back from the tip on that chord,
+    and where the stroke joins the chord, `ARROW_JOIN` further back.
 */
 export function arrowAlongChord(
   tip: Point,
@@ -80,19 +89,18 @@ export function arrowAlongChord(
   trim: number,
 ): ArrowedEnd {
   const angle = chordAngle(base, tip);
-  return {
-    tip,
-    angle,
-    base,
-    cut: [tip[0] - Math.cos(angle) * trim, tip[1] - Math.sin(angle) * trim],
-  };
+  const back = (k: number): Point => [
+    tip[0] - Math.cos(angle) * k,
+    tip[1] - Math.sin(angle) * k,
+  ];
+  return {tip, angle, base, cut: back(trim), join: back(trim + ARROW_JOIN)};
 }
 
 /**
     A cubic edge's visible stroke and its arrowed ends: each head's tip sits
     `tipBack` pixels back along the curve from its end, its base `size`
-    further back, and the stroke runs along the curve between the bases,
-    then straight along each head's axis to its `cut`.
+    further back, and the stroke runs along the curve to each head's axis,
+    then along it to its `cut` (see `chordEndsPathD`).
     @param curve The edge, from its source end to its target end.
     @param trims The edge's arrow ends, size, and stroke trims (see `edgeArrowTrims`).
     @param tipBack How far back along the curve each end's tip sits.
@@ -105,22 +113,23 @@ export function cubicArrowEdge(
   const {ends, size} = trims;
   if (!ends.source && !ends.target) return {d: cubicPathD(curve)};
   const line = cubicPolyline(curve);
+  const back = [...line].reverse();
   const body = trimCubic(
     curve,
-    ends.source ? tipBack.source + size : 0,
-    ends.target ? tipBack.target + size : 0,
+    ends.source ? tipBack.source + trims.source + ARROW_JOIN : 0,
+    ends.target ? tipBack.target + trims.target + ARROW_JOIN : 0,
   );
   const target = ends.target
     ? arrowAlongChord(
         pathPointBack(line, tipBack.target),
-        body[3],
+        pathPointBack(line, tipBack.target + size),
         trims.target,
       )
     : undefined;
   const source = ends.source
     ? arrowAlongChord(
-        pathPointBack([...line].reverse(), tipBack.source),
-        body[0],
+        pathPointBack(back, tipBack.source),
+        pathPointBack(back, tipBack.source + size),
         trims.source,
       )
     : undefined;
@@ -152,23 +161,29 @@ export function cubicsArrowEdge(
   const first = curves[0];
   const last = curves[curves.length - 1];
   const body = curves.slice();
-  body[0] = trimCubic(first, ends.source ? tipBack.source + size : 0, 0);
-  body[body.length - 1] = trimCubic(
-    last,
+  body[0] = trimCubic(
+    first,
+    ends.source ? tipBack.source + trims.source + ARROW_JOIN : 0,
     0,
-    ends.target ? tipBack.target + size : 0,
   );
+  body[body.length - 1] = trimCubic(
+    body[body.length - 1],
+    0,
+    ends.target ? tipBack.target + trims.target + ARROW_JOIN : 0,
+  );
+  const lastLine = cubicPolyline(last);
+  const firstBack = [...cubicPolyline(first)].reverse();
   const target = ends.target
     ? arrowAlongChord(
-        pathPointBack(cubicPolyline(last), tipBack.target),
-        body[body.length - 1][3],
+        pathPointBack(lastLine, tipBack.target),
+        pathPointBack(lastLine, tipBack.target + size),
         trims.target,
       )
     : undefined;
   const source = ends.source
     ? arrowAlongChord(
-        pathPointBack([...cubicPolyline(first)].reverse(), tipBack.source),
-        body[0][0],
+        pathPointBack(firstBack, tipBack.source),
+        pathPointBack(firstBack, tipBack.source + size),
         trims.source,
       )
     : undefined;
@@ -182,18 +197,21 @@ const isRuns = (points: Point[] | Point[][]): points is Point[][] =>
 /**
     A polyline edge's visible stroke and its arrowed ends: each head's tip
     sits `tipBack` pixels back along the polyline from its end, its base
-    `size` further back, and the stroke follows the polyline between the
-    bases, then runs straight along each head's axis to its `cut`.
+    `size` further back, and the stroke follows the polyline to each head's
+    axis, then along it to its `cut` (see `chordEndsPathD`).
     @param points The edge, from its source end to its target end: one
       polyline, or the runs of a path cut into pieces (a map projection's),
       whose first run starts at the source and last run ends at the target.
     @param trims The edge's arrow ends, size, and stroke trims (see `edgeArrowTrims`).
     @param tipBack How far back along the polyline each end's tip sits.
+    @param bare How far back along the polyline the stroke ends at each end
+      without an arrowhead.
 */
 export function polylineArrowEdge(
   points: Point[] | Point[][],
   trims: EdgeArrowTrims,
   tipBack: {source: number; target: number} = {source: 0, target: 0},
+  bare: {source: number; target: number} = {source: 0, target: 0},
 ): {d: string; source?: ArrowedEnd; target?: ArrowedEnd} {
   const runs = (isRuns(points) ? points : [points]).filter(r => r.length);
   const {ends, size} = trims;
@@ -214,8 +232,12 @@ export function polylineArrowEdge(
   const body = runs.map((run, k) =>
     trimPolyline(
       run,
-      k === 0 && source ? tipBack.source + size : 0,
-      k === runs.length - 1 && target ? tipBack.target + size : 0,
+      k ? 0 : source ? tipBack.source + trims.source + ARROW_JOIN : bare.source,
+      k < runs.length - 1
+        ? 0
+        : target
+          ? tipBack.target + trims.target + ARROW_JOIN
+          : bare.target,
     ),
   );
   return {
@@ -228,9 +250,12 @@ export function polylineArrowEdge(
 const round = (n: number): number => Math.round(n * 100) / 100;
 
 /**
-    A path `body` (starting with its own `M`) extended straight along each
-    arrowed end's axis: from the source head's `cut` to the body's start,
-    and from the body's end to the target head's `cut`.
+    A path `body` (starting with its own `M`) carried onto each arrowed
+    end's axis: the source head's `cut` along its axis to its `join`, then
+    on to the body's start, and from the body's end to the target head's
+    `join`, then along its axis to its `cut`. Each end's last stretch runs
+    along the head's axis, so the stroke's square end lies along the head's
+    base.
 */
 export function chordEndsPathD(
   body: string,
@@ -239,9 +264,9 @@ export function chordEndsPathD(
 ): string {
   const at = (p: Point) => `${round(p[0])},${round(p[1])}`;
   const start = source
-    ? `M${at(source.cut)}L${at(source.base)}${body.replace(/^M[^A-Za-z]*/, "")}`
+    ? `M${at(source.cut)}L${at(source.join)}${body.replace(/^M/, "L")}`
     : body;
-  return target ? `${start}L${at(target.cut)}` : start;
+  return target ? `${start}L${at(target.join)}L${at(target.cut)}` : start;
 }
 
 /**

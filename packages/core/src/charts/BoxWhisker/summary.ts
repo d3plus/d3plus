@@ -20,6 +20,7 @@ import boxBuffer from "../plotBuffers/Box.js";
 import type Plot from "../Plot/index.js";
 import {boxAxisRows, boxValueAxis, drawsRowOutliers} from "./outliers.js";
 import {noteDrawnBoxes} from "./tooltip.js";
+import {computedBoxExtras, precomputedBoxExtras} from "./extras.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 type Row = Record<string, unknown>;
@@ -107,13 +108,17 @@ function inPixels(fn: RowFn, scale: PlotAxisFn) {
 /**
     Draws Box rows: precomputed boxes take their statistics in pixels on the
     value axis; otherwise Plot's own Box path, noting each box it draws for
-    the tooltip.
+    the tooltip. Either way, the box extras (see `extras.ts`) go along.
 */
 export const boxWhiskerEmit: ShapeEmitter = (ctx, key) => {
   const {viz} = ctx;
-  if (!precomputedBoxes(viz)) return noteDrawnBoxes(genericEmit(ctx, key));
   const scale = boxValueAxis(viz) === "y" ? ctx.y : ctx.x;
-  const stats: Row = {};
+  if (!precomputedBoxes(viz)) {
+    const extras = computedBoxExtras(viz, ctx.values, scale);
+    const shapeConfig = {...ctx.shapeConfig, ...extras};
+    return noteDrawnBoxes(genericEmit({...ctx, shapeConfig}, key));
+  }
+  const stats: Row = precomputedBoxExtras(viz, scale);
   for (const stat of [...boxStatKeys, "boxOutliers"]) {
     const fn = viz.schema[stat];
     if (typeof fn === "function") stats[stat] = inPixels(fn as RowFn, scale);
