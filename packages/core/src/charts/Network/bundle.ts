@@ -1,7 +1,7 @@
 /**
     Network's `linkBundle`: each link between two distinct nodes takes a
     bundled path (`points`, from its source's center to its target's), and
-    these helpers draw it: the visible stroke ending inside its arrowheads,
+    these helpers draw it: the visible stroke ending at its arrowheads,
     the heads aimed along the curve where it leaves each node, the label
     anchor, and the box a click focus zooms to.
 */
@@ -127,7 +127,7 @@ function bundledTrims(
 
 /**
     A bundled link's visible stroke and arrowheads: the stroke follows the
-    path and ends inside each head, or at the outline of a node with no
+    path and ends at each head's base, or at the outline of a node with no
     head, and each head's tip sits a pixel off its node, aimed along the
     path (see `polylineArrowEdge`). `arrowSize` defaults to the chart's.
 */

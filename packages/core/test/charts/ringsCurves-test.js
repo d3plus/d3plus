@@ -253,8 +253,8 @@ it("cubicsArrowEdge ends the stroke inside heads on the first and last cubics", 
   const both = cubicsArrowEdge(curves, {
     ends: {source: true, target: true},
     size: 8,
-    source: 4,
-    target: 4,
+    source: 8,
+    target: 8,
   });
   const end = curves[curves.length - 1][3];
   const start = curves[0][0];
@@ -273,8 +273,8 @@ it("cubicsArrowEdge ends the stroke inside heads on the first and last cubics", 
   const cut = both.target.cut;
   close(
     Math.hypot(cut[0] - both.target.tip[0], cut[1] - both.target.tip[1]),
-    4,
-    "the stroke stops inside the target head",
+    8,
+    "the stroke stops at the target head's base",
   );
   assert.ok(
     both.d.endsWith(

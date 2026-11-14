@@ -111,8 +111,8 @@ function arcArrows(
 }
 
 /**
-    An arc's (or loop's) visible stroke: along it up to each arrowhead's
-    base, then along the head's axis to end inside it (see `arcArrowEdge`),
+    An arc's (or loop's) visible stroke: along it to each arrowhead's axis,
+    then along the axis to end at the head's base (see `arcArrowEdge`),
     whose tips sit a pixel out past the nodes, and from the outline of a
     node at an end with no head. `scale` widens the stroke (see
     `emphasizedArrowEdge`).

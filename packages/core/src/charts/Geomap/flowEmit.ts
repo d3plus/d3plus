@@ -68,8 +68,8 @@ const startsAt = (run: Point[] | undefined, at: Point | null): boolean =>
     A link's visible stroke and its arrowheads. Each head's tip sits on the
     path, clear of the point at its end, and is aimed along the chord from
     its base (`size` further back along the path) to its tip; the stroke
-    follows the path to each base, then runs straight along that chord to
-    end inside the head (see `polylineArrowEdge`). At an end with no head,
+    follows the path to each head's axis, then runs along it to
+    end at the head's base (see `polylineArrowEdge`). At an end with no head,
     the stroke stops at the point's outline (see `outlineReach`). A head
     goes only on an end the projection draws. `scale` widens the stroke
     (see `emphasizedArrowEdge`).
@@ -147,7 +147,7 @@ export function emitFlowLinks(
     const edge = emphasizedArrowEdge(scale =>
       flowArrowEdge(viz, link, fill, scale),
     );
-    // A stroke ending inside its head, or at a point's outline, ends
+    // A stroke ending at its head's base, or at a point's outline, ends
     // square, so no cap pokes past it.
     if (edge.arrows.length || link.source.r || link.target.r)
       paint.strokeLinecap = "butt";

@@ -560,7 +560,7 @@ const offAxis = (p, a, b) =>
   Math.abs((b[0] - a[0]) * (a[1] - p[1]) - (a[0] - p[0]) * (b[1] - a[1])) /
   Math.hypot(b[0] - a[0], b[1] - a[1]);
 
-it("flowArrowEdge ends the stroke inside each head, on its axis", () => {
+it("flowArrowEdge ends the stroke at each head's base, on its axis", () => {
   const viz = laidOut([{source: "NYC", target: "LON"}], {
     arrows: "both",
     linkSize: 4,
@@ -581,8 +581,9 @@ it("flowArrowEdge ends the stroke inside each head, on its axis", () => {
     const back = Math.hypot(end[0] - tip[0], end[1] - tip[1]);
     const size = Math.hypot(base[0] - tip[0], base[1] - tip[1]);
     assert.ok(
-      Math.abs(back - arrowTrim(size, 4)) < 0.01,
-      `trimmed back from the tip: ${back}`,
+      Math.abs(back - arrowTrim(size, 4)) < 0.01 &&
+        Math.abs(back - size) < 0.01,
+      `at the head's base: ${back}`,
     );
     assert.strictEqual(node.paint.fill, "#123456");
   }

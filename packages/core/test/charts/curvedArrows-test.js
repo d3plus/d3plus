@@ -76,27 +76,42 @@ it("chordAngle and arrowAlongChord aim a head from its base to its tip", () => {
   assert.deepStrictEqual(end.tip, [10, 10]);
   assert.deepStrictEqual(end.base, [4, 2]);
   close(end.angle, Math.atan2(8, 6));
-  // The cut is on the axis, `trim` back from the tip.
+  // The cut is on the axis, `trim` back from the tip, and the join a pixel
+  // further back.
   close(end.cut[0], 7);
   close(end.cut[1], 6);
+  close(end.join[0], 6.4);
+  close(end.join[1], 5.2);
 });
 
-it("chordEndsPathD extends a path straight along each arrowed end's axis", () => {
-  const body = "M10,0C20,0 30,0 40,0";
-  const source = {tip: [0, 0], angle: Math.PI, base: [10, 0], cut: [4, 0]};
-  const target = {tip: [50, 0], angle: 0, base: [40, 0], cut: [46.666, 0]};
+it("chordEndsPathD carries a path onto each arrowed end's axis, ending at its cut", () => {
+  const body = "M8,1C20,0 30,0 42,1";
+  const source = {
+    tip: [0, 0],
+    angle: Math.PI,
+    base: [10, 0],
+    cut: [10, 0],
+    join: [11, 0],
+  };
+  const target = {
+    tip: [50, 0],
+    angle: 0,
+    base: [40, 0],
+    cut: [40.004, 0],
+    join: [39, 0],
+  };
   assert.strictEqual(chordEndsPathD(body), body);
   assert.strictEqual(
     chordEndsPathD(body, undefined, target),
-    "M10,0C20,0 30,0 40,0L46.67,0",
+    "M8,1C20,0 30,0 42,1L39,0L40,0",
   );
   assert.strictEqual(
     chordEndsPathD(body, source, target),
-    "M4,0L10,0C20,0 30,0 40,0L46.67,0",
+    "M10,0L11,0L8,1C20,0 30,0 42,1L39,0L40,0",
   );
   assert.strictEqual(
     chordEndsPathD("M10,0A5,5 0 0,1 40,0", source),
-    "M4,0L10,0A5,5 0 0,1 40,0",
+    "M10,0L11,0L10,0A5,5 0 0,1 40,0",
   );
 });
 
@@ -124,8 +139,11 @@ it("cubicArrowEdge ends the stroke on each head's axis, from the head's base on 
       12,
       0.1,
     );
+    // The stroke ends at the head's base, and turns onto its axis before.
     close(offAxis(end.cut, end.tip, end.angle), 0, 1e-9);
-    close(Math.hypot(end.tip[0] - end.cut[0], end.tip[1] - end.cut[1]), 6);
+    close(offAxis(end.join, end.tip, end.angle), 0, 1e-9);
+    close(Math.hypot(end.tip[0] - end.cut[0], end.tip[1] - end.cut[1]), 12);
+    close(Math.hypot(end.tip[0] - end.join[0], end.tip[1] - end.join[1]), 13);
   }
   // The target tip sits 2px back along the curve from its end.
   close(Math.hypot(edge.target.tip[0] - 100, edge.target.tip[1]), 2, 0.01);
@@ -185,13 +203,17 @@ it("polylineArrowEdge ends the stroke on each head's axis, from the head's base 
   close(edge.source.angle, Math.PI);
   for (const end of [edge.source, edge.target]) {
     close(offAxis(end.cut, end.tip, end.angle), 0, 1e-9);
-    close(Math.hypot(end.tip[0] - end.cut[0], end.tip[1] - end.cut[1]), 6);
+    close(offAxis(end.join, end.tip, end.angle), 0, 1e-9);
+    close(Math.hypot(end.tip[0] - end.cut[0], end.tip[1] - end.cut[1]), 12);
   }
-  // The stroke: source cut, the body between the bases, the target cut.
+  // The stroke: the source's cut and join, the body a pixel past each base,
+  // then the target's join and cut.
   const nums = numbers(edge.d);
   close(nums[0], edge.source.cut[0], 0.01);
-  assert.deepStrictEqual(nums.slice(2, 4), [15, 0]);
-  assert.deepStrictEqual(nums.slice(-4, -2), [96, 0]);
+  close(nums[2], edge.source.join[0], 0.01);
+  assert.deepStrictEqual(nums.slice(4, 6), [16, 0]);
+  assert.deepStrictEqual(nums.slice(-6, -4), [95, 0]);
+  close(nums.at(-4), edge.target.join[0], 0.01);
   close(nums.at(-2), edge.target.cut[0], 0.01);
   close(nums.at(-1), edge.target.cut[1], 0.01);
 });
@@ -224,5 +246,5 @@ it("polylineArrowEdge puts the heads on the first run's start and the last run's
     ends: {source: false, target: true},
   });
   assert.strictEqual(one.source, undefined);
-  assert.match(one.d, /^M0,0L50,0M60,0L90,0L/);
+  assert.strictEqual(one.d, "M0,0L50,0M60,0L89,0L89,0L90,0");
 });

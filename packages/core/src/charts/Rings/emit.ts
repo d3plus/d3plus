@@ -204,12 +204,12 @@ const ringsTrims = (
   });
 
 /**
-    An edge's visible stroke: `d`, cut short inside its arrowheads (see
-    `edgeArrowTrims`). A spline edge or a loop follows its curve up to each
-    head's base, then runs along the head's axis (see `cubicsArrowEdge`); a
-    spline's arrow tips sit on the node's edge, where the curve ends. A
-    straight edge stops at each node's outline (see `straightEdgeD`).
-    `scale` widens the stroke (see `emphasizedArrowEdge`).
+    An edge's visible stroke: `d`, cut short at its arrowheads' bases (see
+    `edgeArrowTrims`). A spline edge or a loop follows its curve to each
+    head's axis, then runs along it (see `cubicsArrowEdge`); a spline's
+    arrow tips sit on the node's edge, where the curve ends. A straight
+    edge stops at each node's outline (see `straightEdgeD`). `scale` widens
+    the stroke (see `emphasizedArrowEdge`).
 */
 export function ringsVisibleD(
   viz: VizInstance,

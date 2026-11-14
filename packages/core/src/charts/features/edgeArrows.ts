@@ -120,15 +120,21 @@ export function arrowSizeFor(
 }
 
 /**
-    How far back from an arrowhead's tip its edge's stroke ends, so the
-    stroke's square (butt) end sits inside the head: the head is `1.2 × d`
-    wide at `d` pixels from its tip, so this is where it is as wide as the
-    stroke, at least halfway along the head and at most its base.
+    How far back from an arrowhead's tip its edge's stroke ends: at the
+    head's base, `size` back, so the stroke and the head never overlap (a
+    link drawn translucent, as hover dims it, would show through the head
+    where they did). A round or square cap reaches half the stroke past the
+    stroke's end, so the stroke ends that much sooner.
+    @param linecap The stroke's `strokeLinecap` (`"butt"` when unset).
 */
-export function arrowTrim(size: number, strokeWidth: number): number {
+export function arrowTrim(
+  size: number,
+  strokeWidth: number,
+  linecap?: string,
+): number {
   const s = Number.isFinite(size) ? Math.max(0, size) : 0;
   const sw = Number.isFinite(strokeWidth) ? Math.max(0, strokeWidth) : 0;
-  return Math.min(s, Math.max(s / 2, sw / 1.2));
+  return s + (linecap === "round" || linecap === "square" ? sw / 2 : 0);
 }
 
 /**
@@ -171,7 +177,7 @@ export interface ArrowEdge {
     An edge's visible stroke and arrowheads as `draw` draws them at their
     own stroke width, carrying the geometry hover and active emphasis widen
     them to: each arrowhead grows with the wider stroke and darkens with it,
-    and the stroke ends back inside it, so neither pokes past the other.
+    and the stroke ends at its base, so neither overlaps the other.
     @param draw Draws the edge at `scale` times its stroke width (see
     `scaledStrokeWidth` and `scaledArrowSize`).
 */
@@ -224,6 +230,8 @@ export function edgeArrowTrims(opts: {
   arrows: ArrowValue;
   arrowSize: unknown;
   strokeWidth?: number;
+  /** The stroke's `strokeLinecap` (see `arrowTrim`). */
+  strokeLinecap?: string;
   datum: DataPoint;
   i: number;
 }): EdgeArrowTrims {
@@ -233,7 +241,7 @@ export function edgeArrowTrims(opts: {
     ends.source || ends.target
       ? arrowSizeFor(opts.arrowSize, opts.datum, opts.i, sw)
       : 0;
-  const trim = arrowTrim(size, sw);
+  const trim = arrowTrim(size, sw, opts.strokeLinecap);
   return {
     ends,
     size,
@@ -352,7 +360,7 @@ export type EdgeNode = NodeOutline & {x: number; y: number};
 
 /**
     How far in from each end a straight, center-to-center edge `strokeWidth`
-    wide is cut: at an end with an arrowhead, inside the head, whose tip
+    wide is cut: at an end with an arrowhead, at the head's base, whose tip
     sits a pixel off the node's outline (see `straightArrowTip`); at any
     other end, at the node's outline (see `outlineReach`).
 */
@@ -373,7 +381,7 @@ export function straightEdgeCuts(
 
 /**
     The visible stroke of a straight, center-to-center edge: cut short at
-    each node's outline, or inside its arrowhead (see `straightEdgeCuts`).
+    each node's outline, or at its arrowhead's base (see `straightEdgeCuts`).
     The full center-to-center path stays the edge's hit area.
 */
 export function straightEdgeD(

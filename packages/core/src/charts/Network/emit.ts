@@ -87,9 +87,9 @@ interface NetworkCtx {
 /**
     A link's visible stroke and arrowheads (straight, center-to-center,
     along its loop, or along its bundle), drawn `scale` times as wide (see
-    `emphasizedArrowEdge`): cut short at each node's outline, or inside its
-    arrowheads (see `edgeArrowTrims`) so the line doesn't show past their
-    sides.
+    `emphasizedArrowEdge`): cut short at each node's outline, or at its
+    arrowheads' bases (see `edgeArrowTrims`), so the line doesn't overlap
+    them.
 */
 function networkLinkEdge(
   viz: VizInstance,
