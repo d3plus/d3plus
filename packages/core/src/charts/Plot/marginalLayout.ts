@@ -12,6 +12,7 @@ import {
   type MarginalAxes,
   type MarginalScale,
 } from "./marginalStats.js";
+import type {MarginalConfig} from "../../utils/D3plusConfig.js";
 import {vizDiscrete} from "../viz/discrete.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -22,16 +23,6 @@ export const MARGINAL_MIN = 16;
 export const MARGINAL_MAX = 120;
 /** The default gap between a strip and the plot (or its x2/y2 axis), in pixels. */
 export const MARGINAL_PADDING = 8;
-
-/** The `marginalConfig` options. */
-export interface MarginalConfig {
-  /** A strip's thickness: pixels, or a share (up to 1) of the chart area's shorter side. */
-  size?: number;
-  /** The gap between a strip and the plot, in pixels. */
-  padding?: number;
-  /** A histogram strip's bins: a count, interior edges, or a d3-array threshold generator. */
-  binThresholds?: unknown;
-}
 
 /** The marginal strips a Plot draws this render, and the room they take. */
 export interface MarginalLayout {

@@ -127,7 +127,10 @@ export function handleMarginalHover(
     )
     .title(() => marginalTitle(viz, mark));
   const shape = mark.kind === "density" ? "Area" : "Rect";
-  leadTitleWithSwatch(tip, tooltipSwatch(mark.series.color, shape))
+  leadTitleWithSwatch(
+    tip,
+    tooltipSwatch(mark.swatch ?? mark.series.color, shape),
+  )
     .thead([])
     .tbody(
       marginalTooltipRows(

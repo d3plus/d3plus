@@ -485,7 +485,6 @@ export {
 } from "./src/charts/Plot/marginalLayout.js";
 export type {
   MarginalBand,
-  MarginalConfig,
   MarginalLayout,
 } from "./src/charts/Plot/marginalLayout.js";
 export {
@@ -493,7 +492,19 @@ export {
   marginalSeries,
 } from "./src/charts/Plot/marginalSeries.js";
 export type {MarginalSeries} from "./src/charts/Plot/marginalSeries.js";
-export {emitMarginals} from "./src/charts/Plot/marginalScene.js";
+export {
+  emitMarginals,
+  polygon as marginalPolygon,
+} from "./src/charts/Plot/marginalScene.js";
+export {
+  marginalPaintDefaults,
+  marginalPaintLayers,
+  resolveMarginalPaint,
+} from "./src/charts/Plot/marginalPaint.js";
+export type {
+  MarginalBoxPart,
+  MarginalRole,
+} from "./src/charts/Plot/marginalPaint.js";
 export type {
   MarginalFrame,
   MarginalMark,

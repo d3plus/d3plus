@@ -16,7 +16,13 @@ import type {Paint, SceneNode} from "@d3plus/render";
 import type {PlotAxisFn, PlotDatum} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {marginalBands, type MarginalBand} from "./marginalLayout.js";
-import type {MarginalConfig} from "./marginalLayout.js";
+import type {MarginalConfig} from "../../utils/D3plusConfig.js";
+import {
+  marginalPaintLayers,
+  resolveMarginalPaint,
+  type MarginalBoxPart,
+  type MarginalRole,
+} from "./marginalPaint.js";
 import {marginalSeries, type MarginalSeries} from "./marginalSeries.js";
 import {
   binMarginal,
@@ -49,6 +55,8 @@ export interface MarginalMark {
   /** A box's outlier: the one point it draws. */
   outlier?: MarginalObservation;
   curve?: MarginalCurve;
+  /** The color its tooltip's swatch shows: its fill, or a line's stroke. */
+  swatch?: string;
 }
 
 /** A marginal mark's scene node. */
@@ -62,6 +70,30 @@ interface Strip {
   /** A marginal-space value's pixel position along the strip. */
   along: (value: number) => number;
   series: Map<string, MarginalSeries>;
+  config: MarginalConfig;
+}
+
+/**
+    A mark's paint (and an outlier dot's radius) from `marginalConfig` (see
+    `resolveMarginalPaint`), its accessors given the mark and its series'
+    index in the strip.
+*/
+function paintOf(
+  strip: Strip,
+  mark: MarginalMark,
+  role: MarginalRole,
+  part?: MarginalBoxPart,
+): {paint: Paint; r?: number} {
+  const i = [...strip.series.keys()].indexOf(mark.series.key);
+  const layers = marginalPaintLayers(strip.config, mark.kind, part);
+  return resolveMarginalPaint(layers, role, mark, i);
+}
+
+/** Notes the color a mark's tooltip swatch shows. */
+function swatch(mark: MarginalMark, paint: Paint): Paint {
+  const fill = paint.fill && paint.fill !== "none" ? paint.fill : undefined;
+  mark.swatch = fill ?? paint.stroke ?? mark.series.color;
+  return paint;
 }
 
 /** The pixel position `share` (0–1) of the way out from the strip's inner edge. */
@@ -126,20 +158,21 @@ function histogramNodes(
       a1 = strip.along(bin.x1);
     const lo = Math.min(a0, a1) + MARGINAL_BIN_GAP / 2,
       hi = Math.max(a0, a1) - MARGINAL_BIN_GAP / 2;
-    const node = rectNode(
-      strip,
-      `marginal-${strip.axis}-bin-${series.key}-${bin.x0}`,
-      [lo, Math.max(lo, hi)],
-      [across(strip, bin.y0 / max), across(strip, (bin.y0 + bin.count) / max)],
-      {fill: series.color},
-    );
-    return stamp(node, {
+    const mark: MarginalMark = {
       axis: strip.axis,
       kind: "histogram",
       series,
       rows: bin.rows,
       bin,
-    });
+    };
+    const node = rectNode(
+      strip,
+      `marginal-${strip.axis}-bin-${series.key}-${bin.x0}`,
+      [lo, Math.max(lo, hi)],
+      [across(strip, bin.y0 / max), across(strip, (bin.y0 + bin.count) / max)],
+      swatch(mark, paintOf(strip, mark, "shape").paint),
+    );
+    return stamp(node, mark);
   });
 }
 
@@ -164,15 +197,21 @@ function boxNodes(
     const center = across(strip, lane * (k + 0.5));
     const half = thickness / 2;
     const key = `marginal-${strip.axis}-box-${series.key}`;
-    const stroke = {stroke: series.color, strokeWidth: 1};
-    const linePaint = {fill: "none", ...stroke};
-    const line = (id: string, a0: number, a1: number, c0: number, c1: number) =>
+    const whisker = paintOf(strip, mark, "line", "whisker").paint;
+    const line = (
+      id: string,
+      a0: number,
+      a1: number,
+      c0: number,
+      c1: number,
+      paint = whisker,
+    ) =>
       stamp(
         {
           type: "line",
           key: `${key}-${id}`,
           points: [xy(strip, a0, c0), xy(strip, a1, c1)],
-          paint: linePaint,
+          paint,
         } as SceneNode,
         mark,
       );
@@ -200,7 +239,7 @@ function boxNodes(
           `${key}-rect`,
           [at(box.first), at(box.third)],
           [center - half, center + half],
-          {fill: series.color, fillOpacity: 0.35, ...stroke},
+          swatch(mark, paintOf(strip, mark, "shape").paint),
         ),
         mark,
       ),
@@ -210,20 +249,23 @@ function boxNodes(
         at(box.median),
         center - half,
         center + half,
+        paintOf(strip, mark, "line", "median").paint,
       ),
     ];
     box.outliers.forEach((o, j) => {
       const [cx, cy] = xy(strip, at(o.value), center);
+      const dot: MarginalMark = {...mark, rows: [o.row], outlier: o};
+      const {paint, r = 2} = paintOf(strip, dot, "shape", "outlier");
       const node = stamp(
         {
           type: "circle",
           key: `${key}-outlier-${j}`,
           cx,
           cy,
-          r: 2,
-          paint: {fill: series.color},
+          r,
+          paint: swatch(dot, paint),
         } as SceneNode,
-        {...mark, rows: [o.row], outlier: o},
+        dot,
       );
       node.interactionPoints!.forEach(p => ((p.x = cx), (p.y = cy)));
       nodes.push(node);
@@ -280,7 +322,7 @@ function densityNodes(
           d: polygon(topline, baseline),
           // It grows out of the strip's inner edge.
           enterD: polygon(baseline, baseline),
-          paint: {fill: series.color, fillOpacity: 0.3},
+          paint: swatch(mark, paintOf(strip, mark, "fill").paint),
         } as SceneNode,
         mark,
       ),
@@ -289,7 +331,7 @@ function densityNodes(
           type: "line",
           key: `${key}-line`,
           points: topline,
-          paint: {fill: "none", stroke: series.color, strokeWidth: 1.5},
+          paint: paintOf(strip, mark, "line").paint,
         } as SceneNode,
         mark,
       ),
@@ -340,6 +382,7 @@ export function emitMarginals(
       size: layout.size,
       along: v => position(scale.from(v)),
       series: byKey,
+      config,
     };
     const domain = domains[axis].map(scale.to) as [number, number];
     const observations = rows.map((d, k) => ({
