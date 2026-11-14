@@ -25,7 +25,5 @@ const config = {
   groupBy: "city",
   x: "month",
   y: "high",
-  lineLabels: true,
-  legend: false,
   levelFormat: d => `${d}°`,
 };

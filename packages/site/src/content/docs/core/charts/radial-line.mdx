@@ -20,7 +20,7 @@ back to its start. To fill the lines, or stack them, use a
 
 ## Basic example
 
-Names such as months are categories: each gets an even share of the circle, in the order they first appear, starting at 12 o'clock and running clockwise. The value rings sit on nice values, and each line closes from December back to January. A dot on every point shows its value on hover and keeps only its month's label bright.
+Names such as months are categories: each gets an even share of the circle, in the order they first appear, starting at 12 o'clock and running clockwise. The value rings sit on nice values, and each line closes from December back to January. A dot on every point shows its value on hover and keeps only its month's label bright. Each line is named where it has room, and once every line is, the names replace the legend (see [Series labels](#series-labels)).
 
 <Playground chart="RadialLine" code={basicExample} controls={["x","y","groupBy","levels"]} />
 
@@ -32,7 +32,7 @@ Numbers spread around the circle by value, over a period that ends where it star
 
 ## Series labels
 
-`lineLabels: true` names each line just outside its outermost point that leaves the label room inside the circle, clear of the dots and the other labels. `levelFormat` formats the ring values and the tooltip values.
+Each line is named just outside its outermost point that leaves its label room inside the circle, clear of the dots, the ring values, and the other labels. When every line is named, the names stand in for the legend, which hides; when a line has no room for its name, the legend stays. `lineLabels: false` turns the names off, and a function of each series' row names only some. `levelFormat` formats the ring values and the tooltip values.
 
 <Playground chart="RadialLine" code={seriesLabels} controls={["lineLabels","levelFormat","levelLabelAngle"]} />
 

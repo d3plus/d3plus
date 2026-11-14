@@ -22,5 +22,4 @@ const config = {
   y: "kwh",
   xDomain: [0, 24],
   stacked: true,
-  lineLabels: true,
 };
