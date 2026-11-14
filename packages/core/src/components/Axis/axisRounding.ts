@@ -166,7 +166,7 @@ export function roundedDomain(
     any: "min" when `d` is the lowest of the `values` the axis labels and
     the `domain` reaches down to it, "max" when it is the highest and the
     domain reaches up to it. A value beyond the domain has nothing past it,
-    so it is not open-ended.
+    so it is not open-ended, and neither is a domain of a single value.
 */
 export function openEnd(
   d: unknown,
@@ -176,7 +176,7 @@ export function openEnd(
   const value = Number(d);
   const [low, high] = extent(values, Number);
   const [from, to] = extent(domain, Number);
-  if (low === undefined || from === undefined) return undefined;
+  if (low === undefined || from === undefined || from === to) return undefined;
   if (value === low && from <= low) return "min";
   if (value === high && to >= high) return "max";
   return undefined;

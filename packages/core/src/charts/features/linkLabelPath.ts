@@ -8,7 +8,7 @@
 
 import {samplePath} from "@d3plus/render";
 
-import {curvature} from "../Plot/lineLabelsAlong.js";
+import {curvature, holdsBends} from "./pathLabelBends.js";
 import {
   offsetPolyline,
   polylineLength,
@@ -83,43 +83,6 @@ export function distanceAlong(points: Pt[], p: Pt): number {
 }
 
 /**
-    The most a polyline turns along any `span` pixels of it, in radians: a
-    circle of radius `r` turns `span / r`.
-    @param points The polyline.
-    @param span The length of the stretches measured.
-*/
-export function sharpestTurn(points: Pt[], span: number): number {
-  const at: number[] = [];
-  const turns: number[] = [];
-  let walked = 0;
-  let prev: number | null = null;
-  for (let k = 1; k < points.length; k++) {
-    const dx = points[k][0] - points[k - 1][0],
-      dy = points[k][1] - points[k - 1][1];
-    const len = Math.hypot(dx, dy);
-    if (!len) continue;
-    const angle = Math.atan2(dy, dx);
-    if (prev !== null) {
-      let turn = Math.abs(angle - prev);
-      if (turn > Math.PI) turn = 2 * Math.PI - turn;
-      at.push(walked);
-      turns.push(turn);
-    }
-    prev = angle;
-    walked += len;
-  }
-  let best = 0;
-  let sum = 0;
-  let lo = 0;
-  for (let hi = 0; hi < turns.length; hi++) {
-    sum += turns[hi];
-    while (at[hi] - at[lo] > span) sum -= turns[lo++];
-    best = Math.max(best, sum);
-  }
-  return best;
-}
-
-/**
     The stretch of a polyline a label covers: `length` pixels long (or the
     whole polyline when it is shorter), centered `at` pixels along it as
     near as its ends allow, and shortened until it turns no more than
@@ -144,12 +107,8 @@ export function labelStretch(
   for (;;) {
     const mid = Math.max(len / 2, Math.min(total - len / 2, at));
     const stretch = trimPolyline(points, mid - len / 2, mid + len / 2);
-    // Over a span as long as the radius (or the whole stretch, when it is
-    // shorter), a bend that tight turns span / radius, and a vertex's worth more.
-    const span = Math.min(minRadius, polylineLength(stretch));
     const smooth =
-      curvature(stretch) <= maxTurn &&
-      (!minRadius || sharpestTurn(stretch, span) <= (span + 2) / minRadius);
+      curvature(stretch) <= maxTurn && holdsBends(stretch, minRadius);
     if (len < 1 || smooth) return uprightPoints(stretch);
     len *= 0.9;
   }

@@ -140,7 +140,8 @@ export const hexbinDef: ChartDefinition = {
         `fillOpacity`, the opacity of the highest `"filled"` level (default
         0.8); `labels`, which writes each level's value along its contour
         (default `true`); `labelConfig`, TextBox config for those labels
-        (`fontSize` defaults to 10); `labelSpacing`, the least distance
+        (`fontSize` defaults to 10), whose `minRadius` sets the tightest a
+        label may bend toward its text, in ems (default 4); `labelSpacing`, the least distance
         between two labels along a line, in pixels (default `"auto"`); and
         `labelStep`, which labels every n-th level (default `"auto"`: all of
         up to five levels, else every other one).

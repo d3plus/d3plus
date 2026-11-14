@@ -6,8 +6,11 @@ import {
   uprightPoints,
 } from "../../src/charts/features/pathLabelGeometry.ts";
 import {
-  bestStretchAt,
   curvature,
+  textFollows,
+} from "../../src/charts/features/pathLabelBends.ts";
+import {
+  bestStretchAt,
   labelBand,
   PointGrid,
   resample,
@@ -122,6 +125,7 @@ function refBestStretchAt(pieces, length, ctx, allow) {
         ctx.steep,
       );
       if (curvature(stretch) > maxTurn) continue;
+      if (!textFollows(refOffset(stretch, ctx.lift), ctx.fontSize)) continue;
       const score = refScore(stretch, ctx);
       if (score !== null && score < bestScore) {
         bestScore = score;

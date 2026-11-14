@@ -13,6 +13,7 @@ import connectedPoints from "~/examples/core/charts/scatter/connected-points.js?
 import jitter from "~/examples/core/charts/scatter/jitter.js?raw";
 import errorBars from "~/examples/core/charts/scatter/error-bars.js?raw";
 import errorBarsBothAxes from "~/examples/core/charts/scatter/error-bars-both-axes.js?raw";
+import logAxes from "~/examples/core/charts/scatter/log-axes.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
 its `x` and `y` values, on continuous axes (set `discrete` to place points
@@ -68,5 +69,11 @@ On a category axis (`discrete: "x"`), points that share a category and a value w
 Give `confidence` an object, `{x: [lower, upper], y: [lower, upper]}`, to bound each axis: a point with both draws a cross. Each axis widens for its own bounds, and the tooltip lists both, named for their axes. Style the bars with `confidenceConfig` (or `confidenceConfig.Circle` for points alone), and `capWidth` for the caps, which match each point's width by default.
 
 <Playground chart="Scatter" code={errorBarsBothAxes} controls={["confidence","confidenceConfig"]} />
+
+## Log axes
+
+Body and brain masses span several orders of magnitude, so both axes are `scale: "log"`. A log axis draws short, unlabeled minor ticks at 2 through 9 times each power of ten (thinned to 2 and 5, or left off, where they would crowd), and `minorGrid: true` runs fainter grid lines from them across the plot (`minorGridConfig` styles them). `minorTicks: false` turns the minor ticks off.
+
+<Playground chart="Scatter" code={logAxes} controls={["xConfig","yConfig"]} />
 
 <ApiReference name="Scatter" pkg="core" />

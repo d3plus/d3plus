@@ -1,8 +1,10 @@
 /**
     Line labels along their lines (`lineLabels: "along"`): each series' name
     runs along its own line, following its curve, on the stretch a scored
-    search finds flattest and clearest of the other lines and labels. The
-    text reads upright, and a series with no clear stretch goes unlabeled.
+    search finds flattest and clearest of the other lines and labels, no
+    steeper than 45° and bending gently enough for its letters to follow.
+    The text reads upright, and a series with no such stretch goes
+    unlabeled.
 */
 import {fontExists, textWidth} from "@d3plus/dom";
 import {fontFamily as defaultFontFamily} from "@d3plus/text";
@@ -18,9 +20,35 @@ import {
   uprightPoints,
 } from "../features/pathLabelGeometry.js";
 import type {Edges, Pt} from "../features/pathLabelGeometry.js";
+import {
+  curvature,
+  labelMinRadius,
+  PATH_LABEL_SMOOTHING,
+  smoothPolyline,
+  stretchSlope,
+  textFollows,
+} from "../features/pathLabelBends.js";
 import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import type {LineLabelConfig} from "./lineLabelSides.js";
 import {rowLabelsAlong} from "./lineLabelSides.js";
+
+/** The steepest stretch a line's label runs along by default, in degrees: past 45°, it would read more up than across. */
+export const LINE_LABEL_MAX_SLOPE = 45;
+
+/**
+    Reads `lineLabelConfig.maxSlope` (in degrees) as the radians a stretch
+    may climb or fall: undefined, for no limit, at 90° or more, and
+    `LINE_LABEL_MAX_SLOPE` when it is missing or not a positive number.
+    @param value The configured `maxSlope`.
+*/
+export function lineLabelMaxSlope(value: unknown): number | undefined {
+  const degrees =
+    typeof value === "number" && value > 0 && !Number.isNaN(value)
+      ? value
+      : LINE_LABEL_MAX_SLOPE;
+  return degrees >= 90 ? undefined : (degrees * Math.PI) / 180;
+}
 
 /**
     Obstacle points, bucketed by cell for nearest-distance lookups. Each
@@ -95,28 +123,6 @@ export function resample(points: Pt[], step: number): Pt[] {
   return out;
 }
 
-/**
-    How much a stretch bends: the sum of its turns, in radians.
-    @param points The stretch.
-*/
-export function curvature(points: Pt[]): number {
-  let total = 0;
-  let prev: number | null = null;
-  for (let i = 1; i < points.length; i++) {
-    const dx = points[i][0] - points[i - 1][0],
-      dy = points[i][1] - points[i - 1][1];
-    if (!dx && !dy) continue;
-    const angle = Math.atan2(dy, dx);
-    if (prev !== null) {
-      let turn = Math.abs(angle - prev);
-      if (turn > Math.PI) turn = 2 * Math.PI - turn;
-      total += turn;
-    }
-    prev = angle;
-  }
-  return total;
-}
-
 /** What scoring a stretch needs. */
 export interface StretchContext {
   grid: PointGrid;
@@ -136,6 +142,10 @@ export interface StretchContext {
   ignore?: number;
   /** The most a stretch may turn in all, in radians (default a right angle). */
   maxTurn?: number;
+  /** The tightest its text's baseline may bend toward the text, in ems (see `bendStrain`). Defaults to `PATH_LABEL_INNER_RADIUS`. */
+  minRadius?: number;
+  /** The steepest a stretch may climb or fall from end to end, in radians (see `stretchSlope`). No limit by default. */
+  maxSlope?: number;
 }
 
 /**
@@ -195,7 +205,12 @@ export interface StretchSpot {
 /**
     The best-scoring stretch of `length` pixels along any of a line's
     pieces, upright, with where it lies, or null when every stretch is
-    blocked or too bent.
+    blocked, too steep, or too bent: climbing or falling more steeply than
+    `maxSlope`, turning more than `maxTurn` in all, or with its text's
+    baseline bending tighter than `minRadius` allows (see `textFollows`).
+    Pass the
+    pieces through `smoothPolyline` first, so kinks shorter than a letter
+    don't rule a stretch out.
     @param pieces The line's pieces (where its data has gaps), in pixels.
     @param length The stretch's length.
     @param ctx The obstacles, plot area, and font.
@@ -218,6 +233,10 @@ export function bestStretchAt(
       const stretch = uprightPoints(ruler.trim(from, from + length), ctx.steep);
       // A label can't follow a line that doubles back under it.
       if (curvature(stretch) > maxTurn) continue;
+      if (ctx.maxSlope !== undefined && stretchSlope(stretch) > ctx.maxSlope)
+        continue;
+      const baseline = offsetPolyline(stretch, ctx.lift);
+      if (!textFollows(baseline, ctx.fontSize, ctx.minRadius)) continue;
       const score = scoreStretch(stretch, ctx);
       if (score !== null && score < bestScore) {
         bestScore = score;
@@ -337,7 +356,15 @@ export function emitAlongLabels(
   const grid = new PointGrid(fontSize);
   for (const line of lines)
     for (const piece of line.pieces) grid.add(resample(piece, 2));
-  const ctx: StretchContext = {grid, rect, fontSize, lift: 3.5};
+  const config = viz.schema.lineLabelConfig as LineLabelConfig | undefined;
+  const ctx: StretchContext = {
+    grid,
+    rect,
+    fontSize,
+    lift: 3.5,
+    minRadius: labelMinRadius(config?.minRadius),
+    maxSlope: lineLabelMaxSlope(config?.maxSlope),
+  };
   // A series drawn as several lines (observed and predicted, say) is named
   // once: its later lines count as named when an earlier one was.
   const named = new Set<string>();
@@ -348,7 +375,10 @@ export function emitAlongLabels(
       return [];
     }
     const length = (textWidth(text, style) as number) + fontSize;
-    const stretch = bestStretch(line.pieces, length, ctx);
+    const pieces = line.pieces.map(piece =>
+      smoothPolyline(piece, PATH_LABEL_SMOOTHING * fontSize),
+    );
+    const stretch = bestStretch(pieces, length, ctx);
     if (!stretch) return [];
     grid.add(labelBand(stretch, ctx));
     named.add(text);

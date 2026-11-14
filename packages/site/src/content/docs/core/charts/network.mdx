@@ -20,6 +20,9 @@ import selfLoops from "~/examples/core/charts/network/self-loops.js?raw";
 import edgeBundling from "~/examples/core/charts/network/edge-bundling.js?raw";
 import clusters from "~/examples/core/charts/network/clusters.js?raw";
 import clusterNames from "~/examples/core/charts/network/cluster-names.js?raw";
+import circleLayout from "~/examples/core/charts/network/circle-layout.js?raw";
+import circleNodeSort from "~/examples/core/charts/network/circle-node-sort.js?raw";
+import circleLinkBow from "~/examples/core/charts/network/circle-link-bow.js?raw";
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -34,6 +37,20 @@ Each node supplies its own `x`/`y` coordinates, so d3plus places nodes exactly r
 Omitting `x`/`y` from the nodes lets a force simulation position them automatically—reach for this when connections matter but there's no meaningful spatial layout.
 
 <Playground chart="Network" code={forceDirectedLayout} controls={["nodes","links"]} />
+
+## Circle layout
+
+`layout: "circle"` spaces the nodes evenly around a circle instead of placing them by force. They go in order of their cluster (or their top-level `groupBy` group), largest first, and within it most connected first, so the links inside a cluster stay short. Links bow in toward the center (see `linkBow`), and each node's label runs outward along its spoke past the circle, flipped on the left half to read left to right. A node's loops point outward, its label past them. Arrows, link labels, tooltips, click focus, and `linkBundle` all work as they do in the force layout.
+
+<Playground chart="Network" code={circleLayout} controls={["layout","linkBow","cluster","linkBundle"]} height={560} />
+
+`linkBow` sets how far the links bow in, from `0` (straight lines) to `1`, where each link curves through the center's pull as a chord diagram's do. The default, `0.5`, keeps links between neighbors near the rim and lets long ones cross the middle; here it is `1`.
+
+<Playground chart="Network" code={circleLinkBow} controls={["linkBow"]} height={560} />
+
+`nodeSort` sets another order: `"label"`, `"degree"`, `"group"`, `"data"` (the order of `nodes`), or a comparator of two node rows. Here the nodes go alphabetically, so the teams mix and their links cross the circle.
+
+<Playground chart="Network" code={circleNodeSort} controls={["nodeSort","layout"]} height={520} />
 
 ## Clusters
 

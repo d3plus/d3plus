@@ -42,6 +42,7 @@ export {
   Radar,
   RadialBar,
   RadialMatrix,
+  RadialTree,
   Ridgeline,
   Rings,
   Sankey,
