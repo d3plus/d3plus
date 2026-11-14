@@ -222,6 +222,24 @@ export function divergingThresholds(
 }
 
 /**
+    The values a diverging quantile scale's buckets start at: the quantiles
+    splitting the `values` below the `midpoint` into `perSide` buckets, then
+    those splitting the values at or above it into `perSide` more. Each side
+    counts the `midpoint` as one of its values, so its buckets reach it.
+*/
+export function divergingQuantiles(
+  values: number[],
+  midpoint: number,
+  perSide: number,
+): number[] {
+  const side = (sideValues: number[]): number[] =>
+    range(perSide).map((i: number) => quantile(sideValues, i / perSide)!);
+  const below = values.filter((d: number) => d < midpoint).concat(midpoint);
+  const above = [midpoint].concat(values.filter((d: number) => d >= midpoint));
+  return side(below).concat(side(above));
+}
+
+/**
     The values a centered color array's stops sit at: `below` evenly spaced
     from `low` up to the `midpoint`, the `midpoint` itself, then `above` evenly
     spaced from the `midpoint` up to `high`, one per color.
@@ -281,7 +299,10 @@ function resolveDivergingLinear(
   const colors = negativeColors.concat(spanningColors).concat(positiveColors);
   if (!buckets) {
     const [low, high] = domain as number[];
-    buckets = divergingThresholds(low, cs.schema.midpoint, high, half);
+    buckets =
+      scale === "quantile"
+        ? divergingQuantiles(ctx.allValues, cs.schema.midpoint, half)
+        : divergingThresholds(low, cs.schema.midpoint, high, half);
     // A centered scale also stops at the domain's top; an even threshold
     // scale's last bucket runs on from its last threshold.
     if (centered) buckets.push(high);

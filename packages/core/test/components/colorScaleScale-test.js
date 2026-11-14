@@ -5,6 +5,7 @@ import {ColorScale} from "../../index.ts";
 import {
   centeredStops,
   colorScaleBucketCount,
+  divergingQuantiles,
   divergingThresholds,
   mergeLogStops,
 } from "../../src/components/ColorScale/colorScaleScale.ts";
@@ -246,7 +247,13 @@ it("buckets / quantile — an even count splits each side of the midpoint evenly
     ]) {
       const label = `${scale} ${count} over ${values} (midpoint ${midpoint})`;
       const cs = solve(values, {scale, buckets: count, midpoint});
-      assert.deepStrictEqual(cs._colorScale.domain(), thresholds, label);
+      assert.deepStrictEqual(
+        cs._colorScale.domain(),
+        scale === "quantile"
+          ? divergingQuantiles(values, midpoint, count / 2)
+          : thresholds,
+        label,
+      );
       const below = values.filter(v => v < midpoint);
       const above = values.filter(v => v >= midpoint);
       const colorsBelow = new Set(below.map(v => colorOf(cs, v)));
@@ -427,4 +434,50 @@ it("mergeLogStops — stops on one value keep the color farthest from the midpoi
     {stops: [1, 1], colors: ["a", "b"]},
     "a single value keeps both stops",
   );
+});
+
+const longTails = [-100, -4, -3, -2, -1, 1, 2, 3, 4, 100];
+
+it("quantile — a diverging scale splits each side at its values' quantiles", () => {
+  for (const [buckets, thresholds] of [
+    [5, [-100, -2.5, 0, 2.5, 100]],
+    [4, [-100, -2.5, 0, 2.5]],
+  ]) {
+    const cs = solve(longTails, {scale: "quantile", buckets});
+    const label = `${buckets} → ${cs._colorScale.domain()}`;
+    assert.deepStrictEqual(cs._colorScale.domain(), thresholds, label);
+    const below = longTails.filter(v => v < 0).map(v => colorOf(cs, v));
+    const counts = [...new Set(below)].map(c => below.filter(d => d === c));
+    assert.deepStrictEqual(
+      counts.map(d => d.length),
+      [3, 2],
+      `${label}: the negative values split evenly`,
+    );
+    assert.ok(reddish(colorOf(cs, -100)), `${label}: low pole`);
+    assert.ok(bluish(colorOf(cs, 100)), `${label}: high pole`);
+  }
+});
+
+it("divergingQuantiles — each side splits its own values, up to the midpoint", () => {
+  assert.deepStrictEqual(divergingQuantiles(longTails, 0, 1), [-100, 0]);
+  assert.deepStrictEqual(
+    divergingQuantiles(longTails, 0, 2),
+    [-100, -2.5, 0, 2.5],
+  );
+  assert.deepStrictEqual(
+    divergingQuantiles([-9, -1, 0, 1, 3, 4, 5, 9], 0, 2),
+    [-9, -1, 0, 3],
+    "the midpoint counts as a positive value",
+  );
+  assert.deepStrictEqual(
+    divergingQuantiles([-4, 1, 2, 3, 9], 2, 2),
+    [-4, 1, 2, 2.5],
+    "a midpoint of 2",
+  );
+  assert.deepStrictEqual(
+    divergingQuantiles([-5, 1, 2, 3, 4, 5], 0, 2),
+    [-5, -2.5, 0, 2.5],
+    "one value below the midpoint",
+  );
+  assert.deepStrictEqual(divergingQuantiles([-1, 1], 0, 0), [], "no buckets");
 });

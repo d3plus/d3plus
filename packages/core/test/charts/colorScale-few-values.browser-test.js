@@ -299,9 +299,12 @@ for (const renderer of ["svg", "canvas"])
       } else {
         const step = 9 / (count / 2);
         const sides = Array.from({length: count / 2}, (_, i) => i * step);
+        // A quantile scale splits each side at its values' quantiles.
         assert.deepStrictEqual(
           out.domain,
-          sides.map(d => d - 9).concat(sides),
+          out.scaleType === "quantile"
+            ? [-9, -3.5, 0, 3.5]
+            : sides.map(d => d - 9).concat(sides),
           "thresholds split each side evenly",
         );
         assert.strictEqual(new Set(below).size, count / 2, "buckets below");
