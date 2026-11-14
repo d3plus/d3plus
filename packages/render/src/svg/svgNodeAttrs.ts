@@ -1,9 +1,8 @@
-import {interpolatePath} from "d3-interpolate-path";
 import {select, type Selection} from "d3-selection";
 import type {Transition} from "d3-transition";
 
-import {arcPath, lerpArc} from "../animate/interpolate.js";
-import {areaPath, linePath} from "../paths.js";
+import {arcPath, isWrapperGroup, lerpArc} from "../animate/interpolate.js";
+import {areaPath, interpolatePathD, linePath} from "../paths.js";
 import {textVisualCenter} from "../scene.js";
 import {lineLeft} from "../textAlign.js";
 import type {
@@ -339,11 +338,42 @@ function applyTextPath(el: Element, node: TextNode, href: string): void {
     .text((r: TextRun) => r.text);
 }
 
-/** Applies paint attributes to a selection or transition. */
+/**
+    Tweens an element's `opacity` to `to`, an unset opacity counting as
+    fully opaque, as the Canvas backend draws it: a node with no opacity of
+    its own fades in from its enter start and out to its exit end, where a
+    transition to a removed attribute would snap it at the start. Clears the
+    attribute at the end when `to` is unset.
+    @param tsel The element's transition.
+    @param to The opacity it ends at, or undefined for none of its own.
+*/
+export function tweenOpacity(
+  tsel: SvgTransition,
+  to: number | undefined,
+): void {
+  tsel.tween("opacity", function (this: Element) {
+    const el = this;
+    const own = el.getAttribute("opacity");
+    const start = own === null ? 1 : Number(own);
+    const from = Number.isFinite(start) ? start : 1;
+    const end = to ?? 1;
+    return (t: number) => {
+      if (t >= 1 && to === undefined) el.removeAttribute("opacity");
+      else el.setAttribute("opacity", String(from + (end - from) * t));
+    };
+  });
+}
+
+/**
+    Applies paint attributes to a selection, or to a transition when
+    `animated` (whose opacity fades, see `tweenOpacity`, except a wrapper
+    group's, which shows and hides at once: see `isWrapperGroup`).
+*/
 export function applyPaint(
   target: AttrTarget,
   node: SceneNode,
   resolveFill: (f?: string) => string | null,
+  animated = false,
 ): void {
   const p = node.paint || {};
   target
@@ -358,8 +388,10 @@ export function applyPaint(
     )
     .attr("stroke-linecap", p.strokeLinecap ?? null)
     .attr("vector-effect", p.vectorEffect ?? null)
-    .attr("shape-rendering", p.shapeRendering ?? null)
-    .attr("opacity", p.opacity ?? null);
+    .attr("shape-rendering", p.shapeRendering ?? null);
+  if (animated && !isWrapperGroup(node))
+    tweenOpacity(target as unknown as SvgTransition, p.opacity);
+  else target.attr("opacity", p.opacity ?? null);
 }
 
 /**
@@ -368,11 +400,11 @@ export function applyPaint(
     pattern `SvgRenderer` uses for a text label's previous font size or a
     trailed mark's previous position — is interpolated against it NUMBER BY
     NUMBER (`lerpArc`/`arcPath`, exact radius throughout) instead of
-    interpolating the `d` STRING itself: `interpolatePath`'s generic
+    interpolating the `d` STRING itself: `interpolatePathD`'s generic
     point-resampling has no notion of "arc," and between two differently-
     curved paths (e.g. a zero-width collapsed slice growing into its full
     angular span) it visibly bulges/pinches the radius mid-transition. Falls
-    back to `interpolatePath` when either endpoint has no `arc` (a plain
+    back to `interpolatePathD` when either endpoint has no `arc` (a plain
     path/Area band/Sankey link), or on the very first draw (nothing stashed
     yet to interpolate from).
 */
@@ -396,7 +428,7 @@ export function setPath(
           const lerp = lerpArc(prevArc, arc);
           return (k: number) => arcPath(lerp(k));
         }
-        return interpolatePath(this.getAttribute("d") || d, d);
+        return interpolatePathD(this.getAttribute("d") || d, d);
       },
     );
   else target.attr("d", d);
@@ -450,6 +482,6 @@ export function applyGeometry(
       // loop) which materializes a <clipPath> in <defs>.
       break;
   }
-  applyPaint(target, node, resolveFill);
+  applyPaint(target, node, resolveFill, animated);
   target.attr("transform", transformStr(node));
 }
