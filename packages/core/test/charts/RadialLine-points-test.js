@@ -9,7 +9,10 @@ import {
   registerRadialPoint,
 } from "../../src/charts/RadialLine/points.ts";
 import {radialPaint} from "../../src/charts/RadialLine/emit.ts";
-import {radialLabelsSeries} from "../../src/charts/RadialLine/seriesLabelNodes.ts";
+import {
+  radialLabelsPossible,
+  radialLabelsSeries,
+} from "../../src/charts/RadialLine/seriesLabelNodes.ts";
 
 /** The slice of a chart the dot helpers read. */
 const fakeViz = (on = {}) => ({
@@ -199,4 +202,21 @@ it("radialLabelsSeries reads lineLabels as a flag or a function of the series", 
   const pick = d => d.id === "A";
   assert.strictEqual(radialLabelsSeries(pick, {id: "A"}, 0), true);
   assert.strictEqual(radialLabelsSeries(pick, {id: "B"}, 1), false);
+});
+
+it("radialLabelsPossible lets the legend stand aside unless lineLabels is off", () => {
+  assert.strictEqual(radialLabelsPossible({schema: {lineLabels: true}}), true);
+  assert.strictEqual(
+    radialLabelsPossible({schema: {lineLabels: d => d}}),
+    true,
+  );
+  assert.strictEqual(
+    radialLabelsPossible({schema: {lineLabels: false}}),
+    false,
+  );
+  assert.strictEqual(
+    radialLabelsPossible({schema: {lineLabels: "false"}}),
+    false,
+  );
+  assert.strictEqual(radialLabelsPossible({schema: {}}), false);
 });

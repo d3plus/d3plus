@@ -8,6 +8,7 @@ import {
   radialInsideCandidates,
   radialOutsideCandidates,
   radialSeriesLabels,
+  radialTextBoxes,
 } from "../../src/charts/RadialLine/seriesLabels.ts";
 import {
   radialClockwise,
@@ -171,4 +172,38 @@ it("radialDomainOf fits the radius to each value, or each stack's top", () => {
   viz.ctx.radialMark = "area";
   viz.schema.stacked = true;
   assert.deepStrictEqual(radialDomainOf(viz, rows), [2, 5, 5, 5]);
+});
+
+it("radialSeriesLabels keeps every label clear of the boxes it must avoid", () => {
+  const a = {points: points(0, [10, 50, 30, 20]), width: 20, height: 10};
+  const [free] = radialSeriesLabels([a], false);
+  const [moved] = radialSeriesLabels([a], false, {avoid: [free]});
+  assert.notDeepStrictEqual(moved, free, "it moves off the avoided box");
+  close(moved.x, -10, "to its next point, at 6 o'clock");
+  close(moved.y, 30 + RADIAL_SERIES_LABEL_PADDING);
+});
+
+it("radialTextBoxes boxes each text node by its anchor, width and font size", () => {
+  const text = (x, y, width, anchor) => ({
+    type: "text",
+    transform: {x, y},
+    lines: [{text: "t", width}],
+    font: {size: 10, anchor},
+  });
+  const boxes = radialTextBoxes([
+    {
+      type: "group",
+      children: [text(0, 0, 20, "start"), text(50, 10, 20, "middle")],
+    },
+    text(100, 20, 30, "end"),
+    {type: "circle"},
+  ]);
+  assert.deepStrictEqual(boxes, [
+    {x: 0, y: -5, width: 20, height: 10},
+    {x: 40, y: 5, width: 20, height: 10},
+    {x: 70, y: 15, width: 30, height: 10},
+  ]);
+  assert.deepStrictEqual(radialTextBoxes([{type: "text"}]), [
+    {x: 0, y: 0, width: 0, height: 0},
+  ]);
 });
