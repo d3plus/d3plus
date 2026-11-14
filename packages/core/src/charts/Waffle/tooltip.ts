@@ -41,12 +41,20 @@ export function waffleShare(viz: VizInstance, x: Row): number | null {
     : shareOfRows(row, viz._legendData || [], d => sum(d as DataPoint, 0));
 }
 
-/** The `[label, value]` tooltip rows: the summed value, then its share. */
-export function waffleTooltipRows(viz: VizInstance): [() => string, Cell][] {
+/**
+    The `[label, value]` tooltip rows: the summed value, then its share.
+    @param viz The chart.
+    @param valueLabel The value row's label, translated ("Seats" for
+    Parliament).
+*/
+export function waffleTooltipRows(
+  viz: VizInstance,
+  valueLabel = "Value",
+): [() => string, Cell][] {
   const locale = () => viz.schema.locale as string;
   return [
     [
-      () => viz.schema.translate("Value"),
+      () => viz.schema.translate(valueLabel),
       (d, i, x) => {
         if (x && x._isColorScaleBucket) return "";
         const sum = viz.schema.sum as (d: DataPoint, i: number) => number;

@@ -1,13 +1,17 @@
 /**
     Waffle — a grid of unit cells (10 × 10 by default, so each cell is 1%)
     filled in order by `groupBy` category, each category getting a number of
-    cells proportional to its value.
+    cells proportional to its value. With `layout: "arc"`, the cells sit on
+    concentric half rings instead (see Parliament).
 
     Implementation files in this folder:
       - `applyLayout.ts` — chart-specific `TransformStage`.
       - `emit.ts` — cell rects/circles and their icons.
       - `waffleLayout.ts` — pure allocation (largest remainder) and grid math.
       - `tooltip.ts` — the "Value" and "Share" tooltip rows.
+      - `arcLayout.ts`, `arcStage.ts`, `arcEmit.ts` — `layout: "arc"`: the
+        rings' math, their fit to the chart area, and the majority line and
+        center label.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -21,6 +25,8 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {thresholdFunction} from "../Treemap/thresholdFunction.js";
 
 import {applyWaffleLayout} from "./applyLayout.js";
+import {arcAspect, isArcLayout} from "./arcStage.js";
+import {centerLabelDefaults} from "../features/centerLabel.js";
 import {waffleEmit} from "./emit.js";
 import {waffleTooltipRows} from "./tooltip.js";
 
@@ -64,8 +70,10 @@ export const waffleDef: DataDrivenChartDefinition = {
       label: (d: DataPoint, i: number) => viz._drawLabel(d, i),
     }),
 
-  // The default 10 × 10 grid is square.
-  facet: {aspect: 1},
+  // The default 10 × 10 grid is square; an arc is as wide as its sweep.
+  facet: {
+    aspect: (viz: VizInstance) => (isArcLayout(viz) ? arcAspect(viz) : 1),
+  },
 
   ctx: {},
 
@@ -83,11 +91,28 @@ export const waffleDef: DataDrivenChartDefinition = {
     */
     {key: "cellShape", default: "square"},
     /**
+        With `layout: "arc"`, text drawn in the arc's empty middle: `true`
+        draws the total of every drawn row's `sum`; a string draws that
+        string; a function receives the drawn rows and their total and
+        returns the text. It wraps and shrinks to fit the hole (see
+        `centerLabelConfig`). Defaults to `false`.
+        @type {boolean | string | function}
+    */
+    {key: "centerLabel", default: false},
+    {key: "centerLabelConfig", merge: true, factory: centerLabelDefaults},
+    /**
         The number of columns in the grid. With `unit`, a row-wise fill keeps
         this many columns and adds rows as needed.
         @type {number}
     */
     {key: "columns", default: 10},
+    /**
+        With `layout: "arc"`, where the arc ends, in degrees clockwise from 12
+        o'clock (as Pie's). Defaults to `90`, so the default arc is a half
+        circle opening downward.
+        @type {number}
+    */
+    {key: "endAngle", default: 90},
     /**
         The order cells fill the grid: `"row"` fills along each row, `"column"`
         down each column.
@@ -108,6 +133,40 @@ export const waffleDef: DataDrivenChartDefinition = {
         @type {string | function}
     */
     {key: "icon"},
+    /**
+        With `layout: "arc"`, the radius of the arc's empty middle: pixels,
+        or a function that receives the outer radius and returns them.
+        Defaults to 40% of the outer radius.
+        @type {number | function}
+    */
+    {key: "innerRadius", default: (outer: number) => outer * 0.4},
+    /**
+        How the cells are placed: `"grid"` (default) fills rows and columns;
+        `"arc"` places them on concentric rings across a half circle (see
+        `startAngle` and `endAngle`), as a parliament chart seats a house,
+        filling them by angle so each category takes a wedge, from the
+        arc's start (the left end) to its end. `fillDirection` and
+        `fillStart` only apply to the grid.
+        @type {"grid" | "arc"}
+    */
+    {key: "layout", default: "grid"},
+    /**
+        With `layout: "arc"`, draws a dashed line across the rings where a
+        majority is reached, labeled with the seats it takes: `true` for
+        more than half of the cells, or a number of cells (such as a
+        two-thirds supermajority). Seats fill from the arc's start, so a
+        block that reaches past the line holds a majority. Defaults to
+        `false`.
+        @type {boolean | number}
+    */
+    {key: "majority", default: false},
+    /**
+        With `layout: "arc"`, the number of rings. By default, the fewest
+        rings that seat every cell about as far apart along each ring as
+        the rings are apart.
+        @type {number}
+    */
+    {key: "rings"},
     /**
         The number of rows in the grid. With `unit` and a column-wise fill,
         the grid keeps this many rows and adds columns as needed.
@@ -132,6 +191,13 @@ export const waffleDef: DataDrivenChartDefinition = {
         }) as SortFn;
       },
     },
+    /**
+        With `layout: "arc"`, where the arc starts, in degrees clockwise from
+        12 o'clock (as Pie's). Defaults to `-90`, the left end of a half
+        circle.
+        @type {number}
+    */
+    {key: "startAngle", default: -90},
     /**
         Accessor function or string key for each category's value. The
         categories get cells in proportion to it, allocated by the
@@ -177,6 +243,8 @@ export const waffleDef: DataDrivenChartDefinition = {
     Draws a grid of unit cells filled in order by category, each category
     getting cells in proportion to its value. By default the grid is 10 × 10,
     so each cell is 1% of the total; set `unit` to make each cell a fixed
-    amount instead. Hover a cell to highlight its whole category.
+    amount instead. Hover a cell to highlight its whole category. With
+    `layout: "arc"`, the cells sit on concentric half rings, as Parliament
+    draws them.
 */
 export default makeChart(waffleDef);

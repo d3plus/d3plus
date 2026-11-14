@@ -1,6 +1,7 @@
 /**
     `applyWaffleLayout` — Waffle's chart-specific layout stage: sorts the
-    categories, allocates their cells, and places every cell in the grid.
+    categories, allocates their cells, and places every cell in the grid, or
+    on concentric rings with `layout: "arc"` (see `arcStage.ts`).
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -16,6 +17,7 @@ import {
   waffleGrid,
 } from "./waffleLayout.js";
 import type {WaffleFillDirection, WaffleFillStart} from "./waffleLayout.js";
+import {isArcLayout, waffleArcLayout, type ArcCellPlace} from "./arcStage.js";
 
 /** One laid-out cell: its category's row and the cell's square in the grid. */
 export interface WaffleCell {
@@ -30,7 +32,9 @@ export interface WaffleCell {
   k: number;
   /** The cell's place within its category. */
   n: number;
+  /** Its grid row, or its ring on an arc (from 0 innermost). */
   row: number;
+  /** Its grid column, or its place on its ring. */
   column: number;
   x: number;
   y: number;
@@ -63,6 +67,7 @@ export function waffleFillOptions(viz: VizInstance): {
 
 export const applyWaffleLayout: TransformStage = ({viz}) => {
   const data = (viz._filteredData ?? []) as DataPoint[];
+  viz.ctx.waffleArc = undefined;
   if (!data.length) return {shapeData: []};
 
   const sumFn = viz.schema.sum as (d: DataPoint, i: number) => number;
@@ -92,14 +97,40 @@ export const applyWaffleLayout: TransformStage = ({viz}) => {
   });
   const counts = waffleCounts(values, {cells: size.rows * size.columns, unit});
   const filled = counts.reduce((a, b) => a + b, 0);
-  const grid = waffleGrid(filled, {...size, fillDirection, unit});
-
   const {width, height} = chartBounds(viz);
-  const geometry = waffleCellGeometry(width, height, {
-    ...grid,
-    padding: Number(viz.schema.cellPadding) || 0,
-  });
-  const pitch = geometry.size + geometry.padding;
+
+  // Each cell's place, in fill order: on the arc, or across the grid.
+  let place: (k: number) => Omit<ArcCellPlace, "size">;
+  let cellSize: number;
+  if (isArcLayout(viz as VizInstance)) {
+    const {arc, places} = waffleArcLayout(
+      viz as VizInstance,
+      filled,
+      width,
+      height,
+    );
+    place = k => places[k];
+    cellSize = arc.size;
+    viz.ctx.waffleArc = arc;
+  } else {
+    const grid = waffleGrid(filled, {...size, fillDirection, unit});
+    const geometry = waffleCellGeometry(width, height, {
+      ...grid,
+      padding: Number(viz.schema.cellPadding) || 0,
+    });
+    const pitch = geometry.size + geometry.padding;
+    place = k => {
+      const pos = waffleCellPosition(k, {...grid, fillDirection, fillStart});
+      return {
+        ...pos,
+        x: geometry.x + pos.column * pitch,
+        y: geometry.y + pos.row * pitch,
+      };
+    };
+    cellSize = geometry.size;
+    viz.ctx.waffleGrid = grid;
+    viz.ctx.waffleGeometry = geometry;
+  }
 
   const shapeData: WaffleCell[] = [];
   let k = 0;
@@ -108,7 +139,7 @@ export const applyWaffleLayout: TransformStage = ({viz}) => {
     const id = viz._ids(d, i).join("-");
     const share = shares[c];
     for (let n = 0; n < counts[c]; n++, k++) {
-      const pos = waffleCellPosition(k, {...grid, fillDirection, fillStart});
+      const {row, column, x, y} = place(k);
       shapeData.push({
         __d3plus__: true,
         data: d,
@@ -116,18 +147,17 @@ export const applyWaffleLayout: TransformStage = ({viz}) => {
         id: `${id}-${n}`,
         k,
         n,
-        ...pos,
-        x: geometry.x + pos.column * pitch,
-        y: geometry.y + pos.row * pitch,
-        size: geometry.size,
+        row,
+        column,
+        x,
+        y,
+        size: cellSize,
         share,
       });
     }
   });
 
   viz.ctx.waffleTotal = total;
-  viz.ctx.waffleGrid = grid;
-  viz.ctx.waffleGeometry = geometry;
 
   return {shapeData};
 };
