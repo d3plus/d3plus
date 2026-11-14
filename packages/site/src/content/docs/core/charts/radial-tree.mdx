@@ -1,0 +1,39 @@
+---
+title: RadialTree
+description: "A tree laid out around a circle: the root at the center, the leaves around the edge, links curving outward between them, and labels turned along their spokes."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/radial-tree/basic-example.js?raw";
+import singleRoot from "~/examples/core/charts/radial-tree/single-root.js?raw";
+import clusterDendrogram from "~/examples/core/charts/radial-tree/cluster-dendrogram.js?raw";
+import nodeShapes from "~/examples/core/charts/radial-tree/node-shapes.js?raw";
+
+A tree laid out around a circle: the root at the center, the leaves around the edge, links curving outward between them, and labels turned along their spokes. It is a [Tree](/core/charts/tree/) with `orient: "radial"`, so it takes every Tree setting, and switching `orient` to `"vertical"` or `"horizontal"` lays the same tree out in rows.
+
+## Basic example
+
+Each `groupBy` level is a ring. With several top-level groups (here the continents), the center is left empty and the groups form the first ring. Leaf labels run outward past the circle, flipped on the left half so they read left to right; branch labels run inward toward their parent over a halo, wrapping onto a second line, or shrinking a little, where the ring is crowded.
+
+<Playground chart="RadialTree" code={basicExample} controls={["groupBy","orient"]} height={520} />
+
+## One root at the center
+
+When the top `groupBy` level holds a single group, that node sits at the center and its label beneath it.
+
+<Playground chart="RadialTree" code={singleRoot} controls={["groupBy"]} height={520} />
+
+## Radial cluster dendrogram
+
+`nodeHeight` sets how far each node sits from the root by a value instead of by its depth: its height above the leaves, such as the distance at which a hierarchical clustering merged its children. The root sits at the tallest height and the leaves (height 0) line up around the edge, spaced evenly. The accessor receives the node's row, its index, and `{id, level, leaf}`, so a lookup by the node's `id` reads each group's height.
+
+<Playground chart="RadialTree" code={clusterDendrogram} controls={["orient"]} height={560} />
+
+## Node shapes
+
+Like a Tree, each node can be a `Circle` or a `Rect`. Links and labels stop at the node's outline either way.
+
+<Playground chart="RadialTree" code={nodeShapes} controls={["shape","shapeConfig"]} height={480} />
+
+<ApiReference name="RadialTree" pkg="core" />
