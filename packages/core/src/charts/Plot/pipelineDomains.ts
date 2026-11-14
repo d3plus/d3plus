@@ -45,6 +45,7 @@ import {
 import {plotSeriesIds, stackPositions} from "./stackLegendOrder.js";
 import {trendDomainValues} from "./trendLines.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
 type Row = Record<string, unknown>;
@@ -90,13 +91,13 @@ function fillMissingAreaPoints(
               data: d.data,
               discrete:
                 (d.shape as string) === "Bar"
-                  ? `${g[0][viz.schema.discrete]}_${group}`
-                  : `${g[0][viz.schema.discrete]}`,
+                  ? `${g[0][vizDiscrete(viz)]}_${group}`
+                  : `${g[0][vizDiscrete(viz)]}`,
               group,
               id: d.id,
               ids: k,
               shape,
-              [viz.schema.discrete]: g[0][viz.schema.discrete],
+              [vizDiscrete(viz)]: g[0][vizDiscrete(viz)],
               [opp as string]: 0,
             };
             data.push(fillerPoint);
@@ -162,10 +163,10 @@ function sortStackedAxisData(
   );
 
   axisData.sort((a: Row, b: Row) => {
-    if (viz.schema[`${viz.schema.discrete}Sort`])
-      return viz.schema[`${viz.schema.discrete}Sort`](a.data, b.data);
-    const a1 = a[viz.schema.discrete] as number,
-      b1 = b[viz.schema.discrete] as number;
+    if (viz.schema[`${vizDiscrete(viz)}Sort`])
+      return viz.schema[`${vizDiscrete(viz)}Sort`](a.data, b.data);
+    const a1 = a[vizDiscrete(viz)] as number,
+      b1 = b[vizDiscrete(viz)] as number;
     if (a1 - b1 !== 0) return a1 - b1;
     if (a.group !== b.group)
       return groupValues[b.group as string] - groupValues[a.group as string];
@@ -294,14 +295,14 @@ function computeStackedDomains(
     opp,
   });
 
-  if (viz.schema[`${viz.schema.discrete}Sort`]) {
+  if (viz.schema[`${vizDiscrete(viz)}Sort`]) {
     data.sort((a: Row, b: Row) =>
-      viz.schema[`${viz.schema.discrete}Sort`](a.data, b.data),
+      viz.schema[`${vizDiscrete(viz)}Sort`](a.data, b.data),
     );
   } else {
     data.sort(
       (a: Row, b: Row) =>
-        (a[viz.schema.discrete] as number) - (b[viz.schema.discrete] as number),
+        (a[vizDiscrete(viz)] as number) - (b[vizDiscrete(viz)] as number),
     );
   }
 
@@ -321,7 +322,7 @@ function computeStackedDomains(
   );
 
   const discreteData = (
-    viz.schema.discrete === "x" ? xData : yData
+    vizDiscrete(viz) === "x" ? xData : yData
   ) as DomainValue[];
   // Trend fits and bar error bars (on their stacked ends) widen the stack's extent.
   const widen = trendDomainValues(viz._trendFits || []);
@@ -335,10 +336,10 @@ function computeStackedDomains(
         discreteKeys,
       ),
     );
-  const discreteTime = viz.schema.discrete === "x" ? viz._xTime : viz._yTime;
+  const discreteTime = vizDiscrete(viz) === "x" ? viz._xTime : viz._yTime;
 
   const domains: Record<string, DomainValue[]> = {
-    [viz.schema.discrete]: (viz._discreteExtent
+    [vizDiscrete(viz)]: (viz._discreteExtent
       ? spanDomain(viz, axisData)
       : discreteTime
         ? extent(discreteData as (number | Date)[])
@@ -416,11 +417,11 @@ function computeNonStackedDomains(
     x2Time = viz._x2Time,
     yTime = viz._yTime,
     y2Time = viz._y2Time;
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
 
-  if (viz.schema[`${viz.schema.discrete}Sort`]) {
+  if (viz.schema[`${vizDiscrete(viz)}Sort`]) {
     axisData.sort((a: Row, b: Row) =>
-      viz.schema[`${viz.schema.discrete}Sort`](a.data, b.data),
+      viz.schema[`${vizDiscrete(viz)}Sort`](a.data, b.data),
     );
   } else {
     axisData.sort(
@@ -431,7 +432,7 @@ function computeNonStackedDomains(
   const domains: Record<string, DomainValue[]> = {
     x: (isSpanAxis(viz, "x")
       ? spanDomain(viz, axisData)
-      : (!xTime && viz.schema.discrete === "x") ||
+      : (!xTime && vizDiscrete(viz) === "x") ||
           viz.schema.xSort ||
           viz._swarm?.cross === "x"
         ? xData
@@ -439,19 +440,19 @@ function computeNonStackedDomains(
     // A variable-width axis's width shares (`barWidthShare`) line up with its bars.
     x2: (isSpanAxis(viz, "x")
       ? spanDomain(viz, axisData)
-      : (!x2Time && viz.schema.discrete === "x") || viz.schema.x2Sort
+      : (!x2Time && vizDiscrete(viz) === "x") || viz.schema.x2Sort
         ? x2Data
         : extent(x2Data as (number | Date)[])) as DomainValue[],
     y: (isSpanAxis(viz, "y")
       ? spanDomain(viz, axisData)
-      : (!yTime && viz.schema.discrete === "y") ||
+      : (!yTime && vizDiscrete(viz) === "y") ||
           viz.schema.ySort ||
           viz._swarm?.cross === "y"
         ? yData
         : extent(yData as (number | Date)[])) as DomainValue[],
     y2: (isSpanAxis(viz, "y")
       ? spanDomain(viz, axisData)
-      : (!y2Time && viz.schema.discrete === "y") || viz.schema.y2Sort
+      : (!y2Time && vizDiscrete(viz) === "y") || viz.schema.y2Sort
         ? y2Data
         : extent(y2Data as (number | Date)[])) as DomainValue[],
   };
@@ -477,8 +478,8 @@ export const computePlotInitialDomains: TransformStage = ({
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
   const stackGroup = plotStackGroup as (d: DataPoint, i: number) => string;
-  const opp = viz.schema.discrete
-    ? viz.schema.discrete === "x"
+  const opp = vizDiscrete(viz)
+    ? vizDiscrete(viz) === "x"
       ? "y"
       : "x"
     : undefined;

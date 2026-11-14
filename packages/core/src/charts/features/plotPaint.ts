@@ -45,6 +45,7 @@ import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import type {LineLabelSide} from "../Plot/lineLabelSides.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** An axis position function: maps a domain value to a pixel coordinate. */
 export type PlotAxisFn = (d: unknown, axis?: string) => number;
@@ -310,10 +311,10 @@ function buildShapeConfig(
   domains: Record<string, number[]>,
   yOffset: number,
 ): Record<string, unknown> {
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
 
   return markSharedConfig({
-    discrete: viz.schema.discrete,
+    discrete: vizDiscrete(viz),
     duration: effectiveDuration(viz),
     label: (d: PlotDatum) => viz._drawLabel(d.data, d.i),
     x: (d: PlotDatum) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
@@ -477,9 +478,11 @@ const tagAxisGroup = (node: SceneNode): void => {
     is wrapped in a group with its axis-relative transform; the chart-cells
     group's `_chartTransform` composes with this to land at the right
     absolute position. A discrete axis's tick labels follow the hover (see
-    `tagHoverTicks`), matched on the marks' value for that axis.
+    `tagHoverTicks`), matched on the marks' value for that axis, and any
+    axis's follow what the chart's `_tickHoverMatch` gives for it.
 */
 function collectAxisScenes(
+  viz: Viz,
   axisSceneQueue: PlotMeasureResult["axisSceneQueue"],
 ): {grid: SceneNode[]; rest: SceneNode[]} {
   const grid: SceneNode[] = [];
@@ -488,8 +491,9 @@ function collectAxisScenes(
     if (!axis || typeof axis.toScene !== "function") return;
     const scene = axis.toScene();
     if (!scene) return;
-    if (discreteAxis(axis))
-      tagHoverTicks(scene, key.replace(/^plot-|-axis$/g, ""));
+    const name = key.replace(/^plot-|-axis$/g, "");
+    const match = viz._tickHoverMatch?.[name as "x" | "y" | "x2" | "y2"];
+    if (match || discreteAxis(axis)) tagHoverTicks(scene, name, match);
     const children = scene.children || [];
     const gridChildren = children.filter(isGridNode);
     const restChildren = children.filter(c => !isGridNode(c));
@@ -537,7 +541,7 @@ export function plotEmit(
   const {labelWidths} = pCtx;
   const {x, y, xRange, yRange, yOffset, axisSceneQueue} = mCtx;
 
-  const axisScenes = collectAxisScenes(axisSceneQueue);
+  const axisScenes = collectAxisScenes(viz, axisSceneQueue);
 
   emitBackgroundRect(viz, out, xRange, yRange);
 

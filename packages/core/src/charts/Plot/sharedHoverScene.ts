@@ -25,6 +25,7 @@ import {isBreakMask} from "./plotBreaks.js";
 import type {FacetPanelState} from "../facet/facetConfig.js";
 import {withFacetPanel} from "../facet/facetPanel.js";
 import {prefixKeys} from "../facet/facetScene.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 type Parent = {key?: string | number; children?: SceneNode[]};
 type HoverState = NonNullable<VizInstance["_sharedHoverState"]>;
@@ -188,7 +189,7 @@ function decorateBody(
   const area = viz._plotArea;
   if (!area) return nodes;
   const {state, axis} = hover;
-  const discrete = viz.schema.discrete === "x" || viz.schema.discrete === "y";
+  const discrete = vizDiscrete(viz) === "x" || vizDiscrete(viz) === "y";
   // The surface is only needed for shared hovers over empty space; a single
   // hover (tooltipShared off) needs the pointer on a mark anyway.
   const surface =
@@ -276,7 +277,7 @@ function decoratePanel(
     is drawn as small multiples.
 */
 export function appendSharedHoverNodes(viz: VizInstance, scene: Scene): void {
-  const discrete = viz.schema.discrete;
+  const discrete = vizDiscrete(viz);
   if (discrete !== "x" && discrete !== "y" && !viz._axisHoverState) return;
   const cells = (scene.root.children as Parent[]).find(
     n => n.key === "viz-chart-cells",

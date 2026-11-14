@@ -26,6 +26,7 @@ import {
 } from "./axisHoverAnchors.js";
 import {contentPoint, labeledMark, type ShapeNode} from "./sharedHover.js";
 import {axisValue} from "./sharedTooltip.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** One axis's badge: where it sits along the axis, and its text. */
 export interface AxisHoverBadge {
@@ -135,7 +136,7 @@ function areaAnchor(
 
 /** The chart's discrete axis, when it has one. */
 function discreteAxis(viz: VizInstance): "x" | "y" | undefined {
-  const discrete: unknown = viz.schema.discrete;
+  const discrete: unknown = vizDiscrete(viz);
   return discrete === "x" || discrete === "y" ? discrete : undefined;
 }
 
@@ -256,7 +257,7 @@ export function resolveAxisHover(
             at,
             axisInvert(viz, axis, position, raw),
           );
-    const text = formatAxisValue(v => axisValue(viz, axis, v), value);
+    const text = formatAxisValue(v => axisValue(viz, axis, v, true), value);
     if (text) badges.push({axis, at, text, value, guide: !snapped});
   }
   if (!badges.length) return null;

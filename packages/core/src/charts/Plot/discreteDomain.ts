@@ -8,6 +8,7 @@ import {InternSet} from "d3-array";
 
 import {isSpanAxis} from "./discreteSpan.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     The categories a user domain (`<axis>Config.domain`, else `<axis>Domain`)
@@ -17,7 +18,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 export function discreteDomainCategories(
   viz: VizInstance,
 ): InternSet<unknown> | null {
-  const axis = viz.schema.discrete as "x" | "y" | undefined;
+  const axis = vizDiscrete(viz) as "x" | "y" | undefined;
   if (!axis || isSpanAxis(viz, axis)) return null;
   if (axis === "x" ? viz._xTime : viz._yTime) return null;
   const configDomain = (axis === "x" ? viz._xConfig : viz._yConfig)?.domain;

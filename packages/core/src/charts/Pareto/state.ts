@@ -19,6 +19,7 @@ import {
   type ParetoStep,
   type RowAccessor,
 } from "./paretoSteps.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** The key a cumulative-line row keeps its step under. */
 export const LINE_KEY = `${INTERNAL_KEY_PREFIX}ParetoLine`;
@@ -52,7 +53,7 @@ export const paretoState = (viz: VizInstance): ParetoState =>
 
 /** The axis holding categories: "x" for upright bars, "y" for horizontal ones. */
 export const categoryAxis = (viz: VizInstance): "x" | "y" =>
-  viz.schema.discrete === "y" ? "y" : "x";
+  vizDiscrete(viz) === "y" ? "y" : "x";
 
 /** The axis holding the bars' values. */
 export const valueAxis = (viz: VizInstance): "x" | "y" =>

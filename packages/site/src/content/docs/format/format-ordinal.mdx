@@ -1,0 +1,18 @@
+---
+title: formatOrdinal
+description: "Formats a whole number as an ordinal for the given locale."
+---
+
+import Calls from "~/components/Calls/Calls.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/format/format-ordinal/basic-example.js?raw";
+
+Formats a whole number as an ordinal for the given locale (`1` to `"1st"` in English, `"1.º"` in Spanish, `"1º"` in Portuguese, `"第1"` in Chinese). BumpChart's tooltips use it to read each rank.
+
+## Basic example
+
+English picks its suffix by the number's ordinal plural category, so `11` reads as `11th` but `22` as `22nd`; other locales take their own form.
+
+<Calls code={basicExample} label="formatOrdinal: Basic example" />
+
+<ApiReference name="formatOrdinal" pkg="format" />

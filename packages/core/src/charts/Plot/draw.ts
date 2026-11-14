@@ -48,6 +48,7 @@ import {
 import {roundPlotOpenEnds} from "./openDomainEnds.js";
 import {recordStackLegendOrder} from "./stackLegendOrder.js";
 import {computePlotTrendFits} from "./trendLines.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
 type Row = Record<string, unknown>;
@@ -355,11 +356,7 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     dataStages;
 
   const height = viz.schema.height - viz._margin.top - viz._margin.bottom,
-    opp = viz.schema.discrete
-      ? viz.schema.discrete === "x"
-        ? "y"
-        : "x"
-      : undefined,
+    opp = vizDiscrete(viz) ? (vizDiscrete(viz) === "x" ? "y" : "x") : undefined,
     width = viz.schema.width - viz._margin.left - viz._margin.right;
 
   const layoutCtx = runPlotLayoutStages(

@@ -9,10 +9,11 @@ import {max, min} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** Whether `axis` is a span-valued discrete axis. */
 export function isSpanAxis(viz: VizInstance, axis: string): boolean {
-  return Boolean(viz._discreteExtent) && viz.schema.discrete === axis;
+  return Boolean(viz._discreteExtent) && vizDiscrete(viz) === axis;
 }
 
 /** `[start, end]` of a formatted Plot row (reads its source `data`). */

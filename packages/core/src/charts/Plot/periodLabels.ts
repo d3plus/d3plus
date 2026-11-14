@@ -5,6 +5,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     Whether bars (or boxes) stand on an axis's categories: each already
@@ -14,7 +15,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
     @param axis The axis.
 */
 export function barsSpanPeriods(viz: VizInstance, axis: "x" | "y"): boolean {
-  if (viz.schema.discrete !== axis) return false;
+  if (vizDiscrete(viz) !== axis) return false;
   const shape = viz.schema.shape as (d: DataPoint, i: number) => unknown;
   return (viz._filteredData ?? []).some((d: DataPoint, i: number) =>
     ["Bar", "Box"].includes(shape(d, i) as string),

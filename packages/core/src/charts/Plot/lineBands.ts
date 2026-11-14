@@ -21,6 +21,7 @@ import {
   confidenceBands,
   layerOpacities,
 } from "./confidenceBands.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** `confidenceConfig` keys that style error bars, tooltips, or the ramp rather than the band's Area. */
 const NON_AREA_KEYS = ["bandOpacity", "capWidth", "tooltip"];
@@ -33,7 +34,7 @@ export function emitLineBands(ctx: ShapeEmitContext): SceneNode[] {
   const {viz, x, y, values} = ctx;
   const bands = confidenceBands(viz);
   if (!bands.length) return [];
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
   const key = discrete === "x" ? "y" : "x";
   const scaleFunction = discrete === "x" ? y : x;
   // Fresh object — must NOT mutate the shared `shapeConfig`, or the confidence

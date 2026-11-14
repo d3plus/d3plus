@@ -39,11 +39,11 @@ it("a reversed linear axis runs from its max", () => {
 
 it("a reversed axis rounds before it flips", () => {
   const reversed = bottom({
-    domain: [12, 488],
+    domain: [62, 488],
     rounding: "outside",
     reverse: true,
   });
-  assert.deepStrictEqual(reversed._d3Scale.domain(), [490, 10]);
+  assert.deepStrictEqual(reversed._d3Scale.domain(), [490, 60]);
 });
 
 it("a reversed category axis lists its categories the other way", () => {

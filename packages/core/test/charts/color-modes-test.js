@@ -61,6 +61,34 @@ it("highlight desaturates non-matching marks while preserving color, transparenc
   );
 });
 
+it("highlight grays a text's fill but keeps its halo the background's color", () => {
+  const nodes = [
+    {datum: {group: "A"}, paint: {fill: "#4c6ef5"}},
+    {
+      type: "text",
+      halo: true,
+      datum: {group: "B"},
+      paint: {fill: "#e03131", stroke: "#fdf6e3", strokeWidth: 3},
+    },
+    {
+      type: "text",
+      datum: {group: "B"},
+      paint: {fill: "#e03131", stroke: "#e03131"},
+    },
+  ];
+  const viz = {_highlight: d => d.group === "A", schema: {shapeConfig: {}}};
+  const out = applyInteractionOpacity(nodes, viz);
+  const [r, g, b] = parseRGB(out[1].paint.fill);
+  assert.ok(r === g && g === b, "the halo's text is grayed");
+  assert.strictEqual(
+    out[1].paint.stroke,
+    "#fdf6e3",
+    "the halo keeps its color",
+  );
+  const [sr, sg, sb] = parseRGB(out[2].paint.stroke);
+  assert.ok(sr === sg && sg === sb, "a text's own stroke is grayed");
+});
+
 it("hover/active thicken + darken the matched mark's stroke (v3 parity)", () => {
   const nodes = () => [
     {

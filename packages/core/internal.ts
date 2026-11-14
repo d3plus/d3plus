@@ -1070,7 +1070,11 @@ export {
   bumpSizeText,
   bumpSizeTooltipRows,
 } from "./src/charts/BumpChart/areaBump.js";
-export {bumpChartDef} from "./src/charts/BumpChart/index.js";
+export {
+  bumpChartDef,
+  bumpRankMatch,
+  bumpRankRow,
+} from "./src/charts/BumpChart/index.js";
 export {
   autoLineOpacity,
   axisPositions,
@@ -1674,6 +1678,56 @@ export {arcDiagramDef, arcTableData} from "./src/charts/ArcDiagram/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {scatterDef} from "./src/charts/Scatter/index.js";
+export {
+  matrixColor,
+  matrixDimensions,
+  matrixObservation,
+  matrixState,
+  matrixTooltipContext,
+  prepareMatrix,
+  scatterMatrixDef,
+} from "./src/charts/ScatterMatrix/index.js";
+export type {MatrixState} from "./src/charts/ScatterMatrix/index.js";
+export {
+  MATRIX_ID,
+  MATRIX_META,
+  cellIndex,
+  matrixBins,
+  matrixDomains,
+  matrixMeta,
+  matrixPoints,
+} from "./src/charts/ScatterMatrix/matrixData.js";
+export type {
+  MatrixBin,
+  MatrixMeta,
+  MatrixPoint,
+  MatrixRow,
+} from "./src/charts/ScatterMatrix/matrixData.js";
+export {
+  BIN_FILL,
+  BIN_GAP,
+  MATRIX_BIN,
+  binRect,
+  matrixBinEmit,
+} from "./src/charts/ScatterMatrix/binEmit.js";
+export type {BinRect} from "./src/charts/ScatterMatrix/binEmit.js";
+export {
+  matrixAxes,
+  matrixFacetHooks,
+  matrixFacetPanel,
+  panelScales,
+} from "./src/charts/ScatterMatrix/matrixFacet.js";
+export type {MatrixAxes} from "./src/charts/ScatterMatrix/matrixFacet.js";
+export {
+  inBin,
+  matrixHoverFilter,
+} from "./src/charts/ScatterMatrix/matrixHover.js";
+export {
+  matrixTooltipRows,
+  matrixTooltipTitle,
+  unwrapMatrixRow,
+} from "./src/charts/ScatterMatrix/matrixTooltip.js";
+export type {MatrixTooltipContext} from "./src/charts/ScatterMatrix/matrixTooltip.js";
 export {stripPlotDef} from "./src/charts/StripPlot/index.js";
 export {
   prepareSlope,
@@ -1862,9 +1916,12 @@ export {
   userAxisDomain,
 } from "./src/charts/Plot/baselineDomain.js";
 export {
+  fillOpenEnds,
+  keepPinnedEnds,
   openEnd,
   roundOpenEnd,
   roundPlotOpenEnds,
+  userPinnedEnds,
 } from "./src/charts/Plot/openDomainEnds.js";
 export {xAxisRounding} from "./src/charts/features/xAxisConfig.js";
 export {roundedDomain} from "./src/components/Axis/axisRounding.js";
@@ -2128,6 +2185,19 @@ export {
   LINK_SIZE_SHARE,
   linkWidthRange,
 } from "./src/charts/features/linkWidths.js";
+export {
+  rectNodeSize,
+  sizeRectNodes,
+} from "./src/charts/features/rectNodeSize.js";
+export {containNodes} from "./src/charts/Network/containNodes.js";
+export type {
+  Containment,
+  NodeReach,
+} from "./src/charts/Network/containNodes.js";
+export type {
+  RectSizeConfig,
+  RectSizedNode,
+} from "./src/charts/features/rectNodeSize.js";
 export {
   FORMAT_KEYS,
   formatPayload,

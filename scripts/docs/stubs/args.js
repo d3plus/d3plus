@@ -147,6 +147,7 @@ const hiddenMethods = {
     "discrete",
   ],
   Scatter: ["shape"],
+  ScatterMatrix: ["shape", "x", "x2", "y", "y2", "discrete"],
   SlopeChart: ["shape"],
   StackedArea: ["shape"],
   Streamgraph: ["shape", "stacked"],

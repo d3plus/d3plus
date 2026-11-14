@@ -1,6 +1,7 @@
 import {groups, max, min, sum} from "d3-array";
 import type Plot from "../Plot/index.js";
 import type {D3Scale} from "../../utils/index.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** What sets a bar's axis buffer apart from a box's. */
 export interface RectLikeBufferOptions {
@@ -40,18 +41,18 @@ export function rectLikeBuffer({stackKey, fromZero}: RectLikeBufferOptions) {
     const xKey = x2 ? "x2" : "x";
     const yKey = y2 ? "y2" : "y";
 
-    const oppScale = this.schema.discrete === "x" ? y : x;
+    const oppScale = vizDiscrete(this) === "x" ? y : x;
 
     const oppDomain = oppScale.domain().slice() as number[];
 
-    const isDiscreteX = this.schema.discrete === "x";
+    const isDiscreteX = vizDiscrete(this) === "x";
 
     if (isDiscreteX) oppDomain.reverse();
 
     let negVals: number[], posVals: number[];
     if (this.schema.stacked) {
       const groupedData = groups(data, (d: Record<string, unknown>) =>
-        stackKey(d, this.schema.discrete),
+        stackKey(d, vizDiscrete(this)),
       ).map(([, values]: [unknown, Record<string, unknown>[]]) =>
         values.map(
           (x: Record<string, unknown>) =>

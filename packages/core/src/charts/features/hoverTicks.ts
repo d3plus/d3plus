@@ -8,6 +8,8 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
+import type {TickHoverMatch} from "../viz/vizTypes.js";
+
 /** An axis's scale setting, the way the Axis component stores it. */
 interface AxisLike {
   schema?: {scale?: unknown};
@@ -19,16 +21,24 @@ export const discreteAxis = (axis: AxisLike | undefined): boolean =>
 
 /**
     Stamps every tick label in an axis scene with `hoverMatch`: the tick's
-    value, matched against `field` on the hovered marks' data.
+    value, matched against `field` on the hovered marks' data, or what
+    `match` gives for the tick's value (none when it gives undefined).
     @param node The axis scene (or any subtree of it).
     @param field The datum key a mark keeps the axis value under.
+    @param match A chart's own match for a tick (see `_tickHoverMatch`).
 */
-export function tagHoverTicks(node: SceneNode, field: string): void {
+export function tagHoverTicks(
+  node: SceneNode,
+  field: string,
+  match?: (tick: unknown) => TickHoverMatch | undefined,
+): void {
   const tick = (node.datum as {data?: DataPoint} | undefined)?.data;
-  if (node.type === "text" && tick && "tick" in tick && "id" in tick)
-    node.hoverMatch = {field, value: tick.id};
+  if (node.type === "text" && tick && "tick" in tick && "id" in tick) {
+    const own = match ? match(tick.id) : {field, value: tick.id};
+    if (own) node.hoverMatch = own;
+  }
   const kids = (node as {children?: SceneNode[]}).children;
-  if (kids) for (const child of kids) tagHoverTicks(child, field);
+  if (kids) for (const child of kids) tagHoverTicks(child, field, match);
 }
 
 /**

@@ -23,6 +23,7 @@ import type {D3Scale} from "../../utils/index.js";
 import type {BarLabelCheck} from "../Plot/barLabelFit.js";
 import type {StackPositions} from "../Plot/stackLegendOrder.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** The four configured d3 scales plus their resolved scale-type strings. */
 export interface PlotScales {
@@ -167,7 +168,7 @@ export type TransformStage = (ctx: VizContext) => Partial<VizContext>;
 type NestKey = (d: DataPoint, i: number) => DataPoint[keyof DataPoint];
 
 export function discreteNestKeys(viz: VizInstance): NestKey[] {
-  const disc = viz.schema.discrete;
+  const disc = vizDiscrete(viz);
   if (!disc) return [];
   const keys: NestKey[] = [];
   const dynamic = viz as unknown as Record<string, NestKey>;
