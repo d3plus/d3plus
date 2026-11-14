@@ -26,7 +26,7 @@ List the parties in the order they sit, by convention from left to right across 
 
 ## Majority
 
-`majority` draws a dashed line across the rings at the seat a majority needs, labeled with the count: `true` (the default) for more than half of the house, or a number of seats for a supermajority, here two thirds. Seats fill from the left, so a block of parties from the left end that reaches past the line holds a majority. `false` hides it, and `centerLabel` sets or hides the total in the middle.
+`majority` draws a dashed line across the rings at the seat a majority needs, and writes the count ("Majority: 226") in the middle, under the total (or across the middle when `centerLabel` is off): `true` (the default) for more than half of the house, or a number of seats for a supermajority, here two thirds. Seats fill from the left, so a block of parties from the left end that reaches past the line holds a majority. `false` hides it, and `centerLabel` sets or hides the total in the middle.
 
 <Playground chart="Parliament" code={supermajority} controls={["majority","centerLabel"]} />
 
