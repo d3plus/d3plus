@@ -291,7 +291,7 @@ for (const renderer of ["svg", "canvas"]) {
       }, renderer);
       assert.strictEqual(
         out.first.live,
-        "north, Click to Hide",
+        "north, Enter to Hide",
         "focus starts on the top row label",
       );
       assert.strictEqual(out.right.title, "0", JSON.stringify(out.right));
@@ -481,7 +481,10 @@ for (const renderer of ["svg", "canvas"]) {
           host.dispatchEvent(event);
           await window.__wait();
           await window.__wait();
-          return {live: live(), kept: event.defaultPrevented};
+          const tip = Array.from(document.querySelectorAll(".d3plus-tooltip"))
+            .map(t => t.innerText.replace(/\s+/g, " ").trim())
+            .find(t => t);
+          return {live: live(), kept: event.defaultPrevented, tip};
         };
         const ring = () => {
           const group = viz._paintedScene.root.children.find(
@@ -502,6 +505,10 @@ for (const renderer of ["svg", "canvas"]) {
         const backTab = await key("Tab", true);
         const hide = await key("Enter");
         const hidden = [...viz._hidden];
+        await key("Tab");
+        const revisit = await key("Tab", true);
+        const show = await key("Enter");
+        const shown = [...viz._hidden];
         const soloStart = await key("Tab", true);
         const solo = await key("Enter", true);
         return {
@@ -512,6 +519,9 @@ for (const renderer of ["svg", "canvas"]) {
           backTab,
           hide,
           hidden,
+          revisit,
+          show,
+          shown,
           soloStart,
           solo,
           soloIds: [...viz._solo],
@@ -519,9 +529,9 @@ for (const renderer of ["svg", "canvas"]) {
         };
       }, renderer);
       assert.deepStrictEqual(out.steps, [
-        "north, Click to Hide",
-        "south, Click to Hide",
-        "west, Click to Hide",
+        "north, Enter to Hide",
+        "south, Enter to Hide",
+        "west, Enter to Hide",
       ]);
       assert.ok(out.ringAtLabel, "a focus ring is drawn");
       assert.ok(
@@ -533,17 +543,24 @@ for (const renderer of ["svg", "canvas"]) {
         false,
         "Tab leaves past the last label",
       );
-      assert.strictEqual(out.past.live, "west, Click to Hide");
-      assert.strictEqual(out.backTab.live, "south, Click to Hide");
+      assert.strictEqual(out.past.live, "west, Enter to Hide");
+      assert.strictEqual(out.backTab.live, "south, Enter to Hide");
       assert.strictEqual(out.backTab.kept, true);
-      assert.deepStrictEqual(out.hidden, ["south"], "Enter hides the row");
-      assert.strictEqual(
-        out.hide.live,
-        "south, Click to Show",
-        "the live region announces the change",
+      assert.ok(
+        out.backTab.tip.includes("Enter to Hide") &&
+          out.backTab.tip.includes("Shift+Enter to Highlight") &&
+          !out.backTab.tip.includes("Click"),
+        `the tooltip speaks keyboard: ${out.backTab.tip}`,
       );
-      assert.strictEqual(out.soloStart.live, "north, Click to Hide");
+      assert.deepStrictEqual(out.hidden, ["south"], "Enter hides the row");
+      assert.strictEqual(out.hide.live, "south hidden", "announced");
+      assert.strictEqual(out.revisit.live, "south, Enter to Show");
+      assert.ok(out.revisit.tip.includes("Enter to Show"), out.revisit.tip);
+      assert.deepStrictEqual(out.shown, [], "Enter shows it again");
+      assert.strictEqual(out.show.live, "south shown");
+      assert.strictEqual(out.soloStart.live, "north, Enter to Hide");
       assert.deepStrictEqual(out.soloIds, ["north"], "Shift+Enter solos it");
+      assert.strictEqual(out.solo.live, "north highlighted");
       assert.deepStrictEqual(out.after, []);
     });
 

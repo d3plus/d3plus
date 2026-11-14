@@ -14,8 +14,11 @@ import {
   rowDomain,
 } from "../../src/charts/HorizonChart/measure.ts";
 import {
+  hintKey,
   labelAnchor,
+  rowChange,
   rowHidden,
+  rowHints,
   rowLabelTabStop,
   rowToggle,
 } from "../../src/charts/HorizonChart/rowFilter.ts";
@@ -690,9 +693,9 @@ it("rowLabelTabStop: the y axis's row labels, named for what Enter does", () => 
   });
   const yAxis = [{type: "group", key: "p/plot-y-axis", children: []}];
   const xAxis = [{type: "group", key: "plot-x-axis", children: []}];
-  assert.strictEqual(test(label("a"), yAxis), "Series a, Click to Hide");
+  assert.strictEqual(test(label("a"), yAxis), "Series a, Enter to Hide");
   viz._hidden = ["a"];
-  assert.strictEqual(test(label("a"), yAxis), "Series a, Click to Show");
+  assert.strictEqual(test(label("a"), yAxis), "Series a, Enter to Show");
   assert.strictEqual(test(label("a"), xAxis), undefined, "not on the x axis");
   assert.strictEqual(test(label("zzz"), yAxis), undefined, "not a series");
   assert.strictEqual(
@@ -725,4 +728,57 @@ it("labelAnchor: a zero-width anchor on the label's right edge, opening right", 
       .left,
     6,
   );
+});
+
+it("hintKey: the keyboard's Enter wording for a click hint", () => {
+  assert.strictEqual(hintKey("Click to Hide", true), "Enter to Hide");
+  assert.strictEqual(
+    hintKey("Shift+Click to Highlight", true),
+    "Shift+Enter to Highlight",
+  );
+  assert.strictEqual(hintKey("Click to Show All", true), "Enter to Show All");
+  assert.strictEqual(hintKey("Click to Hide", false), "Click to Hide");
+});
+
+it("rowHints: the legend's hints, by mouse or keyboard, translated", () => {
+  const viz = measured(rows);
+  viz._hidden = [];
+  viz._solo = [];
+  viz.schema.legendFilterInvert = () => false;
+  assert.strictEqual(
+    rowHints(viz, "a"),
+    "Click to Hide<br />Shift+Click to Highlight",
+  );
+  assert.strictEqual(
+    rowHints(viz, "a", true),
+    "Enter to Hide<br />Shift+Enter to Highlight",
+  );
+  viz._hidden = ["a"];
+  assert.strictEqual(
+    rowHints(viz, "a", true),
+    "Enter to Show<br />Shift+Enter to Highlight",
+  );
+  viz._hidden = [];
+  viz._solo = ["a"];
+  assert.strictEqual(rowHints(viz, "a", true), "Enter to Show All");
+  viz._solo = [];
+  viz.schema.legendFilterInvert = () => true;
+  assert.strictEqual(
+    rowHints(viz, "a", true),
+    "Enter to Highlight<br />Shift+Enter to Hide",
+  );
+  viz.schema.legendFilterInvert = () => false;
+  viz.locale("es-ES");
+  assert.strictEqual(
+    rowHints(viz, "a", true),
+    "Enter para Ocultar<br />May\u00fas+Enter para Resaltar",
+  );
+  assert.strictEqual(viz.schema.translate("hidden"), "oculto");
+});
+
+it("rowChange: what a row label click did", () => {
+  assert.strictEqual(rowChange({hidden: ["a"], solo: []}, "a"), "hidden");
+  assert.strictEqual(rowChange({hidden: [], solo: ["a"]}, "a"), "highlighted");
+  assert.strictEqual(rowChange({hidden: ["b"], solo: []}, "a"), "shown");
+  assert.strictEqual(rowChange({hidden: [], solo: []}, "a"), "shown");
 });
