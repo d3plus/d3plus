@@ -186,6 +186,52 @@ function assertCovered(result, label) {
   if (result.dom) assertCovers(result.dom.badge, result.dom.tick, "svg");
 }
 
+/** Each tick label of `axis` in the last paint, by text: its box and opacity, plus (on SVG) its element's opacity. */
+function tickLabels(page, axis) {
+  return page.evaluate(axis => {
+    const viz = window.__viz;
+    const out = {};
+    const walk = (nodes, o) =>
+      nodes.forEach(n => {
+        const t = n.transform || {};
+        const p = {x: o.x + (t.x || 0), y: o.y + (t.y || 0), axis: o.axis};
+        if (String(n.key).endsWith(`plot-${axis}-axis`)) p.axis = true;
+        if (p.axis && n.type === "text" && n.datum?.data?.tick) {
+          const line = n.lines[0];
+          const shift =
+            n.font.anchor === "end"
+              ? line.width
+              : n.font.anchor === "middle"
+                ? line.width / 2
+                : 0;
+          out[line.text] = {
+            x: p.x + n.x + line.x - shift,
+            y: p.y + n.y + line.y - n.font.size * 0.8,
+            width: line.width,
+            height: n.font.size,
+            opacity: n.paint?.opacity ?? 1,
+          };
+        }
+        if (n.children) walk(n.children, p);
+      });
+    walk([viz._paintedScene.root], {x: 0, y: 0, axis: false});
+    if (window.__surface === "svg")
+      for (const el of document.querySelectorAll(
+        `#viz svg [data-key$="plot-${axis}-axis"] text`,
+      ))
+        if (out[el.textContent])
+          out[el.textContent].dom =
+            Number(getComputedStyle(el).opacity ?? 1) *
+            Number(el.getAttribute("opacity") ?? 1);
+    return out;
+  }, axis);
+}
+
+/** Whether two boxes overlap by more than half a pixel each way. */
+const overlaps = (a, b) =>
+  Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) > 0.5 &&
+  Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y) > 0.5;
+
 for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: a horizontal Dumbbell's badge covers the hovered country's label`, async () => {
     const {page, close} = await chart(
@@ -255,6 +301,64 @@ for (const renderer of ["svg", "canvas"]) {
         "60",
       );
       assertCovered(result, "60");
+    } finally {
+      await close();
+    }
+  });
+  it(`${renderer}: a value badge between ticks hides the labels it overlaps, until the pointer leaves`, async () => {
+    const {page, close} = await chart(
+      "Plot",
+      [
+        [
+          "data",
+          [
+            {id: "a", x: 0, y: 1},
+            {id: "b", x: 2.1, y: 2},
+            {id: "c", x: 4, y: 3},
+          ],
+        ],
+        ["groupBy", "id"],
+        ["x", "x"],
+        ["y", "y"],
+        ["xConfig", {ticks: [0, 1, 2, 3, 4]}],
+      ],
+      renderer,
+    );
+    try {
+      const before = await tickLabels(page, "x");
+      assert.ok(before["2"] && before["4"], "the 2 and 4 ticks are labeled");
+      assert.ok(
+        Object.values(before).every(l => l.opacity !== 0),
+        "every label shows before the hover",
+      );
+      const result = await hoverBoxes(
+        page,
+        await circlePoint(page, "^b$"),
+        "x",
+        "2",
+      );
+      assert.strictEqual(result.text, "2.1");
+      const during = await tickLabels(page, "x");
+      for (const [text, label] of Object.entries(during)) {
+        const over = overlaps(result.badge, label);
+        assert.strictEqual(
+          label.opacity === 0,
+          over,
+          `"${text}" is ${over ? "hidden under" : "shown beside"} the badge`,
+        );
+        if (label.dom !== undefined)
+          assert.strictEqual(label.dom === 0, over, `"${text}" in the svg`);
+      }
+      assert.strictEqual(during["2"].opacity, 0, 'the "2" neighbor hides');
+      assert.notStrictEqual(during["4"].opacity, 0, 'the far "4" shows');
+      await page.mouse.move(5, 5);
+      await page.waitForTimeout(80);
+      const after = await tickLabels(page, "x");
+      assert.ok(
+        Object.values(after).every(l => l.opacity !== 0),
+        "every label shows again after leaving",
+      );
+      if (after["2"].dom !== undefined) assert.ok(after["2"].dom > 0);
     } finally {
       await close();
     }

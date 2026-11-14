@@ -22,8 +22,11 @@ import {
   axisHoverDefaults,
   axisHoverNodes,
   badgeBox,
+  badgeRect,
+  boxesOverlap,
   coverLabel,
   guidePoints,
+  hideOverlappedTicks,
   plotEdges,
   sameTick,
   tickLabelBox,
@@ -646,4 +649,99 @@ it("axisHover: axisHoverNodes covers the hovered value's tick label", () => {
   assert.strictEqual(covered.y, plain.y);
   const text = axisHoverNodes(viz, state, [axis]).badges[0].children[1];
   assert.strictEqual(text.transform.x, covered.x + covered.width / 2);
+});
+
+it("axisHover: boxesOverlap needs more than half a pixel each way", () => {
+  const a = {x: 0, y: 0, width: 10, height: 10};
+  assert.ok(boxesOverlap(a, {x: 5, y: 5, width: 10, height: 10}));
+  assert.ok(!boxesOverlap(a, {x: 10, y: 0, width: 10, height: 10}), "touching");
+  assert.ok(!boxesOverlap(a, {x: 9.6, y: 0, width: 10, height: 10}));
+  assert.ok(!boxesOverlap(a, {x: 0, y: 20, width: 10, height: 10}));
+});
+
+it("axisHover: badgeRect reads a drawn badge's box", () => {
+  const viz = scatter();
+  const state = {
+    point: {x: 160, y: 10},
+    color: "#000000",
+    datum: {id: "b"},
+    index: 0,
+    badges: [{axis: "x", at: 160, text: "80", value: 80, guide: true}],
+  };
+  const [badge] = axisHoverNodes(viz, state).badges;
+  const [rect] = badge.children;
+  assert.deepStrictEqual(badgeRect(badge), {
+    x: rect.x,
+    y: rect.y,
+    width: rect.width,
+    height: rect.height,
+  });
+  assert.deepStrictEqual(badgeRect({type: "group", children: []}), {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
+});
+
+it("axisHover: hideOverlappedTicks hides the tick labels under a badge", () => {
+  const label = (id, x, extra = {}) => ({
+    type: "text",
+    key: `${id}_0`,
+    x,
+    y: 0,
+    lines: [{text: `${id}`, x: 0, y: 12, width: 10}],
+    font: {size: 10, anchor: "start", baseline: "alphabetic"},
+    datum: {data: {id, tick: true}},
+    paint: {fill: "#000", opacity: 1},
+    ...extra,
+  });
+  const xAxis = {
+    type: "group",
+    key: "plot-x-axis",
+    transform: {x: 0, y: 100},
+    children: [
+      label(1, 0),
+      label(2, 50),
+      label(3, 100),
+      {...label("Title", 50), datum: undefined},
+    ],
+  };
+  const yAxis = {
+    type: "group",
+    key: "p1/plot-y-axis",
+    children: [label(9, 50, {y: 100})],
+  };
+  const marks = {type: "group", key: "marks", children: [label(4, 50)]};
+  const nodes = [marks, xAxis, yAxis];
+  const badge = {x: 45, y: 100, width: 20, height: 20};
+  const out = hideOverlappedTicks(nodes, [badge]);
+  const opacity = n => n.paint.opacity;
+  assert.deepStrictEqual(out[1].children.map(opacity), [1, 0, 1, 1]);
+  assert.strictEqual(out[1].children[1].interactive, false);
+  assert.strictEqual(out[0], marks, "only axis groups");
+  assert.strictEqual(
+    opacity(out[2].children[0]),
+    0,
+    "any axis, a panel's included",
+  );
+  assert.strictEqual(opacity(xAxis.children[1]), 1, "the scene isn't changed");
+  assert.strictEqual(hideOverlappedTicks(nodes, []), nodes);
+  assert.strictEqual(
+    hideOverlappedTicks(nodes, [{x: 500, y: 500, width: 5, height: 5}])[1],
+    xAxis,
+    "an untouched axis keeps its node",
+  );
+  const turned = {
+    ...xAxis,
+    children: [label(1, 20, {transform: {rotate: 90, rotateAnchor: [20, 0]}})],
+  };
+  assert.strictEqual(
+    opacity(
+      hideOverlappedTicks([turned], [{x: 8, y: 102, width: 4, height: 4}])[0]
+        .children[0],
+    ),
+    0,
+    "a rotated label by its turned bounding box",
+  );
 });

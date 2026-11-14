@@ -209,6 +209,71 @@ export function coverLabel(
   });
 }
 
+/** A drawn badge's box: its group's rect (see `badgeNode`). */
+export function badgeRect(badge: SceneNode): BadgeBox {
+  const rect = (badge as {children?: SceneNode[]}).children?.find(
+    n => n.type === "rect",
+  );
+  if (!rect || rect.type !== "rect") return {x: 0, y: 0, width: 0, height: 0};
+  return {x: rect.x, y: rect.y, width: rect.width, height: rect.height};
+}
+
+/** Whether boxes `a` and `b` overlap by more than half a pixel each way. */
+export function boxesOverlap(a: BadgeBox, b: BadgeBox): boolean {
+  const e = 0.5;
+  return (
+    Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) > e &&
+    Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y) > e
+  );
+}
+
+/** Whether a scene node is one of a Plot's axis groups. */
+const isAxisGroup = (node: SceneNode): boolean =>
+  /(^|\/)plot-(x|x2|y|y2)-axis$/.test(`${node.key}`);
+
+/** A node with its paint's opacity at 0, out of hit-testing. */
+function hidden(node: SceneNode): SceneNode {
+  return {
+    ...node,
+    interactive: false,
+    paint: {...node.paint, opacity: 0},
+  } as SceneNode;
+}
+
+/**
+    `nodes` with every axis tick label that overlaps one of `boxes` (the
+    badges' boxes, in the space of `nodes`) hidden: the label a badge grows
+    over, and any neighbor it reaches, so only the badge's value reads there.
+    Rotated labels are tested by their bounding box. Returns copies along the
+    changed paths; `nodes` is left as it is.
+    @param nodes The chart body's scene nodes.
+    @param boxes The drawn badges' boxes.
+*/
+export function hideOverlappedTicks(
+  nodes: SceneNode[],
+  boxes: BadgeBox[],
+): SceneNode[] {
+  if (!boxes.length) return nodes;
+  const visit = (node: SceneNode, chain: Transform[]): SceneNode => {
+    const next = node.transform ? [...chain, node.transform] : chain;
+    const tick = (node.datum as TickDatum | undefined)?.data;
+    if (node.type === "text" && tick?.tick) {
+      const map = mapper(next);
+      const over = ownBoxes(node).some(b =>
+        boxes.some(box => boxesOverlap(mapBox(b, map), box)),
+      );
+      return over ? hidden(node) : node;
+    }
+    const children = (node as {children?: SceneNode[]}).children;
+    if (!children) return node;
+    const kids = children.map(child => visit(child, next));
+    return kids.some((k, i) => k !== children[i])
+      ? ({...node, children: kids} as SceneNode)
+      : node;
+  };
+  return nodes.map(n => (isAxisGroup(n) ? visit(n, []) : n));
+}
+
 /** Resolves a style value against the hovered row. */
 function style<T>(
   value: Style<T> | undefined,
