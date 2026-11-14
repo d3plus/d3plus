@@ -39,6 +39,7 @@ import {themed} from "../../utils/theme.js";
     the instance's prototype alongside vizSchema's accessors.
 */
 export const plotSchema = [
+  {key: "aspectRatio", coerce: "identity" as const},
   {key: "axisHover", coerce: "identity" as const, default: true},
   {key: "axisHoverConfig", merge: true, factory: axisHoverDefaults},
   {key: "barPadding", coerce: "identity" as const},

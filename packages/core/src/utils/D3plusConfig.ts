@@ -1005,6 +1005,20 @@ export interface D3plusConfig {
   /** Hides the SVG from assistive technology when true (`aria-hidden`). */
   ariaHidden?: boolean;
   /**
+      Plot: draws one unit of y `aspectRatio` times as long as one unit of
+      x, so `1` makes a unit square square (a 45 degree line rises at 45
+      degrees). The plot area shrinks along one side, centered, to hold it;
+      the axes keep their domains. A log axis measures in powers of ten (one
+      decade is one unit), and a time axis in milliseconds. Each small
+      multiple holds it in its own panel, and a zoom keeps it (both axes
+      zoom together). Ignored, with a warning, when either axis is a
+      category, pow, or sqrt axis, or a log axis spanning zero. Unset (the
+      default), the plot fills its area.
+      @example
+      {aspectRatio: 1}
+  */
+  aspectRatio?: number;
+  /**
       The Radar's axis styles, named after the parts of a Plot axis: the
       inner level rings are its gridlines (`gridConfig`, a faint stroke like
       Plot's gridlines), the outer ring is its axis line (`barConfig`, the
