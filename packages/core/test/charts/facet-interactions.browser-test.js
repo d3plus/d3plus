@@ -45,7 +45,7 @@ for (const scales of ["shared", "independent"]) {
       await done(chart);
       const masks = [];
       walk(chart._chartScene, n => {
-        if (/\\/plot-break-mask-y$/.test(String(n.key))) masks.push(panelOf(n.key));
+        if (/\\/plot-break-mask-y$/.test(String(n.key)) && n.clip) masks.push(panelOf(n.key));
       });
       const clips = Array.from(document.querySelectorAll("#viz clipPath")).map(c => c.id);
       return {masks, unique: new Set(clips).size === clips.length};

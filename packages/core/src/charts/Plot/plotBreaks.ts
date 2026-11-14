@@ -177,11 +177,12 @@ export function bandPolygon(
 }
 
 /**
-    Wraps `nodes` (the plot content) in a clip group per axis with masked
-    breaks, so every shape gets each break's gap cut straight across it.
-    Labels split the content into runs and stay outside the clip groups, in
-    paint order, so no label is cut. Returns `nodes` unchanged when no
-    break asks for a mask.
+    Wraps `nodes` (the plot content) in a clip group per axis, so every
+    shape gets each masked break's gap cut straight across it. Labels split
+    the content into runs and stay outside the clip groups, in paint order,
+    so no label is cut. Each run gets both groups whether or not a break
+    asks for a mask (a group with none has no clip), so the marks keep their
+    parents, and tween in place, when a redraw adds or removes a break.
 */
 export function maskBreaks(
   viz: VizInstance,
@@ -195,7 +196,8 @@ export function maskBreaks(
     [-1e6, 1e6],
   ];
   const placed = placedBreaks(viz, frame);
-  const clips = [true, false].flatMap(vertical => {
+  // The y axis's group sits inside the x axis's.
+  const clips = [true, false].map(vertical => {
     const holes = placed
       .filter(p => p.vertical === vertical && p.brk.mask)
       .map(({axis, brk, gap, extent}) => {
@@ -205,11 +207,13 @@ export function maskBreaks(
           : 0;
         return bandPolygon(gap, extent, vertical, inset);
       });
-    return holes.length
-      ? [{axis: vertical ? "y" : "x", d: maskPath(outer, holes)}]
-      : [];
+    return {
+      axis: vertical ? "y" : "x",
+      clip: holes.length
+        ? {type: "path" as const, d: maskPath(outer, holes)}
+        : undefined,
+    };
   });
-  if (!clips.length) return nodes;
   const out: SceneNode[] = [];
   let run: SceneNode[] = [];
   let runs = 0;
@@ -217,11 +221,11 @@ export function maskBreaks(
     if (!run.length) return;
     const suffix = runs++ ? `-${runs - 1}` : "";
     const wrapped = clips.reduce<SceneNode[]>(
-      (children, {axis, d}) => [
+      (children, {axis, clip}) => [
         {
           type: "group",
           key: `${BREAK_MASK_KEY}-${axis}${suffix}`,
-          clip: {type: "path", d},
+          ...(clip ? {clip} : {}),
           children,
         },
       ],
