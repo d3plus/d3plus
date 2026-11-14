@@ -14,6 +14,7 @@ import {
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {VIOLIN_PADDING, violinEmit} from "./emit.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 export const violinDef: ChartDefinition = {
   name: "Violin",
@@ -22,7 +23,7 @@ export const violinDef: ChartDefinition = {
 
   setup: viz =>
     installDensity(viz, {
-      valueAxis: (v: VizInstance) => (v.schema.discrete === "y" ? "x" : "y"),
+      valueAxis: (v: VizInstance) => (vizDiscrete(v) === "y" ? "x" : "y"),
       categoryPadding: () => [VIOLIN_PADDING, 0.5],
       emit: violinEmit,
     }),

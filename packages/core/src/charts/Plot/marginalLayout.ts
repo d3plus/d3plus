@@ -12,6 +12,7 @@ import {
   type MarginalAxes,
   type MarginalScale,
 } from "./marginalStats.js";
+import {vizDiscrete} from "../viz/discrete.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A strip's default thickness, as a share of the chart area's shorter side. */
@@ -78,7 +79,7 @@ export function resolveMarginalLayout(
   types: {x: string; y: string},
 ): MarginalLayout | null {
   const asked = resolveMarginals(viz.schema.marginals);
-  if ((!asked.x && !asked.y) || viz.schema.discrete || viz._swarm) return null;
+  if ((!asked.x && !asked.y) || vizDiscrete(viz) || viz._swarm) return null;
   const scales = {x: marginalScale(types.x), y: marginalScale(types.y)};
   if (!scales.x || !scales.y) return null;
   const config = (viz.schema.marginalConfig ?? {}) as MarginalConfig;

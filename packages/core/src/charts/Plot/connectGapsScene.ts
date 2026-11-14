@@ -27,6 +27,7 @@ import {
 import {curvePolyline} from "./curveLength.js";
 import {discreteRank} from "./forecast.js";
 import {lineCurve} from "./lineCurve.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 type Point = [number, number];
 
@@ -67,7 +68,7 @@ export function lineGaps(ctx: ShapeEmitContext): LineGaps | null {
   if (!setting || !values.length) return null;
   const rows = values as PlotDatum[];
   const missing = ctx.missingRows ?? [];
-  const discrete = viz.schema.discrete === "y" ? "y" : "x";
+  const discrete = vizDiscrete(viz) === "y" ? "y" : "x";
   const axis = discrete === "y" ? 1 : 0;
   const rank = discreteRank([
     ...rows.map(d => d[discrete]),

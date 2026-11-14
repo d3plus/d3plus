@@ -13,12 +13,13 @@ import {
 } from "../../components/Axis/axisScaleType.js";
 import {userDomainBreaksBaseline} from "./baselineBreak.js";
 import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
-import {openEnd} from "./openDomainEnds.js";
+import {fillOpenEnds, openEnd} from "./openDomainEnds.js";
 import {isSpanAxis} from "./discreteSpan.js";
 import {widenReferenceDomains} from "./referenceDomains.js";
 import {plotAxisUtc, plotTimeScale, type AxisName} from "./plotRangeBreaks.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** d3-scale's scale constructors, indexed by the dynamic `scale<Type>` name. */
 export const scaleConstructors = scales as unknown as Record<
@@ -69,7 +70,7 @@ function applyOppDomains(
       // place — on the next render the (already-reversed) array would
       // reverse back, alternating chart correctness across renders.
       const d = (viz[`_${o}Config`].domain as DomainValue[]).slice();
-      if (viz.schema.discrete === "x") d.reverse();
+      if (vizDiscrete(viz) === "x") d.reverse();
       domains[o] = d;
     } else if (
       o &&
@@ -101,7 +102,7 @@ function domainScaleSetup(
   const scale = viz[`_${axis}Time`]
     ? "Time"
     : (!isSpanAxis(viz, axis) &&
-          (viz.schema.discrete === axis || viz.schema[`${axis}Sort`])) ||
+          (vizDiscrete(viz) === axis || viz.schema[`${axis}Sort`])) ||
         viz._swarm?.cross === axis
       ? "Point"
       : "Linear";
@@ -119,13 +120,15 @@ function domainScaleSetup(
           plotAxisUtc(viz, `${axis}2` as AxisName),
         )
       : domains[`${axis}2`];
-  if (scale !== "Point") {
-    if (domain && domain[0] === void 0) domain[0] = domains[axis][0];
-    if (domain && domain[1] === void 0) domain[1] = domains[axis][1];
-    if (domain2 && domain2[0] === void 0) domain2[0] = domains[`${axis}2`][0];
-    if (domain2 && domain2[1] === void 0) domain2[1] = domains[`${axis}2`][1];
-  }
-  return [domain, scale, domain2, scale] as const;
+  if (scale === "Point") return [domain, scale, domain2, scale] as const;
+  const log = (key: string) =>
+    (viz[`_${key}Config`] as {scale?: string} | undefined)?.scale === "log";
+  return [
+    domain && fillOpenEnds(domain, domains[axis], log(axis)),
+    scale,
+    domain2 && fillOpenEnds(domain2, domains[`${axis}2`], log(`${axis}2`)),
+    scale,
+  ] as const;
 }
 
 /**
@@ -142,7 +145,7 @@ function autoScale(
 ): string {
   const userScale = viz[`_${axis}Config`].scale;
   if (userScale === "auto") {
-    if (viz.schema.discrete === axis) return fallback;
+    if (vizDiscrete(viz) === axis) return fallback;
     return autoAxisScale(axisData.map((d: Record<string, unknown>) => d[axis]));
   }
   if (!userScale) return fallback;
@@ -222,13 +225,13 @@ export const computePlotScales: TransformStage = ({
   let domains = plotInitialDomains as Record<string, DomainValue[]>;
   const width = viz.schema.width - viz._margin.left - viz._margin.right;
   const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
-  const opp = viz.schema.discrete
-    ? viz.schema.discrete === "x"
+  const opp = vizDiscrete(viz)
+    ? vizDiscrete(viz) === "x"
       ? "y"
       : "x"
     : undefined;
-  const opp2 = viz.schema.discrete
-    ? viz.schema.discrete === "x"
+  const opp2 = vizDiscrete(viz)
+    ? vizDiscrete(viz) === "x"
       ? "y2"
       : "x2"
     : undefined;

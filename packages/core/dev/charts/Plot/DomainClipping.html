@@ -65,6 +65,17 @@
       <h3>BarChart, yDomain([980]) (bars clamp, nothing to clip)</h3>
       <div class="chart" id="bar"></div>
     </div>
+    <div>
+      <h3>
+        Scatter Plot, yDomain([20, 60]) and xDomain([1, 5]): points past every
+        edge
+      </h3>
+      <div class="chart" id="scatter"></div>
+    </div>
+    <div>
+      <h3>Scatter Plot, yDomain([20]): every value below 20</h3>
+      <div class="chart" id="scatter-below"></div>
+    </div>
   </body>
 
   <script>
@@ -163,6 +174,30 @@
       x: "x",
       y: "value",
       yDomain: [980],
+    });
+
+    // Circles past a set domain end are clipped; the axis keeps the user's
+    // ends instead of widening to fit them.
+    const points = [5, 30, 70, 45, 10, 62, 40].map((y, x) => ({
+      id: `p${x}`,
+      x,
+      y,
+    }));
+    make("Plot", "#scatter", {
+      data: points,
+      groupBy: "id",
+      x: "x",
+      y: "y",
+      yDomain: [20, 60],
+      xDomain: [1, 5],
+    });
+
+    make("Plot", "#scatter-below", {
+      data: points.map(d => ({...d, y: d.y / 100})),
+      groupBy: "id",
+      x: "x",
+      y: "y",
+      yDomain: [20],
     });
   </script>
 </html>

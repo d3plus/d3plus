@@ -2,6 +2,7 @@ import type Plot from "../Plot/index.js";
 import discreteBuffer from "./discreteBuffer.js";
 import numericBuffer from "./numericBuffer.js";
 import type {D3Scale} from "../../utils/index.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     @module rectBuffer
@@ -42,8 +43,8 @@ export default function (
   let xD = x.domain().slice() as number[],
     yD = y.domain().slice() as number[];
 
-  if (!x.invert && x.padding) discreteBuffer(x, data, this.schema.discrete);
-  if (!y.invert && y.padding) discreteBuffer(y, data, this.schema.discrete);
+  if (!x.invert && x.padding) discreteBuffer(x, data, vizDiscrete(this));
+  if (!y.invert && y.padding) discreteBuffer(y, data, vizDiscrete(this));
 
   if (x.invert || y.invert) {
     data.forEach((d: Record<string, unknown>) => {

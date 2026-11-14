@@ -16,6 +16,7 @@ import {
 import {isOneSided} from "./baselineDomain.js";
 import type {PlotOpenEnd, TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import type {D3Scale} from "../../utils/index.js";
 
 /** A domain value for any of the four axes. */
 type DomainValue = number | string | Date;
@@ -38,6 +39,82 @@ export function openEnd(
     else if ((auto[1] as number) < baseline) auto[1] = baseline;
   }
   return {pinned: [set(user[0]), set(user[1])], auto};
+}
+
+/** Whether a user domain end is set. */
+const isSet = (d: unknown): boolean => d !== undefined && d !== null;
+
+/**
+    A low-to-high user domain with its open ends filled from the data's
+    extent. When the user set one end and every value sits beyond it (a
+    minimum above the data, or a maximum below it), the filled end would
+    cross the set one and flip the axis; it goes on the far side instead, one
+    data span away (a decade on a log axis), so the axis still starts at the
+    user's value.
+*/
+export function fillOpenEnds(
+  user: DomainValue[],
+  data: DomainValue[],
+  log = false,
+): DomainValue[] {
+  const out = user.slice();
+  const pinned = [isSet(user[0]), isSet(user[1])];
+  if (!pinned[0]) out[0] = data[0];
+  if (!pinned[1]) out[1] = data[1];
+  if (pinned[0] === pinned[1] || +out[0] <= +out[1]) return out;
+  const end = pinned[0] ? 1 : 0;
+  const bound = out[1 - end];
+  const span = Math.abs(+data[1] - +data[0]) || Math.abs(+bound) || 1;
+  const value = log
+    ? end
+      ? +bound * 10
+      : +bound / 10
+    : +bound + (end ? span : -span);
+  out[end] = bound instanceof Date ? new Date(value) : value;
+  return out;
+}
+
+/**
+    Which ends (low, high) of an axis's domain the user set: the pinned end
+    of a one-sided domain (`open`), else the set ends of its
+    `xDomain`/`yDomain`/`x2Domain`/`y2Domain`.
+*/
+export function userPinnedEnds(
+  viz: VizInstance,
+  axis: "x" | "y" | "x2" | "y2",
+  open: PlotOpenEnd | undefined,
+): [boolean, boolean] {
+  if (open) return open.pinned;
+  const user = viz.schema[`${axis}Domain`] as unknown;
+  if (!Array.isArray(user) || user.length > 2) return [false, false];
+  return [isSet(user[0]), isSet(user[1])];
+}
+
+/**
+    `scale` with the user's set ends put back where `before` had them: shape
+    padding (see `extendPlotOppScales`) widens an axis to fit its marks, but
+    an end the user set stays exactly where they set it, and marks past it
+    are clipped. `flip` is true for a y scale, whose domain runs high to low.
+    Returns `scale` itself when nothing moved.
+*/
+export function keepPinnedEnds(
+  scale: D3Scale,
+  before: DomainValue[],
+  pinned: [boolean, boolean],
+  flip: boolean,
+): D3Scale {
+  if (!scale.invert || (!pinned[0] && !pinned[1])) return scale;
+  const order = <T>(d: T[]) => (flip ? d.slice().reverse() : d.slice());
+  const was = order(before);
+  const domain = order(scale.domain() as DomainValue[]);
+  let moved = false;
+  pinned.forEach((set, i) => {
+    if (set && +domain[i] !== +was[i]) {
+      domain[i] = was[i];
+      moved = true;
+    }
+  });
+  return moved ? scale.copy().domain(order(domain)) : scale;
 }
 
 /**

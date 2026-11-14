@@ -27,6 +27,7 @@ import {
 import type {PlotAxisFn, PlotDatum} from "../features/plotPaint.js";
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** Key suffix of a bar's error-bar node. */
 export const CONFIDENCE_KEY_SUFFIX = "::confidence";
@@ -282,7 +283,7 @@ function layoutErrorBars(
   bars: SceneNode[],
 ): Map<PlotDatum, ErrorBarLayout> {
   const {viz, stackData, stackKeyIndex, discreteKeyIndex} = ctx;
-  const discrete = viz.schema.discrete === "y" ? "y" : "x";
+  const discrete = vizDiscrete(viz) === "y" ? "y" : "x";
   const opp = discrete === "x" ? "y" : "x";
   const scale: PlotAxisFn = discrete === "x" ? ctx.y : ctx.x;
   const extent = errorBarExtent(ctx, opp, scale);
@@ -354,7 +355,7 @@ export function emitBarConfidence(
   const capWidth = config.capWidth;
   delete config.capWidth;
   delete config.tooltip;
-  const discrete = viz.schema.discrete === "y" ? "y" : "x";
+  const discrete = vizDiscrete(viz) === "y" ? "y" : "x";
   const layoutOf = (d: PlotDatum): ErrorBarLayout => layouts.get(d)!;
 
   const path = makeShape("Path")

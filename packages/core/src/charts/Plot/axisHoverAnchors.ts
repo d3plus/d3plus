@@ -7,6 +7,7 @@ import type {DataPoint} from "@d3plus/data";
 import {nodeColor} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ShapeNode} from "./sharedHover.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** One of a Plot's four axes. */
 export type AxisName = "x" | "x2" | "y" | "y2";
@@ -135,7 +136,7 @@ export function isAnchorMark(node: ShapeNode | undefined): node is ShapeNode {
 
 /** Every anchor the chart's marks draw (see `markAnchors`). */
 export function collectAnchors(viz: VizInstance): AxisHoverAnchor[] {
-  const valueAxis = viz.schema.discrete === "y" ? "x" : "y";
+  const valueAxis = vizDiscrete(viz) === "y" ? "x" : "y";
   const out: AxisHoverAnchor[] = [];
   const walk = (node: ShapeNode): void => {
     if (node.interactionGroup || node.interactive === false) return;

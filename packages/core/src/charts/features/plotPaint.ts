@@ -46,6 +46,7 @@ import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import type {LineLabelSide} from "../Plot/lineLabelSides.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** An axis position function: maps a domain value to a pixel coordinate. */
 export type PlotAxisFn = (d: unknown, axis?: string) => number;
@@ -311,10 +312,10 @@ function buildShapeConfig(
   domains: Record<string, number[]>,
   yOffset: number,
 ): Record<string, unknown> {
-  const discrete = viz.schema.discrete || "x";
+  const discrete = vizDiscrete(viz) || "x";
 
   return markSharedConfig({
-    discrete: viz.schema.discrete,
+    discrete: vizDiscrete(viz),
     duration: effectiveDuration(viz),
     label: (d: PlotDatum) => viz._drawLabel(d.data, d.i),
     x: (d: PlotDatum) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),

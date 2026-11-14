@@ -16,6 +16,7 @@ import {DATA_ORDER} from "../Plot/orderPath.js";
 import {discreteNestKeys} from "./stages.js";
 import {timelineUtc} from "../Plot/plotRangeBreaks.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** A time filter synthesized from the chart's `time` key. */
 export type TimeFilterFn =
@@ -112,11 +113,11 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
       i = 0;
     if (
       viz._timeOnDiscrete ||
-      (viz.schema.discrete &&
-        `_${viz.schema.discrete}` in viz &&
+      (vizDiscrete(viz) &&
+        `_${vizDiscrete(viz)}` in viz &&
         (
           viz as unknown as Record<string, (d: DataPoint, i: number) => unknown>
-        )[`_${viz.schema.discrete}`](d, i) === viz.schema.time(d, i))
+        )[`_${vizDiscrete(viz)}`](d, i) === viz.schema.time(d, i))
     ) {
       // Every period, or the latest `brushMax` of them.
       computedTimeFilter = latestPeriods(
@@ -242,7 +243,7 @@ export function computeFilteredData(
           (!viz._solo.length || viz._solo.includes(localId))
         ) {
           if (
-            (!viz.schema.discrete && shape === "Line") ||
+            (!vizDiscrete(viz) && shape === "Line") ||
             dataOrder ||
             viz._unmergedShapes?.includes(shape)
           )

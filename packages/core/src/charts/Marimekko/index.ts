@@ -19,11 +19,12 @@ import {
   marimekkoFacetAxes,
   marimekkoFixedAxes,
 } from "./axis.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** Each bar's total along the value axis, labeled "Bar Total" in tooltips. */
 function barTotal(viz: VizInstance) {
   return labelBarWidth((d: DataPoint, i?: number) => {
-    const value = viz.schema.discrete === "y" ? viz._x : viz._y;
+    const value = vizDiscrete(viz) === "y" ? viz._x : viz._y;
     return value ? value(d, i ?? 0) : undefined;
   }, "Bar Total");
 }

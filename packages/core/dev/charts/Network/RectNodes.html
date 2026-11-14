@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Rect Nodes</title>
+    <meta
+      name="description"
+      content="Network with Rect nodes sized by width and height accessors: each node draws as its own box, its label fits inside it, and links meet its edges."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Each Rect node takes its box from `shapeConfig`'s Rect `width` and
+    // `height` (here, wide enough for its label), not a square 2r across.
+    // Links end on the box's edges, and the layout keeps every box inside
+    // the chart.
+    var nodes = [
+      {id: "Warehouse", x: 0, y: 1},
+      {id: "Sorting", x: 1, y: 1},
+      {id: "North Depot", x: 2, y: 0},
+      {id: "South Depot", x: 2, y: 2},
+      {id: "Retail", x: 3, y: 0.5},
+      {id: "Online Orders", x: 3, y: 1.5},
+      {id: "Returns", x: 1, y: 2.4},
+    ];
+
+    var links = [
+      {source: "Warehouse", target: "Sorting"},
+      {source: "Sorting", target: "North Depot"},
+      {source: "Sorting", target: "South Depot"},
+      {source: "North Depot", target: "Retail"},
+      {source: "South Depot", target: "Online Orders"},
+      {source: "North Depot", target: "Online Orders"},
+      {source: "South Depot", target: "Returns"},
+      {source: "Returns", target: "Sorting"},
+    ];
+
+    new d3plus.Network()
+      .links(links)
+      .nodes(nodes)
+      .shape("Rect")
+      .arrows(true)
+      .shapeConfig({
+        Rect: {
+          width: function (d) {
+            return 24 + d.id.length * 7;
+          },
+          height: 28,
+          labelConfig: {fontResize: false, fontSize: 12},
+        },
+      })
+      .render();
+  </script>
+</html>

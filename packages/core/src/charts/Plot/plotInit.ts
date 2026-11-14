@@ -33,6 +33,7 @@ import {
 import {stackLegendSort} from "./stackLegendOrder.js";
 import {chartGridline} from "../viz/backgroundInk.js";
 import {themed} from "../../utils/theme.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     Plot's identity-coerce accessor schema. `installFluent` installs it on
@@ -163,7 +164,7 @@ export function initPlotDefaults(viz: Plot): void {
   viz._thresholdMemberFormat = (v: number) =>
     axisValue(
       viz as unknown as VizInstance,
-      viz.schema.discrete === "y" ? "x" : "y",
+      vizDiscrete(viz) === "y" ? "x" : "y",
       v,
     );
   viz.schema.timelineConfig = assign(viz.schema.timelineConfig, {
@@ -185,7 +186,7 @@ export function initPlotAxes(viz: Plot): void {
   viz._xConfig = {
     gridConfig: {
       stroke: (d: {id: string}) => {
-        if (viz.schema.discrete?.charAt(0) === "x" || viz._swarm?.cross === "x")
+        if (vizDiscrete(viz)?.charAt(0) === "x" || viz._swarm?.cross === "x")
           return "transparent";
         const range = viz._xAxis.range();
         const position = viz._xAxis._getPosition.bind(viz._xAxis)(d.id);
@@ -209,7 +210,7 @@ export function initPlotAxes(viz: Plot): void {
   viz._yConfig = {
     gridConfig: {
       stroke: (d: {id: string}) => {
-        if (viz.schema.discrete?.charAt(0) === "y" || viz._swarm?.cross === "y")
+        if (vizDiscrete(viz)?.charAt(0) === "y" || viz._swarm?.cross === "y")
           return "transparent";
         const range = viz._yAxis.range();
         const position = viz._yAxis._getPosition.bind(viz._yAxis)(d.id);

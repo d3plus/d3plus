@@ -21,7 +21,7 @@ import {
   precomputedBoxes,
 } from "./summary.js";
 import {boxAxisRows} from "./outliers.js";
-import {boxTooltipRows, isObservation} from "./tooltip.js";
+import {boxCategory, boxTooltipRows, isObservation} from "./tooltip.js";
 import {themed} from "../../utils/theme.js";
 
 export const boxWhiskerDef: ChartDefinition = {
@@ -165,7 +165,9 @@ export const boxWhiskerDef: ChartDefinition = {
           const depth =
             viz._drawDepth + (precomputedBoxes(viz) ? 1 : 0) + observed;
           const l = viz._ids(d, i).slice(0, depth);
-          return l[l.length - 1];
+          // A box with no groupBy level above its observations is named
+          // by its category.
+          return l.length ? l[l.length - 1] : (boxCategory(viz, d, i) ?? "");
         },
         tbody: (d: DataPoint, i: number) => boxTooltipRows(viz, d, i),
       }),

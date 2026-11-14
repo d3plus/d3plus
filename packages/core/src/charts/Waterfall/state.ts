@@ -16,6 +16,7 @@ import {
   type WaterfallKind,
   type WaterfallStep,
 } from "./steps.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** The key a legend entry stores its step kind under. */
 export const KIND_KEY = "__d3plusWaterfallKind";
@@ -37,7 +38,7 @@ export const waterfallState = (viz: VizInstance): WaterfallState =>
 
 /** The axis holding categories: "x" for vertical bars, "y" for horizontal ones. */
 export const categoryAxis = (viz: VizInstance): "x" | "y" =>
-  viz.schema.discrete === "y" ? "y" : "x";
+  vizDiscrete(viz) === "y" ? "y" : "x";
 
 /** The axis holding values. */
 export const valueAxis = (viz: VizInstance): "x" | "y" =>
