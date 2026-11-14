@@ -27,6 +27,31 @@ export const fixFloat = (d: number): number => {
   return d;
 };
 
+/**
+    How close to zero, as a share of the far end's distance from it, the near
+    end of a one-signed domain rounds "outside" to zero.
+*/
+export const ZERO_SNAP_SHARE = 0.1;
+
+/**
+    The index of a one-signed domain's end nearest zero, when it lies within
+    `ZERO_SNAP_SHARE` of the far end's distance from zero (and isn't zero);
+    else undefined. Rounding "outside" takes that end to zero: rounded only
+    to its own digits, it ends the axis on an uneven value (`2` below a first
+    tick of `20`) that the axis then labels.
+    @param domain The domain, in either order.
+*/
+export function nearZeroEnd(domain: number[]): 0 | 1 | undefined {
+  const [a, b] = domain;
+  if (isNegative(a) !== isNegative(b)) return undefined;
+  const near = Math.abs(a) <= Math.abs(b) ? 0 : 1;
+  const nearValue = Math.abs(domain[near]),
+    farValue = Math.abs(domain[1 - near]);
+  return nearValue > 0 && nearValue < farValue * ZERO_SNAP_SHARE
+    ? near
+    : undefined;
+}
+
 /** A linear domain rounded to "nice" values per the rounding mode, or undefined when it has no digits to round. */
 function roundLinear(
   initialDomain: number[],
@@ -88,6 +113,10 @@ function roundLinear(
           : "floor"
     ](initialDomain[1] / factor) * factor,
   ];
+  if (rounding === "outside") {
+    const near = nearZeroEnd(initialDomain);
+    if (near !== undefined) newDomain[near] = 0;
+  }
   if (scale === "log") {
     if (newDomain[0] === 0) newDomain[0] = initialDomain[0];
     if (newDomain[1] === 0) newDomain[1] = initialDomain[1];
