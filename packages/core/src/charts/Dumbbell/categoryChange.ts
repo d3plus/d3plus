@@ -9,6 +9,8 @@
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
+import type {FacetAccessor} from "../facet/facetConfig.js";
+import {facetKey} from "../facet/facetData.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   changeText,
@@ -112,13 +114,22 @@ export function hasBarlessCategory(
   return false;
 }
 
-/** Whether a bar-connector chart draws any dots (see `hasBarlessCategory`). */
+/**
+    Whether a bar-connector chart draws any dots (see `hasBarlessCategory`).
+    Under `facet`, each panel's categories count on their own, so a lone or
+    unchanged dot in any panel counts.
+*/
 export function drawsBarlessDots(viz: VizInstance): boolean {
   const {category, value} = axes(viz);
   if (!category || !value) return false;
+  const facet = viz.schema.facet as FacetAccessor | undefined;
+  const categoryOf: Accessor =
+    typeof facet === "function"
+      ? (d, i) => `${facetKey(facet(d, i))}\u0000${category(d, i)}`
+      : category;
   return hasBarlessCategory(
     (viz._filteredData ?? []) as DataPoint[],
-    category,
+    categoryOf,
     value,
     !!viz.schema.arrows,
   );
