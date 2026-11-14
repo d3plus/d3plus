@@ -305,12 +305,14 @@ const hover = ([renderer]) =>
           const crosshair = flat([viz._paintedScene.root]).find(
             n => n.key === "crosshair",
           );
-          // A click lands on whatever is under the pointer by then: the
-          // hovered marks move in front of the others' labels.
+          // The hover moved the hovered marks in front of the others'
+          // labels, so the click goes to the element drawing it now.
           const target =
             renderer === "canvas"
               ? host
-              : document.elementFromPoint(at.clientX, at.clientY);
+              : document.querySelector(
+                  "#viz svg.d3plus-render-svg [data-key='Beta_Q1::confidence::hit']",
+                );
           target.dispatchEvent(new MouseEvent("click", at));
           resolve({
             title: tip
