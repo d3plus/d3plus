@@ -12,6 +12,7 @@ import timeScale from "~/examples/core/components/axis/time-scale.js?raw";
 import ordinalScale from "~/examples/core/components/axis/ordinal-scale.js?raw";
 import ticksAndFormat from "~/examples/core/components/axis/ticks-and-format.js?raw";
 import maxSize from "~/examples/core/components/axis/max-size.js?raw";
+import minorTicks from "~/examples/core/components/axis/minor-ticks.js?raw";
 
 Creates an SVG scale based on an array of data.
 
@@ -23,7 +24,7 @@ A linear `[0, 100]` domain is spread across the 600px width with auto-generated 
 
 ## Log scale
 
-`scale: "log"` spaces the ticks by powers of ten, so a `[1, 10000]` domain gets a major tick per decade with minor ticks between them. Values must stay above zero on a log axis.
+`scale: "log"` spaces the ticks by powers of ten, so a `[1, 10000]` domain gets a major tick per decade with short minor ticks at 2 through 9 times each one (thinned to 2 and 5 on a shorter axis, and left off where even those would crowd; `minorTicks: false` turns them off). Values must stay above zero on a log axis.
 
 <Playground chart="Axis" code={logScale} controls={["scale","domain","gridLog"]} height={120} />
 
@@ -44,6 +45,12 @@ A linear `[0, 100]` domain is spread across the 600px width with auto-generated 
 `scale: "band"` (or `"point"`, or `"ordinal"`) treats the domain as a list of categories and gives each one an equal slot, with `paddingInner` and `paddingOuter` controlling the gaps. Bar charts place their bars on an axis like this.
 
 <Playground chart="Axis" code={ordinalScale} controls={["scale","domain","paddingInner","paddingOuter"]} height={120} />
+
+## Minor ticks
+
+`minorTicks: true` draws short, unlabeled ticks between the ticks of any continuous axis: four evenly between each pair here, or on a time axis the calendar's months, days, or hours between them. A number draws that many instead. Each is half as long as the shortest tick, so labeled ticks, unlabeled ticks, and minor ticks read apart, and minor ticks that would sit under 4 pixels apart thin out. `minorGrid: true` runs fainter grid lines from them, styled by `minorGridConfig`.
+
+<Playground chart="Axis" code={minorTicks} controls={["minorTicks","domain","scale"]} height={120} />
 
 ## Ticks and format
 

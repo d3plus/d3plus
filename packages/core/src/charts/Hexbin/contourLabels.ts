@@ -21,6 +21,11 @@ import {
   type Edges,
   type Pt,
 } from "../features/pathLabelGeometry.js";
+import {
+  labelMinRadius,
+  PATH_LABEL_SMOOTHING,
+  smoothPolyline,
+} from "../features/pathLabelBends.js";
 import {pathLabelNodes, type PathLabel} from "../features/pathLabels.js";
 import {
   bestStretchAt,
@@ -156,11 +161,12 @@ export function paddedBand(points: Pt[], ctx: StretchContext): Pt[] {
 }
 
 /**
-    The stretches labels along a closed ring take: as many as its length
-    allows at `spacing` pixels apart (at least one), each the best-scoring
-    stretch left that is clear of the obstacles and at least `spacing` along
-    the ring from the others. Each one's padded band (see `paddedBand`) is
-    added to the obstacles.
+    The stretches labels along a closed ring take, on the ring smoothed of
+    kinks shorter than a letter: as many as its length allows at `spacing`
+    pixels apart (at least one), each the best-scoring stretch left that is
+    clear of the obstacles and at least `spacing` along the ring from the
+    others. Each one's padded band (see `paddedBand`) is added to the
+    obstacles.
     @param ring The closed ring.
     @param length Each label's length.
     @param ctx The obstacles (ignoring the ring's own points), plot area, and font.
@@ -172,12 +178,13 @@ export function ringLabelStretches(
   ctx: StretchContext,
   spacing: number,
 ): Pt[][] {
-  const total = polylineLength(ring);
+  const path = smoothPolyline(ring, PATH_LABEL_SMOOTHING * ctx.fontSize);
+  const total = polylineLength(path);
   if (!(total > length * 2)) return [];
   // Labels closer than their own length would overlap.
   const gap = Math.max(spacing, length);
   // Twice round, so a stretch can cross where the ring starts and ends.
-  const loop = trimPolyline([...ring, ...ring.slice(1)], 0, total + length);
+  const loop = trimPolyline([...path, ...path.slice(1)], 0, total + length);
   const count = Math.max(1, Math.floor(total / gap));
   const middles: number[] = [];
   const out: Pt[][] = [];
@@ -211,6 +218,14 @@ function levelColors(nodes: SceneNode[]): Map<number, string> {
   return colors;
 }
 
+/** The plot area's edges. */
+const frameEdges = (frame: PlotFrame): Edges => ({
+  x0: frame.left,
+  y0: frame.top,
+  x1: frame.left + frame.width,
+  y1: frame.top + frame.height,
+});
+
 /**
     The labels along a Hexbin's contour lines (`contourConfig.labels`): for
     each labelled level, its formatted value along its rings, centered on
@@ -232,8 +247,8 @@ export function emitContourLabels(
   settings: HexbinSettings,
   obstacles: Pt[][] = [],
 ): SceneNode[] {
-  const {labels, labelConfig, labelSpacing, labelStep, strokeWidth} =
-    settings.contourConfig;
+  const {labels, labelSpacing, labelStep, strokeWidth} = settings.contourConfig;
+  const {minRadius, ...labelConfig} = settings.contourConfig.labelConfig;
   if (!labels || !rows.length) return [];
   const metas = rows
     .map(row => hexbinMeta(row))
@@ -251,12 +266,7 @@ export function emitContourLabels(
     "font-size": fontSize,
     "font-weight": (labelConfig.fontWeight as number | undefined) ?? 600,
   };
-  const rect: Edges = {
-    x0: frame.left,
-    y0: frame.top,
-    x1: frame.left + frame.width,
-    y1: frame.top + frame.height,
-  };
+  const rect = frameEdges(frame);
   const grid = new PointGrid(fontSize);
   for (const line of obstacles) grid.add(resample(line, 2));
   let tag = 0;
@@ -272,6 +282,7 @@ export function emitContourLabels(
     fontSize,
     lift: -BASELINE_DROP * fontSize,
     maxTurn: MAX_TURN,
+    minRadius: labelMinRadius(minRadius),
     // Wide enough that no line slips between the band's rows.
     minClearance: Math.max(2, CLEARANCE * fontSize),
   };

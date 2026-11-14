@@ -40,6 +40,7 @@ export {default as Pyramid} from "./Pyramid/index.js";
 export {default as Radar} from "./Radar/index.js";
 export {default as RadialBar} from "./RadialBar/index.js";
 export {default as RadialMatrix} from "./RadialMatrix/index.js";
+export {default as RadialTree} from "./RadialTree/index.js";
 export {default as Ridgeline} from "./Ridgeline/index.js";
 export {default as Rings} from "./Rings/index.js";
 export {default as Sankey} from "./Sankey/index.js";
