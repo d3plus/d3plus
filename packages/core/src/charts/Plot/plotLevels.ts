@@ -6,7 +6,14 @@
 */
 import type {DataPoint} from "@d3plus/data";
 
-import {levelText} from "../../components/Axis/axisLevels.js";
+import type Axis from "../../components/Axis/Axis.js";
+import {
+  defaultLevelFormat,
+  hasLevels,
+  levelFormatter,
+  levelText,
+} from "../../components/Axis/axisLevels.js";
+import type {AxisLevelFormat} from "../../components/Axis/axisLevels.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -35,6 +42,8 @@ export interface LevelAccessor {
   keys: (string | undefined)[];
   /** A category's level values, outermost first. */
   values: (category: unknown) => unknown[];
+  /** The category of a list of level values, outermost first. */
+  key: (values: unknown[]) => string;
 }
 
 /**
@@ -48,12 +57,14 @@ export function levelAccessor(levels: LevelInput[]): LevelAccessor {
     typeof level === "function" ? level : fieldAccessor(level),
   );
   const seen = new Map<string, unknown[]>();
-  const category = ((d: DataPoint, i: number) => {
-    const values = read.map(fn => fn(d, i));
-    const key = values.map(levelText).join(SEPARATOR);
-    if (!seen.has(key)) seen.set(key, values);
-    return key;
-  }) as LevelAccessor;
+  const key = (values: unknown[]): string => {
+    const joined = values.map(levelText).join(SEPARATOR);
+    if (!seen.has(joined)) seen.set(joined, values);
+    return joined;
+  };
+  const category = ((d: DataPoint, i: number) =>
+    key(read.map(fn => fn(d, i)))) as LevelAccessor;
+  category.key = key;
   category.keys = levels.map(level =>
     typeof level === "string" ? level : undefined,
   );
@@ -105,8 +116,34 @@ export function sharedValue(
   rows: DataPoint[],
   value: (d: DataPoint) => unknown,
 ): unknown {
-  const values = Array.from(new Set(rows.map(value)));
-  return values.length === 1 ? values[0] : values;
+  const values = new Map<unknown, unknown>();
+  for (const row of rows) {
+    const v = value(row);
+    // Dates at the same time are the same value.
+    const id = v instanceof Date ? +v : v;
+    if (!values.has(id)) values.set(id, v);
+  }
+  const list = Array.from(values.values());
+  return list.length === 1 ? list[0] : list;
+}
+
+/**
+    A user domain for a Plot axis with each list of level values in it (as
+    `[2023, "Q1"]`) read as the category it names; any other value, and the
+    domain of an axis with one level, as given.
+    @param viz The Plot.
+    @param axis The axis.
+    @param domain The domain.
+*/
+export function levelDomain<T>(
+  viz: VizInstance,
+  axis: string,
+  domain: T[],
+): (T | string)[] {
+  const levels = plotLevels(viz, axis);
+  return levels
+    ? domain.map(d => (Array.isArray(d) ? levels.key(d) : d))
+    : domain;
 }
 
 /**
@@ -223,13 +260,31 @@ export function levelAxisValue(
   if (!levels) return undefined;
   const path = levels.values(value);
   const config = viz[`_${axis}Config`] as
-    {tickFormat?: (d: unknown) => unknown} | undefined;
-  const inner = path[path.length - 1];
+    | {
+        tickFormat?: (d: unknown) => unknown;
+        levelFormat?: (value: unknown, level: number) => unknown;
+      }
+    | undefined;
+  // The drawn axis writes Dates as its labels do (see `defaultLevelFormat`).
+  const drawn = viz[`_${axis}Axis`] as Axis | undefined;
+  const ready = drawn && hasLevels(drawn) ? drawn : undefined;
+  const user = config?.levelFormat;
+  const outer: AxisLevelFormat = ready
+    ? levelFormatter(ready)
+    : typeof user === "function"
+      ? (v, level) => levelText(user(v, level))
+      : v => levelText(v);
+  const plain: AxisLevelFormat = ready
+    ? defaultLevelFormat(ready)
+    : v => levelText(v);
+  const last = path.length - 1;
   const format = config?.tickFormat;
   const innerText =
-    typeof format === "function" ? levelText(format(inner)) : levelText(inner);
+    typeof format === "function"
+      ? levelText(format(path[last]))
+      : plain(path[last], last);
   if (tick) return innerText;
-  return [...path.slice(0, -1).map(levelText), innerText]
+  return [...path.slice(0, -1).map((v, level) => outer(v, level)), innerText]
     .filter(text => text !== "")
     .join(LEVEL_JOIN);
 }

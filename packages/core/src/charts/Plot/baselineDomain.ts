@@ -14,6 +14,7 @@
 import RESET from "../../utils/RESET.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {levelDomain} from "./plotLevels.js";
 
 /** A domain value for any of the four axes. */
 type DomainValue = number | string | Date;
@@ -186,7 +187,10 @@ export function userAxisDomain(
   dataDomain: DomainValue[] | undefined,
 ): DomainValue[] | undefined {
   const user = givenDomain(viz, axis);
-  const domain = user ? user.slice() : undefined;
+  // Lists of level values name a multi-level axis's categories.
+  const domain = user
+    ? (levelDomain(viz, axis, user) as DomainValue[])
+    : undefined;
   if (baselineDomainAxis(viz) !== axis) return domain;
   const baseline = viz._userBaseline as number;
   const hi = dataDomain?.[1];

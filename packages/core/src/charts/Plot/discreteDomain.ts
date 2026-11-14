@@ -7,6 +7,7 @@
 import {InternSet} from "d3-array";
 
 import {isSpanAxis} from "./discreteSpan.js";
+import {levelDomain} from "./plotLevels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {vizDiscrete} from "../viz/discrete.js";
 
@@ -25,5 +26,7 @@ export function discreteDomainCategories(
   const domain = Array.isArray(configDomain)
     ? configDomain
     : viz.schema[`${axis}Domain`];
-  return Array.isArray(domain) && domain.length ? new InternSet(domain) : null;
+  return Array.isArray(domain) && domain.length
+    ? new InternSet(levelDomain(viz, axis, domain))
+    : null;
 }
