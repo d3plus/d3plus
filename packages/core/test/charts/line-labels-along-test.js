@@ -164,6 +164,29 @@ it("bestStretch — the flat, clear part of a line, upright", () => {
   );
 });
 
+it("bestStretchAt — no steeper than maxSlope, and no tighter than minRadius", () => {
+  const line = (degrees, length = 200) => {
+    const a = (degrees * Math.PI) / 180;
+    return [
+      [50, 250],
+      [50 + length * Math.cos(a), 250 - length * Math.sin(a)],
+    ];
+  };
+  const capped = {...ctx(), maxSlope: Math.PI / 4};
+  assert.ok(bestStretchAt([line(60)], 60, ctx()), "no cap by default");
+  assert.strictEqual(bestStretchAt([line(60)], 60, capped), null);
+  assert.strictEqual(bestStretchAt([line(-60)], 60, capped), null, "falling");
+  assert.ok(bestStretchAt([line(40)], 60, capped));
+  // An arc 3em round (at 10px) under the text: too tight by default.
+  const arc = Array.from({length: 61}, (_, k) => {
+    const a = Math.PI / 2 + 0.6 - (k * 1.2) / 60;
+    return [200 + 30 * Math.cos(a), 100 + 30 * Math.sin(a)];
+  });
+  assert.strictEqual(bestStretchAt([arc], 30, ctx()), null);
+  assert.ok(bestStretchAt([arc], 30, {...ctx(), minRadius: 2}));
+  assert.ok(bestStretchAt([arc], 30, {...ctx(), minRadius: 0}));
+});
+
 it("scoreStretch — ignores the points of the line it sits on", () => {
   const c = ctx();
   c.grid.add(resample(flat(0, 400, 97), 2), 3);

@@ -22,6 +22,7 @@ import {
   type Pt,
 } from "../features/pathLabelGeometry.js";
 import {
+  labelMinRadius,
   PATH_LABEL_SMOOTHING,
   smoothPolyline,
 } from "../features/pathLabelBends.js";
@@ -217,6 +218,14 @@ function levelColors(nodes: SceneNode[]): Map<number, string> {
   return colors;
 }
 
+/** The plot area's edges. */
+const frameEdges = (frame: PlotFrame): Edges => ({
+  x0: frame.left,
+  y0: frame.top,
+  x1: frame.left + frame.width,
+  y1: frame.top + frame.height,
+});
+
 /**
     The labels along a Hexbin's contour lines (`contourConfig.labels`): for
     each labelled level, its formatted value along its rings, centered on
@@ -238,8 +247,8 @@ export function emitContourLabels(
   settings: HexbinSettings,
   obstacles: Pt[][] = [],
 ): SceneNode[] {
-  const {labels, labelConfig, labelSpacing, labelStep, strokeWidth} =
-    settings.contourConfig;
+  const {labels, labelSpacing, labelStep, strokeWidth} = settings.contourConfig;
+  const {minRadius, ...labelConfig} = settings.contourConfig.labelConfig;
   if (!labels || !rows.length) return [];
   const metas = rows
     .map(row => hexbinMeta(row))
@@ -257,12 +266,7 @@ export function emitContourLabels(
     "font-size": fontSize,
     "font-weight": (labelConfig.fontWeight as number | undefined) ?? 600,
   };
-  const rect: Edges = {
-    x0: frame.left,
-    y0: frame.top,
-    x1: frame.left + frame.width,
-    y1: frame.top + frame.height,
-  };
+  const rect = frameEdges(frame);
   const grid = new PointGrid(fontSize);
   for (const line of obstacles) grid.add(resample(line, 2));
   let tag = 0;
@@ -278,6 +282,7 @@ export function emitContourLabels(
     fontSize,
     lift: -BASELINE_DROP * fontSize,
     maxTurn: MAX_TURN,
+    minRadius: labelMinRadius(minRadius),
     // Wide enough that no line slips between the band's rows.
     minClearance: Math.max(2, CLEARANCE * fontSize),
   };

@@ -24,6 +24,7 @@ import {
 import type {Edges, Pt} from "../features/pathLabelGeometry.js";
 import {
   bendStrain,
+  labelMinRadius,
   PATH_LABEL_SMOOTHING,
   smoothPolyline,
 } from "../features/pathLabelBends.js";
@@ -106,6 +107,8 @@ export interface TrendPlacement {
   width: number;
   /** The boxes of the labels already placed, which this one must clear. */
   obstacles: Box[];
+  /** The tightest the text's baseline may bend toward the text, in ems (see `bendStrain`). Defaults to `PATH_LABEL_INNER_RADIUS`. */
+  minRadius?: number;
 }
 
 /** The boxes a label covers along `d`, `width` long from its start. */
@@ -157,7 +160,7 @@ export function trendLabelSpot(
   rect: Edges,
   place: TrendPlacement,
 ): {d: string; boxes: Box[]} | null {
-  const {fontSize, lift, width, obstacles} = place;
+  const {fontSize, lift, width, obstacles, minRadius} = place;
   const run = smoothPolyline(
     uprightPoints(visibleRun(points, rect)),
     PATH_LABEL_SMOOTHING * fontSize,
@@ -178,7 +181,7 @@ export function trendLabelSpot(
       const d = polylineD(path);
       const boxes = pathBoxes(d, span, fontSize);
       if (!boxes.some(b => blocked(b, obstacles) || outside(b, rect))) {
-        const strain = bendStrain(path, fontSize);
+        const strain = bendStrain(path, fontSize, minRadius);
         if (strain <= 1) return {d, boxes};
         if (!fallback || strain < fallback.strain)
           fallback = {d, boxes, strain};
@@ -232,7 +235,10 @@ export function emitTrendLabels(
   const setting = config.label as TrendLabelSetting | undefined;
   const fits = viz._trendFits || [];
   if (!setting || !fits.length) return [];
-  const labelConfig = (config.labelConfig || {}) as Record<string, unknown>;
+  const {minRadius, ...labelConfig} = (config.labelConfig || {}) as Record<
+    string,
+    unknown
+  >;
   const fontSize =
     typeof labelConfig.fontSize === "number"
       ? labelConfig.fontSize
@@ -259,6 +265,7 @@ export function emitTrendLabels(
       // A little past the measured text, for the ellipsis's rounding.
       width: (textWidth(text, style) as number) + 2,
       obstacles,
+      minRadius: labelMinRadius(minRadius),
     });
     if (!spot) return [];
     obstacles.push(...spot.boxes);

@@ -2107,11 +2107,13 @@ export {
   bendStrain,
   curvature,
   holdsBends,
+  labelMinRadius,
   PATH_LABEL_INNER_RADIUS,
   PATH_LABEL_OUTER_RADIUS,
   PATH_LABEL_SMOOTHING,
   sharpestTurn,
   smoothPolyline,
+  stretchSlope,
   textFollows,
 } from "./src/charts/features/pathLabelBends.js";
 export type {CurvedLabelSpot} from "./src/charts/features/linkLabelPath.js";

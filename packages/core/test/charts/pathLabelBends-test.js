@@ -3,10 +3,12 @@ import assert from "assert";
 import {
   bendStrain,
   holdsBends,
+  labelMinRadius,
   PATH_LABEL_INNER_RADIUS,
   PATH_LABEL_OUTER_RADIUS,
   sharpestTurn,
   smoothPolyline,
+  stretchSlope,
   textFollows,
 } from "../../src/charts/features/pathLabelBends.ts";
 import {polylineLength} from "../../src/charts/features/pathLabelGeometry.ts";
@@ -195,4 +197,69 @@ it("smoothPolyline — a zig-zag shorter than a letter flattens enough to follow
   const middle = out.filter(([x]) => x > 20 && x < 180);
   assert.ok(textFollows(middle, fontSize));
   assert.ok(middle.every(([, y]) => Math.abs(y) < 1));
+});
+
+it("labelMinRadius — a non-negative number of ems, else the default", () => {
+  assert.strictEqual(labelMinRadius(undefined), PATH_LABEL_INNER_RADIUS);
+  assert.strictEqual(labelMinRadius(2.5), 2.5);
+  assert.strictEqual(labelMinRadius(0), 0);
+  assert.strictEqual(labelMinRadius(-1), PATH_LABEL_INNER_RADIUS);
+  assert.strictEqual(labelMinRadius("3"), PATH_LABEL_INNER_RADIUS);
+  assert.strictEqual(labelMinRadius(Infinity), PATH_LABEL_INNER_RADIUS);
+});
+
+it("bendStrain — a minRadius sets the limit toward the text, and half it away", () => {
+  const fontSize = 10;
+  const toward = arc(30, 100, "left");
+  assert.ok(bendStrain(toward, fontSize) > 1, "3em under the default 4em");
+  assert.ok(textFollows(toward, fontSize, 2.5));
+  assert.ok(!textFollows(toward, fontSize, 3.5));
+  // Away from the text, 1.5em: under the default's 2em, over 2.5em's half.
+  const away = arc(15, 60, "right");
+  assert.ok(!textFollows(away, fontSize));
+  assert.ok(textFollows(away, fontSize, 2.5));
+  // 0 sets no limit.
+  assert.strictEqual(bendStrain(arc(5, 20, "left"), fontSize, 0), 0);
+});
+
+it("stretchSlope — from level to straight up or down, either way along", () => {
+  const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} vs ${b}`);
+  close(
+    stretchSlope([
+      [0, 0],
+      [10, 0],
+    ]),
+    0,
+  );
+  close(
+    stretchSlope([
+      [0, 0],
+      [10, -10],
+    ]),
+    Math.PI / 4,
+  );
+  close(
+    stretchSlope([
+      [10, 10],
+      [0, 0],
+    ]),
+    Math.PI / 4,
+  );
+  close(
+    stretchSlope([
+      [0, 0],
+      [0, 10],
+    ]),
+    Math.PI / 2,
+  );
+  // Only its ends count.
+  close(
+    stretchSlope([
+      [0, 0],
+      [5, -50],
+      [10, 0],
+    ]),
+    0,
+  );
+  assert.strictEqual(stretchSlope([[0, 0]]), 0);
 });

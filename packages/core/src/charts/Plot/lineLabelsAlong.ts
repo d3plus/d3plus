@@ -1,8 +1,10 @@
 /**
     Line labels along their lines (`lineLabels: "along"`): each series' name
     runs along its own line, following its curve, on the stretch a scored
-    search finds flattest and clearest of the other lines and labels. The
-    text reads upright, and a series with no clear stretch goes unlabeled.
+    search finds flattest and clearest of the other lines and labels, no
+    steeper than 45° and bending gently enough for its letters to follow.
+    The text reads upright, and a series with no such stretch goes
+    unlabeled.
 */
 import {fontExists, textWidth} from "@d3plus/dom";
 import {fontFamily as defaultFontFamily} from "@d3plus/text";
@@ -20,13 +22,19 @@ import {
 import type {Edges, Pt} from "../features/pathLabelGeometry.js";
 import {
   curvature,
+  labelMinRadius,
   PATH_LABEL_SMOOTHING,
   smoothPolyline,
+  stretchSlope,
   textFollows,
 } from "../features/pathLabelBends.js";
 import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import type {LineLabelConfig} from "./lineLabelSides.js";
 import {rowLabelsAlong} from "./lineLabelSides.js";
+
+/** The steepest stretch a line's label runs along: 45°, past which it would read more up than across. */
+export const LINE_LABEL_MAX_SLOPE = Math.PI / 4;
 
 /**
     Obstacle points, bucketed by cell for nearest-distance lookups. Each
@@ -120,6 +128,10 @@ export interface StretchContext {
   ignore?: number;
   /** The most a stretch may turn in all, in radians (default a right angle). */
   maxTurn?: number;
+  /** The tightest its text's baseline may bend toward the text, in ems (see `bendStrain`). Defaults to `PATH_LABEL_INNER_RADIUS`. */
+  minRadius?: number;
+  /** The steepest a stretch may climb or fall from end to end, in radians (see `stretchSlope`). No limit by default. */
+  maxSlope?: number;
 }
 
 /**
@@ -179,9 +191,10 @@ export interface StretchSpot {
 /**
     The best-scoring stretch of `length` pixels along any of a line's
     pieces, upright, with where it lies, or null when every stretch is
-    blocked or too bent: turning more than `maxTurn` in all, or with its
-    text's baseline bending too tightly for the letters to follow (see
-    `textFollows`). Pass the
+    blocked, too steep, or too bent: climbing or falling more steeply than
+    `maxSlope`, turning more than `maxTurn` in all, or with its text's
+    baseline bending tighter than `minRadius` allows (see `textFollows`).
+    Pass the
     pieces through `smoothPolyline` first, so kinks shorter than a letter
     don't rule a stretch out.
     @param pieces The line's pieces (where its data has gaps), in pixels.
@@ -206,8 +219,10 @@ export function bestStretchAt(
       const stretch = uprightPoints(ruler.trim(from, from + length), ctx.steep);
       // A label can't follow a line that doubles back under it.
       if (curvature(stretch) > maxTurn) continue;
-      if (!textFollows(offsetPolyline(stretch, ctx.lift), ctx.fontSize))
+      if (ctx.maxSlope !== undefined && stretchSlope(stretch) > ctx.maxSlope)
         continue;
+      const baseline = offsetPolyline(stretch, ctx.lift);
+      if (!textFollows(baseline, ctx.fontSize, ctx.minRadius)) continue;
       const score = scoreStretch(stretch, ctx);
       if (score !== null && score < bestScore) {
         bestScore = score;
@@ -327,7 +342,15 @@ export function emitAlongLabels(
   const grid = new PointGrid(fontSize);
   for (const line of lines)
     for (const piece of line.pieces) grid.add(resample(piece, 2));
-  const ctx: StretchContext = {grid, rect, fontSize, lift: 3.5};
+  const config = viz.schema.lineLabelConfig as LineLabelConfig | undefined;
+  const ctx: StretchContext = {
+    grid,
+    rect,
+    fontSize,
+    lift: 3.5,
+    minRadius: labelMinRadius(config?.minRadius),
+    maxSlope: LINE_LABEL_MAX_SLOPE,
+  };
   // A series drawn as several lines (observed and predicted, say) is named
   // once: its later lines count as named when an earlier one was.
   const named = new Set<string>();

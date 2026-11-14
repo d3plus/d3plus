@@ -12,10 +12,10 @@ import type {Pt} from "./pathLabelGeometry.js";
 /** How far around each point a label's path is averaged (see `smoothPolyline`), in ems. */
 export const PATH_LABEL_SMOOTHING = 1;
 
-/** The tightest a label's path may bend toward its text, as a radius in ems, measured over one em of it. */
+/** The tightest a label's path may bend toward its text by default (see `minRadius` on the label configs), as a radius in ems, measured over one em of it. */
 export const PATH_LABEL_INNER_RADIUS = 4;
 
-/** The tightest a label's path may bend away from its text, as a radius in ems, measured over one em of it. */
+/** The tightest a label's path may bend away from its text, as a radius in ems, measured over one em of it: half `PATH_LABEL_INNER_RADIUS`, and half any `minRadius` set in its place. */
 export const PATH_LABEL_OUTER_RADIUS = 2;
 
 /**
@@ -118,20 +118,39 @@ export function holdsBends(
 }
 
 /**
+    Reads a `minRadius` option: the tightest a label's path may bend toward
+    its text, in ems, as a non-negative number (`0` sets no limit), or
+    `PATH_LABEL_INNER_RADIUS` when it is missing or invalid.
+    @param value The configured `minRadius`.
+*/
+export function labelMinRadius(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? value
+    : PATH_LABEL_INNER_RADIUS;
+}
+
+/**
     How near a label's path comes to bending too tightly for its text, over
     any em of it: its sharpest turn toward the text (where the letters'
-    tops crowd together) as a share of what a bend of
-    `PATH_LABEL_INNER_RADIUS` makes, or its sharpest turn away from the text
-    (where they fan apart) as a share of what one of
-    `PATH_LABEL_OUTER_RADIUS` makes, whichever is more. The text follows the
-    path when this is 1 or less.
+    tops crowd together) as a share of what a bend of `minRadius` ems
+    makes, or its sharpest turn away from the text (where they fan apart)
+    as a share of what a bend half as tight makes, whichever is more. The
+    text follows the path when this is 1 or less; a `minRadius` of 0 sets
+    no limit.
     @param points The label's path, the text on its left.
     @param fontSize The label's font size.
+    @param minRadius The tightest bend toward the text, in ems. Defaults to `PATH_LABEL_INNER_RADIUS`.
 */
-export function bendStrain(points: Pt[], fontSize: number): number {
+export function bendStrain(
+  points: Pt[],
+  fontSize: number,
+  minRadius = PATH_LABEL_INNER_RADIUS,
+): number {
+  if (!(minRadius > 0)) return 0;
+  const outer = (minRadius * PATH_LABEL_OUTER_RADIUS) / PATH_LABEL_INNER_RADIUS;
   return Math.max(
-    bendShare(points, PATH_LABEL_INNER_RADIUS * fontSize, fontSize, "left"),
-    bendShare(points, PATH_LABEL_OUTER_RADIUS * fontSize, fontSize, "right"),
+    bendShare(points, minRadius * fontSize, fontSize, "left"),
+    bendShare(points, outer * fontSize, fontSize, "right"),
   );
 }
 
@@ -140,9 +159,26 @@ export function bendStrain(points: Pt[], fontSize: number): number {
     without its letters crowding or fanning apart (see `bendStrain`).
     @param points The label's path, the text on its left.
     @param fontSize The label's font size.
+    @param minRadius The tightest bend toward the text, in ems. Defaults to `PATH_LABEL_INNER_RADIUS`.
 */
-export function textFollows(points: Pt[], fontSize: number): boolean {
-  return bendStrain(points, fontSize) <= 1;
+export function textFollows(
+  points: Pt[],
+  fontSize: number,
+  minRadius = PATH_LABEL_INNER_RADIUS,
+): boolean {
+  return bendStrain(points, fontSize, minRadius) <= 1;
+}
+
+/**
+    The angle a stretch climbs or falls from end to end, in radians from
+    level (0) to straight up or down (π/2).
+    @param points The stretch.
+*/
+export function stretchSlope(points: Pt[]): number {
+  if (points.length < 2) return 0;
+  const [x0, y0] = points[0];
+  const [x1, y1] = points[points.length - 1];
+  return Math.atan2(Math.abs(y1 - y0), Math.abs(x1 - x0));
 }
 
 /** Averages each value with the `half` on either side of it, fewer near the ends (so they stay put), or wrapping round a closed ring. */

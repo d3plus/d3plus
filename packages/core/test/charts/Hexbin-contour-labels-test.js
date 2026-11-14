@@ -395,6 +395,35 @@ it("emitContourLabels: keeps clear of other lines, and follows labelConfig", () 
   assert.deepStrictEqual(blocked, []);
 });
 
+it("emitContourLabels: labelConfig.minRadius sets how tight a ring a label follows", () => {
+  // A ring 1.5em round: its top bends away from the text tighter than the
+  // default allows (2em), but not minRadius 2's half of that (1em).
+  const rows = [contourRow(0, 5, circle(300, 300, 15))];
+  const nodes = [colorNode(0, 5, "#0074D9")];
+  const texts = labelConfig => {
+    const viz = new Hexbin()
+      .binShape(false)
+      .contours(true)
+      .contourConfig({labelConfig: {fontSize: 10, ...labelConfig}});
+    return emitContourLabels(viz, rows, nodes, frame, hexbinSettings(viz))
+      .flatMap(n => walk(n))
+      .filter(n => n.type === "text");
+  };
+  const warn = console.warn;
+  const warnings = [];
+  console.warn = (...args) => warnings.push(args.join(" "));
+  try {
+    assert.strictEqual(texts({}).length, 0, "too tight by default");
+    const loose = texts({minRadius: 2});
+    assert.ok(loose.length > 0, "follows it at minRadius 2");
+    assert.ok(texts({minRadius: 0}).length > 0, "0 sets no limit");
+    assert.ok(loose.every(t => t.font.size === 10));
+  } finally {
+    console.warn = warn;
+  }
+  assert.deepStrictEqual(warnings, [], "minRadius isn't passed to TextBox");
+});
+
 it("emitContourLabels: labelSpacing sets how often a line repeats its label", () => {
   const ring = circle(300, 300, 220);
   const rows = [contourRow(0, 5, ring)];
