@@ -1,0 +1,195 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>BubbleMatrix</title>
+    <meta
+      name="description"
+      content="BubbleMatrix circles sized by absolute value with a colorScale diverging symmetrically around 0 when values cross it: a correlation matrix, a linear sizeScale, a size key apart from the colorScale, Matrix with shape Circle, missing values, small multiples, all-positive values on a sequential scale, and a dark background."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 420px;
+      }
+      .wide {
+        grid-column: span 2;
+      }
+      .dark {
+        background: #1b1d21;
+        color: #e9ecef;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>
+          Correlation matrix (mtcars), the default colorScale symmetric around 0
+        </h3>
+        <div class="viz" id="correlation"></div>
+      </div>
+      <div>
+        <h3>sizeScale("linear"): radius follows |r|</h3>
+        <div class="viz" id="linear"></div>
+      </div>
+      <div>
+        <h3>Matrix with shape("Circle"), size and colorScale on trade value</h3>
+        <div class="viz" id="matrix"></div>
+      </div>
+      <div>
+        <h3>
+          size apart from the colorScale (symmetric over growth), with missing
+          cells
+        </h3>
+        <div class="viz" id="separate"></div>
+      </div>
+      <div class="wide">
+        <h3>
+          Small multiples: facet("season"), one shared size scale,
+          colorScaleConfig domain [-1, 1] set by the user
+        </h3>
+        <div class="viz" id="facets"></div>
+      </div>
+      <div>
+        <h3>All positive values: a sequential colorScale across their range</h3>
+        <div class="viz" id="positive"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+
+    <script>
+      const correlation = {
+        data: "./mtcars-correlations.json",
+        groupBy: ["x", "y"],
+        column: "x",
+        row: "y",
+        size: "correlation",
+        colorScale: "correlation",
+        colorScalePosition: "right",
+      };
+
+      new d3plus.BubbleMatrix()
+        .select("#correlation")
+        .config(correlation)
+        .render();
+
+      new d3plus.BubbleMatrix()
+        .select("#linear")
+        .config(correlation)
+        .sizeScale("linear")
+        .render();
+
+      new d3plus.Matrix()
+        .select("#matrix")
+        .config({
+          data: "../Matrix/continent-trade.json",
+          groupBy: ["Exporter Continent", "Importer Continent"],
+          column: "Importer Continent",
+          row: "Exporter Continent",
+          shape: "Circle",
+          size: "Trade Value",
+          colorScale: "Trade Value",
+          colorScalePosition: "right",
+        })
+        .render();
+
+      const regions = ["North", "South", "East", "West", "Central"];
+      const quarters = ["Q1", "Q2", "Q3", "Q4"];
+      const sales = [];
+      regions.forEach((region, i) =>
+        quarters.forEach((quarter, j) => {
+          if ((i + j) % 7 === 3) return;
+          sales.push({
+            region,
+            quarter,
+            revenue: 20 + ((i * 37 + j * 23) % 80),
+            growth: ((i * 13 + j * 29) % 41) - 20,
+          });
+        }),
+      );
+
+      new d3plus.BubbleMatrix()
+        .select("#separate")
+        .config({
+          data: sales,
+          groupBy: ["region", "quarter"],
+          column: "quarter",
+          row: "region",
+          size: "revenue",
+          colorScale: "growth",
+          colorScalePosition: "right",
+        })
+        .render();
+
+      const variables = ["Rain", "Sun", "Wind", "Heat", "Frost"];
+      const seasons = ["Spring", "Summer", "Autumn", "Winter"];
+      const weather = [];
+      seasons.forEach((season, s) =>
+        variables.forEach((a, i) =>
+          variables.forEach((b, j) => {
+            const k = Math.min(i, j) * 7 + Math.max(i, j) * 3 + s * 5;
+            weather.push({
+              season,
+              x: a,
+              y: b,
+              r: i === j ? 1 : Math.round(Math.sin(k * 1.7) * 90) / 100,
+            });
+          }),
+        ),
+      );
+
+      new d3plus.BubbleMatrix()
+        .select("#facets")
+        .config({
+          data: weather,
+          groupBy: ["x", "y"],
+          column: "x",
+          row: "y",
+          facet: "season",
+          size: "r",
+          colorScale: "r",
+          colorScaleConfig: {domain: [-1, 1]},
+        })
+        .render();
+
+      new d3plus.BubbleMatrix()
+        .select("#positive")
+        .config({
+          data: "./mtcars-correlations.json",
+          groupBy: ["x", "y"],
+          column: "x",
+          row: "y",
+          size: d => Math.abs(d.correlation),
+          colorScale: d => Math.abs(d.correlation),
+          colorScalePosition: "right",
+        })
+        .render();
+
+      new d3plus.BubbleMatrix()
+        .select("#dark")
+        .config({...correlation, theme: "dark"})
+        .render();
+    </script>
+  </body>
+</html>

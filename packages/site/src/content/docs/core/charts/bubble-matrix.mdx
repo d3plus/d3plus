@@ -1,0 +1,40 @@
+---
+title: BubbleMatrix
+description: "Creates a bubble matrix from an array of data: a Matrix whose cells draw as circles, sized by the absolute value of their size value."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/bubble-matrix/basic-example.js?raw";
+import sizeScale from "~/examples/core/charts/bubble-matrix/size-scale.js?raw";
+import sizeAndColor from "~/examples/core/charts/bubble-matrix/size-and-color.js?raw";
+
+Creates a bubble matrix from an array of data: a Matrix whose cells draw
+as circles, each centered in its `row` × `column` cell and sized by the
+absolute value of its `size` value, so the largest circle fills its cell
+(by area with the default `"sqrt"` `sizeScale`). Color the circles with
+`colorScale`: a linear scale that, when the values cross zero, diverges
+around it over a domain symmetric about it, so values of equal magnitude
+take equal color strength on either side, which suits a correlation
+matrix. Values of one sign take a sequential ramp across their range. A size legend keys the sizes, and
+hovering a circle highlights its row and column.
+
+## Basic example
+
+A correlation matrix: each circle's area shows how strongly two measures move together, and its color whether they rise together (blue) or one falls as the other rises (red). Sizing by the absolute value draws -0.85 as large as 0.85, so the strongest relationships stand out whichever their direction, and the tooltip shows the signed value. Because the correlations cross zero, the linear colorScale diverges around it over a domain symmetric about it, spanning the largest magnitude on both sides (here -1 to 1, set by the diagonal), so zero sits at the pale midpoint and equally strong correlations take equally strong colors. Values all of one sign would instead take a sequential ramp across their own range. Set `colorScaleConfig.domain` or `scale` to replace either.
+
+<Playground chart="BubbleMatrix" code={basicExample} controls={["size","colorScale","colorScaleConfig"]} />
+
+## Size scale
+
+`sizeScale` sets how values become radii. The default `"sqrt"` makes each circle's area proportional to its value; `"linear"` makes its radius proportional, which widens the gap between weak and strong values. Every scale starts at zero, so the largest value fills its cell and a zero draws no circle. `cellPadding` sets the space between neighboring cells, and the largest circle shrinks to keep it.
+
+<Playground chart="BubbleMatrix" code={sizeScale} controls={["sizeScale","cellPadding"]} />
+
+## Size and color
+
+`size` and `colorScale` can read different values. Here each circle's area shows a region's revenue and its color the revenue's growth, centered on zero so a 19% fall reads as strongly as a 19% rise, and the tooltip lists both. A cell without a `size` value draws no circle, as two regions that hadn't opened yet show.
+
+<Playground chart="BubbleMatrix" code={sizeAndColor} controls={["size","colorScale"]} />
+
+<ApiReference name="BubbleMatrix" pkg="core" />

@@ -63,7 +63,7 @@ facetConfig: {axes: {x: "all"}}        // x labels on every panel, y along the e
 
 With `scales: "independent"`, each panel fits its own data and labels its own axes. Use it when panels differ so much in size that a shared scale would flatten the small ones.
 
-A few charts without x/y axes share scales too. By default a Bullet reads each row against the same domain in every panel, a Calendar gives every panel the same date range (so a day sits in the same cell in each), and a ParallelCoordinates shares each dimension's domain and labels its axes on every panel. Funnel, PolarArea, and RadialBar default to `"independent"` instead, since each panel reads best sized to its own values; set `scales: "shared"` to size every Funnel against the widest stage in any panel, or to give every PolarArea or RadialBar the same value domain.
+A few charts without x/y axes share scales too. By default a Bullet reads each row against the same domain in every panel, a Calendar gives every panel the same date range (so a day sits in the same cell in each), a Matrix or BubbleMatrix sizes every panel's circles on one `size` scale, and a ParallelCoordinates shares each dimension's domain and labels its axes on every panel. Funnel, PolarArea, and RadialBar default to `"independent"` instead, since each panel reads best sized to its own values; set `scales: "shared"` to size every Funnel against the widest stage in any panel, or to give every PolarArea or RadialBar the same value domain.
 
 ## Charts without axes
 
