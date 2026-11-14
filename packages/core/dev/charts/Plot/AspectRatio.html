@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AspectRatio · Plot</title>
+    <meta
+      name="description"
+      content="A fixed aspect ratio (aspectRatio) shrinks the plot area along one side, centered, so x and y units draw in proportion."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 10px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: normal;
+        margin: 12px 0 0;
+      }
+      .chart {
+        border: 1px dashed #ccc;
+        display: inline-block;
+        height: 320px;
+        width: 560px;
+      }
+      .tall {
+        border: 1px dashed #ccc;
+        display: inline-block;
+        height: 420px;
+        width: 300px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>
+      aspectRatio: 1 on a wide chart (plot narrows), and on a tall one (plot
+      shortens)
+    </h3>
+    <div class="chart" id="wide"></div>
+    <div class="tall" id="tall"></div>
+    <h3>aspectRatio: 2 (one y unit twice an x unit), and unset</h3>
+    <div class="chart" id="double"></div>
+    <div class="chart" id="unset"></div>
+    <h3>Log-log, aspectRatio: 1 (a decade each way), with a y2 axis</h3>
+    <div class="chart" id="log"></div>
+    <div class="chart" id="y2"></div>
+    <h3>Small multiples (facet), each panel square, with zoom</h3>
+    <div class="chart" id="facet" style="width: 900px; height: 360px"></div>
+
+    <script>
+      var seed = 11;
+      function random() {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+      }
+
+      var points = [];
+      for (var i = 0; i < 40; i++) {
+        var x = random() * 10;
+        points.push({
+          id: "p" + i,
+          group: i % 2 ? "Even" : "Odd",
+          x: x,
+          y: x + (random() - 0.5) * 4,
+        });
+      }
+
+      var common = {
+        aspectRatio: 1,
+        data: points,
+        duration: 0,
+        groupBy: "id",
+        legend: false,
+        shapeConfig: {Circle: {label: false}},
+        x: "x",
+        xDomain: [0, 10],
+        y: "y",
+        yDomain: [-2, 12],
+      };
+
+      new d3plus.Plot().select("#wide").config(common).render();
+      new d3plus.Plot().select("#tall").config(common).render();
+      new d3plus.Plot()
+        .select("#double")
+        .config(common)
+        .aspectRatio(2)
+        .render();
+      new d3plus.Plot()
+        .select("#unset")
+        .config(common)
+        .aspectRatio(undefined)
+        .render();
+
+      var logPoints = [];
+      for (var j = 0; j < 30; j++) {
+        var lx = Math.pow(10, random() * 4);
+        logPoints.push({
+          id: "l" + j,
+          x: lx,
+          y: Math.pow(lx, 0.75) * (0.5 + random()),
+        });
+      }
+      new d3plus.Plot()
+        .select("#log")
+        .config(common)
+        .config({xDomain: undefined, yDomain: undefined})
+        .data(logPoints)
+        .xConfig({scale: "log"})
+        .yConfig({scale: "log"})
+        .render();
+
+      new d3plus.Plot()
+        .select("#y2")
+        .config(common)
+        .data(
+          points.map(function (d) {
+            return Object.assign({}, d, {y2: d.y * 100});
+          }),
+        )
+        .y2("y2")
+        .render();
+
+      new d3plus.Plot()
+        .select("#facet")
+        .config(common)
+        .facet("group")
+        .zoom(true)
+        .render();
+    </script>
+  </body>
+</html>
