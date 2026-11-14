@@ -366,7 +366,12 @@ export interface TooltipConfig {
       to drop the swatch from legend tooltips only.
   */
   titleSwatch?: boolean;
-  /** Overall CSS styles applied to the tooltip container. */
+  /**
+      Overall CSS styles applied to the tooltip container. A `z-index` here
+      also goes on the tooltip's portal, the fixed layer on `<body>` that
+      holds a chart's tooltips, so a high value (`{"z-index": 100}`) keeps
+      them above a page's sticky header or sidebar.
+  */
   tooltipStyle?: Record<string, string>;
   body?: ((d: DataPoint) => string) | string;
   /**
@@ -1081,13 +1086,37 @@ export interface D3plusConfig {
       (BarChart, AreaPlot, Histogram, Lollipop), else `false`.
   */
   baselineBreak?: boolean;
-  /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */
+  /**
+      Bullet: the qualitative ranges behind each measure, as threshold values
+      (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) =>
+      bands` accessor for per-row bands. HorizonChart: how many bands each
+      sign of a series is cut into (default 3), each a darker shade folded
+      over the one below.
+  */
   bands?:
+    | number
     | (number | {min?: number; max?: number; color?: string})[]
     | ((
         d: DataPoint,
         i: number,
       ) => (number | {min?: number; max?: number; color?: string})[]);
+  /**
+      HorizonChart: the range of values each band spans. Defaults to the
+      largest absolute value in all of the data (before the timeline,
+      `filter`, and hidden rows cut it) divided by `bands`, rounded up to 1,
+      2, 2.5, or 5 times a power of ten. Every row shares it; values past
+      the top band fill it.
+  */
+  bandSize?: number;
+  /**
+      HorizonChart: the band colors. `positive` and `negative` each take a
+      base color to ramp from pale (the band nearest zero) to the base, or a
+      list of colors from the band nearest zero up. Defaults to ramps toward
+      the theme's colorScale `max` (positive) and `min` (negative) colors.
+  */
+  colors?: {positive?: string | string[]; negative?: string | string[]};
+  /** HorizonChart: the space between rows, in pixels. Defaults to `1`. */
+  rowGap?: number;
   /**
       Hexbin: the bin shape, `"hex"` (default) for hexagons or `"square"`
       for squares, or `false` to draw no bins (for contours alone).
@@ -2129,6 +2158,17 @@ export interface D3plusConfig {
   /** Candlestick: accessor or data key for each period's opening value (default `"open"`). */
   open?: string | ((d: DataPoint, i: number) => number);
   /**
+      Plot charts: accessor function or string key for the field that orders
+      each series' path, such as a year. Each series' points are joined by a
+      line in that order (a Line follows it instead of the discrete axis), so
+      the line can double back to trace the path two measures took together.
+      Rows that share a series and an order value are aggregated. Arrowheads
+      show the direction (`pathArrows`) and the first and last points are
+      labeled (`pathLabels`). ConnectedScatter joins points in the data's
+      order until it is set. Not used by stacked charts.
+  */
+  order?: string | ((d: DataPoint, i: number) => unknown);
+  /**
       Layout direction. Charts that can be drawn either way take
       `"horizontal"` or `"vertical"`, as do Box shapes. Whisker shapes take the
       side they point toward: `"top"`, `"bottom"`, `"left"`, or `"right"`.
@@ -2169,6 +2209,16 @@ export interface D3plusConfig {
       default), and `layer`.
   */
   paretoThresholdConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2">;
+  /** With `order`: draws an arrowhead on each segment of a series' path, pointing along it, wherever the segment has room for one (default `true`). */
+  pathArrows?: boolean;
+  /**
+      With `order`: labels each series' first and last points. `true` (the
+      default) shows their order values (such as the years), `false` none,
+      and a function `(d, i) => string` any text. Each label sits beside
+      its point on the most open side that keeps it in the plot and clear of
+      the points, arrowheads, and other labels, and hides when no side is.
+  */
+  pathLabels?: boolean | ((d: DataPoint, i: number) => string | false | null);
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
   /** Calendar: what each block covers — `"year"` (the default; whole years, stacked) or `"month"` (whole months, as a grid of small calendars). */

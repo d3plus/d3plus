@@ -228,7 +228,7 @@ Every chart is one Tab stop, so keyboard users can reach its data without a mous
 
 | Key | Action |
 |---|---|
-| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves focus into the chart (onto its first mark) and on out of it. Focus is never trapped. |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves focus into the chart (onto its first mark) and on out of it. Focus is never trapped. A HorizonChart's row labels are Tab stops of their own: focus lands on the top label, and Tab steps down through them before leaving the chart. |
 | <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> | Moves to the nearest mark in that direction. Line and area series are visited point by point, and the legend's items come after the chart's marks. |
 | <kbd>Home</kbd> / <kbd>End</kbd> | Jumps to the first or last mark, reading left to right and then top to bottom. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Selects the focused mark, as a click would: it runs `click` handlers, drills down into nested data, and toggles a legend item (<kbd>Shift</kbd>+<kbd>Enter</kbd> acts as a shift-click). |

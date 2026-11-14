@@ -480,6 +480,11 @@ select.d3p-field {
   }
 }
 
+/* A standing tooltip scrolls under the page's chrome with its anchor, rather
+   than floating above it as a chart's hover tooltips do. */
+.d3plus-tooltip-portal.d3p-stage-portal {
+  z-index: auto;
+}
 /* The box a Tooltip example points at. */
 .d3p-anchor {
   position: absolute;

@@ -298,21 +298,21 @@ function publishTreeCtx(
   isVertical: boolean,
   isHorizontal: boolean,
 ): void {
-  const sc = viz.schema.shapeConfig as Record<string, unknown>;
-
-  // Link descriptors. `linkD` is invoked at emit time.
+  // Link descriptors. `linkD` is invoked at emit time, with how far out
+  // from the child's and the parent's centers the link starts and ends.
   const linksData = treeData
     .filter(d => (d.depth ?? 0) > 1)
     .map(d => assign({}, d) as TreeNode);
-  const linkD = (d: TreeNode): string => {
-    let rr = sc.r as ((d: DataPoint, i: number) => number) | number;
-    if (typeof rr === "function") rr = rr(d.data as DataPoint, d.i!);
+  const linkD = (
+    d: TreeNode,
+    reach: {child: number; parent: number},
+  ): string => {
     const px =
-      (d.parent!.x ?? 0) - (d.x ?? 0) + (isVertical ? 0 : (rr as number));
+      (d.parent!.x ?? 0) - (d.x ?? 0) + (isVertical ? 0 : reach.parent);
     const py =
-      (d.parent!.y ?? 0) - (d.y ?? 0) + (isVertical ? (rr as number) : 0);
-    const xx = isVertical ? 0 : -(rr as number);
-    const yy = isVertical ? -(rr as number) : 0;
+      (d.parent!.y ?? 0) - (d.y ?? 0) + (isVertical ? reach.parent : 0);
+    const xx = isVertical ? 0 : -reach.child;
+    const yy = isVertical ? -reach.child : 0;
     return isVertical
       ? `M${xx},${yy}C${xx},${(yy + py) / 2} ${px},${(yy + py) / 2} ${px},${py}`
       : `M${xx},${yy}C${(xx + px) / 2},${yy} ${(xx + px) / 2},${py} ${px},${py}`;

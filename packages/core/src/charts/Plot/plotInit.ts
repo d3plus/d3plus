@@ -21,6 +21,7 @@ import type Plot from "./index.js";
 import {axisHoverDefaults} from "./axisHoverScene.js";
 import {fillBetweenDefaults} from "./fillBetween.js";
 import {forecastDefaults} from "./forecast.js";
+import {coerceOrder} from "./orderPath.js";
 import {plotDef} from "./pipeline.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
 import {shapeLabelsPossible} from "./shapeLabelLegend.js";
@@ -49,6 +50,9 @@ export const plotSchema = [
   {key: "forecastConfig", merge: true, factory: forecastDefaults},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "lineLabelConfig", merge: true, factory: () => ({value: false})},
+  {key: "order", coerce: coerceOrder},
+  {key: "pathArrows", coerce: "identity" as const, default: true},
+  {key: "pathLabels", coerce: "identity" as const, default: true},
   {key: "referenceBands", coerce: "identity" as const, factory: () => []},
   {key: "referenceLines", coerce: "identity" as const, factory: () => []},
   {key: "shapeSort", coerce: "identity" as const},

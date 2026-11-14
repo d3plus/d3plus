@@ -213,9 +213,9 @@ export function selfLoopGeometry(
 const LOOP_TIP_BACK = {source: 1, target: 1};
 
 /**
-    A loop's visible stroke: along the loop up to the base of the arrowhead
-    at each end that has one (`trims`, see `edgeArrowTrims`), then straight
-    along the head's axis to end inside it (see `cubicArrowEdge`). The full
+    A loop's visible stroke: along the loop to the axis of the arrowhead at
+    each end that has one (`trims`, see `edgeArrowTrims`), then along the
+    axis to end at the head's base (see `cubicArrowEdge`). The full
     loop stays its hit area.
 */
 export function selfLoopD(

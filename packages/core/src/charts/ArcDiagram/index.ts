@@ -118,7 +118,7 @@ export const arcDiagramDef: ChartDefinition = {
         The arrowhead size in pixels, or an accessor function returning one
         per link. Defaults to three times the arc's stroke width, at least 6
         and at most 12 pixels, but never under 1.5 times the stroke width so
-        the head stays wider than its line. The line stops inside the head.
+        the head stays wider than its line. The line stops at the head's base.
     */
     {key: "arrowSize"},
     ...clusterFields(),

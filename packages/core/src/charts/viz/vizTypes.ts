@@ -34,6 +34,7 @@ import type {AxisHoverState} from "../Plot/axisHover.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
+import type {TabStopTest} from "./focusTargets.js";
 import type {KeyboardNavState} from "./keyboardNav.js";
 import type {KeyboardGesture} from "./keyboardNavHost.js";
 import type {NearestHoverState} from "./nearestHover.js";
@@ -472,6 +473,10 @@ export interface VizInstance {
   _plotFacetScales?: PlotFacetScales;
   /** Crosshair guide-line paint for the shared tooltip. */
   _crosshairConfig?: Record<string, unknown>;
+  /** The chart's Tab stops inside its keyboard navigation (see `TabStopTest`). */
+  _keyboardTabStop?: TabStopTest;
+  /** Whether the shared tooltip's crosshair spans the whole plot area, not just the drawn domain. */
+  _crosshairFullSpan?: boolean;
   /**
       The active shared-tooltip hover, if any: the snapped discrete position
       (pixel + data value), the hovered Line points to mark, and which side of

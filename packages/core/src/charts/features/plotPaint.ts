@@ -31,6 +31,8 @@ import {placeReferenceLabels} from "./referenceLabelPlacement.js";
 import {markBoxes} from "./sceneBounds.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
 import {barHitsFirst} from "../Plot/barHitArea.js";
+import {orderOf} from "../Plot/orderPath.js";
+import {orderedMarks} from "../Plot/orderPathScene.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
 import {emitTrendLabels} from "../Plot/trendLabels.js";
 import {emitAlongLabels} from "../Plot/lineLabelsAlong.js";
@@ -406,6 +408,13 @@ function emitShapeLoop(
     zoomRanges: pCtx.zoomRanges,
     missingRows: pCtx.missingRows,
   };
+  // `order` joins each series' points along its path (see `Plot/orderPath.ts`).
+  const order = orderOf(viz);
+  if (order) {
+    const {marks, decor} = orderedMarks(shapeCtx, shapeData, order);
+    out.push(...barHitsFirst(marks), ...decor);
+    return;
+  }
   out.push(
     ...barHitsFirst(
       shapeData.flatMap(([key, values]) =>

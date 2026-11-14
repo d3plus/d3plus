@@ -1339,6 +1339,27 @@ export {bulletDef} from "./src/charts/Bullet/index.js";
 export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {candlestickDef} from "./src/charts/Candlestick/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
+export {connectedScatterDef} from "./src/charts/ConnectedScatter/index.js";
+export {
+  DATA_ORDER,
+  coerceOrder,
+  compareOrder,
+  endLabelPath,
+  keepOrderField,
+  orderOf,
+  orderedPointKeys,
+  orderedSeries,
+  segmentArrows,
+  sortByOrder,
+} from "./src/charts/Plot/orderPath.js";
+export type {OrderAccessor, PathArrow} from "./src/charts/Plot/orderPath.js";
+export {
+  ORDER_POINT_SHAPES,
+  orderTooltipRows,
+  orderValueText,
+  orderedMarks,
+  seriesStrokes,
+} from "./src/charts/Plot/orderPathScene.js";
 export {
   DENSITY_POINT,
   curvesBeforePreDraw,
@@ -1364,6 +1385,71 @@ export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {
+  horizonChartDef,
+  rowLabelOpacity,
+  shareHorizonScales,
+} from "./src/charts/HorizonChart/index.js";
+export {
+  applyRowDomain,
+  bandCount,
+  measureBands,
+  rowDomain,
+} from "./src/charts/HorizonChart/measure.js";
+export {
+  handleRowLabel,
+  rowHidden,
+  labelAnchor,
+  rowLabelOf,
+  rowLabelTabStop,
+  rowToggle,
+} from "./src/charts/HorizonChart/rowFilter.js";
+export type {RowFilter} from "./src/charts/HorizonChart/rowFilter.js";
+export {
+  horizonBandSize,
+  horizonSlices,
+  niceCeil,
+} from "./src/charts/HorizonChart/horizonBands.js";
+export type {HorizonSlice} from "./src/charts/HorizonChart/horizonBands.js";
+export {horizonPalette} from "./src/charts/HorizonChart/horizonColors.js";
+export type {
+  HorizonColorConfig,
+  HorizonColorSetting,
+  HorizonPalette,
+} from "./src/charts/HorizonChart/horizonColors.js";
+export {
+  HORIZON_ROW,
+  horizonEmit,
+  horizonRowBox,
+  horizonSlicePath,
+} from "./src/charts/HorizonChart/emit.js";
+export type {HorizonRowBox} from "./src/charts/HorizonChart/emit.js";
+export {
+  handleHorizonHover,
+  horizonHitRows,
+  resolveHorizonHover,
+} from "./src/charts/HorizonChart/hover.js";
+export type {
+  HorizonHitRow,
+  HorizonHover,
+  HorizonHoverRow,
+} from "./src/charts/HorizonChart/hover.js";
+export {
+  HORIZON_BAND,
+  bandKeyRows,
+  bandLabel,
+  bandMeta,
+  horizonState,
+  rowValue,
+  seriesId,
+  userRow as horizonUserRow,
+  valueColor,
+  valueFormat as horizonValueFormat,
+} from "./src/charts/HorizonChart/state.js";
+export type {
+  HorizonBandMeta,
+  HorizonState,
+} from "./src/charts/HorizonChart/state.js";
 export {icicleDef} from "./src/charts/Icicle/index.js";
 export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {marimekkoDef} from "./src/charts/Marimekko/index.js";
@@ -1714,6 +1800,7 @@ export {
 export type {
   FocusDirection,
   FocusTarget,
+  TabStopTest,
 } from "./src/charts/viz/focusTargets.js";
 export {focusRingNode} from "./src/charts/viz/focusRing.js";
 export type {FocusRingStyle} from "./src/charts/viz/focusRing.js";
@@ -2052,11 +2139,17 @@ export {
   cubicPathD,
   defaultArrowSize,
   edgeArrowTrims,
+  straightEdgeCuts,
   straightEdgeD,
   trimCubic,
   trimSegment,
 } from "./src/charts/features/edgeArrows.js";
-export type {EdgeArrowTrims} from "./src/charts/features/edgeArrows.js";
+export type {
+  EdgeArrowTrims,
+  EdgeNode,
+} from "./src/charts/features/edgeArrows.js";
+export {outlineReach} from "./src/charts/features/nodeOutline.js";
+export type {NodeOutline} from "./src/charts/features/nodeOutline.js";
 export {selfLoopD} from "./src/charts/features/selfLoops.js";
 export {
   arcArrowEdge,
@@ -2135,6 +2228,7 @@ export {
   appendFocusRing,
   focusRingStyle,
   syncKeyboardNav,
+  tabTarget,
   targetLabel,
   teardownKeyboardNav,
 } from "./src/charts/viz/keyboardNav.js";
@@ -2490,6 +2584,7 @@ export {
   bundledLinkAnchor,
   bundledLinkEdge,
   bundledLinkPath,
+  bundledOutlineBack,
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";

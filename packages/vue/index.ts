@@ -11,6 +11,7 @@ import {
   Calendar as CalendarClass,
   Candlestick as CandlestickClass,
   Chord as ChordClass,
+  ConnectedScatter as ConnectedScatterClass,
   DensityPlot as DensityPlotClass,
   Donut as DonutClass,
   Dumbbell as DumbbellClass,
@@ -21,6 +22,7 @@ import {
   Geomap as GeomapClass,
   Hexbin as HexbinClass,
   Histogram as HistogramClass,
+  HorizonChart as HorizonChartClass,
   Icicle as IcicleClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
@@ -104,6 +106,11 @@ export const Calendar = createD3plusComponent(CalendarClass, "chart");
 export const Candlestick = createD3plusComponent(CandlestickClass, "chart");
 /** Vue component for rendering a d3plus Chord visualization. */
 export const Chord = createD3plusComponent(ChordClass, "chart");
+/** Vue component for rendering a d3plus ConnectedScatter visualization. */
+export const ConnectedScatter = createD3plusComponent(
+  ConnectedScatterClass,
+  "chart",
+);
 /** Vue component for rendering a d3plus DensityPlot visualization. */
 export const DensityPlot = createD3plusComponent(DensityPlotClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */
@@ -124,6 +131,8 @@ export const Geomap = createD3plusComponent(GeomapClass, "chart");
 export const Hexbin = createD3plusComponent(HexbinClass, "chart");
 /** Vue component for rendering a d3plus Histogram visualization. */
 export const Histogram = createD3plusComponent(HistogramClass, "chart");
+/** Vue component for rendering a d3plus HorizonChart visualization. */
+export const HorizonChart = createD3plusComponent(HorizonChartClass, "chart");
 /** Vue component for rendering a d3plus Icicle visualization. */
 export const Icicle = createD3plusComponent(IcicleClass, "chart");
 /** Vue component for rendering a d3plus LinePlot visualization. */

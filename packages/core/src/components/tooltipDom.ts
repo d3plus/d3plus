@@ -172,6 +172,20 @@ export function resolvePortal(that: Tooltip): D3Selection {
 }
 
 /**
+    Gives this Tooltip's own portal the `z-index` its `tooltipStyle` set on the
+    tooltips. The fixed portal stacks its tooltips as one layer, so their own
+    z-index can't lift them above the page's positioned elements (a sticky
+    header, a sidebar); the portal's can. A tooltip without one leaves the
+    portal at `auto`. The global `#d3plus-portal` isn't positioned, so its
+    tooltips' own z-index already applies there.
+*/
+export function stackPortal(that: Tooltip, update: D3Selection): void {
+  const tooltip = update.node() as HTMLElement | null;
+  if (that._parentEl && that._portalEl && tooltip)
+    that._portalEl.style.zIndex = tooltip.style.zIndex;
+}
+
+/**
     The DOM id of a tooltip (or of its `cat` child element): prefixed with the
     Tooltip instance's uuid so that ids stay unique across charts, then keyed
     per datum by the `id` accessor.
