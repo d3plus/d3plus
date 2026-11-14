@@ -80,6 +80,23 @@ const towardMid = (cs: ColorScale, pole: string, t: number): string =>
     ? interpolateRgb.gamma(2.2)(pole, colorMid(cs))(t)
     : colorLighter(pole, t);
 
+/**
+    The number of colors a ColorScale steps through: its `buckets` setting (or
+    the length of a `buckets` array) capped at the number of unique values. A
+    diverging (non-jenks) scale takes an odd count, so a color centers on the
+    midpoint, and at least 3, so each pole keeps its own color.
+*/
+export function colorScaleBucketCount(
+  buckets: number | number[] | undefined,
+  uniqueCount: number,
+  diverging: boolean,
+): number {
+  const setting =
+    (buckets instanceof Array ? buckets.length : buckets) ?? Infinity;
+  if (!diverging) return Math.min(setting, uniqueCount);
+  return Math.max(3, Math.min(setting, 2 * Math.floor(uniqueCount / 2) - 1));
+}
+
 /** Builds the jenks (ckmeans) threshold scale and assigns it to the instance. */
 function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
   const {allValues, diverging, numBuckets} = ctx;
@@ -103,15 +120,17 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
       const residual = buckets % 2;
 
       const negatives = allValues.filter((d: number) => d < cs.schema.midpoint);
-      const negativesDeviation = deviation(negatives);
+      // A side with one value has no spread.
+      const negativesDeviation = deviation(negatives) ?? 0;
 
       const positives = allValues
         .concat(cs.schema.midpoint)
         .filter((d: number) => d >= cs.schema.midpoint);
-      const positivesDeviation = deviation(positives);
+      const positivesDeviation = deviation(positives) ?? 0;
 
-      const isNegativeMax = negativesDeviation! > positivesDeviation! ? 1 : 0;
-      const isPositiveMax = positivesDeviation! > negativesDeviation! ? 1 : 0;
+      // The odd bucket goes to the side with more spread (positives on a tie).
+      const isNegativeMax = negativesDeviation > positivesDeviation ? 1 : 0;
+      const isPositiveMax = 1 - isNegativeMax;
 
       const negativeJenks = ckmeans(
         negatives,
@@ -149,9 +168,15 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
           (d: number, i: number) =>
             d <= cs.schema.midpoint && ticks![i + 1] > cs.schema.midpoint,
         );
+      // The last bucket runs on from its tick, so one starting at the
+      // midpoint takes the positive pole.
       const positives = ticks
         .slice(0, buckets)
-        .filter((d: number) => d > cs.schema.midpoint);
+        .filter(
+          (d: number, i: number) =>
+            d > cs.schema.midpoint ||
+            (d === cs.schema.midpoint && ticks![i + 1] === undefined),
+        );
       const negativeColors = negatives.map((_d: number, i: number) =>
         !i ? base[0] : towardMid(cs, base[0], i / negatives.length),
       );
@@ -269,6 +294,11 @@ function resolveNonDivergingLinear(
       );
 
       buckets = negativeBuckets.concat(positiveBuckets);
+    } else if ((domain as number[])[0] === (domain as number[])[1]) {
+      // A single value takes the pole's color: one bucket, or a solid bar.
+      const pole = negative ? colors[0] : colors[colors.length - 1];
+      buckets = (domain as number[]).slice(0, scale === "buckets" ? 1 : 2);
+      colors = buckets.map(() => pole);
     } else {
       const step =
         ((domain as number[])[1] - (domain as number[])[0]) /
@@ -363,14 +393,11 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
   const positive = domain[1] > cs.schema.midpoint;
   const diverging = negative && positive;
 
-  const numBuckets = min([
-    cs.schema.buckets instanceof Array
-      ? cs.schema.buckets.length
-      : cs.schema.buckets,
-    diverging && scale !== "jenks"
-      ? 2 * Math.floor(unique(allValues).length / 2) - 1
-      : unique(allValues).length,
-  ])!;
+  const numBuckets = colorScaleBucketCount(
+    cs.schema.buckets,
+    unique(allValues).length,
+    diverging && scale !== "jenks",
+  );
 
   let colors: string | string[] | undefined =
     diverging &&
