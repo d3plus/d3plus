@@ -1554,6 +1554,7 @@ export {
   radialInsideCandidates,
   radialOutsideCandidates,
   radialSeriesLabels,
+  radialTextBoxes,
 } from "./src/charts/RadialLine/seriesLabels.js";
 export type {
   RadialLabelBounds,
@@ -1562,6 +1563,7 @@ export type {
 } from "./src/charts/RadialLine/seriesLabels.js";
 export {
   radialLabelNodes,
+  radialLabelsPossible,
   radialLabelsSeries,
 } from "./src/charts/RadialLine/seriesLabelNodes.js";
 export {radialSpokeNodes} from "./src/charts/RadialLine/spokes.js";

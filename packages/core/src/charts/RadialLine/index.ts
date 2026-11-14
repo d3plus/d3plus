@@ -34,6 +34,7 @@ import {applyRadialLineLayout, radialDomainOf} from "./applyLayout.js";
 import type {RadialFrame} from "./applyLayout.js";
 import {radialLineEmit} from "./emit.js";
 import {radialPointHover, radialPointTooltipRows} from "./points.js";
+import {radialLabelsPossible} from "./seriesLabelNodes.js";
 
 /** Coerces a key or accessor setting to an accessor. */
 const toAccessor = (v: unknown) =>
@@ -61,7 +62,11 @@ export const radialLineDef: DataDrivenChartDefinition = {
   // hit-testing.
   pointMark: (_viz, node) => isPointShape(node),
 
-  setup: radialPointHover,
+  // Series labels that name every series stand in for the legend.
+  setup: (viz: VizInstance) => {
+    radialPointHover(viz);
+    viz._alongLabelsPossible = radialLabelsPossible;
+  },
 
   // Square-ish small-multiple panels, each fit to its own values unless
   // `facetConfig.scales` is "shared".
@@ -101,12 +106,15 @@ export const radialLineDef: DataDrivenChartDefinition = {
     */
     {key: "levels", default: 4},
     /**
-        Labels each series with its name: outside its outermost point, or
-        inside its band when stacked. `true`, or a function of each series'
-        row. Labels that would overlap one placed before them are left out.
+        Labels each series with its name: outside its outermost point that
+        leaves the label room inside the circle, or inside its band when
+        stacked, clear of the dots, the ring value labels, and the other
+        labels. `true` (the default), `false`, or a function of each series'
+        row. A label with no room is left out. When every series is named,
+        the default legend hides.
         @type {boolean | function}
     */
-    {key: "lineLabels", default: false},
+    {key: "lineLabels", default: true},
     /**
         Room (px) reserved around the circle for the `x` labels, or `"auto"`
         to curve them just outside the circle when they all fit (see

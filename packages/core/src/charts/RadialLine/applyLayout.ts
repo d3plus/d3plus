@@ -25,6 +25,7 @@ import {polarInnerRadius, polarLevels, polarRadius} from "../polar/geometry.js";
 import type {PolarDomainInput} from "../polar/geometry.js";
 import {polarSharedExtent} from "../polar/polarFacet.js";
 import type {PolarDomainValues} from "../polar/polarFacet.js";
+import type {PolarLabelPlacement} from "../polar/labels.js";
 import {POLAR_STROKE_BUFFER} from "../polar/wedgeLayout.js";
 import type {RadarAxisConfig} from "../Radar/axisDecorations.js";
 import type {RadarLevels} from "../Radar/levels.js";
@@ -38,6 +39,7 @@ import {registerRadialPoint} from "./points.js";
 import type {RadialDot} from "./points.js";
 import {radialDomainValues, radialSeries} from "./series.js";
 import type {RadialSeries} from "./series.js";
+import {radialTextBoxes} from "./seriesLabels.js";
 import {radialSpokeNodes} from "./spokes.js";
 
 type Accessor<T> = (d: DataPoint, i: number) => T;
@@ -71,6 +73,8 @@ export interface RadialFrame {
   stacked: boolean;
   /** The ring value labels drawn above the marks (an area's), else none. */
   levelLabels: SceneNode[];
+  /** Where the ring value labels sit, for the series labels to stay clear of. */
+  levelBoxes: PolarLabelPlacement[];
 }
 
 /** Resolves the `startAngle` setting (degrees) to radians. */
@@ -183,7 +187,8 @@ function tickCategories(
 
 /**
     Lays out the chrome beneath the marks, keyed with `key`, and returns the
-    ring value labels when `labelsAbove` keeps them for above the marks.
+    ring value labels (left off the scene when `labelsAbove` keeps them for
+    above the marks).
 */
 function pushChrome(
   viz: VizInstance,
@@ -212,9 +217,8 @@ function pushChrome(
     Array.isArray(viz._chartScene) ? viz._chartScene : (viz._chartScene = [])
   ) as SceneNode[];
   scene.push(...chrome.rings, ...spokes, ...labels);
-  if (labelsAbove) return chrome.labels;
-  scene.push(...chrome.labels);
-  return [];
+  if (!labelsAbove) scene.push(...chrome.labels);
+  return chrome.labels;
 }
 
 /** What `seriesDatum` lays a series out with. */
@@ -352,7 +356,8 @@ export const applyRadialLineLayout: TransformStage = ({viz}) => {
     scale,
     area,
     stacked,
-    levelLabels,
+    levelLabels: area ? levelLabels : [],
+    levelBoxes: radialTextBoxes(levelLabels),
   };
   viz.ctx.radial = frame;
   return {shapeData: shapeData as unknown as DataPoint[]};

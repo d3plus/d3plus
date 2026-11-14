@@ -111,13 +111,16 @@ export interface RadialLabelBounds {
   obstacles?: [number, number][];
   /** The room (px) kept between a label and each obstacle. */
   margin?: number;
+  /** Boxes a label must stay clear of (the ring value labels). */
+  avoid?: PolarLabelPlacement[];
 }
 
 /**
     Places every label (`inside` bands, else outside the lines), in order:
     each at its first candidate (see `radialOutsideCandidates` and
     `radialInsideCandidates`) that stays within `limit`, clear of the
-    `obstacles`, and clear of every label placed before it, else nowhere.
+    `obstacles`, the `avoid` boxes, and every label placed before it, else
+    nowhere.
     Returns a box or null per input.
 */
 export function radialSeriesLabels(
@@ -125,8 +128,8 @@ export function radialSeriesLabels(
   inside: boolean,
   bounds: RadialLabelBounds = {},
 ): (PolarLabelPlacement | null)[] {
-  const {limit = Infinity, obstacles = [], margin = 3} = bounds;
-  const placed: PolarLabelPlacement[] = [];
+  const {limit = Infinity, obstacles = [], margin = 3, avoid = []} = bounds;
+  const placed: PolarLabelPlacement[] = [...avoid];
   return inputs.map(input => {
     const candidates = inside
       ? radialInsideCandidates(input)
@@ -141,4 +144,35 @@ export function radialSeriesLabels(
     placed.push(box);
     return box;
   });
+}
+
+/** A text node's line, as `radialTextBoxes` reads it. */
+interface TextLike {
+  type: string;
+  transform?: {x?: number; y?: number};
+  lines?: {width?: number}[];
+  font?: {size?: number; anchor?: string};
+  children?: TextLike[];
+}
+
+/**
+    The box around each one-line text node in `nodes` (at any depth), from
+    its anchor point, its line's width and its font size.
+*/
+export function radialTextBoxes(nodes: TextLike[]): PolarLabelPlacement[] {
+  const out: PolarLabelPlacement[] = [];
+  const walk = (node: TextLike) => {
+    if (node.children) node.children.forEach(walk);
+    if (node.type !== "text") return;
+    const width = Math.max(0, ...(node.lines ?? []).map(l => l.width ?? 0));
+    const height = node.font?.size ?? 0;
+    const anchor = node.font?.anchor;
+    const x = node.transform?.x ?? 0;
+    const left =
+      anchor === "middle" ? x - width / 2 : anchor === "end" ? x - width : x;
+    const y = node.transform?.y ?? 0;
+    out.push({x: left, y: y - height / 2, width, height});
+  };
+  nodes.forEach(walk);
+  return out;
 }

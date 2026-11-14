@@ -1,6 +1,7 @@
 /**
     The text nodes for RadialLine and RadialArea's series labels
-    (`lineLabels`), placed by `radialSeriesLabels`: outside each line in a
+    (`lineLabels`, on by default), placed by `radialSeriesLabels`, clear of
+    the ring value labels: outside each line in a
     legible shade of its color over a halo, or inside each stacked band in
     the color that contrasts with its fill. Labels follow their series'
     hover but never take the pointer.
@@ -35,7 +36,21 @@ export function radialLabelsSeries(
   return Boolean(v) && v !== "false";
 }
 
-/** The series label nodes, in a non-interactive group (none without `lineLabels`). */
+/**
+    Whether `lineLabels` may name every series, so the default legend can
+    stand aside for the labels (see `alongLegend.ts`).
+*/
+export function radialLabelsPossible(viz: VizInstance): boolean {
+  const setting = viz.schema.lineLabels as unknown;
+  return Boolean(setting) && setting !== "false";
+}
+
+/**
+    The series label nodes, in a non-interactive group (none without
+    `lineLabels`). Counts the series and their labels into
+    `viz._alongStats`, so labels that name every series hide the default
+    legend.
+*/
 export function radialLabelNodes(
   viz: VizInstance,
   series: RadialSeriesDatum[],
@@ -43,7 +58,13 @@ export function radialLabelNodes(
 ): SceneNode[] {
   const setting = viz.schema.lineLabels;
   const labeled = series.filter(s => radialLabelsSeries(setting, s.data, s.i));
+  const stats = viz._alongStats;
+  if (stats) {
+    stats.series += series.length;
+    stats.requested += labeled.length;
+  }
   if (!labeled.length) return [];
+  const frame = viz.ctx.radial as RadialFrame | undefined;
   const inside = radialIsStacked(viz);
   const shape = radialIsArea(viz) ? "Area" : "Line";
   const labelConfig = userLabelConfig(viz, shape);
@@ -63,12 +84,14 @@ export function radialLabelNodes(
     })),
     inside,
     {
-      limit: (viz.ctx.radial as RadialFrame | undefined)?.outer,
+      limit: frame?.outer,
+      avoid: frame?.levelBoxes,
       obstacles: series.flatMap(s =>
         s.dots.map(d => [d.x, d.y] as [number, number]),
       ),
     },
   );
+  if (stats) stats.placed += boxes.filter(Boolean).length;
   const dark = Boolean(viz._theme?.dark);
   const children: SceneNode[] = [];
   labeled.forEach((s, k) => {

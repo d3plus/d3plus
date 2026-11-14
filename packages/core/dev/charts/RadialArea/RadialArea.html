@@ -5,7 +5,7 @@
     <title>RadialArea</title>
     <meta
       name="description"
-      content="RadialArea: overlapping monthly rainfall areas, hourly energy use stacked by source with labels inside the bands, a smooth stacked ring with an inner radius, small multiples with shared value domains, and a dark background."
+      content="RadialArea: overlapping monthly rainfall areas named by default, hourly energy use stacked by source with names inside the bands in place of the legend, a smooth stacked ring with an inner radius, small multiples with shared value domains, and a dark background."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -45,7 +45,10 @@
         <div class="viz" id="rain"></div>
       </section>
       <section>
-        <h3>stacked(true) + lineLabels(true): hourly energy use by source</h3>
+        <h3>
+          stacked(true): hourly energy use by source, every band named inside
+          it, so no legend
+        </h3>
         <div class="viz" id="stacked"></div>
       </section>
       <section>
@@ -128,7 +131,6 @@
         .y("kwh")
         .xDomain([0, 24])
         .stacked(true)
-        .lineLabels(true)
         .render();
 
       new d3plus.RadialArea()
