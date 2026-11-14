@@ -356,7 +356,9 @@ export function applyInteractionOpacity(
       const next2: Record<string, unknown> = {...paint};
       if (typeof paint.fill === "string")
         next2.fill = colorGrayscale(paint.fill);
-      if (typeof paint.stroke === "string")
+      // A text halo's stroke is the chart's background, not the mark's color.
+      const halo = node.type === "text" && node.halo;
+      if (typeof paint.stroke === "string" && !halo)
         next2.stroke = colorGrayscale(paint.stroke);
       return {...node, paint: next2} as SceneNode;
     }
