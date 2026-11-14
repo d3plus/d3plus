@@ -45,6 +45,13 @@
     <div class="chart tall" id="regions"></div>
     <h3>Small multiples (facet by product), shared year and quarter axis</h3>
     <div class="chart wide" id="facets"></div>
+    <h3>
+      Date years (formatted as tick labels are), levelFormat, and an xDomain of
+      level values ([[2023, "Q3"], …])
+    </h3>
+    <div class="chart" id="dates"></div>
+    <h3>A long region cut short: hover it for its whole text</h3>
+    <div class="chart" id="cut"></div>
 
     <script>
       var common = {duration: 0, shapeConfig: {label: false}};
@@ -180,6 +187,50 @@
         .facet("product")
         .facetConfig({columns: 2})
         .x(["year", "quarter"])
+        .y("value")
+        .render();
+
+      new d3plus.BarChart()
+        .select("#dates")
+        .config(common)
+        .data(
+          sales.map(function (d) {
+            return Object.assign({}, d, {year: new Date(d.year, 0, 1)});
+          }),
+        )
+        .groupBy("id")
+        .legend(false)
+        .x(["year", "quarter"])
+        .y("value")
+        .xDomain([
+          [new Date(2023, 0, 1), "Q3"],
+          [new Date(2023, 0, 1), "Q4"],
+          [new Date(2024, 0, 1), "Q1"],
+          [new Date(2024, 0, 1), "Q2"],
+          [new Date(2024, 0, 1), "Q3"],
+        ])
+        .xConfig({
+          levelFormat: function (value) {
+            return "FY" + String(value.getFullYear()).slice(2);
+          },
+        })
+        .render();
+
+      var long = "The Commonwealth of Independent States and Neighbors";
+      var cut = ["a", "b"].map(function (country, i) {
+        return {region: long, country: country, value: 20 + i * 5};
+      });
+      ["c", "d", "e", "f", "g", "h", "i", "j"].forEach(function (country, i) {
+        cut.push({region: "Short", country: country, value: 12 + i * 3});
+      });
+
+      new d3plus.BarChart()
+        .select("#cut")
+        .config(common)
+        .data(cut)
+        .groupBy("country")
+        .legend(false)
+        .x(["region", "country"])
         .y("value")
         .render();
     </script>
