@@ -374,18 +374,21 @@ function resolveNonDivergingLinear(
 
 /**
     Places a linear scale's evenly spaced `stops` on a log scale, as a new
-    array: each side of 0 steps in even powers out to its pole, and the
+    array: each side of 0 steps in even powers out to its pole, from 1 (or,
+    for a positive pole under 1, from the smallest positive stop), and the
     midpoint of 0 draws at 1, or at -1 when the positive side reaches no
     higher, so it stays between the two sides.
 */
 export function logStops(stops: number[]): number[] {
   const low = stops.find((d: number) => d < 0);
-  const high = stops.filter((d: number) => d > 0).pop();
+  const positives = stops.filter((d: number) => d > 0);
+  const high = positives[positives.length - 1];
+  const base = high > 1 ? 1 : positives[0];
   const placed = stops.map((d: number) =>
     d < 0
       ? -Math.pow(Math.abs(low!), d / low!)
       : d > 0
-        ? Math.pow(high!, d / high!)
+        ? base * Math.pow(high / base, d / high)
         : d,
   );
   const top = placed[placed.length - 1];

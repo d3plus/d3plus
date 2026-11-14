@@ -527,4 +527,37 @@ it("logStops — each side steps in even powers, the midpoint at 1 or -1", () =>
     "a high pole of 1 moves the midpoint to -1",
   );
   assert.deepStrictEqual(logStops([1, 10]), [Math.pow(10, 0.1), 10]);
+  assert.deepStrictEqual(
+    logStops([-10, -5, 0, 0.25, 0.5]),
+    [-10, -Math.sqrt(10), -1, 0.25 * Math.sqrt(2), 0.5],
+    "a positive pole under 1 steps up from the smallest positive stop",
+  );
+  assert.deepStrictEqual(logStops([-10, 0, 0.5]), [-10, -1, 0.5]);
+});
+
+it("log — a diverging scale whose high pole is under 1 keeps its stops in order", () => {
+  const {off, light, sequential} = new ColorScale().schema.colorDefaults;
+  for (const [values, buckets] of [
+    [[-10, -8, -5, -2, 0.2, 0.5], 5],
+    [[-10, -8, -5, -2, 0.1, 0.3, 0.6], 7],
+    [[-10, -2, 0.1, 0.5], 4],
+    [[-100, -20, -3, 0.05, 0.2, 0.9], 5],
+  ]) {
+    const cs = solve(values, {scale: "log", buckets});
+    const domain = cs._colorScale.domain();
+    const label = `${values} (${buckets}) → ${domain}`;
+    assert.ok(
+      domain.every((d, i) => !i || d > domain[i - 1]),
+      `${label}: the stops ascend`,
+    );
+    assert.strictEqual(domain.at(-1), values.at(-1), `${label}: ends at max`);
+    assert.strictEqual(colorOf(cs, values[0]), rgb(off), `${label}: low`);
+    assert.strictEqual(
+      colorOf(cs, values.at(-1)),
+      rgb(sequential),
+      `${label}: high`,
+    );
+    if (buckets % 2)
+      assert.strictEqual(colorOf(cs, -1), rgb(light), `${label}: midpoint`);
+  }
 });
