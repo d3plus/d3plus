@@ -9,6 +9,9 @@ import type {SceneNode, Transform} from "@d3plus/render";
 
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {FacetSides} from "./facetGutter.js";
+import {resolveFacetLayout} from "./facetLayout.js";
+import type {FacetLayout} from "./facetLayout.js";
+import type {FacetLayoutCell} from "./facetLayouts.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A value that splits the data into panels. */
@@ -51,6 +54,20 @@ export type FacetConfig = {
   title?: false | ((value: FacetValue, data: DataPoint[]) => string);
   /** TextBox config for the panel titles (`fontSize`, `fontColor`, `fontWeight`, `textAnchor`, `padding`, …). */
   titleConfig?: Record<string, unknown>;
+  /**
+      Places each panel on a map-shaped grid instead of filling rows: a
+      named grid, `"us-states"` (the 50 states and DC), `"eu-countries"`
+      (the 27 EU members), or `"world-regions"` (the World Bank's seven
+      regions), or a grid of your own as `{[value]: [row, column]}` (from
+      0, top left). A facet value takes the cell whose code or name it
+      matches (ignoring case): a state's postal code or name, a country's
+      ISO alpha-2 or alpha-3 code or name. Cells without a panel stay empty,
+      values the grid doesn't hold are left out (with a warning), and
+      `columns`, `rows`, and `sort` don't apply. A named grid titles each
+      panel with its short code and shows the full name when the title is
+      hovered.
+  */
+  layout?: FacetLayout;
 };
 
 /** `facetConfig` with every option resolved. */
@@ -66,6 +83,8 @@ export interface ResolvedFacetConfig {
   /** `false` hides panel titles; undefined draws the default (the formatted facet value). */
   title?: false | ((value: FacetValue, data: DataPoint[]) => string);
   titleConfig: Record<string, unknown>;
+  /** The map-shaped grid's cells (see `FacetConfig.layout`), when it names a valid one. */
+  layout?: FacetLayoutCell[];
 }
 
 /** Which edges of the grid a panel sits on. A panel with no panel below it is on the bottom edge. */
@@ -207,6 +226,7 @@ export function resolveFacetConfig(
     title:
       c.title === false || typeof c.title === "function" ? c.title : undefined,
     titleConfig: {...FACET_TITLE_DEFAULTS, ...(c.titleConfig ?? {})},
+    layout: resolveFacetLayout(c.layout),
   };
 }
 

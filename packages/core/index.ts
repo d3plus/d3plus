@@ -169,6 +169,7 @@ export type {
   FacetSort,
   FacetValue,
 } from "./src/charts/facet/facetConfig.js";
+export type {FacetLayout} from "./src/charts/facet/facetLayout.js";
 
 export type {
   AnyShapeConfig,

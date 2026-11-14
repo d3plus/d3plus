@@ -2414,7 +2414,21 @@ export {
   labelOverhang,
   NO_SIDES,
   panelBase,
+  settleExpansion,
 } from "./src/charts/facet/facetGutter.js";
+export {
+  layoutDimensions,
+  layoutGridCells,
+  layoutMatcher,
+  layoutTitleTexts,
+  layoutTitleTooltips,
+  missingFacetMessage,
+  placeFacets,
+  resolveFacetLayout,
+} from "./src/charts/facet/facetLayout.js";
+export type {FacetLayout, PlacedFacet} from "./src/charts/facet/facetLayout.js";
+export {FACET_LAYOUTS} from "./src/charts/facet/facetLayouts.js";
+export type {FacetLayoutCell} from "./src/charts/facet/facetLayouts.js";
 export type {FacetLabels, FacetSides} from "./src/charts/facet/facetGutter.js";
 export {
   drawChart,
