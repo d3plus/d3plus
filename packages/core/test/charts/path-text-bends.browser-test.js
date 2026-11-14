@@ -12,10 +12,11 @@ import {
     Text along a path at sharp bends, in Chromium on SVG and Canvas: a trend
     label near a kink at its line's end, line labels along zig-zag lines, and
     stacked area labels along zig-zag bands each run where their letters can
-    follow the path, so no two neighboring glyphs' inked boxes overlap or
-    touch (as they do where the text bunches on the inside of a kink). The
-    texts avoid kerned pairs (such as "Av"), whose boxes overlap even on a
-    straight line. Eight jagged daily series, spiking sharply, name every
+    follow the path, so no two neighboring glyphs' inked boxes sit more
+    than half a pixel closer than the same pair does on a level line in
+    the same font (where the text bunches on the inside of a kink, they
+    overlap by pixels). Tight pairs touch even on a level line in some
+    fonts, so each pair is measured against itself. Eight jagged daily series, spiking sharply, name every
     line on a stretch no steeper than 45°, never up a spike.
 */
 
@@ -67,30 +68,65 @@ const inkOf = (ctx, text, font, align) => {
   };
 };
 
-/** The glyphs of every SVG text along a path, as the browser laid them out. */
-function svgLabels(ctx) {
-  return [...document.querySelectorAll("#viz text")]
-    .filter(text => text.querySelector("textPath"))
-    .map(text => {
-      const font = getComputedStyle(text).font;
-      const chars = text.querySelector("textPath").textContent;
-      const glyphs = [];
-      for (let i = 0; i < text.getNumberOfChars(); i++) {
-        if (!chars[i]?.trim()) continue;
-        const p = text.getStartPositionOfChar(i);
-        glyphs.push({
-          text: chars[i],
-          x: p.x,
-          y: p.y,
-          angle: (text.getRotationOfChar(i) * Math.PI) / 180,
-          ink: inkOf(ctx, chars[i], font, "left"),
-        });
-      }
-      return {text: chars, glyphs};
+/** A level path to lay a label's text along for comparison. */
+const LEVEL = "M0,0L5000,0";
+
+/** The glyphs an SVG text lays along its path, as the browser laid them out. */
+function svgGlyphs(ctx, text) {
+  const font = getComputedStyle(text).font;
+  const chars = text.querySelector("textPath").textContent;
+  const glyphs = [];
+  for (let i = 0; i < text.getNumberOfChars(); i++) {
+    if (!chars[i]?.trim()) continue;
+    const p = text.getStartPositionOfChar(i);
+    glyphs.push({
+      text: chars[i],
+      x: p.x,
+      y: p.y,
+      angle: (text.getRotationOfChar(i) * Math.PI) / 180,
+      ink: inkOf(ctx, chars[i], font, "left"),
     });
+  }
+  return glyphs;
 }
 
-/** The glyphs of every scene text along a path, placed as the Canvas renderer paints them. */
+/**
+    Every SVG text along a path: its glyphs as drawn, and the same text in
+    the same font laid along a level path.
+*/
+function svgLabels(ctx) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  document.body.appendChild(svg);
+  const level = document.createElementNS(ns, "path");
+  level.setAttribute("id", "level-path");
+  level.setAttribute("d", LEVEL);
+  svg.appendChild(level);
+  const out = [...document.querySelectorAll("#viz text")]
+    .filter(text => text.querySelector("textPath"))
+    .map(text => {
+      const chars = text.querySelector("textPath").textContent;
+      const twin = document.createElementNS(ns, "text");
+      twin.style.font = getComputedStyle(text).font;
+      const run = document.createElementNS(ns, "textPath");
+      run.setAttribute("href", "#level-path");
+      run.textContent = chars;
+      twin.appendChild(run);
+      svg.appendChild(twin);
+      return {
+        text: chars,
+        glyphs: svgGlyphs(ctx, text),
+        level: svgGlyphs(ctx, twin),
+      };
+    });
+  svg.remove();
+  return out;
+}
+
+/**
+    Every scene text along a path, placed as the Canvas renderer paints it:
+    its glyphs along its path, and along a level one.
+*/
 function canvasLabels(ctx, root) {
   const out = [];
   const walk = node => {
@@ -103,17 +139,20 @@ function canvasLabels(ctx, root) {
       ctx.font = font;
       return ctx.measureText(text).width;
     };
-    const placed = placeGlyphs(
-      textPathSamples(node.path),
-      lineLeft(line, node.font),
-      pathGlyphs([{text: line.text, font}], f.dir === "rtl", measure),
+    const pieces = pathGlyphs(
+      [{text: line.text, font}],
+      f.dir === "rtl",
+      measure,
     );
-    out.push({
-      text: line.text,
-      glyphs: placed.map(g => ({
+    const lay = (d, start) =>
+      placeGlyphs(textPathSamples({d}), start, pieces).map(g => ({
         ...g,
         ink: inkOf(ctx, g.text, font, "center"),
-      })),
+      }));
+    out.push({
+      text: line.text,
+      glyphs: lay(node.path.d, lineLeft(line, node.font)),
+      level: lay(LEVEL, 0),
     });
   };
   walk(root);
@@ -122,7 +161,7 @@ function canvasLabels(ctx, root) {
 
 /**
     Runs in the page: draws a chart, then reads each label along a path's
-    glyphs and the narrowest gap between two neighbors' inked boxes.
+    glyphs and how much closer two neighbors sit than on a level line.
 */
 const draw = ([renderer, chart]) =>
   new Promise(resolve => {
@@ -181,21 +220,40 @@ const draw = ([renderer, chart]) =>
             ? svgLabels(ctx)
             : canvasLabels(ctx, viz._paintedScene.root);
         resolve(
-          labels.map(({text, glyphs}) => {
-            let narrowest = Infinity,
-              at = "";
+          labels.map(({text, glyphs, level}) => {
+            // How much closer each pair of neighbors sits than on the
+            // level, as a share of how far apart they are there.
+            let crowding = -Infinity,
+              at = "",
+              bent = 0,
+              flat = 0;
             for (let k = 1; k < glyphs.length; k++) {
               const g = gap(corners(glyphs[k - 1]), corners(glyphs[k]));
-              if (g < narrowest) {
-                narrowest = g;
+              const l = gap(corners(level[k - 1]), corners(level[k]));
+              const spacing = Math.hypot(
+                level[k].x - level[k - 1].x,
+                level[k].y - level[k - 1].y,
+              );
+              if ((l - g) / spacing > crowding) {
+                crowding = (l - g) / spacing;
                 at = glyphs[k - 1].text + glyphs[k].text;
+                bent = g;
+                flat = l;
               }
             }
-            return {text, glyphs: glyphs.length, narrowest, at};
+            return {text, glyphs: glyphs.length, crowding, at, bent, flat};
           }),
         );
       });
   });
+
+/**
+    How much closer two neighboring glyphs may sit along a bend than on a
+    level line, as a share of their spacing: a bend toward the text as
+    tight as `PATH_LABEL_INNER_RADIUS` (4em) draws the letters' tops, 0.8em
+    up, a fifth closer, and the bend test allows a little more.
+*/
+const CROWDING = 0.25;
 
 const expected = {
   trend: ["Rolling mean"],
@@ -205,7 +263,7 @@ const expected = {
 
 for (const renderer of ["svg", "canvas"])
   for (const chart of ["trend", "lines", "area"])
-    it(`${chart} ${renderer}: no two neighboring glyphs along a bend overlap or touch`, async () => {
+    it(`${chart} ${renderer}: no two neighboring glyphs along a bend crowd closer than on a level line`, async () => {
       const labels = await render(box, draw, [renderer, chart]);
       const texts = [...new Set(labels.map(l => l.text))];
       for (const text of expected[chart])
@@ -213,8 +271,8 @@ for (const renderer of ["svg", "canvas"])
       for (const label of labels) {
         assert.ok(label.glyphs > 3, `${label.text}'s glyphs`);
         assert.ok(
-          label.narrowest > 0,
-          `"${label.text}": "${label.at}" ${label.narrowest.toFixed(2)}px apart`,
+          label.crowding <= CROWDING,
+          `"${label.text}": "${label.at}" ${label.bent.toFixed(2)}px apart, ${label.flat.toFixed(2)}px on a level line (${(label.crowding * 100).toFixed(0)}% closer)`,
         );
       }
     });
