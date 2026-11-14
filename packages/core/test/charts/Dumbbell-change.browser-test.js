@@ -8,8 +8,8 @@ import {render} from "~test/browser/render.js";
     `arrows` draws an arrow from each category's first value to its last,
     colored by direction, ending at its head's base; `connector: "bar"`
     draws a floating bar in place of the dots (with an arrowhead under
-    `arrows`), hides the series legend, and keeps the shared tooltip, which
-    adds the category's change or range.
+    `arrows`), hides the series legend unless a category keeps its dots, and
+    keeps the shared tooltip, which adds the category's change or range.
 */
 
 const rates = [
@@ -206,7 +206,11 @@ for (const renderer of ["svg", "canvas"]) {
       ),
       "the dots stay for hover, unseen, in their bar's color",
     );
-    assert.strictEqual(out.legend, 0, "no series legend");
+    assert.strictEqual(
+      out.legend,
+      0,
+      "no series legend when every category has a bar",
+    );
     const spain = out.bars.find(b => b.key === "Spain::connector");
     const pts = out.points.filter(p => p.country === "Spain");
     const xs = pts.map(p => p.x).sort((a, b) => a - b);
@@ -268,7 +272,7 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(/Change\s*\+2/.test(out.tooltip), out.tooltip);
   });
 
-  it(`Dumbbell bars (${renderer}): a category with one value, or none changing, keeps its dot`, async () => {
+  it(`Dumbbell bars (${renderer}): a category with one value, or none changing, keeps its dot and shows the legend`, async () => {
     const data = [
       ...rates,
       {country: "Peru", year: "2023", v: 6},
@@ -291,6 +295,7 @@ for (const renderer of ["svg", "canvas"]) {
         "Iceland",
         "Peru",
       ]);
+      assert.strictEqual(out.legend, 2, "the legend names the dots' series");
       const peru = shown.find(p => p.country === "Peru");
       const series2023 = out.points.find(
         p => p.country === "Iceland" && p.year === "2023",

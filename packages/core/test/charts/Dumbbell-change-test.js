@@ -22,6 +22,8 @@ import {
   barColor,
   categoryValues,
   changeRow,
+  drawsBarlessDots,
+  hasBarlessCategory,
   lineColor,
   rowDirection,
 } from "../../src/charts/Dumbbell/categoryChange.ts";
@@ -259,4 +261,32 @@ it("hiddenPoint — unseen, keeping its bar's color for swatches, or left as is"
   assert.strictEqual(hiddenPoint(dot), dot, "without a bar, a visible dot");
   const text = {type: "text"};
   assert.strictEqual(hiddenPoint(text, "#00ff00"), text);
+});
+
+it("hasBarlessCategory — a category with one value, or none changing, draws no bar", () => {
+  const c = d => d.c;
+  const v = d => d.v;
+  const spanned = [
+    {c: "A", v: 1},
+    {c: "A", v: 3},
+    {c: "B", v: 5},
+    {c: "B", v: 2},
+  ];
+  assert.strictEqual(hasBarlessCategory(spanned, c, v, false), false);
+  assert.strictEqual(hasBarlessCategory(spanned, c, v, true), false);
+  const lone = [...spanned, {c: "C", v: 4}, {c: "D", v: null}];
+  assert.strictEqual(hasBarlessCategory(lone, c, v, false), true);
+  // First equals last: no change bar, though the values span.
+  const loop = [...spanned, {c: "E", v: 1}, {c: "E", v: 9}, {c: "E", v: 1}];
+  assert.strictEqual(hasBarlessCategory(loop, c, v, true), true);
+  assert.strictEqual(hasBarlessCategory(loop, c, v, false), false);
+  assert.strictEqual(hasBarlessCategory([], c, v, false), false);
+});
+
+it("drawsBarlessDots — reads the chart's drawn rows", () => {
+  // rows: C has one value, D doesn't change.
+  assert.strictEqual(drawsBarlessDots(chart()), true);
+  const viz = chart();
+  viz._filteredData = rows.slice(0, 4);
+  assert.strictEqual(drawsBarlessDots(viz), false);
 });
