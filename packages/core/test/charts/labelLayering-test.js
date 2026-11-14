@@ -1,7 +1,12 @@
 import {describe, it} from "vitest";
 import assert from "assert";
 
-import {labelsWithShapes, namesMark} from "../../internal.ts";
+import {
+  largestFirstRanks,
+  labelsWithShapes,
+  namesMark,
+} from "../../internal.ts";
+import {collectComputed} from "../../src/charts/features/emitHelpers.ts";
 
 /**
     Labels paint together with their own shapes (bug #30): each label moves
@@ -123,6 +128,16 @@ describe("charts/labelLayering labelsWithShapes", () => {
     assert.strictEqual(labelsWithShapes(plain)[1], plain[1]);
   });
 
+  it("pairs tens of thousands of nodes in linear time", () => {
+    const nodes = [];
+    for (let i = 0; i < 20000; i++) nodes.push(circle(`c${i}`, {id: i}));
+    nodes.forEach(n => nodes.push(text(`${n.key}_0`, n.datum)));
+    const start = performance.now();
+    const out = labelsWithShapes(nodes);
+    assert.strictEqual(out[1].key, "c0_0");
+    assert.ok(performance.now() - start < 1000, "well under a second");
+  });
+
   it("returns the nodes as they are when there are no labels", () => {
     const nodes = [circle("a", rowA)];
     assert.strictEqual(labelsWithShapes(nodes), nodes);
@@ -151,5 +166,49 @@ describe("charts/labelLayering namesMark", () => {
       !namesMark(text("a_0", rowA), circle("x")),
       "a mark with no datum",
     );
+  });
+});
+
+describe("charts/labelLayering collectComputed", () => {
+  const shape = {
+    render() {},
+    toScene: () => ({
+      type: "group",
+      key: "g",
+      children: [circle("a", rowA), circle("b", rowB)],
+    }),
+    _labelClass: {
+      toScene: () => ({
+        type: "group",
+        key: "l",
+        children: [text("a_0", rowA), text("b_0", rowB)],
+      }),
+    },
+  };
+  it("paints each label with its shape by default", () => {
+    assert.deepStrictEqual(keys(collectComputed(shape)), [
+      "a",
+      "a_0",
+      "b",
+      "b_0",
+    ]);
+  });
+  it("leaves the labels after the shapes with pair: false", () => {
+    assert.deepStrictEqual(keys(collectComputed(shape, {pair: false})), [
+      "a",
+      "b",
+      "a_0",
+      "b_0",
+    ]);
+  });
+});
+
+describe("charts/labelLayering largestFirstRanks", () => {
+  it("ranks larger radii first, equal radii in input order", () => {
+    assert.deepStrictEqual(largestFirstRanks([2, 9, 2, 5]), [2, 0, 3, 1]);
+  });
+  it("counts a missing radius as zero", () => {
+    assert.deepStrictEqual(largestFirstRanks([NaN, 3]), [1, 0]);
+    assert.deepStrictEqual(largestFirstRanks([]), []);
   });
 });

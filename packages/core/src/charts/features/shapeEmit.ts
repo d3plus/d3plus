@@ -107,6 +107,9 @@ export interface ShapeEmitContext {
 
   /** Line rows with no plottable value, where `connectGaps` breaks lines. */
   missingRows?: PlotDatum[];
+
+  /** The circles paint largest first, as BubbleChart repaints them (see `largestFirst`). */
+  largestFirst?: boolean;
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -189,9 +192,21 @@ function finishShape(
   const besideLabels =
     key === "Circle" ? plotCircleLabels(ctx, s, userConfig) : null;
   s.render();
-  const nodes = collectComputed(s);
-  // Points paint over their error bars, and each point's label paints with
-  // it, so a point drawn over another covers that one's label.
+  return markNodes(ctx, key, collectComputed(s, {pair: false}), besideLabels);
+}
+
+/**
+    A shape group's marks, error bars, and labels, in paint order: each
+    mark's labels paint with it (see `labelsWithShapes`), all but bar labels
+    under error bars, which paint over every error bar.
+*/
+function markNodes(
+  ctx: ShapeEmitContext,
+  key: string,
+  nodes: SceneNode[],
+  besideLabels: (() => SceneNode[]) | null,
+): SceneNode[] {
+  // Points paint over their error bars.
   if (key === "Circle")
     return labelsWithShapes([
       ...emitPointConfidence(ctx, nodes),
@@ -200,11 +215,12 @@ function finishShape(
     ]);
   // Areas grow out of the value axis's baseline.
   if (key === "Area") growAreasFromBaseline(ctx, nodes);
-  if (key !== "Bar") return nodes;
-  // Error bars paint over their bars but under the bar labels. Stacked bars
+  if (key !== "Bar") return labelsWithShapes(nodes);
+  // Error bars paint over their bars but under the bar labels, as a lower
+  // stack level's error bar reaches into the bar above it. Stacked bars
   // grow in one stack level after another.
   const errorBars = emitBarConfidence(ctx, nodes);
-  if (!errorBars.length) return stackEnterWindows(ctx, nodes);
+  if (!errorBars.length) return stackEnterWindows(ctx, labelsWithShapes(nodes));
   let last = -1;
   nodes.forEach((n, i) => {
     if (n.shapeType === "Bar") last = i;

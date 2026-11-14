@@ -14,7 +14,6 @@ import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveThemed} from "./basemapTheme.js";
-import {labelsWithShapes} from "../features/labelLayering.js";
 import {geomapPointLabels} from "./pointLabels.js";
 import type {Themed} from "./basemapTheme.js";
 import {emitFlowLabels, emitFlowLinks} from "./flowEmit.js";
@@ -176,19 +175,18 @@ export const geomapEmit: ChartEmit = ({viz}) => {
           : {}),
       } as SceneNode);
     }
-    const marks = out.splice(start);
-    // Each point's labels paint with it, so a point drawn over another
-    // covers that one's labels.
     out.push(
-      ...labelsWithShapes([
-        ...marks,
-        ...backgroundImageNodes(circleConfig, marks, k => [points[k], k]),
-        ...geomapPointLabels(
-          viz,
-          {points, pointR: c.pointR, pointX: c.pointX, pointY: c.pointY},
-          circleConfig,
-        ),
+      ...backgroundImageNodes(circleConfig, out.slice(start), k => [
+        points[k],
+        k,
       ]),
+    );
+    out.push(
+      ...geomapPointLabels(
+        viz,
+        {points, pointR: c.pointR, pointX: c.pointX, pointY: c.pointY},
+        circleConfig,
+      ),
     );
   }
 

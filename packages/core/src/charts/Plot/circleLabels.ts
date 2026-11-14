@@ -69,11 +69,16 @@ export function plotCircleLabels(
     labelBounds: LabelBounds;
   };
   const labelConfig = schema.labelConfig;
-  // The circles paint in `sort` order (see `Shape.toScene`).
-  const rank = sortRanks(
-    values,
-    s.schema.sort as ((a: DataPoint, b: DataPoint) => number) | null,
-  );
+  // The circles paint in `sort` order (see `Shape.toScene`), or else
+  // largest first when the chart repaints them so.
+  const rank =
+    sortRanks(
+      values,
+      s.schema.sort as ((a: DataPoint, b: DataPoint) => number) | null,
+    ) ??
+    (ctx.largestFirst
+      ? largestFirstRanks(values.map((d, i) => Number(schema.r(d, i))))
+      : null);
   const items: CircleLabelItem<DataPoint>[] = values.map((d, i) => {
     const row = d as PlotDatum;
     const r = Number(schema.r(d, i));
@@ -132,4 +137,17 @@ export function plotCircleLabels(
   }));
   return () =>
     emitOutsideLabels(viz, labels, {fontOpacity: labelConfig.fontOpacity});
+}
+
+/**
+    The paint position of each circle drawn largest first (see
+    `largestFirst`): larger radii first, equal radii in input order.
+    @param radii Each circle's radius, in input order.
+*/
+export function largestFirstRanks(radii: readonly number[]): number[] {
+  const r = (i: number) => (Number.isFinite(radii[i]) ? radii[i] : 0);
+  const order = radii.map((_, i) => i).sort((a, b) => r(b) - r(a) || a - b);
+  const rank = new Array<number>(radii.length);
+  order.forEach((at, pos) => (rank[at] = pos));
+  return rank;
 }

@@ -1902,6 +1902,7 @@ export {
   breakLineNodes,
   breakLinePaint,
   maskBreaks,
+  maskedGaps,
   maskPath,
   unwrapBreakMasks,
 } from "./src/charts/Plot/plotBreaks.js";
@@ -1940,7 +1941,6 @@ export {
   clipToPlotArea,
   DOMAIN_CLIP_KEY,
   isDomainClip,
-  pointLabel,
   unwrapDomainClips,
 } from "./src/charts/Plot/domainClip.js";
 export type {ClipFrame} from "./src/charts/Plot/domainClip.js";
@@ -2169,7 +2169,10 @@ export type {
   OutsideLabel,
   PointLabelSettings,
 } from "./src/charts/features/circleLabels.js";
-export {plotCircleLabels} from "./src/charts/Plot/circleLabels.js";
+export {
+  largestFirstRanks,
+  plotCircleLabels,
+} from "./src/charts/Plot/circleLabels.js";
 export {
   labelsWithShapes,
   namesMark,

@@ -19,7 +19,6 @@ import type {AxisBreak} from "../../components/Axis/axisBreak.js";
 import {breakGap, breakStyle} from "../../components/Axis/axisBreak.js";
 import {configToPaint} from "../../components/Axis/axisScene.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {pointLabel} from "./domainClip.js";
 
 /** Whether a node is a value or line label, which the mask leaves whole. */
 const isLabel = (node: SceneNode): boolean =>
@@ -178,11 +177,32 @@ export function bandPolygon(
 }
 
 /**
+    The gaps the masked breaks cut across the plot, as boxes in shape
+    coordinates (see `maskBreaks`).
+    @param viz The Plot.
+    @param frame The plot's ranges.
+*/
+export function maskedGaps(
+  viz: VizInstance,
+  frame: MaskFrame,
+): {x: number; y: number; width: number; height: number}[] {
+  return placedBreaks(viz, frame)
+    .filter(p => p.brk.mask)
+    .map(({gap, extent, vertical}) => {
+      const polygon = bandPolygon(gap, extent, vertical);
+      const xs = polygon.map(p => p[0]),
+        ys = polygon.map(p => p[1]);
+      const x = Math.min(...xs),
+        y = Math.min(...ys);
+      return {x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y};
+    });
+}
+
+/**
     Wraps `nodes` (the plot content) in a clip group per axis, so every
     shape gets each masked break's gap cut straight across it. Labels split
     the content into runs and stay outside the clip groups, in paint order,
-    so no label is cut, all but a point's own labels, which paint with it
-    (see `pointLabel`). Each run gets both groups whether or not a break
+    so no label is cut. Each run gets both groups whether or not a break
     asks for a mask (a group with none has no clip), so the marks keep their
     parents, and tween in place, when a redraw adds or removes a break.
 */
@@ -236,16 +256,11 @@ export function maskBreaks(
     out.push(...wrapped);
     run = [];
   };
-  let mark: SceneNode | undefined;
   for (const node of nodes) {
-    if (isLabel(node) && !(mark && pointLabel(node, mark))) {
+    if (isLabel(node)) {
       flush();
-      mark = undefined;
       out.push(node);
-    } else {
-      run.push(node);
-      if (!isLabel(node)) mark = node;
-    }
+    } else run.push(node);
   }
   flush();
   return out;

@@ -1,8 +1,8 @@
 /**
     Paints each shape's labels together with the shape, so a shape drawn
     later covers the labels of the shapes beneath it, as it covers the
-    shapes themselves. Used where a chart's marks can overlap (Plot points,
-    Network nodes, Pack circles, Geomap points).
+    shapes themselves. Every chart's emit runs through it (`runChartDraw`,
+    `collectComputed`, and the Plot shape emitters).
 
     @module
 */

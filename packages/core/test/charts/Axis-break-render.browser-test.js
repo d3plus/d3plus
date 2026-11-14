@@ -58,6 +58,7 @@ const probe = (src, opts = {}) =>
           texts.push({
             key: String(n.key),
             masked: inMask,
+            glyphs: window.d3plus.markBoxes([n], undefined, undefined, true),
             y: n.transform && n.transform.y,
             h: n.height,
             // Text along a path: each glyph box's lowest point.
@@ -410,7 +411,7 @@ it(
   },
 );
 
-it("Labels stay outside the break mask", async function () {
+it("No label is cut by the break mask", async function () {
   const rows = ["Q1", "Q2", "Q3", "Q4"].flatMap((x, i) => [
     {id: "North", x, v: 1000 + i * 8},
     {id: "South", x, v: 990 + i * 5},
@@ -427,11 +428,22 @@ it("Labels stay outside the break mask", async function () {
       /^(area-label-along-)?(North|South)/.test(t.key),
     );
     assert.ok(labels.length, `${src} draws labels`);
-    assert.deepStrictEqual(
-      labels.filter(t => t.masked),
-      [],
-      `no label sits inside the mask (${src})`,
+    // A label painting with its mark sits inside the mask, clear of its gaps.
+    const gaps = out.masks.flatMap(m =>
+      m.holes.map(ring => {
+        const ys = ring.map(p => p[1]);
+        return [Math.min(...ys), Math.max(...ys)];
+      }),
     );
+    for (const t of labels.filter(l => l.masked)) {
+      const top = Math.min(...t.glyphs.map(b => b.y)),
+        bottom = Math.max(...t.glyphs.map(b => b.y + b.height));
+      for (const [g0, g1] of gaps)
+        assert.ok(
+          bottom <= g0 + 0.5 || top >= g1 - 0.5,
+          `${t.key} [${top}, ${bottom}] clears the masked gap [${g0}, ${g1}] (${src})`,
+        );
+    }
   }
 });
 

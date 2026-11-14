@@ -40,4 +40,6 @@ export function largestFirst(nodes: SceneNode[]): SceneNode[] {
     color it would in a Scatter; only the painted nodes are reordered.
 */
 export const bubbleEmit: ShapeEmitter = (ctx, key) =>
-  labelsWithShapes(largestFirst(shapeEmitters.Circle(ctx, key)));
+  labelsWithShapes(
+    largestFirst(shapeEmitters.Circle({...ctx, largestFirst: true}, key)),
+  );

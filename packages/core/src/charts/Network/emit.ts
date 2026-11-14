@@ -57,7 +57,6 @@ import {bundledLinkAnchor, bundledLinkEdge, bundledLinkPath} from "./bundle.js";
 import type {CircleNetwork} from "./circleLayout.js";
 import {pointLabelSettings} from "../features/circleLabels.js";
 import {emitSpokeLabels} from "../features/spokeLabels.js";
-import {labelsWithShapes} from "../features/labelLayering.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 interface NetworkLink {
@@ -503,13 +502,11 @@ export const networkEmit: ChartEmit = ({viz}) => {
         const image = backgroundImageNode(merged, node, datum, d.i ?? i);
         if (image) nodes.push(image);
       }
-      // Each node's image and labels paint with it, so a node drawn over
-      // another covers them.
+      // Each node's image paints with it, as its labels do (see
+      // `labelsWithShapes`), so a node drawn over another covers them.
       out.push(
-        ...labelsWithShapes([
-          ...nodes,
-          ...networkNodeLabels(viz, c, shapeKind, values, merged, placed),
-        ]),
+        ...nodes,
+        ...networkNodeLabels(viz, c, shapeKind, values, merged, placed),
       );
     }
   }

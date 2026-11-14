@@ -34,6 +34,7 @@
 
 import {runStages} from "./stages.js";
 import {chartBounds, marginOriginTransform} from "../features/chartGeometry.js";
+import {labelsWithShapes} from "../features/labelLayering.js";
 
 import type {DataPoint} from "@d3plus/data";
 import type {Transform} from "@d3plus/render";
@@ -92,7 +93,8 @@ export function runChartDraw(
   // overwrite at the line below would silently discard every
   // decoration — Matrix renders bare cells with no row/column axes.
   // Stage decorations come FIRST so emit shapes paint on top.
-  viz._chartScene = [...stagePushed, ...emitted];
+  // Each label paints with its own shape (see `labelsWithShapes`).
+  viz._chartScene = [...stagePushed, ...labelsWithShapes(emitted)];
   viz._chartTransform = transformFn
     ? transformFn(viz)
     : marginOriginTransform(viz);

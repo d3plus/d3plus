@@ -15,7 +15,6 @@ import {
   resolveAccessor,
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
-import {labelsWithShapes} from "../features/labelLayering.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {packDatum, packNeutral, packPaintDatum} from "./groupRows.js";
 import {packNeutralPaint} from "./neutralPaint.js";
@@ -107,6 +106,5 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
     k,
   ]);
 
-  // Each leaf's label paints with its circle.
-  return labelsWithShapes([...circleNodes, ...imageNodes, ...labelNodes]);
+  return [...circleNodes, ...imageNodes, ...labelNodes];
 };

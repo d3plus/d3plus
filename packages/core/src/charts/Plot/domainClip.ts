@@ -10,8 +10,9 @@
     axis chrome drawn among the marks (Candlestick's volume axis) end a run
     and stay outside every clip, so a label placed past the plot edge still
     shows, and points (circles) run separately from lines, areas and
-    rects. A point's own labels, which paint with it (see
-    `labelsWithShapes`), stay in its run. Each run is wrapped in a group, clipped to the plot rect when it
+    rects. A mark's own labels, which paint with it (see
+    `labelsWithShapes`), stay in its run, all but one the run's clip or a
+    masked axis break would cut, which paints whole over the run. Each run is wrapped in a group, clipped to the plot rect when it
     reaches past it, grown by the run's widest half-stroke (for points,
     radius plus half-stroke) so a mark sitting on the plot edge still draws
     whole. A run that stays inside gets a group with no clip, so its marks
@@ -23,8 +24,9 @@
 import {pathBounds} from "@d3plus/math";
 import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
+import {boxesOverlap} from "../features/circleLabelPlacement.js";
 import {namesMark} from "../features/labelLayering.js";
-import {applyTransform} from "../features/sceneBounds.js";
+import {applyTransform, markBoxes} from "../features/sceneBounds.js";
 import type {MaskFrame} from "./plotBreaks.js";
 
 type Point = [number, number];
@@ -79,7 +81,7 @@ function halfStroke(node: SceneNode): number {
     stroke, plus a point's radius. Hit areas draw nothing, so they add none.
 */
 function slack(node: SceneNode): number {
-  if (isHit(node)) return 0;
+  if (isHit(node) || isLabel(node)) return 0;
   if (node.type === "group") return widest(node.children);
   const scale = Math.abs(node.transform?.scale ?? 1);
   const own =
@@ -168,10 +170,13 @@ const grow = (rect: Rect, by: number, dy = 0): Rect => ({
     @param nodes The plot's data marks and their labels, in paint order.
     @param frame The plot rect, in shape coordinates, or none to clip no run
     (a zoomed view clips its content itself).
+    @param gaps The gaps masked axis breaks cut (see `maskedGaps`): a label
+    crossing one paints whole, over its run, outside every clip.
 */
 export function clipToPlotArea(
   nodes: SceneNode[],
   frame?: ClipFrame,
+  gaps: readonly Box[] = [],
 ): SceneNode[] {
   const rect = frame && plotRect(frame);
   const inside =
@@ -197,25 +202,39 @@ export function clipToPlotArea(
   const flush = (): void => {
     if (!run.length) return;
     const clip = runClip();
+    // A label the clip or a break's mask would cut paints whole, over its
+    // run.
+    const lifted =
+      clip || gaps.length
+        ? run.filter(
+            node =>
+              isLabel(node) &&
+              ((clip && !labelWithin(node, clip)) || crossesGap(node, gaps)),
+          )
+        : [];
+    const children = lifted.length
+      ? run.filter(node => !lifted.includes(node))
+      : run;
     // A sorted run (Plot's circles by size, their background images above
     // them) keeps its place among its siblings: the backends order each
     // group's children by `z`.
-    const zs = run
+    const zs = children
       .map(node => node.z)
       .filter((z): z is number => typeof z === "number");
     out.push({
       type: "group",
       key: `${DOMAIN_CLIP_KEY}-${runs++}`,
       ...(clip ? {clip} : {}),
-      children: run,
+      children,
       ...(zs.length ? {z: Math.min(...zs)} : {}),
     });
+    out.push(...lifted);
     run = [];
   };
   let mark: SceneNode | undefined;
   for (const node of nodes) {
     if (isLabel(node)) {
-      if (mark && pointLabel(node, mark)) {
+      if (mark && namesMark(node, mark)) {
         run.push(node);
         continue;
       }
@@ -232,14 +251,28 @@ export function clipToPlotArea(
   return out;
 }
 
-/**
-    Whether a label paints with the point mark before it (see
-    `labelsWithShapes`), so it stays in the point's run.
-    @param label A label among a Plot's marks.
-    @param mark The last mark before it.
-*/
-export const pointLabel = (label: SceneNode, mark: SceneNode): boolean =>
-  isPoint(mark) && namesMark(label, mark);
+/** An axis-aligned box. */
+type Box = {x: number; y: number; width: number; height: number};
+
+/** Whether any line of a label overlaps any of `gaps`. */
+function crossesGap(label: SceneNode, gaps: readonly Box[]): boolean {
+  if (!gaps.length) return false;
+  return markBoxes([label], undefined, undefined, true).some(b =>
+    gaps.some(g => boxesOverlap(b, g)),
+  );
+}
+
+/** Whether every line of a label lies inside a rect clip. */
+function labelWithin(label: SceneNode, clip: ClipShape): boolean {
+  if (clip.type !== "rect") return false;
+  return markBoxes([label], undefined, undefined, true).every(
+    b =>
+      b.x >= clip.x - TOLERANCE &&
+      b.y >= clip.y - TOLERANCE &&
+      b.x + b.width <= clip.x + clip.width + TOLERANCE &&
+      b.y + b.height <= clip.y + clip.height + TOLERANCE,
+  );
+}
 
 /** A clip group's key, also once a small-multiples panel prefixes it. */
 const CLIP_KEY_PATTERN = new RegExp(`(^|/)${DOMAIN_CLIP_KEY}-\\d+$`);

@@ -52,6 +52,7 @@ function paintOrder(viz) {
       type: n.type,
       key: String(n.key),
       id: row && row.id,
+      year: row && row.year,
       text: n.type === "text" ? n.lines.map(l => l.text).join(" ") : null,
       x: nx + (n.cx || 0),
       y: ny + (n.cy || 0),
@@ -262,6 +263,83 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(indexOf(painted, circleOf(painted, "Alpha")) < at);
       assert.ok(at < indexOf(painted, circleOf(painted, "Beta")));
     });
+
+    it("a Plot Rect drawn over another covers that one's label", async () => {
+      const painted = await drawChart(d3plus =>
+        new d3plus.Plot()
+          .data([
+            {id: "Alpha", x: 50, y: 50},
+            {id: "Beta", x: 52, y: 50},
+            {id: "C", x: 0, y: 0},
+            {id: "D", x: 100, y: 100},
+          ])
+          .groupBy("id")
+          .x("x")
+          .y("y")
+          .shape("Rect")
+          .shapeConfig({Rect: {width: () => 90, height: () => 40}}),
+      );
+      const rectOf = id =>
+        painted.find(
+          n => n.type === "rect" && n.id === id && !n.key.endsWith("::hit"),
+        );
+      const label = labelOf(painted, "Alpha");
+      assert.ok(label, "Alpha is labeled");
+      const at = indexOf(painted, label);
+      assert.ok(indexOf(painted, rectOf("Alpha")) < at);
+      assert.ok(at < indexOf(painted, rectOf("Beta")));
+    });
+  });
+
+  it(`label layering (${renderer}): stacked bar labels stay over every error bar`, async () => {
+    const painted = await render(
+      '<div id="viz" style="width:600px;height:400px"></div>',
+      () =>
+        new Promise(resolve => {
+          const viz = new window.d3plus.BarChart()
+            .data([
+              {region: "North", year: "2023", pct: 42, lower: 38, upper: 46},
+              {region: "North", year: "2024", pct: 47, lower: 43, upper: 51},
+              {region: "South", year: "2023", pct: 35, lower: 30, upper: 40},
+              {region: "South", year: "2024", pct: 31, lower: 27, upper: 35},
+            ])
+            .groupBy("year")
+            .x("region")
+            .y("pct")
+            .stacked(true)
+            .confidence(["lower", "upper"])
+            .renderer(renderer)
+            .duration(0)
+            .legend(false)
+            .select("#viz");
+          viz.render(() => resolve(paintOrder(viz)));
+        }),
+    );
+    const marks = painted.filter(n => n.year);
+    const lastPath = Math.max(
+      ...marks.map((n, i) => (n.type === "path" ? i : -1)),
+    );
+    const firstText = marks.findIndex(n => n.type === "text");
+    assert.ok(lastPath >= 0 && firstText >= 0, "error bars and labels draw");
+    assert.ok(firstText > lastPath, "every label paints over every error bar");
+  });
+
+  it(`label layering (${renderer}): with sort null, a BubbleChart judges cover by its largest-first paint order`, async () => {
+    // Alpha comes last in the data, but BubbleChart paints it first (largest),
+    // so Beta covers its middle and its label moves beside it.
+    const {painted} = await drawBubbles(renderer, [...bubbles()].reverse(), {
+      shapeConfig: {Circle: {sort: null}},
+    });
+    const alpha = circleOf(painted, "Alpha");
+    const beta = circleOf(painted, "Beta");
+    assert.ok(
+      indexOf(painted, alpha) < indexOf(painted, beta),
+      "Alpha paints first",
+    );
+    const label = labelOf(painted, "Alpha");
+    assert.ok(label, "Alpha is labeled");
+    assert.strictEqual(label.interactive, false, "beside, not inside");
+    assert.ok(!hits(label, alpha), "the label clears Alpha");
   });
 
   it(`label layering (${renderer}): a hovered bubble rises with its label`, async () => {

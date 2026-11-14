@@ -5,7 +5,6 @@ import {
   clipToPlotArea,
   DOMAIN_CLIP_KEY,
   isDomainClip,
-  pointLabel,
   unwrapDomainClips,
 } from "../../internal.ts";
 
@@ -285,7 +284,7 @@ it("isDomainClip and unwrapDomainClips find clip groups, also under a panel pref
   assert.strictEqual(unwrapDomainClips(plain), plain);
 });
 
-it("clipToPlotArea keeps a point's own labels in its run, painting with it", () => {
+it("clipToPlotArea keeps a mark's own labels in its run, painting with it", () => {
   const rowA = {id: "a"},
     rowB = {id: "b"};
   const a = {...point("a", 100, 50), datum: rowA, z: 1};
@@ -304,13 +303,94 @@ it("clipToPlotArea keeps a point's own labels in its run, painting with it", () 
   assert.strictEqual(out[0].z, 0, "the run keeps its lowest z");
 });
 
-it("pointLabel tells a point's own label from any other", () => {
+it("clipToPlotArea keeps a bar's own labels in its run, others end it", () => {
   const row = {id: "a"};
-  const circle = {...point("a", 0, 0), datum: row};
-  assert.ok(pointLabel({...label("a_0"), datum: row}, circle));
-  assert.ok(pointLabel({...label("a_0"), datum: {data: row}}, circle));
-  assert.ok(!pointLabel({...label("x"), datum: {id: "x"}}, circle));
-  assert.ok(!pointLabel(label("x"), {...circle, datum: undefined}));
-  const bar = {type: "rect", key: "a", datum: row};
-  assert.ok(!pointLabel({...label("a_0"), datum: row}, bar), "only points");
+  const bar = {
+    type: "rect",
+    key: "a",
+    x: 60,
+    y: 30,
+    width: 10,
+    height: 50,
+    datum: row,
+  };
+  const nodes = [
+    bar,
+    {...label("a_0"), datum: row},
+    {...label("l"), datum: {id: "x"}},
+  ];
+  const out = clipToPlotArea(nodes, frame);
+  assert.deepStrictEqual(
+    out.map(n => n.key),
+    [`${DOMAIN_CLIP_KEY}-0`, "l"],
+  );
+  assert.deepStrictEqual(
+    out[0].children.map(n => n.key),
+    ["a", "a_0"],
+  );
+});
+
+it("clipToPlotArea paints a mark's own label the clip would cut whole, over its run", () => {
+  const row = {id: "a"};
+  // The line runs past the plot's right edge, so the run is clipped.
+  const cut = {
+    ...line("a", [
+      [60, 50],
+      [400, 50],
+    ]),
+    datum: row,
+  };
+  const lineText = (key, x) => ({
+    ...label(key),
+    datum: row,
+    lines: [{text: key, x: 0, y: 8, width: 20}],
+    font: {size: 8},
+    transform: {x, y: 40},
+  });
+  const nodes = [cut, lineText("inside", 100), lineText("past", 260)];
+  const out = clipToPlotArea(nodes, frame);
+  assert.ok(out[0].clip, "the run is clipped");
+  assert.deepStrictEqual(
+    out[0].children.map(n => n.key),
+    ["a", "inside"],
+  );
+  assert.deepStrictEqual(
+    out.slice(1).map(n => n.key),
+    ["past"],
+  );
+});
+
+it("clipToPlotArea paints a mark's own label crossing a masked gap whole, over its run", () => {
+  const row = {id: "a"};
+  const bar = {
+    type: "rect",
+    key: "a",
+    x: 60,
+    y: 30,
+    width: 10,
+    height: 50,
+    datum: row,
+  };
+  const text = (key, x) => ({
+    ...label(key),
+    datum: row,
+    lines: [{text: key, x: 0, y: 8, width: 20}],
+    font: {size: 8},
+    transform: {x, y: 40},
+  });
+  const gap = {x: 150, y: 10, width: 10, height: 100};
+  const out = clipToPlotArea(
+    [bar, text("clear", 80), text("across", 145)],
+    frame,
+    [gap],
+  );
+  assert.deepStrictEqual(
+    out.map(n => n.key),
+    [`${DOMAIN_CLIP_KEY}-0`, "across"],
+  );
+  assert.deepStrictEqual(
+    out[0].children.map(n => n.key),
+    ["a", "clear"],
+  );
+  assert.ok(!out[0].clip, "the run itself stays unclipped");
 });
