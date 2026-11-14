@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Box and Lasso Selection · Viz</title>
+    <meta
+      name="description"
+      content="Box and lasso selection on Plot charts, small multiples, a Geomap's points, and a Network's nodes, with the select event and the selection method."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        padding: 24px;
+      }
+
+      figure {
+        margin: 0;
+      }
+
+      .viz {
+        width: 440px;
+        height: 320px;
+        border: 1px solid #ddd;
+      }
+
+      figcaption {
+        font-size: 12px;
+        max-width: 440px;
+        min-height: 2.6em;
+        padding-top: 4px;
+      }
+
+      .wide {
+        width: 908px;
+        height: 420px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <figure>
+      <div class="viz" id="scatter"></div>
+      <figcaption id="scatter-log">
+        Drag a box. Shift adds, Escape clears.
+      </figcaption>
+      <button id="select-high">selection(d =&gt; d.y &gt; 40)</button>
+      <button id="select-clear">selection(false)</button>
+    </figure>
+    <figure>
+      <div class="viz" id="bubble"></div>
+      <figcaption id="bubble-log">BubbleChart, lasso.</figcaption>
+    </figure>
+    <figure>
+      <div class="viz" id="line"></div>
+      <figcaption id="line-log">
+        LinePlot, lasso: a line stays lit while any of its points is selected.
+      </figcaption>
+    </figure>
+    <figure>
+      <div class="viz" id="bar"></div>
+      <figcaption id="bar-log">
+        BarChart, box: a bar is selected when the box touches it.
+      </figcaption>
+    </figure>
+    <figure>
+      <div class="viz" id="area"></div>
+      <figcaption id="area-log">StackedArea, box.</figcaption>
+    </figure>
+    <figure>
+      <div class="viz" id="box"></div>
+      <figcaption id="box-log">BoxWhisker, box.</figcaption>
+    </figure>
+    <figure>
+      <div class="viz" id="geomap"></div>
+      <figcaption id="geomap-log">Geomap points, lasso.</figcaption>
+    </figure>
+    <figure>
+      <div class="viz" id="network"></div>
+      <figcaption id="network-log">Network nodes, box.</figcaption>
+    </figure>
+    <figure>
+      <div class="viz wide" id="facet"></div>
+      <figcaption id="facet-log">
+        Small multiples: a drag selects within the panel it starts in.
+      </figcaption>
+    </figure>
+  </body>
+
+  <script>
+    // A seeded generator keeps the page the same on every load.
+    var seed = 7;
+    function random() {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    }
+
+    function logTo(id) {
+      return function (rows) {
+        document.getElementById(id + "-log").textContent = rows.length
+          ? rows.length + " selected: " + rows.map(label).slice(0, 8).join(", ")
+          : "Selection cleared";
+      };
+    }
+    function label(d) {
+      return d.id !== undefined
+        ? d.id + (d.x !== undefined ? " @" + d.x : "")
+        : d.city;
+    }
+
+    var points = [];
+    ["Alpha", "Beta", "Gamma"].forEach(function (group) {
+      for (var i = 0; i < 40; i++)
+        points.push({
+          id: group + " " + i,
+          group: group,
+          x: Math.round(random() * 1000) / 10,
+          y: Math.round(random() * 500) / 10,
+          size: Math.round(random() * 90) + 10,
+        });
+    });
+
+    var scatter = new d3plus.Plot()
+      .select("#scatter")
+      .data(points)
+      .groupBy(["group", "id"])
+      .x("x")
+      .y("y")
+      .selectMode("box")
+      .on("select", logTo("scatter"))
+      .render();
+    document.getElementById("select-high").onclick = function () {
+      scatter.selection(function (d) {
+        return d.y > 40;
+      });
+      document.getElementById("scatter-log").textContent =
+        scatter.selection().length + " set from code";
+    };
+    document.getElementById("select-clear").onclick = function () {
+      scatter.selection(false);
+      document.getElementById("scatter-log").textContent = "Cleared from code";
+    };
+
+    new d3plus.BubbleChart()
+      .select("#bubble")
+      .data(points)
+      .groupBy(["group", "id"])
+      .x("x")
+      .y("y")
+      .size("size")
+      .sizeMin(4)
+      .sizeMax(14)
+      .selectMode("lasso")
+      .on("select", logTo("bubble"))
+      .render();
+
+    var series = [];
+    ["a", "b", "c"].forEach(function (id, j) {
+      for (var x = 0; x < 20; x++)
+        series.push({
+          id: id,
+          x: x,
+          y: Math.round((Math.sin(x / 3 + j) * 10 + 20) * 10) / 10,
+        });
+    });
+
+    new d3plus.LinePlot()
+      .select("#line")
+      .data(series)
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .selectMode("lasso")
+      .on("select", logTo("line"))
+      .render();
+
+    new d3plus.BarChart()
+      .select("#bar")
+      .data(
+        series.filter(function (d) {
+          return d.x < 8;
+        }),
+      )
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .selectMode("box")
+      .on("select", logTo("bar"))
+      .render();
+
+    new d3plus.StackedArea()
+      .select("#area")
+      .data(series)
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .selectMode("box")
+      .on("select", logTo("area"))
+      .render();
+
+    var spread = [];
+    ["North", "South", "East"].forEach(function (region) {
+      for (var i = 0; i < 25; i++)
+        spread.push({
+          id: region + " " + i,
+          region: region,
+          value: Math.round(random() * 100),
+        });
+    });
+    new d3plus.BoxWhisker()
+      .select("#box")
+      .data(spread)
+      .groupBy(["region", "id"])
+      .x("region")
+      .y("value")
+      .selectMode("box")
+      .on("select", logTo("box"))
+      .render();
+
+    var cities = [
+      {city: "Tokyo", lon: 139.69, lat: 35.69},
+      {city: "Delhi", lon: 77.21, lat: 28.61},
+      {city: "Shanghai", lon: 121.47, lat: 31.23},
+      {city: "São Paulo", lon: -46.63, lat: -23.55},
+      {city: "Mexico City", lon: -99.13, lat: 19.43},
+      {city: "Cairo", lon: 31.24, lat: 30.04},
+      {city: "Mumbai", lon: 72.88, lat: 19.08},
+      {city: "New York", lon: -74.01, lat: 40.71},
+      {city: "Lagos", lon: 3.38, lat: 6.52},
+      {city: "Los Angeles", lon: -118.24, lat: 34.05},
+      {city: "Moscow", lon: 37.62, lat: 55.76},
+      {city: "Paris", lon: 2.35, lat: 48.86},
+      {city: "London", lon: -0.13, lat: 51.51},
+      {city: "Lima", lon: -77.04, lat: -12.05},
+      {city: "Sydney", lon: 151.21, lat: -33.87},
+      {city: "Nairobi", lon: 36.82, lat: -1.29},
+    ];
+    new d3plus.Geomap()
+      .select("#geomap")
+      .data(cities)
+      .groupBy("city")
+      .topojson("../Geomap/countries.json")
+      .topojsonKey("countries")
+      .topojsonFilter(function (d) {
+        return d.id !== "ata";
+      })
+      .point(function (d) {
+        return [d.lon, d.lat];
+      })
+      .pointSize(6)
+      .legend(false)
+      .selectMode("lasso")
+      .on("select", logTo("geomap"))
+      .render();
+
+    new d3plus.Network()
+      .select("#network")
+      .nodes([
+        {id: "alpha", x: 1, y: 1},
+        {id: "beta", x: 2, y: 1},
+        {id: "gamma", x: 1, y: 2},
+        {id: "delta", x: 3, y: 2},
+        {id: "epsilon", x: 2.5, y: 1.5},
+        {id: "zeta", x: 2, y: 2.4},
+      ])
+      .links([
+        {source: "alpha", target: "beta"},
+        {source: "alpha", target: "gamma"},
+        {source: "gamma", target: "delta"},
+        {source: "delta", target: "epsilon"},
+        {source: "epsilon", target: "zeta"},
+        {source: "beta", target: "epsilon"},
+      ])
+      .selectMode("box")
+      .on("select", logTo("network"))
+      .render();
+
+    new d3plus.Plot()
+      .select("#facet")
+      .data(points)
+      .groupBy("id")
+      .facet("group")
+      .x("x")
+      .y("y")
+      .color("group")
+      .selectMode("box")
+      .on("select", logTo("facet"))
+      .render();
+  </script>
+</html>
