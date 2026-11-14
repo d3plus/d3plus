@@ -7,7 +7,7 @@ import {
   placeGlyphs,
   textPathSamples,
 } from "../textPath.js";
-import {solidFill} from "./canvasNodePaint.js";
+import {setStrokeStyle, solidFill} from "./canvasNodePaint.js";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -16,7 +16,7 @@ export function drawText(ctx: Ctx, node: TextNode, alpha: number): void {
   const p = node.paint || {};
   if (node.halo && p.stroke && (p.strokeWidth ?? 1) > 0) {
     ctx.globalAlpha = alpha * (p.strokeOpacity ?? 1);
-    ctx.strokeStyle = solidFill(p.stroke) ?? "#000";
+    setStrokeStyle(ctx, solidFill(p.stroke) ?? "#000");
     ctx.lineWidth = p.strokeWidth ?? 1;
     ctx.lineJoin = "round";
     paintLines(ctx, node, (text, x, y) => ctx.strokeText(text, x, y));
