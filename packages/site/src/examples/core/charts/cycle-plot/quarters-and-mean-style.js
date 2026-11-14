@@ -1,6 +1,6 @@
 // Monthly retail sales (billions), 2015–2024, with a holiday peak and a
-// dip in spring 2020. Rows in the same quarter and year merge, summing
-// their months.
+// dip in spring 2020. Rows in the same quarter and year merge into their
+// months' average.
 const season = [
   0.85, 0.82, 0.95, 0.97, 1.02, 1, 0.98, 1.01, 0.96, 1, 1.12, 1.4,
 ];
