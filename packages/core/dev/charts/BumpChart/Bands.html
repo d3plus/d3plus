@@ -1,0 +1,155 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bands</title>
+    <meta
+      name="description"
+      content="BumpChart with size: each series a band as thick as its value, centered on its rank, with bandPadding, a single-band tooltip, missing values, small multiples, and a dark background."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 380px;
+      }
+      .wide {
+        grid-column: span 2;
+      }
+      .dark {
+        background: #1b1d21;
+        color: #e9ecef;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Streaming hours by platform, ranked each year</h3>
+        <div class="viz" id="bands"></div>
+      </div>
+      <div>
+        <h3>bandPadding(0): the largest band fills its rank's slot</h3>
+        <div class="viz" id="padding"></div>
+      </div>
+      <div>
+        <h3>tooltipShared(false): one band's tooltip</h3>
+        <div class="viz" id="single"></div>
+      </div>
+      <div>
+        <h3>A series missing its size in one year</h3>
+        <div class="viz" id="missing"></div>
+      </div>
+      <div class="wide">
+        <h3>Small multiples: facet("market"), one thickness scale</h3>
+        <div class="viz" id="facets"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+
+    <script>
+      const hours = {
+        Flix: [120, 150, 170, 180, 185, 190],
+        Prime: [80, 95, 120, 140, 150, 160],
+        Tube: [100, 140, 160, 175, 200, 230],
+        Hulu: [60, 70, 75, 72, 70, 68],
+        Plus: [0.5, 30, 60, 85, 110, 125],
+      };
+      const years = [2019, 2020, 2021, 2022, 2023, 2024];
+
+      /** One row per platform and year, ranked by hours within the year. */
+      const ranked = (table, extra = {}) => {
+        const rows = [];
+        years.forEach((year, y) => {
+          Object.keys(table)
+            .sort((a, b) => table[b][y] - table[a][y])
+            .forEach((platform, r) =>
+              rows.push({
+                platform,
+                year,
+                rank: r + 1,
+                hours: table[platform][y],
+                ...extra,
+              }),
+            );
+        });
+        return rows;
+      };
+
+      const base = {
+        data: ranked(hours),
+        groupBy: "platform",
+        x: "year",
+        y: "rank",
+        size: "hours",
+      };
+
+      new d3plus.BumpChart().select("#bands").config(base).render();
+
+      new d3plus.BumpChart()
+        .select("#padding")
+        .config(base)
+        .bandPadding(0)
+        .render();
+
+      new d3plus.BumpChart()
+        .select("#single")
+        .config(base)
+        .tooltipShared(false)
+        .render();
+
+      new d3plus.BumpChart()
+        .select("#missing")
+        .config({
+          ...base,
+          data: base.data.map(d =>
+            d.platform === "Hulu" && d.year === 2021 ? {...d, hours: null} : d,
+          ),
+        })
+        .render();
+
+      const scaled = factor =>
+        Object.fromEntries(
+          Object.entries(hours).map(([k, v]) => [
+            k,
+            v.map((h, i) => Math.round(h * factor * (1 + ((i * 7) % 5) / 10))),
+          ]),
+        );
+      new d3plus.BumpChart()
+        .select("#facets")
+        .config({
+          ...base,
+          data: [
+            ...ranked(scaled(1), {market: "North America"}),
+            ...ranked(scaled(0.4), {market: "Europe"}),
+          ],
+          facet: "market",
+        })
+        .render();
+
+      new d3plus.BumpChart()
+        .select("#dark")
+        .config({...base, theme: "dark"})
+        .render();
+    </script>
+  </body>
+</html>

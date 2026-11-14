@@ -217,12 +217,15 @@ export function errorBarPath(
     The library's error-bar styling, layered under the user's
     `confidenceConfig`: a stroke a shade darker than the bar's own fill.
 */
-function errorBarDefaults(viz: Viz): Record<string, unknown> {
+export function errorBarDefaults(
+  viz: Viz,
+  shape = "Bar",
+): Record<string, unknown> {
   return {
     capWidth: "50%",
     stroke: (d: DataPoint, i: number) => {
-      const {Bar, fill} = viz.schema.shapeConfig;
-      const f = Bar && Bar.fill !== undefined ? Bar.fill : fill;
+      const {[shape]: own, fill} = viz.schema.shapeConfig;
+      const f = own && own.fill !== undefined ? own.fill : fill;
       const c = typeof f === "function" ? f(d, i) : f;
       const col = color(c as string);
       return col ? col.darker(1.5).formatHex() : c;
@@ -237,7 +240,7 @@ function errorBarDefaults(viz: Viz): Record<string, unknown> {
     domain down to the baseline; a bound in that broken-away stretch has no
     true position, so it is cut at the domain's edge like one past the axis.
 */
-function errorBarExtent(
+export function errorBarExtent(
   ctx: ShapeEmitContext,
   opp: "x" | "y",
   scale: PlotAxisFn,

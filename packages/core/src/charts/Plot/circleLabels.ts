@@ -20,6 +20,7 @@ import {
 import type {CircleLabelItem} from "../features/circleLabels.js";
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
 import type {PlotDatum} from "../features/plotPaint.js";
+import {pointErrorObstacles} from "./pointConfidence.js";
 
 type Accessor<T> = (d: DataPoint, i: number) => T;
 type LabelBounds = (
@@ -88,7 +89,12 @@ export function plotCircleLabels(
       },
     };
   });
-  const layout = layoutCircleLabels(viz, items, plotBounds(ctx));
+  // Labels beside their points keep clear of the points' error bars.
+  const obstacles = pointErrorObstacles(
+    ctx,
+    items.map(item => ({...item, d: item.key as PlotDatum})),
+  );
+  const layout = layoutCircleLabels(viz, items, plotBounds(ctx), obstacles);
   if (!layout.size) return null;
 
   const bounds = schema.labelBounds;
