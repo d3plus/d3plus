@@ -1772,9 +1772,12 @@ export {
   userAxisDomain,
 } from "./src/charts/Plot/baselineDomain.js";
 export {
+  fillOpenEnds,
+  keepPinnedEnds,
   openEnd,
   roundOpenEnd,
   roundPlotOpenEnds,
+  userPinnedEnds,
 } from "./src/charts/Plot/openDomainEnds.js";
 export {xAxisRounding} from "./src/charts/features/xAxisConfig.js";
 export {roundedDomain} from "./src/components/Axis/axisRounding.js";

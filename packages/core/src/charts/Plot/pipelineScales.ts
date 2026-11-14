@@ -13,7 +13,7 @@ import {
 } from "../../components/Axis/axisScaleType.js";
 import {userDomainBreaksBaseline} from "./baselineBreak.js";
 import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
-import {openEnd} from "./openDomainEnds.js";
+import {fillOpenEnds, openEnd} from "./openDomainEnds.js";
 import {isSpanAxis} from "./discreteSpan.js";
 import {widenReferenceDomains} from "./referenceDomains.js";
 import {plotAxisUtc, plotTimeScale, type AxisName} from "./plotRangeBreaks.js";
@@ -119,13 +119,15 @@ function domainScaleSetup(
           plotAxisUtc(viz, `${axis}2` as AxisName),
         )
       : domains[`${axis}2`];
-  if (scale !== "Point") {
-    if (domain && domain[0] === void 0) domain[0] = domains[axis][0];
-    if (domain && domain[1] === void 0) domain[1] = domains[axis][1];
-    if (domain2 && domain2[0] === void 0) domain2[0] = domains[`${axis}2`][0];
-    if (domain2 && domain2[1] === void 0) domain2[1] = domains[`${axis}2`][1];
-  }
-  return [domain, scale, domain2, scale] as const;
+  if (scale === "Point") return [domain, scale, domain2, scale] as const;
+  const log = (key: string) =>
+    (viz[`_${key}Config`] as {scale?: string} | undefined)?.scale === "log";
+  return [
+    domain && fillOpenEnds(domain, domains[axis], log(axis)),
+    scale,
+    domain2 && fillOpenEnds(domain2, domains[`${axis}2`], log(`${axis}2`)),
+    scale,
+  ] as const;
 }
 
 /**

@@ -33,7 +33,8 @@ import {
   rangeBreaksTimeAxis,
   type AxisName,
 } from "./plotRangeBreaks.js";
-import {scaleConstructors} from "./pipelineScales.js";
+import {keepPinnedEnds, userPinnedEnds} from "./openDomainEnds.js";
+import {scaleConstructors, type DomainValue} from "./pipelineScales.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {TransformStage} from "../pipeline/stages.js";
@@ -478,7 +479,8 @@ export const computePlotAxisValues: TransformStage = ({
     Reads `viz._buffer[shapeKey]({data, x, y, yScale, xScale, config, x2?,
     y2?})` and chains the returned `[x, y]` (or `[x2, y2]`) back into the
     scales. Also calls `discreteBuffer` for Bar/Box to round the discrete
-    scale to integer pixels.
+    scale to integer pixels. An end the user set (see `userPinnedEnds`) stays
+    where they set it.
 
     Returns the extended scales. Side-effect-free on viz (only on the scale
     instances, which are passed through the context).
@@ -489,10 +491,18 @@ export const extendPlotOppScales: TransformStage = ({
   plotAxisData,
   plotScales,
   plotConfigScales,
+  plotOpenEnds,
 }) => {
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
   let {x, y, x2, y2} = plotScales!;
+  // Some buffers set their scale's domain in place, so read the ends first.
+  const before = {
+    x: x.domain() as DomainValue[],
+    y: y.domain() as DomainValue[],
+    x2: x2.domain() as DomainValue[],
+    y2: y2.domain() as DomainValue[],
+  };
   const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} =
     plotConfigScales!;
   const xScale = plotScales!.xScale,
@@ -539,6 +549,22 @@ export const extendPlotOppScales: TransformStage = ({
       }
     });
   }
+
+  // Padding never moves an end of the user's domain on a value axis (a
+  // discrete axis's padding makes room for the bars at its ends).
+  const keep = (scale: D3Scale, axis: "x" | "y" | "x2" | "y2") =>
+    axis.charAt(0) === viz.schema.discrete
+      ? scale
+      : keepPinnedEnds(
+          scale,
+          before[axis],
+          userPinnedEnds(viz, axis, plotOpenEnds?.[axis as "x" | "y"]),
+          axis.startsWith("y"),
+        );
+  x = keep(x, "x");
+  y = keep(y, "y");
+  x2 = keep(x2, "x2");
+  y2 = keep(y2, "y2");
 
   // A small-multiples panel with shared scales draws with every panel's padding.
   return {plotScales: applyPaddedDomains(viz, {...plotScales!, x, y, x2, y2})};
