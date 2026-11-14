@@ -55,9 +55,12 @@ import {isPointShape} from "../viz/nearestHover.js";
 type PlotAccessor = (d: DataPoint, i: number) => number | Date | string;
 /** Function-or-string-key value accepted by accessor setters. */
 type PlotAccessorArg = string | PlotAccessor;
+/** An `x`/`y` setting: one level, or the levels of a multi-level axis. */
+type PlotAxisArg = PlotAccessorArg | PlotAccessorArg[];
 
 import {defaultBuffers} from "../plotBuffers/defaultBuffers.js";
 import {displayName} from "../../utils/displayName.js";
+import {axisAccessorInput, levelAggs} from "./plotLevels.js";
 
 /** A y-axis config patch with its `domain` array reversed (y scales run top-down). */
 function reverseDomain(patch: unknown): unknown {
@@ -95,6 +98,7 @@ export default class Plot extends Viz {
 */
   _preDraw() {
     keepOrderField(this as unknown as VizInstance);
+    levelAggs(this as unknown as VizInstance);
     // logic repeated for each axis
     ["x", "y", "x2", "y2"].forEach(k => {
       // if user has supplied a String key as the main method value
@@ -676,14 +680,18 @@ Stacked charts always fit one line to the stack totals.
   }
 
   /**
-      Accessor function or string key for the x-axis value of each data point.
+      Accessor function or string key for the x-axis value of each data point. An Array of keys or accessors, outermost first, plots a multi-level category axis: `["year", "quarter"]` places each row at its quarter within its year, labels each tick with its quarter, and labels each year once, centered under its quarters, with a divider between neighboring years. The axis must be the chart's discrete axis; tooltips name every level. See `xConfig`'s `levelConfig` and `levelDividerConfig` for their style.
 */
-  x(_?: PlotAccessorArg): this | PlotAccessor {
+  x(_?: PlotAxisArg): this | PlotAccessor {
     if (arguments.length) {
-      if (typeof _ === "function") this._x = _;
-      else {
-        this._x = fieldAccessor(_ as string);
-        this._xKey = _;
+      const value = axisAccessorInput(_!);
+      if (typeof value === "function") {
+        this._x = value;
+        // Each level of a multi-level axis is named on its own.
+        if (Array.isArray(_) && _.length > 1) this._xKey = undefined;
+      } else {
+        this._x = fieldAccessor(value as string);
+        this._xKey = value;
       }
       return this;
     } else return this._x;
@@ -724,14 +732,18 @@ Stacked charts always fit one line to the stack totals.
   }
 
   /**
-      Accessor function or string key for the y-axis value of each data point.
+      Accessor function or string key for the y-axis value of each data point. An Array of keys or accessors, outermost first, plots a multi-level category axis: `["year", "quarter"]` places each row at its quarter within its year, labels each tick with its quarter, and labels each year once, centered under its quarters, with a divider between neighboring years. The axis must be the chart's discrete axis; tooltips name every level. See `yConfig`'s `levelConfig` and `levelDividerConfig` for their style.
 */
-  y(_?: PlotAccessorArg): this | PlotAccessor {
+  y(_?: PlotAxisArg): this | PlotAccessor {
     if (arguments.length) {
-      if (typeof _ === "function") this._y = _;
-      else {
-        this._y = fieldAccessor(_ as string);
-        this._yKey = _;
+      const value = axisAccessorInput(_!);
+      if (typeof value === "function") {
+        this._y = value;
+        // Each level of a multi-level axis is named on its own.
+        if (Array.isArray(_) && _.length > 1) this._yKey = undefined;
+      } else {
+        this._y = fieldAccessor(value as string);
+        this._yKey = value;
       }
       return this;
     } else return this._y;

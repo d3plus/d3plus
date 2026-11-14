@@ -26,6 +26,7 @@ import {
   syncConfidenceAxes,
 } from "./confidenceAxes.js";
 import {applySwarmLanes, resolveSwarm} from "./swarm.js";
+import {orderAxisLevels} from "./plotLevels.js";
 import {applyPaddedDomains} from "./facetScales.js";
 import {
   dropHiddenRows,
@@ -465,9 +466,9 @@ export const computePlotAxisValues: TransformStage = ({
   }
 
   return {
-    xData: getAxisValues("x"),
+    xData: orderAxisLevels(viz, "x", getAxisValues("x")),
     x2Data: getAxisValues("x2"),
-    yData: getAxisValues("y"),
+    yData: orderAxisLevels(viz, "y", getAxisValues("y")),
     y2Data: getAxisValues("y2"),
   };
 };
