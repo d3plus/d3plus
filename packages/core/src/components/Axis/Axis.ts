@@ -69,6 +69,7 @@ const axisSchema: ConfigField[] = [
   {key: "scalePadding", coerce: "identity", default: 0.5},
   {key: "shape", coerce: "identity", default: "Line"},
   {key: "tickFormat", coerce: "identity"},
+  {key: "tickLabelPosition", coerce: "identity", default: "tick"},
   {key: "ticks", coerce: "identity"},
   {key: "tickSize", coerce: "identity", default: 8},
   {key: "tickSuffix", coerce: "identity", default: "normal"},
@@ -91,6 +92,11 @@ export default class Axis extends BaseClass {
   [key: string]: any;
   _select!: D3Selection;
   _data: unknown[];
+  /**
+      Where the last layout pass centers each label, by value, when the axis
+      centers its labels in the periods they name (see `tickLabelPosition`).
+  */
+  _periodPositions?: Map<number, number>;
   /** Whether `scale("auto")` was set, so each layout pass picks the scale. */
   _autoScale = false;
   /** The `data` values the scale reads, set by the layout pass (see `axisScaleData`). */

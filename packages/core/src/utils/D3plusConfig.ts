@@ -244,6 +244,21 @@ export interface AxisConfig {
   shapeConfig?: Record<string, unknown>;
   /** Tick formatter, called with the axis as `this`. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
   tickFormat?: (d: number | string) => string | number;
+  /**
+      Where each tick label is drawn: `"tick"` (the default) centers it on
+      its tick, and `"period"` centers a date label in the period it names
+      ("Mar" between the ticks for March 1 and April 1), while the ticks and
+      grid lines stay on the boundaries. The period is the calendar unit
+      the axis's dates step by (a year, quarter, month, day, hour, minute,
+      or second, read in UTC with `utc`); on a linear axis of whole-number
+      years, it is the year. A period the axis shows only part of centers
+      in that part, and the last one, which starts where the axis ends,
+      centers where its whole period would be, past the end. Other axes
+      draw their labels at their ticks.
+      @example
+      {xConfig: {tickLabelPosition: "period"}}
+  */
+  tickLabelPosition?: "tick" | "period";
   /** Tick values of the axis. */
   ticks?: unknown[];
   /**
@@ -989,6 +1004,20 @@ export interface D3plusConfig {
   arcSide?: "above" | "below" | "both";
   /** Hides the SVG from assistive technology when true (`aria-hidden`). */
   ariaHidden?: boolean;
+  /**
+      Plot: draws one unit of y `aspectRatio` times as long as one unit of
+      x, so `1` makes a unit square square (a 45 degree line rises at 45
+      degrees). The plot area shrinks along one side, centered, to hold it;
+      the axes keep their domains. A log axis measures in powers of ten (one
+      decade is one unit), and a time axis in milliseconds. Each small
+      multiple holds it in its own panel, and a zoom keeps it (both axes
+      zoom together). Ignored, with a warning, when either axis is a
+      category, pow, or sqrt axis, or a log axis spanning zero. Unset (the
+      default), the plot fills its area.
+      @example
+      {aspectRatio: 1}
+  */
+  aspectRatio?: number;
   /**
       The Radar's axis styles, named after the parts of a Plot axis: the
       inner level rings are its gridlines (`gridConfig`, a faint stroke like

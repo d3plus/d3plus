@@ -37,6 +37,7 @@ import rangeBreaks from "~/examples/core/charts/line-plot/range-breaks.js?raw";
 import rangeBreaksTradingHours from "~/examples/core/charts/line-plot/range-breaks-trading-hours.js?raw";
 import rangeBreaksMarkedRange from "~/examples/core/charts/line-plot/range-breaks-marked-range.js?raw";
 import utcAxis from "~/examples/core/charts/line-plot/utc-axis.js?raw";
+import periodLabels from "~/examples/core/charts/line-plot/period-labels.js?raw";
 
 Creates a line plot based on an array of data.
 
@@ -231,5 +232,11 @@ Daily closing prices only exist on trading days. `xConfig.rangeBreaks` hides wee
 These daily values are stored at UTC midnight. A time axis reads dates in the viewer's time zone, so west of UTC each one lands on the evening before; `xConfig: {utc: true}` ticks, labels and parses the axis in UTC, so March 1 reads as March 1 everywhere. Turn it off to see the axis in your own time zone.
 
 <Playground chart="LinePlot" code={utcAxis} controls={["xConfig"]} />
+
+## Period labels
+
+Each monthly value is dated the first of its month, so by default a month's label sits on that day's tick. `xConfig: {tickLabelPosition: "period"}` centers each label in the month it names instead, between its tick and the next, while the ticks and grid lines stay on the month boundaries. The last month starts where the axis ends, so its label sits past the last tick, where December would be. A bar chart's bars already span their periods, so its labels stay beneath them.
+
+<Playground chart="LinePlot" code={periodLabels} controls={["xConfig"]} />
 
 <ApiReference name="LinePlot" pkg="core" />

@@ -257,6 +257,8 @@ export interface PlotMeasureResult {
   xEndLabels?: EndLabelBox[];
   /** Pixels reserved under the value axis's range, above the x axis (see `_plotInsetBottom`). */
   insetBottom?: number;
+  /** Pixels the plot moved in from its top and its bottom to hold its `aspectRatio`. */
+  aspectInsetY?: number;
 }
 
 /**

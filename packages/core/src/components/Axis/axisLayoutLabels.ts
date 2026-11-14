@@ -10,6 +10,7 @@ import {fontFamily as d3plusFontFamily} from "@d3plus/text";
 
 import type Axis from "./Axis.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
+import {axisLabelPosition} from "./axisPeriods.js";
 import {titleRoom} from "./axisTitle.js";
 import {fitLabelRoom} from "./axisLabelRoom.js";
 import {slantedDepth, slantedWrapSize} from "./axisLabelAngle.js";
@@ -185,7 +186,7 @@ function baseTextData(axis: Axis, labels: unknown[]): AxisTextDatum[] {
           : fontFamilyConfig,
       fP = typeof fontPadding === "function" ? fontPadding(d, i) : fontPadding,
       fS = typeof fontSize === "function" ? fontSize(d, i) : fontSize,
-      position = axis._getPosition(d);
+      position = axisLabelPosition(axis, d);
 
     // Measured with the line height the label is painted with (see
     // `configureTickShape`).
