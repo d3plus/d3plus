@@ -410,6 +410,16 @@ export const networkDef: ChartDefinition = {
         @type {"force" | "circle"}
     */
     {key: "layout", default: "force"},
+    /**
+        How far links bow in toward the center when `layout` is
+        `"circle"`, from `0` (straight lines) to `1` (the default: each
+        link curves through the center's pull, as a chord diagram's do).
+        It sets the share of the way from the middle of a link's chord to
+        the center that its curve's control point sits. Bundled links
+        (`linkBundle`) ignore it.
+        @type {number}
+    */
+    {key: "linkBow", default: 1},
     {key: "links", default: []},
     /**
         The thickness of each link: a pixel number used for every link, or an

@@ -1998,6 +1998,14 @@ export interface D3plusConfig {
   */
   layout?: "force" | "circle";
   /**
+      Network's circle layout (`layout: "circle"`): how far links bow in
+      toward the center, from `0` (straight lines) to `1` (the default: each
+      link curves through the center's pull, as a chord diagram's do). It
+      sets the share of the way from the middle of a link's chord to the
+      center that its curve's control point sits. Bundled links ignore it.
+  */
+  linkBow?: number;
+  /**
       Geomap: how far each link bows into an arc, as a share of the distance
       between its ends: `0` draws the plain great-circle path, and the default
       `0.2` bows it to the left of its direction (negative bows right), so

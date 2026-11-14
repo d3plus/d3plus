@@ -46,10 +46,10 @@ type Point = [number, number];
 export type NetworkLayout = "force" | "circle";
 
 /**
-    How far a circle layout's links bow toward the center: the share of the
-    way from the middle of a link's chord to the center its curve's control
-    point sits. 1 bows each link through the center's pull, as a chord
-    diagram's ribbons do; 0 draws straight lines.
+    How far a circle layout's links bow toward the center by default (see
+    `linkBow`): the share of the way from the middle of a link's chord to
+    the center its curve's control point sits. 1 bows each link through the
+    center's pull, as a chord diagram's ribbons do; 0 draws straight lines.
 */
 export const CIRCLE_LINK_BOW = 1;
 
@@ -391,16 +391,31 @@ export function placeCircleNetworkLabels(
 }
 
 /**
-    Gives each link between two distinct, placed nodes without a path of
-    its own (a bundled one) its curve toward the circle's center (see
-    `circleLinkPoints`).
+    A `linkBow` setting as a share from 0 to 1: a number is clamped into
+    that range, and anything else is `CIRCLE_LINK_BOW`.
 */
-export function curveCircleLinks(links: GraphLink[], center: Point): void {
+export function linkBowOf(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.min(1, Math.max(0, value))
+    : CIRCLE_LINK_BOW;
+}
+
+/**
+    Gives each link between two distinct, placed nodes without a path of
+    its own (a bundled one) its curve toward the circle's center, `bow` of
+    the way (see `circleLinkPoints`). With no bow, links stay straight.
+*/
+export function curveCircleLinks(
+  links: GraphLink[],
+  center: Point,
+  bow = CIRCLE_LINK_BOW,
+): void {
+  if (!(bow > 0)) return;
   for (const l of links) {
     if (!l.source || !l.target || l.points || l.loop || isSelfLoop(l)) continue;
     const s: Point = [l.source.x ?? NaN, l.source.y ?? NaN];
     const t: Point = [l.target.x ?? NaN, l.target.y ?? NaN];
     if (![...s, ...t].every(Number.isFinite)) continue;
-    l.points = circleLinkPoints(s, t, center);
+    l.points = circleLinkPoints(s, t, center, bow);
   }
 }

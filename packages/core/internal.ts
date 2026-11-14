@@ -2640,6 +2640,7 @@ export {
   curveCircleLinks,
   fitCircle,
   layoutCircleNetwork,
+  linkBowOf,
   nodeSpokeReach,
   placeCircleNetworkLabels,
   sortCircleNodes,

@@ -38,6 +38,7 @@ import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import {
   curveCircleLinks,
   layoutCircleNetwork,
+  linkBowOf,
   placeCircleNetworkLabels,
 } from "./circleLayout.js";
 import type {GraphLink, GraphNode} from "./graph.js";
@@ -493,7 +494,8 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
   placeNetworkLoops(nodes, links, circle?.circle.center);
   if (circle) placeCircleNetworkLabels(v, nodes, links, circle.circle);
   bundleNetworkLinks(v, links);
-  if (circle) curveCircleLinks(links, circle.circle.center);
+  if (circle)
+    curveCircleLinks(links, circle.circle.center, linkBowOf(v.schema.linkBow));
 
   const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");
   delete linkConfig.on;
