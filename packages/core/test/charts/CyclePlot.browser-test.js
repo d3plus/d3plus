@@ -69,7 +69,11 @@ const extract = viz => {
     yDomains: panels.map(p =>
       JSON.stringify(p.state._plotAxisDomains?.y ?? null),
     ),
-    rows: panels.map(p => (p.state._plotArea ? p.scene.length : 0)),
+    texts: panels.map(p =>
+      sceneNodes(p.scene)
+        .filter(n => n.type === "text")
+        .map(n => n.lines.map(l => l.text).join(" ")),
+    ),
     nan: nodes.filter(n =>
       JSON.stringify({d: n.d, t: n.transform, p: n.points}).includes("null"),
     ).length,
@@ -178,6 +182,28 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(out.nan, 0);
   });
 
+  it(`CyclePlot ${renderer} — each panel labels its first and last cycle, when they fit`, async () => {
+    const wide = await probeChart(src({}), extract, {
+      data: monthly(),
+      renderer,
+      html: '<div id="viz" style="width:1600px;height:420px"></div>',
+    });
+    for (const texts of wide.texts) {
+      assert.ok(texts.includes("2021") && texts.includes("2023"), `${texts}`);
+      assert.ok(!texts.includes("2022"), "no other cycles");
+    }
+    const narrow = await probeChart(src({}), extract, {
+      data: monthly(),
+      renderer,
+      html: '<div id="viz" style="width:420px;height:420px"></div>',
+    });
+    for (const texts of narrow.texts)
+      assert.ok(
+        !texts.includes("2021") && !texts.includes("2023"),
+        "dropped rather than overlapping",
+      );
+  });
+
   it(`CyclePlot ${renderer} — weekdays from the locale's first, a mean per series`, async () => {
     const config = {groupBy: "name", period: "weekday", locale: "de-DE"};
     const out = await probeChart(src(config), extract, {
@@ -207,7 +233,7 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(us.titles[0], "Sun");
   });
 
-  it(`CyclePlot ${renderer} — period: "quarter" merges months, mean: false`, async () => {
+  it(`CyclePlot ${renderer} — period: "quarter" averages months, mean: false`, async () => {
     const out = await probeChart(
       src({period: "quarter", mean: false}),
       extract,
@@ -218,6 +244,14 @@ for (const renderer of ["svg", "canvas"]) {
       out.means.every(m => m.length === 0),
       "no mean lines",
     );
+    // A quarter's months average: Q1 2022 is 105, 115, and 125.
+    const tip = await probeChart(src({period: "quarter"}), hover(0), {
+      data: monthly(),
+      renderer,
+      html,
+    });
+    assert.strictEqual(tip.title, "Q1 2022");
+    assert.deepStrictEqual(tip.rows[0], ["value", "115"]);
   });
 
   it(`CyclePlot ${renderer} — xConfig.utc reads each season in UTC`, async () => {

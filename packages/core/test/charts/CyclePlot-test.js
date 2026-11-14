@@ -5,13 +5,16 @@ import {useJsdom} from "~test/jsdom.js";
 import {CyclePlot, LinePlot} from "../../index.ts";
 import {
   CYCLE_INSET,
+  CYCLE_INSET_MAX,
   CYCLE_PERIODS,
+  END_LABEL_GAP,
   computeTimeFilter,
   cycleAxisLabel,
   cycleColor,
   cycleCompare,
   cycleDate,
   cycleDateLabel,
+  cycleEndLabel,
   cycleFacetHooks,
   cycleFacetPanel,
   cycleMeanLines,
@@ -27,8 +30,11 @@ import {
   cycleTooltipContext,
   cycleTooltipRows,
   cycleTooltipTitle,
+  cycleXConfig,
   cycleYConfig,
+  endLabelInset,
   insetDomain,
+  meanAgg,
   noSeries,
   prepareCycle,
   resolveCyclePeriod,
@@ -74,8 +80,9 @@ it("CyclePlot — a LinePlot with one touching panel per season", () => {
   assert.strictEqual(viz.axisHover(), "y");
   assert.strictEqual(viz.discrete(), "x");
   assert.strictEqual(viz.xConfig().scale, "time");
-  assert.deepStrictEqual(viz.xConfig().labels, []);
-  assert.deepStrictEqual(viz.xConfig().ticks, []);
+  assert.strictEqual(viz.xConfig().labels, undefined, "set per panel");
+  assert.strictEqual(viz.xConfig().ticks, undefined);
+  assert.strictEqual(viz.xConfig().padding, 0);
   assert.strictEqual(viz.yConfig().maxSize, Infinity);
   const facet = viz.facetConfig();
   assert.strictEqual(facet.rows, 1);
@@ -339,19 +346,112 @@ it("insetDomain — room inside each end of a domain", () => {
   assert.deepStrictEqual(insetDomain(["a", "b", "c"], 0.1), ["a", "b", "c"]);
 });
 
-it("shareCycleScales — shared scales with room inside each panel", () => {
+it("shareCycleScales — shared scales with room for the end labels", () => {
   const rows = monthly();
   const viz = prepared(rows);
-  viz._margin = {top: 0, right: 0, bottom: 0, left: 0};
   const panels = Array.from({length: 12}, (_, m) =>
     rows.filter((d, i) => viz.schema.facet(d, i) === m),
   );
-  const scales = shareCycleScales(viz, panels);
-  const [lo, hi] = scales.domains.x.map(Number);
   const span = +new Date(2023, 0, 1) - +new Date(2021, 0, 1);
+  const state = viz.ctx.cycle;
+  viz.schema.width = 1000;
+
+  // A wide panel: the labels fit at the least room.
+  viz._margin = {top: 0, right: viz.schema.width - 400, bottom: 0, left: 0};
+  const wide = shareCycleScales(viz, panels);
+  const [lo, hi] = wide.domains.x.map(Number);
   assert.strictEqual(lo, +new Date(2021, 0, 1) - span * CYCLE_INSET);
   assert.strictEqual(hi, +new Date(2023, 0, 1) + span * CYCLE_INSET);
-  assert.ok(scales.domains.y[0] <= 100 && scales.domains.y[1] >= 220);
+  assert.ok(wide.domains.y[0] <= 100 && wide.domains.y[1] >= 220);
+  assert.deepStrictEqual(state.ends, [
+    new Date(2021, 0, 1),
+    new Date(2023, 0, 1),
+  ]);
+  assert.deepStrictEqual(state.endLabels, ["2021", "2023"]);
+
+  // A narrower one makes more room for them.
+  viz._margin = {top: 0, right: viz.schema.width - 100, bottom: 0, left: 0};
+  const [nlo] = shareCycleScales(viz, panels).domains.x.map(Number);
+  assert.ok(nlo < lo, "more room inside the ends");
+  assert.deepStrictEqual(state.endLabels, ["2021", "2023"]);
+
+  // Too narrow: no labels, the least room.
+  viz._margin = {top: 0, right: viz.schema.width - 30, bottom: 0, left: 0};
+  const [tlo] = shareCycleScales(viz, panels).domains.x.map(Number);
+  assert.strictEqual(tlo, lo);
+  assert.strictEqual(state.endLabels, undefined);
+});
+
+it("endLabelInset — room that keeps both end labels inside and apart", () => {
+  assert.deepStrictEqual(endLabelInset(400, [20, 20]), {
+    inset: CYCLE_INSET,
+    fits: true,
+  });
+  const {inset, fits} = endLabelInset(100, [30, 30]);
+  assert.ok(fits);
+  const place = inset / (1 + 2 * inset);
+  assert.ok(Math.abs(place * 100 - (15 + END_LABEL_GAP)) < 1e-9);
+  assert.ok(inset <= CYCLE_INSET_MAX);
+  assert.deepStrictEqual(endLabelInset(60, [30, 30]), {
+    inset: CYCLE_INSET,
+    fits: false,
+  });
+  assert.deepStrictEqual(endLabelInset(0, [1, 1]).fits, false);
+});
+
+it("cycleXConfig — ticks at the end cycles, labeled when they fit", () => {
+  const ends = [new Date(2020, 0, 1), new Date(2023, 0, 1)];
+  const endLabel = d => `${d.getFullYear()}`;
+  const state = {ends, endLabels: ["2020", "2023"], endLabel};
+  const out = cycleXConfig({title: false}, {}, state, true);
+  assert.deepStrictEqual(out.ticks, ends);
+  assert.deepStrictEqual(out.labels, ends);
+  assert.strictEqual(out.tickFormat(+ends[1]), "2023");
+  assert.strictEqual(out.tickFormat(ends[0]), "2020");
+  assert.strictEqual(out.tickFormat("x"), "x");
+  assert.deepStrictEqual(cycleXConfig({}, {}, state, false).labels, []);
+  assert.deepStrictEqual(
+    cycleXConfig({}, {}, {...state, endLabels: undefined}, true).labels,
+    [],
+    "labels that don't fit are dropped",
+  );
+  assert.deepStrictEqual(cycleXConfig({}, {}, {}, true).ticks, []);
+  const own = {ticks: [1]};
+  assert.strictEqual(cycleXConfig(own, own, state, true), own, "user ticks");
+  const fmt = () => "f";
+  assert.strictEqual(
+    cycleXConfig({tickFormat: fmt}, {tickFormat: fmt}, state, true).tickFormat,
+    fmt,
+  );
+});
+
+it("cycleEndLabel — a cycle's year, or its first day", () => {
+  const d = new Date(2023, 0, 2);
+  assert.strictEqual(cycleEndLabel(d, "month", enUS), "2023");
+  assert.strictEqual(cycleEndLabel(d, "quarter", enUS), "2023");
+  assert.strictEqual(cycleEndLabel(d, "weekday", enUS), "Jan 2");
+  assert.strictEqual(
+    cycleEndLabel(d, "hour", deDE),
+    `${deDE.shortMonths[0]} 2`,
+  );
+  const u = new Date(Date.UTC(2023, 11, 31, 23));
+  assert.strictEqual(cycleEndLabel(u, "hour", enUS, true), "Dec 31");
+});
+
+it("meanAgg — rows in a season and cycle average by default", () => {
+  assert.strictEqual(
+    meanAgg([{v: 1}, {v: 2}, {v: "x"}, {v: 6}], d => d.v),
+    3,
+  );
+  assert.strictEqual(
+    meanAgg([], d => d.v),
+    undefined,
+  );
+  const viz = prepared(monthly());
+  assert.strictEqual(viz.schema.aggs.value, meanAgg);
+  const sum = (a, c) => a.reduce((t, d) => t + c(d), 0);
+  const own = prepared(monthly(), {aggs: {value: sum}});
+  assert.strictEqual(own.schema.aggs.value, sum, "a user aggs wins");
 });
 
 it("cycleYConfig — unlabeled panels' y axes draw no ticks or padding", () => {
