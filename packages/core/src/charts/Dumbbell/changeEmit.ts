@@ -338,3 +338,19 @@ export function emitBarConnectors(
   }
   return out;
 }
+
+/**
+    Each row's bar color: the fill of the bar connector drawn through its
+    point (see `emitBarConnectors`), by the row.
+    @param nodes The bar connectors' scene nodes.
+*/
+export function barColors(nodes: SceneNode[]): Map<PlotDatum, string> {
+  const out = new Map<PlotDatum, string>();
+  for (const n of nodes) {
+    const fill = (n.paint as {fill?: unknown} | undefined)?.fill;
+    if (n.type !== "rect" || typeof fill !== "string") continue;
+    for (const p of n.interactionPoints ?? [])
+      out.set((p.datum as unknown as ConnectorEnd).data, fill);
+  }
+  return out;
+}

@@ -844,6 +844,7 @@ export {
   CONNECTOR_KEY_SUFFIX,
   dumbbellEmit,
   dumbbellSpans,
+  hiddenPoint,
 } from "./src/charts/Dumbbell/emit.js";
 export type {DumbbellSpan} from "./src/charts/Dumbbell/emit.js";
 export {
@@ -864,6 +865,7 @@ export type {
 } from "./src/charts/Dumbbell/changes.js";
 export {
   arrowSegment,
+  barColors,
   emitArrowConnectors,
   emitBarConnectors,
   pointGeometry,

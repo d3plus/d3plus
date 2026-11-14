@@ -28,6 +28,7 @@ import {
 import {markSharedConfig} from "../../utils/configWarnings.js";
 import {dumbbellConnector} from "./changes.js";
 import {
+  barColors,
   emitArrowConnectors,
   emitBarConnectors,
   pointGeometry,
@@ -90,11 +91,18 @@ export const dumbbellEmit: ShapeEmitter = (ctx, key) => {
   });
   const points = shapeEmitters.Circle({...ctx, shapeConfig}, key);
   const {viz} = ctx;
-  if (dumbbellConnector(viz.schema.connector) === "bar")
+  if (dumbbellConnector(viz.schema.connector) === "bar") {
+    const bars = emitBarConnectors(
+      ctx,
+      pointGeometry(points),
+      !!viz.schema.arrows,
+    );
+    const colors = barColors(bars);
     return [
-      ...emitBarConnectors(ctx, pointGeometry(points), !!viz.schema.arrows),
-      ...points.map(hidePoint),
+      ...bars,
+      ...points.map(n => hiddenPoint(n, colors.get(n.datum as PlotDatum))),
     ];
+  }
   if (viz.schema.arrows)
     return [...emitArrowConnectors(ctx, pointGeometry(points)), ...points];
   return [...emitConnectors(ctx), ...points];
@@ -102,13 +110,18 @@ export const dumbbellEmit: ShapeEmitter = (ctx, key) => {
 
 /**
     A point a bar connector draws in place of: kept for hover, the shared
-    tooltip and keyboard focus, but painted with nothing, so emphasis leaves
-    it unseen too.
+    tooltip and keyboard focus, but never seen. It keeps its bar's `color`
+    (fully transparent), so the shared tooltip's swatch and the axis tag
+    show the bar's color; without one, it is painted with nothing.
+    @param node The point's scene node.
+    @param color Its bar's fill.
 */
-function hidePoint(node: SceneNode): SceneNode {
+export function hiddenPoint(node: SceneNode, color?: string): SceneNode {
   if (node.type !== "circle") return node;
   return {
     ...node,
-    paint: {...node.paint, fill: "transparent", stroke: "transparent"},
+    paint: color
+      ? {...node.paint, fill: color, stroke: color, opacity: 0}
+      : {...node.paint, fill: "transparent", stroke: "transparent"},
   };
 }
