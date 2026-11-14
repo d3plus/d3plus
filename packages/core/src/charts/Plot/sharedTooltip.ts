@@ -70,7 +70,8 @@ function timeValue(
     axis of years, matching its tick labels), and anything else (e.g. a numeric
     year on the discrete axis) as-is. A `tickFormat` that labels ticks with
     something other than their values (`viz._tickLabelFormats`) applies only
-    with `ticks`, for text that stands in for a tick label.
+    with `ticks`, for text that stands in for a tick label; elsewhere its
+    value format applies.
     @param viz The chart.
     @param k The axis.
     @param value The value.
@@ -85,11 +86,9 @@ export function axisValue(
   const config = viz[`_${k}Config`] as
     {tickFormat?: (d: unknown) => string} | undefined;
   const tickFormat = config?.tickFormat;
-  if (
-    typeof tickFormat === "function" &&
-    (ticks || !viz._tickLabelFormats?.has(tickFormat))
-  )
-    return tickFormat(value);
+  const valueFormat = viz._tickLabelFormats?.get(tickFormat);
+  if (valueFormat && !ticks) return valueFormat(value);
+  if (typeof tickFormat === "function") return tickFormat(value);
   const time = timeValue(viz, k, value);
   if (time !== undefined) return time;
   if (isValidDate(value)) {

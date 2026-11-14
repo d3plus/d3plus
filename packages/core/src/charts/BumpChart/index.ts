@@ -5,17 +5,58 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
+import {formatOrdinal} from "@d3plus/format";
 
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
-import type {VizInstance} from "../viz/vizTypes.js";
+import type {TickHoverMatch, VizInstance} from "../viz/vizTypes.js";
 import {
   areaBumpEmit,
   bumpBandAxisPadding,
   bumpSharedTooltipValue,
   bumpSizeTooltipRows,
 } from "./areaBump.js";
+
+/**
+    The row holding rank `val` at the first or last period, if any.
+    @param viz The chart.
+    @param val The rank.
+    @param end Which period.
+*/
+export function bumpRankRow(
+  viz: VizInstance,
+  val: unknown,
+  end: "first" | "last",
+): DataPoint | undefined {
+  const data = viz._formattedData ?? [];
+  if (!data.length) return undefined;
+  const time = (x: unknown) => (x instanceof Date ? x.getTime() : x);
+  const at = time(data[end === "first" ? 0 : data.length - 1].x);
+  return data.find(d => time(d.x) === at && d.y === val);
+}
+
+/** The name of the series at rank `val` at the first or last period, or "". */
+function rankName(viz: VizInstance, val: unknown, end: "first" | "last") {
+  const d = bumpRankRow(viz, val, end);
+  return d ? viz._drawLabel(d, d.i as number) : "";
+}
+
+/**
+    What the tick label for rank `val` follows on hover: the series at that
+    rank at the first or last period, by its id.
+    @param viz The chart.
+    @param val The rank.
+    @param end Which period.
+*/
+export function bumpRankMatch(
+  viz: VizInstance,
+  val: unknown,
+  end: "first" | "last",
+): TickHoverMatch | undefined {
+  const d = bumpRankRow(viz, val, end);
+  return d && d.id !== undefined ? {field: "id", value: d.id} : undefined;
+}
 
 export const bumpChartDef: ChartDefinition = {
   name: "BumpChart",
@@ -45,34 +86,22 @@ export const bumpChartDef: ChartDefinition = {
     const v = viz as VizInstance & BumpFluent;
     v.y2((d: Record<string, unknown>, i: number) => viz._y!(d as DataPoint, i));
     // The rank axes name the series at each rank, from the first period on
-    // the left and the last on the right; elsewhere a rank reads as a number.
-    const firstNames = (val: number) => {
-      const data = viz._formattedData ?? [];
-      const xMin =
-        data[0].x instanceof Date
-          ? (data[0].x as unknown as Date).getTime()
-          : data[0].x;
-      const startData = data.filter(
-        (d: Record<string, unknown>) =>
-          (d.x instanceof Date ? (d.x as Date).getTime() : d.x) === xMin,
-      );
-      const d = startData.find((d: Record<string, unknown>) => d.y === val);
-      return d ? viz._drawLabel(d, d.i as number) : "";
+    // the left and the last on the right, and follow it on hover; elsewhere
+    // a rank reads as an ordinal.
+    const firstNames = (val: number) => rankName(viz, val, "first");
+    const lastNames = (val: number) => rankName(viz, val, "last");
+    const ordinal = (val: unknown) =>
+      typeof val === "number"
+        ? formatOrdinal(val, viz.schema.locale)
+        : `${val}`;
+    viz._tickLabelFormats = new Map([
+      [firstNames, ordinal],
+      [lastNames, ordinal],
+    ]);
+    viz._tickHoverMatch = {
+      y: val => bumpRankMatch(viz, val, "first"),
+      y2: val => bumpRankMatch(viz, val, "last"),
     };
-    const lastNames = (val: number) => {
-      const data = viz._formattedData ?? [];
-      const xMax =
-        data[data.length - 1].x instanceof Date
-          ? (data[data.length - 1].x as unknown as Date).getTime()
-          : data[data.length - 1].x;
-      const endData = data.filter(
-        (d: Record<string, unknown>) =>
-          (d.x instanceof Date ? (d.x as Date).getTime() : d.x) === xMax,
-      );
-      const d = endData.find((d: Record<string, unknown>) => d.y === val);
-      return d ? viz._drawLabel(d, d.i as number) : "";
-    };
-    viz._tickLabelFormats = new Set([firstNames, lastNames]);
     v.yConfig({tickFormat: firstNames});
     v.y2Config({tickFormat: lastNames});
     v.ySort(

@@ -5,8 +5,10 @@ import {openPage} from "~test/browser/page.js";
 /**
     BumpChart's tooltips in Chromium on both backends: its rank axes label
     each rank with a series, but a tooltip reads a rank as its number, in
-    the shared tooltip's rows and in a single line's rank row, while a
-    badge over a rank's tick label names its series.
+    the shared tooltip's rows and in a single line's rank row (as an
+    ordinal, in the chart's locale), while a badge over a rank's tick label
+    names its series; and hovering a line keeps the rank tick labels naming
+    its series lit while the others dim.
 */
 
 const box = "<div id='viz' style='width:800px;height:420px'></div>";
@@ -60,8 +62,22 @@ const hover = async (config, renderer) => {
     const badges = await page.evaluate(() =>
       (window.__viz._axisHoverState?.badges ?? []).map(b => [b.axis, b.text]),
     );
+    // Each rank tick label, by axis, with the opacity it's painted at.
+    const ticks = await page.evaluate(() => {
+      const out = [];
+      const walk = (n, axis) => {
+        const key = String(n.key);
+        const own = /^plot-(y2?)-axis$/.exec(key);
+        const at = own ? own[1] : axis;
+        if (at && n.type === "text" && n.hoverMatch)
+          out.push([at, n.lines[0].text, n.paint?.opacity ?? 1]);
+        (n.children || []).forEach(c => walk(c, at));
+      };
+      walk(window.__viz._paintedScene.root);
+      return out;
+    });
     assert.deepStrictEqual(errors, []);
-    return Object.assign(rows, {badges});
+    return Object.assign(rows, {badges, ticks});
   } finally {
     await close();
   }
@@ -73,9 +89,9 @@ for (const renderer of ["svg", "canvas"]) {
   it(`BumpChart [${renderer}]: the shared tooltip lists each series' rank`, async () => {
     const rows = await hover(config, renderer);
     for (const [plan, rank] of [
-      ["Select", "1"],
-      ["Prime", "2"],
-      ["Basic", "3"],
+      ["Select", "1st"],
+      ["Prime", "2nd"],
+      ["Basic", "3rd"],
     ]) {
       const row = rows.find(r => r[0] === plan);
       assert.ok(row, `a row for ${plan} (${JSON.stringify(rows)})`);
@@ -83,11 +99,20 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
-  it(`BumpChart [${renderer}]: a single line's tooltip reads its rank as a number`, async () => {
-    const rows = await hover({...config, tooltipShared: false}, renderer);
-    const rank = rows.find(r => r[0] === "rank");
-    assert.ok(rank, `a rank row (${JSON.stringify(rows)})`);
-    assert.strictEqual(rank[1], "2");
+  it(`BumpChart [${renderer}]: a single line's tooltip reads its rank as an ordinal`, async () => {
+    for (const [locale, text] of [
+      ["en-US", "2nd"],
+      ["es-ES", "2.º"],
+      ["zh-CN", "第2"],
+    ]) {
+      const rows = await hover(
+        {...config, locale, tooltipShared: false},
+        renderer,
+      );
+      const rank = rows.find(r => r[0] === "rank");
+      assert.ok(rank, `a rank row (${JSON.stringify(rows)})`);
+      assert.strictEqual(rank[1], text, locale);
+    }
   });
 
   it(`BumpChart [${renderer}]: a rank's axis badge names its series`, async () => {
@@ -98,5 +123,23 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(ranks.length, `a rank badge (${JSON.stringify(badges)})`);
     for (const [axis, text] of ranks)
       assert.strictEqual(text, names[axis], `the ${axis} tick label at rank 2`);
+  });
+
+  it(`BumpChart [${renderer}]: hovering a line keeps its series' rank labels lit`, async () => {
+    const {ticks} = await hover({...config, tooltipShared: false}, renderer);
+    for (const axis of ["y", "y2"]) {
+      const labels = ticks.filter(t => t[0] === axis);
+      assert.strictEqual(labels.length, 3, `${axis} labels`);
+      for (const [, text, opacity] of labels)
+        assert.ok(
+          text === "Prime" ? opacity === 1 : opacity < 1,
+          `${axis} ${text} at ${opacity}`,
+        );
+    }
+    // A shared column lights every line, and so every rank label.
+    const shared = await hover(config, renderer);
+    assert.strictEqual(shared.ticks.length, 6);
+    for (const [axis, text, opacity] of shared.ticks)
+      assert.strictEqual(opacity, 1, `${axis} ${text} (shared)`);
   });
 }
