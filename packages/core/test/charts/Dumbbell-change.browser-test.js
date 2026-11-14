@@ -89,6 +89,16 @@ const draw = ([config, rows, renderer, hover]) =>
           opacity: n.paint.opacity,
         }));
       const legend = viz._legendClass ? viz._legendClass.data().length : 0;
+      // The legend's swatches, as painted.
+      const legendFills = flat([viz._paintedScene.root])
+        .filter(
+          n =>
+            n.interactionGroup === "legend" &&
+            (n.type === "circle" || n.type === "rect") &&
+            n.paint &&
+            typeof n.paint.fill === "string",
+        )
+        .map(n => n.paint.fill);
       const dot = nodes.find(
         n => n.type === "circle" && n.datum && n.datum.data.country === hover,
       );
@@ -124,6 +134,7 @@ const draw = ([config, rows, renderer, hover]) =>
             bars,
             points,
             legend,
+            legendFills,
             tooltip: tip ? tip.textContent : "",
             colors: viz.schema.colorDefaults,
           });
@@ -339,5 +350,59 @@ for (const renderer of ["svg", "canvas"]) {
       2,
       "Chile's lone South dot names its series",
     );
+  });
+
+  it(`Dumbbell arrows (${renderer}): the points take neutral grays, light then dark, on light and dark themes`, async () => {
+    // A fill as [r, g, b], from "#rrggbb" or "rgb(r, g, b)".
+    const rgbOf = c =>
+      c.startsWith("#")
+        ? [1, 3, 5].map(k => parseInt(c.slice(k, k + 2), 16))
+        : c.match(/\d+/g).map(Number);
+    const lightness = c => rgbOf(c).reduce((a, v) => a + v, 0) / 3;
+    const fills = out => {
+      const of = year => [
+        ...new Set(out.points.filter(p => p.year === year).map(p => p.fill)),
+      ];
+      return {start: of("2019"), end: of("2023")};
+    };
+    const gray = c => {
+      const [r, g, b] = rgbOf(c);
+      return Math.max(r, g, b) - Math.min(r, g, b) <= 16;
+    };
+    const light = fills(await chart({arrows: true}, renderer));
+    assert.strictEqual(light.start.length, 1, "one gray per series");
+    assert.strictEqual(light.end.length, 1);
+    assert.ok(gray(light.start[0]) && gray(light.end[0]), "neutral");
+    assert.ok(
+      lightness(light.start[0]) > lightness(light.end[0]),
+      `start light, end dark: ${light.start} ${light.end}`,
+    );
+    const dark = fills(await chart({arrows: true, theme: "dark"}, renderer));
+    assert.ok(gray(dark.start[0]) && gray(dark.end[0]));
+    assert.ok(
+      lightness(dark.start[0]) < lightness(dark.end[0]),
+      `faint then strong on dark: ${dark.start} ${dark.end}`,
+    );
+    const plain = fills(await chart({}, renderer));
+    assert.ok(!gray(plain.start[0]) && !gray(plain.end[0]), "series colors");
+    const mine = fills(await chart({arrows: true, color: "country"}, renderer));
+    assert.ok(mine.start.length > 1, "a user color wins");
+  });
+
+  it(`Dumbbell change bars (${renderer}): a lone dot and the legend take the grays`, async () => {
+    const data = [...rates, {country: "Peru", year: "2023", v: 6}];
+    const out = await chart(
+      {connector: "bar", arrows: true},
+      renderer,
+      "Spain",
+      data,
+    );
+    const peru = out.points.find(p => p.country === "Peru");
+    const ref = await chart({arrows: true}, renderer, "Spain", data);
+    const end = ref.points.find(p => p.year === "2023").fill;
+    assert.strictEqual(peru.fill, end, "the end series' gray");
+    assert.strictEqual(out.legend, 2);
+    assert.deepStrictEqual(out.legendFills, ref.legendFills);
+    assert.ok(out.legendFills.includes(end), out.legendFills.join(" "));
   });
 }

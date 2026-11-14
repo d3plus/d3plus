@@ -19,6 +19,12 @@ import {
 } from "../../src/charts/Dumbbell/changeEmit.ts";
 import {hiddenPoint} from "../../src/charts/Dumbbell/emit.ts";
 import {
+  ARROW_GRAY_STRENGTHS,
+  arrowSeriesGray,
+  seriesOrder,
+  seriesStrength,
+} from "../../src/charts/Dumbbell/arrowGrays.ts";
+import {
   barColor,
   categoryValues,
   changeRow,
@@ -308,4 +314,52 @@ it("drawsBarlessDots — under facet, counts each panel's categories on their ow
   assert.strictEqual(drawsBarlessDots(viz), true, "per panel");
   viz._filteredData = split.filter(d => d.c === "B");
   assert.strictEqual(drawsBarlessDots(viz), false, "every panel spans");
+});
+
+it("seriesStrength — the first series light, the last dark, the rest between", () => {
+  const [light, dark] = ARROW_GRAY_STRENGTHS;
+  assert.strictEqual(seriesStrength(0, 2), light);
+  assert.strictEqual(seriesStrength(1, 2), dark);
+  assert.strictEqual(seriesStrength(1, 3), (light + dark) / 2);
+  assert.strictEqual(seriesStrength(0, 1), dark, "a lone series");
+  assert.strictEqual(seriesStrength(-1, 2), dark, "an unknown series");
+});
+
+it("seriesOrder — series in the order they first appear", () => {
+  assert.deepStrictEqual(
+    seriesOrder(rows, d => d.s),
+    ["2010", "2020"],
+  );
+  assert.deepStrictEqual(
+    seriesOrder([{s: "b"}, {s: "a"}, {s: "b"}], d => d.s),
+    ["b", "a"],
+  );
+});
+
+/** A color's lightness, 0–255. */
+const lightness = c => {
+  const [r, g, b] = c.match(/\d+/g).map(Number);
+  return (r + g + b) / 3;
+};
+
+it("arrowSeriesGray — grays from the background toward the text color", () => {
+  const viz = chart({arrows: true});
+  const first = arrowSeriesGray(viz, rows[0], 0);
+  const last = arrowSeriesGray(viz, rows[1], 1);
+  assert.notStrictEqual(first, last);
+  assert.ok(lightness(first) > lightness(last), "light, then dark");
+});
+
+it("Dumbbell color — grays with arrows, series without, a user color over both", () => {
+  const plain = chart();
+  assert.strictEqual(plain.schema.color(rows[0], 0), "2010");
+  const arrows = chart({arrows: true});
+  assert.strictEqual(
+    arrows.schema.color(rows[1], 1),
+    arrowSeriesGray(arrows, rows[1], 1),
+  );
+  const mine = chart({arrows: true, color: () => "#ff00ff"});
+  assert.strictEqual(mine.schema.color(rows[0], 0), "#ff00ff");
+  const keyed = chart({arrows: true, color: "c"});
+  assert.strictEqual(keyed.schema.color(rows[0], 0), "A", "a key coerces");
 });
