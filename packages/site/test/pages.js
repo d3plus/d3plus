@@ -320,3 +320,50 @@ it(
     }
   },
 );
+
+it(
+  "a chart's tooltip floats above the sidebar, not under it",
+  {timeout: 2 * 60 * 1000},
+  async () => {
+    const server = await serve();
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    const browser = await chromium.launch();
+    try {
+      const {context, tab, problems} = await open(
+        browser,
+        origin,
+        "/core/charts/treemap/",
+      );
+      const chart = tab.locator(".d3p-chart").first();
+      await chart.scrollIntoViewIfNeeded();
+      await chart.locator("svg rect").first().waitFor({state: "attached"});
+      await tab.waitForTimeout(1500);
+
+      // A tile at the chart's left edge: its tooltip, centered on the
+      // pointer, reaches back over the sidebar.
+      const box = await chart.boundingBox();
+      await tab.mouse.move(box.x + 20, box.y + box.height / 3);
+      const tooltip = tab.locator(".d3plus-tooltip");
+      await tooltip.waitFor({state: "visible"});
+      const covered = await tab.evaluate(() => {
+        const el = document.querySelector(".d3plus-tooltip");
+        const sidebar = document.querySelector(".sidebar-pane");
+        const tip = el.getBoundingClientRect();
+        const nav = sidebar.getBoundingClientRect();
+        // Tooltips ignore the pointer, so hit-test with it switched on.
+        el.style.pointerEvents = "auto";
+        const x = tip.left + 2;
+        const top = document.elementFromPoint(x, tip.top + tip.height / 2);
+        el.style.pointerEvents = "";
+        return {overlaps: x < nav.right, onTop: el.contains(top)};
+      });
+      assert.ok(covered.overlaps, "the tooltip reaches the sidebar");
+      assert.ok(covered.onTop, "the tooltip is drawn above the sidebar");
+      await context.close();
+      assert.deepEqual(problems, []);
+    } finally {
+      await browser.close();
+      server.close();
+    }
+  },
+);
