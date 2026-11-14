@@ -6,6 +6,7 @@ export {
   Beeswarm,
   BoxWhisker,
   BubbleChart,
+  BubbleMatrix,
   Bullet,
   BumpChart,
   Calendar,
