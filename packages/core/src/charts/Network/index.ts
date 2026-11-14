@@ -398,6 +398,18 @@ export const networkDef: ChartDefinition = {
     ...linkStyleFields(),
     ...linkBundleFields(),
     ...loaderFormatFields("links", "nodes"),
+    /**
+        How the nodes are placed. `"force"` (the default) places them at
+        their `x` and `y`, or by a force simulation when any node has none.
+        `"circle"` spaces them evenly around a circle, ordered by cluster
+        (or top-level group) and then most connected first (see
+        `nodeSort`), with links bowing in toward the center and each label
+        turned outward along its node's spoke past the circle. A node's
+        loops point outward. With `linkBundle`, the bundled paths replace
+        the bowed ones.
+        @type {"force" | "circle"}
+    */
+    {key: "layout", default: "force"},
     {key: "links", default: []},
     /**
         The thickness of each link: a pixel number used for every link, or an
@@ -426,6 +438,16 @@ export const networkDef: ChartDefinition = {
     {key: "linkSizeScale", default: "sqrt"},
     {key: "noDataMessage", default: false},
     {key: "nodeGroupBy", default: [accessor("id")]},
+    /**
+        The order of the nodes around the circle when `layout` is
+        `"circle"`: `"data"` (their order in `nodes`), `"label"`
+        (alphabetical), `"group"` (by cluster or top-level group, then by
+        label), `"degree"` (most connected first), or a comparator function
+        receiving two node rows. Defaults to each cluster (or top-level
+        group) together, largest first, its most connected nodes first.
+        @type {"data" | "label" | "group" | "degree" | function}
+    */
+    {key: "nodeSort"},
     /**
         How many links a node's tooltip lists under its number of
         connections, strongest first: a number, or `false` for none. Defaults

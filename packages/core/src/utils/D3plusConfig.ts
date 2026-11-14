@@ -1893,6 +1893,15 @@ export interface D3plusConfig {
   */
   maxAngle?: number;
   /**
+      Network: how the nodes are placed. `"force"` (the default) places them
+      at their `x` and `y`, or by a force simulation when any node has
+      none. `"circle"` spaces them evenly around a circle, ordered by
+      cluster and then most connected first (see `nodeSort`), with links
+      bowing in toward the center and each label turned outward along its
+      node's spoke past the circle.
+  */
+  layout?: "force" | "circle";
+  /**
       Geomap: how far each link bows into an arc, as a share of the distance
       between its ends: `0` draws the plain great-circle path, and the default
       `0.2` bows it to the left of its direction (negative bows right), so
@@ -2060,12 +2069,16 @@ export interface D3plusConfig {
   */
   noDataMessage?: boolean;
   /**
-      The order of ArcDiagram's nodes along its line: `"data"` (the default,
-      their order in `nodes`), `"label"` (alphabetical), `"group"` (by the
-      top `groupBy` or `nodeGroupBy` level when there are several, else by
-      the `color` value, then by label), `"degree"`
-      (most connected first), or a comparator function receiving two node
-      rows, as for `Array.prototype.sort`.
+      The order of ArcDiagram's nodes along its line, and of Network's
+      around its circle (`layout: "circle"`): `"data"` (their order in
+      `nodes`), `"label"` (alphabetical), `"group"` (by cluster while
+      clusters color the chart, else by the top `groupBy` or `nodeGroupBy`
+      level when there are several, else, in ArcDiagram, by the `color`
+      value; then by label), `"degree"` (most connected first), or a
+      comparator function receiving two node rows, as for
+      `Array.prototype.sort`. ArcDiagram defaults to `"data"`; Network's
+      circle keeps each cluster (or top-level group) together, largest
+      first, its most connected nodes first.
   */
   nodeSort?:
     | "data"

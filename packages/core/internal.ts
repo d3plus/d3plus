@@ -275,7 +275,6 @@ export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {nodeHeights, rootDistances} from "./src/charts/Tree/nodeHeight.js";
 export type {HeightNode, NodeHeightInfo} from "./src/charts/Tree/nodeHeight.js";
 export {
-  boxReach,
   layoutRadialTree,
   radialLabelFont,
   radialLabelPlacement,
@@ -293,6 +292,7 @@ export type {
 export {emitRadialTreeLabels} from "./src/charts/Tree/radialLabels.js";
 export type {RadialLabels} from "./src/charts/Tree/radialLabels.js";
 export {
+  boxReach,
   emitSpokeLabels,
   polarPoint,
   radialFit,
@@ -2533,6 +2533,26 @@ export {
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";
+export {
+  CIRCLE_LINK_BOW,
+  CIRCLE_NODE_MAX,
+  CIRCLE_NODE_SHARE,
+  circleAngles,
+  circleLinkPoints,
+  circleNodeGroup,
+  curveCircleLinks,
+  fitCircle,
+  layoutCircleNetwork,
+  nodeSpokeReach,
+  placeCircleNetworkLabels,
+  sortCircleNodes,
+} from "./src/charts/Network/circleLayout.js";
+export type {
+  CircleLabel,
+  CircleNetwork,
+  CircleSortable,
+  NetworkLayout,
+} from "./src/charts/Network/circleLayout.js";
 export {
   CLUSTER_MAX,
   capClusters,

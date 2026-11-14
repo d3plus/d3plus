@@ -94,6 +94,21 @@ export function widestWord(
   return Math.max(0, ...words.map(w => measureLabel(w, font).width));
 }
 
+/**
+    How far from its center a `width` × `height` box's outline lies along
+    the spoke at `theta` (radians clockwise from 12 o'clock).
+*/
+export function boxReach(width: number, height: number, theta: number): number {
+  const sx = Math.abs(Math.sin(theta));
+  const cy = Math.abs(Math.cos(theta));
+  const hw = Math.max(0, width) / 2;
+  const hh = Math.max(0, height) / 2;
+  return Math.min(
+    sx > 1e-12 ? hw / sx : Infinity,
+    cy > 1e-12 ? hh / cy : Infinity,
+  );
+}
+
 /** Where a spoke label sits and how it turns. */
 export interface SpokePlacement {
   /** The point the label starts from. */

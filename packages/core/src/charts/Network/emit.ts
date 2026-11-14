@@ -54,6 +54,9 @@ import {curvePoints} from "../features/linkLabelPath.js";
 import {networkClusterLabels} from "./clusterLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {bundledLinkAnchor, bundledLinkEdge, bundledLinkPath} from "./bundle.js";
+import type {CircleNetwork} from "./circleLayout.js";
+import {pointLabelSettings} from "../features/circleLabels.js";
+import {emitSpokeLabels} from "../features/spokeLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 interface NetworkLink {
@@ -82,6 +85,8 @@ interface NetworkCtx {
   linkD: (d: NetworkLink) => string;
   nodeGroups: [string, NetworkNode[]][];
   nodeShapeConfig: Record<string, unknown>;
+  /** The circle, and its nodes' labels, under `layout: "circle"`. */
+  circle?: CircleNetwork;
 }
 
 /**
@@ -349,6 +354,7 @@ function networkNodeLabels(
   const labelFn = c.nodeShapeConfig.label as
     ((d: NetworkNode, i: number) => unknown) | undefined;
   if (!labelFn) return [];
+  if (c.circle) return circleNodeLabels(viz, c.circle, values, labelFn);
   const circle = shapeKind === "Circle";
   const inside = (d: NetworkNode): boolean => {
     const p = placed.get(d);
@@ -417,14 +423,45 @@ function networkNodeLabels(
   return [...labelNodes, ...emitOutsideLabels(viz, beside)];
 }
 
+/**
+    Under `layout: "circle"`, the labels the layout placed along each node's
+    spoke (see `layoutCircleNetwork`), for the nodes whose label shows.
+*/
+function circleNodeLabels(
+  viz: VizInstance,
+  circle: CircleNetwork,
+  values: NetworkNode[],
+  labelFn: (d: NetworkNode, i: number) => unknown,
+): SceneNode[] {
+  const settings = pointLabelSettings(viz);
+  const labels = values.flatMap((d, i) => {
+    const label = circle.labels.get(d.id);
+    if (!label || !labelFn(d, i)) return [];
+    return [
+      {
+        ...label.place,
+        id: `network-label-${d.id}`,
+        text: label.text,
+        datum: (d.data ?? d) as DataPoint,
+        fontSize: label.fontSize,
+      },
+    ];
+  });
+  return emitSpokeLabels(viz, labels, {
+    fontSize: settings.fontSize,
+    text: settings.text,
+  });
+}
+
 export const networkEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.networkCtx as NetworkCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];
 
-  const placed = c.nodeGroups?.length
-    ? placeNetworkLabels(viz, c)
-    : new Map<NetworkNode, CircleLabelLayout>();
+  const placed =
+    c.nodeGroups?.length && !c.circle
+      ? placeNetworkLabels(viz, c)
+      : new Map<NetworkNode, CircleLabelLayout>();
   if (c.links && c.links.length) out.push(...emitNetworkLinks(viz, c));
   const clusters = networkClusterLabels(
     viz,

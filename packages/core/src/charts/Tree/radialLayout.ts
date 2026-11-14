@@ -18,6 +18,7 @@ import {
   userLabelConfig,
 } from "../features/emitHelpers.js";
 import {
+  boxReach,
   polarPoint,
   radialFit,
   shrinkToWord,
@@ -186,21 +187,6 @@ export function radialLabelPlacement(
     inward: true,
     ...spokePlacement(cx, cy, node.theta, from, width, height, true),
   };
-}
-
-/**
-    How far from its center a `width` × `height` box's outline lies along
-    the spoke at `theta` (radians clockwise from 12 o'clock).
-*/
-export function boxReach(width: number, height: number, theta: number): number {
-  const sx = Math.abs(Math.sin(theta));
-  const cy = Math.abs(Math.cos(theta));
-  const hw = Math.max(0, width) / 2;
-  const hh = Math.max(0, height) / 2;
-  return Math.min(
-    sx > 1e-12 ? hw / sx : Infinity,
-    cy > 1e-12 ? hh / cy : Infinity,
-  );
 }
 
 /**
