@@ -11,12 +11,15 @@ import {
   levelAxisConfig,
   levelAxisName,
   levelAxisValue,
+  levelDomain,
   orderAxisLevels,
   orderLevelCategories,
   plotLevels,
   sharedValue,
 } from "../../src/charts/Plot/plotLevels.ts";
 import {plotAxisConfig} from "../../src/charts/Plot/baselineBreak.ts";
+import {userAxisDomain} from "../../src/charts/Plot/baselineDomain.ts";
+import {discreteDomainCategories} from "../../src/charts/Plot/discreteDomain.ts";
 import {axisName, axisValue} from "../../src/charts/Plot/sharedTooltip.ts";
 
 useJsdom();
@@ -213,4 +216,64 @@ it("tooltips read a multi-level axis's name and values", () => {
   assert.strictEqual(axisValue(viz, "x", key, true), "Q1");
   viz.xConfig({title: "Period"});
   assert.strictEqual(axisName(viz, "x"), "Period");
+});
+
+it("a level accessor's key names the category of a list of level values", () => {
+  const category = levelAccessor(["year", "quarter"]);
+  const key = category.key([2023, "Q1"]);
+  assert.strictEqual(key, category({year: 2023, quarter: "Q1"}, 0));
+  assert.deepStrictEqual(category.values(key), [2023, "Q1"]);
+});
+
+it("sharedValue reads Dates at the same time as one value", () => {
+  const a = new Date(2020, 0, 1);
+  const b = new Date(2020, 0, 1);
+  assert.strictEqual(
+    sharedValue([{d: a}, {d: b}], r => r.d),
+    a,
+  );
+  assert.strictEqual(
+    sharedValue([{d: a}, {d: new Date(2021, 0, 1)}], r => r.d).length,
+    2,
+  );
+});
+
+it("levelDomain reads lists of level values as categories", () => {
+  const viz = new BarChart().x(["year", "quarter"]);
+  const domain = levelDomain(viz, "x", [
+    [2023, "Q1"],
+    [2023, "Q2"],
+  ]);
+  assert.deepStrictEqual(domain, [
+    viz._x({year: 2023, quarter: "Q1"}, 0),
+    viz._x({year: 2023, quarter: "Q2"}, 0),
+  ]);
+  // A category already joined, and an axis of one level, stay as given.
+  assert.deepStrictEqual(levelDomain(viz, "x", [domain[0]]), [domain[0]]);
+  assert.deepStrictEqual(levelDomain(viz, "y", [[1, 2]]), [[1, 2]]);
+});
+
+it("xDomain and xConfig.domain take lists of level values", () => {
+  const viz = new BarChart().x(["year", "quarter"]).xDomain([
+    [2023, "Q1"],
+    [2024, "Q1"],
+  ]);
+  const q1 = viz._x({year: 2023, quarter: "Q1"}, 0);
+  const next = viz._x({year: 2024, quarter: "Q1"}, 0);
+  assert.deepStrictEqual(userAxisDomain(viz, "x", undefined), [q1, next]);
+  const categories = discreteDomainCategories(viz);
+  assert.ok(categories.has(q1) && categories.has(next));
+  assert.strictEqual(categories.size, 2);
+  viz.xConfig({domain: [[2024, "Q1"]]});
+  assert.deepStrictEqual(plotAxisConfig(viz, "x").domain, [next]);
+  assert.deepStrictEqual([...discreteDomainCategories(viz)], [next]);
+});
+
+it("levelAxisValue writes outer levels with the axis's levelFormat", () => {
+  const viz = new BarChart()
+    .x(["year", "quarter"])
+    .xConfig({levelFormat: (value, level) => `FY${value}/${level}`});
+  const key = viz._x(rows[0], 0);
+  assert.strictEqual(levelAxisValue(viz, "x", key), `FY2021/0${LEVEL_JOIN}Q1`);
+  assert.strictEqual(levelAxisValue(viz, "x", key, true), "Q1");
 });

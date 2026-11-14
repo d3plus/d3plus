@@ -5,16 +5,24 @@ import {AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../index.ts";
 import TextBox from "../../src/components/TextBox.ts";
 import {
   configureLevelBox,
+  defaultLevelFormat,
   groupSpan,
   hasLevels,
   innerLevel,
+  innerLevelOf,
   layoutAxisLevels,
+  levelDates,
+  levelFormatter,
   levelDividers,
   levelGroups,
   levelPath,
   levelText,
 } from "../../src/components/Axis/axisLevels.ts";
 import {levelNodes} from "../../src/components/Axis/axisScene.ts";
+import {
+  axisTooltipTarget,
+  stampLevelTooltips,
+} from "../../src/components/Axis/axisTooltipTargets.ts";
 
 /**
     Multi-level category axes (`levels`): each tick is labeled with its
@@ -331,4 +339,128 @@ it("a narrow group's horizontal label wraps to two lines at most", () => {
   configureLevelBox(box, axis);
   const lH = box.lineHeight()({}, 0) || 12 * 1.2;
   assert.ok(row.text <= Math.ceil(2 * lH), `${row.text}`);
+});
+
+/** Year and month categories ("2020|3") whose levels are Dates. */
+const dated = d => {
+  const [year, month] = `${d}`.split("|").map(Number);
+  return [new Date(year, 0, 1), new Date(year, month - 1, 1)];
+};
+const months = ["2020|11", "2020|12", "2021|1", "2021|2"];
+
+it("innerLevelOf reads a category's innermost level and its index", () => {
+  const axis = new AxisBottom().scale("point").levels(split);
+  assert.deepStrictEqual(innerLevelOf(axis, "a|b|c"), {value: "c", level: 2});
+  assert.deepStrictEqual(innerLevelOf(axis, "a"), {value: "a", level: 0});
+});
+
+it("levelDates lists a level's Dates in order, once each", () => {
+  const dates = levelDates(["2021|1", "2020|2", "2020|1"], dated, 0);
+  assert.deepStrictEqual(dates.map(Number), [
+    +new Date(2020, 0, 1),
+    +new Date(2021, 0, 1),
+  ]);
+  assert.deepStrictEqual(levelDates(quarters, split, 0), []);
+});
+
+it("defaultLevelFormat writes Dates as tick labels do, other values as text", () => {
+  const axis = draw(AxisBottom, months, {levels: dated});
+  const format = defaultLevelFormat(axis);
+  assert.strictEqual(format(new Date(2020, 0, 1), 0), "2020");
+  assert.strictEqual(format(new Date(2021, 0, 1), 0), "2021");
+  const month = format(new Date(2020, 11, 1), 1);
+  assert.ok(month && !/GMT|00:00/.test(month), month);
+  assert.strictEqual(format("Q1", 1), "Q1");
+  assert.strictEqual(format(undefined, 0), "");
+});
+
+it("levelFormatter calls levelFormat with the value, its level, and the axis", () => {
+  const calls = [];
+  const axis = new AxisBottom()
+    .scale("point")
+    .levels(split)
+    .levelFormat(function (value, level) {
+      calls.push([value, level, this]);
+      return `<${value}>`;
+    });
+  assert.strictEqual(levelFormatter(axis)("2020", 0), "<2020>");
+  assert.deepStrictEqual(calls, [["2020", 0, axis]]);
+  axis.levelFormat(undefined);
+  assert.strictEqual(levelFormatter(axis)("2020", 0), "2020");
+});
+
+it("an axis of Dates writes its outer labels and ticks as dates", () => {
+  const axis = draw(AxisBottom, months, {levels: dated});
+  assert.deepStrictEqual(
+    axis._levelLayout.rows[0].boxes.map(b => b.text),
+    ["2020", "2021"],
+  );
+  for (const label of tickLabels(axis).slice(0, months.length))
+    assert.ok(!/GMT|00:00/.test(label), label);
+});
+
+it("levelFormat writes the outer labels, and tickFormat the ticks", () => {
+  const axis = draw(AxisBottom, quarters, {
+    levelFormat: (value, level) => `FY${value}:${level}`,
+  });
+  assert.deepStrictEqual(
+    axis._levelLayout.rows[0].boxes.map(b => b.text),
+    ["FY2020:0", "FY2021:0"],
+  );
+  assert.deepStrictEqual(tickLabels(axis).slice(0, 2), ["Q1", "Q2"]);
+  const nodes = levelNodes(axis).filter(n => n.type === "text");
+  assert.deepStrictEqual(
+    nodes.map(n => n.lines.map(l => l.text).join(" ")),
+    ["FY2020:0", "FY2021:0"],
+  );
+});
+
+/** A text node as a TextBox draws a level label. */
+const levelNode = (lines, text, truncated, extra = {}) => ({
+  type: "text",
+  key: "level-0-0",
+  lines: lines.map(t => ({text: t})),
+  truncated,
+  datum: {text, value: 2020, level: 0, ...extra},
+});
+
+it("stampLevelTooltips stamps outer labels drawn cut short with their whole text", () => {
+  const cut = levelNode(["North…"], "North America", true);
+  const whole = levelNode(["Europe"], "Europe", false);
+  const tick = {...levelNode(["Q1…"], "Q1 2020", true), datum: {text: "x"}};
+  stampLevelTooltips([cut, whole, tick], undefined);
+  assert.deepStrictEqual(axisTooltipTarget(cut), {
+    part: "level",
+    value: 2020,
+    index: 0,
+    text: "North America",
+    truncated: true,
+    option: undefined,
+  });
+  assert.strictEqual(axisTooltipTarget(whole), undefined);
+  assert.strictEqual(axisTooltipTarget(tick), undefined);
+  const off = levelNode(["North…"], "North America", true);
+  stampLevelTooltips([off], false);
+  assert.strictEqual(axisTooltipTarget(off), undefined);
+});
+
+it("a cut outer label carries its whole text for the axis tooltip", () => {
+  const long =
+    "A region name far too long to fit under its two narrow categories in two lines";
+  const axis = draw(AxisBottom, [
+    `${long}|a`,
+    `${long}|b`,
+    "Short|c",
+    "Short|d",
+    "Short|e",
+    "Short|f",
+    "Short|g",
+    "Short|h",
+  ]);
+  const labels = levelNodes(axis).filter(n => n.type === "text");
+  const target = axisTooltipTarget(labels[0]);
+  assert.ok(target, "the cut label is stamped");
+  assert.strictEqual(target.text, long);
+  assert.strictEqual(target.part, "level");
+  assert.strictEqual(axisTooltipTarget(labels[1]), undefined);
 });

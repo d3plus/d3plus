@@ -1,6 +1,12 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {openPage} from "~test/browser/page.js";
+import {
+  chart as srcChart,
+  hover,
+  nodePoint,
+  tooltip,
+} from "./axis-tooltip-page.js";
 
 /**
     Multi-level category axes (`x: ["year", "quarter"]`) drawn in a chart, on
@@ -289,6 +295,114 @@ for (const renderer of ["svg", "canvas"]) {
       assert.deepStrictEqual(x.levels, []);
       assert.strictEqual(x.dividers, 0);
       assert.deepStrictEqual(x.ticks.slice(0, 4), ["Q1", "Q2", "Q3", "Q4"]);
+    } finally {
+      await close();
+    }
+  });
+
+  it(`xDomain lists of level values pick and order the categories (${renderer})`, async () => {
+    const {page, close} = await chart(
+      "BarChart",
+      [
+        ["data", sales],
+        ["groupBy", "id"],
+        ["legend", false],
+        ["x", ["year", "quarter"]],
+        ["y", "value"],
+        [
+          "xDomain",
+          [
+            [2024, "Q2"],
+            [2024, "Q1"],
+            [2022, "Q4"],
+          ],
+        ],
+      ],
+      renderer,
+    );
+    try {
+      const {x} = await axes(page);
+      assert.deepStrictEqual(x.levels, ["2024", "2022"]);
+      assert.deepStrictEqual(
+        x.ticks.filter(t => /^Q/.test(t)),
+        ["Q2", "Q1", "Q4"],
+      );
+      assert.strictEqual(x.dividers, 1);
+      const bars = await page.evaluate(
+        () => window.__viz._formattedData.length,
+      );
+      assert.strictEqual(bars, 3);
+    } finally {
+      await close();
+    }
+  });
+
+  it(`Date levels read as dates, and levelFormat writes the outer labels (${renderer})`, async () => {
+    const {page, close} = await chart(
+      "BarChart",
+      [
+        ["data", sales],
+        ["groupBy", "id"],
+        ["legend", false],
+        ["x", ["year", "quarter"]],
+        ["y", "value"],
+      ],
+      renderer,
+    );
+    try {
+      // The years become Dates in the page, then draw.
+      const drawn = await page.evaluate(
+        () =>
+          new Promise(resolve => {
+            const viz = window.__viz;
+            viz
+              .data(viz._data.map(d => ({...d, year: new Date(d.year, 0, 1)})))
+              .render(() => resolve(true));
+          }),
+      );
+      assert.ok(drawn);
+      let {x} = await axes(page);
+      assert.deepStrictEqual(x.levels, ["2022", "2023", "2024"]);
+      await page.evaluate(
+        () =>
+          new Promise(resolve =>
+            window.__viz
+              .xConfig({levelFormat: d => `FY${d.getFullYear() % 100}`})
+              .render(resolve),
+          ),
+      );
+      ({x} = await axes(page));
+      assert.deepStrictEqual(x.levels, ["FY22", "FY23", "FY24"]);
+      assert.deepStrictEqual(x.ticks.slice(0, 2), ["Q1", "Q2"]);
+    } finally {
+      await close();
+    }
+  });
+
+  it(`a cut outer label shows its whole text on hover (${renderer})`, async () => {
+    const long =
+      "A region name far too long to fit under its two narrow categories in two lines";
+    const {page, close} = await srcChart(
+      `lib => new lib.BarChart().config({
+        data: [
+          {region: ${JSON.stringify(long)}, country: "a", v: 3},
+          {region: ${JSON.stringify(long)}, country: "b", v: 4},
+          ...["c", "d", "e", "f", "g", "h"].map(country => ({region: "Short", country, v: 2})),
+        ],
+        groupBy: "country", legend: false, x: ["region", "country"], y: "v",
+      })`,
+      renderer,
+    );
+    try {
+      const point = await nodePoint(
+        page,
+        `node => !!node.axisTooltip && node.axisTooltip.part === "level"`,
+      );
+      assert.ok(point, "the cut outer label takes the pointer");
+      await hover(page, point);
+      const tip = await tooltip(page);
+      assert.ok(tip, "a tooltip shows");
+      assert.strictEqual(tip.title, long);
     } finally {
       await close();
     }
