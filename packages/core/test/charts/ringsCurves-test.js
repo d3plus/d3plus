@@ -13,6 +13,7 @@ import {
   ringArcCubics,
   ringRadius,
   ringsGeometry,
+  spokeReach,
 } from "../../internal.ts";
 
 const close = (a, b, msg, tol = 1e-6) =>
@@ -285,5 +286,89 @@ it("cubicsArrowEdge ends the stroke inside heads on the first and last cubics", 
     (both.d.match(/C/g) || []).length,
     curves.length,
     "keeps every cubic",
+  );
+});
+
+it("spokeReach is how far a node's outline reaches out along its spoke", () => {
+  close(spokeReach({r: 6, radians: 1}), 6, "a circle");
+  close(spokeReach({r: 6, shape: "Rect", radians: 0}), 6, "a 2r square");
+  // A box turned along its spoke reaches half its width out, whichever way the spoke runs.
+  for (const radians of [0, 0.7, 2.5, -2])
+    close(
+      spokeReach({
+        r: 6,
+        shape: "Rect",
+        width: 40,
+        height: 10,
+        radians,
+        rotate:
+          (radians * 180) / Math.PI +
+          (Math.abs(radians) > Math.PI / 2 ? 180 : 0),
+      }),
+      20,
+      `spoke at ${radians}`,
+    );
+  close(
+    spokeReach({
+      r: 6,
+      shape: "Rect",
+      width: 40,
+      height: 10,
+      radians: Math.PI / 2,
+    }),
+    5,
+    "an unturned box, straight down",
+  );
+});
+
+it("Rect nodes: curves meet the box and a link along a ring clears it", () => {
+  const geom = ringsGeometry(400, 400, 2);
+  const node = (id, ring, radians) => {
+    const radius = ringRadius(geom, ring);
+    return {
+      id,
+      ring,
+      radians,
+      x: 200 + radius * Math.cos(radians),
+      y: 200 + radius * Math.sin(radians),
+      r: 4,
+      shape: "Rect",
+      width: 30,
+      height: 8,
+      rotate: (radians * 180) / Math.PI,
+    };
+  };
+  const a = node("a", 1, 0.2);
+  const b = node("b", 2, 0.3);
+  const across = {source: a, target: b};
+  curveRingsEdge(across, geom);
+  close(
+    Math.hypot(across.sourceX - a.x, across.sourceY - a.y),
+    15,
+    "leaves a's box",
+  );
+  close(
+    Math.hypot(across.targetX - b.x, across.targetY - b.y),
+    15,
+    "meets b's box",
+  );
+  const c = node("c", 2, 0.9);
+  const wide = {...c, width: geom.ringWidth};
+  close(
+    ringArcRadius(geom, 2, [b, wide]),
+    ringRadius(geom, 2) + geom.ringWidth / 2 + 2,
+    "clear of the wider box",
+  );
+  const along = {source: b, target: c};
+  curveRingsEdge(along, geom);
+  close(
+    Math.hypot(along.sourceX - b.x, along.sourceY - b.y),
+    15,
+    "along: leaves b's box",
+  );
+  close(
+    Math.hypot(along.targetX - c.x, along.targetY - c.y),
+    15,
+    "along: meets c's box",
   );
 });

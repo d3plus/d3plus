@@ -1,7 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 
-import {outlineReach} from "../../internal.ts";
+import {outlineExit, outlineReach} from "../../internal.ts";
 
 const close = (a, b, eps = 1e-9) =>
   assert.ok(Math.abs(a - b) < eps, `${a} is not close to ${b}`);
@@ -54,4 +54,37 @@ it("outlineReach treats a missing or bad size as a point", () => {
   assert.strictEqual(outlineReach({r: NaN}, 0), 0);
   assert.strictEqual(outlineReach({r: -4}, 0), 0);
   assert.strictEqual(outlineReach({r: 4}, 0, NaN), 4);
+});
+
+it("outlineReach turns a Rect node's box by its rotate", () => {
+  const box = {shape: "Rect", width: 40, height: 10, rotate: 90};
+  close(outlineReach(box, 0), 5);
+  close(outlineReach(box, Math.PI / 2), 20);
+  close(outlineReach({...box, rotate: 180}, 0), 20);
+  close(outlineReach({...box, rotate: NaN}, 0), 20, 1e-9);
+  // Circles have no turn.
+  close(outlineReach({r: 10, rotate: 45}, 0), 10);
+});
+
+it("outlineExit is where a line to one side of the center meets the outline", () => {
+  close(outlineExit({r: 10}, 0), 10);
+  close(outlineExit({r: 10}, 1.3, 6), 8);
+  close(outlineExit({r: 10}, 1.3, -6), 8);
+  assert.strictEqual(outlineExit({r: 10}, 0, 10), 0, "a tangent misses");
+  const box = {shape: "Rect", width: 40, height: 10};
+  close(outlineExit(box, 0, 4), 20);
+  close(outlineExit(box, -Math.PI / 2, 15), 5);
+  assert.strictEqual(outlineExit(box, 0, 6), 0, "a line past the box misses");
+  // Up and to the right, a pixel to the right of the line: out through the top.
+  const angle = -Math.PI / 4;
+  const t = outlineExit(box, angle, 1);
+  const y = t * Math.sin(angle) + Math.cos(angle);
+  close(y, -5);
+  // Turned a quarter, the box runs tall.
+  close(outlineExit({...box, rotate: 90}, -Math.PI / 2, 3), 20);
+  // outlineReach takes the nearer of the stroke's two edges.
+  close(
+    outlineReach(box, angle, 2),
+    Math.min(outlineExit(box, angle, 1), outlineExit(box, angle, -1)),
+  );
 });
