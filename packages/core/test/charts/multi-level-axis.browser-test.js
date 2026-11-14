@@ -248,6 +248,27 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
+  it(`a scatter infers its multi-level axis as discrete (${renderer})`, async () => {
+    const {page, close} = await chart(
+      "Scatter",
+      [
+        ["data", sales],
+        ["groupBy", "id"],
+        ["legend", false],
+        ["x", ["year", "quarter"]],
+        ["y", "value"],
+      ],
+      renderer,
+    );
+    try {
+      const {x} = await axes(page);
+      assert.deepStrictEqual(x.levels, ["2022", "2023", "2024"]);
+      assert.strictEqual(x.dividers, 2);
+    } finally {
+      await close();
+    }
+  });
+
   it(`switching back to one level clears the outer labels (${renderer})`, async () => {
     const {page, close} = await chart(
       "BarChart",

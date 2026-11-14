@@ -684,7 +684,7 @@ Stacked charts always fit one line to the stack totals.
   }
 
   /**
-      Accessor function or string key for the x-axis value of each data point. An Array of keys or accessors, outermost first, plots a multi-level category axis: `["year", "quarter"]` places each row at its quarter within its year, labels each tick with its quarter, and labels each year once, centered under its quarters, with a divider between neighboring years. The axis must be the chart's discrete axis; tooltips name every level. See `xConfig`'s `levelConfig` and `levelDividerConfig` for their style.
+      Accessor function or string key for the x-axis value of each data point. An Array of keys or accessors, outermost first, plots a multi-level category axis: `["year", "quarter"]` places each row at its quarter within its year, labels each tick with its quarter, and labels each year once, centered under its quarters, with a divider between neighboring years. The axis is the chart's discrete axis (a chart without `discrete` infers it, as for any text values); tooltips name every level. See `xConfig`'s `levelConfig` and `levelDividerConfig` for their style.
 */
   x(_?: PlotAxisArg): this | PlotAccessor {
     if (arguments.length) {
@@ -736,7 +736,7 @@ Stacked charts always fit one line to the stack totals.
   }
 
   /**
-      Accessor function or string key for the y-axis value of each data point. An Array of keys or accessors, outermost first, plots a multi-level category axis: `["year", "quarter"]` places each row at its quarter within its year, labels each tick with its quarter, and labels each year once, centered under its quarters, with a divider between neighboring years. The axis must be the chart's discrete axis; tooltips name every level. See `yConfig`'s `levelConfig` and `levelDividerConfig` for their style.
+      Accessor function or string key for the y-axis value of each data point. An Array of keys or accessors, outermost first, plots a multi-level category axis: `["year", "quarter"]` places each row at its quarter within its year, labels each tick with its quarter, and labels each year once, centered under its quarters, with a divider between neighboring years. The axis is the chart's discrete axis (a chart without `discrete` infers it, as for any text values); tooltips name every level. See `yConfig`'s `levelConfig` and `levelDividerConfig` for their style.
 */
   y(_?: PlotAxisArg): this | PlotAccessor {
     if (arguments.length) {

@@ -2995,9 +2995,9 @@ export interface D3plusConfig {
   /** Overall width of the visualization in pixels. */
   width?: number;
   /**
-      Key, index, or accessor function for x-axis values. On a Plot's
-      discrete axis, an Array of keys or accessors, outermost first, draws a
-      multi-level category axis: `["year", "quarter"]` labels each tick with
+      Key, index, or accessor function for x-axis values. On a Plot, an
+      Array of keys or accessors, outermost first, draws a multi-level
+      category axis, which is the chart's discrete axis: `["year", "quarter"]` labels each tick with
       its quarter and each year once, centered across its quarters, with a
       divider between neighboring years (see the axis's `levels`).
   */
@@ -3028,9 +3028,9 @@ export interface D3plusConfig {
   /** Defines a custom sorting comparator function for discrete x2 axes. */
   x2Sort?: (a: DataPoint, b: DataPoint) => number;
   /**
-      Key, index, or accessor function for y-axis values. On a Plot's
-      discrete axis, an Array of keys or accessors, outermost first, draws a
-      multi-level category axis: `["year", "quarter"]` labels each tick with
+      Key, index, or accessor function for y-axis values. On a Plot, an
+      Array of keys or accessors, outermost first, draws a multi-level
+      category axis, which is the chart's discrete axis: `["year", "quarter"]` labels each tick with
       its quarter and each year once, centered across its quarters, with a
       divider between neighboring years (see the axis's `levels`).
   */
