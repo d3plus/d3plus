@@ -10,12 +10,12 @@ const merged = {
 };
 
 const data = [
-  ["Warm", "Reds", ["Crimson", "Scarlet", "Maroon"]],
-  ["Warm", "Yellows", ["Gold", "Amber", "Lemon"]],
-  ["Cool", "Blues", ["Navy", "Azure", "Cobalt"]],
-  ["Cool", "Greens", ["Olive", "Jade", "Mint", "Teal"]],
-].flatMap(([temperature, family, color]) =>
-  color.map(name => ({all: "All", temperature, family, name})),
+  ["Warm", "Reds", ["Rose", "Ruby"]],
+  ["Warm", "Yellows", ["Gold", "Lemon"]],
+  ["Cool", "Blues", ["Navy", "Azure"]],
+  ["Cool", "Greens", ["Jade", "Mint"]],
+].flatMap(([temperature, family, colors]) =>
+  colors.map(name => ({all: "All", temperature, family, name})),
 );
 
 const config = {

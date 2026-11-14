@@ -193,23 +193,35 @@
 
     new d3plus.RadialTree().select("#dendrogram").config(dendrogram).render();
 
-    new d3plus.Tree()
-      .select("#vertical")
-      .config({
-        ...dendrogram,
-        data: languages.filter(d => ["Germanic", "Celtic"].includes(d.branch)),
-      })
-      .render();
+    // The distance at which a hierarchical clustering merged each group.
+    const merged = {
+      All: 9,
+      Warm: 4,
+      Cool: 6,
+      Reds: 1.5,
+      Yellows: 2.5,
+      Blues: 2,
+      Greens: 3,
+    };
+    const colors = [
+      ["Warm", "Reds", ["Rose", "Ruby"]],
+      ["Warm", "Yellows", ["Gold", "Lemon"]],
+      ["Cool", "Blues", ["Navy", "Azure"]],
+      ["Cool", "Greens", ["Jade", "Mint"]],
+    ].flatMap(([temperature, family, names]) =>
+      names.map(name => ({all: "All", temperature, family, name})),
+    );
+    const colorDendrogram = {
+      data: colors,
+      groupBy: ["all", "temperature", "family", "name"],
+      nodeHeight: (d, i, node) => merged[node.id] ?? 0,
+    };
+
+    new d3plus.Tree().select("#vertical").config(colorDendrogram).render();
 
     new d3plus.Tree()
       .select("#horizontal")
-      .config({
-        ...dendrogram,
-        data: languages.filter(d =>
-          ["Romance", "Slavic", "Celtic"].includes(d.branch),
-        ),
-        orient: "horizontal",
-      })
+      .config({...colorDendrogram, orient: "horizontal"})
       .render();
   </script>
 </html>
