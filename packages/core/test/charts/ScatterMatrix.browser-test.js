@@ -174,6 +174,35 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(["even", "odd"].includes(out.bar[1][0][0]));
   });
 
+  it(`ScatterMatrix ${renderer} — axes hold still as the time filter changes`, async () => {
+    const timed = data.map((d, k) => ({...d, year: 2020 + (k % 3)}));
+    const out = await probeChart(
+      src({dimensions: dims, groupBy: "group", time: "year"}),
+      viz =>
+        new Promise(resolve => {
+          const domains = () =>
+            viz._facetPanels.map(p =>
+              JSON.stringify([
+                p.state._plotAxisDomains?.x,
+                p.state._plotAxisDomains?.y,
+              ]),
+            );
+          const before = domains();
+          viz
+            .timeFilter(d => d.year === 2020)
+            .render(() =>
+              resolve({
+                before,
+                after: domains(),
+                drawn: viz._filteredData.length,
+              }),
+            );
+        }),
+      {data: timed, renderer, html},
+    );
+    assert.deepStrictEqual(out.after, out.before);
+  });
+
   it(`ScatterMatrix ${renderer} — a hidden group leaves the histograms`, async () => {
     const out = await probeChart(
       src({dimensions: dims, groupBy: "group"}),

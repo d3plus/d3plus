@@ -264,6 +264,33 @@ it("prepareMatrix — panel rows, the observation level, and the grid", () => {
   assert.strictEqual(hidden._data[0][MATRIX_ID], "Fila 1");
 });
 
+it("prepareMatrix — axes from every row, whatever is filtered or hidden", () => {
+  const all = prepared(rows, {dimensions: ["w", "h"], groupBy: "kind"});
+  const domains = matrixState(all).axes.domains;
+  const filtered = prepared(rows, {
+    dimensions: ["w", "h"],
+    groupBy: "kind",
+    filter: d => d.kind === "a",
+  });
+  assert.deepStrictEqual(matrixState(filtered).axes.domains, domains);
+  assert.ok(
+    [...matrixState(filtered).binned].every(b => b[MATRIX_META].group === "a"),
+    "the histograms count what passes the filter",
+  );
+  const hidden = prepared(rows, {dimensions: ["w", "h"], groupBy: "kind"});
+  hidden._hidden = ["Row 1", "Row 2"];
+  hidden._preDraw();
+  assert.deepStrictEqual(matrixState(hidden).axes.domains, domains);
+  const timed = prepared(
+    rows.map((d, k) => ({...d, year: 2020 + (k % 2)})),
+    {dimensions: ["w", "h"], groupBy: "kind", time: "year"},
+  );
+  assert.deepStrictEqual(matrixState(timed).axes.domains, domains);
+  // A bar carries a counted observation's fields, so it passes the time
+  // filter too.
+  assert.ok([...matrixState(timed).binned].every(b => b.year === 2021));
+});
+
 it("matrixDimensions — the configured dimensions, else every numeric key", () => {
   const viz = new ScatterMatrix().data(rows);
   assert.deepStrictEqual(
