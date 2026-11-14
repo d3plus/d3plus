@@ -345,6 +345,31 @@ function resolveNonDivergingLinear(
   return {colors, buckets};
 }
 
+/**
+    Merges a log scale's stops that land on one value, keeping the color
+    farthest from the midpoint: a side whose pole is exactly 1 (or -1) puts
+    every stop on that side at the pole, where the midpoint may also draw.
+    Stops that would leave fewer than 2 are kept as they are.
+*/
+export function mergeLogStops(
+  stops: number[],
+  colors: string[],
+): {stops: number[]; colors: string[]} {
+  const merged: number[] = [];
+  const mergedColors: string[] = [];
+  stops.forEach((stop: number, i: number) => {
+    if (merged.length && stop === merged[merged.length - 1]) {
+      if (stop > 0) mergedColors[mergedColors.length - 1] = colors[i];
+    } else {
+      merged.push(stop);
+      mergedColors.push(colors[i]);
+    }
+  });
+  return merged.length < 2
+    ? {stops, colors}
+    : {stops: merged, colors: mergedColors};
+}
+
 /** Builds the linear/log/buckets/quantile scale and assigns it to the instance. */
 function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
   const {scale} = ctx;
@@ -384,8 +409,13 @@ function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
           newPositiveBuckets[i];
       });
     }
+    // The midpoint draws at 1, or at -1 when the positive side reaches no
+    // higher, so it stays between the two sides.
+    const top = (buckets as number[])[(buckets as number[]).length - 1];
     if ((buckets as number[]).includes(0))
-      (buckets as number[])[(buckets as number[]).indexOf(0)] = 1;
+      (buckets as number[])[(buckets as number[]).indexOf(0)] =
+        negativeBuckets.length && top <= 1 ? -1 : 1;
+    ({stops: buckets, colors} = mergeLogStops(buckets as number[], colors));
   }
 
   const scaleFn =

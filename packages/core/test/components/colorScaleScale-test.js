@@ -6,6 +6,7 @@ import {
   centeredStops,
   colorScaleBucketCount,
   divergingThresholds,
+  mergeLogStops,
 } from "../../src/components/ColorScale/colorScaleScale.ts";
 import {useJsdom} from "~test/jsdom.js";
 
@@ -363,4 +364,67 @@ it("centeredStops — each side of the midpoint spaces its own colors evenly", (
       assert.strictEqual(stops[0], -0.7);
       assert.strictEqual(stops.at(-1), 0.3);
     }
+});
+
+it("log — a pole of exactly 1 or -1 takes its own color, once", () => {
+  const {off, light, sequential} = new ColorScale().schema.colorDefaults;
+  for (const values of [
+    [-10, -5, 1],
+    [-1, 0.5, 1],
+    [-10, -8, -5, -2, 0.5, 1],
+    [-1, -0.5, 2, 4, 8, 10],
+    [-1, -0.8, -0.5, 0.2, 0.5, 1],
+  ]) {
+    const cs = solve(values, {scale: "log"});
+    const domain = cs._colorScale.domain();
+    const label = `${values} → ${domain}`;
+    assert.ok(
+      domain.every((d, i) => !i || d > domain[i - 1]),
+      `${label}: the stops ascend`,
+    );
+    assert.strictEqual(
+      domain.length,
+      cs._colorScale.range().length,
+      `${label}: a color per stop`,
+    );
+    assert.strictEqual(colorOf(cs, values[0]), rgb(off), `${label}: low`);
+    assert.strictEqual(
+      colorOf(cs, values.at(-1)),
+      rgb(sequential),
+      `${label}: high`,
+    );
+    // The midpoint stays between the sides: at -1 when the high pole is 1.
+    const midpoint = values.at(-1) === 1 ? -1 : 1;
+    if (values[0] < -1 || values.at(-1) > 1)
+      assert.strictEqual(
+        colorOf(cs, midpoint),
+        rgb(light),
+        `${label}: the midpoint`,
+      );
+  }
+});
+
+it("mergeLogStops — stops on one value keep the color farthest from the midpoint", () => {
+  assert.deepStrictEqual(mergeLogStops([-10, 1, 1], ["a", "b", "c"]), {
+    stops: [-10, 1],
+    colors: ["a", "c"],
+  });
+  assert.deepStrictEqual(
+    mergeLogStops([-1, -1, 1, 3, 10], ["a", "b", "c", "d", "e"]),
+    {stops: [-1, 1, 3, 10], colors: ["a", "c", "d", "e"]},
+  );
+  assert.deepStrictEqual(
+    mergeLogStops([-1, -1, 1, 1, 1], ["a", "b", "c", "d", "e"]),
+    {stops: [-1, 1], colors: ["a", "e"]},
+  );
+  assert.deepStrictEqual(
+    mergeLogStops([-10, -3, 1, 3, 10], ["a", "b", "c", "d", "e"]),
+    {stops: [-10, -3, 1, 3, 10], colors: ["a", "b", "c", "d", "e"]},
+    "distinct stops",
+  );
+  assert.deepStrictEqual(
+    mergeLogStops([1, 1], ["a", "b"]),
+    {stops: [1, 1], colors: ["a", "b"]},
+    "a single value keeps both stops",
+  );
 });
