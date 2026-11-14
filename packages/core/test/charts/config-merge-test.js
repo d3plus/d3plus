@@ -108,7 +108,7 @@ it("fontFamily() keeps the axis defaults of Radar, Priestley, Gauge, and Matrix"
     assert.strictEqual(config.scale, "band", `Matrix ${key} scale kept`);
     assert.deepStrictEqual(
       config.barConfig,
-      {stroke: 0},
+      {stroke: "transparent"},
       `Matrix ${key} barConfig kept`,
     );
     assert.strictEqual(config.shapeConfig.labelConfig.fontFamily, "monospace");
@@ -174,5 +174,5 @@ it("matrix row and column defaults are not shared between instances", () => {
   const one = new Matrix().rowConfig({barConfig: {stroke: 2}});
   const two = new Matrix();
   assert.deepStrictEqual(one.rowConfig().barConfig, {stroke: 2});
-  assert.deepStrictEqual(two.rowConfig().barConfig, {stroke: 0});
+  assert.deepStrictEqual(two.rowConfig().barConfig, {stroke: "transparent"});
 });
