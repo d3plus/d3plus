@@ -77,9 +77,11 @@ export interface AxisConfig {
       The axis's domain: `[min, max]` on a continuous axis, or the categories
       to show on a discrete one. In a Plot it overrides `xDomain`/`yDomain`
       and isn't rounded unless `rounding` says so; a single end (`[min]` or
-      `[undefined, max]`) pins that end like `yDomain([min])`.
+      `[undefined, max]`) pins that end like `yDomain([min])`. On a Plot's
+      multi-level axis (an Array `x` or `y`), each category can be the list
+      of its level values, outermost first: `[[2023, "Q1"], [2023, "Q2"]]`.
   */
-  domain?: (number | string | Date | undefined)[];
+  domain?: (number | string | Date | undefined | (number | string | Date)[])[];
   /**
       The tick the axis's `baselineBreak` returns to. Defaults to `0`. To start
       a Plot's value axis at a value, set the chart's `baseline` instead.
@@ -170,7 +172,9 @@ export interface AxisConfig {
       neighboring categories sharing an outer label is labeled once,
       centered across the run, in a row of its own past the tick labels
       (a column, on a vertical axis), with a divider between neighboring
-      runs. A horizontal axis's outer labels wrap to two lines at most, and
+      runs. An outer label drawn cut short shows its whole text on hover
+      (unless `tickTooltip` is `false`), and `levelFormat` writes them. A
+      horizontal axis's outer labels wrap to two lines at most, and
       a vertical axis's columns are as wide as their labels, up to a fifth
       of the axis's width. A Plot sets this for an Array `x` or `y`. Only a
       `"band"`, `"point"`, or `"ordinal"` axis reads it.
@@ -190,6 +194,17 @@ export interface AxisConfig {
       `barConfig` style. `{stroke: "transparent"}` hides them.
   */
   levelDividerConfig?: Record<string, string | number>;
+  /**
+      Writes the outer level labels (see `levels`): called with each label's
+      value and its level, counted from the outermost (0), and the axis as
+      `this`. By default a Date is written as the axis's tick labels write
+      dates (a year as "2023", a month as "Mar"), against the other Dates at
+      its level, and any other value as text. The innermost level is the tick
+      label, which `tickFormat` writes.
+      @example
+      {levelFormat: (value, level) => (level === 0 ? `FY${value}` : `${value}`)}
+  */
+  levelFormat?: (value: unknown, level: number) => string;
   /**
       Whether to rotate the axis labels: `true` rotates them -90 degrees,
       `false` keeps them flat, and a number rotates them that many degrees
@@ -3018,9 +3033,11 @@ export interface D3plusConfig {
       The x domain: `[min, max]` on a continuous axis, or the categories to
       show, in order, on a discrete one. Setting one end (`[min]` or
       `[undefined, max]`) pins only that end; the data fills the other. An
-      `xConfig.domain` overrides this.
+      `xConfig.domain` overrides this. On a multi-level axis (an Array
+      `x`), each category can be the list of its level values, outermost
+      first: `[[2023, "Q1"], [2023, "Q2"]]`.
   */
-  xDomain?: (number | string | Date)[];
+  xDomain?: (number | string | Date | (number | string | Date)[])[];
   /** The x2 domain as an array. If either value is undefined, it is calculated from the data. */
   x2Domain?: (number | Date)[];
   /** Custom sort function for x-axis values. */
@@ -3052,9 +3069,11 @@ export interface D3plusConfig {
       The y domain: `[min, max]` on a continuous axis, or the categories to
       show, in order, on a discrete one. Setting one end (`[min]` or
       `[undefined, max]`) pins only that end; the data fills the other. A
-      `yConfig.domain` overrides this.
+      `yConfig.domain` overrides this. On a multi-level axis (an Array
+      `y`), each category can be the list of its level values, outermost
+      first: `[[2023, "Q1"], [2023, "Q2"]]`.
   */
-  yDomain?: (number | string | Date)[];
+  yDomain?: (number | string | Date | (number | string | Date)[])[];
   /** The y2 domain as an array. If either value is undefined, it is calculated from the data. */
   y2Domain?: (number | Date)[];
   /** Custom sort function for y-axis values. */

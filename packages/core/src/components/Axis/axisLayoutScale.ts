@@ -32,7 +32,12 @@ import {
 } from "./timeValues.js";
 import {axisIsYearLike, formatYear} from "./yearValues.js";
 import {periodLabelPositions} from "./axisPeriods.js";
-import {hasLevels, innerLevel, levelText} from "./axisLevels.js";
+import {
+  defaultLevelFormat,
+  hasLevels,
+  innerLevel,
+  innerLevelOf,
+} from "./axisLevels.js";
 import {majorTicks, minorTickValues} from "./axisMinorTicks.js";
 import {drawnAxisScale, isTimeScaleName} from "./axisScaleType.js";
 import type {D3Scale} from "../../utils/index.js";
@@ -56,9 +61,12 @@ export function buildTickFormat(
   if (hasLevels(axis)) {
     const user = axis.schema.tickFormat as
       ((this: Axis, d: unknown) => string) | undefined;
-    return user
-      ? (d: unknown) => user.call(axis, innerLevel(axis, d))
-      : (d: unknown) => levelText(innerLevel(axis, d));
+    if (user) return (d: unknown) => user.call(axis, innerLevel(axis, d));
+    const format = defaultLevelFormat(axis);
+    return (d: unknown) => {
+      const {value, level} = innerLevelOf(axis, d);
+      return format(value, level);
+    };
   }
   const format = baseTickFormat(axis, timeLocaleObj, getLabels);
   const rotated = axis.schema.rotatedTickFormat as

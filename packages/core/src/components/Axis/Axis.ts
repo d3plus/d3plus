@@ -54,6 +54,7 @@ const axisSchema: ConfigField[] = [
   {key: "labelOffset", coerce: "identity", default: false},
   {key: "levelConfig", merge: true, factory: () => ({})},
   {key: "levelDividerConfig", merge: true, factory: () => ({})},
+  {key: "levelFormat", coerce: "identity"},
   {key: "levels", coerce: "identity"},
   {key: "fixedSize", coerce: "identity"},
   {key: "maxSize", coerce: "identity"},

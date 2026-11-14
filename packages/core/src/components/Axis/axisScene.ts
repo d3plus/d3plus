@@ -2,6 +2,7 @@
     The axis's backend-agnostic scene: gridlines and the domain bar emitted
     natively, composed with the tick Shape's and title TextBox's scenes.
 */
+import type {DataPoint} from "@d3plus/data";
 import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 
 import type Axis from "./Axis.js";
@@ -9,6 +10,7 @@ import {axisBarNodes} from "./axisBreak.js";
 import {configureLevelBox} from "./axisLevels.js";
 import TextBox from "../TextBox.js";
 import {
+  stampLevelTooltips,
   stampTickTooltips,
   stampTitleTooltip,
   tickRank,
@@ -205,6 +207,8 @@ export function levelNodes(axis: Axis): SceneNode[] {
       return {
         id: box.id,
         text: box.text,
+        value: box.value,
+        level: box.level,
         [xKey]: box.lo + p / 2,
         [yKey]: across,
         [horizontal ? "width" : "height"]: Math.max(0, box.hi - box.lo - p),
@@ -216,8 +220,10 @@ export function levelNodes(axis: Axis): SceneNode[] {
     const box = configureLevelBox(
       new TextBox().renderMode("compute"),
       axis,
-    ).data(data);
-    nodes.push(...(box.toScene().children as SceneNode[]));
+    ).data(data as unknown as DataPoint[]);
+    const labels = box.toScene().children as SceneNode[];
+    stampLevelTooltips(labels, axis.schema.tickTooltip);
+    nodes.push(...labels);
   }
   return nodes;
 }

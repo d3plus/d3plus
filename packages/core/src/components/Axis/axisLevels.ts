@@ -8,6 +8,7 @@
 import {extent, max} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
+import {dateFormatter} from "@d3plus/format";
 
 import TextBox from "../TextBox.js";
 import {configPrep} from "../../utils/index.js";
@@ -15,6 +16,12 @@ import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type Axis from "./Axis.js";
 import {isDiscreteScale} from "./axisLabelKinds.js";
+import {
+  axisTimeLocale,
+  axisUtc,
+  defaultTimeFormat,
+  isValidDate,
+} from "./timeValues.js";
 
 /** Reads a category's labels, outermost level first (see `levels`). */
 export type AxisLevels = (d: unknown) => unknown;
@@ -29,10 +36,17 @@ export interface AxisLevelGroup {
   last: number;
 }
 
+/** Writes a level's value as its label (see `levelFormat`). */
+export type AxisLevelFormat = (value: unknown, level: number) => string;
+
 /** An outer level's label, laid out across the categories it spans. */
 export interface AxisLevelBox {
   id: string;
   text: string;
+  /** The value it labels. */
+  value: unknown;
+  /** Its level, counted from the outermost (0). */
+  level: number;
   /** The start of its span along the axis, in pixels. */
   lo: number;
   /** The end of its span along the axis, in pixels. */
@@ -68,6 +82,71 @@ export function levelPath(levels: AxisLevels, d: unknown): unknown[] {
 /** The text a level label shows: its value as text, nothing for none. */
 export const levelText = (value: unknown): string =>
   value === undefined || value === null ? "" : `${value}`;
+
+/**
+    The Dates a level holds across `domain`, in order and without repeats:
+    what a Date at that level is labeled against.
+    @param domain The axis's categories.
+    @param levels Reads a category's labels, outermost first.
+    @param level The level, counted from the outermost (0).
+*/
+export function levelDates(
+  domain: unknown[],
+  levels: AxisLevels,
+  level: number,
+): Date[] {
+  const seen = new Set<number>();
+  return domain
+    .map(d => levelPath(levels, d)[level])
+    .filter((v): v is Date => isValidDate(v) && !seen.has(+v) && !!seen.add(+v))
+    .sort((a, b) => +a - +b);
+}
+
+/**
+    How an axis writes a level's value by default: a Date as the axis's tick
+    labels write dates, against the other Dates at its level, and any other
+    value as text.
+    @param axis The axis.
+*/
+export function defaultLevelFormat(axis: Axis): AxisLevelFormat {
+  const levels = axis.schema.levels as AxisLevels | undefined;
+  const utc = axisUtc(axis);
+  const quarter = axisTimeLocale(axis).quarter;
+  const formats = new Map<number, (d: Date) => string>();
+  return (value, level) => {
+    if (!isValidDate(value) || typeof levels !== "function")
+      return levelText(value);
+    let format = formats.get(level);
+    if (!format) {
+      // Read once the axis's scale holds its categories.
+      const domain = (axis._d3Scale?.domain() ??
+        axis.schema.domain ??
+        []) as unknown[];
+      const dates = levelDates(domain, levels, level);
+      const label = dateFormatter(
+        dates.length ? dates : [value],
+        defaultTimeFormat(utc),
+        {utc},
+      );
+      format = (d: Date) => label(d).replace(/^Q/g, quarter);
+      formats.set(level, format);
+    }
+    return format(value);
+  };
+}
+
+/**
+    How an axis writes its outer level labels: `levelFormat` when set
+    (called with the axis as `this`), else `defaultLevelFormat`.
+    @param axis The axis.
+*/
+export function levelFormatter(axis: Axis): AxisLevelFormat {
+  const user = axis.schema.levelFormat as
+    ((this: Axis, value: unknown, level: number) => unknown) | undefined;
+  return typeof user === "function"
+    ? (value, level) => levelText(user.call(axis, value, level))
+    : defaultLevelFormat(axis);
+}
 
 /** A key naming a category's labels up to and including `level`. */
 const prefixKey = (path: unknown[], level: number): string =>
@@ -164,6 +243,20 @@ export function innerLevel(axis: Axis, d: unknown): unknown {
   if (!hasLevels(axis)) return d;
   const path = levelPath(axis.schema.levels as AxisLevels, d);
   return path[path.length - 1];
+}
+
+/**
+    The innermost level of a category on an axis with `levels`, and that
+    level's index counted from the outermost.
+    @param axis The axis, given `levels`.
+    @param d The category.
+*/
+export function innerLevelOf(
+  axis: Axis,
+  d: unknown,
+): {value: unknown; level: number} {
+  const path = levelPath(axis.schema.levels as AxisLevels, d);
+  return {value: path[path.length - 1], level: path.length - 1};
 }
 
 /** The tick label font settings the outer level labels start from. */
@@ -297,14 +390,18 @@ export function layoutAxisLevels(
   const step = scale.step ? scale.step() : 0;
   const range = extent(scale.range() as number[]) as [number, number];
   const {horizontal} = axis._position;
+  const format = levelFormatter(axis);
   const rows = groups.map((row, r) =>
     measureRow(
       axis,
       row.map((group, k) => {
         const [lo, hi] = groupSpan(group, centers, step, range);
+        const level = groups.length - 1 - r;
         return {
           id: `level-${r}-${k}`,
-          text: levelText(group.value),
+          text: format(group.value, level),
+          value: group.value,
+          level,
           lo,
           hi,
         };
