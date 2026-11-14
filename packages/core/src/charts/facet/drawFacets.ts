@@ -20,6 +20,7 @@ import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
 import {drawWithInset} from "../pipeline/insetPlacement.js";
 import {drawWithAlongLegend} from "../Plot/alongLegend.js";
+import {warnConfigOnce} from "../../utils/configWarnings.js";
 import {chartUtc} from "../Plot/plotRangeBreaks.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -47,10 +48,19 @@ import {
 } from "./facetData.js";
 import type {FacetGroup} from "./facetData.js";
 import {facetGrid} from "./facetGrid.js";
+import {
+  layoutDimensions,
+  layoutTitleTexts,
+  layoutTitleTooltips,
+  missingFacetMessage,
+  placeFacets,
+} from "./facetLayout.js";
+import type {FacetLayoutCell} from "./facetLayouts.js";
 import type {FacetArea, FacetGridOptions} from "./facetGrid.js";
 import {
   alignInsets,
   expandArea,
+  settleExpansion,
   LABEL_COMBOS,
   labelExpansions,
   labelGutter,
@@ -95,6 +105,8 @@ interface FacetPlan {
   scales: unknown;
   /** `_padding` as the chrome left it; each panel draw starts from it. */
   padding: VizInstance["_padding"];
+  /** Each panel's cell on a map-shaped grid (see `FacetConfig.layout`). */
+  places?: FacetLayoutCell[];
 }
 
 /** Margins that make `area` the chart area of a `viz`-sized surface. */
@@ -225,7 +237,11 @@ interface GridLayout {
 
 /**
     Measures how much room each combination of axis labels takes, by drawing
-    a probe panel with each (see `facet/facetGutter.ts`).
+    a probe panel with each (see `facet/facetGutter.ts`). A labeled panel
+    draws in its base area grown by that room, where its axes can take more
+    than in the base area (a narrow panel's axis drops its title to fit), so
+    each combination is measured again in the area it grows to, until its
+    room settles (see `settleExpansion`).
 */
 function measureLabels(
   viz: VizInstance,
@@ -237,20 +253,30 @@ function measureLabels(
   const data = plan.panels.find(p => p.data.length)?.data;
   const insets = plan.hooks.insets;
   if (!data || !insets) return {};
-  const measured: Record<string, FacetSides> = {};
-  // An axis labeled on every panel is labeled in every probe.
-  for (const labels of LABEL_COMBOS.filter(
-    l => (outer.x || l.x) && (outer.y || l.y),
-  )) {
-    drawPanel(viz, plan, data, area, {
+  const probe = (labels: FacetLabels, grown: FacetSides): FacetSides => {
+    drawPanel(viz, plan, data, expandArea(area, grown), {
       cell,
       shared: plan.shared,
       labels,
       scales: plan.scales,
     });
-    measured[labelKey(labels)] = insets(viz);
+    return insets(viz);
+  };
+  const measured: Record<string, FacetSides> = {};
+  // An axis labeled on every panel is labeled in every probe.
+  const combos = LABEL_COMBOS.filter(l => (outer.x || l.x) && (outer.y || l.y));
+  for (const labels of combos)
+    measured[labelKey(labels)] = probe(labels, NO_SIDES);
+  const baseline = baselineLabels(outer);
+  const bare = measured[labelKey(baseline)] ?? NO_SIDES;
+  const expansions = labelExpansions(measured, baseline);
+  for (const labels of combos) {
+    const key = labelKey(labels);
+    expansions[key] = settleExpansion(expansions[key], bare, grown =>
+      probe(labels, grown),
+    );
   }
-  return labelExpansions(measured, baselineLabels(outer));
+  return expansions;
 }
 
 /**
@@ -319,6 +345,10 @@ function layoutGrid(
       (typeof hooks.aspect === "function" ? hooks.aspect(viz) : hooks.aspect) ??
       FACET_ASPECT,
   };
+  if (plan.places && config.layout) {
+    opts.places = plan.places;
+    opts.grid = layoutDimensions(config.layout);
+  }
   const titleHeight = facetTitleBand(
     viz,
     texts,
@@ -345,7 +375,8 @@ function layoutGrid(
   opts.columnPadding = config.padding + labelOverhang(expansions);
   opts.titleHeight = titleHeight + gutter.top;
   const cells = facetGrid(panels.length, area, opts);
-  const columns = Math.max(1, ...cells.map(c => c.column + 1));
+  const columns =
+    opts.grid?.columns ?? Math.max(1, ...cells.map(c => c.column + 1));
   return {cells, columns, titleHeight, outer, gutter, expansions};
 }
 
@@ -354,8 +385,15 @@ export function panelTitle(
   text: string,
   cell: FacetCell,
   base: FacetArea,
+  tooltip?: string,
 ): FacetTitle {
-  return {text, x: base.x, y: cell.y, width: base.width};
+  return {
+    text,
+    x: base.x,
+    y: cell.y,
+    width: base.width,
+    ...(tooltip ? {tooltip} : {}),
+  };
 }
 
 /** Draws every panel and composes them into the chart's scene; returns the per-panel state and every panel's data shapes. */
@@ -364,7 +402,10 @@ function drawPanels(
   plan: FacetPlan,
 ): {states: FacetPanelState[]; zoomShapes: SceneNode[]} {
   const style = facetTitleStyle(viz, plan.config);
-  const texts = facetTitleTexts(plan.config, plan.panels, chartUtc(viz));
+  const texts = plan.places
+    ? layoutTitleTexts(plan.config, plan.panels, plan.places)
+    : facetTitleTexts(plan.config, plan.panels, chartUtc(viz));
+  const tooltips = plan.places ? layoutTitleTooltips(texts, plan.places) : [];
   const layout = layoutGrid(viz, plan, texts, style);
   const {cells, expansions} = layout;
   const bases = cells.map(cell =>
@@ -372,7 +413,7 @@ function drawPanels(
   );
   const titles = facetTitleNodes(
     cells
-      .map((cell, i) => panelTitle(texts[i], cell, bases[i]))
+      .map((cell, i) => panelTitle(texts[i], cell, bases[i], tooltips[i]))
       .filter(t => t.text),
     style,
     viz.schema.locale,
@@ -437,7 +478,22 @@ export function drawFacets(viz: VizInstance): boolean {
   const config = resolveFacetConfig(
     viz.schema.facetConfig as FacetConfig | undefined,
   );
-  const groups = facetGroups(viz, config.sort);
+  let groups = facetGroups(viz, config.sort);
+  const placed = config.layout && placeFacets(groups, config.layout);
+  if (placed) {
+    if (placed.missing.length)
+      warnConfigOnce(
+        viz,
+        "facetLayoutMissing",
+        `facetConfig.layout has no cell for ${missingFacetMessage(placed.missing.map(g => g.value))}; those panels are left out.`,
+      );
+    groups = placed.placed.map(p => p.group);
+  } else if ((viz.schema.facetConfig as FacetConfig | undefined)?.layout)
+    warnConfigOnce(
+      viz,
+      "facetLayoutUnknown",
+      `facetConfig.layout is not a known layout ("us-states", "eu-countries", "world-regions") or a {value: [row, column]} map; panels fill rows instead.`,
+    );
   if (!groups.length || !(viz._filteredData || []).length) return false;
   const timeFilter = facetTimeFilter(viz);
   const panels: Panel[] = groups.map(g => ({
@@ -487,6 +543,7 @@ export function drawFacets(viz: VizInstance): boolean {
     shared,
     scales: undefined,
     padding,
+    places: placed ? placed.placed.map(p => p.cell) : undefined,
   });
 
   viz._filteredData = all;
