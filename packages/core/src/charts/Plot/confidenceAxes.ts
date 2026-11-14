@@ -13,6 +13,7 @@ import type {ConfidenceAccessor, VizInstance} from "../viz/vizTypes.js";
 import type {ConfidenceBounds} from "./barConfidence.js";
 import type {ConfidenceBand} from "./confidenceBands.js";
 import {resolveConfidenceBands} from "./confidenceBands.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** Each axis's bounds from a `{x, y}` setting; either may be absent. */
 export interface ConfidenceAxes {
@@ -43,7 +44,7 @@ export function resolveConfidenceAxes(value: unknown): ConfidenceAxes | null {
 
 /** The axis a Plot's `confidence` pair bounds: y, or x when `discrete` is `"y"`. */
 export const confidenceValueAxis = (viz: VizInstance): "x" | "y" =>
-  viz.schema.discrete === "y" ? "x" : "y";
+  vizDiscrete(viz) === "y" ? "x" : "y";
 
 /** The other axis, which a `{x, y}` setting's cross bounds run along. */
 export const confidenceCrossAxis = (viz: VizInstance): "x" | "y" =>

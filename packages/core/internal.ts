@@ -1996,9 +1996,12 @@ export {
   userAxisDomain,
 } from "./src/charts/Plot/baselineDomain.js";
 export {
+  fillOpenEnds,
+  keepPinnedEnds,
   openEnd,
   roundOpenEnd,
   roundPlotOpenEnds,
+  userPinnedEnds,
 } from "./src/charts/Plot/openDomainEnds.js";
 export {xAxisRounding} from "./src/charts/features/xAxisConfig.js";
 export {roundedDomain} from "./src/components/Axis/axisRounding.js";
@@ -2262,6 +2265,19 @@ export {
   LINK_SIZE_SHARE,
   linkWidthRange,
 } from "./src/charts/features/linkWidths.js";
+export {
+  rectNodeSize,
+  sizeRectNodes,
+} from "./src/charts/features/rectNodeSize.js";
+export {containNodes} from "./src/charts/Network/containNodes.js";
+export type {
+  Containment,
+  NodeReach,
+} from "./src/charts/Network/containNodes.js";
+export type {
+  RectSizeConfig,
+  RectSizedNode,
+} from "./src/charts/features/rectNodeSize.js";
 export {
   FORMAT_KEYS,
   formatPayload,

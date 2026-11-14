@@ -4,15 +4,18 @@ import {scaleLinear} from "d3-scale";
 import {useJsdom} from "~test/jsdom.js";
 import {
   configOpenDomain,
+  fillOpenEnds,
   hasOpenUserEnd,
   hasUserDomain,
   isOneSided,
+  keepPinnedEnds,
   openEnd,
   openEndAxisConfig,
   roundedDomain,
   roundOpenEnd,
   roundPlotOpenEnds,
   userAxisDomain,
+  userPinnedEnds,
 } from "../../internal.ts";
 import {Axis} from "../../index.ts";
 
@@ -328,4 +331,87 @@ it("roundPlotOpenEnds rounds the scales' open ends, honoring the axis's rounding
     {},
     "nothing to round",
   );
+});
+
+it("fillOpenEnds fills a user domain's open ends from the data", () => {
+  assert.deepStrictEqual(fillOpenEnds([20, 60], [5, 70]), [20, 60]);
+  assert.deepStrictEqual(fillOpenEnds([20], [5, 70]), [20, 70]);
+  assert.deepStrictEqual(fillOpenEnds([undefined, 40], [5, 70]), [5, 40]);
+  assert.deepStrictEqual(fillOpenEnds([null, 40], [5, 70]), [5, 40]);
+  const user = [20];
+  fillOpenEnds(user, [5, 70]);
+  assert.deepStrictEqual(user, [20], "the user's array isn't changed");
+});
+
+it("fillOpenEnds keeps a set end in front when the data sits past it", () => {
+  assert.deepStrictEqual(
+    fillOpenEnds([20], [0.1, 0.6]),
+    [20, 20.5],
+    "a minimum above the data: one data span above it",
+  );
+  assert.deepStrictEqual(
+    fillOpenEnds([undefined, 1], [5, 70]),
+    [-64, 1],
+    "a maximum below the data: one data span below it",
+  );
+  assert.deepStrictEqual(
+    fillOpenEnds([20], [3, 3]),
+    [20, 40],
+    "a single value: the set end's own size",
+  );
+  assert.deepStrictEqual(fillOpenEnds([100], [5, 70], true), [100, 1000]);
+  assert.deepStrictEqual(fillOpenEnds([undefined, 1], [5, 70], true), [0.1, 1]);
+  const start = new Date(2021, 0, 1);
+  const out = fillOpenEnds(
+    [start],
+    [new Date(2020, 0, 1), new Date(2020, 0, 11)],
+  );
+  assert.ok(out[1] instanceof Date, "a time domain stays in Dates");
+  assert.strictEqual(+out[1] - +start, 10 * 864e5);
+  assert.deepStrictEqual(
+    fillOpenEnds([20, 10], [0, 5]),
+    [20, 10],
+    "a domain with both ends set is the user's to give",
+  );
+});
+
+it("userPinnedEnds reads which ends the user set", () => {
+  const viz = stub({yDomain: [20, 60], xDomain: [undefined, 5], y2Domain: [3]});
+  assert.deepStrictEqual(userPinnedEnds(viz, "y"), [true, true]);
+  assert.deepStrictEqual(userPinnedEnds(viz, "x"), [false, true]);
+  assert.deepStrictEqual(userPinnedEnds(viz, "y2"), [true, false]);
+  assert.deepStrictEqual(userPinnedEnds(viz, "x2"), [false, false]);
+  assert.deepStrictEqual(
+    userPinnedEnds(viz, "y", {pinned: [true, false], auto: [0, 1]}),
+    [true, false],
+    "a one-sided domain's own pinned end wins",
+  );
+  assert.deepStrictEqual(userPinnedEnds(stub({yDomain: [1, 2, 3]}), "y"), [
+    false,
+    false,
+  ]);
+});
+
+it("keepPinnedEnds puts the user's ends back after padding", () => {
+  const padded = scaleLinear().domain([-5, 75]).range([0, 400]);
+  const kept = keepPinnedEnds(padded, [20, 60], [true, true], false);
+  assert.deepStrictEqual(kept.domain(), [20, 60]);
+  assert.deepStrictEqual(padded.domain(), [-5, 75], "a copy, not in place");
+  assert.deepStrictEqual(
+    keepPinnedEnds(padded, [20, 60], [true, false], false).domain(),
+    [20, 75],
+    "the open end keeps its padding",
+  );
+  const y = scaleLinear().domain([75, -5]).range([0, 400]);
+  assert.deepStrictEqual(
+    keepPinnedEnds(y, [60, 20], [true, false], true).domain(),
+    [75, 20],
+    "a y scale runs high to low",
+  );
+  assert.strictEqual(
+    keepPinnedEnds(padded, [20, 60], [false, false], false),
+    padded,
+  );
+  const same = scaleLinear().domain([20, 60]);
+  assert.strictEqual(keepPinnedEnds(same, [20, 60], [true, true], false), same);
 });

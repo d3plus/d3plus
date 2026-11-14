@@ -1,6 +1,6 @@
 ---
 title: Scatter
-description: "Creates a scatter plot from an array of data: each row draws as a point at its x and y values, on continuous axes (set discrete to place points along a category axis)."
+description: "Creates a scatter plot from an array of data: each row draws as a point at its x and y values, on continuous axes. Text values on an axis (on both, the one with fewer distinct values) make it a category axis, as discrete does, which also sets it explicitly."
 ---
 
 import Playground from "~/components/Playground/Playground.astro";
@@ -11,13 +11,15 @@ import trendLine from "~/examples/core/charts/scatter/trend-line.js?raw";
 import pointLabels from "~/examples/core/charts/scatter/point-labels.js?raw";
 import connectedPoints from "~/examples/core/charts/scatter/connected-points.js?raw";
 import jitter from "~/examples/core/charts/scatter/jitter.js?raw";
+import categoryAxis from "~/examples/core/charts/scatter/category-axis.js?raw";
 import errorBars from "~/examples/core/charts/scatter/error-bars.js?raw";
 import errorBarsBothAxes from "~/examples/core/charts/scatter/error-bars-both-axes.js?raw";
 import logAxes from "~/examples/core/charts/scatter/log-axes.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
-its `x` and `y` values, on continuous axes (set `discrete` to place points
-along a category axis). Points are `sizeMin` pixels in radius; a `size`
+its `x` and `y` values, on continuous axes. Text values on an axis (on
+both, the one with fewer distinct values) make it a category axis, as
+`discrete` does, which also sets it explicitly. Points are `sizeMin` pixels in radius; a `size`
 accessor scales them between `sizeMin` and `sizeMax` and adds a size
 legend (see BubbleChart for bubbles sized by area). Hover any point for
 its values.
@@ -27,6 +29,12 @@ its values.
 Each row draws as a point at its `x` and `y` values, on two continuous axes. Grouping by `species` first colors the points by species and adds a legend; hover any point for its values.
 
 <Playground chart="Scatter" code={basicExample} controls={["x","y","groupBy"]} />
+
+## Category axis
+
+When the `x` or `y` values are text, that axis is the chart's discrete axis, exactly as if `discrete` named it: one position per category in data order, an untitled axis, a badge on it for the hovered category, and a shared tooltip listing every series in the hovered column. Numbers stored as text, like `"2019"`, stay continuous. When both axes hold text, the one with fewer distinct values is the category axis (`x` on a tie); set `discrete` to choose the axis yourself.
+
+<Playground chart="Scatter" code={categoryAxis} controls={["x","discrete"]} />
 
 ## Sized points
 
@@ -54,7 +62,7 @@ Points too small to hold their label get it beside them instead, on the side fac
 
 ## Jittered categories
 
-On a category axis (`discrete: "x"`), points that share a category and a value would hide each other. `jitter: true` spreads them across 0.6 of their category's band (a number sets another share), each by an offset seeded from its id, so a point never jumps between draws. StripPlot is a Scatter with this on by default.
+On a category axis (text values, or `discrete: "x"`), points that share a category and a value would hide each other. `jitter: true` spreads them across 0.6 of their category's band (a number sets another share), each by an offset seeded from its id, so a point never jumps between draws. StripPlot is a Scatter with this on by default.
 
 <Playground chart="Scatter" code={jitter} controls={["jitter","discrete"]} />
 

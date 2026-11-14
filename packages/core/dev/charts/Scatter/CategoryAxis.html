@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Scatter: Category Axis</title>
+    <meta
+      name="description"
+      content="Scatter with text values on an axis and no discrete setting: that axis is the discrete axis, on x or y, with hover badges and a shared tooltip, jittered, and sized."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Text x values (x: "species"), discrete inferred</h3>
+        <div class="viz" id="x"></div>
+      </div>
+      <div>
+        <h3>Text y values (y: "species")</h3>
+        <div class="viz" id="y"></div>
+      </div>
+      <div>
+        <h3>Series per island (shared tooltip per column)</h3>
+        <div class="viz" id="islands"></div>
+      </div>
+      <div>
+        <h3>jitter: true</h3>
+        <div class="viz" id="jitter"></div>
+      </div>
+      <div>
+        <h3>BubbleChart, sized by mass (9 penguins)</h3>
+        <div class="viz" id="bubble"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const species = ["Adelie", "Chinstrap", "Gentoo"];
+    let seed = 7;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const penguins = Array.from({length: 45}, (_, i) => ({
+      id: "Penguin " + (i + 1),
+      species: species[i % 3],
+      mass: Math.round(3700 + 300 * (i % 3) ** 2 + 800 * (random() - 0.5)),
+    }));
+
+    const chart = (id, Chart = d3plus.Scatter) =>
+      new Chart()
+        .select("#" + id)
+        .data(penguins)
+        .groupBy("id")
+        .color("species")
+        .legend(false);
+
+    chart("x").x("species").y("mass").render();
+    chart("y").x("mass").y("species").render();
+    new d3plus.Scatter()
+      .select("#islands")
+      .data([
+        {species: "Adelie", island: "Biscoe", mass: 3710},
+        {species: "Adelie", island: "Dream", mass: 3688},
+        {species: "Adelie", island: "Torgersen", mass: 3706},
+        {species: "Chinstrap", island: "Dream", mass: 3733},
+        {species: "Gentoo", island: "Biscoe", mass: 5076},
+      ])
+      .groupBy("species")
+      .x("island")
+      .y("mass")
+      .render();
+    chart("jitter").x("species").y("mass").jitter(true).render();
+    chart("bubble", d3plus.BubbleChart)
+      .data(penguins.slice(0, 9))
+      .x("species")
+      .y("mass")
+      .size("mass")
+      .render();
+  </script>
+</html>

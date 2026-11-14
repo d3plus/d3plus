@@ -24,6 +24,7 @@ import {
 } from "./referenceAnnotations.js";
 
 import type {Annotation} from "./annotationTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 export type {Annotation};
 
@@ -105,20 +106,20 @@ export function renderPlotAnnotation(
       markSharedConfig({
         x: (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
         x0:
-          viz.schema.discrete === "x"
+          vizDiscrete(viz) === "x"
             ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
             : x(domains.x[0]),
         x1:
-          viz.schema.discrete === "x"
+          vizDiscrete(viz) === "x"
             ? null
             : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
         y: (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
         y0:
-          viz.schema.discrete === "y"
+          vizDiscrete(viz) === "y"
             ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
             : y(domains.y[1]) - yOffset,
         y1:
-          viz.schema.discrete === "y"
+          vizDiscrete(viz) === "y"
             ? null
             : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
       }),

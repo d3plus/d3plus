@@ -15,6 +15,7 @@ import {
   violinOutline,
   violinSlots,
 } from "./violinLayout.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** The category axis's outer padding, in steps. */
 export const VIOLIN_PADDING = 0.5;
@@ -28,7 +29,7 @@ interface OutlineDatum extends DataPoint {
 
 export const violinEmit: ShapeEmitter = (ctx, key) => {
   const {viz, values, x, y, xRange, yRange, xDomain, yDomain} = ctx;
-  const vertical = viz.schema.discrete !== "y";
+  const vertical = vizDiscrete(viz) !== "y";
   const category = vertical ? x : y;
   const value = vertical ? y : x;
   const axis = vertical ? "x" : "y";

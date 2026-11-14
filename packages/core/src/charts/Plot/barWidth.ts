@@ -12,6 +12,7 @@ import {formatAbbreviate, formatDate} from "@d3plus/format";
 import {configUtc} from "../../components/Axis/timeValues.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** A formatted Plot row. */
 type Row = Record<string, unknown>;
@@ -149,7 +150,7 @@ export function applyBarWidths(
   axisData: Row[],
 ): [Row[], Row[]] {
   const measure = viz.schema.barWidth as BarWidthAccessor | undefined;
-  const axis = viz.schema.discrete;
+  const axis = vizDiscrete(viz);
   const foreignExtent =
     viz._discreteExtent && !ownExtents.has(viz._discreteExtent);
   if (

@@ -31,6 +31,7 @@ import {shapeConfigFor} from "../features/emitHelpers.js";
 import {xAxisRounding} from "../features/xAxisConfig.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** The viz a Plot pipeline stage reads. */
 type PlotViz = Parameters<TransformStage>[0]["viz"];
@@ -38,12 +39,12 @@ type PlotViz = Parameters<TransformStage>[0]["viz"];
 /** Whether the x and y axes show, by the chart's size against their cutoffs. */
 function plotAxisVisibility(viz: PlotViz): {showX: boolean; showY: boolean} {
   const showX =
-    viz.schema.discrete === "x"
+    vizDiscrete(viz) === "x"
       ? viz.schema.width > viz._discreteCutoff &&
         viz.schema.width > viz.schema.xCutoff
       : viz.schema.width > viz.schema.xCutoff && !swarmHidesAxis(viz, "x");
   const showY =
-    viz.schema.discrete === "y"
+    vizDiscrete(viz) === "y"
       ? viz.schema.height > viz._discreteCutoff &&
         viz.schema.height > viz.schema.yCutoff
       : viz.schema.height > viz.schema.yCutoff && !swarmHidesAxis(viz, "y");
@@ -168,7 +169,7 @@ export const preparePlotAxisLayout: TransformStage = ({
     if (!ticks.every(t => barLabels.includes(`${t}`))) return null;
     // The axis measure checks that the bars have room for these labels.
     if (axis === "x" || axis === "y")
-      if (axis === viz.schema.discrete && (axis === "x" ? showX : showY))
+      if (axis === vizDiscrete(viz) && (axis === "x" ? showX : showY))
         barLabelCheck = {axis, ...bar};
     return [];
   };
