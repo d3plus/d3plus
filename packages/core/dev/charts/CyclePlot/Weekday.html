@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Weekday · CyclePlot</title>
+    <meta
+      name="description"
+      content="Daily bike trips at two stations by weekday (period: weekday), each weekday plotted across 16 weeks with a mean line per station."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Synthetic daily trips: a weekday commute peak at one station, a
+    // weekend peak at the other, both growing through the spring.
+    const stations = [
+      {name: "Union Station", weekday: 420, weekend: 180},
+      {name: "Riverside Park", weekday: 160, weekend: 390},
+    ];
+    const data = [];
+    for (let day = 0; day < 16 * 7; day++) {
+      const date = new Date(2024, 2, 4 + day);
+      const weekend = [0, 6].includes(date.getDay());
+      stations.forEach((s, k) => {
+        const base = weekend ? s.weekend : s.weekday;
+        const wobble = Math.sin(day * 1.7 + k) * 25;
+        data.push({
+          station: s.name,
+          date: date.toISOString().slice(0, 10),
+          trips: Math.round(base * (1 + day / 300) + wobble),
+        });
+      });
+    }
+
+    new d3plus.CyclePlot()
+      .data(data)
+      .config({
+        groupBy: "station",
+        period: "weekday",
+        x: "date",
+        y: "trips",
+      })
+      .render();
+  </script>
+</html>

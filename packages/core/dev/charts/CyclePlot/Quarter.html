@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Quarter · CyclePlot</title>
+    <meta
+      name="description"
+      content="Monthly airline passengers merged into quarters (period: quarter): each quarter's three months sum into one point per year."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Monthly international airline passengers, in thousands (Box & Jenkins).
+    new d3plus.CyclePlot()
+      .data("./air-passengers.json")
+      .config({
+        period: "quarter",
+        x: "month",
+        y: "passengers",
+        meanConfig: {dash: true},
+      })
+      .render();
+  </script>
+</html>

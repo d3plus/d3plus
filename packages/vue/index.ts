@@ -13,6 +13,7 @@ import {
   Candlestick as CandlestickClass,
   Chord as ChordClass,
   ConnectedScatter as ConnectedScatterClass,
+  CyclePlot as CyclePlotClass,
   DensityPlot as DensityPlotClass,
   Donut as DonutClass,
   Dumbbell as DumbbellClass,
@@ -116,6 +117,8 @@ export const ConnectedScatter = createD3plusComponent(
   ConnectedScatterClass,
   "chart",
 );
+/** Vue component for rendering a d3plus CyclePlot visualization. */
+export const CyclePlot = createD3plusComponent(CyclePlotClass, "chart");
 /** Vue component for rendering a d3plus DensityPlot visualization. */
 export const DensityPlot = createD3plusComponent(DensityPlotClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */

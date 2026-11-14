@@ -2104,6 +2104,15 @@ export interface D3plusConfig {
   loadingHTML?: string | ((viz: VizBase) => string);
   /** Candlestick: accessor or data key for each period's lowest value (default `"low"`). */
   low?: string | ((d: DataPoint, i: number) => number);
+  /** CyclePlot: draws a line across each panel at each series' mean over the panel's cycles (default `true`). */
+  mean?: boolean;
+  /**
+      CyclePlot: styles the `mean` lines like a `referenceLines` entry:
+      `stroke` (the chart's text color for one series, else each series'
+      color), `strokeOpacity` (`1`), `strokeWidth`, `dash`, `label`, and
+      `layer`.
+  */
+  meanConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2">;
   /** Bullet: the measure bar's thickness, as a fraction of the band's thickness. */
   measureSize?: number;
   /** Orders Violin and Ridgeline categories by median: `false` (default; data order), `"ascending"`, or `"descending"`. */
@@ -2296,8 +2305,14 @@ export interface D3plusConfig {
   pathLabels?: boolean | ((d: DataPoint, i: number) => string | false | null);
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
-  /** Calendar: what each block covers — `"year"` (the default; whole years, stacked) or `"month"` (whole months, as a grid of small calendars). */
-  period?: "year" | "month";
+  /**
+      Calendar: what each block covers — `"year"` (the default; whole years,
+      stacked) or `"month"` (whole months, as a grid of small calendars).
+      CyclePlot: the season each panel shows, read from each row's `x` date —
+      `"month"` (the default; across the years), `"quarter"` (across the
+      years), `"weekday"` (across the weeks), or `"hour"` (across the days).
+  */
+  period?: "year" | "month" | "quarter" | "weekday" | "hour";
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /**

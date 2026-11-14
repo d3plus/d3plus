@@ -61,6 +61,7 @@ const hiddenMethods = {
   ],
   Chord: ["shape"],
   ConnectedScatter: ["shape"],
+  CyclePlot: ["shape"],
   DensityPlot: ["shape", "x", "x2", "y", "y2", "discrete"],
   Donut: ["shape"],
   Dumbbell: [
