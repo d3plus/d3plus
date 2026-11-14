@@ -313,6 +313,7 @@ it("linkBowOf: clamps a number to 0..1, else the default", () => {
   assert.strictEqual(linkBowOf(-1), 0);
   assert.strictEqual(linkBowOf(NaN), CIRCLE_LINK_BOW);
   assert.strictEqual(linkBowOf("half"), CIRCLE_LINK_BOW);
+  assert.strictEqual(linkBowOf("half"), 0.5, "the fallback is halfway");
   assert.strictEqual(linkBowOf(undefined), CIRCLE_LINK_BOW);
 });
 
@@ -341,8 +342,12 @@ it("linkBow: how far a circle layout's links bow", () => {
     const chord = [(byId.a.x + byId.b.x) / 2, (byId.a.y + byId.b.y) / 2];
     return Math.hypot(mid[0] - chord[0], mid[1] - chord[1]);
   };
-  const full = depth(undefined);
-  assert.ok(Math.abs(depth(1) - full) < 1e-9, "1 is the default");
+  const full = depth(1);
+  assert.strictEqual(CIRCLE_LINK_BOW, 0.5);
+  assert.ok(
+    Math.abs(depth(undefined) - depth(0.5)) < 1e-9,
+    "0.5 is the default",
+  );
   assert.ok(Math.abs(depth(0.5) - full / 2) < 1e-6, "half bows half as far");
   assert.strictEqual(depth(0), null, "0 draws straight lines");
 });

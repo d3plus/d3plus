@@ -40,11 +40,11 @@ Omitting `x`/`y` from the nodes lets a force simulation position them automatica
 
 ## Circle layout
 
-`layout: "circle"` spaces the nodes evenly around a circle instead of placing them by force. They go in order of their cluster (or their top-level `groupBy` group), largest first, and within it most connected first, so the links inside a cluster stay short. Links bow in toward the center, as a chord diagram's do, and each node's label runs outward along its spoke past the circle, flipped on the left half to read left to right. A node's loops point outward, its label past them. Arrows, link labels, tooltips, click focus, and `linkBundle` all work as they do in the force layout.
+`layout: "circle"` spaces the nodes evenly around a circle instead of placing them by force. They go in order of their cluster (or their top-level `groupBy` group), largest first, and within it most connected first, so the links inside a cluster stay short. Links bow in toward the center (see `linkBow`), and each node's label runs outward along its spoke past the circle, flipped on the left half to read left to right. A node's loops point outward, its label past them. Arrows, link labels, tooltips, click focus, and `linkBundle` all work as they do in the force layout.
 
 <Playground chart="Network" code={circleLayout} controls={["layout","linkBow","cluster","linkBundle"]} height={560} />
 
-`linkBow` sets how far the links bow in, from `1` (the default, each curving through the center's pull) to `0` (straight lines). Halfway, `0.5`, keeps short links near the rim and lets long ones cross the middle.
+`linkBow` sets how far the links bow in, from `0` (straight lines) to `1`, where each link curves through the center's pull as a chord diagram's do. The default, `0.5`, keeps links between neighbors near the rim and lets long ones cross the middle; here it is `1`.
 
 <Playground chart="Network" code={circleLinkBow} controls={["linkBow"]} height={560} />
 

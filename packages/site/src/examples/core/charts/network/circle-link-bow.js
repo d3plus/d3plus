@@ -31,7 +31,7 @@ const pairs = [
 
 const config = {
   layout: "circle",
-  linkBow: 0.5,
+  linkBow: 1,
   nodes: people,
   links: pairs.map(([source, target, papers]) => ({source, target, papers})),
   linkSize: d => d.papers,

@@ -1999,10 +1999,12 @@ export interface D3plusConfig {
   layout?: "force" | "circle";
   /**
       Network's circle layout (`layout: "circle"`): how far links bow in
-      toward the center, from `0` (straight lines) to `1` (the default: each
-      link curves through the center's pull, as a chord diagram's do). It
-      sets the share of the way from the middle of a link's chord to the
-      center that its curve's control point sits. Bundled links ignore it.
+      toward the center, from `0` (straight lines) to `1` (each link curves
+      through the center's pull, as a chord diagram's do). It sets the share
+      of the way from the middle of a link's chord to the center that its
+      curve's control point sits. Defaults to `0.5`, which keeps links
+      between neighbors near the rim and lets long ones cross the middle.
+      Bundled links ignore it.
   */
   linkBow?: number;
   /**

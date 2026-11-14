@@ -2,9 +2,9 @@
     Network's `layout: "circle"`: the nodes spaced evenly around a circle,
     ordered so each cluster (or top-level group) sits together, its most
     connected nodes first, which keeps the links between them short. Links
-    bow in toward the center, as a chord diagram's ribbons do, and each
-    node's label runs outward along its spoke past the circle, flipped
-    upright on the left half. A node's loops point outward, its label
+    bow in toward the center (`linkBow`), and each node's label runs
+    outward along its spoke past the circle, flipped upright on the left
+    half. A node's loops point outward, its label
     starting past them.
 */
 
@@ -48,10 +48,12 @@ export type NetworkLayout = "force" | "circle";
 /**
     How far a circle layout's links bow toward the center by default (see
     `linkBow`): the share of the way from the middle of a link's chord to
-    the center its curve's control point sits. 1 bows each link through the
-    center's pull, as a chord diagram's ribbons do; 0 draws straight lines.
+    the center its curve's control point sits: halfway, so links between
+    neighbors stay near the rim and long ones cross the middle. 1 bows each
+    link through the center's pull, as a chord diagram's ribbons do; 0
+    draws straight lines.
 */
-export const CIRCLE_LINK_BOW = 1;
+export const CIRCLE_LINK_BOW = 0.5;
 
 /** The most a circle layout's node radius takes by default, in pixels. */
 export const CIRCLE_NODE_MAX = 16;
