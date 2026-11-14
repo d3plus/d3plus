@@ -41,6 +41,7 @@ import {emitAreaLabels} from "../Plot/areaLabelsAlong.js";
 import {holdAreaLabels} from "../Plot/areaEnter.js";
 import {plotEdges} from "./pathLabelGeometry.js";
 import {emitForecast, forecastRows} from "../Plot/forecastScene.js";
+import {emitMarginals} from "../Plot/marginalScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import type {LineLabelSide} from "../Plot/lineLabelSides.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
@@ -658,6 +659,11 @@ export function plotEmit(
   // Ticks, tick labels, domain bar, title, and end labels render on top of the shapes.
   return [
     ...content,
+    // The marginal strips sit outside the plot area, clear of its clips.
+    ...emitMarginals(viz, pCtx.data as PlotDatum[], {
+      ...mCtx,
+      x2Height: pCtx.x2Height,
+    }),
     ...shapeAxes,
     ...axisScenes.rest,
     ...(endLabels ? [endLabels] : []),

@@ -108,8 +108,15 @@ interface Observation {
   v: number;
 }
 
-/** The bin edges `options` resolve to over `values`. */
-function binEdges(values: number[], options: BinOptions): number[] {
+/**
+    The bin edges `options` resolve to over `values`: `width` apart when set,
+    else from `thresholds` (Sturges' rule by default) across `domain`, or the
+    values' nicely rounded extent.
+*/
+export function binEdges(
+  values: number[],
+  options: Pick<BinOptions, "domain" | "thresholds" | "width">,
+): number[] {
   let [lo, hi] = options.domain ?? (extent(values) as [number, number]);
   // An explicit domain disables d3's nice rounding of the extent.
   let fixedDomain = Boolean(options.domain);
