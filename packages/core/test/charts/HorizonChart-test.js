@@ -773,12 +773,41 @@ it("rowHints: the legend's hints, by mouse or keyboard, translated", () => {
     rowHints(viz, "a", true),
     "Enter para Ocultar<br />May\u00fas+Enter para Resaltar",
   );
-  assert.strictEqual(viz.schema.translate("hidden"), "oculto");
 });
 
-it("rowChange: what a row label click did", () => {
-  assert.strictEqual(rowChange({hidden: ["a"], solo: []}, "a"), "hidden");
-  assert.strictEqual(rowChange({hidden: [], solo: ["a"]}, "a"), "highlighted");
-  assert.strictEqual(rowChange({hidden: ["b"], solo: []}, "a"), "shown");
-  assert.strictEqual(rowChange({hidden: [], solo: []}, "a"), "shown");
+it("rowChange: the announcement key for what a row label click did", () => {
+  assert.strictEqual(rowChange({hidden: ["a"], solo: []}, "a"), "{0} hidden");
+  assert.strictEqual(
+    rowChange({hidden: [], solo: ["a"]}, "a"),
+    "{0} highlighted",
+  );
+  assert.strictEqual(rowChange({hidden: ["b"], solo: []}, "a"), "{0} shown");
+  assert.strictEqual(rowChange({hidden: [], solo: []}, "a"), "{0} shown");
+});
+
+it("translate fills an announcement's placeholder in each language's order", () => {
+  const viz = new HorizonChart();
+  assert.strictEqual(
+    viz.schema.translate("{0} hidden", undefined, "Oslo"),
+    "Oslo hidden",
+  );
+  assert.strictEqual(
+    viz.schema.translate("{0} hidden", "zh-CN", "Oslo"),
+    "\u5df2\u9690\u85cfOslo",
+  );
+  viz.locale("es-ES");
+  assert.strictEqual(
+    viz.schema.translate("{0} highlighted", undefined, "Oslo"),
+    "Oslo resaltado",
+  );
+  assert.strictEqual(
+    viz.schema.translate("Back"),
+    "Atr\u00e1s",
+    "strings without placeholders as before",
+  );
+  assert.strictEqual(
+    viz.schema.translate("{0} shown"),
+    "{0} mostrado",
+    "no argument leaves the placeholder",
+  );
 });

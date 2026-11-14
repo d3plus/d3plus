@@ -564,6 +564,56 @@ for (const renderer of ["svg", "canvas"]) {
       assert.deepStrictEqual(out.after, []);
     });
 
+    it("the hints follow the input in use: the mouse over a focused label says click", async () => {
+      const out = await run(async renderer => {
+        const at = await window.__labelAt("north");
+        const {el} = await window.__draw(renderer, v => v);
+        const host = el.querySelector(".d3plus-keyboard-nav");
+        const footer = () => {
+          const tip = Array.from(
+            document.querySelectorAll(".d3plus-tooltip"),
+          ).find(t => t.innerText.trim());
+          return tip ? tip.innerText.replace(/\s+/g, " ").trim() : "";
+        };
+        const key = async (k, shiftKey = false) => {
+          host.dispatchEvent(
+            new KeyboardEvent("keydown", {key: k, shiftKey, bubbles: true}),
+          );
+          await window.__wait();
+        };
+        host.focus();
+        await window.__wait();
+        const keyboard = footer();
+        await window.__at(at, "mousemove");
+        const mouse = footer();
+        const name = host.querySelector("[aria-live]").textContent;
+        await key("Tab");
+        await key("Tab", true);
+        const back = footer();
+        return {keyboard, mouse, name, back};
+      }, renderer);
+      assert.ok(
+        out.keyboard.includes("Enter to Hide") &&
+          !out.keyboard.includes("Click"),
+        `keyboard: ${out.keyboard}`,
+      );
+      assert.ok(
+        out.mouse.includes("Click to Hide") &&
+          out.mouse.includes("Shift+Click to Highlight") &&
+          !out.mouse.includes("Enter"),
+        `mouse: ${out.mouse}`,
+      );
+      assert.strictEqual(
+        out.name,
+        "north, Enter to Hide",
+        "the accessible name stays keyboard",
+      );
+      assert.ok(
+        out.back.includes("Enter to Hide") && !out.back.includes("Click"),
+        `a key switches back: ${out.back}`,
+      );
+    });
+
     it("the row label tooltip opens just right of the label", async () => {
       const out = await run(async renderer => {
         const at = await window.__labelAt("south");
