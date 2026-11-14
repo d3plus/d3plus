@@ -139,6 +139,14 @@ export interface FacetHooks {
       would otherwise draw once for the whole chart, or not at all.
   */
   scene?: (viz: VizInstance, nodes: SceneNode[]) => SceneNode[];
+  /**
+      Whether every panel's plot area is lined up with the others' even
+      when both axes label only the grid's outer edges: for a chart whose
+      edge panels label different scales (a ScatterMatrix's rows), so
+      their labels take different room. Every panel is then probed before
+      it draws (see `panelAlignment` in `facet/drawFacets.ts`).
+  */
+  align?: boolean;
   /** Captures the chart state (viz slots, by name) a panel puts back while the pointer is over it, for hover and tooltips (see `facet/facetPanel.ts`). */
   capture?: (viz: VizInstance) => Record<string, unknown>;
 }

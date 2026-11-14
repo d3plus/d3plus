@@ -261,7 +261,7 @@ function measureLabels(
     and returns how far each area must grow (never positive) so that every
     plot area comes out the same size and in the same place in its cell,
     which the edge panels' axes then hold for all. Empty unless the axes
-    are split that way.
+    are split that way, or the chart asks for it (`FacetHooks.align`).
 */
 function panelAlignment(
   viz: VizInstance,
@@ -273,7 +273,7 @@ function panelAlignment(
 ): FacetSides[] {
   const insets = plan.hooks.insets;
   const {outer, expansions} = layout;
-  if (!insets || outer.x === outer.y) return [];
+  if (!insets || (outer.x === outer.y && !plan.hooks.align)) return [];
   const drawn = plan.panels.map((panel, i) => {
     if (!panel.data.length) return undefined;
     drawPanel(viz, plan, panel.data, areas[i], {
