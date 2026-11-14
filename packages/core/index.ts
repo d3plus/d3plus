@@ -32,6 +32,7 @@ export {
   Pack,
   ParallelCoordinates,
   Pareto,
+  Parliament,
   Pie,
   Plot,
   PolarArea,

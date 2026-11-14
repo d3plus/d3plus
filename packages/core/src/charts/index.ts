@@ -31,6 +31,7 @@ export {default as Network} from "./Network/index.js";
 export {default as Pack} from "./Pack/index.js";
 export {default as ParallelCoordinates} from "./ParallelCoordinates/index.js";
 export {default as Pareto} from "./Pareto/index.js";
+export {default as Parliament} from "./Parliament/index.js";
 export {default as Pie} from "./Pie/index.js";
 export {default as Plot} from "./Plot/index.js";
 export {default as PolarArea} from "./PolarArea/index.js";

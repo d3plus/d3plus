@@ -32,6 +32,7 @@ import {
   Pack as PackClass,
   ParallelCoordinates as ParallelCoordinatesClass,
   Pareto as ParetoClass,
+  Parliament as ParliamentClass,
   Pie as PieClass,
   Plot as PlotClass,
   PolarArea as PolarAreaClass,
@@ -156,6 +157,8 @@ export const ParallelCoordinates = createD3plusComponent(
 );
 /** Vue component for rendering a d3plus Pareto visualization. */
 export const Pareto = createD3plusComponent(ParetoClass, "chart");
+/** Vue component for rendering a d3plus Parliament visualization. */
+export const Parliament = createD3plusComponent(ParliamentClass, "chart");
 /** Vue component for rendering a d3plus Pie visualization. */
 export const Pie = createD3plusComponent(PieClass, "chart");
 /** Vue component for rendering a d3plus Plot visualization. */

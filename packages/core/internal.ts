@@ -875,6 +875,32 @@ export {
 } from "./src/charts/Waffle/emit.js";
 export type {WaffleCellShape} from "./src/charts/Waffle/emit.js";
 export {
+  MAX_ARC_RINGS,
+  arcCapacity,
+  arcRingCount,
+  arcRingRadii,
+  arcRingSeats,
+  arcSeatPoint,
+  arcSeatSize,
+  arcSeats,
+  majorityAngle,
+  majoritySeats,
+} from "./src/charts/Waffle/arcLayout.js";
+export type {ArcSeat} from "./src/charts/Waffle/arcLayout.js";
+export {
+  MAJORITY_LABEL_ROOM,
+  arcAspect,
+  arcInnerRadius,
+  isArcLayout,
+  waffleArcLayout,
+} from "./src/charts/Waffle/arcStage.js";
+export type {ArcCellPlace, WaffleArc} from "./src/charts/Waffle/arcStage.js";
+export {
+  MAJORITY_KEY,
+  majorityLinePoints,
+  waffleArcDecor,
+} from "./src/charts/Waffle/arcEmit.js";
+export {
   formatShare,
   waffleShare,
   waffleTooltipRows,
@@ -1531,6 +1557,7 @@ export {
   resolveBrushStyle,
 } from "./src/charts/ParallelCoordinates/index.js";
 export {paretoDef} from "./src/charts/Pareto/index.js";
+export {parliamentDef} from "./src/charts/Parliament/index.js";
 export {pieDef} from "./src/charts/Pie/index.js";
 export {polarAreaDef} from "./src/charts/PolarArea/index.js";
 export {priestleyDef} from "./src/charts/Priestley/index.js";
