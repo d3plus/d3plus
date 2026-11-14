@@ -5,7 +5,8 @@
     render that absorbs row/column axis scenes into `_chartScene` as chrome
     (see `inertAxis`), their labels following the hover (see
     `tagHoverTicks`). Stashes `columnScale`/`rowScale`/`cellWidth`/
-    `cellHeight` on `viz.ctx`.
+    `cellHeight`, and for circle cells `maxRadius`/`radiusScale`, on
+    `viz.ctx`.
 */
 
 import type {SceneNode} from "@d3plus/render";
@@ -16,6 +17,8 @@ import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {tagHoverTicks} from "../features/hoverTicks.js";
 import matrixPrepData from "../helpers/matrixData.js";
+import {layoutMatrixBubbles} from "./bubbles.js";
+import type {MatrixCell} from "./bubbles.js";
 
 type AxisLike = {
   domain: (d: unknown[]) => AxisLike;
@@ -45,7 +48,10 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
     shapeData: unknown[];
   };
 
-  if (!rowValues.length || !columnValues.length) return {shapeData: []};
+  if (!rowValues.length || !columnValues.length) {
+    viz._sizeLegendFinal = null;
+    return {shapeData: []};
+  }
 
   const {width, height} = chartBounds(viz);
   // Force rotation when columns are too narrow for horizontal labels; otherwise
@@ -145,6 +151,8 @@ export const applyMatrixLayout: TransformStage = ({viz}) => {
   viz.ctx.rowScale = rowScale;
   viz.ctx.cellWidth = cellWidth;
   viz.ctx.cellHeight = cellHeight;
+
+  layoutMatrixBubbles(viz, shapeData as MatrixCell[]);
 
   return {shapeData};
 };
