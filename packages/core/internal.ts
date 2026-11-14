@@ -1834,6 +1834,12 @@ export type {
   SizeLegendSize,
 } from "./src/components/SizeLegend/sizeLegendLayout.js";
 export {
+  centeredStops,
+  divergingQuantiles,
+  logStops,
+  mergeLogStops,
+} from "./src/components/ColorScale/colorScaleScale.js";
+export {
   drawWithInset,
   fitInset,
   sceneInsetRegion,
