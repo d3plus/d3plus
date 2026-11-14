@@ -187,6 +187,34 @@ export interface AxisConfig {
       {maxSize: size => size / 3}
   */
   maxSize?: number | ((size: number) => number);
+  /**
+      Whether to draw fainter grid lines at the minor ticks (see
+      `minorTicks`), styled by `minorGridConfig`. Defaults to `false`.
+      @example
+      {yConfig: {minorTicks: true, minorGrid: true}}
+  */
+  minorGrid?: boolean;
+  /**
+      Style of the `minorGrid` lines: `stroke`, `stroke-width`,
+      `stroke-opacity`, `stroke-dasharray`, and other line styles. Defaults
+      to the grid lines' color at half opacity.
+  */
+  minorGridConfig?: Record<string, string | number>;
+  /**
+      Short, unlabeled tick marks between the axis's ticks, half as long as
+      a labeled tick. A log axis draws them by default, at 2 through 9 times
+      each power of ten; `false` turns them off. On a linear, pow, or time
+      axis, `true` draws them (4 evenly between each pair of ticks, or on a
+      time axis the calendar's months, days, hours, … between them) and a
+      number draws that many evenly between each pair. Minor ticks that
+      would sit closer than 4 pixels apart thin out a level at a time (to
+      2 and 5 times each power of ten on a log axis, or fewer per step), or
+      leave off entirely. Category axes draw none. Style them through
+      `shapeConfig`, where each tick's datum has `minor: true`.
+      @example
+      {xConfig: {minorTicks: 9}}
+  */
+  minorTicks?: boolean | number;
   /** Minimum size alloted for the space that contains the axis tick labels and title. */
   minSize?: number;
   /**
@@ -757,7 +785,14 @@ export interface TrendLineConfig {
           deviations?: number;
         };
       }) => string | false | null | undefined);
-  /** TextBox config for the trend line labels, such as `fontSize` (default 11) or `fontColor`. */
+  /**
+      TextBox config for the trend line labels, such as `fontSize` (default
+      11) or `fontColor`, and `minRadius`: the tightest a label may bend
+      toward its text (where its letters' tops crowd together), as a radius
+      in ems, and away from it twice as tightly. A label slides back from a
+      tighter bend to a gentler stretch, or takes the gentlest one there is.
+      `0` sets no limit. Defaults to `4`.
+  */
   labelConfig?: Record<string, unknown>;
   /** Other Line shape config. */
   [key: string]: unknown;
@@ -1994,7 +2029,9 @@ export interface D3plusConfig {
   /**
       Labels each line with its series name: `true` or `"end"` past its right
       end, `"start"` past its left end, `"both"` at both ends, or `"along"`
-      written along the line itself, following its curve. A function of each
+      written along the line itself, following its curve on a stretch no
+      steeper than 45° (see `lineLabelConfig.maxSlope`; a line with none goes
+      unlabeled). A function of each
       row picks per series (or `false`). End labels that would overlap are
       moved apart, and `lineLabelConfig` can add each end's value. When every
       line is named along it, the default legend hides. Defaults to `"along"`
@@ -2006,7 +2043,11 @@ export interface D3plusConfig {
       labeled end after the series name (e.g. "Brazil 37%"), formatted as the
       y axis formats its ticks (its `tickFormat` when set). `valueFormat`
       formats it instead, as a function of the value, the row it belongs to,
-      and the row's index. Defaults to `{value: false}`.
+      and the row's index. For along labels, `minRadius` sets how tightly a
+      label may bend toward its text, in ems (default `4`), and `maxSlope`
+      how steeply its stretch may climb or fall, in degrees (default `45`;
+      `90` for no limit); see `LineLabelConfig`.
+      Defaults to `{value: false}`.
   */
   lineLabelConfig?: LineLabelConfig;
   /**
@@ -2014,6 +2055,25 @@ export interface D3plusConfig {
       tracks and 360 for the circular bar chart.
   */
   maxAngle?: number;
+  /**
+      Network: how the nodes are placed. `"force"` (the default) places them
+      at their `x` and `y`, or by a force simulation when any node has
+      none. `"circle"` spaces them evenly around a circle, ordered by
+      cluster and then most connected first (see `nodeSort`), with links
+      bowing in toward the center and each label turned outward along its
+      node's spoke past the circle.
+  */
+  layout?: "force" | "circle";
+  /**
+      Network's circle layout (`layout: "circle"`): how far links bow in
+      toward the center, from `0` (straight lines) to `1` (each link curves
+      through the center's pull, as a chord diagram's do). It sets the share
+      of the way from the middle of a link's chord to the center that its
+      curve's control point sits. Defaults to `0.5`, which keeps links
+      between neighbors near the rim and lets long ones cross the middle.
+      Bundled links ignore it.
+  */
+  linkBow?: number;
   /**
       Geomap: how far each link bows into an arc, as a share of the distance
       between its ends: `0` draws the plain great-circle path, and the default
@@ -2182,12 +2242,16 @@ export interface D3plusConfig {
   */
   noDataMessage?: boolean;
   /**
-      The order of ArcDiagram's nodes along its line: `"data"` (the default,
-      their order in `nodes`), `"label"` (alphabetical), `"group"` (by the
-      top `groupBy` or `nodeGroupBy` level when there are several, else by
-      the `color` value, then by label), `"degree"`
-      (most connected first), or a comparator function receiving two node
-      rows, as for `Array.prototype.sort`.
+      The order of ArcDiagram's nodes along its line, and of Network's
+      around its circle (`layout: "circle"`): `"data"` (their order in
+      `nodes`), `"label"` (alphabetical), `"group"` (by cluster while
+      clusters color the chart, else by the top `groupBy` or `nodeGroupBy`
+      level when there are several, else, in ArcDiagram, by the `color`
+      value; then by label), `"degree"` (most connected first), or a
+      comparator function receiving two node rows, as for
+      `Array.prototype.sort`. ArcDiagram defaults to `"data"`; Network's
+      circle keeps each cluster (or top-level group) together, largest
+      first, its most connected nodes first.
   */
   nodeSort?:
     | "data"
@@ -2195,6 +2259,26 @@ export interface D3plusConfig {
     | "group"
     | "degree"
     | ((a: DataPoint, b: DataPoint) => number);
+  /**
+      Tree and RadialTree: sets how far each node sits from the root by a
+      value instead of by its depth: its height above the leaves, such as
+      the distance at which a hierarchical clustering merged its children.
+      The root sits at the tallest height and nodes of height 0 at the far
+      edge, so the leaves line up there as in a cluster dendrogram, spaced
+      evenly in order. A key in the data, or an accessor function receiving
+      the node's row (a branch's merged row), its index, and `{id, level,
+      leaf}`: its `groupBy` value at its own level, that level (0 for the
+      top), and whether it is drawn without children. A node with no number
+      is 0 when it is a leaf, and as tall as its tallest child otherwise.
+      Defaults to none, which spaces the levels evenly.
+  */
+  nodeHeight?:
+    | string
+    | ((
+        d: DataPoint,
+        i: number,
+        node: {id: string; level: number; leaf: boolean},
+      ) => number | undefined);
   /**
       Network, Rings, Sankey, Chord, and ArcDiagram: transforms `nodes`
       before they are drawn. The function receives the loaded file (or the
@@ -2258,11 +2342,12 @@ export interface D3plusConfig {
   order?: string | ((d: DataPoint, i: number) => unknown);
   /**
       Layout direction. Charts that can be drawn either way take
-      `"horizontal"` or `"vertical"`, as do Box shapes. Whisker shapes take the
-      side they point toward: `"top"`, `"bottom"`, `"left"`, or `"right"`.
-      Shapes also accept a per-datum accessor.
+      `"horizontal"` or `"vertical"`, as do Box shapes. Tree also takes
+      `"radial"`, laying the tree around a circle (see `RadialTree`). Whisker
+      shapes take the side they point toward: `"top"`, `"bottom"`, `"left"`,
+      or `"right"`. Shapes also accept a per-datum accessor.
   */
-  orient?: ConstOrAccessor<Orient | SideOrient>;
+  orient?: ConstOrAccessor<Orient | SideOrient | "radial">;
   /**
       How far Ridgeline's tallest ridge rises, in category steps (default
       1.5): 1 reaches the next baseline up, larger values overlap the ridges

@@ -1,0 +1,227 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>RadialTree</title>
+    <meta
+      name="description"
+      content="Trees laid out around a circle: a radial tree with several top-level groups, one root at the center, a radial cluster dendrogram by nodeHeight, vertical and horizontal dendrograms, mixed Rect and Circle nodes with zoom, and a dark background."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 560px;
+      }
+      .short {
+        height: 420px;
+      }
+      .dark {
+        background: #1b1d21;
+        color: #e9ecef;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Countries by continent and region (several top-level groups)</h3>
+        <div class="viz" id="countries"></div>
+      </div>
+      <div>
+        <h3>One root at the center</h3>
+        <div class="viz" id="rooted"></div>
+      </div>
+      <div>
+        <h3>Radial cluster dendrogram: nodeHeight by divergence</h3>
+        <div class="viz" id="dendrogram"></div>
+      </div>
+      <div>
+        <h3>Tree orient("radial") with Rect and Circle nodes, zoom on</h3>
+        <div class="viz" id="shapes"></div>
+      </div>
+      <div>
+        <h3>Vertical dendrogram: Tree with nodeHeight</h3>
+        <div class="viz short" id="vertical"></div>
+      </div>
+      <div>
+        <h3>Horizontal dendrogram: Tree with nodeHeight</h3>
+        <div class="viz short" id="horizontal"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark background</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet by continent)</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Approximate divergence of each group, in thousands of years.
+    const divergence = {
+      "Indo-European": 6.5,
+      Germanic: 2.5,
+      "West Germanic": 1.6,
+      "North Germanic": 1.2,
+      Romance: 1.8,
+      "Ibero-Romance": 1.1,
+      "Gallo-Romance": 1.3,
+      "Italo-Dalmatian": 0.9,
+      "Eastern Romance": 1.0,
+      Slavic: 1.5,
+      "West Slavic": 1.0,
+      "East Slavic": 0.8,
+      "South Slavic": 1.1,
+      "Indo-Iranian": 4.0,
+      "Indo-Aryan": 3.0,
+      Iranian: 2.8,
+      Celtic: 2.8,
+      Goidelic: 1.2,
+      Brythonic: 1.4,
+    };
+    const languages = [
+      ["Germanic", "West Germanic", "English"],
+      ["Germanic", "West Germanic", "Frisian"],
+      ["Germanic", "West Germanic", "Dutch"],
+      ["Germanic", "West Germanic", "German"],
+      ["Germanic", "North Germanic", "Swedish"],
+      ["Germanic", "North Germanic", "Danish"],
+      ["Germanic", "North Germanic", "Norwegian"],
+      ["Germanic", "North Germanic", "Icelandic"],
+      ["Romance", "Ibero-Romance", "Spanish"],
+      ["Romance", "Ibero-Romance", "Portuguese"],
+      ["Romance", "Ibero-Romance", "Catalan"],
+      ["Romance", "Gallo-Romance", "French"],
+      ["Romance", "Gallo-Romance", "Occitan"],
+      ["Romance", "Italo-Dalmatian", "Italian"],
+      ["Romance", "Eastern Romance", "Romanian"],
+      ["Slavic", "West Slavic", "Polish"],
+      ["Slavic", "West Slavic", "Czech"],
+      ["Slavic", "West Slavic", "Slovak"],
+      ["Slavic", "East Slavic", "Russian"],
+      ["Slavic", "East Slavic", "Ukrainian"],
+      ["Slavic", "East Slavic", "Belarusian"],
+      ["Slavic", "South Slavic", "Serbian"],
+      ["Slavic", "South Slavic", "Bulgarian"],
+      ["Slavic", "South Slavic", "Slovene"],
+      ["Indo-Iranian", "Indo-Aryan", "Hindi"],
+      ["Indo-Iranian", "Indo-Aryan", "Bengali"],
+      ["Indo-Iranian", "Indo-Aryan", "Punjabi"],
+      ["Indo-Iranian", "Indo-Aryan", "Marathi"],
+      ["Indo-Iranian", "Iranian", "Persian"],
+      ["Indo-Iranian", "Iranian", "Pashto"],
+      ["Indo-Iranian", "Iranian", "Kurdish"],
+      ["Celtic", "Goidelic", "Irish"],
+      ["Celtic", "Goidelic", "Scottish Gaelic"],
+      ["Celtic", "Brythonic", "Welsh"],
+      ["Celtic", "Brythonic", "Breton"],
+      [undefined, undefined, "Greek"],
+      [undefined, undefined, "Armenian"],
+      [undefined, undefined, "Albanian"],
+    ].map(([branch, group, language]) => ({
+      family: "Indo-European",
+      branch,
+      group,
+      language,
+    }));
+    const dendrogram = {
+      data: languages,
+      groupBy: ["family", "branch", "group", "language"],
+      nodeHeight: (d, i, node) => divergence[node.id] ?? 0,
+    };
+
+    fetch("./countries.json")
+      .then(resp => resp.json())
+      .then(countries => {
+        new d3plus.RadialTree()
+          .select("#countries")
+          .data(countries)
+          .groupBy(["continent", "region", "country"])
+          .render();
+
+        new d3plus.RadialTree()
+          .select("#rooted")
+          .data(countries.map(d => ({...d, world: "World"})))
+          .groupBy(["world", "continent", "region", "country"])
+          .render();
+
+        new d3plus.Tree()
+          .select("#shapes")
+          .data(countries.filter(d => d.continent !== "Africa"))
+          .groupBy(["continent", "region", "country"])
+          .orient("radial")
+          .shape(d => (d.continent === "Europe" ? "Rect" : "Circle"))
+          .zoom(true)
+          .render();
+
+        new d3plus.RadialTree()
+          .select("#dark")
+          .config({
+            data: countries.filter(d => d.continent === "Asia"),
+            groupBy: ["region", "country"],
+          })
+          .render();
+
+        new d3plus.RadialTree()
+          .select("#facet")
+          .config({
+            data: countries,
+            facet: "continent",
+            groupBy: ["region", "country"],
+          })
+          .render();
+      });
+
+    new d3plus.RadialTree().select("#dendrogram").config(dendrogram).render();
+
+    // The distance at which a hierarchical clustering merged each group.
+    const merged = {
+      All: 9,
+      Warm: 4,
+      Cool: 6,
+      Reds: 1.5,
+      Yellows: 2.5,
+      Blues: 2,
+      Greens: 3,
+    };
+    const colors = [
+      ["Warm", "Reds", ["Rose", "Ruby"]],
+      ["Warm", "Yellows", ["Gold", "Lemon"]],
+      ["Cool", "Blues", ["Navy", "Azure"]],
+      ["Cool", "Greens", ["Jade", "Mint"]],
+    ].flatMap(([temperature, family, names]) =>
+      names.map(name => ({all: "All", temperature, family, name})),
+    );
+    const colorDendrogram = {
+      data: colors,
+      groupBy: ["all", "temperature", "family", "name"],
+      nodeHeight: (d, i, node) => merged[node.id] ?? 0,
+    };
+
+    new d3plus.Tree().select("#vertical").config(colorDendrogram).render();
+
+    new d3plus.Tree()
+      .select("#horizontal")
+      .config({...colorDendrogram, orient: "horizontal"})
+      .render();
+  </script>
+</html>

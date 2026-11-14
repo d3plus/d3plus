@@ -24,7 +24,8 @@ import {
 } from "../../internal.ts";
 import {pathLabelNodes} from "../../src/charts/features/pathLabels.ts";
 import {circularLinkD} from "../../src/charts/Sankey/circularLinks.ts";
-import {curvature, resample} from "../../src/charts/Plot/lineLabelsAlong.ts";
+import {resample} from "../../src/charts/Plot/lineLabelsAlong.ts";
+import {curvature} from "../../src/charts/features/pathLabelBends.ts";
 import {polylineLength} from "../../src/charts/features/pathLabelGeometry.ts";
 import {chartBackground} from "../../src/charts/viz/backgroundInk.ts";
 import {samplePath, pathTextBoxes} from "@d3plus/render";

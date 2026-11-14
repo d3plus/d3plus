@@ -272,6 +272,44 @@ export {
   sunburstFocus,
 } from "./src/charts/Sunburst/applyLayout.js";
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
+export {nodeHeights, rootDistances} from "./src/charts/Tree/nodeHeight.js";
+export type {HeightNode, NodeHeightInfo} from "./src/charts/Tree/nodeHeight.js";
+export {
+  layoutRadialTree,
+  radialLabelFont,
+  radialLabelPlacement,
+  radialLinkD,
+  radialNodeReach,
+  RADIAL_LABEL_FONT_SIZE,
+  RADIAL_LABEL_PADDING,
+  ringGaps,
+} from "./src/charts/Tree/radialLayout.js";
+export type {
+  Polar,
+  RadialLabel,
+  RadialTreeNode,
+} from "./src/charts/Tree/radialLayout.js";
+export {emitRadialTreeLabels} from "./src/charts/Tree/radialLabels.js";
+export type {RadialLabels} from "./src/charts/Tree/radialLabels.js";
+export {
+  boxReach,
+  emitSpokeLabels,
+  fitSpokeFont,
+  polarPoint,
+  radialFit,
+  shrinkToWord,
+  SPOKE_LABEL_FONT_MIN,
+  SPOKE_LABEL_LINES,
+  SPOKE_LABEL_PADDING,
+  spokeFlipped,
+  spokeLines,
+  spokePlacement,
+  widestWord,
+} from "./src/charts/features/spokeLabels.js";
+export type {
+  SpokeLabel,
+  SpokePlacement,
+} from "./src/charts/features/spokeLabels.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
 export {
   applyWaffleLayout,
@@ -357,6 +395,7 @@ export {
   AREA_LABEL_FONT_MIN,
   AREA_LABEL_FONT_WEIGHT,
   AREA_LABEL_PADDING,
+  AREA_LABEL_SMOOTHING,
   bandColor,
   bandFontWeight,
   bandSections,
@@ -1590,6 +1629,7 @@ export {pyramidDef} from "./src/charts/Pyramid/index.js";
 export {radarDef} from "./src/charts/Radar/index.js";
 export {radialBarDef} from "./src/charts/RadialBar/index.js";
 export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
+export {radialTreeDef} from "./src/charts/RadialTree/index.js";
 export {ridgelineDef} from "./src/charts/Ridgeline/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
@@ -2192,9 +2232,21 @@ export {
   LINK_LABEL_MIN_RADIUS,
   LINK_LABEL_STRAIGHT_TURN,
   labelStretch,
-  sharpestTurn,
   trimToNodes,
 } from "./src/charts/features/linkLabelPath.js";
+export {
+  bendStrain,
+  curvature,
+  holdsBends,
+  labelMinRadius,
+  PATH_LABEL_INNER_RADIUS,
+  PATH_LABEL_OUTER_RADIUS,
+  PATH_LABEL_SMOOTHING,
+  sharpestTurn,
+  smoothPolyline,
+  stretchSlope,
+  textFollows,
+} from "./src/charts/features/pathLabelBends.js";
 export type {CurvedLabelSpot} from "./src/charts/features/linkLabelPath.js";
 export {ringsEdgeAnchor, ringsEdgePath} from "./src/charts/Rings/emit.js";
 export {sankeyLinkAnchor, sankeyLinkPath} from "./src/charts/Sankey/emit.js";
@@ -2683,6 +2735,27 @@ export {
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";
+export {
+  CIRCLE_LINK_BOW,
+  CIRCLE_NODE_MAX,
+  CIRCLE_NODE_SHARE,
+  circleAngles,
+  circleLinkPoints,
+  circleNodeGroup,
+  curveCircleLinks,
+  fitCircle,
+  layoutCircleNetwork,
+  linkBowOf,
+  nodeSpokeReach,
+  placeCircleNetworkLabels,
+  sortCircleNodes,
+} from "./src/charts/Network/circleLayout.js";
+export type {
+  CircleLabel,
+  CircleNetwork,
+  CircleSortable,
+  NetworkLayout,
+} from "./src/charts/Network/circleLayout.js";
 export {
   CLUSTER_MAX,
   capClusters,

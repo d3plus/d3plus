@@ -70,7 +70,13 @@ export interface ContourConfig {
   fillOpacity?: number;
   /** Writes each level's value along its contour lines. */
   labels?: boolean;
-  /** TextBox config for the level labels, such as `fontSize` or `fontWeight`. */
+  /**
+      TextBox config for the level labels, such as `fontSize` or
+      `fontWeight`, and `minRadius`: the tightest a label may bend toward
+      its text, as a radius in ems, and away from it twice as tightly. A
+      contour with no stretch that gentle goes unlabeled. `0` sets no
+      limit. Defaults to `4`.
+  */
   labelConfig?: Record<string, unknown>;
   /**
       The least distance between two labels along one contour line, in

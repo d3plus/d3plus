@@ -1,0 +1,200 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Circle Layout</title>
+    <meta
+      name="description"
+      content="Network layout circle: nodes evenly spaced around a circle by cluster and degree, links bowing toward the center (linkBow 0.5 by default, 1, and 0), labels turned outward; with arrows, self-loops and link labels, edge bundling, nodeSort, top-level groups, Rect nodes, and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 560px;
+      }
+      .dark {
+        background: #1b1d21;
+        color: #e9ecef;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Les Misérables: by cluster, then most connected (linkBow 0.5)</h3>
+        <div class="viz" id="lesmis"></div>
+      </div>
+      <div>
+        <h3>linkBow(1): through the center's pull</h3>
+        <div class="viz" id="bowFull"></div>
+      </div>
+      <div>
+        <h3>linkBow(0): straight lines</h3>
+        <div class="viz" id="bowZero"></div>
+      </div>
+      <div>
+        <h3>linkBundle(true)</h3>
+        <div class="viz" id="bundled"></div>
+      </div>
+      <div>
+        <h3>Arrows, self-loops, and link labels</h3>
+        <div class="viz" id="loops"></div>
+      </div>
+      <div>
+        <h3>nodeSort("label"), cluster(false), sized nodes</h3>
+        <div class="viz" id="sorted"></div>
+      </div>
+      <div>
+        <h3>Top-level groups (groupBy) and Rect nodes</h3>
+        <div class="viz" id="groups"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark theme, links colored by their source</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    fetch("./lesmis.json")
+      .then(resp => resp.json())
+      .then(function (graph) {
+        new d3plus.Network()
+          .select("#lesmis")
+          .layout("circle")
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .render();
+
+        [
+          ["#bowFull", 1],
+          ["#bowZero", 0],
+        ].forEach(([el, bow]) =>
+          new d3plus.Network()
+            .select(el)
+            .layout("circle")
+            .linkBow(bow)
+            .nodes(graph.nodes)
+            .links(graph.links)
+            .linkSize(d => d.value)
+            .render(),
+        );
+
+        new d3plus.Network()
+          .select("#bundled")
+          .layout("circle")
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .linkBundle(true)
+          .render();
+
+        const degree = {};
+        graph.links.forEach(l => {
+          degree[l.source] = (degree[l.source] || 0) + 1;
+          degree[l.target] = (degree[l.target] || 0) + 1;
+        });
+        new d3plus.Network()
+          .select("#sorted")
+          .layout("circle")
+          .nodes(graph.nodes.map(d => ({...d, degree: degree[d.id] || 0})))
+          .links(graph.links)
+          .size("degree")
+          .cluster(false)
+          .nodeSort("label")
+          .render();
+
+        new d3plus.Network()
+          .select("#dark")
+          .theme("dark")
+          .layout("circle")
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .linkColor("source")
+          .render();
+      });
+
+    const nodes = [
+      {id: "hub"},
+      {id: "alpha"},
+      {id: "beta"},
+      {id: "gamma"},
+      {id: "delta"},
+      {id: "epsilon"},
+      {id: "zeta"},
+      {id: "eta"},
+    ];
+    const links = [
+      {source: "hub", target: "alpha", trips: 12},
+      {source: "hub", target: "beta", trips: 8},
+      {source: "hub", target: "gamma", trips: 5},
+      {source: "gamma", target: "delta", trips: 3},
+      {source: "delta", target: "epsilon", trips: 6},
+      {source: "epsilon", target: "alpha", trips: 2},
+      {source: "hub", target: "hub", trips: 10},
+      {source: "hub", target: "hub", trips: 4},
+      {source: "beta", target: "beta", trips: 7},
+      {source: "delta", target: "zeta", trips: 4},
+      {source: "zeta", target: "eta", trips: 9},
+    ];
+    new d3plus.Network()
+      .select("#loops")
+      .layout("circle")
+      .nodes(nodes)
+      .links(links)
+      .linkSize(d => d.trips)
+      .linkLabel(d => d.trips)
+      .arrows(true)
+      .render();
+
+    const teams = [
+      ["Platform", ["API", "Data", "Infra", "Security"]],
+      ["Product", ["Web", "Mobile", "Design", "Research"]],
+      ["Growth", ["Sales", "Marketing", "Support"]],
+    ].flatMap(([team, ids]) => ids.map(id => ({team, id})));
+    const pairs = [
+      ["API", "Data"],
+      ["API", "Infra"],
+      ["Data", "Infra"],
+      ["Infra", "Security"],
+      ["Web", "Mobile"],
+      ["Web", "Design"],
+      ["Design", "Research"],
+      ["Mobile", "Design"],
+      ["Sales", "Marketing"],
+      ["Marketing", "Support"],
+      ["API", "Web"],
+      ["Data", "Research"],
+      ["Support", "Mobile"],
+      ["Sales", "Data"],
+    ];
+    new d3plus.Network()
+      .select("#groups")
+      .layout("circle")
+      .data(teams)
+      .groupBy(["team", "id"])
+      .nodes(teams)
+      .links(pairs.map(([source, target]) => ({source, target})))
+      .shape(d => (d.team === "Growth" ? "Rect" : "Circle"))
+      .render();
+  </script>
+</html>

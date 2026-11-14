@@ -31,6 +31,19 @@ export interface LineLabelConfig {
   value?: boolean;
   /** Formats the value (defaults to the y axis's tick format). */
   valueFormat?: LineLabelValueFormat;
+  /**
+      For `lineLabels: "along"`: the tightest a label may bend toward its
+      text (where its letters' tops crowd together), as a radius in ems; it
+      may bend away from its text twice as tightly. A line with no stretch
+      that gentle goes unlabeled. `0` sets no limit. Defaults to `4`.
+  */
+  minRadius?: number;
+  /**
+      For `lineLabels: "along"`: the steepest a label's stretch may climb or
+      fall from end to end, in degrees. A line with no stretch that level
+      goes unlabeled. `90` or more sets no limit. Defaults to `45`.
+  */
+  maxSlope?: number;
 }
 
 /**

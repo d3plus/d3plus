@@ -8,7 +8,7 @@
     `labelHeight`/`labelWidths`/`previousShapes` on `viz.ctx`.
 */
 import {extent, max, min} from "d3-array";
-import {hierarchy} from "d3-hierarchy";
+import {cluster, hierarchy} from "d3-hierarchy";
 import {scaleLinear} from "d3-scale";
 
 import {assign} from "@d3plus/dom";
@@ -20,7 +20,14 @@ import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {nameLevel, noKey, nodeId} from "./keys.js";
+import {nodeHeights, rootDistances} from "./nodeHeight.js";
+import type {NodeHeightInfo} from "./nodeHeight.js";
 import {nodeLabel} from "./nodeLabel.js";
+import {
+  layoutRadialTree,
+  radialLinkD,
+  radialNodeReach,
+} from "./radialLayout.js";
 
 type TreeNode = DataPoint & {
   __d3plus__?: true;
@@ -28,6 +35,8 @@ type TreeNode = DataPoint & {
   i?: number;
   x?: number;
   y?: number;
+  theta?: number;
+  rho?: number;
   parent?: TreeNode;
   children?: TreeNode[];
 };
@@ -81,7 +90,10 @@ function buildTreeData(
   width: number,
   height: number,
 ): TreeNode[] {
-  const treeLayout = viz.ctx.tree as {
+  // With `nodeHeight`, the leaves line up at one edge, so they are spaced
+  // evenly in their order (d3's cluster layout), each parent centered over
+  // its children.
+  const treeLayout = (viz.schema.nodeHeight ? cluster() : viz.ctx.tree) as {
     separation: (fn: (a: unknown, b: unknown) => number) => typeof treeLayout;
     size: (s: [number, number]) => typeof treeLayout;
     (
@@ -143,7 +155,6 @@ function measureTreeLabels(
   isHorizontal: boolean,
   width: number,
   height: number,
-  left: "left" | "top",
 ): {labelHeight: number; labelWidths: number[]} {
   const sc = viz.schema.shapeConfig as Record<string, unknown>;
   let r = sc.r as ((d: DataPoint, i: number) => number) | number;
@@ -175,11 +186,9 @@ function measureTreeLabels(
   ).map(d => {
     const vals = (d as {values: DataPoint[]}).values;
     return vals.reduce((num: number, vv: DataPoint, i: number) => {
-      const next =
-        i < vals.length - 1
-          ? (vals[i + 1].x as number)
-          : width + viz._margin[left];
-      const prev = i ? (vals[i - 1].x as number) : viz._margin[left];
+      // Positions run from the chart area's edge, 0, to `width`.
+      const next = i < vals.length - 1 ? (vals[i + 1].x as number) : width;
+      const prev = i ? (vals[i - 1].x as number) : 0;
       return min([
         num,
         next - (vv.x as number),
@@ -326,6 +335,21 @@ function publishTreeCtx(
     isHorizontal,
   );
 
+  viz.ctx.linksData = linksData;
+  viz.ctx.linkD = linkD;
+  publishShapeGroups(viz, treeData, shapeConfig);
+}
+
+/**
+    Groups the nodes by shape kind (keeping an empty group for each kind the
+    last draw had and this one doesn't, so its nodes exit) and stashes
+    `shapeGroups`/`shapeConfig`/`previousShapes` on `viz.ctx`.
+*/
+function publishShapeGroups(
+  viz: VizInstance,
+  treeData: TreeNode[],
+  shapeConfig: ReturnType<typeof buildTreeShapeConfig>,
+): void {
   const shapeAccessor = viz.schema.shape as (d: DataPoint) => string;
   const shapeData = nest(treeData as DataPoint[], (d: DataPoint) =>
     shapeAccessor((d as TreeNode).data as DataPoint),
@@ -338,15 +362,110 @@ function publishTreeCtx(
     exitShapes.map(key => ({key, values: []})),
   );
 
-  viz.ctx.linksData = linksData;
-  viz.ctx.linkD = linkD;
   viz.ctx.shapeGroups = shapeGroups;
   viz.ctx.shapeConfig = shapeConfig;
   viz.ctx.previousShapes = dataShapes;
 }
 
+/** Whether a node is drawn without children: it has none, or sits at the deepest drawn level. */
+const isLeafOf = (viz: VizInstance) => (d: TreeNode) =>
+  !d.children || d.depth === viz._drawDepth + 1;
+
+/**
+    Each node's height from `nodeHeight` (see `nodeHeights`), or undefined
+    when it isn't set.
+*/
+function treeHeights(
+  viz: VizInstance,
+  treeData: TreeNode[],
+): Map<TreeNode, number> | undefined {
+  const accessor = viz.schema.nodeHeight as
+    ((d: DataPoint, i: number, node: NodeHeightInfo) => unknown) | undefined;
+  if (typeof accessor !== "function") return undefined;
+  const leaf = isLeafOf(viz);
+  return nodeHeights(treeData, d =>
+    accessor(d.data as DataPoint, d.i ?? 0, {
+      id: nodeId(viz, d, d.i ?? 0),
+      level: (d.depth ?? 1) - 1,
+      leaf: leaf(d),
+    }),
+  );
+}
+
+/**
+    Tree's radial layout (see `radialLayout.ts`): the tree around a circle
+    centered in the chart area, with links curving radially and labels along
+    their spokes, stashed on `viz.ctx` as `radialLabels`.
+*/
+function applyRadialTreeLayout(viz: VizInstance): TreeNode[] {
+  const width = viz.schema.width - viz._margin.left - viz._margin.right;
+  const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
+  const treeData = buildTreeData(viz, 2 * Math.PI, 1);
+  const distances = rootDistances(treeData, treeHeights(viz, treeData));
+  const shapeConfig = buildTreeShapeConfig(viz, 0, [], false, false);
+  const {center, labels} = layoutRadialTree(
+    viz,
+    treeData,
+    distances,
+    isLeafOf(viz),
+    d => shapeConfig.label(d, d.i ?? 0),
+    width,
+    height,
+  );
+
+  const linksData = treeData
+    .filter(d => (d.depth ?? 0) > 1)
+    .map(d => assign({}, d) as TreeNode);
+  const polar = (d: TreeNode) => ({theta: d.theta ?? 0, rho: d.rho ?? 0});
+  const linkD = (
+    d: TreeNode,
+    reach?: {child: number; parent: number},
+  ): string => {
+    const parent = d.parent!;
+    // A link leaves its parent along the parent's spoke, or along the
+    // child's when the parent sits at the center.
+    const out = (parent.rho ?? 0) > 0 ? (parent.theta ?? 0) : (d.theta ?? 0);
+    return radialLinkD(
+      center,
+      polar(d),
+      polar(parent),
+      reach ?? {
+        child: radialNodeReach(viz, d, d.theta ?? 0),
+        parent: radialNodeReach(viz, parent, out),
+      },
+    );
+  };
+
+  viz.ctx.labelHeight = 0;
+  viz.ctx.labelWidths = [];
+  viz.ctx.linksData = linksData;
+  viz.ctx.linkD = linkD;
+  viz.ctx.radialLabels = labels;
+  publishShapeGroups(viz, treeData, shapeConfig);
+  return treeData;
+}
+
+/**
+    Moves each node to its distance from the root by `nodeHeight` (see
+    `rootDistances`) along the tree's depth axis, `height` pixels long, when
+    `nodeHeight` is set.
+*/
+function applyNodeHeights(
+  viz: VizInstance,
+  treeData: TreeNode[],
+  height: number,
+): void {
+  const heights = treeHeights(viz, treeData);
+  if (!heights) return;
+  const distances = rootDistances(treeData, heights);
+  for (const d of treeData) d.y = (distances.get(d) ?? 0) * height;
+}
+
 export const applyTreeLayout: TransformStage = ({viz}) => {
   const orient = viz.schema.orient as string;
+  if (orient === "radial")
+    return {shapeData: applyRadialTreeLayout(viz) as DataPoint[]};
+  viz.ctx.radialLabels = undefined;
   const isVertical = orient === "vertical";
   const isHorizontal = orient === "horizontal";
 
@@ -356,9 +475,9 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
   const width = isHorizontal
     ? viz.schema.height - viz._margin.top - viz._margin.bottom
     : viz.schema.width - viz._margin.left - viz._margin.right;
-  const left: "left" | "top" = isVertical ? "left" : "top";
 
   const treeData = buildTreeData(viz, width, height);
+  applyNodeHeights(viz, treeData, height);
 
   const {labelHeight, labelWidths} = measureTreeLabels(
     viz,
@@ -367,7 +486,6 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
     isHorizontal,
     width,
     height,
-    left,
   );
 
   publishTreeCtx(

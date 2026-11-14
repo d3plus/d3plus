@@ -429,6 +429,7 @@ const charts = [
   ],
   ["Sunburst", {...sunburst, colorScale: "size"}],
   ["Tree", {data: tree, groupBy: ["parent", "id"]}],
+  ["RadialTree", {data: tree, groupBy: ["parent", "id"]}],
   [
     "Treemap",
     {data: tree, groupBy: ["parent", "id"], sum: "value", ...titledBy("value")},

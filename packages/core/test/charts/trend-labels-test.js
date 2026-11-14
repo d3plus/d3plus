@@ -11,6 +11,10 @@ import {
 import {pathLabelNodes} from "../../src/charts/features/pathLabels.ts";
 import {labelCorners} from "../../src/charts/features/linkLabelGeometry.ts";
 import {trendLineDefaults} from "../../src/charts/Plot/trendLines.ts";
+import {
+  bendStrain,
+  textFollows,
+} from "../../src/charts/features/pathLabelBends.ts";
 
 useJsdom();
 
@@ -157,6 +161,35 @@ it("trendLabelSpot — slides back from a taken end, then tries below", () => {
   );
 });
 
+it("trendLabelSpot — slides back off a bend too tight for its letters", () => {
+  // Down to the right, then sharply back up: a valley under the text, near
+  // the end of the line.
+  const line = [
+    [50, 50],
+    [300, 150],
+    [330, 110],
+  ];
+  const spot = trendLabelSpot(line, rect, place());
+  const pts = xs(spot.d);
+  assert.ok(pts[pts.length - 1][0] < 295, `clear of the valley: ${spot.d}`);
+  assert.ok(textFollows(pts, 11));
+  // A minRadius of 0 lets it sit across the valley, at the line's end.
+  const loose = xs(trendLabelSpot(line, rect, place({minRadius: 0})).d);
+  assert.ok(loose[loose.length - 1][0] > 300, "at the end");
+  // Every stretch bent: it still takes the clear one that bends least,
+  // gentler than a label running the whole line.
+  const zig = Array.from({length: 13}, (_, k) => [
+    40 + k * 25,
+    k % 2 ? 140 : 120 - k,
+  ]);
+  const bent = trendLabelSpot(zig, rect, place());
+  assert.ok(bent, "still labelled");
+  const strain = bendStrain(xs(bent.d), 11);
+  assert.ok(strain > 1);
+  const whole = trendLabelSpot(zig, rect, place({width: 300})).d;
+  assert.ok(strain < bendStrain(xs(whole), 11));
+});
+
 it("lineLabelBoxes — the line labels at ends and along lines, and contour labels", () => {
   const text = (key, datum, extra = {}) => ({
     type: "text",
@@ -221,6 +254,26 @@ it("emitTrendLabels — one inert, haloed label per fit, on its fitted stretch",
     "y = 2.1x + 3.4, R² = 0.84",
     "the equation by default",
   );
+});
+
+it("emitTrendLabels — labelConfig.minRadius sets the bend, and stays out of TextBox", () => {
+  const warn = console.warn;
+  const warnings = [];
+  console.warn = (...args) => warnings.push(args.join(" "));
+  try {
+    const scale = v => v * 10;
+    const nodes = emitTrendLabels(
+      viz({label: true, labelConfig: {minRadius: 0, fontSize: 12}}),
+      scale,
+      scale,
+      rect,
+    );
+    assert.strictEqual(nodes.length, 1);
+    assert.strictEqual(nodes[0].font.size, 12);
+  } finally {
+    console.warn = warn;
+  }
+  assert.deepStrictEqual(warnings, []);
 });
 
 it("pathLabelNodes — legible color on the theme, cut short to its path", () => {

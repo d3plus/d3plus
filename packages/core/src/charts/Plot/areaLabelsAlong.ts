@@ -16,6 +16,7 @@ import {samplePath} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 
 import {shapeConfigFor, userLabelConfig} from "../features/emitHelpers.js";
+import {smoothPolyline} from "../features/pathLabelBends.js";
 import {offsetPolyline, polylineD} from "../features/pathLabelGeometry.js";
 import type {Edges, Pt} from "../features/pathLabelGeometry.js";
 import {pathLabelNodes} from "../features/pathLabels.js";
@@ -31,6 +32,14 @@ export const AREA_LABEL_PADDING = 4;
 
 /** The along label's weight when the Area's labelConfig sets none: the box labels' regular weight. */
 export const AREA_LABEL_FONT_WEIGHT = 400;
+
+/**
+    How far around each point a band's centerline is averaged for its label,
+    in ems (see `smoothPolyline`): more than a line's label, since the
+    text must still clear the band's edges wherever the smoothed path
+    strays from the centerline.
+*/
+export const AREA_LABEL_SMOOTHING = 3;
 
 /** How far past a label, in font sizes, more room in its band still scores better. */
 const ROOM_REACH = 1.5;
@@ -250,7 +259,9 @@ export function placeBandLabel(
     // so only the runs that thick need scoring.
     const need = fontSize + AREA_LABEL_PADDING;
     if (need > thickest) continue;
-    const runs = sections.flatMap(s => thickRuns(s, need));
+    const runs = sections
+      .flatMap(s => thickRuns(s, need))
+      .map(run => smoothPolyline(run, AREA_LABEL_SMOOTHING * fontSize));
     // The glyphs, 0.2em below the baseline to 0.8em above it, center on the
     // centerline, and keep half the padding from either edge.
     const ctx: StretchContext = {

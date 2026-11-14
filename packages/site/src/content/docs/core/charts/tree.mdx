@@ -8,6 +8,8 @@ import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/charts/tree/basic-example.js?raw";
 import horizontalOrientation from "~/examples/core/charts/tree/horizontal-orientation.js?raw";
 import changingShapes from "~/examples/core/charts/tree/changing-shapes.js?raw";
+import radialOrientation from "~/examples/core/charts/tree/radial-orientation.js?raw";
+import dendrogram from "~/examples/core/charts/tree/dendrogram.js?raw";
 
 Uses d3's tree layout to create a tidy tree chart based on an array of data.
 
@@ -22,6 +24,18 @@ The two-level `groupBy` (`parent` then `id`) defines the hierarchy that the tidy
 Set `orient` to `"horizontal"` to grow the tree left-to-right instead of top-down—handy for deep hierarchies or long node labels.
 
 <Playground chart="Tree" code={horizontalOrientation} controls={["orient"]} />
+
+## Radial orientation
+
+Set `orient` to `"radial"` to lay the tree around a circle: the root at the center, the leaves around the edge, and labels turned along their spokes. [RadialTree](/core/charts/radial-tree/) draws this by default.
+
+<Playground chart="Tree" code={radialOrientation} controls={["orient"]} height={480} />
+
+## Dendrogram
+
+`nodeHeight` places each node by a value instead of by its depth: its height above the leaves, such as the distance at which a hierarchical clustering merged its children. The leaves (height 0) line up along the bottom, spaced evenly, and each branch sits at its merge height. It works with every `orient`.
+
+<Playground chart="Tree" code={dendrogram} controls={["orient"]} />
 
 ## Changing shapes
 
