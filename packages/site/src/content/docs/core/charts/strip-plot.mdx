@@ -1,0 +1,44 @@
+---
+title: StripPlot
+description: "Creates a strip plot from an array of data: one strip of points per category, each point at its value and spread across its category's band by jitter."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/strip-plot/basic-example.js?raw";
+import jitterWidth from "~/examples/core/charts/strip-plot/jitter-width.js?raw";
+import horizontalStrips from "~/examples/core/charts/strip-plot/horizontal-strips.js?raw";
+import barcodePlot from "~/examples/core/charts/strip-plot/barcode-plot.js?raw";
+
+Creates a strip plot from an array of data: one strip of points per
+category on the `x` axis (or `y`, with `discrete: "y"`), each point at its
+value and spread across its category's band by `jitter`, a stable offset
+seeded from its id. Set `shape` to `"Tick"` for a barcode plot, a short
+line across the band at each value. See Beeswarm to pack the points
+instead, and BoxWhisker to summarize each strip.
+
+## Basic example
+
+Each row is one point, placed at its value along `y` and nudged sideways within its category's band so points that share a value don't hide each other. Group by an id that is unique to each row: each point's offset is seeded from it, so a redraw, a resize, or a filter never moves a point within its band.
+
+<Playground chart="StripPlot" code={basicExample} controls={["x","y","jitter"]} />
+
+## Jitter width
+
+`jitter` is the share of the band the points spread across: `true` (the default) is 0.6, a number from 0 to 1 sets it, and `false` lines every point up on its category's center.
+
+<Playground chart="StripPlot" code={jitterWidth} controls={["jitter"]} />
+
+## Horizontal strips
+
+Set `discrete: "y"` with a categorical `y` and a numeric `x` to run the strips across the chart.
+
+<Playground chart="StripPlot" code={horizontalStrips} controls={["discrete","x","y"]} />
+
+## Barcode plot
+
+`shape: "Tick"` draws a short line across the band at each value instead of a point, 0.6 of the band wide (set `shapeConfig.Tick.length` for another length, and `thickness` for its weight). A half-transparent fill shows where values pile up.
+
+<Playground chart="StripPlot" code={barcodePlot} controls={["shape","shapeConfig"]} />
+
+<ApiReference name="StripPlot" pkg="core" />

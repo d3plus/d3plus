@@ -46,6 +46,7 @@ export {default as Scatter} from "./Scatter/index.js";
 export {default as SlopeChart} from "./SlopeChart/index.js";
 export {default as StackedArea} from "./StackedArea/index.js";
 export {default as Streamgraph} from "./Streamgraph/index.js";
+export {default as StripPlot} from "./StripPlot/index.js";
 export {default as Sunburst} from "./Sunburst/index.js";
 export {default as Tree} from "./Tree/index.js";
 export {default as Treemap} from "./Treemap/index.js";

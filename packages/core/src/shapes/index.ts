@@ -7,4 +7,5 @@ export {default as Image} from "./Image.js";
 export {default as Line} from "./Line.js";
 export {default as Path} from "./Path.js";
 export {default as Rect} from "./Rect.js";
+export {default as Tick} from "./Tick.js";
 export {default as Whisker} from "./Whisker.js";

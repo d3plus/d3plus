@@ -563,6 +563,27 @@ export type {
   SwarmState,
 } from "./src/charts/Plot/swarm.js";
 export {
+  DEFAULT_TICK_LENGTH,
+  jitterAccessor,
+  plotBand,
+} from "./src/charts/Plot/jitter.js";
+export type {Band, BandInputs} from "./src/charts/Plot/jitter.js";
+export {DEFAULT_JITTER, jitterOffset, jitterWidth} from "./src/utils/jitter.js";
+export type {JitterSetting} from "./src/utils/jitter.js";
+export {
+  applyBoxExtras,
+  boxPointData,
+  countWidth,
+  jitteredCenter,
+  jitterOutliers,
+  MEAN_SIZE,
+  meanOf,
+  notchedBoxPath,
+  notchInterval,
+  toBoxExtra,
+} from "./src/shapes/boxExtras.js";
+export type {BoxExtrasHost} from "./src/shapes/boxExtras.js";
+export {
   compareCategories,
   stepValue,
   waterfallKinds,
@@ -1440,6 +1461,7 @@ export {arcDiagramDef, arcTableData} from "./src/charts/ArcDiagram/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {scatterDef} from "./src/charts/Scatter/index.js";
+export {stripPlotDef} from "./src/charts/StripPlot/index.js";
 export {
   prepareSlope,
   slopeChartDef,

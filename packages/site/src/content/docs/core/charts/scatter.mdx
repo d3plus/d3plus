@@ -10,6 +10,7 @@ import sizedPoints from "~/examples/core/charts/scatter/sized-points.js?raw";
 import trendLine from "~/examples/core/charts/scatter/trend-line.js?raw";
 import pointLabels from "~/examples/core/charts/scatter/point-labels.js?raw";
 import connectedPoints from "~/examples/core/charts/scatter/connected-points.js?raw";
+import jitter from "~/examples/core/charts/scatter/jitter.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
 its `x` and `y` values, on continuous axes (set `discrete` to place points
@@ -47,5 +48,11 @@ Points too small to hold their label get it beside them instead, on the side fac
 `order` names the field that orders each series' points, here the year. A line joins each country's points in that order, so it can double back when a measure falls, with an arrowhead on each segment pointing along the path and the first and last years labeled. [ConnectedScatter](/core/charts/connected-scatter/) draws the same chart.
 
 <Playground chart="Scatter" code={connectedPoints} controls={["order","pathArrows","pathLabels"]} />
+
+## Jittered categories
+
+On a category axis (`discrete: "x"`), points that share a category and a value would hide each other. `jitter: true` spreads them across 0.6 of their category's band (a number sets another share), each by an offset seeded from its id, so a point never jumps between draws. StripPlot is a Scatter with this on by default.
+
+<Playground chart="Scatter" code={jitter} controls={["jitter","discrete"]} />
 
 <ApiReference name="Scatter" pkg="core" />

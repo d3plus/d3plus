@@ -40,6 +40,7 @@ import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {stackEnterWindows} from "../Plot/stackEnter.js";
 import {growAreasFromBaseline} from "../Plot/areaEnter.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
+import {DEFAULT_TICK_LENGTH, jitterAccessor, plotBand} from "../Plot/jitter.js";
 import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
 import {lineMarkerKeys} from "../Plot/lineMarkerKeys.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
@@ -210,11 +211,43 @@ export const genericEmit: ShapeEmitter = (ctx, key) => {
 };
 
 /**
+    A point mark (Circle or Rect): with `jitter`, each sits off its
+    category's center by its seeded offset (see `Plot/jitter.ts`).
+*/
+const pointEmit: ShapeEmitter = (ctx, key) => {
+  const jitter = jitterAccessor(ctx, ctx.viz.schema.jitter);
+  if (!jitter) return genericEmit(ctx, key);
+  const s = makeShape(key)
+    .renderMode("compute")
+    .config(buildInner(ctx, key))
+    .data(ctx.values);
+  return finishShape(ctx, key, s, () => ({[jitter.axis]: jitter.at}));
+};
+
+/**
+    Tick — a short bar across the band at each value (a barcode plot), as
+    long as `DEFAULT_TICK_LENGTH` of the band unless `shapeConfig.Tick.length`
+    sets it. Without a band, each tick runs along x.
+*/
+const tickEmit: ShapeEmitter = (ctx, key) => {
+  const band = plotBand(ctx);
+  const s = makeShape(key)
+    .renderMode("compute")
+    .config(buildInner(ctx, key))
+    .config({
+      orient: band?.axis === "y" ? "vertical" : "horizontal",
+      ...(band && {length: band.step * DEFAULT_TICK_LENGTH}),
+    })
+    .data(ctx.values);
+  return finishShape(ctx, key, s);
+};
+
+/**
     Circle — in swarm mode, each circle is packed off its lane's centerline
-    (see `Plot/swarm.ts`); otherwise the generic path.
+    (see `Plot/swarm.ts`); otherwise a point mark.
 */
 const circleEmit: ShapeEmitter = (ctx, key) => {
-  if (!ctx.viz._swarm) return genericEmit(ctx, key);
+  if (!ctx.viz._swarm) return pointEmit(ctx, key);
   const {viz, values, x, y, xRange, yRange} = ctx;
   const s = makeShape("Circle")
     .renderMode("compute")
@@ -553,6 +586,8 @@ export const shapeEmitters: Record<string, ShapeEmitter> = {
   Bar: barEmit,
   Circle: circleEmit,
   Line: lineEmit,
+  Rect: pointEmit,
+  Tick: tickEmit,
 };
 
 /**

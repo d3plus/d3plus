@@ -48,7 +48,10 @@ const draw = async ({rows, stats, horizontal, renderer, config}) => {
     .data(rows)
     .legend(false)
     .yConfig({title: false})
-    .xConfig({title: false});
+    .xConfig({title: false})
+    // Precomputed boxes draw no points or mean here, so neither does the raw path.
+    .boxMean(false)
+    .boxPoints(false);
   if (stats)
     viz
       .boxMin("min")

@@ -75,6 +75,7 @@ export interface TranslationStrings {
   "No Data": string;
   "No Data Available": string;
   "No Matches": string;
+  Notch: string;
   Observations: string;
   "of first": string;
   "of previous": string;
@@ -237,6 +238,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649",
     Mean: "\u0627\u0644\u0645\u062a\u0648\u0633\u0637",
     Median: "\u0627\u0644\u0648\u0633\u064a\u0637",
+    Notch: "\u0627\u0644\u062b\u0644\u0645\u0629",
     Milestone: "\u0645\u0639\u0644\u0645",
     Minimum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     more: "\u0623\u062e\u0631\u0649",
@@ -383,6 +385,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "M\u00e1ximo",
     Mean: "Media",
     Median: "Mediana",
+    Notch: "Muesca",
     Milestone: "Hito",
     Minimum: "M\u00ednimo",
     minute: "minuto",
@@ -519,6 +522,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "M\u00e1ximo",
     Mean: "M\u00e9dia",
     Median: "Mediana",
+    Notch: "Entalhe",
     Milestone: "Marco",
     Minimum: "M\u00ednimo",
     minute: "minuto",
@@ -658,6 +662,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "\u6700\u5927\u503c",
     Mean: "\u5e73\u5747\u503c",
     Median: "\u4e2d\u4f4d\u6570",
+    Notch: "\u51f9\u53e3",
     Milestone: "\u91cc\u7a0b\u7891",
     Minimum: "\u6700\u5c0f\u503c",
     minute: "\u5206\u949f",

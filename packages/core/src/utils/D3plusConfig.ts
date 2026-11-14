@@ -1167,8 +1167,18 @@ export interface D3plusConfig {
   binValue?: BinValueOption;
   /** Candlestick: the share of each period's room its candle body (or OHLC ticks) spans, from 0 to 1. Defaults to `0.7`. */
   bodyWidth?: number;
+  /** BoxWhisker: accessor or data key for each summary row's observation count, which `boxNotch` and `boxWidthByCount` need for precomputed boxes. */
+  boxCount?: string | ((d: DataPoint, i: number) => number);
   /** BoxWhisker: accessor or data key for each summary row's upper whisker end. See `boxMedian`. */
   boxMax?: string | ((d: DataPoint, i: number) => number);
+  /**
+      BoxWhisker: marks each box's mean with a diamond (default `true`),
+      listed as "Mean" in its tooltip; `false` turns it off. A computed box
+      takes the mean of its observations; a precomputed box needs a data key
+      or accessor giving each row's mean. Style it with
+      `shapeConfig.Box.meanConfig`.
+  */
+  boxMean?: boolean | string | ((d: DataPoint, i: number) => number);
   /**
       BoxWhisker: accessor or data key for each summary row's median. Setting
       it, `boxMin`, `boxQ1`, `boxQ3`, or `boxMax` draws boxes from statistics
@@ -1182,14 +1192,35 @@ export interface D3plusConfig {
   boxMedian?: string | ((d: DataPoint, i: number) => number);
   /** BoxWhisker: accessor or data key for each summary row's lower whisker end. See `boxMedian`. */
   boxMin?: string | ((d: DataPoint, i: number) => number);
+  /**
+      BoxWhisker: notches each box around its median (default `false`),
+      spanning `median ± 1.58·IQR/√n`, roughly a 95% interval for the median:
+      boxes whose notches don't overlap likely differ. Listed as "Notch" in
+      the tooltip. A precomputed box needs `boxCount`, or an accessor
+      returning each row's `[lower, upper]`.
+  */
+  boxNotch?: boolean | ((d: DataPoint, i: number) => [number, number]);
   /** BoxWhisker: accessor or data key for each summary row's outliers, an array of values drawn as points past the whiskers. Used only with the other box statistics; see `boxMedian`. */
   boxOutliers?: string | ((d: DataPoint, i: number) => number[]);
   /** Alluvial: the fill opacity of the bands between columns (default `0.5`). */
   bandOpacity?: number;
   /** BoxWhisker: accessor or data key for each summary row's lower quartile, where its box starts. See `boxMedian`. */
   boxQ1?: string | ((d: DataPoint, i: number) => number);
+  /**
+      BoxWhisker: draws every observation of a computed box as a small point
+      over it (default `true`), spread across the box's width by `jitter`;
+      outliers keep their own marks. Style them with
+      `shapeConfig.Box.pointConfig`.
+  */
+  boxPoints?: boolean;
   /** BoxWhisker: accessor or data key for each summary row's upper quartile, where its box ends. See `boxMedian`. */
   boxQ3?: string | ((d: DataPoint, i: number) => number);
+  /**
+      BoxWhisker: scales each box's width by the square root of its
+      observation count relative to the largest box's (default `false`), so
+      a box's area tracks its sample size. A precomputed box needs `boxCount`.
+  */
+  boxWidthByCount?: boolean;
   /**
       ParallelCoordinates: the brush strips over each axis — `width` (px), the
       selection's `fill`, `fillOpacity`, `stroke`, and `strokeWidth`, and
@@ -1765,6 +1796,18 @@ export interface D3plusConfig {
     quartiles?: Record<string, unknown>;
     points?: Record<string, unknown>;
   };
+  /**
+      Spreads a Plot's point marks (Circle and Rect) across their category's
+      band, so points sharing a category don't hide each other: `true` spreads
+      them over 0.6 of the band, a number over that share of it (0–1), and
+      `false` (the default; `true` for StripPlot) keeps each on its
+      category's center. The band runs across the `discrete` axis; without
+      one, nothing moves. Each point's offset is seeded from its id, so a
+      redraw, resize, or filter never moves it. A `swarm` takes precedence.
+      In BoxWhisker, it spreads the `boxPoints` across each box's width
+      instead (default `true`).
+  */
+  jitter?: boolean | number;
   /**
       Lets keyboard users move between the chart's marks: the chart is one Tab
       stop, the arrow keys move to the nearest mark in that direction, Home and
