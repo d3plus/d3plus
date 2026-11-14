@@ -28,7 +28,7 @@ import {matrixEmit} from "./emit.js";
 
 const defaultAxisConfig: Record<string, unknown> = {
   align: "start",
-  barConfig: {stroke: 0},
+  barConfig: {stroke: "transparent"},
   gridSize: 0,
   padding: 5,
   paddingInner: 0,
