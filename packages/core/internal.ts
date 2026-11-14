@@ -272,6 +272,44 @@ export {
   sunburstFocus,
 } from "./src/charts/Sunburst/applyLayout.js";
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
+export {nodeHeights, rootDistances} from "./src/charts/Tree/nodeHeight.js";
+export type {HeightNode, NodeHeightInfo} from "./src/charts/Tree/nodeHeight.js";
+export {
+  layoutRadialTree,
+  radialLabelFont,
+  radialLabelPlacement,
+  radialLinkD,
+  radialNodeReach,
+  RADIAL_LABEL_FONT_SIZE,
+  RADIAL_LABEL_PADDING,
+  ringGaps,
+} from "./src/charts/Tree/radialLayout.js";
+export type {
+  Polar,
+  RadialLabel,
+  RadialTreeNode,
+} from "./src/charts/Tree/radialLayout.js";
+export {emitRadialTreeLabels} from "./src/charts/Tree/radialLabels.js";
+export type {RadialLabels} from "./src/charts/Tree/radialLabels.js";
+export {
+  boxReach,
+  emitSpokeLabels,
+  fitSpokeFont,
+  polarPoint,
+  radialFit,
+  shrinkToWord,
+  SPOKE_LABEL_FONT_MIN,
+  SPOKE_LABEL_LINES,
+  SPOKE_LABEL_PADDING,
+  spokeFlipped,
+  spokeLines,
+  spokePlacement,
+  widestWord,
+} from "./src/charts/features/spokeLabels.js";
+export type {
+  SpokeLabel,
+  SpokePlacement,
+} from "./src/charts/features/spokeLabels.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
 export {
   applyWaffleLayout,
@@ -1555,6 +1593,7 @@ export {pyramidDef} from "./src/charts/Pyramid/index.js";
 export {radarDef} from "./src/charts/Radar/index.js";
 export {radialBarDef} from "./src/charts/RadialBar/index.js";
 export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
+export {radialTreeDef} from "./src/charts/RadialTree/index.js";
 export {ridgelineDef} from "./src/charts/Ridgeline/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
@@ -2660,6 +2699,27 @@ export {
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";
+export {
+  CIRCLE_LINK_BOW,
+  CIRCLE_NODE_MAX,
+  CIRCLE_NODE_SHARE,
+  circleAngles,
+  circleLinkPoints,
+  circleNodeGroup,
+  curveCircleLinks,
+  fitCircle,
+  layoutCircleNetwork,
+  linkBowOf,
+  nodeSpokeReach,
+  placeCircleNetworkLabels,
+  sortCircleNodes,
+} from "./src/charts/Network/circleLayout.js";
+export type {
+  CircleLabel,
+  CircleNetwork,
+  CircleSortable,
+  NetworkLayout,
+} from "./src/charts/Network/circleLayout.js";
 export {
   CLUSTER_MAX,
   capClusters,

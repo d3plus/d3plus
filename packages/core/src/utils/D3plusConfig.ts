@@ -2043,6 +2043,25 @@ export interface D3plusConfig {
   */
   maxAngle?: number;
   /**
+      Network: how the nodes are placed. `"force"` (the default) places them
+      at their `x` and `y`, or by a force simulation when any node has
+      none. `"circle"` spaces them evenly around a circle, ordered by
+      cluster and then most connected first (see `nodeSort`), with links
+      bowing in toward the center and each label turned outward along its
+      node's spoke past the circle.
+  */
+  layout?: "force" | "circle";
+  /**
+      Network's circle layout (`layout: "circle"`): how far links bow in
+      toward the center, from `0` (straight lines) to `1` (each link curves
+      through the center's pull, as a chord diagram's do). It sets the share
+      of the way from the middle of a link's chord to the center that its
+      curve's control point sits. Defaults to `0.5`, which keeps links
+      between neighbors near the rim and lets long ones cross the middle.
+      Bundled links ignore it.
+  */
+  linkBow?: number;
+  /**
       Geomap: how far each link bows into an arc, as a share of the distance
       between its ends: `0` draws the plain great-circle path, and the default
       `0.2` bows it to the left of its direction (negative bows right), so
@@ -2210,12 +2229,16 @@ export interface D3plusConfig {
   */
   noDataMessage?: boolean;
   /**
-      The order of ArcDiagram's nodes along its line: `"data"` (the default,
-      their order in `nodes`), `"label"` (alphabetical), `"group"` (by the
-      top `groupBy` or `nodeGroupBy` level when there are several, else by
-      the `color` value, then by label), `"degree"`
-      (most connected first), or a comparator function receiving two node
-      rows, as for `Array.prototype.sort`.
+      The order of ArcDiagram's nodes along its line, and of Network's
+      around its circle (`layout: "circle"`): `"data"` (their order in
+      `nodes`), `"label"` (alphabetical), `"group"` (by cluster while
+      clusters color the chart, else by the top `groupBy` or `nodeGroupBy`
+      level when there are several, else, in ArcDiagram, by the `color`
+      value; then by label), `"degree"` (most connected first), or a
+      comparator function receiving two node rows, as for
+      `Array.prototype.sort`. ArcDiagram defaults to `"data"`; Network's
+      circle keeps each cluster (or top-level group) together, largest
+      first, its most connected nodes first.
   */
   nodeSort?:
     | "data"
@@ -2223,6 +2246,26 @@ export interface D3plusConfig {
     | "group"
     | "degree"
     | ((a: DataPoint, b: DataPoint) => number);
+  /**
+      Tree and RadialTree: sets how far each node sits from the root by a
+      value instead of by its depth: its height above the leaves, such as
+      the distance at which a hierarchical clustering merged its children.
+      The root sits at the tallest height and nodes of height 0 at the far
+      edge, so the leaves line up there as in a cluster dendrogram, spaced
+      evenly in order. A key in the data, or an accessor function receiving
+      the node's row (a branch's merged row), its index, and `{id, level,
+      leaf}`: its `groupBy` value at its own level, that level (0 for the
+      top), and whether it is drawn without children. A node with no number
+      is 0 when it is a leaf, and as tall as its tallest child otherwise.
+      Defaults to none, which spaces the levels evenly.
+  */
+  nodeHeight?:
+    | string
+    | ((
+        d: DataPoint,
+        i: number,
+        node: {id: string; level: number; leaf: boolean},
+      ) => number | undefined);
   /**
       Network, Rings, Sankey, Chord, and ArcDiagram: transforms `nodes`
       before they are drawn. The function receives the loaded file (or the
@@ -2286,11 +2329,12 @@ export interface D3plusConfig {
   order?: string | ((d: DataPoint, i: number) => unknown);
   /**
       Layout direction. Charts that can be drawn either way take
-      `"horizontal"` or `"vertical"`, as do Box shapes. Whisker shapes take the
-      side they point toward: `"top"`, `"bottom"`, `"left"`, or `"right"`.
-      Shapes also accept a per-datum accessor.
+      `"horizontal"` or `"vertical"`, as do Box shapes. Tree also takes
+      `"radial"`, laying the tree around a circle (see `RadialTree`). Whisker
+      shapes take the side they point toward: `"top"`, `"bottom"`, `"left"`,
+      or `"right"`. Shapes also accept a per-datum accessor.
   */
-  orient?: ConstOrAccessor<Orient | SideOrient>;
+  orient?: ConstOrAccessor<Orient | SideOrient | "radial">;
   /**
       How far Ridgeline's tallest ridge rises, in category steps (default
       1.5): 1 reaches the next baseline up, larger values overlap the ridges
