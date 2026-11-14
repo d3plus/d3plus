@@ -63,7 +63,7 @@ facetConfig: {
 | `"eu-countries"` | the 27 member states of the European Union | ISO alpha-2 (`"DE"`) or alpha-3 (`"DEU"`) code, or name |
 | `"world-regions"` | the World Bank's seven regions | region code (`"SAS"`) or name (`"South Asia"`) |
 
-Matching ignores case. A named layout titles each panel with its short code and shows the full name when the title is hovered. A value the layout doesn't hold is left out, with a warning in the console naming it.
+Matching ignores case. A named layout titles each panel with its short code and shows the full name when the title is hovered; the full name also heads the tooltip of every mark in the panel, in a smaller line above the mark's own title. A value the layout doesn't hold is left out, with a warning in the console naming it.
 
 <Playground chart="LinePlot" code={smallMultiplesMap} controls={["facetConfig"]} height={560} />
 
