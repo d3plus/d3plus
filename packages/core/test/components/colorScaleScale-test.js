@@ -533,6 +533,19 @@ it("logStops — each side steps in even powers, the midpoint at 1 or -1", () =>
     "a positive pole under 1 steps up from the smallest positive stop",
   );
   assert.deepStrictEqual(logStops([-10, 0, 0.5]), [-10, -1, 0.5]);
+  assert.deepStrictEqual(
+    logStops([-0.5, -0.25, 0, 5, 10]),
+    [-0.5, -0.25 * Math.sqrt(2), 1, Math.sqrt(10), 10],
+    "a negative pole above -1 steps out from the negative stop nearest 0",
+  );
+  assert.deepStrictEqual(
+    logStops([-0.5, -0.25, 0, 0.25, 0.5]),
+    [-0.5, -0.25 * Math.sqrt(2), 0, 0.25 * Math.sqrt(2), 0.5],
+    "both poles inside (-1, 1) split at 0",
+  );
+  assert.deepStrictEqual(logStops([-1, 0, 1]), [-1, 0, 1]);
+  assert.deepStrictEqual(logStops([-0.5, 0]), [-0.5, 0]);
+  assert.deepStrictEqual(logStops([0, 0.5]), [0, 0.5]);
 });
 
 it("log — a diverging scale whose high pole is under 1 keeps its stops in order", () => {
@@ -560,4 +573,56 @@ it("log — a diverging scale whose high pole is under 1 keeps its stops in orde
     if (buckets % 2)
       assert.strictEqual(colorOf(cs, -1), rgb(light), `${label}: midpoint`);
   }
+});
+
+/** Asserts a log scale over `values` ascends from pole to pole. */
+const assertLogOrder = (values, buckets, midpoint) => {
+  const {off, light, sequential} = new ColorScale().schema.colorDefaults;
+  const cs = solve(values, {scale: "log", buckets});
+  const domain = cs._colorScale.domain();
+  const label = `${values} (${buckets}) → ${domain}`;
+  assert.strictEqual(
+    domain.length,
+    buckets % 2 ? buckets : buckets + 1,
+    `${label}: a stop per color`,
+  );
+  assert.ok(
+    domain.every((d, i) => !i || d > domain[i - 1]),
+    `${label}: the stops ascend`,
+  );
+  assert.strictEqual(domain[0], values[0], `${label}: starts at min`);
+  assert.strictEqual(domain.at(-1), values.at(-1), `${label}: ends at max`);
+  assert.strictEqual(colorOf(cs, values[0]), rgb(off), `${label}: low`);
+  assert.strictEqual(
+    colorOf(cs, values.at(-1)),
+    rgb(sequential),
+    `${label}: high`,
+  );
+  if (buckets % 2)
+    assert.strictEqual(
+      colorOf(cs, midpoint),
+      rgb(light),
+      `${label}: midpoint at ${midpoint}`,
+    );
+};
+
+it("log — a diverging scale whose low pole is above -1 keeps its stops in order", () => {
+  for (const [values, buckets] of [
+    [[-0.5, -0.3, -0.2, 2, 5, 10], 5],
+    [[-0.6, -0.4, -0.3, -0.1, 1.5, 4, 9, 20], 7],
+    [[-0.5, -0.3, -0.1, 3, 6, 10], 4],
+    [[-0.9, -0.05, 2, 100], 3],
+  ])
+    assertLogOrder(values, buckets, 1);
+});
+
+it("log — a diverging scale with both poles inside (-1, 1) splits at 0", () => {
+  for (const [values, buckets] of [
+    [[-0.8, -0.4, -0.1, 0.1, 0.3, 0.6], 5],
+    [[-0.5, 0.5], 3],
+    [[-0.9, -0.6, -0.3, -0.1, 0.05, 0.2, 0.4, 0.8], 7],
+    [[-0.5, -0.3, -0.2, 0.3, 0.6, 0.9], 4],
+    [[-1, -0.5, 0.2, 0.5], 3],
+  ])
+    assertLogOrder(values, buckets, 0);
 });

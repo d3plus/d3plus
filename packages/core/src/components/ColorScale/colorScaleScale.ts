@@ -1,4 +1,4 @@
-import {deviation, extent, min, quantile, range} from "d3-array";
+import {deviation, extent, max, min, quantile, range} from "d3-array";
 import {interpolateRgb} from "d3-interpolate";
 import {scaleLinear, scaleThreshold} from "d3-scale";
 
@@ -375,33 +375,42 @@ function resolveNonDivergingLinear(
 /**
     Places a linear scale's evenly spaced `stops` on a log scale, as a new
     array: each side of 0 steps in even powers out to its pole, from 1 (or,
-    for a positive pole under 1, from the smallest positive stop), and the
-    midpoint of 0 draws at 1, or at -1 when the positive side reaches no
-    higher, so it stays between the two sides.
+    for a pole inside (-1, 1), from that side's stop nearest 0). The midpoint
+    of 0 draws at 1 when the positive side reaches past 1, else at -1 when the
+    negative side reaches past -1, else at 0, where the log axis splits, so it
+    stays between the two sides.
 */
 export function logStops(stops: number[]): number[] {
-  const low = stops.find((d: number) => d < 0);
-  const positives = stops.filter((d: number) => d > 0);
-  const high = positives[positives.length - 1];
-  const base = high > 1 ? 1 : positives[0];
-  const placed = stops.map((d: number) =>
-    d < 0
-      ? -Math.pow(Math.abs(low!), d / low!)
-      : d > 0
-        ? base * Math.pow(high / base, d / high)
-        : d,
+  /** Steps a side's magnitudes (ascending) in even powers out to its pole. */
+  const side = (magnitudes: number[]): ((d: number) => number) => {
+    const pole = magnitudes[magnitudes.length - 1];
+    const base = pole > 1 ? 1 : magnitudes[0];
+    return (d: number): number => base * Math.pow(pole / base, d / pole);
+  };
+  const ascending = (a: number, b: number): number => a - b;
+  const negative = side(
+    stops
+      .filter((d: number) => d < 0)
+      .map((d: number) => -d)
+      .sort(ascending),
   );
-  const top = placed[placed.length - 1];
+  const positive = side(stops.filter((d: number) => d > 0).sort(ascending));
+  const placed = stops.map((d: number) =>
+    d < 0 ? -negative(-d) : d > 0 ? positive(d) : d,
+  );
+  const high = max(placed);
+  const nearest = max(placed.filter((d: number) => d < 0));
   const zero = placed.indexOf(0);
-  if (zero >= 0) placed[zero] = low !== undefined && top <= 1 ? -1 : 1;
+  if (zero >= 0)
+    placed[zero] =
+      high! > 1 ? 1 : nearest !== undefined && nearest < -1 ? -1 : 0;
   return placed;
 }
 
 /**
     Merges a log scale's stops that land on one value, keeping the color
-    farthest from the midpoint: a side whose pole is exactly 1 (or -1) puts
-    every stop on that side at the pole, where the midpoint may also draw.
-    Stops that would leave fewer than 2 are kept as they are.
+    farthest from the midpoint, as a `buckets` array with a repeated value
+    gives. Stops that would leave fewer than 2 are kept as they are.
 */
 export function mergeLogStops(
   stops: number[],
