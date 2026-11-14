@@ -1,0 +1,151 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>StripPlot</title>
+    <meta
+      name="description"
+      content="StripPlot variants: jittered strips per category, horizontal strips, a barcode plot of Ticks, a Scatter with jitter toggled and filtered (points keep their offsets), and a narrow jitter."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 24px;
+      }
+      .viz {
+        height: 360px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      button {
+        font: inherit;
+        margin-left: 8px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Default (jitter: true)</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>Horizontal strips (discrete: "y")</h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+      <div>
+        <h3>Barcode plot (shape: "Tick")</h3>
+        <div class="viz" id="barcode"></div>
+      </div>
+      <div>
+        <h3>
+          Scatter with jitter
+          <button id="toggle">Toggle jitter</button>
+          <button id="filter">Toggle filter</button>
+        </h3>
+        <div class="viz" id="scatter"></div>
+      </div>
+      <div>
+        <h3>Narrow jitter (0.2) on canvas</h3>
+        <div class="viz" id="narrow"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Seeded rows so the page renders identically every load.
+    let seed = 11;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const normal = () =>
+      Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
+    const species = ["Adelie", "Chinstrap", "Gentoo"];
+    const penguins = Array.from({length: 240}, (_, i) => {
+      const s = i % 3;
+      return {
+        id: `penguin ${i + 1}`,
+        species: species[s],
+        island: ["Biscoe", "Dream", "Torgersen"][Math.floor(random() * 3)],
+        "Body Mass (g)": Math.round(3700 + 300 * s * s + 420 * normal()),
+      };
+    });
+
+    new d3plus.StripPlot()
+      .select("#basic")
+      .data(penguins)
+      .groupBy("id")
+      .color("species")
+      .x("species")
+      .y("Body Mass (g)")
+      .legend(false)
+      .render();
+
+    new d3plus.StripPlot()
+      .select("#horizontal")
+      .data(penguins)
+      .groupBy("id")
+      .color("island")
+      .discrete("y")
+      .y("island")
+      .x("Body Mass (g)")
+      .render();
+
+    new d3plus.StripPlot()
+      .select("#barcode")
+      .data(penguins)
+      .groupBy("id")
+      .color("species")
+      .shape("Tick")
+      .x("species")
+      .y("Body Mass (g)")
+      .shapeConfig({Tick: {fillOpacity: 0.5}})
+      .legend(false)
+      .render();
+
+    let jitter = true;
+    let filtered = false;
+    const scatter = new d3plus.Scatter()
+      .select("#scatter")
+      .data(penguins)
+      .groupBy("id")
+      .color("species")
+      .discrete("x")
+      .x("species")
+      .y("Body Mass (g)")
+      .jitter(jitter)
+      .duration(600)
+      .shapeConfig({Circle: {trail: false}})
+      .legend(false)
+      .render();
+    document.getElementById("toggle").addEventListener("click", () => {
+      jitter = !jitter;
+      scatter.jitter(jitter).render();
+    });
+    document.getElementById("filter").addEventListener("click", () => {
+      filtered = !filtered;
+      scatter.filter(filtered ? d => d.island !== "Dream" : false).render();
+    });
+
+    new d3plus.StripPlot()
+      .select("#narrow")
+      .renderer("canvas")
+      .data(penguins)
+      .groupBy("id")
+      .color("species")
+      .x("species")
+      .y("Body Mass (g)")
+      .jitter(0.2)
+      .legend(false)
+      .render();
+  </script>
+</html>

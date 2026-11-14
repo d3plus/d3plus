@@ -597,7 +597,7 @@ it("Candlestick merges rows sharing a period as first open, highest high, lowest
     assertMergedGeometry(out, renderer);
     assert.deepStrictEqual(
       out.rows.slice(1).map(r => r[1]),
-      ["105.00", "111.00", "102.00", "103.00", "-1.9%"],
+      ["105.00", "111.00", "102.00", "103.00", "-1.90%"],
       `${renderer}: tooltip`,
     );
     assert.strictEqual(
@@ -633,7 +633,7 @@ it("Candlestick merges function accessors' values the same way", async function 
     assertMergedGeometry(out, `${renderer} functions`);
     assert.deepStrictEqual(
       out.rows.slice(1).map(r => r[1]),
-      ["105.00", "111.00", "102.00", "103.00", "-1.9%"],
+      ["105.00", "111.00", "102.00", "103.00", "-1.90%"],
       `${renderer}: tooltip`,
     );
   }

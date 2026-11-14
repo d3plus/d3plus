@@ -36,6 +36,15 @@ it("interpolatePathD keeps a two-point line drawn all the way through", () => {
   assert.strictEqual(tween(1), "M10,0 80,0", "ends on the path as given");
 });
 
+it("interpolatePathD ends on an empty path when the target has none", () => {
+  for (const to of [null, undefined, ""]) {
+    const tween = interpolatePathD("M0,0L10,0", to);
+    assert.strictEqual(tween(1), "", String(to));
+    assert.strictEqual(typeof tween(0.5), "string");
+  }
+  assert.strictEqual(interpolatePathD(null, null)(1), "");
+});
+
 it("interpolatePathD keeps every repeat's points mid-tween", () => {
   const tween = interpolatePathD("M0,0L10,0 20,0", "M0,0L10,10 20,20");
   assert.strictEqual(tween(0.5), "M0,0L10,5L20,10");

@@ -16,7 +16,9 @@ import {
   userLabelConfig,
 } from "../features/emitHelpers.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
+import {outlineReach} from "../features/nodeOutline.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 import {nodeLabel} from "./nodeLabel.js";
 import {emitRadialTreeLabels} from "./radialLabels.js";
 import type {RadialLabels} from "./radialLabels.js";
@@ -80,10 +82,41 @@ function geometryFor(
   }
 }
 
+type TreeLinkNode = DataPoint & {
+  x?: number;
+  y?: number;
+  data?: DataPoint;
+  i?: number;
+  depth?: number;
+  parent?: TreeLinkNode;
+};
+
+/**
+    How far out from a node's center a link leaving it along `angle`
+    starts: on the outline of the shape the node draws as (see
+    `outlineReach`), where the middle of the link's end meets it. A link
+    leaves its node square to the node's side, and stays clear of the
+    box the node takes up, which keyboard focus moves between.
+*/
+function treeNodeReach(
+  viz: VizInstance,
+  d: TreeLinkNode,
+  chartShapeConfig: TreeShapeConfig,
+  angle: number,
+): number {
+  const shapeAccessor = viz.schema.shape as (d: DataPoint) => string;
+  const shape = shapeAccessor((d.data ?? d) as DataPoint);
+  const merged = {...shapeConfigFor(viz, shape), ...chartShapeConfig};
+  const aes = geometryFor(shape, d, merged)?.aes;
+  if (!aes) return 0;
+  return outlineReach({shape, ...aes}, angle);
+}
+
 export const treeEmit: ChartEmit = ({viz}) => {
-  const linksData = viz.ctx.linksData as
-    (DataPoint & {depth?: number; i?: number})[] | undefined;
-  const linkD = viz.ctx.linkD as ((d: DataPoint) => string) | undefined;
+  const linksData = viz.ctx.linksData as TreeLinkNode[] | undefined;
+  const linkD = viz.ctx.linkD as
+    | ((d: DataPoint, reach: {child: number; parent: number}) => string)
+    | undefined;
   const shapeGroups = viz.ctx.shapeGroups as ShapeGroup[] | undefined;
   const chartShapeConfig = viz.ctx.shapeConfig as TreeShapeConfig | undefined;
   if (!shapeGroups || !chartShapeConfig) return [];
@@ -94,10 +127,14 @@ export const treeEmit: ChartEmit = ({viz}) => {
   // Links (Path nodes between parent and child).
   if (linksData && linksData.length && linkD) {
     const pathConfig = shapeConfigFor(viz, "Path");
+    // The direction a link leaves its child node in, toward the parent.
+    const toParent = viz.schema.orient === "vertical" ? -Math.PI / 2 : Math.PI;
     for (let i = 0; i < linksData.length; i++) {
       const d = linksData[i];
       const datum = (d.data ?? d) as DataPoint;
       const paint = paintFromShapeConfig(pathConfig, datum, i);
+      const reach = (n: TreeLinkNode | undefined, angle: number) =>
+        n ? treeNodeReach(viz, n, chartShapeConfig, angle) : 0;
       // The link is keyed by the node it leads to.
       const id = chartShapeConfig.id(d, d.i ?? i);
       // Translate the path's local coords (relative to the source's
@@ -107,7 +144,10 @@ export const treeEmit: ChartEmit = ({viz}) => {
       out.push({
         type: "path",
         key: `tree-link-${id}`,
-        d: linkD(d),
+        d: linkD(d, {
+          child: reach(d, toParent),
+          parent: reach(d.parent, toParent + Math.PI),
+        }),
         datum,
         paint,
         transform: {x: tx, y: ty},

@@ -18,6 +18,9 @@ import Rect from "./Rect.js";
 import {drawsOutlier, outlierShape} from "./boxOutlierShape.js";
 import type {BoxConfig} from "./shapeConfig.js";
 import {boxStats, whiskerPair} from "./boxStats.js";
+import {applyBoxExtras, toBoxExtra} from "./boxExtras.js";
+import {drawBoxExtras} from "./boxExtraShapes.js";
+import type {BoxExtraShapes} from "./boxExtraShapes.js";
 import {boxMedianConfig, boxOutlierConfig, boxRectConfig} from "./boxStyle.js";
 import {
   computeSummaryBoxes,
@@ -44,14 +47,20 @@ const toAccessor = (
 const boxSchema: ConfigField[] = [
   {key: "backgroundImage", coerce: "const"},
   {key: "backgroundImageFit", coerce: "const"},
+  {key: "boxCount", coerce: toStatAccessor},
   {key: "boxMax", coerce: toStatAccessor},
+  {key: "boxMean", coerce: toBoxExtra, default: false},
   {key: "boxMedian", coerce: toStatAccessor},
   {key: "boxMin", coerce: toStatAccessor},
+  {key: "boxNotch", coerce: toBoxExtra, default: false},
   {key: "boxOutliers", coerce: toStatAccessor},
+  {key: "boxPoints", coerce: "identity", default: false},
   {key: "boxQ1", coerce: toStatAccessor},
   {key: "boxQ3", coerce: toStatAccessor},
+  {key: "boxWidthByCount", coerce: "identity", default: false},
   {key: "fill", coerce: "const"},
   {key: "id", coerce: "accessor"},
+  {key: "jitter", coerce: "identity", default: true},
   {key: "orient", coerce: "const", default: accessor("orient", "vertical")},
   {key: "outlier", coerce: "const", default: accessor("outlier", "Circle")},
   {key: "rectWidth", coerce: "const", default: constant(50)},
@@ -193,6 +202,10 @@ function computeBoxes(box: Box, outlierData: DataPoint[]): DataPoint[] {
   });
 }
 
+/** A median line's length: the box's width, or half of it where a notch pinches it. */
+const medianLength = (d: DataPoint, side: "width" | "height"): number =>
+  (d[side] as number) / (d.notch ? 2 : 1);
+
 /**
     Builds the whisker startpoint coordinates (two per box) from the computed
     box geometry.
@@ -275,6 +288,8 @@ export default class Box extends BaseClass {
   _median!: Rect;
   _whisker!: Whisker;
   _whiskerEndpoint: (Circle | Rect)[];
+  /** The extras the Box's settings turn on (see `boxExtraShapes.ts`). */
+  _extras: BoxExtraShapes;
   /** Each record handed to an inner shape → the box it belongs to (see `toScene`). */
   _owned: Map<object, Owned>;
 
@@ -285,7 +300,9 @@ export default class Box extends BaseClass {
   constructor() {
     super();
     installFluent(this, boxSchema);
+    this.schema.meanConfig = {};
     this.schema.medianConfig = {};
+    this.schema.pointConfig = {};
     this.schema.outlierConfig = {
       Circle: {
         r: accessor("r", 5),
@@ -300,7 +317,20 @@ export default class Box extends BaseClass {
     this.schema.rectConfig = {strokeWidth: constant(1)};
     this.schema.whiskerConfig = {};
     this._whiskerEndpoint = [];
+    this._extras = {};
     this._owned = new Map();
+  }
+
+  /** A part's config, prepared the way every inner shape's is. */
+  _prep(
+    config: Record<string, unknown>,
+    nest: string | false = false,
+  ): Record<string, unknown> {
+    return configPrep.bind(this as unknown as ConfigPrepHost)(
+      config,
+      "shape",
+      nest,
+    )!;
   }
 
   /**
@@ -330,21 +360,33 @@ export default class Box extends BaseClass {
 
     const outlierData: DataPoint[] = [];
 
-    const filteredData = hasBoxStats(this.schema)
-      ? computeSummaryBoxes(this, outlierData)
-      : computeBoxes(this, outlierData);
+    const computed = !hasBoxStats(this.schema);
+    const filteredData = computed
+      ? computeBoxes(this, outlierData)
+      : computeSummaryBoxes(this, outlierData);
+    applyBoxExtras(this, filteredData, computed);
 
     const rectConfig = boxRectConfig(
       this.schema,
-      configPrep.bind(this as unknown as ConfigPrepHost)(
-        this.schema.rectConfig,
-        "shape",
-      )!,
+      this._prep(this.schema.rectConfig),
     );
 
-    // Draw box.
+    this._extras = drawBoxExtras(
+      this,
+      filteredData,
+      outlierData,
+      rectConfig,
+      computed,
+      {
+        compute,
+        select: mountInner,
+        prep: config => this._prep(config as Record<string, unknown>),
+      },
+    );
+
+    // Draw box: a notched box draws its body with the extras.
     this._box = new Rect()
-      .data(filteredData)
+      .data(filteredData.filter((d: DataPoint) => !d.notch))
       .id((d: DataPoint) => `${d.id}-box`)
       .x((d: DataPoint) => d.x)
       .y((d: DataPoint) => d.y)
@@ -359,18 +401,16 @@ export default class Box extends BaseClass {
       .id((d: DataPoint) => `${d.id}-median`)
       .x((d: DataPoint) => (d.orient === "vertical" ? d.x : d.median))
       .y((d: DataPoint) => (d.orient === "vertical" ? d.median : d.y))
-      .height((d: DataPoint) => (d.orient === "vertical" ? 1 : d.height))
-      .width((d: DataPoint) => (d.orient === "vertical" ? d.width : 1))
+      .height((d: DataPoint) =>
+        d.orient === "vertical" ? 1 : medianLength(d, "height"),
+      )
+      .width((d: DataPoint) =>
+        d.orient === "vertical" ? medianLength(d, "width") : 1,
+      )
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Median") as never)
       .config(
-        boxMedianConfig(
-          rectConfig.fill,
-          configPrep.bind(this as unknown as ConfigPrepHost)(
-            this.schema.medianConfig,
-            "shape",
-          )!,
-        ),
+        boxMedianConfig(rectConfig.fill, this._prep(this.schema.medianConfig)),
       )
       .render();
 
@@ -383,12 +423,7 @@ export default class Box extends BaseClass {
       .data(whiskerData)
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Whisker") as never)
-      .config(
-        configPrep.bind(this as unknown as ConfigPrepHost)(
-          this.schema.whiskerConfig,
-          "shape",
-        )!,
-      )
+      .config(this._prep(this.schema.whiskerConfig))
       .render();
 
     // Draw outliers.
@@ -404,11 +439,7 @@ export default class Box extends BaseClass {
             .config(
               boxOutlierConfig(
                 this.schema,
-                configPrep.bind(this as unknown as ConfigPrepHost)(
-                  this.schema.outlierConfig,
-                  "shape",
-                  shapeName as string,
-                )!,
+                this._prep(this.schema.outlierConfig, shapeName as string),
               ),
             )
             .render(),
@@ -437,10 +468,13 @@ export default class Box extends BaseClass {
       if (g && Array.isArray(g.children)) children.push(...g.children);
     };
     push(this._box);
+    push(this._extras.notched);
     push(this._median);
     push(this._whisker);
+    push(this._extras.points);
     if (Array.isArray(this._whiskerEndpoint))
       for (const ep of this._whiskerEndpoint) push(ep);
+    push(this._extras.mean);
     return {
       type: "group",
       key: "d3plus-Box-scene",
@@ -459,6 +493,7 @@ export default class Box extends BaseClass {
       this._whiskerEndpoint.forEach((endPoint: Circle | Rect) =>
         endPoint.active(_),
       );
+    for (const part of Object.values(this._extras)) part?.active(_);
   }
 
   /**
@@ -481,6 +516,7 @@ export default class Box extends BaseClass {
       this._whiskerEndpoint.forEach((endPoint: Circle | Rect) =>
         endPoint.hover(_),
       );
+    for (const part of Object.values(this._extras)) part?.hover(_);
   }
 
   /**
@@ -493,6 +529,29 @@ export default class Box extends BaseClass {
       ? ((this.schema.medianConfig = mergeConfigBag(this, "medianConfig", _)),
         this)
       : this.schema.medianConfig;
+  }
+
+  /**
+      Configuration object for the mean marker (a Path), drawn when `boxMean` is on.
+*/
+  meanConfig(): Record<string, unknown>;
+  meanConfig(_: Record<string, unknown>): this;
+  meanConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
+    return arguments.length
+      ? ((this.schema.meanConfig = mergeConfigBag(this, "meanConfig", _)), this)
+      : this.schema.meanConfig;
+  }
+
+  /**
+      Configuration object for each observation point (a Circle), drawn when `boxPoints` is on.
+*/
+  pointConfig(): Record<string, unknown>;
+  pointConfig(_: Record<string, unknown>): this;
+  pointConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
+    return arguments.length
+      ? ((this.schema.pointConfig = mergeConfigBag(this, "pointConfig", _)),
+        this)
+      : this.schema.pointConfig;
   }
 
   /**
@@ -557,8 +616,10 @@ export default class Box extends BaseClass {
 
 resolvesReset(
   Box.prototype,
+  "meanConfig",
   "medianConfig",
   "outlierConfig",
+  "pointConfig",
   "rectConfig",
   "whiskerConfig",
 );

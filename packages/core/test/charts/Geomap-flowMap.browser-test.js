@@ -85,10 +85,11 @@ const marks = ([keys, along]) => {
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   svg.appendChild(path);
   document.body.appendChild(svg);
-  const walk = (n, m) => {
+  const walk = (n, m, scale) => {
     const t = n.transform || {};
     const s = t.scale ?? 1;
     const map = ([x, y]) => m([(t.x || 0) + x * s, (t.y || 0) + y * s]);
+    const k = scale * s;
     const at = p => {
       const [x, y] = map(p);
       return [rect.left + x, rect.top + y];
@@ -105,14 +106,19 @@ const marks = ([keys, along]) => {
           mid: at([mid.x, mid.y]),
           aria: n.aria?.label,
           stroke: n.paint?.stroke,
+          strokeWidth: (n.paint?.strokeWidth ?? 1) * k,
         };
       } else if (n.type === "circle")
-        out[n.key] = {type: n.type, center: at([n.cx || 0, n.cy || 0])};
+        out[n.key] = {
+          type: n.type,
+          center: at([n.cx || 0, n.cy || 0]),
+          r: (n.r || 0) * k,
+        };
       else out[n.key] = {type: n.type};
     }
-    (n.children || []).forEach(c => walk(c, map));
+    (n.children || []).forEach(c => walk(c, map, k));
   };
-  walk(window.__viz._paintedScene.root, p => p);
+  walk(window.__viz._paintedScene.root, p => p, 1);
   svg.remove();
   return out;
 };
@@ -171,25 +177,24 @@ const strokeEnds = keys => {
   return out;
 };
 
-/** Asserts a stroke end lies inside its head and within 0.5px of its axis. */
-function assertInHead({stroke, tip, corners}, msg) {
+/**
+    Asserts a stroke end sits at its head's base: on the head's axis,
+    neither short of the base nor past it into the head.
+*/
+function assertAtBase({stroke, tip, corners}, msg) {
   const [b, c] = corners;
-  const cross = (p, q, r) =>
-    (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
-  const s1 = cross(tip, b, stroke),
-    s2 = cross(b, c, stroke),
-    s3 = cross(c, tip, stroke);
-  assert.ok(
-    (s1 >= 0 && s2 >= 0 && s3 >= 0) || (s1 <= 0 && s2 <= 0 && s3 <= 0),
-    `${msg}: the stroke ends inside the head`,
-  );
   const mid = [(b[0] + c[0]) / 2, (b[1] + c[1]) / 2];
-  const off =
-    Math.abs(
-      (mid[0] - tip[0]) * (tip[1] - stroke[1]) -
-        (tip[0] - stroke[0]) * (mid[1] - tip[1]),
-    ) / Math.hypot(mid[0] - tip[0], mid[1] - tip[1]);
-  assert.ok(off <= 0.5, `${msg}: ${off.toFixed(3)}px off the head's axis`);
+  const len = Math.hypot(tip[0] - mid[0], tip[1] - mid[1]);
+  const u = [(tip[0] - mid[0]) / len, (tip[1] - mid[1]) / len];
+  const along = (stroke[0] - mid[0]) * u[0] + (stroke[1] - mid[1]) * u[1];
+  const off = Math.abs(
+    (stroke[0] - mid[0]) * u[1] - (stroke[1] - mid[1]) * u[0],
+  );
+  assert.ok(
+    Math.abs(along) < 0.05,
+    `${msg}: the stroke ends ${along.toFixed(3)}px past the head's base`,
+  );
+  assert.ok(off < 0.05, `${msg}: ${off.toFixed(3)}px off the head's axis`);
 }
 
 const LINK = "geomap-link-NYC-LON-0";
@@ -200,6 +205,16 @@ const near = (a, b, tol, msg) =>
     Math.abs(a[0] - b[0]) <= tol && Math.abs(a[1] - b[1]) <= tol,
     `${msg}: ${a} vs ${b}`,
   );
+
+/**
+    Asserts a link's stroke starts on a point's outline, give or take `tol`
+    pixels: its square end's corners on the circle.
+*/
+const onOutline = ({start, strokeWidth}, {center, r}, tol, msg) => {
+  const reach = Math.sqrt(r * r - (strokeWidth / 2) ** 2);
+  const off = Math.hypot(start[0] - center[0], start[1] - center[1]) - reach;
+  assert.ok(r > 0 && Math.abs(off) <= tol, `${msg}: ${off}px off its outline`);
+};
 
 for (const renderer of ["svg", "canvas"]) {
   it(`Geomap ${renderer}: links draw between the shapes and the points`, async () => {
@@ -216,7 +231,7 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(order.indexOf(POINT) > link, "below the points");
       const found = await page.evaluate(marks, [[LINK, POINT], 0.5]);
       assert.strictEqual(found[LINK].aria, "New York to London, 3200.");
-      near(found[LINK].start, found[POINT].center, 1, "starts at New York");
+      onOutline(found[LINK], found[POINT], 1, "starts at New York");
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {
       await close();
@@ -344,7 +359,7 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
-  it(`Geomap ${renderer}: each link's stroke ends inside its arrowhead, on its axis`, async () => {
+  it(`Geomap ${renderer}: each link's stroke ends at its arrowhead's base, on its axis`, async () => {
     const {page, errors, close} = await openPage(box);
     try {
       const flat = {
@@ -368,7 +383,7 @@ for (const renderer of ["svg", "canvas"]) {
       for (const key of keys)
         for (const end of ["s", "t"]) {
           assert.ok(ends[key]?.[end], `${key} has a head at ${end}`);
-          assertInHead(ends[key][end], `Mercator ${key} ${end}`);
+          assertAtBase(ends[key][end], `Mercator ${key} ${end}`);
         }
 
       const globe = {
@@ -386,7 +401,7 @@ for (const renderer of ["svg", "canvas"]) {
         "geomap-link-LON-SYD-1",
       ]);
       for (const end of ["s", "t"])
-        assertInHead(
+        assertAtBase(
           ends["geomap-link-NYC-LON-0"][end],
           `globe NYC-LON ${end}`,
         );
@@ -394,7 +409,7 @@ for (const renderer of ["svg", "canvas"]) {
         !ends["geomap-link-LON-SYD-1"].t,
         "no head at Sydney, behind the globe",
       );
-      assertInHead(ends["geomap-link-LON-SYD-1"].s, "globe LON-SYD s");
+      assertAtBase(ends["geomap-link-LON-SYD-1"].s, "globe LON-SYD s");
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {
       await close();
@@ -427,12 +442,7 @@ for (const renderer of ["svg", "canvas"]) {
         after[POINT].center[1] - before[POINT].center[1],
       );
       assert.ok(moved > 20, `the map zoomed (New York moved ${moved}px)`);
-      near(
-        after[LINK].start,
-        after[POINT].center,
-        1.5,
-        "still starts at New York",
-      );
+      onOutline(after[LINK], after[POINT], 1.5, "still starts at New York");
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {
       await close();

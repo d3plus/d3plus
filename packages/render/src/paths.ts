@@ -122,13 +122,14 @@ export function explicitPathD(d: string): string {
 
 /**
     Tweens one path's `d` into another's, point by point, ending on `b` as
-    given. Both are written out first (see `explicitPathD`): the tween
-    reads one segment per command, so it would drop a repeat's points, and
-    a two-point line would vanish mid-tween.
+    given, or on an empty path when `b` is missing (a shape the projection
+    can't draw). Both are written out first (see `explicitPathD`): the
+    tween reads one segment per command, so it would drop a repeat's
+    points, and a two-point line would vanish mid-tween.
     @param a The path data to tween from.
     @param b The path data to tween to.
 */
 export function interpolatePathD(a: string, b: string): (t: number) => string {
   const tween = interpolatePath(explicitPathD(a), explicitPathD(b));
-  return t => (t >= 1 ? b : tween(t));
+  return t => (t >= 1 ? b || "" : tween(t));
 }

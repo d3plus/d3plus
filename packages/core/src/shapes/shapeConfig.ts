@@ -211,6 +211,16 @@ export interface RectConfig extends BaseShapeConfig {
   trailPersist?: number | boolean;
 }
 
+/** Tick-specific config: a short bar centered on each point. */
+export interface TickConfig extends RectConfig {
+  /** The tick's length in pixels (default `20`; a Plot sizes it to its band). */
+  length?: ConstOrAccessor<number>;
+  /** `"horizontal"` (default) runs the tick along x, `"vertical"` along y. */
+  orient?: ConstOrAccessor<Orient>;
+  /** The tick's thickness in pixels (default `2`). */
+  thickness?: ConstOrAccessor<number>;
+}
+
 /** Circle-specific config (radius). */
 export interface CircleConfig extends BaseShapeConfig {
   r?: ConstOrAccessor<number>;
@@ -272,8 +282,16 @@ export interface BoxConfig {
   backgroundImage?: ConstOrAccessor<string>;
   /** How the box's `backgroundImage` fits it: `"cover"` (default) or `"contain"`. */
   backgroundImageFit?: ConstOrAccessor<"cover" | "contain">;
+  /** Precomputed boxes: each row's observation count, for `boxNotch` and `boxWidthByCount`. */
+  boxCount?: string | ((d: DataPoint, i: number) => number);
   /** Precomputed boxes: each row's upper whisker end, a data key or accessor in the same units as the value axis's `x` or `y`. See `boxMedian`. */
   boxMax?: string | ((d: DataPoint, i: number) => number);
+  /**
+      Draws a diamond at each box's mean (styled by `meanConfig`): `true`
+      averages a computed box's values, and a data key or accessor reads it
+      from each box's datum, in the same units as `x` or `y`. Off by default.
+  */
+  boxMean?: boolean | string | ((d: DataPoint, i: number) => number);
   /**
       Precomputed boxes: each row's median, a data key or accessor in the
       same units as the value axis's `x` or `y`. Setting it, `boxMin`,
@@ -285,17 +303,32 @@ export interface BoxConfig {
   boxMedian?: string | ((d: DataPoint, i: number) => number);
   /** Precomputed boxes: each row's lower whisker end. See `boxMedian`. */
   boxMin?: string | ((d: DataPoint, i: number) => number);
+  /**
+      Notches each box around its median: `true` spans
+      `median ± 1.58·IQR/√n` (a precomputed box needs `boxCount`), and an
+      accessor returns each box's `[lower, upper]`. The notch stops at the
+      box's edges. Off by default.
+  */
+  boxNotch?: boolean | ((d: DataPoint, i: number) => [number, number]);
   /** Precomputed boxes: each row's outliers, a data key or accessor returning an array of values drawn past the whiskers. See `boxMedian`. */
   boxOutliers?: string | ((d: DataPoint, i: number) => number[]);
   /** Precomputed boxes: each row's lower quartile, where the box starts. See `boxMedian`. */
   boxQ1?: string | ((d: DataPoint, i: number) => number);
+  /** Draws each computed box's observations inside its whiskers as points (styled by `pointConfig`), spread across the box by `jitter`; outliers move to their jittered places. Off by default. */
+  boxPoints?: boolean;
   /** Precomputed boxes: each row's upper quartile, where the box ends. See `boxMedian`. */
   boxQ3?: string | ((d: DataPoint, i: number) => number);
+  /** Scales each box's width by the square root of its count relative to the largest box's. Off by default. */
+  boxWidthByCount?: boolean;
   data?: DataPoint[];
   /** Each box's fill, resolved against its merged datum (white when unset); `rectConfig.fill` overrides it. Outliers take it too, resolved against each observation, and the median line defaults to black or white, whichever contrasts with it. */
   fill?: ConstOrAccessor<string>;
   /** Each box's id, read from its first row; keys every part the box draws. Defaults to the box's x (vertical) or y (horizontal) value. */
   id?: ConstOrAccessor<string | number>;
+  /** How far `boxPoints` spread across each box: `true` (default) is 0.6 of its width, a number that share, `false` none. */
+  jitter?: boolean | number;
+  /** Path config for the `boxMean` diamond; its fill defaults to the median's. */
+  meanConfig?: Record<string, unknown>;
   medianConfig?: Record<string, unknown>;
   /** Orientation: "vertical" or "horizontal". */
   orient?: ConstOrAccessor<Orient>;
@@ -308,6 +341,8 @@ export interface BoxConfig {
   */
   outlier?: ConstOrAccessor<"Circle" | "Rect" | false>;
   outlierConfig?: Record<string, unknown>;
+  /** Circle config for the `boxPoints` (default radius 2.5, half-opaque, in the median's ink). */
+  pointConfig?: Record<string, unknown>;
   rectConfig?: Record<string, unknown>;
   rectWidth?: ConstOrAccessor<number>;
   select?: string | HTMLElement | SVGElement | null;
@@ -352,6 +387,7 @@ export interface WhiskerConfig {
 export type AnyShapeConfig =
   | BaseShapeConfig
   | RectConfig
+  | TickConfig
   | CircleConfig
   | LineConfig
   | AreaConfig

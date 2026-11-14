@@ -20,6 +20,8 @@ import {
 } from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {linkColorResolver} from "../features/linkColor.js";
+import {outlineReach} from "../features/nodeOutline.js";
+import {polylineReach} from "../features/polyline.js";
 import {linkAriaLabel, linkHitPath} from "../features/linkInteraction.js";
 import {emitLinkLabels} from "../features/linkLabels.js";
 import type {LabelCircle} from "../features/circleLabelPlacement.js";
@@ -66,10 +68,11 @@ const startsAt = (run: Point[] | undefined, at: Point | null): boolean =>
     A link's visible stroke and its arrowheads. Each head's tip sits on the
     path, clear of the point at its end, and is aimed along the chord from
     its base (`size` further back along the path) to its tip; the stroke
-    follows the path to each base, then runs straight along that chord to
-    end inside the head (see `polylineArrowEdge`). A head goes only on an
-    end the projection draws. `scale` widens the stroke (see
-    `emphasizedArrowEdge`).
+    follows the path to each head's axis, then runs along it to
+    end at the head's base (see `polylineArrowEdge`). At an end with no head,
+    the stroke stops at the point's outline (see `outlineReach`). A head
+    goes only on an end the projection draws. `scale` widens the stroke
+    (see `emphasizedArrowEdge`).
 */
 export function flowArrowEdge(
   viz: VizInstance,
@@ -84,22 +87,33 @@ export function flowArrowEdge(
     datum: link.datum,
     i: link.index,
   });
-  if (!trims.ends.source && !trims.ends.target) return {d: link.d, arrows: []};
+  const cut =
+    trims.ends.source || trims.ends.target || link.source.r || link.target.r;
+  if (!cut) return {d: link.d, arrows: []};
   const runs = pathRuns(link.d);
   const last = runs[runs.length - 1];
   const inset = (r: number) => (r ? r + 1 : 0);
   // The first run leaves the source and the last reaches the target, when
   // the projection draws them.
-  const ends = {
-    source: trims.ends.source && startsAt(runs[0], link.sourceAt),
-    target:
-      trims.ends.target &&
-      startsAt(last ? [...last].reverse() : undefined, link.targetAt),
+  const lastBack = last ? [...last].reverse() : undefined;
+  const drawn = {
+    source: startsAt(runs[0], link.sourceAt),
+    target: startsAt(lastBack, link.targetAt),
   };
+  const ends = {
+    source: trims.ends.source && drawn.source,
+    target: trims.ends.target && drawn.target,
+  };
+  const bare = (run: Point[] | undefined, at: boolean, r: number) =>
+    run && at ? polylineReach(run, outlineReach({r}, 0, trims.strokeWidth)) : 0;
   const {d, source, target} = polylineArrowEdge(
     runs,
     {...trims, ends},
     {source: inset(link.source.r), target: inset(link.target.r)},
+    {
+      source: bare(runs[0], drawn.source, link.source.r),
+      target: bare(lastBack, drawn.target, link.target.r),
+    },
   );
   return {
     d,
@@ -133,8 +147,10 @@ export function emitFlowLinks(
     const edge = emphasizedArrowEdge(scale =>
       flowArrowEdge(viz, link, fill, scale),
     );
-    // A stroke ending inside its head ends square, so no cap pokes past it.
-    if (edge.arrows.length) paint.strokeLinecap = "butt";
+    // A stroke ending at its head's base, or at a point's outline, ends
+    // square, so no cap pokes past it.
+    if (edge.arrows.length || link.source.r || link.target.r)
+      paint.strokeLinecap = "butt";
     paths.push({
       type: "path",
       key,

@@ -6,6 +6,11 @@ export {
   default as formatDate,
   dateFormatter,
   dateFullFormatter,
+  dateInterval,
   formatDateFull,
 } from "./src/formatDate.js";
-export type {DateFormatOptions, FormatDateOptions} from "./src/formatDate.js";
+export type {
+  DateFormatOptions,
+  DateIntervalName,
+  FormatDateOptions,
+} from "./src/formatDate.js";

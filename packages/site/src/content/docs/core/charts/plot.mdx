@@ -27,6 +27,7 @@ import sizeLegendConfig from "~/examples/core/charts/plot/size-legend-config.js?
 import legendInset from "~/examples/core/charts/plot/legend-inset.js?raw";
 import colorByCategory from "~/examples/core/charts/plot/color-by-category.js?raw";
 import plotBackground from "~/examples/core/charts/plot/plot-background.js?raw";
+import aspectRatio from "~/examples/core/charts/plot/aspect-ratio.js?raw";
 
 Creates an x/y plot based on an array of data.
 
@@ -161,5 +162,11 @@ When `color` is a category that isn't one of the `groupBy` levels, here each cou
 `backgroundConfig` styles a rectangle drawn behind the gridlines and shapes, filling the area between the axes. It takes the same options as a Rect shape (`fill`, `stroke`, `strokeWidth`, …); the default `fill` of `"transparent"` draws nothing.
 
 <Playground chart="Plot" code={plotBackground} controls={["backgroundConfig"]} />
+
+## Fixed aspect ratio
+
+`aspectRatio: 1` draws one unit of y as long as one unit of x, so these measurements, plotted against the same 0 to 10 scale on both axes, sit on a true 45 degree diagonal however wide the chart is. The plot area shrinks along its longer side and centers itself, and the axes keep their domains. Other numbers scale the y unit (`2` draws it twice an x unit). On log axes a decade is one unit, and a category axis ignores it with a warning.
+
+<Playground chart="Plot" code={aspectRatio} controls={["aspectRatio","xDomain","yDomain"]} />
 
 <ApiReference name="Plot" pkg="core" />

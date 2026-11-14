@@ -22,6 +22,7 @@ import {
   Geomap as GeomapClass,
   Hexbin as HexbinClass,
   Histogram as HistogramClass,
+  HorizonChart as HorizonChartClass,
   Icicle as IcicleClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
@@ -47,6 +48,7 @@ import {
   SlopeChart as SlopeChartClass,
   StackedArea as StackedAreaClass,
   Streamgraph as StreamgraphClass,
+  StripPlot as StripPlotClass,
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
@@ -74,6 +76,7 @@ import {
   Path as PathClass,
   Rect as RectClass,
   Shape as ShapeClass,
+  Tick as TickClass,
   Whisker as WhiskerClass,
   BaseClass as BaseClassClass,
 } from "@d3plus/core";
@@ -131,6 +134,8 @@ export const Geomap = createD3plusComponent(GeomapClass, "chart");
 export const Hexbin = createD3plusComponent(HexbinClass, "chart");
 /** Vue component for rendering a d3plus Histogram visualization. */
 export const Histogram = createD3plusComponent(HistogramClass, "chart");
+/** Vue component for rendering a d3plus HorizonChart visualization. */
+export const HorizonChart = createD3plusComponent(HorizonChartClass, "chart");
 /** Vue component for rendering a d3plus Icicle visualization. */
 export const Icicle = createD3plusComponent(IcicleClass, "chart");
 /** Vue component for rendering a d3plus LinePlot visualization. */
@@ -184,6 +189,9 @@ export const SlopeChart = createD3plusComponent(SlopeChartClass, "chart");
 export const StackedArea = createD3plusComponent(StackedAreaClass, "chart");
 /** Vue component for rendering a d3plus Streamgraph visualization. */
 export const Streamgraph = createD3plusComponent(StreamgraphClass, "chart");
+
+/** Vue component for rendering a d3plus StripPlot visualization. */
+export const StripPlot = createD3plusComponent(StripPlotClass, "chart");
 /** Vue component for rendering a d3plus Sunburst visualization. */
 export const Sunburst = createD3plusComponent(SunburstClass, "chart");
 /** Vue component for rendering a d3plus Tree visualization. */
@@ -240,6 +248,9 @@ export const Path = createD3plusComponent(PathClass, "shape");
 export const Rect = createD3plusComponent(RectClass, "shape");
 /** Vue component for rendering a d3plus Shape shape. */
 export const Shape = createD3plusComponent(ShapeClass, "shape");
+
+/** Vue component for rendering a d3plus Tick shape. */
+export const Tick = createD3plusComponent(TickClass, "shape");
 /** Vue component for rendering a d3plus Whisker shape. */
 export const Whisker = createD3plusComponent(WhiskerClass, "shape");
 
