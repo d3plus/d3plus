@@ -314,6 +314,14 @@
   ],
   "texts": [
     {
+      "s": "Tech",
+      "a": "middle"
+    },
+    {
+      "s": "Health",
+      "a": "middle"
+    },
+    {
       "s": "Energy",
       "a": "middle"
     },
@@ -324,14 +332,6 @@
     {
       "s": "Iota",
       "a": "middle"
-    },
-    {
-      "s": "Tech",
-      "a": "start"
-    },
-    {
-      "s": "Health",
-      "a": "start"
     },
     {
       "s": "Hardware",

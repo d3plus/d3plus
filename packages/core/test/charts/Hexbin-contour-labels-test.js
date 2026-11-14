@@ -17,6 +17,8 @@ import {
   ringLabelStretches,
 } from "../../internal.ts";
 import {PointGrid, resample} from "../../src/charts/Plot/lineLabelsAlong.ts";
+import {textFollows} from "../../src/charts/features/pathLabelBends.ts";
+import {offsetPolyline} from "../../src/charts/features/pathLabelGeometry.ts";
 
 useJsdom();
 
@@ -231,6 +233,29 @@ it("ringLabelStretches: a spacing shorter than a label keeps a label's length ap
       const d = Math.hypot(mids[i][0] - mids[j][0], mids[i][1] - mids[j][1]);
       assert.ok(d > 35, `labels ${i} and ${j} are ${d}px apart`);
     }
+});
+
+it("ringLabelStretches: a stair-stepped ring takes labels its letters can follow", () => {
+  // A contour traced cell by cell: a circle of 6px stairs.
+  const steps = [];
+  for (let k = 0; k < 160; k++) {
+    const a = (k / 160) * 2 * Math.PI;
+    const snap = v => Math.round(v / 6) * 6;
+    const p = [snap(300 + 150 * Math.cos(a)), snap(300 + 150 * Math.sin(a))];
+    const last = steps[steps.length - 1];
+    if (last && last[0] !== p[0] && last[1] !== p[1])
+      steps.push([p[0], last[1]]);
+    if (!last || last[0] !== p[0] || last[1] !== p[1]) steps.push(p);
+  }
+  steps.push(steps[0]);
+  assert.ok(!textFollows(steps.slice(0, 20), 10), "the stairs kink");
+  const stretches = ringLabelStretches(steps, 40, stretchCtx(steps), 300);
+  assert.ok(stretches.length >= 2, `${stretches.length} labels`);
+  for (const s of stretches) {
+    assert.ok(textFollows(offsetPolyline(s, -3), 10), "gentle enough");
+    for (const [x, y] of s)
+      assert.ok(Math.abs(Math.hypot(x - 300, y - 300) - 150) < 6, "on it");
+  }
 });
 
 it("ringLabelStretches: none on a ring too small or too tight", () => {

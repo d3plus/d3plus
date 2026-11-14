@@ -11,6 +11,10 @@ import {
 import {pathLabelNodes} from "../../src/charts/features/pathLabels.ts";
 import {labelCorners} from "../../src/charts/features/linkLabelGeometry.ts";
 import {trendLineDefaults} from "../../src/charts/Plot/trendLines.ts";
+import {
+  bendStrain,
+  textFollows,
+} from "../../src/charts/features/pathLabelBends.ts";
 
 useJsdom();
 
@@ -155,6 +159,32 @@ it("trendLabelSpot — slides back from a taken end, then tries below", () => {
     trendLabelSpot(line, rect, place({obstacles: [above, under]})),
     null,
   );
+});
+
+it("trendLabelSpot — slides back off a bend too tight for its letters", () => {
+  // Down to the right, then sharply back up: a valley under the text, near
+  // the end of the line.
+  const line = [
+    [50, 50],
+    [300, 150],
+    [330, 110],
+  ];
+  const spot = trendLabelSpot(line, rect, place());
+  const pts = xs(spot.d);
+  assert.ok(pts[pts.length - 1][0] < 295, `clear of the valley: ${spot.d}`);
+  assert.ok(textFollows(pts, 11));
+  // Every stretch bent: it still takes the clear one that bends least,
+  // gentler than a label running the whole line.
+  const zig = Array.from({length: 13}, (_, k) => [
+    40 + k * 25,
+    k % 2 ? 140 : 120 - k,
+  ]);
+  const bent = trendLabelSpot(zig, rect, place());
+  assert.ok(bent, "still labelled");
+  const strain = bendStrain(xs(bent.d), 11);
+  assert.ok(strain > 1);
+  const whole = trendLabelSpot(zig, rect, place({width: 300})).d;
+  assert.ok(strain < bendStrain(xs(whole), 11));
 });
 
 it("lineLabelBoxes — the line labels at ends and along lines, and contour labels", () => {

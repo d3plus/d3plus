@@ -21,6 +21,10 @@ import {
   type Edges,
   type Pt,
 } from "../features/pathLabelGeometry.js";
+import {
+  PATH_LABEL_SMOOTHING,
+  smoothPolyline,
+} from "../features/pathLabelBends.js";
 import {pathLabelNodes, type PathLabel} from "../features/pathLabels.js";
 import {
   bestStretchAt,
@@ -156,11 +160,12 @@ export function paddedBand(points: Pt[], ctx: StretchContext): Pt[] {
 }
 
 /**
-    The stretches labels along a closed ring take: as many as its length
-    allows at `spacing` pixels apart (at least one), each the best-scoring
-    stretch left that is clear of the obstacles and at least `spacing` along
-    the ring from the others. Each one's padded band (see `paddedBand`) is
-    added to the obstacles.
+    The stretches labels along a closed ring take, on the ring smoothed of
+    kinks shorter than a letter: as many as its length allows at `spacing`
+    pixels apart (at least one), each the best-scoring stretch left that is
+    clear of the obstacles and at least `spacing` along the ring from the
+    others. Each one's padded band (see `paddedBand`) is added to the
+    obstacles.
     @param ring The closed ring.
     @param length Each label's length.
     @param ctx The obstacles (ignoring the ring's own points), plot area, and font.
@@ -172,12 +177,13 @@ export function ringLabelStretches(
   ctx: StretchContext,
   spacing: number,
 ): Pt[][] {
-  const total = polylineLength(ring);
+  const path = smoothPolyline(ring, PATH_LABEL_SMOOTHING * ctx.fontSize);
+  const total = polylineLength(path);
   if (!(total > length * 2)) return [];
   // Labels closer than their own length would overlap.
   const gap = Math.max(spacing, length);
   // Twice round, so a stretch can cross where the ring starts and ends.
-  const loop = trimPolyline([...ring, ...ring.slice(1)], 0, total + length);
+  const loop = trimPolyline([...path, ...path.slice(1)], 0, total + length);
   const count = Math.max(1, Math.floor(total / gap));
   const middles: number[] = [];
   const out: Pt[][] = [];

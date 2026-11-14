@@ -18,6 +18,12 @@ import {
   uprightPoints,
 } from "../features/pathLabelGeometry.js";
 import type {Edges, Pt} from "../features/pathLabelGeometry.js";
+import {
+  curvature,
+  PATH_LABEL_SMOOTHING,
+  smoothPolyline,
+  textFollows,
+} from "../features/pathLabelBends.js";
 import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {rowLabelsAlong} from "./lineLabelSides.js";
@@ -93,28 +99,6 @@ export function resample(points: Pt[], step: number): Pt[] {
     if (p) out.push(p);
   }
   return out;
-}
-
-/**
-    How much a stretch bends: the sum of its turns, in radians.
-    @param points The stretch.
-*/
-export function curvature(points: Pt[]): number {
-  let total = 0;
-  let prev: number | null = null;
-  for (let i = 1; i < points.length; i++) {
-    const dx = points[i][0] - points[i - 1][0],
-      dy = points[i][1] - points[i - 1][1];
-    if (!dx && !dy) continue;
-    const angle = Math.atan2(dy, dx);
-    if (prev !== null) {
-      let turn = Math.abs(angle - prev);
-      if (turn > Math.PI) turn = 2 * Math.PI - turn;
-      total += turn;
-    }
-    prev = angle;
-  }
-  return total;
 }
 
 /** What scoring a stretch needs. */
@@ -195,7 +179,11 @@ export interface StretchSpot {
 /**
     The best-scoring stretch of `length` pixels along any of a line's
     pieces, upright, with where it lies, or null when every stretch is
-    blocked or too bent.
+    blocked or too bent: turning more than `maxTurn` in all, or with its
+    text's baseline bending too tightly for the letters to follow (see
+    `textFollows`). Pass the
+    pieces through `smoothPolyline` first, so kinks shorter than a letter
+    don't rule a stretch out.
     @param pieces The line's pieces (where its data has gaps), in pixels.
     @param length The stretch's length.
     @param ctx The obstacles, plot area, and font.
@@ -218,6 +206,8 @@ export function bestStretchAt(
       const stretch = uprightPoints(ruler.trim(from, from + length), ctx.steep);
       // A label can't follow a line that doubles back under it.
       if (curvature(stretch) > maxTurn) continue;
+      if (!textFollows(offsetPolyline(stretch, ctx.lift), ctx.fontSize))
+        continue;
       const score = scoreStretch(stretch, ctx);
       if (score !== null && score < bestScore) {
         bestScore = score;
@@ -348,7 +338,10 @@ export function emitAlongLabels(
       return [];
     }
     const length = (textWidth(text, style) as number) + fontSize;
-    const stretch = bestStretch(line.pieces, length, ctx);
+    const pieces = line.pieces.map(piece =>
+      smoothPolyline(piece, PATH_LABEL_SMOOTHING * fontSize),
+    );
+    const stretch = bestStretch(pieces, length, ctx);
     if (!stretch) return [];
     grid.add(labelBand(stretch, ctx));
     named.add(text);

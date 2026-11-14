@@ -357,6 +357,7 @@ export {
   AREA_LABEL_FONT_MIN,
   AREA_LABEL_FONT_WEIGHT,
   AREA_LABEL_PADDING,
+  AREA_LABEL_SMOOTHING,
   bandColor,
   bandFontWeight,
   bandSections,
@@ -2012,9 +2013,19 @@ export {
   LINK_LABEL_MIN_RADIUS,
   LINK_LABEL_STRAIGHT_TURN,
   labelStretch,
-  sharpestTurn,
   trimToNodes,
 } from "./src/charts/features/linkLabelPath.js";
+export {
+  bendStrain,
+  curvature,
+  holdsBends,
+  PATH_LABEL_INNER_RADIUS,
+  PATH_LABEL_OUTER_RADIUS,
+  PATH_LABEL_SMOOTHING,
+  sharpestTurn,
+  smoothPolyline,
+  textFollows,
+} from "./src/charts/features/pathLabelBends.js";
 export type {CurvedLabelSpot} from "./src/charts/features/linkLabelPath.js";
 export {ringsEdgeAnchor, ringsEdgePath} from "./src/charts/Rings/emit.js";
 export {sankeyLinkAnchor, sankeyLinkPath} from "./src/charts/Sankey/emit.js";

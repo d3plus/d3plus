@@ -1,9 +1,9 @@
 import {it} from "vitest";
 import assert from "assert";
+import {curvature} from "../../src/charts/features/pathLabelBends.ts";
 import {
   bestStretch,
   bestStretchAt,
-  curvature,
   labelBand,
   PointGrid,
   resample,
@@ -196,15 +196,22 @@ it("bestStretchAt — where the stretch lies, within what allow permits and maxT
     null,
     "nothing allowed",
   );
-  // A right-angle corner: under the default turn limit, but not a tighter one.
+  // A right-angle corner bends too tightly for the letters to follow.
   const corner = [
     [100, 100],
     [130, 100],
     [130, 130],
   ];
-  assert.ok(bestStretchAt([corner], 50, ctx()));
+  assert.strictEqual(bestStretchAt([corner], 50, ctx()), null);
+  // A gentle arc turning 1.2 radians: under the default turn limit, but not
+  // a tighter one.
+  const arc = Array.from({length: 61}, (_, k) => {
+    const a = -Math.PI / 2 - 0.6 + (k * 1.2) / 60;
+    return [200 + 50 * Math.cos(a), 150 + 50 * Math.sin(a)];
+  });
+  assert.ok(bestStretchAt([arc], 58, ctx()));
   assert.strictEqual(
-    bestStretchAt([corner], 50, {...ctx(), maxTurn: Math.PI / 3}),
+    bestStretchAt([arc], 58, {...ctx(), maxTurn: Math.PI / 3}),
     null,
   );
 });

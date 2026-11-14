@@ -20,6 +20,7 @@ import {
   ringLabelNodes,
   ringTextWidth,
 } from "../../src/charts/features/ringLabelNodes.ts";
+import {PATH_LABEL_INNER_RADIUS} from "../../src/charts/features/pathLabelBends.ts";
 
 useJsdom();
 
@@ -114,6 +115,37 @@ it("ringLabelFit — glyphs sit on the ring's middle, the baseline outside it on
     path: {d: fit.d},
   });
   for (const b of boxes) near(Math.hypot(b.x, b.y), 120, 0.5);
+});
+
+it("ringLabelFit — on the bottom half, keeps the baseline PATH_LABEL_INNER_RADIUS ems out", () => {
+  // The glyphs center 35px out; at 10px the baseline sits 3.2em out on the
+  // top half, and 3.8em out on the bottom half, where the letters' tops
+  // face the center.
+  const arc = (mid, extra = {}) => ({
+    innerRadius: 25,
+    outerRadius: 45,
+    startAngle: mid - 0.8,
+    endAngle: mid + 0.8,
+    ...extra,
+  });
+  const options = {fontMin: 10, fontMax: 10, truncate: false};
+  const top = ringLabelFit(arc(0), perPx(1), options);
+  assert.ok(top && top.clockwise, "the top half reads at 3.2em");
+  near(top.radius, 32);
+  assert.strictEqual(
+    ringLabelFit(arc(Math.PI), perPx(1), options),
+    null,
+    "the bottom half needs 4em",
+  );
+  // A ring wide enough to center the glyphs 4em out fits on the bottom half.
+  const wide = ringLabelFit(arc(Math.PI, {outerRadius: 60}), perPx(1), {
+    ...options,
+    align: "outer",
+  });
+  assert.ok(wide && !wide.clockwise);
+  assert.ok(wide.radius >= PATH_LABEL_INNER_RADIUS * 10);
+  // A minRadius of 0 sets no limit on either half.
+  assert.ok(ringLabelFit(arc(Math.PI), perPx(1), {...options, minRadius: 0}));
 });
 
 it("ringLabelFit — aligns to the outer or inner edge", () => {
