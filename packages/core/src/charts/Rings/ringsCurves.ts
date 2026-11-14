@@ -6,6 +6,7 @@
 
     @module
 */
+import {outlineExit} from "../features/nodeOutline.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 import type {RingGeometry} from "./ringsSizing.js";
 
@@ -13,6 +14,13 @@ type Point = [number, number];
 /** A cubic Bézier curve: its start, two control points, and end. */
 export type Cubic = [Point, Point, Point, Point];
 type EndKey = "source" | "target";
+
+/** A node's outline, as the curves meet it. */
+type Outline = Pick<RingsNode, "r" | "shape" | "width" | "height" | "rotate">;
+
+/** How far out along its spoke (`radians`) a node's outline reaches from its center. */
+export const spokeReach = (n: Outline & Pick<RingsNode, "radians">): number =>
+  outlineExit(n, n.radians ?? 0);
 
 /** How far a quarter circle's control points sit along its tangents, per unit of radius. */
 const KAPPA = (4 / 3) * Math.tan(Math.PI / 8);
@@ -34,17 +42,17 @@ const RING_ARC_SHARE = 0.28;
 
 /**
     The circle a link along ring `k` runs around: `RING_ARC_SHARE` of the
-    way into the gap outside the ring, and clear of both nodes.
+    way into the gap outside the ring, and clear of both nodes' outlines.
 */
 export const ringArcRadius = (
   geom: RingGeometry,
   k: number,
-  nodes: Pick<RingsNode, "r">[],
+  nodes: (Outline & Pick<RingsNode, "radians">)[],
 ): number =>
   Math.max(
     ringRadius(geom, k) +
       (ringRadius(geom, k + 1) - ringRadius(geom, k)) * RING_ARC_SHARE,
-    ringRadius(geom, k) + Math.max(...nodes.map(n => n.r ?? 0)) + 2,
+    ringRadius(geom, k) + Math.max(...nodes.map(spokeReach)) + 2,
   );
 
 const unit = (a: number): Point => [Math.cos(a), Math.sin(a)];
@@ -83,15 +91,15 @@ export function arcCubics(
 
 /**
     The curves of a link between two nodes on one ring, around the circle
-    of `radius` about `c`: out from the source's outer side, turning onto
-    the circle, along it the shorter way around, and back in to the
-    target's outer side. Each turn takes as much of the circle as it rises
+    of `radius` about `c`: out from the outline of the source's outer side,
+    turning onto the circle, along it the shorter way around, and back in
+    to the target's outer side. Each turn takes as much of the circle as it rises
     to it (less when the nodes sit closer than that, where the two turns
     meet at the circle in a single arch).
 */
 export function ringArcCubics(
-  source: Pick<RingsNode, "x" | "y" | "r" | "radians">,
-  target: Pick<RingsNode, "x" | "y" | "r" | "radians">,
+  source: Outline & Pick<RingsNode, "x" | "y" | "radians">,
+  target: Outline & Pick<RingsNode, "x" | "y" | "radians">,
   c: Point,
   radius: number,
 ): Cubic[] {
@@ -100,7 +108,11 @@ export function ringArcCubics(
   const turn = Math.atan2(Math.sin(b - a), Math.cos(b - a));
   const s = turn < 0 ? -1 : 1;
   const leg = (n: typeof source, angle: number) => {
-    const start = along([n.x as number, n.y as number], unit(angle), n.r ?? 0);
+    const start = along(
+      [n.x as number, n.y as number],
+      unit(angle),
+      outlineExit(n, angle),
+    );
     const rise = Math.max(
       1,
       radius - Math.hypot(start[0] - c[0], start[1] - c[1]),
@@ -181,7 +193,7 @@ export function curveRingsEdge(edge: RingsEdge, geom: RingGeometry): void {
     const endNode = edge[endKey];
     const endRadians = endNode.radians as number;
     const rotated = endNode.ring! > inner ? endRadians + Math.PI : endRadians;
-    const r = endNode.r as number;
+    const r = outlineExit(endNode, rotated);
     edge[`${endKey}X` as const] = (endNode.x as number) + Math.cos(rotated) * r;
     edge[`${endKey}Y` as const] = (endNode.y as number) + Math.sin(rotated) * r;
     edge[`${endKey}BisectX` as const] =

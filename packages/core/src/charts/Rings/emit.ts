@@ -20,7 +20,6 @@ import type {ArrowValue, EdgeNode} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
   paintFromShapeConfig,
-  resolveAccessor,
   shapeConfigFor,
   userLabelConfig,
 } from "../features/emitHelpers.js";
@@ -37,6 +36,7 @@ import {cubicMidpoint, segmentMidpoint} from "../features/linkLabelGeometry.js";
 import type {LinkAnchor} from "../features/linkLabelGeometry.js";
 import {emitLinkLabels, textLineBoxes} from "../features/linkLabels.js";
 import {curvePoints} from "../features/linkLabelPath.js";
+import {outlineExit} from "../features/nodeOutline.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 import {textHalo} from "../features/textHalo.js";
 import {
@@ -87,6 +87,9 @@ type RingsNode = DataPoint & {
   x: number;
   y: number;
   r: number;
+  /** A Rect node's box (see `sizeRingsRects`). */
+  width?: number;
+  height?: number;
   rotate?: number;
   textAnchor?: string;
   labelBounds?: {x: number; y: number; width: number; height: number};
@@ -249,12 +252,13 @@ export function ringsEdgeAnchor(edge: RingsEdge): LinkAnchor {
       [edge.targetBisectX!, edge.targetBisectY!],
       [edge.targetX, edge.targetY!],
     );
-  const r = (n: DataPoint) => (typeof n.r === "number" ? n.r : 0);
+  const {source: s, target: t} = edge;
+  const angle = Math.atan2(t.y - s.y, t.x - s.x);
   return segmentMidpoint(
-    [edge.source.x, edge.source.y],
-    [edge.target.x, edge.target.y],
-    r(edge.source),
-    r(edge.target),
+    [s.x, s.y],
+    [t.x, t.y],
+    outlineExit(s as EdgeNode, angle),
+    outlineExit(t as EdgeNode, angle + Math.PI),
   );
 }
 
@@ -322,6 +326,23 @@ function ringsNodeLabels(
   return [...haloed, ...labels.filter(inside)];
 }
 
+/** A Rect node's box, as turned, bounded square to the screen. */
+function ringsNodeBox(n: RingsNode): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  const w = n.width ?? n.r * 2;
+  const h = n.height ?? n.r * 2;
+  const turn = ((n.rotate ?? 0) * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(turn));
+  const sin = Math.abs(Math.sin(turn));
+  const width = w * cos + h * sin;
+  const height = w * sin + h * cos;
+  return {x: n.x - width / 2, y: n.y - height / 2, width, height};
+}
+
 /** The edge labels, clear of every node and node label. */
 function ringsLinkLabels(
   viz: VizInstance,
@@ -341,7 +362,12 @@ function ringsLinkLabels(
     })),
     {
       circles: c.nodeGroups.flatMap(([, values]) =>
-        values.map(n => ({x: n.x, y: n.y, r: n.r})),
+        values
+          .filter(n => n.shape !== "Rect")
+          .map(n => ({x: n.x, y: n.y, r: n.r})),
+      ),
+      boxes: c.nodeGroups.flatMap(([, values]) =>
+        values.filter(n => n.shape === "Rect").map(ringsNodeBox),
       ),
       labels: textLineBoxes(nodeLabels),
     },
@@ -352,25 +378,19 @@ function ringsLinkLabels(
 function ringsNode(
   shapeKind: string,
   d: RingsNode,
-  merged: Record<string, unknown>,
   base: {
     datum: DataPoint;
     paint: Paint;
     transform: Transform;
     aria: {label: string};
   },
-  i: number,
 ): SceneNode | null {
   const key = `rings-${shapeKind}-${d.id}`;
   if (shapeKind === "Circle")
     return {type: "circle", key, cx: 0, cy: 0, r: d.r, ...base};
   if (shapeKind === "Rect") {
-    const w = Number(
-      resolveAccessor<number>(merged.width, base.datum, i) ?? d.r * 2,
-    );
-    const h = Number(
-      resolveAccessor<number>(merged.height, base.datum, i) ?? d.r * 2,
-    );
+    const w = d.width ?? d.r * 2;
+    const h = d.height ?? d.r * 2;
     return {
       type: "rect",
       key,
@@ -461,13 +481,12 @@ export const ringsEmit: ChartEmit = ({viz}) => {
           ((d: DataPoint, i: number) => unknown) | undefined;
         const validSize = sizeFn ? `, ${sizeFn(datum, d.i ?? i)}` : "";
         const aria = {label: `${drawNodeLabel(viz, d, i)}${validSize}.`};
-        const node = ringsNode(
-          shapeKind,
-          d,
-          merged,
-          {datum, paint, transform, aria},
-          d.i ?? i,
-        );
+        const node = ringsNode(shapeKind, d, {
+          datum,
+          paint,
+          transform,
+          aria,
+        });
         // Other shape kinds: skipped (Rings's default is Circle).
         if (!node) continue;
         out.push(node);

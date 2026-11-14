@@ -16,11 +16,13 @@ import type {FocusBox} from "./linkFocus.js";
 import {linkMeta} from "./linkInteraction.js";
 import {cubicPoint} from "./linkLabelGeometry.js";
 import type {LinkAnchor} from "./linkLabelGeometry.js";
+import {outlineExit} from "./nodeOutline.js";
+import type {NodeOutline} from "./nodeOutline.js";
 
 type Point = [number, number];
 
-/** A node a loop is drawn on: its center and radius. */
-export interface LoopNode {
+/** A node a loop is drawn on: its center, radius, and outline (a circle of `r`, or a Rect node's box). */
+export interface LoopNode extends NodeOutline {
   x: number;
   y: number;
   r: number;
@@ -115,11 +117,12 @@ const MAX_END_ANGLE = 1.2;
 /**
     The loop's four Bézier points, pointing along `angle` from `node`. The
     opening's edge is a hairline loop reaching `selfLoopOpening` past the
-    node: its ends sit on the node's edge, close enough together for that
-    reach, and its control points put its middle that far out. The loop's
-    line runs half a stroke outside it all round (its ends further apart
-    along the node's edge, its middle and sides further out), so the
-    stroke's inner edge follows the opening rather than closing it.
+    node: its ends sit on the node's outline (its circle, or a Rect node's
+    box), close enough together for that reach, and its control points put
+    its middle that far out. The loop's line runs half a stroke outside it
+    all round (its ends further apart along the node's outline, its middle
+    and sides further out), so the stroke's inner edge follows the opening
+    rather than closing it.
 */
 function loopPoints(
   node: LoopNode,
@@ -127,7 +130,6 @@ function loopPoints(
   reach: number,
   strokeWidth = 0,
 ): [Point, Point, Point, Point] {
-  const r = Math.max(0, node.r || 0);
   const half = strokeWidthOf(strokeWidth) / 2;
   const opening = selfLoopOpening(reach, strokeWidth);
   const ux = Math.cos(angle);
@@ -135,6 +137,9 @@ function loopPoints(
   // Across the loop: from its source side to its target side.
   const vx = -uy;
   const vy = ux;
+  // How far the outline reaches out ahead, and to either side (a circle's radius).
+  const ahead = outlineExit(node, angle, 0);
+  const r = outlineExit(node, angle + Math.PI / 2, 0);
   // The opening's half-angle between its two ends on the node's edge.
   const s =
     r > 0 ? Math.min(0.5, Math.asin(Math.min(1, (opening * 0.3) / r))) : 0;
@@ -144,17 +149,25 @@ function loopPoints(
     r > 0
       ? Math.min(MAX_END_ANGLE, Math.asin(Math.min(1, (hairAcross + half) / r)))
       : 0;
-  const along = r * Math.cos(end);
   const across = r * Math.sin(end);
+  // Each end where its side of the loop meets the outline.
+  const alongSource = outlineExit(node, angle, -across);
+  const alongTarget = outlineExit(node, angle, across);
+  const along = (alongSource + alongTarget) / 2;
   // Control points far enough out that the curve's middle is half a stroke past the opening.
-  const far = (8 * (r + opening + half) - 2 * along) / 6;
+  const far = (8 * (ahead + opening + half) - 2 * along) / 6;
   // 1.5× the offset at the control points moves the curve's sides out by about the offset.
   const wide = opening * 0.8 + hairAcross + half * 1.5;
   const at = (a: number, b: number): Point => [
     node.x + ux * a + vx * b,
     node.y + uy * a + vy * b,
   ];
-  return [at(along, -across), at(far, -wide), at(far, wide), at(along, across)];
+  return [
+    at(alongSource, -across),
+    at(far, -wide),
+    at(far, wide),
+    at(alongTarget, across),
+  ];
 }
 
 /**
@@ -227,24 +240,27 @@ export function selfLoopD(
 }
 
 /**
-    The angle (radians) a loop on `node` covers, seen from the node's center,
-    stroke included, with a little air either side: how much of the turn
-    around the node it takes in a fan.
+    The angle (radians) a loop on `node` pointing along `angle` covers,
+    seen from the node's center, stroke included, with a little air either
+    side: how much of the turn around the node it takes in a fan.
 */
 export function selfLoopSpread(
   node: LoopNode,
   reach: number,
   strokeWidth = 0,
+  angle = 0,
 ): number {
-  const local = {x: 0, y: 0, r: node.r};
+  const local = {...node, x: 0, y: 0};
   const sw = strokeWidthOf(strokeWidth);
-  const [p0, p1, p2, p3] = loopPoints(local, 0, Math.max(0, reach), sw);
+  const [p0, p1, p2, p3] = loopPoints(local, angle, Math.max(0, reach), sw);
   let half = 0;
   for (let k = 0; k <= 24; k++) {
     const [x, y] = cubicPoint(p0, p1, p2, p3, k / 24);
-    half = Math.max(half, Math.abs(Math.atan2(y, x)));
+    const off = Math.atan2(y, x) - angle;
+    half = Math.max(half, Math.abs(Math.atan2(Math.sin(off), Math.cos(off))));
   }
-  const stroke = Math.atan2(sw / 2, Math.max(0, node.r) + reach / 2);
+  const ahead = outlineExit(local, angle, 0);
+  const stroke = Math.atan2(sw / 2, ahead + reach / 2);
   // A little air between neighbors.
   return (half + stroke) * 2 * 1.1;
 }
@@ -374,9 +390,10 @@ export function layoutSelfLoops<L>(
     const slots = fanOrder(group.length);
     const bySlot = new Array<(typeof heaviest)[number]>(group.length);
     heaviest.forEach((entry, k) => (bySlot[slots[k]] = entry));
+    const angle = opts.angle(node);
     const angles = selfLoopAngles(
-      opts.angle(node),
-      bySlot.map(({w}) => selfLoopSpread(node, reach, w)),
+      angle,
+      bySlot.map(({w}) => selfLoopSpread(node, reach, w, angle)),
     );
     bySlot.forEach(({loop, w}, slot) =>
       out.set(loop, selfLoopGeometry(node, angles[slot], reach, w)),

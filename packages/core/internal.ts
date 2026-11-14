@@ -2259,7 +2259,7 @@ export type {
   EdgeArrowTrims,
   EdgeNode,
 } from "./src/charts/features/edgeArrows.js";
-export {outlineReach} from "./src/charts/features/nodeOutline.js";
+export {outlineExit, outlineReach} from "./src/charts/features/nodeOutline.js";
 export type {NodeOutline} from "./src/charts/features/nodeOutline.js";
 export {selfLoopD} from "./src/charts/features/selfLoops.js";
 export {
@@ -2658,6 +2658,7 @@ export {
   ringArcRadius,
   ringArcCubics,
   ringRadius,
+  spokeReach,
 } from "./src/charts/Rings/ringsCurves.js";
 export type {RingsTree} from "./src/charts/Rings/ringsPlacement.js";
 export {

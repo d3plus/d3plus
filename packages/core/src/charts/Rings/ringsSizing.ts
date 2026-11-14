@@ -202,11 +202,12 @@ const CENTER_LABEL_MIN_FONT = 9;
     center can be small: the label goes inside only if its longest word fits
     the circle's inscribed square at a legible size; otherwise it sits below
     the circle (`inside: false`), where it reads against the background
-    rather than the circle's fill.
+    rather than the circle's fill. A Rect center's label fits its box
+    (within the inner ring's square, unsized) the same way.
 */
 export function ringsCenterLabel(
   v: VizInstance,
-  center: SizedNode & {r?: number},
+  center: SizedNode & {shape?: string; width?: number; height?: number},
   geom: RingGeometry,
   text: string,
   fontFamily: string | string[],
@@ -215,7 +216,9 @@ export function ringsCenterLabel(
   inside: boolean;
 } {
   const {baseRing: primaryRing} = geom;
-  if (!v._size)
+  const r = center.r ?? 0;
+  const rect = center.shape === "Rect";
+  if (!v._size && !rect)
     return {
       bounds: {
         x: -primaryRing / 2,
@@ -225,8 +228,10 @@ export function ringsCenterLabel(
       },
       inside: true,
     };
-  const r = center.r ?? 0;
-  const side = r * Math.SQRT2;
+  const cap = v._size ? Infinity : primaryRing;
+  const [width, height] = rect
+    ? [center.width ?? r * 2, center.height ?? r * 2].map(n => Math.min(n, cap))
+    : [r * Math.SQRT2, r * Math.SQRT2];
   const longestWord = Math.max(
     0,
     ...String(text ?? "")
@@ -238,14 +243,18 @@ export function ringsCenterLabel(
         }),
       ),
   );
-  if (side >= longestWord && side >= CENTER_LABEL_MIN_FONT * 1.4)
+  if (width >= longestWord && height >= CENTER_LABEL_MIN_FONT * 1.4)
     return {
-      bounds: {x: -side / 2, y: -side / 2, width: side, height: side},
+      bounds: {x: -width / 2, y: -height / 2, width, height},
       inside: true,
     };
-  const width = primaryRing;
   return {
-    bounds: {x: -width / 2, y: r + 3, width, height: primaryRing / 2},
+    bounds: {
+      x: -primaryRing / 2,
+      y: (rect ? (center.height ?? r * 2) / 2 : r) + 3,
+      width: primaryRing,
+      height: primaryRing / 2,
+    },
     inside: false,
   };
 }

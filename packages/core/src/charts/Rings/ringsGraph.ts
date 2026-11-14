@@ -32,6 +32,9 @@ export interface RingsNode {
   radians?: number;
   // Set by sizing.
   size?: number;
+  /** A Rect node's box (`shapeConfig`'s Rect `width` and `height`, a square 2r across by default). */
+  width?: number;
+  height?: number;
   // Set by the label-bounds pass.
   labelBounds?: {x: number; y: number; width: number; height: number};
   rotate?: number;
