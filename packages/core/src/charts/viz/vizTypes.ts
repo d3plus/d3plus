@@ -503,6 +503,8 @@ export interface VizInstance {
   /** A chart's own value column for the shared tooltip, in place of the continuous axis's: its title and each row's value. Undefined to use the axis's. */
   _sharedTooltipValue?: () =>
     {title: string; value: (d: DataPoint, i: number) => string} | undefined;
+  /** Rows a chart adds under the shared tooltip's series, for the hovered discrete value (Dumbbell's change). */
+  _sharedTooltipRows?: (value: unknown) => [string, string][];
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
   /** The radius scale the chart's layout actually drew with; the size legend paints from it. Null when nothing is sized. */
