@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ScatterMatrix</title>
+    <meta
+      name="description"
+      content="Fisher's iris measurements: a scatter plot for every pair of the four dimensions, histograms on the diagonal, colored by species."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Fisher's iris data: four flower measurements (cm) for three species.
+    new d3plus.ScatterMatrix()
+      .data("./iris.json")
+      .config({
+        dimensions: [
+          "sepal length",
+          "sepal width",
+          "petal length",
+          "petal width",
+        ],
+        groupBy: "species",
+      })
+      .render();
+  </script>
+</html>

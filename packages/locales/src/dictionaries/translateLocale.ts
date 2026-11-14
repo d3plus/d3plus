@@ -92,6 +92,7 @@ export interface TranslationStrings {
   "Relative Density": string;
   "Relative Frequency": string;
   "Reset Zoom": string;
+  Row: string;
   "Running Total": string;
   Search: string;
   second: string;
@@ -267,6 +268,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a",
     "Reset Zoom":
       "\u0625\u0639\u0627\u062f\u0629 \u062a\u0639\u064a\u064a\u0646 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
+    Row: "\u0635\u0641",
     "Running Total":
       "\u0627\u0644\u0645\u062c\u0645\u0648\u0639 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     Search: "\u0628\u062d\u062b",
@@ -413,6 +415,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Relative Density": "Densidad Relativa",
     "Relative Frequency": "Frecuencia Relativa",
     "Reset Zoom": "Restablecer Zoom",
+    Row: "Fila",
     "Running Total": "Total Acumulado",
     Search: "Buscar",
     second: "segundo",
@@ -550,6 +553,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Relative Density": "Densidade Relativa",
     "Relative Frequency": "Frequ\u00eancia Relativa",
     "Reset Zoom": "Redefinir Zoom",
+    Row: "Linha",
     "Running Total": "Total Acumulado",
     Search: "Pesquisar",
     second: "segundo",
@@ -690,6 +694,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Relative Density": "\u76f8\u5bf9\u5bc6\u5ea6",
     "Relative Frequency": "\u76f8\u5bf9\u9891\u7387",
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
+    Row: "\u884c",
     "Running Total": "\u7d2f\u8ba1\u603b\u6570",
     Search: "\u641c\u7d22",
     second: "\u79d2",

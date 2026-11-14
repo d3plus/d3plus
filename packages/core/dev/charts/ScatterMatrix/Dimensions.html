@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Dimensions · ScatterMatrix</title>
+    <meta
+      name="description"
+      content="1974 Motor Trend cars without groups: dimensions as {value, title} objects, one color, each car named by label, and wide labels on the hp axis."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Motor Trend road tests of 32 cars, 1973–74 models.
+    new d3plus.ScatterMatrix()
+      .data("./cars.json")
+      .config({
+        dimensions: [
+          {value: "mpg", title: "Miles per gallon"},
+          {value: "hp", title: "Horsepower"},
+          {value: "wt", title: "Weight (1,000 lb)"},
+          {value: "qsec", title: "Quarter mile (s)"},
+        ],
+        label: "model",
+        binThresholds: 6,
+      })
+      .render();
+  </script>
+</html>

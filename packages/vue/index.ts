@@ -46,6 +46,7 @@ import {
   Rings as RingsClass,
   Sankey as SankeyClass,
   Scatter as ScatterClass,
+  ScatterMatrix as ScatterMatrixClass,
   SlopeChart as SlopeChartClass,
   StackedArea as StackedAreaClass,
   Streamgraph as StreamgraphClass,
@@ -186,6 +187,8 @@ export const Rings = createD3plusComponent(RingsClass, "chart");
 export const Sankey = createD3plusComponent(SankeyClass, "chart");
 /** Vue component for rendering a d3plus Scatter visualization. */
 export const Scatter = createD3plusComponent(ScatterClass, "chart");
+/** Vue component for rendering a d3plus ScatterMatrix visualization. */
+export const ScatterMatrix = createD3plusComponent(ScatterMatrixClass, "chart");
 /** Vue component for rendering a d3plus SlopeChart visualization. */
 export const SlopeChart = createD3plusComponent(SlopeChartClass, "chart");
 /** Vue component for rendering a d3plus StackedArea visualization. */
