@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Arrows And Bars</title>
+    <meta
+      name="description"
+      content="Dumbbell change and range connectors: arrows from each category's first value to its last colored by direction, vertical and sized arrows, change bars with arrowheads, a span chart of floating bars, and small multiples."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 440px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>arrows: true</h3>
+        <div class="viz" id="arrows"></div>
+      </div>
+      <div>
+        <h3>Vertical arrows, points sized by population</h3>
+        <div class="viz" id="vertical"></div>
+      </div>
+      <div>
+        <h3>connector: "bar" with arrows (change bars)</h3>
+        <div class="viz" id="changeBars"></div>
+      </div>
+      <div>
+        <h3>connector: "bar" (span chart)</h3>
+        <div class="viz" id="span"></div>
+      </div>
+      <div>
+        <h3>Custom colors and arrowSize, gapSort("descending")</h3>
+        <div class="viz" id="custom"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "continent"), change bars</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Unemployment rate (%), 2019 and 2023.
+    const countries = [
+      ["Spain", "Europe", 14.1, 12.2],
+      ["Greece", "Europe", 17.3, 11.1],
+      ["Italy", "Europe", 10.0, 7.7],
+      ["France", "Europe", 8.4, 7.3],
+      ["Germany", "Europe", 3.0, 3.0],
+      ["Sweden", "Europe", 6.8, 7.7],
+      ["Canada", "Americas", 5.7, 5.4],
+      ["United States", "Americas", 3.7, 3.6],
+      ["Brazil", "Americas", 11.9, 8.0],
+      ["Chile", "Americas", 7.2, 8.7],
+      ["Japan", "Asia", 2.4, 2.6],
+      ["Korea", "Asia", 3.8, 2.7],
+    ];
+    const rates = [];
+    countries.forEach(([country, continent, before, after]) => {
+      rates.push({country, continent, year: "2019", Unemployment: before});
+      rates.push({country, continent, year: "2023", Unemployment: after});
+    });
+    const populations = {
+      Spain: [47, 48],
+      Greece: [11, 10],
+      Italy: [60, 59],
+      France: [67, 68],
+      Germany: [83, 84],
+      Canada: [38, 40],
+      Brazil: [211, 216],
+      Japan: [126, 124],
+    };
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const lows = [-3, -2, 2, 7, 12, 17, 20, 19, 15, 9, 4, -1];
+    const highs = [4, 6, 11, 17, 22, 27, 30, 29, 25, 18, 11, 6];
+    const temperatures = [];
+    months.forEach((month, i) => {
+      temperatures.push({month, stat: "Low", "°C": lows[i]});
+      temperatures.push({month, stat: "High", "°C": highs[i]});
+    });
+
+    new d3plus.Dumbbell()
+      .select("#arrows")
+      .data(rates)
+      .groupBy("year")
+      .x("Unemployment")
+      .y("country")
+      .arrows(true)
+      .render();
+
+    new d3plus.Dumbbell()
+      .select("#vertical")
+      .data(
+        rates
+          .filter(d => populations[d.country])
+          .map(d => ({
+            ...d,
+            Population: populations[d.country][d.year === "2019" ? 0 : 1],
+          })),
+      )
+      .groupBy("year")
+      .discrete("x")
+      .x("country")
+      .y("Unemployment")
+      .size("Population")
+      .sizeMin(4)
+      .sizeMax(12)
+      .arrows(true)
+      .render();
+
+    new d3plus.Dumbbell()
+      .select("#changeBars")
+      .data(rates)
+      .groupBy("year")
+      .x("Unemployment")
+      .y("country")
+      .connector("bar")
+      .arrows(true)
+      .render();
+
+    new d3plus.Dumbbell()
+      .select("#span")
+      .data(temperatures)
+      .groupBy("stat")
+      .discrete("x")
+      .x("month")
+      .y("°C")
+      .connector("bar")
+      .render();
+
+    new d3plus.Dumbbell()
+      .select("#custom")
+      .data(rates)
+      .groupBy("year")
+      .x("Unemployment")
+      .y("country")
+      .arrows(true)
+      .arrowSize(12)
+      .increaseColor("#e8590c")
+      .decreaseColor("#1971c2")
+      .gapSort("descending")
+      .shapeConfig({Circle: {r: 4}, Line: {strokeWidth: 2}})
+      .render();
+
+    new d3plus.Dumbbell()
+      .select("#facet")
+      .data(rates)
+      .groupBy("year")
+      .facet("continent")
+      .facetConfig({scales: "independent"})
+      .x("Unemployment")
+      .y("country")
+      .connector("bar")
+      .arrows(true)
+      .render();
+  </script>
+</html>

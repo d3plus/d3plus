@@ -883,8 +883,46 @@ export {
   CONNECTOR_KEY_SUFFIX,
   dumbbellEmit,
   dumbbellSpans,
+  hiddenPoint,
 } from "./src/charts/Dumbbell/emit.js";
 export type {DumbbellSpan} from "./src/charts/Dumbbell/emit.js";
+export {
+  BAR_MAX_THICKNESS,
+  BAR_STEP_SHARE,
+  barThickness,
+  changeText,
+  directionColor,
+  dumbbellChanges,
+  dumbbellConnector,
+  dumbbellDirection,
+} from "./src/charts/Dumbbell/changes.js";
+export type {
+  DirectionColors,
+  DumbbellChange,
+  DumbbellConnector,
+  DumbbellDirection,
+} from "./src/charts/Dumbbell/changes.js";
+export {
+  arrowSegment,
+  barColors,
+  emitArrowConnectors,
+  emitBarConnectors,
+  pointGeometry,
+} from "./src/charts/Dumbbell/changeEmit.js";
+export type {
+  ArrowSegment,
+  PointGeometry,
+} from "./src/charts/Dumbbell/changeEmit.js";
+export {
+  barColor,
+  categoryValues,
+  changeRow,
+  drawsBarlessDots,
+  hasBarlessCategory,
+  lineColor,
+  rowDirection,
+} from "./src/charts/Dumbbell/categoryChange.js";
+export type {CategoryValues} from "./src/charts/Dumbbell/categoryChange.js";
 export {
   categoryGaps,
   gapComparator,
