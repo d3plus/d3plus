@@ -176,28 +176,38 @@ for (const renderer of ["svg", "canvas"]) {
   for (const [name, values] of [
     ["a high pole under 1", [-10, -8, -5, -2, 0.2, 0.5]],
     ["both poles inside (-1, 1)", [-0.8, -0.4, -0.1, 0.1, 0.3, 0.6]],
+    ["a high pole of 1", [-10, -5, -2, 1]],
   ])
-    it(`[${renderer}] a log scale with ${name} draws its bar from low to high`, async () => {
-      const out = await drawn(matrix(values, {scale: "log"}), renderer);
-      const [low, high] = [out.poles.off, out.poles.sequential].map(rgb);
-      assert.strictEqual(out.colorOf[values[0]], low, "the low cell");
-      assert.strictEqual(out.colorOf[values.at(-1)], high, "the high cell");
-      // The stops, in bar order, step through the scale's colors in order.
-      const stops = gradientStops(out.legend);
-      assert.deepStrictEqual(
-        stops.map(s => rgb(s.color)),
-        out.range.map(rgb),
-        `stops in order (${JSON.stringify(stops)})`,
-      );
-      assert.strictEqual(rgb(stops.at(-1).color), high, "blue at the high end");
-      if (renderer === "canvas") {
-        const [lowEnd, highEnd] = out.barEnds[0];
-        const near = (a, b) =>
-          channels(a).every((c, i) => Math.abs(c - channels(b)[i]) < 40);
-        assert.ok(near(highEnd, high), `the high end ${highEnd} is ${high}`);
-        assert.ok(near(lowEnd, low), `the low end ${lowEnd} is ${low}`);
-      }
-    });
+    for (const position of ["bottom", "right"])
+      it(`[${renderer}] a log scale with ${name} draws its bar from low to high (${position})`, async () => {
+        const out = await drawn(
+          {...matrix(values, {scale: "log"}), colorScalePosition: position},
+          renderer,
+        );
+        assert.ok(out.barEnds.length || renderer === "svg", "a gradient bar");
+        const [low, high] = [out.poles.off, out.poles.sequential].map(rgb);
+        assert.strictEqual(out.colorOf[values[0]], low, "the low cell");
+        assert.strictEqual(out.colorOf[values.at(-1)], high, "the high cell");
+        // The stops, in bar order, step through the scale's colors in order.
+        const stops = gradientStops(out.legend);
+        assert.deepStrictEqual(
+          stops.map(s => rgb(s.color)),
+          out.range.map(rgb),
+          `stops in order (${JSON.stringify(stops)})`,
+        );
+        assert.strictEqual(
+          rgb(stops.at(-1).color),
+          high,
+          "blue at the high end",
+        );
+        if (renderer === "canvas") {
+          const [lowEnd, highEnd] = out.barEnds[0];
+          const near = (a, b) =>
+            channels(a).every((c, i) => Math.abs(c - channels(b)[i]) < 40);
+          assert.ok(near(highEnd, high), `the high end ${highEnd} is ${high}`);
+          assert.ok(near(lowEnd, low), `the low end ${lowEnd} is ${low}`);
+        }
+      });
 
   it(`[${renderer}] a diverging quantile scale splits each side at its quantiles`, async () => {
     const values = [-100, -4, -3, -2, -1, 1, 2, 3, 4, 100];

@@ -31,6 +31,7 @@ const domains = [
   [-0.5, 100],
   [0.01, 0.5],
   [-0.5, -0.01],
+  [-10, 1],
 ];
 
 for (const [Axis, reversed] of [
@@ -79,3 +80,36 @@ for (const [Axis, reversed] of [
       assert.ok(Math.abs(ends[0] - start) < 0.5, `${label}: reaches the start`);
       assert.ok(Math.abs(ends[1] - end) < 0.5, `${label}: reaches the end`);
     });
+
+for (const [Axis, reversed] of [
+  [AxisBottom, false],
+  [AxisLeft, true],
+])
+  it(`${Axis.name} log: 0 draws at the split, and a pole of 1 splits a decade below`, () => {
+    for (const [low, high, split] of [
+      [-10, 0.5, 0.1],
+      [-0.8, 0.6, 0.1],
+      [-100, 10, 1],
+      [-10, 1, 0.1],
+      [-1, 100, 0.1],
+    ]) {
+      const axis = draw(Axis, reversed ? [high, low] : [low, high]);
+      const label = `[${low}, ${high}]`;
+      const m = Math.min(...axis._d3Scale.domain().map(Math.abs));
+      assert.strictEqual(m, split, `${label}: splits at ±${split}`);
+      const at = axis._getPosition(m);
+      assert.ok(Math.abs(axis._getPosition(-m) - at) < 0.5, `${label}: meet`);
+      assert.ok(Math.abs(axis._getPosition(0) - at) < 0.5, `${label}: 0`);
+    }
+    for (const [low, high] of [
+      [0.01, 0.5],
+      [-0.5, -0.01],
+    ]) {
+      const axis = draw(Axis, reversed ? [high, low] : [low, high]);
+      const near = Math.abs(low) < Math.abs(high) ? low : high;
+      assert.ok(
+        Math.abs(axis._getPosition(0) - axis._getPosition(near)) < 0.5,
+        `[${low}, ${high}]: 0 at the end nearest zero`,
+      );
+    }
+  });

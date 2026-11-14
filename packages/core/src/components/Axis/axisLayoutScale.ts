@@ -221,9 +221,11 @@ function applyLogScaleSplit(axis: Axis): void {
       min(data.filter((d: number) => d >= 0))!,
       Math.abs(domain[1]),
     ]);
-    if (minPositive === 1) minPositive = 1e-6;
+    // A smallest magnitude of 1 splits a decade below, so 1 and -1 each
+    // keep a place of their own.
+    if (minPositive === 1) minPositive = 0.1;
     let minNegative = min([min(data.filter(isNegative))!, Math.abs(domain[0])]);
-    if (minNegative === 1) minNegative = 1e-6;
+    if (minNegative === 1) minNegative = 0.1;
     const minPosPow =
       minPositive === 0 ? 1e-6 : minPositive! <= 1 ? floorPow(minPositive!) : 1;
     const minNegPow =
