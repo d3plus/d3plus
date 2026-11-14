@@ -3,10 +3,13 @@ import assert from "~test/browser/assert.js";
 import {openPage} from "~test/browser/page.js";
 
 /**
-    A link with an arrowhead stops inside it, in Chromium on SVG and Canvas:
-    the square end of the link's painted stroke (both corners) lies within
-    the arrowhead's triangle, on Network (straight links and loops), Rings,
-    and ArcDiagram, while the link's hit path keeps its full length.
+    A link with an arrowhead stops at the head's base, in Chromium on SVG
+    and Canvas: the end of the link's painted stroke (its cap included)
+    lies along the base, neither short of it nor past it into the head, so
+    a link drawn translucent doesn't show through its head. On Network
+    (straight links and loops), Rings, and ArcDiagram, at rest and as hover
+    and active emphasis widen it, while the link's hit path keeps its full
+    length.
 */
 
 const box = "<div id='viz' style='width:640px;height:420px'></div>";
@@ -34,6 +37,7 @@ const paths = () => {
       out[String(n.key)] = {
         d: n.d,
         strokeWidth: n.paint?.strokeWidth ?? 1,
+        strokeLinecap: n.paint?.strokeLinecap,
         stroke: n.paint?.stroke,
         fill: n.paint?.fill,
       };
@@ -62,17 +66,14 @@ function inTriangle(p, [a, b, c], eps = 0.6) {
 }
 
 /**
-    Asserts the link `key` ends inside the arrowhead `arrowKey`: the end of
-    its path, and both corners of its stroke's square end there.
+    Asserts the link `key` ends at the base of the arrowhead `arrowKey`: its
+    path's last stretch runs along the head's axis, so the stroke's square
+    end lies along the base; that end, its cap included, sits on the base
+    (never past it into the head); and both its corners fall within the
+    base.
     @param end Which end of the path the arrow sits at.
 */
-function assertEndsInside(
-  scene,
-  key,
-  arrowKey,
-  end = "target",
-  {curved = false} = {},
-) {
+function assertEndsAtBase(scene, key, arrowKey, end = "target") {
   const link = scene[key];
   const arrow = scene[arrowKey];
   assert.ok(link, `${key} is painted`);
@@ -84,25 +85,35 @@ function assertEndsInside(
   const base = [(tri[1][0] + tri[2][0]) / 2, (tri[1][1] + tri[2][1]) / 2];
   const axis = [tip[0] - base[0], tip[1] - base[1]];
   const len = Math.hypot(...axis);
-  const normal = [-axis[1] / len, axis[0] / len];
+  const u = [axis[0] / len, axis[1] / len];
+  const normal = [-u[1], u[0]];
   const nums = numbers(link.d);
-  const p = end === "target" ? nums.slice(-2) : nums.slice(0, 2);
-  if (curved) {
-    // On a curved end the stroke's end sits on the head's axis.
-    const off = Math.abs(
-      (p[0] - tip[0]) * (axis[1] / len) - (p[1] - tip[1]) * (axis[0] / len),
-    );
-    assert.ok(off < 0.5, `${key}: stroke end ${off.toFixed(2)}px off the axis`);
-  }
+  const [p, prev] =
+    end === "target"
+      ? [nums.slice(-2), nums.slice(-4, -2)]
+      : [nums.slice(0, 2), nums.slice(2, 4)];
+  // The last stretch runs along the axis, toward the tip.
+  const run = [p[0] - prev[0], p[1] - prev[1]];
+  const runLength = Math.hypot(...run);
+  assert.ok(runLength > 0.5, `${key}: a last stretch along the axis`);
+  const cross = (run[0] * u[1] - run[1] * u[0]) / runLength;
+  assert.ok(Math.abs(cross) < 0.01, `${key}: ends ${cross} off the axis`);
+  assert.ok((run[0] * u[0] + run[1] * u[1]) / runLength > 0.99, key);
+  // The painted end, its cap included, sits on the base.
   const half = link.strokeWidth / 2;
+  const cap = ["round", "square"].includes(link.strokeLinecap) ? half : 0;
+  const along = (p[0] - base[0]) * u[0] + (p[1] - base[1]) * u[1] + cap;
+  assert.ok(
+    Math.abs(along) < 0.05,
+    `${key}: its end sits ${along.toFixed(3)}px past the head's base`,
+  );
   for (const q of [
-    p,
     [p[0] + normal[0] * half, p[1] + normal[1] * half],
     [p[0] - normal[0] * half, p[1] - normal[1] * half],
   ])
     assert.ok(
-      inTriangle(q, tri),
-      `${key}: stroke end ${q.map(v => v.toFixed(2))} inside ${arrow.d}`,
+      inTriangle(q, tri, 0.05),
+      `${key}: corner ${q.map(v => v.toFixed(2))} within the base of ${arrow.d}`,
     );
   const hit = scene[`${key}::hit`];
   if (hit)
@@ -152,7 +163,7 @@ const links = [
 ];
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`Network ${renderer}: thin, thick, and looped links stop inside their arrowheads`, async () => {
+  it(`Network ${renderer}: thin, thick, and looped links stop at their arrowheads' bases`, async () => {
     await withChart(
       [
         "Network",
@@ -168,29 +179,24 @@ for (const renderer of ["svg", "canvas"]) {
           ["network-link-D-D-3", "D", "D"],
         ]) {
           const i = key.split("-").pop();
-          const curved = s === t;
-          assertEndsInside(
+          assertEndsAtBase(
             scene,
             key,
             `network-arrow-${s}-${t}-${i}-t`,
             "target",
-            {
-              curved,
-            },
           );
-          assertEndsInside(
+          assertEndsAtBase(
             scene,
             key,
             `network-arrow-${s}-${t}-${i}-s`,
             "source",
-            {curved},
           );
         }
       },
     );
   });
 
-  it(`Rings ${renderer}: straight and curved links stop inside their arrowheads`, async () => {
+  it(`Rings ${renderer}: straight and curved links stop at their arrowheads' bases`, async () => {
     await withChart(
       [
         "Rings",
@@ -207,21 +213,18 @@ for (const renderer of ["svg", "canvas"]) {
         renderer,
       ],
       scene => {
-        assertEndsInside(scene, "rings-link-A-B", "rings-arrow-A-B-0-t");
-        assertEndsInside(
+        assertEndsAtBase(scene, "rings-link-A-B", "rings-arrow-A-B-0-t");
+        assertEndsAtBase(
           scene,
           "rings-link-B-D",
           "rings-arrow-t-B-D-2",
           "target",
-          {
-            curved: true,
-          },
         );
       },
     );
   });
 
-  it(`ArcDiagram ${renderer}: arcs and loops stop inside their arrowheads`, async () => {
+  it(`ArcDiagram ${renderer}: arcs and loops stop at their arrowheads' bases`, async () => {
     await withChart(
       [
         "ArcDiagram",
@@ -237,8 +240,8 @@ for (const renderer of ["svg", "canvas"]) {
           "arc-link-D-D-3",
         ]) {
           const prefix = key.replace("arc-link-", "arc-arrow-");
-          assertEndsInside(scene, key, `${prefix}-t`, "target", {curved: true});
-          assertEndsInside(scene, key, `${prefix}-s`, "source", {curved: true});
+          assertEndsAtBase(scene, key, `${prefix}-t`, "target");
+          assertEndsAtBase(scene, key, `${prefix}-s`, "source");
         }
       },
     );
@@ -254,12 +257,11 @@ for (const renderer of ["svg", "canvas"]) {
       ],
       scene => {
         for (const end of ["t", "s"])
-          assertEndsInside(
+          assertEndsAtBase(
             scene,
             "network-link-D-D-3",
             `network-arrow-D-D-3-${end}`,
             end === "t" ? "target" : "source",
-            {curved: true},
           );
       },
     );
@@ -273,12 +275,11 @@ for (const renderer of ["svg", "canvas"]) {
       scene => {
         for (const key of ["arc-link-A-B-0", "arc-link-D-D-3"])
           for (const end of ["t", "s"])
-            assertEndsInside(
+            assertEndsAtBase(
               scene,
               key,
               `${key.replace("arc-link-", "arc-arrow-")}-${end}`,
               end === "t" ? "target" : "source",
-              {curved: true},
             );
       },
     );
@@ -330,12 +331,11 @@ for (const renderer of ["svg", "canvas"]) {
                 arrowLength(arrow) * 1.2 >= link.strokeWidth,
                 `${arrowKey} (${arrowLength(arrow)}) is wider than its ${link.strokeWidth}px stroke`,
               );
-              assertEndsInside(
+              assertEndsAtBase(
                 scene,
                 key,
                 arrowKey,
                 end === "t" ? "target" : "source",
-                {curved: s === t},
               );
             }
           }
@@ -367,12 +367,11 @@ for (const renderer of ["svg", "canvas"]) {
               scene[`${prefix}-${end}`].fill,
               scene[key].stroke,
             );
-            assertEndsInside(
+            assertEndsAtBase(
               scene,
               key,
               `${prefix}-${end}`,
               end === "t" ? "target" : "source",
-              {curved: true},
             );
           }
         }
@@ -398,13 +397,12 @@ for (const renderer of ["svg", "canvas"]) {
           scene["rings-arrow-A-B-0-t"].fill,
           scene["rings-link-A-B"].stroke,
         );
-        assertEndsInside(scene, "rings-link-A-B", "rings-arrow-A-B-0-t");
-        assertEndsInside(
+        assertEndsAtBase(scene, "rings-link-A-B", "rings-arrow-A-B-0-t");
+        assertEndsAtBase(
           scene,
           "rings-link-B-D",
           "rings-arrow-t-B-D-1",
           "target",
-          {curved: true},
         );
       },
       "active",

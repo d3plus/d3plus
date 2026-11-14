@@ -13,6 +13,7 @@ import {
   Calendar as CalendarClass,
   Candlestick as CandlestickClass,
   Chord as ChordClass,
+  ConnectedScatter as ConnectedScatterClass,
   DensityPlot as DensityPlotClass,
   Donut as DonutClass,
   Dumbbell as DumbbellClass,
@@ -134,6 +135,10 @@ export const Candlestick = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Chord visualization. */
 export const Chord = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={ChordClass} {...props} />
+);
+/** React component for rendering a d3plus ConnectedScatter visualization. */
+export const ConnectedScatter = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={ConnectedScatterClass} {...props} />
 );
 /** React component for rendering a d3plus DensityPlot visualization. */
 export const DensityPlot = (props: D3plusComponentProps) => (

@@ -1328,6 +1328,27 @@ export {bulletDef} from "./src/charts/Bullet/index.js";
 export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {candlestickDef} from "./src/charts/Candlestick/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
+export {connectedScatterDef} from "./src/charts/ConnectedScatter/index.js";
+export {
+  DATA_ORDER,
+  coerceOrder,
+  compareOrder,
+  endLabelPath,
+  keepOrderField,
+  orderOf,
+  orderedPointKeys,
+  orderedSeries,
+  segmentArrows,
+  sortByOrder,
+} from "./src/charts/Plot/orderPath.js";
+export type {OrderAccessor, PathArrow} from "./src/charts/Plot/orderPath.js";
+export {
+  ORDER_POINT_SHAPES,
+  orderTooltipRows,
+  orderValueText,
+  orderedMarks,
+  seriesStrokes,
+} from "./src/charts/Plot/orderPathScene.js";
 export {
   DENSITY_POINT,
   curvesBeforePreDraw,
@@ -2042,11 +2063,17 @@ export {
   cubicPathD,
   defaultArrowSize,
   edgeArrowTrims,
+  straightEdgeCuts,
   straightEdgeD,
   trimCubic,
   trimSegment,
 } from "./src/charts/features/edgeArrows.js";
-export type {EdgeArrowTrims} from "./src/charts/features/edgeArrows.js";
+export type {
+  EdgeArrowTrims,
+  EdgeNode,
+} from "./src/charts/features/edgeArrows.js";
+export {outlineReach} from "./src/charts/features/nodeOutline.js";
+export type {NodeOutline} from "./src/charts/features/nodeOutline.js";
 export {selfLoopD} from "./src/charts/features/selfLoops.js";
 export {
   arcArrowEdge,
@@ -2480,6 +2507,7 @@ export {
   bundledLinkAnchor,
   bundledLinkEdge,
   bundledLinkPath,
+  bundledOutlineBack,
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";

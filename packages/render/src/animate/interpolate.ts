@@ -1,8 +1,8 @@
 import {arc as d3Arc} from "d3-shape";
 import {interpolateNumber, interpolateRgb} from "d3-interpolate";
-import {interpolatePath} from "d3-interpolate-path";
 import {clamp, pathBounds} from "@d3plus/math";
 
+import {interpolatePathD} from "../paths.js";
 import {textVisualCenter} from "../scene.js";
 import {
   fitTransform,
@@ -283,7 +283,7 @@ export function interpolateNode(
         const arc = lerpArc(f.arc, n.arc);
         return t => ({...(base(t) as PathNode), d: arcPath(arc(t))});
       }
-      const d = interpolatePath(f.d, to.d);
+      const d = interpolatePathD(f.d, to.d);
       return t => ({...(base(t) as PathNode), d: d(t)});
     }
     case "text":
@@ -424,11 +424,10 @@ export function rectEnterStart(node: SceneNode): SceneNode | null {
 
 /**
     Whether a node is a wrapper group: a group with no opacity of its own,
-    there to hold, place or clip its children. It never fades by itself:
-    SVG snaps an unset `opacity` to its target when the transition starts,
-    so a wrapper group shows at once on enter, while its children run
-    their own enter animations, and hides at once on exit. A group with
-    its own opacity fades like any other node.
+    there to hold, place or clip its children. It never fades by itself: a
+    wrapper group shows at once on enter, while its children run their own
+    enter animations, and hides at once on exit. A group with its own
+    opacity fades like any other node.
     @param node The node to test.
 */
 export function isWrapperGroup(node: SceneNode): boolean {

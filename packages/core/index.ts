@@ -11,6 +11,7 @@ export {
   Calendar,
   Candlestick,
   Chord,
+  ConnectedScatter,
   DensityPlot,
   Donut,
   Dumbbell,

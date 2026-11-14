@@ -9,6 +9,7 @@ import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import {baselineValue, setBaseline} from "./baselineDomain.js";
 import {initPlotAxes, initPlotDefaults, plotSchema} from "./plotInit.js";
 
+import {keepOrderField} from "./orderPath.js";
 import {plotDef, plotSizeLegendScale} from "./pipeline.js";
 import {drawPlot} from "./draw.js";
 import {
@@ -91,6 +92,7 @@ export default class Plot extends Viz {
       @private
 */
   _preDraw() {
+    keepOrderField(this as unknown as VizInstance);
     // logic repeated for each axis
     ["x", "y", "x2", "y2"].forEach(k => {
       // if user has supplied a String key as the main method value
