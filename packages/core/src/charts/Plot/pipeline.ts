@@ -31,6 +31,7 @@ import {
   dropHiddenRows,
   plotAxisUtc,
   rangeBreaksTimeAxis,
+  scaleTimeAxis,
   type AxisName,
 } from "./plotRangeBreaks.js";
 import {scaleConstructors} from "./pipelineScales.js";
@@ -188,12 +189,14 @@ export function plotSizeLegendScale(
 function detectTimeAxes(viz: PlotViz) {
   const first = viz._filteredData[0];
   const firstElemTime = viz.schema.time ? viz.schema.time(first, 0) : false;
-  // An axis with `rangeBreaks` over dates is a time axis without `time` too.
+  // An axis with `rangeBreaks` over dates, or a `"time"`/`"utc"` scale over
+  // Dates, is a time axis without `time` too.
   const isTime = (axis: AxisName) => {
     const value = viz[`_${axis}`](first, 0);
     return (
       Boolean(firstElemTime && value === firstElemTime) ||
-      rangeBreaksTimeAxis(viz, axis, value)
+      rangeBreaksTimeAxis(viz, axis, value) ||
+      scaleTimeAxis(viz, axis, value)
     );
   };
   const x2Time = (viz._x2Time = isTime("x2"));

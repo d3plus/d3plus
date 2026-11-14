@@ -1,0 +1,578 @@
+[
+{
+"month": "1949-01",
+"passengers": 112
+},
+{
+"month": "1949-02",
+"passengers": 118
+},
+{
+"month": "1949-03",
+"passengers": 132
+},
+{
+"month": "1949-04",
+"passengers": 129
+},
+{
+"month": "1949-05",
+"passengers": 121
+},
+{
+"month": "1949-06",
+"passengers": 135
+},
+{
+"month": "1949-07",
+"passengers": 148
+},
+{
+"month": "1949-08",
+"passengers": 148
+},
+{
+"month": "1949-09",
+"passengers": 136
+},
+{
+"month": "1949-10",
+"passengers": 119
+},
+{
+"month": "1949-11",
+"passengers": 104
+},
+{
+"month": "1949-12",
+"passengers": 118
+},
+{
+"month": "1950-01",
+"passengers": 115
+},
+{
+"month": "1950-02",
+"passengers": 126
+},
+{
+"month": "1950-03",
+"passengers": 141
+},
+{
+"month": "1950-04",
+"passengers": 135
+},
+{
+"month": "1950-05",
+"passengers": 125
+},
+{
+"month": "1950-06",
+"passengers": 149
+},
+{
+"month": "1950-07",
+"passengers": 170
+},
+{
+"month": "1950-08",
+"passengers": 170
+},
+{
+"month": "1950-09",
+"passengers": 158
+},
+{
+"month": "1950-10",
+"passengers": 133
+},
+{
+"month": "1950-11",
+"passengers": 114
+},
+{
+"month": "1950-12",
+"passengers": 140
+},
+{
+"month": "1951-01",
+"passengers": 145
+},
+{
+"month": "1951-02",
+"passengers": 150
+},
+{
+"month": "1951-03",
+"passengers": 178
+},
+{
+"month": "1951-04",
+"passengers": 163
+},
+{
+"month": "1951-05",
+"passengers": 172
+},
+{
+"month": "1951-06",
+"passengers": 178
+},
+{
+"month": "1951-07",
+"passengers": 199
+},
+{
+"month": "1951-08",
+"passengers": 199
+},
+{
+"month": "1951-09",
+"passengers": 184
+},
+{
+"month": "1951-10",
+"passengers": 162
+},
+{
+"month": "1951-11",
+"passengers": 146
+},
+{
+"month": "1951-12",
+"passengers": 166
+},
+{
+"month": "1952-01",
+"passengers": 171
+},
+{
+"month": "1952-02",
+"passengers": 180
+},
+{
+"month": "1952-03",
+"passengers": 193
+},
+{
+"month": "1952-04",
+"passengers": 181
+},
+{
+"month": "1952-05",
+"passengers": 183
+},
+{
+"month": "1952-06",
+"passengers": 218
+},
+{
+"month": "1952-07",
+"passengers": 230
+},
+{
+"month": "1952-08",
+"passengers": 242
+},
+{
+"month": "1952-09",
+"passengers": 209
+},
+{
+"month": "1952-10",
+"passengers": 191
+},
+{
+"month": "1952-11",
+"passengers": 172
+},
+{
+"month": "1952-12",
+"passengers": 194
+},
+{
+"month": "1953-01",
+"passengers": 196
+},
+{
+"month": "1953-02",
+"passengers": 196
+},
+{
+"month": "1953-03",
+"passengers": 236
+},
+{
+"month": "1953-04",
+"passengers": 235
+},
+{
+"month": "1953-05",
+"passengers": 229
+},
+{
+"month": "1953-06",
+"passengers": 243
+},
+{
+"month": "1953-07",
+"passengers": 264
+},
+{
+"month": "1953-08",
+"passengers": 272
+},
+{
+"month": "1953-09",
+"passengers": 237
+},
+{
+"month": "1953-10",
+"passengers": 211
+},
+{
+"month": "1953-11",
+"passengers": 180
+},
+{
+"month": "1953-12",
+"passengers": 201
+},
+{
+"month": "1954-01",
+"passengers": 204
+},
+{
+"month": "1954-02",
+"passengers": 188
+},
+{
+"month": "1954-03",
+"passengers": 235
+},
+{
+"month": "1954-04",
+"passengers": 227
+},
+{
+"month": "1954-05",
+"passengers": 234
+},
+{
+"month": "1954-06",
+"passengers": 264
+},
+{
+"month": "1954-07",
+"passengers": 302
+},
+{
+"month": "1954-08",
+"passengers": 293
+},
+{
+"month": "1954-09",
+"passengers": 259
+},
+{
+"month": "1954-10",
+"passengers": 229
+},
+{
+"month": "1954-11",
+"passengers": 203
+},
+{
+"month": "1954-12",
+"passengers": 229
+},
+{
+"month": "1955-01",
+"passengers": 242
+},
+{
+"month": "1955-02",
+"passengers": 233
+},
+{
+"month": "1955-03",
+"passengers": 267
+},
+{
+"month": "1955-04",
+"passengers": 269
+},
+{
+"month": "1955-05",
+"passengers": 270
+},
+{
+"month": "1955-06",
+"passengers": 315
+},
+{
+"month": "1955-07",
+"passengers": 364
+},
+{
+"month": "1955-08",
+"passengers": 347
+},
+{
+"month": "1955-09",
+"passengers": 312
+},
+{
+"month": "1955-10",
+"passengers": 274
+},
+{
+"month": "1955-11",
+"passengers": 237
+},
+{
+"month": "1955-12",
+"passengers": 278
+},
+{
+"month": "1956-01",
+"passengers": 284
+},
+{
+"month": "1956-02",
+"passengers": 277
+},
+{
+"month": "1956-03",
+"passengers": 317
+},
+{
+"month": "1956-04",
+"passengers": 313
+},
+{
+"month": "1956-05",
+"passengers": 318
+},
+{
+"month": "1956-06",
+"passengers": 374
+},
+{
+"month": "1956-07",
+"passengers": 413
+},
+{
+"month": "1956-08",
+"passengers": 405
+},
+{
+"month": "1956-09",
+"passengers": 355
+},
+{
+"month": "1956-10",
+"passengers": 306
+},
+{
+"month": "1956-11",
+"passengers": 271
+},
+{
+"month": "1956-12",
+"passengers": 306
+},
+{
+"month": "1957-01",
+"passengers": 315
+},
+{
+"month": "1957-02",
+"passengers": 301
+},
+{
+"month": "1957-03",
+"passengers": 356
+},
+{
+"month": "1957-04",
+"passengers": 348
+},
+{
+"month": "1957-05",
+"passengers": 355
+},
+{
+"month": "1957-06",
+"passengers": 422
+},
+{
+"month": "1957-07",
+"passengers": 465
+},
+{
+"month": "1957-08",
+"passengers": 467
+},
+{
+"month": "1957-09",
+"passengers": 404
+},
+{
+"month": "1957-10",
+"passengers": 347
+},
+{
+"month": "1957-11",
+"passengers": 305
+},
+{
+"month": "1957-12",
+"passengers": 336
+},
+{
+"month": "1958-01",
+"passengers": 340
+},
+{
+"month": "1958-02",
+"passengers": 318
+},
+{
+"month": "1958-03",
+"passengers": 362
+},
+{
+"month": "1958-04",
+"passengers": 348
+},
+{
+"month": "1958-05",
+"passengers": 363
+},
+{
+"month": "1958-06",
+"passengers": 435
+},
+{
+"month": "1958-07",
+"passengers": 491
+},
+{
+"month": "1958-08",
+"passengers": 505
+},
+{
+"month": "1958-09",
+"passengers": 404
+},
+{
+"month": "1958-10",
+"passengers": 359
+},
+{
+"month": "1958-11",
+"passengers": 310
+},
+{
+"month": "1958-12",
+"passengers": 337
+},
+{
+"month": "1959-01",
+"passengers": 360
+},
+{
+"month": "1959-02",
+"passengers": 342
+},
+{
+"month": "1959-03",
+"passengers": 406
+},
+{
+"month": "1959-04",
+"passengers": 396
+},
+{
+"month": "1959-05",
+"passengers": 420
+},
+{
+"month": "1959-06",
+"passengers": 472
+},
+{
+"month": "1959-07",
+"passengers": 548
+},
+{
+"month": "1959-08",
+"passengers": 559
+},
+{
+"month": "1959-09",
+"passengers": 463
+},
+{
+"month": "1959-10",
+"passengers": 407
+},
+{
+"month": "1959-11",
+"passengers": 362
+},
+{
+"month": "1959-12",
+"passengers": 405
+},
+{
+"month": "1960-01",
+"passengers": 417
+},
+{
+"month": "1960-02",
+"passengers": 391
+},
+{
+"month": "1960-03",
+"passengers": 419
+},
+{
+"month": "1960-04",
+"passengers": 461
+},
+{
+"month": "1960-05",
+"passengers": 472
+},
+{
+"month": "1960-06",
+"passengers": 535
+},
+{
+"month": "1960-07",
+"passengers": 622
+},
+{
+"month": "1960-08",
+"passengers": 606
+},
+{
+"month": "1960-09",
+"passengers": 508
+},
+{
+"month": "1960-10",
+"passengers": 461
+},
+{
+"month": "1960-11",
+"passengers": 390
+},
+{
+"month": "1960-12",
+"passengers": 432
+}
+]

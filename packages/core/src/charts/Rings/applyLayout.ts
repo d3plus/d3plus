@@ -23,7 +23,7 @@ import {linkWidthRange} from "../features/linkWidths.js";
 import {buildRingsGraph, ringsLinkEnd} from "./ringsGraph.js";
 import {ringsLoops} from "./ringsLoops.js";
 import {fanParallelEdges} from "./ringsParallel.js";
-import {ringsSegmentsD} from "./ringsCurves.js";
+import {ringsSegmentsD, spokeReach} from "./ringsCurves.js";
 import {buildRingsEdges, placeRingsNodes} from "./ringsPlacement.js";
 import type {RingsEdge, RingsNode} from "./ringsGraph.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
@@ -43,6 +43,27 @@ const emptyRingsCtx = () => ({
   linkD: () => "",
   nodeShapeConfig: {},
 });
+
+/**
+    Each Rect node's box, from `shapeConfig`'s Rect `width` and `height`
+    (a square 2r across by default), mutated in place, so its links, loops
+    and label meet the box it draws as.
+*/
+function sizeRingsRects(v: VizInstance, nodes: RingsNode[]): void {
+  const cfg = shapeConfigFor(v, "Rect") as {width?: unknown; height?: unknown};
+  nodes
+    .filter(n => n.shape === "Rect")
+    .forEach((n, i) => {
+      const datum = (n.data ?? n) as DataPoint;
+      const side = (n.r ?? 0) * 2;
+      n.width = Number(
+        resolveAccessor<number>(cfg.width, datum, n.i ?? i) ?? side,
+      );
+      n.height = Number(
+        resolveAccessor<number>(cfg.height, datum, n.i ?? i) ?? side,
+      );
+    });
+}
 
 /** Compute each node's label bounds, rotation, and text anchor (mutated in place). */
 function applyRingsLabelBounds(
@@ -71,19 +92,19 @@ function applyRingsLabelBounds(
     const lineHeight = fontSize * 1.4;
     const h = lineHeight * 2;
     const padding = 5;
-    const w = ringWidth - (node.r as number);
 
     let angle = (node.radians as number) * (180 / Math.PI);
-    let x = (node.r as number) + padding;
     let textAnchor = "start";
-
     if (angle < -90 || angle > 90) {
-      x = -(node.r as number) - w - padding;
       textAnchor = "end";
       angle += 180;
     }
-    node.labelBounds = {x, y: -lineHeight / 2, width: w, height: h};
     node.rotate = angle;
+    // The label starts past the node's outline (a Rect node's box turns with it).
+    const reach = spokeReach(node);
+    const w = ringWidth - reach;
+    const x = textAnchor === "end" ? -reach - w - padding : reach + padding;
+    node.labelBounds = {x, y: -lineHeight / 2, width: w, height: h};
     node.textAnchor = textAnchor;
   });
 }
@@ -315,6 +336,9 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
 
   const {nodes, rings, radius} = placeRingsNodes(v, linkMap, center, geom);
   v._sizeLegendFinal = radius;
+  sizeRingsRects(v, nodes);
+  // Labels set each node's turn, which its links meet.
+  applyRingsLabelBounds(v, nodes, geom);
 
   const edges = buildRingsEdges(
     rings,
@@ -323,8 +347,6 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     geom,
     !!v.schema.ringLinks,
   );
-
-  applyRingsLabelBounds(v, nodes, geom);
 
   publishRingsCtx(v, nodes, nodeLookup, links, edges);
   // Parallel links fan apart by their scaled sizes.

@@ -46,15 +46,17 @@ export function labelKey(labels: FacetLabels): string {
 
 /**
     How far each label combination's plot insets (measured from probe panels,
-    keyed by `labelKey`) exceed the `baseline` panel's, per side, never
-    negative. The baseline is the bare panel, or, when an axis is labeled on
-    every panel, the panel labeling that axis alone.
+    keyed by `labelKey`) exceed the `baseline` panel's (or `bareInsets`, when
+    given), per side, never negative. The baseline is the bare panel, or,
+    when an axis is labeled on every panel, the panel labeling that axis
+    alone.
 */
 export function labelExpansions(
   insets: Record<string, FacetSides>,
   baseline: FacetLabels = {x: false, y: false},
+  bareInsets?: FacetSides,
 ): Record<string, FacetSides> {
-  const bare = insets[labelKey(baseline)] ?? NO_SIDES;
+  const bare = bareInsets ?? insets[labelKey(baseline)] ?? NO_SIDES;
   const out: Record<string, FacetSides> = {};
   for (const [key, sides] of Object.entries(insets)) {
     out[key] = {
@@ -65,6 +67,45 @@ export function labelExpansions(
     };
   }
   return out;
+}
+
+/** The most two sides' amounts differ by, on any side. */
+const sidesApart = (a: FacetSides, b: FacetSides): number =>
+  Math.max(
+    Math.abs(a.top - b.top),
+    Math.abs(a.right - b.right),
+    Math.abs(a.bottom - b.bottom),
+    Math.abs(a.left - b.left),
+  );
+
+/**
+    The room a label combination takes once its panel draws in the area
+    that room grows it to: starting from `room` (measured in the base
+    area), measures the panel's insets in the area grown by it (`measure`)
+    and takes how far they exceed a bare panel's (`bare`) as the new room,
+    until it moves less than half a pixel, or after `passes` measures.
+    @param room The room measured in the base area.
+    @param bare A bare panel's insets.
+    @param measure The panel's insets in its base area grown by some room.
+    @param passes The most measures to take.
+*/
+export function settleExpansion(
+  room: FacetSides,
+  bare: FacetSides,
+  measure: (grown: FacetSides) => FacetSides,
+  passes = 3,
+): FacetSides {
+  let current = room;
+  for (let pass = 0; pass < passes; pass++) {
+    if (sidesApart(current, NO_SIDES) === 0) return current;
+    const [next] = Object.values(
+      labelExpansions({k: measure(current)}, {x: false, y: false}, bare),
+    );
+    const settled = sidesApart(next, current) < 0.5;
+    current = next;
+    if (settled) break;
+  }
+  return current;
 }
 
 /**
@@ -97,7 +138,8 @@ export function labelGutter(
 
 /**
     A panel's base area, the same size for every panel: its cell below the
-    title band, less the gutter the grid added to the cell's outer edges.
+    title band, less the gutter the grid added to the cell's outer edges
+    (its left and bottom edges, and the grid's last column).
 */
 export function panelBase(
   cell: FacetCell,
@@ -105,7 +147,7 @@ export function panelBase(
   gutter: FacetSides,
   columns: number,
 ): FacetArea {
-  const left = cell.column === 0 ? gutter.left : 0;
+  const left = cell.edges.left ? gutter.left : 0;
   const right = cell.column === columns - 1 ? gutter.right : 0;
   const top = titleHeight + gutter.top;
   const bottom = cell.edges.bottom ? gutter.bottom : 0;

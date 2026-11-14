@@ -4,7 +4,7 @@
     (`_d3Scale`, `_d3ScaleNegative`, `_tickUnit`, `_availableTicks`,
     `_visibleTicks`) exactly as the original inline `Axis.render` body did.
 */
-import {range as d3Range, min, sum} from "d3-array";
+import {range as d3Range, min} from "d3-array";
 import * as scales from "d3-scale";
 
 import {dateFormatter, formatAbbreviate} from "@d3plus/format";
@@ -217,19 +217,15 @@ function applyLogScaleSplit(axis: Axis): void {
   } else if (domain[0] > 0 && domain[domain.length - 1] > 0) {
     axis._d3Scale!.domain(domain).range(scaleRange);
   } else {
-    const powers = domain
-      .map((d: number) => Math.log10(Math.abs(d)))
-      .map((d: number) => d || -1e-6);
-    const leftPercentage = powers[0] / sum(powers);
-    const zero = leftPercentage * (scaleRange[1] - scaleRange[0]);
-
     let minPositive = min([
       min(data.filter((d: number) => d >= 0))!,
       Math.abs(domain[1]),
     ]);
-    if (minPositive === 1) minPositive = 1e-6;
+    // A smallest magnitude of 1 splits a decade below, so 1 and -1 each
+    // keep a place of their own.
+    if (minPositive === 1) minPositive = 0.1;
     let minNegative = min([min(data.filter(isNegative))!, Math.abs(domain[0])]);
-    if (minNegative === 1) minNegative = 1e-6;
+    if (minNegative === 1) minNegative = 0.1;
     const minPosPow =
       minPositive === 0 ? 1e-6 : minPositive! <= 1 ? floorPow(minPositive!) : 1;
     const minNegPow =
@@ -238,13 +234,20 @@ function applyLogScaleSplit(axis: Axis): void {
         : minNegative! <= 1
           ? floorPow(minNegative!)
           : 1;
-    const minValue = min([Math.abs(minPosPow), Math.abs(minNegPow)]);
+    const minValue = min([Math.abs(minPosPow), Math.abs(minNegPow)])!;
+    // Each part's share is its span in decades, out from the split at
+    // ±minValue to its end.
+    const decades = (d: number): number =>
+      Math.max(0, Math.log10(Math.abs(d) / minValue));
+    const [first, last] = [decades(domain[0]), decades(domain[1])];
+    const leftPercentage = first + last ? first / (first + last) : 0.5;
+    const zero = leftPercentage * (scaleRange[1] - scaleRange[0]);
     axis._d3ScaleNegative = axis._d3Scale!.copy();
     (isNegative(domain[0]) ? axis._d3Scale : axis._d3ScaleNegative)!
-      .domain([isNegative(domain[0]) ? minValue! : -minValue!, domain[1]])
+      .domain([isNegative(domain[0]) ? minValue : -minValue, domain[1]])
       .range([scaleRange[0] + zero, scaleRange[1]]);
     (isNegative(domain[0]) ? axis._d3ScaleNegative : axis._d3Scale)!
-      .domain([domain[0], isNegative(domain[0]) ? -minValue! : minValue!])
+      .domain([domain[0], isNegative(domain[0]) ? -minValue : minValue])
       .range([scaleRange[0], scaleRange[0] + zero]);
   }
 }
