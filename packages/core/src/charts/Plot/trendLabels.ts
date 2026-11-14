@@ -276,6 +276,7 @@ export function emitTrendLabels(
         d: spot.d,
         color: fit.color,
         anchor: "end" as const,
+        datum: fit.row,
       },
     ];
   });
