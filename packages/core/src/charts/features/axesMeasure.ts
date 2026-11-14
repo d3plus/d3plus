@@ -305,7 +305,15 @@ function measureXTestAxes(
   const topOffset = yLabelTopOffset(viz, yTest, showY);
 
   const xOffsetRight = xRightInset(
-    {xTest, x2Test, showX, x2Exists, xRangeMax, width},
+    {
+      xTest,
+      x2Test,
+      showX,
+      x2Exists,
+      xRangeMax,
+      width,
+      insetRight: viz._plotMarginals?.right,
+    },
     xOffsetLeft,
     y2Width,
   );
@@ -442,14 +450,14 @@ function provisionalTopOffset(viz: Viz, inputs: AxisMeasureInputs): number {
 /**
     The room above the plot for half of the y axis's top label: its font
     size (a constant or a function, as label config accepts) over 2, plus
-    the chart's own top inset.
+    the chart's own top inset and the room its marginal strip takes.
 */
 function yLabelTopOffset(viz: Viz, yTest: Axis, showY: boolean): number {
   const {fontSize} = yTest.shapeConfig().labelConfig as {
     fontSize: number | (() => number);
   };
   const half = showY ? configValue(fontSize) / 2 : 0;
-  return half + (viz._plotInsetTop ?? 0);
+  return half + (viz._plotInsetTop ?? 0) + (viz._plotMarginals?.top ?? 0);
 }
 
 /** The x axis's height, from a throwaway measure ahead of the joint solve. */

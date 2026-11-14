@@ -319,6 +319,7 @@ export type {WaffleCell} from "./src/charts/Waffle/applyLayout.js";
 
 export {
   accumulate as binAccumulate,
+  binEdges,
   cumulativeNormalize as binCumulativeNormalize,
   default as binData,
 } from "./src/charts/Histogram/binData.js";
@@ -460,6 +461,48 @@ export {
   slotEdge,
 } from "./src/charts/Plot/forecastScene.js";
 export type {ForecastFrame} from "./src/charts/Plot/forecastScene.js";
+export {
+  binMarginal,
+  boxMarginal,
+  densityMarginal,
+  marginalScale,
+  resolveMarginals,
+} from "./src/charts/Plot/marginalStats.js";
+export type {
+  MarginalAxes,
+  MarginalBin,
+  MarginalBox,
+  MarginalCurve,
+  MarginalKind,
+  MarginalObservation,
+  MarginalScale,
+} from "./src/charts/Plot/marginalStats.js";
+export {
+  marginalBands,
+  marginalSize,
+  plotMarginalLayout,
+  resolveMarginalLayout,
+} from "./src/charts/Plot/marginalLayout.js";
+export type {
+  MarginalBand,
+  MarginalConfig,
+  MarginalLayout,
+} from "./src/charts/Plot/marginalLayout.js";
+export {
+  marginalGrouped,
+  marginalSeries,
+} from "./src/charts/Plot/marginalSeries.js";
+export type {MarginalSeries} from "./src/charts/Plot/marginalSeries.js";
+export {emitMarginals} from "./src/charts/Plot/marginalScene.js";
+export type {
+  MarginalFrame,
+  MarginalMark,
+} from "./src/charts/Plot/marginalScene.js";
+export {
+  handleMarginalHover,
+  marginalTitle,
+  marginalTooltipRows,
+} from "./src/charts/Plot/marginalHover.js";
 export {
   anchorPoint,
   axisPixel,

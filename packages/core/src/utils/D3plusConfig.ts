@@ -2181,6 +2181,48 @@ export interface D3plusConfig {
   loadingHTML?: string | ((viz: VizBase) => string);
   /** Candlestick: accessor or data key for each period's lowest value (default `"low"`). */
   low?: string | ((d: DataPoint, i: number) => number);
+  /**
+      Draws the distribution of a Plot's points along its axes: the x values
+      in a strip above the plot and the y values in a strip to its right,
+      each lined up with its axis. `"histogram"` stacks the points in bins,
+      `"box"` draws a box plot, and `"density"` a kernel density curve; `true`
+      means `"histogram"`. `{x, y}` picks each strip (`false` or leaving one
+      out draws none). Only for a Plot with two continuous axes and no
+      `discrete` axis (Scatter, BubbleChart, ConnectedScatter); on a log or
+      time axis the strip bins and smooths along the axis as drawn. The strips split
+      the points by legend entry in their colors, and draw only the points
+      the chart shows. Hovering a point lights the bins and boxes holding it,
+      and hovering a strip's mark lights its points. Off by default.
+  */
+  marginals?:
+    | boolean
+    | "histogram"
+    | "box"
+    | "density"
+    | {
+        x?: false | "histogram" | "box" | "density";
+        y?: false | "histogram" | "box" | "density";
+      };
+  /**
+      Options for `marginals`: `size`, each strip's thickness in pixels, or
+      as a share (up to `1`) of the chart area's shorter side (default
+      `0.15`, kept between 16 and 120 pixels); `padding`, the gap between a
+      strip and the plot (default `8`); and `binThresholds`, a histogram
+      strip's bins, as a count, interior edges, or a d3-array threshold
+      generator (default Sturges' rule).
+  */
+  marginalConfig?: {
+    size?: number;
+    padding?: number;
+    binThresholds?:
+      | number
+      | number[]
+      | ((
+          values: ArrayLike<number>,
+          min: number,
+          max: number,
+        ) => number | number[]);
+  };
   /** CyclePlot: draws a line across each panel at each series' mean over the panel's cycles (default `true`). */
   mean?: boolean;
   /**
