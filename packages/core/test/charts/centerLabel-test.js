@@ -6,6 +6,7 @@ import {
   CENTER_LABEL_KEY,
   centerLabelBoxes,
   centerLabelDefaults,
+  centerLabelLayout,
   centerLabelNodes,
   centerLabelStyle,
   centerLabelText,
@@ -266,5 +267,45 @@ describe("centerLabelNodes", () => {
     );
     const [text] = nodes[0].children;
     assert.ok(text.transform.y + text.lines[0].y <= 0, "baseline above 0");
+  });
+});
+
+describe("centerLabelLayout", () => {
+  useJsdom();
+  const mockViz = centerLabel => ({
+    _filteredData: rows,
+    schema: {
+      centerLabel,
+      centerLabelConfig: {fontMin: 10, fontMax: 40, padding: 5},
+      locale: "en-US",
+    },
+  });
+  const half = {radius: 80, startAngle: -Math.PI / 2, endAngle: Math.PI / 2};
+
+  it("returns the nodes and the box the text fits", () => {
+    const out = centerLabelLayout(mockViz(true), half, value);
+    assert.strictEqual(out.nodes[0].key, CENTER_LABEL_KEY);
+    assert.ok(out.box.y + out.box.height <= 1e-6, "above the baseline");
+  });
+  it("keeps the reserved height free at each box's bottom", () => {
+    const plain = centerLabelLayout(mockViz(true), half, value);
+    const kept = centerLabelLayout(mockViz(true), half, value, 16);
+    assert.ok(kept.box.height < plain.box.height);
+    assert.strictEqual(kept.box.shape, "square");
+    const boxes = centerLabelBoxes(half);
+    assert.ok(
+      boxes.some(
+        b =>
+          Math.abs(b.y + b.height - 16 - (kept.box.y + kept.box.height)) < 1e-6,
+      ),
+      "a hole box less its bottom strip",
+    );
+  });
+  it("is null when off, or with no room", () => {
+    assert.strictEqual(centerLabelLayout(mockViz(false), half, value), null);
+    assert.strictEqual(
+      centerLabelLayout(mockViz(true), {radius: 10}, value, 40),
+      null,
+    );
   });
 });

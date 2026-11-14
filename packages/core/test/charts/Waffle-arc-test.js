@@ -17,7 +17,7 @@ import {
   majoritySeats,
 } from "../../src/charts/Waffle/arcLayout.ts";
 import {
-  MAJORITY_LABEL_ROOM,
+  MAJORITY_OVERHANG,
   arcAspect,
   arcInnerRadius,
   isArcLayout,
@@ -25,7 +25,8 @@ import {
 } from "../../src/charts/Waffle/arcStage.ts";
 import {
   MAJORITY_KEY,
-  majorityLabelBox,
+  MAJORITY_LABEL_HEIGHT,
+  majorityLabelStrip,
   majorityLinePoints,
   waffleArcDecor,
 } from "../../src/charts/Waffle/arcEmit.ts";
@@ -172,13 +173,13 @@ it("isArcLayout and arcAspect — the arc's footprint", () => {
   near(arcAspect({schema: {startAngle: 0, endAngle: 360}}), 1, "full");
 });
 
-it("waffleArcLayout — fits the arc, keeping room above for a majority", () => {
+it("waffleArcLayout — fits the arc, keeping room above for the majority line", () => {
   const viz = new Parliament();
-  const {arc, places} = waffleArcLayout(viz, 100, 400, 220);
+  const {arc, places} = waffleArcLayout(viz, 100, 600, 220);
   assert.strictEqual(places.length, 100);
   assert.strictEqual(arc.majority, 51);
-  // A half circle 400 wide: radius 200 needs 200 + the label room.
-  assert.strictEqual(arc.radius, 220 - MAJORITY_LABEL_ROOM);
+  // A half circle 600 wide: its height, less the line's overhang, bounds it.
+  assert.strictEqual(arc.radius, 220 - MAJORITY_OVERHANG);
   near(arc.inner, arc.radius * 0.4, "40% hole");
   near(arc.cy, 220, "the baseline at the bottom");
   for (const p of places) {
@@ -242,52 +243,61 @@ it("majorityLinePoints — from the hole to past the outer ring", () => {
   assert.strictEqual(majorityLinePoints({...arc, majorityAngle: null}), null);
 });
 
-it("majorityLabelBox — above a vertical line, beside a slanted one", () => {
-  const up = majorityLabelBox([100, 10], 0);
-  assert.deepStrictEqual([up.anchor, up.align], ["middle", "bottom"]);
-  assert.strictEqual(up.x + up.width / 2, 100);
-  assert.strictEqual(up.y + up.height, 10);
-  const right = majorityLabelBox([100, 10], 1);
-  assert.deepStrictEqual([right.anchor, right.align], ["start", "bottom"]);
-  assert.ok(right.x > 100);
-  const left = majorityLabelBox([100, 10], -HALF);
-  assert.deepStrictEqual([left.anchor, left.align], ["end", "middle"]);
-  assert.ok(left.x + left.width < 100);
-  const down = majorityLabelBox([100, 10], Math.PI);
-  assert.deepStrictEqual([down.anchor, down.align], ["middle", "top"]);
+it("majorityLabelStrip — under the center label, or across the hole's middle", () => {
+  const under = majorityLabelStrip(
+    {radius: 50},
+    {x: -20, y: -30, width: 40, height: 20},
+  );
+  assert.deepStrictEqual(under, {
+    x: -20,
+    y: -10,
+    width: 40,
+    height: MAJORITY_LABEL_HEIGHT,
+  });
+  const half = {radius: 60, startAngle: -HALF, endAngle: HALF};
+  const middle = majorityLabelStrip(half);
+  assert.strictEqual(middle.height, MAJORITY_LABEL_HEIGHT);
+  assert.ok(middle.y + middle.height <= 1e-6, "inside the half hole");
+  assert.ok(middle.width > 60, "the widest box");
+  assert.strictEqual(majorityLabelStrip({radius: 5}), null, "no room");
 });
 
-it("waffleArcDecor — the majority line and label, and the center label", () => {
+it("waffleArcDecor — the majority line, then the total and the majority label in the hole", () => {
   const {viz} = laidOut(Parliament, house());
-  const nodes = waffleArcDecor(viz, viz.ctx.waffleArc);
+  const arc = viz.ctx.waffleArc;
+  const nodes = waffleArcDecor(viz, arc);
   const line = nodes.find(n => n.key === MAJORITY_KEY);
   assert.strictEqual(line.type, "line");
   assert.strictEqual(line.interactive, false);
   assert.deepStrictEqual(line.paint.strokeDasharray, [4, 3]);
-  const label = nodes.find(n => n.type === "text");
-  assert.strictEqual(
-    label.lines.map(l => l.text ?? l).join(" "),
-    "Majority: 51",
+  const groups = nodes.filter(n => n.type === "group");
+  const text = g =>
+    g.children.map(n => n.lines.map(l => l.text ?? l).join(" "));
+  assert.deepStrictEqual(groups.map(text), [["100"], ["Majority: 51"]]);
+  for (const g of groups)
+    assert.deepStrictEqual(g.transform, {x: arc.cx, y: arc.cy});
+  const [total, majority] = groups.map(g => g.children[0]);
+  assert.ok(
+    majority.transform.y > total.transform.y,
+    "the majority under the total",
   );
-  const center = nodes.find(n => n.type === "group");
-  assert.deepStrictEqual(center.transform, {
-    x: viz.ctx.waffleArc.cx,
-    y: viz.ctx.waffleArc.cy,
-  });
-  viz.majority(false).centerLabel(false);
+  assert.ok(majority.transform.y < 0, "inside the hole");
+
+  viz.centerLabel(false);
+  const alone = waffleArcDecor(viz, arc).filter(n => n.type === "group");
+  assert.deepStrictEqual(alone.map(text), [["Majority: 51"]]);
+
+  viz.majority(false);
   applyWaffleLayout({viz});
   assert.deepStrictEqual(waffleArcDecor(viz, viz.ctx.waffleArc), []);
 });
 
 it("waffleArcDecor — translates the majority label", () => {
   const {viz} = laidOut(Parliament, house(), {locale: "es-ES"});
-  const label = waffleArcDecor(viz, viz.ctx.waffleArc).find(
-    n => n.type === "text",
-  );
-  assert.strictEqual(
-    label.lines.map(l => l.text ?? l).join(" "),
-    "Mayoría: 51",
-  );
+  const texts = waffleArcDecor(viz, viz.ctx.waffleArc)
+    .filter(n => n.type === "group")
+    .flatMap(g => g.children.map(n => n.lines.map(l => l.text ?? l).join(" ")));
+  assert.ok(texts.includes("Mayoría: 51"), texts.join("|"));
 });
 
 it("waffleTooltipRows — labels the value row", () => {
