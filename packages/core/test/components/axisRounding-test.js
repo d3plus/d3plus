@@ -5,9 +5,11 @@ import {
   fixFloat,
   floorPow,
   isNegative,
+  nearZeroEnd,
   openEnd,
   roundedDomain,
   roundingScales,
+  ZERO_SNAP_SHARE,
 } from "../../src/components/Axis/axisRounding.ts";
 
 it("isNegative — catches -0", () => {
@@ -92,4 +94,48 @@ it("openEnd — a lone value is the low end, and no values mark no end", () => {
   assert.strictEqual(openEnd(500, [], [120, 1040]), undefined);
   assert.strictEqual(openEnd(500, [500], []), undefined);
   assert.strictEqual(openEnd("a", ["a", "b"], ["a", "b"]), undefined);
+});
+
+it("nearZeroEnd — a one-signed domain's end within a tenth of the other's distance from zero", () => {
+  assert.strictEqual(ZERO_SNAP_SHARE, 0.1);
+  assert.strictEqual(nearZeroEnd([3.2, 86.8]), 0);
+  assert.strictEqual(nearZeroEnd([86.8, 3.2]), 1, "either order");
+  assert.strictEqual(nearZeroEnd([-86.8, -3.2]), 1, "negative");
+  assert.strictEqual(nearZeroEnd([0.004, 0.9]), 0, "small values");
+  assert.strictEqual(nearZeroEnd([9, 86.8]), undefined, "past a tenth");
+  assert.strictEqual(nearZeroEnd([8.68, 86.8]), undefined, "at a tenth");
+  assert.strictEqual(nearZeroEnd([0, 86.8]), undefined, "already zero");
+  assert.strictEqual(nearZeroEnd([-3, 86.8]), undefined, "crosses zero");
+  assert.strictEqual(nearZeroEnd([5, 5]), undefined);
+});
+
+it("roundedDomain — rounding outside takes an end near zero to zero", () => {
+  // Rounded to its own digits, 3.2 would end the axis on an uneven 3.
+  assert.deepStrictEqual(
+    roundedDomain([3.2, 86.8], "outside", "linear"),
+    [0, 87],
+  );
+  assert.deepStrictEqual(
+    roundedDomain([86.8, 1.4], "outside", "linear"),
+    [87, 0],
+  );
+  assert.deepStrictEqual(
+    roundedDomain([-86.8, -3.2], "outside", "linear"),
+    [-87, 0],
+  );
+  assert.deepStrictEqual(
+    roundedDomain([24, 313], "outside", "linear"),
+    [0, 320],
+  );
+  // Farther from zero, or rounding inside, the end keeps its own rounding.
+  assert.deepStrictEqual(
+    roundedDomain([34, 313], "outside", "linear"),
+    [30, 320],
+  );
+  assert.deepStrictEqual(
+    roundedDomain([3.2, 86.8], "inside", "linear"),
+    [4, 86],
+  );
+  // A log domain never reaches zero.
+  assert.deepStrictEqual(roundedDomain([3, 8.7], "outside", "log"), [3, 9]);
 });

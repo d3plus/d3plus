@@ -28,10 +28,10 @@ it("Axis", () => {
   );
 
   // sanity check: rounding still expands a normal domain outward
-  const roundedAxis = new Axis().domain([12, 488]).rounding("outside").render();
+  const roundedAxis = new Axis().domain([62, 488]).rounding("outside").render();
   assert.deepStrictEqual(
     roundedAxis._d3Scale.domain(),
-    [10, 490],
+    [60, 490],
     "rounding still expands a normal domain outward",
   );
 });
