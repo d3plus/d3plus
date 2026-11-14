@@ -106,17 +106,19 @@
       for (var j = 0; j <= 40; j++)
         line.push({id: "Series", x: j, y: 30 + 20 * Math.sin(j / 6) + j});
 
-      new d3plus.LinePlot()
+      new d3plus.Plot()
         .select("#linear")
         .config(common)
+        .shape("Line")
         .data(line)
         .xConfig({minorTicks: true, minorGrid: true})
         .yConfig({minorTicks: true, minorGrid: true})
         .render();
 
-      new d3plus.LinePlot()
+      new d3plus.Plot()
         .select("#linear-nine")
         .config(common)
+        .shape("Line")
         .data(line)
         .yConfig({minorTicks: 9})
         .render();
