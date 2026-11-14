@@ -1017,15 +1017,15 @@
   ],
   "texts": [
     {
-      "s": "B",
-      "a": "middle"
-    },
-    {
       "s": "C",
       "a": "middle"
     },
     {
       "s": "E",
+      "a": "middle"
+    },
+    {
+      "s": "B",
       "a": "middle"
     },
     {

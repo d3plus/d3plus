@@ -330,6 +330,36 @@ it("maskBreaks keeps labels outside the mask, in paint order", () => {
   );
 });
 
+it("maskBreaks keeps a point's own labels in its run, painting with it", () => {
+  const rowA = {id: "a"},
+    rowB = {id: "b"};
+  const circle = (key, datum) => ({
+    type: "circle",
+    key,
+    cx: 0,
+    cy: 0,
+    r: 4,
+    datum,
+  });
+  const text = (key, datum) => ({type: "text", key, lines: [], datum});
+  const nodes = [
+    circle("a", rowA),
+    text("a_0", rowA),
+    circle("b", rowB),
+    text("b_0", rowB),
+    text("other", {id: "x"}),
+  ];
+  const out = maskBreaks(stubViz(yAxis()), nodes, frame);
+  assert.deepStrictEqual(
+    out.map(n => n.key),
+    ["plot-break-mask-x", "other"],
+  );
+  assert.deepStrictEqual(
+    out[0].children[0].children.map(n => n.key),
+    ["a", "a_0", "b", "b_0"],
+  );
+});
+
 /** The clips of `maskBreaks`'s x and y groups around its first run. */
 const maskClips = out => {
   assert.strictEqual(out[0].key, "plot-break-mask-x");

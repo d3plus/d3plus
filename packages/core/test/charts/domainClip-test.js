@@ -5,6 +5,7 @@ import {
   clipToPlotArea,
   DOMAIN_CLIP_KEY,
   isDomainClip,
+  pointLabel,
   unwrapDomainClips,
 } from "../../internal.ts";
 
@@ -282,4 +283,34 @@ it("isDomainClip and unwrapDomainClips find clip groups, also under a panel pref
   assert.deepStrictEqual(unwrapDomainClips([group, other]), [...marks, other]);
   const plain = [other];
   assert.strictEqual(unwrapDomainClips(plain), plain);
+});
+
+it("clipToPlotArea keeps a point's own labels in its run, painting with it", () => {
+  const rowA = {id: "a"},
+    rowB = {id: "b"};
+  const a = {...point("a", 100, 50), datum: rowA, z: 1};
+  const b = {...point("b", 120, 50), datum: rowB, z: 0};
+  const named = (key, datum) => ({...label(key), datum});
+  const nodes = [a, named("a_0", rowA), b, named("b_0", rowB), label("l")];
+  const out = clipToPlotArea(nodes, frame);
+  assert.deepStrictEqual(
+    out.map(n => n.key),
+    [`${DOMAIN_CLIP_KEY}-0`, "l"],
+  );
+  assert.deepStrictEqual(
+    out[0].children.map(n => n.key),
+    ["a", "a_0", "b", "b_0"],
+  );
+  assert.strictEqual(out[0].z, 0, "the run keeps its lowest z");
+});
+
+it("pointLabel tells a point's own label from any other", () => {
+  const row = {id: "a"};
+  const circle = {...point("a", 0, 0), datum: row};
+  assert.ok(pointLabel({...label("a_0"), datum: row}, circle));
+  assert.ok(pointLabel({...label("a_0"), datum: {data: row}}, circle));
+  assert.ok(!pointLabel({...label("x"), datum: {id: "x"}}, circle));
+  assert.ok(!pointLabel(label("x"), {...circle, datum: undefined}));
+  const bar = {type: "rect", key: "a", datum: row};
+  assert.ok(!pointLabel({...label("a_0"), datum: row}, bar), "only points");
 });

@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BubbleChart Label Layering</title>
+    <meta
+      name="description"
+      content="Overlapping bubbles and network nodes: each label paints with its own shape, so a shape drawn over another covers its label; auto labels a later shape covers move beside their bubble, or stay inside when there's no room."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>
+          labelPosition "inside": bubbles drawn on top cover the labels below
+        </h3>
+        <div class="viz" id="inside"></div>
+      </div>
+      <div>
+        <h3>labelPosition "auto": covered labels move beside their bubble</h3>
+        <div class="viz" id="auto"></div>
+      </div>
+      <div>
+        <h3>"auto" with no room beside: the label stays inside, covered</h3>
+        <div class="viz" id="blocked"></div>
+      </div>
+      <div>
+        <h3>Network: overlapping nodes cover each other's labels</h3>
+        <div class="viz" id="network"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const cluster = [
+      {id: "Atlas", x: 40, y: 50, value: 100},
+      {id: "Birch", x: 46, y: 52, value: 30},
+      {id: "Cedar", x: 55, y: 46, value: 60},
+      {id: "Dahlia", x: 60, y: 55, value: 18},
+      {id: "Elm", x: 15, y: 20, value: 12},
+      {id: "Fern", x: 85, y: 80, value: 40},
+      {id: "Grove", x: 70, y: 30, value: 25},
+      {id: "Hazel", x: 33, y: 45, value: 14},
+    ];
+
+    const bubbles = (id, data = cluster) =>
+      new d3plus.BubbleChart()
+        .select("#" + id)
+        .data(data)
+        .groupBy("id")
+        .x("x")
+        .y("y")
+        .size("value")
+        .legend(false);
+
+    bubbles("inside").labelPosition("inside").render();
+    bubbles("auto").render();
+    bubbles("blocked", [
+      {
+        id: "A bubble whose label is written out far too long to fit on one line beside it anywhere in this chart",
+        x: 50,
+        y: 50,
+        value: 100,
+      },
+      {id: "Birch", x: 47, y: 50, value: 20},
+      {id: "Elm", x: 0, y: 0, value: 4},
+      {id: "Fern", x: 100, y: 100, value: 4},
+    ])
+      .sizeMax(110)
+      .render();
+
+    new d3plus.Network()
+      .select("#network")
+      .nodes([
+        {id: "Atlas", x: 0, y: 0, value: 100},
+        {id: "Birch", x: 0.25, y: 0.1, value: 40},
+        {id: "Cedar", x: 0.5, y: -0.1, value: 70},
+        {id: "Dahlia", x: 1.4, y: 0.6, value: 20},
+        {id: "Elm", x: -0.8, y: 0.8, value: 30},
+      ])
+      .links([
+        {source: "Atlas", target: "Dahlia"},
+        {source: "Cedar", target: "Elm"},
+      ])
+      .size("value")
+      .sizeMax(60)
+      .labelPosition("inside")
+      .render();
+  </script>
+</html>
