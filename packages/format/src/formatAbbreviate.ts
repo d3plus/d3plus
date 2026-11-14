@@ -50,7 +50,7 @@ function parseSuffixes(d: string, i: number): SuffixEntry {
     Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` to `"1.2M"`).
     @param n The number to be formatted.
     @param locale The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties.
-    @param precision Number of significant digits to display.
+    @param precision A [d3-format](https://github.com/d3/d3-format#locale_format) specifier (e.g. `",.2f"`), used as given. Without one, trailing zeros after the decimal are dropped (`30`, not `"30.0"`).
 */
 export default function formatAbbreviate(
   n: number | string,
@@ -97,9 +97,12 @@ export default function formatAbbreviate(
     val = d3plusFormatLocale.format(".2g")(n as number);
   else val = d3plusFormatLocale.format(".3g")(n as number);
 
+  // d3's minus sign (\u2212) as a hyphen-minus (-)
+  const sign = negative && val.charAt(0) !== "\u2212" ? "-" : "";
+  const text = `${sign}${val.replace(/\u2212/g, "-")}`;
+  if (precision) return text;
   const point = decimal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return `${negative && val.charAt(0) !== "\u2212" ? "\u2212" : ""}${val}`
-    .replace(/\u2212/g, "-") // replace new d3 default minus sign (\u2212) to hyphen-minus (-)
+  return text
     .replace(new RegExp(`(${point}\\d*?[1-9])0+$`), "$1") // removes any trailing zeros
     .replace(new RegExp(`${point}0*$`), ""); // removes any trailing decimal point
 }

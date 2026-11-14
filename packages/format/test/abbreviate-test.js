@@ -84,12 +84,33 @@ it("abbreviate: whole numbers have no decimals in es-ES", () => {
   assert.strictEqual(abbreviate(1500, "es-ES"), "1,5k");
 });
 
-it("abbreviate: explicit precision strips only the locale's decimals", () => {
+it("abbreviate: an explicit precision keeps its trailing zeros", () => {
+  assert.strictEqual(abbreviate(1.5, "en-US", ",.2f"), "1.50");
+  assert.strictEqual(abbreviate(30, "en-US", ".1f"), "30.0");
+  assert.strictEqual(abbreviate(-1.5, "en-US", ".2f"), "-1.50");
+  assert.strictEqual(abbreviate(1.505, "en-US", ".4f"), "1.5050");
+  assert.strictEqual(abbreviate(1.5, "en-US", ".3~g"), "1.5");
   assert.strictEqual(abbreviate(1000, "es-ES", ",.0f"), "1.000");
-  assert.strictEqual(abbreviate(1500.5, "es-ES", ",.2f"), "1.500,5");
-  assert.strictEqual(abbreviate(1000, "fr-FR", ",.2f"), "1 000");
-  assert.strictEqual(abbreviate(1.5, "en-US", ".2f"), "1.5");
-  assert.strictEqual(abbreviate(1.505, "en-US", ".4f"), "1.505");
+  assert.strictEqual(abbreviate(1500.5, "es-ES", ",.2f"), "1.500,50");
+  assert.strictEqual(abbreviate(1000, "fr-FR", ",.2f"), "1 000,00");
+  for (const [name, locale] of Object.entries(formatLocale)) {
+    const {decimal, thousands} = locale.delimiters;
+    assert.strictEqual(
+      abbreviate(1234.5, name, ",.2f"),
+      `1${thousands}234${decimal}50`,
+      `${name}: 1234.5`,
+    );
+    assert.strictEqual(
+      abbreviate(30, name, ".1f"),
+      `30${decimal}0`,
+      `${name}: 30`,
+    );
+    assert.strictEqual(
+      abbreviate(-30, name, ".2f"),
+      `-30${decimal}00`,
+      `${name}: -30`,
+    );
+  }
 });
 
 it("abbreviate: every locale", () => {
