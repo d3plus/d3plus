@@ -5,6 +5,8 @@ import {
   bestStretch,
   bestStretchAt,
   labelBand,
+  LINE_LABEL_MAX_SLOPE,
+  lineLabelMaxSlope,
   PointGrid,
   resample,
   scoreStretch,
@@ -185,6 +187,28 @@ it("bestStretchAt — no steeper than maxSlope, and no tighter than minRadius", 
   assert.strictEqual(bestStretchAt([arc], 30, ctx()), null);
   assert.ok(bestStretchAt([arc], 30, {...ctx(), minRadius: 2}));
   assert.ok(bestStretchAt([arc], 30, {...ctx(), minRadius: 0}));
+});
+
+it("lineLabelMaxSlope — maxSlope's degrees as radians, none from 90°", () => {
+  const rad = deg => (deg * Math.PI) / 180;
+  assert.strictEqual(LINE_LABEL_MAX_SLOPE, 45);
+  close(lineLabelMaxSlope(undefined), rad(45), 1e-12);
+  close(lineLabelMaxSlope(80), rad(80), 1e-12);
+  close(lineLabelMaxSlope(10), rad(10), 1e-12);
+  assert.strictEqual(lineLabelMaxSlope(90), undefined, "no cap");
+  assert.strictEqual(lineLabelMaxSlope(120), undefined);
+  assert.strictEqual(lineLabelMaxSlope(Infinity), undefined);
+  for (const invalid of [0, -30, NaN, "60", null, {}])
+    close(lineLabelMaxSlope(invalid), rad(45), 1e-12);
+  // The radians cap a stretch as bestStretchAt reads them.
+  const steep = [
+    [50, 250],
+    [50 + 200 * Math.cos(rad(60)), 250 - 200 * Math.sin(rad(60))],
+  ];
+  const at = maxSlope => bestStretchAt([steep], 60, {...ctx(), maxSlope});
+  assert.strictEqual(at(lineLabelMaxSlope(undefined)), null);
+  assert.ok(at(lineLabelMaxSlope(80)));
+  assert.ok(at(lineLabelMaxSlope(90)));
 });
 
 it("scoreStretch — ignores the points of the line it sits on", () => {

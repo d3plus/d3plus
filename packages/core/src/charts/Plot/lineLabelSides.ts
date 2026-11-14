@@ -38,6 +38,12 @@ export interface LineLabelConfig {
       that gentle goes unlabeled. `0` sets no limit. Defaults to `4`.
   */
   minRadius?: number;
+  /**
+      For `lineLabels: "along"`: the steepest a label's stretch may climb or
+      fall from end to end, in degrees. A line with no stretch that level
+      goes unlabeled. `90` or more sets no limit. Defaults to `45`.
+  */
+  maxSlope?: number;
 }
 
 /**

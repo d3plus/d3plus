@@ -33,8 +33,22 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import type {LineLabelConfig} from "./lineLabelSides.js";
 import {rowLabelsAlong} from "./lineLabelSides.js";
 
-/** The steepest stretch a line's label runs along: 45°, past which it would read more up than across. */
-export const LINE_LABEL_MAX_SLOPE = Math.PI / 4;
+/** The steepest stretch a line's label runs along by default, in degrees: past 45°, it would read more up than across. */
+export const LINE_LABEL_MAX_SLOPE = 45;
+
+/**
+    Reads `lineLabelConfig.maxSlope` (in degrees) as the radians a stretch
+    may climb or fall: undefined, for no limit, at 90° or more, and
+    `LINE_LABEL_MAX_SLOPE` when it is missing or not a positive number.
+    @param value The configured `maxSlope`.
+*/
+export function lineLabelMaxSlope(value: unknown): number | undefined {
+  const degrees =
+    typeof value === "number" && value > 0 && !Number.isNaN(value)
+      ? value
+      : LINE_LABEL_MAX_SLOPE;
+  return degrees >= 90 ? undefined : (degrees * Math.PI) / 180;
+}
 
 /**
     Obstacle points, bucketed by cell for nearest-distance lookups. Each
@@ -349,7 +363,7 @@ export function emitAlongLabels(
     fontSize,
     lift: 3.5,
     minRadius: labelMinRadius(config?.minRadius),
-    maxSlope: LINE_LABEL_MAX_SLOPE,
+    maxSlope: lineLabelMaxSlope(config?.maxSlope),
   };
   // A series drawn as several lines (observed and predicted, say) is named
   // once: its later lines count as named when an earlier one was.

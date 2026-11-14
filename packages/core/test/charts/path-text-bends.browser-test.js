@@ -296,3 +296,68 @@ for (const renderer of ["svg", "canvas"])
         `${label.text} climbs ${label.slope.toFixed(0)}°`,
       );
   });
+
+const tall = "<div id='viz' style='width:300px;height:520px'></div>";
+
+/**
+    Runs in the page: a steep line across a level one, labelled along with
+    `lineLabelConfig`, and which series are named, how steeply, and any
+    console warnings the render raised.
+*/
+const drawSteep = ([renderer, lineLabelConfig]) =>
+  new Promise(resolve => {
+    const data = [0, 1, 2].flatMap(x => [
+      {id: "Rising Series", x, y: x * 50},
+      {id: "Level Series", x, y: 50},
+    ]);
+    const warnings = [];
+    const warn = console.warn;
+    console.warn = (...args) => warnings.push(args.join(" "));
+    const viz = new window.d3plus.LinePlot()
+      .select("#viz")
+      .renderer(renderer)
+      .duration(0)
+      .data(data)
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .shapeConfig({Line: {curve: "linear"}})
+      .lineLabels("along")
+      .lineLabelConfig(lineLabelConfig);
+    viz.render(() => {
+      console.warn = warn;
+      const labels = {};
+      const walk = node => {
+        if (node.type === "group") node.children.forEach(walk);
+        if (node.type !== "text" || !node.path) return;
+        if (!/^line-label-along-/.test(`${node.key}`)) return;
+        const pts = [...node.path.d.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)];
+        const [, x0, y0] = pts[0];
+        const [, x1, y1] = pts[pts.length - 1];
+        const slope = Math.atan2(Math.abs(y1 - y0), Math.abs(x1 - x0));
+        labels[node.lines[0].text] = (slope * 180) / Math.PI;
+      };
+      walk(viz._paintedScene.root);
+      resolve({labels, warnings});
+    });
+  });
+
+for (const renderer of ["svg", "canvas"])
+  it(`steep line ${renderer}: lineLabelConfig.maxSlope lets a steeper label back in`, async () => {
+    const capped = await render(tall, drawSteep, [renderer, {}]);
+    assert.ok("Level Series" in capped.labels);
+    assert.ok(
+      !("Rising Series" in capped.labels),
+      `45° by default: ${JSON.stringify(capped.labels)}`,
+    );
+    const steep = await render(tall, drawSteep, [
+      renderer,
+      {maxSlope: 80, minRadius: 4},
+    ]);
+    const slope = steep.labels["Rising Series"];
+    assert.ok(slope > 45 && slope <= 80, `climbs ${slope}°`);
+    const free = await render(tall, drawSteep, [renderer, {maxSlope: 90}]);
+    assert.ok(free.labels["Rising Series"] > 45, "90 sets no cap");
+    for (const out of [capped, steep, free])
+      assert.deepStrictEqual(out.warnings, [], "no config warnings");
+  });
