@@ -12,6 +12,9 @@ import type {FacetConfig} from "../facet/facetConfig.js";
 import {dropLegendHistory} from "./history.js";
 import {broadcastLink} from "./linkGroup.js";
 import {shapeHoverEnabled} from "./shapeHover.js";
+import {appendData} from "./appendRows.js";
+import type {AppendOptions} from "./appendRows.js";
+import {dataChanged} from "./dataChanged.js";
 import {setLoaderValue} from "./loaderFormat.js";
 import {stopDataPolling} from "./vizDataPolling.js";
 import {setZoomBrush, zoomBy} from "../drawSteps/zoomActions.js";
@@ -92,10 +95,7 @@ Defaults to an empty array (`[]`).
       this._hidden = [];
       this._solo = [];
       dropLegendHistory(this as unknown as VizInstance);
-      if (
-        this._userData &&
-        JSON.stringify(_) !== JSON.stringify(this._userData)
-      ) {
+      if (this._userData && dataChanged(_, this._userData)) {
         this.schema.timeFilter = false;
         this._timelineSelection = false;
       }
@@ -105,6 +105,23 @@ Defaults to an empty array (`[]`).
       return this;
     }
     return this._data;
+  }
+
+  /**
+      Adds rows to the chart's data and redraws it: lines extend, the axes
+      slide to take in the new rows, and every mark already drawn tweens to
+      its new place rather than redrawing. Appends that land before the next
+      animation frame share one redraw.
+
+`options.window` drops the oldest rows: a number keeps the latest that many rows, and a time span (`"5 minutes"`, `"90s"`, `"300000ms"`, `"1.5 hours"`; units from `ms` to `weeks`) keeps the rows within that span of the latest time, read from `time`, or else from the discrete axis (a LinePlot's `x`).
+
+Unlike setting `data`, appending keeps the series a viewer hid or soloed in the legend and the period they picked on the timeline. Rows are added to the data the chart holds, after any `dataFormat`; a later poll (see `dataPollingInterval`) replaces them.
+      @param rows A row, or an array of rows, oldest first.
+      @param options `{window}`: the rows to keep.
+  */
+  append(rows: DataPoint | DataPoint[], options?: AppendOptions): this {
+    appendData(this as unknown as VizInstance, rows, options);
+    return this;
   }
 
   /**
