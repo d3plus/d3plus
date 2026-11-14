@@ -1456,8 +1456,13 @@ export interface D3plusConfig {
       `strokeDasharray` (default `"2 4"`), `strokeWidth`, and `opacity`.
   */
   connectGaps?: ConnectGaps;
-  /** Funnel: fills the gap between consecutive stages with a neck joining their widths. */
-  connector?: boolean;
+  /**
+      Funnel: fills the gap between consecutive stages with a neck joining
+      their widths. Dumbbell: how each category's values are joined,
+      `"line"` (a connector behind the dots, the default) or `"bar"` (a
+      floating bar in place of the dots).
+  */
+  connector?: boolean | "line" | "bar";
   /**
       Funnel: paint for the necks between stages (`fill`, `opacity`,
       `stroke`, `strokeWidth`), each optionally a function of the stage the
@@ -1525,7 +1530,11 @@ export interface D3plusConfig {
       else its `time`.
   */
   date?: string | ((d: DataPoint, i: number) => Date | number | string);
-  /** Waterfall: fill for bars that lower the running total. Defaults to `colorDefaults.off`. */
+  /**
+      Waterfall: fill for bars that lower the running total. Dumbbell with
+      `arrows`: color for a category whose value falls. Defaults to
+      `colorDefaults.off`.
+  */
   decreaseColor?: string;
   /**
       Kernel density options for Violin, Ridgeline, and DensityPlot curves:
@@ -1793,7 +1802,11 @@ export interface D3plusConfig {
       `false` fills both.
   */
   hollow?: boolean;
-  /** Waterfall: fill for bars that raise the running total. Defaults to `colorDefaults.on`. */
+  /**
+      Waterfall: fill for bars that raise the running total. Dumbbell with
+      `arrows`: color for a category whose value rises. Defaults to
+      `colorDefaults.on`.
+  */
   increaseColor?: string;
   /**
       What Violin draws inside each violin: `"box"` (default; a narrow box

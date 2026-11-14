@@ -847,6 +847,40 @@ export {
 } from "./src/charts/Dumbbell/emit.js";
 export type {DumbbellSpan} from "./src/charts/Dumbbell/emit.js";
 export {
+  BAR_MAX_THICKNESS,
+  BAR_STEP_SHARE,
+  barThickness,
+  changeText,
+  directionColor,
+  dumbbellChanges,
+  dumbbellConnector,
+  dumbbellDirection,
+} from "./src/charts/Dumbbell/changes.js";
+export type {
+  DirectionColors,
+  DumbbellChange,
+  DumbbellConnector,
+  DumbbellDirection,
+} from "./src/charts/Dumbbell/changes.js";
+export {
+  arrowSegment,
+  emitArrowConnectors,
+  emitBarConnectors,
+  pointGeometry,
+} from "./src/charts/Dumbbell/changeEmit.js";
+export type {
+  ArrowSegment,
+  PointGeometry,
+} from "./src/charts/Dumbbell/changeEmit.js";
+export {
+  barColor,
+  categoryValues,
+  changeRow,
+  lineColor,
+  rowDirection,
+} from "./src/charts/Dumbbell/categoryChange.js";
+export type {CategoryValues} from "./src/charts/Dumbbell/categoryChange.js";
+export {
   categoryGaps,
   gapComparator,
   syncGapSort,

@@ -1,6 +1,8 @@
 /**
     Dumbbell's Circle emitter: a connector per category (a Line from its
-    smallest to its largest value), then Plot's circles on top, one per row.
+    smallest to its largest value, an arrow with `arrows`, or a floating bar
+    with `connector: "bar"`, see `changeEmit.ts`), then Plot's circles on top,
+    one per row.
 
     Connectors are drawn behind the points and take no pointer events: the
     category's tooltip comes from its points, or from the shared hover
@@ -11,7 +13,6 @@
 */
 
 import type {SceneNode} from "@d3plus/render";
-import {finite} from "@d3plus/math";
 
 import {
   collectComputed,
@@ -25,68 +26,26 @@ import {
   type ShapeEmitter,
 } from "../features/shapeEmit.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
+import {dumbbellConnector} from "./changes.js";
+import {
+  emitArrowConnectors,
+  emitBarConnectors,
+  pointGeometry,
+} from "./changeEmit.js";
+import {
+  asConnector,
+  CONNECTOR_KEY_SUFFIX,
+  dumbbellSpans,
+  type ConnectorEnd,
+} from "./connectors.js";
 
-/** Key suffix of a category's connector node. */
-export const CONNECTOR_KEY_SUFFIX = "::connector";
-
-/** One category's connector: the rows holding its smallest and largest value. */
-export interface DumbbellSpan {
-  category: string;
-  lo: PlotDatum;
-  hi: PlotDatum;
-}
-
-/**
-    One end of a connector, fed to the Line shape. It wraps the row so style
-    accessors unwrap to the row, and carries its category as a string so the
-    Line's merged datum keeps it.
-*/
-interface ConnectorEnd {
-  __d3plus__: true;
-  data: PlotDatum;
-  i: number;
-  category: string;
-}
-
-/**
-    Each category's span, in first-seen order: the rows holding its smallest
-    and largest value along the value axis. Categories whose values don't
-    differ (or with fewer than two numeric values) have no span.
-    @param rows The plotted rows.
-    @param discrete The category axis.
-*/
-export function dumbbellSpans(
-  rows: PlotDatum[],
-  discrete: "x" | "y",
-): DumbbellSpan[] {
-  const opp = discrete === "x" ? "y" : "x";
-  const spans = new Map<string, {lo?: PlotDatum; hi?: PlotDatum}>();
-  for (const d of rows) {
-    const category = `${d[discrete]}`;
-    let span = spans.get(category);
-    if (!span) spans.set(category, (span = {}));
-    const v = d[opp];
-    if (!finite(v)) continue;
-    if (!span.lo || v < (span.lo[opp] as number)) span.lo = d;
-    if (!span.hi || v > (span.hi[opp] as number)) span.hi = d;
-  }
-  const out: DumbbellSpan[] = [];
-  spans.forEach(({lo, hi}, category) => {
-    if (lo && hi && lo !== hi && lo[opp] !== hi[opp])
-      out.push({category, lo, hi});
-  });
-  return out;
-}
-
-/**
-    A connector node, drawn but never hit-tested. It keeps no datum of its
-    own, only its ends' points, so it dims and highlights with them.
-*/
-function asConnector(node: SceneNode): SceneNode {
-  const out = {...node, interactive: false};
-  delete out.datum;
-  return out;
-}
+export {
+  asConnector,
+  CONNECTOR_KEY_SUFFIX,
+  dumbbellSpans,
+  type ConnectorEnd,
+  type DumbbellSpan,
+} from "./connectors.js";
 
 /** The connectors: one two-point Line per category, styled by `shapeConfig.Line`. */
 function emitConnectors(ctx: ShapeEmitContext): SceneNode[] {
@@ -120,16 +79,36 @@ function emitConnectors(ctx: ShapeEmitContext): SceneNode[] {
 }
 
 /**
-    Dumbbell's emitter for its Circle rows: connectors, then the points (each
-    keyed by its series and category).
+    Dumbbell's emitter for its Circle rows: connectors (lines, arrows, or
+    floating bars), then the points (each keyed by its series and category),
+    which a bar connector draws in place of.
 */
 export const dumbbellEmit: ShapeEmitter = (ctx, key) => {
   const shapeConfig = markSharedConfig({
     ...ctx.shapeConfig,
     id: (d: PlotDatum) => `${d.id}_${d.discrete}`,
   });
-  return [
-    ...emitConnectors(ctx),
-    ...shapeEmitters.Circle({...ctx, shapeConfig}, key),
-  ];
+  const points = shapeEmitters.Circle({...ctx, shapeConfig}, key);
+  const {viz} = ctx;
+  if (dumbbellConnector(viz.schema.connector) === "bar")
+    return [
+      ...emitBarConnectors(ctx, pointGeometry(points), !!viz.schema.arrows),
+      ...points.map(hidePoint),
+    ];
+  if (viz.schema.arrows)
+    return [...emitArrowConnectors(ctx, pointGeometry(points)), ...points];
+  return [...emitConnectors(ctx), ...points];
 };
+
+/**
+    A point a bar connector draws in place of: kept for hover, the shared
+    tooltip and keyboard focus, but painted with nothing, so emphasis leaves
+    it unseen too.
+*/
+function hidePoint(node: SceneNode): SceneNode {
+  if (node.type !== "circle") return node;
+  return {
+    ...node,
+    paint: {...node.paint, fill: "transparent", stroke: "transparent"},
+  };
+}
