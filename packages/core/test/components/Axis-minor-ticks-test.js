@@ -270,10 +270,11 @@ it("a time axis with minorTicks: true marks the calendar between its ticks", () 
     .scale("time")
     .domain([years[0], years[10]])
     .data(years)
-    .width(560)
+    .width(320)
     .minorTicks(true);
   measureAxis(axis);
-  // Months crowd 560 pixels, so the quarters stand in for them.
+  // Months crowd 320 pixels (under 3px apart, whatever the label font's
+  // metrics), so the quarters stand in for them.
   assert.strictEqual(axis._minorTickValues.length, 30);
   assert.ok(
     axis._minorTickValues.every(v =>
