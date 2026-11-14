@@ -30,11 +30,15 @@ type StackSeries = ArrayLike<ArrayLike<number>> & {index?: number};
     @param stackData The d3-stack output, `[series][group] = [start, end]`.
     @param stackKeys Each series' stack key, in `stackData` order.
     @param seriesOf The legend series a stack key belongs to; undefined skips it.
+    @param alongAxis Ranks each stack's segments by where they sit along the
+    value axis, from its low end, in place of their stacking order (for a
+    stack centered on a neutral series, see `stackNeutral.ts`).
 */
 export function stackPositions(
   stackData: StackSeries[],
   stackKeys: unknown[],
   seriesOf: (key: string) => string | undefined,
+  alongAxis = false,
 ): StackPositions {
   const positions: StackPositions = new Map();
   const groups = Math.max(0, ...stackData.map(s => s.length));
@@ -47,7 +51,10 @@ export function stackPositions(
       const [start, end] = [+segment[0], +segment[1]];
       if (!Number.isFinite(start) || !Number.isFinite(end) || start === end)
         return;
-      segments.push({series, order: s.index ?? i});
+      segments.push({
+        series,
+        order: alongAxis ? start + end : (s.index ?? i),
+      });
     });
     segments.sort((a, b) => a.order - b.order);
     segments.forEach(({series}, rank) => {
