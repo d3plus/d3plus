@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PeriodLabels · Plot</title>
+    <meta
+      name="description"
+      content="Time axis labels centered in the periods they name (tickLabelPosition: period), with ticks on the boundaries."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 10px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: normal;
+        margin: 12px 0 0;
+      }
+      .chart {
+        height: 280px;
+        width: 620px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>Monthly line, labels at ticks (default)</h3>
+    <div class="chart" id="monthly-tick"></div>
+    <h3>Monthly line, period labels</h3>
+    <div class="chart" id="monthly-period"></div>
+    <h3>Yearly bars, period labels</h3>
+    <div class="chart" id="yearly-bars"></div>
+    <h3>Daily UTC line, period labels (utc: true)</h3>
+    <div class="chart" id="daily-utc"></div>
+    <h3>Weekdays with weekends hidden (rangeBreaks), period labels</h3>
+    <div class="chart" id="weekdays"></div>
+    <h3>36 months, labels rotated -45 degrees, period labels</h3>
+    <div class="chart" id="rotated"></div>
+    <h3>Timeline (ticks), period labels</h3>
+    <svg id="timeline" width="620" height="80"></svg>
+
+    <script>
+      var common = {
+        duration: 0,
+        groupBy: "id",
+        legend: false,
+        x: "date",
+        y: "value",
+      };
+
+      function wave(count, step, offset) {
+        var out = [];
+        for (var i = 0; i < count; i++)
+          out.push({
+            id: "Series",
+            date: step(i),
+            value: 40 + Math.round(20 * Math.sin((i + (offset || 0)) / 2)),
+          });
+        return out;
+      }
+
+      var months = wave(12, function (i) {
+        return new Date(2024, i, 1);
+      });
+
+      new d3plus.LinePlot()
+        .select("#monthly-tick")
+        .config(common)
+        .data(months)
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#monthly-period")
+        .config(common)
+        .data(months)
+        .xConfig({tickLabelPosition: "period"})
+        .render();
+
+      new d3plus.BarChart()
+        .select("#yearly-bars")
+        .config(common)
+        .data(
+          wave(8, function (i) {
+            return new Date(2017 + i, 0, 1);
+          }),
+        )
+        .xConfig({tickLabelPosition: "period"})
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#daily-utc")
+        .config(common)
+        .data(
+          wave(10, function (i) {
+            return new Date(Date.UTC(2024, 2, 1 + i));
+          }),
+        )
+        .xConfig({tickLabelPosition: "period", utc: true})
+        .render();
+
+      var weekdays = [];
+      for (var d = 1; d <= 26; d++) {
+        var day = new Date(2024, 0, d);
+        if (day.getDay() % 6)
+          weekdays.push({
+            id: "Series",
+            date: day,
+            value: 40 + Math.round(10 * Math.sin(d / 3)),
+          });
+      }
+      new d3plus.LinePlot()
+        .select("#weekdays")
+        .config(common)
+        .data(weekdays)
+        .xConfig({rangeBreaks: "weekends", tickLabelPosition: "period"})
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#rotated")
+        .config(common)
+        .data(
+          wave(36, function (i) {
+            return new Date(2022, i, 1);
+          }),
+        )
+        .xConfig({labelRotation: -45, tickLabelPosition: "period"})
+        .render();
+
+      var years = [];
+      for (var y = 2000; y <= 2024; y++) years.push(new Date(y, 0, 1));
+      new d3plus.Timeline()
+        .select("#timeline")
+        .buttonBehavior("ticks")
+        .data(years)
+        .domain([years[0], years[years.length - 1]])
+        .tickLabelPosition("period")
+        .width(620)
+        .height(80)
+        .duration(0)
+        .render();
+    </script>
+  </body>
+</html>

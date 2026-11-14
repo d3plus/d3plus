@@ -244,6 +244,21 @@ export interface AxisConfig {
   shapeConfig?: Record<string, unknown>;
   /** Tick formatter, called with the axis as `this`. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
   tickFormat?: (d: number | string) => string | number;
+  /**
+      Where each tick label is drawn: `"tick"` (the default) centers it on
+      its tick, and `"period"` centers a date label in the period it names
+      ("Mar" between the ticks for March 1 and April 1), while the ticks and
+      grid lines stay on the boundaries. The period is the calendar unit
+      the axis's dates step by (a year, quarter, month, day, hour, minute,
+      or second, read in UTC with `utc`); on a linear axis of whole-number
+      years, it is the year. A period the axis shows only part of centers
+      in that part, and the last one, which starts where the axis ends,
+      centers where its whole period would be, past the end. Other axes
+      draw their labels at their ticks.
+      @example
+      {xConfig: {tickLabelPosition: "period"}}
+  */
+  tickLabelPosition?: "tick" | "period";
   /** Tick values of the axis. */
   ticks?: unknown[];
   /**
