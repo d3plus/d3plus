@@ -22,6 +22,7 @@ import {
   Geomap as GeomapClass,
   Hexbin as HexbinClass,
   Histogram as HistogramClass,
+  HorizonChart as HorizonChartClass,
   Icicle as IcicleClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
@@ -130,6 +131,8 @@ export const Geomap = createD3plusComponent(GeomapClass, "chart");
 export const Hexbin = createD3plusComponent(HexbinClass, "chart");
 /** Vue component for rendering a d3plus Histogram visualization. */
 export const Histogram = createD3plusComponent(HistogramClass, "chart");
+/** Vue component for rendering a d3plus HorizonChart visualization. */
+export const HorizonChart = createD3plusComponent(HorizonChartClass, "chart");
 /** Vue component for rendering a d3plus Icicle visualization. */
 export const Icicle = createD3plusComponent(IcicleClass, "chart");
 /** Vue component for rendering a d3plus LinePlot visualization. */

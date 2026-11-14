@@ -1366,6 +1366,71 @@ export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {
+  horizonChartDef,
+  rowLabelOpacity,
+  shareHorizonScales,
+} from "./src/charts/HorizonChart/index.js";
+export {
+  applyRowDomain,
+  bandCount,
+  measureBands,
+  rowDomain,
+} from "./src/charts/HorizonChart/measure.js";
+export {
+  handleRowLabel,
+  rowHidden,
+  labelAnchor,
+  rowLabelOf,
+  rowLabelTabStop,
+  rowToggle,
+} from "./src/charts/HorizonChart/rowFilter.js";
+export type {RowFilter} from "./src/charts/HorizonChart/rowFilter.js";
+export {
+  horizonBandSize,
+  horizonSlices,
+  niceCeil,
+} from "./src/charts/HorizonChart/horizonBands.js";
+export type {HorizonSlice} from "./src/charts/HorizonChart/horizonBands.js";
+export {horizonPalette} from "./src/charts/HorizonChart/horizonColors.js";
+export type {
+  HorizonColorConfig,
+  HorizonColorSetting,
+  HorizonPalette,
+} from "./src/charts/HorizonChart/horizonColors.js";
+export {
+  HORIZON_ROW,
+  horizonEmit,
+  horizonRowBox,
+  horizonSlicePath,
+} from "./src/charts/HorizonChart/emit.js";
+export type {HorizonRowBox} from "./src/charts/HorizonChart/emit.js";
+export {
+  handleHorizonHover,
+  horizonHitRows,
+  resolveHorizonHover,
+} from "./src/charts/HorizonChart/hover.js";
+export type {
+  HorizonHitRow,
+  HorizonHover,
+  HorizonHoverRow,
+} from "./src/charts/HorizonChart/hover.js";
+export {
+  HORIZON_BAND,
+  bandKeyRows,
+  bandLabel,
+  bandMeta,
+  horizonState,
+  rowValue,
+  seriesId,
+  userRow as horizonUserRow,
+  valueColor,
+  valueFormat as horizonValueFormat,
+} from "./src/charts/HorizonChart/state.js";
+export type {
+  HorizonBandMeta,
+  HorizonState,
+} from "./src/charts/HorizonChart/state.js";
 export {icicleDef} from "./src/charts/Icicle/index.js";
 export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {marimekkoDef} from "./src/charts/Marimekko/index.js";
@@ -1716,6 +1781,7 @@ export {
 export type {
   FocusDirection,
   FocusTarget,
+  TabStopTest,
 } from "./src/charts/viz/focusTargets.js";
 export {focusRingNode} from "./src/charts/viz/focusRing.js";
 export type {FocusRingStyle} from "./src/charts/viz/focusRing.js";
@@ -2143,6 +2209,7 @@ export {
   appendFocusRing,
   focusRingStyle,
   syncKeyboardNav,
+  tabTarget,
   targetLabel,
   teardownKeyboardNav,
 } from "./src/charts/viz/keyboardNav.js";

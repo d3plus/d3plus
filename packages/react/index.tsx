@@ -24,6 +24,7 @@ import {
   Geomap as GeomapClass,
   Hexbin as HexbinClass,
   Histogram as HistogramClass,
+  HorizonChart as HorizonChartClass,
   Icicle as IcicleClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
@@ -177,6 +178,10 @@ export const Hexbin = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Histogram visualization. */
 export const Histogram = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={HistogramClass} {...props} />
+);
+/** React component for rendering a d3plus HorizonChart visualization. */
+export const HorizonChart = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={HorizonChartClass} {...props} />
 );
 /** React component for rendering a d3plus Icicle visualization. */
 export const Icicle = (props: D3plusComponentProps) => (
