@@ -275,25 +275,26 @@ function nodeBoxes(
   links: NetworkLink[],
   r: RScale,
 ): FocusBox[] {
-  const sized = new Map(
-    nodes.map(n => [
-      n.id,
-      {id: n.id, x: n.x ?? 0, y: n.y ?? 0, r: r(n.r), shape: n.shape},
-    ]),
-  );
   const rect = shapeConfigFor(v, "Rect") as RectSizeConfig;
-  const boxes: FocusBox[] = nodes.map(node => {
-    const n = sized.get(node.id)!;
-    // A Rect node reaches as far as its box.
-    const [w, h] =
-      node.shape === "Rect"
-        ? rectNodeSize(rect, node, n.r).map(s => s / 2)
-        : [n.r, n.r];
-    return [
-      [n.x - w, n.y - h],
-      [n.x + w, n.y + h],
-    ];
-  });
+  // A Rect node reaches as far as its box, and its loops leave that box.
+  const sized = new Map(
+    nodes.map(n => {
+      const radius = r(n.r);
+      const [width, height] =
+        n.shape === "Rect"
+          ? rectNodeSize(rect, n, radius)
+          : [radius * 2, radius * 2];
+      const at = {x: n.x ?? 0, y: n.y ?? 0};
+      return [
+        n.id,
+        {id: n.id, ...at, r: radius, shape: n.shape, width, height},
+      ];
+    }),
+  );
+  const boxes: FocusBox[] = [...sized.values()].map(n => [
+    [n.x - n.width / 2, n.y - n.height / 2],
+    [n.x + n.width / 2, n.y + n.height / 2],
+  ]);
   const stroke = linkStrokeScale(v, links, r.range()[0]);
   const loops = networkLoops(
     nodes,

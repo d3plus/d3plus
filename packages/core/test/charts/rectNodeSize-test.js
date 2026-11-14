@@ -118,3 +118,38 @@ it("Network: a circle layout's Rect nodes take their config's size too", () => {
     assert.strictEqual(n.height, 12);
   }
 });
+
+it("Network: the fit keeps Rect nodes' loops inside the chart", () => {
+  const chart = new Network().config({
+    nodes: ["alpha", "beta", "gamma", "delta", "epsilon"].map((id, i) => ({
+      id,
+      x: i,
+      y: i % 2,
+    })),
+    links: [
+      {source: "alpha", target: "beta"},
+      {source: "beta", target: "gamma"},
+      {source: "gamma", target: "delta"},
+      {source: "delta", target: "epsilon"},
+      {source: "alpha", target: "alpha"},
+      {source: "epsilon", target: "epsilon"},
+    ],
+    shape: "Rect",
+    shapeConfig: {Rect: {width: 80, height: 16}},
+    width: 400,
+    height: 300,
+  });
+  chart._preDraw();
+  chart._margin = {top: 0, right: 0, bottom: 0, left: 0};
+  chart._padding = {top: 0, right: 0, bottom: 0, left: 0};
+  runStages({viz: chart}, [applyNetworkLayout]);
+  const loops = chart.ctx.networkCtx.links.filter(l => l.loop);
+  assert.strictEqual(loops.length, 2);
+  for (const {loop, source} of loops) {
+    const [[x0, y0], [x1, y1]] = loop.box;
+    assert.ok(
+      x0 >= 0 && x1 <= 400 && y0 >= 0 && y1 <= 300,
+      `${source.id}'s loop [${x0}, ${y0}, ${x1}, ${y1}] fits the chart`,
+    );
+  }
+});
