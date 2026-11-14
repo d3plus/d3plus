@@ -13,7 +13,7 @@ import {color} from "d3-color";
 
 import {colorGrayscale} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import type {SceneNode} from "@d3plus/render";
+import type {InteractionPoint, SceneNode} from "@d3plus/render";
 
 import {activeBucketColors} from "../features/colorScaleBucket.js";
 import {hoveredSwatch} from "../features/colorScaleHover.js";
@@ -214,6 +214,24 @@ function nodeMatches(node: SceneNode, predicate: Predicate): boolean | null {
   });
 }
 
+/**
+    The rows of a matched multi-point mark's `points` that `predicate`
+    matches. A mark with a datum of its own (a Line or Area, whose datum is
+    its points' merged aggregate) matched as a whole, so it gives every
+    point's row when no single point matches.
+*/
+export function pointRows(
+  points: InteractionPoint[],
+  predicate: Predicate,
+  whole: boolean,
+): DataPoint[] {
+  const rows = points.map(p => p.datum);
+  const own = rows.filter((d, k) =>
+    matchesChain(predicate, d, typeof d.i === "number" ? d.i : k),
+  );
+  return own.length || !whole ? own : rows;
+}
+
 /** Each `field` the scene's `hoverMatch` labels ask about. */
 function hoverFields(nodes: SceneNode[], out = new Set<string>()): Set<string> {
   for (const node of nodes) {
@@ -226,8 +244,9 @@ function hoverFields(nodes: SceneNode[], out = new Set<string>()): Set<string> {
 
 /**
     The values the marks `predicate` matches hold under each of `fields`
-    (as strings), for the `hoverMatch` labels. Chrome is skipped: axis and
-    timeline subtrees, and the labels themselves.
+    (as strings), for the `hoverMatch` labels, read off a multi-point mark's
+    points (see `pointRows`). Chrome is skipped: axis and timeline subtrees,
+    and the labels themselves.
 */
 function matchedValues(
   nodes: SceneNode[],
@@ -244,10 +263,10 @@ function matchedValues(
     if (group === "axis" || group === "timeline" || node.hoverMatch) return;
     if (nodeMatches(node, predicate)) {
       if (node.hoverKeys) add(node.hoverKeys as DataPoint);
-      if (node.datum) add(node.datum);
-      else
-        for (const p of node.interactionPoints ?? [])
-          if (matchesChain(predicate, p.datum, 0)) add(p.datum);
+      const points = node.interactionPoints ?? [];
+      if (points.length)
+        pointRows(points, predicate, !!node.datum).forEach(add);
+      else add(node.datum);
     }
     const kids = (node as {children?: SceneNode[]}).children;
     if (kids) kids.forEach(walk);
