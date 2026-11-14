@@ -785,8 +785,7 @@ export default class Viz extends VizBase {
     // chart shape.
     if (sourceDatum === undefined) return;
     // While a select tool is on, a click on a mark selects it instead.
-    const viz = this as unknown as VizInstance;
-    if (selectClick(viz, event, sourceDatum, isLegendNode)) return;
+    if (selectClick(this as never, event, sourceDatum, isLegendNode)) return;
     // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`): the
     // node's own shape type, then any composite it is a part of (`"click.Box"`
     // on a box's whisker). On the scene path this is the only place these fire
