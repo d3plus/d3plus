@@ -914,6 +914,12 @@ export type {
   PointGeometry,
 } from "./src/charts/Dumbbell/changeEmit.js";
 export {
+  ARROW_GRAY_STRENGTHS,
+  arrowSeriesGray,
+  seriesOrder,
+  seriesStrength,
+} from "./src/charts/Dumbbell/arrowGrays.js";
+export {
   barColor,
   categoryValues,
   changeRow,

@@ -23,6 +23,8 @@ import {
   lineColor,
 } from "./categoryChange.js";
 import {dumbbellConnector} from "./changes.js";
+import {arrowSeriesGray} from "./arrowGrays.js";
+import {optionalAccessor} from "../viz/vizFields.js";
 
 /** The default connector color: a quiet gray that reads on light and dark pages. */
 export function connectorStroke(viz: VizInstance): string {
@@ -61,7 +63,8 @@ export const dumbbellDef: ChartDefinition = {
         arrowhead's base, and the head's tip stops just short of the last
         value's point. Arrows (and a bar connector's fill) take
         `increaseColor` or `decreaseColor` by the direction of the change,
-        and tooltips add the category's change. `false` by default.
+        while the points turn neutral grays (see `color`), and tooltips add
+        the category's change. `false` by default.
         @type {boolean}
     */
     {key: "arrows", default: false},
@@ -72,6 +75,23 @@ export const dumbbellDef: ChartDefinition = {
         @type {number | function}
     */
     {key: "arrowSize"},
+    /**
+        The points' colors: by series (`groupBy`) by default. With `arrows`,
+        the points take neutral grays instead, so only the arrows carry
+        color: the first series a light gray and the last a dark one, mixed
+        from the chart's background toward its text color. A `color` of
+        your own replaces both.
+        @type {string | function}
+    */
+    {
+      key: "color",
+      coerce: optionalAccessor,
+      factory: (viz: VizInstance) => {
+        const base = viz.schema.color as (d: DataPoint, i: number) => unknown;
+        return (d: DataPoint, i: number) =>
+          viz.schema.arrows ? arrowSeriesGray(viz, d, i) : base(d, i);
+      },
+    },
     /**
         How each category's values are joined: `"line"` (default) draws a
         connector behind the dots; `"bar"` draws a floating bar between the
