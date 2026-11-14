@@ -2495,7 +2495,7 @@ export interface D3plusConfig {
       on a continuous time axis.
   */
   skipGaps?: boolean;
-  /** Size accessor key. */
+  /** Size accessor key: sizes a Plot's circles, and on BumpChart draws each series as a band as thick as its value (see `bandPadding`). */
   size?: string;
   /**
       Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.
