@@ -45,6 +45,7 @@ export const plotSchema = [
   {key: "axisHoverConfig", merge: true, factory: axisHoverDefaults},
   {key: "barPadding", coerce: "identity" as const},
   {key: "connectGaps", coerce: "identity" as const, default: true},
+  {key: "downsample", coerce: "identity" as const, default: true},
   {key: "baselineBreak", coerce: "identity" as const},
   {key: "fillBetween", coerce: "identity" as const, default: false},
   {key: "fillBetweenConfig", merge: true, factory: fillBetweenDefaults},

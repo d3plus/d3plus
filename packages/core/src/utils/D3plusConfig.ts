@@ -1492,6 +1492,18 @@ export interface D3plusConfig {
   */
   connectGaps?: ConnectGaps;
   /**
+      Thins dense lines and areas to draw: when a series has more than
+      about 2 points per pixel of plot along its axis, it draws a subset
+      chosen by Largest-Triangle-Three-Buckets, which keeps its peaks and
+      dips. A number sets how many points each series draws instead, and
+      `false` draws every point. Only the drawn path is thinned: hover,
+      tooltips, and the nearest-point lookup still read every row. A zoomed
+      plot thins the part it shows, so zooming in brings back detail.
+      Stacked areas, and a line's confidence bands, keep the same points
+      along the axis so their edges still meet.
+  */
+  downsample?: boolean | number;
+  /**
       Funnel: fills the gap between consecutive stages with a neck joining
       their widths. Dumbbell: how each category's values are joined,
       `"line"` (a connector behind the dots, the default) or `"bar"` (a

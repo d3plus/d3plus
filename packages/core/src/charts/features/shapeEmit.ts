@@ -50,6 +50,7 @@ import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {plotDownsample} from "../Plot/downsample.js";
 import {plotPointKey} from "../Plot/pointKey.js";
 
 /**
@@ -142,7 +143,10 @@ function buildInner(
   // `finishShape` applies afterwards) or the row's `orient` says otherwise.
   // Lines and areas key their points by discrete-axis value, so a redraw
   // with more (or fewer) rows slides them along (see `PathNode.series`).
-  if (key === "Line" || key === "Area") inner.pointKey = plotPointKey(viz);
+  if (key === "Line" || key === "Area") {
+    inner.pointKey = plotPointKey(viz);
+    Object.assign(inner, plotDownsample(viz, ctx.xRange, ctx.yRange));
+  }
   if (key === "Box" && opp) {
     const along = opp === "x" ? "horizontal" : "vertical";
     inner.orient = (d: PlotDatum) => d.orient ?? along;
