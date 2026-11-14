@@ -111,11 +111,12 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
     const d = viz._data[0],
       i = 0;
     if (
-      viz.schema.discrete &&
-      `_${viz.schema.discrete}` in viz &&
-      (viz as unknown as Record<string, (d: DataPoint, i: number) => unknown>)[
-        `_${viz.schema.discrete}`
-      ](d, i) === viz.schema.time(d, i)
+      viz._timeOnDiscrete ||
+      (viz.schema.discrete &&
+        `_${viz.schema.discrete}` in viz &&
+        (
+          viz as unknown as Record<string, (d: DataPoint, i: number) => unknown>
+        )[`_${viz.schema.discrete}`](d, i) === viz.schema.time(d, i))
     ) {
       // Every period, or the latest `brushMax` of them.
       computedTimeFilter = latestPeriods(

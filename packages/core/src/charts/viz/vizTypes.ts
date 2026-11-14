@@ -546,6 +546,23 @@ export interface VizInstance {
       `referenceLines` (e.g. Pareto's 80% line), as `referenceLines` entries.
   */
   _plotReferenceLines?: () => Record<string, unknown>[];
+  /**
+      Whether the discrete axis plots every period of `time` through
+      values of its own (a CyclePlot's cycles), so the timeline starts on
+      every period, as it does when the axis plots the `time` values.
+  */
+  _timeOnDiscrete?: boolean;
+  /**
+      A chart's own text for an axis's value in a hovered row's tooltip
+      (a CyclePlot's dates, which its x axis places by cycle), undefined to
+      format the axis value, or null to leave the row out of a single-mark
+      tooltip (whose title already shows it).
+  */
+  _tooltipAxisLabel?: (
+    axis: "x" | "y",
+    d: DataPoint,
+    i: number,
+  ) => string | null | undefined;
   _axisPersist?: boolean;
   _labelConnectorConfig?: Record<string, unknown>;
   _lineMarkerConfig?: Record<string, unknown>;

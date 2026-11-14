@@ -99,6 +99,10 @@ export function axisValue(
 /** `[axis name, formatted value]` for one axis of a hovered row. */
 function axisRow(viz: VizInstance, k: Axis, hover: SharedHover): string[] {
   const row = hover.rows[0];
+  const own = row.projected
+    ? undefined
+    : viz._tooltipAxisLabel?.(k, row.datum, row.index);
+  if (typeof own === "string") return [axisName(viz, k), own];
   const accessor = viz[`_${k}`];
   // A projected row's datum is a source row of its series, not this column.
   const raw =
@@ -287,7 +291,11 @@ export function renderSingleTooltip(
     .tbody([
       ...(viz._tooltipAxisRows === false
         ? []
-        : [axisRow(viz, "x", hover), axisRow(viz, "y", hover)]),
+        : (["x", "y"] as const)
+            .filter(
+              k => viz._tooltipAxisLabel?.(k, row.datum, row.index) !== null,
+            )
+            .map(k => axisRow(viz, k, hover))),
       ...(row.projected
         ? []
         : confidenceRows(viz, row.datum, row.index, v =>
