@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>HourUtc · CyclePlot</title>
+    <meta
+      name="description"
+      content="Hourly readings stored in UTC (period: hour, xConfig.utc), with a timeline over the days: each hour of the day plotted across the selected days."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Synthetic hourly electricity demand (MW), two weeks of UTC timestamps:
+    // a morning and an evening peak, lower on weekends.
+    const data = [];
+    const start = Date.UTC(2024, 0, 1);
+    for (let h = 0; h < 14 * 24; h++) {
+      const time = new Date(start + h * 3600e3);
+      const hour = time.getUTCHours();
+      const weekend = [0, 6].includes(time.getUTCDay());
+      const peaks =
+        Math.exp(-((hour - 8) ** 2) / 6) +
+        1.3 * Math.exp(-((hour - 19) ** 2) / 8);
+      data.push({
+        time: time.toISOString(),
+        day: time.toISOString().slice(0, 10),
+        demand: Math.round(
+          (weekend ? 380 : 450) + 260 * peaks + 20 * Math.sin(h * 0.37),
+        ),
+      });
+    }
+
+    new d3plus.CyclePlot()
+      .data(data)
+      .config({
+        period: "hour",
+        time: "day",
+        x: "time",
+        xConfig: {utc: true},
+        y: "demand",
+      })
+      .render();
+  </script>
+</html>

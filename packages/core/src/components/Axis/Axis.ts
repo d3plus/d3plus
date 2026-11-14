@@ -264,10 +264,13 @@ export default class Axis extends BaseClass {
 */
   _getPosition(d: unknown): number {
     if (this.schema.scale === "log") {
-      if (d === 0)
-        return (this._d3Scale || this._d3ScaleNegative)!.range()[
-          this._d3Scale ? 0 : 1
-        ];
+      if (d === 0) {
+        // 0 draws where the split meets, or at the end nearest zero.
+        const scale = (this._d3Scale || this._d3ScaleNegative)!;
+        const domain = scale.domain() as number[];
+        const [first, last] = [domain[0], domain[domain.length - 1]];
+        return scale(Math.abs(first) < Math.abs(last) ? first : last) as number;
+      }
       const scale = isNegative(d as number)
         ? this._d3ScaleNegative
         : this._d3Scale;

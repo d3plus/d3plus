@@ -1,4 +1,4 @@
-import {deviation, extent, min, quantile, range} from "d3-array";
+import {deviation, extent, max, min, quantile, range} from "d3-array";
 import {interpolateRgb} from "d3-interpolate";
 import {scaleLinear, scaleThreshold} from "d3-scale";
 
@@ -189,8 +189,14 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
       );
       colors = negativeColors.concat(spanningColors).concat(positiveColors);
     } else {
-      // Single-hue low→high ramp, stepped in OKLab (see @d3plus/color).
-      colors = ramp(cs, colorMax(cs), numBuckets);
+      // Single-hue ramp of the relevant pole, stepped in OKLab (see
+      // @d3plus/color), reversed so a negative-only pole is the lowest value.
+      const steps = ramp(
+        cs,
+        ctx.negative ? colorMin(cs) : colorMax(cs),
+        numBuckets,
+      );
+      colors = ctx.negative ? steps.slice().reverse() : steps;
     }
   }
 
@@ -219,6 +225,46 @@ export function divergingThresholds(
   const side = (from: number, to: number): number[] =>
     range(perSide).map((i: number) => from + i * ((to - from) / perSide));
   return side(low, midpoint).concat(side(midpoint, high));
+}
+
+/**
+    The values a diverging quantile scale's buckets start at: the quantiles
+    splitting the `values` below the `midpoint` into `perSide` buckets, then
+    those splitting the values at or above it into `perSide` more. Each side
+    counts the `midpoint` as one of its values, so its buckets reach it.
+*/
+export function divergingQuantiles(
+  values: number[],
+  midpoint: number,
+  perSide: number,
+): number[] {
+  const side = (sideValues: number[]): number[] =>
+    range(perSide).map((i: number) => quantile(sideValues, i / perSide)!);
+  const below = values.filter((d: number) => d < midpoint).concat(midpoint);
+  const above = [midpoint].concat(values.filter((d: number) => d >= midpoint));
+  return side(below).concat(side(above));
+}
+
+/**
+    The values a centered color array's stops sit at: `below` evenly spaced
+    from `low` up to the `midpoint`, the `midpoint` itself, then `above` evenly
+    spaced from the `midpoint` up to `high`, one per color.
+*/
+export function centeredStops(
+  low: number,
+  midpoint: number,
+  high: number,
+  below: number,
+  above: number,
+): number[] {
+  const step = (from: number, to: number, n: number, i: number): number =>
+    i === n ? to : from + i * ((to - from) / n);
+  return range(below)
+    .map((i: number) => step(low, midpoint, below, i))
+    .concat(midpoint)
+    .concat(
+      range(1, above + 1).map((i: number) => step(midpoint, high, above, i)),
+    );
 }
 
 /** Resolves the diverging linear-gradient color/bucket arrays. */
@@ -259,7 +305,10 @@ function resolveDivergingLinear(
   const colors = negativeColors.concat(spanningColors).concat(positiveColors);
   if (!buckets) {
     const [low, high] = domain as number[];
-    buckets = divergingThresholds(low, cs.schema.midpoint, high, half);
+    buckets =
+      scale === "quantile"
+        ? divergingQuantiles(ctx.allValues, cs.schema.midpoint, half)
+        : divergingThresholds(low, cs.schema.midpoint, high, half);
     // A centered scale also stops at the domain's top; an even threshold
     // scale's last bucket runs on from its last threshold.
     if (centered) buckets.push(high);
@@ -297,23 +346,13 @@ function resolveNonDivergingLinear(
       ) as number[];
     } else if (diverging && cs.schema.color && cs.schema.centered) {
       const midIndex = colors.indexOf(colorMid(cs));
-      const negativeStep =
-        (cs.schema.midpoint - (domain as number[])[0]) / midIndex;
-      const positiveStep =
-        ((domain as number[])[1] - cs.schema.midpoint) /
-        (colors.length - midIndex);
-      const negativeBuckets = range(
+      buckets = centeredStops(
         (domain as number[])[0],
         cs.schema.midpoint,
-        negativeStep,
+        (domain as number[])[1],
+        midIndex,
+        colors.length - 1 - midIndex,
       );
-      const positiveBuckets = range(
-        cs.schema.midpoint,
-        (domain as number[])[1] + positiveStep / 2,
-        positiveStep,
-      );
-
-      buckets = negativeBuckets.concat(positiveBuckets);
     } else if ((domain as number[])[0] === (domain as number[])[1]) {
       // A single value takes the pole's color: one bucket, or a solid bar.
       const pole = negative ? colors[0] : colors[colors.length - 1];
@@ -333,6 +372,65 @@ function resolveNonDivergingLinear(
   return {colors, buckets};
 }
 
+/**
+    Places a linear scale's evenly spaced `stops` on a log scale, as a new
+    array: each side of 0 steps in even powers out to its pole, from 1 (or,
+    for a pole inside (-1, 1), from that side's stop nearest 0). The midpoint
+    of 0 draws at 1 when the positive side reaches past 1, else at -1 when the
+    negative side reaches past -1, else at 0, where the log axis splits, so it
+    stays between the two sides.
+*/
+export function logStops(stops: number[]): number[] {
+  /** Steps a side's magnitudes (ascending) in even powers out to its pole. */
+  const side = (magnitudes: number[]): ((d: number) => number) => {
+    const pole = magnitudes[magnitudes.length - 1];
+    const base = pole > 1 ? 1 : magnitudes[0];
+    return (d: number): number => base * Math.pow(pole / base, d / pole);
+  };
+  const ascending = (a: number, b: number): number => a - b;
+  const negative = side(
+    stops
+      .filter((d: number) => d < 0)
+      .map((d: number) => -d)
+      .sort(ascending),
+  );
+  const positive = side(stops.filter((d: number) => d > 0).sort(ascending));
+  const placed = stops.map((d: number) =>
+    d < 0 ? -negative(-d) : d > 0 ? positive(d) : d,
+  );
+  const high = max(placed);
+  const nearest = max(placed.filter((d: number) => d < 0));
+  const zero = placed.indexOf(0);
+  if (zero >= 0)
+    placed[zero] =
+      high! > 1 ? 1 : nearest !== undefined && nearest < -1 ? -1 : 0;
+  return placed;
+}
+
+/**
+    Merges a log scale's stops that land on one value, keeping the color
+    farthest from the midpoint, as a `buckets` array with a repeated value
+    gives. Stops that would leave fewer than 2 are kept as they are.
+*/
+export function mergeLogStops(
+  stops: number[],
+  colors: string[],
+): {stops: number[]; colors: string[]} {
+  const merged: number[] = [];
+  const mergedColors: string[] = [];
+  stops.forEach((stop: number, i: number) => {
+    if (merged.length && stop === merged[merged.length - 1]) {
+      if (stop > 0) mergedColors[mergedColors.length - 1] = colors[i];
+    } else {
+      merged.push(stop);
+      mergedColors.push(colors[i]);
+    }
+  });
+  return merged.length < 2
+    ? {stops, colors}
+    : {stops: merged, colors: mergedColors};
+}
+
 /** Builds the linear/log/buckets/quantile scale and assigns it to the instance. */
 function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
   const {scale} = ctx;
@@ -350,30 +448,8 @@ function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
     ticks = buckets;
     colors = [colors[0]].concat(colors);
   } else if (scale === "log") {
-    const negativeBuckets = (buckets as number[]).filter((d: number) => d < 0);
-    if (negativeBuckets.length) {
-      const minVal = negativeBuckets[0];
-      const newNegativeBuckets = negativeBuckets.map(
-        (d: number) => -Math.pow(Math.abs(minVal), d / minVal),
-      );
-      negativeBuckets.forEach((bucket: number, i: number) => {
-        (buckets as number[])[(buckets as number[]).indexOf(bucket)] =
-          newNegativeBuckets[i];
-      });
-    }
-    const positiveBuckets = (buckets as number[]).filter((d: number) => d > 0);
-    if (positiveBuckets.length) {
-      const maxVal = positiveBuckets[positiveBuckets.length - 1];
-      const newPositiveBuckets = positiveBuckets.map((d: number) =>
-        Math.pow(maxVal, d / maxVal),
-      );
-      positiveBuckets.forEach((bucket: number, i: number) => {
-        (buckets as number[])[(buckets as number[]).indexOf(bucket)] =
-          newPositiveBuckets[i];
-      });
-    }
-    if ((buckets as number[]).includes(0))
-      (buckets as number[])[(buckets as number[]).indexOf(0)] = 1;
+    buckets = logStops(buckets as number[]);
+    ({stops: buckets, colors} = mergeLogStops(buckets, colors));
   }
 
   const scaleFn =

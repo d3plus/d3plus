@@ -8,6 +8,7 @@ import {
   isSelfLoopMark,
   layoutSelfLoops,
   makeLinkDatum,
+  outlineExit,
   selfLoopAngles,
   selfLoopArrows,
   selfLoopExtent,
@@ -181,6 +182,69 @@ it("selfLoopSpread is the angle a loop covers, wider with a heavier stroke", () 
   const pts = Array.from({length: 49}, (_, k) => cubic(loop.points, k / 48));
   const half = Math.max(...pts.map(([x, y]) => Math.abs(Math.atan2(y, x))));
   assert.ok(heavy / 2 > half, `${heavy / 2} vs ${half}`);
+});
+
+/** How far `q` sits outside a (turned) box about the origin (negative inside it). */
+const offBox = (q, {width, height, rotate = 0}) => {
+  const a = (-rotate * Math.PI) / 180;
+  const lx = q[0] * Math.cos(a) - q[1] * Math.sin(a);
+  const ly = q[0] * Math.sin(a) + q[1] * Math.cos(a);
+  return Math.max(Math.abs(lx) - width / 2, Math.abs(ly) - height / 2);
+};
+
+it("selfLoopGeometry leaves and re-enters a Rect node's box, at a side, a corner, or turned", () => {
+  const cases = [
+    [{shape: "Rect", r: 10, width: 20, height: 20}, -Math.PI / 2],
+    [{shape: "Rect", r: 10, width: 20, height: 20}, (-3 * Math.PI) / 4],
+    [{shape: "Rect", r: 4, width: 40, height: 12}, 0.4],
+    [{shape: "Rect", r: 4, width: 40, height: 12, rotate: 60}, 0.4],
+  ];
+  for (const [outline, angle] of cases) {
+    const node = {x: 0, y: 0, ...outline};
+    const box = {rotate: 0, ...outline};
+    for (const sw of [0, 4]) {
+      const loop = selfLoopGeometry(node, angle, selfLoopReach(node.r), sw);
+      const [p0, , , p3] = loop.points;
+      const msg = `${JSON.stringify(outline)} at ${angle}, stroke ${sw}`;
+      close(offBox(p0, box), 0);
+      close(offBox(p3, box), 0);
+      // Its far point sits its opening (and half its stroke) past the outline ahead.
+      close(
+        Math.hypot(loop.apex.x, loop.apex.y),
+        outlineExit(node, angle) +
+          selfLoopOpening(selfLoopReach(node.r), sw) +
+          sw / 2,
+      );
+      // The far point sits along the loop's angle.
+      const apex = Math.atan2(loop.apex.y, loop.apex.x);
+      assert.ok(Math.abs(Math.sin(apex - angle)) < 0.05, `${msg}: ${apex}`);
+    }
+  }
+  // A 2r square's loop out of a side matches a circle's past the side.
+  const square = selfLoopGeometry({x: 0, y: 0, r: 10, shape: "Rect"}, 0, 12);
+  const circle = selfLoopGeometry({x: 0, y: 0, r: 10}, 0, 12);
+  close(square.apex.x, circle.apex.x, 1);
+  assert.ok(
+    square.points[0][0] > circle.points[0][0],
+    "ends on the side, not the circle",
+  );
+});
+
+it("selfLoopSpread measures a loop about its own angle", () => {
+  const circle = {x: 0, y: 0, r: 10};
+  close(selfLoopSpread(circle, 15, 2, 1.1), selfLoopSpread(circle, 15, 2));
+  const box = {x: 0, y: 0, r: 10, shape: "Rect", width: 20, height: 20};
+  const angle = (-3 * Math.PI) / 4;
+  const spread = selfLoopSpread(box, 15, 2, angle);
+  const loop = selfLoopGeometry(box, angle, 15, 2);
+  const pts = Array.from({length: 49}, (_, k) => cubic(loop.points, k / 48));
+  const half = Math.max(
+    ...pts.map(([x, y]) => {
+      const off = Math.atan2(y, x) - angle;
+      return Math.abs(Math.atan2(Math.sin(off), Math.cos(off)));
+    }),
+  );
+  assert.ok(spread / 2 > half && spread < Math.PI, `${spread / 2} vs ${half}`);
 });
 
 it("selfLoopAngles centers a fan on its angle, wrapping at a full turn", () => {
