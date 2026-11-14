@@ -75,6 +75,17 @@ export type {
   NodeSort,
 } from "./src/charts/ArcDiagram/arcGeometry.js";
 export {
+  alongReach,
+  boxSlotPositions,
+  clearOfBoxes,
+  crossReach,
+  placeNodeBoxes,
+} from "./src/charts/ArcDiagram/arcNodeBox.js";
+export type {
+  ArcNodeBox,
+  CenteredBox,
+} from "./src/charts/ArcDiagram/arcNodeBox.js";
+export {
   emitArcLabels,
   fitLabels,
   labelReach,

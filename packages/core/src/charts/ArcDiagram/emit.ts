@@ -28,6 +28,7 @@ import {arcApex, arcArrowEdge, arcPathD, arcPoint} from "./arcGeometry.js";
 import {outlineReach} from "../features/nodeOutline.js";
 import {chordArrowNodes} from "../features/curvedArrows.js";
 import {emitArcLabels} from "./arcLabels.js";
+import {clearOfBoxes, crossReach} from "./arcNodeBox.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
 
 /** A node's paint, from the node shape's config. */
@@ -48,15 +49,32 @@ export function arcLabelAnchor(link: ArcLink): LinkAnchor {
 */
 export function arcLabelPath(link: ArcLink): [number, number][] {
   if (link.loop) return curvePoints(link.loop.d);
+  const {source, target} = link;
+  const box = (n: ArcNode) => (n.shape === "Rect" ? centeredBox(n) : undefined);
   return trimToNodes(
-    curvePoints(arcPathD(link.arc)),
-    link.source.r,
-    link.target.r,
+    clearOfBoxes(curvePoints(arcPathD(link.arc)), box(source), box(target)),
+    source.shape === "Rect" ? 0 : source.r,
+    target.shape === "Rect" ? 0 : target.r,
   );
 }
 
+/** A node's box about its center: a Rect node's, else its circle's square. */
+const centeredBox = (n: ArcNode) => ({
+  x: n.x,
+  y: n.y,
+  width: n.width ?? n.r * 2,
+  height: n.height ?? n.r * 2,
+});
+
+/** A Rect node's box, from its top-left corner. */
+const nodeBox = (n: ArcNode) => {
+  const {width, height} = centeredBox(n);
+  return {x: n.x - width / 2, y: n.y - height / 2, width, height};
+};
+
 /** The arc labels, at the top of each arc, clear of every node. */
 function arcLinkLabels(viz: VizInstance, c: ArcCtx): SceneNode[] {
+  const rect = (n: ArcNode) => n.shape === "Rect";
   return emitLinkLabels(
     viz,
     c.links.map((link, i) => ({
@@ -67,7 +85,12 @@ function arcLinkLabels(viz: VizInstance, c: ArcCtx): SceneNode[] {
       path: arcLabelPath(link),
       priority: link.size,
     })),
-    {circles: c.nodes.map(n => ({x: n.x, y: n.y, r: n.r}))},
+    {
+      circles: c.nodes
+        .filter(n => !rect(n))
+        .map(n => ({x: n.x, y: n.y, r: n.r})),
+      boxes: c.nodes.filter(rect).map(nodeBox),
+    },
   );
 }
 
@@ -160,8 +183,8 @@ const arcOutlines = (link: ArcLink, strokeWidth: number) => {
 
 /** How far out from the line each of an arc's arrow tips sits: a pixel past its node. */
 const arcInsets = (link: ArcLink) => ({
-  source: link.source.r + 1,
-  target: link.target.r + 1,
+  source: crossReach(link.source, link.arc.orient) + 1,
+  target: crossReach(link.target, link.arc.orient) + 1,
 });
 
 /** The arcs, their hit paths, and their arrowheads. */
@@ -219,18 +242,8 @@ function nodeMark(
     paint,
     aria: {label: `${n.label}${sized}.`},
   };
-  if (n.shape === "Rect") {
-    const side = n.r * 2;
-    return {
-      type: "rect",
-      key: `arc-node-${n.id}`,
-      x: n.x - n.r,
-      y: n.y - n.r,
-      width: side,
-      height: side,
-      ...base,
-    };
-  }
+  if (n.shape === "Rect")
+    return {type: "rect", key: `arc-node-${n.id}`, ...nodeBox(n), ...base};
   return {
     type: "circle",
     key: `arc-node-${n.id}`,

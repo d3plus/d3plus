@@ -30,7 +30,6 @@ import {
   arcSideOf,
   crossLayout,
   nodeDegrees,
-  slotPositions,
   sortArcNodes,
 } from "./arcGeometry.js";
 import type {ArcGeometry, ArcOrient, ArcSide, NodeSort} from "./arcGeometry.js";
@@ -44,6 +43,8 @@ import type {ArcLabel, LabelFit} from "./arcLabels.js";
 import {isSelfLoop} from "../features/selfLoops.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import {arcLoopRoom, loopSide, placeLoops} from "./arcLoops.js";
+import {placeNodeBoxes} from "./arcNodeBox.js";
+import type {ArcNodeBox} from "./arcNodeBox.js";
 
 /** A laid-out node. `r` is its final radius. */
 export interface ArcNode extends GraphNode {
@@ -315,7 +316,7 @@ type RankedNode = ReturnType<typeof resolveArcGraph>["nodes"][number] & {
 /** The laid-out nodes, on the line at `base`. */
 function placeNodes(
   ranked: RankedNode[],
-  radii: number[],
+  boxes: ArcNodeBox[],
   base: number,
   orient: ArcOrient,
 ): ArcNode[] {
@@ -332,9 +333,9 @@ function placeNodes(
       shape: n.shape,
       x,
       y,
-      r: radii[i],
-      width: radii[i] * 2,
-      height: radii[i] * 2,
+      r: boxes[i].r,
+      width: boxes[i].width,
+      height: boxes[i].height,
       rank: n.rank,
       label: n.label,
       group: n.group,
@@ -466,13 +467,13 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
     orient,
     labelSide,
   );
-  const positions = slotPositions(nodes.length, line.start, line.length);
   const spacing = nodes.length ? line.length / nodes.length : line.length;
 
   const r = radiusFor(v, nodes, line.length);
   v._sizeLegendFinal = v._size ? (r as unknown as SizeLegendScale) : null;
-  const radii = nodes.map(n => r(n.r) || 1);
-  const rMax = max(radii) ?? 0;
+  const sized = placeNodeBoxes(v, nodes, r, {...line, orient});
+  const {radii, boxes, positions, reaches} = sized;
+  const rMax = max(reaches) ?? 0;
 
   const ranked = nodes.map((n, rank) => ({...n, rank, at: positions[rank]}));
   const byId = new Map(ranked.map(n => [n.id, n]));
@@ -499,6 +500,7 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
     new Map(ranked.map((n, i) => [n.id, radii[i]])),
     spacing,
     side,
+    new Map(ranked.map((n, i) => [n.id, reaches[i]])),
   );
   const {scale, base} = crossLayout({
     cross,
@@ -511,7 +513,7 @@ export const applyArcDiagramLayout: TransformStage = ({viz}) => {
     loops: loopRoom,
   });
 
-  const arcNodes = placeNodes(ranked, radii, base, orient);
+  const arcNodes = placeNodes(ranked, boxes, base, orient);
   const arcLinks = placeLinks(
     placed,
     arcNodes,

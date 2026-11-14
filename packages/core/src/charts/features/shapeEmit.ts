@@ -138,6 +138,12 @@ function buildInner(
   // A Box groups its rows by pixel position, which a reorder hands to another
   // category, so it takes its identity from the category instead.
   if (key === "Box") inner.id = (d: PlotDatum) => d.discrete;
+  // A Box runs along the value axis, unless `shapeConfig.Box.orient` (which
+  // `finishShape` applies afterwards) or the row's `orient` says otherwise.
+  if (key === "Box" && opp) {
+    const along = opp === "x" ? "horizontal" : "vertical";
+    inner.orient = (d: PlotDatum) => d.orient ?? along;
+  }
   if (viz.schema.stacked && ["Area", "Bar"].includes(key)) {
     const scale = opp === "x" ? x : y;
     inner[`${opp}`] = inner[`${opp}0`] = (d: PlotDatum) => {

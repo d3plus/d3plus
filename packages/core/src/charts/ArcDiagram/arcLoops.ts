@@ -83,17 +83,24 @@ export function placeLoops(
     on each side (all of them sit on `loopSide(side)`).
     @param loops Each loop's node id and stroke width.
     @param radii Each node's radius, by id.
+    @param reaches How far each node reaches out from the line, by id, where
+    not its radius (half a Rect node's box across the line).
 */
 export function arcLoopRoom(
   loops: readonly {id: string; size: number}[],
   radii: ReadonlyMap<string, number>,
   spacing: number,
   side: ArcSide,
+  reaches: ReadonlyMap<string, number> = radii,
 ): {above: number; below: number} {
   let room = 0;
   for (const l of loops) {
     const r = radii.get(l.id) ?? 0;
-    room = Math.max(room, r + selfLoopExtent(arcLoopReach(r, spacing), l.size));
+    const out = reaches.get(l.id) ?? r;
+    room = Math.max(
+      room,
+      out + selfLoopExtent(arcLoopReach(r, spacing), l.size),
+    );
   }
   return loopSide(side) === "above"
     ? {above: room, below: 0}
