@@ -23,6 +23,7 @@ import highlightingASeries from "~/examples/core/charts/bar-chart/highlighting-a
 import ordinalColor from "~/examples/core/charts/bar-chart/ordinal-color.js?raw";
 import stackOrderByValue from "~/examples/core/charts/bar-chart/stack-order-by-value.js?raw";
 import stackOrderByField from "~/examples/core/charts/bar-chart/stack-order-by-field.js?raw";
+import likertNeutral from "~/examples/core/charts/bar-chart/likert-neutral.js?raw";
 import baselineBreak from "~/examples/core/charts/bar-chart/baseline-break.js?raw";
 import horizontalBaselineBreak from "~/examples/core/charts/bar-chart/horizontal-baseline-break.js?raw";
 import baseline from "~/examples/core/charts/bar-chart/baseline.js?raw";
@@ -146,6 +147,12 @@ Set `colorOrdinal: true` to color an *ordered* discrete field with a single-hue 
 Pass an accessor (or a `{value, order}` config) to order the stack by *any* field, not just the plotted one. Here bar height is `units`, but the stack is ordered by total `profit` — so low-volume, high-profit Gadgets sinks to the baseline while the tall Widgets band rides on top. Series are ranked by the summed accessor value, descending by default; use `{value: "profit", order: "ascending"}` to reverse.
 
 <Playground chart="BarChart" code={stackOrderByField} controls={["stackOrder"]} />
+
+## Likert scale with a neutral center
+
+A Likert chart diverges around its neutral answer. Name that series in `stackNeutral` (its id, or an accessor that is truthy for its rows): each bar's neutral segment straddles zero, half on each side, and the other answers stack outward from it, disagreeing (negative) answers to the left and agreeing ones to the right. With the default `stackOrder`, the answers stack in the order they appear in the data, so rows listed along the scale draw in that order, and the legend reads along the axis. Tooltips and labels report the full neutral share, not half of it. Any other `stackOrder` sets the order outward from the neutral answer on each side; `stackNeutral` only applies under the default `"diverging"` `stackOffset`.
+
+<Playground chart="BarChart" code={likertNeutral} controls={["stackNeutral","stackOrder"]} />
 
 ## Baseline break
 
