@@ -106,12 +106,14 @@ export function fitSpokeFont(
   const sizes = [];
   for (let size = start; size > floor; size -= 0.5) sizes.push(size);
   sizes.push(floor);
-  const fits = (size: number) =>
-    labelFitsInside(
-      text,
-      {width, height, padding: 0},
-      {...font, size, lineHeight: size * 1.2},
-    );
+  // Text that fits on one line fits, however narrow (wrapping rejects a
+  // box no wider than the font size, which a short label can be).
+  const fits = (size: number) => {
+    const at = {...font, size, lineHeight: size * 1.2};
+    const line = measureLabel(text, at);
+    if (line.width <= width && at.lineHeight <= height) return true;
+    return labelFitsInside(text, {width, height, padding: 0}, at);
+  };
   return sizes.find(fits) ?? null;
 }
 

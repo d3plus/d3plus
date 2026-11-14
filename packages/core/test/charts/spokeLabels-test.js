@@ -2,6 +2,7 @@ import assert from "node:assert";
 import {it} from "vitest";
 
 import {useJsdom} from "~test/jsdom.js";
+import {measureLabel} from "../../src/charts/features/circleLabels.ts";
 import {Tree} from "../../index.ts";
 import {
   emitSpokeLabels,
@@ -191,4 +192,12 @@ it("fitSpokeFont: the largest size the whole text wraps into, or none", () => {
     "left out rather than cut to an ellipsis",
   );
   assert.strictEqual(fitSpokeFont("tiny", {size: 6}, 200, 13), 6);
+  // A one-letter label in a box just its own width, under the font size.
+  const one = {size: 10, family: "sans-serif"};
+  for (const letter of ["a", "e", "T"])
+    assert.strictEqual(
+      fitSpokeFont(letter, one, measureLabel(letter, one).width, 13),
+      10,
+      letter,
+    );
 });
