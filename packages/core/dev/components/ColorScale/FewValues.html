@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>FewValues · ColorScale</title>
+    <meta
+      name="description"
+      content="Color scales over one, two and three unique values, crossing zero or a midpoint, on a Matrix, Treemap and Geomap: every shape takes a color. Add ?theme=dark for the dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .chart {
+        height: 300px;
+        width: 400px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="row">
+      <div class="chart" id="matrix-linear"></div>
+      <div class="chart" id="matrix-jenks"></div>
+      <div class="chart" id="matrix-single"></div>
+      <div class="chart" id="treemap-buckets"></div>
+      <div class="chart" id="treemap-quantile"></div>
+      <div class="chart" id="geomap-linear"></div>
+    </div>
+
+    <script>
+      const theme =
+        new URLSearchParams(location.search).get("theme") === "dark"
+          ? "dark"
+          : "light";
+      if (theme === "dark") document.body.style.background = "#16171b";
+
+      const rows = ["A", "B", "C"];
+      const columns = ["X", "Y", "Z"];
+      /** A 3×3 grid of cells cycling through `values`. */
+      const grid = values =>
+        rows.flatMap((row, r) =>
+          columns.map((column, c) => ({
+            row,
+            column,
+            value: values[(r * columns.length + c) % values.length],
+          })),
+        );
+
+      const matrix = (selector, title, values, colorScaleConfig) =>
+        new d3plus.Matrix()
+          .select(selector)
+          .config({
+            data: grid(values),
+            groupBy: ["row", "column"],
+            row: "row",
+            column: "column",
+            colorScale: "value",
+            colorScaleConfig,
+            theme,
+            title,
+          })
+          .render();
+
+      matrix("#matrix-linear", "Linear: -2, 0, 3", [-2, 0, 3], {
+        scale: "linear",
+      });
+      matrix("#matrix-jenks", "Jenks: -1, 1", [-1, 1], {scale: "jenks"});
+      matrix("#matrix-single", "Linear: one value", [4], {scale: "linear"});
+
+      const treemap = (selector, title, values, colorScaleConfig) =>
+        new d3plus.Treemap()
+          .select(selector)
+          .config({
+            data: values.map((value, i) => ({id: `Item ${i + 1}`, value})),
+            groupBy: "id",
+            sum: d => Math.abs(d.value) + 1,
+            colorScale: "value",
+            colorScaleConfig,
+            theme,
+            title,
+          })
+          .render();
+
+      treemap("#treemap-buckets", "Buckets: -5, 2, 9", [-5, 2, 9, -5, 9], {
+        scale: "buckets",
+      });
+      treemap("#treemap-quantile", "Quantile, midpoint 1: 0, 4", [0, 4, 0], {
+        scale: "quantile",
+        midpoint: 1,
+      });
+
+      // Three square regions side by side, in longitude/latitude.
+      const square = x => [
+        [x, 0],
+        [x, 10],
+        [x + 10, 10],
+        [x + 10, 0],
+        [x, 0],
+      ];
+      const regions = {
+        type: "Topology",
+        objects: {
+          regions: {
+            type: "GeometryCollection",
+            geometries: ["West", "Center", "East"].map((id, i) => ({
+              type: "Polygon",
+              id,
+              arcs: [[i]],
+            })),
+          },
+        },
+        arcs: [square(0), square(10), square(20)],
+      };
+
+      new d3plus.Geomap()
+        .select("#geomap-linear")
+        .config({
+          data: [
+            {id: "West", value: -1},
+            {id: "Center", value: 0},
+            {id: "East", value: 1},
+          ],
+          groupBy: "id",
+          colorScale: "value",
+          colorScaleConfig: {scale: "linear"},
+          ocean: "transparent",
+          theme,
+          tiles: false,
+          title: "Geomap linear: -1, 0, 1",
+          topojson: regions,
+          zoom: false,
+        })
+        .render();
+    </script>
+  </body>
+</html>
