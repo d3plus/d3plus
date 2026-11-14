@@ -210,6 +210,67 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
+  it(`BubbleMatrix [${renderer}]: values of one sign take a sequential colorScale across their range`, async () => {
+    const out = await render(
+      box,
+      async ({src, renderer}) => {
+        eval(src);
+        const read = async sign => {
+          const data = [0.9, 0.6, 0.45, 0.3, 0.15].map((r, k) => ({
+            x: "abc"[k % 3],
+            y: "ab"[Math.floor(k / 3)],
+            r: sign * r,
+          }));
+          const viz = await window.draw(
+            "BubbleMatrix",
+            {
+              data,
+              groupBy: ["x", "y"],
+              column: "x",
+              row: "y",
+              size: "r",
+              colorScale: "r",
+            },
+            renderer,
+          );
+          const cs = viz._colorScaleClass;
+          const fill = r =>
+            viz._chartScene.find(
+              n => n.type === "circle" && n.datum.data.r === r,
+            ).paint.fill;
+          return {
+            domain: cs.schema.domain,
+            scale: cs._scaleType,
+            extent: cs._colorScale.domain(),
+            stops: cs._colorScale.range().length,
+            low: [fill(sign * 0.15), cs._colorScale(sign * 0.15)],
+            high: [fill(sign * 0.9), cs._colorScale(sign * 0.9)],
+          };
+        };
+        return {positive: await read(1), negative: await read(-1)};
+      },
+      {src: draw, renderer},
+    );
+    const {positive, negative} = out;
+    assert.strictEqual(positive.domain, undefined, "no domain of ours");
+    assert.strictEqual(positive.scale, "linear");
+    assert.deepStrictEqual(
+      positive.extent,
+      [0.15, 0.9],
+      "the data's full range",
+    );
+    assert.strictEqual(positive.stops, 2, "one ramp, no midpoint");
+    assert.strictEqual(positive.low[0], positive.low[1]);
+    assert.strictEqual(positive.high[0], positive.high[1]);
+    assert.notStrictEqual(positive.low[0], positive.high[0]);
+    assert.strictEqual(negative.domain, undefined, "all negative alike");
+    assert.deepStrictEqual(
+      negative.extent.map(v => +v.toFixed(6)),
+      [-0.9, -0.15],
+    );
+    assert.strictEqual(negative.stops, 2);
+  });
+
   it(`BubbleMatrix [${renderer}]: keyboard focus walks the circles`, async () => {
     const out = await render(
       box,

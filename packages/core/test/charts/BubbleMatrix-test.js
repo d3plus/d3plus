@@ -3,7 +3,7 @@ import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {BubbleMatrix, Matrix} from "../../index.ts";
 import {
-  applySymmetricColorDomain,
+  applyBubbleColorDefaults,
   bubbleMatrixDef,
   layoutMatrixBubbles,
   matrixCellIsCircle,
@@ -13,7 +13,7 @@ import {
   matrixSizeTooltipRows,
   matrixSizeValue,
   matrixSizeValues,
-  symmetricColorDomain,
+  bubbleColorDomain,
 } from "../../internal.ts";
 import accessor from "../../src/utils/accessor.ts";
 import constant from "../../src/utils/constant.ts";
@@ -227,38 +227,51 @@ it("Matrix size accepts a key or accessor and BubbleMatrix draws circles", () =>
   assert.strictEqual(bubbleMatrixDef.name, "BubbleMatrix");
 });
 
-it("symmetricColorDomain spans the largest magnitude on both sides of zero", () => {
-  assert.deepStrictEqual(symmetricColorDomain([0.3, -0.8, 1e-3]), [-0.8, 0.8]);
-  assert.deepStrictEqual(symmetricColorDomain([2, 5]), [-5, 5]);
+it("bubbleColorDomain is symmetric around zero only when the values cross it", () => {
+  assert.deepStrictEqual(bubbleColorDomain([0.3, -0.8, 1e-3]), [-0.8, 0.8]);
+  assert.deepStrictEqual(bubbleColorDomain([-0.2, 5]), [-5, 5]);
   assert.deepStrictEqual(
-    symmetricColorDomain([null, "x", NaN, [1, 2], -4]),
+    bubbleColorDomain([null, "x", NaN, [1, 2], -4, 1]),
     [-4, 4],
     "only finite numbers count",
   );
-  assert.strictEqual(symmetricColorDomain([0, 0]), null);
-  assert.strictEqual(symmetricColorDomain([]), null);
+  assert.strictEqual(bubbleColorDomain([2, 5]), null, "all positive");
+  assert.strictEqual(bubbleColorDomain([-2, -5]), null, "all negative");
+  assert.strictEqual(bubbleColorDomain([0, 3]), null, "zero isn't a side");
+  assert.strictEqual(bubbleColorDomain([0, 0]), null);
+  assert.strictEqual(bubbleColorDomain([]), null);
 });
 
-it("applySymmetricColorDomain sets each draw's domain unless the user sets one", () => {
+it("applyBubbleColorDefaults centers each draw's domain on zero when values cross it, unless the user sets one", () => {
   const rows = [{c: 0.5}, {c: -0.9}, {c: null}];
   const viz = new BubbleMatrix().colorScale("c");
   viz._filteredData = rows;
-  applySymmetricColorDomain(viz);
+  applyBubbleColorDefaults(viz);
   assert.deepStrictEqual(viz.schema.colorScaleConfig.domain, [-0.9, 0.9]);
   assert.strictEqual(viz.schema.colorScaleConfig.scale, "linear");
 
-  viz._filteredData = [{c: 0.2}];
-  applySymmetricColorDomain(viz);
+  viz._filteredData = [{c: 0.2}, {c: -0.1}];
+  applyBubbleColorDefaults(viz);
   assert.deepStrictEqual(viz.schema.colorScaleConfig.domain, [-0.2, 0.2]);
 
+  viz._filteredData = [{c: 0.2}, {c: 0.7}];
+  applyBubbleColorDefaults(viz);
+  assert.ok(
+    !("domain" in viz.schema.colorScaleConfig),
+    "one sign keeps the colorScale's own extent",
+  );
+  assert.strictEqual(viz.schema.colorScaleConfig.scale, "linear");
+
+  viz._filteredData = rows;
+  applyBubbleColorDefaults(viz);
   viz._filteredData = [{c: null}];
-  applySymmetricColorDomain(viz);
+  applyBubbleColorDefaults(viz);
   assert.ok(!("domain" in viz.schema.colorScaleConfig), "nothing to span");
 
   viz._filteredData = rows;
-  applySymmetricColorDomain(viz);
+  applyBubbleColorDefaults(viz);
   viz.colorScaleConfig({scale: "jenks"});
-  applySymmetricColorDomain(viz);
+  applyBubbleColorDefaults(viz);
   assert.ok(
     !("domain" in viz.schema.colorScaleConfig),
     "the user's scale stands alone",
@@ -269,7 +282,7 @@ it("applySymmetricColorDomain sets each draw's domain unless the user sets one",
     .colorScale("c")
     .colorScaleConfig({domain: [-2, 1]});
   own._filteredData = rows;
-  applySymmetricColorDomain(own);
+  applyBubbleColorDefaults(own);
   assert.deepStrictEqual(
     own.schema.colorScaleConfig.domain,
     [-2, 1],
@@ -278,7 +291,7 @@ it("applySymmetricColorDomain sets each draw's domain unless the user sets one",
 
   const none = new BubbleMatrix();
   none._filteredData = rows;
-  applySymmetricColorDomain(none);
+  applyBubbleColorDefaults(none);
   assert.ok(!("domain" in none.schema.colorScaleConfig), "no colorScale");
 
   assert.strictEqual(
