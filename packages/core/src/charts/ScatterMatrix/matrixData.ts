@@ -124,9 +124,10 @@ export function matrixPoints(
 /**
     One row per group per bin of each dimension's histogram (the diagonal
     panels), stacked in group order. Each row carries its group's first
-    observation's fields, so it colors and groups like that group's
+    counted observation's fields, so it colors and groups like that group's
     points. Bin edges are shared by every group and read from every row,
-    so they stay put while legend clicks hide groups; only the `visible`
+    so they stay put while legend clicks hide groups (or the timeline
+    moves); only the `visible`
     rows are counted.
     @param rows The observations.
     @param dims Each dimension's accessor, in matrix order.
@@ -144,11 +145,15 @@ export function matrixBins(
   const out: MatrixRow[] = [];
   const groups: string[] = [];
   const first = new Map<string, DataPoint>();
+  const counted = new Set<string>();
+  // A group's bars carry its first counted observation's fields, so they
+  // pass the same time filter that observation does.
   rows.forEach((d, k) => {
     const g = group(d, k);
-    if (!first.has(g)) {
+    if (!first.has(g)) groups.push(g);
+    if (!first.has(g) || (!counted.has(g) && visible(d, k))) {
       first.set(g, d);
-      groups.push(g);
+      if (visible(d, k)) counted.add(g);
     }
   });
   dims.forEach((read, i) => {

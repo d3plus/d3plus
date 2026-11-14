@@ -86,7 +86,8 @@ export function matrixDimensions(
 /**
     Spreads the observations into panel rows before Plot's pre-draw: a
     point in every off-diagonal panel, and the diagonal's histogram bins
-    (binned from the rows in the selected period that pass `filter`). Adds
+    (counting the rows in the selected period that pass `filter`, on edges
+    and axes read from every row). Adds
     the observation level to `groupBy`, points `facet` at each row's panel,
     and sizes the grid to the dimensions.
 */
@@ -115,15 +116,19 @@ export function prepareMatrix(viz: VizInstance): void {
   const row = viz.schema.translate("Row");
   const idOf = (k: number) => `${row} ${k + 1}`;
   const index = new Map(state.raw.map((d, k) => [d, k]));
-  // The histograms count the observations legend clicks leave shown.
+  // The histograms count the observations in the selected period that pass
+  // `filter` and legend clicks leave shown, on bins of every observation.
+  const inPeriod = new Set(drawn);
   const shown = (d: DataPoint) => {
     const id = idOf(index.get(d) ?? -1);
     return (
-      !viz._hidden.includes(id) && (!viz._solo.length || viz._solo.includes(id))
+      inPeriod.has(d) &&
+      !viz._hidden.includes(id) &&
+      (!viz._solo.length || viz._solo.includes(id))
     );
   };
   const bins = matrixBins(
-    drawn,
+    state.raw,
     accessors,
     state.group,
     viz.schema.binThresholds as number | number[] | undefined,
@@ -136,7 +141,9 @@ export function prepareMatrix(viz: VizInstance): void {
   ];
   state.axes = {
     titles: dims.map(d => d.title),
-    domains: matrixDomains(drawn, accessors),
+    // From every observation, so the axes hold still as the timeline plays
+    // and legend clicks hide groups.
+    domains: matrixDomains(state.raw, accessors),
   };
 
   const n = dims.length;
@@ -310,7 +317,9 @@ export const scatterMatrixDef: ChartDefinition = {
     (each row of data a point in every panel), and each dimension's
     histogram on the diagonal. Every panel in a row shares its y axis, and
     every panel in a column its x axis, labeled and titled along the grid's
-    left and bottom edges. `groupBy` colors the observations and stacks the
+    left and bottom edges, each spanning every row of data, so the axes
+    hold still as the timeline, `filter`, or the legend narrows what's
+    drawn. `groupBy` colors the observations and stacks the
     histograms by group, with a legend; hovering a point highlights its
     observation in every panel, and its tooltip lists the observation's
     value on every dimension. `dimensions` defaults to every numeric key in
