@@ -358,9 +358,11 @@ trails** by default, and `trailPersist` can keep the whole path visible. See
 ## Zoom & pan
 
 Charts zoom and pan their content by default, with controls in the
-chart's top-right corner (zoom in, zoom out, reset, and a drag-to-zoom brush
-that ends after one selection), wheel zoom, drag-to-pan, and double-click to
-zoom in.
+chart's top-right corner (zoom in, zoom out, reset, a drag-to-zoom brush
+that ends after one selection, and the box and lasso select tools — see
+[Box and lasso selection](#box-and-lasso-selection)), wheel zoom,
+drag-to-pan, and double-click to zoom in. On a chart too narrow to fit them
+beside the top-left controls, the buttons wrap onto a second row.
 
 Charts leave page scrolling alone: Ctrl/⌘ + wheel (or a trackpad pinch)
 zooms, a plain wheel scrolls the page, and on touch screens one finger
@@ -394,7 +396,9 @@ The control buttons are real `<button>`s: the brush toggle carries
 `aria-pressed` and an `.active` class while on, and by default paints the OS
 accent color. Set `zoomControlClassName` to style them with your own CSS.
 
-The four control icons render as inline SVGs by default; `zoomControlIcons`
+The six control icons render as inline SVGs by default; `zoomControlIcons`
+(keys `zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`, `selectBox`, and
+`selectLasso`)
 overrides any of them — pass a raw HTML string, or a mount function
 (`(el) => void | (() => void)`) that receives the button's reserved icon
 element to render into imperatively. That's the escape hatch for a live
@@ -427,7 +431,7 @@ disabling zoom, and zoom limits.
 
 ### Zooming without the buttons
 
-`zoomControls: false` hides the four buttons and gives their corner back to
+`zoomControls: false` hides the buttons and gives their corner back to
 the title, legend, and other top content, which no longer leave room for
 them; zoom itself stays on (`zoom: false` still turns everything off). Two
 more options change what the pointer does:
@@ -471,15 +475,24 @@ document.querySelector("#brush").onclick = () =>
 
 ## Box and lasso selection
 
-`selectMode: "box"` or `"lasso"` lets viewers pick out marks by drawing
-around them. A drag over the chart draws a box (or a freehand lasso) instead
-of panning, and letting go selects every mark inside: those stay lit while the
-rest dim (by `shapeConfig.activeOpacity`), and the legend dims its entries the
-same way. A bar or other rectangle is selected when any part of it is inside;
-a point (including each point of a line or area) when its center is, and an
-area's point when the area's height at that point crosses the region. A line
-or area stays lit while any of its points is selected. Network and Geomap
-select their nodes and points, and the regions a Geomap draws for its data.
+The zoom controls of every chart that shows them include a **Box Select** and
+a **Lasso Select** button, which let viewers pick out marks by drawing around
+them. Pressing one turns its tool on; pressing it again goes back to panning,
+and the brush-zoom button turns selection off too. `selectMode: "box"` or
+`"lasso"` starts a chart with that tool on (`false`, the default, starts out
+panning), and changing it later resets the tool. The tools work the same on
+a chart whose zoom controls are hidden (`zoomControls: false`) or off
+(`zoom: false`), where `selectMode` is the only way to turn one on.
+
+While a tool is on, a drag over the chart draws a box (or a freehand lasso)
+instead of panning, and letting go selects every mark inside: those stay lit
+while the rest dim (by `shapeConfig.activeOpacity`), and the legend dims its
+entries the same way. A bar or other rectangle is selected when any part of
+it is inside; a point (including each point of a line or area) when its
+center is, and an area's point when the area's height at that point crosses
+the region. A line or area stays lit while any of its points is selected.
+Network and Geomap select their nodes and points, and the regions a Geomap
+draws for its data.
 
 - <kbd>Shift</kbd> + drag adds to the selection.
 - A click on a mark selects just that mark, and <kbd>Shift</kbd> + click
@@ -489,9 +502,6 @@ select their nodes and points, and the regions a Geomap draws for its data.
 - With small multiples, a drag selects within the panel it starts in.
 - The wheel and a pinch still zoom, and one finger draws on a touch screen.
 
-The zoom controls gain a box and a lasso select button. Pressing one turns its
-tool on; pressing it again goes back to panning, and the brush button turns
-selection off too. `selectMode` sets the tool a chart starts with, and
 `selectStyle` styles the box or lasso as it is drawn (SVG attributes such as
 `fill`, `stroke`, and `stroke-dasharray`). Draw around some points:
 

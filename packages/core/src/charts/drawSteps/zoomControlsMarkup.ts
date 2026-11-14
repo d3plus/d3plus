@@ -204,6 +204,7 @@ export const ZOOM_PANEL_PADDING = 4;
 */
 export const ZOOM_PANEL_STYLE: Record<string, string> = {
   display: "flex",
+  flexWrap: "wrap",
   alignItems: "center",
   justifyContent: "flex-end",
   gap: "4px",
@@ -213,8 +214,36 @@ export const ZOOM_PANEL_STYLE: Record<string, string> = {
   pointerEvents: "none",
 };
 
+/** The width the top-left controls take (see `reserveZoomControlsLeft`). */
+let leftReserve: (viz: Viz) => number = () => 0;
+
 /**
-    The four buttons' markup. Real <button>s (not <div>s) so a host page's own
+    Registers how wide the chart's top-left controls are, which the zoom
+    buttons wrap onto a second row to stay clear of on a narrow chart.
+    `topLeftControls.ts` registers it: it can't be imported here, since the
+    top-left controls' own modules import this one.
+    @param fn The top-left controls' width for a chart, padding included.
+*/
+export function reserveZoomControlsLeft(fn: (viz: Viz) => number): void {
+  leftReserve = fn;
+}
+
+/**
+    The panel's style for a chart: `ZOOM_PANEL_STYLE`, with room kept on the
+    left for the top-left controls, so on a chart too narrow for both rows
+    of buttons side by side, the zoom buttons wrap onto a second row
+    (right-aligned) rather than run into them.
+*/
+export function zoomPanelStyle(viz: Viz): Record<string, string> {
+  const reserve = leftReserve(viz);
+  return {
+    ...ZOOM_PANEL_STYLE,
+    paddingLeft: `${reserve ? reserve + ZOOM_PANEL_PADDING : 0}px`,
+  };
+}
+
+/**
+    The six buttons' markup. Real <button>s (not <div>s) so a host page's own
     button styling (Tailwind, Bootstrap, a design system's global `button`
     reset) applies through the cascade once a `zoomControlClassName`
     auto-disables the inline defaults. `zoomControlClassName` layers a
@@ -248,20 +277,18 @@ export function zoomControlsHtml(viz: Viz): string {
       iconFor(viz, "zoomBrush", ZOOM_BRUSH_ICON),
       isBrushing(viz),
     ) +
-    (viz.schema.selectMode
-      ? button(
-          "select-box",
-          "Box Select",
-          iconFor(viz, "selectBox", SELECT_BOX_ICON),
-          viz._selectTool === "box",
-        ) +
-        button(
-          "select-lasso",
-          "Lasso Select",
-          iconFor(viz, "selectLasso", SELECT_LASSO_ICON),
-          viz._selectTool === "lasso",
-        )
-      : "")
+    button(
+      "select-box",
+      "Box Select",
+      iconFor(viz, "selectBox", SELECT_BOX_ICON),
+      viz._selectTool === "box",
+    ) +
+    button(
+      "select-lasso",
+      "Lasso Select",
+      iconFor(viz, "selectLasso", SELECT_LASSO_ICON),
+      viz._selectTool === "lasso",
+    )
   );
 }
 
@@ -331,11 +358,26 @@ export function showsZoomControls(viz: Viz): boolean {
   );
 }
 
+/**
+    The zoom-control panel's measured size (padding included), and the
+    width of its four zoom buttons alone (zoom in, zoom out, reset, brush),
+    which the minimap matches.
+*/
+export interface ZoomControlsBox {
+  width: number;
+  height: number;
+  zoomWidth: number;
+}
+
 /** Panel size before it has been measured (the default 20px buttons). */
-const ESTIMATED_BOX = {
-  width: 4 * 20 + 3 * 4 + ZOOM_PANEL_PADDING,
+const ESTIMATED_BOX: ZoomControlsBox = {
+  width: 6 * 20 + 5 * 4 + ZOOM_PANEL_PADDING,
   height: 20 + ZOOM_PANEL_PADDING,
+  zoomWidth: 4 * 20 + 3 * 4 + ZOOM_PANEL_PADDING,
 };
+
+/** The classes of the four zoom buttons, the ones the minimap matches in width. */
+const ZOOM_BUTTONS = ["zoom-in", "zoom-out", "zoom-reset", "zoom-brush"];
 
 /**
     The zoom-control panel's size (padding included) as it will render in the
@@ -345,13 +387,13 @@ const ESTIMATED_BOX = {
     and cached until the markup or styling changes. Returns null when the
     chart shows no controls.
 */
-export function zoomControlsBox(
-  viz: Viz,
-): {width: number; height: number} | null {
+export function zoomControlsBox(viz: Viz): ZoomControlsBox | null {
   if (!showsZoomControls(viz)) return null;
   const html = zoomControlsHtml(viz);
   const {base} = buttonStyles(viz);
-  const signature = `${html}|${JSON.stringify(base)}`;
+  const style = zoomPanelStyle(viz);
+  const width = viz.schema.width;
+  const signature = `${html}|${JSON.stringify(base)}|${style.paddingLeft}|${width}`;
   const cached = viz._zoomControlsBox;
   if (cached && cached.signature === signature) return cached;
 
@@ -360,31 +402,50 @@ export function zoomControlsBox(
   if (host) {
     const probe = document.createElement("div");
     probe.className = "d3plus-zoom-control";
-    for (const key in ZOOM_PANEL_STYLE)
-      probe.style.setProperty(kebab(key), ZOOM_PANEL_STYLE[key]);
-    // Shrink-wrapped and invisible, so it measures without affecting layout.
-    probe.style.setProperty("display", "inline-flex");
+    for (const key in style) probe.style.setProperty(kebab(key), style[key]);
+    // Laid out at the panel's width (or shrink-wrapped without one) and
+    // invisible, so it measures without affecting layout.
+    if (width) probe.style.setProperty("width", `${width}px`);
+    else probe.style.setProperty("display", "inline-flex");
     probe.style.setProperty("position", "absolute");
+    probe.style.setProperty("left", "0");
+    probe.style.setProperty("top", "0");
     probe.style.setProperty("visibility", "hidden");
     probe.style.setProperty("pointer-events", "none");
     probe.innerHTML = html;
-    probe
-      .querySelectorAll<HTMLElement>(".zoom-control")
-      .forEach(btn => paintZoomButton(viz, btn));
+    const buttons = [...probe.querySelectorAll<HTMLElement>(".zoom-control")];
+    buttons.forEach(btn => paintZoomButton(viz, btn));
     host.appendChild(probe);
     const rect = probe.getBoundingClientRect();
+    // From the leftmost button to the panel's right edge (its right padding
+    // included), and the panel's height, however the buttons wrapped.
+    const rects = buttons.map(btn => btn.getBoundingClientRect());
+    const zoomRects = rects.filter((_, i) =>
+      ZOOM_BUTTONS.some(cls => buttons[i].classList.contains(cls)),
+    );
     host.removeChild(probe);
-    if (rect.width && rect.height)
-      box = {width: Math.ceil(rect.width), height: Math.ceil(rect.height)};
+    const left = Math.min(...rects.map(r => r.left));
+    const padRight = rect.right - Math.max(...rects.map(r => r.right));
+    if (rects.length && rect.width && rect.height)
+      box = {
+        width: Math.ceil(rect.right - left),
+        height: Math.ceil(rect.height),
+        zoomWidth: Math.ceil(
+          Math.max(...zoomRects.map(r => r.right)) -
+            Math.min(...zoomRects.map(r => r.left)) +
+            padRight,
+        ),
+      };
   }
   viz._zoomControlsBox = {...box, signature};
   return viz._zoomControlsBox;
 }
 
 /**
-    The box the minimap hangs beneath: the zoom-control panel, or, with the
-    buttons hidden (`zoomControls: false`), a strip as wide as the default
-    panel down to the chart area's top, so the minimap overlays the chart
+    The box the minimap hangs beneath: as wide as the zoom-control panel's
+    four zoom buttons (it sits flush with the panel's right edge) and as tall
+    as the panel, or, with the buttons hidden (`zoomControls: false`), a
+    strip as wide as the default zoom buttons down to the chart area's top, so the minimap overlays the chart
     area rather than the title and other top content that take the
     buttons' room. Null when the chart doesn't zoom.
 */
@@ -392,9 +453,9 @@ export function minimapAnchor(
   viz: Viz,
 ): {width: number; height: number} | null {
   const box = zoomControlsBox(viz);
-  if (box) return box;
+  if (box) return {width: box.zoomWidth, height: box.height};
   return viz.schema.zoom && !viz._ssr
-    ? {width: ESTIMATED_BOX.width, height: viz._margin?.top ?? 0}
+    ? {width: ESTIMATED_BOX.zoomWidth, height: viz._margin?.top ?? 0}
     : null;
 }
 

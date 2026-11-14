@@ -34,8 +34,8 @@ it("Network zoom controls render via the returned feature panel", async function
 
   assert.strictEqual(
     out.controls,
-    4,
-    "four zoom-control buttons rendered (in/out/reset/brush)",
+    6,
+    "six zoom-control buttons rendered (in/out/reset/brush/box/lasso)",
   );
   assert.strictEqual(out.zoomIn, 1, "zoom-in button present");
 });
@@ -120,7 +120,7 @@ it("any chart gets zoom controls, a wheel zoom anchored under the cursor, and co
 
   assert.strictEqual(
     out.controls,
-    4,
+    6,
     "zoom controls render on a non-Network/Geomap chart",
   );
   assert.ok(out.wheel && out.wheel.scale > 1, "wheel zooms in");
@@ -174,7 +174,7 @@ it("zoom is on by default, and zoom(false) removes the controls and zoom surface
     },
   );
 
-  assert.strictEqual(out.on, 4, "controls render by default");
+  assert.strictEqual(out.on, 6, "controls render by default");
   assert.strictEqual(out.onSurface, 1, "zoom surface mounted by default");
   assert.strictEqual(out.off, 0, "zoom(false) renders no controls");
   assert.strictEqual(out.offSurface, 0, "zoom(false) mounts no zoom surface");

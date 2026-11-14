@@ -41,10 +41,14 @@ import {
   syncSelectSurface,
 } from "../../src/charts/drawSteps/selectGesture.ts";
 import {
+  reserveZoomControlsLeft,
   syncSelectButtons,
   syncSelectTool,
   zoomControlsHtml,
+  zoomPanelStyle,
 } from "../../src/charts/drawSteps/zoomControlsMarkup.ts";
+import {getTopLeftContributions} from "../../src/charts/drawSteps/topLeftControls.ts";
+import {topLeftControlsBox} from "../../src/charts/drawSteps/topLeftControlsMarkup.ts";
 import {bareFeature} from "../../src/charts/Geomap/emit.ts";
 import {applyInteractionOpacity} from "../../src/charts/viz/interactionOpacity.ts";
 
@@ -603,7 +607,33 @@ it("syncSelectTool: resets the tool only when selectMode changes", () => {
   assert.strictEqual(viz._selectTool, null);
 });
 
-it("zoomControlsHtml: box and lasso buttons with selectMode, pressed for the tool on", () => {
+it("zoomControlsHtml: box and lasso buttons on every chart, none pressed without selectMode", () => {
+  const viz = new Treemap();
+  syncSelectTool(viz);
+  const host = document.createElement("div");
+  host.innerHTML = zoomControlsHtml(viz);
+  const box = host.querySelector(".select-box");
+  const lasso = host.querySelector(".select-lasso");
+  assert.ok(box && lasso, "both buttons show");
+  assert.strictEqual(box.getAttribute("aria-pressed"), "false");
+  assert.strictEqual(lasso.getAttribute("aria-pressed"), "false");
+  assert.strictEqual(viz._selectTool, null, "the chart starts out panning");
+});
+
+it("zoomPanelStyle: wraps, keeping room for the top-left controls", () => {
+  const viz = new Treemap();
+  reserveZoomControlsLeft(() => 0);
+  assert.strictEqual(zoomPanelStyle(viz).paddingLeft, "0px");
+  assert.strictEqual(zoomPanelStyle(viz).flexWrap, "wrap");
+  reserveZoomControlsLeft(v => (v === viz ? 72 : 0));
+  assert.strictEqual(zoomPanelStyle(viz).paddingLeft, "76px");
+  // Put back the top-left controls' own measure.
+  reserveZoomControlsLeft(
+    v => topLeftControlsBox(v, getTopLeftContributions(v))?.width ?? 0,
+  );
+});
+
+it("zoomControlsHtml: box and lasso buttons pressed for the selectMode tool", () => {
   const viz = new Treemap().selectMode("lasso");
   syncSelectTool(viz);
   const host = document.createElement("div");

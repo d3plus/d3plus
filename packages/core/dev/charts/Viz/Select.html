@@ -5,7 +5,7 @@
     <title>Box and Lasso Selection · Viz</title>
     <meta
       name="description"
-      content="Box and lasso selection on Plot charts, small multiples, a Geomap's points, and a Network's nodes, with the select event and the selection method."
+      content="Box and lasso selection, from the zoom controls or selectMode, on Plot charts, small multiples, a Geomap's points, and a Network's nodes, with the select event and the selection method."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -52,6 +52,17 @@
       </figcaption>
       <button id="select-high">selection(d =&gt; d.y &gt; 40)</button>
       <button id="select-clear">selection(false)</button>
+    </figure>
+    <figure>
+      <div class="viz" id="default"></div>
+      <figcaption id="default-log">
+        No selectMode: a drag pans until the Box or Lasso Select button is
+        pressed.
+      </figcaption>
+    </figure>
+    <figure>
+      <div class="viz" id="narrow" style="width: 180px"></div>
+      <figcaption>A narrow chart wraps its buttons.</figcaption>
     </figure>
     <figure>
       <div class="viz" id="bubble"></div>
@@ -146,6 +157,24 @@
       scatter.selection(false);
       document.getElementById("scatter-log").textContent = "Cleared from code";
     };
+
+    new d3plus.Plot()
+      .select("#default")
+      .data(points)
+      .groupBy(["group", "id"])
+      .x("x")
+      .y("y")
+      .on("select", logTo("default"))
+      .render();
+
+    new d3plus.Plot()
+      .select("#narrow")
+      .data(points.slice(0, 20))
+      .groupBy("id")
+      .x("x")
+      .y("y")
+      .legend(false)
+      .render();
 
     new d3plus.BubbleChart()
       .select("#bubble")

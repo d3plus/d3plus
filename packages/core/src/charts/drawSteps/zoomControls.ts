@@ -18,8 +18,8 @@ import {
   syncBrushButton,
   syncSelectButtons,
   syncSelectTool,
-  ZOOM_PANEL_STYLE,
   zoomControlsHtml,
+  zoomPanelStyle,
 } from "./zoomControlsMarkup.js";
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 import {startsOnBrush} from "./zoomGesture.js";
@@ -59,7 +59,7 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
     x: 0,
     y: 0,
     width: viz.schema.width,
-    style: ZOOM_PANEL_STYLE,
+    style: zoomPanelStyle(viz),
     className: "d3plus-zoom-control",
     html: zoomControlsHtml(viz),
     events: {
@@ -113,7 +113,7 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
       1. Installs stateful D3 zoom + brush behaviors (`viz._zoomBehavior`,
          `viz._zoomBrush`) and wires `viz._zoomToBounds`. d3-zoom binds to
          the SVG element directly via `viz._container.call(zoomBehavior)`.
-      2. Returns the four control buttons (in/out/reset/brush) as an
+      2. Returns the control buttons (in/out/reset/brush/box/lasso) as an
          `htmlOverlay` scene-node panel; `runVizPipeline` appends it to
          `viz._featurePanels`. `onUpdate` is the scene's interactive-HTML
          escape hook: it wires the hover handlers + applies the user's

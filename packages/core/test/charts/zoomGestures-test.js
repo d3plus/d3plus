@@ -187,7 +187,13 @@ it("showsZoomControls and the room the buttons take follow zoomControls", () => 
 
 it("minimapAnchor hangs the minimap from the buttons, or the chart area's top without them", () => {
   const chart = new Treemap();
-  assert.deepStrictEqual(minimapAnchor(chart), zoomControlsBox(chart));
+  const box = zoomControlsBox(chart);
+  assert.deepStrictEqual(
+    minimapAnchor(chart),
+    {width: box.zoomWidth, height: box.height},
+    "as wide as the four zoom buttons, under the whole panel",
+  );
+  assert.ok(box.zoomWidth < box.width, "narrower than the select buttons too");
   chart.zoomControls(false);
   chart._margin = {top: 42, right: 0, bottom: 0, left: 0};
   const anchor = minimapAnchor(chart);

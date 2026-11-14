@@ -400,6 +400,89 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(r.touch, "none", "the surface takes the touch");
   });
 
+  it(`[${renderer}] a chart without selectMode pans until a select button is pressed, then selects by drag and keyboard`, async () => {
+    const r = await page(
+      `
+      const chart = new d3plus.Plot().select("#viz").renderer(arg)
+        .data(grid).groupBy("id").x("x").y("y").legend(false)
+        .on("select", rows => events.push(ids(rows)));
+      await done(chart);
+      const button = cls => document.querySelector("#viz .d3plus-zoom-control ." + cls);
+      const at = id => marks(chart).find(m => m.id === id && m.kind === "circle");
+      const around = id => { const m = at(id); return [[m.x - 6, m.y - 6], [m.x + 6, m.y + 6]]; };
+      const start = {tool: chart._selectTool, box: Boolean(button("select-box")), lasso: Boolean(button("select-lasso"))};
+      await drag(chart, around("p1-1"));
+      const panning = chart.selection().length;
+      button("select-box").click();
+      await drag(chart, around("p1-1"));
+      const dragged = ids(chart.selection());
+      await done(chart);
+      const afterRedraw = chart._selectTool;
+      const wait = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 40)));
+      const host = document.querySelector("#viz .d3plus-keyboard-nav");
+      host.focus(); await wait();
+      host.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", shiftKey: true, bubbles: true, cancelable: true}));
+      await wait();
+      const live = host.querySelector("[aria-live]").textContent;
+      return {start, panning, dragged, afterRedraw, keyboard: chart.selection().length, live, events: events.length};
+    `,
+      renderer,
+    );
+    assert.deepStrictEqual(
+      r.start,
+      {tool: null, box: true, lasso: true},
+      "both buttons show, none on",
+    );
+    assert.strictEqual(r.panning, 0, "a drag pans, selecting nothing");
+    assert.deepStrictEqual(
+      r.dragged,
+      ["p1-1"],
+      "with the box tool on, a drag selects",
+    );
+    assert.strictEqual(r.afterRedraw, "box", "the tool holds across a redraw");
+    assert.strictEqual(r.keyboard, 2, "Shift+Enter adds the focused mark");
+    assert.strictEqual(r.live, "2 selected");
+    assert.strictEqual(r.events, 2);
+  });
+
+  it(`[${renderer}] selectMode works with zoom off, and a narrow chart wraps its buttons clear of the top-left controls`, async () => {
+    const r = await page(
+      `
+      const off = new d3plus.Plot().select("#viz").renderer(arg)
+        .data(grid).groupBy("id").x("x").y("y").legend(false).zoom(false).selectMode("box");
+      await done(off);
+      const m = marks(off).find(m => m.id === "p2-2" && m.kind === "circle");
+      await drag(off, [[m.x - 6, m.y - 6], [m.x + 6, m.y + 6]]);
+      const zoomOff = {buttons: document.querySelectorAll("#viz .d3plus-zoom-control button").length, selected: ids(off.selection())};
+      off.destroy();
+      document.body.innerHTML = "<div id='narrow' style='width:180px;height:300px'></div>";
+      const narrow = new d3plus.Plot().select("#narrow").renderer(arg)
+        .data(grid).groupBy("id").x("x").y("y").legend(false);
+      await new Promise(r => narrow.duration(0).render(r));
+      await frames();
+      const rects = sel => [...document.querySelectorAll(sel)].map(e => e.getBoundingClientRect()).filter(r => r.width);
+      const left = rects(".d3plus-top-left-controls-item button");
+      const right = rects(".d3plus-zoom-control button");
+      const box = document.querySelector("#narrow").getBoundingClientRect();
+      return {
+        zoomOff,
+        count: right.length,
+        overlap: left.some(a => right.some(b => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom)),
+        inside: right.every(b => b.left >= box.left && b.right <= box.right + 0.5),
+        rows: new Set(right.map(b => Math.round(b.top))).size,
+        clear: narrow._margin.top >= Math.max(...right.map(b => b.bottom)) - box.top,
+      };
+    `,
+      renderer,
+    );
+    assert.deepStrictEqual(r.zoomOff, {buttons: 0, selected: ["p2-2"]});
+    assert.strictEqual(r.count, 6);
+    assert.strictEqual(r.overlap, false, "no button covers a top-left control");
+    assert.ok(r.inside, "every button stays inside the chart");
+    assert.strictEqual(r.rows, 2, "the buttons wrap onto a second row");
+    assert.ok(r.clear, "the chart starts below both rows");
+  });
+
   it(`[${renderer}] a Network selects its nodes, not its links`, async () => {
     const r = await page(
       `
