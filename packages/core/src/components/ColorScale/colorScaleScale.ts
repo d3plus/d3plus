@@ -189,8 +189,14 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
       );
       colors = negativeColors.concat(spanningColors).concat(positiveColors);
     } else {
-      // Single-hue low→high ramp, stepped in OKLab (see @d3plus/color).
-      colors = ramp(cs, colorMax(cs), numBuckets);
+      // Single-hue ramp of the relevant pole, stepped in OKLab (see
+      // @d3plus/color), reversed so a negative-only pole is the lowest value.
+      const steps = ramp(
+        cs,
+        ctx.negative ? colorMin(cs) : colorMax(cs),
+        numBuckets,
+      );
+      colors = ctx.negative ? steps.slice().reverse() : steps;
     }
   }
 

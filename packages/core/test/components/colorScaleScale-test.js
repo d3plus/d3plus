@@ -130,7 +130,7 @@ it("a single value takes its pole on every scale", () => {
     [0, bluish],
     [-2, reddish],
   ])
-    for (const scale of ["linear", "log", "buckets", "quantile"]) {
+    for (const scale of ["linear", "log", "buckets", "quantile", "jenks"]) {
       const cs = solve([value, value], {scale});
       const c = colorOf(cs, value);
       assert.ok(c && pole(c), `${scale} ${value}: ${c}`);
@@ -480,4 +480,21 @@ it("divergingQuantiles — each side splits its own values, up to the midpoint",
     "one value below the midpoint",
   );
   assert.deepStrictEqual(divergingQuantiles([-1, 1], 0, 0), [], "no buckets");
+});
+
+it("jenks — only-negative values take the low pole's ramp, like the other scales", () => {
+  const values = [-9, -8, -5, -4, -2, -1];
+  const luminance = c => {
+    const {r, g, b} = d3Color(c).rgb();
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const buckets = solve(values, {scale: "buckets"});
+  const jenks = solve(values, {scale: "jenks"});
+  const colors = values.map(v => colorOf(jenks, v));
+  assert.ok(colors.every(reddish), `red: ${colors}`);
+  assert.strictEqual(colors[0], colorOf(buckets, values[0]), "the pole");
+  assert.ok(
+    luminance(colors[0]) < luminance(colors.at(-1)),
+    `the darkest color is the most negative: ${colors}`,
+  );
 });
