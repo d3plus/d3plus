@@ -19,11 +19,6 @@ const config = {
   ],
   groupBy: ["id", "value"],
   discrete: "y",
-  shapeConfig: {
-    Box: {
-      orient: "horizontal",
-    },
-  },
   x: "value",
   y: "id",
 };

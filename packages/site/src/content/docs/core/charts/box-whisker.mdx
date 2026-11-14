@@ -70,7 +70,7 @@ Restyle the outlier marks with `shapeConfig.outlier`, which picks `Circle` versu
 
 ## Horizontal chart
 
-Lay the boxes out horizontally by setting `discrete: "y"` together with `shapeConfig.Box.orient: "horizontal"`, so categories stack down the `y` axis and each distribution spreads along `x`.
+Lay the boxes out horizontally by setting `discrete: "y"`: categories stack down the `y` axis, and each box turns to spread its distribution along `x`. `shapeConfig.Box.orient` (`"vertical"` or `"horizontal"`) overrides the direction the boxes run.
 
 <Playground chart="BoxWhisker" code={horizontalChart} controls={["discrete","shapeConfig"]} />
 

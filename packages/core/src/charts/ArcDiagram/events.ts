@@ -70,13 +70,14 @@ function focusBox(
 ): [[number, number], [number, number]] {
   const boxes = c.nodes
     .filter(n => ids.has(n.id))
-    .map(
-      n =>
-        [
-          [n.x - n.r, n.y - n.r],
-          [n.x + n.r, n.y + n.r],
-        ] as [[number, number], [number, number]],
-    )
+    .map(n => {
+      const hw = (n.width ?? n.r * 2) / 2;
+      const hh = (n.height ?? n.r * 2) / 2;
+      return [
+        [n.x - hw, n.y - hh],
+        [n.x + hw, n.y + hh],
+      ] as [[number, number], [number, number]];
+    })
     .concat(arcs.map(l => (l.loop ? l.loop.box : arcBox(l.arc))));
   return [
     [
