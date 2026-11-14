@@ -20,7 +20,10 @@ const corr = [];
 ["a", "b", "c"].forEach((x, i) =>
   ["a", "b", "c"].forEach((y, j) => {
     if (x === "c" && y === "a") return;
-    corr.push({x, y, r: i === j ? 1 : (i + j) % 2 ? -0.5 : 0.25});
+    // Five distinct values: a linear colorScale over three crossing zero
+    // leaves every cell unfilled (a ColorScale bug queued on its own).
+    const r = {"b/c": -0.75, "c/b": 0.5}[`${x}/${y}`];
+    corr.push({x, y, r: r ?? (i === j ? 1 : (i + j) % 2 ? -0.5 : 0.25)});
   }),
 );
 
@@ -108,6 +111,103 @@ for (const renderer of ["svg", "canvas"]) {
     assert.deepStrictEqual(out.legend, [0.25, 1], "the size legend keys |r|");
     if (renderer === "svg") assert.strictEqual(out.paintedCircles, 8);
     else assert.ok(out.canvas, "a <canvas> is mounted");
+  });
+
+  it(`BubbleMatrix [${renderer}]: the colorScale diverges over a domain symmetric around zero, unless the user sets one`, async () => {
+    const out = await render(
+      box,
+      async ({src, renderer}) => {
+        eval(src);
+        const data = [
+          {x: "a", y: "a", r: 0.6},
+          {x: "a", y: "b", r: -0.6},
+          {x: "b", y: "a", r: 0.2},
+          {x: "b", y: "b", r: -0.1},
+        ];
+        const config = {
+          data,
+          groupBy: ["x", "y"],
+          column: "x",
+          row: "y",
+          size: "r",
+          colorScale: "r",
+        };
+        const read = viz => {
+          const cs = viz._colorScaleClass;
+          const fill = (x, y) =>
+            viz._chartScene.find(
+              n =>
+                n.type === "circle" &&
+                n.datum.data.x === x &&
+                n.datum.data.y === y,
+            ).paint.fill;
+          return {
+            domain: cs.schema.domain,
+            scale: cs._scaleType,
+            ends: (cs.schema.domain || [-1, 1]).map(v => cs._colorScale(v)),
+            positive: fill("a", "a"),
+            negative: fill("a", "b"),
+          };
+        };
+        const symmetric = read(
+          await window.draw("BubbleMatrix", config, renderer),
+        );
+        const domain = read(
+          await window.draw(
+            "BubbleMatrix",
+            {...config, colorScaleConfig: {domain: [-1, 1]}},
+            renderer,
+          ),
+        );
+        const jenks = read(
+          await window.draw(
+            "BubbleMatrix",
+            {...config, colorScaleConfig: {scale: "jenks"}},
+            renderer,
+          ),
+        );
+        const matrix = await window.draw("Matrix", config, renderer);
+        return {
+          symmetric,
+          domain,
+          jenks,
+          matrix: [
+            matrix._colorScaleClass.schema.domain,
+            matrix._colorScaleClass._scaleType,
+          ],
+        };
+      },
+      {src: draw, renderer},
+    );
+    assert.deepStrictEqual(out.symmetric.domain, [-0.6, 0.6]);
+    assert.strictEqual(out.symmetric.scale, "linear");
+    assert.strictEqual(
+      out.symmetric.negative,
+      out.symmetric.ends[0],
+      "-0.6 takes the low pole",
+    );
+    assert.strictEqual(
+      out.symmetric.positive,
+      out.symmetric.ends[1],
+      "0.6 the high pole",
+    );
+    assert.deepStrictEqual(
+      out.domain.domain,
+      [-1, 1],
+      "the user's domain stands",
+    );
+    assert.notStrictEqual(
+      out.domain.positive,
+      out.domain.ends[1],
+      "0.6 short of the pole",
+    );
+    assert.strictEqual(out.jenks.scale, "jenks", "the user's scale stands");
+    assert.ok(!out.jenks.domain, "with no domain of ours");
+    assert.deepStrictEqual(
+      out.matrix,
+      [undefined, "jenks"],
+      "Matrix keeps its own colorScale",
+    );
   });
 
   it(`BubbleMatrix [${renderer}]: keyboard focus walks the circles`, async () => {
