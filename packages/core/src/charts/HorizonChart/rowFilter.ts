@@ -199,23 +199,32 @@ export function rowHints(
 }
 
 /**
-    What a row label click did to its series: `"hidden"`, `"highlighted"`
-    (solo'd), or `"shown"`.
+    What a row label click did to its series, as the translation key of its
+    announcement: `"{0} hidden"`, `"{0} highlighted"` (solo'd), or
+    `"{0} shown"`, `{0}` standing for the row's label.
     @param next What is hidden and solo'd after the click.
     @param id The clicked row's id.
 */
 export function rowChange(
   next: RowFilter,
   id: Id,
-): "hidden" | "highlighted" | "shown" {
-  if (next.hidden.includes(id)) return "hidden";
-  return next.solo.includes(id) ? "highlighted" : "shown";
+): "{0} hidden" | "{0} highlighted" | "{0} shown" {
+  if (next.hidden.includes(id)) return "{0} hidden";
+  return next.solo.includes(id) ? "{0} highlighted" : "{0} shown";
 }
 
-/** Whether an event is keyboard navigation's replay over the label it has focus on. */
-function keyboardFocused(viz: VizInstance, event: SceneEvent): boolean {
-  const current = viz._keyboardNav?.current;
-  return current !== null && current === `${event.pick?.node?.key}`;
+/**
+    Whether an event comes from the keyboard: keyboard navigation replaying
+    the pointer over the label it has focus on. A real pointer event over
+    the same label is the mouse, so the hints follow whichever was used last.
+*/
+export function keyboardFocused(viz: VizInstance, event: SceneEvent): boolean {
+  const state = viz._keyboardNav;
+  return (
+    !!state?.replaying &&
+    state.current !== null &&
+    state.current === `${event.pick?.node?.key}`
+  );
 }
 
 /**
@@ -277,8 +286,8 @@ export function handleRowLabel(viz: VizInstance, event: SceneEvent): boolean {
       viz._solo = next.solo;
       if (keyboardFocused(viz, event)) {
         const label = state.labels.get(series) ?? series;
-        const change = viz.schema.translate(rowChange(next, id!)) as string;
-        announce(viz, `${label} ${change}`);
+        const message = rowChange(next, id!);
+        announce(viz, viz.schema.translate(message, undefined, label));
       }
       recordLegendChange(viz, before);
       broadcastLegend(viz);

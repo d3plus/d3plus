@@ -35,6 +35,8 @@ export interface KeyboardNavState extends KeyboardNavHost {
   zoom?: Transform;
   /** Set when a redraw moved or replaced the focused mark, so it is re-entered. */
   stale: boolean;
+  /** True while a replayed pointer event runs, so handlers can tell the keyboard from the mouse. */
+  replaying?: boolean;
   /** A message the next focus announces in place of its target's name (a change it made). */
   announce?: string;
   /** Replayed events waiting for an animated transition to settle. */
@@ -166,7 +168,13 @@ function send(
     ? {node: target.node, datum: target.node.datum, index: target.node.index}
     : null;
   const event: SceneEvent = {type, point, pick, nativeEvent};
-  viz._routeSceneEvent?.(event);
+  const state = viz._keyboardNav;
+  if (state) state.replaying = true;
+  try {
+    viz._routeSceneEvent?.(event);
+  } finally {
+    if (state) state.replaying = false;
+  }
 }
 
 /** Replays the pointer moving onto `target`, leaving the mark it was over. */
