@@ -427,3 +427,21 @@ it("nodeHeight: a radial cluster dendrogram", () => {
   close(byId.P1.rho / rhos[0], 2 / 3, "P1 two thirds out");
   close(byId.P2.rho / rhos[0], 1 / 3, "P2 a third out");
 });
+
+it("label widths measure from the chart area's edge, whatever its margin", () => {
+  const chart = new Tree().config({
+    data: rows,
+    groupBy: ["top", "parent", "id"],
+    height: 400,
+    width: 400,
+    orient: "horizontal",
+  });
+  chart._preDraw();
+  chart._margin = {top: 300, right: 0, bottom: 0, left: 0};
+  chart._padding = {top: 0, right: 0, bottom: 0, left: 0};
+  runStages({viz: chart}, [applyTreeLayout]);
+  assert.ok(
+    chart.ctx.labelWidths.every(w => w > 0),
+    `${chart.ctx.labelWidths}`,
+  );
+});

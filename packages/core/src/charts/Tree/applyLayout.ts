@@ -155,7 +155,6 @@ function measureTreeLabels(
   isHorizontal: boolean,
   width: number,
   height: number,
-  left: "left" | "top",
 ): {labelHeight: number; labelWidths: number[]} {
   const sc = viz.schema.shapeConfig as Record<string, unknown>;
   let r = sc.r as ((d: DataPoint, i: number) => number) | number;
@@ -187,11 +186,9 @@ function measureTreeLabels(
   ).map(d => {
     const vals = (d as {values: DataPoint[]}).values;
     return vals.reduce((num: number, vv: DataPoint, i: number) => {
-      const next =
-        i < vals.length - 1
-          ? (vals[i + 1].x as number)
-          : width + viz._margin[left];
-      const prev = i ? (vals[i - 1].x as number) : viz._margin[left];
+      // Positions run from the chart area's edge, 0, to `width`.
+      const next = i < vals.length - 1 ? (vals[i + 1].x as number) : width;
+      const prev = i ? (vals[i - 1].x as number) : 0;
       return min([
         num,
         next - (vv.x as number),
@@ -478,7 +475,6 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
   const width = isHorizontal
     ? viz.schema.height - viz._margin.top - viz._margin.bottom
     : viz.schema.width - viz._margin.left - viz._margin.right;
-  const left: "left" | "top" = isVertical ? "left" : "top";
 
   const treeData = buildTreeData(viz, width, height);
   applyNodeHeights(viz, treeData, height);
@@ -490,7 +486,6 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
     isHorizontal,
     width,
     height,
-    left,
   );
 
   publishTreeCtx(
