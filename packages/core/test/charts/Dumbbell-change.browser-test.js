@@ -86,6 +86,7 @@ const draw = ([config, rows, renderer, hover]) =>
           y: n.transform.y,
           r: n.r,
           fill: n.paint.fill,
+          opacity: n.paint.opacity,
         }));
       const legend = viz._legendClass ? viz._legendClass.data().length : 0;
       const dot = nodes.find(
@@ -107,7 +108,14 @@ const draw = ([config, rows, renderer, hover]) =>
       requestAnimationFrame(() =>
         setTimeout(() => {
           const tip = document.querySelector(".d3plus-tooltip");
+          const swatches = tip
+            ? Array.from(tip.querySelectorAll(".d3plus-tooltip-swatch")).map(
+                el => getComputedStyle(el).backgroundColor,
+              )
+            : [];
           resolve({
+            swatches,
+            axisColor: viz._axisHoverState ? viz._axisHoverState.color : null,
             lines,
             arrows,
             bars,
@@ -193,8 +201,10 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(out.arrows.length, 0);
     assert.strictEqual(out.bars.length, 3);
     assert.ok(
-      out.points.every(p => p.fill === "transparent"),
-      "the dots stay for hover, unpainted",
+      out.points.every(
+        p => p.opacity === 0 && p.fill === out.colors.sequential,
+      ),
+      "the dots stay for hover, unseen, in their bar's color",
     );
     assert.strictEqual(out.legend, 0, "no series legend");
     const spain = out.bars.find(b => b.key === "Spain::connector");
@@ -206,6 +216,29 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(spain.fill, out.colors.sequential);
     assert.strictEqual(spain.points, 2);
     assert.ok(/Range\s*2/.test(out.tooltip), out.tooltip);
+  });
+
+  it(`Dumbbell bars (${renderer}): the shared tooltip and axis tag take the bar's color`, async () => {
+    const rgb = hex =>
+      `rgb(${[1, 3, 5].map(k => parseInt(hex.slice(k, k + 2), 16)).join(", ")})`;
+    const span = await chart({connector: "bar"}, renderer);
+    assert.strictEqual(span.swatches.length, 2, span.tooltip);
+    assert.ok(
+      span.swatches.every(c => c === rgb(span.colors.sequential)),
+      span.swatches.join(" "),
+    );
+    assert.strictEqual(span.axisColor, span.colors.sequential);
+    const change = await chart(
+      {connector: "bar", arrows: true},
+      renderer,
+      "Chile",
+    );
+    assert.ok(
+      change.swatches.length === 2 &&
+        change.swatches.every(c => c === rgb(change.colors.on)),
+      change.swatches.join(" "),
+    );
+    assert.strictEqual(change.axisColor, change.colors.on);
   });
 
   it(`Dumbbell bars with arrows (${renderer}): change bars colored by direction`, async () => {

@@ -14,8 +14,10 @@ import {
 } from "../../src/charts/Dumbbell/changes.ts";
 import {
   arrowSegment,
+  barColors,
   pointGeometry,
 } from "../../src/charts/Dumbbell/changeEmit.ts";
+import {hiddenPoint} from "../../src/charts/Dumbbell/emit.ts";
 import {
   barColor,
   categoryValues,
@@ -220,4 +222,45 @@ it("Dumbbell — exposes arrows and connector options with their defaults", () =
     [viz.arrows(), viz.connector(), viz.connectorWidth(), viz.increaseColor()],
     [true, "bar", 12, "red"],
   );
+});
+
+it("barColors — each row's bar fill, by the row", () => {
+  const a = {i: 0};
+  const b = {i: 1};
+  const map = barColors([
+    {
+      type: "rect",
+      paint: {fill: "#123456"},
+      interactionPoints: [{datum: {data: a}}, {datum: {data: b}}],
+    },
+    {
+      type: "path",
+      paint: {fill: "#ffffff"},
+      interactionPoints: [{datum: {data: {}}}],
+    },
+    {type: "rect", paint: {}, interactionPoints: [{datum: {data: {}}}]},
+  ]);
+  assert.strictEqual(map.size, 2);
+  assert.strictEqual(map.get(a), "#123456");
+  assert.strictEqual(map.get(b), "#123456");
+});
+
+it("hiddenPoint — unseen, keeping its bar's color for swatches", () => {
+  const dot = {
+    type: "circle",
+    paint: {fill: "red", stroke: "blue", strokeWidth: 1},
+  };
+  assert.deepStrictEqual(hiddenPoint(dot, "#00ff00").paint, {
+    fill: "#00ff00",
+    stroke: "#00ff00",
+    strokeWidth: 1,
+    opacity: 0,
+  });
+  assert.deepStrictEqual(hiddenPoint(dot).paint, {
+    fill: "transparent",
+    stroke: "transparent",
+    strokeWidth: 1,
+  });
+  const text = {type: "text"};
+  assert.strictEqual(hiddenPoint(text, "#00ff00"), text);
 });
