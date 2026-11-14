@@ -11,7 +11,8 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {measureLabel} from "./circleLabels.js";
+import {labelFitsInside, measureLabel} from "./circleLabels.js";
+import {outlineReach} from "./nodeOutline.js";
 import constant from "../../utils/constant.js";
 import {backgroundInk, chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -81,8 +82,37 @@ export function shrinkToWord(
 ): number {
   const widest = widestWord(text, font);
   if (widest <= width || widest <= 0) return font.size;
-  const size = font.size * (width / widest);
+  // A measured width carries 2px of slack and rounds up a pixel, which
+  // don't shrink with the font.
+  const size = (font.size * Math.max(0, width - 3)) / Math.max(1, widest - 2);
   return Math.max(Math.min(font.size, SPOKE_LABEL_FONT_MIN), size);
+}
+
+/**
+    The font size a spoke label draws at in a `width` × `height` box: the
+    largest, from where its widest word fits (see `shrinkToWord`) down to
+    `SPOKE_LABEL_FONT_MIN`, at which the whole text wraps into the box
+    without being cut short. Null when none does, so the label is left out
+    rather than drawn cut down to an ellipsis.
+*/
+export function fitSpokeFont(
+  text: string,
+  font: {size: number; family?: string | string[]; weight?: string | number},
+  width: number,
+  height: number,
+): number | null {
+  const start = shrinkToWord(text, font, width);
+  const floor = Math.min(start, SPOKE_LABEL_FONT_MIN);
+  const sizes = [];
+  for (let size = start; size > floor; size -= 0.5) sizes.push(size);
+  sizes.push(floor);
+  const fits = (size: number) =>
+    labelFitsInside(
+      text,
+      {width, height, padding: 0},
+      {...font, size, lineHeight: size * 1.2},
+    );
+  return sizes.find(fits) ?? null;
 }
 
 /** The width of the widest word in `text` at `font`, 0 for none. */
@@ -99,14 +129,7 @@ export function widestWord(
     the spoke at `theta` (radians clockwise from 12 o'clock).
 */
 export function boxReach(width: number, height: number, theta: number): number {
-  const sx = Math.abs(Math.sin(theta));
-  const cy = Math.abs(Math.cos(theta));
-  const hw = Math.max(0, width) / 2;
-  const hh = Math.max(0, height) / 2;
-  return Math.min(
-    sx > 1e-12 ? hw / sx : Infinity,
-    cy > 1e-12 ? hh / cy : Infinity,
-  );
+  return outlineReach({shape: "Rect", width, height}, theta - Math.PI / 2);
 }
 
 /** Where a spoke label sits and how it turns. */

@@ -294,6 +294,7 @@ export type {RadialLabels} from "./src/charts/Tree/radialLabels.js";
 export {
   boxReach,
   emitSpokeLabels,
+  fitSpokeFont,
   polarPoint,
   radialFit,
   shrinkToWord,

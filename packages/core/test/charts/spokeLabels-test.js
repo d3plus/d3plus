@@ -5,6 +5,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {Tree} from "../../index.ts";
 import {
   emitSpokeLabels,
+  fitSpokeFont,
   polarPoint,
   radialFit,
   shrinkToWord,
@@ -160,4 +161,34 @@ it("emitSpokeLabels: one rotated text node per label, haloed on request", () => 
   const haloed = flat(emitSpokeLabels(viz, labels, {fontSize: 11, halo: true}));
   assert.ok(haloed.filter(n => n.type === "text").every(n => n.halo));
   assert.deepStrictEqual(emitSpokeLabels(viz, [], {fontSize: 11}), []);
+});
+
+it("shrinkToWord: a shrunk word measures within the width", () => {
+  const font = {size: 10, family: "sans-serif"};
+  for (const width of [30, 34, 41, 47]) {
+    const size = shrinkToWord("Northern Europe", font, width);
+    if (size > SPOKE_LABEL_FONT_MIN)
+      assert.ok(
+        widestWord("Northern Europe", {...font, size}) <= width,
+        `${width}: ${size}`,
+      );
+  }
+});
+
+it("fitSpokeFont: the largest size the whole text wraps into, or none", () => {
+  const font = {size: 10, family: "sans-serif"};
+  assert.strictEqual(fitSpokeFont("Alpha", font, 200, 13), 10, "fits as it is");
+  const two = fitSpokeFont("Northern Europe", font, 50, 26);
+  assert.ok(two !== null && two <= 10, `two lines: ${two}`);
+  const shrunk = fitSpokeFont("Northern Europe", font, 40, 13);
+  assert.ok(
+    shrunk === null || shrunk < 10,
+    `one short line shrinks or drops: ${shrunk}`,
+  );
+  assert.strictEqual(
+    fitSpokeFont("Supercalifragilistic expialidocious", font, 20, 13),
+    null,
+    "left out rather than cut to an ellipsis",
+  );
+  assert.strictEqual(fitSpokeFont("tiny", {size: 6}, 200, 13), 6);
 });

@@ -16,13 +16,12 @@ import type {DataPoint} from "@d3plus/data";
 import {measureLabel, pointLabelSettings} from "../features/circleLabels.js";
 import {
   boxReach,
+  fitSpokeFont,
   polarPoint,
   radialFit,
-  shrinkToWord,
   SPOKE_LABEL_PADDING,
   spokeLines,
   spokePlacement,
-  widestWord,
 } from "../features/spokeLabels.js";
 import type {SpokePlacement} from "../features/spokeLabels.js";
 import {
@@ -380,11 +379,11 @@ export function placeCircleNetworkLabels(
     const room = circle.outer - from;
     const own = measureLabel(label, font).width;
     if (room <= 0 || room < Math.min(lineHeight * 2, own)) continue;
-    const size = shrinkToWord(label, font, room);
-    if (widestWord(label, {size}) > room) continue;
-    const lines = spokeLines(gap, from, lineHeight);
+    const height = spokeLines(gap, from, lineHeight) * lineHeight;
+    const size = fitSpokeFont(label, font, room, height);
+    if (size === null) continue;
     circle.labels.set(n.id, {
-      place: spokePlacement(cx, cy, theta, from, room, lines * lineHeight),
+      place: spokePlacement(cx, cy, theta, from, room, height),
       text: label,
       fontSize: size,
     });

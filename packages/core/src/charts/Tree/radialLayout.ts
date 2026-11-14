@@ -19,11 +19,10 @@ import {
 } from "../features/emitHelpers.js";
 import {
   boxReach,
+  fitSpokeFont,
   polarPoint,
   radialFit,
-  shrinkToWord,
   SPOKE_LABEL_PADDING,
-  widestWord,
   spokeLines,
   spokePlacement,
 } from "../features/spokeLabels.js";
@@ -310,11 +309,9 @@ export function layoutRadialTree<T extends RadialTreeNode>(
       },
     );
     if (!place) continue;
-    // A label whose words don't fit even shrunk is left out, rather than
-    // drawn as a lone ellipsis.
-    const sized = {...font, size: shrinkToWord(label, font, place.box.width)};
-    if (widestWord(label, sized) > place.box.width) continue;
-    labels.set(n, {text: label, font: sized, place});
+    const size = fitSpokeFont(label, font, place.box.width, place.box.height);
+    if (size === null) continue;
+    labels.set(n, {text: label, font: {...font, size}, place});
   }
   return {center, radius: fit.radius, labels};
 }

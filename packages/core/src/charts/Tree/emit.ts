@@ -85,6 +85,8 @@ function geometryFor(
 type TreeLinkNode = DataPoint & {
   x?: number;
   y?: number;
+  theta?: number;
+  rho?: number;
   data?: DataPoint;
   i?: number;
   depth?: number;
@@ -112,6 +114,27 @@ function treeNodeReach(
   return outlineReach({shape, ...aes}, angle);
 }
 
+/**
+    The direction (radians) a link leaves its child node in, toward the
+    parent, and the one it leaves the parent in. A radial link runs along
+    the child's spoke, and leaves its parent along the parent's (or along
+    the child's, from a parent at the center).
+*/
+function linkDirections(
+  viz: VizInstance,
+  d: TreeLinkNode,
+): {child: number; parent: number} {
+  const orient = viz.schema.orient;
+  if (orient !== "radial") {
+    const toParent = orient === "vertical" ? -Math.PI / 2 : Math.PI;
+    return {child: toParent, parent: toParent + Math.PI};
+  }
+  const spoke = (theta = 0) => theta - Math.PI / 2;
+  const p = d.parent;
+  const out = p && (p.rho ?? 0) > 0 ? p.theta : d.theta;
+  return {child: spoke(d.theta) + Math.PI, parent: spoke(out)};
+}
+
 export const treeEmit: ChartEmit = ({viz}) => {
   const linksData = viz.ctx.linksData as TreeLinkNode[] | undefined;
   const linkD = viz.ctx.linkD as
@@ -127,8 +150,6 @@ export const treeEmit: ChartEmit = ({viz}) => {
   // Links (Path nodes between parent and child).
   if (linksData && linksData.length && linkD) {
     const pathConfig = shapeConfigFor(viz, "Path");
-    // The direction a link leaves its child node in, toward the parent.
-    const toParent = viz.schema.orient === "vertical" ? -Math.PI / 2 : Math.PI;
     for (let i = 0; i < linksData.length; i++) {
       const d = linksData[i];
       const datum = (d.data ?? d) as DataPoint;
@@ -145,8 +166,8 @@ export const treeEmit: ChartEmit = ({viz}) => {
         type: "path",
         key: `tree-link-${id}`,
         d: linkD(d, {
-          child: reach(d, toParent),
-          parent: reach(d.parent, toParent + Math.PI),
+          child: reach(d, linkDirections(viz, d).child),
+          parent: reach(d.parent, linkDirections(viz, d).parent),
         }),
         datum,
         paint,
