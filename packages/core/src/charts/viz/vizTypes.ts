@@ -25,6 +25,7 @@ import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {GestureHoverState, ZoomGesture} from "../drawSteps/zoomGesture.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
+import type {MarginalLayout} from "../Plot/marginalLayout.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {BarSpanLayout} from "../Plot/barWidth.js";
 import type {ConfidenceAxes} from "../Plot/confidenceAxes.js";
@@ -614,6 +615,8 @@ export interface VizInstance {
   _stackGroup?: (d: DataPoint, i: number) => string;
   /** Extra room (px) reserved above a Plot's chart area, inside its margins. */
   _plotInsetTop?: number;
+  /** The marginal strips a Plot draws this render, and the room they take (see `Plot/marginalLayout.ts`). */
+  _plotMarginals?: MarginalLayout | null;
   /**
       Room (px) a chart reserves at the bottom of a Plot's area, between the
       value axis's range and the x axis, given the area's height. The plot

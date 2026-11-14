@@ -53,6 +53,8 @@ export const plotSchema = [
   {key: "forecastConfig", merge: true, factory: forecastDefaults},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "lineLabelConfig", merge: true, factory: () => ({value: false})},
+  {key: "marginals", coerce: "identity" as const, default: false},
+  {key: "marginalConfig", merge: true, factory: () => ({})},
   {key: "order", coerce: coerceOrder},
   {key: "pathArrows", coerce: "identity" as const, default: true},
   {key: "pathLabels", coerce: "identity" as const, default: true},

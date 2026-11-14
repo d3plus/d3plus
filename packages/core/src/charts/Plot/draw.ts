@@ -45,6 +45,7 @@ import {
   measurePlotLineLabels,
   preparePlotAxisLayout,
 } from "./pipeline.js";
+import {plotMarginalLayout} from "./marginalLayout.js";
 import {roundPlotOpenEnds} from "./openDomainEnds.js";
 import {recordStackLegendOrder} from "./stackLegendOrder.js";
 import {computePlotTrendFits} from "./trendLines.js";
@@ -320,6 +321,7 @@ function drawChrome(
 export function drawPlot(viz: VizInstance, callback?: () => void) {
   // The axis hover's positions belong to the previous layout.
   viz._axisHoverState = null;
+  viz._plotMarginals = null;
   // A small-multiples chrome pass lays out the chrome only.
   if (
     viz._facetStep === "chrome" ||
@@ -367,6 +369,12 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     {xData, x2Data, yData, y2Data},
   );
   const {x, y, x2, y2, xScale, yScale} = layoutCtx.plotScales;
+  // The marginal strips claim their room before the axes measure the rest.
+  viz._plotMarginals = plotMarginalLayout(
+    viz,
+    {width, height},
+    {...layoutCtx.plotScales, ...layoutCtx.plotConfigScales},
+  );
 
   const shapeData = groups(data, (d: Row) => d.shape as string).sort(
     ([a], [b]) => viz.schema.shapeSort(a, b),

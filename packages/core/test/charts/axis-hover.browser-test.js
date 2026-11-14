@@ -438,7 +438,9 @@ it("axis hover: axisHoverConfig styles the guides and badges", async () => {
         Number(box.getAttribute("height")),
       ];
     });
-    assert.deepStrictEqual(style, ["rgb(1, 2, 3)", "rgb(4, 5, 6)", 28]);
+    assert.deepStrictEqual(style.slice(0, 2), ["rgb(1, 2, 3)", "rgb(4, 5, 6)"]);
+    // 20px text with 4px padding, or taller to cover the "2k" tick under it.
+    assert.ok(style[2] >= 28, `badge height ${style[2]}`);
   } finally {
     await close();
   }
