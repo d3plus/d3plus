@@ -10,18 +10,17 @@
     axis chrome drawn among the marks (Candlestick's volume axis) end a run
     and stay outside every clip, so a label placed past the plot edge still
     shows, and points (circles) run separately from lines, areas and
-    rects. A run that reaches past the plot is wrapped in a group clipped to
-    the plot rect, grown by the run's widest half-stroke (for points, radius
-    plus half-stroke) so a mark sitting on the plot edge still draws whole.
-    A run that stays inside is left alone, so a plot whose domains cover its
-    data emits the same scene it always has. (Marks moving into or out of a
-    clip group re-enter rather than tween, so an animated redraw that starts
-    or stops cutting data off re-enters those marks instead of moving them.)
+    rects. Each run is wrapped in a group, clipped to the plot rect when it
+    reaches past it, grown by the run's widest half-stroke (for points,
+    radius plus half-stroke) so a mark sitting on the plot edge still draws
+    whole. A run that stays inside gets a group with no clip, so its marks
+    keep their parents, and tween in place, when a redraw starts or stops
+    cutting data off.
 
     @module
 */
 import {pathBounds} from "@d3plus/math";
-import type {SceneNode, Transform} from "@d3plus/render";
+import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
 import {applyTransform} from "../features/sceneBounds.js";
 import type {MaskFrame} from "./plotBreaks.js";
@@ -162,50 +161,53 @@ const grow = (rect: Rect, by: number, dy = 0): Rect => ({
 });
 
 /**
-    Wraps each run of `nodes` that reaches past the plot rect in a group
-    clipped to it (see the module docs). Returns `nodes` itself when nothing
-    is cut off.
+    Wraps each run of `nodes` in a group, clipped to the plot rect when the
+    run reaches past it (see the module docs).
     @param nodes The plot's data marks and their labels, in paint order.
-    @param frame The plot rect, in shape coordinates.
+    @param frame The plot rect, in shape coordinates, or none to clip no run
+    (a zoomed view clips its content itself).
 */
 export function clipToPlotArea(
   nodes: SceneNode[],
-  frame: ClipFrame,
+  frame?: ClipFrame,
 ): SceneNode[] {
-  const rect = plotRect(frame);
-  if (![rect.x0, rect.y0, rect.x1, rect.y1].every(Number.isFinite))
-    return nodes;
-  const inside = grow(rect, TOLERANCE, frame.yOffset ?? 0);
+  const rect = frame && plotRect(frame);
+  const inside =
+    rect && [rect.x0, rect.y0, rect.x1, rect.y1].every(Number.isFinite)
+      ? grow(rect, TOLERANCE, frame?.yOffset ?? 0)
+      : undefined;
   const out: SceneNode[] = [];
   let run: SceneNode[] = [];
   let runs = 0;
-  let clipped = false;
+  /** The plot rect, grown to fit `run`, when the run reaches past it. */
+  const runClip = (): ClipShape | undefined => {
+    if (!rect || !inside || !run.some(node => overflows(node, inside)))
+      return undefined;
+    const r = grow(rect, widest(run));
+    return {
+      type: "rect",
+      x: r.x0,
+      y: r.y0,
+      width: r.x1 - r.x0,
+      height: r.y1 - r.y0,
+    };
+  };
   const flush = (): void => {
     if (!run.length) return;
-    const key = `${DOMAIN_CLIP_KEY}-${runs++}`;
-    if (run.some(node => overflows(node, inside))) {
-      const r = grow(rect, widest(run));
-      // A sorted run (Plot's circles by size, their background images above
-      // them) keeps its place among its siblings: the backends order each
-      // group's children by `z`.
-      const zs = run
-        .map(node => node.z)
-        .filter((z): z is number => typeof z === "number");
-      out.push({
-        type: "group",
-        key,
-        clip: {
-          type: "rect",
-          x: r.x0,
-          y: r.y0,
-          width: r.x1 - r.x0,
-          height: r.y1 - r.y0,
-        },
-        children: run,
-        ...(zs.length ? {z: Math.min(...zs)} : {}),
-      });
-      clipped = true;
-    } else out.push(...run);
+    const clip = runClip();
+    // A sorted run (Plot's circles by size, their background images above
+    // them) keeps its place among its siblings: the backends order each
+    // group's children by `z`.
+    const zs = run
+      .map(node => node.z)
+      .filter((z): z is number => typeof z === "number");
+    out.push({
+      type: "group",
+      key: `${DOMAIN_CLIP_KEY}-${runs++}`,
+      ...(clip ? {clip} : {}),
+      children: run,
+      ...(zs.length ? {z: Math.min(...zs)} : {}),
+    });
     run = [];
   };
   for (const node of nodes) {
@@ -218,7 +220,7 @@ export function clipToPlotArea(
     run.push(node);
   }
   flush();
-  return clipped ? out : nodes;
+  return out;
 }
 
 /** A clip group's key, also once a small-multiples panel prefixes it. */

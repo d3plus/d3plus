@@ -13,6 +13,7 @@ export {
   Candlestick,
   Chord,
   ConnectedScatter,
+  CyclePlot,
   DensityPlot,
   Donut,
   Dumbbell,
@@ -33,6 +34,7 @@ export {
   Pack,
   ParallelCoordinates,
   Pareto,
+  Parliament,
   Pie,
   Plot,
   PolarArea,
@@ -169,6 +171,7 @@ export type {
   FacetSort,
   FacetValue,
 } from "./src/charts/facet/facetConfig.js";
+export type {FacetLayout} from "./src/charts/facet/facetLayout.js";
 
 export type {
   AnyShapeConfig,

@@ -17,6 +17,7 @@ import {hasSharedMarks, type ShapeNode} from "./sharedHover.js";
 import type {AxisHoverState} from "./axisHover.js";
 import {axisHoverNodes} from "./axisHoverScene.js";
 import {isDomainClip} from "./domainClip.js";
+import {isBreakMask} from "./plotBreaks.js";
 import type {FacetPanelState} from "../facet/facetConfig.js";
 import {withFacetPanel} from "../facet/facetPanel.js";
 import {prefixKeys} from "../facet/facetScene.js";
@@ -112,6 +113,36 @@ const isMark = (node: SceneNode): boolean => {
   );
 };
 
+/** Whether a node is a data mark, or a Plot clip group holding one. */
+const holdsMark = (node: SceneNode): boolean =>
+  isMark(node) ||
+  ((isDomainClip(node) || isBreakMask(node)) &&
+    (node as Parent).children!.some(holdsMark));
+
+/**
+    `nodes` with `guides` placed right behind the first data mark, inside
+    the break masks around it (so they stay above the background and
+    gridlines in there), or null when there's no mark.
+*/
+function behindMarks(
+  nodes: SceneNode[],
+  guides: SceneNode[],
+): SceneNode[] | null {
+  const first = nodes.findIndex(holdsMark);
+  if (first < 0) return null;
+  const node = nodes[first];
+  const out = [...nodes];
+  if (isBreakMask(node)) {
+    const inner = behindMarks((node as Parent).children!, guides);
+    if (inner) {
+      out[first] = {...node, children: inner} as SceneNode;
+      return out;
+    }
+  }
+  out.splice(first, 0, ...guides);
+  return out;
+}
+
 /**
     Places the guides (the crosshair and any axis-hover guides) behind the
     first data mark ("back") or after every mark ("front"), then the markers
@@ -124,15 +155,10 @@ function layer(
   markers: SceneNode[],
   side: "back" | "front",
 ): SceneNode[] {
-  const out = [...nodes];
-  if (guides.length) {
-    const first = out.findIndex(
-      n =>
-        isMark(n) || (isDomainClip(n) && (n as Parent).children!.some(isMark)),
-    );
-    if (side === "back" && first >= 0) out.splice(first, 0, ...guides);
-    else out.push(...guides);
-  }
+  const back =
+    guides.length && side === "back" ? behindMarks(nodes, guides) : null;
+  const out = back ?? [...nodes];
+  if (guides.length && !back) out.push(...guides);
   out.push(...markers);
   return out;
 }

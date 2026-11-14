@@ -207,7 +207,8 @@ const maskProbe = ([chart, data, config, renderer]) =>
       const bars = {};
       let closing;
       const walk = (n, inMask) => {
-        const isMask = String(n.key).startsWith("plot-break-mask");
+        const isMask =
+          String(n.key).startsWith("plot-break-mask") && Boolean(n.clip);
         if (isMask) masks.push(n.key);
         if (n.shapeType === "Bar" && n.type === "rect") {
           let row = n.datum;

@@ -330,11 +330,33 @@ it("maskBreaks keeps labels outside the mask, in paint order", () => {
   );
 });
 
-it("maskBreaks masks every break by default, and leaves content whole when none asks for a mask", () => {
+/** The clips of `maskBreaks`'s x and y groups around its first run. */
+const maskClips = out => {
+  assert.strictEqual(out[0].key, "plot-break-mask-x");
+  assert.strictEqual(out[0].children[0].key, "plot-break-mask-y");
+  return {x: out[0].clip, y: out[0].children[0].clip};
+};
+
+it("maskBreaks wraps the content alike with no masked break, with no clip", () => {
+  const nodes = [{type: "rect", key: "a", x: 0, y: 0, width: 5, height: 5}];
+  for (const viz of [stubViz(), stubViz(yAxis({breakConfig: {mask: false}}))]) {
+    const out = maskBreaks(viz, nodes, frame);
+    assert.deepStrictEqual(maskClips(out), {x: undefined, y: undefined});
+    assert.ok(!("clip" in out[0]), "no clip key on the group");
+    assert.deepStrictEqual(unwrapBreakMasks(out), nodes);
+  }
+  const masked = maskBreaks(stubViz(yAxis()), nodes, frame);
+  const clips = maskClips(masked);
+  assert.ok(clips.y && !clips.x, "only the masked axis clips");
+});
+
+it("maskBreaks masks every break by default, unless turned off", () => {
   const nodes = [{type: "rect", key: "a", x: 0, y: 0, width: 5, height: 5}];
   assert.strictEqual(
-    maskBreaks(stubViz(yAxis({breakConfig: {mask: false}})), nodes, frame),
-    nodes,
+    maskClips(
+      maskBreaks(stubViz(yAxis({breakConfig: {mask: false}})), nodes, frame),
+    ).y,
+    undefined,
   );
   const base = compute(
     new AxisLeft()
@@ -343,19 +365,20 @@ it("maskBreaks masks every break by default, and leaves content whole when none 
       .width(300)
       .baselineBreak(true),
   );
-  assert.strictEqual(
-    maskBreaks(stubViz(base), nodes, frame)[0].key,
-    "plot-break-mask-y",
+  assert.ok(
+    maskClips(maskBreaks(stubViz(base), nodes, frame)).y,
     "the baseline break is masked by default",
   );
   base.baselineBreakConfig({mask: false}).render();
   assert.strictEqual(
-    maskBreaks(stubViz(base), nodes, frame),
-    nodes,
+    maskClips(maskBreaks(stubViz(base), nodes, frame)).y,
+    undefined,
     "unless turned off",
   );
   const noLines = yAxis({breakConfig: {lines: false}});
-  const [, hole] = rings(maskBreaks(stubViz(noLines), nodes, frame)[0].clip.d);
+  const [, hole] = rings(
+    maskClips(maskBreaks(stubViz(noLines), nodes, frame)).y.d,
+  );
   const [g0, g1] = breakGap(noLines, noLines._breaks[0]);
   assert.deepStrictEqual(
     [...new Set(hole.map(p => p[1]))].sort((a, b) => a - b),
