@@ -2378,6 +2378,14 @@ export {
   stackReadingOrder,
 } from "./src/charts/Plot/stackLegendOrder.js";
 export type {StackPositions} from "./src/charts/Plot/stackLegendOrder.js";
+export {
+  neutralStackKeys,
+  stackKeyRanks,
+  stackNeutralMatcher,
+  stackOffsetNeutral,
+  stackOrderNeutral,
+} from "./src/charts/Plot/stackNeutral.js";
+export type {StackNeutralSetting} from "./src/charts/Plot/stackNeutral.js";
 export {applyPaddedDomains} from "./src/charts/Plot/facetScales.js";
 export type {PlotFacetScales} from "./src/charts/Plot/facetScales.js";
 export {
