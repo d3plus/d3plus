@@ -10,6 +10,9 @@ import sortedByGap from "~/examples/core/charts/dumbbell/sorted-by-gap.js?raw";
 import styledConnectors from "~/examples/core/charts/dumbbell/styled-connectors.js?raw";
 import verticalRanges from "~/examples/core/charts/dumbbell/vertical-ranges.js?raw";
 import smallMultiples from "~/examples/core/charts/dumbbell/small-multiples.js?raw";
+import changeArrows from "~/examples/core/charts/dumbbell/change-arrows.js?raw";
+import changeBars from "~/examples/core/charts/dumbbell/change-bars.js?raw";
+import spanBars from "~/examples/core/charts/dumbbell/span-bars.js?raw";
 
 Creates a dumbbell (range dot) chart from an array of data with one row per
 category and series, such as a country's value in 2010 and in 2020. Each
@@ -18,7 +21,9 @@ horizontal dumbbells), draws a circle per row at its value, colored by
 `groupBy`, with a connector between the category's smallest and largest
 values. Circles are styled by `shapeConfig.Circle` and connectors by
 `shapeConfig.Line`; `gapSort` orders the categories by the size of their
-gap.
+gap. `arrows` draws each connector as an arrow from the category's first
+value to its last, and `connector: "bar"` draws a floating bar in place of
+the dots.
 
 ## Basic example
 
@@ -43,6 +48,24 @@ Connectors are styled through `shapeConfig.Line` and dots through `shapeConfig.C
 Set `discrete` to `"x"` for vertical dumbbells. A category can hold any number of points; the connector spans its lowest to its highest.
 
 <Playground chart="Dumbbell" code={verticalRanges} controls={["discrete"]} />
+
+## Change arrows
+
+`arrows: true` turns each connector into an arrow from the category's first value to its last, in data order: here from 2019 to 2023. The line stops at the arrowhead's base, and the head's tip stops just short of the later dot. Arrows are colored by direction, `increaseColor` (green by default) when the value rises and `decreaseColor` (red) when it falls, and the tooltip adds each country's change. `arrowSize` sets the head's length; a change too small to fit a head between the dots draws as a plain connector.
+
+<Playground chart="Dumbbell" code={changeArrows} controls={["arrows","arrowSize","increaseColor","decreaseColor"]} />
+
+## Change bars
+
+`connector: "bar"` draws a thick floating bar between each category's values in place of the dots. With `arrows`, the bar runs from the first value and ends in an arrowhead at the last, colored by direction. The bars are 60% of the space between categories, at most 40 pixels thick; `connectorWidth` sets their thickness, and `shapeConfig.Rect` styles them.
+
+<Playground chart="Dumbbell" code={changeBars} controls={["connector","arrows","connectorWidth"]} />
+
+## Span chart
+
+Without `arrows`, a bar connector spans each category's smallest to largest value, as a span (range) chart: here each month's low and high temperature. The tooltip adds each month's range. The legend is hidden, since the bars draw in place of the series' dots.
+
+<Playground chart="Dumbbell" code={spanBars} controls={["connector","connectorWidth"]} />
 
 ## Small multiples
 
