@@ -115,7 +115,7 @@ function baseTickFormat(
           const number = formatAbbreviate(
             tick,
             loc,
-            `,.${tick.toString().length}r`,
+            `,.${tick.toString().length}~r`,
           );
           return `${number}${separator}${suff}`;
         } else {

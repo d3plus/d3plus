@@ -1,0 +1,205 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>HorizonChart</title>
+    <meta
+      name="description"
+      content="HorizonChart variants: positive series, mirrored negatives, many rows, more bands with custom colors, per-row tooltips, gaps, small multiples, a timeline with a fixed band size, zoom, and row labels that hide or solo their series."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Inter, sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 400px;
+      }
+      .wide {
+        grid-column: 1 / span 2;
+      }
+      .tall {
+        height: 640px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>
+          Positive series (default: 3 bands). Click a row label (or Tab to it
+          and press Enter) to hide it, Shift+click (Shift+Enter) to solo it
+        </h3>
+        <div class="viz" id="default"></div>
+      </div>
+      <div>
+        <h3>Negatives mirrored upward</h3>
+        <div class="viz" id="negatives"></div>
+      </div>
+      <div class="wide">
+        <h3>Many rows</h3>
+        <div class="viz tall" id="many"></div>
+      </div>
+      <div>
+        <h3>bands: 5, custom colors</h3>
+        <div class="viz" id="colors"></div>
+      </div>
+      <div>
+        <h3>tooltipShared: false, gaps in the data</h3>
+        <div class="viz" id="single"></div>
+      </div>
+      <div class="wide">
+        <h3>Small multiples (facet: "region")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3>Timeline (time: "date"): shades hold across steps</h3>
+        <div class="viz" id="time"></div>
+      </div>
+      <div>
+        <h3>zoom: true</h3>
+        <div class="viz" id="zoom"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Seeded rows so the page renders identically every load.
+    let seed = 7;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const round = v => Math.round(v * 100) / 100;
+
+    const days = Array.from(
+      {length: 120},
+      (_, i) => new Date(Date.UTC(2024, 0, 1 + i * 3)),
+    );
+
+    // A random walk per series, drifting around `level`.
+    const walk = (id, level, swing, extra = {}) => {
+      let v = level;
+      return days.map((date, i) => {
+        v += (random() - 0.5) * swing + (level - v) * 0.08;
+        const wave = Math.sin((i / days.length) * Math.PI * 4) * swing;
+        return {id, date, value: round(v + wave), ...extra};
+      });
+    };
+
+    const servers = ["api", "auth", "billing", "search", "web"];
+    const load = servers.flatMap((id, s) => walk(id, 40 + s * 8, 12));
+
+    const cities = ["Lagos", "Lima", "Oslo", "Perth", "Seoul", "Tucson"];
+    const anomalies = cities.flatMap((id, c) => walk(id, (c - 2.5) * 0.4, 1.2));
+
+    const tickers = Array.from({length: 24}, (_, i) => `Fund ${i + 1}`);
+    const returns = tickers.flatMap((id, t) => walk(id, (t % 7) - 3, 3));
+
+    const regions = {
+      North: ["Oslo", "Seoul"],
+      South: ["Lima", "Perth"],
+      Equator: ["Lagos", "Tucson"],
+    };
+    const regional = anomalies.map(d => ({
+      ...d,
+      region: Object.keys(regions).find(r => regions[r].includes(d.id)),
+    }));
+
+    const gappy = load
+      .filter(d => d.id !== "web")
+      .map((d, i) => (i % 40 > 30 ? {...d, value: null} : d));
+
+    new d3plus.HorizonChart()
+      .select("#default")
+      .data(load)
+      .groupBy("id")
+      .x("date")
+      .y("value")
+      .time("date")
+      .render();
+
+    new d3plus.HorizonChart()
+      .select("#negatives")
+      .data(anomalies)
+      .groupBy("id")
+      .x("date")
+      .y("value")
+      .time("date")
+      .render();
+
+    new d3plus.HorizonChart()
+      .select("#many")
+      .data(returns)
+      .groupBy("id")
+      .x("date")
+      .y("value")
+      .time("date")
+      .render();
+
+    new d3plus.HorizonChart()
+      .select("#colors")
+      .data(anomalies)
+      .groupBy("id")
+      .x("date")
+      .y("value")
+      .time("date")
+      .bands(5)
+      .colors({positive: "#e8590c", negative: "#5f3dc4"})
+      .render();
+
+    new d3plus.HorizonChart()
+      .select("#single")
+      .data(gappy)
+      .groupBy("id")
+      .x("date")
+      .y("value")
+      .time("date")
+      .tooltipShared(false)
+      .render();
+
+    new d3plus.HorizonChart()
+      .select("#facet")
+      .data(regional)
+      .groupBy("id")
+      .x("date")
+      .y("value")
+      .time("date")
+      .facet("region")
+      .render();
+
+    new d3plus.HorizonChart()
+      .select("#time")
+      .data(anomalies)
+      .groupBy("id")
+      .x("date")
+      .y("value")
+      .time("date")
+      .timeline(true)
+      .render();
+
+    new d3plus.HorizonChart()
+      .select("#zoom")
+      .data(load)
+      .groupBy("id")
+      .x("date")
+      .y("value")
+      .time("date")
+      .zoom(true)
+      .render();
+  </script>
+</html>

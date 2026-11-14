@@ -24,6 +24,7 @@ import {
   Geomap as GeomapClass,
   Hexbin as HexbinClass,
   Histogram as HistogramClass,
+  HorizonChart as HorizonChartClass,
   Icicle as IcicleClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
@@ -48,6 +49,7 @@ import {
   SlopeChart as SlopeChartClass,
   StackedArea as StackedAreaClass,
   Streamgraph as StreamgraphClass,
+  StripPlot as StripPlotClass,
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
@@ -76,6 +78,7 @@ import {
   Path as PathClass,
   Rect as RectClass,
   Shape as ShapeClass,
+  Tick as TickClass,
   Whisker as WhiskerClass,
   BaseClass as BaseClassClass,
 } from "@d3plus/core";
@@ -178,6 +181,10 @@ export const Hexbin = (props: D3plusComponentProps) => (
 export const Histogram = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={HistogramClass} {...props} />
 );
+/** React component for rendering a d3plus HorizonChart visualization. */
+export const HorizonChart = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={HorizonChartClass} {...props} />
+);
 /** React component for rendering a d3plus Icicle visualization. */
 export const Icicle = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={IcicleClass} {...props} />
@@ -277,6 +284,11 @@ export const StackedArea = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Streamgraph visualization. */
 export const Streamgraph = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={StreamgraphClass} {...props} />
+);
+
+/** React component for rendering a d3plus StripPlot visualization. */
+export const StripPlot = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={StripPlotClass} {...props} />
 );
 /** React component for rendering a d3plus Sunburst visualization. */
 export const Sunburst = (props: D3plusComponentProps) => (
@@ -391,6 +403,11 @@ export const Rect = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Shape shape. */
 export const Shape = (props: D3plusComponentProps) => (
   <Renderer className="shape" constructor={ShapeClass} {...props} />
+);
+
+/** React component for rendering a d3plus Tick shape. */
+export const Tick = (props: D3plusComponentProps) => (
+  <Renderer className="shape" constructor={TickClass} {...props} />
 );
 /** React component for rendering a d3plus Whisker shape. */
 export const Whisker = (props: D3plusComponentProps) => (

@@ -17,6 +17,7 @@ import {
   plainText,
   readingOrder,
   syncKeyboardNav,
+  tabTarget,
   targetLabel,
   teardownKeyboardNav,
   updateKeyboardNavHost,
@@ -664,6 +665,68 @@ describe("labels and ring style", () => {
     assert.deepStrictEqual(
       [custom.stroke, custom.strokeWidth, custom.padding],
       ["c1", 4, 0],
+    );
+  });
+});
+
+describe("chart Tab stops", () => {
+  const label = (key, y) => ({
+    type: "rect",
+    key,
+    x: 0,
+    y,
+    width: 20,
+    height: 10,
+    datum: {data: {id: key, tick: true}},
+  });
+  const scene = () => [
+    cells(rect("mark", 50, 0, 10, 10), {
+      type: "group",
+      key: "plot-y-axis",
+      interactionGroup: "axis",
+      children: [label("b", 40), label("a", 10), rect("tick", 0, 0, 1, 1)],
+    }),
+  ];
+  const tabStop = (node, ancestors) =>
+    node.datum?.data?.tick && ancestors.some(a => a.key === "plot-y-axis")
+      ? `${node.key}, press Enter`
+      : undefined;
+
+  it("focusTargets adds a chart's Tab stops from inside chrome, named", () => {
+    const targets = focusTargets(scene(), tabStop);
+    assert.deepStrictEqual(ids(targets).sort(), ["a", "b", "mark"]);
+    const a = targets.find(t => t.id === "a");
+    assert.strictEqual(a.tab, true);
+    assert.strictEqual(a.label, "a, press Enter");
+    assert.deepStrictEqual(a.box, {x: 0, y: 10, width: 20, height: 10});
+    assert.strictEqual(targets.find(t => t.id === "mark").tab, undefined);
+    assert.deepStrictEqual(
+      ids(focusTargets(scene())),
+      ["mark"],
+      "chrome stays out without a test",
+    );
+  });
+
+  it("targetLabel reads a Tab stop's own name", () => {
+    const viz = {schema: {shapeConfig: {}}, _drawLabel: () => "row"};
+    const a = focusTargets(scene(), tabStop).find(t => t.id === "a");
+    assert.strictEqual(targetLabel(viz, a), "a, press Enter");
+  });
+
+  it("tabTarget steps through Tab stops top to bottom, then out", () => {
+    const targets = focusTargets(scene(), tabStop);
+    const by = id => targets.find(t => t.id === id);
+    assert.strictEqual(tabTarget(targets, null, false).id, "a");
+    assert.strictEqual(tabTarget(targets, by("mark"), false).id, "a");
+    assert.strictEqual(tabTarget(targets, by("a"), false).id, "b");
+    assert.strictEqual(tabTarget(targets, by("b"), false), undefined);
+    assert.strictEqual(tabTarget(targets, by("b"), true).id, "a");
+    assert.strictEqual(tabTarget(targets, by("a"), true), undefined);
+    assert.strictEqual(tabTarget(targets, by("mark"), true), undefined);
+    assert.strictEqual(
+      tabTarget(focusTargets(scene()), null, false),
+      undefined,
+      "no Tab stops",
     );
   });
 });

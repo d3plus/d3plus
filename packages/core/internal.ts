@@ -563,6 +563,27 @@ export type {
   SwarmState,
 } from "./src/charts/Plot/swarm.js";
 export {
+  DEFAULT_TICK_LENGTH,
+  jitterAccessor,
+  plotBand,
+} from "./src/charts/Plot/jitter.js";
+export type {Band, BandInputs} from "./src/charts/Plot/jitter.js";
+export {DEFAULT_JITTER, jitterOffset, jitterWidth} from "./src/utils/jitter.js";
+export type {JitterSetting} from "./src/utils/jitter.js";
+export {
+  applyBoxExtras,
+  boxPointData,
+  countWidth,
+  jitteredCenter,
+  jitterOutliers,
+  MEAN_SIZE,
+  meanOf,
+  notchedBoxPath,
+  notchInterval,
+  toBoxExtra,
+} from "./src/shapes/boxExtras.js";
+export type {BoxExtrasHost} from "./src/shapes/boxExtras.js";
+export {
   compareCategories,
   stepValue,
   waterfallKinds,
@@ -1366,6 +1387,71 @@ export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {
+  horizonChartDef,
+  rowLabelOpacity,
+  shareHorizonScales,
+} from "./src/charts/HorizonChart/index.js";
+export {
+  applyRowDomain,
+  bandCount,
+  measureBands,
+  rowDomain,
+} from "./src/charts/HorizonChart/measure.js";
+export {
+  handleRowLabel,
+  rowHidden,
+  labelAnchor,
+  rowLabelOf,
+  rowLabelTabStop,
+  rowToggle,
+} from "./src/charts/HorizonChart/rowFilter.js";
+export type {RowFilter} from "./src/charts/HorizonChart/rowFilter.js";
+export {
+  horizonBandSize,
+  horizonSlices,
+  niceCeil,
+} from "./src/charts/HorizonChart/horizonBands.js";
+export type {HorizonSlice} from "./src/charts/HorizonChart/horizonBands.js";
+export {horizonPalette} from "./src/charts/HorizonChart/horizonColors.js";
+export type {
+  HorizonColorConfig,
+  HorizonColorSetting,
+  HorizonPalette,
+} from "./src/charts/HorizonChart/horizonColors.js";
+export {
+  HORIZON_ROW,
+  horizonEmit,
+  horizonRowBox,
+  horizonSlicePath,
+} from "./src/charts/HorizonChart/emit.js";
+export type {HorizonRowBox} from "./src/charts/HorizonChart/emit.js";
+export {
+  handleHorizonHover,
+  horizonHitRows,
+  resolveHorizonHover,
+} from "./src/charts/HorizonChart/hover.js";
+export type {
+  HorizonHitRow,
+  HorizonHover,
+  HorizonHoverRow,
+} from "./src/charts/HorizonChart/hover.js";
+export {
+  HORIZON_BAND,
+  bandKeyRows,
+  bandLabel,
+  bandMeta,
+  horizonState,
+  rowValue,
+  seriesId,
+  userRow as horizonUserRow,
+  valueColor,
+  valueFormat as horizonValueFormat,
+} from "./src/charts/HorizonChart/state.js";
+export type {
+  HorizonBandMeta,
+  HorizonState,
+} from "./src/charts/HorizonChart/state.js";
 export {icicleDef} from "./src/charts/Icicle/index.js";
 export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {marimekkoDef} from "./src/charts/Marimekko/index.js";
@@ -1375,6 +1461,7 @@ export {arcDiagramDef, arcTableData} from "./src/charts/ArcDiagram/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {scatterDef} from "./src/charts/Scatter/index.js";
+export {stripPlotDef} from "./src/charts/StripPlot/index.js";
 export {
   prepareSlope,
   slopeChartDef,
@@ -1716,6 +1803,7 @@ export {
 export type {
   FocusDirection,
   FocusTarget,
+  TabStopTest,
 } from "./src/charts/viz/focusTargets.js";
 export {focusRingNode} from "./src/charts/viz/focusRing.js";
 export type {FocusRingStyle} from "./src/charts/viz/focusRing.js";
@@ -2054,11 +2142,17 @@ export {
   cubicPathD,
   defaultArrowSize,
   edgeArrowTrims,
+  straightEdgeCuts,
   straightEdgeD,
   trimCubic,
   trimSegment,
 } from "./src/charts/features/edgeArrows.js";
-export type {EdgeArrowTrims} from "./src/charts/features/edgeArrows.js";
+export type {
+  EdgeArrowTrims,
+  EdgeNode,
+} from "./src/charts/features/edgeArrows.js";
+export {outlineReach} from "./src/charts/features/nodeOutline.js";
+export type {NodeOutline} from "./src/charts/features/nodeOutline.js";
 export {selfLoopD} from "./src/charts/features/selfLoops.js";
 export {
   arcArrowEdge,
@@ -2137,6 +2231,7 @@ export {
   appendFocusRing,
   focusRingStyle,
   syncKeyboardNav,
+  tabTarget,
   targetLabel,
   teardownKeyboardNav,
 } from "./src/charts/viz/keyboardNav.js";
@@ -2492,6 +2587,7 @@ export {
   bundledLinkAnchor,
   bundledLinkEdge,
   bundledLinkPath,
+  bundledOutlineBack,
   bundledTipBack,
 } from "./src/charts/Network/bundle.js";
 export {bundleFlowLinks} from "./src/charts/Geomap/flowLinks.js";
