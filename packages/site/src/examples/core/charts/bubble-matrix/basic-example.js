@@ -25,6 +25,5 @@ const config = {
   row: "y",
   size: "correlation",
   colorScale: "correlation",
-  colorScaleConfig: {scale: "linear", domain: [-1, 1]},
   colorScalePosition: "right",
 };

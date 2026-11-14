@@ -27,6 +27,5 @@ const config = {
   sizeScale: "linear",
   cellPadding: 6,
   colorScale: "correlation",
-  colorScaleConfig: {scale: "linear", domain: [-1, 1]},
   colorScalePosition: "right",
 };

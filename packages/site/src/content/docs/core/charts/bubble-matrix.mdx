@@ -13,13 +13,14 @@ Creates a bubble matrix from an array of data: a Matrix whose cells draw
 as circles, each centered in its `row` × `column` cell and sized by the
 absolute value of its `size` value, so the largest circle fills its cell
 (by area with the default `"sqrt"` `sizeScale`). Color the circles with
-`colorScale`: values on both sides of zero diverge from its `midpoint`,
-which suits a correlation matrix. A size legend keys the sizes, and
+`colorScale`: a linear scale diverging around zero over a domain symmetric
+about it, so values of equal magnitude take equal color strength on either
+side, which suits a correlation matrix. A size legend keys the sizes, and
 hovering a circle highlights its row and column.
 
 ## Basic example
 
-A correlation matrix: each circle's area shows how strongly two measures move together, and its color whether they rise together (blue) or one falls as the other rises (red). Sizing by the absolute value draws -0.85 as large as 0.85, so the strongest relationships stand out whichever their direction, and the tooltip shows the signed value. A `"linear"` colorScale over a `domain` of `[-1, 1]` keeps zero at the pale midpoint, so equally strong correlations take equally strong colors.
+A correlation matrix: each circle's area shows how strongly two measures move together, and its color whether they rise together (blue) or one falls as the other rises (red). Sizing by the absolute value draws -0.85 as large as 0.85, so the strongest relationships stand out whichever their direction, and the tooltip shows the signed value. The colorScale is linear and diverges around zero over a domain symmetric about it, spanning the largest magnitude on both sides (here -1 to 1, set by the diagonal), so zero sits at the pale midpoint and equally strong correlations take equally strong colors. Set `colorScaleConfig.domain` or `scale` to replace it.
 
 <Playground chart="BubbleMatrix" code={basicExample} controls={["size","colorScale","colorScaleConfig"]} />
 
@@ -31,7 +32,7 @@ A correlation matrix: each circle's area shows how strongly two measures move to
 
 ## Size and color
 
-`size` and `colorScale` can read different values. Here each circle's area shows a region's revenue and its color the revenue's growth, and the tooltip lists both. A cell without a `size` value draws no circle, as two regions that hadn't opened yet show.
+`size` and `colorScale` can read different values. Here each circle's area shows a region's revenue and its color the revenue's growth, centered on zero so a 19% fall reads as strongly as a 19% rise, and the tooltip lists both. A cell without a `size` value draws no circle, as two regions that hadn't opened yet show.
 
 <Playground chart="BubbleMatrix" code={sizeAndColor} controls={["size","colorScale"]} />
 

@@ -22,6 +22,5 @@ const config = {
   row: "region",
   size: "Revenue ($M)",
   colorScale: "Growth (%)",
-  colorScaleConfig: {scale: "linear"},
   colorScalePosition: "right",
 };
