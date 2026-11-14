@@ -3,6 +3,7 @@ import assert from "assert";
 import {color as d3Color} from "d3-color";
 import {ColorScale} from "../../index.ts";
 import {
+  centeredStops,
   colorScaleBucketCount,
   divergingThresholds,
 } from "../../src/components/ColorScale/colorScaleScale.ts";
@@ -303,4 +304,63 @@ it("linear / log — an even count ramps from low through the midpoint to high",
           `${label}: the high color is reached only at the top`,
         );
       }
+});
+
+/** The `rgb(…)` form of a color string. */
+const rgb = c => d3Color(c).formatRgb();
+
+it("linear — a color array through the midpoint color spans each side evenly", () => {
+  const {off, light, sequential} = new ColorScale().schema.colorDefaults;
+  for (const scale of ["linear", "buckets"])
+    for (const [color, domain] of [
+      [
+        [off, light, sequential],
+        [-10, 0, 10],
+      ],
+      [
+        [off, "#f4a582", light, "#92c5de", sequential],
+        [-10, -5, 0, 5, 10],
+      ],
+      [
+        [off, "#f4a582", "#fddbc7", light, sequential],
+        [-9, -6, -3, 0, 6],
+      ],
+    ]) {
+      const values = [domain[0], -1, 1, domain.at(-1)];
+      const label = `${scale} ${color.length} colors`;
+      const cs = solve(values, {scale, color});
+      assert.deepStrictEqual(cs._colorScale.domain(), domain, label);
+      assert.strictEqual(colorOf(cs, domain[0]), rgb(off), `${label}: low`);
+      assert.strictEqual(
+        colorOf(cs, domain.at(-1)),
+        rgb(sequential),
+        `${label}: high`,
+      );
+      if (scale === "linear")
+        assert.notStrictEqual(
+          colorOf(cs, domain.at(-1) - 1),
+          rgb(sequential),
+          `${label}: the high color is reached only at the top`,
+        );
+    }
+});
+
+it("centeredStops — each side of the midpoint spaces its own colors evenly", () => {
+  assert.deepStrictEqual(centeredStops(-10, 0, 10, 1, 1), [-10, 0, 10]);
+  assert.deepStrictEqual(centeredStops(-10, 0, 10, 2, 2), [-10, -5, 0, 5, 10]);
+  assert.deepStrictEqual(
+    centeredStops(-9, 0, 6, 3, 1),
+    [-9, -6, -3, 0, 6],
+    "uneven sides",
+  );
+  assert.deepStrictEqual(centeredStops(-4, 1, 9, 1, 2), [-4, 1, 5, 9]);
+  assert.deepStrictEqual(centeredStops(-10, 0, 10, 0, 2), [0, 5, 10]);
+  assert.deepStrictEqual(centeredStops(-10, 0, 10, 2, 0), [-10, -5, 0]);
+  for (const below of [1, 2, 3, 6, 7])
+    for (const above of [1, 2, 3, 6, 7]) {
+      const stops = centeredStops(-0.7, 0, 0.3, below, above);
+      assert.strictEqual(stops.length, below + 1 + above, `${below}/${above}`);
+      assert.strictEqual(stops[0], -0.7);
+      assert.strictEqual(stops.at(-1), 0.3);
+    }
 });

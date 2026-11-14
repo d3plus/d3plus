@@ -221,6 +221,28 @@ export function divergingThresholds(
   return side(low, midpoint).concat(side(midpoint, high));
 }
 
+/**
+    The values a centered color array's stops sit at: `below` evenly spaced
+    from `low` up to the `midpoint`, the `midpoint` itself, then `above` evenly
+    spaced from the `midpoint` up to `high`, one per color.
+*/
+export function centeredStops(
+  low: number,
+  midpoint: number,
+  high: number,
+  below: number,
+  above: number,
+): number[] {
+  const step = (from: number, to: number, n: number, i: number): number =>
+    i === n ? to : from + i * ((to - from) / n);
+  return range(below)
+    .map((i: number) => step(low, midpoint, below, i))
+    .concat(midpoint)
+    .concat(
+      range(1, above + 1).map((i: number) => step(midpoint, high, above, i)),
+    );
+}
+
 /** Resolves the diverging linear-gradient color/bucket arrays. */
 function resolveDivergingLinear(
   cs: ColorScale,
@@ -297,23 +319,13 @@ function resolveNonDivergingLinear(
       ) as number[];
     } else if (diverging && cs.schema.color && cs.schema.centered) {
       const midIndex = colors.indexOf(colorMid(cs));
-      const negativeStep =
-        (cs.schema.midpoint - (domain as number[])[0]) / midIndex;
-      const positiveStep =
-        ((domain as number[])[1] - cs.schema.midpoint) /
-        (colors.length - midIndex);
-      const negativeBuckets = range(
+      buckets = centeredStops(
         (domain as number[])[0],
         cs.schema.midpoint,
-        negativeStep,
+        (domain as number[])[1],
+        midIndex,
+        colors.length - 1 - midIndex,
       );
-      const positiveBuckets = range(
-        cs.schema.midpoint,
-        (domain as number[])[1] + positiveStep / 2,
-        positiveStep,
-      );
-
-      buckets = negativeBuckets.concat(positiveBuckets);
     } else if ((domain as number[])[0] === (domain as number[])[1]) {
       // A single value takes the pole's color: one bucket, or a solid bar.
       const pole = negative ? colors[0] : colors[colors.length - 1];
