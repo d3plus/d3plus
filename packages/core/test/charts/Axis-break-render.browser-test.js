@@ -30,7 +30,8 @@ const probe = (src, opts = {}) =>
       let firstShape = Infinity;
       const walk = (n, inMask) => {
         order++;
-        const isMask = String(n.key).startsWith("plot-break-mask");
+        const isMask =
+          String(n.key).startsWith("plot-break-mask") && Boolean(n.clip);
         if (isMask) {
           const holes = n.clip.d
             .split("Z")

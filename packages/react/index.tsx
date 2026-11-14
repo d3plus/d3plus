@@ -35,6 +35,7 @@ import {
   Pack as PackClass,
   ParallelCoordinates as ParallelCoordinatesClass,
   Pareto as ParetoClass,
+  Parliament as ParliamentClass,
   Pie as PieClass,
   Plot as PlotClass,
   PolarArea as PolarAreaClass,
@@ -230,6 +231,10 @@ export const ParallelCoordinates = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Pareto visualization. */
 export const Pareto = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={ParetoClass} {...props} />
+);
+/** React component for rendering a d3plus Parliament visualization. */
+export const Parliament = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={ParliamentClass} {...props} />
 );
 /** React component for rendering a d3plus Pie visualization. */
 export const Pie = (props: D3plusComponentProps) => (

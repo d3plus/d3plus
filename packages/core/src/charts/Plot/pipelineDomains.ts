@@ -29,7 +29,19 @@ import type {TransformStage, VizContext} from "../pipeline/stages.js";
 import {stampShare} from "../features/shareKey.js";
 import {stackedConfidenceValues} from "./barConfidence.js";
 import {isSpanAxis, spanDomain} from "./discreteSpan.js";
-import {orderLast} from "./stackHelpers.js";
+import {
+  orderLast,
+  stackOffsetDiverging,
+  stackOrderTotalDescending,
+} from "./stackHelpers.js";
+import {
+  neutralStack,
+  neutralStackKeys,
+  seriesDataRanks,
+  seriesListRanks,
+  stackNeutralMatcher,
+  type StackNeutralSetting,
+} from "./stackNeutral.js";
 import {plotSeriesIds, stackPositions} from "./stackLegendOrder.js";
 import {trendDomainValues} from "./trendLines.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -162,9 +174,28 @@ function sortStackedAxisData(
 }
 
 /**
+    The stack keys of the `stackNeutral` series, when a diverging stack
+    names one; null otherwise (including under any other `stackOffset`).
+*/
+function stackNeutralKeys(
+  viz: VizInstance,
+  axisData: Row[],
+): Set<string> | null {
+  if (viz._stackOffset !== stackOffsetDiverging) return null;
+  const isNeutral = stackNeutralMatcher(
+    viz.schema.stackNeutral as StackNeutralSetting,
+    (d, i) => viz._ids(d, i).slice(0, viz._drawDepth + 1),
+  );
+  return isNeutral ? neutralStackKeys(axisData, isNeutral) : null;
+}
+
+/**
     Runs d3-stack over the discrete groups with the configured order and
     offset. Sorts `stackKeys` in place when the order is an explicit key array.
-    A threshold bucket (see `stackThreshold.ts`) stacks last, on top.
+    A threshold bucket (see `stackThreshold.ts`) stacks last, on top. With
+    `neutral` keys (see `stackNeutral.ts`), the stack centers on them, the
+    others placed along the scale by their data order (or the chart's
+    `stackOrder`, when set).
 */
 function runStack(
   viz: VizInstance,
@@ -172,6 +203,7 @@ function runStack(
   stackGroupsData: Row[][],
   opp: string | undefined,
   bucketKeys: Set<string>,
+  neutral: {keys: Set<string>; rows: Row[]} | null,
 ): number[][][] {
   const order = viz._stackOrder;
 
@@ -180,7 +212,39 @@ function runStack(
   // reranks the series d3-stack builds, so `stackKeys` is left in input order.
   if (Array.isArray(order))
     stackKeys.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-  const stackOrder = Array.isArray(order) ? d3Shape.stackOrderNone : order;
+  const baseOrder = Array.isArray(order) ? d3Shape.stackOrderNone : order;
+  let stackOrder: unknown = baseOrder;
+  let offset: unknown = viz._stackOffset;
+  viz._stackNeutralRanks = undefined;
+  if (neutral) {
+    const nameOf = (row: Row) =>
+      viz
+        ._ids(row.data as DataPoint, row.i as number)
+        .slice(0, viz._drawDepth + 1)
+        .join("_");
+    const seriesOf = new Map(
+      neutral.rows.filter(r => r.data).map(r => [`${r.id}`, nameOf(r)]),
+    );
+    const dataRanks = seriesDataRanks(
+      neutral.rows.filter(r => r.data),
+      nameOf,
+    );
+    // The scale's order: the data's by default, else the chart's stackOrder.
+    const fixed = Array.isArray(order)
+      ? seriesListRanks(order, dataRanks)
+      : order === stackOrderTotalDescending
+        ? dataRanks
+        : undefined;
+    const centered = neutralStack(
+      neutral.keys,
+      seriesOf,
+      baseOrder as unknown as Parameters<typeof neutralStack>[2],
+      fixed,
+    );
+    stackOrder = centered.order;
+    offset = centered.offset;
+    viz._stackNeutralRanks = centered.ranks;
+  }
 
   // d3-stack's generics don't model d3plus's dynamically-keyed rows; the
   // order/offset/value accessors are cast (`as never`) at the boundary, and
@@ -189,7 +253,7 @@ function runStack(
     d3Shape
       .stack()
       .keys(stackKeys as string[])
-      .offset(viz._stackOffset as never)
+      .offset(offset as never)
       .order(
         (bucketKeys.size
           ? orderLast(stackOrder as Parameters<typeof orderLast>[0], bucketKeys)
@@ -246,7 +310,15 @@ function computeStackedDomains(
       .filter((d: Row) => (d.data as DataPoint | undefined)?._isAggregation)
       .map((d: Row) => d.id as string),
   );
-  const stackData = runStack(viz, stackKeys, stackGroupsData, opp, bucketKeys);
+  const neutralKeys = stackNeutralKeys(viz, axisData);
+  const stackData = runStack(
+    viz,
+    stackKeys,
+    stackGroupsData,
+    opp,
+    bucketKeys,
+    neutralKeys?.size ? {keys: neutralKeys, rows: axisData} : null,
+  );
 
   const discreteData = (
     viz.schema.discrete === "x" ? xData : yData
@@ -297,16 +369,21 @@ function computeStackedDomains(
       axisData,
       stackData,
       stackKeys,
+      !!neutralKeys?.size,
     ),
   };
 }
 
-/** Where each series sits in the drawn stacks (see `stackLegendOrder.ts`). */
+/**
+    Where each series sits in the drawn stacks (see `stackLegendOrder.ts`):
+    along the value axis, for a stack centered on a neutral series.
+*/
 function drawnStackPositions(
   viz: VizInstance,
   axisData: Row[],
   stackData: number[][][],
   stackKeys: unknown[],
+  alongAxis: boolean,
 ) {
   const series = new Map<string, string>();
   for (const row of axisData) {
@@ -315,7 +392,12 @@ function drawnStackPositions(
     const ids = plotSeriesIds(viz, row.data as DataPoint, row.i as number);
     if (ids.length) series.set(key, ids[0]);
   }
-  return stackPositions(stackData, stackKeys, key => series.get(key));
+  return stackPositions(
+    stackData,
+    stackKeys,
+    key => series.get(key),
+    alongAxis,
+  );
 }
 
 /** Non-stacked branch: data-values-or-extent domains per axis. */
