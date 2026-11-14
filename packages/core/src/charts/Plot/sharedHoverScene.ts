@@ -201,7 +201,7 @@ function decorateBody(
       : [];
   let children = nodes;
   const crosshair = state && discrete ? crosshairAnnotation(viz, state) : null;
-  const axisNodes = axis ? axisHoverNodes(viz, axis) : null;
+  const axisNodes = axis ? axisHoverNodes(viz, axis, nodes) : null;
   const guides = prefixKeys(
     [...(crosshair ? [crosshair] : []), ...(axisNodes ? axisNodes.guides : [])],
     key,

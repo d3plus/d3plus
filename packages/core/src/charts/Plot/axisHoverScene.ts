@@ -6,9 +6,10 @@
 import {colorContrast, colorGray} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import {textWidth} from "@d3plus/dom";
-import type {SceneNode} from "@d3plus/render";
+import type {SceneNode, Transform} from "@d3plus/render";
 
 import {parseDash} from "../../shapes/Shape.js";
+import {mapBox, mapper, ownBoxes} from "../features/sceneBounds.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {AxisHoverBadge, AxisHoverState} from "./axisHover.js";
 import type {AxisName} from "./axisHoverAnchors.js";
@@ -126,6 +127,88 @@ export function badgeBox(
   return {x: edges.right, y: at - height / 2, width, height};
 }
 
+/** Whether a tick's value is `value`: the same number or date, or the same text. */
+export function sameTick(tick: unknown, value: unknown): boolean {
+  const unset = (v: unknown) => v === undefined || v === null;
+  if (unset(tick) || unset(value)) return false;
+  if (tick === value) return true;
+  const numeric = (v: unknown) =>
+    typeof v === "number" || v instanceof Date ? +v : NaN;
+  const a = numeric(tick),
+    b = numeric(value);
+  if (Number.isFinite(a) || Number.isFinite(b)) return a === b;
+  return String(tick) === String(value);
+}
+
+/** A tick label's record: its tick's value sits on `data.id`. */
+interface TickDatum {
+  data?: {id?: unknown; tick?: unknown};
+}
+
+/**
+    The box, in the space of `nodes`, around the tick labels `axis` draws for
+    `value` (an axis's labels sit in its `plot-<axis>-axis` group), or null
+    when it draws none.
+    @param nodes The chart body's scene nodes.
+    @param axis The badged axis.
+    @param value The badged value.
+*/
+export function tickLabelBox(
+  nodes: SceneNode[],
+  axis: AxisName,
+  value: unknown,
+): BadgeBox | null {
+  const group = nodes.find(n => `${n.key}`.endsWith(`plot-${axis}-axis`));
+  if (!group || value === undefined) return null;
+  const boxes: BadgeBox[] = [];
+  const walk = (node: SceneNode, chain: Transform[]) => {
+    const next = node.transform ? [...chain, node.transform] : chain;
+    const tick = (node.datum as TickDatum | undefined)?.data;
+    if (node.type === "text" && tick?.tick && sameTick(tick.id, value)) {
+      const map = mapper(next);
+      ownBoxes(node).forEach(b => boxes.push(mapBox(b, map)));
+    }
+    const children = (node as {children?: SceneNode[]}).children;
+    if (children) children.forEach(child => walk(child, next));
+  };
+  walk(group, []);
+  if (!boxes.length) return null;
+  return boxes.reduce(unionBox);
+}
+
+/** The smallest box holding both `a` and `b`. */
+function unionBox(a: BadgeBox, b: BadgeBox): BadgeBox {
+  const x = Math.min(a.x, b.x),
+    y = Math.min(a.y, b.y);
+  return {
+    x,
+    y,
+    width: Math.max(a.x + a.width, b.x + b.width) - x,
+    height: Math.max(a.y + a.height, b.y + b.height) - y,
+  };
+}
+
+/**
+    A badge's box grown to cover the tick label under it, with `pad` to
+    spare around the label, so none of the label shows around the badge.
+    @param box The badge's own box.
+    @param label The box around the tick label at the badge's value.
+    @param pad The badge's padding.
+*/
+export function coverLabel(
+  box: BadgeBox,
+  label: BadgeBox | null,
+  pad: number,
+): BadgeBox {
+  if (!label) return box;
+  return unionBox(box, {
+    x: label.x - pad,
+    y: label.y - pad,
+    width: label.width + pad * 2,
+    height: label.height + pad * 2,
+  });
+}
+
 /** Resolves a style value against the hovered row. */
 function style<T>(
   value: Style<T> | undefined,
@@ -172,13 +255,17 @@ function guideNodes(
     );
 }
 
-/** One axis's badge: a filled box with the value centered in it. */
+/**
+    One axis's badge: a filled box with the value centered in it, covering
+    the axis's own label for that value.
+*/
 function badgeNode(
   viz: VizInstance,
   state: AxisHoverState,
   badge: AxisHoverBadge,
   edges: PlotEdges,
   color: string,
+  nodes: SceneNode[],
 ): SceneNode {
   const config = (viz.schema.axisHoverConfig as AxisHoverConfig).badgeConfig;
   const c = config || {};
@@ -194,11 +281,15 @@ function badgeNode(
     "font-size": size,
     "font-weight": weight,
   });
-  const box = badgeBox(
-    badge.axis,
-    badge.at,
-    {width: width + pad * 2, height: size + pad * 2},
-    edges,
+  const box = coverLabel(
+    badgeBox(
+      badge.axis,
+      badge.at,
+      {width: width + pad * 2, height: size + pad * 2},
+      edges,
+    ),
+    tickLabelBox(nodes, badge.axis, badge.value),
+    pad,
   );
   const key = `plot-axis-hover-badge-${badge.axis}`;
   return inert({
@@ -232,10 +323,12 @@ function badgeNode(
     the axes.
     @param viz The Plot, with the hovered panel's state in place.
     @param state The active axis hover.
+    @param nodes The chart body's scene nodes, holding the axes whose labels the badges cover.
 */
 export function axisHoverNodes(
   viz: VizInstance,
   state: AxisHoverState,
+  nodes: SceneNode[] = [],
 ): {guides: SceneNode[]; badges: SceneNode[]} {
   const area = viz._plotArea;
   if (!area) return {guides: [], badges: []};
@@ -244,6 +337,8 @@ export function axisHoverNodes(
     state.color || themed(viz._theme, t => t.textMuted, colorGray[500]);
   return {
     guides: guideNodes(viz, state, edges, color),
-    badges: state.badges.map(b => badgeNode(viz, state, b, edges, color)),
+    badges: state.badges.map(b =>
+      badgeNode(viz, state, b, edges, color, nodes),
+    ),
   };
 }

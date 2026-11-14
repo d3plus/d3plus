@@ -22,8 +22,11 @@ import {
   axisHoverDefaults,
   axisHoverNodes,
   badgeBox,
+  coverLabel,
   guidePoints,
   plotEdges,
+  sameTick,
+  tickLabelBox,
 } from "../../src/charts/Plot/axisHoverScene.ts";
 
 useJsdom();
@@ -341,8 +344,8 @@ it("axisHover: resolveAxisHover badges a hovered circle on both axes", () => {
   assert.strictEqual(state.color, "#0000ff");
   assert.strictEqual(state.datum.id, "b");
   assert.deepStrictEqual(state.badges, [
-    {axis: "x", at: 160, text: "80", guide: true},
-    {axis: "y", at: 10, text: "90", guide: true},
+    {axis: "x", at: 160, text: "80", value: 80, guide: true},
+    {axis: "y", at: 10, text: "90", value: 90, guide: true},
   ]);
   assert.strictEqual(
     resolveAxisHover(viz, {type: "mousemove", pick: null}, [0, 0]),
@@ -388,7 +391,7 @@ it("axisHover: resolveAxisHover follows the snapped hover on a discrete axis", (
   assert.strictEqual(state.datum.id, "high");
   assert.deepStrictEqual(
     state.badges,
-    [{axis: "y", at: 20, text: "80", guide: true}],
+    [{axis: "y", at: 20, text: "80", value: 80, guide: true}],
     "a stacked bar reads its stack's top, on the value axis only",
   );
   viz._sharedHoverState = null;
@@ -420,8 +423,8 @@ it("axisHover: resolveAxisHover badges the crosshair's discrete position", () =>
   );
   assert.strictEqual(state.color, "#00ff00");
   assert.deepStrictEqual(state.badges, [
-    {axis: "x", at: 100, text: "2020", guide: false},
-    {axis: "y", at: 60, text: "40", guide: true},
+    {axis: "x", at: 100, text: "2020", value: 2020, guide: false},
+    {axis: "y", at: 60, text: "40", value: 40, guide: true},
   ]);
   viz.schema.axisHover = "y";
   assert.deepStrictEqual(
@@ -530,7 +533,117 @@ it("axisHover: resolveAxisHover badges a secondary axis in its own format", () =
     [60, 50],
   );
   assert.deepStrictEqual(state.badges, [
-    {axis: "x", at: 60, text: "30", guide: true},
-    {axis: "y2", at: 50, text: "50 units", guide: true},
+    {axis: "x", at: 60, text: "30", value: 30, guide: true},
+    {axis: "y2", at: 50, text: "50 units", value: 50, guide: true},
   ]);
+});
+
+/** A tick label node for `id`, right-aligned at `right` on a baseline at `y`. */
+const tickLabel = (id, text, right, y) => ({
+  type: "text",
+  key: `${id}_0`,
+  x: 0,
+  y,
+  lines: [{text, x: right, y: 0, width: 30}],
+  font: {size: 10, anchor: "end", baseline: "alphabetic"},
+  datum: {data: {id, tick: true}},
+});
+
+it("axisHover: sameTick matches a tick's value by number, date, or text", () => {
+  assert.ok(sameTick("Italy", "Italy"));
+  assert.ok(!sameTick("Italy", "Japan"));
+  assert.ok(sameTick(60, 60));
+  assert.ok(!sameTick(60, 60.5));
+  assert.ok(sameTick(new Date(2020, 0, 1), new Date(2020, 0, 1)));
+  assert.ok(sameTick(+new Date(2020, 0, 1), new Date(2020, 0, 1)));
+  assert.ok(!sameTick(2020, "2020"), "a number never reads as text");
+  assert.ok(sameTick("2020", "2020"));
+  assert.ok(!sameTick(undefined, undefined));
+  assert.ok(!sameTick(0, null));
+});
+
+it("axisHover: tickLabelBox finds the axis's own label for a value", () => {
+  const nodes = [
+    {
+      type: "group",
+      key: "plot-y-axis",
+      transform: {x: 5, y: 0},
+      children: [
+        tickLabel("Japan", "Japan", 90, 20),
+        {
+          type: "group",
+          key: "labels",
+          transform: {x: 0, y: 100},
+          children: [tickLabel("Italy", "Italy", 90, 20)],
+        },
+      ],
+    },
+    {
+      type: "group",
+      key: "plot-x-axis",
+      children: [tickLabel("Italy", "Italy", 300, 20)],
+    },
+  ];
+  assert.deepStrictEqual(tickLabelBox(nodes, "y", "Italy"), {
+    x: 65,
+    y: 112,
+    width: 30,
+    height: 10,
+  });
+  assert.strictEqual(tickLabelBox(nodes, "y", "Spain"), null);
+  assert.strictEqual(tickLabelBox(nodes, "y2", "Italy"), null, "no y2 axis");
+  assert.strictEqual(tickLabelBox(nodes, "y", undefined), null);
+  const panel = [{...nodes[0], key: "p1/plot-y-axis"}];
+  assert.ok(tickLabelBox(panel, "y", "Japan"), "a panel's prefixed axis");
+  const plain = [
+    {
+      type: "group",
+      key: "plot-y-axis",
+      children: [{...tickLabel("Italy", "Italy", 90, 20), datum: undefined}],
+    },
+  ];
+  assert.strictEqual(
+    tickLabelBox(plain, "y", "Italy"),
+    null,
+    "only tick labels count",
+  );
+});
+
+it("axisHover: coverLabel grows a badge over the label under it", () => {
+  const box = {x: 76, y: 10, width: 30, height: 20};
+  assert.strictEqual(coverLabel(box, null, 4), box);
+  assert.deepStrictEqual(
+    coverLabel(box, {x: 71, y: 13, width: 22, height: 12}, 4),
+    {x: 67, y: 9, width: 39, height: 21},
+  );
+  assert.deepStrictEqual(
+    coverLabel(box, {x: 80, y: 14, width: 10, height: 10}, 4),
+    box,
+    "a label already under the badge leaves it as is",
+  );
+});
+
+it("axisHover: axisHoverNodes covers the hovered value's tick label", () => {
+  const viz = scatter();
+  viz._plotArea = {x: 100, y: 0, width: 200, height: 100};
+  const state = {
+    point: {x: 160, y: 50},
+    color: "#000000",
+    datum: {id: "b"},
+    index: 0,
+    badges: [{axis: "y", at: 50, text: "Italy", value: "Italy", guide: false}],
+  };
+  const axis = {
+    type: "group",
+    key: "plot-y-axis",
+    children: [tickLabel("Italy", "Italy", 87, 54)],
+  };
+  const plain = axisHoverNodes(viz, state).badges[0].children[0];
+  const covered = axisHoverNodes(viz, state, [axis]).badges[0].children[0];
+  assert.strictEqual(covered.x + covered.width, 100, "still on the axis line");
+  assert.strictEqual(covered.x, 87 - 30 - 4, "past the label's left end");
+  assert.ok(covered.x < plain.x);
+  assert.strictEqual(covered.y, plain.y);
+  const text = axisHoverNodes(viz, state, [axis]).badges[0].children[1];
+  assert.strictEqual(text.transform.x, covered.x + covered.width / 2);
 });
