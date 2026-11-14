@@ -317,9 +317,6 @@ function buildShapeConfig(
     discrete: vizDiscrete(viz),
     duration: effectiveDuration(viz),
     label: (d: PlotDatum) => viz._drawLabel(d.data, d.i),
-    // Lines and areas key their points by discrete-axis value, so a redraw
-    // with more (or fewer) rows slides them along (see `PathNode.series`).
-    pointKey: (d: PlotDatum) => d[`${discrete}2`] ?? d[discrete],
     x: (d: PlotDatum) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
     x0:
       discrete === "x"
