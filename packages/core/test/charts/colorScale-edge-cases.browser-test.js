@@ -37,6 +37,7 @@ const draw = async ({config, renderer}) => {
   const scoreOf = d => d?.score ?? d?.data?.score ?? d?.__d3plus__?.score;
   const cells = [];
   const legend = [];
+  const bars = [];
   const walk = (n, x, y, inScale) => {
     const t = n.transform || {};
     const nx = x + (t.x || 0),
@@ -44,8 +45,11 @@ const draw = async ({config, renderer}) => {
     const scale = inScale || n.key === "viz-colorScale";
     if (n.type === "rect") {
       const fill = String(n.paint?.fill ?? "");
-      if (scale) legend.push(fill);
-      else if (typeof scoreOf(n.datum) === "number")
+      if (scale) {
+        legend.push(fill);
+        if (fill.startsWith("gradient:"))
+          bars.push({x: nx + n.x, y: ny + n.y, w: n.width, h: n.height});
+      } else if (typeof scoreOf(n.datum) === "number")
         cells.push({
           score: scoreOf(n.datum),
           fill,
@@ -67,8 +71,25 @@ const draw = async ({config, renderer}) => {
   return {
     poles: cs.schema.colorDefaults,
     domain: cs._colorScale.domain(),
+    range: cs._colorScale.range().map(String),
     cells: cells.map(c => ({...c, pixel: canvas ? pixel(c.center) : null})),
     legend,
+    // The gradient bar's low and high ends, 2px in (left/right, or
+    // bottom/top on a vertical bar).
+    barEnds: bars.map(({x, y, w, h}) =>
+      canvas
+        ? (h > w
+            ? [
+                [x + w / 2, y + h - 2],
+                [x + w / 2, y + 2],
+              ]
+            : [
+                [x + 2, y + h / 2],
+                [x + w - 2, y + h / 2],
+              ]
+          ).map(pixel)
+        : null,
+    ),
   };
 };
 
@@ -151,6 +172,32 @@ for (const renderer of ["svg", "canvas"]) {
       `the stops ascend (${JSON.stringify(stops)})`,
     );
   });
+
+  for (const [name, values] of [
+    ["a high pole under 1", [-10, -8, -5, -2, 0.2, 0.5]],
+    ["both poles inside (-1, 1)", [-0.8, -0.4, -0.1, 0.1, 0.3, 0.6]],
+  ])
+    it(`[${renderer}] a log scale with ${name} draws its bar from low to high`, async () => {
+      const out = await drawn(matrix(values, {scale: "log"}), renderer);
+      const [low, high] = [out.poles.off, out.poles.sequential].map(rgb);
+      assert.strictEqual(out.colorOf[values[0]], low, "the low cell");
+      assert.strictEqual(out.colorOf[values.at(-1)], high, "the high cell");
+      // The stops, in bar order, step through the scale's colors in order.
+      const stops = gradientStops(out.legend);
+      assert.deepStrictEqual(
+        stops.map(s => rgb(s.color)),
+        out.range.map(rgb),
+        `stops in order (${JSON.stringify(stops)})`,
+      );
+      assert.strictEqual(rgb(stops.at(-1).color), high, "blue at the high end");
+      if (renderer === "canvas") {
+        const [lowEnd, highEnd] = out.barEnds[0];
+        const near = (a, b) =>
+          channels(a).every((c, i) => Math.abs(c - channels(b)[i]) < 40);
+        assert.ok(near(highEnd, high), `the high end ${highEnd} is ${high}`);
+        assert.ok(near(lowEnd, low), `the low end ${lowEnd} is ${low}`);
+      }
+    });
 
   it(`[${renderer}] a diverging quantile scale splits each side at its quantiles`, async () => {
     const values = [-100, -4, -3, -2, -1, 1, 2, 3, 4, 100];
