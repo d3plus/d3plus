@@ -1,6 +1,7 @@
 /**
     Seeded jitter: a stable offset per key, so a jittered point keeps its
-    place across redraws, resizes, and filters (see Plot's `jitter`).
+    place across redraws, resizes, and filters (see Plot's `jitter` and
+    Box's `boxPoints`).
 */
 
 /** The `jitter` setting: off, on (the default width), or a share of the band. */
