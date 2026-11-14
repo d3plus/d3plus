@@ -1,21 +1,34 @@
 /**
     BumpChart — Plot with `discrete: "x"`, `shape: "Line"`, and a
-    y2-mirroring configuration that draws labeled rank lines.
+    y2-mirroring configuration that draws labeled rank lines. With `size`,
+    each series draws as a band instead (see `areaBump.ts`).
 */
 
 import type {DataPoint} from "@d3plus/data";
 
-import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {
+  areaBumpEmit,
+  bumpBandAxisPadding,
+  bumpSharedTooltipValue,
+  bumpSizeTooltipRows,
+} from "./areaBump.js";
 
 export const bumpChartDef: ChartDefinition = {
   name: "BumpChart",
   paintDriven: true,
 
   setup: (viz: VizInstance) => {
+    viz._plotShapeEmitters = {...viz._plotShapeEmitters, Area: areaBumpEmit};
+    viz._sharedTooltipValue = () => bumpSharedTooltipValue(viz);
+    const preDraw = viz._preDraw.bind(viz);
+    viz._preDraw = () => {
+      bumpBandAxisPadding(viz);
+      preDraw();
+    };
     type Comparator = (
       a: Record<string, unknown>,
       b: Record<string, unknown>,
@@ -82,7 +95,26 @@ export const bumpChartDef: ChartDefinition = {
     // The y axes label each rank with a series, so only the x axis is badged.
     {key: "axisHover", default: "x"},
     {key: "discrete", default: "x"},
-    {key: "shape", default: constant("Line"), coerce: "const"},
+    // With `size`, each series draws as a band (an Area) instead of a line.
+    {
+      key: "shape",
+      coerce: "const",
+      factory: (viz: VizInstance) => () => (viz._size ? "Area" : "Line"),
+    },
+    /**
+        With `size`, the share of each rank's slot left empty between
+        neighboring bands, from 0 (the largest band touches its neighbors'
+        slots) to 1. Defaults to 0.25.
+        @type {number}
+    */
+    {key: "bandPadding", default: 0.25},
+    {
+      key: "tooltipConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        tbody: (d: DataPoint, i: number) => bumpSizeTooltipRows(viz, d, i),
+      }),
+    },
   ],
 };
 
