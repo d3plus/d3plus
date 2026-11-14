@@ -51,13 +51,13 @@ Set `discrete` to `"x"` for vertical dumbbells. A category can hold any number o
 
 ## Change arrows
 
-`arrows: true` turns each connector into an arrow from the category's first value to its last, in data order: here from 2019 to 2023. The line stops at the arrowhead's base, and the head's tip stops just short of the later dot. Arrows are colored by direction, `increaseColor` (green by default) when the value rises and `decreaseColor` (red) when it falls, and the tooltip adds each country's change. `arrowSize` sets the head's length; a change too small to fit a head between the dots draws as a plain connector.
+`arrows: true` turns each connector into an arrow from the category's first value to its last, in data order: here from 2019 to 2023. The line stops at the arrowhead's base, and the head's tip stops just short of the later dot. Arrows are colored by direction, `increaseColor` (green by default) when the value rises and `decreaseColor` (red) when it falls, while the dots turn neutral grays so only the arrows carry color: the first series a light gray and the last a dark one, taken from the theme's background and text colors (the legend shows both). A `color` of your own replaces the grays. The tooltip adds each country's change. `arrowSize` sets the head's length; a change too small to fit a head between the dots draws as a plain connector.
 
 <Playground chart="Dumbbell" code={changeArrows} controls={["arrows","arrowSize","increaseColor","decreaseColor"]} />
 
 ## Change bars
 
-`connector: "bar"` draws a thick floating bar between each category's values in place of the dots. With `arrows`, the bar runs from the first value and ends in an arrowhead at the last, colored by direction. The bars are 60% of the space between categories, at most 40 pixels thick; `connectorWidth` sets their thickness, and `shapeConfig.Rect` styles them.
+`connector: "bar"` draws a thick floating bar between each category's values in place of the dots. With `arrows`, the bar runs from the first value and ends in an arrowhead at the last, colored by direction. Any dot a category keeps (one with a single value, or no change) takes the same series grays. The bars are 60% of the space between categories, at most 40 pixels thick; `connectorWidth` sets their thickness, and `shapeConfig.Rect` styles them.
 
 <Playground chart="Dumbbell" code={changeBars} controls={["connector","arrows","connectorWidth"]} />
 
