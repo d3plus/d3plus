@@ -2496,6 +2496,20 @@ export {
   stackReadingOrder,
 } from "./src/charts/Plot/stackLegendOrder.js";
 export type {StackPositions} from "./src/charts/Plot/stackLegendOrder.js";
+export {
+  neutralStack,
+  neutralStackKeys,
+  seriesDataRanks,
+  seriesListRanks,
+  seriesOrderRanks,
+  stackNeutralMatcher,
+} from "./src/charts/Plot/stackNeutral.js";
+export type {
+  NeutralSide,
+  NeutralStack,
+  StackNeutralSetting,
+  StackSeries,
+} from "./src/charts/Plot/stackNeutral.js";
 export {applyPaddedDomains} from "./src/charts/Plot/facetScales.js";
 export type {PlotFacetScales} from "./src/charts/Plot/facetScales.js";
 export {
