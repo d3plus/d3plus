@@ -571,6 +571,19 @@ export type {Band, BandInputs} from "./src/charts/Plot/jitter.js";
 export {DEFAULT_JITTER, jitterOffset, jitterWidth} from "./src/utils/jitter.js";
 export type {JitterSetting} from "./src/utils/jitter.js";
 export {
+  applyBoxExtras,
+  boxPointData,
+  countWidth,
+  jitteredCenter,
+  jitterOutliers,
+  MEAN_SIZE,
+  meanOf,
+  notchedBoxPath,
+  notchInterval,
+  toBoxExtra,
+} from "./src/shapes/boxExtras.js";
+export type {BoxExtrasHost} from "./src/shapes/boxExtras.js";
+export {
   compareCategories,
   stepValue,
   waterfallKinds,
