@@ -31,6 +31,7 @@ import {
   parseTimeValues,
 } from "./timeValues.js";
 import {axisIsYearLike, formatYear} from "./yearValues.js";
+import {periodLabelPositions} from "./axisPeriods.js";
 import {drawnAxisScale, isTimeScaleName} from "./axisScaleType.js";
 import type {D3Scale} from "../../utils/index.js";
 import {floorPow, isNegative, openEnd, roundedDomain} from "./axisRounding.js";
@@ -113,7 +114,7 @@ function baseTickFormat(
           const number = formatAbbreviate(
             tick,
             loc,
-            `,.${tick.toString().length}r`,
+            `,.${tick.toString().length}~r`,
           );
           return `${number}${separator}${suff}`;
         } else {
@@ -426,6 +427,7 @@ export function setAxisScale(
   applyAxisRangeBreaks(axis);
 
   const {ticks: rawTicks, labels} = resolveTicksLabels(axis);
+  axis._periodPositions = periodLabelPositions(axis, labels);
   applyTickSuffixUnit(axis, labels);
   const ticks = filterVisibleTicks(axis, rawTicks, tickGet);
 

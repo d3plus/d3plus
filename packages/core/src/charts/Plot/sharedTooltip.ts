@@ -111,7 +111,7 @@ function axisRow(viz: VizInstance, k: Axis, hover: SharedHover): string[] {
     snapped position (surface space → client space via the pointer's own
     offset), the other following the pointer.
 */
-function snappedPosition(
+export function snappedPosition(
   viz: VizInstance,
   hover: SharedHover,
   event: SceneEvent,

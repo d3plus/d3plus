@@ -13,6 +13,10 @@ import changingOutlierStyles from "~/examples/core/charts/box-whisker/changing-o
 import horizontalChart from "~/examples/core/charts/box-whisker/horizontal-chart.js?raw";
 import coloringBoxes from "~/examples/core/charts/box-whisker/coloring-boxes.js?raw";
 import precomputedStatistics from "~/examples/core/charts/box-whisker/precomputed-statistics.js?raw";
+import meansAndPoints from "~/examples/core/charts/box-whisker/means-and-points.js?raw";
+import notchedBoxes from "~/examples/core/charts/box-whisker/notched-boxes.js?raw";
+import widthByCount from "~/examples/core/charts/box-whisker/width-by-count.js?raw";
+import precomputedExtras from "~/examples/core/charts/box-whisker/precomputed-extras.js?raw";
 
 Creates a simple box and whisker based on an array of data.
 
@@ -21,6 +25,24 @@ Creates a simple box and whisker based on an array of data.
 One box per category summarizes its distribution: the box spans the interquartile range with a line at the median, and the whiskers reach out toward the extent of the values.
 
 <Playground chart="BoxWhisker" code={basicExample} />
+
+## Means and points
+
+Each box marks its mean with a diamond and draws every observation as a small point over it, spread across the box's width by `jitter` (each point's offset is seeded from its id, so it never jumps between draws). A mean well above the median shows a skew the box alone can hide, and the points show how many observations each box summarizes. Hover a box for its statistics, mean included, or a point for its value. Turn them off with `boxMean: false` and `boxPoints: false`.
+
+<Playground chart="BoxWhisker" code={meansAndPoints} controls={["boxMean","boxPoints","jitter"]} />
+
+## Notched boxes
+
+`boxNotch: true` pinches each box around its median, spanning `median ± 1.58·IQR/√n`, roughly a 95% interval for the median: when two boxes' notches don't overlap, their medians likely differ. A small group's notch can reach past its quartiles; it stops at the box's edge. The tooltip lists each notch's range.
+
+<Playground chart="BoxWhisker" code={notchedBoxes} controls={["boxNotch"]} />
+
+## Width by group size
+
+`boxWidthByCount: true` scales each box's width by the square root of its observation count relative to the largest box, so a box drawn from a dozen values looks slighter than one drawn from a hundred. The tooltip lists each box's count.
+
+<Playground chart="BoxWhisker" code={widthByCount} controls={["boxWidthByCount","jitter"]} />
 
 ## Showing outliers
 
@@ -63,5 +85,11 @@ Boxes fill with the chart's color like any other shape, so `color` (or `shapeCon
 When your data already holds each box's summary (as many analytics APIs return it), name its fields with `boxMin`, `boxQ1`, `boxMedian`, `boxQ3`, and `boxMax`, plus `boxOutliers` for an array of outlying values. Each row then draws one box from those values with nothing computed, the value axis spans every whisker and outlier, and the tooltip lists the statistics.
 
 <Playground chart="BoxWhisker" code={precomputedStatistics} controls={["boxMin","boxQ1","boxMedian","boxQ3","boxMax","boxOutliers"]} />
+
+## Precomputed means, counts, and notches
+
+Precomputed boxes have no observations to average or count, so name the fields that hold them: `boxMean` for each row's mean and `boxCount` for its number of observations, which `boxNotch` and `boxWidthByCount` need. There are no points to draw.
+
+<Playground chart="BoxWhisker" code={precomputedExtras} controls={["boxMean","boxCount","boxNotch","boxWidthByCount"]} />
 
 <ApiReference name="BoxWhisker" pkg="core" />
