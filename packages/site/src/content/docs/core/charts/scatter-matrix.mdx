@@ -1,0 +1,43 @@
+---
+title: ScatterMatrix
+description: "Creates a scatter plot matrix from an array of data: a square grid of small multiples with a scatter plot for every pair of dimensions, and each dimension's histogram on the diagonal."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/scatter-matrix/basic-example.js?raw";
+import dimensionTitles from "~/examples/core/charts/scatter-matrix/dimension-titles.js?raw";
+import binsAndPoints from "~/examples/core/charts/scatter-matrix/bins-and-points.js?raw";
+
+Creates a scatter plot matrix from an array of data: a square grid of
+small multiples with a scatter plot for every pair of `dimensions`, and
+each dimension's histogram on the diagonal. Each row of data is a point in
+every panel. Every panel in a row shares its y axis, and every panel in a
+column its x axis, labeled and titled along the grid's left and bottom
+edges.
+
+## Basic example
+
+Fisher's iris measurements: four dimensions, so a 4 × 4 grid. The panel in row *i* and column *j* plots dimension *j* across and dimension *i* up, so each pair appears twice, once on each side of the diagonal, mirrored. `groupBy` colors the flowers by species, stacks each histogram by species, and adds a legend; click a species in the legend to hide it, and the histograms recount without it.
+
+Hover a point to highlight that flower in every panel, with its four measurements in the tooltip. Hover a histogram bar to highlight the flowers in that bin everywhere, which shows where one range of one measurement falls on all the others.
+
+<Playground chart="ScatterMatrix" code={basicExample} controls={["dimensions","groupBy"]} height={600} />
+
+## Dimension titles
+
+Each entry in `dimensions` is a data key, an accessor function, or a `{value, title}` object whose `title` names the axes. Without `dimensions`, every numeric key in the data is compared (except the `groupBy` keys and `id`). Without `groupBy`, every mark takes one color and there's no legend; `label` names each point in its tooltip.
+
+<Playground chart="ScatterMatrix" code={dimensionTitles} controls={["label"]} height={600} />
+
+## Bins and points
+
+`binThresholds` sets the histograms' bins: a bin count, or the edges between bins. The tallest bar in each histogram fills most of its panel, and the bars are read against each other rather than an axis. `shapeConfig.Circle` styles the points (3 pixels in radius by default).
+
+<Playground chart="ScatterMatrix" code={binsAndPoints} controls={["binThresholds","shapeConfig"]} height={520} />
+
+## Panels
+
+A ScatterMatrix is a set of [small multiples](/guides/small-multiples/), one panel per pair of dimensions, so it always has as many rows and columns as dimensions. `facetConfig.padding` sets the space between panels (10 pixels by default).
+
+<ApiReference name="ScatterMatrix" pkg="core" />
