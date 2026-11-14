@@ -1,6 +1,6 @@
 ---
 title: Scatter
-description: "Creates a scatter plot from an array of data: each row draws as a point at its x and y values, on continuous axes (set discrete to place points along a category axis)."
+description: "Creates a scatter plot from an array of data: each row draws as a point at its x and y values, on continuous axes (an axis of text values, or the discrete axis, places points along categories)."
 ---
 
 import Playground from "~/components/Playground/Playground.astro";
@@ -16,8 +16,8 @@ import errorBarsBothAxes from "~/examples/core/charts/scatter/error-bars-both-ax
 import logAxes from "~/examples/core/charts/scatter/log-axes.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
-its `x` and `y` values, on continuous axes (set `discrete` to place points
-along a category axis). Points are `sizeMin` pixels in radius; a `size`
+its `x` and `y` values, on continuous axes (an axis of text values, or
+the `discrete` axis, places points along categories). Points are `sizeMin` pixels in radius; a `size`
 accessor scales them between `sizeMin` and `sizeMax` and adds a size
 legend (see BubbleChart for bubbles sized by area). Hover any point for
 its values.
@@ -54,7 +54,7 @@ Points too small to hold their label get it beside them instead, on the side fac
 
 ## Jittered categories
 
-On a category axis (`discrete: "x"`), points that share a category and a value would hide each other. `jitter: true` spreads them across 0.6 of their category's band (a number sets another share), each by an offset seeded from its id, so a point never jumps between draws. StripPlot is a Scatter with this on by default.
+On a category axis (text values, or `discrete: "x"`), points that share a category and a value would hide each other. `jitter: true` spreads them across 0.6 of their category's band (a number sets another share), each by an offset seeded from its id, so a point never jumps between draws. StripPlot is a Scatter with this on by default.
 
 <Playground chart="Scatter" code={jitter} controls={["jitter","discrete"]} />
 
