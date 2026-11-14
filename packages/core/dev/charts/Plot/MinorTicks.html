@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>MinorTicks · Plot</title>
+    <meta
+      name="description"
+      content="Minor ticks between axis ticks (on by default for log axes) and fainter minor grid lines."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 10px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: normal;
+        margin: 12px 0 0;
+      }
+      .chart {
+        display: inline-block;
+        height: 300px;
+        width: 560px;
+      }
+      .small {
+        display: inline-block;
+        height: 180px;
+        width: 260px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>Log axes: minor ticks at 2–9 by default; a short axis thins them</h3>
+    <div class="chart" id="log"></div>
+    <div class="small" id="log-small"></div>
+    <h3>Log axes with minor grid lines, and with minorTicks: false</h3>
+    <div class="chart" id="log-grid"></div>
+    <div class="small" id="log-off"></div>
+    <h3>Linear axes: minorTicks: true with minorGrid, and y minorTicks: 9</h3>
+    <div class="chart" id="linear"></div>
+    <div class="small" id="linear-nine"></div>
+    <h3>Yearly time axis: minorTicks: true marks the months</h3>
+    <div class="chart" id="time"></div>
+
+    <script>
+      var seed = 7;
+      function random() {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+      }
+
+      var points = [];
+      for (var i = 0; i < 30; i++)
+        points.push({
+          id: "p" + i,
+          x: Math.pow(10, 1 + random() * 4),
+          y: Math.pow(10, random() * 3) * 2,
+        });
+
+      var common = {
+        duration: 0,
+        groupBy: "id",
+        legend: false,
+        shapeConfig: {Circle: {label: false}},
+        x: "x",
+        y: "y",
+      };
+
+      new d3plus.Plot()
+        .select("#log")
+        .config(common)
+        .data(points)
+        .xConfig({scale: "log", title: "Population"})
+        .yConfig({scale: "log", title: "GDP"})
+        .render();
+
+      new d3plus.Plot()
+        .select("#log-small")
+        .config(common)
+        .data(points)
+        .xConfig({scale: "log"})
+        .yConfig({scale: "log"})
+        .render();
+
+      new d3plus.Plot()
+        .select("#log-grid")
+        .config(common)
+        .data(points)
+        .xConfig({scale: "log", minorGrid: true})
+        .yConfig({scale: "log", minorGrid: true})
+        .render();
+
+      new d3plus.Plot()
+        .select("#log-off")
+        .config(common)
+        .data(points)
+        .xConfig({scale: "log", minorTicks: false})
+        .yConfig({scale: "log", minorTicks: false})
+        .render();
+
+      var line = [];
+      for (var j = 0; j <= 40; j++)
+        line.push({id: "Series", x: j, y: 30 + 20 * Math.sin(j / 6) + j});
+
+      new d3plus.LinePlot()
+        .select("#linear")
+        .config(common)
+        .data(line)
+        .xConfig({minorTicks: true, minorGrid: true})
+        .yConfig({minorTicks: true, minorGrid: true})
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#linear-nine")
+        .config(common)
+        .data(line)
+        .yConfig({minorTicks: 9})
+        .render();
+
+      var years = [];
+      for (var y = 2014; y <= 2024; y++)
+        years.push({
+          id: "Series",
+          x: new Date(y, 0, 1),
+          y: 50 + 10 * Math.cos(y),
+        });
+      new d3plus.Plot()
+        .select("#time")
+        .config(common)
+        .data(years)
+        .shape("Line")
+        .time("x")
+        .timeline(false)
+        .timeFilter(function () {
+          return true;
+        })
+        .xConfig({minorTicks: true})
+        .render();
+    </script>
+  </body>
+</html>

@@ -187,6 +187,34 @@ export interface AxisConfig {
       {maxSize: size => size / 3}
   */
   maxSize?: number | ((size: number) => number);
+  /**
+      Whether to draw fainter grid lines at the minor ticks (see
+      `minorTicks`), styled by `minorGridConfig`. Defaults to `false`.
+      @example
+      {yConfig: {minorTicks: true, minorGrid: true}}
+  */
+  minorGrid?: boolean;
+  /**
+      Style of the `minorGrid` lines: `stroke`, `stroke-width`,
+      `stroke-opacity`, `stroke-dasharray`, and other line styles. Defaults
+      to the grid lines' color at half opacity.
+  */
+  minorGridConfig?: Record<string, string | number>;
+  /**
+      Short, unlabeled tick marks between the axis's ticks, half as long as
+      a labeled tick. A log axis draws them by default, at 2 through 9 times
+      each power of ten; `false` turns them off. On a linear, pow, or time
+      axis, `true` draws them (4 evenly between each pair of ticks, or on a
+      time axis the calendar's months, days, hours, … between them) and a
+      number draws that many evenly between each pair. Minor ticks that
+      would sit closer than 4 pixels apart thin out a level at a time (to
+      2 and 5 times each power of ten on a log axis, or fewer per step), or
+      leave off entirely. Category axes draw none. Style them through
+      `shapeConfig`, where each tick's datum has `minor: true`.
+      @example
+      {xConfig: {minorTicks: 9}}
+  */
+  minorTicks?: boolean | number;
   /** Minimum size alloted for the space that contains the axis tick labels and title. */
   minSize?: number;
   /**
