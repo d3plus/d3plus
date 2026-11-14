@@ -1,0 +1,32 @@
+const config = {
+  // Illustrative trade between continents, in US dollars.
+  data: [
+    ["Africa", "Africa", 75e9],
+    ["Africa", "Asia", 170e9],
+    ["Africa", "Europe", 200e9],
+    ["Africa", "North America", 40e9],
+    ["Asia", "Africa", 220e9],
+    ["Asia", "Asia", 4300e9],
+    ["Asia", "Europe", 1100e9],
+    ["Asia", "North America", 1300e9],
+    ["Europe", "Africa", 230e9],
+    ["Europe", "Asia", 900e9],
+    ["Europe", "Europe", 4600e9],
+    ["Europe", "North America", 650e9],
+    ["North America", "Africa", 35e9],
+    ["North America", "Asia", 650e9],
+    ["North America", "Europe", 450e9],
+    ["North America", "North America", 1250e9],
+  ].map(([exporter, importer, value]) => ({
+    "Exporter Continent": exporter,
+    "Importer Continent": importer,
+    "Trade Value": value,
+  })),
+  groupBy: ["Exporter Continent", "Importer Continent"],
+  column: "Importer Continent",
+  row: "Exporter Continent",
+  shape: "Circle",
+  size: "Trade Value",
+  colorScale: "Trade Value",
+  colorScalePosition: "right",
+};

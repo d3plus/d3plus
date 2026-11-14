@@ -1377,6 +1377,11 @@ export type {RadialBarFrame} from "./src/charts/RadialBar/trackLayout.js";
 export {alluvialDef, alluvialValue} from "./src/charts/Alluvial/index.js";
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {bubbleChartDef} from "./src/charts/BubbleChart/index.js";
+export {bubbleMatrixDef} from "./src/charts/BubbleMatrix/index.js";
+export {
+  applyBubbleColorDefaults,
+  bubbleColorDomain,
+} from "./src/charts/BubbleMatrix/colorDefaults.js";
 export {bulletDef} from "./src/charts/Bullet/index.js";
 export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {candlestickDef} from "./src/charts/Candlestick/index.js";
@@ -1496,6 +1501,17 @@ export {icicleDef} from "./src/charts/Icicle/index.js";
 export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {marimekkoDef} from "./src/charts/Marimekko/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
+export {
+  layoutMatrixBubbles,
+  matrixCellIsCircle,
+  matrixMaxRadius,
+  matrixRadiusScale,
+  matrixSizeLegendScale,
+  matrixSizeTooltipRows,
+  matrixSizeValue,
+  matrixSizeValues,
+} from "./src/charts/Matrix/bubbles.js";
+export type {MatrixCell} from "./src/charts/Matrix/bubbles.js";
 export {networkDef} from "./src/charts/Network/index.js";
 export {arcDiagramDef, arcTableData} from "./src/charts/ArcDiagram/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
