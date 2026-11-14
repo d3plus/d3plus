@@ -73,6 +73,12 @@ it("openEnd — a value past the domain is not open-ended", () => {
   assert.strictEqual(openEnd(1500, labeled, [-50, 1040]), undefined);
 });
 
+it("openEnd — a domain of a single value has no open end", () => {
+  assert.strictEqual(openEnd(4, [4], [4, 4]), undefined);
+  assert.strictEqual(openEnd(-2, [-2], [-2, -2]), undefined);
+  assert.strictEqual(openEnd(4, [4], [0, 4]), "min", "a wider domain");
+});
+
 it("openEnd — reads the values and the domain in either order", () => {
   const labeled = [1000, 800, 600, 400, 200];
   assert.strictEqual(openEnd(200, labeled, [1040, 120]), "min");
