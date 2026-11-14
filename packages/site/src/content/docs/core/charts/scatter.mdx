@@ -11,6 +11,8 @@ import trendLine from "~/examples/core/charts/scatter/trend-line.js?raw";
 import pointLabels from "~/examples/core/charts/scatter/point-labels.js?raw";
 import connectedPoints from "~/examples/core/charts/scatter/connected-points.js?raw";
 import jitter from "~/examples/core/charts/scatter/jitter.js?raw";
+import errorBars from "~/examples/core/charts/scatter/error-bars.js?raw";
+import errorBarsBothAxes from "~/examples/core/charts/scatter/error-bars-both-axes.js?raw";
 import logAxes from "~/examples/core/charts/scatter/log-axes.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
@@ -55,6 +57,18 @@ Points too small to hold their label get it beside them instead, on the side fac
 On a category axis (`discrete: "x"`), points that share a category and a value would hide each other. `jitter: true` spreads them across 0.6 of their category's band (a number sets another share), each by an offset seeded from its id, so a point never jumps between draws. StripPlot is a Scatter with this on by default.
 
 <Playground chart="Scatter" code={jitter} controls={["jitter","discrete"]} />
+
+## Error bars
+
+`confidence` names each point's lower and upper bounds, drawn as a capped error bar through the point; the y axis widens to fit them, and the tooltip lists them. A label beside its point keeps clear of every error bar, and hides when no side is clear; hover a point for its name.
+
+<Playground chart="Scatter" code={errorBars} controls={["confidence","confidenceConfig"]} />
+
+## Error bars on both axes
+
+Give `confidence` an object, `{x: [lower, upper], y: [lower, upper]}`, to bound each axis: a point with both draws a cross. Each axis widens for its own bounds, and the tooltip lists both, named for their axes. Style the bars with `confidenceConfig` (or `confidenceConfig.Circle` for points alone), and `capWidth` for the caps, which match each point's width by default.
+
+<Playground chart="Scatter" code={errorBarsBothAxes} controls={["confidence","confidenceConfig"]} />
 
 ## Log axes
 

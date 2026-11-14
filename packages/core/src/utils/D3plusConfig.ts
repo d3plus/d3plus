@@ -1452,13 +1452,26 @@ export interface D3plusConfig {
       nested bands around each line (a fan) — each a `[lower, upper]` pair,
       `[lower, upper, label]`, or `{lower, upper, label}` — shaded by
       `confidenceConfig.bandOpacity`, with each band's range listed in
-      tooltips under its label (bars draw the first band).
+      tooltips under its label (bars draw the first band). Points (Scatter,
+      Beeswarm) draw error bars. `{x: [lower, upper], y: [lower, upper]}`
+      bounds each axis: the value axis's bounds (y, or x when `discrete` is
+      `"y"`) draw as above, the other axis's draw on points as horizontal (or
+      vertical) error bars, a cross where a point has both, and widen that
+      axis; tooltips list each axis's bounds under its name. A label beside a
+      point keeps clear of every error bar (hiding when no side is clear),
+      and a bar with an error bar anchors its label at its base, or, outside
+      the bar, past the whisker's far end.
   */
-  confidence?: ConfidenceBandSetting | ConfidenceBandSetting[] | false;
+  confidence?:
+    | ConfidenceBandSetting
+    | ConfidenceBandSetting[]
+    | {x?: ConfidenceBandSetting | false; y?: ConfidenceBandSetting | false}
+    | false;
   /**
       Styles the `confidence` interval: a line's band (Area keys) or a bar's
-      error bar (Path keys, plus `capWidth`, in pixels or a percentage of the
-      bar). Keys under `Area` or `Bar` apply to that shape only.
+      or point's error bar (Path keys, plus `capWidth`, in pixels or a
+      percentage of the bar or point; a point's caps default to its width).
+      Keys under `Area`, `Bar`, or `Circle` apply to that shape only.
       `bandOpacity` ramps nested bands' opacity (default `[0.15, 0.6]`), and
       `tooltip: false` leaves the bounds out of tooltips.
   */
@@ -2510,7 +2523,7 @@ export interface D3plusConfig {
       on a continuous time axis.
   */
   skipGaps?: boolean;
-  /** Size accessor key. */
+  /** Size accessor key: sizes a Plot's circles, and on BumpChart draws each series as a band as thick as its value (see `bandPadding`). */
   size?: string;
   /**
       Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.
