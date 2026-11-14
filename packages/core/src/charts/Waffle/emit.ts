@@ -1,6 +1,7 @@
 /**
     `waffleEmit` — one rect (or circle) per laid-out Waffle cell, plus each
-    cell's icon or `shapeConfig.backgroundImage`.
+    cell's icon or `shapeConfig.backgroundImage`, and, on an arc, its
+    majority line and center label (see `arcEmit.ts`).
 */
 
 import {formatAbbreviate} from "@d3plus/format";
@@ -15,6 +16,8 @@ import {
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {WaffleCell} from "./applyLayout.js";
+import {waffleArcDecor} from "./arcEmit.js";
+import type {WaffleArc} from "./arcStage.js";
 
 /** How each cell is drawn. */
 export type WaffleCellShape = "square" | "rounded" | "circle";
@@ -110,5 +113,6 @@ export const waffleEmit: ChartEmit = ({viz, shapeData}) => {
     cells[k].i,
   ]);
 
-  return [...nodes, ...images];
+  const arc = viz.ctx.waffleArc as WaffleArc | undefined;
+  return [...nodes, ...images, ...(arc ? waffleArcDecor(viz, arc) : [])];
 };

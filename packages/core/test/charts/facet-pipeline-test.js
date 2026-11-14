@@ -203,6 +203,12 @@ it("chart hooks: Plot shares scales; radial charts ask for square panels; others
   assert.strictEqual(pie._facetHooks().aspect(pie), 2, "a half ring is wide");
   assert.strictEqual(new Sunburst()._facetHooks().aspect, 1);
   assert.strictEqual(new Bullet()._facetHooks().aspect, 2);
-  assert.strictEqual(new Waffle()._facetHooks().aspect, 1);
+  const waffle = new Waffle();
+  assert.strictEqual(waffle._facetHooks().aspect(waffle), 1);
+  waffle.layout("arc");
+  assert.ok(
+    waffle._facetHooks().aspect(waffle) > 1,
+    "a half-circle arc is wider than tall",
+  );
   assert.deepStrictEqual(new Treemap()._facetHooks(), {});
 });

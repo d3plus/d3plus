@@ -176,22 +176,32 @@ const fontSizeOf = (nodes: TextNode[]) =>
   Math.max(...nodes.map(n => n.font?.size ?? 0));
 
 /**
-    The center label's scene nodes: one inert group holding the text, at the
-    largest size that fits the hole whole, centered in it. Empty when
-    `centerLabel` is unset or the text fits nowhere.
+    The center label's layout: one inert group holding the text, at the
+    largest size that fits the hole whole, centered in the box it fits, and
+    that box. With `reserve`, each box gives up that many pixels at its
+    bottom (for a second line of chrome beneath, such as Parliament's
+    majority). Null when `centerLabel` is unset or the text fits nowhere.
     @param viz The chart.
     @param hole The chart's empty middle, around its origin.
     @param value The chart's value accessor, summed for the total.
+    @param reserve The height each box keeps free at its bottom.
 */
-export function centerLabelNodes(
+export function centerLabelLayout(
   viz: VizInstance,
   hole: CenterHole,
   value: (d: DataPoint, i: number) => unknown,
-): SceneNode[] {
+  reserve = 0,
+): {nodes: SceneNode[]; box: CenterLabelBox} | null {
   const setting = viz.schema.centerLabel as CenterLabelSetting;
-  if (!setting) return [];
-  const boxes = centerLabelBoxes(hole);
-  if (!boxes.length) return [];
+  if (!setting) return null;
+  const boxes = centerLabelBoxes(hole)
+    .map(b =>
+      reserve > 0
+        ? {...b, height: b.height - reserve, shape: "square" as const}
+        : b,
+    )
+    .filter(b => b.height > 0);
+  if (!boxes.length) return null;
   const data = (viz._filteredData ?? []) as DataPoint[];
   const text = centerLabelText(
     setting,
@@ -199,7 +209,7 @@ export function centerLabelNodes(
     centerLabelTotal(data, value),
     viz.schema.locale,
   );
-  if (!text) return [];
+  if (!text) return null;
   const config = (viz.schema.centerLabelConfig ?? {}) as Record<
     string,
     unknown
@@ -211,7 +221,7 @@ export function centerLabelNodes(
     if (nodes && (!best || fontSizeOf(nodes) > fontSizeOf(best.nodes)))
       best = {nodes, box};
   }
-  if (!best) return [];
+  if (!best) return null;
   // The text is chrome: no datum for hover to match or a tooltip to show.
   const children: SceneNode[] = best.nodes.map(n => ({
     ...n,
@@ -221,5 +231,25 @@ export function centerLabelNodes(
   }));
   if (style.verticalAlign === "middle")
     centerLabelLines(children, best.box.y + best.box.height / 2);
-  return [{type: "group", key: CENTER_LABEL_KEY, interactive: false, children}];
+  return {
+    nodes: [
+      {type: "group", key: CENTER_LABEL_KEY, interactive: false, children},
+    ],
+    box: best.box,
+  };
+}
+
+/**
+    The center label's scene nodes (see `centerLabelLayout`). Empty when
+    `centerLabel` is unset or the text fits nowhere.
+    @param viz The chart.
+    @param hole The chart's empty middle, around its origin.
+    @param value The chart's value accessor, summed for the total.
+*/
+export function centerLabelNodes(
+  viz: VizInstance,
+  hole: CenterHole,
+  value: (d: DataPoint, i: number) => unknown,
+): SceneNode[] {
+  return centerLabelLayout(viz, hole, value)?.nodes ?? [];
 }

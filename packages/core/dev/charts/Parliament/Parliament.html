@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Parliament</title>
+    <meta
+      name="description"
+      content="Parliament charts: seats as dots on concentric half rings filled party by party, with the total and a majority line; a supermajority, a wider sweep with set rings, icons, small multiples by election, and a Waffle on an arc."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 380px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Parliament (450 seats)</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>majority: 300 (two-thirds), innerRadius 25%</h3>
+        <div class="viz" id="supermajority"></div>
+      </div>
+      <div>
+        <h3>startAngle -120, endAngle 120, rings: 6</h3>
+        <div class="viz" id="sweep"></div>
+      </div>
+      <div>
+        <h3>A small house with icons</h3>
+        <div class="viz" id="icons"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "election")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3>Waffle with layout: "arc" (100 cells, one per percent)</h3>
+        <div class="viz" id="waffle"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const parties = [
+      ["Left Alliance", "#b2182b"],
+      ["Social Democrats", "#e8590c"],
+      ["Greens", "#2b8a3e"],
+      ["Centre", "#f2c94c"],
+      ["Liberals", "#1c7ed6"],
+      ["Conservatives", "#364fc7"],
+      ["National Party", "#5f3dc4"],
+    ];
+    const colors = Object.fromEntries(parties);
+    const elections = {
+      2019: [28, 102, 41, 36, 52, 141, 50],
+      2023: [22, 118, 58, 30, 41, 126, 55],
+    };
+    const house = year =>
+      parties.map(([party], i) => ({
+        party,
+        election: year,
+        seats: elections[year][i],
+      }));
+    const color = d => colors[d.party];
+
+    new d3plus.Parliament()
+      .select("#basic")
+      .data(house(2023))
+      .groupBy("party")
+      .sum("seats")
+      .color(color)
+      .render();
+
+    new d3plus.Parliament()
+      .select("#supermajority")
+      .data(house(2023))
+      .groupBy("party")
+      .sum("seats")
+      .color(color)
+      .majority(300)
+      .innerRadius(outer => outer * 0.25)
+      .render();
+
+    new d3plus.Parliament()
+      .select("#sweep")
+      .data(house(2019))
+      .groupBy("party")
+      .sum("seats")
+      .color(color)
+      .startAngle(-120)
+      .endAngle(120)
+      .rings(6)
+      .render();
+
+    const person = fill =>
+      `data:image/svg+xml,${encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="4.5" r="3.5" fill="${fill}"/><path d="M1.5 16a6.5 6.5 0 0 1 13 0z" fill="${fill}"/></svg>`,
+      )}`;
+    new d3plus.Parliament()
+      .select("#icons")
+      .data([
+        {party: "Social Democrats", seats: 14},
+        {party: "Greens", seats: 6},
+        {party: "Liberals", seats: 9},
+        {party: "Conservatives", seats: 16},
+      ])
+      .groupBy("party")
+      .sum("seats")
+      .color(color)
+      .icon(d => person(colors[d.party]))
+      .render();
+
+    new d3plus.Parliament()
+      .select("#facet")
+      .data([...house(2019), ...house(2023)])
+      .groupBy("party")
+      .sum("seats")
+      .color(color)
+      .facet("election")
+      .render();
+
+    new d3plus.Waffle()
+      .select("#waffle")
+      .data([
+        {source: "Gas", value: 43},
+        {source: "Nuclear", value: 19},
+        {source: "Coal", value: 16},
+        {source: "Wind", value: 10},
+        {source: "Hydro", value: 6},
+        {source: "Solar", value: 4},
+        {source: "Other", value: 2},
+      ])
+      .groupBy("source")
+      .sum("value")
+      .layout("arc")
+      .cellShape("circle")
+      .centerLabel(true)
+      .render();
+  </script>
+</html>

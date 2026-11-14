@@ -59,6 +59,7 @@ export interface TranslationStrings {
   "Lower Bound": string;
   "Lower Quartile": string;
   "Lower Whisker": string;
+  "Majority: {0}": string;
   Match: string;
   Matches: string;
   Maximum: string;
@@ -94,6 +95,7 @@ export interface TranslationStrings {
   "Reset Zoom": string;
   "Running Total": string;
   Search: string;
+  Seats: string;
   second: string;
   seconds: string;
   Share: string;
@@ -233,6 +235,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0644\u0627 \u062a\u062a\u0648\u0641\u0631 \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Matches":
       "\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c",
+    "Majority: {0}": "\u0627\u0644\u0623\u063a\u0644\u0628\u064a\u0629: {0}",
     Match: "\u062a\u0637\u0627\u0628\u0642",
     Matches: "\u062a\u0637\u0627\u0628\u0642\u0627\u062a",
     Maximum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649",
@@ -270,6 +273,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Running Total":
       "\u0627\u0644\u0645\u062c\u0645\u0648\u0639 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     Search: "\u0628\u062d\u062b",
+    Seats: "\u0627\u0644\u0645\u0642\u0627\u0639\u062f",
     second: "\u062b\u0627\u0646\u064a\u0629",
     seconds: "\u062b\u0648\u0627\u0646",
     Share: "\u062d\u0635\u0629",
@@ -380,6 +384,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Lower Bound": "L\u00edmite Inferior",
     "Lower Quartile": "Cuartil Inferior",
     "Lower Whisker": "Bigote Inferior",
+    "Majority: {0}": "Mayor\u00eda: {0}",
     Match: "Coincidencia",
     Matches: "Coincidencias",
     Maximum: "M\u00e1ximo",
@@ -415,6 +420,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "Restablecer Zoom",
     "Running Total": "Total Acumulado",
     Search: "Buscar",
+    Seats: "Esca\u00f1os",
     second: "segundo",
     seconds: "segundos",
     Share: "Porcentaje",
@@ -517,6 +523,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Lower Bound": "Limite Inferior",
     "Lower Quartile": "Quartil Inferior",
     "Lower Whisker": "Bigode Inferior",
+    "Majority: {0}": "Maioria: {0}",
     Match: "Correspond\u00eancia",
     Matches: "Correspond\u00eancias",
     Maximum: "M\u00e1ximo",
@@ -552,6 +559,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "Redefinir Zoom",
     "Running Total": "Total Acumulado",
     Search: "Pesquisar",
+    Seats: "Assentos",
     second: "segundo",
     seconds: "segundos",
     Share: "Porcentagem",
@@ -657,6 +665,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Lower Bound": "\u4e0b\u9650",
     "Lower Quartile": "\u4e0b\u56db\u5206\u4f4d\u6570",
     "Lower Whisker": "\u4e0b\u987b",
+    "Majority: {0}": "\u8fc7\u534a\u6570\uff1a{0}",
     Match: "\u5339\u914d\u9879",
     Matches: "\u5339\u914d\u9879",
     Maximum: "\u6700\u5927\u503c",
@@ -692,6 +701,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
     "Running Total": "\u7d2f\u8ba1\u603b\u6570",
     Search: "\u641c\u7d22",
+    Seats: "\u5e2d\u4f4d",
     second: "\u79d2",
     seconds: "\u79d2",
     Share: "\u5360\u6bd4",
