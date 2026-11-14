@@ -294,7 +294,8 @@ it("waffleTooltipRows: a translated Value row and Share row", () => {
 it("waffleDef: ctx and fields are the last two keys", () => {
   const keys = Object.keys(waffleDef);
   assert.deepStrictEqual(keys.slice(-2), ["ctx", "fields"]);
-  assert.strictEqual(waffleDef.facet.aspect, 1);
+  const aspect = layout => waffleDef.facet.aspect({schema: {layout}});
+  assert.strictEqual(aspect("grid"), 1, "a square grid");
 });
 
 it("Waffle: exposes its options with their defaults", () => {
