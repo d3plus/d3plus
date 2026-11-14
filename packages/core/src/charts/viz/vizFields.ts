@@ -121,6 +121,8 @@ const fields = {
   searchControlStyle: {},
   searchControlStyleActive: {},
   searchControlStyleHover: {},
+  selectMode: {},
+  selectStyle: {merge: true},
   shape: {coerce: "const"},
   sizeLegend: {coerce: "const"},
   sizeLegendConfig: {merge: true},

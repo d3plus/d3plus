@@ -94,6 +94,15 @@ function emitGeomapBasemap(viz: VizInstance): SceneNode[] {
   return out;
 }
 
+/**
+    Whether a scene node is a basemap region drawn for no data row: such a
+    region's datum is its bare feature wrapper rather than a row. A box or
+    lasso selection picks only regions with data (see `selectMark`).
+*/
+export function bareFeature(node: SceneNode): boolean {
+  return Boolean((node.datum as {feature?: unknown} | undefined)?.feature);
+}
+
 export const geomapEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
   if (!c) return [];

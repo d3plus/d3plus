@@ -16,6 +16,8 @@ import {setLoaderValue} from "./loaderFormat.js";
 import {stopDataPolling} from "./vizDataPolling.js";
 import {setZoomBrush, zoomBy} from "../drawSteps/zoomActions.js";
 import {isBrushing} from "../drawSteps/zoomControlsMarkup.js";
+import {currentSelection, setSelection} from "../drawSteps/selectActions.js";
+import type {SelectionValue} from "../drawSteps/selectActions.js";
 import type Viz from "./Viz.js";
 import type {VizFieldKey} from "./vizFields.js";
 import type {VizInstance} from "./vizTypes.js";
@@ -256,6 +258,25 @@ Defaults to an empty array (`[]`).
     // interaction-opacity pass, so repaint to apply/clear the gray treatment.
     if (this._sceneRenderer) this._scheduleSceneRepaint();
     broadcastLink(this as unknown as VizInstance, "highlight", _);
+    return this;
+  }
+
+  /**
+      The rows a box or lasso selection holds (see `selectMode`), read off
+      the chart as last drawn. Set it from code with an Array of rows (the
+      same objects, or rows with the same values), a predicate over rows, or
+      `false` to clear it: the selected marks stay lit while the rest dim,
+      with or without a select tool on. A selection set here fires no
+      `select` event, and it holds across redraws and data changes for as
+      long as its rows (or the predicate's) are still drawn.
+      @param _ The rows, a predicate, or `false`.
+  */
+  selection(): DataPoint[];
+  selection(_: SelectionValue): this;
+  selection(_?: SelectionValue): DataPoint[] | this {
+    const viz = this as unknown as VizInstance;
+    if (!arguments.length) return currentSelection(viz);
+    setSelection(viz, _ ?? false);
     return this;
   }
 

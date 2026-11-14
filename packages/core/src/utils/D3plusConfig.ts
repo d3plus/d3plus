@@ -2343,7 +2343,12 @@ export interface D3plusConfig {
       in `"auto"` mode). Defaults to the default basemap's own water colors.
   */
   ocean?: string | {light: string; dark: string};
-  /** Event listeners keyed by event name. */
+  /**
+      Event listeners keyed by event name. Besides pointer events (`click`,
+      `mousemove`, … scoped as `click.shape` or `click.legend`), a chart
+      fires `select` with the rows a box or lasso selection holds (see
+      `selectMode`), and with no rows when it is cleared.
+  */
   on?: Record<string, (event: Event) => void>;
   /** Candlestick: accessor or data key for each period's opening value (default `"open"`). */
   open?: string | ((d: DataPoint, i: number) => number);
@@ -2576,6 +2581,33 @@ export interface D3plusConfig {
       An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
   */
   searchControlStyleHover?: Record<string, unknown> | false;
+  /**
+      Box and lasso selection. `"box"` or `"lasso"` turns selection on with
+      that tool: a drag over the chart draws a box (or a freehand lasso)
+      instead of panning, and releasing it selects the marks inside, which
+      stay lit while the rest dim (as `activeOpacity` dims them), the legend
+      included. A bar or other rectangle is inside when any part of it is,
+      every other mark (a point, a point of a line or area) when its center
+      is, and a line or area stays lit while any of its points is selected.
+      Shift + drag adds to the selection, a click on a mark selects it
+      (Shift + click toggles it, and the chart's own click action, such as
+      drilling down, waits until no select tool is on), and Escape or a
+      click on no mark clears it. With small multiples, a drag selects
+      within the panel it starts in. A wheel or pinch still zooms.
+
+      The zoom-control buttons gain a box and a lasso select button, which
+      switch between the tools, or back to panning when the one on is
+      pressed again; `selectMode` sets the tool a chart starts with. Each
+      selection fires the chart's `select` event with the selected rows
+      (`viz.on("select", rows => …)`), and `selection` reads or sets the
+      selection from code. `false` (the default) turns it off.
+  */
+  selectMode?: "box" | "lasso" | false;
+  /**
+      SVG attributes for the box or lasso a selection drag draws, such as
+      `fill`, `fill-opacity`, `stroke`, and `stroke-dasharray`.
+  */
+  selectStyle?: Record<string, string | number>;
   /**
       Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
   */

@@ -56,6 +56,8 @@ import {mountTargetFor} from "./mountTarget.js";
 import {resetCursor} from "./setCursor.js";
 import {routePointerEvent} from "./nearestHover.js";
 import {nearestHoverSurface} from "./nearestHoverSurface.js";
+import {selectClick} from "../drawSteps/selectActions.js";
+import {syncSelectSurface} from "../drawSteps/selectGesture.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -519,7 +521,7 @@ export default class Viz extends VizBase {
       // Likewise the zoom brush and any chart-owned brush layer (`g.d3plus-viz-brush`), so their selections draw over the shapes.
       host
         ?.querySelectorAll(
-          ":scope > g.d3plus-zoom-brush, :scope > g.d3plus-viz-brush",
+          ":scope > g.d3plus-zoom-brush, :scope > g.d3plus-viz-brush, :scope > g.d3plus-select-brush",
         )
         .forEach(layer => {
           if (layer !== host.lastElementChild) host.appendChild(layer);
@@ -780,6 +782,9 @@ export default class Viz extends VizBase {
     // A node with no data (an inset legend's backdrop, gridlines) is not a
     // chart shape.
     if (sourceDatum === undefined) return;
+    // While a select tool is on, a click on a mark selects it instead.
+    const viz = this as unknown as VizInstance;
+    if (selectClick(viz, event, sourceDatum, isLegendNode)) return;
     // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`): the
     // node's own shape type, then any composite it is a part of (`"click.Box"`
     // on a box's whisker). On the scene path this is the only place these fire
@@ -841,6 +846,7 @@ export default class Viz extends VizBase {
     unregisterLink(this as unknown as VizInstance);
     teardownKeyboardNav(this as unknown as VizInstance);
     nearestHoverSurface(this as unknown as VizInstance, true);
+    syncSelectSurface(this as unknown as VizInstance, true);
     unwatchPageTheme(this as unknown as VizInstance);
     stopDataPolling(this);
     this._resizeObserver?.disconnect();

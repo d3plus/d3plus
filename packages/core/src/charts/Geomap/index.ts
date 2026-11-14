@@ -43,7 +43,7 @@ import {
   geomapPointSizeScale,
 } from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
-import {geomapEmit} from "./emit.js";
+import {bareFeature, geomapEmit} from "./emit.js";
 import {setupGeomapLinks} from "./flowEvents.js";
 import {installGlobeKeys} from "./globeKeys.js";
 import {installGlobeRotation} from "./globeRotate.js";
@@ -554,6 +554,7 @@ export const geomapDef: ChartDefinition = {
     viz.schema.point(d, i) instanceof Array ? viz.schema.shape(d, i) : "Path",
   // Coordinate points are points for `hoverDistance`; regions keep exact hit-testing.
   pointMark: (_viz, node) => isPointShape(node),
+  selectMark: (_viz, node) => isPointShape(node) || !bareFeature(node),
 
   // Clip the geography to the map rectangle — the same box as the ocean rect and
   // the imperative inner <svg> viewport — so projected paths and points can't

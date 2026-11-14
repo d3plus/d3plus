@@ -32,6 +32,21 @@ export function setBrushing(viz: Viz, value: boolean): void {
   viz._brushing = value;
 }
 
+/**
+    Resets the select tool a drag uses to `selectMode` whenever `selectMode`
+    changes, so the config sets the tool a chart starts with and the
+    toolbar buttons switch it from there.
+*/
+export function syncSelectTool(
+  viz: Pick<Viz, "schema"> &
+    Partial<Pick<Viz, "_selectTool" | "_selectModeSeen">>,
+): void {
+  const mode = viz.schema.selectMode || false;
+  if (mode === viz._selectModeSeen) return;
+  viz._selectModeSeen = mode;
+  viz._selectTool = mode || null;
+}
+
 /** The resolved base / active / hover button styles for a chart. */
 function buttonStyles(viz: Viz): ControlButtonStyles {
   return controlButtonStyles(viz.schema, "zoomControl", {
@@ -98,6 +113,10 @@ const ZOOM_OUT_ICON = `<svg ${ICON_ATTRS}><line x1="4" y1="12" x2="20" y2="12"/>
 const ZOOM_RESET_ICON = `<svg ${ICON_ATTRS}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
 // A dashed square — a "marquee select" icon, reading as "drag a box".
 const ZOOM_BRUSH_ICON = `<svg ${ICON_ATTRS} stroke-dasharray="4 3"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>`;
+// A dashed box with an arrow pointer at its corner: "pick the marks in a box".
+const SELECT_BOX_ICON = `<svg ${ICON_ATTRS}><path stroke-dasharray="3 3" d="M15 4H4v11"/><path d="M11 11l2.5 9 1.8-3.7 3.7-1.8z"/></svg>`;
+// A dashed loop with a tail: the conventional lasso.
+const SELECT_LASSO_ICON = `<svg ${ICON_ATTRS}><ellipse stroke-dasharray="3 3" cx="12" cy="9.5" rx="8" ry="5.5"/><path d="M7 14c-1.5 1.5-1 4 1.5 5.5"/></svg>`;
 
 /**
     A custom zoom-control icon: either raw markup (a string — inserted as the
@@ -128,7 +147,12 @@ const ZOOM_BRUSH_ICON = `<svg ${ICON_ATTRS} stroke-dasharray="4 3"><rect x="4" y
 export type ZoomControlIconRenderer = (el: HTMLElement) => void | (() => void);
 export type ZoomControlIconValue = string | ZoomControlIconRenderer;
 export type ZoomControlIconKey =
-  "zoomIn" | "zoomOut" | "zoomReset" | "zoomBrush";
+  | "zoomIn"
+  | "zoomOut"
+  | "zoomReset"
+  | "zoomBrush"
+  | "selectBox"
+  | "selectLasso";
 export type ZoomControlIcons = Partial<
   Record<ZoomControlIconKey, ZoomControlIconValue>
 >;
@@ -159,6 +183,8 @@ const ICON_BUTTON_CLASS: Record<ZoomControlIconKey, string> = {
   zoomOut: "zoom-out",
   zoomReset: "zoom-reset",
   zoomBrush: "zoom-brush",
+  selectBox: "select-box",
+  selectLasso: "select-lasso",
 };
 
 /** How far the zoom buttons sit in from the chart's top and right edges. */
@@ -221,7 +247,21 @@ export function zoomControlsHtml(viz: Viz): string {
       "Brush Zoom",
       iconFor(viz, "zoomBrush", ZOOM_BRUSH_ICON),
       isBrushing(viz),
-    )
+    ) +
+    (viz.schema.selectMode
+      ? button(
+          "select-box",
+          "Box Select",
+          iconFor(viz, "selectBox", SELECT_BOX_ICON),
+          viz._selectTool === "box",
+        ) +
+        button(
+          "select-lasso",
+          "Lasso Select",
+          iconFor(viz, "selectLasso", SELECT_LASSO_ICON),
+          viz._selectTool === "lasso",
+        )
+      : "")
   );
 }
 
@@ -264,11 +304,21 @@ export function overlayHost(viz: Viz): HTMLElement | null {
     a click on the button itself — e.g. leaving brush mode after a selection.
 */
 export function syncBrushButton(viz: Viz): void {
+  syncToggle(viz, "zoom-brush", isBrushing(viz));
+}
+
+/** Reflects the select tool onto the box and lasso select buttons, as `syncBrushButton` does for brush mode. */
+export function syncSelectButtons(viz: Viz): void {
+  syncToggle(viz, "select-box", viz._selectTool === "box");
+  syncToggle(viz, "select-lasso", viz._selectTool === "lasso");
+}
+
+/** Sets a toggle button's `.active` class, `aria-pressed`, and style. */
+function syncToggle(viz: Viz, cls: string, pressed: boolean): void {
   const btn = overlayHost(viz)?.querySelector<HTMLElement>(
-    ".d3plus-zoom-control .zoom-brush",
+    `.d3plus-zoom-control .${cls}`,
   );
   if (!btn) return;
-  const pressed = isBrushing(viz);
   btn.classList.toggle("active", pressed);
   btn.setAttribute("aria-pressed", String(pressed));
   paintZoomButton(viz, btn, btn.matches(":hover"));

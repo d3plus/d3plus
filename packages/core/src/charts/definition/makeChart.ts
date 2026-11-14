@@ -100,6 +100,12 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
         : super._pointMark(node);
     }
 
+    _selectMark(node: SceneNode) {
+      return def.selectMark
+        ? def.selectMark(this as unknown as VizInstance, node)
+        : true;
+    }
+
     _shapeDepth(d: DataPoint) {
       return def.shapeDepth
         ? def.shapeDepth(this as unknown as VizInstance, d)
