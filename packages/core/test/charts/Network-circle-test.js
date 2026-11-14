@@ -5,6 +5,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {Network} from "../../index.ts";
 import {
   applyNetworkLayout,
+  CIRCLE_LINK_BOW,
   CIRCLE_NODE_MAX,
   CIRCLE_NODE_SHARE,
   circleAngles,
@@ -13,6 +14,7 @@ import {
   curveCircleLinks,
   fitCircle,
   layoutCircleNetwork,
+  linkBowOf,
   nodeSpokeReach,
   placeCircleNetworkLabels,
   resolveGraphLinks,
@@ -302,4 +304,45 @@ it("the size legend's scale follows the circle", () => {
   chart._preDraw();
   const scale = chart._sizeLegendScale({width: 400, height: 400});
   assert.ok(scale && scale(6) > scale(1));
+});
+
+it("linkBowOf: clamps a number to 0..1, else the default", () => {
+  assert.strictEqual(linkBowOf(0.5), 0.5);
+  assert.strictEqual(linkBowOf(0), 0);
+  assert.strictEqual(linkBowOf(2), 1);
+  assert.strictEqual(linkBowOf(-1), 0);
+  assert.strictEqual(linkBowOf(NaN), CIRCLE_LINK_BOW);
+  assert.strictEqual(linkBowOf("half"), CIRCLE_LINK_BOW);
+  assert.strictEqual(linkBowOf(undefined), CIRCLE_LINK_BOW);
+});
+
+it("curveCircleLinks: bows by its share, straight at 0", () => {
+  const s = {id: "s", x: 0, y: -10};
+  const t = {id: "t", x: 10, y: 0};
+  const half = [{source: s, target: t}];
+  curveCircleLinks(half, [0, 0], 0.5);
+  const mid = half[0].points[12];
+  // Halfway along: a quarter of each end and half the control point, which
+  // sits halfway from the chord's middle (5, -5) to the center.
+  assert.ok(Math.abs(mid[0] - 3.75) < 1e-9 && Math.abs(mid[1] + 3.75) < 1e-9);
+  const straight = [{source: s, target: t}];
+  curveCircleLinks(straight, [0, 0], 0);
+  assert.strictEqual(straight[0].points, undefined, "plain lines");
+});
+
+it("linkBow: how far a circle layout's links bow", () => {
+  const depth = bow => {
+    const {chart, byId} = layout({linkBow: bow});
+    const ab = chart.ctx.networkCtx.links.find(
+      l => l.source.id === "a" && l.target.id === "b",
+    );
+    if (!ab.points) return null;
+    const mid = ab.points[Math.floor(ab.points.length / 2)];
+    const chord = [(byId.a.x + byId.b.x) / 2, (byId.a.y + byId.b.y) / 2];
+    return Math.hypot(mid[0] - chord[0], mid[1] - chord[1]);
+  };
+  const full = depth(undefined);
+  assert.ok(Math.abs(depth(1) - full) < 1e-9, "1 is the default");
+  assert.ok(Math.abs(depth(0.5) - full / 2) < 1e-6, "half bows half as far");
+  assert.strictEqual(depth(0), null, "0 draws straight lines");
 });
