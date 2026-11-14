@@ -275,24 +275,36 @@ it("a zoomable plot still measures its clipped marks for the automatic zoomMax",
   assert.strictEqual(r.groups, 0, "not their clip group");
 });
 
-it("a zoomed plot leaves its marks to the zoom's own clip", async () => {
+it("a zoomed plot leaves its marks to the zoom's own clip, in the same groups", async () => {
   const r = await page(`
     const chart = new d3plus.LinePlot().data(rows).groupBy("id").x("x").y("value").yDomain([980]).zoom(true);
     await done(chart);
     const before = clips(chart).length;
+    // Each data line's key path from the scene root.
+    const paths = () => {
+      const out = [];
+      const visit = (nodes, path) => nodes.forEach(n => {
+        if (path[0] === "plot-zoom-content" && n.shapeType === "Line" && !String(n.key).endsWith("::hit"))
+          out.push([...path, n.key].join(" > "));
+        if (n.children) visit(n.children, [...path, n.key]);
+      });
+      visit(chart._chartScene, []);
+      return out;
+    };
+    const natural = paths();
     chart._zoomRescale({k: 2, x: -200, y: -100});
     const content = chart._chartScene.find(n => n.key === "plot-zoom-content");
-    const lines = content.children.filter(n => n.shapeType === "Line" && !String(n.key).endsWith("::hit"));
     let groups = 0;
-    walk(chart._chartScene, n => { if (isClip(n)) groups++; });
-    return {before, zoomClip: !!content.clip, lines: lines.length, groups};
+    walk(chart._chartScene, n => { if (isClip(n) && n.clip) groups++; });
+    return {before, zoomClip: !!content.clip, natural, zoomed: paths(), groups};
   `);
   assert.ok(r.before >= 1, "clipped at its natural scale");
   assert.ok(r.zoomClip, "the zoomed content is clipped");
-  assert.strictEqual(
-    r.lines,
-    2,
-    "the lines sit directly in it, so the zoom's frames tween",
+  assert.strictEqual(r.natural.length, 2, "both lines drawn");
+  assert.deepStrictEqual(
+    r.zoomed,
+    r.natural,
+    "the lines keep their groups, so the zoom's frames tween",
   );
-  assert.strictEqual(r.groups, 0, "with no clip group of their own");
+  assert.strictEqual(r.groups, 0, "with no clip of their own");
 });

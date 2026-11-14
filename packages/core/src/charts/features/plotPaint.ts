@@ -575,8 +575,8 @@ export function plotEmit(
   // Trend lines sit behind the marks they summarize. They and the shapes
   // are the data marks: where the domains cut them off, they are clipped
   // to the plot area (labels aside). A zoomed view's own clip already
-  // confines them, and leaving them unwrapped there keeps a zoom's frames
-  // tweening.
+  // confines them, so there they keep their groups with no clip, and a
+  // zoom's frames tween.
   const marks: SceneNode[] = emitTrendLines(viz, x, y);
 
   const shapeConfig = buildShapeConfig(viz, x, y, domains, yOffset);
@@ -606,14 +606,12 @@ export function plotEmit(
   // axis's range (see `_plotInsetBottom`), so marks drawn there stay.
   const clipRange = [yRange[0], yRange[1] + (mCtx.insetBottom ?? 0)];
   out.push(
-    ...(clip
-      ? marks
-      : clipToPlotArea(marks, {
-          xRange,
-          yRange: clipRange,
-          x2Height: pCtx.x2Height,
-          yOffset,
-        })),
+    ...clipToPlotArea(
+      marks,
+      clip
+        ? undefined
+        : {xRange, yRange: clipRange, x2Height: pCtx.x2Height, yOffset},
+    ),
   );
 
   emitShapeExits(viz, shapeData, shapeConfig);
