@@ -14,6 +14,7 @@ import smallMultiplesIndependentScales from "~/examples/core/charts/viz/small-mu
 import smallMultiplesDonut from "~/examples/core/charts/viz/small-multiples-donut.js?raw";
 import smallMultiplesTreemap from "~/examples/core/charts/viz/small-multiples-treemap.js?raw";
 import smallMultiplesMatrix from "~/examples/core/charts/viz/small-multiples-matrix.js?raw";
+import smallMultiplesMap from "~/examples/core/charts/viz/small-multiples-map.js?raw";
 import saveControl from "~/examples/core/charts/viz/save-control.js?raw";
 import dataFormat from "~/examples/core/charts/viz/data-format.js?raw";
 import dataPolling from "~/examples/core/charts/viz/data-polling.js?raw";
@@ -104,6 +105,16 @@ A colorScale is shared too: one scale, spanning the values every panel draws,
 colors all of them.
 
 <Playground chart="Matrix" code={smallMultiplesMatrix} controls={[]} height={520} />
+
+### Small multiples: map layout
+
+`facetConfig.layout` places each panel roughly where its place sits on a map:
+here a LinePlot for every US state on the `"us-states"` grid. Each panel is
+titled with its state's postal code; hover a title for the state's name. See
+[Map layouts](/guides/small-multiples/#map-layouts) for the other grids and
+for grids of your own.
+
+<Playground chart="LinePlot" code={smallMultiplesMap} controls={[]} height={560} />
 
 ## Saving a chart
 

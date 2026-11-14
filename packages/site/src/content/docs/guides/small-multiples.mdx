@@ -4,6 +4,9 @@ description: "Small multiples repeat one chart for each value of a key: a grid o
 sidebar:
   order: 8
 ---
+import Playground from "~/components/Playground/Playground.astro";
+import smallMultiplesMap from "~/examples/core/charts/viz/small-multiples-map.js?raw";
+
 Small multiples repeat one chart for each value of a key: a grid of equally sized panels, each drawing the same chart from its own rows. Because every panel uses the same encoding, readers compare them at a glance. Any chart type can be split this way, from a BarChart or LinePlot to a Pie, Treemap, Matrix, or Geomap.
 
 ```jsx
@@ -38,6 +41,7 @@ The grid sizes itself. D3plus tries every column count and keeps the one that dr
 | `padding` | `20` | Space between panels, in pixels. |
 | `sort` | `"ascending"` | Panel order: `"ascending"`, `"descending"`, `"data"` (order of first appearance), a `(a, b) => number` comparator over facet values, or an array of values (values it leaves out go last). |
 | `title` | the facet value | A `(value, rows) => string` function for each panel's title, or `false` to hide panel titles. Dates are formatted for their interval. |
+| `layout` | none | Optional. Places each panel on a map-shaped grid: see [Map layouts](#map-layouts). |
 | `titleConfig` | 12px, semibold, centered | [TextBox](/core/components/text-box/) config for panel titles: `fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, and so on. By default the color contrasts with the chart's background. |
 
 ```jsx
@@ -48,6 +52,34 @@ facetConfig: {
   titleConfig: {fontSize: 14, textAnchor: "start"},
 }
 ```
+
+## Map layouts
+
+`facetConfig.layout` places the panels on a map-shaped grid instead of filling rows: one cell per place, roughly where it sits on a map, so a reader finds a state or country by its position. Cells without a panel stay empty, and `columns`, `rows`, and `sort` don't apply.
+
+| Layout | Places | Matched by |
+| --- | --- | --- |
+| `"us-states"` | the 50 states and the District of Columbia | postal code (`"CA"`) or name (`"California"`) |
+| `"eu-countries"` | the 27 member states of the European Union | ISO alpha-2 (`"DE"`) or alpha-3 (`"DEU"`) code, or name |
+| `"world-regions"` | the World Bank's seven regions | region code (`"SAS"`) or name (`"South Asia"`) |
+
+Matching ignores case. A named layout titles each panel with its short code and shows the full name when the title is hovered. A value the layout doesn't hold is left out, with a warning in the console naming it.
+
+<Playground chart="LinePlot" code={smallMultiplesMap} controls={["facetConfig"]} height={560} />
+
+For a grid of your own, pass an object mapping each facet value to its `[row, column]`, counted from 0 at the top left. Each panel is titled with its value.
+
+```jsx
+facetConfig: {
+  layout: {
+    North: [0, 1],
+    West: [1, 0], Central: [1, 1], East: [1, 2],
+    South: [2, 1],
+  },
+}
+```
+
+With shared scales, a panel labels its y axis when no panel sits directly to its left, and its x axis when none sits directly below it, so the labels run along every edge of the map, reaching into the empty cells beside them.
 
 ## Shared and independent scales
 
