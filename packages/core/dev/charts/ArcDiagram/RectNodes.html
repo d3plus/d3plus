@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Rect Nodes</title>
+    <meta
+      name="description"
+      content="ArcDiagram with Rect nodes sized by width and height accessors: nodes space out to fit their boxes, and arcs, arrows, loops, and labels meet each box."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: 2fr 1fr;
+        margin: 20px;
+      }
+
+      .viz {
+        height: 420px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="viz" id="horizontal"></div>
+    <div class="viz" id="vertical"></div>
+  </body>
+
+  <script>
+    // Each Rect node takes its box from `shapeConfig`'s Rect `width` and
+    // `height`. Wider boxes take more of the line, so the gaps between
+    // neighbors match; arcs, arrowheads, and loops meet each box, and the
+    // labels clear the tallest one.
+    var nodes = [
+      {id: "Ingest", size: 3},
+      {id: "Parse", size: 6},
+      {id: "Validate", size: 4},
+      {id: "Enrich", size: 8},
+      {id: "Store", size: 5},
+      {id: "Index", size: 2},
+      {id: "Serve", size: 7},
+    ];
+
+    var links = [
+      {source: "Ingest", target: "Parse", value: 3},
+      {source: "Parse", target: "Validate", value: 2},
+      {source: "Validate", target: "Enrich", value: 4},
+      {source: "Enrich", target: "Store", value: 1},
+      {source: "Store", target: "Index", value: 2},
+      {source: "Index", target: "Serve", value: 3},
+      {source: "Ingest", target: "Enrich", value: 1},
+      {source: "Parse", target: "Serve", value: 2},
+      {source: "Validate", target: "Validate", value: 2},
+    ];
+
+    var rect = {
+      width: function (d) {
+        return 14 + d.size * 8;
+      },
+      height: function (d) {
+        return 10 + d.size * 3;
+      },
+      fillOpacity: 0.6,
+    };
+
+    new d3plus.ArcDiagram()
+      .select("#horizontal")
+      .nodes(nodes)
+      .links(links)
+      .shape("Rect")
+      .shapeConfig({Rect: rect})
+      .linkSize(d => d.value)
+      .arcSide("both")
+      .arrows(true)
+      .render();
+
+    new d3plus.ArcDiagram()
+      .select("#vertical")
+      .nodes(nodes)
+      .links(links)
+      .shape("Rect")
+      .shapeConfig({
+        Rect: {
+          width: function (d) {
+            return 10 + d.size * 3;
+          },
+          height: function (d) {
+            return 12 + d.size * 4;
+          },
+          fillOpacity: 0.6,
+        },
+      })
+      .linkSize(d => d.value)
+      .orient("vertical")
+      .arcSide("below")
+      .render();
+  </script>
+</html>
