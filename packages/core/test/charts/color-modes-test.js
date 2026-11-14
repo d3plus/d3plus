@@ -27,10 +27,11 @@ it("highlight desaturates non-matching marks while preserving color, transparenc
 
   const out = applyInteractionOpacity(nodes, viz);
 
-  // Matching mark keeps its exact color and is NOT z-raised — raising it would
-  // paint over its own (separate) data-label node, hiding the label.
+  // Matching mark keeps its exact color and is z-raised over the grayed
+  // marks; its own data label rises with it (see hover-label-raise-test).
   assert.strictEqual(out[0].paint.fill, "#4c6ef5", "highlighted keeps fill");
-  assert.ok(!out[0].z, "highlighted not z-raised (keeps its label visible)");
+  assert.ok(out[0].z > 0, "highlighted is z-raised");
+  assert.ok(!out[1].z, "the grayed mark isn't");
 
   // Non-matching mark is desaturated to grayscale (r=g=b) but not flattened —
   // its lightness is preserved so any label on it stays legible.

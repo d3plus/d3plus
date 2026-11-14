@@ -21,13 +21,11 @@ import {datumValues} from "../features/hoverTicks.js";
 import {STROKE_EMPHASIS} from "./emphasis.js";
 import type {EmphasisKind} from "./emphasis.js";
 import {sharesGroup} from "./groupRow.js";
+import {liftRaised, RAISE_Z} from "./liftRaised.js";
 import {MARK_TYPES} from "./sceneRows.js";
 import type {VizInstance} from "./vizTypes.js";
 
 type Predicate = (d: DataPoint, i: number) => boolean;
-
-/** z value that floats a hovered/highlighted node above its (z-less, i.e. 0) siblings. */
-const HOVER_RAISE_Z = 1e6;
 
 /**
     Emphasizes a matched mark's stroke on hover/active — the v3 `hoverStyle` /
@@ -75,7 +73,6 @@ function emphasizeStroke(node: SceneNode, kind: EmphasisKind): SceneNode {
 function dimSettings(viz: VizInstance): {
   predicate: Predicate;
   dimOpacity: number;
-  isHover: boolean;
   gray: boolean;
   kind: "hover" | "active" | "highlight";
   activePredicate: Predicate | null;
@@ -100,7 +97,6 @@ function dimSettings(viz: VizInstance): {
   return {
     predicate: (hover ?? active ?? highlight) as Predicate,
     dimOpacity: hover ? hoverOpacity : active ? activeOpacity : 1,
-    isHover: !!hover,
     gray,
     kind: hover ? "hover" : active ? "active" : "highlight",
     // The active predicate is exposed even when hover wins the dim pass, so a
@@ -339,7 +335,7 @@ export function applyInteractionOpacity(
   // compounding when several are momentarily set.
   const settings = dimSettings(viz);
   if (!settings) return nodes;
-  const {dimOpacity, isHover, gray, kind, activePredicate} = settings;
+  const {dimOpacity, gray, kind, activePredicate} = settings;
   const predicate = marks
     ? followMarks(viz, settings.predicate, marks)
     : settings.predicate;
@@ -409,15 +405,12 @@ export function applyInteractionOpacity(
               : false);
           next = emphasizeStroke(node, active ? "active" : "hover");
         }
-        if (isHover) {
-          // Raise the hovered node above its siblings. Both renderers paint by
-          // ascending `z`; restore is automatic — the next repaint rebuilds the
-          // scene with no `z`. A matched mark's data label matches too (see
-          // `matchesChain`), so it's raised with its mark and, emitted after it,
-          // still paints on top. Only for hover: highlight relies on
-          // color-vs-gray, not z-order.
-          next = {...next, z: HOVER_RAISE_Z} as SceneNode;
-        }
+        // Raise the matched node above its siblings. Both renderers paint by
+        // ascending `z`; restore is automatic — the next repaint rebuilds the
+        // scene with no `z`. A matched mark's data label matches too (see
+        // `matchesChain`), so it's raised with its mark and, emitted after it,
+        // still paints on top.
+        next = {...next, z: RAISE_Z} as SceneNode;
       }
     }
     const kids = (next as {children?: SceneNode[]}).children;
@@ -427,5 +420,6 @@ export function applyInteractionOpacity(
     return next;
   };
 
-  return nodes.map(walk);
+  // A raised mark inside a Plot's clip groups comes out in front of them.
+  return liftRaised(nodes.map(walk));
 }

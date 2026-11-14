@@ -542,7 +542,9 @@ it("Beeswarm places circles through a broken value axis; a break on the lane axi
       yBreaks: (viz._yAxis._breaks || []).length,
       mask: !!viz._chartScene.find(function find(n) {
         return (
-          (typeof n.key === "string" && n.key.startsWith("plot-break-mask")) ||
+          (typeof n.key === "string" &&
+            n.key.startsWith("plot-break-mask") &&
+            n.clip) ||
           (n.children || []).some(find)
         );
       }),
