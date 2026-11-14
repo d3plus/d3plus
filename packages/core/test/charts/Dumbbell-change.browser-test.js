@@ -82,8 +82,8 @@ const draw = ([config, rows, renderer, hover]) =>
         .map(n => ({
           country: n.datum.data.country,
           year: n.datum.data.year,
-          x: n.transform.x,
-          y: n.transform.y,
+          x: n.transform?.x ?? n.cx,
+          y: n.transform?.y ?? n.cy,
           r: n.r,
           fill: n.paint.fill,
           opacity: n.paint.opacity,
@@ -97,14 +97,17 @@ const draw = ([config, rows, renderer, hover]) =>
         renderer === "canvas"
           ? document.querySelector("#viz canvas.d3plus-render-canvas")
           : document.querySelector("#viz svg.d3plus-render-svg");
-      const box = host.getBoundingClientRect();
-      host.dispatchEvent(
-        new MouseEvent("mousemove", {
-          clientX: box.left + c.x + dot.transform.x + 10,
-          clientY: box.top + c.y + dot.transform.y,
-          bubbles: true,
-        }),
-      );
+      // Small multiples draw each panel in its own frame: skip the hover.
+      if (dot && c && dot.transform) {
+        const box = host.getBoundingClientRect();
+        host.dispatchEvent(
+          new MouseEvent("mousemove", {
+            clientX: box.left + c.x + dot.transform.x + 10,
+            clientY: box.top + c.y + dot.transform.y,
+            bubbles: true,
+          }),
+        );
+      }
       requestAnimationFrame(() =>
         setTimeout(() => {
           const tip = document.querySelector(".d3plus-tooltip");
@@ -309,5 +312,32 @@ for (const renderer of ["svg", "canvas"]) {
         "the rest stay unseen",
       );
     }
+  });
+
+  it(`Dumbbell bars (${renderer}): under facet, a lone dot in one panel shows the legend`, async () => {
+    const panels = rates.map(d => ({...d, region: "North"}));
+    const allBars = await chart(
+      {connector: "bar", facet: "region"},
+      renderer,
+      "Spain",
+      [...panels, ...rates.map(d => ({...d, region: "South"}))],
+    );
+    assert.strictEqual(allBars.legend, 0, "every panel's categories have bars");
+    const lone = await chart(
+      {connector: "bar", facet: "region"},
+      renderer,
+      "Spain",
+      [
+        ...panels,
+        ...rates
+          .map(d => ({...d, region: "South"}))
+          .filter(d => !(d.country === "Chile" && d.year === "2019")),
+      ],
+    );
+    assert.strictEqual(
+      lone.legend,
+      2,
+      "Chile's lone South dot names its series",
+    );
   });
 }

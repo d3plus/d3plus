@@ -290,3 +290,22 @@ it("drawsBarlessDots — reads the chart's drawn rows", () => {
   viz._filteredData = rows.slice(0, 4);
   assert.strictEqual(drawsBarlessDots(viz), false);
 });
+
+it("drawsBarlessDots — under facet, counts each panel's categories on their own", () => {
+  // A spans 2010 to 2020 overall, but each panel holds one of its values.
+  const split = [
+    {c: "A", s: "2010", v: 10, panel: "x"},
+    {c: "A", s: "2020", v: 14, panel: "y"},
+    {c: "B", s: "2010", v: 3, panel: "x"},
+    {c: "B", s: "2020", v: 5, panel: "x"},
+    {c: "B", s: "2010", v: 6, panel: "y"},
+    {c: "B", s: "2020", v: 9, panel: "y"},
+  ];
+  const viz = chart();
+  viz._filteredData = split;
+  assert.strictEqual(drawsBarlessDots(viz), false, "without facet");
+  viz.facet("panel");
+  assert.strictEqual(drawsBarlessDots(viz), true, "per panel");
+  viz._filteredData = split.filter(d => d.c === "B");
+  assert.strictEqual(drawsBarlessDots(viz), false, "every panel spans");
+});
