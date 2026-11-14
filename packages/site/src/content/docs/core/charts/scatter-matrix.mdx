@@ -38,6 +38,8 @@ Each entry in `dimensions` is a data key, an accessor function, or a `{value, ti
 
 ## Panels
 
+Each dimension's axes span every row of data, before the timeline's period, `filter`, or a legend click narrows what's drawn, so the axes hold still as the timeline plays and groups are hidden; the histograms bin on fixed edges too, counting only the rows drawn.
+
 A ScatterMatrix is a set of [small multiples](/guides/small-multiples/), one panel per pair of dimensions, so it always has as many rows and columns as dimensions. `facetConfig.padding` sets the space between panels (10 pixels by default).
 
 <ApiReference name="ScatterMatrix" pkg="core" />
