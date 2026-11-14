@@ -18,6 +18,7 @@ export type {
   EnterWindow,
   FadeSwap,
   PathNode,
+  PathSeries,
   ImageNode,
   TextNode,
   TextLine,
@@ -89,6 +90,7 @@ export {
   curveFor,
   explicitPathD,
   flattenPath,
+  hasCurve,
   interpolatePathD,
   linePath,
   areaPath,
@@ -111,6 +113,7 @@ export {
   sameTextLayout,
 } from "./src/animate/interpolate.js";
 export type {Interp} from "./src/animate/interpolate.js";
+export {interpolateSeries, seriesPath} from "./src/animate/series.js";
 export {
   diffChildren,
   interpolateScene,
