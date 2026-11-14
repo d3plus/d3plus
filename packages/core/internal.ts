@@ -917,6 +917,8 @@ export {
   barColor,
   categoryValues,
   changeRow,
+  drawsBarlessDots,
+  hasBarlessCategory,
   lineColor,
   rowDirection,
 } from "./src/charts/Dumbbell/categoryChange.js";

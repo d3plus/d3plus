@@ -16,7 +16,12 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {dumbbellEmit} from "./emit.js";
 import {syncGapSort, type GapSortState} from "./gapSort.js";
 import {chartBackground} from "../viz/backgroundInk.js";
-import {barColor, changeRow, lineColor} from "./categoryChange.js";
+import {
+  barColor,
+  changeRow,
+  drawsBarlessDots,
+  lineColor,
+} from "./categoryChange.js";
 import {dumbbellConnector} from "./changes.js";
 
 /** The default connector color: a quiet gray that reads on light and dark pages. */
@@ -73,7 +78,8 @@ export const dumbbellDef: ChartDefinition = {
         category's smallest and largest values in place of the dots (a span
         chart), styled by `shapeConfig.Rect` and filled with the color
         defaults' `sequential` color. A category with one value, or whose
-        values don't differ, keeps its dots. With `arrows`, the bar runs
+        values don't differ, keeps its dots, and the series legend then
+        shows to explain their colors. With `arrows`, the bar runs
         from the first value to an arrowhead at the last (a change bar).
         Tooltips add the category's range (or change).
         @type {"line" | "bar"}
@@ -135,7 +141,9 @@ export const dumbbellDef: ChartDefinition = {
     },
     /**
         The series legend, hidden with a bar connector, which draws in
-        place of the series' points.
+        place of the series' points, unless a category keeps its dots (one
+        with a single value, or whose values don't differ), whose colors
+        it then explains.
     */
     {
       key: "legend",
@@ -146,7 +154,8 @@ export const dumbbellDef: ChartDefinition = {
           arr: DataPoint[],
         ) => unknown;
         return (config: unknown, arr: DataPoint[]) =>
-          dumbbellConnector(viz.schema.connector) === "bar"
+          dumbbellConnector(viz.schema.connector) === "bar" &&
+          !drawsBarlessDots(viz)
             ? false
             : base.call(viz, config, arr);
       },

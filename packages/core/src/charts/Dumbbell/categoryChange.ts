@@ -79,6 +79,51 @@ function valuesOf(
   return categoryValues(rows, categoryOf, value, key);
 }
 
+/**
+    Whether any category draws no bar, and so keeps its dots, under a bar
+    connector: one with a single value, or whose values don't differ
+    (from first to last with `arrows`, from smallest to largest without).
+    @param rows The drawn rows, in data order.
+    @param categoryOf Reads a row's category.
+    @param value Reads a row's value.
+    @param arrows Whether the bars run from the first value to the last.
+*/
+export function hasBarlessCategory(
+  rows: DataPoint[],
+  categoryOf: Accessor,
+  value: Accessor,
+  arrows: boolean,
+): boolean {
+  const values = new Map<string, number[]>();
+  rows.forEach((d, i) => {
+    const v = Number(value(d, i));
+    if (!Number.isFinite(v)) return;
+    const key = `${categoryOf(d, i)}`;
+    if (!values.has(key)) values.set(key, []);
+    values.get(key)!.push(v);
+  });
+  for (const list of values.values()) {
+    if (list.length < 2) return true;
+    const spans = arrows
+      ? list[0] !== list[list.length - 1]
+      : Math.min(...list) !== Math.max(...list);
+    if (!spans) return true;
+  }
+  return false;
+}
+
+/** Whether a bar-connector chart draws any dots (see `hasBarlessCategory`). */
+export function drawsBarlessDots(viz: VizInstance): boolean {
+  const {category, value} = axes(viz);
+  if (!category || !value) return false;
+  return hasBarlessCategory(
+    (viz._filteredData ?? []) as DataPoint[],
+    category,
+    value,
+    !!viz.schema.arrows,
+  );
+}
+
 /** Which way a row's category moves, from its first value to its last. */
 export function rowDirection(
   viz: VizInstance,
