@@ -14,13 +14,9 @@ const survey = {
 const colors = ["#b2182b", "#ef8a62", "#bababa", "#67a9cf", "#2166ac"];
 
 const config = {
-  // Rows listed along the scale, disagreeing answers negative.
+  // Rows listed along the scale: answers before "Neutral" go to the left.
   data: Object.entries(survey).flatMap(([question, shares]) =>
-    shares.map((share, k) => ({
-      question,
-      answer: answers[k],
-      percent: k < 2 ? -share : share,
-    })),
+    shares.map((percent, k) => ({question, answer: answers[k], percent})),
   ),
   discrete: "y",
   groupBy: "answer",
