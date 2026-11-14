@@ -15,15 +15,20 @@ it("colorScaleBucketCount — the buckets setting, capped at the unique values",
   assert.strictEqual(colorScaleBucketCount(undefined, 4, false), 4);
 });
 
-it("colorScaleBucketCount — a diverging count is odd and at least 3", () => {
+it("colorScaleBucketCount — a diverging cap is odd and at least 3", () => {
   assert.deepStrictEqual(
     [2, 3, 4, 5, 6, 7].map(n => colorScaleBucketCount(5, n, true)),
     [3, 3, 3, 3, 5, 5],
   );
-  assert.strictEqual(colorScaleBucketCount(2, 9, true), 3, "buckets: 2");
-  assert.strictEqual(colorScaleBucketCount(1, 9, true), 3, "buckets: 1");
   assert.strictEqual(colorScaleBucketCount(7, 9, true), 7);
-  assert.strictEqual(colorScaleBucketCount([0, 1], 9, true), 3, "array");
+});
+
+it("colorScaleBucketCount — a diverging buckets setting under 3 applies", () => {
+  for (const n of [2, 3, 9]) {
+    assert.strictEqual(colorScaleBucketCount(2, n, true), 2, `2 of ${n}`);
+    assert.strictEqual(colorScaleBucketCount(1, n, true), 1, `1 of ${n}`);
+  }
+  assert.strictEqual(colorScaleBucketCount([0, 1], 9, true), 2, "array");
 });
 
 /** A ColorScale over `values`, laid out (never painted) with `config`. */
@@ -164,4 +169,28 @@ it("jenks — 2 or 3 values crossing zero bucket each side apart", () => {
 
   const midpoint = solve([0, 4], {scale: "jenks", midpoint: 1});
   assert.ok(reddish(colorOf(midpoint, 0)) && bluish(colorOf(midpoint, 4)));
+});
+
+it("an explicit buckets setting under 3 applies to a diverging scale", () => {
+  for (const scale of ["linear", "log", "buckets", "quantile"])
+    for (const values of [
+      [-1, 1],
+      [-1, 0, 1],
+      [-5, 2, 9],
+      [-9, -7, -5, -3, -1, 1, 3, 5, 7, 9],
+    ]) {
+      const label = `${scale} ${values}`;
+      const two = solve(values, {scale, buckets: 2});
+      const twoColors = values.map(v => colorOf(two, v));
+      assert.ok(twoColors.every(Boolean), `${label}, 2: ${twoColors}`);
+      assert.ok(reddish(twoColors[0]), `${label}, 2: low ${twoColors}`);
+      assert.ok(bluish(twoColors.at(-1)), `${label}, 2: high ${twoColors}`);
+      const mid = d3Color(two.schema.colorDefaults.light).formatRgb();
+      assert.ok(!twoColors.includes(mid), `${label}, 2: no midpoint color`);
+
+      const one = solve(values, {scale, buckets: 1});
+      const oneColors = values.map(v => colorOf(one, v));
+      assert.ok(oneColors.every(Boolean), `${label}, 1: ${oneColors}`);
+      assert.strictEqual(new Set(oneColors).size, 1, `${label}, 1: one color`);
+    }
 });

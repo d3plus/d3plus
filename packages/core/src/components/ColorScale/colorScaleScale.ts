@@ -83,8 +83,9 @@ const towardMid = (cs: ColorScale, pole: string, t: number): string =>
 /**
     The number of colors a ColorScale steps through: its `buckets` setting (or
     the length of a `buckets` array) capped at the number of unique values. A
-    diverging (non-jenks) scale takes an odd count, so a color centers on the
-    midpoint, and at least 3, so each pole keeps its own color.
+    diverging (non-jenks) scale caps it at an odd count, so a color centers on
+    the midpoint, but never below 3, so each pole keeps its own color: a
+    `buckets` setting under 3 still applies.
 */
 export function colorScaleBucketCount(
   buckets: number | number[] | undefined,
@@ -94,7 +95,7 @@ export function colorScaleBucketCount(
   const setting =
     (buckets instanceof Array ? buckets.length : buckets) ?? Infinity;
   if (!diverging) return Math.min(setting, uniqueCount);
-  return Math.max(3, Math.min(setting, 2 * Math.floor(uniqueCount / 2) - 1));
+  return Math.min(setting, Math.max(3, 2 * Math.floor(uniqueCount / 2) - 1));
 }
 
 /** Builds the jenks (ckmeans) threshold scale and assigns it to the instance. */
@@ -210,7 +211,15 @@ function resolveDivergingLinear(
   ctx: ScaleContext,
   buckets: number[] | undefined,
 ): {colors: string[]; buckets: number[]} {
-  const {domain, numBuckets} = ctx;
+  const {domain, numBuckets, scale} = ctx;
+  if (numBuckets === 1) {
+    // A single bucket: the midpoint color across the whole domain.
+    const thresholds = scale === "buckets" || scale === "quantile";
+    return {
+      colors: thresholds ? [colorMid(cs)] : [colorMid(cs), colorMid(cs)],
+      buckets: buckets ?? (thresholds ? [domain[0]] : [domain[0], domain[1]]),
+    };
+  }
   const half = Math.floor(numBuckets / 2);
   const negativeColorScale = interpolateRgb.gamma(2.2)(
     colorMin(cs),
