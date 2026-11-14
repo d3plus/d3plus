@@ -108,7 +108,7 @@ export function rowLabelTabStop(viz: VizInstance): TabStopTest {
     if (!series || !ancestors.some(a => `${a.key}`.endsWith("plot-y-axis")))
       return undefined;
     const label = horizonState(viz).labels.get(series) ?? series;
-    return `${label}, ${rowHints(viz, series).split("<br />")[0]}`;
+    return `${label}, ${rowHints(viz, series, true).split("<br />")[0]}`;
   };
 }
 
@@ -163,9 +163,22 @@ export function labelAnchor(viz: VizInstance, box: Bounds) {
   return {getBoundingClientRect: () => rect, placement: "right"};
 }
 
-/** The legend's click hints for a row label, by what a click would do. */
-function rowHints(viz: VizInstance, series: string): string {
-  const t = (s: string) => viz.schema.translate(s) as string;
+/** A click hint's key, or its Enter version from the keyboard. */
+export function hintKey(hint: string, keyboard: boolean): string {
+  return keyboard ? hint.replace("Click", "Enter") : hint;
+}
+
+/**
+    The legend's click hints for a row label, by what a click would do, in
+    the keyboard's Enter wording while the label has keyboard focus.
+*/
+export function rowHints(
+  viz: VizInstance,
+  series: string,
+  keyboard = false,
+): string {
+  // The keyboard's wording swaps "Click" for "Enter" (see `hintKey`).
+  const t = (s: string) => viz.schema.translate(hintKey(s, keyboard)) as string;
   const count = horizonState(viz).first.size;
   const id = filterId(viz, series);
   const hidden = rowHidden(viz, series);
@@ -183,6 +196,37 @@ function rowHints(viz: VizInstance, series: string): string {
     : all
       ? t("Click to Show All")
       : `${t("Click to Hide")}<br />${t("Shift+Click to Highlight")}`;
+}
+
+/**
+    What a row label click did to its series: `"hidden"`, `"highlighted"`
+    (solo'd), or `"shown"`.
+    @param next What is hidden and solo'd after the click.
+    @param id The clicked row's id.
+*/
+export function rowChange(
+  next: RowFilter,
+  id: Id,
+): "hidden" | "highlighted" | "shown" {
+  if (next.hidden.includes(id)) return "hidden";
+  return next.solo.includes(id) ? "highlighted" : "shown";
+}
+
+/** Whether an event is keyboard navigation's replay over the label it has focus on. */
+function keyboardFocused(viz: VizInstance, event: SceneEvent): boolean {
+  const current = viz._keyboardNav?.current;
+  return current !== null && current === `${event.pick?.node?.key}`;
+}
+
+/**
+    Announces `message` through keyboard navigation's live region, now and
+    in place of the focused label's name when the redraw re-enters it.
+*/
+function announce(viz: VizInstance, message: string): void {
+  const state = viz._keyboardNav;
+  if (!state) return;
+  state.announce = message;
+  state.live.textContent = message;
 }
 
 /**
@@ -231,6 +275,11 @@ export function handleRowLabel(viz: VizInstance, event: SceneEvent): boolean {
       const before = legendSnapshot(viz);
       viz._hidden = next.hidden;
       viz._solo = next.solo;
+      if (keyboardFocused(viz, event)) {
+        const label = state.labels.get(series) ?? series;
+        const change = viz.schema.translate(rowChange(next, id!)) as string;
+        announce(viz, `${label} ${change}`);
+      }
       recordLegendChange(viz, before);
       broadcastLegend(viz);
       viz.render!();
@@ -250,7 +299,7 @@ export function handleRowLabel(viz: VizInstance, event: SceneEvent): boolean {
     .title(() => state.labels.get(series) ?? series)
     .thead([])
     .tbody([])
-    .footer(rowHints(viz, series))
+    .footer(rowHints(viz, series, keyboardFocused(viz, event)))
     .position(labelAnchor(viz, box))
     .render();
   return true;

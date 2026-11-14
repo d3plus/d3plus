@@ -36,11 +36,17 @@ export interface TranslationStrings {
   "Drag to Filter": string;
   Duration: string;
   End: string;
+  "Enter to Hide": string;
+  "Enter to Highlight": string;
+  "Enter to Show": string;
+  "Enter to Show All": string;
   Equation: string;
   Exponential: string;
   Forecast: string;
   From: string;
+  hidden: string;
   High: string;
+  highlighted: string;
   "Hold Shift and use the arrow keys to rotate the globe.": string;
   hour: string;
   hours: string;
@@ -95,6 +101,9 @@ export interface TranslationStrings {
   "Share of Parent": string;
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
+  "Shift+Enter to Hide": string;
+  "Shift+Enter to Highlight": string;
+  shown: string;
   Start: string;
   "SVG vector": string;
   Target: string;
@@ -182,11 +191,18 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
     Duration: "\u0627\u0644\u0645\u062f\u0629",
     End: "\u0627\u0644\u0646\u0647\u0627\u064a\u0629",
+    "Enter to Hide": "Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
+    "Enter to Highlight": "Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
+    "Enter to Show": "Enter \u0644\u0644\u0639\u0631\u0636",
+    "Enter to Show All":
+      "Enter \u0644\u0639\u0631\u0636 \u0627\u0644\u0643\u0644",
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     From: "\u0645\u0646",
+    hidden: "\u0645\u062e\u0641\u064a",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
+    highlighted: "\u0645\u062d\u062f\u062f",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062f\u0648\u064a\u0631 \u0627\u0644\u0643\u0631\u0629 \u0627\u0644\u0623\u0631\u0636\u064a\u0629.",
     hour: "\u0633\u0627\u0639\u0629",
@@ -263,6 +279,11 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift+\u0627\u0646\u0642\u0631 \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Click to Highlight":
       "Shift + \u0644\u0644\u062a\u062d\u062f\u064a\u062f \u0627\u0636\u063a\u0637",
+    "Shift+Enter to Hide":
+      "Shift+Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
+    "Shift+Enter to Highlight":
+      "Shift+Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
+    shown: "\u0645\u0639\u0631\u0648\u0636",
     Start: "\u0627\u0644\u0628\u062f\u0627\u064a\u0629",
     "SVG vector": "\u0631\u0633\u0645 \u0645\u062a\u062c\u0647 SVG",
     Target: "\u0627\u0644\u0647\u062f\u0641",
@@ -333,11 +354,17 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Drag to Filter": "Arrastrar para Filtrar",
     Duration: "Duraci\u00f3n",
     End: "Fin",
+    "Enter to Hide": "Enter para Ocultar",
+    "Enter to Highlight": "Enter para Resaltar",
+    "Enter to Show": "Enter para Mostrar",
+    "Enter to Show All": "Enter para Mostrar Todo",
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
     Forecast: "Pron\u00f3stico",
     From: "Origen",
+    hidden: "oculto",
     High: "M\u00e1ximo",
+    highlighted: "resaltado",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenga pulsada May\u00fas y use las flechas para girar el globo.",
     hour: "hora",
@@ -393,6 +420,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentaje del Nivel Superior",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
+    "Shift+Enter to Hide": "May\u00fas+Enter para Ocultar",
+    "Shift+Enter to Highlight": "May\u00fas+Enter para Resaltar",
+    shown: "mostrado",
     Start: "Inicio",
     "SVG vector": "Vector SVG",
     Target: "Objetivo",
@@ -460,11 +490,17 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Drag to Filter": "Arraste para Filtrar",
     Duration: "Dura\u00e7\u00e3o",
     End: "Fim",
+    "Enter to Hide": "Enter para Ocultar",
+    "Enter to Highlight": "Enter para Destacar",
+    "Enter to Show": "Enter para Mostrar",
+    "Enter to Show All": "Enter para Mostrar Tudo",
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
     Forecast: "Previs\u00e3o",
     From: "Origem",
+    hidden: "oculto",
     High: "M\u00e1xima",
+    highlighted: "destacado",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenha Shift pressionada e use as setas para girar o globo.",
     hour: "hora",
@@ -520,6 +556,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentagem do N\u00edvel Superior",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
+    "Shift+Enter to Hide": "Shift+Enter para Ocultar",
+    "Shift+Enter to Highlight": "Shift+Enter para Destacar",
+    shown: "exibido",
     Start: "In\u00edcio",
     "SVG vector": "Vetor SVG",
     Target: "Meta",
@@ -590,11 +629,17 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
     Duration: "\u6301\u7eed\u65f6\u95f4",
     End: "\u7ed3\u675f",
+    "Enter to Hide": "\u6309 Enter \u9690\u85cf",
+    "Enter to Highlight": "\u6309 Enter \u7a81\u51fa\u663e\u793a",
+    "Enter to Show": "\u6309 Enter \u663e\u793a",
+    "Enter to Show All": "\u6309 Enter \u663e\u793a\u5168\u90e8",
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
     Forecast: "\u9884\u6d4b",
     From: "\u8d77\u70b9",
+    hidden: "\u5df2\u9690\u85cf",
     High: "\u6700\u9ad8",
+    highlighted: "\u5df2\u7a81\u51fa\u663e\u793a",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u65b9\u5411\u952e\u65cb\u8f6c\u5730\u7403\u4eea\u3002",
     hour: "\u5c0f\u65f6",
@@ -650,6 +695,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
+    "Shift+Enter to Hide": "Shift+Enter \u9690\u85cf",
+    "Shift+Enter to Highlight": "Shift+Enter \u7a81\u51fa\u663e\u793a",
+    shown: "\u5df2\u663e\u793a",
     Start: "\u5f00\u59cb",
     "SVG vector": "SVG \u77e2\u91cf\u56fe",
     Target: "\u76ee\u6807",
