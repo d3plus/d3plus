@@ -12,8 +12,8 @@
       also gets its share of its stack's total (see `stampShare`), unless the
       chart opts out with `_stackShares: false`.
     - **Non-stacked**: sorts axisData by the discrete accessor; `domains` is
-      either the data values (for the discrete axis or user-sorted axes) or
-      extent (for continuous).
+      either the data values (for the discrete axis, user-sorted axes, or
+      category axes) or extent (for continuous).
 
     Side effects: mutates `axisData` (sort), `data` (sort + filler pushes).
     Mutations are intentional — Plot._draw consumers downstream read these
@@ -28,6 +28,7 @@ import type {PlotDatum} from "../features/plotPaint.js";
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
 import {stampShare} from "../features/shareKey.js";
 import {stackedConfidenceValues} from "./barConfidence.js";
+import {isCategoryAxis} from "./categoryAxis.js";
 import {isSpanAxis, spanDomain} from "./discreteSpan.js";
 import {
   orderLast,
@@ -432,6 +433,7 @@ function computeNonStackedDomains(
     x: (isSpanAxis(viz, "x")
       ? spanDomain(viz, axisData)
       : (!xTime && viz.schema.discrete === "x") ||
+          isCategoryAxis(viz, "x") ||
           viz.schema.xSort ||
           viz._swarm?.cross === "x"
         ? xData
@@ -439,19 +441,24 @@ function computeNonStackedDomains(
     // A variable-width axis's width shares (`barWidthShare`) line up with its bars.
     x2: (isSpanAxis(viz, "x")
       ? spanDomain(viz, axisData)
-      : (!x2Time && viz.schema.discrete === "x") || viz.schema.x2Sort
+      : (!x2Time && viz.schema.discrete === "x") ||
+          isCategoryAxis(viz, "x2") ||
+          viz.schema.x2Sort
         ? x2Data
         : extent(x2Data as (number | Date)[])) as DomainValue[],
     y: (isSpanAxis(viz, "y")
       ? spanDomain(viz, axisData)
       : (!yTime && viz.schema.discrete === "y") ||
+          isCategoryAxis(viz, "y") ||
           viz.schema.ySort ||
           viz._swarm?.cross === "y"
         ? yData
         : extent(yData as (number | Date)[])) as DomainValue[],
     y2: (isSpanAxis(viz, "y")
       ? spanDomain(viz, axisData)
-      : (!y2Time && viz.schema.discrete === "y") || viz.schema.y2Sort
+      : (!y2Time && viz.schema.discrete === "y") ||
+          isCategoryAxis(viz, "y2") ||
+          viz.schema.y2Sort
         ? y2Data
         : extent(y2Data as (number | Date)[])) as DomainValue[],
   };

@@ -18,6 +18,7 @@ import type {
 
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {isCategoryAxis} from "./categoryAxis.js";
 import {isSpanAxis} from "./discreteSpan.js";
 import {fitMovingAverage, warnSpanOffTime} from "./trendMovingAverage.js";
 import {projectionPositions} from "./trendProjection.js";
@@ -190,7 +191,8 @@ function isPointAxis(viz: VizInstance, axis: Axis): boolean {
   if (viz[`_${axis}Time`]) return false;
   return (
     (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) ||
-    !!viz.schema[`${axis}Sort`]
+    !!viz.schema[`${axis}Sort`] ||
+    isCategoryAxis(viz, axis)
   );
 }
 

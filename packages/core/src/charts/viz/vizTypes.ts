@@ -520,6 +520,8 @@ export interface VizInstance {
   _x2Time?: boolean;
   _yTime?: boolean;
   _y2Time?: boolean;
+  /** The Plot axes placing their values as categories this draw, set by `computePlotAxisValues` (see `Plot/categoryAxis.ts`). */
+  _categoryAxes?: string[];
   _baseline?: number;
   /** The `baseline` the user set: one end of the value axis's domain, like `yDomain([n])` (see `Plot/baselineDomain.ts`). */
   _userBaseline?: number;

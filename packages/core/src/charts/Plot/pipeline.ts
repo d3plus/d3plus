@@ -17,6 +17,7 @@ import {extent, groups, min, rollups} from "d3-array";
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {sortedAxisValues} from "./axisValues.js";
 import {applyBarWidths, shareAxis} from "./barWidth.js";
+import {categoryAxes, isCategoryAxis} from "./categoryAxis.js";
 import {discreteDomainCategories} from "./discreteDomain.js";
 import {extraBandValues} from "./confidenceBands.js";
 import {
@@ -365,7 +366,8 @@ export const formatPlotData: TransformStage = ({viz}) => {
     `computePlotAxisValues` — second stage of Plot's pipeline. Given the
     `plotFormattedData` + `plotAxisData` from `formatPlotData`, computes
     the per-axis values arrays (`xData`/`x2Data`/`yData`/`y2Data`) used by
-    the domain/scale construction downstream.
+    the domain/scale construction downstream, and notes which axes place
+    their values as categories (`viz._categoryAxes`, see `categoryAxis.ts`).
 
     Takes the axis name + the two data sources + the viz state and returns
     the sorted/unique values for that axis.
@@ -461,10 +463,13 @@ export const computePlotAxisValues: TransformStage = ({
     return extra.length ? myData.concat(extra) : myData;
   }
 
+  const xData = getAxisValues("x"),
+    yData = getAxisValues("y");
+  viz._categoryAxes = categoryAxes(viz, {x: xData, y: yData});
   return {
-    xData: getAxisValues("x"),
+    xData,
     x2Data: getAxisValues("x2"),
-    yData: getAxisValues("y"),
+    yData,
     y2Data: getAxisValues("y2"),
   };
 };
@@ -499,7 +504,11 @@ export const extendPlotOppScales: TransformStage = ({
     yScale = plotScales!.yScale;
 
   const oppScale =
-    viz.schema.discrete === "x" || viz._swarm?.axis === "y" ? yScale : xScale;
+    viz.schema.discrete === "x" ||
+    viz._swarm?.axis === "y" ||
+    (!viz.schema.discrete && isCategoryAxis(viz, "x"))
+      ? yScale
+      : xScale;
   if (oppScale !== "Point") {
     const allShapeData = groups(
       axisData,

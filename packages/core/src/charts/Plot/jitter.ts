@@ -8,6 +8,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import type {PlotAxisFn} from "../features/plotPaint.js";
 import {bandStep} from "../Pyramid/scene.js";
+import {isCategoryAxis} from "./categoryAxis.js";
 import {jitterOffset, jitterWidth} from "../../utils/jitter.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -33,14 +34,17 @@ export interface Band {
 }
 
 /**
-    The band a Plot's point marks sit in: across its `discrete` axis, as
-    wide as the gap between neighboring categories (or neighboring values,
-    on a continuous discrete axis). Null without a `discrete` axis.
+    The band a Plot's point marks sit in: across its `discrete` axis (else
+    its category axis, see `categoryAxis.ts`), as wide as the gap between
+    neighboring categories (or neighboring values, on a continuous discrete
+    axis). Null without either.
     @param inputs The shape emit's rows, scales, domains, and ranges.
 */
 export function plotBand(inputs: BandInputs): Band | null {
   const {viz, values} = inputs;
-  const discrete = viz.schema.discrete;
+  const discrete =
+    viz.schema.discrete ??
+    (["x", "y"] as const).find(axis => isCategoryAxis(viz, axis));
   if (discrete !== "x" && discrete !== "y") return null;
   const axis: "x" | "y" = discrete;
   const scale = axis === "x" ? inputs.x : inputs.y;

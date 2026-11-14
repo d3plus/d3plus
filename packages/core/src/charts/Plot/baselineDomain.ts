@@ -13,6 +13,7 @@
 */
 import RESET from "../../utils/RESET.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {isCategoryAxis} from "./categoryAxis.js";
 
 /** A domain value for any of the four axes. */
 type DomainValue = number | string | Date;
@@ -34,6 +35,7 @@ export function isOneSided(domain: unknown): domain is DomainValue[] {
 const continuousAxis = (viz: VizInstance, axis: string): boolean =>
   viz.schema.discrete !== axis &&
   !viz.schema[`${axis}Sort`] &&
+  !isCategoryAxis(viz, axis) &&
   viz._swarm?.cross !== axis;
 
 /**

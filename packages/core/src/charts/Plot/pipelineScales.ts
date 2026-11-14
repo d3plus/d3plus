@@ -12,6 +12,7 @@ import {
   drawnAxisScale,
 } from "../../components/Axis/axisScaleType.js";
 import {userDomainBreaksBaseline} from "./baselineBreak.js";
+import {isCategoryAxis} from "./categoryAxis.js";
 import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
 import {isSpanAxis} from "./discreteSpan.js";
@@ -102,6 +103,7 @@ function domainScaleSetup(
     ? "Time"
     : (!isSpanAxis(viz, axis) &&
           (viz.schema.discrete === axis || viz.schema[`${axis}Sort`])) ||
+        isCategoryAxis(viz, axis) ||
         viz._swarm?.cross === axis
       ? "Point"
       : "Linear";
@@ -130,7 +132,7 @@ function domainScaleSetup(
 
 /**
     An axis config's `scale`, with `"auto"` resolved for the axis's values
-    (see `autoAxisScale`; a discrete axis keeps its own scale),
+    (see `autoAxisScale`; a discrete or category axis keeps its own scale),
     `"utc"` to "time", and a scale the axis doesn't draw to "linear" (with a
     warning).
 */
@@ -142,7 +144,8 @@ function autoScale(
 ): string {
   const userScale = viz[`_${axis}Config`].scale;
   if (userScale === "auto") {
-    if (viz.schema.discrete === axis) return fallback;
+    if (viz.schema.discrete === axis || isCategoryAxis(viz, axis))
+      return fallback;
     return autoAxisScale(axisData.map((d: Record<string, unknown>) => d[axis]));
   }
   if (!userScale) return fallback;
