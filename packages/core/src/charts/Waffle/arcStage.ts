@@ -17,8 +17,8 @@ import {
   majoritySeats,
 } from "./arcLayout.js";
 
-/** Room kept above the arc for the majority line's label, in pixels. */
-export const MAJORITY_LABEL_ROOM = 22;
+/** How far the majority line reaches past the outer ring, in pixels (kept free above the arc). */
+export const MAJORITY_OVERHANG = 4;
 
 /** The fitted arc: its center and radii in pixels, sweep, and majority. */
 export interface WaffleArc {
@@ -80,7 +80,8 @@ export function arcAspect(viz: VizInstance): number {
 /**
     Lays `count` cells out on an arc fitted to `width × height`: the rings
     (`rings`, or as many as the cells need), the seats on each, and each
-    cell's place in fill order. Room is kept above for a majority label.
+    cell's place in fill order. Room is kept above for the majority line's
+    overhang.
     @param viz The chart.
     @param count The number of cells.
     @param width The chart area's width.
@@ -94,7 +95,7 @@ export function waffleArcLayout(
 ): {arc: WaffleArc; places: ArcCellPlace[]} {
   const {start, end} = pieSweep(viz.schema.startAngle, viz.schema.endAngle);
   const majority = majoritySeats(viz.schema.majority, count);
-  const top = majority ? MAJORITY_LABEL_ROOM : 0;
+  const top = majority ? MAJORITY_OVERHANG : 0;
   const fit = fitRing(width, Math.max(0, height - top), start, end);
   const radius = fit.radius;
   const inner = arcInnerRadius(viz.schema.innerRadius, radius);

@@ -888,7 +888,7 @@ export {
 } from "./src/charts/Waffle/arcLayout.js";
 export type {ArcSeat} from "./src/charts/Waffle/arcLayout.js";
 export {
-  MAJORITY_LABEL_ROOM,
+  MAJORITY_OVERHANG,
   arcAspect,
   arcInnerRadius,
   isArcLayout,
@@ -897,9 +897,12 @@ export {
 export type {ArcCellPlace, WaffleArc} from "./src/charts/Waffle/arcStage.js";
 export {
   MAJORITY_KEY,
+  MAJORITY_LABEL_HEIGHT,
+  majorityLabelStrip,
   majorityLinePoints,
   waffleArcDecor,
 } from "./src/charts/Waffle/arcEmit.js";
+export type {HoleBox} from "./src/charts/Waffle/arcEmit.js";
 export {
   formatShare,
   waffleShare,

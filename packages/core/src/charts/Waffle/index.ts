@@ -152,9 +152,10 @@ export const waffleDef: DataDrivenChartDefinition = {
     {key: "layout", default: "grid"},
     /**
         With `layout: "arc"`, draws a dashed line across the rings where a
-        majority is reached, labeled with the seats it takes: `true` for
-        more than half of the cells, or a number of cells (such as a
-        two-thirds supermajority). Seats fill from the arc's start, so a
+        majority is reached, and the seats it takes ("Majority: 226") in the
+        arc's middle, under the `centerLabel`: `true` for more than half of
+        the cells, or a number of cells (such as a two-thirds
+        supermajority). Seats fill from the arc's start, so a
         block that reaches past the line holds a majority. Defaults to
         `false`.
         @type {boolean | number}
