@@ -39,6 +39,7 @@ import {
   Radar as RadarClass,
   RadialBar as RadialBarClass,
   RadialMatrix as RadialMatrixClass,
+  RadialTree as RadialTreeClass,
   Ridgeline as RidgelineClass,
   Rings as RingsClass,
   Sankey as SankeyClass,
@@ -167,6 +168,8 @@ export const Radar = createD3plusComponent(RadarClass, "chart");
 export const RadialBar = createD3plusComponent(RadialBarClass, "chart");
 /** Vue component for rendering a d3plus RadialMatrix visualization. */
 export const RadialMatrix = createD3plusComponent(RadialMatrixClass, "chart");
+/** Vue component for rendering a d3plus RadialTree visualization. */
+export const RadialTree = createD3plusComponent(RadialTreeClass, "chart");
 /** Vue component for rendering a d3plus Ridgeline visualization. */
 export const Ridgeline = createD3plusComponent(RidgelineClass, "chart");
 /** Vue component for rendering a d3plus Rings visualization. */

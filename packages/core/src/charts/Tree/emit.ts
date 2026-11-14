@@ -18,6 +18,8 @@ import {
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {nodeLabel} from "./nodeLabel.js";
+import {emitRadialTreeLabels} from "./radialLabels.js";
+import type {RadialLabels} from "./radialLabels.js";
 
 interface ShapeGroup {
   key: string;
@@ -86,6 +88,7 @@ export const treeEmit: ChartEmit = ({viz}) => {
   const chartShapeConfig = viz.ctx.shapeConfig as TreeShapeConfig | undefined;
   if (!shapeGroups || !chartShapeConfig) return [];
 
+  const radialLabels = viz.ctx.radialLabels as RadialLabels | undefined;
   const out: SceneNode[] = [];
 
   // Links (Path nodes between parent and child).
@@ -149,6 +152,7 @@ export const treeEmit: ChartEmit = ({viz}) => {
       if (image) images.push(image);
     }
     out.push(...images);
+    if (radialLabels) continue;
 
     // Labels via the chart-specific labelBounds/label/labelConfig.
     const labelNodes = emitLabels({
@@ -168,6 +172,14 @@ export const treeEmit: ChartEmit = ({viz}) => {
     });
     out.push(...labelNodes);
   }
+
+  // A radial tree's labels, along their spokes.
+  if (radialLabels)
+    out.push(
+      ...emitRadialTreeLabels(viz, radialLabels, d =>
+        chartShapeConfig.id(d, (d.i ?? 0) as number),
+      ),
+    );
 
   return out;
 };

@@ -2074,6 +2074,26 @@ export interface D3plusConfig {
     | "degree"
     | ((a: DataPoint, b: DataPoint) => number);
   /**
+      Tree and RadialTree: sets how far each node sits from the root by a
+      value instead of by its depth: its height above the leaves, such as
+      the distance at which a hierarchical clustering merged its children.
+      The root sits at the tallest height and nodes of height 0 at the far
+      edge, so the leaves line up there as in a cluster dendrogram, spaced
+      evenly in order. A key in the data, or an accessor function receiving
+      the node's row (a branch's merged row), its index, and `{id, level,
+      leaf}`: its `groupBy` value at its own level, that level (0 for the
+      top), and whether it is drawn without children. A node with no number
+      is 0 when it is a leaf, and as tall as its tallest child otherwise.
+      Defaults to none, which spaces the levels evenly.
+  */
+  nodeHeight?:
+    | string
+    | ((
+        d: DataPoint,
+        i: number,
+        node: {id: string; level: number; leaf: boolean},
+      ) => number | undefined);
+  /**
       Network, Rings, Sankey, Chord, and ArcDiagram: transforms `nodes`
       before they are drawn. The function receives the loaded file (or the
       Array passed as `nodes`) and returns the nodes Array. It runs when the
@@ -2136,11 +2156,12 @@ export interface D3plusConfig {
   order?: string | ((d: DataPoint, i: number) => unknown);
   /**
       Layout direction. Charts that can be drawn either way take
-      `"horizontal"` or `"vertical"`, as do Box shapes. Whisker shapes take the
-      side they point toward: `"top"`, `"bottom"`, `"left"`, or `"right"`.
-      Shapes also accept a per-datum accessor.
+      `"horizontal"` or `"vertical"`, as do Box shapes. Tree also takes
+      `"radial"`, laying the tree around a circle (see `RadialTree`). Whisker
+      shapes take the side they point toward: `"top"`, `"bottom"`, `"left"`,
+      or `"right"`. Shapes also accept a per-datum accessor.
   */
-  orient?: ConstOrAccessor<Orient | SideOrient>;
+  orient?: ConstOrAccessor<Orient | SideOrient | "radial">;
   /**
       How far Ridgeline's tallest ridge rises, in category steps (default
       1.5): 1 reaches the next baseline up, larger values overlap the ridges
