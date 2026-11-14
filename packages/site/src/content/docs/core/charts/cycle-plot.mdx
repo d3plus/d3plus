@@ -1,0 +1,50 @@
+---
+title: CyclePlot
+description: "Creates a cycle plot (a seasonal subseries plot) from an array of data: a LinePlot split into one panel per season, set side by side with no gap between them."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/cycle-plot/basic-example.js?raw";
+import weekdays from "~/examples/core/charts/cycle-plot/weekdays.js?raw";
+import quartersAndMeanStyle from "~/examples/core/charts/cycle-plot/quarters-and-mean-style.js?raw";
+import hoursInUtc from "~/examples/core/charts/cycle-plot/hours-in-utc.js?raw";
+
+Creates a cycle plot (a seasonal subseries plot) from an array of data: a
+LinePlot split into one panel per season, set side by side with no gap
+between them. Each panel plots one season across the cycles in the data,
+such as every January across the years, so a reader can compare the
+seasons and see how each one changed. Each row's `x` value is its date, and
+`period` picks the season: `"month"` (the default), `"quarter"`,
+`"weekday"`, or `"hour"`. The panels share one y axis, labeled on the left,
+and each draws a line at its mean.
+
+## Basic example
+
+Twelve years of monthly airline passengers. Each panel is one month, its line running from 1949 to 1960, and the horizontal line across it is that month's mean. The summer months sit highest, and every month grew. Hover a point for its date, its value, and its month's mean.
+
+<Playground chart="CyclePlot" code={basicExample} controls={["x","y","period","mean"]} />
+
+## Weekdays and series
+
+With `period: "weekday"`, each panel is a day of the week, plotted across the weeks in the data, starting from the first day of the week in the chart's `locale` (Sunday in `"en-US"`, Monday in `"de-DE"`). Each `groupBy` series draws its own line and its own mean line, in its color.
+
+<Playground chart="CyclePlot" code={weekdays} controls={["groupBy","period","locale"]} />
+
+## Quarters and mean style
+
+Rows that fall in the same season and cycle merge into one point, by `aggs` (summed by default): monthly rows with `period: "quarter"` plot each quarter's total. `meanConfig` styles the mean lines like a `referenceLines` entry (`stroke`, `strokeWidth`, `dash`, `label`, …), and `mean: false` hides them.
+
+<Playground chart="CyclePlot" code={quartersAndMeanStyle} controls={["period","mean","meanConfig"]} />
+
+## Hours in UTC
+
+With `period: "hour"`, each panel is an hour of the day, plotted across the days. `xConfig: {utc: true}` reads each timestamp's hour and day in UTC, so the panels match for every viewer. A `time` key adds a timeline, which starts with every period selected.
+
+<Playground chart="CyclePlot" code={hoursInUtc} controls={["period","xConfig"]} />
+
+## Panels
+
+A CyclePlot is a set of [small multiples](/guides/small-multiples/) whose `facet` is the season. The panels sit in one row with no space between them, and only the first labels the y axis. `facetConfig` adjusts them: `padding` to set them apart, `title` and `titleConfig` for the season names.
+
+<ApiReference name="CyclePlot" pkg="core" />
