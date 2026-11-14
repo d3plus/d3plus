@@ -33,11 +33,17 @@ it("hasCategoryValues — text that doesn't read as a number", () => {
   assert.strictEqual(hasCategoryValues([]), false);
 });
 
-it("inferDiscrete — the axis of text values, x first", () => {
+it("inferDiscrete — the axis of text values; with both, the fewer distinct values", () => {
   const scatter = () => new Scatter().data(rows);
   assert.strictEqual(inferDiscrete(scatter().x("fruit").y("value")), "x");
   assert.strictEqual(inferDiscrete(scatter().x("value").y("fruit")), "y");
-  assert.strictEqual(inferDiscrete(scatter().x("fruit").y("id")), "x");
+  assert.strictEqual(inferDiscrete(scatter().x("fruit").y("id")), "x", "a tie");
+  const grid = ["a", "b", "c"].flatMap(name =>
+    ["Low", "High"].map(level => ({name, level})),
+  );
+  const both = () => new Scatter().data(grid);
+  assert.strictEqual(inferDiscrete(both().x("name").y("level")), "y");
+  assert.strictEqual(inferDiscrete(both().x("level").y("name")), "x");
   assert.strictEqual(inferDiscrete(scatter().x("value").y("value")), undefined);
   assert.strictEqual(
     inferDiscrete(scatter().x("year").y("value")),

@@ -1,6 +1,6 @@
 /**
-    A Plot with no `discrete` setting whose `x` (else `y`) values include
-    text draws that axis as its discrete axis, exactly as `discrete` would
+    A Plot with no `discrete` setting whose `x` or `y` values include text
+    draws that axis as its discrete axis, exactly as `discrete` would
     (`x: "fruit"` on a Scatter).
 */
 import type {DataPoint} from "@d3plus/data";
@@ -21,9 +21,9 @@ export function hasCategoryValues(values: readonly unknown[]): boolean {
 }
 
 /**
-    The axis a Plot with no `discrete` setting draws as discrete: `"x"` when
-    its x values include text (see `hasCategoryValues`), else `"y"` when its
-    y values do. Undefined when `discrete` is set, when `swarm` is on (a
+    The axis a Plot with no `discrete` setting draws as discrete: the axis
+    whose values include text (see `hasCategoryValues`), or, when both do,
+    the one with fewer distinct values (`"x"` on a tie). Undefined when `discrete` is set, when `swarm` is on (a
     swarm lays out its own categories; `"auto"` swarms only a single axis
     of numbers, which has no text), for a time axis, or when neither axis
     has text.
@@ -36,14 +36,19 @@ export function inferDiscrete(viz: VizInstance): "x" | "y" | undefined {
   if (!rows.length) return undefined;
   const time = viz.schema.time as RowAccessor | undefined;
   const firstTime = time ? time(rows[0], 0) : undefined;
-  return (["x", "y"] as const).find(axis => {
+  const categories = (["x", "y"] as const).flatMap(axis => {
     const accessor = viz[`_${axis}`] as RowAccessor | undefined;
-    if (typeof accessor !== "function") return false;
+    if (typeof accessor !== "function") return [];
     const first = accessor(rows[0], 0);
-    if (firstTime !== undefined && first === firstTime) return false;
-    if (rangeBreaksTimeAxis(viz, axis, first)) return false;
-    return hasCategoryValues(rows.map(accessor));
+    if (firstTime !== undefined && first === firstTime) return [];
+    if (rangeBreaksTimeAxis(viz, axis, first)) return [];
+    const values = rows.map(accessor);
+    return hasCategoryValues(values)
+      ? [{axis, distinct: new Set(values).size}]
+      : [];
   });
+  if (!categories.length) return undefined;
+  return categories.reduce((a, b) => (b.distinct < a.distinct ? b : a)).axis;
 }
 
 /**

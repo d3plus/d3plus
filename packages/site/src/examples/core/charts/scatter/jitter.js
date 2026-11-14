@@ -15,7 +15,6 @@ const config = {
   data: penguins,
   groupBy: "id",
   color: "species",
-  discrete: "x",
   jitter: true,
   legend: false,
   x: "species",

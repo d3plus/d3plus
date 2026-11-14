@@ -90,7 +90,8 @@ it("Scatter — an inferred discrete axis draws as `discrete` on that axis does"
   assert.ok(!inferred.xLabels.includes("fruit"), "untitled, as discrete");
 });
 
-it("Scatter — an explicit `discrete` wins over the inferred axis", async () => {
+it("Scatter — text on both axes infers the one with fewer values; an explicit `discrete` wins", async () => {
+  // Two grades against three fruits.
   const rows = data.map(d => ({...d, grade: `Grade ${d.value % 3}`}));
   const probe = viz => ({
     discrete: viz._discrete,
@@ -101,17 +102,17 @@ it("Scatter — an explicit `discrete` wins over the inferred axis", async () =>
   const inferred = await probeChart(`${scatter}.x("fruit").y("grade")`, probe, {
     data: rows,
   });
-  assert.strictEqual(inferred.discrete, "x");
+  assert.strictEqual(inferred.discrete, "y");
   assert.strictEqual(inferred.setting, undefined);
-  assert.strictEqual(inferred.x, "point");
+  assert.strictEqual(inferred.y, "point");
   const explicit = await probeChart(
-    `${scatter}.x("fruit").y("grade").discrete("y")`,
+    `${scatter}.x("fruit").y("grade").discrete("x")`,
     probe,
     {data: rows},
   );
   assert.strictEqual(explicit.discrete, undefined, "nothing inferred");
-  assert.strictEqual(explicit.setting, "y");
-  assert.strictEqual(explicit.y, "point");
+  assert.strictEqual(explicit.setting, "x");
+  assert.strictEqual(explicit.x, "point");
 });
 
 it('Scatter — `scale: "auto"` keeps a category axis\'s point scale', async () => {

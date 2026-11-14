@@ -1,6 +1,6 @@
 ---
 title: Scatter
-description: "Creates a scatter plot from an array of data: each row draws as a point at its x and y values, on continuous axes. Text x values (else y values) make that axis a category axis, as discrete does, which also sets it explicitly."
+description: "Creates a scatter plot from an array of data: each row draws as a point at its x and y values, on continuous axes. Text values on an axis (on both, the one with fewer distinct values) make it a category axis, as discrete does, which also sets it explicitly."
 ---
 
 import Playground from "~/components/Playground/Playground.astro";
@@ -17,9 +17,9 @@ import errorBarsBothAxes from "~/examples/core/charts/scatter/error-bars-both-ax
 import logAxes from "~/examples/core/charts/scatter/log-axes.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
-its `x` and `y` values, on continuous axes. Text `x` values (else `y`
-values) make that axis a category axis, as `discrete` does, which also
-sets it explicitly. Points are `sizeMin` pixels in radius; a `size`
+its `x` and `y` values, on continuous axes. Text values on an axis (on
+both, the one with fewer distinct values) make it a category axis, as
+`discrete` does, which also sets it explicitly. Points are `sizeMin` pixels in radius; a `size`
 accessor scales them between `sizeMin` and `sizeMax` and adds a size
 legend (see BubbleChart for bubbles sized by area). Hover any point for
 its values.
@@ -32,7 +32,7 @@ Each row draws as a point at its `x` and `y` values, on two continuous axes. Gro
 
 ## Category axis
 
-When the `x` values are text (or, failing that, the `y` values), that axis is the chart's discrete axis, exactly as if `discrete` named it: one position per category in data order, an untitled axis, a badge on it for the hovered category, and a shared tooltip listing every series in the hovered column. Numbers stored as text, like `"2019"`, stay continuous; set `discrete` to choose the axis yourself.
+When the `x` or `y` values are text, that axis is the chart's discrete axis, exactly as if `discrete` named it: one position per category in data order, an untitled axis, a badge on it for the hovered category, and a shared tooltip listing every series in the hovered column. Numbers stored as text, like `"2019"`, stay continuous. When both axes hold text, the one with fewer distinct values is the category axis (`x` on a tie); set `discrete` to choose the axis yourself.
 
 <Playground chart="Scatter" code={categoryAxis} controls={["x","discrete"]} />
 
