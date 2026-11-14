@@ -44,36 +44,37 @@ export const bumpChartDef: ChartDefinition = {
     };
     const v = viz as VizInstance & BumpFluent;
     v.y2((d: Record<string, unknown>, i: number) => viz._y!(d as DataPoint, i));
-    v.yConfig({
-      tickFormat: (val: number) => {
-        const data = viz._formattedData ?? [];
-        const xMin =
-          data[0].x instanceof Date
-            ? (data[0].x as unknown as Date).getTime()
-            : data[0].x;
-        const startData = data.filter(
-          (d: Record<string, unknown>) =>
-            (d.x instanceof Date ? (d.x as Date).getTime() : d.x) === xMin,
-        );
-        const d = startData.find((d: Record<string, unknown>) => d.y === val);
-        return d ? viz._drawLabel(d, d.i as number) : "";
-      },
-    });
-    v.y2Config({
-      tickFormat: (val: number) => {
-        const data = viz._formattedData ?? [];
-        const xMax =
-          data[data.length - 1].x instanceof Date
-            ? (data[data.length - 1].x as unknown as Date).getTime()
-            : data[data.length - 1].x;
-        const endData = data.filter(
-          (d: Record<string, unknown>) =>
-            (d.x instanceof Date ? (d.x as Date).getTime() : d.x) === xMax,
-        );
-        const d = endData.find((d: Record<string, unknown>) => d.y === val);
-        return d ? viz._drawLabel(d, d.i as number) : "";
-      },
-    });
+    // The rank axes name the series at each rank, from the first period on
+    // the left and the last on the right; elsewhere a rank reads as a number.
+    const firstNames = (val: number) => {
+      const data = viz._formattedData ?? [];
+      const xMin =
+        data[0].x instanceof Date
+          ? (data[0].x as unknown as Date).getTime()
+          : data[0].x;
+      const startData = data.filter(
+        (d: Record<string, unknown>) =>
+          (d.x instanceof Date ? (d.x as Date).getTime() : d.x) === xMin,
+      );
+      const d = startData.find((d: Record<string, unknown>) => d.y === val);
+      return d ? viz._drawLabel(d, d.i as number) : "";
+    };
+    const lastNames = (val: number) => {
+      const data = viz._formattedData ?? [];
+      const xMax =
+        data[data.length - 1].x instanceof Date
+          ? (data[data.length - 1].x as unknown as Date).getTime()
+          : data[data.length - 1].x;
+      const endData = data.filter(
+        (d: Record<string, unknown>) =>
+          (d.x instanceof Date ? (d.x as Date).getTime() : d.x) === xMax,
+      );
+      const d = endData.find((d: Record<string, unknown>) => d.y === val);
+      return d ? viz._drawLabel(d, d.i as number) : "";
+    };
+    viz._tickLabelFormats = new Set([firstNames, lastNames]);
+    v.yConfig({tickFormat: firstNames});
+    v.y2Config({tickFormat: lastNames});
     v.ySort(
       (a: Record<string, unknown>, b: Record<string, unknown>) =>
         (viz._y as (d: unknown) => number)(b) -

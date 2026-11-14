@@ -500,6 +500,8 @@ export interface VizInstance {
   _sharedTooltipSaved?: {arrow: unknown; thead: unknown; tbody: unknown};
   /** False when a chart's own tooltip rows already list a snapped mark's values, so its x/y rows are left out. */
   _tooltipAxisRows?: boolean;
+  /** Axis `tickFormat`s that label ticks with something other than their values (BumpChart's series names at each rank): outside its axis, a value formats as though its axis had none (see `axisValue`). */
+  _tickLabelFormats?: Set<unknown>;
   /** A chart's own value column for the shared tooltip, in place of the continuous axis's: its title and each row's value. Undefined to use the axis's. */
   _sharedTooltipValue?: () =>
     {title: string; value: (d: DataPoint, i: number) => string} | undefined;
