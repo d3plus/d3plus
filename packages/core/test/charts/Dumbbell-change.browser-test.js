@@ -129,10 +129,10 @@ const draw = ([config, rows, renderer, hover]) =>
     });
   });
 
-const chart = (config, renderer, hover = "Spain") =>
+const chart = (config, renderer, hover = "Spain", data = rates) =>
   render("<div id='viz' style='width:500px;height:400px'></div>", draw, [
     config,
-    rates,
+    data,
     renderer,
     hover,
   ]);
@@ -266,5 +266,43 @@ for (const renderer of ["svg", "canvas"]) {
     const spain = out.bars.find(b => b.key === "Spain::connector");
     assert.strictEqual(spain.fill, out.colors.off);
     assert.ok(/Change\s*\+2/.test(out.tooltip), out.tooltip);
+  });
+
+  it(`Dumbbell bars (${renderer}): a category with one value, or none changing, keeps its dot`, async () => {
+    const data = [
+      ...rates,
+      {country: "Peru", year: "2023", v: 6},
+      {country: "Iceland", year: "2019", v: 4},
+      {country: "Iceland", year: "2023", v: 4},
+    ];
+    for (const config of [
+      {connector: "bar"},
+      {connector: "bar", arrows: true},
+    ]) {
+      const out = await chart(config, renderer, "Spain", data);
+      assert.deepStrictEqual(
+        out.bars.map(b => b.key).sort(),
+        ["Chile::connector", "Japan::connector", "Spain::connector"],
+        "no bar without a span",
+      );
+      const shown = out.points.filter(p => p.opacity !== 0);
+      assert.deepStrictEqual(shown.map(p => p.country).sort(), [
+        "Iceland",
+        "Iceland",
+        "Peru",
+      ]);
+      const peru = shown.find(p => p.country === "Peru");
+      const series2023 = out.points.find(
+        p => p.country === "Iceland" && p.year === "2023",
+      );
+      assert.ok(peru.fill && peru.fill !== "transparent", "painted");
+      assert.strictEqual(peru.fill, series2023.fill, "in its series color");
+      assert.ok(
+        out.points
+          .filter(p => !["Peru", "Iceland"].includes(p.country))
+          .every(p => p.opacity === 0),
+        "the rest stay unseen",
+      );
+    }
   });
 }

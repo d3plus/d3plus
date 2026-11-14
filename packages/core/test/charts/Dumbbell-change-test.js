@@ -245,7 +245,7 @@ it("barColors — each row's bar fill, by the row", () => {
   assert.strictEqual(map.get(b), "#123456");
 });
 
-it("hiddenPoint — unseen, keeping its bar's color for swatches", () => {
+it("hiddenPoint — unseen, keeping its bar's color for swatches, or left as is", () => {
   const dot = {
     type: "circle",
     paint: {fill: "red", stroke: "blue", strokeWidth: 1},
@@ -256,11 +256,7 @@ it("hiddenPoint — unseen, keeping its bar's color for swatches", () => {
     strokeWidth: 1,
     opacity: 0,
   });
-  assert.deepStrictEqual(hiddenPoint(dot).paint, {
-    fill: "transparent",
-    stroke: "transparent",
-    strokeWidth: 1,
-  });
+  assert.strictEqual(hiddenPoint(dot), dot, "without a bar, a visible dot");
   const text = {type: "text"};
   assert.strictEqual(hiddenPoint(text, "#00ff00"), text);
 });
