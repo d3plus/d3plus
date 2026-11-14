@@ -44,9 +44,7 @@ export interface TranslationStrings {
   Exponential: string;
   Forecast: string;
   From: string;
-  hidden: string;
   High: string;
-  highlighted: string;
   "Hold Shift and use the arrow keys to rotate the globe.": string;
   hour: string;
   hours: string;
@@ -103,7 +101,6 @@ export interface TranslationStrings {
   "Shift+Click to Highlight": string;
   "Shift+Enter to Hide": string;
   "Shift+Enter to Highlight": string;
-  shown: string;
   Start: string;
   "SVG vector": string;
   Target: string;
@@ -131,6 +128,9 @@ export interface TranslationStrings {
   "Zoom In": string;
   "Zoom Out": string;
   "{node} cluster": string;
+  "{0} hidden": string;
+  "{0} highlighted": string;
+  "{0} shown": string;
 }
 
 /**
@@ -200,9 +200,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Exponential: "\u0623\u0633\u064a",
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     From: "\u0645\u0646",
-    hidden: "\u0645\u062e\u0641\u064a",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
-    highlighted: "\u0645\u062d\u062f\u062f",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062f\u0648\u064a\u0631 \u0627\u0644\u0643\u0631\u0629 \u0627\u0644\u0623\u0631\u0636\u064a\u0629.",
     hour: "\u0633\u0627\u0639\u0629",
@@ -283,7 +281,6 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift+Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Enter to Highlight":
       "Shift+Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
-    shown: "\u0645\u0639\u0631\u0648\u0636",
     Start: "\u0627\u0644\u0628\u062f\u0627\u064a\u0629",
     "SVG vector": "\u0631\u0633\u0645 \u0645\u062a\u062c\u0647 SVG",
     Target: "\u0627\u0644\u0647\u062f\u0641",
@@ -315,6 +312,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
     "{node} cluster": "\u0645\u062c\u0645\u0648\u0639\u0629 {node}",
+    "{0} hidden": "\u062a\u0645 \u0625\u062e\u0641\u0627\u0621 {0}",
+    "{0} highlighted": "\u062a\u0645 \u062a\u062d\u062f\u064a\u062f {0}",
+    "{0} shown": "\u062a\u0645 \u0639\u0631\u0636 {0}",
   },
   "es-ES": {
     "% of First Stage": "% de la Primera Etapa",
@@ -362,9 +362,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Exponential: "Exponencial",
     Forecast: "Pron\u00f3stico",
     From: "Origen",
-    hidden: "oculto",
     High: "M\u00e1ximo",
-    highlighted: "resaltado",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenga pulsada May\u00fas y use las flechas para girar el globo.",
     hour: "hora",
@@ -422,7 +420,6 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
     "Shift+Enter to Hide": "May\u00fas+Enter para Ocultar",
     "Shift+Enter to Highlight": "May\u00fas+Enter para Resaltar",
-    shown: "mostrado",
     Start: "Inicio",
     "SVG vector": "Vector SVG",
     Target: "Objetivo",
@@ -451,6 +448,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
     "{node} cluster": "Grupo de {node}",
+    "{0} hidden": "{0} oculto",
+    "{0} highlighted": "{0} resaltado",
+    "{0} shown": "{0} mostrado",
   },
   "pt-BR": {
     "% of First Stage": "% da Primeira Etapa",
@@ -498,9 +498,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Exponential: "Exponencial",
     Forecast: "Previs\u00e3o",
     From: "Origem",
-    hidden: "oculto",
     High: "M\u00e1xima",
-    highlighted: "destacado",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenha Shift pressionada e use as setas para girar o globo.",
     hour: "hora",
@@ -558,7 +556,6 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
     "Shift+Enter to Hide": "Shift+Enter para Ocultar",
     "Shift+Enter to Highlight": "Shift+Enter para Destacar",
-    shown: "exibido",
     Start: "In\u00edcio",
     "SVG vector": "Vetor SVG",
     Target: "Meta",
@@ -587,6 +584,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
     "{node} cluster": "Grupo de {node}",
+    "{0} hidden": "{0} oculto",
+    "{0} highlighted": "{0} destacado",
+    "{0} shown": "{0} exibido",
   },
   "zh-CN": {
     "% of First Stage":
@@ -637,9 +637,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Exponential: "\u6307\u6570",
     Forecast: "\u9884\u6d4b",
     From: "\u8d77\u70b9",
-    hidden: "\u5df2\u9690\u85cf",
     High: "\u6700\u9ad8",
-    highlighted: "\u5df2\u7a81\u51fa\u663e\u793a",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u65b9\u5411\u952e\u65cb\u8f6c\u5730\u7403\u4eea\u3002",
     hour: "\u5c0f\u65f6",
@@ -697,7 +695,6 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     "Shift+Enter to Hide": "Shift+Enter \u9690\u85cf",
     "Shift+Enter to Highlight": "Shift+Enter \u7a81\u51fa\u663e\u793a",
-    shown: "\u5df2\u663e\u793a",
     Start: "\u5f00\u59cb",
     "SVG vector": "SVG \u77e2\u91cf\u56fe",
     Target: "\u76ee\u6807",
@@ -726,6 +723,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
     "{node} cluster": "{node}\u96c6\u7fa4",
+    "{0} hidden": "\u5df2\u9690\u85cf{0}",
+    "{0} highlighted": "\u5df2\u7a81\u51fa\u663e\u793a{0}",
+    "{0} shown": "\u5df2\u663e\u793a{0}",
   },
 };
 
