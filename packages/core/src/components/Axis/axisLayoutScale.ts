@@ -32,6 +32,7 @@ import {
 } from "./timeValues.js";
 import {axisIsYearLike, formatYear} from "./yearValues.js";
 import {periodLabelPositions} from "./axisPeriods.js";
+import {hasLevels, innerLevel, levelText} from "./axisLevels.js";
 import {majorTicks, minorTickValues} from "./axisMinorTicks.js";
 import {drawnAxisScale, isTimeScaleName} from "./axisScaleType.js";
 import type {D3Scale} from "../../utils/index.js";
@@ -43,13 +44,22 @@ import {powExponent} from "./powTicks.js";
     `rotatedTickFormat`, the formatter reads `axis._labelRotation` on every
     call, so labels measured and painted rotated use that one instead.
     `getLabels` returns the values the axis labels, which decide the
-    open-ended labels of an axis rounded "inside".
+    open-ended labels of an axis rounded "inside". A category axis with
+    `levels` labels each tick with its innermost level, which a
+    `tickFormat` receives in place of the category.
 */
 export function buildTickFormat(
   axis: Axis,
   timeLocaleObj: TimeLocaleDefinition,
   getLabels: () => unknown[],
 ): (d: unknown) => string {
+  if (hasLevels(axis)) {
+    const user = axis.schema.tickFormat as
+      ((this: Axis, d: unknown) => string) | undefined;
+    return user
+      ? (d: unknown) => user.call(axis, innerLevel(axis, d))
+      : (d: unknown) => levelText(innerLevel(axis, d));
+  }
   const format = baseTickFormat(axis, timeLocaleObj, getLabels);
   const rotated = axis.schema.rotatedTickFormat as
     ((d: unknown) => string) | undefined;

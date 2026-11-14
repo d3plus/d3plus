@@ -22,6 +22,7 @@ import {
 import {timeDataInDomain} from "./timeValues.js";
 import {gridValues} from "./axisMinorTicks.js";
 import type {AxisBaselineBreak, AxisBreak} from "./axisBreak.js";
+import type {AxisLevelLayout} from "./axisLevels.js";
 import {axisToScene} from "./axisScene.js";
 import {
   buildTickData,
@@ -51,6 +52,9 @@ const axisSchema: ConfigField[] = [
   {key: "height", coerce: "identity", default: 400},
   {key: "labels", coerce: "identity"},
   {key: "labelOffset", coerce: "identity", default: false},
+  {key: "levelConfig", merge: true, factory: () => ({})},
+  {key: "levelDividerConfig", merge: true, factory: () => ({})},
+  {key: "levels", coerce: "identity"},
   {key: "fixedSize", coerce: "identity"},
   {key: "maxSize", coerce: "identity"},
   {key: "minorGrid", coerce: "identity", default: false},
@@ -124,6 +128,8 @@ export default class Axis extends BaseClass {
   _outerBounds: Record<string, number>;
   /** The measured size of the tick-label/title space, before margins (see `fixedSize`). */
   _labelSpace?: number;
+  /** The outer level rows the last layout pass laid out (see `levels`). */
+  _levelLayout?: AxisLevelLayout;
   /**
       How far slanted labels reach past the start and end of the range, set
       by the layout pass (see `labelRotation`). A Plot makes room for them
