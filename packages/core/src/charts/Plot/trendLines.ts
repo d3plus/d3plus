@@ -22,6 +22,7 @@ import {isSpanAxis} from "./discreteSpan.js";
 import {fitMovingAverage, warnSpanOffTime} from "./trendMovingAverage.js";
 import {projectionPositions} from "./trendProjection.js";
 import {plotAxisUtc} from "./plotRangeBreaks.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 type Row = Record<string, unknown>;
 type Axis = "x" | "y";
@@ -189,7 +190,7 @@ export function trendProjectionPositions(
 function isPointAxis(viz: VizInstance, axis: Axis): boolean {
   if (viz[`_${axis}Time`]) return false;
   return (
-    (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) ||
+    (vizDiscrete(viz) === axis && !isSpanAxis(viz, axis)) ||
     !!viz.schema[`${axis}Sort`]
   );
 }
@@ -325,7 +326,7 @@ export function computeTrendFits(
   const type = resolveTrendType(viz._trendLine);
   if (!type || !rows.length) return [];
   const config = viz._trendLineConfig || {};
-  const axis = trendAxis(viz.schema.discrete);
+  const axis = trendAxis(vizDiscrete(viz));
   const dep = axis === "x" ? "y" : "x";
   const {toNumber, fromNumber} = trendNumberScale(order.concat(projected));
   const categories = isPointAxis(viz, axis)
@@ -403,7 +404,7 @@ export const computePlotTrendFits: TransformStage = ({
   xData,
   yData,
 }) => {
-  const axis = trendAxis(viz.schema.discrete);
+  const axis = trendAxis(vizDiscrete(viz));
   const order = (axis === "x" ? xData : yData) || [];
   const projected = resolveTrendType(viz._trendLine)
     ? projectionPositions(

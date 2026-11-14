@@ -10,6 +10,7 @@ import type {PlotAxisFn} from "../features/plotPaint.js";
 import {bandStep} from "../Pyramid/scene.js";
 import {jitterOffset, jitterWidth} from "../../utils/jitter.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** The share of its band a Tick spans unless `shapeConfig.Tick.length` sets it. */
 export const DEFAULT_TICK_LENGTH = 0.6;
@@ -40,7 +41,7 @@ export interface Band {
 */
 export function plotBand(inputs: BandInputs): Band | null {
   const {viz, values} = inputs;
-  const discrete = viz.schema.discrete;
+  const discrete = vizDiscrete(viz);
   if (discrete !== "x" && discrete !== "y") return null;
   const axis: "x" | "y" = discrete;
   const scale = axis === "x" ? inputs.x : inputs.y;

@@ -18,6 +18,7 @@ import {
   dumbbellConnector,
   type DumbbellDirection,
 } from "./changes.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 type Accessor = (d: DataPoint, i: number) => unknown;
 
@@ -61,7 +62,7 @@ export function categoryValues(
 
 /** The chart's category and value accessors, by its `discrete` axis. */
 function axes(viz: VizInstance): {category: Accessor; value: Accessor} {
-  const horizontal = viz.schema.discrete !== "x";
+  const horizontal = vizDiscrete(viz) !== "x";
   return {
     category: (horizontal ? viz._y : viz._x) as Accessor,
     value: (horizontal ? viz._x : viz._y) as Accessor,

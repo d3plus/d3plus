@@ -19,6 +19,7 @@ import type {ShapeEmitContext} from "../features/shapeEmit.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {curveFactory, lineCurve} from "./lineCurve.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /** The `fillBetween` setting: `true`, one `[a, b]` pair of series ids, or a list of pairs. */
 export type FillBetweenSetting = boolean | unknown[];
@@ -135,7 +136,7 @@ export function emitFillBetween(ctx: ShapeEmitContext): SceneNode[] {
   const rows = ctx.values as unknown as PlotDatum[];
   const pairs = fillBetweenPairs(viz.schema.fillBetween, seriesIds(rows));
   if (!pairs.length) return [];
-  const horizontal = (viz.schema.discrete || "x") === "x";
+  const horizontal = (vizDiscrete(viz) || "x") === "x";
   const px = ctx.shapeConfig.x as (d: PlotDatum) => number;
   const py = ctx.shapeConfig.y as (d: PlotDatum) => number;
   const pos = horizontal ? px : py,

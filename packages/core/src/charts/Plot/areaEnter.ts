@@ -9,6 +9,7 @@ import type {EnterWindow, SceneNode} from "@d3plus/render";
 
 import {growFromLine} from "../helpers/densityEnter.js";
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 /**
     The pixel line, along the value axis, that areas grow out of.
@@ -16,7 +17,7 @@ import type {ShapeEmitContext} from "../features/shapeEmit.js";
 */
 export function areaBaseline(ctx: ShapeEmitContext): number | null {
   const {viz} = ctx;
-  const axis = viz.schema.discrete === "y" ? "x" : "y";
+  const axis = vizDiscrete(viz) === "y" ? "x" : "y";
   const own = ctx.shapeConfig[`${axis}0`];
   if (!viz.schema.stacked && typeof own === "number" && Number.isFinite(own))
     return own;
@@ -73,7 +74,7 @@ export function growAreasFromBaseline(
 ): void {
   const line = areaBaseline(ctx);
   if (line === null) return;
-  const axis = ctx.viz.schema.discrete === "y" ? "x" : "y";
+  const axis = vizDiscrete(ctx.viz) === "y" ? "x" : "y";
   const keys = areaKeys(nodes);
   if (!keys.length) return;
   growFromLine(nodes, axis, new Map(keys.map(key => [key, line])));

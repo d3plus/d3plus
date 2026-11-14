@@ -41,6 +41,7 @@ import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
+import {vizDiscrete} from "../viz/discrete.js";
 
 export {computePlotInitialDomains} from "./pipelineDomains.js";
 export {measurePlotLineLabels} from "./pipelineLineLabels.js";
@@ -86,14 +87,14 @@ function missingLineRows(
   rows: Record<string, unknown>[],
   categories: Set<unknown> | null,
 ): Record<string, unknown>[] {
-  const discrete = viz.schema.discrete === "y" ? "y" : "x";
+  const discrete = vizDiscrete(viz) === "y" ? "y" : "x";
   return rows.filter(
     d =>
       d.shape === "Line" &&
       !isPlottableRow(d) &&
       d[discrete] !== undefined &&
       !isBadAxisValue(d[discrete]) &&
-      (!categories || categories.has(d[viz.schema.discrete])),
+      (!categories || categories.has(d[vizDiscrete(viz)])),
   );
 }
 
@@ -254,12 +255,10 @@ function plotRowPrep(viz: PlotViz, times: ReturnType<typeof detectTimeAxes>) {
     };
     newD.discrete =
       newD.shape === "Bar"
-        ? `${newD[viz.schema.discrete]}_${newD.group}`
-        : `${newD[viz.schema.discrete]}`;
+        ? `${newD[vizDiscrete(viz)]}_${newD.group}`
+        : `${newD[vizDiscrete(viz)]}`;
     newD.id =
-      newD.shape === "Bar"
-        ? `${newD.id}_${newD[viz.schema.discrete]}`
-        : newD.id;
+      newD.shape === "Bar" ? `${newD.id}_${newD[vizDiscrete(viz)]}` : newD.id;
     return newD;
   };
 
@@ -324,8 +323,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
 
   const categories = discreteDomainCategories(viz);
   const keepRow = (d: Record<string, unknown>) =>
-    isPlottableRow(d) &&
-    (!categories || categories.has(d[viz.schema.discrete]));
+    isPlottableRow(d) && (!categories || categories.has(d[vizDiscrete(viz)]));
   const prepped = viz._filteredData.map(prepData);
   // Rows a time axis's `rangeBreaks` hide are left out of the drawing.
   const plotted = dropHiddenRows(viz, prepped.filter(keepRow));
@@ -399,7 +397,7 @@ export const computePlotAxisValues: TransformStage = ({
     const numericValue = typeof filteredData[0][axis] === "number";
 
     let myData =
-      viz.schema.discrete === axis
+      vizDiscrete(viz) === axis
         ? rollups(
             filteredData,
             (leaves: Record<string, unknown>[]) =>
@@ -446,7 +444,7 @@ export const computePlotAxisValues: TransformStage = ({
 
     if (
       axis.charAt(0) === confidenceValueAxis(viz) &&
-      viz.schema.discrete !== axis.charAt(0) &&
+      vizDiscrete(viz) !== axis.charAt(0) &&
       viz._confidence
     ) {
       if (viz._confidence[0])
@@ -459,7 +457,7 @@ export const computePlotAxisValues: TransformStage = ({
         );
       myData = myData.concat(extraBandValues(viz, localData));
     }
-    if (viz.schema.discrete !== axis.charAt(0))
+    if (vizDiscrete(viz) !== axis.charAt(0))
       myData = myData.concat(crossAxisValues(viz, localData, axis));
 
     return extra.length ? myData.concat(extra) : myData;
@@ -512,7 +510,7 @@ export const extendPlotOppScales: TransformStage = ({
     yScale = plotScales!.yScale;
 
   const oppScale =
-    viz.schema.discrete === "x" || viz._swarm?.axis === "y" ? yScale : xScale;
+    vizDiscrete(viz) === "x" || viz._swarm?.axis === "y" ? yScale : xScale;
   if (oppScale !== "Point") {
     const allShapeData = groups(
       axisData,
@@ -521,9 +519,9 @@ export const extendPlotOppScales: TransformStage = ({
     allShapeData.forEach(([key, values]) => {
       if (["Bar", "Box"].includes(key) && !viz._discreteExtent) {
         discreteBufferFn(
-          viz.schema.discrete === "x" ? x : y,
+          vizDiscrete(viz) === "x" ? x : y,
           data,
-          viz.schema.discrete,
+          vizDiscrete(viz),
         );
       }
       if (viz._buffer[key]) {
