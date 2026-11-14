@@ -390,6 +390,8 @@ export function emitAlongLabels(
         d: polylineD(offsetPolyline(stretch, ctx.lift)),
         color: line.color,
         anchor: "middle" as const,
+        datum: line.row,
+        index: line.row.i,
       },
     ];
   });

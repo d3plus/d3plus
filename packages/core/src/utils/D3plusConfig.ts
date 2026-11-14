@@ -1673,6 +1673,10 @@ export interface D3plusConfig {
       objects. A key is its column's title; a bare accessor has none. Rows
       missing a category on any dimension (`undefined`, `null`, or `""`) are
       left out.
+
+      ScatterMatrix: the numeric dimensions to compare, in order — data keys,
+      accessor functions, or `{value, title}` objects. Defaults to every
+      numeric key except the `groupBy` keys and `id`.
   */
   dimensions?: AlluvialDimensionInput[];
   /**

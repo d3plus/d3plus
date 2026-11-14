@@ -211,6 +211,16 @@ function canvasFillStyle(
 }
 
 /**
+    Sets the context's stroke to `color` as SVG strokes it: a color the
+    context can't parse (such as `"0"`) strokes nothing, where the context
+    would keep its last stroke style (black by default).
+*/
+export function setStrokeStyle(ctx: Ctx, color: string): void {
+  ctx.strokeStyle = "rgba(0, 0, 0, 0)";
+  ctx.strokeStyle = color;
+}
+
+/**
     Fills and/or strokes the context's current path (or a Path2D) per the node's
     paint. `cssScale` is the node's on-screen scale relative to CSS pixels (the
     accumulated transform scale with the device-pixel-ratio base divided out) —
@@ -251,7 +261,7 @@ export function paint(
   }
   if (p.stroke && p.stroke !== "none" && (p.strokeWidth ?? 0) > 0) {
     ctx.globalAlpha = alpha * (p.strokeOpacity ?? 1);
-    ctx.strokeStyle = p.stroke;
+    setStrokeStyle(ctx, p.stroke);
     ctx.lineWidth =
       p.vectorEffect === "non-scaling-stroke" && cssScale
         ? (p.strokeWidth as number) / cssScale

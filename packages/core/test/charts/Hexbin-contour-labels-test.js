@@ -335,8 +335,12 @@ it("emitContourLabels: inert labels over pads that break the lines", () => {
   );
   for (const node of out) {
     assert.strictEqual(node.interactive, false);
-    assert.strictEqual(node.datum, undefined);
     assert.strictEqual(node.aria.hidden, true);
+  }
+  for (const pad of pads) assert.strictEqual(pad.datum, undefined);
+  for (const node of out.filter(n => n.type !== "path")) {
+    const level = Number(`${node.key}`.match(/contour-label-(\d+)-/)[1]);
+    assert.strictEqual(node.datum, rows[level], "its level's row");
   }
   assert.ok(
     texts.every(t => t.halo && t.paint.stroke === "rgb(255, 255, 255)"),
