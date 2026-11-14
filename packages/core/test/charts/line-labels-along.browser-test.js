@@ -166,3 +166,81 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(end.xRangeEnd < along.xRangeEnd, "end labels claim room");
   });
 }
+
+/** The along labels' and lines' painted colors, with `highlight` set on one series. */
+const drawHighlighted = ({renderer, highlight}) =>
+  new Promise(resolve => {
+    const data = [];
+    ["Plan", "Actual", "Forecast"].forEach((series, k) => {
+      for (let month = 1; month <= 12; month++)
+        data.push({series, month, revenue: 20 + k * 25 + month * (k + 1)});
+    });
+    const viz = new window.d3plus.LinePlot()
+      .data(data)
+      .groupBy("series")
+      .x("month")
+      .y("revenue")
+      .renderer(renderer)
+      .duration(0)
+      .lineLabels("along")
+      .highlight(d => d.series === highlight)
+      .select("#viz");
+    viz.render(async () => {
+      for (let i = 0; i < 3; i++)
+        await new Promise(r => requestAnimationFrame(() => r()));
+      const nodes = [];
+      const walk = n => {
+        nodes.push(n);
+        (n.children || []).forEach(walk);
+      };
+      walk(viz._paintedScene.root);
+      const lines = nodes.filter(
+        n =>
+          n.type === "path" &&
+          n.shapeType === "Line" &&
+          !`${n.key}`.endsWith("::hit"),
+      );
+      resolve(
+        nodes
+          .filter(
+            n => n.type === "text" && `${n.key}`.includes("line-label-along"),
+          )
+          .map(n => ({
+            text: n.lines[0].text,
+            fill: n.paint.fill,
+            stroke: n.paint.stroke,
+            line: lines.find(l => n.key.endsWith(l.key))?.paint.stroke,
+          })),
+      );
+    });
+  });
+
+/** Whether a CSS color is a gray (no saturation). */
+const isGray = c => {
+  const ctx = document.createElement("canvas").getContext("2d");
+  ctx.fillStyle = c;
+  const [r, g, b] = [1, 3, 5].map(i =>
+    parseInt(ctx.fillStyle.slice(i, i + 2), 16),
+  );
+  return Math.max(r, g, b) - Math.min(r, g, b) <= 1;
+};
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`along labels gray with their lines under highlight (${renderer})`, async () => {
+    const labels = await render(page, drawHighlighted, {
+      renderer,
+      highlight: "Plan",
+    });
+    assert.ok(labels.length >= 2, `${labels.length} labels`);
+    for (const label of labels) {
+      assert.ok(label.line, `${label.text} has its line`);
+      const plan = label.text === "Plan";
+      assert.strictEqual(isGray(label.line), !plan, `${label.text}'s line`);
+      assert.strictEqual(isGray(label.fill), !plan, `${label.text}'s label`);
+    }
+    assert.ok(
+      labels.some(l => l.text !== "Plan"),
+      "a grayed series is labeled",
+    );
+  });
+}
