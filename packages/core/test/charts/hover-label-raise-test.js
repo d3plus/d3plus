@@ -72,4 +72,7 @@ it("keeps a highlighted mark's label in color", () => {
     "#4c6ef5",
     "unmatched mark is grayed",
   );
+  assert.ok(out.b.z > 0, "the highlighted mark is raised");
+  assert.strictEqual(out["b-label"].z, out.b.z, "with its label");
+  assert.strictEqual(out.c.z, undefined);
 });

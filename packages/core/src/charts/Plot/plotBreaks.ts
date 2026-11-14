@@ -244,9 +244,12 @@ export function maskBreaks(
   return out;
 }
 
+/** A mask group's key, also once a small-multiples panel prefixes it. */
+const MASK_KEY_PATTERN = new RegExp(`(^|/)${BREAK_MASK_KEY}-[xy](-\\d+)?$`);
+
 /** Whether a node is one of `maskBreaks`'s clip groups. */
-const isBreakMask = (node: SceneNode): node is GroupNode =>
-  node.type === "group" && String(node.key).startsWith(BREAK_MASK_KEY);
+export const isBreakMask = (node: SceneNode): node is GroupNode =>
+  node.type === "group" && MASK_KEY_PATTERN.test(String(node.key));
 
 /** The plot content inside any break-mask groups, in paint order. */
 export function unwrapBreakMasks(nodes: SceneNode[]): SceneNode[] {
