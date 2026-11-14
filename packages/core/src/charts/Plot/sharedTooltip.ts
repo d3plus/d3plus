@@ -206,7 +206,9 @@ export const SHARED_MEMBER_LIMIT = 5;
     the hovered discrete value, then one `[name, value]` row per series, the
     name led by a swatch in its series stroke and the value followed by its
     `confidence` range, and a threshold bucket's series listed under its row.
-    User `tooltipConfig` styles apply first; the shared title/rows win.
+    A chart's own value column (`viz._sharedTooltipValue`) replaces the
+    axis's title and values. User `tooltipConfig` styles apply first; the
+    shared title/rows win.
 */
 export function renderSharedTooltip(
   viz: VizInstance,
@@ -215,6 +217,7 @@ export function renderSharedTooltip(
 ): void {
   const cont = other(hover.axis);
   const {header, names} = markProjected(viz, hover);
+  const own = viz._sharedTooltipValue?.();
   prepareTooltip(viz)
     .data([hover.rows[0].datum])
     .config(
@@ -222,13 +225,15 @@ export function renderSharedTooltip(
         viz.schema.tooltipConfig,
       ),
     )
-    .title(() => axisName(viz, cont))
+    .title(() => (own ? own.title : axisName(viz, cont)))
     .thead(header)
     .tbody(
       hover.rows.flatMap((r, i) => [
         [
           withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
-          `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
+          own
+            ? own.value(r.datum, r.index)
+            : `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
         ],
         // A threshold bucket's series, under its row.
         ...thresholdMemberRows(viz, r.datum, SHARED_MEMBER_LIMIT),

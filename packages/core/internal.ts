@@ -899,6 +899,20 @@ export {
   ridgeOverlap,
 } from "./src/charts/Ridgeline/emit.js";
 export {
+  BAND_SCALE_PADDING,
+  areaBumpEmit,
+  bumpBandAxisPadding,
+  bumpBandMax,
+  bumpBandThickness,
+  bumpBandValue,
+  bumpRankStep,
+  bumpSharedTooltipValue,
+  bumpSizeName,
+  bumpSizeText,
+  bumpSizeTooltipRows,
+} from "./src/charts/BumpChart/areaBump.js";
+export {bumpChartDef} from "./src/charts/BumpChart/index.js";
+export {
   autoLineOpacity,
   axisPositions,
   detectDimensions,

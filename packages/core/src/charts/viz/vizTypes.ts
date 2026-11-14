@@ -494,6 +494,9 @@ export interface VizInstance {
   _sharedTooltipSaved?: {arrow: unknown; thead: unknown; tbody: unknown};
   /** False when a chart's own tooltip rows already list a snapped mark's values, so its x/y rows are left out. */
   _tooltipAxisRows?: boolean;
+  /** A chart's own value column for the shared tooltip, in place of the continuous axis's: its title and each row's value. Undefined to use the axis's. */
+  _sharedTooltipValue?: () =>
+    {title: string; value: (d: DataPoint, i: number) => string} | undefined;
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
   /** The radius scale the chart's layout actually drew with; the size legend paints from it. Null when nothing is sized. */
