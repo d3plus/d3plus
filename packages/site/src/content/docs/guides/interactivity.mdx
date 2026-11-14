@@ -9,6 +9,7 @@ import Playground from "~/components/Playground/Playground.astro";
 import tooltipDeepestLevel from "~/examples/guides/interactivity/tooltip-deepest-level.js?raw";
 import axisTooltips from "~/examples/guides/interactivity/axis-tooltips.js?raw";
 import zoomWithoutButtons from "~/examples/guides/interactivity/zoom-without-buttons.js?raw";
+import boxAndLassoSelection from "~/examples/guides/interactivity/box-and-lasso-selection.js?raw";
 
 D3plus charts are interactive out of the box: hovering a shape highlights it and
 shows a tooltip, and a legend lets viewers toggle series. Everything below works
@@ -467,3 +468,53 @@ document.querySelector("#reset").onclick = () => chart.zoomReset();
 document.querySelector("#brush").onclick = () =>
   chart.zoomBrush(!chart.zoomBrush());
 ```
+
+## Box and lasso selection
+
+`selectMode: "box"` or `"lasso"` lets viewers pick out marks by drawing
+around them. A drag over the chart draws a box (or a freehand lasso) instead
+of panning, and letting go selects every mark inside: those stay lit while the
+rest dim (by `shapeConfig.activeOpacity`), and the legend dims its entries the
+same way. A bar or other rectangle is selected when any part of it is inside;
+a point (including each point of a line or area) when its center is, and an
+area's point when the area's height at that point crosses the region. A line
+or area stays lit while any of its points is selected. Network and Geomap
+select their nodes and points, and the regions a Geomap draws for its data.
+
+- <kbd>Shift</kbd> + drag adds to the selection.
+- A click on a mark selects just that mark, and <kbd>Shift</kbd> + click
+  toggles it. While a select tool is on, this takes the place of the chart's
+  own click action (such as drilling down).
+- A click on no mark, or <kbd>Escape</kbd>, clears the selection.
+- With small multiples, a drag selects within the panel it starts in.
+- The wheel and a pinch still zoom, and one finger draws on a touch screen.
+
+The zoom controls gain a box and a lasso select button. Pressing one turns its
+tool on; pressing it again goes back to panning, and the brush button turns
+selection off too. `selectMode` sets the tool a chart starts with, and
+`selectStyle` styles the box or lasso as it is drawn (SVG attributes such as
+`fill`, `stroke`, and `stroke-dasharray`). Draw around some points:
+
+<Playground chart="Plot" code={boxAndLassoSelection} controls={["selectMode"]} height={320} />
+
+Each selection fires the chart's `select` event with the selected rows (and
+an empty array when it is cleared), so other parts of a page can follow it:
+
+```js
+const chart = new d3plus.Plot()
+  .select("#chart")
+  .config({data, groupBy: "id", x: "x", y: "y", selectMode: "box"})
+  .on("select", rows => showTable(rows))
+  .render();
+```
+
+`selection()` reads the selected rows back, and `selection(value)` sets the
+selection from code with an array of rows, a predicate such as
+`d => d.y > 40`, or `false` to clear it. A selection set this way fires no
+`select` event. A selection holds when the chart redraws, zooms, or gets new
+data, for as long as its rows (rows with the same values) are still drawn.
+
+With keyboard navigation, <kbd>Enter</kbd> on a focused mark selects it while
+a select tool is on, and <kbd>Shift</kbd>+<kbd>Enter</kbd> toggles it; the
+chart's live region announces how many marks are selected. A first
+<kbd>Escape</kbd> leaves the focused mark, and the next clears the selection.
