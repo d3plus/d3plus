@@ -63,7 +63,7 @@ Set `discrete` to `"x"` for vertical dumbbells. A category can hold any number o
 
 ## Span chart
 
-Without `arrows`, a bar connector spans each category's smallest to largest value, as a span (range) chart: here each month's low and high temperature. The tooltip adds each month's range. The legend is hidden, since the bars draw in place of the series' dots.
+Without `arrows`, a bar connector spans each category's smallest to largest value, as a span (range) chart: here each month's low and high temperature. The tooltip adds each month's range. The legend is hidden, since the bars draw in place of the series' dots; a category with only one value (or whose values don't differ) has no bar and keeps its dot.
 
 <Playground chart="Dumbbell" code={spanBars} controls={["connector","connectorWidth"]} />
 
