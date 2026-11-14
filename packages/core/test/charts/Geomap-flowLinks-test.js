@@ -560,7 +560,7 @@ const offAxis = (p, a, b) =>
   Math.abs((b[0] - a[0]) * (a[1] - p[1]) - (a[0] - p[0]) * (b[1] - a[1])) /
   Math.hypot(b[0] - a[0], b[1] - a[1]);
 
-it("flowArrowEdge ends the stroke inside each head, on its axis", () => {
+it("flowArrowEdge ends the stroke at each head's base, on its axis", () => {
   const viz = laidOut([{source: "NYC", target: "LON"}], {
     arrows: "both",
     linkSize: 4,
@@ -581,8 +581,9 @@ it("flowArrowEdge ends the stroke inside each head, on its axis", () => {
     const back = Math.hypot(end[0] - tip[0], end[1] - tip[1]);
     const size = Math.hypot(base[0] - tip[0], base[1] - tip[1]);
     assert.ok(
-      Math.abs(back - arrowTrim(size, 4)) < 0.01,
-      `trimmed back from the tip: ${back}`,
+      Math.abs(back - arrowTrim(size, 4)) < 0.01 &&
+        Math.abs(back - size) < 0.01,
+      `at the head's base: ${back}`,
     );
     assert.strictEqual(node.paint.fill, "#123456");
   }
@@ -595,11 +596,23 @@ it("flowArrowEdge ends the stroke inside each head, on its axis", () => {
     ) < 0.5,
   );
 
+  // With no heads, the 4px stroke stops with its corners on each point.
   viz.arrows(false);
-  assert.deepStrictEqual(flowArrowEdge(viz, link, "#000"), {
-    d: link.d,
-    arrows: [],
-  });
+  const bare = flowArrowEdge(viz, link, "#000");
+  assert.deepStrictEqual(bare.arrows, []);
+  const line = pathRuns(bare.d).flat();
+  const reach = r => Math.sqrt(r * r - 4);
+  const [s0, t0] = [link.sourceAt, link.targetAt];
+  assert.ok(
+    Math.abs(
+      Math.hypot(line[0][0] - s0[0], line[0][1] - s0[1]) - reach(link.source.r),
+    ) < 0.05,
+  );
+  const last = line[line.length - 1];
+  assert.ok(
+    Math.abs(Math.hypot(last[0] - t0[0], last[1] - t0[1]) - reach(lon[1])) <
+      0.05,
+  );
 });
 
 it("flowArrowEdge puts a head only on the end a globe draws, and the hit path keeps the whole link", () => {

@@ -4,8 +4,8 @@ import {openPage} from "~test/browser/page.js";
 
 /**
     `linkBundle` in Chromium, on SVG and Canvas with a real pointer: a
-    Network's bundled links draw as curves whose strokes end inside their
-    arrowheads, on each head's axis; hovering one shows its tooltip;
+    Network's bundled links draw as curves whose strokes end at their
+    arrowheads' bases, on each head's axis; hovering one shows its tooltip;
     clicking one zooms to a box around the whole curve; and neither hover
     nor zoom runs the bundling again. A flat Geomap bundles its links, and
     a globe leaves them as they were.
@@ -78,27 +78,23 @@ const sceneNodes = () => {
 const numbers = d => (d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi) ?? []).map(Number);
 
 /**
-    Asserts a stroke end `p` lies inside the head `arrowD` (its tip and two
-    base corners) and within 0.5px of the head's axis.
+    Asserts a stroke end `p` sits at the base of the head `arrowD` (its tip
+    and two base corners): on the head's axis, neither short of the base nor
+    past it into the head.
 */
-function assertInHead(p, arrowD, msg) {
+function assertAtBase(p, arrowD, msg) {
   const h = numbers(arrowD);
   const tip = [h[0], h[1]];
-  const b = [h[2], h[3]];
-  const c = [h[4], h[5]];
-  const cross = (u, v, w) =>
-    (v[0] - u[0]) * (w[1] - u[1]) - (v[1] - u[1]) * (w[0] - u[0]);
-  const s = [cross(tip, b, p), cross(b, c, p), cross(c, tip, p)];
+  const mid = [(h[2] + h[4]) / 2, (h[3] + h[5]) / 2];
+  const len = Math.hypot(tip[0] - mid[0], tip[1] - mid[1]);
+  const u = [(tip[0] - mid[0]) / len, (tip[1] - mid[1]) / len];
+  const along = (p[0] - mid[0]) * u[0] + (p[1] - mid[1]) * u[1];
+  const off = Math.abs((p[0] - mid[0]) * u[1] - (p[1] - mid[1]) * u[0]);
   assert.ok(
-    s.every(v => v >= -0.01) || s.every(v => v <= 0.01),
-    `${msg}: the stroke ends inside the head`,
+    Math.abs(along) < 0.05,
+    `${msg}: the stroke ends ${along.toFixed(3)}px past the head's base`,
   );
-  const mid = [(b[0] + c[0]) / 2, (b[1] + c[1]) / 2];
-  const off =
-    Math.abs(
-      (mid[0] - tip[0]) * (tip[1] - p[1]) - (tip[0] - p[0]) * (mid[1] - tip[1]),
-    ) / Math.hypot(mid[0] - tip[0], mid[1] - tip[1]);
-  assert.ok(off <= 0.5, `${msg}: ${off.toFixed(3)}px off the head's axis`);
+  assert.ok(off < 0.05, `${msg}: ${off.toFixed(3)}px off the head's axis`);
 }
 
 /**
@@ -148,7 +144,7 @@ const networkConfig = {
 };
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`Network ${renderer}: bundled links curve, and their strokes end inside their arrowheads`, async () => {
+  it(`Network ${renderer}: bundled links curve, and their strokes end at their arrowheads' bases`, async () => {
     const {page, errors, close} = await openPage(box);
     try {
       await page.evaluate(draw, [
@@ -169,7 +165,7 @@ for (const renderer of ["svg", "canvas"]) {
         for (const end of ["s", "t"]) {
           const head = scene[`network-arrow-L${k}-R${k}-${k}-${end}`];
           assert.ok(head, `${key} has a head at ${end}`);
-          assertInHead(ends[end], head.d, `${key} ${end}`);
+          assertAtBase(ends[end], head.d, `${key} ${end}`);
         }
       }
       assert.ok(bent >= 4, `the links bend (${bent} of 6)`);

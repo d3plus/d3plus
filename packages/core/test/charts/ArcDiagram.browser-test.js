@@ -113,7 +113,7 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
-  it(`ArcDiagram ${renderer}: each link is one arc from its source node to its target node`, async () => {
+  it(`ArcDiagram ${renderer}: each link is one arc from its source node's outline to its target node's`, async () => {
     for (const arcSide of ["above", "below", "both"]) {
       const {circles, arcs, height} = await render(box, draw, [
         {arcSide, nodeSort: "label"},
@@ -129,7 +129,7 @@ for (const renderer of ["svg", "canvas"]) {
       assert.strictEqual(arcs.filter(a => a.hit).length, links.length);
       const at = Object.fromEntries(circles.map(c => [c.id, c]));
       const line = circles[0].cy;
-      for (const arc of drawn) {
+      for (const arc of arcs) {
         const m = arc.d.match(
           /^M([\d.-]+),([\d.-]+)A([\d.]+),([\d.]+) 0 0,([01]) ([\d.-]+),([\d.-]+)$/,
         );
@@ -137,10 +137,24 @@ for (const renderer of ["svg", "canvas"]) {
         const [x1, y1, rx, ry, , x2, y2] = m.slice(1).map(Number);
         const s = at[arc.source];
         const t = at[arc.target];
-        assert.ok(Math.abs(x1 - s.cx) < 0.01 && Math.abs(y1 - s.cy) < 0.01);
-        assert.ok(Math.abs(x2 - t.cx) < 0.01 && Math.abs(y2 - t.cy) < 0.01);
+        if (arc.hit) {
+          // The hit area runs from center to center.
+          assert.ok(Math.abs(x1 - s.cx) < 0.01 && Math.abs(y1 - s.cy) < 0.01);
+          assert.ok(Math.abs(x2 - t.cx) < 0.01 && Math.abs(y2 - t.cy) < 0.01);
+        } else {
+          // The stroke starts and ends on the nodes' outlines.
+          const off = (x, y, n) => Math.hypot(x - n.cx, y - n.cy) - n.r;
+          for (const [x, y, n] of [
+            [x1, y1, s],
+            [x2, y2, t],
+          ])
+            assert.ok(
+              off(x, y, n) > -1 && off(x, y, n) < 0.5,
+              `${arc.key} meets ${n.id}'s outline: ${off(x, y, n)}`,
+            );
+        }
         assert.ok(
-          Math.abs(rx - Math.abs(x2 - x1) / 2) < 0.01,
+          Math.abs(rx - Math.abs(t.cx - s.cx) / 2) < 0.01,
           "spans its nodes",
         );
         assert.ok(ry <= rx + 0.01, "no taller than a semicircle");
