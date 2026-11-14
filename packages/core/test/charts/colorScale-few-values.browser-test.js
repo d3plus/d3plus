@@ -7,7 +7,8 @@ import {render} from "~test/browser/render.js";
     Treemap or Geomap colored by one, two or three unique values (crossing
     zero or a `midpoint`, or not) fills every shape with a real color, gives
     values on either side of the midpoint different colors, and draws a
-    legend in the same colors.
+    legend in the same colors. An even `buckets` count splits each side of
+    the midpoint evenly, and a gradient over one ramps through the midpoint.
 */
 
 const rows = ["A", "B", "C"];
@@ -158,6 +159,9 @@ const draw = async ({chart, config, renderer}) => {
   };
   return {
     scaleType: cs._scaleType,
+    domain: cs._colorScale.domain(),
+    range: cs._colorScale.range().map(String),
+    mid: String(cs.schema.colorMid ?? cs.schema.colorDefaults.light),
     expected: [...new Set(config.data.map(scoreOf))].map(v => ({
       score: v,
       color: String(cs._colorScale(v)),
@@ -247,5 +251,69 @@ for (const renderer of ["svg", "canvas"])
           high = Math.max(...unique);
         assert.strictEqual(ends[0], colorOf[low], "the bar starts at the low");
         assert.strictEqual(ends[1], colorOf[high], "the bar ends at the high");
+      }
+    });
+
+// Off the bucket edges, so each side's values fall into mirrored buckets.
+const mirrored = [-9, -8, -5, -2, -1, 1, 2, 5, 8, 9];
+const evenCases = {
+  "buckets: 4": [treemap(mirrored, {scale: "buckets", buckets: 4}), 4],
+  "quantile: 4": [treemap(mirrored, {scale: "quantile", buckets: 4}), 4],
+  "buckets: 2": [treemap(mirrored, {scale: "buckets", buckets: 2}), 2],
+  "linear: 2": [treemap(mirrored, {scale: "linear", buckets: 2}), 2],
+  "log: 4": [treemap(mirrored, {scale: "log", buckets: 4}), 4],
+};
+
+for (const renderer of ["svg", "canvas"])
+  for (const [name, [{chart, config}, count]] of Object.entries(evenCases))
+    it(`[${renderer}] ${name} over -9…9 splits each side evenly`, async () => {
+      const out = await render(
+        "<div id='viz' style='width:600px;height:400px'></div>",
+        draw,
+        {chart, config, renderer},
+      );
+      const colorOf = Object.fromEntries(
+        out.expected.map(({score, color}) => [score, rgb(color)]),
+      );
+      for (const s of out.shapes) {
+        assert.strictEqual(rgb(s.fill), colorOf[s.score], `${s.score} fill`);
+        if (s.pixel)
+          assert.strictEqual(s.pixel, colorOf[s.score], `${s.score} pixel`);
+      }
+      const below = mirrored.filter(v => v < 0).map(v => colorOf[v]);
+      const above = mirrored
+        .filter(v => v > 0)
+        .reverse()
+        .map(v => colorOf[v]);
+      const mid = rgb(out.mid);
+      if (out.scaleType === "linear" || out.scaleType === "log") {
+        assert.strictEqual(out.range.length, count + 1, "a stop per color");
+        assert.strictEqual(rgb(out.range[count / 2]), mid, "through the mid");
+        assert.notStrictEqual(above[1], above[0], "the top is reached last");
+        const gradient = out.legend.find(f => f.startsWith("gradient:"));
+        const stops = JSON.parse(gradient.slice("gradient:".length)).stops;
+        assert.ok(
+          stops.some(stop => rgb(stop.color) === mid),
+          "the bar passes through the midpoint color",
+        );
+      } else {
+        const step = 9 / (count / 2);
+        const sides = Array.from({length: count / 2}, (_, i) => i * step);
+        assert.deepStrictEqual(
+          out.domain,
+          sides.map(d => d - 9).concat(sides),
+          "thresholds split each side evenly",
+        );
+        assert.strictEqual(new Set(below).size, count / 2, "buckets below");
+        assert.strictEqual(new Set(above).size, count / 2, "buckets above");
+        assert.deepStrictEqual(
+          below.map(c => below.indexOf(c)),
+          above.map(c => above.indexOf(c)),
+          "the sides step at the same values",
+        );
+        assert.ok(!below.includes(mid) && !above.includes(mid), "no mid");
+        const swatches = new Set(out.legend.map(rgb).filter(Boolean));
+        for (const c of [...below, ...above])
+          assert.ok(swatches.has(c), `the legend shows ${c}`);
       }
     });

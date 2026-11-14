@@ -205,6 +205,22 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
   return {colors, ticks, labels};
 }
 
+/**
+    The values a diverging scale's buckets start at: `perSide` evenly spaced
+    from `low` up to the `midpoint`, then `perSide` evenly spaced from the
+    `midpoint` up to `high`, so each side splits its own span evenly.
+*/
+export function divergingThresholds(
+  low: number,
+  midpoint: number,
+  high: number,
+  perSide: number,
+): number[] {
+  const side = (from: number, to: number): number[] =>
+    range(perSide).map((i: number) => from + i * ((to - from) / perSide));
+  return side(low, midpoint).concat(side(midpoint, high));
+}
+
 /** Resolves the diverging linear-gradient color/bucket arrays. */
 function resolveDivergingLinear(
   cs: ColorScale,
@@ -221,6 +237,10 @@ function resolveDivergingLinear(
     };
   }
   const half = Math.floor(numBuckets / 2);
+  const thresholds = scale === "buckets" || scale === "quantile";
+  // A gradient over an even count still passes through the midpoint color at
+  // the midpoint, unless it is drawn over explicit bucket values.
+  const centered = numBuckets % 2 === 1 || (!thresholds && !buckets);
   const negativeColorScale = interpolateRgb.gamma(2.2)(
     colorMin(cs),
     colorMid(cs),
@@ -228,7 +248,7 @@ function resolveDivergingLinear(
   const negativeColors = range(0, half, 1).map((i: number) =>
     negativeColorScale(i / half),
   );
-  const spanningColors = (numBuckets % 2 ? [0] : []).map(() => colorMid(cs));
+  const spanningColors = centered ? [colorMid(cs)] : [];
   const positiveColorScale = interpolateRgb.gamma(2.2)(
     colorMax(cs),
     colorMid(cs),
@@ -238,20 +258,11 @@ function resolveDivergingLinear(
     .reverse();
   const colors = negativeColors.concat(spanningColors).concat(positiveColors);
   if (!buckets) {
-    const step = (colors.length - 1) / 2;
-    buckets = range(
-      (domain as number[])[0],
-      cs.schema.midpoint,
-      -((domain as number[])[0] - cs.schema.midpoint) / step,
-    )
-      .concat(
-        range(
-          cs.schema.midpoint,
-          (domain as number[])[1],
-          ((domain as number[])[1] - cs.schema.midpoint) / step,
-        ),
-      )
-      .concat([(domain as number[])[1]]);
+    const [low, high] = domain as number[];
+    buckets = divergingThresholds(low, cs.schema.midpoint, high, half);
+    // A centered scale also stops at the domain's top; an even threshold
+    // scale's last bucket runs on from its last threshold.
+    if (centered) buckets.push(high);
   }
   return {colors, buckets};
 }
