@@ -8,6 +8,7 @@ import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/charts/matrix/basic-example.js?raw";
 import withColorScale from "~/examples/core/charts/matrix/with-color-scale.js?raw";
 import darkThemeColorScales from "~/examples/core/charts/matrix/dark-theme-color-scales.js?raw";
+import circles from "~/examples/core/charts/matrix/circles.js?raw";
 
 Creates a simple rows/columns Matrix view of any dataset.
 
@@ -28,5 +29,11 @@ Shades cells with a `colorScaleConfig` `scale: "jenks"` (natural-breaks) classif
 On a dark theme (`"dark"`, or `"auto"` on a dark page) a color scale runs from a dim tint just above the background up to a bright blue, so low values recede and high values stand out, the mirror of the pale→dark ramp on light. Set `theme` to `"light"` to compare. With `colorScale: "change"`, a diverging scale, the two poles meet at a dark neutral instead of near-white, with bright red and blue at the ends. The theme's `colorScale` tokens (`max`, `mid`, `min`, `missing`) set these colors, and `colorScaleConfig.colorMax`/`colorMid`/`colorMin` or a `color` array still win.
 
 <Playground chart="Matrix" code={darkThemeColorScales} controls={["theme","colorScale"]} />
+
+## Circles sized by value
+
+Set `shape` to `"Circle"` to draw each cell as a circle, and `size` to size the circles by a value: the largest fills its cell, and the others shrink by area (or by radius, with `sizeScale: "linear"`). Here each circle's area and color both show trade value, so the few large flows stand out against a field of small ones, and a size legend keys the sizes. Circles are sized by the absolute value, so negative values draw as large as positive ones; a cell without a value draws no circle. Without `size`, every circle fills its cell. [BubbleMatrix](/core/charts/bubble-matrix/) is a Matrix with circles by default.
+
+<Playground chart="Matrix" code={circles} controls={["shape","size","sizeScale"]} />
 
 <ApiReference name="Matrix" pkg="core" />
