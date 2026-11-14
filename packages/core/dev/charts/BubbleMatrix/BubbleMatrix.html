@@ -5,7 +5,7 @@
     <title>BubbleMatrix</title>
     <meta
       name="description"
-      content="BubbleMatrix circles sized by absolute value with a diverging colorScale: a correlation matrix, a linear sizeScale, a size key apart from the colorScale, Matrix with shape Circle, missing values, small multiples, and a dark background."
+      content="BubbleMatrix circles sized by absolute value with a colorScale diverging symmetrically around 0: a correlation matrix, a linear sizeScale, a size key apart from the colorScale, Matrix with shape Circle, missing values, small multiples, and a dark background."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -41,7 +41,9 @@
   <body>
     <div class="grid">
       <div>
-        <h3>Correlation matrix (mtcars), a linear colorScale over [-1, 1]</h3>
+        <h3>
+          Correlation matrix (mtcars), the default colorScale symmetric around 0
+        </h3>
         <div class="viz" id="correlation"></div>
       </div>
       <div>
@@ -53,11 +55,17 @@
         <div class="viz" id="matrix"></div>
       </div>
       <div>
-        <h3>size apart from the colorScale, with missing cells</h3>
+        <h3>
+          size apart from the colorScale (symmetric over growth), with missing
+          cells
+        </h3>
         <div class="viz" id="separate"></div>
       </div>
       <div class="wide">
-        <h3>Small multiples: facet("season"), one shared size scale</h3>
+        <h3>
+          Small multiples: facet("season"), one shared size scale,
+          colorScaleConfig domain [-1, 1] set by the user
+        </h3>
         <div class="viz" id="facets"></div>
       </div>
       <div class="dark">
@@ -74,7 +82,6 @@
         row: "y",
         size: "correlation",
         colorScale: "correlation",
-        colorScaleConfig: {scale: "linear", domain: [-1, 1]},
         colorScalePosition: "right",
       };
 
@@ -158,7 +165,7 @@
           facet: "season",
           size: "r",
           colorScale: "r",
-          colorScaleConfig: {scale: "linear", domain: [-1, 1]},
+          colorScaleConfig: {domain: [-1, 1]},
         })
         .render();
 
