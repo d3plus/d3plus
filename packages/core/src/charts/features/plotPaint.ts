@@ -96,6 +96,9 @@ export interface PlotDatum {
   y2?: number;
   lci?: number;
   hci?: number;
+  /** The cross-axis bounds of a `{x, y}` `confidence` setting (see `Plot/confidenceAxes.ts`). */
+  clci?: number;
+  chci?: number;
   [key: string]: unknown;
 }
 

@@ -8,12 +8,17 @@ import type {ConfidenceAccessor, VizInstance} from "../viz/vizTypes.js";
 
 /**
     The shapes `confidenceConfig` styles: a line's band (an Area) and a bar's
-    error bar (a Path), each also configurable alone under its own key.
+    or point's error bar (a Path), each also configurable alone under its
+    own key.
 */
 const scope = {
   method: "confidenceConfig",
-  shapes: {Area: "Area", Bar: "Path"},
-  extra: {"": ["bandOpacity", "capWidth", "tooltip"], Bar: ["capWidth"]},
+  shapes: {Area: "Area", Bar: "Path", Circle: "Path"},
+  extra: {
+    "": ["bandOpacity", "capWidth", "tooltip"],
+    Bar: ["capWidth"],
+    Circle: ["capWidth"],
+  },
 };
 
 /**

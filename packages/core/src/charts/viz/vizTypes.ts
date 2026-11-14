@@ -27,6 +27,7 @@ import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {BarSpanLayout} from "../Plot/barWidth.js";
+import type {ConfidenceAxes} from "../Plot/confidenceAxes.js";
 import type {ConfidenceBand} from "../Plot/confidenceBands.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {AxisHoverState} from "../Plot/axisHover.js";
@@ -499,6 +500,9 @@ export interface VizInstance {
   _sharedTooltipSaved?: {arrow: unknown; thead: unknown; tbody: unknown};
   /** False when a chart's own tooltip rows already list a snapped mark's values, so its x/y rows are left out. */
   _tooltipAxisRows?: boolean;
+  /** A chart's own value column for the shared tooltip, in place of the continuous axis's: its title and each row's value. Undefined to use the axis's. */
+  _sharedTooltipValue?: () =>
+    {title: string; value: (d: DataPoint, i: number) => string} | undefined;
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
   /** The radius scale the chart's layout actually drew with; the size legend paints from it. Null when nothing is sized. */
@@ -529,6 +533,11 @@ export interface VizInstance {
     [ConfidenceAccessor | false, ConfidenceAccessor | false] | false;
   /** Every `confidence` band, outermost first; `_confidence` holds the first band's pair. */
   _confidenceBands?: ConfidenceBand[];
+  /** A `{x, y}` `confidence` setting's bounds by axis (see `Plot/confidenceAxes.ts`), or null. */
+  _confidenceAxes?: ConfidenceAxes | null;
+  /** The bounds along the axis `_confidence` doesn't bound, from a `{x, y}` setting; `false` when none. */
+  _confidenceCross?:
+    [ConfidenceAccessor | false, ConfidenceAccessor | false] | false;
   _lineMarkers?: boolean;
   _groupPadding?: number;
   _annotations?: Record<string, unknown>[];

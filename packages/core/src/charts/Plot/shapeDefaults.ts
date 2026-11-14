@@ -19,6 +19,7 @@ import {constant} from "../../utils/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {outsideBaselineBreak} from "./baselineBreak.js";
 import {defaultSize, growsBack, outside} from "./labelPlacement.js";
+import {anchorAtBase, barErrorReach} from "./barLabelConfidence.js";
 import {axisValue} from "./sharedTooltip.js";
 import {chartBackground} from "../viz/backgroundInk.js";
 import {legibleOn} from "../../utils/themeInk.js";
@@ -133,15 +134,19 @@ function barLabelConfig() {
         other,
       );
       const negative = growsBack(this, nonDiscrete, d, i);
-      const anchor = invert
+      const out = outside.bind(this)(d, i);
+      const end = invert
         ? "middle"
-        : outside.bind(this)(d, i)
+        : out
           ? negative
             ? "end"
             : "start"
           : negative
             ? "start"
             : "end";
+      // Inside a bar with an error bar, the label keeps to the bar's base.
+      const anchor =
+        !out && barErrorReach(this, d, i) !== null ? anchorAtBase(end) : end;
       return rtl()
         ? anchor === "start"
           ? "end"
@@ -158,15 +163,11 @@ function barLabelConfig() {
         other,
       );
       const negative = growsBack(this, nonDiscrete, d, i);
-      return invert
-        ? outside.bind(this)(d, i)
-          ? negative
-            ? "top"
-            : "bottom"
-          : negative
-            ? "bottom"
-            : "top"
-        : "middle";
+      if (!invert) return "middle";
+      if (outside.bind(this)(d, i)) return negative ? "top" : "bottom";
+      const end = negative ? "bottom" : "top";
+      // Inside a bar with an error bar, the label keeps to the bar's base.
+      return barErrorReach(this, d, i) !== null ? anchorAtBase(end) : end;
     },
   };
 }
@@ -197,13 +198,19 @@ function barConfig() {
       const negative = growsBack(this, nonDiscrete, d, i);
 
       if (outside.bind(this)(d, i)) {
+        // A label outside a bar with an error bar starts past the whisker.
+        const reach = barErrorReach(this, d, i) ?? 0;
         return {
-          [width]: space - s[width],
+          [width]: Math.max(0, space - s[width] - reach),
           [height]: s[height],
-          x: invert ? -s.width / 2 : negative ? -space : s.width + padding,
+          x: invert
+            ? -s.width / 2
+            : negative
+              ? -space
+              : s.width + padding + reach,
           y: invert
             ? negative
-              ? s.height + padding
+              ? s.height + padding + reach
               : -space
             : -s.height / 2 + 1,
         };

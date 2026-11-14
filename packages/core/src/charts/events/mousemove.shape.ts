@@ -3,6 +3,7 @@ import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {groupDepthOf, groupNarrows, groupPath} from "../viz/groupRow.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
+import {appendPointConfidence} from "../Plot/confidenceTooltip.js";
 import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
 import {keyTooltipAnchor} from "../features/keyTooltip.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
@@ -101,6 +102,14 @@ export default function (
     this as unknown as VizInstance,
     tooltipDatum,
     i,
+  );
+  // A Plot's point lists its `confidence` bounds.
+  appendPointConfidence(
+    this._tooltipClass,
+    this as unknown as VizInstance,
+    tooltipDatum,
+    i,
+    this._lastScenePick?.node?.shapeType,
   );
   // A threshold bucket lists what it holds.
   appendThresholdMembers(

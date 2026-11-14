@@ -162,11 +162,13 @@ export type CircleLabelLayout = CircleLabelPlacement & {
     @param viz The chart.
     @param items Every circle, labeled or not.
     @param bounds The box labels must stay in, in the circles' space.
+    @param obstacles Boxes no label beside a circle may overlap.
 */
 export function layoutCircleLabels<K>(
   viz: VizInstance,
   items: readonly CircleLabelItem<K>[],
   bounds: Bounds,
+  obstacles: readonly CircleLabelBox[] = [],
 ): Map<K, CircleLabelLayout> {
   const settings = pointLabelSettings(viz);
   const font = outsideFont(settings);
@@ -196,7 +198,7 @@ export function layoutCircleLabels<K>(
     items.map(({x, y, r}) => ({x, y, r: Number.isFinite(r) ? r : 0})),
     requests,
     bounds,
-    {gap: settings.padding},
+    {gap: settings.padding, obstacles},
   );
   const out = new Map<K, CircleLabelLayout>();
   labeled.forEach(({item, text}, j) =>
