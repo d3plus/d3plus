@@ -19,6 +19,7 @@ import {
   resolveFacetConfig,
   resolveFacetLayout,
   settleExpansion,
+  tooltipHeading,
 } from "../../internal.ts";
 
 useJsdom();
@@ -255,4 +256,16 @@ it("settleExpansion — the room labels take in the area they grow to", () => {
       height: 1,
     },
   );
+});
+
+it("tooltipHeading — a place name above the tooltip's title", () => {
+  const out = tooltipHeading("Texas", "<b>TX</b>");
+  assert.ok(out.startsWith('<div class="d3plus-tooltip-heading"'));
+  assert.ok(out.includes(">Texas</div>"));
+  assert.ok(out.endsWith("<b>TX</b>"));
+  assert.ok(
+    tooltipHeading("A & <B>", "x").includes(">A &amp; &lt;B&gt;</div>"),
+  );
+  assert.ok(tooltipHeading("Texas", false).endsWith("Texas</div>"), "alone");
+  assert.ok(tooltipHeading("Texas", undefined).endsWith("Texas</div>"));
 });

@@ -115,6 +115,57 @@ for (const renderer of ["svg", "canvas"]) {
     assert.match(text, /Texas/);
   });
 
+  it(`facet layout ${renderer} — a mark's tooltip is headed by its panel's place`, async () => {
+    const heading = config =>
+      probeChart(
+        src(config),
+        viz =>
+          new Promise(resolve => {
+            const host = document.querySelector("#viz");
+            const surface = host.querySelector(
+              "svg.d3plus-render-svg, canvas.d3plus-render-canvas",
+            );
+            const r = surface.getBoundingClientRect();
+            const p = viz._facetPanels.find(
+              p => p.value === "Texas" || p.value === "Nevada",
+            );
+            const a = p.state._plotArea,
+              t = p.chartTransform;
+            // The pointer over the panel's plot, as the renderer reports it.
+            const point = [t.x + a.x + a.width / 2, t.y + a.y + a.height / 2];
+            viz._routeSceneEvent({
+              type: "mousemove",
+              point,
+              pick: null,
+              nativeEvent: new MouseEvent("mousemove", {
+                clientX: r.left + point[0],
+                clientY: r.top + point[1],
+              }),
+            });
+            requestAnimationFrame(() =>
+              setTimeout(() => {
+                const tip = document.querySelector(".d3plus-tooltip");
+                resolve({
+                  shown: !!tip,
+                  heading:
+                    tip?.querySelector(".d3plus-tooltip-heading")
+                      ?.textContent ?? null,
+                });
+              }, 60),
+            );
+          }),
+        {data, renderer, html},
+      );
+    const named = await heading({facetConfig: {layout: "us-states"}});
+    assert.ok(named.shown);
+    assert.ok(["Texas", "Nevada"].includes(named.heading), named.heading);
+    const custom = await heading({
+      facetConfig: {layout: {Texas: [0, 0], Nevada: [0, 1]}},
+    });
+    assert.ok(custom.shown);
+    assert.strictEqual(custom.heading, null, "a custom grid has no names");
+  });
+
   it(`facet layout ${renderer} — a custom grid, and a warning for values it lacks`, async () => {
     const out = await render(
       html,
