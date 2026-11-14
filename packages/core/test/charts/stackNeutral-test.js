@@ -2,31 +2,45 @@ import {it} from "vitest";
 import assert from "assert";
 import {stack, stackOrderNone} from "d3-shape";
 import {
+  neutralStack,
   neutralStackKeys,
-  stackKeyRanks,
+  seriesDataRanks,
+  seriesListRanks,
+  seriesOrderRanks,
   stackNeutralMatcher,
-  stackOffsetNeutral,
-  stackOrderNeutral,
 } from "../../src/charts/Plot/stackNeutral.ts";
 import {
   stackPositions,
   stackReadingOrder,
 } from "../../src/charts/Plot/stackLegendOrder.ts";
-import {stackOrderTotalDescending} from "../../src/charts/Plot/stackHelpers.ts";
+import {
+  stackOrderKeyReverse,
+  stackOrderTotalDescending,
+} from "../../src/charts/Plot/stackHelpers.ts";
 
 const ids = d => [d.question, d.answer];
 
-/** One question's Likert answers, disagreeing ones negative. */
-const answers = {SD: -10, D: -20, N: 30, A: 25, SA: 15};
-const group = [answers];
+/** One question's Likert answers, all positive, keyed by series. */
+const answers = {SD: 10, D: 20, N: 30, A: 25, SA: 15};
+const scale = ["SD", "D", "N", "A", "SA"];
+const seriesOf = new Map(scale.map(k => [k, k]));
+const dataRanks = new Map(scale.map((k, i) => [k, i]));
 
-/** Runs d3-stack over `group` with the given order and offset. */
-const run = (order, offset, data = group) =>
-  stack().keys(Object.keys(answers)).order(order).offset(offset)(data);
+/** Runs d3-stack over one stack of `data` with a neutral-centered order and offset. */
+const run = (centered, data = answers, keys = Object.keys(data)) =>
+  stack().keys(keys).order(centered.order).offset(centered.offset)([data]);
 
 /** Each series' `[start, end]` in the first stack, by key. */
 const spans = series =>
   Object.fromEntries(series.map(s => [s.key, [s[0][0], s[0][1]]]));
+
+const expected = {
+  SD: [-45, -35],
+  D: [-35, -15],
+  N: [-15, 15],
+  A: [15, 40],
+  SA: [40, 55],
+};
 
 it("stackNeutralMatcher — matches a value against any of a row's ids", () => {
   const match = stackNeutralMatcher("Neutral", ids);
@@ -59,110 +73,143 @@ it("neutralStackKeys — collects the stack keys of neutral rows", () => {
   assert.deepStrictEqual([...keys], ["Neutral_Q1", "Neutral_Q2"]);
 });
 
-it("stackKeyRanks — ranks each key by where its series first appears in the data", () => {
+it("seriesDataRanks — ranks each series by where it first appears in the data", () => {
   const rows = [
-    {id: "A_Q2", series: "A", i: 7},
-    {id: "SD_Q1", series: "SD", i: 0},
-    {id: "N_Q1", series: "N", i: 2},
-    {id: "A_Q1", series: "A", i: 3},
-    {id: "D_Q1", series: "D", i: 1},
+    {series: "A", i: 7},
+    {series: "SD", i: 0},
+    {series: "N", i: 2},
+    {series: "A", i: 3},
+    {series: "D", i: 1},
   ];
-  const ranks = stackKeyRanks(rows, row => row.series);
+  assert.deepStrictEqual(
+    Object.fromEntries(seriesDataRanks(rows, row => row.series)),
+    {SD: 0, D: 1, N: 2, A: 3},
+  );
+});
+
+it("seriesListRanks — an explicit list, then the rest in data order", () => {
+  const ranks = seriesListRanks(["N", "SD", "A"], dataRanks);
   assert.deepStrictEqual(Object.fromEntries(ranks), {
-    A_Q2: 3,
-    SD_Q1: 0,
-    N_Q1: 2,
-    A_Q1: 3,
-    D_Q1: 1,
+    SD: 1,
+    D: 3 + 1,
+    N: 0,
+    A: 2,
+    SA: 3 + 4,
   });
 });
 
-it("stackOffsetNeutral — centers the neutral series on zero, the others outward", () => {
-  const neutral = new Set(["N"]);
-  const series = run(stackOrderNone, stackOffsetNeutral(neutral));
-  // stackOrderNone: SD, D, N, A, SA, each side stacking outward in that order.
-  assert.deepStrictEqual(spans(series), {
-    SD: [-25, -15],
-    D: [-45, -25],
-    N: [-15, 15],
-    A: [15, 40],
-    SA: [40, 55],
-  });
-});
-
-it("stackOffsetNeutral — places several neutral series side by side, and zeros at the neutral edge", () => {
-  const data = [{SD: -10, D: 0, N: 20, A: 25, SA: 10}];
-  const keys = ["SD", "D", "N", "A", "SA"];
-  const series = stack()
-    .keys(keys)
-    .order(stackOrderNone)
-    .offset(stackOffsetNeutral(new Set(["N", "SA"])))(data);
-  const out = spans(series);
-  // 30 neutral in all: N then SA span -15…15.
-  assert.deepStrictEqual(out.N, [-15, 5]);
-  assert.deepStrictEqual(out.SA, [5, 15]);
-  assert.deepStrictEqual(out.SD, [-25, -15]);
-  assert.deepStrictEqual(out.D, [15, 15], "a zero sits at the neutral's edge");
-  assert.deepStrictEqual(out.A, [15, 40]);
-});
-
-it("stackOffsetNeutral — without a neutral value, it stacks like a diverging offset", () => {
-  const series = run(stackOrderNone, stackOffsetNeutral(new Set(["N"])), [
-    {...answers, N: 0},
+it("seriesOrderRanks — each series' first place in a stack order", () => {
+  const series = [{key: "A_Q1"}, {key: "B_Q1"}, {key: "A_Q2"}];
+  const names = new Map([
+    ["A_Q1", "A"],
+    ["B_Q1", "B"],
+    ["A_Q2", "A"],
   ]);
-  const out = spans(series);
+  const ranks = seriesOrderRanks(series, () => [2, 1, 0], names);
+  assert.deepStrictEqual(Object.fromEntries(ranks), {A: 0, B: 1});
+});
+
+it("neutralStack — places series by order around the neutral one, at absolute values", () => {
+  const centered = neutralStack(
+    new Set(["N"]),
+    seriesOf,
+    stackOrderNone,
+    dataRanks,
+  );
+  assert.deepStrictEqual(spans(run(centered)), expected);
+  assert.deepStrictEqual(Object.fromEntries(centered.ranks), {
+    SD: 0,
+    D: 1,
+    N: 2,
+    A: 3,
+    SA: 4,
+  });
+  // Negated data lands in the same places.
+  const negated = {...answers, SD: -10, D: -20};
+  assert.deepStrictEqual(spans(run(centered, negated)), expected);
+});
+
+it("neutralStack — numbers the stack from the neutral series outward", () => {
+  const centered = neutralStack(
+    new Set(["N"]),
+    seriesOf,
+    stackOrderNone,
+    dataRanks,
+  );
+  const series = run(centered, answers, ["SA", "A", "N", "D", "SD"]);
+  const index = Object.fromEntries(series.map(s => [s.key, s.index]));
+  assert.strictEqual(index.N, 0);
+  assert.ok(index.D < index.SD, "the nearest disagreement first");
+  assert.ok(index.A < index.SA, "the nearest agreement first");
+  assert.deepStrictEqual(spans(series), expected, "whatever the key order");
+});
+
+it("neutralStack — reads the scale from the chart's stack order without fixed ranks", () => {
+  const centered = neutralStack(new Set(["N"]), seriesOf, stackOrderKeyReverse);
+  // Z→A: SD, SA, N, D, A — SD and SA before N go negative, D and A after it.
+  const out = spans(run(centered));
+  assert.deepStrictEqual(out.N, [-15, 15]);
+  assert.deepStrictEqual(out.SA, [-30, -15], "nearest the neutral");
+  assert.deepStrictEqual(out.SD, [-40, -30]);
+  assert.deepStrictEqual(out.D, [15, 35]);
+  assert.deepStrictEqual(out.A, [35, 60]);
+  const descending = neutralStack(
+    new Set(["N"]),
+    seriesOf,
+    stackOrderTotalDescending,
+  );
+  assert.ok(spans(run(descending)).N[0] === -15, "always centered");
+});
+
+it("neutralStack — several neutral series side by side, zeros at the edges", () => {
+  const centered = neutralStack(
+    new Set(["N", "N2"]),
+    new Map([...seriesOf, ["N2", "N2"]]),
+    stackOrderNone,
+    new Map([...dataRanks, ["N2", 2.5]]),
+  );
+  const out = spans(run(centered, {SD: 10, D: 0, N: 20, N2: 10, A: 25, SA: 0}));
+  assert.deepStrictEqual(out.N, [-15, 5]);
+  assert.deepStrictEqual(out.N2, [5, 15]);
+  assert.deepStrictEqual(
+    out.D,
+    [-15, -15],
+    "a zero sits at the neutral's edge",
+  );
+  assert.deepStrictEqual(out.SD, [-25, -15]);
+  assert.deepStrictEqual(out.A, [15, 40]);
+  assert.deepStrictEqual(out.SA, [40, 40]);
+});
+
+it("neutralStack — without a neutral value, the sides meet at zero", () => {
+  const centered = neutralStack(
+    new Set(["N"]),
+    seriesOf,
+    stackOrderNone,
+    dataRanks,
+  );
+  const out = spans(run(centered, {...answers, N: 0}));
   assert.deepStrictEqual(out.N, [0, 0]);
+  assert.deepStrictEqual(out.D, [-20, 0]);
   assert.deepStrictEqual(out.A, [0, 25]);
-  assert.deepStrictEqual(out.SD, [-10, 0]);
-});
-
-it("stackOrderNeutral — puts neutral first, the others in the chart's order", () => {
-  const neutral = new Set(["N"]);
-  const order = stackOrderNeutral(stackOrderTotalDescending, neutral);
-  const series = run(order, stackOffsetNeutral(neutral));
-  // Descending by value: A (25) then SA (15) up; SD (-10) then D (-20) down.
-  assert.deepStrictEqual(spans(series), {
-    SD: [-25, -15],
-    D: [-45, -25],
-    N: [-15, 15],
-    A: [15, 40],
-    SA: [40, 55],
-  });
-  assert.strictEqual(series.find(s => s.key === "N").index, 0);
-});
-
-it("stackOrderNeutral — with ranks, stacks outward from neutral in data order", () => {
-  const neutral = new Set(["N"]);
-  // The scale order: SD, D, N, A, SA.
-  const ranks = new Map(["SD", "D", "N", "A", "SA"].map((k, i) => [k, i]));
-  const order = stackOrderNeutral(stackOrderTotalDescending, neutral, ranks);
-  // Data listed in a different order from the scale.
-  const data = [{SA: 15, A: 25, N: 30, D: -20, SD: -10}];
-  const series = stack()
-    .keys(["SA", "A", "N", "D", "SD"])
-    .order(order)
-    .offset(stackOffsetNeutral(neutral))(data);
-  assert.deepStrictEqual(spans(series), {
-    SA: [40, 55],
-    A: [15, 40],
-    N: [-15, 15],
-    D: [-35, -15],
-    SD: [-45, -35],
-  });
 });
 
 it("stackPositions — alongAxis reads a neutral stack from its low end", () => {
-  const neutral = new Set(["N"]);
-  const order = stackOrderNeutral(stackOrderTotalDescending, neutral);
-  const series = run(order, stackOffsetNeutral(neutral));
+  const centered = neutralStack(
+    new Set(["N"]),
+    seriesOf,
+    stackOrderNone,
+    dataRanks,
+  );
+  const series = run(centered);
   const keys = series.map(s => s.key);
   assert.deepStrictEqual(
     stackReadingOrder(stackPositions(series, keys, k => k, true)),
-    ["D", "SD", "N", "A", "SA"],
+    scale,
   );
   assert.deepStrictEqual(
     stackReadingOrder(stackPositions(series, keys, k => k)),
-    ["N", "A", "SA", "SD", "D"],
+    ["N", "D", "SD", "A", "SA"],
     "stacking order without alongAxis",
   );
 });

@@ -5,13 +5,15 @@ import {render} from "~test/browser/render.js";
 /**
     `stackNeutral` centers a diverging stacked BarChart on a neutral series,
     as a Likert chart does, on SVG and Canvas: the neutral segment straddles
-    zero, the other answers stack outward from it in data order, the legend
-    reads along the axis, and the tooltip reports the full neutral value.
+    zero, answers listed before it stack outward on the negative side and
+    answers after it on the positive side (negated or not), the legend and
+    the shared tooltip read along the scale, and the tooltip reports the
+    full neutral value.
 */
 
 const answers = {
-  "Strongly disagree": -10,
-  Disagree: -20,
+  "Strongly disagree": 10,
+  Disagree: 20,
   Neutral: 40,
   Agree: 25,
   "Strongly agree": 15,
@@ -22,7 +24,7 @@ const rows = (year = 2024) =>
   );
 
 /** Renders a BarChart and reports its bars along the value axis, legend and tooltip. */
-const draw = ([{neutralFn, ...config}, data, renderer]) =>
+const draw = ([{neutralFn, shared, ...config}, data, renderer]) =>
   new Promise(resolve => {
     // Functions don't cross into the page, so an accessor comes as source.
     if (neutralFn) config.stackNeutral = new Function(`return ${neutralFn}`)();
@@ -71,7 +73,25 @@ const draw = ([{neutralFn, ...config}, data, renderer]) =>
           },
           nativeEvent: {stopPropagation() {}, clientX: 10, clientY: 10},
         });
-      if (!config.facet) {
+      if (shared) {
+        // A real pointer over the plot snaps the shared tooltip to the bar.
+        const host = document.querySelector(
+          renderer === "canvas"
+            ? "#viz canvas.d3plus-render-canvas"
+            : "#viz svg.d3plus-render-svg",
+        );
+        const box = host.getBoundingClientRect();
+        const c = viz._chartTransform;
+        const n = neutral.node;
+        host.dispatchEvent(
+          new MouseEvent("mousemove", {
+            clientX: box.left + c.x + n.transform.x + n.x + n.width / 2,
+            clientY: box.top + c.y + n.transform.y + n.y + n.height / 2,
+            bubbles: true,
+          }),
+        );
+        await new Promise(r => setTimeout(r, 100));
+      } else if (!config.facet) {
         event("mouseenter");
         event("mousemove");
         await new Promise(r => setTimeout(r, 100));
@@ -162,27 +182,62 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
-  it(`stackNeutral: an explicit stackOrder orders each side outward (${renderer})`, async () => {
+  it(`stackNeutral: a stackOrder array sets the scale (${renderer})`, async () => {
+    const reversed = order.slice().reverse();
     const out = await chart(
       {
         stackNeutral: "Neutral",
-        stackOrder: "keyReverse",
+        stackOrder: reversed,
         discrete: "y",
         x: "v",
         y: "q",
       },
       renderer,
     );
-    // Z→A from the neutral: "Strongly …" sits next to it on each side.
-    assert.deepStrictEqual(along(out.bars), [
-      "Disagree",
-      "Strongly disagree",
-      "Neutral",
-      "Strongly agree",
-      "Agree",
-    ]);
+    // Agreement listed first, so it sits on the negative side.
+    assert.deepStrictEqual(along(out.bars), reversed);
+    assert.deepStrictEqual(out.legend, reversed);
     const n = out.bars.find(b => b.q === "Q1" && b.answer === "Neutral");
     near(n.mid, out.zero, "neutral centered on zero");
+  });
+
+  it(`stackNeutral: negated and shuffled data reads along the scale by data order of the series (${renderer})`, async () => {
+    const data = rows()
+      .map(d => ({...d, v: order.indexOf(d.answer) < 2 ? -d.v : d.v}))
+      .sort((a, b) => (a.q === b.q ? 0 : a.q < b.q ? 1 : -1));
+    const out = await chart(
+      {stackNeutral: "Neutral", discrete: "y", x: "v", y: "q"},
+      renderer,
+      data,
+    );
+    for (const q of ["Q1", "Q2"]) {
+      const n = out.bars.find(b => b.q === q && b.answer === "Neutral");
+      near(n.mid, out.zero, `${q} neutral centered on zero`);
+      assert.deepStrictEqual(along(out.bars, q), order);
+    }
+  });
+
+  it(`stackNeutral: the shared tooltip lists the answers along the scale (${renderer})`, async () => {
+    for (const config of [
+      {discrete: "y", x: "v", y: "q"},
+      {x: "q", y: "v"},
+    ]) {
+      const out = await chart(
+        {stackNeutral: "Neutral", shared: true, ...config},
+        renderer,
+      );
+      const at = order.map(a => out.tooltip.indexOf(a));
+      // "Disagree" also appears inside "Strongly disagree": find it alone.
+      at[1] = out.tooltip.indexOf(
+        "Disagree",
+        at[0] + "Strongly disagree".length,
+      );
+      at[3] = out.tooltip.indexOf("Agree", at[2]);
+      assert.ok(
+        at.every((p, i) => p >= 0 && (i === 0 || p > at[i - 1])),
+        `${config.discrete || "x"}: ${out.tooltip}`,
+      );
+    }
   });
 
   it(`stackNeutral: ignored under another stackOffset (${renderer})`, async () => {
