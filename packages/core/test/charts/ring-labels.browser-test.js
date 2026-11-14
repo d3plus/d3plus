@@ -58,7 +58,7 @@ const charts = {
   },
 };
 
-/** Every text node of a scene, with its offset, and every arc path. */
+/** Every text node of a scene, with its offset and its parent's, and every arc path. */
 function collect(root) {
   const texts = [];
   const arcs = [];
@@ -66,7 +66,8 @@ function collect(root) {
     const t = n.transform || {};
     const x = ox + (t.x || 0),
       y = oy + (t.y || 0);
-    if (n.type === "text") texts.push({n, x, y});
+    // Its parent's offset too: textLineBoxes applies a node's own transform.
+    if (n.type === "text") texts.push({n, x, y, ox, oy});
     if (n.type === "path" && n.datum && !`${n.key}`.endsWith("::hit"))
       arcs.push({n, x, y});
     (n.children || []).forEach(c => walk(c, x, y));
@@ -134,8 +135,8 @@ const draw = ([type, config, renderer]) =>
             })),
           };
         });
-      const boxes = texts.map(({n, x, y}) =>
-        textLineBoxes([n]).map(b => ({...b, x: b.x + x, y: b.y + y})),
+      const boxes = texts.map(({n, ox, oy}) =>
+        textLineBoxes([n]).map(b => ({...b, x: b.x + ox, y: b.y + oy})),
       );
       const targets = window.d3plus.focusTargets(
         viz._paintedScene.root.children,
@@ -143,6 +144,7 @@ const draw = ([type, config, renderer]) =>
       resolve({
         curved,
         boxes,
+        texts: texts.map(({n}) => n.lines.map(l => l.text).join(" ")),
         textPaths: document.querySelectorAll("#viz textPath").length,
         textTargets: targets.filter(t => t.node.type === "text").length,
         targets: targets.length,
@@ -272,10 +274,10 @@ for (const renderer of ["svg", "canvas"]) {
     assertRingLabels(out, "Sunburst");
     assertInset(out, "Sunburst");
     const names = out.curved.map(c => c.text);
-    assert.ok(
-      names.includes("Frontend") && names.includes("Backend"),
-      names.join(),
-    );
+    assert.ok(names.includes("Frontend"), names.join());
+    // Backend's arc is on the bottom half, where its letters would face the
+    // center: it curves only 4em out, so at its largest it may stay straight.
+    assert.ok(out.texts.includes("Backend"), out.texts.join());
   });
 
   it(`RadialBar: a full circle names its tracks along them (${renderer})`, async () => {

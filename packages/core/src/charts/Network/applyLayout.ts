@@ -35,6 +35,12 @@ import type {FocusBox} from "../features/linkFocus.js";
 import {bundleNetworkLinks} from "./bundle.js";
 import {minNodeDistance} from "./minNodeDistance.js";
 import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
+import {
+  curveCircleLinks,
+  layoutCircleNetwork,
+  linkBowOf,
+  placeCircleNetworkLabels,
+} from "./circleLayout.js";
 import type {GraphLink, GraphNode} from "./graph.js";
 
 interface NetworkLayoutNode extends SimulationNodeDatum {
@@ -222,6 +228,9 @@ export function networkSizeLegendScale(
   const links = buildNetworkLinks(v, nodes);
   v.ctx.nodeLookup = nodeLookup;
   v.ctx.linkLookup = linkLookup;
+  if (v.schema.layout === "circle")
+    return layoutCircleNetwork(v, nodes, links, width, height)
+      .r as unknown as SizeLegendScale;
   positionNetworkNodes(v, nodes, links);
   return scaleNetworkNodes(
     v,
@@ -389,15 +398,18 @@ function normalizeLinkStrokes(
 /**
     The loops for each link from a node to itself, pointing into the widest
     gap between the node's other links, or away from the middle of the
-    network when it has none. A node's loops fan out side by side.
+    network when it has none (or always away from `center`, when given). A
+    node's loops fan out side by side.
     @param at A node's position and radius.
     @param strokeWidth A loop's stroke width.
+    @param center The point every loop points away from, instead.
 */
 function networkLoops(
   nodes: NetworkNode[],
   links: NetworkLink[],
   at: (n: NetworkNode) => LoopNode & {id: string},
   strokeWidth: (l: NetworkLink) => number,
+  center?: [number, number],
 ): Map<NetworkLink, SelfLoopGeometry> {
   const loops = links.filter(l => l.datum && isSelfLoop(l));
   if (!loops.length) return new Map();
@@ -414,30 +426,40 @@ function networkLoops(
     }
   }
   const points = nodes.map(at);
-  const center: [number, number] = [
+  const middle: [number, number] = [
     points.reduce((sum, n) => sum + n.x, 0) / points.length,
     points.reduce((sum, n) => sum + n.y, 0) / points.length,
   ];
   return layoutSelfLoops(loops, {
     node: l => at(l.source),
     angle: n =>
-      widestGapAngle(
-        [n.x, n.y],
-        neighbors.get(n.id) ?? [],
-        awayFromAngle([n.x, n.y], center),
-      ),
+      center
+        ? awayFromAngle([n.x, n.y], center)
+        : widestGapAngle(
+            [n.x, n.y],
+            neighbors.get(n.id) ?? [],
+            awayFromAngle([n.x, n.y], middle),
+          ),
     reach: l => selfLoopReach(at(l.source).r),
     strokeWidth,
   });
 }
 
-/** Shapes each link from a node to itself as a loop (see `networkLoops`). */
-function placeNetworkLoops(nodes: NetworkNode[], links: NetworkLink[]): void {
+/**
+    Shapes each link from a node to itself as a loop (see `networkLoops`),
+    pointing away from `center` when given.
+*/
+function placeNetworkLoops(
+  nodes: NetworkNode[],
+  links: NetworkLink[],
+  center?: [number, number],
+): void {
   const placed = networkLoops(
     nodes,
     links,
     n => ({id: n.id, x: n.x ?? NaN, y: n.y ?? NaN, r: n.r ?? 0}),
     l => l.size as number,
+    center,
   );
   for (const [link, loop] of placed) link.loop = loop;
 }
@@ -458,13 +480,22 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     nodes.map(graphLinkEnd),
   );
 
-  positionNetworkNodes(v, nodes, links);
+  const circle =
+    v.schema.layout === "circle"
+      ? layoutCircleNetwork(v, nodes, links, width, height)
+      : undefined;
+  if (!circle) positionNetworkNodes(v, nodes, links);
 
-  const r = scaleNetworkNodes(v, nodes, width, height, links);
+  const r = circle
+    ? circle.r
+    : scaleNetworkNodes(v, nodes, width, height, links);
   v._sizeLegendFinal = v._size ? (r as unknown as SizeLegendScale) : null;
   normalizeLinkStrokes(v, links, r);
-  placeNetworkLoops(nodes, links);
+  placeNetworkLoops(nodes, links, circle?.circle.center);
+  if (circle) placeCircleNetworkLabels(v, nodes, links, circle.circle);
   bundleNetworkLinks(v, links);
+  if (circle)
+    curveCircleLinks(links, circle.circle.center, linkBowOf(v.schema.linkBow));
 
   const linkConfig = shapeConfigFor(v, "Path", v.schema.shapeConfig, "edge");
   delete linkConfig.on;
@@ -485,6 +516,13 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
         : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
 
-  v.ctx.networkCtx = {links, linkConfig, linkD, nodeGroups, nodeShapeConfig};
+  v.ctx.networkCtx = {
+    links,
+    linkConfig,
+    linkD,
+    nodeGroups,
+    nodeShapeConfig,
+    circle: circle?.circle,
+  };
   return {shapeData: nodes as unknown as DataPoint[]};
 };

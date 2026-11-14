@@ -1,0 +1,416 @@
+[
+ {
+  "continent": "Africa",
+  "region": "Northern Africa",
+  "country": "Egypt",
+  "population": 83
+ },
+ {
+  "continent": "Africa",
+  "region": "Northern Africa",
+  "country": "Morocco",
+  "population": 39
+ },
+ {
+  "continent": "Africa",
+  "region": "Northern Africa",
+  "country": "Algeria",
+  "population": 102
+ },
+ {
+  "continent": "Africa",
+  "region": "Northern Africa",
+  "country": "Tunisia",
+  "population": 167
+ },
+ {
+  "continent": "Africa",
+  "region": "Western Africa",
+  "country": "Nigeria",
+  "population": 13
+ },
+ {
+  "continent": "Africa",
+  "region": "Western Africa",
+  "country": "Ghana",
+  "population": 19
+ },
+ {
+  "continent": "Africa",
+  "region": "Western Africa",
+  "country": "Senegal",
+  "population": 138
+ },
+ {
+  "continent": "Africa",
+  "region": "Western Africa",
+  "country": "Mali",
+  "population": 25
+ },
+ {
+  "continent": "Africa",
+  "region": "Eastern Africa",
+  "country": "Kenya",
+  "population": 94
+ },
+ {
+  "continent": "Africa",
+  "region": "Eastern Africa",
+  "country": "Ethiopia",
+  "population": 150
+ },
+ {
+  "continent": "Africa",
+  "region": "Eastern Africa",
+  "country": "Tanzania",
+  "population": 15
+ },
+ {
+  "continent": "Africa",
+  "region": "Eastern Africa",
+  "country": "Uganda",
+  "population": 130
+ },
+ {
+  "continent": "Africa",
+  "region": "Eastern Africa",
+  "country": "Rwanda",
+  "population": 55
+ },
+ {
+  "continent": "Africa",
+  "region": "Southern Africa",
+  "country": "South Africa",
+  "population": 10
+ },
+ {
+  "continent": "Africa",
+  "region": "Southern Africa",
+  "country": "Namibia",
+  "population": 23
+ },
+ {
+  "continent": "Africa",
+  "region": "Southern Africa",
+  "country": "Botswana",
+  "population": 112
+ },
+ {
+  "continent": "Americas",
+  "region": "Northern America",
+  "country": "United States",
+  "population": 108
+ },
+ {
+  "continent": "Americas",
+  "region": "Northern America",
+  "country": "Canada",
+  "population": 18
+ },
+ {
+  "continent": "Americas",
+  "region": "Northern America",
+  "country": "Mexico",
+  "population": 62
+ },
+ {
+  "continent": "Americas",
+  "region": "Central America",
+  "country": "Guatemala",
+  "population": 24
+ },
+ {
+  "continent": "Americas",
+  "region": "Central America",
+  "country": "Costa Rica",
+  "population": 142
+ },
+ {
+  "continent": "Americas",
+  "region": "Central America",
+  "country": "Panama",
+  "population": 109
+ },
+ {
+  "continent": "Americas",
+  "region": "South America",
+  "country": "Brazil",
+  "population": 16
+ },
+ {
+  "continent": "Americas",
+  "region": "South America",
+  "country": "Argentina",
+  "population": 145
+ },
+ {
+  "continent": "Americas",
+  "region": "South America",
+  "country": "Chile",
+  "population": 32
+ },
+ {
+  "continent": "Americas",
+  "region": "South America",
+  "country": "Colombia",
+  "population": 58
+ },
+ {
+  "continent": "Americas",
+  "region": "South America",
+  "country": "Peru",
+  "population": 162
+ },
+ {
+  "continent": "Americas",
+  "region": "Caribbean",
+  "country": "Cuba",
+  "population": 161
+ },
+ {
+  "continent": "Americas",
+  "region": "Caribbean",
+  "country": "Jamaica",
+  "population": 150
+ },
+ {
+  "continent": "Americas",
+  "region": "Caribbean",
+  "country": "Haiti",
+  "population": 16
+ },
+ {
+  "continent": "Asia",
+  "region": "Eastern Asia",
+  "country": "China",
+  "population": 148
+ },
+ {
+  "continent": "Asia",
+  "region": "Eastern Asia",
+  "country": "Japan",
+  "population": 150
+ },
+ {
+  "continent": "Asia",
+  "region": "Eastern Asia",
+  "country": "South Korea",
+  "population": 102
+ },
+ {
+  "continent": "Asia",
+  "region": "Eastern Asia",
+  "country": "Mongolia",
+  "population": 13
+ },
+ {
+  "continent": "Asia",
+  "region": "Southern Asia",
+  "country": "India",
+  "population": 57
+ },
+ {
+  "continent": "Asia",
+  "region": "Southern Asia",
+  "country": "Pakistan",
+  "population": 12
+ },
+ {
+  "continent": "Asia",
+  "region": "Southern Asia",
+  "country": "Bangladesh",
+  "population": 143
+ },
+ {
+  "continent": "Asia",
+  "region": "Southern Asia",
+  "country": "Sri Lanka",
+  "population": 35
+ },
+ {
+  "continent": "Asia",
+  "region": "Southern Asia",
+  "country": "Nepal",
+  "population": 75
+ },
+ {
+  "continent": "Asia",
+  "region": "South-eastern Asia",
+  "country": "Indonesia",
+  "population": 108
+ },
+ {
+  "continent": "Asia",
+  "region": "South-eastern Asia",
+  "country": "Vietnam",
+  "population": 37
+ },
+ {
+  "continent": "Asia",
+  "region": "South-eastern Asia",
+  "country": "Thailand",
+  "population": 139
+ },
+ {
+  "continent": "Asia",
+  "region": "South-eastern Asia",
+  "country": "Philippines",
+  "population": 31
+ },
+ {
+  "continent": "Asia",
+  "region": "South-eastern Asia",
+  "country": "Malaysia",
+  "population": 147
+ },
+ {
+  "continent": "Asia",
+  "region": "Western Asia",
+  "country": "Turkey",
+  "population": 79
+ },
+ {
+  "continent": "Asia",
+  "region": "Western Asia",
+  "country": "Saudi Arabia",
+  "population": 144
+ },
+ {
+  "continent": "Asia",
+  "region": "Western Asia",
+  "country": "Israel",
+  "population": 175
+ },
+ {
+  "continent": "Asia",
+  "region": "Western Asia",
+  "country": "Jordan",
+  "population": 47
+ },
+ {
+  "continent": "Europe",
+  "region": "Northern Europe",
+  "country": "Sweden",
+  "population": 27
+ },
+ {
+  "continent": "Europe",
+  "region": "Northern Europe",
+  "country": "Norway",
+  "population": 149
+ },
+ {
+  "continent": "Europe",
+  "region": "Northern Europe",
+  "country": "Finland",
+  "population": 147
+ },
+ {
+  "continent": "Europe",
+  "region": "Northern Europe",
+  "country": "Denmark",
+  "population": 164
+ },
+ {
+  "continent": "Europe",
+  "region": "Northern Europe",
+  "country": "Iceland",
+  "population": 49
+ },
+ {
+  "continent": "Europe",
+  "region": "Western Europe",
+  "country": "France",
+  "population": 96
+ },
+ {
+  "continent": "Europe",
+  "region": "Western Europe",
+  "country": "Germany",
+  "population": 25
+ },
+ {
+  "continent": "Europe",
+  "region": "Western Europe",
+  "country": "Netherlands",
+  "population": 141
+ },
+ {
+  "continent": "Europe",
+  "region": "Western Europe",
+  "country": "Belgium",
+  "population": 183
+ },
+ {
+  "continent": "Europe",
+  "region": "Southern Europe",
+  "country": "Italy",
+  "population": 17
+ },
+ {
+  "continent": "Europe",
+  "region": "Southern Europe",
+  "country": "Spain",
+  "population": 145
+ },
+ {
+  "continent": "Europe",
+  "region": "Southern Europe",
+  "country": "Portugal",
+  "population": 16
+ },
+ {
+  "continent": "Europe",
+  "region": "Southern Europe",
+  "country": "Greece",
+  "population": 159
+ },
+ {
+  "continent": "Europe",
+  "region": "Eastern Europe",
+  "country": "Poland",
+  "population": 53
+ },
+ {
+  "continent": "Europe",
+  "region": "Eastern Europe",
+  "country": "Ukraine",
+  "population": 128
+ },
+ {
+  "continent": "Europe",
+  "region": "Eastern Europe",
+  "country": "Romania",
+  "population": 175
+ },
+ {
+  "continent": "Europe",
+  "region": "Eastern Europe",
+  "country": "Hungary",
+  "population": 137
+ },
+ {
+  "continent": "Oceania",
+  "region": "Australia and New Zealand",
+  "country": "Australia",
+  "population": 110
+ },
+ {
+  "continent": "Oceania",
+  "region": "Australia and New Zealand",
+  "country": "New Zealand",
+  "population": 199
+ },
+ {
+  "continent": "Oceania",
+  "region": "Melanesia",
+  "country": "Fiji",
+  "population": 81
+ },
+ {
+  "continent": "Oceania",
+  "region": "Melanesia",
+  "country": "Papua New Guinea",
+  "population": 120
+ }
+]

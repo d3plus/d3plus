@@ -398,6 +398,29 @@ export const networkDef: ChartDefinition = {
     ...linkStyleFields(),
     ...linkBundleFields(),
     ...loaderFormatFields("links", "nodes"),
+    /**
+        How the nodes are placed. `"force"` (the default) places them at
+        their `x` and `y`, or by a force simulation when any node has none.
+        `"circle"` spaces them evenly around a circle, ordered by cluster
+        (or top-level group) and then most connected first (see
+        `nodeSort`), with links bowing in toward the center and each label
+        turned outward along its node's spoke past the circle. A node's
+        loops point outward. With `linkBundle`, the bundled paths replace
+        the bowed ones.
+        @type {"force" | "circle"}
+    */
+    {key: "layout", default: "force"},
+    /**
+        How far links bow in toward the center when `layout` is
+        `"circle"`, from `0` (straight lines) to `1` (each link curves
+        through the center's pull, as a chord diagram's do). It sets the
+        share of the way from the middle of a link's chord to the center
+        that its curve's control point sits. Defaults to `0.5`, which keeps
+        links between neighbors near the rim and lets long ones cross the
+        middle. Bundled links (`linkBundle`) ignore it.
+        @type {number}
+    */
+    {key: "linkBow", default: 0.5},
     {key: "links", default: []},
     /**
         The thickness of each link: a pixel number used for every link, or an
@@ -426,6 +449,16 @@ export const networkDef: ChartDefinition = {
     {key: "linkSizeScale", default: "sqrt"},
     {key: "noDataMessage", default: false},
     {key: "nodeGroupBy", default: [accessor("id")]},
+    /**
+        The order of the nodes around the circle when `layout` is
+        `"circle"`: `"data"` (their order in `nodes`), `"label"`
+        (alphabetical), `"group"` (by cluster or top-level group, then by
+        label), `"degree"` (most connected first), or a comparator function
+        receiving two node rows. Defaults to each cluster (or top-level
+        group) together, largest first, its most connected nodes first.
+        @type {"data" | "label" | "group" | "degree" | function}
+    */
+    {key: "nodeSort"},
     /**
         How many links a node's tooltip lists under its number of
         connections, strongest first: a number, or `false` for none. Defaults

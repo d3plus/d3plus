@@ -15,10 +15,12 @@ import {
   axisBarConfig,
   axisBreakConfig,
   axisGridConfig,
+  axisMinorGridConfig,
   axisShapeConfig,
   axisTitleConfig,
 } from "./axisDefaults.js";
 import {timeDataInDomain} from "./timeValues.js";
+import {gridValues} from "./axisMinorTicks.js";
 import type {AxisBaselineBreak, AxisBreak} from "./axisBreak.js";
 import {axisToScene} from "./axisScene.js";
 import {
@@ -51,6 +53,8 @@ const axisSchema: ConfigField[] = [
   {key: "labelOffset", coerce: "identity", default: false},
   {key: "fixedSize", coerce: "identity"},
   {key: "maxSize", coerce: "identity"},
+  {key: "minorGrid", coerce: "identity", default: false},
+  {key: "minorTicks", coerce: "identity"},
   {key: "minSize", coerce: "identity"},
   {key: "padding", coerce: "identity", default: 5},
   {key: "paddingInner", coerce: "identity", default: 0.1},
@@ -97,6 +101,13 @@ export default class Axis extends BaseClass {
       centers its labels in the periods they name (see `tickLabelPosition`).
   */
   _periodPositions?: Map<number, number>;
+  /**
+      The minor tick values the last layout pass picked (see
+      `minorTickValues`): a log axis lists its multiples of each power of
+      ten even when it draws no minor ticks, for `gridLog`.
+  */
+  _minorTickValues: number[] = [];
+  _minorGridLineData?: {id: unknown}[];
   /** Whether `scale("auto")` was set, so each layout pass picks the scale. */
   _autoScale = false;
   /** The `data` values the scale reads, set by the layout pass (see `axisScaleData`). */
@@ -205,6 +216,7 @@ export default class Axis extends BaseClass {
     this.schema.baselineBreakConfig = axisBreakConfig(this);
     this.schema.breakConfig = axisBreakConfig(this);
     this.schema.gridConfig = axisGridConfig(this);
+    this.schema.minorGridConfig = axisMinorGridConfig(this);
     this.orient("bottom");
     this._outerBounds = {width: 0, height: 0, x: 0, y: 0};
     this.schema.shapeConfig = axisShapeConfig(this);
@@ -421,17 +433,11 @@ export default class Axis extends BaseClass {
       : elem(`g#d3plus-Axis-${this._uuid}`, {parent});
     this._group = group as D3Selection;
 
-    const gridLineData: {id: unknown}[] = (
-      this.schema.gridSize !== 0
-        ? this.schema.grid ||
-          (this.schema.scale === "log" && !this.schema.gridLog)
-          ? labels
-          : ticks
-        : []
-    ).map((d: unknown) => ({id: d}));
     // Scene-only: grid lines are emitted natively by toScene() via
-    // _gridLinePoints() from this._gridLineData. No <line> DOM.
-    this._gridLineData = gridLineData;
+    // gridLinePoints() from these. No <line> DOM.
+    const grid = gridValues(this, ticks, labels);
+    this._gridLineData = grid.major.map((d: unknown) => ({id: d}));
+    this._minorGridLineData = grid.minor.map((d: unknown) => ({id: d}));
 
     // Tick marks/labels and the title are composed in compute mode by
     // axisRender helpers; toScene() reads the resulting _tickShape/_titleClass.
@@ -531,6 +537,24 @@ export default class Axis extends BaseClass {
     return arguments.length
       ? ((this.schema.gridConfig = mergeConfigBag(this, "gridConfig", _)), this)
       : this.schema.gridConfig;
+  }
+
+  /**
+      Style of the `minorGrid` lines: `stroke`, `stroke-width`,
+      `stroke-opacity`, `stroke-dasharray`, … (default: the grid color at
+      half opacity).
+*/
+  minorGridConfig(): Record<string, unknown>;
+  minorGridConfig(_: Record<string, unknown>): this;
+  minorGridConfig(_?: Record<string, unknown>): unknown {
+    return arguments.length
+      ? ((this.schema.minorGridConfig = mergeConfigBag(
+          this,
+          "minorGridConfig",
+          _,
+        )),
+        this)
+      : this.schema.minorGridConfig;
   }
 
   /**
@@ -736,6 +760,7 @@ resolvesReset(
   "breakConfig",
   "baselineBreakConfig",
   "gridConfig",
+  "minorGridConfig",
   "shapeConfig",
   "titleConfig",
 );
