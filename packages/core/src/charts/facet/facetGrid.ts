@@ -4,6 +4,7 @@
     @module
 */
 import type {FacetCell} from "./facetConfig.js";
+import {layoutGridCells} from "./facetLayout.js";
 
 /** The box the grid fills, in surface pixels. */
 export interface FacetArea {
@@ -29,6 +30,10 @@ export interface FacetGridOptions {
   aspect: number;
   /** Extra width for the left and right columns and extra height for the bottom edge (axis labels only those panels draw). */
   gutter?: {left: number; right: number; bottom: number};
+  /** Each panel's cell on a map-shaped grid (see `FacetConfig.layout`), in place of filling rows. */
+  places?: {row: number; column: number}[];
+  /** The map-shaped grid's row and column counts. */
+  grid?: {rows: number; columns: number};
 }
 
 /**
@@ -108,12 +113,16 @@ export function facetDimensions(
     edge (those with no panel below them) are deepened by `gutter.bottom`, so
     panels that draw axis labels the others skip keep the same plot area. A
     bottom-edge panel above an empty cell reaches into that cell's space.
+    With `places`, lays the panels out on that map-shaped grid instead (see
+    `layoutGridCells`).
 */
 export function facetGrid(
   count: number,
   area: FacetArea,
   opts: FacetGridOptions,
 ): FacetCell[] {
+  if (opts.places && opts.grid)
+    return layoutGridCells(opts.places, opts.grid, area, opts);
   const {columns, rows} = facetDimensions(count, area, opts);
   if (!columns) return [];
   const gutter = opts.gutter ?? {left: 0, right: 0, bottom: 0};
