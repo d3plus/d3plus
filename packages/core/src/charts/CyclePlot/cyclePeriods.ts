@@ -142,3 +142,19 @@ export function cyclePeriodLabel(
   }
   return locale.shortMonths[index] ?? `${index}`;
 }
+
+/**
+    A cycle's label at the end of a panel's x axis, in a d3-time-format
+    locale: its year for months and quarters (`"1949"`), else its first
+    day (`"Jan 2"`), for weeks and days.
+*/
+export function cycleEndLabel(
+  cycle: Date,
+  period: CyclePeriod,
+  locale: TimeLocaleDefinition,
+  utc = false,
+): string {
+  const formats = timeFormatLocale(locale as unknown as D3TimeLocale);
+  const spec = period === "month" || period === "quarter" ? "%Y" : "%b %-d";
+  return (utc ? formats.utcFormat(spec) : formats.format(spec))(cycle);
+}

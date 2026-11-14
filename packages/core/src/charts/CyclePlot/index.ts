@@ -7,6 +7,7 @@
 import {assign, date} from "@d3plus/dom";
 import type {ColorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
+import {mean} from "d3-array";
 import {findWeekStart, locale as timeLocales} from "@d3plus/locales";
 
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -24,6 +25,7 @@ import {
   type CycleTooltipContext,
 } from "./cycleTooltip.js";
 import {
+  cycleEndLabel,
   cyclePeriodLabel,
   cyclePeriodOf,
   cyclePeriodOrder,
@@ -46,6 +48,22 @@ export interface CycleState {
   period: CyclePeriod;
   utc: boolean;
   weekStart: number;
+  /** Labels a cycle at either end of a panel's x axis (see `cycleEndLabel`). */
+  endLabel?: (cycle: Date) => string;
+  /** The first and last cycles every panel shows, and their labels when they fit (see `shareCycleScales`). */
+  ends?: Date[];
+  endLabels?: string[];
+}
+
+/** The mean of the values `value` reads from `rows`: how rows in the same season and cycle merge by default. */
+export function meanAgg(
+  rows: DataPoint[],
+  value: (d: DataPoint) => unknown,
+): number | undefined {
+  return mean(rows, d => {
+    const v = value(d);
+    return typeof v === "number" ? v : undefined;
+  });
 }
 
 /** The chart's cycle state. */
@@ -99,8 +117,9 @@ export function cycleTooltipContext(viz: VizInstance): CycleTooltipContext {
 }
 
 /**
-    Reads this draw's period, time zone, and week start, and points `x` and
-    `facet` at each row's cycle and season.
+    Reads this draw's period, time zone, and week start, points `x` and
+    `facet` at each row's cycle and season, and averages the rows that
+    share both (see `meanAgg`) unless `aggs` sets the `y` key's merge.
 */
 export function prepareCycle(viz: VizInstance): void {
   const state = cycleState(viz);
@@ -108,8 +127,17 @@ export function prepareCycle(viz: VizInstance): void {
   state.period = resolveCyclePeriod(viz.schema.period);
   state.utc = chartUtc(viz);
   state.weekStart = findWeekStart(`${viz.schema.locale ?? ""}`);
+  const locale = timeLocaleOf(viz);
+  const {period, utc} = state;
+  state.endLabel = cycle => cycleEndLabel(cycle, period, locale, utc);
+  state.ends = state.endLabels = undefined;
   viz._x = state.cycleX;
   viz.schema.facet = state.facet;
+  // Rows in the same season and cycle average, unless `aggs` says otherwise.
+  const key = viz._yKey;
+  const aggs = viz.schema.aggs as Record<string, unknown>;
+  if (typeof key === "string" && (!(key in aggs) || aggs[key] === meanAgg))
+    aggs[key] = meanAgg;
 }
 
 /**
@@ -150,14 +178,9 @@ export const cyclePlotDef: ChartDefinition = {
       },
     };
     viz.ctx.cycle = state;
-    // The x axis places each cycle along its panel; the panel titles name
-    // the seasons, so the axis draws no labels or ticks of its own.
-    viz._xConfig = assign({}, viz._xConfig ?? {}, {
-      labels: [],
-      padding: 0,
-      scale: "time",
-      ticks: [],
-    });
+    // The x axis places each cycle along its panel, labeling only the first
+    // and last (see `cycleFacet.ts`); the panel titles name the seasons.
+    viz._xConfig = assign({}, viz._xConfig ?? {}, {padding: 0, scale: "time"});
     // The y axis keeps its title beside its labels in a narrow first panel.
     viz._yConfig = assign({}, viz._yConfig ?? {}, {maxSize: Infinity});
     viz.schema.color = cycleColor(viz, viz.schema.color);
@@ -230,8 +253,10 @@ export const cyclePlotDef: ChartDefinition = {
     the seasons and see how each one changed. Each row's `x` value is its
     date, and `period` picks the season: `"month"` (the default),
     `"quarter"`, `"weekday"` (from the first day of the locale's week), or
-    `"hour"`. Rows in the same season and cycle merge, by `aggs` (summed by
-    default). The panels share one y axis, labeled on the left, and each
+    `"hour"`. Rows in the same season and cycle merge into their mean (set
+    `aggs` for the `y` key to merge them otherwise). The panels share one y
+    axis, labeled on the left, each x axis labels its first and last cycle
+    (when both fit without overlapping), and each
     draws a line at its mean (see `mean` and `meanConfig`). The panel titles
     name the seasons in the chart's locale; read the dates in UTC with
     `xConfig: {utc: true}`. The panels are small multiples whose `facet` is

@@ -1431,6 +1431,7 @@ export {
   cycleCompare,
   cycleDate,
   cyclePlotDef,
+  meanAgg,
   cycleTitle,
   cycleTooltipContext,
   prepareCycle,
@@ -1440,6 +1441,7 @@ export {cycleMeanLines, cycleMeans} from "./src/charts/CyclePlot/cycleMeans.js";
 export type {CycleMean} from "./src/charts/CyclePlot/cycleMeans.js";
 export {
   CYCLE_PERIODS,
+  cycleEndLabel,
   cyclePeriodCount,
   cyclePeriodLabel,
   cyclePeriodOf,
@@ -1450,9 +1452,13 @@ export {
 export type {CyclePeriod} from "./src/charts/CyclePlot/cyclePeriods.js";
 export {
   CYCLE_INSET,
+  CYCLE_INSET_MAX,
+  END_LABEL_GAP,
   cycleFacetHooks,
   cycleFacetPanel,
+  cycleXConfig,
   cycleYConfig,
+  endLabelInset,
   insetDomain,
   shareCycleScales,
 } from "./src/charts/CyclePlot/cycleFacet.js";
