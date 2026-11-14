@@ -68,17 +68,27 @@ function timeValue(
     category axis) at the interval their axis's Dates step by, also with the
     year, continuous-axis numbers abbreviated (in full on an
     axis of years, matching its tick labels), and anything else (e.g. a numeric
-    year on the discrete axis) as-is.
+    year on the discrete axis) as-is. A `tickFormat` that labels ticks with
+    something other than their values (`viz._tickLabelFormats`) applies only
+    with `ticks`, for text that stands in for a tick label; elsewhere its
+    value format applies.
+    @param viz The chart.
+    @param k The axis.
+    @param value The value.
+    @param ticks Whether the text stands in for the axis's tick label.
 */
 export function axisValue(
   viz: VizInstance,
   k: Axis | "x2" | "y2",
   value: unknown,
+  ticks = false,
 ): string {
   const config = viz[`_${k}Config`] as
     {tickFormat?: (d: unknown) => string} | undefined;
-  if (config && typeof config.tickFormat === "function")
-    return config.tickFormat(value);
+  const tickFormat = config?.tickFormat;
+  const valueFormat = viz._tickLabelFormats?.get(tickFormat);
+  if (valueFormat && !ticks) return valueFormat(value);
+  if (typeof tickFormat === "function") return tickFormat(value);
   const time = timeValue(viz, k, value);
   if (time !== undefined) return time;
   if (isValidDate(value)) {

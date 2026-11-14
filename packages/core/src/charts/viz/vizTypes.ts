@@ -152,6 +152,12 @@ export interface VizRenderer {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+/** What a tick label follows on hover: the marks holding `value` under `field` (see `hoverMatch`). */
+export interface TickHoverMatch {
+  field: string;
+  value: unknown;
+}
+
 /**
     The structural contract free functions read/write on a chart instance.
     Class instances satisfy it via their `[key: string]: any` signature;
@@ -500,6 +506,15 @@ export interface VizInstance {
   _sharedTooltipSaved?: {arrow: unknown; thead: unknown; tbody: unknown};
   /** False when a chart's own tooltip rows already list a snapped mark's values, so its x/y rows are left out. */
   _tooltipAxisRows?: boolean;
+  /** Axis `tickFormat`s that label ticks with something other than their values (BumpChart's series names at each rank), each with the format its axis's values take outside the axis (see `axisValue`). */
+  _tickLabelFormats?: Map<unknown, (value: unknown) => string>;
+  /** What an axis's tick labels follow on hover, by axis, in place of their tick values (BumpChart's rank labels follow the series they name): a `hoverMatch` for a tick, or undefined to leave it as is (see `tagHoverTicks`). */
+  _tickHoverMatch?: Partial<
+    Record<
+      "x" | "y" | "x2" | "y2",
+      (tick: unknown) => TickHoverMatch | undefined
+    >
+  >;
   /** A chart's own value column for the shared tooltip, in place of the continuous axis's: its title and each row's value. Undefined to use the axis's. */
   _sharedTooltipValue?: () =>
     {title: string; value: (d: DataPoint, i: number) => string} | undefined;

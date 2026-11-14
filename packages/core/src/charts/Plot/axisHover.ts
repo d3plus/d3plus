@@ -254,7 +254,7 @@ export function resolveAxisHover(
             at,
             axisInvert(viz, axis, position, raw),
           );
-    const text = formatAxisValue(v => axisValue(viz, axis, v), value);
+    const text = formatAxisValue(v => axisValue(viz, axis, v, true), value);
     if (text) badges.push({axis, at, text, guide: !snapped});
   }
   if (!badges.length) return null;

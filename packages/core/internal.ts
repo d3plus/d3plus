@@ -1070,7 +1070,11 @@ export {
   bumpSizeText,
   bumpSizeTooltipRows,
 } from "./src/charts/BumpChart/areaBump.js";
-export {bumpChartDef} from "./src/charts/BumpChart/index.js";
+export {
+  bumpChartDef,
+  bumpRankMatch,
+  bumpRankRow,
+} from "./src/charts/BumpChart/index.js";
 export {
   autoLineOpacity,
   axisPositions,
