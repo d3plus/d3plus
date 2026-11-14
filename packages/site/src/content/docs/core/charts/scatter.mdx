@@ -17,6 +17,7 @@ import errorBarsBothAxes from "~/examples/core/charts/scatter/error-bars-both-ax
 import logAxes from "~/examples/core/charts/scatter/log-axes.js?raw";
 import marginalHistograms from "~/examples/core/charts/scatter/marginal-histograms.js?raw";
 import marginalDistributions from "~/examples/core/charts/scatter/marginal-distributions.js?raw";
+import marginalStyling from "~/examples/core/charts/scatter/marginal-styling.js?raw";
 
 Creates a scatter plot from an array of data: each row draws as a point at
 its `x` and `y` values, on continuous axes. Text values on an axis (on
@@ -97,5 +98,11 @@ Body and brain masses span several orders of magnitude, so both axes are `scale:
 `"box"` draws a box plot per series and `"density"` a kernel density curve per series, each scaled by its share of the points. Give `marginals` an object, `{x, y}`, to pick each strip, and leave one out to draw only the other. `marginalConfig` sets each strip's `size` (pixels, or a share of the chart area's shorter side; `0.15` by default), its `padding` from the plot, and a histogram strip's `binThresholds`. Strips need two continuous axes, so a chart with a category axis draws none.
 
 <Playground chart="Scatter" code={marginalDistributions} controls={["marginals","marginalConfig"]} />
+
+## Styling the strips
+
+`marginalConfig` also takes the paint keys `shapeConfig` uses: `fill`, `fillOpacity`, `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`, and `opacity`. At its top level they style every mark; under `histogram`, `box`, or `density` they style one kind, and a box's `median`, `whisker`, and `outlier` (which also takes `r`) style one part. Lines take only the stroke keys, and a density curve's fill only the fill keys, its outline the stroke keys. Each key takes a value or a function of the mark (its `series`, `rows`, and `bin` or `box`) and its series' index.
+
+<Playground chart="Scatter" code={marginalStyling} controls={["marginalConfig"]} />
 
 <ApiReference name="Scatter" pkg="core" />

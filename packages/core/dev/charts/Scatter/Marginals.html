@@ -5,7 +5,7 @@
     <title>Scatter Marginals</title>
     <meta
       name="description"
-      content="Marginal histograms, box plots and density curves along a scatter plot's axes: grouped and single series, mixed kinds, a log axis, a timeline, facets, and a bubble chart."
+      content="Marginal histograms, box plots and density curves along a scatter plot's axes: grouped and single series, mixed kinds, a log axis, a timeline, custom paint, facets, and a bubble chart."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -62,6 +62,10 @@
       <div>
         <h3>BubbleChart, marginalConfig: {size: 48, binThresholds: 20}</h3>
         <div class="viz" id="bubbles"></div>
+      </div>
+      <div>
+        <h3>marginalConfig paint keys: every mark, per kind, per box part</h3>
+        <div class="viz" id="styled"></div>
       </div>
       <div>
         <h3>Facets: each panel draws its own strips</h3>
@@ -159,6 +163,30 @@
       .size("population")
       .marginals("histogram")
       .marginalConfig({size: 48, binThresholds: 20})
+      .render();
+
+    new d3plus.Scatter()
+      .select("#styled")
+      .data(latest)
+      .groupBy(["group", "id"])
+      .x("x")
+      .y("y")
+      .marginals({x: "histogram", y: "box"})
+      .marginalConfig({
+        opacity: 0.9,
+        histogram: {
+          fill: (d, i) => ["#364fc7", "#e67700", "#c92a2a"][i],
+          stroke: "#ffffff",
+          strokeWidth: 1,
+        },
+        box: {
+          fillOpacity: 0.15,
+          strokeWidth: 1.5,
+          median: {strokeWidth: 3},
+          whisker: {strokeDasharray: "3 2"},
+          outlier: {r: 3},
+        },
+      })
       .render();
 
     new d3plus.Scatter()
