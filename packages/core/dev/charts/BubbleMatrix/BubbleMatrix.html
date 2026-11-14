@@ -5,7 +5,7 @@
     <title>BubbleMatrix</title>
     <meta
       name="description"
-      content="BubbleMatrix circles sized by absolute value with a colorScale diverging symmetrically around 0: a correlation matrix, a linear sizeScale, a size key apart from the colorScale, Matrix with shape Circle, missing values, small multiples, and a dark background."
+      content="BubbleMatrix circles sized by absolute value with a colorScale diverging symmetrically around 0 when values cross it: a correlation matrix, a linear sizeScale, a size key apart from the colorScale, Matrix with shape Circle, missing values, small multiples, all-positive values on a sequential scale, and a dark background."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -67,6 +67,10 @@
           colorScaleConfig domain [-1, 1] set by the user
         </h3>
         <div class="viz" id="facets"></div>
+      </div>
+      <div>
+        <h3>All positive values: a sequential colorScale across their range</h3>
+        <div class="viz" id="positive"></div>
       </div>
       <div class="dark">
         <h3>Dark theme</h3>
@@ -166,6 +170,19 @@
           size: "r",
           colorScale: "r",
           colorScaleConfig: {domain: [-1, 1]},
+        })
+        .render();
+
+      new d3plus.BubbleMatrix()
+        .select("#positive")
+        .config({
+          data: "./mtcars-correlations.json",
+          groupBy: ["x", "y"],
+          column: "x",
+          row: "y",
+          size: d => Math.abs(d.correlation),
+          colorScale: d => Math.abs(d.correlation),
+          colorScalePosition: "right",
         })
         .render();
 

@@ -1339,9 +1339,9 @@ export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {bubbleChartDef} from "./src/charts/BubbleChart/index.js";
 export {bubbleMatrixDef} from "./src/charts/BubbleMatrix/index.js";
 export {
-  applySymmetricColorDomain,
-  symmetricColorDomain,
-} from "./src/charts/BubbleMatrix/symmetricColor.js";
+  applyBubbleColorDefaults,
+  bubbleColorDomain,
+} from "./src/charts/BubbleMatrix/colorDefaults.js";
 export {bulletDef} from "./src/charts/Bullet/index.js";
 export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {candlestickDef} from "./src/charts/Candlestick/index.js";
