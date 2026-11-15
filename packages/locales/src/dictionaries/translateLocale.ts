@@ -32,9 +32,11 @@ export interface TranslationStrings {
   Degree: string;
   Density: string;
   "Double-click or Escape to Clear": string;
+  Dots: string;
   Download: string;
   "Drag to Filter": string;
   Duration: string;
+  "Each dot": string;
   End: string;
   "Enter to Hide": string;
   "Enter to Highlight": string;
@@ -190,10 +192,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     "Double-click or Escape to Clear":
       "\u0627\u0646\u0642\u0631 \u0646\u0642\u0631\u064b\u0627 \u0645\u0632\u062f\u0648\u062c\u064b\u0627 \u0623\u0648 \u0627\u0636\u063a\u0637 Esc \u0644\u0644\u0645\u0633\u062d",
+    Dots: "\u0627\u0644\u0646\u0642\u0627\u0637",
     Download: "\u062a\u062d\u0645\u064a\u0644",
     "Drag to Filter":
       "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
     Duration: "\u0627\u0644\u0645\u062f\u0629",
+    "Each dot": "\u0643\u0644 \u0646\u0642\u0637\u0629",
     End: "\u0627\u0644\u0646\u0647\u0627\u064a\u0629",
     "Enter to Hide": "Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Enter to Highlight": "Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
@@ -358,9 +362,11 @@ const translateLocale: Record<string, TranslationStrings> = {
     Degree: "Grado",
     Density: "Densidad",
     "Double-click or Escape to Clear": "Doble Clic o Escape para Borrar",
+    Dots: "Puntos",
     Download: "Descargar",
     "Drag to Filter": "Arrastrar para Filtrar",
     Duration: "Duraci\u00f3n",
+    "Each dot": "Cada punto",
     End: "Fin",
     "Enter to Hide": "Enter para Ocultar",
     "Enter to Highlight": "Enter para Resaltar",
@@ -498,9 +504,11 @@ const translateLocale: Record<string, TranslationStrings> = {
     Degree: "Grau",
     Density: "Densidade",
     "Double-click or Escape to Clear": "Clique Duplo ou Esc para Limpar",
+    Dots: "Pontos",
     Download: "Baixar",
     "Drag to Filter": "Arraste para Filtrar",
     Duration: "Dura\u00e7\u00e3o",
+    "Each dot": "Cada ponto",
     End: "Fim",
     "Enter to Hide": "Enter para Ocultar",
     "Enter to Highlight": "Enter para Destacar",
@@ -641,9 +649,11 @@ const translateLocale: Record<string, TranslationStrings> = {
     Density: "\u5bc6\u5ea6",
     "Double-click or Escape to Clear":
       "\u53cc\u51fb\u6216\u6309 Esc \u6e05\u9664",
+    Dots: "\u70b9\u6570",
     Download: "\u4e0b\u8f7d",
     "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
     Duration: "\u6301\u7eed\u65f6\u95f4",
+    "Each dot": "\u6bcf\u70b9",
     End: "\u7ed3\u675f",
     "Enter to Hide": "\u6309 Enter \u9690\u85cf",
     "Enter to Highlight": "\u6309 Enter \u7a81\u51fa\u663e\u793a",

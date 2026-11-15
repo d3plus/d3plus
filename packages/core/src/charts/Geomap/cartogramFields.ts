@@ -51,6 +51,10 @@ function panelTotal(viz: VizInstance, rows: DataPoint[]): number {
     total, so the same value draws the same size in every panel.
 */
 export const geomapFacetHooks: FacetHooks = {
+  // A `hexbin` colorScale reads every panel's bins.
+  chrome: (viz, panels) => {
+    viz.ctx.geomapPanels = panels;
+  },
   share: (viz, panels) =>
     cartogramKind(viz)
       ? Math.max(0, ...panels.map(rows => panelTotal(viz, rows)))
