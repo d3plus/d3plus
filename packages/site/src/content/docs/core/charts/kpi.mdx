@@ -1,0 +1,56 @@
+---
+title: KPI
+description: "Creates KPI tiles from an array of data: one tile per row or group showing its value large, its change against the previous value colored as good or bad news, and a sparkline of its history."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/kpi/basic-example.js?raw";
+import goodNewsAndBadNews from "~/examples/core/charts/kpi/good-news-and-bad-news.js?raw";
+import previousValues from "~/examples/core/charts/kpi/previous-values.js?raw";
+import sparklines from "~/examples/core/charts/kpi/sparklines.js?raw";
+import smallMultiples from "~/examples/core/charts/kpi/small-multiples.js?raw";
+import choosingThePeriod from "~/examples/core/charts/kpi/choosing-the-period.js?raw";
+
+Creates KPI tiles from an array of data: one tile per row (or `groupBy`
+group) showing its `value` large, its change against a previous value as
+▲/▼ colored good or bad news, and with `time` set, a sparkline of its
+history. The tiles flow left to right in a grid sized to the chart.
+
+## Basic example
+
+Give each metric a row per period and set `time`: each tile shows its latest period's value, the change from the period before it, and a sparkline of every period with the latest one marked. A rise reads as good news (green) and a fall as bad news (red). `valueFormat` formats the values and the absolute change; the percent change is written in the chart's locale.
+
+<Playground chart="KPI" code={basicExample} controls={["sparkline","delta"]} />
+
+## Good news and bad news
+
+`deltaDirection: "down"` makes a fall the good news, for costs, churn, or wait times; a function sets it per tile. `delta` picks what the change shows: `"percent"` (the default), `"absolute"`, `"both"`, or `false`. A tile that didn't move shows its change in gray.
+
+<Playground chart="KPI" code={goodNewsAndBadNews} controls={["delta","deltaDirection"]} />
+
+## Previous values
+
+Without `time`, give each row its own comparison: `previous` reads it from a key (`"previous"` by default) or a function. `comparisonLabel` sets the words after the change ("vs. previous" by default, translated), or `false` hides them; they're left out of a tile too narrow to hold them.
+
+<Playground chart="KPI" code={previousValues} controls={["comparisonLabel","delta"]} />
+
+## Sparklines and the grid
+
+`sparkline` draws each tile's history as an `"area"` (the default), a `"line"`, or `"bar"`s with the current period in full color, or `false` for none. Every tile's sparkline takes one color, the color defaults' `sequential` blue, so it never reads as good or bad news; set `color` to color the tiles by a key. The grid picks the column count that draws the tiles largest at `tileConfig.aspect` (1.75 by default); `tileConfig.columns` or `rows` fixes it, `padding` spaces the tiles, and `fill`, `stroke`, `strokeWidth`, and `rx` style each tile's card.
+
+<Playground chart="KPI" code={sparklines} controls={["sparkline","tileConfig"]} />
+
+## Small multiples
+
+`facet` draws a grid of tiles per panel, each tile's history and change read from that panel's rows.
+
+<Playground chart="KPI" code={smallMultiples} controls={["facet"]} />
+
+## Choosing the period
+
+The sparklines show each tile's history, so the timeline is off by default. With `timeline: true`, picking a period shows its values, compared with the period before; brushing several periods sums them and compares the sum with as many periods before them.
+
+<Playground chart="KPI" code={choosingThePeriod} controls={["timeline"]} />
+
+<ApiReference name="KPI" pkg="core" />
