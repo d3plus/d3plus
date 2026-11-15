@@ -10,6 +10,9 @@ import bivariateChoropleth from "~/examples/core/charts/geomap/bivariate-choropl
 import coordinatePointMap from "~/examples/core/charts/geomap/coordinate-point-map.js?raw";
 import usStatesCartogram from "~/examples/core/charts/geomap/us-states-cartogram.js?raw";
 import worldCartogram from "~/examples/core/charts/geomap/world-cartogram.js?raw";
+import dotDensityMap from "~/examples/core/charts/geomap/dot-density-map.js?raw";
+import dotDensityCategories from "~/examples/core/charts/geomap/dot-density-categories.js?raw";
+import hexbinMap from "~/examples/core/charts/geomap/hexbin-map.js?raw";
 import flowMap from "~/examples/core/charts/geomap/flow-map.js?raw";
 import globe from "~/examples/core/charts/geomap/globe.js?raw";
 import edgeBundling from "~/examples/core/charts/geomap/edge-bundling.js?raw";
@@ -55,11 +58,29 @@ Two fields given to `colorScale` color each region by both at once. Each variabl
 
 <Playground chart="Geomap" code={worldCartogram} controls={["cartogram","cartogramPadding","projection","renderer"]} />
 
+## Dot-density map
+
+`dotDensity` draws one dot for every `per` units of each region's `value`, here one for every 25,000 people, scattered inside the state. The dots are placed by a random stream seeded by each state's id, so redrawing, resizing, or changing a value never moves a dot already on the map (a larger value only adds dots), and every dot lands inside its state, outside any hole in it. The outlines stay drawn: hover a state for its total, or its dots for their count and what each stands for. `r` sets the dot radius (`1.5` pixels) and `fillOpacity` their opacity (`0.8`). So the map stays quick to draw, it holds the total to `max` dots (20,000 on SVG, 100,000 on Canvas), raising `per` to the next round number past it.
+
+<Playground chart="Geomap" code={dotDensityMap} controls={["dotDensity","renderer","tiles"]} />
+
+## Dot density by category
+
+With two `groupBy` levels, the outer one splits each region's dots into categories: here each state's customers by plan, one dot for every 1,000. Each plan's dots take its color and mix with the others inside the state, and the legend lists the plans. Hovering a state lists each plan's total.
+
+<Playground chart="Geomap" code={dotDensityCategories} controls={["dotDensity","legendPosition","renderer"]} />
+
 ## Coordinate point map
 
 Rather than shading regions, this drops a marker per datum: `point` returns each row's `[longitude, latitude]`, and `pointSize` scales the radius between `pointSizeMin` and `pointSizeMax` by `dma_code`.
 
 <Playground chart="Geomap" code={coordinatePointMap} controls={["point","pointSize","pointSizeMin","pointSizeMax"]} />
+
+## Hexbin map
+
+`hexbin` bins the coordinate points into hexagons on the map, the way the [Hexbin](/core/charts/hexbin/) chart does, and colors each on the colorScale by how many points it holds, here the cities of each 20-pixel hexagon. Give it a `value` to color each bin by the `"sum"` (or, with `agg`, the `"mean"`) of that value over its points instead. Hover a bin for its measure. The bins are laid out for the map's size, so they grow with it as you zoom in, and they sit over the tiles without being clipped to land.
+
+<Playground chart="Geomap" code={hexbinMap} controls={["hexbin","colorScaleConfig","tiles"]} />
 
 ## Flow map
 
