@@ -102,7 +102,6 @@ const draw = ({config, renderer, html = true}) =>
             "2024-03-11",
             "2024-03-15",
             "2024-03-22",
-            "2024-03-23",
             "2024-03-25",
           ].map(d => [d, xAt(d)]),
         ),
@@ -163,9 +162,9 @@ for (const renderer of ["svg", "canvas"]) {
       draw,
       {config: {...base, today: "2024-03-15"}, renderer},
     );
-    // The milestone diamond is centered on the end of its day.
+    // The milestone diamond is centered on the start of its day.
     const review = nodes["gantt-milestone-Review"];
-    near(review.x, xs["2024-03-23"], "milestone x");
+    near(review.x, xs["2024-03-22"], "milestone x");
     assert.strictEqual(review.datum, "Review");
     const r = Number(/^M[-\d.]+,(-?[\d.]+)/.exec(review.d)[1]) * -1;
     assert.ok(r > 0, "diamond has a size");

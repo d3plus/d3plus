@@ -42,7 +42,8 @@ afterEach(() => vi.restoreAllMocks());
 
 /**
     Plan → Design → Review → Ship is critical, each running through its end
-    date; Copy has five working days of slack.
+    date (and the milestone on the next day); Copy has five working days of
+    slack.
 */
 const plan = [
   {id: "Plan", start: "2024-03-04", end: "2024-03-08"},
@@ -50,8 +51,8 @@ const plan = [
   {id: "Copy", start: "2024-03-11", end: "2024-03-13", dependencies: "Plan"},
   {
     id: "Review",
-    start: "2024-03-20",
-    end: "2024-03-20",
+    start: "2024-03-21",
+    end: "2024-03-21",
     dependencies: ["Design", "Copy"],
   },
   {id: "Ship", start: "2024-03-21", end: "2024-03-27", dependencies: "Review"},
@@ -393,7 +394,7 @@ it("Gantt: the tooltip lists Slack and Latest start, translated", () => {
     "0 working days",
   ]);
   assert.deepStrictEqual(ganttTooltipRows(viz, byId("Review"), 3), [
-    ["Milestone", "Mar 20, 2024"],
+    ["Milestone", "Mar 21, 2024"],
     ["Slack", "0 working days"],
   ]);
   viz.locale("es-ES");

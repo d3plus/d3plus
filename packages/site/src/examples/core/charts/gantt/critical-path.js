@@ -11,14 +11,14 @@ const schedule = [
   {
     task: "Requirements",
     phase: "Discovery",
-    start: "2024-03-05",
+    start: "2024-03-04",
     end: "2024-03-13",
     dependencies: ["Kickoff"],
   },
   {
     task: "Content audit",
     phase: "Discovery",
-    start: "2024-03-05",
+    start: "2024-03-04",
     end: "2024-03-08",
     dependencies: ["Kickoff"],
   },
@@ -74,8 +74,8 @@ const schedule = [
   {
     task: "Launch",
     phase: "Launch",
-    start: "2024-05-03",
-    end: "2024-05-03",
+    start: "2024-05-06",
+    end: "2024-05-06",
     dependencies: ["QA"],
   },
 ];

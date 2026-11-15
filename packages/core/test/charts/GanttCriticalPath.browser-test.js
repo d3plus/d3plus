@@ -13,7 +13,8 @@ import {render} from "~test/browser/render.js";
 
 /**
     Plan → Design → Review → Ship is critical, each running through its end
-    date; Copy has five working days of slack.
+    date (and the milestone on the next day); Copy has five working days of
+    slack.
 */
 const tasks = [
   {task: "Plan", start: "2024-03-04", end: "2024-03-08"},
@@ -26,8 +27,8 @@ const tasks = [
   {task: "Copy", start: "2024-03-11", end: "2024-03-13", dependencies: "Plan"},
   {
     task: "Review",
-    start: "2024-03-20",
-    end: "2024-03-20",
+    start: "2024-03-21",
+    end: "2024-03-21",
     dependencies: ["Design", "Copy"],
   },
   {

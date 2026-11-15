@@ -89,10 +89,11 @@ it("taskTimes runs a whole-day end through that day; Dates end where given", () 
   assert.strictEqual(+dates.end, +new Date(2024, 2, 8));
   assert.strictEqual(dates.inclusive, false);
   assert.strictEqual(+shownEnd(dates), +new Date(2024, 2, 8));
-  // A milestone on a whole day stays a point, at the end of that day.
+  // A milestone on a whole day stays a point, at the start of that day.
   const point = taskTimes(viz, {start: "2024-03-08", end: "2024-03-08"}, 0);
   assert.strictEqual(point.milestone, true);
-  assert.strictEqual(+point.start, +new Date(2024, 2, 9));
+  assert.strictEqual(point.inclusive, false);
+  assert.strictEqual(+point.start, +new Date(2024, 2, 8));
   assert.strictEqual(+point.end, +point.start);
   assert.strictEqual(+shownEnd(point), +new Date(2024, 2, 8));
   // A flagged milestone spanning days keeps its start.
@@ -102,6 +103,7 @@ it("taskTimes runs a whole-day end through that day; Dates end where given", () 
     0,
   );
   assert.strictEqual(+flagged.start, +new Date(2024, 2, 4));
+  assert.strictEqual(+flagged.end, +new Date(2024, 2, 8), "its diamond's day");
   // A numeric axis has no whole days.
   viz.axisConfig({scale: "linear"});
   const n = taskTimes(viz, {start: 1, end: 4}, 0);
@@ -111,9 +113,10 @@ it("taskTimes runs a whole-day end through that day; Dates end where given", () 
 it("taskTimes steps UTC days on a UTC axis", () => {
   const viz = gantt([], {axisConfig: {scale: "time", utc: true}});
   const day = taskTimes(viz, {start: "2024-03-04", end: "2024-03-08"}, 0);
+  assert.strictEqual(+day.end, Date.UTC(2024, 2, 9));
   assert.strictEqual(
-    +day.end - +taskTimes(viz, {end: "2024-03-08"}, 0).start,
-    0,
+    +taskTimes(viz, {end: "2024-03-08"}, 0).start,
+    Date.UTC(2024, 2, 8),
   );
   assert.strictEqual(day.inclusive, true);
 });
@@ -129,8 +132,8 @@ it("bars, the axis domain, and the tooltip run through a whole-day end", () => {
   assert.strictEqual(planMark.x1, l.x(new Date(2024, 2, 9)));
   assert.strictEqual(
     review.x1,
-    planMark.x1,
-    "the milestone meets its day's end",
+    l.x(new Date(2024, 2, 8)),
+    "the milestone sits at the start of its day, inside Plan's last day",
   );
   assert.ok(l.plot.x1 >= planMark.x1, "the axis spans the last day");
   assert.deepStrictEqual(ganttTooltipRows(viz, data[0], 0), [
@@ -156,6 +159,27 @@ it("a whole-day end and the next day's start hand off with no slack", () => {
   const {layout: l} = layout(viz);
   assert.ok(l.critical);
   assert.strictEqual(taskSlack(viz, data[0]).slack, 0);
+});
+
+it("a milestone the next day, or the next working day, has no slack", () => {
+  for (const [end, on] of [
+    ["2024-03-07", "2024-03-08"],
+    ["2024-03-08", "2024-03-11"],
+  ]) {
+    const data = [
+      {id: "Kickoff", start: "2024-03-04", end: "2024-03-04"},
+      {id: "Build", start: "2024-03-04", end, dependencies: "Kickoff"},
+      {id: "Launch", start: on, end: on, dependencies: "Build"},
+    ];
+    const viz = gantt(data);
+    const {layout: l} = layout(viz);
+    assert.ok(l.critical, `${end} → ${on} chains`);
+    assert.deepStrictEqual(
+      data.map(d => taskSlack(viz, d).slack),
+      [0, 0, 0],
+      `${end} → ${on}`,
+    );
+  }
 });
 
 it("weekendRule and workingBreaks follow the locale's weekend", () => {

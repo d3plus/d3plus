@@ -178,9 +178,9 @@ export const ganttDef: DataDrivenChartDefinition = {
     },
     /**
         Accessor function or string key for whether a task is a milestone,
-        drawn as a diamond at its `end` (the end of that day, when `end`
+        drawn as a diamond at its `end` (the start of that day, when `end`
         names a whole day). Without one, a task that starts and ends at the
-        same time, or on the same day, is a milestone.
+        same time is a milestone.
         @type {string | function | false}
     */
     {key: "milestone", default: accessor("milestone"), coerce: taskAccessor},

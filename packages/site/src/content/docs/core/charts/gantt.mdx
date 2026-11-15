@@ -22,13 +22,13 @@ optional `today` line.
 
 ## Basic example
 
-Each task gets its own row, labeled in the column on the left, with a bar from its `start` to its `end` on the time axis along the top. An `end` that names a whole day (`"2024-03-08"`) runs through that day, so a task from Monday to Friday covers all five; a `Date` or a time of day ends right where it says. A task that starts and ends on the same day is a milestone, drawn as a diamond at the end of that day.
+Each task gets its own row, labeled in the column on the left, with a bar from its `start` to its `end` on the time axis along the top. An `end` that names a whole day (`"2024-03-08"`) runs through that day, so a task from Monday to Friday covers all five; a `Date` or a time of day ends right where it says. A task that starts and ends on the same day is a milestone, drawn as a diamond at the start of that day.
 
 <Playground chart="Gantt" code={basicExample} controls={["start","end","taskSort","labelWidth"]} />
 
 ## Dependencies
 
-Each task's `dependencies` lists the ids of the tasks it waits on. An arrow leaves each predecessor's end and turns into the dependent's start; when the dependent starts before there is room to turn, the arrow doubles back between the rows. Arrows take the chart's text color at reduced opacity, and stay lit when either end is hovered. Linked tasks also show their [critical path](#critical-path) by default: here the chain from Kickoff through API, Front end, and Testing to Go live draws bold, and the design tasks, which have slack, are muted.
+Each task's `dependencies` lists the ids of the tasks it waits on. An arrow leaves each predecessor's end and turns into the dependent's start; when the dependent starts before there is room to turn, the arrow doubles back between the rows. Arrows take the chart's text color at reduced opacity, and stay lit when either end is hovered. Linked tasks also show their [critical path](#critical-path) by default: here the chain from Kickoff through API, Front end, and Testing to Go live draws bold, with Wireframes feeding it, while Visual design and Design review, which have slack, are muted. Where a task starts before its predecessor ends, the predecessor's slack is negative, and it's critical too.
 
 <Playground chart="Gantt" code={dependencies} controls={["dependencies","dependencyConfig","criticalPath"]} />
 
