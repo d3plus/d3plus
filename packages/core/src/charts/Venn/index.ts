@@ -8,6 +8,8 @@
       - `vennLayout.ts` — the area-proportional and classic layouts.
       - `vennFit.ts` — orientation, packing apart sets that don't overlap,
         and fitting the circles to the chart area.
+      - `vennEllipses.ts` — the classic four- and five-set ellipses, drawn
+        as polygons, their intersections and label spots.
       - `vennRegions.ts` — label spots and exclusive counts.
       - `vennData.ts` — reading rows, hidden sets, and blended region colors.
       - `applyLayout.ts` — chart-specific `TransformStage`.
@@ -124,9 +126,12 @@ export const vennDef: DataDrivenChartDefinition = {
         each overlap's area matches its row's size, as closely as circles
         allow (exact for two sets, close for three, approximate beyond).
         Sets that share nothing are drawn apart, and a set inside another
-        inside its circle. When `false`, every set is an equal circle in the
-        classic arrangement (side by side, a triangle, or a ring), whatever
-        the sizes.
+        inside its circle. When `false`, the sets take the textbook
+        arrangement, whatever their sizes, in which every combination of
+        sets has a region: equal circles side by side for two sets or in a
+        triangle for three, Venn's four ellipses, Grünbaum's five
+        symmetric ellipses, and a ring of equal circles for six or more
+        (where not every combination can appear).
     */
     {key: "proportional", default: true},
     /**

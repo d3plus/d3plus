@@ -2589,8 +2589,10 @@ export interface D3plusConfig {
       its size and each overlap's area its row's size, as closely as circles
       allow (exact for two sets, close for three, approximate beyond); sets
       that share nothing are drawn apart and a set inside another inside its
-      circle. When `false`, every set is an equal circle in the classic
-      arrangement (side by side, a triangle, or a ring).
+      circle. When `false`, the sets take the textbook arrangement in which
+      every combination has a region: equal circles for two or three sets,
+      Venn's four ellipses, Grünbaum's five symmetric ellipses, and a ring of
+      equal circles for six or more (where not every combination appears).
   */
   proportional?: boolean;
   /**

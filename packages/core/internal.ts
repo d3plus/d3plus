@@ -1054,6 +1054,21 @@ export {
 } from "./src/charts/Venn/vennRegions.js";
 export type {VennLabelSpot} from "./src/charts/Venn/vennRegions.js";
 export {
+  ELLIPSE_SEGMENTS,
+  FIVE_ELLIPSES,
+  FOUR_ELLIPSES,
+  classicEllipses,
+  clipConvex,
+  edgeDistance,
+  ellipsePolygon,
+  fitPolygons,
+  polygonIntersection,
+  polygonLabelSpot,
+  polygonMargin,
+  polygonPath,
+} from "./src/charts/Venn/vennEllipses.js";
+export type {VennEllipse, VennPoint} from "./src/charts/Venn/vennEllipses.js";
+export {
   SET_SEPARATOR,
   blendColors,
   blendedFill,
@@ -1069,12 +1084,17 @@ export {
 export {
   VENN_PADDING,
   applyVennLayout,
+  ellipseRegions,
   exclusiveCounts,
   setOrder,
   vennCircles,
   vennRegions,
 } from "./src/charts/Venn/applyLayout.js";
-export type {VennRegion} from "./src/charts/Venn/applyLayout.js";
+export type {
+  RowArea,
+  VennLayoutResult,
+  VennRegion,
+} from "./src/charts/Venn/applyLayout.js";
 export {
   LABEL_FONT_MAX,
   MIN_LABEL_ROOM,

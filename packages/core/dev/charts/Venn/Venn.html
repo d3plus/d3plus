@@ -5,7 +5,7 @@
     <title>Venn</title>
     <meta
       name="description"
-      content="Venn diagrams: area-proportional circles for two and three sets, the classic equal circles, an Euler diagram of nested and separate sets, five sets, inclusive counts, and small multiples."
+      content="Venn diagrams: area-proportional circles for two and three sets, the classic equal circles and the four- and five-set ellipses, an Euler diagram of nested and separate sets, five sets, inclusive counts, and small multiples."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -45,6 +45,14 @@
       <div>
         <h3>proportional: false (the classic equal circles)</h3>
         <div class="viz" id="classic"></div>
+      </div>
+      <div>
+        <h3>proportional: false with four sets (Venn's four ellipses)</h3>
+        <div class="viz" id="fourEllipses"></div>
+      </div>
+      <div>
+        <h3>proportional: false with five sets (Grünbaum's ellipses)</h3>
+        <div class="viz" id="fiveEllipses"></div>
       </div>
       <div>
         <h3>An Euler diagram: a set inside another, and one apart</h3>
@@ -90,6 +98,28 @@
     new d3plus.Venn()
       .select("#classic")
       .data(languages)
+      .proportional(false)
+      .render();
+
+    // Every combination of the given sets, sized by how many sets it joins.
+    const everyCombination = names => {
+      const rows = [];
+      for (let mask = 1; mask < 1 << names.length; mask++) {
+        const sets = names.filter((_, k) => mask & (1 << k));
+        rows.push({sets, size: Math.round(400 / 2 ** sets.length)});
+      }
+      return rows;
+    };
+
+    new d3plus.Venn()
+      .select("#fourEllipses")
+      .data(everyCombination(["Apples", "Bananas", "Cherries", "Dates"]))
+      .proportional(false)
+      .render();
+
+    new d3plus.Venn()
+      .select("#fiveEllipses")
+      .data(everyCombination(["Ann", "Ben", "Cal", "Dee", "Eve"]))
       .proportional(false)
       .render();
 

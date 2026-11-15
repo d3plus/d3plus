@@ -227,9 +227,10 @@ export function proportionalLayout(areas: VennArea[]): VennCircles {
 }
 
 /**
-    The classic layout: every set an equal circle of radius 1. One set
-    alone, two side by side, three in a triangle (two above, one below),
-    and four or more in a ring around a center they all cover.
+    The classic circle layout: every set an equal circle of radius 1. One
+    set alone, two side by side, three in a triangle (two above, one
+    below), and more in a ring around a center they all cover (the chart
+    draws four and five sets as ellipses instead; see `vennEllipses.ts`).
 */
 export function classicLayout(names: string[]): VennCircles {
   const out: VennCircles = {};
