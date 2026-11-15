@@ -247,6 +247,62 @@ export function polygonPath(polygon: VennPoint[]): string {
   return `M${polygon.map(p => `${p[0]},${p[1]}`).join("L")}Z`;
 }
 
+/** The box around points. */
+export interface PointBounds {
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+}
+
+/** The box around every point given. */
+export function pointBounds(points: VennPoint[]): PointBounds {
+  let x0 = Infinity,
+    x1 = -Infinity,
+    y0 = Infinity,
+    y1 = -Infinity;
+  for (const [x, y] of points) {
+    x0 = Math.min(x0, x);
+    x1 = Math.max(x1, x);
+    y0 = Math.min(y0, y);
+    y1 = Math.max(y1, y);
+  }
+  return {x0, x1, y0, y1};
+}
+
+/** A uniform scale then a shift, as `[x * scale + dx, y * scale + dy]`. */
+export interface PointFit {
+  scale: number;
+  dx: number;
+  dy: number;
+}
+
+/**
+    The scale and shift that fit `bounds` inside a `width` × `height` box
+    less `padding` on every side, centered, keeping its proportions.
+*/
+export function fitBounds(
+  bounds: PointBounds,
+  width: number,
+  height: number,
+  padding = 0,
+): PointFit {
+  const {x0, x1, y0, y1} = bounds;
+  const w = Math.max(0, width - 2 * padding);
+  const h = Math.max(0, height - 2 * padding);
+  const scale = x1 > x0 && y1 > y0 ? Math.min(w / (x1 - x0), h / (y1 - y0)) : 0;
+  return {
+    scale,
+    dx: padding + (w - (x1 - x0) * scale) / 2 - x0 * scale,
+    dy: padding + (h - (y1 - y0) * scale) / 2 - y0 * scale,
+  };
+}
+
+/** A point moved by a fit. */
+export function fitPoint([x, y]: VennPoint, fit: PointFit): VennPoint {
+  return [x * fit.scale + fit.dx, y * fit.scale + fit.dy];
+}
+
 /**
     Scales and centers polygons to fit inside a `width` × `height` box less
     `padding` on every side, keeping their proportions.
@@ -259,19 +315,11 @@ export function fitPolygons(
 ): Record<string, VennPoint[]> {
   const all = Object.values(polygons).flat();
   if (!all.length) return {};
-  const xs = all.map(p => p[0]);
-  const ys = all.map(p => p[1]);
-  const [x0, x1] = [Math.min(...xs), Math.max(...xs)];
-  const [y0, y1] = [Math.min(...ys), Math.max(...ys)];
-  const w = Math.max(0, width - 2 * padding);
-  const h = Math.max(0, height - 2 * padding);
-  const scale = x1 > x0 && y1 > y0 ? Math.min(w / (x1 - x0), h / (y1 - y0)) : 0;
-  const dx = padding + (w - (x1 - x0) * scale) / 2;
-  const dy = padding + (h - (y1 - y0) * scale) / 2;
+  const fit = fitBounds(pointBounds(all), width, height, padding);
   return Object.fromEntries(
     Object.entries(polygons).map(([s, poly]) => [
       s,
-      poly.map(([x, y]) => [dx + (x - x0) * scale, dy + (y - y0) * scale]),
+      poly.map(p => fitPoint(p, fit)),
     ]),
   );
 }

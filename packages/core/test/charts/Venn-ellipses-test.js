@@ -9,7 +9,10 @@ import {
   clipConvex,
   edgeDistance,
   ellipsePolygon,
+  fitBounds,
+  fitPoint,
   fitPolygons,
+  pointBounds,
   polygonIntersection,
   polygonLabelSpot,
   polygonMargin,
@@ -19,6 +22,11 @@ import {
   ellipseRegions,
   vennRegions,
 } from "../../src/charts/Venn/applyLayout.ts";
+import {
+  ellipseFrame,
+  fitRegion,
+  frameRegion,
+} from "../../src/charts/Venn/ellipseFrame.ts";
 import {MIN_LABEL_ROOM, regionLines} from "../../src/charts/Venn/emit.ts";
 import {near} from "~test/helpers.js";
 
@@ -227,11 +235,10 @@ it("Venn ellipses: ellipseRegions skips rows naming unknown sets and counts excl
     row,
     i,
   }));
-  const {regions} = ellipseRegions(
-    areas,
-    classicEllipses(["A", "B", "C", "D"]),
-    {width: 400, height: 400},
-  );
+  const {regions} = ellipseRegions(areas, ["A", "B", "C", "D"], {
+    width: 400,
+    height: 400,
+  });
   assert.deepStrictEqual(
     regions.map(r => [r.sets.join(), r.exclusive]),
     [
@@ -239,4 +246,87 @@ it("Venn ellipses: ellipseRegions skips rows naming unknown sets and counts excl
       ["A,B", 4],
     ],
   );
+});
+
+it("Venn ellipses: pointBounds, fitBounds, and fitPoint place points in a padded box", () => {
+  const b = pointBounds([
+    [1, 2],
+    [5, 4],
+  ]);
+  assert.deepStrictEqual(b, {x0: 1, x1: 5, y0: 2, y1: 4});
+  const fit = fitBounds(b, 100, 100, 10);
+  assert.strictEqual(fit.scale, 20);
+  assert.deepStrictEqual(fitPoint([1, 2], fit), [10, 30]);
+  assert.deepStrictEqual(fitPoint([5, 4], fit), [90, 70]);
+  assert.strictEqual(fitBounds({x0: 0, x1: 0, y0: 0, y1: 1}, 10, 10).scale, 0);
+});
+
+it("Venn ellipses: the frame for a set count is made once and each region worked out once", () => {
+  assert.strictEqual(ellipseFrame(3), undefined);
+  assert.strictEqual(ellipseFrame(6), undefined);
+  const frame = ellipseFrame(5);
+  assert.strictEqual(ellipseFrame(5), frame, "the same frame");
+  assert.strictEqual(frame.polygons.length, 5);
+  const shape = frameRegion(frame, 0b00101);
+  assert.ok(shape.outline.length && shape.label.margin > 0);
+  assert.strictEqual(frameRegion(frame, 0b00101), shape, "the same region");
+  // Two layouts at different sizes read the same kept regions.
+  const rows = combinations(["A", "B", "C", "D", "E"]);
+  const areas = rows.map((row, i) => ({
+    sets: row.sets,
+    size: row.size,
+    row,
+    i,
+  }));
+  ellipseRegions(areas, ["A", "B", "C", "D", "E"], {width: 300, height: 300});
+  const kept = new Map(frame.regions);
+  assert.strictEqual(kept.size, 31);
+  ellipseRegions(areas, ["A", "B", "C", "D", "E"], {width: 900, height: 500});
+  for (const [mask, region] of frame.regions)
+    assert.strictEqual(region, kept.get(mask), `region ${mask} reused`);
+});
+
+it("Venn ellipses: scaled regions keep their labels inside, with room that scales", () => {
+  const names = ["A", "B", "C", "D"];
+  const rows = combinations(names);
+  const areas = rows.map((row, i) => ({
+    sets: row.sets,
+    size: row.size,
+    row,
+    i,
+  }));
+  const small = ellipseRegions(areas, names, {width: 300, height: 300});
+  for (const size of [
+    {width: 300, height: 300},
+    {width: 900, height: 450},
+    {width: 420, height: 800},
+  ]) {
+    const {regions, polygons} = ellipseRegions(areas, names, size);
+    regions.forEach((r, k) => {
+      const within = names.filter(s =>
+        polygonContains(polygons[s], [r.label.x, r.label.y]),
+      );
+      assert.deepStrictEqual(within, r.sets, `${r.sets} at ${size.width}`);
+      assert.ok(
+        r.label.x - r.label.margin >= 0 &&
+          r.label.x + r.label.margin <= size.width,
+      );
+      const ratio = r.label.margin / small.regions[k].label.margin;
+      near(
+        ratio,
+        regions[0].label.margin / small.regions[0].label.margin,
+        1e-9,
+      );
+    });
+  }
+  const frame = ellipseFrame(4);
+  const fitted = fitRegion(frameRegion(frame, 0b1111), {
+    scale: 2,
+    dx: 5,
+    dy: 7,
+  });
+  const raw = frameRegion(frame, 0b1111);
+  near(fitted.label.margin, raw.label.margin * 2, 1e-12);
+  near(fitted.label.x, raw.label.x * 2 + 5, 1e-12);
+  near(fitted.outline[0][1], raw.outline[0][1] * 2 + 7, 1e-12);
 });

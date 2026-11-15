@@ -1061,13 +1061,30 @@ export {
   clipConvex,
   edgeDistance,
   ellipsePolygon,
+  fitBounds,
+  fitPoint,
   fitPolygons,
+  pointBounds,
   polygonIntersection,
   polygonLabelSpot,
   polygonMargin,
   polygonPath,
 } from "./src/charts/Venn/vennEllipses.js";
-export type {VennEllipse, VennPoint} from "./src/charts/Venn/vennEllipses.js";
+export type {
+  PointBounds,
+  PointFit,
+  VennEllipse,
+  VennPoint,
+} from "./src/charts/Venn/vennEllipses.js";
+export {
+  ellipseFrame,
+  fitRegion,
+  frameRegion,
+} from "./src/charts/Venn/ellipseFrame.js";
+export type {
+  EllipseFrame,
+  EllipseRegionShape,
+} from "./src/charts/Venn/ellipseFrame.js";
 export {
   SET_SEPARATOR,
   blendColors,

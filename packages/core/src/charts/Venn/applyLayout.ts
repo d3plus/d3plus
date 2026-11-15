@@ -16,15 +16,9 @@ import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {circlePath, intersectionPath} from "./circles.js";
 import {rowSets, rowSize} from "./vennData.js";
-import {
-  classicEllipses,
-  ellipsePolygon,
-  fitPolygons,
-  polygonIntersection,
-  polygonLabelSpot,
-  polygonPath,
-} from "./vennEllipses.js";
-import type {VennEllipse, VennPoint} from "./vennEllipses.js";
+import {ellipseFrame, fitRegion, frameRegion} from "./ellipseFrame.js";
+import {fitBounds, fitPoint, polygonPath} from "./vennEllipses.js";
+import type {VennPoint} from "./vennEllipses.js";
 import {fitCircles, normalizeCircles} from "./vennFit.js";
 import {areaKey, classicLayout, proportionalLayout} from "./vennLayout.js";
 import type {VennArea, VennCircles} from "./vennLayout.js";
@@ -119,58 +113,44 @@ export interface VennLayoutResult {
   polygons?: Record<string, VennPoint[]>;
 }
 
-/** A region of the classic ellipse layouts, before its exclusive count. */
-function ellipseRegion(
-  a: RowArea,
-  polygons: Record<string, VennPoint[]>,
-): Omit<VennRegion, "exclusive"> | undefined {
-  const own = a.sets.map(s => polygons[s]);
-  const shared = own.length === 1 ? own[0] : polygonIntersection(own);
-  if (!shared.length) return undefined;
-  const outside = Object.entries(polygons)
-    .filter(([s]) => !a.sets.includes(s))
-    .map(([, p]) => p);
-  return {
-    __d3plus__: true,
-    data: a.row,
-    i: a.i,
-    sets: a.sets,
-    key: areaKey(a.sets),
-    d: polygonPath(shared),
-    value: a.size,
-    label: polygonLabelSpot(own, outside),
-    covered: false,
-  };
-}
-
 /**
-    The regions of `areas` on the classic ellipses (four or five sets),
-    fitted to a `width` × `height` box.
+    The regions of `areas` on the classic ellipses for `names` (four or
+    five sets, in order), fitted to a `width` × `height` box. The outlines
+    and label spots come from the kept frame for that many sets (see
+    `ellipseFrame.ts`), scaled and moved into place.
 */
 export function ellipseRegions(
   areas: RowArea[],
-  ellipses: Record<string, VennEllipse>,
+  names: string[],
   {width, height}: {width: number; height: number},
 ): VennLayoutResult {
-  const polygons = fitPolygons(
-    Object.fromEntries(
-      Object.entries(ellipses).map(([s, e]) => [s, ellipsePolygon(e)]),
-    ),
-    width,
-    height,
-    VENN_PADDING,
+  const frame = ellipseFrame(names.length);
+  if (!frame) return {regions: [], circles: {}};
+  const fit = fitBounds(frame.bounds, width, height, VENN_PADDING);
+  const polygons = Object.fromEntries(
+    names.map((s, k) => [s, frame.polygons[k].map(p => fitPoint(p, fit))]),
   );
-  const drawn = areas.filter(a => a.sets.every(s => polygons[s]));
+  const bit = new Map(names.map((s, k) => [s, 1 << k]));
+  const drawn = areas.filter(a => a.sets.every(s => bit.has(s)));
   const exclusive = exclusiveSizes(drawn);
   const regions: VennRegion[] = [];
   for (const a of drawn) {
-    const region = ellipseRegion(a, polygons);
-    if (!region) continue;
+    const mask = a.sets.reduce((m, s) => m | bit.get(s)!, 0);
+    const shape = frameRegion(frame, mask);
+    if (!shape) continue;
+    const {outline, label} = fitRegion(shape, fit);
+    const key = areaKey(a.sets);
     regions.push({
-      ...region,
-      exclusive: Number.isFinite(a.size)
-        ? (exclusive.get(region.key) ?? 0)
-        : NaN,
+      __d3plus__: true,
+      data: a.row,
+      i: a.i,
+      sets: a.sets,
+      key,
+      d: polygonPath(outline),
+      value: a.size,
+      exclusive: Number.isFinite(a.size) ? (exclusive.get(key) ?? 0) : NaN,
+      label,
+      covered: false,
     });
   }
   regions.sort((a, b) => a.sets.length - b.sets.length);
@@ -192,11 +172,9 @@ export function vennRegions(
     seen.add(key);
     areas.push({sets, size: rowSize(viz, row, i), row, i});
   });
-  const ellipses =
-    viz.schema.proportional === false
-      ? classicEllipses(setOrder(areas))
-      : undefined;
-  if (ellipses) return ellipseRegions(areas, ellipses, bounds);
+  const names = setOrder(areas);
+  if (viz.schema.proportional === false && ellipseFrame(names.length))
+    return ellipseRegions(areas, names, bounds);
   const circles = vennCircles(
     viz,
     areas,
