@@ -8,6 +8,7 @@ import {
   lineLabelBox,
   lineLabelConfig,
   lineLabelKey,
+  lineLabelName,
   lineLabelSides,
   lineLabelSpace,
   lineLabelText,
@@ -90,6 +91,24 @@ it("lineLabelText — the name, then the value", () => {
   assert.strictEqual(lineLabelText("Brazil"), "Brazil");
   assert.strictEqual(lineLabelText("Brazil", "37%"), "Brazil 37%");
   assert.strictEqual(lineLabelText(2024, "4"), "2024 4");
+});
+
+it("lineLabelName — the Line label's name, else the fallback", () => {
+  const row = {id: "a"};
+  const fallback = () => "Series a";
+  assert.strictEqual(lineLabelName(undefined, row, 0, fallback), "Series a");
+  assert.strictEqual(lineLabelName(null, row, 0, fallback), "Series a");
+  assert.strictEqual(lineLabelName("Hi", row, 0, fallback), "Hi");
+  assert.strictEqual(lineLabelName(0, row, 0, fallback), 0);
+  assert.strictEqual(
+    lineLabelName((d, i) => `${d.id}${i}`, row, 3, fallback),
+    "a3",
+  );
+  assert.strictEqual(lineLabelName(false, row, 0, fallback), false);
+  assert.strictEqual(
+    lineLabelName(() => false, row, 0, fallback),
+    false,
+  );
 });
 
 it("lineLabelKey — keeps each end's bumped position apart", () => {
@@ -387,6 +406,9 @@ it("lineLabelConfig — names a series from `name`, and hides unlabeled rows", (
     lineLabelConfig({...inputs, name: "Fixed"}).label({id: "b", data: {}}, 0),
     "Fixed",
   );
+  // A name of `false` leaves the line unlabeled, with no bounds to match.
+  const off = lineLabelConfig({...inputs, name: () => false});
+  assert.strictEqual(off.label({id: "a", data: {id: "a"}, i: 0}, 0), false);
   inputs.viz.schema.lineLabels = d => d.keep;
   const hidden = lineLabelConfig(inputs);
   assert.strictEqual(hidden.label({id: "a", data: {keep: false}}, 0), false);

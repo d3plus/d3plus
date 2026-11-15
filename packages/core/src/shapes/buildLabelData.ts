@@ -119,7 +119,9 @@ export function buildLabelData(opts: BuildLabelDataOpts): DataPoint[] {
           bounds.constructor === Array
             ? (bounds as unknown as Record<string, unknown>[])[l]
             : Object.assign({}, bounds)
-        ) as Record<string, number>;
+        ) as Record<string, number> | undefined;
+        // A label with no bounds of its own has nowhere to go.
+        if (!b) continue;
         const rot = rotate(d, i) as number;
         const labelConfig = d.labelConfig as DataPoint | undefined;
         let r: number =

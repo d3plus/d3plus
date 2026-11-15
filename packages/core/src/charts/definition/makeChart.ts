@@ -41,12 +41,14 @@ type VizCtor = new () => AnyViz;
 export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
   class Chart extends (Base as VizCtor) {
     static readonly _displayName: string = def.name;
+    static readonly _definition: ChartDefinition = def;
 
     constructor() {
       super();
       applyDefinition(this as unknown as VizInstance, def);
       if (def.colorScaleTooltip === false)
         (this as unknown as VizInstance)._colorScaleTooltip = false;
+      this._constructed(new.target, Chart);
     }
 
     _draw(callback?: () => void) {

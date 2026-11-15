@@ -111,6 +111,7 @@ export default class TextBox extends BaseClass {
     this.schema.lineHeight = (d: DataPoint, i?: number) =>
       this.schema.fontSize(d, i) * TEXTBOX_LINE_HEIGHT;
     this.schema.html = defaultHtmlLookup;
+    this._constructed(new.target, TextBox);
   }
 
   /**

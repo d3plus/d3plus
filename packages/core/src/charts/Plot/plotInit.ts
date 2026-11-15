@@ -34,6 +34,7 @@ import {stackLegendSort} from "./stackLegendOrder.js";
 import {chartGridline} from "../viz/backgroundInk.js";
 import {themed} from "../../utils/theme.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {plotShapeAccessors} from "./shapeAccessors.js";
 
 /**
     Plot's identity-coerce accessor schema. `installFluent` installs it on
@@ -138,6 +139,9 @@ export function initPlotDefaults(viz: Plot): void {
     viz.schema.shapeConfig,
     plotShapeDefaults.call(viz as unknown as VizInstance),
   );
+  // A string in a shape's per-datum key names a data field (see
+  // `shapeAccessors.ts`).
+  viz._readShapeConfig = plotShapeAccessors;
   viz._shapeOrder = [
     "Area",
     "Path",

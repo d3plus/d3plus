@@ -21,6 +21,7 @@ import {
 } from "./axisLabelKinds.js";
 import {calculateLabelSize, labelRoom} from "./axisLabelSize.js";
 import type {LabelLayoutCtx, LabelSize} from "./axisLabelSize.js";
+import {labelSizes} from "./labelSizeSession.js";
 import {slantedLineWidth, slantedLines} from "./axisSlantWrap.js";
 import {
   fitOwnSpaces,
@@ -313,7 +314,7 @@ export function createTextData(
 
   // Thinning measures the labels again as they read the ones shown (see
   // `show`), mostly to the same text, so each text is measured once.
-  const measured = new Map<string, LabelSize>();
+  const measured = labelSizes();
   const size = (
     datum: AxisTextDatum,
     space = (spaces ? spaces[datum.i] : maxSpace) - datum.fP * 2,

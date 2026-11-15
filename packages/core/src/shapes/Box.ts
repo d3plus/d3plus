@@ -319,6 +319,7 @@ export default class Box extends BaseClass {
     this._whiskerEndpoint = [];
     this._extras = {};
     this._owned = new Map();
+    this._constructed(new.target, Box);
   }
 
   /** A part's config, prepared the way every inner shape's is. */

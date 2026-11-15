@@ -56,6 +56,7 @@ export default class Circle extends Shape {
       textAnchor: "middle",
       verticalAlign: "middle",
     });
+    this._constructed(new.target, Circle);
   }
 
   /**

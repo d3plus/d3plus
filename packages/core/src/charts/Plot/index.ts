@@ -93,6 +93,7 @@ export default class Plot extends Viz {
     installFluent(this, plotSchema);
     initPlotDefaults(this);
     initPlotAxes(this);
+    this._constructed(new.target, Plot);
   }
 
   /**
@@ -102,7 +103,8 @@ export default class Plot extends Viz {
   _preDraw() {
     keepOrderField(this as unknown as VizInstance);
     levelAggs(this as unknown as VizInstance);
-    // `discrete`, else an axis of text values, is the discrete axis.
+    // `discrete`, else an axis of text values, else x under bars, areas, or
+    // boxes, is the discrete axis.
     resolveDiscrete(this as unknown as VizInstance);
     // Rows at different times stay apart, wherever the discrete axis is.
     this._nestKeys = timeNestKeys(this as unknown as VizInstance);

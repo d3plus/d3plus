@@ -45,6 +45,7 @@ export default class Tick extends Rect {
       height: Math.max(TICK_HIT_SIZE, size(d, i, "height")),
     });
     this.schema.label = constant(false);
+    this._constructed(new.target, Tick);
   }
 
   /**

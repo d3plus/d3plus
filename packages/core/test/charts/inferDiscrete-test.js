@@ -86,6 +86,49 @@ it("inferDiscrete — none when discrete is set, for a swarm, or on a time axis"
   );
 });
 
+it("inferDiscrete — bars, areas, and boxes on two axes of numbers stand on x", () => {
+  const plot = () => new Plot().data(rows).x("value").y("value");
+  for (const shape of ["Bar", "Area", "Box"])
+    assert.strictEqual(inferDiscrete(plot().shape(shape)), "x", shape);
+  assert.strictEqual(
+    inferDiscrete(plot().shape(d => (d.id === "b" ? "Bar" : "Line"))),
+    "x",
+    "any row's bar",
+  );
+  assert.strictEqual(inferDiscrete(plot().shape("Circle")), undefined);
+  assert.strictEqual(
+    inferDiscrete(plot().shape("Bar").discrete("y")),
+    undefined,
+  );
+  // Text still picks the axis.
+  assert.strictEqual(
+    inferDiscrete(new Plot().data(rows).x("value").y("fruit").shape("Bar")),
+    "y",
+  );
+  assert.strictEqual(
+    inferDiscrete(
+      new Plot().data(rows).x("day").y("value").time("day").shape("Bar"),
+    ),
+    "x",
+    "bars on a time axis",
+  );
+});
+
+it("inferDiscrete — bars beside a swarm stand across its value axis", () => {
+  const bars = new Plot().data(rows).x("value").y("value").shape("Bar");
+  // With no circles, the swarm is off, and the bars stand on x.
+  assert.strictEqual(inferDiscrete(bars.swarm(true)), "x");
+  assert.strictEqual(inferDiscrete(bars.swarm("x")), "x");
+  const mixed = new Plot()
+    .data(rows)
+    .x("value")
+    .y("value")
+    .shape(d => (d.id === "b" ? "Bar" : "Circle"));
+  assert.strictEqual(inferDiscrete(mixed.swarm(true)), "x");
+  assert.strictEqual(inferDiscrete(mixed.swarm("y")), "x");
+  assert.strictEqual(inferDiscrete(mixed.swarm("x")), "y");
+});
+
 it("resolveDiscrete — notes the inferred axis; the setting wins at once", () => {
   const scatter = new Scatter().data(rows).x("fruit").y("value");
   resolveDiscrete(scatter);
@@ -100,6 +143,12 @@ it("resolveDiscrete — notes the inferred axis; the setting wins at once", () =
   scatter.discrete(undefined).x("value");
   resolveDiscrete(scatter);
   assert.strictEqual(vizDiscrete(scatter), undefined, "nothing to infer");
+  // Bars with no baseline grow from 0.
+  const bars = new Plot().data(rows).x("value").y("value").shape("Bar");
+  resolveDiscrete(bars);
+  assert.strictEqual(bars._shapeBaseline, 0);
+  resolveDiscrete(bars.baseline(5));
+  assert.strictEqual(bars._shapeBaseline, undefined, "the user's baseline");
   // Charts that set discrete themselves keep it, whatever their values.
   for (const Chart of [BarChart, LinePlot, BoxWhisker]) {
     const viz = new Chart().data(rows).x("value").y("fruit");

@@ -51,3 +51,29 @@ it("buildLabelData without datum option keeps the iterated node as .data", () =>
   });
   assert.strictEqual(labels[0].data, node, "defaults to the iterated node");
 });
+
+it("buildLabelData skips labels that have no bounds of their own", () => {
+  const node = {x: 10, y: 20, id: "a"};
+  const opts = {
+    data: [node],
+    x: d => d.x,
+    y: d => d.y,
+    aes: () => ({}),
+    rotate: () => 0,
+    id: d => d.id,
+  };
+  const box = {width: 5, height: 5, x: 0, y: 0};
+  assert.deepStrictEqual(
+    buildLabelData({...opts, label: () => "X", labelBounds: () => []}),
+    [],
+  );
+  const labels = buildLabelData({
+    ...opts,
+    label: () => ["X", "Y"],
+    labelBounds: () => [box],
+  });
+  assert.deepStrictEqual(
+    labels.map(l => l.text),
+    ["X"],
+  );
+});

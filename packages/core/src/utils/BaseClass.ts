@@ -12,9 +12,9 @@ import type {ColorDefaultsConfig, D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
 import type {ResolvedTheme} from "./theme.js";
 import {
-  containsReset,
-  isPlainObject,
   mergeConfigBag,
+  nestedReset,
+  reflectedMethods,
   resolvesReset,
   RESOLVES_RESET,
 } from "../fluent.js";
@@ -26,51 +26,9 @@ import {
   type ElementsSource,
 } from "./className.js";
 import {displayName} from "./displayName.js";
-
-/**
-    Swaps every nested `RESET` in a config value for the matching entry of
-    `defaults`, dropping the key when that default is `undefined`. Objects
-    holding a `RESET` are copied on the way down, so the caller's value is
-    untouched; any other value passes through as is.
-    @private
-*/
-function nestedReset(value: unknown, defaults: unknown): unknown {
-  if (!isPlainObject(value) || !containsReset(value)) return value;
-  const out: Record<string, unknown> = {...value};
-  const fallbacks = isObject(defaults)
-    ? (defaults as Record<string, unknown>)
-    : {};
-  for (const key of Object.keys(out)) {
-    if (key.startsWith("_")) continue;
-    if (out[key] === RESET) {
-      if (fallbacks[key] === undefined) delete out[key];
-      else out[key] = fallbacks[key];
-    } else out[key] = nestedReset(out[key], fallbacks[key]);
-  }
-  return out;
-}
+import {notSetter, resetSetters} from "./resetSetters.js";
 
 type Setter = ((v: unknown) => unknown) & {[RESOLVES_RESET]?: boolean};
-
-/** Public methods that are not config accessors, left out of `getAllMethods`. */
-const REFLECT_SKIP = new Set([
-  "append",
-  "config",
-  "constructor",
-  "destroy",
-  "layout",
-  "measure",
-  "parent",
-  "render",
-  "renderMode",
-  "toCanvas",
-  "toSVGString",
-  "toScene",
-  "zoomBrush",
-  "zoomIn",
-  "zoomOut",
-  "zoomReset",
-]);
 
 /**
     finds all prototype methods of a class and it's parent classes
@@ -78,24 +36,17 @@ const REFLECT_SKIP = new Set([
     @private
 */
 function getAllMethods(obj: object): string[] {
+  const cached = reflectedMethods.get(obj);
+  if (cached) return cached;
+  const proto = obj;
   let props: string[] = [];
   do {
     props = props.concat(Object.getOwnPropertyNames(obj));
     obj = Object.getPrototypeOf(obj);
   } while (obj && obj !== Object.prototype);
-  return props.filter(
-    e =>
-      e.indexOf("_") !== 0 &&
-      // Side-effect/lifecycle methods excluded from config reflection: invoking
-      // them as no-arg getters would run real work. `measure` runs the full
-      // axis-layout pass; `destroy` tears down the scene renderer (which defeats
-      // keyed reconcile and forces a full remount on the next draw);
-      // `toSVGString` serializes the drawn chart (through a throwaway SVG
-      // backend on Canvas), `layout` recomputes a SizeLegend's layout,
-      // `append` adds rows and redraws, and the zoom methods zoom a rendered
-      // chart.
-      !REFLECT_SKIP.has(e),
-  );
+  const methods = [...new Set(props.filter(e => !notSetter(e)))];
+  reflectedMethods.set(proto, methods);
+  return methods;
 }
 
 /**
@@ -168,6 +119,32 @@ export default class BaseClass {
       return fillPlaceholders(text, args);
     };
     this._uuid = crypto.randomUUID();
+    resetSetters(Object.getPrototypeOf(this), notSetter);
+    this._constructed(new.target, BaseClass);
+  }
+
+  /**
+      Ends the constructor of `Cls`: when `Cls` is the most-derived d3plus
+      class of the one being constructed (a d3plus class states its own
+      `_displayName`), takes the snapshot of defaults `RESET` restores, now
+      that every d3plus constructor has set them and before any config. A
+      user's subclass is not a d3plus class, so what its own constructor sets
+      afterwards is not a default, unless it extends BaseClass itself.
+      @param target The constructor's `new.target`.
+      @param Cls The class whose constructor is ending.
+      @private
+  */
+  _constructed(target: unknown, Cls: unknown): void {
+    for (
+      let p = target as object | null;
+      p && p !== Cls;
+      p = Object.getPrototypeOf(p)
+    )
+      if (Object.prototype.hasOwnProperty.call(p, "_displayName")) return;
+    // A user's class built straight on BaseClass snapshots on first use, so
+    // the defaults its own constructor sets are kept.
+    if (Cls === BaseClass && target !== BaseClass) return;
+    this._defaultConfig();
   }
 
   /**
@@ -184,8 +161,7 @@ export default class BaseClass {
           if (k in this) {
             const v = _![k];
             const setter = (this as unknown as Record<string, Setter>)[k];
-            if (v === RESET && k === "on") this.schema.on = defaults[k];
-            else if (setter[RESOLVES_RESET]) setter.call(this, v);
+            if (setter[RESOLVES_RESET]) setter.call(this, v);
             else if (v === RESET) setter.call(this, defaults[k]);
             else setter.call(this, nestedReset(v, defaults[k]));
           } else if (!isSharedConfig(_)) {
@@ -205,19 +181,28 @@ export default class BaseClass {
 
   /**
       The snapshot of every getter's value that `RESET` restores from, taken
-      the first time it is needed.
+      once the class being constructed has set its defaults (see
+      `_constructed`), or the first time it is needed for a class that
+      doesn't take it then.
       @private
   */
   _defaultConfig(): D3plusConfig {
     if (!this._configDefault) {
       const config: D3plusConfig = {};
-      getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
-        const v = (this as unknown as Record<string, () => unknown>)[k]();
-        if (v !== this)
-          config[k] = isObject(v)
-            ? assign({}, v as Record<string, unknown>)
-            : v;
-      });
+      const self = this as unknown as Record<string, () => unknown>;
+      // The setters a chart definition's `setup` installs on the instance.
+      const own = Object.keys(this).filter(
+        k => !notSetter(k) && typeof self[k] === "function",
+      );
+      new Set([...getAllMethods(Object.getPrototypeOf(this)), ...own]).forEach(
+        k => {
+          const v = self[k]();
+          if (v !== this)
+            config[k] = isObject(v)
+              ? assign({}, v as Record<string, unknown>)
+              : v;
+        },
+      );
       this._configDefault = config;
     }
     return this._configDefault;
@@ -326,12 +311,29 @@ new Plot
     | ((...args: unknown[]) => unknown)
     | undefined
     | this {
+    if (_ === RESET && arguments.length === 1) {
+      this.schema.on = {...(this._defaultConfig().on as object)};
+      return this;
+    }
+    if ((f as unknown) === RESET && arguments.length === 2) {
+      const handler = (this._defaultConfig().on as Record<string, unknown>)?.[
+        _ as string
+      ];
+      if (handler === undefined) delete this.schema.on[_ as string];
+      else this.schema.on[_ as string] = handler as typeof f & {};
+      return this;
+    }
     return arguments.length === 2
       ? ((this.schema.on[_ as string] = f!), this)
       : arguments.length
         ? typeof _ === "string"
           ? this.schema.on[_]
-          : ((this.schema.on = Object.assign({}, this.schema.on, _)), this)
+          : ((this.schema.on = Object.assign(
+              {},
+              this.schema.on,
+              nestedReset(_, this._defaultConfig().on),
+            )),
+            this)
         : this.schema.on;
   }
 
@@ -379,4 +381,4 @@ new Plot
   }
 }
 
-resolvesReset(BaseClass.prototype, "shapeConfig");
+resolvesReset(BaseClass.prototype, "on", "shapeConfig");

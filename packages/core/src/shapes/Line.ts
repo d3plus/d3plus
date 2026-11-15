@@ -60,6 +60,7 @@ export default class Line extends Shape {
       "stroke-width": 10,
       transform: null,
     });
+    this._constructed(new.target, Line);
   }
 
   /**

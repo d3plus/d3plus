@@ -48,6 +48,7 @@ export default class Bar extends Shape {
     this.schema.y = constant(0);
     this.schema.y0 = constant(0);
     this.schema.y1 = accessor("y");
+    this._constructed(new.target, Bar);
   }
 
   // v4: render() is inherited from Shape — the scene path handles drawing.

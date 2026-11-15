@@ -10,6 +10,7 @@
 */
 
 import {installFluent} from "../../fluent.js";
+import {notSetter, resetSetters} from "../../utils/resetSetters.js";
 import type {ChartDefinition} from "./ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -24,5 +25,9 @@ export function applyDefinition(viz: VizInstance, def: ChartDefinition): void {
     }
   }
   if (def.fields) installFluent(viz, def.fields);
-  if (def.setup) def.setup(viz);
+  if (def.setup) {
+    def.setup(viz);
+    // The setters `setup` installs on the instance take `RESET` too.
+    resetSetters(viz, notSetter);
+  }
 }

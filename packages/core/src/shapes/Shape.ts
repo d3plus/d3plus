@@ -223,6 +223,7 @@ export default class Shape extends BaseClass {
       verticalAlign: "top",
     };
     this.schema.textureDefault = {};
+    this._constructed(new.target, Shape);
   }
 
   /**

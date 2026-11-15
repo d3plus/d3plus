@@ -12,5 +12,6 @@ export default class AxisTop extends Axis {
   constructor() {
     super();
     this.orient("top");
+    this._constructed(new.target, AxisTop);
   }
 }

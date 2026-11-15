@@ -33,6 +33,7 @@ import {defaultPadding, initLabelDefaults} from "./labelDefaults.js";
 import {linkedColorDefaults} from "./linkGroup.js";
 import type Viz from "./Viz.js";
 import type {VizInstance} from "./vizTypes.js";
+import {initInsetDefaults} from "../features/insetState.js";
 import {themed} from "../../utils/theme.js";
 
 function debounce<A extends unknown[]>(
@@ -670,4 +671,5 @@ export function initVizDefaults(viz: Viz): void {
   initBackDefaults(viz);
   initSearchDefaults(viz);
   initSaveControlDefaults(viz);
+  initInsetDefaults(viz as unknown as VizInstance);
 }
