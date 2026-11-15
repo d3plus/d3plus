@@ -8,8 +8,8 @@ import {
   gestureHoverMove,
   gestureHoverStart,
   gestureMoves,
-  leavesSurface,
 } from "../../src/charts/drawSteps/gestureHover.ts";
+import {leavesSurface} from "../../src/charts/drawSteps/leavesSurface.ts";
 
 const mouse = (type, clientX, clientY) => ({type, clientX, clientY});
 
