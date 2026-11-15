@@ -36,6 +36,7 @@ export interface TranslationStrings {
   Download: string;
   "Drag to Filter": string;
   Duration: string;
+  "Each Dot": string;
   End: string;
   "Enter to Hide": string;
   "Enter to Highlight": string;
@@ -203,6 +204,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Drag to Filter":
       "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
     Duration: "\u0627\u0644\u0645\u062f\u0629",
+    "Each Dot": "\u0643\u0644 \u0646\u0642\u0637\u0629",
     End: "\u0627\u0644\u0646\u0647\u0627\u064a\u0629",
     "Enter to Hide": "Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Enter to Highlight": "Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
@@ -380,6 +382,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "Descargar",
     "Drag to Filter": "Arrastrar para Filtrar",
     Duration: "Duraci\u00f3n",
+    "Each Dot": "Cada Punto",
     End: "Fin",
     "Enter to Hide": "Enter para Ocultar",
     "Enter to Highlight": "Enter para Resaltar",
@@ -527,6 +530,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "Baixar",
     "Drag to Filter": "Arraste para Filtrar",
     Duration: "Dura\u00e7\u00e3o",
+    "Each Dot": "Cada Ponto",
     End: "Fim",
     "Enter to Hide": "Enter para Ocultar",
     "Enter to Highlight": "Enter para Destacar",
@@ -677,6 +681,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "\u4e0b\u8f7d",
     "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
     Duration: "\u6301\u7eed\u65f6\u95f4",
+    "Each Dot": "\u6bcf\u4e2a\u70b9",
     End: "\u7ed3\u675f",
     "Enter to Hide": "\u6309 Enter \u9690\u85cf",
     "Enter to Highlight": "\u6309 Enter \u7a81\u51fa\u663e\u793a",
