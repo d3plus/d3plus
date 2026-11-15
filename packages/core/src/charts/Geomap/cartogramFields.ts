@@ -31,6 +31,34 @@ export function cartogramFields(): ConfigField[] {
     */
     {key: "cartogramPadding", default: 1},
     /**
+        Experimental: the contiguous cartogram's method, `"dcn"` (Dougenik,
+        Chrisman and Niemeyer) or `"diffusion"` (Gastner and Newman).
+        @type {"dcn" | "diffusion"}
+    */
+    {key: "cartogramMethod", default: "dcn"},
+    /**
+        Experimental: the `"dcn"` method's passes.
+        @type {number}
+    */
+    {key: "cartogramIterations", default: 8},
+    /**
+        Experimental: the `"diffusion"` method's grid side, a power of two.
+        @type {number}
+    */
+    {key: "cartogramGrid", default: 256},
+    /**
+        Experimental: the `"diffusion"` method's blur before the map moves,
+        in cells².
+        @type {number}
+    */
+    {key: "cartogramBlur", default: 1},
+    /**
+        Experimental: how many times the `"diffusion"` method runs, each on
+        the last one's map.
+        @type {number}
+    */
+    {key: "cartogramPasses", default: 1},
+    /**
         The value that sizes each region in a `cartogram`: a data key or an
         accessor function. Defaults to the `colorScale` value.
         @type {string | function}

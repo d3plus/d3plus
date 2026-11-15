@@ -11,11 +11,14 @@ import {polygonArea, polygonCentroid} from "d3-polygon";
 
 import type {DataPoint} from "@d3plus/data";
 import {pathRings} from "@d3plus/render";
+import type {MorphRing} from "@d3plus/render";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 import {cartogramRadii, circlePathD, squarePathD} from "./cartogram.js";
 import {fitCartogram} from "./cartogramRelax.js";
 import {contiguousCartogram} from "./cartogramContiguous.js";
+import {diffusionCartogram} from "./cartogramDiffusion.js";
+import type {DiffusionOptions} from "./cartogramDiffusion.js";
 import type {CartogramKind, CartogramNode} from "./cartogram.js";
 
 /** A region as `applyGeomapLayout` joins it to its row. */
@@ -137,7 +140,13 @@ function contiguousShapes(
     drawn.push({region, d, value});
     hash = hashText(`${d}|${value};`, hash);
   });
-  const key = `contiguous|${drawn.length}|${hash}`;
+  const method =
+    viz.schema.cartogramMethod === "diffusion" ? "diffusion" : "dcn";
+  const iterations = Number(viz.schema.cartogramIterations) || 8;
+  const grid = Number(viz.schema.cartogramGrid) || 256;
+  const blur = Number(viz.schema.cartogramBlur ?? 1);
+  const passes = Number(viz.schema.cartogramPasses) || 1;
+  const key = `contiguous|${method}|${iterations}|${grid}|${blur}|${passes}|${drawn.length}|${hash}`;
   let kept = layouts.get(viz);
   if (!kept) layouts.set(viz, (kept = new Map()));
   let placed = kept.get(key);
@@ -146,7 +155,15 @@ function contiguousShapes(
       rings: pathRings(r.d) ?? [],
       value: r.value,
     }));
-    placed = contiguousCartogram(parsed).map(rings => {
+    const stats: {steps?: number} = {};
+    const t0 = performance.now();
+    const moved =
+      method === "diffusion"
+        ? diffusionPasses(parsed, {grid, blur, stats}, passes)
+        : contiguousCartogram(parsed, {iterations});
+    viz.ctx.cartogramMs = performance.now() - t0;
+    viz.ctx.cartogramSteps = stats.steps;
+    placed = moved.map(rings => {
       let d = "";
       for (const ring of rings)
         d += `${ring.map(([x, y], k) => `${k ? "L" : "M"}${x},${y}`).join("")}Z`;
@@ -159,6 +176,21 @@ function contiguousShapes(
   const shapes = new Map<string | number, CartogramShape>();
   drawn.forEach((r, i) => shapes.set(r.region.id, placed![i]));
   return shapes;
+}
+
+/** `diffusionCartogram` run `passes` times, each on the last one's map. */
+function diffusionPasses(
+  regions: {rings: MorphRing[]; value: number}[],
+  options: DiffusionOptions,
+  passes: number,
+): MorphRing[][] {
+  let rings = regions.map(r => r.rings);
+  for (let k = 0; k < passes; k++)
+    rings = diffusionCartogram(
+      regions.map((r, i) => ({rings: rings[i], value: r.value})),
+      options,
+    );
+  return rings;
 }
 
 /** Each region's home, by its geometry, for the path it was read from. */
