@@ -231,6 +231,11 @@ export interface VizInstance {
       aggregate through accessors rather than data keys.
   */
   _mergeRows?: (leaves: DataPoint[]) => DataPoint;
+  /**
+      Further keys the rollup nests rows by, after the group and discrete
+      keys, so rows that differ on one never merge (a Plot's time axes).
+  */
+  _nestKeys?: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[];
 
   /* 4. Accessors */
   _id: (d: DataPoint, i: number) => string | number;
