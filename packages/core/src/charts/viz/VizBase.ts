@@ -308,13 +308,20 @@ Unlike setting `data`, appending keeps the series a viewer hid or soloed in the 
 
   /**
       Configuration object with key/value pairs applied as method calls on each shape.
+      On a Plot, a shape's `width`, `height`, `r`, `x`, `y`, or `id` reads a
+      string as the data field to read from each row, and any other value as
+      a constant, as the shape's own setters do.
 */
   shapeConfig(): D3plusConfig;
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): this | D3plusConfig {
     if (!arguments.length) return this.schema.shapeConfig;
     if (isPlainObject(_)) validateShapeConfig(displayName(this), _);
-    this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _);
+    const merged = mergeConfigBag(this, "shapeConfig", _);
+    // A chart can read some keys its own way (a Plot's per-datum keys).
+    this.schema.shapeConfig = this._readShapeConfig
+      ? this._readShapeConfig(merged)
+      : merged;
     return this;
   }
 

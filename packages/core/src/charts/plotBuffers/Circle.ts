@@ -2,7 +2,7 @@ import type Plot from "../Plot/index.js";
 import discreteBuffer from "./discreteBuffer.js";
 import numericBuffer from "./numericBuffer.js";
 import type {D3Scale} from "../../utils/index.js";
-import type {BufferConfig} from "./bufferConfig.js";
+import type {BufferConfig} from "../Plot/shapeAccessors.js";
 import {vizDiscrete} from "../viz/discrete.js";
 
 /**

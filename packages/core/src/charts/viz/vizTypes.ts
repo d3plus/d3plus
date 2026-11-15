@@ -238,6 +238,12 @@ export interface VizInstance {
       aggregate through accessors rather than data keys.
   */
   _mergeRows?: (leaves: DataPoint[]) => DataPoint;
+  /**
+      Reads a `shapeConfig` as the chart takes it, each time one is set (a
+      Plot makes its shapes' per-datum keys functions, see
+      `Plot/shapeAccessors.ts`).
+  */
+  _readShapeConfig?: <T extends object>(config: T) => T;
 
   /* 4. Accessors */
   _id: (d: DataPoint, i: number) => string | number;

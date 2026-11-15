@@ -43,7 +43,7 @@ import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import {vizDiscrete} from "../viz/discrete.js";
-import {bufferConfig} from "../plotBuffers/bufferConfig.js";
+import {withShapeAccessors} from "./shapeAccessors.js";
 
 export {computePlotInitialDomains} from "./pipelineDomains.js";
 export {measurePlotLineLabels} from "./pipelineLineLabels.js";
@@ -527,7 +527,7 @@ export const extendPlotOppScales: TransformStage = ({
         );
       }
       if (viz._buffer[key]) {
-        const config = bufferConfig(viz.schema.shapeConfig[key]);
+        const config = withShapeAccessors(viz.schema.shapeConfig[key]);
         const res = viz._buffer[key].bind(viz)({
           data: values,
           x,
