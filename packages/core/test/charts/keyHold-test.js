@@ -240,6 +240,17 @@ it("holdKeyHover — leaving the chart from the gap clears it", () => {
   assert.deepStrictEqual(viz.calls, [false]);
 });
 
+it("holdKeyHover — a zoom gesture moving the chart clears it", () => {
+  const viz = fakeViz(rect("x", 0, 0, {id: "x"}, legend));
+  holdKeyHover(viz, move("mouseleave", [105, 165]));
+  assert.ok(viz._keyHold, "held in the gap");
+  viz._lastScenePick = null;
+  viz._gestureHover = {press: [105, 165], moving: true};
+  holdKeyHover(viz, move("mouseleave", [105, 165]));
+  assert.strictEqual(viz._keyHold, undefined);
+  assert.deepStrictEqual(viz.calls, [false]);
+});
+
 it("holdKeyHover — no hold off the outline, off the chart, for a shape, or for an unlit entry", () => {
   const outside = fakeViz();
   holdKeyHover(outside, move("mouseleave", [40, 40]));
