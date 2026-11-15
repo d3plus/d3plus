@@ -365,8 +365,9 @@ export function emitAlongLabels(
     minRadius: labelMinRadius(config?.minRadius),
     maxSlope: lineLabelMaxSlope(config?.maxSlope),
   };
-  // A series drawn as several lines (observed and predicted, say) is named
-  // once: its later lines count as named when an earlier one was.
+  // Each series is named once, even when another shares its text: a series
+  // drawn as several lines (a gap's bridge, say) counts as named when an
+  // earlier one of its lines was.
   const named = new Set<string>();
   const name = shapeConfigFor(viz, "Line").label;
   const labels = along.flatMap(line => {
@@ -376,7 +377,8 @@ export function emitAlongLabels(
     );
     if (label === false) return [];
     const text = `${label}`;
-    if (named.has(text)) {
+    const series = `${line.row.id ?? line.key}`;
+    if (named.has(series)) {
       if (stats) stats.placed++;
       return [];
     }
@@ -387,7 +389,7 @@ export function emitAlongLabels(
     const stretch = bestStretch(pieces, length, ctx);
     if (!stretch) return [];
     grid.add(labelBand(stretch, ctx));
-    named.add(text);
+    named.add(series);
     if (stats) stats.placed++;
     return [
       {
