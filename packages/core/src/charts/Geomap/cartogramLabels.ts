@@ -58,7 +58,8 @@ export function cartogramLabels(
   const items: Labeled[] = [];
   regions.forEach((region, index) => {
     const shape = shapes.get(region.id);
-    if (shape && region.data)
+    // A distorted region (a contiguous cartogram) keeps the map's own labels: none.
+    if (shape && region.data && shape.r > 0)
       items.push({region, datum: region.data, index, shape});
   });
   if (!items.length) return [];

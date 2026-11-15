@@ -7,7 +7,7 @@
 */
 
 /** The cartogram kinds Geomap draws. */
-export type CartogramKind = "dorling" | "demers";
+export type CartogramKind = "dorling" | "demers" | "contiguous";
 
 /** A region about to be placed: its home (projected center) and its size. */
 export interface CartogramNode {

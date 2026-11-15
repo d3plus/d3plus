@@ -1379,12 +1379,16 @@ export interface D3plusConfig {
       set at the center of the region's largest part and nudged apart until
       none overlap, with a pull back toward home; the shapes shrink together
       when they would spill out of the map. Regions without data or a
-      positive value are left out, and so are coordinate points, `links`,
-      and the tiles. Each region's label sits inside its shape when it fits,
-      and toggling the cartogram, or a change of value, morphs each outline
-      to and from its shape. Defaults to `false`, which draws the map.
+      positive value are left out, and each region's label sits inside its
+      shape when it fits. `"contiguous"` stretches the regions themselves
+      until each one's area stands for its value, keeping the borders they
+      share (Dougenik, Chrisman and Niemeyer's method, 8 passes); a region
+      without data or a positive value keeps the map's mean density. Every
+      kind leaves out coordinate points, `links`, and the tiles, and
+      toggling the cartogram, or a change of value, morphs each outline to
+      and from its shape. Defaults to `false`, which draws the map.
   */
-  cartogram?: "dorling" | "demers" | false;
+  cartogram?: "dorling" | "demers" | "contiguous" | false;
   /** Geomap: the gap left between neighboring `cartogram` shapes, in pixels. Defaults to `1`. */
   cartogramPadding?: number;
   /** Geomap: the value that sizes each region in a `cartogram`, as a data key or an accessor function. Defaults to the `colorScale` value, or the same size for every region with data when there is none. */

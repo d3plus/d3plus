@@ -19,8 +19,10 @@ export function cartogramFields(): ConfigField[] {
         Redraws the map as a cartogram, its regions sized by `cartogramSize`:
         `"dorling"` draws each region as a circle and `"demers"` as a square,
         its area in proportion to the region's value, set at the region's
-        center and nudged apart until none overlap. `false` draws the map.
-        @type {"dorling" | "demers" | false}
+        center and nudged apart until none overlap; `"contiguous"` stretches
+        the regions themselves, keeping their shared borders. `false` draws
+        the map.
+        @type {"dorling" | "demers" | "contiguous" | false}
     */
     {key: "cartogram", default: false},
     /**
