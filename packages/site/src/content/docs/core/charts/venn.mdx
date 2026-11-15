@@ -8,6 +8,8 @@ import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/charts/venn/basic-example.js?raw";
 import twoSets from "~/examples/core/charts/venn/two-sets.js?raw";
 import classicLayout from "~/examples/core/charts/venn/classic-layout.js?raw";
+import fourSetsClassic from "~/examples/core/charts/venn/four-sets-classic.js?raw";
+import fiveSetsClassic from "~/examples/core/charts/venn/five-sets-classic.js?raw";
 import eulerDiagram from "~/examples/core/charts/venn/euler-diagram.js?raw";
 import inclusiveCounts from "~/examples/core/charts/venn/inclusive-counts.js?raw";
 import customKeys from "~/examples/core/charts/venn/custom-keys.js?raw";
@@ -40,11 +42,24 @@ With two sets, the circles' overlap matches its size exactly.
 
 ## Classic layout
 
-`proportional: false` draws every set as an equal circle in the classic
-arrangement (side by side for two sets, a triangle for three, a ring for
-more), whatever their sizes: the labels still carry the counts.
+`proportional: false` draws the textbook arrangement, whatever the sizes,
+in which every combination of sets has a region of its own: equal circles
+side by side for two sets or in a triangle for three. The labels still
+carry the counts.
 
 <Playground chart="Venn" code={classicLayout} controls={["proportional"]} />
+
+## Four and five sets
+
+Circles can't show every combination of four or more sets, so with
+`proportional: false` four sets take Venn's four ellipses and five sets
+Grünbaum's five symmetric ellipses: all 15 or 31 combinations appear, each
+labeled at its deepest point and highlighted on hover. Six or more sets
+fall back to a ring of equal circles, where not every combination appears.
+
+<Playground chart="Venn" code={fourSetsClassic} controls={["proportional"]} />
+
+<Playground chart="Venn" code={fiveSetsClassic} controls={["proportional"]} />
 
 ## Euler diagram
 
