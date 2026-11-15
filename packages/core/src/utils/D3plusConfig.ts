@@ -1849,7 +1849,8 @@ export interface D3plusConfig {
       Sets orientation of main category axis. Left unset on a Plot (Scatter,
       BubbleChart, …), the axis whose values include text is the category
       axis (when both do, the one with fewer distinct values, `x` on a
-      tie); numbers stored as text stay continuous.
+      tie); numbers stored as text stay continuous. With no text on either
+      axis, a Plot drawing a Bar, Area, or Box stands it on `x`.
   */
   discrete?: "x" | "y" | "radius" | "angle";
   /**

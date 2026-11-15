@@ -1,7 +1,9 @@
 /**
     A Plot with no `discrete` setting whose `x` or `y` values include text
     draws that axis as its discrete axis, exactly as `discrete` would
-    (`x: "fruit"` on a Scatter).
+    (`x: "fruit"` on a Scatter). One that draws bars, areas, or boxes along
+    two axes of numbers stands them on `x`, as a BarChart, AreaPlot, or
+    BoxWhisker does.
 */
 import type {DataPoint} from "@d3plus/data";
 
@@ -20,13 +22,35 @@ export function hasCategoryValues(values: readonly unknown[]): boolean {
   return values.some(v => typeof v === "string" && isNaN(Number(v)));
 }
 
+/** The shapes that stand on a discrete axis, and draw nothing sensible without one. */
+const DISCRETE_SHAPES = new Set(["Area", "Bar", "Box"]);
+
+/**
+    Whether any of a Plot's rows draws a shape that stands on a discrete
+    axis: a Bar, Area, or Box.
+    @param viz The Plot.
+    @param rows Its data.
+*/
+export function drawsDiscreteShapes(
+  viz: VizInstance,
+  rows: DataPoint[],
+): boolean {
+  const shape = viz.schema.shape as RowAccessor | undefined;
+  return (
+    typeof shape === "function" &&
+    rows.some((d, i) => DISCRETE_SHAPES.has(shape(d, i) as string))
+  );
+}
+
 /**
     The axis a Plot with no `discrete` setting draws as discrete: the axis
     whose values include text (see `hasCategoryValues`), or, when both do,
-    the one with fewer distinct values (`"x"` on a tie). Undefined when `discrete` is set, when `swarm` is on (a
-    swarm lays out its own categories; `"auto"` swarms only a single axis
-    of numbers, which has no text), for a time axis, or when neither axis
-    has text.
+    the one with fewer distinct values (`"x"` on a tie). With no text on
+    either axis (or only on a time axis), `"x"` when any row draws a Bar,
+    Area, or Box (see `drawsDiscreteShapes`). Undefined when `discrete` is
+    set, when `swarm` is on (a swarm lays out its own categories; `"auto"`
+    swarms only a single axis of numbers, which has no text), or when
+    neither axis has text and no row draws one of those.
     @param viz The Plot.
 */
 export function inferDiscrete(viz: VizInstance): "x" | "y" | undefined {
@@ -47,7 +71,8 @@ export function inferDiscrete(viz: VizInstance): "x" | "y" | undefined {
       ? [{axis, distinct: new Set(values).size}]
       : [];
   });
-  if (!categories.length) return undefined;
+  if (!categories.length)
+    return drawsDiscreteShapes(viz, rows) ? "x" : undefined;
   return categories.reduce((a, b) => (b.distinct < a.distinct ? b : a)).axis;
 }
 

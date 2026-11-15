@@ -338,7 +338,7 @@ function buildShapeConfig(
         : y(
             typeof viz.schema.baseline === "number"
               ? viz.schema.baseline
-              : domains.y[1],
+              : domains.y[0],
           ) - yOffset,
     y1:
       discrete === "y"
