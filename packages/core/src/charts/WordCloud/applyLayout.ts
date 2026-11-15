@@ -15,7 +15,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {fitCloud} from "./cloudLayout.js";
 import type {CloudFit} from "./cloudLayout.js";
 import {fontScaleKind, wordFontSize} from "./fontScale.js";
-import {rasterizeWords} from "./glyphMask.js";
+import {glyphFontLoads, rasterizeWords} from "./glyphMask.js";
 import type {GlyphMetrics, GlyphWord} from "./glyphMask.js";
 import {wordRotation} from "./rotation.js";
 import {spiralKind} from "./spiral.js";
@@ -104,7 +104,10 @@ export function wordCandidates(viz: VizInstance): Candidate[] {
     .sort((a, b) => b.value - a.value || a.i - b.i);
 }
 
-/** Everything that changes a layout, so an unchanged one is reused. */
+/**
+    Everything that changes a layout, so an unchanged one is reused: a web
+    font loading since it was rasterized invalidates it too.
+*/
 function layoutKey(
   words: Candidate[],
   width: number,
@@ -120,6 +123,7 @@ function layoutKey(
     width,
     height,
     spiral,
+    glyphFontLoads(),
     first ? `${first.family}|${first.padding}` : "",
     ...parts,
   ].join("\u0002");

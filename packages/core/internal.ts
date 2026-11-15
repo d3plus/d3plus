@@ -2209,6 +2209,8 @@ export {
   estimateMetrics,
   glyphContext,
   glyphFont,
+  glyphFontLoads,
+  markFontsLoaded,
   rasterizeWords,
   rotatedBox,
   sharedGlyphContext,

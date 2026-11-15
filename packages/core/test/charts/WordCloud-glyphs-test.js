@@ -5,6 +5,8 @@ import {
   estimateMetrics,
   glyphContext,
   glyphFont,
+  glyphFontLoads,
+  markFontsLoaded,
   rasterizeWords,
   rotatedBox,
   sharedGlyphContext,
@@ -38,6 +40,12 @@ it("glyphContext and sharedGlyphContext give a 2D context on an offscreen canvas
   const shared = sharedGlyphContext();
   assert.ok(shared);
   assert.strictEqual(sharedGlyphContext(), shared, "made once");
+});
+
+it("markFontsLoaded counts the web font loads glyphFontLoads reports", () => {
+  const before = glyphFontLoads();
+  markFontsLoaded();
+  assert.strictEqual(glyphFontLoads(), before + 1);
 });
 
 it("rotatedBox turns a word's padded text box about its anchor", () => {

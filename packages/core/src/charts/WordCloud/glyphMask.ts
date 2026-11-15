@@ -6,7 +6,7 @@
     rotated text box.
 */
 
-import {textWidth} from "@d3plus/dom";
+import {onFontsLoaded, textWidth} from "@d3plus/dom";
 
 import {boxSprite} from "./occupancy.js";
 import type {GlyphSprite} from "./occupancy.js";
@@ -75,6 +75,43 @@ export function glyphContext(width: number, height: number): Context | null {
     return null;
   }
   return null;
+}
+
+/** How many times a web font the words were measured in has loaded. */
+let fontLoads = 0;
+
+/**
+    Counts a web font load (see `glyphFontLoads`). Runs whenever a font
+    d3plus measured text in finishes loading.
+*/
+export function markFontsLoaded(): void {
+  fontLoads++;
+}
+onFontsLoaded(markFontsLoaded);
+
+/**
+    How many times a web font words were measured in has loaded, so a layout
+    rasterized in a fallback font can tell it is stale.
+*/
+export function glyphFontLoads(): number {
+  return fontLoads;
+}
+
+/**
+    Registers `words`' font families as measured, so the chart redraws once a
+    web font among them loads (see `onFontsLoaded`).
+*/
+function noteFamilies(words: GlyphWord[]): void {
+  const seen = new Set<string>();
+  for (const word of words)
+    if (!seen.has(word.family)) {
+      seen.add(word.family);
+      try {
+        textWidth(word.text, {"font-family": word.family});
+      } catch {
+        // Measuring only registers the family here.
+      }
+    }
 }
 
 /** The context every chart rasterizes on, made the first time one is needed. */
@@ -318,6 +355,7 @@ export function rasterizeWords(
   if (!words.length) return [];
   const ctx = context;
   if (!ctx) return boxGlyphs(words);
+  noteFamilies(words);
   let metrics: GlyphMetrics[];
   try {
     metrics = words.map(word => measure(ctx, word));

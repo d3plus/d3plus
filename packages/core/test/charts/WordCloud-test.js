@@ -17,7 +17,10 @@ import {
   wordCloudDef,
   wordCloudTooltipRows,
 } from "../../src/charts/WordCloud/index.ts";
-import {rasterizeWords} from "../../src/charts/WordCloud/glyphMask.ts";
+import {
+  markFontsLoaded,
+  rasterizeWords,
+} from "../../src/charts/WordCloud/glyphMask.ts";
 import {OccupancyBoard} from "../../src/charts/WordCloud/occupancy.ts";
 
 useJsdom();
@@ -201,11 +204,21 @@ it("WordCloud: the same data and size give the same layout every time", () => {
   const first = viz.ctx.wordCloudFit;
   runStages({viz}, [applyWordCloudLayout]);
   assert.strictEqual(viz.ctx.wordCloudFit, first);
+  // So does one after a web font loads, which re-rasterizes the words.
+  markFontsLoaded();
+  runStages({viz}, [applyWordCloudLayout]);
+  assert.notStrictEqual(viz.ctx.wordCloudFit, first);
+  assert.deepStrictEqual(
+    viz.ctx.wordCloudFit.placed,
+    first.placed,
+    "the same font lays out the same way",
+  );
+  const refit = viz.ctx.wordCloudFit;
   viz.fontMax(40);
   viz._preDraw();
   viz._margin = viz._padding = {top: 0, right: 0, bottom: 0, left: 0};
   runStages({viz}, [applyWordCloudLayout]);
-  assert.notStrictEqual(viz.ctx.wordCloudFit, first);
+  assert.notStrictEqual(viz.ctx.wordCloudFit, refit);
 });
 
 it("WordCloud: rotated words keep their angles and still don't overlap", () => {
