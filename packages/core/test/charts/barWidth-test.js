@@ -244,7 +244,11 @@ it("barWidth: plotAxisConfig puts the category labels beneath the user's axis co
     "a user's own labels win",
   );
   viz._yConfig = {title: "v"};
-  assert.deepStrictEqual(plotAxisConfig(viz, "y"), {break: false, title: "v"});
+  assert.deepStrictEqual(plotAxisConfig(viz, "y"), {
+    break: false,
+    levels: false,
+    title: "v",
+  });
 });
 
 it("barWidth: applyBarWidths shares widths of the panel's own total, even with shared facet scales", () => {
