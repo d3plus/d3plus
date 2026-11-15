@@ -21,8 +21,13 @@ export interface ContiguousRegion {
 
 /** How `contiguousCartogram` runs. */
 export interface ContiguousOptions {
-  /** The distortion passes. */
+  /** The most distortion passes. */
   iterations?: number;
+  /**
+      The passes stop early once every region with a value is within this
+      share of its target area (its value's share of the map's area).
+  */
+  tolerance?: number;
   /**
       The most force sums (points times regions) a pass works out one by
       one; past it, the forces are worked out on a grid laid over the map
@@ -32,8 +37,11 @@ export interface ContiguousOptions {
   budget?: number;
 }
 
-/** The distortion passes, by default. */
-export const CONTIGUOUS_ITERATIONS = 8;
+/** The most distortion passes, by default. */
+export const CONTIGUOUS_ITERATIONS = 12;
+
+/** The area error every region must be within to stop early, by default: 1%. */
+export const CONTIGUOUS_TOLERANCE = 0.01;
 
 /** The force sums a pass works out exactly before turning to a grid, by default. */
 export const CONTIGUOUS_BUDGET = 1e7;
@@ -46,6 +54,27 @@ export const CONTIGUOUS_BUDGET = 1e7;
     whole map of counties still.
 */
 const SIZE_ERROR_CAP = 10;
+
+/**
+    The largest area error among the regions with a value: how far each
+    one's share of the map's area is from its value's share, as a share of
+    the latter.
+*/
+export function largestError(
+  shapes: {area: number}[],
+  values: number[],
+  valued: boolean[],
+  valueTotal: number,
+): number {
+  const area = shapes.reduce((s, r) => s + r.area, 0);
+  let worst = 0;
+  shapes.forEach((s, i) => {
+    if (!valued[i]) return;
+    const target = values[i] / valueTotal;
+    worst = Math.max(worst, Math.abs(s.area / area - target) / target);
+  });
+  return worst;
+}
 
 /** A region's area and its center (signed rings: holes take away). */
 function regionCentroid(rings: MorphRing[]): {
@@ -162,13 +191,14 @@ function pushField(
     neither grows nor shrinks against the rest. Each output ring has the
     points of its input ring, so the two morph point by point.
     @param regions Each region's projected rings and value.
-    @param options The passes, and the work a pass does exactly.
+    @param options The most passes, the error that stops them early, and the work a pass does exactly.
 */
 export function contiguousCartogram(
   regions: ContiguousRegion[],
   options: ContiguousOptions = {},
 ): MorphRing[][] {
   const iterations = options.iterations ?? CONTIGUOUS_ITERATIONS;
+  const tolerance = options.tolerance ?? CONTIGUOUS_TOLERANCE;
   const budget = options.budget ?? CONTIGUOUS_BUDGET;
   // Every distinct point once, so the points regions share move as one.
   const index = new Map<string, number>();
@@ -232,6 +262,7 @@ export function contiguousCartogram(
         Math.max(s.area, desired) / Math.max(Math.min(s.area, desired), 1e-9),
       );
     });
+    if (largestError(shapes, values, valued, valueTotal) < tolerance) break;
     const reduce = 1 / (1 + error / shapes.length);
     const n = xs.length;
     if (n * m <= budget) {
