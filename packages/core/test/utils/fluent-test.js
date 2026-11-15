@@ -246,6 +246,8 @@ describe("merge fields", () => {
   };
 
   class Bag extends BaseClass {
+    // A d3plus class: its defaults include what its constructor seeds.
+    static _displayName = "Bag";
     constructor(parentSeed) {
       super();
       if (parentSeed) this.schema.bag = parentSeed;

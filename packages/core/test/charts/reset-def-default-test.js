@@ -8,6 +8,7 @@ import {default as BaseClass} from "../../src/utils/BaseClass.ts";
 useJsdom();
 
 const {
+  Axis,
   BubbleChart,
   Chord,
   Donut,
@@ -21,6 +22,7 @@ const {
   Sankey,
   Scatter,
   StripPlot,
+  TextBox,
   Waffle,
 } = core;
 
@@ -109,18 +111,55 @@ describe("RESET restores a chart definition's own field default", () => {
     assert.strictEqual(new Donut()._configDefault.padPixel, 2);
   });
 
-  it("a subclass's own constructor still seeds the defaults RESET restores", () => {
-    class WideDonut extends Donut {
-      constructor() {
-        super();
-        this.schema.padPixel = 6;
-      }
+  describe("a user's subclass snapshots at the end of the last d3plus constructor", () => {
+    /**
+        [name, base class, key, the value the subclass's constructor sets,
+        a value set before the first config()].
+    */
+    const cases = [
+      ["a makeChart chart", Donut, "padPixel", 6, 9],
+      ["Plot", Plot, "discreteCutoff", 7, 3],
+      ["Axis", Axis, "orient", "left", "top"],
+      ["TextBox", TextBox, "delay", 40, 12],
+    ];
+    for (const [label, Base, key, own, early] of cases) {
+      it(`${label}: what its own constructor sets is not a default`, () => {
+        class Custom extends Base {
+          constructor() {
+            super();
+            this[key](own);
+          }
+        }
+        const want = new Base()[key]();
+        const viz = new Custom();
+        assert.strictEqual(viz[key](), own, "the constructor sets it");
+        assert.strictEqual(viz._configDefault[key], want, "snapshot");
+        viz.config({[key]: RESET});
+        assert.strictEqual(viz[key](), want, "config({key: RESET})");
+        viz[key](own)[key](RESET);
+        assert.strictEqual(viz[key](), want, "x.key(RESET)");
+        const set = new Custom()[key](early);
+        set.config({[key]: RESET});
+        assert.strictEqual(
+          set[key](),
+          want,
+          "nor is a value set before config()",
+        );
+      });
     }
-    const viz = new WideDonut().config({padPixel: 1});
-    viz.config({padPixel: RESET});
-    assert.strictEqual(viz.padPixel(), 6);
-    viz.padPixel(1).padPixel(RESET);
-    assert.strictEqual(viz.padPixel(), 6);
+
+    it("a subclass of a user's subclass snapshots at the same point", () => {
+      class A extends Donut {
+        constructor() {
+          super();
+          this.padPixel(6);
+        }
+      }
+      class B extends A {}
+      const viz = new B().padPixel(4);
+      viz.config({padPixel: RESET});
+      assert.strictEqual(viz.padPixel(), 2);
+    });
   });
 
   it("a generated accessor resolves a nested RESET like config() does", () => {

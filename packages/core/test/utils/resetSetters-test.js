@@ -7,8 +7,18 @@ import {notSetter, resetSetters} from "../../src/utils/resetSetters.ts";
 
 useJsdom();
 
-const {Axis, BaseClass, Donut, Legend, Plot, RESET, Rect, Sankey, TextBox} =
-  core;
+const {
+  Axis,
+  BaseClass,
+  Donut,
+  Geomap,
+  Legend,
+  Plot,
+  RESET,
+  Rect,
+  Sankey,
+  TextBox,
+} = core;
 
 /** A value's structure, with functions called on an empty row, for comparing across instances. */
 function shape(value) {
@@ -50,7 +60,16 @@ function setters(instance) {
 }
 
 describe("every setter takes RESET directly", () => {
-  for (const Cls of [Donut, Sankey, Plot, Axis, TextBox, Rect, Legend]) {
+  for (const Cls of [
+    Donut,
+    Sankey,
+    Geomap,
+    Plot,
+    Axis,
+    TextBox,
+    Rect,
+    Legend,
+  ]) {
     it(`${Cls.name}: x.key(RESET) never stores the token and matches config({key: RESET})`, () => {
       const keys = setters(new Cls());
       assert.ok(keys.length > 20, `${keys.length} setters`);
@@ -107,6 +126,8 @@ describe("resetSetters", () => {
   /** A BaseClass subclass with a hand-written setter, a tagged one, and a generated one. */
   function makeClass() {
     class Host extends BaseClass {
+      // A d3plus class states its own display name (see `_constructed`).
+      static _displayName = "Host";
       constructor() {
         super();
         this.schema.size = 4;
