@@ -7,6 +7,9 @@
       - `flowLinks.ts` / `flowGeometry.ts` — `links`: their ends, widths,
         and great-circle paths; `flowEmit.ts` draws them, `flowEvents.ts`
         wires their hover and click, and `flowFields.ts` declares their config.
+      - `dotDensityLayout.ts` / `geoHexbin.ts` — `dotDensity` dots and
+        `hexbin` bins, laid out by `densityLayout.ts` and drawn by
+        `densityEmit.ts`; `densityFields.ts` declares their config.
 */
 
 import {color} from "d3-color";
@@ -19,7 +22,6 @@ import type {DataPoint} from "@d3plus/data";
 import {parseSides} from "@d3plus/dom";
 
 import accessor from "../../utils/accessor.js";
-import attributions from "../helpers/tileAttributions.js";
 import constant from "../../utils/constant.js";
 import {chartAreaRect, chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -37,13 +39,24 @@ import {isPointShape} from "../viz/nearestHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
 
-import {
-  applyGeomapLayout,
-  geomapPointData,
-  geomapPointSizeScale,
-} from "./applyLayout.js";
+import {applyGeomapLayout, geomapSizeLegendScale} from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
+import {cartogramFields, geomapFacetHooks} from "./cartogramFields.js";
+import {tileGridFields, tileGridOcean} from "./tileGrid.js";
+import {
+  currentTileUrl,
+  syncTileAttribution,
+  tileExtent,
+  tilesShown,
+} from "./tileState.js";
 import {bareFeature, geomapEmit} from "./emit.js";
+import {
+  densityFields,
+  densityLegend,
+  syncDensityColorScale,
+} from "./densityFields.js";
+import {geoHexbinSettings} from "./geoHexbin.js";
+import {trackRendererChoice} from "./dotRenderer.js";
 import {setupGeomapLinks} from "./flowEvents.js";
 import {installGlobeKeys} from "./globeKeys.js";
 import {installGlobeRotation} from "./globeRotate.js";
@@ -70,42 +83,6 @@ type GeomapFluent = {
   topojsonId: (_?: unknown) => unknown;
 };
 
-function findAttribution(url: string): string | false {
-  const a = attributions.find((d: {matches: string[]; text: string}) =>
-    d.matches.some((m: string) => url.includes(m)),
-  );
-  return a ? a.text : false;
-}
-
-/** The tile layer's extent: the map rect in `_container`'s own (margin-relative) space. */
-function tileExtent(viz: VizInstance): [[number, number], [number, number]] {
-  const {width, height} = chartBounds(viz);
-  return [
-    [0, 0],
-    [width, height],
-  ];
-}
-
-/** The tile URL template for the chart's current light/dark backdrop. */
-function currentTileUrl(viz: VizInstance): string {
-  return resolveThemed(
-    viz.schema.tileUrl as Themed<string>,
-    Boolean(viz._basemapDark),
-  );
-}
-
-/**
-    Keeps the tile credit in sync with the active tile URL (a `{light, dark}`
-    pair can mix providers), unless the attribution was set by hand.
-*/
-function syncTileAttribution(viz: VizInstance): void {
-  const auto = viz.schema.tiles ? findAttribution(currentTileUrl(viz)) : false;
-  const current = viz.schema.attribution;
-  if (!current || current === viz._tileAttribution)
-    viz.schema.attribution = auto || "";
-  viz._tileAttribution = auto;
-}
-
 /** Installs `_renderTiles`, the per-instance method that mutates the tile group. */
 function setupGeomapRenderTiles(viz: VizInstance): void {
   // `_renderTiles` is a per-instance method that mutates the tile group.
@@ -126,7 +103,7 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
     }
     let tileData: number[][] & {scale?: number; translate?: number[]} =
       [] as unknown as number[][] & {scale?: number; translate?: number[]};
-    if (this.schema.tiles) {
+    if (tilesShown(this)) {
       tileData = this._tileGen
         .extent(tileExtent(this))
         .scale(this.schema.projection.scale() * (2 * Math.PI) * transform.k)
@@ -201,7 +178,7 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
   viz._computeTileList = function (
     this: VizInstance,
   ): Array<{key: string; url: string; x: number; y: number; size: number}> {
-    if (!this.schema.tiles) return [];
+    if (!tilesShown(this)) return [];
     const tileData = this._tileGen
       .extent(tileExtent(this))
       .scale(this.schema.projection.scale() * (2 * Math.PI))
@@ -229,6 +206,7 @@ function setupGeomapDraw(viz: VizInstance): void {
     // Resolve `{light, dark}` basemaps against the chart's theme.
     viz._basemapDark = viz._theme ? viz._theme.dark : pageIsDark(viz);
     syncTileAttribution(viz);
+    syncDensityColorScale(viz);
     const result = supDraw(callback);
     const {width, height} = chartBounds(viz);
     ensureZoomDom(viz, {
@@ -242,10 +220,7 @@ function setupGeomapDraw(viz: VizInstance): void {
       // ocean into the scene instead (see geomapEmit).
       ocean: viz._facetStep
         ? "transparent"
-        : resolveThemed(
-            viz.schema.ocean as Themed<string>,
-            Boolean(viz._basemapDark),
-          ),
+        : resolveThemed(tileGridOcean(viz), Boolean(viz._basemapDark)),
     });
     viz._zoomSet = true;
     return result;
@@ -543,11 +518,9 @@ export const geomapDef: ChartDefinition = {
   name: "Geomap",
 
   layoutStage: applyGeomapLayout,
-  sizeLegendScale: viz => {
-    const pointData = geomapPointData(viz);
-    return pointData.length ? geomapPointSizeScale(viz, pointData) : null;
-  },
+  sizeLegendScale: geomapSizeLegendScale,
   emit: geomapEmit,
+  facet: geomapFacetHooks,
   insetRegion: sceneInsetRegion,
   // A row without a coordinate point draws as its topojson Path.
   colorScaleShape: (viz, d, i) =>
@@ -573,6 +546,8 @@ export const geomapDef: ChartDefinition = {
     setupGeomapDraw(viz);
     setupGeomapFluent(viz);
     setupGeomapLinks(viz);
+    trackRendererChoice(viz);
+    viz.schema.legend = viz._defaultLegend = densityLegend(viz);
     // Dragging a globe, or Shift and the arrow keys, re-lays the map out for
     // each new rotation.
     const relayout = () => runChartDraw(viz, geomapDef, applyGeomapLayout);
@@ -595,6 +570,9 @@ export const geomapDef: ChartDefinition = {
     ...loaderFormatFields("topojson", "links"),
     {key: "fitObject", default: false},
     ...geomapLinkFields(),
+    ...cartogramFields(),
+    ...densityFields(),
+    ...tileGridFields(),
     {key: "noDataMessage", default: false},
     /**
         The color behind the map's shapes and tiles: any CSS color (including
@@ -648,8 +626,10 @@ export const geomapDef: ChartDefinition = {
             const coordFeatures =
               (viz.ctx.coordData as {features: DataPoint[]} | undefined)
                 ?.features ?? [];
-            const cs = viz.schema.colorScale as
-              ((d: DataPoint) => unknown) | undefined;
+            // Bins take the colorScale from the regions.
+            const cs = (
+              geoHexbinSettings(viz) ? undefined : viz.schema.colorScale
+            ) as ((d: DataPoint) => unknown) | undefined;
             if (cs && !coordFeatures.includes(d)) {
               const c = cs(d);
               if (c !== undefined && c !== null) {

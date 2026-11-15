@@ -101,6 +101,15 @@ export {applyDeclarativeEvents, markOverlayHtmlSynced} from "./src/overlay.js";
 export {resetInjectedBoxes} from "./src/boxReset.js";
 
 export {
+  addRingPoints,
+  alignRings,
+  morphPathD,
+  pairRings,
+  pathRings,
+} from "./src/animate/morph.js";
+export type {MorphPoint, MorphRing} from "./src/animate/morph.js";
+
+export {
   arcPath,
   collapse,
   collapseTo,

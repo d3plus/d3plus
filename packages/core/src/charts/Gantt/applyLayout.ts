@@ -21,6 +21,13 @@ import {
 } from "../Priestley/timeAxis.js";
 import type {TimeValue} from "../Priestley/timeAxis.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {
+  criticalKeyLabel,
+  ganttCriticalPath,
+  KEY_GAP,
+  KEY_SAMPLE,
+} from "./ganttCritical.js";
+import type {GanttCritical} from "./ganttCritical.js";
 import {labelColumnWidth} from "./ganttGeometry.js";
 import {fitLabel, ganttLabelFont, labelWidth} from "./ganttLabels.js";
 import type {FittedLabel, GanttLabelFont} from "./ganttLabels.js";
@@ -54,6 +61,10 @@ export interface GanttLayout {
   band: number;
   /** The rows' area, the plot the "today" line spans. */
   plot: {x0: number; x1: number; y0: number; y1: number};
+  /** The label column's corner beside the time axis, which holds no labels. */
+  corner: {x0: number; x1: number; y0: number; y1: number};
+  /** The critical path, when `criticalPath` draws one. */
+  critical: GanttCritical | null;
   time: boolean;
   /** Formats a start or end for the tooltip and aria labels. */
   format: (v: TimeValue) => string;
@@ -126,15 +137,21 @@ export function ganttDomain(
   return [lo, hi];
 }
 
-/** The label column's width for these rows' labels. */
+/**
+    The label column's width for these rows' labels, and for the critical
+    path's key when it has one.
+*/
 function columnFor(
   viz: VizInstance,
   rows: GanttRow[],
   font: GanttLabelFont,
   width: number,
+  critical: GanttCritical | null,
 ): number {
+  const key = critical ? criticalKeyLabel(viz) : false;
   const widest = Math.max(
     0,
+    key ? KEY_SAMPLE + KEY_GAP + labelWidth(key, font) : 0,
     ...rows.map(r =>
       r.kind === "group"
         ? labelWidth(r.label, font, 600)
@@ -174,7 +191,8 @@ export const applyGanttLayout: TransformStage = ({viz}) => {
   const rows = ganttRows(tasks, (v.schema.taskSort ?? "data") as TaskSort);
   const font = ganttLabelFont(v);
   const {width, height} = chartBounds(v);
-  const column = columnFor(v, rows, font, width);
+  const critical = ganttCriticalPath(v, tasks);
+  const column = columnFor(v, rows, font, width, critical);
 
   const axisConfig = (v.schema.axisConfig ?? {}) as {orient?: string};
   const top = axisConfig.orient !== "bottom";
@@ -240,6 +258,15 @@ export const applyGanttLayout: TransformStage = ({viz}) => {
       y0: rowsTop,
       y1: rowsTop + block,
     },
+    corner: top
+      ? {x0: 0, x1: column, y0: 0, y1: rowsTop}
+      : {
+          x0: 0,
+          x1: column,
+          y0: rowsTop + block,
+          y1: rowsTop + block + size.height + size.padding,
+        },
+    critical,
     time,
     format: timeFormatter(
       v,

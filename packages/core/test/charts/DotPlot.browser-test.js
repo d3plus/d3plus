@@ -349,7 +349,7 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(out.tooltip, "a tooltip shows");
     assert.ok(out.tooltip.includes(name), `names the row: ${out.tooltip}`);
     assert.ok(out.tooltip.includes("count"), "lists the row's value");
-    assert.ok(out.tooltip.includes("Each Dot 5"), "and what a dot stands for");
+    assert.ok(out.tooltip.includes("Each dot 5"), "and what a dot stands for");
     assert.ok(
       out.hovered.length > 0 && out.hovered.every(n => n === name),
       `only the row's dots stay bright: ${[...new Set(out.hovered)]}`,

@@ -232,6 +232,35 @@ export {
   REMAINING_MIX,
 } from "./src/charts/Gantt/emit.js";
 export {
+  cpmLinks,
+  criticalPath,
+  findCycle,
+  placeMilestones,
+  topologicalOrder,
+} from "./src/charts/Gantt/criticalPath.js";
+export type {
+  CpmInput,
+  CpmLink,
+  CpmResult,
+  CpmTask,
+} from "./src/charts/Gantt/criticalPath.js";
+export {
+  criticalKeyLabel,
+  ganttCriticalPath,
+  KEY_GAP,
+  KEY_SAMPLE,
+  linkKey,
+  workClock,
+} from "./src/charts/Gantt/ganttCritical.js";
+export type {
+  GanttCritical,
+  WorkClock,
+} from "./src/charts/Gantt/ganttCritical.js";
+export {recordSlack, taskSlack} from "./src/charts/Gantt/ganttSlack.js";
+export type {TaskSlack} from "./src/charts/Gantt/ganttSlack.js";
+export {
+  criticalKeyNodes,
+  criticalStyle,
   dependencyNodes,
   dependencyStyle,
   groupNodes,
@@ -241,7 +270,10 @@ export {
   todayNodes,
   todayValue,
 } from "./src/charts/Gantt/ganttDecor.js";
-export type {DependencyStyle} from "./src/charts/Gantt/ganttDecor.js";
+export type {
+  CriticalStyle,
+  DependencyStyle,
+} from "./src/charts/Gantt/ganttDecor.js";
 export {
   bracketPath,
   diamondPath,
@@ -276,11 +308,21 @@ export type {
   TaskSort,
 } from "./src/charts/Gantt/ganttRows.js";
 export {
+  ganttDayBreaks,
+  isDateOnly,
+  offsetDays,
+  weekendRule,
+  workingBreaks,
+} from "./src/charts/Gantt/ganttCalendar.js";
+export {
   dayCount,
+  daysLabel,
   ganttAriaLabel,
   ganttDuration,
   ganttTooltipRows,
   percent,
+  shownEnd,
+  slackRows,
   taskTimes,
   timeFormatter,
 } from "./src/charts/Gantt/ganttTooltip.js";
@@ -1018,6 +1060,121 @@ export type {
   GapSortState,
 } from "./src/charts/Dumbbell/gapSort.js";
 export {
+  circleCrossings,
+  circleOverlap,
+  circlePath,
+  distanceForOverlap,
+  insideAll,
+  intersection,
+  intersectionArea,
+  intersectionPath,
+  segmentArea,
+} from "./src/charts/Venn/circles.js";
+export type {
+  CrossPoint,
+  Intersection,
+  IntersectionArc,
+  VennCircle,
+} from "./src/charts/Venn/circles.js";
+export {nelderMead} from "./src/charts/Venn/nelderMead.js";
+export type {
+  NelderMeadOptions,
+  NelderMeadResult,
+} from "./src/charts/Venn/nelderMead.js";
+export {
+  areaKey,
+  classicLayout,
+  greedyLayout,
+  layoutAreas,
+  proportionalLayout,
+  vennLoss,
+} from "./src/charts/Venn/vennLayout.js";
+export type {VennArea, VennCircles} from "./src/charts/Venn/vennLayout.js";
+export {
+  circleBounds,
+  disjointClusters,
+  fitCircles,
+  normalizeCircles,
+  orientCircles,
+} from "./src/charts/Venn/vennFit.js";
+export type {CircleBounds} from "./src/charts/Venn/vennFit.js";
+export {
+  enclosingSets,
+  exclusiveSizes,
+  outsideCircles,
+  regionMargin,
+  sameAreaGroups,
+  vennLabelSpot,
+} from "./src/charts/Venn/vennRegions.js";
+export type {VennLabelSpot} from "./src/charts/Venn/vennRegions.js";
+export {
+  ELLIPSE_SEGMENTS,
+  FIVE_ELLIPSES,
+  FOUR_ELLIPSES,
+  classicEllipses,
+  clipConvex,
+  edgeDistance,
+  ellipsePolygon,
+  fitBounds,
+  fitPoint,
+  fitPolygons,
+  pointBounds,
+  polygonIntersection,
+  polygonLabelSpot,
+  polygonMargin,
+  polygonPath,
+} from "./src/charts/Venn/vennEllipses.js";
+export type {
+  PointBounds,
+  PointFit,
+  VennEllipse,
+  VennPoint,
+} from "./src/charts/Venn/vennEllipses.js";
+export {
+  ellipseFrame,
+  fitRegion,
+  frameRegion,
+} from "./src/charts/Venn/ellipseFrame.js";
+export type {
+  EllipseFrame,
+  EllipseRegionShape,
+} from "./src/charts/Venn/ellipseFrame.js";
+export {
+  SET_SEPARATOR,
+  blendColors,
+  blendedFill,
+  coversSets,
+  mergeSets,
+  rowSets,
+  rowSize,
+  setList,
+  setRow,
+  sourceRow,
+  vennRows,
+} from "./src/charts/Venn/vennData.js";
+export {
+  VENN_PADDING,
+  applyVennLayout,
+  ellipseRegions,
+  exclusiveCounts,
+  setOrder,
+  vennCircles,
+  vennRegions,
+} from "./src/charts/Venn/applyLayout.js";
+export type {
+  RowArea,
+  VennLayoutResult,
+  VennRegion,
+} from "./src/charts/Venn/applyLayout.js";
+export {
+  LABEL_FONT_MAX,
+  MIN_LABEL_ROOM,
+  regionLineBoxes,
+  regionLines,
+  vennEmit,
+} from "./src/charts/Venn/emit.js";
+export {vennTooltipRows} from "./src/charts/Venn/tooltip.js";
+export {
   largestRemainder,
   waffleCellGeometry,
   waffleCellPosition,
@@ -1742,7 +1899,10 @@ export {
   rugTickSize,
 } from "./src/charts/DensityPlot/rug.js";
 export type {RugConfig} from "./src/charts/DensityPlot/rug.js";
-export {dotPlotDef, sourceRow} from "./src/charts/DotPlot/index.js";
+export {
+  dotPlotDef,
+  sourceRow as dotSourceRow,
+} from "./src/charts/DotPlot/index.js";
 export {
   expandUnit,
   fitDotDiameter,
@@ -1769,6 +1929,7 @@ export {funnelDef} from "./src/charts/Funnel/index.js";
 export {ganttDef, progressAgg, taskAccessor} from "./src/charts/Gantt/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
+export {tileGridMapDef} from "./src/charts/TileGridMap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
 export {kpiAccessor, kpiDef, kpiTooltipRows} from "./src/charts/KPI/index.js";
@@ -2007,6 +2168,7 @@ export {ridgelineDef} from "./src/charts/Ridgeline/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
+export {vennDef} from "./src/charts/Venn/index.js";
 export {violinDef} from "./src/charts/Violin/index.js";
 export {waffleDef} from "./src/charts/Waffle/index.js";
 export {waterfallDef} from "./src/charts/Waterfall/index.js";

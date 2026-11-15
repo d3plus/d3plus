@@ -55,7 +55,7 @@ export function dotTooltipTitle(viz: VizInstance, row: Row) {
     A dot's tooltip rows: its value (unless the title shows it) and its
     category row, as `[axis title, value]`, unless a `discrete` axis's
     tooltip lists them already; then, with `unit`, its row's `value` and
-    what one dot stands for ("Each Dot", translated).
+    what one dot stands for ("Each dot", translated).
     @param viz The chart.
     @param row Unwraps a hovered datum to the row the dot came from.
 */
@@ -87,7 +87,7 @@ export function dotTooltipRows(viz: VizInstance, row: Row) {
           valueKeyOf(viz.schema.value) ?? t("Value"),
           fmt(Number(value(source, i))),
         ],
-        [t("Each Dot"), fmt(unit)],
+        [t("Each dot"), fmt(unit)],
       );
     }
     return rows;

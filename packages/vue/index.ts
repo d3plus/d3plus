@@ -58,8 +58,10 @@ import {
   Streamgraph as StreamgraphClass,
   StripPlot as StripPlotClass,
   Sunburst as SunburstClass,
+  TileGridMap as TileGridMapClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Venn as VennClass,
   Violin as ViolinClass,
   Waterfall as WaterfallClass,
   Viz as VizClass,
@@ -218,10 +220,14 @@ export const Streamgraph = createD3plusComponent(StreamgraphClass, "chart");
 export const StripPlot = createD3plusComponent(StripPlotClass, "chart");
 /** Vue component for rendering a d3plus Sunburst visualization. */
 export const Sunburst = createD3plusComponent(SunburstClass, "chart");
+/** Vue component for rendering a d3plus TileGridMap visualization. */
+export const TileGridMap = createD3plusComponent(TileGridMapClass, "chart");
 /** Vue component for rendering a d3plus Tree visualization. */
 export const Tree = createD3plusComponent(TreeClass, "chart");
 /** Vue component for rendering a d3plus Treemap visualization. */
 export const Treemap = createD3plusComponent(TreemapClass, "chart");
+/** Vue component for rendering a d3plus Venn visualization. */
+export const Venn = createD3plusComponent(VennClass, "chart");
 /** Vue component for rendering a d3plus Violin visualization. */
 export const Violin = createD3plusComponent(ViolinClass, "chart");
 /** Vue component for rendering a d3plus Waterfall visualization. */

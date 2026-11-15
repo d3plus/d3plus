@@ -381,7 +381,7 @@ it("dotTooltipRows — with `unit`, the row's value and what a dot stands for", 
     [
       ["Value Axis", "2"],
       ["«Value»", "42"],
-      ["«Each Dot»", "5"],
+      ["«Each dot»", "5"],
     ],
   );
 });

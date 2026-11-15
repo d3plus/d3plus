@@ -24,6 +24,7 @@ export interface TranslationStrings {
   Comparison: string;
   Connections: string;
   Count: string;
+  "Critical path": string;
   "Cumulative Count": string;
   "Cumulative Relative Frequency": string;
   "Cumulative Share": string;
@@ -33,10 +34,11 @@ export interface TranslationStrings {
   Degree: string;
   Density: string;
   "Double-click or Escape to Clear": string;
+  Dots: string;
   Download: string;
   "Drag to Filter": string;
   Duration: string;
-  "Each Dot": string;
+  "Each dot": string;
   End: string;
   "Enter to Hide": string;
   "Enter to Highlight": string;
@@ -55,6 +57,7 @@ export interface TranslationStrings {
   "interactive chart": string;
   "JPG image": string;
   "Lasso Select": string;
+  "Latest start": string;
   Linear: string;
   "Loading Visualization": string;
   Logarithmic: string;
@@ -84,6 +87,7 @@ export interface TranslationStrings {
   Observations: string;
   "of first": string;
   "of previous": string;
+  "Only in This Region": string;
   Open: string;
   "Out-degree": string;
   "Percent of Total": string;
@@ -111,6 +115,7 @@ export interface TranslationStrings {
   "Shift+Click to Highlight": string;
   "Shift+Enter to Hide": string;
   "Shift+Enter to Highlight": string;
+  Slack: string;
   Start: string;
   "SVG vector": string;
   Target: string;
@@ -187,6 +192,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
     Connections: "\u0627\u0644\u0627\u062a\u0635\u0627\u0644\u0627\u062a",
     Count: "\u0627\u0644\u0639\u062f\u062f",
+    "Critical path":
+      "\u0627\u0644\u0645\u0633\u0627\u0631 \u0627\u0644\u062d\u0631\u062c",
     "Cumulative Count":
       "\u0627\u0644\u0639\u062f\u062f \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     "Cumulative Relative Frequency":
@@ -200,11 +207,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     "Double-click or Escape to Clear":
       "\u0627\u0646\u0642\u0631 \u0646\u0642\u0631\u064b\u0627 \u0645\u0632\u062f\u0648\u062c\u064b\u0627 \u0623\u0648 \u0627\u0636\u063a\u0637 Esc \u0644\u0644\u0645\u0633\u062d",
+    Dots: "\u0627\u0644\u0646\u0642\u0627\u0637",
     Download: "\u062a\u062d\u0645\u064a\u0644",
     "Drag to Filter":
       "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
     Duration: "\u0627\u0644\u0645\u062f\u0629",
-    "Each Dot": "\u0643\u0644 \u0646\u0642\u0637\u0629",
+    "Each dot": "\u0643\u0644 \u0646\u0642\u0637\u0629",
     End: "\u0627\u0644\u0646\u0647\u0627\u064a\u0629",
     "Enter to Hide": "Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Enter to Highlight": "Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
@@ -227,6 +235,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0645\u062e\u0637\u0637 \u062a\u0641\u0627\u0639\u0644\u064a",
     "JPG image": "\u0635\u0648\u0631\u0629 JPG",
     "Lasso Select": "\u062a\u062d\u062f\u064a\u062f \u062d\u0631",
+    "Latest start":
+      "\u0622\u062e\u0631 \u0645\u0648\u0639\u062f \u0644\u0644\u0628\u062f\u0621",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
@@ -265,6 +275,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
     "of first": "\u0645\u0646 \u0627\u0644\u0623\u0648\u0644\u0649",
     "of previous": "\u0645\u0646 \u0627\u0644\u0633\u0627\u0628\u0642\u0629",
+    "Only in This Region":
+      "\u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u0645\u0646\u0637\u0642\u0629 \u0641\u0642\u0637",
     Open: "\u0627\u0644\u0627\u0641\u062a\u062a\u0627\u062d",
     "Out-degree":
       "\u0627\u0644\u062f\u0631\u062c\u0629 \u0627\u0644\u062e\u0627\u0631\u062c\u0629",
@@ -306,6 +318,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift+Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Enter to Highlight":
       "Shift+Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
+    Slack:
+      "\u0627\u0644\u0648\u0642\u062a \u0627\u0644\u0641\u0627\u0626\u0636",
     Start: "\u0627\u0644\u0628\u062f\u0627\u064a\u0629",
     "SVG vector": "\u0631\u0633\u0645 \u0645\u062a\u062c\u0647 SVG",
     Target: "\u0627\u0644\u0647\u062f\u0641",
@@ -370,6 +384,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Comparison: "Comparaci\u00f3n",
     Connections: "Conexiones",
     Count: "Recuento",
+    "Critical path": "Ruta cr\u00edtica",
     "Cumulative Count": "Recuento Acumulado",
     "Cumulative Relative Frequency": "Frecuencia Relativa Acumulada",
     "Cumulative Share": "Porcentaje Acumulado",
@@ -379,10 +394,11 @@ const translateLocale: Record<string, TranslationStrings> = {
     Degree: "Grado",
     Density: "Densidad",
     "Double-click or Escape to Clear": "Doble Clic o Escape para Borrar",
+    Dots: "Puntos",
     Download: "Descargar",
     "Drag to Filter": "Arrastrar para Filtrar",
     Duration: "Duraci\u00f3n",
-    "Each Dot": "Cada Punto",
+    "Each dot": "Cada punto",
     End: "Fin",
     "Enter to Hide": "Enter para Ocultar",
     "Enter to Highlight": "Enter para Resaltar",
@@ -402,6 +418,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart": "gr\u00e1fico interactivo",
     "JPG image": "Imagen JPG",
     "Lasso Select": "Selecci\u00f3n de Lazo",
+    "Latest start": "Inicio m\u00e1s tard\u00edo",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
@@ -431,6 +448,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Observations: "Observaciones",
     "of first": "de la primera",
     "of previous": "de la anterior",
+    "Only in This Region": "Solo en Esta Regi\u00f3n",
     Open: "Apertura",
     "Out-degree": "Grado de salida",
     "Percent of Total": "Porcentaje del Total",
@@ -458,6 +476,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
     "Shift+Enter to Hide": "May\u00fas+Enter para Ocultar",
     "Shift+Enter to Highlight": "May\u00fas+Enter para Resaltar",
+    Slack: "Holgura",
     Start: "Inicio",
     "SVG vector": "Vector SVG",
     Target: "Objetivo",
@@ -518,6 +537,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Comparison: "Compara\u00e7\u00e3o",
     Connections: "Conex\u00f5es",
     Count: "Contagem",
+    "Critical path": "Caminho cr\u00edtico",
     "Cumulative Count": "Contagem Acumulada",
     "Cumulative Relative Frequency": "Frequ\u00eancia Relativa Acumulada",
     "Cumulative Share": "Porcentagem Acumulada",
@@ -527,10 +547,11 @@ const translateLocale: Record<string, TranslationStrings> = {
     Degree: "Grau",
     Density: "Densidade",
     "Double-click or Escape to Clear": "Clique Duplo ou Esc para Limpar",
+    Dots: "Pontos",
     Download: "Baixar",
     "Drag to Filter": "Arraste para Filtrar",
     Duration: "Dura\u00e7\u00e3o",
-    "Each Dot": "Cada Ponto",
+    "Each dot": "Cada ponto",
     End: "Fim",
     "Enter to Hide": "Enter para Ocultar",
     "Enter to Highlight": "Enter para Destacar",
@@ -550,6 +571,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart": "gr\u00e1fico interativo",
     "JPG image": "Imagem JPG",
     "Lasso Select": "Sele\u00e7\u00e3o de La\u00e7o",
+    "Latest start": "In\u00edcio mais tardio",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
@@ -579,6 +601,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Observations: "Observa\u00e7\u00f5es",
     "of first": "da primeira",
     "of previous": "da anterior",
+    "Only in This Region": "Apenas Nesta Regi\u00e3o",
     Open: "Abertura",
     "Out-degree": "Grau de sa\u00edda",
     "Percent of Total": "Porcentagem do Total",
@@ -606,6 +629,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
     "Shift+Enter to Hide": "Shift+Enter para Ocultar",
     "Shift+Enter to Highlight": "Shift+Enter para Destacar",
+    Slack: "Folga",
     Start: "In\u00edcio",
     "SVG vector": "Vetor SVG",
     Target: "Meta",
@@ -668,6 +692,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Comparison: "\u5bf9\u6bd4",
     Connections: "\u8fde\u63a5\u6570",
     Count: "\u8ba1\u6570",
+    "Critical path": "\u5173\u952e\u8def\u5f84",
     "Cumulative Count": "\u7d2f\u8ba1\u8ba1\u6570",
     "Cumulative Relative Frequency": "\u7d2f\u8ba1\u76f8\u5bf9\u9891\u7387",
     "Cumulative Share": "\u7d2f\u8ba1\u5360\u6bd4",
@@ -678,10 +703,11 @@ const translateLocale: Record<string, TranslationStrings> = {
     Density: "\u5bc6\u5ea6",
     "Double-click or Escape to Clear":
       "\u53cc\u51fb\u6216\u6309 Esc \u6e05\u9664",
+    Dots: "\u70b9\u6570",
     Download: "\u4e0b\u8f7d",
     "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
     Duration: "\u6301\u7eed\u65f6\u95f4",
-    "Each Dot": "\u6bcf\u4e2a\u70b9",
+    "Each dot": "\u6bcf\u70b9",
     End: "\u7ed3\u675f",
     "Enter to Hide": "\u6309 Enter \u9690\u85cf",
     "Enter to Highlight": "\u6309 Enter \u7a81\u51fa\u663e\u793a",
@@ -701,6 +727,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
     "JPG image": "JPG \u56fe\u7247",
     "Lasso Select": "\u5957\u7d22\u9009\u62e9",
+    "Latest start": "\u6700\u665a\u5f00\u59cb",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",
@@ -730,6 +757,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Observations: "\u89c2\u6d4b\u6570",
     "of first": "\u5360\u7b2c\u4e00\u9636\u6bb5",
     "of previous": "\u5360\u4e0a\u4e00\u9636\u6bb5",
+    "Only in This Region": "\u4ec5\u5728\u6b64\u533a\u57df",
     Open: "\u5f00\u76d8",
     "Out-degree": "\u51fa\u5ea6",
     "Percent of Total": "\u5360\u603b\u6570\u767e\u5206\u6bd4",
@@ -757,6 +785,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     "Shift+Enter to Hide": "Shift+Enter \u9690\u85cf",
     "Shift+Enter to Highlight": "Shift+Enter \u7a81\u51fa\u663e\u793a",
+    Slack: "\u6d6e\u52a8\u65f6\u95f4",
     Start: "\u5f00\u59cb",
     "SVG vector": "SVG \u77e2\u91cf\u56fe",
     Target: "\u76ee\u6807",
