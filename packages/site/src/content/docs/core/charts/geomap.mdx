@@ -10,6 +10,7 @@ import bivariateChoropleth from "~/examples/core/charts/geomap/bivariate-choropl
 import coordinatePointMap from "~/examples/core/charts/geomap/coordinate-point-map.js?raw";
 import usStatesCartogram from "~/examples/core/charts/geomap/us-states-cartogram.js?raw";
 import worldCartogram from "~/examples/core/charts/geomap/world-cartogram.js?raw";
+import contiguousCartogram from "~/examples/core/charts/geomap/contiguous-cartogram.js?raw";
 import dotDensityMap from "~/examples/core/charts/geomap/dot-density-map.js?raw";
 import dotDensityCategories from "~/examples/core/charts/geomap/dot-density-categories.js?raw";
 import hexbinMap from "~/examples/core/charts/geomap/hexbin-map.js?raw";
@@ -49,7 +50,7 @@ Two fields given to `colorScale` color each region by both at once. Each variabl
 
 ## Dorling cartogram
 
-`cartogram: "dorling"` redraws each region as a circle whose area stands for its value, here each state's population, read from `cartogramSize` or, without one, the `colorScale` value. Each circle starts at the center of its state's largest part and is nudged apart from its neighbors until none overlap, while a pull back toward home keeps the country's outline recognizable; the circles shrink together when they would spill out of the map. A state's label sits inside its circle when it fits. Switch `cartogram` to `"demers"` or `false`: each outline morphs into its circle or square and back, and a change of value morphs the shapes the same way. Colors, tooltips, the color scale, and zooming work as on the map. `links` run between the circles' centers, here a few illustrative moves between states, and tween with the shapes; coordinate points and the tiles are left out. The size legend in the corner draws nested circles (nested squares for Demers) as large as the shapes drawn for a few populations, so you can read a state's size; set `sizeLegend: false` to hide it.
+`cartogram: "dorling"` redraws each region as a circle whose area stands for its value, here each state's population, read from `cartogramSize` or, without one, the `colorScale` value. Each circle starts at the center of its state's largest part and is nudged apart from its neighbors until none overlap, while a pull back toward home keeps the country's outline recognizable; the circles shrink together when they would spill out of the map. A state's label sits inside its circle when it fits. Switch `cartogram` to `"demers"`, `"contiguous"`, or `false`: each outline morphs into its circle or square and back, and a change of value morphs the shapes the same way. Colors, tooltips, the color scale, and zooming work as on the map. `links` run between the circles' centers, here a few illustrative moves between states, and tween with the shapes; coordinate points and the tiles are left out. The size legend in the corner draws nested circles (nested squares for Demers) as large as the shapes drawn for a few populations, so you can read a state's size; set `sizeLegend: false` to hide it.
 
 <Playground chart="Geomap" code={usStatesCartogram} controls={["cartogram","cartogramPadding","linkCurve","sizeLegend","renderer"]} />
 
@@ -58,6 +59,12 @@ Two fields given to `colorScale` color each region by both at once. Each variabl
 `cartogram: "demers"` draws squares instead, which pack edge to edge, `cartogramPadding` pixels apart (`1` by default). Every country with a population gets a square as large as its share of the world's, so China and India dwarf the rest while Russia and Canada shrink to a sliver of their land; countries without data are left out.
 
 <Playground chart="Geomap" code={worldCartogram} controls={["cartogram","cartogramPadding","projection","renderer"]} />
+
+## Contiguous cartogram
+
+`cartogram: "contiguous"` stretches the states themselves until each one's area stands for its population, while neighbors keep the borders they share, so the map stays a map: California and Texas swell, and the Great Plains and Mountain West thin out. It runs Dougenik, Chrisman and Niemeyer's iterative method, each pass pushing every point away from the states that need to grow and toward those that need to shrink, for up to 12 passes, stopping early once every state is within 1% of its target area. `links` run between the stretched states' centers, and there's no size legend, since the regions keep their own shapes. A state without data keeps the map's mean density, and on maps with thousands of regions (US counties, say) the pushes are worked out on a grid laid over the map, which keeps the chart responsive. Toggling it, or a change of value, tweens each outline point by point.
+
+<Playground chart="Geomap" code={contiguousCartogram} controls={["cartogram","renderer"]} />
 
 ## Tile-grid map
 

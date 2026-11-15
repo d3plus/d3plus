@@ -302,3 +302,78 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 }
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`Geomap ${renderer}: a contiguous cartogram stretches the states, keeping their outlines' points, with links between their centers and no size legend`, async () => {
+    const {page, errors, close} = await openPage(box);
+    try {
+      await page.evaluate(draw, [config({cartogram: "dorling"}), renderer]);
+      await page.evaluate(
+        () =>
+          new Promise(resolve =>
+            window.__viz.cartogram("contiguous").render(() => resolve(true)),
+          ),
+      );
+      const nodes = await page.evaluate(painted);
+      const outlines = await page.evaluate(() => {
+        const c = window.__viz.ctx.geomapCtx;
+        return Object.fromEntries(
+          c.topoData.map(d => [`geomap-path-${d.id}`, c.pathFn(d)]),
+        );
+      });
+      const shapes = nodes.filter(n => n.key.startsWith("geomap-path-"));
+      assert.strictEqual(
+        shapes.length,
+        Object.values(outlines).filter(Boolean).length,
+        "every state the projection draws",
+      );
+      const area = d =>
+        pathRings(d).reduce(
+          (t, ring) =>
+            t +
+            Math.abs(
+              ring.reduce((s, p, i) => {
+                const q = ring[(i + 1) % ring.length];
+                return s + p[0] * q[1] - q[0] * p[1];
+              }, 0) / 2,
+            ),
+          0,
+        );
+      for (const n of shapes)
+        assert.deepStrictEqual(
+          pathRings(n.d).map(r => r.length),
+          pathRings(outlines[n.key]).map(r => r.length),
+          `${n.key}: its outline's rings and points`,
+        );
+      const ca = shapes.find(n => n.key === CA);
+      assert.ok(area(ca.d) > area(outlines[CA]), "California grows");
+      assert.ok(
+        !nodes.some(n => n.key.startsWith("geomap-cartogram-label-")),
+        "no labels",
+      );
+      assert.ok(
+        !nodes.some(n => n.key.startsWith("geomap-point-")),
+        "no points",
+      );
+      const link = nodes.find(
+        n => n.key === "geomap-link-04000US06-04000US48-0",
+      );
+      const anchor = await page.evaluate(() => {
+        const s = window.__viz.ctx.geomapCtx.cartogram.get("04000US06");
+        return [s.x, s.y];
+      });
+      const start = link.d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi).map(Number);
+      assert.ok(
+        Math.hypot(start[0] - anchor[0], start[1] - anchor[1]) < 1,
+        "the link leaves California's stretched center",
+      );
+      assert.ok(
+        !nodes.some(n => /^(circle|square)-/.test(n.key)),
+        "no size legend",
+      );
+      assert.deepStrictEqual(errors, [], "no page errors");
+    } finally {
+      await close();
+    }
+  });
+}
