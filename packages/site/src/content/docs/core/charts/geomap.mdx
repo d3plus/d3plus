@@ -11,6 +11,10 @@ import coordinatePointMap from "~/examples/core/charts/geomap/coordinate-point-m
 import usStatesCartogram from "~/examples/core/charts/geomap/us-states-cartogram.js?raw";
 import worldCartogram from "~/examples/core/charts/geomap/world-cartogram.js?raw";
 import contiguousCartogram from "~/examples/core/charts/geomap/contiguous-cartogram.js?raw";
+import dotDensityMap from "~/examples/core/charts/geomap/dot-density-map.js?raw";
+import dotDensityCategories from "~/examples/core/charts/geomap/dot-density-categories.js?raw";
+import hexbinMap from "~/examples/core/charts/geomap/hexbin-map.js?raw";
+import tileGridMap from "~/examples/core/charts/geomap/tile-grid-map.js?raw";
 import flowMap from "~/examples/core/charts/geomap/flow-map.js?raw";
 import globe from "~/examples/core/charts/geomap/globe.js?raw";
 import edgeBundling from "~/examples/core/charts/geomap/edge-bundling.js?raw";
@@ -62,11 +66,35 @@ Two fields given to `colorScale` color each region by both at once. Each variabl
 
 <Playground chart="Geomap" code={contiguousCartogram} controls={["cartogram","renderer"]} />
 
+## Tile-grid map
+
+`tileGrid` draws each region as one equal hexagon at a fixed cell of a grid, so a small state counts as much as a large one: here the built-in `"us-states"` grid of the 50 states and DC, colored by population. The built-in grid finds each state by its postal abbreviation, its FIPS code, or an id ending in it, labels each tile with its abbreviation, and needs no `topojson`. Colors, tooltips, the color scale, and the legend work as on the map, and a state without data keeps its tile in the no-data fill. [TileGridMap](/core/charts/tile-grid-map/) is a Geomap with this grid on by default; its page covers square tiles, layouts of your own, and morphing from the map.
+
+<Playground chart="Geomap" code={tileGridMap} controls={["tileGrid","tileGridShape","tileGridPadding","renderer"]} />
+
+## Dot-density map
+
+`dotDensity` draws one dot for every `per` units of each region's `value`, here one for every 25,000 people, scattered inside the state. The dots are placed by a random stream seeded by each state's id, so redrawing, resizing, or changing a value never moves a dot already on the map (a larger value only adds dots), and every dot lands inside its state, outside any hole in it. The outlines stay drawn: hover a state for its total, or its dots for their count and what each stands for. Without categories, the dots take the first color of the palette, lightened over a dark basemap; `r` sets their radius (`1.5` pixels) and `fillOpacity` their opacity (`0.8`). Each dot always stands for `per` units: so a dense map stays quick to draw, past 20,000 dots a chart whose `renderer` isn't set draws on Canvas instead of SVG (it says so once in the console) and goes back to SVG when the dots fit again. Only past `max` dots (`100000`) does `per` rise, to the next round number at which they fit.
+
+<Playground chart="Geomap" code={dotDensityMap} controls={["dotDensity","renderer","tiles"]} />
+
+## Dot density by category
+
+With two `groupBy` levels, the outer one splits each region's dots into categories: here each state's customers by plan, one dot for every 1,000. Each plan's dots take its color and mix with the others inside the state, and the legend lists the plans. Hovering a state lists each plan's total.
+
+<Playground chart="Geomap" code={dotDensityCategories} controls={["dotDensity","legendPosition","renderer"]} />
+
 ## Coordinate point map
 
 Rather than shading regions, this drops a marker per datum: `point` returns each row's `[longitude, latitude]`, and `pointSize` scales the radius between `pointSizeMin` and `pointSizeMax` by `dma_code`.
 
 <Playground chart="Geomap" code={coordinatePointMap} controls={["point","pointSize","pointSizeMin","pointSizeMax"]} />
+
+## Hexbin map
+
+`hexbin` bins the coordinate points into hexagons on the map, the way the [Hexbin](/core/charts/hexbin/) chart does, and colors each on the colorScale by how many points it holds, here the cities of each 20-pixel hexagon. Give it a `value` to color each bin by the `"sum"` (or, with `agg`, the `"mean"`) of that value over its points instead. Hover a bin for its measure. Zoom in and the points are binned again at the same 20-pixel radius, so finer detail appears, and the color scale refits to the bins in view. The bins sit over the tiles without being clipped to land.
+
+<Playground chart="Geomap" code={hexbinMap} controls={["hexbin","colorScaleConfig","tiles"]} />
 
 ## Flow map
 

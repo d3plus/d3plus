@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>TileGrid · Geomap</title>
+    <meta
+      name="description"
+      content="Tile-grid maps: the US states as hexagons or squares, morphing to and from the map, and a layout of Northern Europe's countries."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #controls {
+        display: flex;
+        font-size: 14px;
+        gap: 12px;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <label>
+        Map
+        <select id="map">
+          <option value="states">US states</option>
+          <option value="topojson">US states, over the map</option>
+          <option value="europe">Northern Europe, own layout</option>
+        </select>
+      </label>
+      <label>
+        Tiles
+        <select id="shape">
+          <option value="hex">Hexagons</option>
+          <option value="square">Squares</option>
+        </select>
+      </label>
+      <label>
+        <input id="grid" type="checkbox" checked />
+        Tile grid
+      </label>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    var maps = {
+      states: {
+        data: "./state-population.json",
+        groupBy: "State ID",
+        label: d => d.State,
+        projection: "geoAlbersUsa",
+        dataFormat: rows => rows,
+        tileGrid: "us-states",
+        topojson: false,
+      },
+      topojson: {
+        data: "./state-population.json",
+        groupBy: "State ID",
+        label: d => d.State,
+        projection: "geoAlbersUsa",
+        dataFormat: rows => rows,
+        tileGrid: "us-states",
+        topojson: "./State.json",
+      },
+      europe: {
+        data: "./country-population.json",
+        dataFormat: rows => rows.filter(d => d.id in maps.europe.tileGrid),
+        groupBy: "id",
+        label: d => d.Country,
+        projection: "geoMercator",
+        // Each country's [column, row], by id; odd rows sit half a tile right.
+        tileGrid: {
+          352: [0, 0],
+          578: [2, 0],
+          752: [3, 0],
+          246: [4, 0],
+          826: [1, 1],
+          208: [2, 1],
+          233: [4, 1],
+          372: [0, 2],
+          428: [4, 2],
+          440: [4, 3],
+        },
+        topojson: false,
+      },
+    };
+
+    var current = "states";
+    var chart = new d3plus.Geomap()
+      .select("#viz")
+      .config({
+        colorScale: "Population",
+        height: 560,
+        tiles: false,
+        ...maps.states,
+      })
+      .render();
+
+    document.querySelector("#map").addEventListener("change", function (e) {
+      current = e.target.value;
+      document.querySelector("#grid").checked = true;
+      chart.config(maps[current]).render();
+    });
+
+    document.querySelector("#shape").addEventListener("change", function (e) {
+      chart.tileGridShape(e.target.value).render();
+    });
+
+    document.querySelector("#grid").addEventListener("change", function (e) {
+      chart
+        .tileGrid(e.target.checked ? maps[current].tileGrid : false)
+        .render();
+    });
+  </script>
+</html>

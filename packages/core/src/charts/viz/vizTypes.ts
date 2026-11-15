@@ -218,6 +218,13 @@ export interface VizInstance {
       when unset.
   */
   _colorScaleRows?: () => DataPoint[];
+  /**
+      The value the colorScale reads from a row, for a chart whose colored
+      marks aren't its rows (a Geomap's `hexbin` bins): in place of the
+      chart's `colorScale` while it returns one.
+  */
+  _colorScaleAccessor?: () =>
+    ((d: DataPoint, i: number) => unknown) | undefined;
   _timeFilter?: (d: DataPoint, i: number) => boolean;
 
   /* 3. Grouping & aggregation */

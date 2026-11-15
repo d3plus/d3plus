@@ -105,16 +105,26 @@ export function linkColorScaleRows(viz: VizInstance): DataPoint[] {
 }
 
 /**
+    The accessor the colorScale reads the chart's own rows with: the one a
+    chart supplies for marks that aren't its rows (see
+    `_colorScaleAccessor`), else the chart's `colorScale`.
+*/
+export function ownColorScale(viz: VizInstance): Accessor | undefined {
+  const chart = viz._colorScaleAccessor?.();
+  if (chart) return chart;
+  return typeof viz.schema.colorScale === "function"
+    ? (viz.schema.colorScale as Accessor)
+    : undefined;
+}
+
+/**
     The accessor the chart's colorScale reads values with: the chart's own
     `colorScale`, which also reads each link row's numeric `linkColor`
     value when it has links colored by number. Undefined when neither
     gives the colorScale anything to show.
 */
 export function colorScaleValue(viz: VizInstance): Accessor | undefined {
-  const own =
-    typeof viz.schema.colorScale === "function"
-      ? (viz.schema.colorScale as Accessor)
-      : undefined;
+  const own = ownColorScale(viz);
   if (!linkColorScaleRows(viz).length) return own;
   const values = valuesOf(viz);
   return (d, i) => {

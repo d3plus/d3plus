@@ -10,7 +10,7 @@ import {
   linkSizeMaxField,
   linkStyleFields,
 } from "../features/linkFields.js";
-import {linkTooltipConfig} from "../features/linkInteraction.js";
+import {geomapTooltipConfig} from "./densityTooltip.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** Geomap's link fields. */
@@ -84,7 +84,7 @@ export function geomapLinkFields(): ConfigField[] {
     {
       key: "tooltipConfig",
       merge: true,
-      factory: (viz: VizInstance) => linkTooltipConfig(viz),
+      factory: (viz: VizInstance) => geomapTooltipConfig(viz),
     },
   ];
 }

@@ -10,7 +10,7 @@ import {chartBounds} from "../features/chartGeometry.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveThemed} from "./basemapTheme.js";
 import type {Themed} from "./basemapTheme.js";
-import {cartogramKind} from "./cartogramLayout.js";
+import {regionsReshaped} from "./tileGrid.js";
 
 /** The credit for the tile server `url` names, or false for one without. */
 function findAttribution(url: string): string | false {
@@ -51,7 +51,7 @@ export function syncTileAttribution(viz: VizInstance): void {
   viz._tileAttribution = auto;
 }
 
-/** Whether the map draws its tiles: `tiles` is on, and no cartogram hides them. */
+/** Whether the map draws its tiles: `tiles` is on, and no cartogram or tile grid hides them. */
 export function tilesShown(viz: VizInstance): boolean {
-  return Boolean(viz.schema.tiles) && !cartogramKind(viz);
+  return Boolean(viz.schema.tiles) && !regionsReshaped(viz);
 }
