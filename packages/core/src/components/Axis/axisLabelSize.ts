@@ -158,32 +158,58 @@ export type LabelSize = {
   cut: boolean;
 };
 
-/** What a label's measurement depends on, to tell two labels measure alike. */
+/** An id for each `ellipsis` function a label is measured with. */
+const ellipsisIds = new WeakMap<object, number>();
+let ellipsisCount = 0;
+
+/** What a label's `ellipsis` setting is, as a key: its text, or an id for a function. */
+function ellipsisKey(ellipsis: unknown): string {
+  if (typeof ellipsis !== "function") return `${typeof ellipsis}:${ellipsis}`;
+  let id = ellipsisIds.get(ellipsis);
+  if (id === undefined) ellipsisIds.set(ellipsis, (id = ++ellipsisCount));
+  return `fn:${id}`;
+}
+
+/**
+    Everything a label's measurement reads, to tell two labels measure
+    alike: its text and font, the room it wraps in (`depth`, `wSize`), and
+    the axis and pass settings `calculateLabelSize` reads.
+*/
 function labelSizeKey(
+  axis: Axis,
   text: string,
   datum: AxisTextDatum,
   ctx: LabelLayoutCtx,
+  room: {depth: number; wSize: number | undefined},
 ): string {
-  const {fF, fP, fS, lineHeight, rotate, space, angle, slant, room} = datum;
-  return JSON.stringify([
+  const {fF, fP, fS, lineHeight, rotate, space, angle, slant} = datum;
+  return [
     text,
-    fF,
+    Array.isArray(fF) ? fF.join(",") : fF,
     fP,
     fS,
     lineHeight,
     rotate,
-    slant && angle,
-    slant && ctx.slantWidth,
+    slant ? angle : "",
+    slant ? ctx.slantWidth : "",
     space,
-    room,
+    room.depth,
+    room.wSize,
     ctx.keepShare,
-  ]);
+    ctx.horizontal,
+    ctx.p,
+    ctx.wholeLine,
+    ctx.ownSpace,
+    ctx.strict,
+    axis.schema.width,
+    ellipsisKey(axis.schema.shapeConfig?.labelConfig?.ellipsis),
+  ].join("\u0000");
 }
 
 /**
     Wraps + measures a single label, returning its sized text result. Given a
-    `cache`, a label whose text, font, and space match one measured before
-    reuses that measurement.
+    `cache`, a label whose text, font, room, and axis settings match one
+    measured before (see `labelSizeKey`) reuses that measurement.
 */
 export function calculateLabelSize(
   axis: Axis,
@@ -199,10 +225,7 @@ export function calculateLabelSize(
   const text = tickFormat(d);
   const wSize = min([axisMaxSize(axis.schema, horizontal), axis.schema.width]);
   const depth = datum.room ?? labelRoom(axis, horizontal, hBuff, p);
-  const slanted = slant
-    ? slantedWrapSize(angle!, horizontal, depth, space, lineHeight)
-    : undefined;
-  const key = cache && labelSizeKey(text, datum, ctx);
+  const key = cache && labelSizeKey(axis, text, datum, ctx, {depth, wSize});
   const cached = key ? cache!.get(key) : undefined;
   if (cached)
     return {
@@ -210,6 +233,9 @@ export function calculateLabelSize(
       lines: cached.lines.slice(),
       widths: cached.widths.slice(),
     };
+  const slanted = slant
+    ? slantedWrapSize(angle!, horizontal, depth, space, lineHeight)
+    : undefined;
 
   // A cut label ends with the ellipsis it is painted with.
   const wrap = textWrap()
