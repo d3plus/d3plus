@@ -8,6 +8,8 @@ import ApiReference from "~/components/ApiReference.astro";
 import choroplethMap from "~/examples/core/charts/geomap/choropleth-map.js?raw";
 import bivariateChoropleth from "~/examples/core/charts/geomap/bivariate-choropleth.js?raw";
 import coordinatePointMap from "~/examples/core/charts/geomap/coordinate-point-map.js?raw";
+import usStatesCartogram from "~/examples/core/charts/geomap/us-states-cartogram.js?raw";
+import worldCartogram from "~/examples/core/charts/geomap/world-cartogram.js?raw";
 import flowMap from "~/examples/core/charts/geomap/flow-map.js?raw";
 import globe from "~/examples/core/charts/geomap/globe.js?raw";
 import edgeBundling from "~/examples/core/charts/geomap/edge-bundling.js?raw";
@@ -40,6 +42,18 @@ Joins data to the `topojson` shapes via `groupBy` and fills each region by its `
 Two fields given to `colorScale` color each region by both at once. Each variable is split into quantile bins (3 by default; `colorScaleConfig.bivariateBuckets` takes 2 to 4), and the pair of bins picks a color from a grid: Joshua Stevens' blue–red scheme by default, where adult obesity rises toward red, physical inactivity toward blue, and both together toward the dark corner. The key turns the grid 45° into a diamond, each variable named along its lower edge. Hover a cell to highlight the states in it, or a state to light its cell and read both values in the tooltip. A state missing either value takes the no-data fill.
 
 <Playground chart="Geomap" code={bivariateChoropleth} controls={["colorScale","colorScaleConfig","projection"]} />
+
+## Dorling cartogram
+
+`cartogram: "dorling"` redraws each region as a circle whose area stands for its value, here each state's population, read from `cartogramSize` or, without one, the `colorScale` value. Each circle starts at the center of its state's largest part and is nudged apart from its neighbors until none overlap, while a pull back toward home keeps the country's outline recognizable; the circles shrink together when they would spill out of the map. A state's label sits inside its circle when it fits. Switch `cartogram` to `"demers"` or `false`: each outline morphs into its circle or square and back, and a change of value morphs the shapes the same way. Colors, tooltips, the color scale, and zooming work as on the map, while coordinate points, `links`, and the tiles are left out.
+
+<Playground chart="Geomap" code={usStatesCartogram} controls={["cartogram","cartogramPadding","renderer"]} />
+
+## Demers cartogram
+
+`cartogram: "demers"` draws squares instead, which pack edge to edge, `cartogramPadding` pixels apart (`1` by default). Every country with a population gets a square as large as its share of the world's, so China and India dwarf the rest while Russia and Canada shrink to a sliver of their land; countries without data are left out.
+
+<Playground chart="Geomap" code={worldCartogram} controls={["cartogram","cartogramPadding","projection","renderer"]} />
 
 ## Coordinate point map
 
