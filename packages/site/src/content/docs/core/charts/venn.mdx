@@ -1,0 +1,95 @@
+---
+title: Venn
+description: "Draws a Venn diagram: each set a circle, each row a region, with circles and overlaps sized to their values."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/venn/basic-example.js?raw";
+import twoSets from "~/examples/core/charts/venn/two-sets.js?raw";
+import classicLayout from "~/examples/core/charts/venn/classic-layout.js?raw";
+import fourSetsClassic from "~/examples/core/charts/venn/four-sets-classic.js?raw";
+import fiveSetsClassic from "~/examples/core/charts/venn/five-sets-classic.js?raw";
+import eulerDiagram from "~/examples/core/charts/venn/euler-diagram.js?raw";
+import inclusiveCounts from "~/examples/core/charts/venn/inclusive-counts.js?raw";
+import customKeys from "~/examples/core/charts/venn/custom-keys.js?raw";
+import smallMultiples from "~/examples/core/charts/venn/small-multiples.js?raw";
+
+Draws a Venn diagram from rows that each name one or more sets (`sets`) and
+a size (`value`, read from `size` by default). A row with one set is that
+set's circle; a row with several is the region where those sets overlap,
+and its size counts the items in every one of them. By default the circles
+and their overlaps are sized to their values, and each region is labeled
+with its count. Hover a region to see its exact intersection.
+
+## Basic example
+
+Three sets with every overlap. Each circle's area matches its set's size
+and each overlap's area its row's size, as closely as circles allow. The
+labels count what falls only in each region (Python alone: 540 − 260 − 120
++ 70 = 230), so they add up to everyone. Hover an overlap to highlight it
+and the smaller overlap inside it; its tooltip shows its whole size and the
+count in it alone. The legend lists the sets: hover one to highlight its
+circle, or click it to hide the set and every overlap it is part of.
+
+<Playground chart="Venn" code={basicExample} controls={["proportional","labelCounts"]} />
+
+## Two sets
+
+With two sets, the circles' overlap matches its size exactly.
+
+<Playground chart="Venn" code={twoSets} controls={["proportional"]} />
+
+## Classic layout
+
+`proportional: false` draws the textbook arrangement, whatever the sizes,
+in which every combination of sets has a region of its own: equal circles
+side by side for two sets or in a triangle for three. The labels still
+carry the counts.
+
+<Playground chart="Venn" code={classicLayout} controls={["proportional"]} />
+
+## Four and five sets
+
+Circles can't show every combination of four or more sets, so with
+`proportional: false` four sets take Venn's four ellipses and five sets
+Grünbaum's five symmetric ellipses: all 15 or 31 combinations appear, each
+labeled at its deepest point and highlighted on hover. Six or more sets
+fall back to a ring of equal circles, where not every combination appears.
+
+<Playground chart="Venn" code={fourSetsClassic} controls={["proportional"]} />
+
+<Playground chart="Venn" code={fiveSetsClassic} controls={["proportional"]} />
+
+## Euler diagram
+
+Sets that share nothing are drawn apart, and a set whose overlap with
+another is as large as itself is drawn inside it, so the same data makes
+an Euler diagram. A circle inside another is labeled with its own name.
+
+<Playground chart="Venn" code={eulerDiagram} controls={["proportional"]} />
+
+## Inclusive counts and colors
+
+`labelCounts: "inclusive"` labels each region with its row's own size
+rather than the count in it alone. Each set takes its color from `color`,
+and each overlap blends the colors of its sets.
+
+<Playground chart="Venn" code={inclusiveCounts} controls={["labelCounts","color"]} />
+
+## Custom keys
+
+`sets` and `value` read the sets and sizes from other keys (or accessor
+functions); a row of one set may name it on its own instead of in an
+array. `valueFormat` formats the counts in labels and tooltips.
+
+<Playground chart="Venn" code={customKeys} controls={["sets","value","valueFormat"]} />
+
+## Small multiples
+
+`facet` draws a diagram per year. Each panel fills its own space, so
+compare the regions within a panel rather than the circles across panels.
+
+<Playground chart="Venn" code={smallMultiples} controls={["facet"]} />
+
+<ApiReference name="Venn" pkg="core" />

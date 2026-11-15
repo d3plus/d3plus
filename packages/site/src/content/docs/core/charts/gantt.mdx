@@ -7,6 +7,7 @@ import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/charts/gantt/basic-example.js?raw";
 import dependencies from "~/examples/core/charts/gantt/dependencies.js?raw";
+import criticalPath from "~/examples/core/charts/gantt/critical-path.js?raw";
 import progress from "~/examples/core/charts/gantt/progress.js?raw";
 import phases from "~/examples/core/charts/gantt/phases.js?raw";
 import drillingIntoPhases from "~/examples/core/charts/gantt/drilling-into-phases.js?raw";
@@ -15,20 +16,29 @@ import workingDays from "~/examples/core/charts/gantt/working-days.js?raw";
 Creates a Gantt chart from an array of tasks: one labeled row per task,
 its bar running from `start` to `end` over a time axis. Tasks can be
 grouped into phases (`group`), drawn as milestones (`milestone`), linked
-by dependency arrows (`dependencies`), and filled by their `progress`,
-with an optional `today` line.
+by dependency arrows (`dependencies`) with their critical path
+emphasized, and filled by their `progress`, with an
+optional `today` line.
 
 ## Basic example
 
-Each task gets its own row, labeled in the column on the left, with a bar from its `start` to its `end` on the time axis along the top. A task that starts and ends on the same day is a milestone, drawn as a diamond.
+Each task gets its own row, labeled in the column on the left, with a bar from its `start` to its `end` on the time axis along the top. An `end` that names a whole day (`"2024-03-08"`) runs through that day, so a task from Monday to Friday covers all five; a `Date` or a time of day ends right where it says. A task that starts and ends on the same day is a milestone, drawn as a diamond at the start of that day.
 
 <Playground chart="Gantt" code={basicExample} controls={["start","end","taskSort","labelWidth"]} />
 
 ## Dependencies
 
-Each task's `dependencies` lists the ids of the tasks it waits on. An arrow leaves each predecessor's end and turns into the dependent's start; when the dependent starts before there is room to turn, the arrow doubles back between the rows. Arrows take the chart's text color at reduced opacity, and stay lit when either end is hovered.
+Each task's `dependencies` lists the ids of the tasks it waits on. An arrow leaves each predecessor's end and turns into the dependent's start; when the dependent starts before there is room to turn, the arrow doubles back between the rows. Arrows take the chart's text color at reduced opacity, and stay lit when either end is hovered. Linked tasks also show their [critical path](#critical-path) by default: here the chain from Kickoff through API, Front end, and Testing to Go live draws bold, and the design tasks, which have slack, are muted.
 
-<Playground chart="Gantt" code={dependencies} controls={["dependencies","dependencyConfig"]} />
+<Playground chart="Gantt" code={dependencies} controls={["dependencies","dependencyConfig","criticalPath"]} />
+
+## Critical path
+
+When tasks have `dependencies`, the chart finds their critical path: the chain of dependencies that sets the project's finish. Each task keeps its dates as given: working back from the latest end, the chart finds how late each task could start without delaying it, and its slack is how much later that is than its start. Slack counts working days: the weekend adds none, so a task ending on a Friday hands off to one starting Monday with no slack, whether or not the axis shows weekends. The weekend follows the chart's `locale`: Saturday and Sunday in `en-US`, Friday and Saturday in `ar-SA`. A milestone sits at the start of its day but takes its predecessors finishing any time that day, so a Monday go-live chains from testing that ends on Friday, and so does a sign-off dated on its predecessor's last day; a Friday milestone followed by a Monday task leaves that Friday as slack. Tasks with no slack are critical: they're outlined in their own color (so one not yet started, drawn pale, still reads as critical), their arrows draw bold, the rest of the tasks are muted, and a key in the label column's corner names the bold arrows. Hover a task for its Slack and Latest start.
+
+Tied chains are all critical. A dependent that starts before its predecessor ends leaves the predecessor negative slack, which is critical too. Days `axisConfig.rangeBreaks` hides, such as holidays (`{values: ["2024-05-27"]}`), add no slack either. Dependencies on tasks that aren't drawn are skipped. The path draws only when a critical dependency joins two drawn tasks, so a schedule without dependencies looks the same, and a cycle in the dependencies draws no critical path and logs a warning. `criticalPath: false` turns it off. `criticalPathConfig` styles it: `stroke`, `strokeWidth`, `strokeOpacity`, and `arrowSize` for its arrows, `barStroke` and `barStrokeWidth` for its tasks' outline (`barStroke: false` drops it), `mutedOpacity` for the other tasks, and the key's `label` (`false` hides it); `workingDays: false` counts weekends in Duration and slack.
+
+<Playground chart="Gantt" code={criticalPath} controls={["criticalPath","criticalPathConfig","axisConfig"]} />
 
 ## Progress
 
@@ -50,7 +60,7 @@ With two `groupBy` levels, the chart starts with one bar per phase, spanning its
 
 ## Working days
 
-`axisConfig.rangeBreaks` hides time on the axis: `"weekends"` closes up Saturdays and Sundays, so bars show working days. A task's tooltip counts the same way, giving its Duration in working days ("8 working days"); rules that hide hours of each day leave it in calendar days.
+`axisConfig.rangeBreaks` hides time on the axis: `"weekends"` closes up Saturdays and Sundays, so bars show working days. A task's tooltip gives its Duration in working days ("8 working days") whether or not the axis hides weekends, leaving out the locale's weekend and any whole days `rangeBreaks` hides, such as holidays; `criticalPathConfig.workingDays: false` counts every day.
 
 <Playground chart="Gantt" code={workingDays} controls={["axisConfig"]} />
 

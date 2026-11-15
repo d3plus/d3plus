@@ -19,7 +19,27 @@ import type {FlowLayoutInput} from "./flowLinks.js";
 import {clipsToCircle, coordinateVisible, toLonLat} from "./flowGeometry.js";
 import {cachedPaths, fitExtentOnce, topoFeatures} from "./geoCache.js";
 import {globeHome} from "./globeRotate.js";
+import {geomapCartogram} from "./cartogramLayout.js";
+import type {
+  CartogramLayoutInput,
+  CartogramRegion,
+  CartogramShape,
+} from "./cartogramLayout.js";
+import {
+  drawnCartogramScale,
+  estimateCartogramScale,
+  setCartogramLegend,
+} from "./cartogramLegend.js";
+import type {FlowAnchor} from "./flowLinks.js";
 import type {GeoPathFn, LonLat} from "./flowGeometry.js";
+import {geomapDensity, geomapRegionRows} from "./densityLayout.js";
+import {geoHexbinSettings} from "./geoHexbin.js";
+import {
+  geomapTileGrid,
+  regionsReshaped,
+  tileGridOf,
+  tileGridRegions,
+} from "./tileGrid.js";
 
 type GeomapViz = VizContext["viz"];
 
@@ -284,6 +304,63 @@ function fitProjection(
   if (live) v.schema.projection.rotate(live);
 }
 
+/** Each cartogram shape as a link end, by region id: its center and radius. */
+export function cartogramAnchors(
+  shapes: Map<string | number, CartogramShape>,
+): Map<string, FlowAnchor> {
+  const out = new Map<string, FlowAnchor>();
+  for (const [id, shape] of shapes)
+    out.set(`${id}`, {at: [shape.x, shape.y], r: shape.r});
+  return out;
+}
+
+/**
+    The point size legend's scale, before the map is laid out: a
+    cartogram's shapes' sizes, none for a tile grid or bins, else the
+    points' radii.
+    @param v The Geomap.
+    @param available The room the legend may take.
+*/
+export function geomapSizeLegendScale(
+  v: GeomapViz,
+  available: Parameters<typeof estimateCartogramScale>[1],
+): SizeLegendScale | null {
+  // A tile grid's equal tiles have no sizes to show.
+  if (!tileGridOf(v) && setCartogramLegend(v))
+    return estimateCartogramScale(v, available);
+  if (regionsReshaped(v) || geoHexbinSettings(v)) return null;
+  const pointData = geomapPointData(v);
+  return pointData.length ? geomapPointSizeScale(v, pointData) : null;
+}
+
+/** The box a cartogram's shapes fit: the map area, less `projectionPadding`. */
+function cartogramBounds(
+  v: GeomapViz,
+  width: number,
+  height: number,
+): [number, number, number, number] {
+  const p = v.schema.projectionPadding;
+  return [p.left, p.top, width - p.right, height - p.bottom];
+}
+
+/**
+    The regions' tile-grid tiles, or else their cartogram shapes, or null
+    on the map. A cartogram's size legend shows its shapes' sizes (a tile
+    grid's tiles are all one size).
+*/
+function reshapeRegions(
+  v: GeomapViz,
+  regions: CartogramRegion[],
+  input: CartogramLayoutInput,
+): Map<string | number, CartogramShape> | null {
+  const tiles = geomapTileGrid(v, regions, input.bounds);
+  const cartogram = tiles ?? geomapCartogram(v, regions, input);
+  if (!tiles && setCartogramLegend(v) && cartogram)
+    v._sizeLegendFinal = drawnCartogramScale(v, regions, cartogram);
+  else if (cartogram) v._sizeLegendFinal = null;
+  return cartogram;
+}
+
 export const applyGeomapLayout: TransformStage = ({viz}) => {
   const v = viz;
   const ctx = viz.ctx as unknown as GeomapCtx;
@@ -313,26 +390,26 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
 
   const pointData = geomapPointData(v);
 
-  const pathData = v._filteredData
-    .filter(
-      (d: DataPoint, i: number) => !(v.schema.point(d, i) instanceof Array),
-    )
-    .reduce((obj: Record<string, DataPoint>, d: DataPoint, i: number) => {
-      obj[v._id(d, i)] = d;
-      return obj;
-    }, {});
+  const {rows: regionRows, data: pathData} = geomapRegionRows(v);
 
-  const topoData = coordData.features.reduce(
+  const features = coordData.features.reduce(
     (arr: Record<string, unknown>[], feature: Record<string, unknown>) => {
       const id = v.schema.topojsonId(feature);
       arr.push({__d3plus__: true, data: pathData[id], feature, id});
       return arr;
     },
     [],
-  );
+  ); // A tile grid without a topojson draws a tile for each cell of its layout.
+  const grid = tileGridOf(v);
+  const topoData =
+    grid && !features.length
+      ? (tileGridRegions(grid, pathData) as unknown as typeof features)
+      : features;
 
   const r = geomapPointSizeScale(v, pointData);
-  v._sizeLegendFinal = pointData.length ? r : null;
+  // Binned points draw no circles to size.
+  const binned = Boolean(geoHexbinSettings(v));
+  v._sizeLegendFinal = pointData.length && !binned ? r : null;
 
   if (!v._zoomSet || !ctx.extentBounds)
     fitExtentBounds(v, ctx, coordData, path, pointData, r);
@@ -345,20 +422,43 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   const featurePath = cachedPaths(v.schema.projection, path);
 
   const pointR = (d: DataPoint, i: number) => r(v.schema.pointSize(d, i));
+  // A cartogram or tile grid draws its regions only: coordinate points have
+  // no place on it.
+  const cartogram = reshapeRegions(
+    v,
+    topoData as unknown as CartogramRegion[],
+    {
+      pathD: region => featurePath(region.feature),
+      area: region => path.area(region.feature),
+      bounds: cartogramBounds(v, width, height),
+    },
+  );
+  const visible = cartogram
+    ? []
+    : visiblePointData(
+        v,
+        pointData,
+        path as unknown as FlowLayoutInput["path"],
+      );
+  const density = geomapDensity(v, {
+    regions: topoData as unknown as CartogramRegion[],
+    rows: regionRows,
+    pathD: region => featurePath(region.feature),
+    points: visible,
+  });
   ctx.geomapCtx = {
+    density,
+    cartogram,
     flowLinks: geomapFlowLinks(v, {
       pointData,
       topoData: topoData as unknown as FlowLayoutInput["topoData"],
       pointR,
       path: path as unknown as FlowLayoutInput["path"],
+      anchors: cartogram ? cartogramAnchors(cartogram) : undefined,
     }),
     topoData,
     pathFn: (d: Record<string, unknown>) => featurePath(d.feature),
-    pointData: visiblePointData(
-      v,
-      pointData,
-      path as unknown as FlowLayoutInput["path"],
-    ),
+    pointData: binned ? [] : visible,
     pointR,
     pointSort: (a: DataPoint, b: DataPoint) =>
       v.schema.pointSize(b) - v.schema.pointSize(a),

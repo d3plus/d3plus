@@ -4,6 +4,7 @@ import type {Transition} from "d3-transition";
 import {arcPath, isWrapperGroup, lerpArc} from "../animate/interpolate.js";
 import {interpolateSeries, seriesPath} from "../animate/series.js";
 import {areaPath, interpolatePathD, linePath} from "../paths.js";
+import {morphPathD} from "../animate/morph.js";
 import {textVisualCenter} from "../scene.js";
 import {lineLeft} from "../textAlign.js";
 import type {
@@ -420,6 +421,7 @@ export function setPath(
   animated: boolean,
   arc?: ArcGeometry,
   series?: PathSeries,
+  morph?: boolean,
 ): void {
   const el = (
     target as unknown as {
@@ -448,10 +450,13 @@ export function setPath(
             stash.__d3plusSeries__ = frame;
             return k >= 1 ? d : seriesPath(frame);
           };
-        const morph = interpolatePathD(this.getAttribute("d") || d, d);
+        const tweenD = (morph ? morphPathD : interpolatePathD)(
+          this.getAttribute("d") || d,
+          d,
+        );
         return (k: number) => {
           stash.__d3plusSeries__ = k >= 1 ? series : undefined;
-          return morph(k);
+          return tweenD(k);
         };
       },
     );
@@ -489,7 +494,7 @@ export function applyGeometry(
       setPath(target, areaPath(node), animated);
       break;
     case "path":
-      setPath(target, node.d, animated, node.arc, node.series);
+      setPath(target, node.d, animated, node.arc, node.series, node.morph);
       break;
     case "image":
       target

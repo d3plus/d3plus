@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Venn</title>
+    <meta
+      name="description"
+      content="Venn diagrams: area-proportional circles for two and three sets, the classic equal circles and the four- and five-set ellipses, an Euler diagram of nested and separate sets, five sets, inclusive counts, and small multiples."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 380px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Two sets, area proportional</h3>
+        <div class="viz" id="two"></div>
+      </div>
+      <div>
+        <h3>Three sets, area proportional</h3>
+        <div class="viz" id="three"></div>
+      </div>
+      <div>
+        <h3>proportional: false (the classic equal circles)</h3>
+        <div class="viz" id="classic"></div>
+      </div>
+      <div>
+        <h3>proportional: false with four sets (Venn's four ellipses)</h3>
+        <div class="viz" id="fourEllipses"></div>
+      </div>
+      <div>
+        <h3>proportional: false with five sets (Grünbaum's ellipses)</h3>
+        <div class="viz" id="fiveEllipses"></div>
+      </div>
+      <div>
+        <h3>An Euler diagram: a set inside another, and one apart</h3>
+        <div class="viz" id="euler"></div>
+      </div>
+      <div>
+        <h3>Five sets (approximate)</h3>
+        <div class="viz" id="five"></div>
+      </div>
+      <div>
+        <h3>labelCounts: "inclusive", custom colors</h3>
+        <div class="viz" id="inclusive"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "year")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    new d3plus.Venn()
+      .select("#two")
+      .data([
+        {sets: ["Coffee"], size: 620},
+        {sets: ["Tea"], size: 380},
+        {sets: ["Coffee", "Tea"], size: 140},
+      ])
+      .render();
+
+    const languages = [
+      {sets: ["Python"], size: 540},
+      {sets: ["SQL"], size: 480},
+      {sets: ["R"], size: 210},
+      {sets: ["Python", "SQL"], size: 260},
+      {sets: ["Python", "R"], size: 120},
+      {sets: ["R", "SQL"], size: 95},
+      {sets: ["Python", "R", "SQL"], size: 70},
+    ];
+
+    new d3plus.Venn().select("#three").data(languages).render();
+
+    new d3plus.Venn()
+      .select("#classic")
+      .data(languages)
+      .proportional(false)
+      .render();
+
+    // Every combination of the given sets, sized by how many sets it joins.
+    const everyCombination = names => {
+      const rows = [];
+      for (let mask = 1; mask < 1 << names.length; mask++) {
+        const sets = names.filter((_, k) => mask & (1 << k));
+        rows.push({sets, size: Math.round(400 / 2 ** sets.length)});
+      }
+      return rows;
+    };
+
+    new d3plus.Venn()
+      .select("#fourEllipses")
+      .data(everyCombination(["Apples", "Bananas", "Cherries", "Dates"]))
+      .proportional(false)
+      .render();
+
+    new d3plus.Venn()
+      .select("#fiveEllipses")
+      .data(everyCombination(["Ann", "Ben", "Cal", "Dee", "Eve"]))
+      .proportional(false)
+      .render();
+
+    new d3plus.Venn()
+      .select("#euler")
+      .data([
+        {sets: ["Animals"], size: 100},
+        {sets: ["Mammals"], size: 30},
+        {sets: ["Dogs"], size: 6},
+        {sets: ["Plants"], size: 45},
+        {sets: ["Animals", "Mammals"], size: 30},
+        {sets: ["Animals", "Dogs"], size: 6},
+        {sets: ["Dogs", "Mammals"], size: 6},
+        {sets: ["Animals", "Dogs", "Mammals"], size: 6},
+      ])
+      .render();
+
+    new d3plus.Venn()
+      .select("#five")
+      .data([
+        {sets: ["Design"], size: 90},
+        {sets: ["Frontend"], size: 120},
+        {sets: ["Backend"], size: 110},
+        {sets: ["Data"], size: 80},
+        {sets: ["DevOps"], size: 60},
+        {sets: ["Design", "Frontend"], size: 40},
+        {sets: ["Backend", "Frontend"], size: 45},
+        {sets: ["Backend", "Data"], size: 30},
+        {sets: ["Backend", "DevOps"], size: 25},
+        {sets: ["Data", "DevOps"], size: 10},
+        {sets: ["Data", "Frontend"], size: 8},
+        {sets: ["Backend", "Data", "Frontend"], size: 6},
+        {sets: ["Backend", "Data", "DevOps"], size: 5},
+      ])
+      .render();
+
+    const palette = {Email: "#4c6ef5", Social: "#e64980", Search: "#20c997"};
+    new d3plus.Venn()
+      .select("#inclusive")
+      .data([
+        {sets: ["Email"], size: 300},
+        {sets: ["Social"], size: 260},
+        {sets: ["Search"], size: 180},
+        {sets: ["Email", "Social"], size: 90},
+        {sets: ["Email", "Search"], size: 60},
+        {sets: ["Search", "Social"], size: 40},
+        {sets: ["Email", "Search", "Social"], size: 20},
+      ])
+      .labelCounts("inclusive")
+      .color(d => palette[d.sets[0]])
+      .render();
+
+    new d3plus.Venn()
+      .select("#facet")
+      .data([
+        {year: 2023, sets: ["Coffee"], size: 620},
+        {year: 2023, sets: ["Tea"], size: 380},
+        {year: 2023, sets: ["Coffee", "Tea"], size: 140},
+        {year: 2024, sets: ["Coffee"], size: 560},
+        {year: 2024, sets: ["Tea"], size: 450},
+        {year: 2024, sets: ["Coffee", "Tea"], size: 210},
+      ])
+      .facet("year")
+      .render();
+  </script>
+</html>

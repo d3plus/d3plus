@@ -59,8 +59,10 @@ import {
   Streamgraph as StreamgraphClass,
   StripPlot as StripPlotClass,
   Sunburst as SunburstClass,
+  TileGridMap as TileGridMapClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Venn as VennClass,
   Violin as ViolinClass,
   Waterfall as WaterfallClass,
   Viz as VizClass,
@@ -334,6 +336,10 @@ export const StripPlot = (props: D3plusComponentProps) => (
 export const Sunburst = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={SunburstClass} {...props} />
 );
+/** React component for rendering a d3plus TileGridMap visualization. */
+export const TileGridMap = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={TileGridMapClass} {...props} />
+);
 /** React component for rendering a d3plus Tree visualization. */
 export const Tree = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={TreeClass} {...props} />
@@ -341,6 +347,10 @@ export const Tree = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Treemap visualization. */
 export const Treemap = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={TreemapClass} {...props} />
+);
+/** React component for rendering a d3plus Venn visualization. */
+export const Venn = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={VennClass} {...props} />
 );
 /** React component for rendering a d3plus Violin visualization. */
 export const Violin = (props: D3plusComponentProps) => (
