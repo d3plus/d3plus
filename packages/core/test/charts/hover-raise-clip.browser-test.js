@@ -98,6 +98,9 @@ const outlierBars = {
   yBreak: [80, 900],
 };
 
+/** The bars, each labeled inside itself. */
+const insideBars = {...outlierBars, labelPosition: "inside"};
+
 /** A bar's own key, and its label's. */
 const bar = region => `${region}_${region}`;
 const isBar = key => n => n.key.endsWith(bar(key)) && n.type === "rect";
@@ -110,7 +113,9 @@ const isOtherLabel = key => n =>
 for (const renderer of ["svg", "canvas"])
   for (const state of ["hover", "active", "highlight"])
     it(`BarChart: a${state === "active" ? "n" : ""} ${state} bar paints over the other labels under a yBreak, on ${renderer}`, async () => {
-      const order = await paintOrder("BarChart", outlierBars, renderer, [
+      // Labels inside the bars paint with them, so the raised bar covers
+      // them; a label drawn outside its bar stays over every bar.
+      const order = await paintOrder("BarChart", insideBars, renderer, [
         state,
         "region",
         "South",
@@ -177,7 +182,7 @@ for (const renderer of ["svg", "canvas"])
     );
     const order = await paintOrder(
       "BarChart",
-      {...outlierBars, data, facet: "panel"},
+      {...insideBars, data, facet: "panel"},
       renderer,
       ["hover", "region", "South"],
     );

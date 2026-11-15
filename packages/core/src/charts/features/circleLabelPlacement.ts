@@ -1,8 +1,9 @@
 /**
     Placement of circle labels: each label sits inside its circle when it fits
-    there at a readable size, otherwise beside the circle on the side with the
-    most open room (Moritz Stefaner's Voronoi labeling), otherwise nowhere.
-    Pure geometry: text is measured by the caller.
+    there at a readable size and no circle painted over it covers it,
+    otherwise beside the circle on the side with the most open room (Moritz
+    Stefaner's Voronoi labeling), otherwise inside when it fits there,
+    otherwise nowhere. Pure geometry: text is measured by the caller.
 
     @module
 */
@@ -50,6 +51,12 @@ export interface CircleLabelRequest {
   position: LabelPosition;
   /** Whether the label fits inside its circle at a readable size. */
   fitsInside: boolean;
+  /**
+      Whether a circle painted over this one overlaps where its inside label
+      sits (see `coveredInside`): an `"auto"` label that fits inside then
+      goes beside its circle when there's room, and stays inside when not.
+  */
+  covered?: boolean;
 }
 
 /** Where a label went. */
@@ -312,15 +319,78 @@ const circleBox = (c: LabelCircle): CircleLabelBox => ({
   height: c.r * 2,
 });
 
+/** Space kept clear on each side of a box. */
+export interface BoxInset {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+/**
+    The box a label inside a circle sits in: the square inscribed in the
+    circle, less the label's padding, which it never draws in.
+    @param circle The circle.
+    @param inset The label's padding (default none).
+*/
+export function insideBox(
+  circle: LabelCircle,
+  inset?: BoxInset,
+): CircleLabelBox {
+  const h = circle.r * Math.SQRT1_2;
+  const pad = inset ?? {top: 0, right: 0, bottom: 0, left: 0};
+  const width = Math.max(0, h * 2 - pad.left - pad.right),
+    height = Math.max(0, h * 2 - pad.top - pad.bottom);
+  return {x: circle.x - h + pad.left, y: circle.y - h + pad.top, width, height};
+}
+
+/**
+    The circles, of `which`, that a circle painted over them overlaps where
+    their inside label sits (`insideBox`). A uniform grid keeps each test to
+    the circles nearby.
+    @param circles Every circle.
+    @param which The indices of the circles to test.
+    @param order Each circle's paint position: a higher one paints over a
+    lower one (default: its index).
+    @param insets Each circle's inside label padding (default none).
+*/
+export function coveredInside(
+  circles: readonly LabelCircle[],
+  which: readonly number[],
+  order?: readonly number[],
+  insets?: readonly (BoxInset | undefined)[],
+): Set<number> {
+  const out = new Set<number>();
+  const valid = (c: LabelCircle | undefined): c is LabelCircle =>
+    !!c && [c.x, c.y, c.r].every(Number.isFinite) && c.r > 0;
+  const tested = which.filter(i => valid(circles[i]));
+  if (!tested.length) return out;
+  const live = circles.flatMap((c, i) => (valid(c) ? [i] : []));
+  const size = live.reduce((sum, i) => sum + circles[i].r * 2, 0) / live.length;
+  const grid = new BoxGrid<number>(Math.max(16, size));
+  for (const i of live) grid.add(circleBox(circles[i]), i);
+  const rank = (i: number) => order?.[i] ?? i;
+  for (const i of tested) {
+    const box = insideBox(circles[i], insets?.[i]);
+    if (!(box.width > 0 && box.height > 0)) continue;
+    for (const j of grid.near(box))
+      if (rank(j) > rank(i) && boxHitsCircle(box, circles[j])) {
+        out.add(i);
+        break;
+      }
+  }
+  return out;
+}
+
 /**
     Places circle labels. A label in `"inside"` mode stays inside its circle;
-    in `"auto"` mode it stays inside when `fitsInside`, and otherwise (or in
-    `"outside"` mode) it takes the first side of its circle, most open first
-    (see `sideOrder`), where it lies mostly in the circle's Voronoi cell, stays
-    in `bounds`, and overlaps no circle, no `options.obstacles` box, and no
-    label placed before it. A label
-    with no such side, or whose circle is centered outside `bounds`, is
-    hidden. Labels are placed largest circle first
+    in `"auto"` mode it stays inside when `fitsInside` and not `covered`, and
+    otherwise (or in `"outside"` mode) it takes the first side of its circle,
+    most open first (see `sideOrder`), where it lies mostly in the circle's
+    Voronoi cell, stays in `bounds`, and overlaps no circle, no
+    `options.obstacles` box, and no label placed before it. A label with no
+    such side, or whose circle is centered outside `bounds`, stays inside when
+    it is an `"auto"` label that fits there, and is hidden otherwise. Labels are placed largest circle first
     (ties in input order), so big circles win the room; the result is in
     input order and depends only on the input.
     @param circles Every circle, labeled or not: each is an obstacle.
@@ -344,12 +414,12 @@ export function placeCircleLabels(
   const outside: number[] = [];
   labels.forEach((label, i) => {
     if (!valid(circles[label.circle])) return;
-    if (
-      label.position === "inside" ||
-      (label.position !== "outside" && label.fitsInside)
-    )
+    const auto = label.position !== "inside" && label.position !== "outside";
+    // A covered "auto" label stays inside unless a side takes it below.
+    if (label.position === "inside" || (auto && label.fitsInside))
       result[i] = {position: "inside"};
-    else if (label.width > 0 && label.height > 0) outside.push(i);
+    if (result[i].position === "inside" && !(auto && label.covered)) return;
+    if (label.width > 0 && label.height > 0) outside.push(i);
   });
   if (!outside.length) return result;
 

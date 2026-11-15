@@ -18,8 +18,9 @@ import {
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PriestleyDatum} from "./applyLayout.js";
+import {pairLabels} from "../features/labelLayering.js";
 
-export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
+export const priestleyEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const data = (shapeData ?? []) as PriestleyDatum[];
   if (!data.length) return [];
   const xScale = viz.ctx.xScale as (v: number | Date) => number;
@@ -101,4 +102,4 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
   ]);
 
   return [...rectNodes, ...imageNodes, ...labelNodes];
-};
+});

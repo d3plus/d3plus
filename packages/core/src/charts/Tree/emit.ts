@@ -22,6 +22,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {nodeLabel} from "./nodeLabel.js";
 import {emitRadialTreeLabels} from "./radialLabels.js";
 import type {RadialLabels} from "./radialLabels.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface ShapeGroup {
   key: string;
@@ -135,7 +136,7 @@ function linkDirections(
   return {child: spoke(d.theta) + Math.PI, parent: spoke(out)};
 }
 
-export const treeEmit: ChartEmit = ({viz}) => {
+export const treeEmit: ChartEmit = pairLabels(({viz}) => {
   const linksData = viz.ctx.linksData as TreeLinkNode[] | undefined;
   const linkD = viz.ctx.linkD as
     | ((d: DataPoint, reach: {child: number; parent: number}) => string)
@@ -243,4 +244,4 @@ export const treeEmit: ChartEmit = ({viz}) => {
     );
 
   return out;
-};
+});

@@ -5,6 +5,8 @@ import {
   boxCoverage,
   boxesOverlap,
   boxHitsCircle,
+  coveredInside,
+  insideBox,
   placeCircleLabels,
   ringCentroid,
   sideBox,
@@ -404,5 +406,129 @@ describe("charts/circleLabelPlacement placeCircleLabels", () => {
       obstacles: [all],
     });
     assert.strictEqual(hidden.position, "hidden");
+  });
+});
+
+describe("charts/circleLabelPlacement insideBox", () => {
+  it("is the square inscribed in the circle", () => {
+    const box = insideBox({x: 10, y: 20, r: Math.SQRT2 * 5});
+    for (const [k, v] of Object.entries({x: 5, y: 15, width: 10, height: 10}))
+      assert.ok(Math.abs(box[k] - v) < 1e-9, `${k} ${box[k]}`);
+  });
+});
+
+describe("charts/circleLabelPlacement insideBox inset", () => {
+  it("leaves out the label's padding", () => {
+    const pad = {top: 1, right: 2, bottom: 3, left: 4};
+    const box = insideBox({x: 10, y: 20, r: Math.SQRT2 * 10}, pad);
+    for (const [k, v] of Object.entries({x: 4, y: 11, width: 14, height: 16}))
+      assert.ok(Math.abs(box[k] - v) < 1e-9, `${k} ${box[k]}`);
+  });
+});
+
+describe("charts/circleLabelPlacement coveredInside", () => {
+  it("ignores a later circle that only reaches the label's padding", () => {
+    // It cuts the inscribed square's corner, but not the square less 5px.
+    const circles = [
+      {x: 100, y: 100, r: 40},
+      {x: 100 + 52, y: 100 + 52, r: 40},
+    ];
+    const pad = {top: 5, right: 5, bottom: 5, left: 5};
+    assert.deepStrictEqual([...coveredInside(circles, [0])], [0]);
+    assert.deepStrictEqual(
+      [...coveredInside(circles, [0], undefined, [pad])],
+      [],
+    );
+  });
+
+  const big = {x: 100, y: 100, r: 40};
+  it("finds a circle painted later over the inside label's box", () => {
+    const circles = [big, {x: 95, y: 100, r: 10}];
+    assert.deepStrictEqual([...coveredInside(circles, [0, 1])], [0]);
+  });
+
+  it("ignores circles painted earlier", () => {
+    const circles = [{x: 95, y: 100, r: 10}, big];
+    assert.deepStrictEqual([...coveredInside(circles, [0, 1])], [0]);
+    assert.deepStrictEqual([...coveredInside(circles, [1])], []);
+  });
+
+  it("follows the given paint order", () => {
+    const circles = [big, {x: 95, y: 100, r: 10}];
+    assert.deepStrictEqual([...coveredInside(circles, [0, 1], [1, 0])], [1]);
+  });
+
+  it("ignores a later circle that only touches the rim, outside the box", () => {
+    // It reaches 4px into the circle's right edge, short of the inscribed square.
+    const circles = [big, {x: 146, y: 100, r: 10}];
+    assert.deepStrictEqual([...coveredInside(circles, [0])], []);
+  });
+
+  it("skips circles with no size or position", () => {
+    const circles = [
+      {x: 100, y: 100, r: 0},
+      {x: NaN, y: 100, r: 10},
+      {x: 100, y: 100, r: 10},
+    ];
+    assert.deepStrictEqual([...coveredInside(circles, [0, 1])], []);
+  });
+
+  it("checks thousands of circles quickly", () => {
+    const circles = Array.from({length: 5000}, (_, i) => ({
+      x: (i * 37) % 1000,
+      y: (i * 53) % 700,
+      r: 4 + (i % 9),
+    }));
+    const which = circles.map((_, i) => i);
+    const start = performance.now();
+    const covered = coveredInside(circles, which);
+    assert.ok(covered.size > 0 && covered.size < circles.length);
+    assert.ok(performance.now() - start < 1000, "well under a second");
+  });
+});
+
+describe("charts/circleLabelPlacement placeCircleLabels (covered)", () => {
+  const covered = (extra = {}) =>
+    label(0, {fitsInside: true, covered: true, ...extra});
+
+  it("moves a covered auto label that fits inside beside its circle", () => {
+    const circles = [{x: 200, y: 150, r: 20}];
+    const [p] = placeCircleLabels(circles, [covered()], bounds);
+    assert.strictEqual(p.position, "outside");
+  });
+
+  it("keeps a covered auto label inside when no side has room", () => {
+    const circles = [{x: 200, y: 150, r: 20}];
+    const tight = {x: 175, y: 125, width: 50, height: 50};
+    const [p] = placeCircleLabels(circles, [covered()], tight);
+    assert.strictEqual(p.position, "inside");
+  });
+
+  it("keeps a covered auto label inside when its circle is out of bounds", () => {
+    const circles = [{x: 500, y: 150, r: 20}];
+    const [p] = placeCircleLabels(circles, [covered()], bounds);
+    assert.strictEqual(p.position, "inside");
+  });
+
+  it("leaves inside-mode labels inside, and uncovered ones too", () => {
+    const circles = [{x: 200, y: 150, r: 20}];
+    const [a, b] = placeCircleLabels(
+      circles,
+      [covered({position: "inside"}), label(0, {fitsInside: true})],
+      bounds,
+    );
+    assert.strictEqual(a.position, "inside");
+    assert.strictEqual(b.position, "inside");
+  });
+
+  it("still hides a covered label that doesn't fit inside and has no room", () => {
+    const circles = [{x: 200, y: 150, r: 20}];
+    const tight = {x: 175, y: 125, width: 50, height: 50};
+    const [p] = placeCircleLabels(
+      circles,
+      [covered({fitsInside: false})],
+      tight,
+    );
+    assert.strictEqual(p.position, "hidden");
   });
 });

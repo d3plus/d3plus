@@ -5,8 +5,9 @@ import {formatAbbreviate} from "@d3plus/format";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {polarWedgeNodes} from "../polar/config.js";
 import type {PolarWedge} from "../polar/wedgeLayout.js";
+import {pairLabels} from "../features/labelLayering.js";
 
-export const polarAreaEmit: ChartEmit = ({viz, shapeData}) => {
+export const polarAreaEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const wedges = (shapeData ?? []) as unknown as PolarWedge[];
   if (!wedges.length) return [];
   const stacked = typeof viz.schema.metric === "function";
@@ -15,4 +16,4 @@ export const polarAreaEmit: ChartEmit = ({viz, shapeData}) => {
     const value = formatAbbreviate(w.value, viz.schema.locale);
     return stacked ? `${name}, ${w.slot}, ${value}.` : `${name}, ${value}.`;
   });
-};
+});

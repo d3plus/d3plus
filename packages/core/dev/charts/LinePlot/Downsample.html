@@ -1,0 +1,152 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Downsample · LinePlot</title>
+    <meta
+      name="description"
+      content="Line downsampling: a 100,000-point series thinned by Largest-Triangle-Three-Buckets beside the same series unthinned, a set point count, stacked areas sharing their points, confidence bands, and zooming in to bring back detail."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 300px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .time {
+        color: #666;
+        font-size: 12px;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>100,000 points per series, downsample: true (the default)</h3>
+        <p class="time" id="auto-time"></p>
+        <div class="viz" id="auto"></div>
+      </div>
+      <div>
+        <h3>The same series, downsample: false</h3>
+        <p class="time" id="off-time"></p>
+        <div class="viz" id="off"></div>
+      </div>
+      <div>
+        <h3>downsample: 120 points per series</h3>
+        <div class="viz" id="count"></div>
+      </div>
+      <div>
+        <h3>StackedArea: every band keeps the same points</h3>
+        <div class="viz" id="stacked"></div>
+      </div>
+      <div>
+        <h3>Confidence bands thin with their lines</h3>
+        <div class="viz" id="bands"></div>
+      </div>
+      <div>
+        <h3>Zoomed in 4×: the shown stretch thins again, with more detail</h3>
+        <div class="viz" id="zoomed"></div>
+      </div>
+    </div>
+
+    <script>
+      // A seeded random walk with a few sharp spikes, one reading a second.
+      const series = (n, ids) => {
+        let seed = 5;
+        const random = () =>
+          ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+        const start = Date.UTC(2026, 0, 1);
+        const level = {};
+        const rows = [];
+        for (let i = 0; i < n; i++)
+          for (const id of ids) {
+            level[id] = (level[id] ?? 50) + (random() - 0.5) * 2;
+            const spike = i % 9973 === 4000 ? 25 : 0;
+            const value = Math.max(1, level[id] + spike);
+            rows.push({
+              id,
+              time: new Date(start + i * 1000),
+              value,
+              low: value - 4,
+              high: value + 4,
+            });
+          }
+        return rows;
+      };
+
+      const line = (id, rows, config = {}) =>
+        new d3plus.LinePlot()
+          .select(`#${id}`)
+          .data(rows)
+          .groupBy("id")
+          .x("time")
+          .y("value")
+          .xConfig({scale: "time"})
+          .config(config);
+
+      // Each chart draws after the one before it, so each time is its own.
+      const timed = (id, viz) =>
+        new Promise(resolve => {
+          const t0 = performance.now();
+          viz.render(() => {
+            const ms = Math.round(performance.now() - t0);
+            const label = document.getElementById(`${id}-time`);
+            if (label) label.textContent = `drawn in ${ms} ms`;
+            resolve();
+          });
+        });
+
+      const dense = series(100000, ["Sensor"]);
+      (async () => {
+        await timed("auto", line("auto", dense));
+        await timed("off", line("off", dense, {downsample: false}));
+        await timed(
+          "count",
+          line("count", series(20000, ["North", "South"]), {downsample: 120}),
+        );
+        await timed(
+          "stacked",
+          new d3plus.StackedArea()
+            .select("#stacked")
+            .data(series(20000, ["North", "South", "West"]))
+            .groupBy("id")
+            .x("time")
+            .y("value")
+            .xConfig({scale: "time"}),
+        );
+        await timed(
+          "bands",
+          line("bands", series(20000, ["Forecast"]), {
+            confidence: ["low", "high"],
+          }),
+        );
+        // A slow wave through the plot's middle, so the zoomed middle shows it.
+        const wave = Array.from({length: 20000}, (_, i) => ({
+          id: "Wave",
+          time: new Date(Date.UTC(2026, 0, 1) + i * 1000),
+          value:
+            50 + 20 * Math.sin((i - 10000) / 3000) + Math.sin(i / 20) * 0.4,
+        }));
+        const zoomed = line("zoomed", wave);
+        await timed("zoomed", zoomed);
+        for (let k = 0; k < 2; k++) zoomed.zoomIn();
+      })();
+    </script>
+  </body>
+</html>

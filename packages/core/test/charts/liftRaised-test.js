@@ -160,3 +160,26 @@ it("applyInteractionOpacity lifts a hovered, active or highlighted mark out of i
     );
   }
 });
+
+it("applyInteractionOpacity keeps a label drawn outside its shape over the raised marks", () => {
+  const datum = country => ({__d3plus__: true, data: {country}});
+  const viz = {_hover: d => d.country === "Brazil", schema: {shapeConfig: {}}};
+  const out = applyInteractionOpacity(
+    [
+      {...rect("b"), datum: datum("Brazil")},
+      {
+        type: "text",
+        key: "c_0",
+        lines: [],
+        datum: datum("Chile"),
+        aboveRaised: true,
+      },
+      {type: "text", key: "x_0", lines: [], datum: datum("Chile")},
+    ],
+    viz,
+  );
+  const z = key => out.find(n => n.key === key).z;
+  assert.strictEqual(z("b"), RAISE_Z);
+  assert.ok(z("c_0") > RAISE_Z, "the outside label stays over it");
+  assert.ok(!(z("x_0") > RAISE_Z), "a label inside its shape does not");
+});
