@@ -1262,7 +1262,8 @@ export interface D3plusConfig {
       Bars, areas, and stems still grow from `0`, so with `baselineBreak` on
       the axis breaks back to a `0` tick. A bound in `yDomain`/`xDomain` wins.
       Left unset on a Plot that draws bars or areas, they grow from `0` and
-      the value axis reaches it, as on a BarChart or AreaPlot.
+      the value axis reaches it, as on a BarChart or AreaPlot, unless the
+      chart sets its own `discrete` axis (a BumpChart, Ridgeline, or Violin).
   */
   baseline?: number;
   /**

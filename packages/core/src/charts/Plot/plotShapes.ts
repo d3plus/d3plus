@@ -10,6 +10,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {SwarmSetting} from "./swarm.js";
 import {warnConfigOnce} from "../../utils/configWarnings.js";
+import {declaresField} from "../definition/declaresField.js";
 
 /** A row accessor, such as a Plot's `shape`. */
 type RowAccessor = (d: DataPoint, i: number) => unknown;
@@ -55,7 +56,9 @@ export const drawsDiscreteShapes = (
 /**
     The baseline a Plot's bars and areas grow from when neither the chart nor
     the user sets one: `0` when any row draws a Bar or Area, as on a BarChart
-    or AreaPlot, else undefined.
+    or AreaPlot, else undefined. A chart that declares its own `discrete`
+    axis (BumpChart's bands, a Ridgeline's or Violin's curves) lays its
+    shapes out itself, and gets none.
     @param viz The Plot.
     @param rows Its data.
 */
@@ -65,6 +68,7 @@ export function shapeBaseline(
 ): number | undefined {
   return viz.schema.baseline === undefined &&
     viz._userBaseline === undefined &&
+    !declaresField(viz, "discrete") &&
     drawsAnyShape(viz, rows, BASELINE_SHAPES)
     ? 0
     : undefined;

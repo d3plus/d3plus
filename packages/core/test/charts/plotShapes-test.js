@@ -1,7 +1,17 @@
 import {afterEach, it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
-import {AreaPlot, BarChart, Plot} from "../../index.ts";
+import {
+  AreaPlot,
+  BarChart,
+  BumpChart,
+  LinePlot,
+  Plot,
+  Ridgeline,
+  Scatter,
+  StackedArea,
+} from "../../index.ts";
+import {declaresField} from "../../src/charts/definition/declaresField.ts";
 import {
   shapeBaseline,
   drawsAnyShape,
@@ -55,6 +65,53 @@ it("shapeBaseline — 0 under bars or areas when neither the chart nor the user 
     shapeBaseline(new AreaPlot().data(rows).shape("Bar"), rows),
     undefined,
     "the chart's own baseline",
+  );
+  const bands = new BumpChart().data(rows).size("value");
+  assert.strictEqual(shapeBaseline(bands, rows), undefined, "BumpChart bands");
+  assert.strictEqual(
+    shapeBaseline(new Ridgeline().data(rows), rows),
+    undefined,
+    "a Ridgeline's curves",
+  );
+  assert.strictEqual(
+    shapeBaseline(new LinePlot().data(rows).shape("Bar"), rows),
+    undefined,
+    "a chart that sets its own discrete axis",
+  );
+  assert.strictEqual(
+    shapeBaseline(new Scatter().data(rows).shape("Bar"), rows),
+    0,
+    "a chart that leaves discrete to the Plot",
+  );
+  assert.strictEqual(
+    shapeBaseline(plot("Bar").discrete("x"), rows),
+    0,
+    "the user's discrete",
+  );
+});
+
+it("declaresField — whether the chart's definition, or its base's, declares a field", () => {
+  assert.strictEqual(declaresField(new BumpChart(), "discrete"), true);
+  assert.strictEqual(
+    declaresField(new StackedArea(), "discrete"),
+    true,
+    "AreaPlot's",
+  );
+  assert.strictEqual(
+    declaresField(new StackedArea(), "stacked"),
+    true,
+    "its own",
+  );
+  assert.strictEqual(declaresField(new Scatter(), "discrete"), false);
+  assert.strictEqual(
+    declaresField(new Plot(), "discrete"),
+    false,
+    "no definition",
+  );
+  assert.strictEqual(
+    declaresField(new Plot().discrete("x"), "discrete"),
+    false,
+    "the user's setting is not the chart's",
   );
 });
 
