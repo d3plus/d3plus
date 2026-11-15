@@ -3,6 +3,7 @@ import type {Transition} from "d3-transition";
 
 import {arcPath, isWrapperGroup, lerpArc} from "../animate/interpolate.js";
 import {areaPath, interpolatePathD, linePath} from "../paths.js";
+import {morphPathD} from "../animate/morph.js";
 import {textVisualCenter} from "../scene.js";
 import {lineLeft} from "../textAlign.js";
 import type {
@@ -413,6 +414,7 @@ export function setPath(
   d: string,
   animated: boolean,
   arc?: ArcGeometry,
+  morph?: boolean,
 ): void {
   const el = (
     target as unknown as {
@@ -428,7 +430,10 @@ export function setPath(
           const lerp = lerpArc(prevArc, arc);
           return (k: number) => arcPath(lerp(k));
         }
-        return interpolatePathD(this.getAttribute("d") || d, d);
+        return (morph ? morphPathD : interpolatePathD)(
+          this.getAttribute("d") || d,
+          d,
+        );
       },
     );
   else target.attr("d", d);
@@ -462,7 +467,7 @@ export function applyGeometry(
       setPath(target, areaPath(node), animated);
       break;
     case "path":
-      setPath(target, node.d, animated, node.arc);
+      setPath(target, node.d, animated, node.arc, node.morph);
       break;
     case "image":
       target

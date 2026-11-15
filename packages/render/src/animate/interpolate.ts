@@ -3,6 +3,7 @@ import {interpolateNumber, interpolateRgb} from "d3-interpolate";
 import {clamp, pathBounds} from "@d3plus/math";
 
 import {interpolatePathD} from "../paths.js";
+import {morphPathD} from "./morph.js";
 import {textVisualCenter} from "../scene.js";
 import {
   fitTransform,
@@ -283,7 +284,7 @@ export function interpolateNode(
         const arc = lerpArc(f.arc, n.arc);
         return t => ({...(base(t) as PathNode), d: arcPath(arc(t))});
       }
-      const d = interpolatePathD(f.d, to.d);
+      const d = (n.morph ? morphPathD : interpolatePathD)(f.d, to.d);
       return t => ({...(base(t) as PathNode), d: d(t)});
     }
     case "text":

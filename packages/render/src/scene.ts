@@ -399,6 +399,13 @@ export interface PathNode extends NodeBase {
   /** This wedge's own current polar parameters (Pie/Donut only) — see {@link ArcGeometry}. */
   arc?: ArcGeometry;
   /**
+      Tweens a change of `d` as a polygon morph (see `morphPathD`): the
+      rings of the old and new outlines are paired and resampled, so a
+      region's outline turns into a circle or square and back without
+      folding over itself. Read from the new node.
+  */
+  morph?: boolean;
+  /**
       A chart-computed override for the drill-morph enter start (see
       `collapseTo`'s `shapeType: "Pie"` case): this wedge's real polar
       parameters, already confined to the clicked parent's angular range at
