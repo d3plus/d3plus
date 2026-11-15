@@ -76,6 +76,12 @@ interface ChartDefinitionBase {
   */
   pointMark?: (viz: VizInstance, node: SceneNode) => boolean;
   /**
+      Optional test for the data marks a box or lasso selection picks (see
+      `selectMode`), for a chart whose scene holds marks that aren't its
+      rows (a Network's links). Without one, every data mark is selectable.
+  */
+  selectMark?: (viz: VizInstance, node: SceneNode) => boolean;
+  /**
       Optional `groupBy` level a shape's row stands for, for a chart that
       draws several levels at once (a Sunburst's rings). The `tooltip`
       accessor receives it as `depth` (see `tooltipLevels`). Return undefined

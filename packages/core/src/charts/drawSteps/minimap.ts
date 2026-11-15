@@ -426,7 +426,7 @@ export const minimapFeature: FeatureModule = {
       width = viz._zoomWidth || bounds.width;
     if (!width || !height) return {panel: null, margin: {}};
 
-    // `box.width` measures the WHOLE button panel, including its own
+    // `box.width` measures the four zoom buttons plus the panel's own
     // `paddingRight` (`ZOOM_PANEL_STYLE`) — the same inset this panel adds
     // again below to sit flush with the panel's right edge. Subtracting it
     // once here keeps the minimap's visible width equal to the buttons'

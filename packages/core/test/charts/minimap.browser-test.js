@@ -37,8 +37,12 @@ it("minimap is hidden at 1x and appears once zoomed in, sized to match the zoom-
 
           const after = document.querySelector("#s .d3plus-minimap");
           const afterVisible = visible(after);
+          // The four zoom buttons, which the minimap matches in width (not
+          // the box and lasso select buttons beside them).
           const controls = [
-            ...document.querySelectorAll("#s .zoom-control"),
+            ...document.querySelectorAll(
+              "#s .zoom-in, #s .zoom-out, #s .zoom-reset, #s .zoom-brush",
+            ),
           ].map(b => b.getBoundingClientRect());
           const mmRect = after.getBoundingClientRect();
           const viewport = document
@@ -71,7 +75,7 @@ it("minimap is hidden at 1x and appears once zoomed in, sized to match the zoom-
   assert.strictEqual(out.afterVisible, true, "minimap visible once zoomed in");
   assert.ok(
     Math.abs(out.mmWidth - out.controlsWidth) < 20,
-    `minimap width matches the zoom-control panel's width (mm=${out.mmWidth}, controls=${out.controlsWidth})`,
+    `minimap width matches the zoom buttons' width (mm=${out.mmWidth}, controls=${out.controlsWidth})`,
   );
   assert.ok(
     out.mmTop >= out.controlsBottom - out.svgTop + (out.svgTop - 1),

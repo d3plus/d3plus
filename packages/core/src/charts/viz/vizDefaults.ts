@@ -462,6 +462,14 @@ function initZoomDefaults(viz: Viz): void {
   viz.schema.zoomPadding = 20;
   viz.schema.zoomPan = true;
   viz.schema.zoomScroll = "modifier";
+  viz.schema.selectMode = false;
+  viz.schema.selectStyle = {
+    fill: "#777",
+    "fill-opacity": 0.15,
+    stroke: "#777",
+    "stroke-width": 1,
+    "stroke-dasharray": "4 3",
+  };
 }
 
 /**
