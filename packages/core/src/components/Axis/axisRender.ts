@@ -1,4 +1,4 @@
-import {extent, min, range as d3Range} from "d3-array";
+import {min, range as d3Range} from "d3-array";
 import * as scales from "d3-scale";
 
 import {elem} from "@d3plus/dom";
@@ -19,7 +19,7 @@ import type Axis from "./Axis.js";
 import {brokenScaleTicks, isBrokenScale} from "./axisBreak.js";
 import {ceilPow, fixFloat, floorPow, isNegative} from "./axisRounding.js";
 import {powTicks} from "./powTicks.js";
-import {timeDataInDomain} from "./timeValues.js";
+import {hasTimeNear, timeDataInDomain, timeDataSpacing} from "./timeValues.js";
 import {minorTickCount} from "./axisMinorTicks.js";
 import {slantedLabelBox} from "./axisLabelAngle.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
@@ -48,20 +48,8 @@ function calculateStep(
 
   if (this.schema.scale === "time") {
     if (scaleData.length) {
-      const dataExtent = extent(scaleData as unknown as number[]);
-      const distance = (scaleData as unknown[]).reduce(
-        (n: number, d: unknown, i: number, arr: unknown[]) => {
-          if (i) {
-            const dist = Math.abs((d as number) - (arr[i - 1] as number));
-            if (dist < n) n = dist;
-          }
-          return n;
-        },
-        Infinity,
-      );
-      const newStep = Math.round(
-        ((dataExtent[1] as number) - (dataExtent[0] as number)) / distance,
-      );
+      const {span, step: distance} = timeDataSpacing(scaleData);
+      const newStep = Math.round(span / distance);
       step = min([step * (minorTicks ? 2 : 0.5), newStep])!;
     } else {
       step = minorTicks ? step * 2 : step / 2;
@@ -100,7 +88,7 @@ export function calculateTicks(
       ? timeDataInDomain(this._scaleData as Date[], scale)
       : [];
   if (scaleData.length) {
-    const newDomain = extent(scaleData) as unknown as number[];
+    const newDomain = timeDataSpacing(scaleData).extent as unknown as number[];
     const range = newDomain.map(d => scale(d));
     scaleClone.domain(newDomain).range(range);
   }
@@ -173,14 +161,10 @@ export function calculateTicks(
 
   // for time scale, if data array has been provided, filter out ticks that are not in the array
   if (this.schema.scale === "time" && this._scaleData.length) {
-    const dataNumbers = this._scaleData.map(Number);
-    ticks = ticks.filter((t: unknown) => {
-      const tn = +(t as number);
-      return dataNumbers.find(
-        (n: number) =>
-          n >= tn - maxTimezoneOffset && n <= tn + maxTimezoneOffset,
-      );
-    });
+    const data = this._scaleData;
+    ticks = ticks.filter((t: unknown) =>
+      hasTimeNear(data, +(t as number), maxTimezoneOffset),
+    );
   }
 
   return addDomainEnds(this, ticks, domain, scaleClone, !minorTicks);
@@ -378,9 +362,11 @@ export function buildTickData(
             ? size
             : ticks.includes(d)
               ? Math.ceil(size / 2)
-              : axis._scaleData.find((t: unknown) => +(t as number) === d)
-                ? Math.ceil(size / 4)
-                : 0,
+              : axis.schema.scale === "time"
+                ? hasTimeNear(axis._scaleData, +(d as number), 0)
+                : axis._scaleData.find((t: unknown) => +(t as number) === d)
+                  ? Math.ceil(size / 4)
+                  : 0,
         text: !data?.truncated && labels.includes(d) ? tickFormat(d) : false,
         tick: ticks.includes(d),
         [x]:

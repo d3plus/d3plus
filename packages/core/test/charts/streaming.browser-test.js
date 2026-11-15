@@ -12,14 +12,16 @@ import {withPage} from "~test/browser/page.js";
 
 const html = "<div id='viz' style='width:600px;height:300px'></div>";
 
-/** Draws a chart of two series, `n` seconds each, and settles its first draw. */
+/**
+    Draws a chart of two series, `n` steps each, and settles its first draw.
+    (A time axis places its points far off the plot on the fake clock.)
+*/
 async function setUp(page, renderer, chart = "LinePlot", n = 8) {
   await page.evaluate(
     ([renderer, chart, n]) => {
-      const t0 = Date.UTC(2026, 0, 1);
       window.row = (i, id) => ({
         id,
-        x: new Date(t0 + i * 1000),
+        x: i,
         y: 20 + Math.sin(i / 2 + id.length) * 10,
       });
       const rows = [];
@@ -29,7 +31,6 @@ async function setUp(page, renderer, chart = "LinePlot", n = 8) {
       window.viz = new window.d3plus[chart]()
         .data(rows)
         .groupBy("id")
-        .xConfig({scale: "time"})
         .legend(false)
         .renderer(renderer)
         .width(600)
@@ -116,7 +117,7 @@ for (const renderer of ["svg", "canvas"]) {
         const after = await drawnSeries(page, "a");
         assert.deepStrictEqual(after.keys, [
           ...before.keys.slice(1),
-          before.keys[7] + 1000,
+          before.keys[7] + 1,
         ]);
         if (svgLine)
           assert.ok(
@@ -194,13 +195,17 @@ for (const renderer of ["svg", "canvas"]) {
           for (let i = 0; i < 3; i++) {
             const k = window.next++;
             window.viz.append([window.row(k, "a"), window.row(k, "bb")], {
-              window: "5 seconds",
+              window: 12,
             });
           }
           return {draws, rows: window.viz._data.length};
         });
         assert.strictEqual(draws.draws, 0);
-        assert.strictEqual(draws.rows, 12, "six seconds of two series");
+        assert.strictEqual(
+          draws.rows,
+          12,
+          "the latest six steps of two series",
+        );
         await page.clock.runFor(50);
         assert.strictEqual(
           await page.evaluate(() => window.drawCount()),

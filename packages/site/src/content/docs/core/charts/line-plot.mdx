@@ -33,6 +33,7 @@ import referenceLinesAndBands from "~/examples/core/charts/line-plot/reference-l
 import quarterlyData from "~/examples/core/charts/line-plot/quarterly-data.js?raw";
 import axisBreak from "~/examples/core/charts/line-plot/axis-break.js?raw";
 import connectGaps from "~/examples/core/charts/line-plot/connect-gaps.js?raw";
+import downsampling from "~/examples/core/charts/line-plot/downsampling.js?raw";
 import rangeBreaks from "~/examples/core/charts/line-plot/range-breaks.js?raw";
 import rangeBreaksTradingHours from "~/examples/core/charts/line-plot/range-breaks-trading-hours.js?raw";
 import rangeBreaksMarkedRange from "~/examples/core/charts/line-plot/range-breaks-marked-range.js?raw";
@@ -238,5 +239,19 @@ These daily values are stored at UTC midnight. A time axis reads dates in the vi
 Each monthly value is dated the first of its month, so by default a month's label sits on that day's tick. `xConfig: {tickLabelPosition: "period"}` centers each label in the month it names instead, between its tick and the next, while the ticks and grid lines stay on the month boundaries. The last month starts where the axis ends, so its label sits past the last tick, where December would be. A bar chart's bars already span their periods, so its labels stay beneath them.
 
 <Playground chart="LinePlot" code={periodLabels} controls={["xConfig"]} />
+
+## Downsampling dense lines
+
+A line with far more points than the plot has pixels draws a subset of them:
+when a series has more than about 2 points per pixel along its axis,
+`downsample` (on by default) keeps that many, chosen by
+Largest-Triangle-Three-Buckets so its peaks and dips survive, and the line
+looks the same while the page draws a fraction of the path. Hover and
+tooltips still find every point, stacked areas and confidence bands keep the
+same points along the axis so their edges meet, and zooming in thins only the
+stretch that shows, bringing back its detail. A number sets how many points
+each series draws, and `false` draws them all.
+
+<Playground chart="LinePlot" code={downsampling} controls={["downsample"]} />
 
 <ApiReference name="LinePlot" pkg="core" />
