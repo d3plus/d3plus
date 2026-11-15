@@ -21,6 +21,7 @@ import {outsideBaselineBreak} from "./baselineBreak.js";
 import {defaultSize, growsBack, outside} from "./labelPlacement.js";
 import {anchorAtBase, barErrorReach} from "./barLabelConfidence.js";
 import {axisValue} from "./sharedTooltip.js";
+import {plotLevels} from "./plotLevels.js";
 import {chartBackground} from "../viz/backgroundInk.js";
 import {legibleOn} from "../../utils/themeInk.js";
 import {themed} from "../../utils/theme.js";
@@ -68,9 +69,12 @@ function areaConfig(self: VizInstance) {
 
 /** Builds the top-level `ariaLabel` accessor; `self` is the Plot instance. */
 function ariaLabelConfig(self: VizInstance) {
-  // Dates read as their axis labels them (see `axisValue`), other values as given.
+  // Dates and multi-level categories read as `axisValue` writes them, other
+  // values as given.
   const value = (k: "x" | "y", v: unknown) =>
-    isValidDate(v) ? axisValue(self, k, v) : v;
+    isValidDate(v) || (typeof v === "string" && plotLevels(self, k))
+      ? axisValue(self, k, v)
+      : v;
   return (d: DataPoint, i: number) => {
     let ariaLabelStr: string;
     if (d.nested)

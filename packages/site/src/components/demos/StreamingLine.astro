@@ -1,0 +1,60 @@
+---
+/**
+ * A LinePlot that streams a new reading per series every second with
+ * `append`, keeping the latest minute, for the streaming example. Its code
+ * is shown beside it on the page.
+ */
+---
+
+<div class="streaming-demo not-content">
+  <div class="streaming-chart" id="streaming-line"></div>
+  <button type="button" class="streaming-toggle">Pause</button>
+</div>
+
+<style>
+  .streaming-demo {
+    margin: 1rem 0;
+  }
+  .streaming-chart {
+    height: 320px;
+    width: 100%;
+  }
+  .streaming-toggle {
+    margin-top: 0.5rem;
+  }
+</style>
+
+<script>
+  import {LinePlot} from "@d3plus/core";
+
+  const start = Date.now() - 30000;
+  const series = ["North", "South"];
+  const level: Record<string, number> = {North: 60, South: 40};
+  const reading = (second: number) =>
+    series.map(region => {
+      level[region] = Math.max(5, level[region] + Math.sin(second * 0.9 + region.length) * 4);
+      return {region, time: new Date(start + second * 1000), value: level[region]};
+    });
+
+  const rows = [];
+  let second = 0;
+  for (; second < 30; second++) rows.push(...reading(second));
+
+  const viz = new LinePlot()
+    .select("#streaming-line")
+    .data(rows)
+    .groupBy("region")
+    .x("time")
+    .y("value")
+    .xConfig({scale: "time"});
+  viz.render();
+
+  let playing = true;
+  setInterval(() => {
+    if (playing) viz.append(reading(second++), {window: "1 minute"});
+  }, 1000);
+  document.querySelector(".streaming-toggle")?.addEventListener("click", e => {
+    playing = !playing;
+    (e.currentTarget as HTMLButtonElement).textContent = playing ? "Pause" : "Play";
+  });
+</script>

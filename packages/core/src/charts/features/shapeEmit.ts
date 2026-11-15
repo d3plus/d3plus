@@ -51,6 +51,7 @@ import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {plotPointKey} from "../Plot/pointKey.js";
 
 /**
     The cross-phase locals a shape emitter reads. Assembled once per draw by
@@ -143,6 +144,9 @@ function buildInner(
   if (key === "Box") inner.id = (d: PlotDatum) => d.discrete;
   // A Box runs along the value axis, unless `shapeConfig.Box.orient` (which
   // `finishShape` applies afterwards) or the row's `orient` says otherwise.
+  // Lines and areas key their points by discrete-axis value, so a redraw
+  // with more (or fewer) rows slides them along (see `PathNode.series`).
+  if (key === "Line" || key === "Area") inner.pointKey = plotPointKey(viz);
   if (key === "Box" && opp) {
     const along = opp === "x" ? "horizontal" : "vertical";
     inner.orient = (d: PlotDatum) => d.orient ?? along;
