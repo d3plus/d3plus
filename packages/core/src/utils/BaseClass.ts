@@ -129,7 +129,7 @@ export default class BaseClass {
       `_displayName`), takes the snapshot of defaults `RESET` restores, now
       that every d3plus constructor has set them and before any config. A
       user's subclass is not a d3plus class, so what its own constructor sets
-      afterwards is not a default.
+      afterwards is not a default, unless it extends BaseClass itself.
       @param target The constructor's `new.target`.
       @param Cls The class whose constructor is ending.
       @private
@@ -141,6 +141,9 @@ export default class BaseClass {
       p = Object.getPrototypeOf(p)
     )
       if (Object.prototype.hasOwnProperty.call(p, "_displayName")) return;
+    // A user's class built straight on BaseClass snapshots on first use, so
+    // the defaults its own constructor sets are kept.
+    if (Cls === BaseClass && target !== BaseClass) return;
     this._defaultConfig();
   }
 
