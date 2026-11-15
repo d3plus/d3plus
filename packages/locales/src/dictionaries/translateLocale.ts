@@ -80,6 +80,7 @@ export interface TranslationStrings {
   Observations: string;
   "of first": string;
   "of previous": string;
+  "Only in This Region": string;
   Open: string;
   "Out-degree": string;
   "Percent of Total": string;
@@ -251,6 +252,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
     "of first": "\u0645\u0646 \u0627\u0644\u0623\u0648\u0644\u0649",
     "of previous": "\u0645\u0646 \u0627\u0644\u0633\u0627\u0628\u0642\u0629",
+    "Only in This Region":
+      "\u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u0645\u0646\u0637\u0642\u0629 \u0641\u0642\u0637",
     Open: "\u0627\u0644\u0627\u0641\u062a\u062a\u0627\u062d",
     "Out-degree":
       "\u0627\u0644\u062f\u0631\u062c\u0629 \u0627\u0644\u062e\u0627\u0631\u062c\u0629",
@@ -407,6 +410,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Observations: "Observaciones",
     "of first": "de la primera",
     "of previous": "de la anterior",
+    "Only in This Region": "Solo en Esta Regi\u00f3n",
     Open: "Apertura",
     "Out-degree": "Grado de salida",
     "Percent of Total": "Porcentaje del Total",
@@ -547,6 +551,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Observations: "Observa\u00e7\u00f5es",
     "of first": "da primeira",
     "of previous": "da anterior",
+    "Only in This Region": "Apenas Nesta Regi\u00e3o",
     Open: "Abertura",
     "Out-degree": "Grau de sa\u00edda",
     "Percent of Total": "Porcentagem do Total",
@@ -690,6 +695,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Observations: "\u89c2\u6d4b\u6570",
     "of first": "\u5360\u7b2c\u4e00\u9636\u6bb5",
     "of previous": "\u5360\u4e0a\u4e00\u9636\u6bb5",
+    "Only in This Region": "\u4ec5\u5728\u6b64\u533a\u57df",
     Open: "\u5f00\u76d8",
     "Out-degree": "\u51fa\u5ea6",
     "Percent of Total": "\u5360\u603b\u6570\u767e\u5206\u6bd4",

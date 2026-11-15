@@ -1006,6 +1006,84 @@ export type {
   GapSortState,
 } from "./src/charts/Dumbbell/gapSort.js";
 export {
+  circleCrossings,
+  circleOverlap,
+  circlePath,
+  distanceForOverlap,
+  insideAll,
+  intersection,
+  intersectionArea,
+  intersectionPath,
+  segmentArea,
+} from "./src/charts/Venn/circles.js";
+export type {
+  CrossPoint,
+  Intersection,
+  IntersectionArc,
+  VennCircle,
+} from "./src/charts/Venn/circles.js";
+export {nelderMead} from "./src/charts/Venn/nelderMead.js";
+export type {
+  NelderMeadOptions,
+  NelderMeadResult,
+} from "./src/charts/Venn/nelderMead.js";
+export {
+  areaKey,
+  classicLayout,
+  greedyLayout,
+  layoutAreas,
+  proportionalLayout,
+  vennLoss,
+} from "./src/charts/Venn/vennLayout.js";
+export type {VennArea, VennCircles} from "./src/charts/Venn/vennLayout.js";
+export {
+  circleBounds,
+  disjointClusters,
+  fitCircles,
+  normalizeCircles,
+  orientCircles,
+} from "./src/charts/Venn/vennFit.js";
+export type {CircleBounds} from "./src/charts/Venn/vennFit.js";
+export {
+  enclosingSets,
+  exclusiveSizes,
+  outsideCircles,
+  regionMargin,
+  sameAreaGroups,
+  vennLabelSpot,
+} from "./src/charts/Venn/vennRegions.js";
+export type {VennLabelSpot} from "./src/charts/Venn/vennRegions.js";
+export {
+  SET_SEPARATOR,
+  blendColors,
+  blendedFill,
+  coversSets,
+  mergeSets,
+  rowSets,
+  rowSize,
+  setList,
+  setRow,
+  sourceRow,
+  vennRows,
+} from "./src/charts/Venn/vennData.js";
+export {
+  VENN_PADDING,
+  applyVennLayout,
+  exclusiveCounts,
+  setOrder,
+  vennCircles,
+  vennRegions,
+} from "./src/charts/Venn/applyLayout.js";
+export type {VennRegion} from "./src/charts/Venn/applyLayout.js";
+export {
+  LABEL_FONT_MAX,
+  MIN_LABEL_ROOM,
+  regionLineBoxes,
+  regionLines,
+  vennEmit,
+} from "./src/charts/Venn/emit.js";
+export {vennTooltipRows} from "./src/charts/Venn/tooltip.js";
+export {
   largestRemainder,
   waffleCellGeometry,
   waffleCellPosition,
@@ -1918,6 +1996,7 @@ export {ridgelineDef} from "./src/charts/Ridgeline/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
+export {vennDef} from "./src/charts/Venn/index.js";
 export {violinDef} from "./src/charts/Violin/index.js";
 export {waffleDef} from "./src/charts/Waffle/index.js";
 export {waterfallDef} from "./src/charts/Waterfall/index.js";

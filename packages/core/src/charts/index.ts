@@ -57,6 +57,7 @@ export {default as StripPlot} from "./StripPlot/index.js";
 export {default as Sunburst} from "./Sunburst/index.js";
 export {default as Tree} from "./Tree/index.js";
 export {default as Treemap} from "./Treemap/index.js";
+export {default as Venn} from "./Venn/index.js";
 export {default as Violin} from "./Violin/index.js";
 export {default as Waffle} from "./Waffle/index.js";
 export {default as Waterfall} from "./Waterfall/index.js";
