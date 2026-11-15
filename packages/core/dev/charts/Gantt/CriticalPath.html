@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Gantt Critical Path</title>
+    <meta
+      name="description"
+      content="Gantt critical path: muted tasks with slack, bold critical arrows, the key, slack tooltips, weekends hidden, phases, and facets, light and dark."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .panel {
+        padding: 16px;
+      }
+      .dark {
+        background: #1a1b1e;
+      }
+      .viz {
+        height: 480px;
+      }
+      .facet {
+        height: 640px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="panel">
+      <div id="light" class="viz"></div>
+    </div>
+    <div class="panel dark">
+      <div id="dark" class="viz"></div>
+    </div>
+    <div class="panel">
+      <div id="weekends" class="viz"></div>
+    </div>
+    <div class="panel">
+      <div id="phases" class="viz"></div>
+    </div>
+    <div class="panel">
+      <div id="facets" class="facet"></div>
+    </div>
+  </body>
+
+  <script>
+    // The critical chain hands off on the same day: Kickoff → Requirements →
+    // Wireframes → Visual design → Front end → QA → Launch.
+    var tasks = [
+      {
+        task: "Kickoff",
+        phase: "Discovery",
+        start: "2024-03-04",
+        end: "2024-03-04",
+      },
+      {
+        task: "Requirements",
+        phase: "Discovery",
+        start: "2024-03-04",
+        end: "2024-03-13",
+        dependencies: ["Kickoff"],
+      },
+      {
+        task: "Content audit",
+        phase: "Discovery",
+        start: "2024-03-04",
+        end: "2024-03-08",
+        dependencies: ["Kickoff"],
+      },
+      {
+        task: "Wireframes",
+        phase: "Design",
+        start: "2024-03-13",
+        end: "2024-03-22",
+        dependencies: ["Requirements"],
+      },
+      {
+        task: "Copywriting",
+        phase: "Design",
+        start: "2024-03-11",
+        end: "2024-03-27",
+        dependencies: ["Content audit"],
+      },
+      {
+        task: "Visual design",
+        phase: "Design",
+        start: "2024-03-22",
+        end: "2024-04-05",
+        dependencies: ["Wireframes"],
+      },
+      {
+        task: "API",
+        phase: "Build",
+        start: "2024-03-13",
+        end: "2024-04-03",
+        dependencies: ["Requirements"],
+      },
+      {
+        task: "Front end",
+        phase: "Build",
+        start: "2024-04-05",
+        end: "2024-04-24",
+        dependencies: ["Visual design", "API"],
+      },
+      {
+        task: "Content entry",
+        phase: "Build",
+        start: "2024-03-27",
+        end: "2024-04-10",
+        dependencies: ["Copywriting"],
+      },
+      {
+        task: "QA",
+        phase: "Launch",
+        start: "2024-04-24",
+        end: "2024-05-03",
+        dependencies: ["Front end", "Content entry"],
+      },
+      {
+        task: "Launch",
+        phase: "Launch",
+        start: "2024-05-03",
+        end: "2024-05-03",
+        dependencies: ["QA"],
+      },
+    ];
+
+    function gantt(selector, config) {
+      return new d3plus.Gantt()
+        .select(selector)
+        .data(tasks)
+        .groupBy("task")
+        .color("phase")
+        .criticalPath(true)
+        .config(config)
+        .render();
+    }
+
+    gantt("#light", {title: "Critical path"});
+    gantt("#dark", {theme: "dark", title: "Critical path, dark"});
+    gantt("#weekends", {
+      axisConfig: {rangeBreaks: "weekends"},
+      title: "Weekends hidden: slack counts working days",
+    });
+    gantt("#phases", {
+      group: "phase",
+      criticalPathConfig: {stroke: "#c92a2a", mutedOpacity: 0.25},
+      title: "Phases, with a red critical path",
+    });
+    gantt("#facets", {
+      facet: "phase",
+      title: "Faceted by phase: each panel finds its own path",
+    });
+  </script>
+</html>

@@ -7,6 +7,7 @@ import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/charts/gantt/basic-example.js?raw";
 import dependencies from "~/examples/core/charts/gantt/dependencies.js?raw";
+import criticalPath from "~/examples/core/charts/gantt/critical-path.js?raw";
 import progress from "~/examples/core/charts/gantt/progress.js?raw";
 import phases from "~/examples/core/charts/gantt/phases.js?raw";
 import drillingIntoPhases from "~/examples/core/charts/gantt/drilling-into-phases.js?raw";
@@ -15,8 +16,9 @@ import workingDays from "~/examples/core/charts/gantt/working-days.js?raw";
 Creates a Gantt chart from an array of tasks: one labeled row per task,
 its bar running from `start` to `end` over a time axis. Tasks can be
 grouped into phases (`group`), drawn as milestones (`milestone`), linked
-by dependency arrows (`dependencies`), and filled by their `progress`,
-with an optional `today` line.
+by dependency arrows (`dependencies`) with their critical path
+emphasized (`criticalPath`), and filled by their `progress`, with an
+optional `today` line.
 
 ## Basic example
 
@@ -29,6 +31,14 @@ Each task gets its own row, labeled in the column on the left, with a bar from i
 Each task's `dependencies` lists the ids of the tasks it waits on. An arrow leaves each predecessor's end and turns into the dependent's start; when the dependent starts before there is room to turn, the arrow doubles back between the rows. Arrows take the chart's text color at reduced opacity, and stay lit when either end is hovered.
 
 <Playground chart="Gantt" code={dependencies} controls={["dependencies","dependencyConfig"]} />
+
+## Critical path
+
+`criticalPath: true` finds the chain of dependencies that sets the project's finish. Each task keeps its dates as given: working back from the latest end, the chart finds how late each task could start without delaying it, and its slack is how much later that is than its start. Tasks with no slack are critical: their arrows draw bold, the rest of the tasks are muted, and a key in the label column's corner names the bold arrows. Hover a task for its Slack and Latest start.
+
+Tied chains are all critical. A dependent that starts before its predecessor ends leaves the predecessor negative slack, which is critical too. When `axisConfig.rangeBreaks` hides weekends, slack counts working days. Dependencies on tasks that aren't drawn are skipped, and a cycle in the dependencies draws no critical path and logs a warning. `criticalPathConfig` styles it: `stroke`, `strokeWidth`, `strokeOpacity`, and `arrowSize` for its arrows, `mutedOpacity` for the other tasks, and the key's `label` (`false` hides it).
+
+<Playground chart="Gantt" code={criticalPath} controls={["criticalPath","criticalPathConfig","axisConfig"]} />
 
 ## Progress
 
