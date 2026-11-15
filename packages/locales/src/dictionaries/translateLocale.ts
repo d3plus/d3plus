@@ -74,6 +74,7 @@ export interface TranslationStrings {
   month: string;
   months: string;
   more: string;
+  "More Controls": string;
   "Moving Average": string;
   "No Data": string;
   "No Data Available": string;
@@ -253,6 +254,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Milestone: "\u0645\u0639\u0644\u0645",
     Minimum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     more: "\u0623\u062e\u0631\u0649",
+    "More Controls":
+      "\u0639\u0646\u0627\u0635\u0631 \u062a\u062d\u0643\u0645 \u0625\u0636\u0627\u0641\u064a\u0629",
     "Moving Average":
       "\u0627\u0644\u0645\u062a\u0648\u0633\u0637 \u0627\u0644\u0645\u062a\u062d\u0631\u0643",
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
@@ -412,6 +415,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     month: "mes",
     months: "meses",
     more: "m\u00e1s",
+    "More Controls": "M\u00e1s Controles",
     "Moving Average": "Media M\u00f3vil",
     "No Data": "Sin Datos",
     "No Data Available": "Datos No Disponibles",
@@ -556,6 +560,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     month: "m\u00eas",
     months: "meses",
     more: "mais",
+    "More Controls": "Mais Controles",
     "Moving Average": "M\u00e9dia M\u00f3vel",
     "No Data": "Sem Dados",
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
@@ -703,6 +708,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     month: "\u4e2a\u6708",
     months: "\u4e2a\u6708",
     more: "\u66f4\u591a",
+    "More Controls": "\u66f4\u591a\u63a7\u4ef6",
     "Moving Average": "\u79fb\u52a8\u5e73\u5747",
     "No Data": "\u65e0\u6570\u636e",
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",

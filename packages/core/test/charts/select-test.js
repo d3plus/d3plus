@@ -41,14 +41,14 @@ import {
   syncSelectSurface,
 } from "../../src/charts/drawSteps/selectGesture.ts";
 import {
-  reserveZoomControlsLeft,
+  fitZoomPanel,
+  syncMoreButton,
   syncSelectButtons,
   syncSelectTool,
+  ZOOM_MORE_ICON,
+  ZOOM_MORE_LABEL,
   zoomControlsHtml,
-  zoomPanelStyle,
 } from "../../src/charts/drawSteps/zoomControlsMarkup.ts";
-import {getTopLeftContributions} from "../../src/charts/drawSteps/topLeftControls.ts";
-import {topLeftControlsBox} from "../../src/charts/drawSteps/topLeftControlsMarkup.ts";
 import {bareFeature} from "../../src/charts/Geomap/emit.ts";
 import {applyInteractionOpacity} from "../../src/charts/viz/interactionOpacity.ts";
 
@@ -620,17 +620,115 @@ it("zoomControlsHtml: box and lasso buttons on every chart, none pressed without
   assert.strictEqual(viz._selectTool, null, "the chart starts out panning");
 });
 
-it("zoomPanelStyle: wraps, keeping room for the top-left controls", () => {
-  const viz = new Treemap();
-  reserveZoomControlsLeft(() => 0);
-  assert.strictEqual(zoomPanelStyle(viz).paddingLeft, "0px");
-  assert.strictEqual(zoomPanelStyle(viz).flexWrap, "wrap");
-  reserveZoomControlsLeft(v => (v === viz ? 72 : 0));
-  assert.strictEqual(zoomPanelStyle(viz).paddingLeft, "76px");
-  // Put back the top-left controls' own measure.
-  reserveZoomControlsLeft(
-    v => topLeftControlsBox(v, getTopLeftContributions(v))?.width ?? 0,
+it("fitZoomPanel: every button when they fit, else as many as fit beside the menu button", () => {
+  const m = {
+    widths: [20, 20, 20, 20, 20, 20],
+    more: 20,
+    gap: 4,
+    padLeft: 0,
+    padRight: 4,
+    height: 24,
+  };
+  assert.deepStrictEqual(fitZoomPanel(m, 500), {
+    width: 144,
+    height: 24,
+    visible: 6,
+    zoomWidth: 96,
+  });
+  assert.deepStrictEqual(fitZoomPanel(m, 143), {
+    width: 120,
+    height: 24,
+    visible: 4,
+    zoomWidth: 96,
+  });
+  assert.strictEqual(fitZoomPanel(m, 100).visible, 3);
+  assert.deepStrictEqual(
+    [fitZoomPanel(m, 10).visible, fitZoomPanel(m, 10).width],
+    [0, 24],
+    "the menu button alone holds all six",
   );
+});
+
+it("zoomControlsHtml: buttons past the room move into a labeled More Controls menu", () => {
+  const viz = new Treemap().selectMode("lasso");
+  syncSelectTool(viz);
+  const host = document.createElement("div");
+  host.innerHTML = zoomControlsHtml(viz, 3);
+  const shown = [...host.querySelectorAll("button.zoom-control")];
+  assert.deepStrictEqual(
+    shown.map(b => b.classList[1]),
+    ["zoom-in", "zoom-out", "zoom-reset", "zoom-more"],
+  );
+  const more = host.querySelector(".zoom-more");
+  assert.strictEqual(more.getAttribute("aria-label"), ZOOM_MORE_LABEL);
+  assert.strictEqual(more.getAttribute("aria-haspopup"), "menu");
+  assert.strictEqual(more.getAttribute("aria-expanded"), "false");
+  assert.ok(more.classList.contains("active"), "the hidden lasso is on");
+  assert.ok(
+    !more.innerHTML.includes("circle"),
+    "showing its icon, not the dots",
+  );
+  const menu = host.querySelector(".d3plus-zoom-menu");
+  assert.strictEqual(menu.getAttribute("role"), "menu");
+  assert.strictEqual(more.getAttribute("aria-controls"), menu.id);
+  const items = [...menu.querySelectorAll(".zoom-menu-item")];
+  assert.deepStrictEqual(
+    items.map(i => [
+      i.classList[1],
+      i.getAttribute("role"),
+      i.getAttribute("aria-checked"),
+      i.textContent,
+    ]),
+    [
+      ["zoom-brush", "menuitemcheckbox", "false", "Brush Zoom"],
+      ["select-box", "menuitemcheckbox", "false", "Box Select"],
+      ["select-lasso", "menuitemcheckbox", "true", "Lasso Select"],
+    ],
+  );
+  viz.locale("es-ES");
+  host.innerHTML = zoomControlsHtml(viz, 5);
+  assert.strictEqual(
+    host.querySelector(".zoom-more").getAttribute("aria-label"),
+    "Más Controles",
+  );
+  assert.strictEqual(
+    host.querySelector(".zoom-menu-item").textContent,
+    "Selección de Lazo",
+  );
+  host.innerHTML = zoomControlsHtml(viz, 6);
+  assert.strictEqual(
+    host.querySelector(".zoom-more"),
+    null,
+    "no menu when all fit",
+  );
+});
+
+it("syncMoreButton: the menu button shows a hidden tool's icon while it is on", () => {
+  const viz = new Treemap();
+  syncSelectTool(viz);
+  const host = document.createElement("div");
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const panel = document.createElement("div");
+  panel.className = "d3plus-zoom-control";
+  panel.innerHTML = zoomControlsHtml(viz, 4);
+  host.append(svg, panel);
+  document.body.appendChild(host);
+  viz._select = select(svg);
+  const more = panel.querySelector(".zoom-more");
+  const dots = el => el.querySelectorAll("circle").length === 3;
+  assert.ok(dots(more), "three dots");
+  assert.ok(ZOOM_MORE_ICON.includes("<circle"));
+  viz._selectTool = "box";
+  syncSelectButtons(viz);
+  const item = panel.querySelector(".zoom-menu-item.select-box");
+  assert.strictEqual(item.getAttribute("aria-checked"), "true");
+  assert.ok(more.classList.contains("active"));
+  assert.ok(more.innerHTML.includes("M15 4H4v11"), "the box select icon");
+  viz._selectTool = null;
+  syncSelectButtons(viz);
+  assert.ok(dots(more), "back to the dots");
+  assert.ok(!more.classList.contains("active"));
+  syncMoreButton(viz);
 });
 
 it("zoomControlsHtml: box and lasso buttons pressed for the selectMode tool", () => {

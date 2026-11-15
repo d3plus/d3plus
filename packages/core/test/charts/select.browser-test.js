@@ -445,7 +445,7 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(r.events, 2);
   });
 
-  it(`[${renderer}] selectMode works with zoom off, and a narrow chart wraps its buttons clear of the top-left controls`, async () => {
+  it(`[${renderer}] selectMode works with zoom off`, async () => {
     const r = await page(
       `
       const off = new d3plus.Plot().select("#viz").renderer(arg)
@@ -453,34 +453,184 @@ for (const renderer of ["svg", "canvas"]) {
       await done(off);
       const m = marks(off).find(m => m.id === "p2-2" && m.kind === "circle");
       await drag(off, [[m.x - 6, m.y - 6], [m.x + 6, m.y + 6]]);
-      const zoomOff = {buttons: document.querySelectorAll("#viz .d3plus-zoom-control button").length, selected: ids(off.selection())};
-      off.destroy();
-      document.body.innerHTML = "<div id='narrow' style='width:180px;height:300px'></div>";
-      const narrow = new d3plus.Plot().select("#narrow").renderer(arg)
+      return {buttons: document.querySelectorAll("#viz .d3plus-zoom-control button").length, selected: ids(off.selection())};
+    `,
+      renderer,
+    );
+    assert.deepStrictEqual(r, {buttons: 0, selected: ["p2-2"]});
+  });
+
+  it(`[${renderer}] a narrow chart moves the buttons that don't fit into a More Controls menu, and Lasso picked there selects`, async () => {
+    const r = await page(
+      `
+      document.querySelector("#viz").style.width = "180px";
+      const chart = new d3plus.Plot().select("#viz").renderer(arg)
         .data(grid).groupBy("id").x("x").y("y").legend(false);
-      await new Promise(r => narrow.duration(0).render(r));
+      await done(chart);
       await frames();
-      const rects = sel => [...document.querySelectorAll(sel)].map(e => e.getBoundingClientRect()).filter(r => r.width);
+      const shown = el => el.getBoundingClientRect().width > 0;
+      const rects = sel => [...document.querySelectorAll(sel)].filter(shown).map(e => e.getBoundingClientRect());
       const left = rects(".d3plus-top-left-controls-item button");
-      const right = rects(".d3plus-zoom-control button");
-      const box = document.querySelector("#narrow").getBoundingClientRect();
-      return {
-        zoomOff,
-        count: right.length,
+      const right = rects(".d3plus-zoom-control button.zoom-control");
+      const box = document.querySelector("#viz").getBoundingClientRect();
+      const more = document.querySelector("#viz .zoom-more");
+      const menu = document.querySelector("#viz .d3plus-zoom-menu");
+      const layout = {
+        order: [...document.querySelectorAll("#viz button.zoom-control")].map(b => b.classList[1]),
+        items: [...menu.querySelectorAll(".zoom-menu-item")].map(b => b.textContent),
         overlap: left.some(a => right.some(b => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom)),
         inside: right.every(b => b.left >= box.left && b.right <= box.right + 0.5),
         rows: new Set(right.map(b => Math.round(b.top))).size,
-        clear: narrow._margin.top >= Math.max(...right.map(b => b.bottom)) - box.top,
+        clear: chart._margin.top >= Math.max(...right.map(b => b.bottom)) - box.top,
+        closed: getComputedStyle(menu).display,
+      };
+      more.click();
+      const open = {display: getComputedStyle(menu).display, expanded: more.getAttribute("aria-expanded"), focus: document.activeElement.textContent};
+      menu.querySelector(".select-lasso").click();
+      await frames();
+      const picked = {
+        tool: chart._selectTool,
+        display: getComputedStyle(menu).display,
+        expanded: more.getAttribute("aria-expanded"),
+        refocused: document.activeElement === more,
+        icon: more.classList.contains("active") && more.querySelectorAll("circle").length !== 3,
+      };
+      const m = marks(chart).find(m => m.id === "p2-2" && m.kind === "circle");
+      const loop = [];
+      for (let i = 0; i <= 16; i++) loop.push([m.x + 8 * Math.cos(i / 16 * 2 * Math.PI), m.y + 8 * Math.sin(i / 16 * 2 * Math.PI)]);
+      await drag(chart, loop);
+      return {layout, open, picked, selected: ids(chart.selection())};
+    `,
+      renderer,
+    );
+    const {layout, open, picked} = r;
+    assert.ok(
+      layout.order.length < 7 && layout.order.at(-1) === "zoom-more",
+      `the menu button comes last (${layout.order})`,
+    );
+    assert.deepStrictEqual(
+      layout.order.slice(0, -1),
+      [
+        "zoom-in",
+        "zoom-out",
+        "zoom-reset",
+        "zoom-brush",
+        "select-box",
+        "select-lasso",
+      ].slice(0, layout.order.length - 1),
+      "the buttons keep their order",
+    );
+    assert.strictEqual(
+      layout.order.length - 1 + layout.items.length,
+      6,
+      "the menu holds the rest",
+    );
+    assert.strictEqual(
+      layout.items.at(-1),
+      "Lasso Select",
+      "each with its label",
+    );
+    assert.strictEqual(
+      layout.overlap,
+      false,
+      "no button covers a top-left control",
+    );
+    assert.ok(layout.inside, "every button stays inside the chart");
+    assert.strictEqual(layout.rows, 1, "one row");
+    assert.ok(layout.clear, "the chart starts below it");
+    assert.strictEqual(layout.closed, "none");
+    assert.deepStrictEqual(open, {
+      display: "flex",
+      expanded: "true",
+      focus: layout.items[0],
+    });
+    assert.deepStrictEqual(picked, {
+      tool: "lasso",
+      display: "none",
+      expanded: "false",
+      refocused: true,
+      icon: true,
+    });
+    assert.deepStrictEqual(r.selected, ["p2-2"], "dragging then draws a lasso");
+  });
+
+  it(`[${renderer}] the More Controls menu opens and closes by keyboard and closes on an outside click`, async () => {
+    const r = await page(
+      `
+      document.querySelector("#viz").style.width = "180px";
+      const chart = new d3plus.Plot().select("#viz").renderer(arg)
+        .data(grid).groupBy("id").x("x").y("y").legend(false);
+      await done(chart);
+      const more = document.querySelector("#viz .zoom-more");
+      const menu = document.querySelector("#viz .d3plus-zoom-menu");
+      const key = (el, k) => el.dispatchEvent(new KeyboardEvent("keydown", {key: k, bubbles: true, cancelable: true}));
+      const state = () => ({open: getComputedStyle(menu).display === "flex", focus: document.activeElement === more ? "more" : document.activeElement.textContent});
+      const items = [...menu.querySelectorAll(".zoom-menu-item")].map(b => b.textContent);
+      more.focus();
+      key(more, "ArrowDown");
+      const opened = state();
+      key(document.activeElement, "ArrowDown");
+      const next = state();
+      key(document.activeElement, "End");
+      const end = state();
+      key(document.activeElement, "Escape");
+      const escaped = state();
+      key(more, "ArrowUp");
+      const up = state();
+      document.body.dispatchEvent(new PointerEvent("pointerdown", {bubbles: true}));
+      const outside = state();
+      return {items, opened, next, end, escaped, up, outside: outside.open};
+    `,
+      renderer,
+    );
+    const last = r.items.at(-1);
+    assert.deepStrictEqual(
+      r.opened,
+      {open: true, focus: r.items[0]},
+      "ArrowDown opens on the first item",
+    );
+    assert.deepStrictEqual(r.next, {
+      open: true,
+      focus: r.items[1] ?? r.items[0],
+    });
+    assert.deepStrictEqual(r.end, {open: true, focus: last});
+    assert.deepStrictEqual(
+      r.escaped,
+      {open: false, focus: "more"},
+      "Escape closes, focus back on the button",
+    );
+    assert.deepStrictEqual(
+      r.up,
+      {open: true, focus: last},
+      "ArrowUp opens on the last item",
+    );
+    assert.strictEqual(r.outside, false, "a click outside closes it");
+  });
+
+  it(`[${renderer}] a wide chart shows every button and no More Controls menu`, async () => {
+    const r = await page(
+      `
+      const chart = new d3plus.Plot().select("#viz").renderer(arg)
+        .data(grid).groupBy("id").x("x").y("y").legend(false);
+      await done(chart);
+      return {
+        order: [...document.querySelectorAll("#viz button.zoom-control")].map(b => b.classList[1]),
+        menu: Boolean(document.querySelector("#viz .d3plus-zoom-menu")),
       };
     `,
       renderer,
     );
-    assert.deepStrictEqual(r.zoomOff, {buttons: 0, selected: ["p2-2"]});
-    assert.strictEqual(r.count, 6);
-    assert.strictEqual(r.overlap, false, "no button covers a top-left control");
-    assert.ok(r.inside, "every button stays inside the chart");
-    assert.strictEqual(r.rows, 2, "the buttons wrap onto a second row");
-    assert.ok(r.clear, "the chart starts below both rows");
+    assert.deepStrictEqual(r, {
+      order: [
+        "zoom-in",
+        "zoom-out",
+        "zoom-reset",
+        "zoom-brush",
+        "select-box",
+        "select-lasso",
+      ],
+      menu: false,
+    });
   });
 
   it(`[${renderer}] a Network selects its nodes, not its links`, async () => {

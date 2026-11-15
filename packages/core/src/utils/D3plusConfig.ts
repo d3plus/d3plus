@@ -3182,13 +3182,15 @@ export interface D3plusConfig {
   */
   zoomBrushSelectionStyle?: Record<string, unknown> | false;
   /**
-      An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` / `select-box` / `select-lasso` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+      An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` / `select-box` / `select-lasso` / `zoom-more` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
   */
   zoomControlClassName?: string;
   /**
       Whether the zoom-control buttons (zoom in, zoom out, reset, brush, and
       the box and lasso select tools, see `selectMode`) show in the chart's
-      top-right corner. `false` hides them and gives the room they take back
+      top-right corner; on a chart too narrow for all of them beside the
+      top-left controls, the ones that don't fit move into a "More Controls"
+      menu. `false` hides them and gives the room they take back
       to the chart's title, legend, and other top content, while zooming
       stays on: the wheel, pinch, drag, and double-click gestures still work,
       and the chart's `zoomIn`, `zoomOut`, `zoomReset`, and `zoomBrush`

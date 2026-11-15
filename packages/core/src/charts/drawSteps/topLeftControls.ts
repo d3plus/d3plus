@@ -54,7 +54,7 @@ export function getTopLeftContributions(viz: Viz): Contribution[] {
   return contributions;
 }
 
-// The zoom buttons wrap to stay clear of these controls on a narrow chart.
+// On a narrow chart, the zoom buttons that would reach these controls move into a menu.
 reserveZoomControlsLeft(
   viz => topLeftControlsBox(viz, getTopLeftContributions(viz))?.width ?? 0,
 );

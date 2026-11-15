@@ -9,12 +9,15 @@
 
 import type Viz from "../viz/Viz.js";
 import {
+  saveControlMenuItemStyleDefault,
+  saveControlMenuStyleDefault,
   zoomControlStyleActiveDefault,
   zoomControlStyleDefault,
   zoomControlStyleHoverDefault,
 } from "../viz/vizDefaults.js";
 import {
   controlButtonStyles,
+  escapeHtml,
   kebab,
   paintControlButton,
   type ControlButtonStyles,
@@ -204,7 +207,6 @@ export const ZOOM_PANEL_PADDING = 4;
 */
 export const ZOOM_PANEL_STYLE: Record<string, string> = {
   display: "flex",
-  flexWrap: "wrap",
   alignItems: "center",
   justifyContent: "flex-end",
   gap: "4px",
@@ -219,76 +221,167 @@ let leftReserve: (viz: Viz) => number = () => 0;
 
 /**
     Registers how wide the chart's top-left controls are, which the zoom
-    buttons wrap onto a second row to stay clear of on a narrow chart.
-    `topLeftControls.ts` registers it: it can't be imported here, since the
-    top-left controls' own modules import this one.
+    buttons keep clear of on a narrow chart by moving the ones that don't
+    fit into the "More Controls" menu. `topLeftControls.ts` registers it: it
+    can't be imported here, since the top-left controls' own modules import
+    this one.
     @param fn The top-left controls' width for a chart, padding included.
 */
 export function reserveZoomControlsLeft(fn: (viz: Viz) => number): void {
   leftReserve = fn;
 }
 
+/** One zoom-control button: its icon key, class, label, icon, and pressed state (for a toggle). */
+export interface ZoomButtonSpec {
+  key: ZoomControlIconKey;
+  cls: string;
+  label: string;
+  icon: string;
+  pressed?: boolean;
+}
+
+/** The six buttons, in their order: zoom in, zoom out, reset, brush, box select, lasso select. */
+export function zoomButtonSpecs(viz: Viz): ZoomButtonSpec[] {
+  const spec = (
+    key: ZoomControlIconKey,
+    label: string,
+    builtin: string,
+    pressed?: boolean,
+  ): ZoomButtonSpec => ({
+    key,
+    cls: ICON_BUTTON_CLASS[key],
+    label,
+    icon: iconFor(viz, key, builtin),
+    ...(pressed === undefined ? {} : {pressed}),
+  });
+  return [
+    spec("zoomIn", "Zoom In", ZOOM_IN_ICON),
+    spec("zoomOut", "Zoom Out", ZOOM_OUT_ICON),
+    spec("zoomReset", "Reset Zoom", ZOOM_RESET_ICON),
+    spec("zoomBrush", "Brush Zoom", ZOOM_BRUSH_ICON, isBrushing(viz)),
+    spec("selectBox", "Box Select", SELECT_BOX_ICON, viz._selectTool === "box"),
+    spec(
+      "selectLasso",
+      "Lasso Select",
+      SELECT_LASSO_ICON,
+      viz._selectTool === "lasso",
+    ),
+  ];
+}
+
+/** The `zoomControlClassName` a chart layers onto its buttons, with a leading space. */
+function extraClass(viz: Viz): string {
+  return viz.schema.zoomControlClassName
+    ? ` ${viz.schema.zoomControlClassName}`
+    : "";
+}
+
+/** One button's markup (see `zoomControlsHtml`). */
+function buttonHtml(viz: Viz, spec: ZoomButtonSpec): string {
+  const {cls, label, icon, pressed} = spec;
+  return `<button type="button" style="pointer-events:auto" class="zoom-control ${cls}${pressed ? " active" : ""}${extraClass(viz)}" aria-label="${viz.schema.translate(label)}"${pressed === undefined ? "" : ` aria-pressed="${pressed}"`}>${icon}</button>`;
+}
+
+/** The "More Controls" button's icon: three dots in a row. */
+export const ZOOM_MORE_ICON = `<svg ${ICON_ATTRS}><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>`;
+
+/** The label of the button that opens the menu of buttons that don't fit. */
+export const ZOOM_MORE_LABEL = "More Controls";
+
 /**
-    The panel's style for a chart: `ZOOM_PANEL_STYLE`, with room kept on the
-    left for the top-left controls, so on a chart too narrow for both rows
-    of buttons side by side, the zoom buttons wrap onto a second row
-    (right-aligned) rather than run into them.
+    The "More Controls" button: it shows the icon of `active` (a tool that
+    is on while its button sits in the menu), and otherwise three dots.
 */
-export function zoomPanelStyle(viz: Viz): Record<string, string> {
-  const reserve = leftReserve(viz);
-  return {
-    ...ZOOM_PANEL_STYLE,
-    paddingLeft: `${reserve ? reserve + ZOOM_PANEL_PADDING : 0}px`,
-  };
+function moreButtonHtml(viz: Viz, active?: ZoomButtonSpec): string {
+  const label = escapeHtml(viz.schema.translate(ZOOM_MORE_LABEL));
+  return `<button type="button" style="pointer-events:auto" class="zoom-control zoom-more${active ? " active" : ""}${extraClass(viz)}" aria-label="${label}" title="${label}" aria-haspopup="menu" aria-expanded="false" aria-controls="${viz._uuid}-zoom-menu">${active ? active.icon : ZOOM_MORE_ICON}</button>`;
+}
+
+/** Inline style text from style objects. */
+function styleText(...styles: Record<string, unknown>[]): string {
+  return styles
+    .flatMap(style => Object.entries(style))
+    .filter(([, v]) => v !== undefined && v !== null && v !== false)
+    .map(([k, v]) => `${kebab(k)}:${escapeHtml(v)}`)
+    .join(";");
+}
+
+/** The menu's fixed layout while closed; the menu shows by setting `display: flex`. */
+export const ZOOM_MENU_STYLE: Record<string, string> = {
+  position: "absolute",
+  top: "100%",
+  right: "0",
+  "z-index": "1",
+  display: "none",
+  "flex-direction": "column",
+  "min-width": "max-content",
+};
+
+/** Each menu item's fixed layout: its icon beside its label. */
+export const ZOOM_MENU_ITEM_STYLE: Record<string, string> = {
+  display: "flex",
+  "align-items": "center",
+  gap: "6px",
+  width: "100%",
+  "text-align": "start",
+  "white-space": "nowrap",
+  cursor: "pointer",
+};
+
+/**
+    The "More Controls" button and its menu of the buttons that don't fit:
+    a column of the same icons, each with its label, styled like the
+    download menu. A toggle (brush, box, lasso) is a `menuitemcheckbox`.
+*/
+function moreHtml(viz: Viz, hidden: ZoomButtonSpec[]): string {
+  const t = (text: string): string => escapeHtml(viz.schema.translate(text));
+  const itemStyle = styleText(
+    saveControlMenuItemStyleDefault,
+    ZOOM_MENU_ITEM_STYLE,
+  );
+  const items = hidden
+    .map(({cls, label, icon, pressed}) => {
+      const role = pressed === undefined ? "menuitem" : "menuitemcheckbox";
+      const checked = pressed === undefined ? "" : ` aria-checked="${pressed}"`;
+      return `<button type="button" role="${role}" tabindex="-1" class="zoom-menu-item ${cls}${pressed ? " active" : ""}"${checked} style="${itemStyle}">${icon}<span class="zoom-menu-label">${t(label)}</span></button>`;
+    })
+    .join("");
+  return (
+    `<span class="zoom-more-root" style="position:relative;display:inline-flex;align-items:center;pointer-events:auto">` +
+    moreButtonHtml(
+      viz,
+      hidden.find(spec => spec.pressed),
+    ) +
+    `<span class="d3plus-zoom-menu" id="${viz._uuid}-zoom-menu" role="menu" aria-label="${t(ZOOM_MORE_LABEL)}" style="${styleText(saveControlMenuStyleDefault, ZOOM_MENU_STYLE)}">${items}</span></span>`
+  );
 }
 
 /**
-    The six buttons' markup. Real <button>s (not <div>s) so a host page's own
-    button styling (Tailwind, Bootstrap, a design system's global `button`
-    reset) applies through the cascade once a `zoomControlClassName`
-    auto-disables the inline defaults. `zoomControlClassName` layers a
-    consumer's own class onto each button without losing the fixed classes
-    event delegation depends on. The brush toggle carries `aria-pressed` (and
-    the `.active` class frameworks like Bootstrap style) while brush mode is on.
-    Each button takes the pointer back from the panel (`ZOOM_PANEL_STYLE`).
+    The panel's markup: as many of the six buttons as fit beside the
+    top-left controls (`visible`, see `zoomControlsBox`), in order, and the
+    rest in a "More Controls" menu. Real <button>s (not <div>s) so a host
+    page's own button styling (Tailwind, Bootstrap, a design system's global
+    `button` reset) applies through the cascade once a
+    `zoomControlClassName` auto-disables the inline defaults.
+    `zoomControlClassName` layers a consumer's own class onto each button
+    without losing the fixed classes event delegation depends on. A toggle
+    (brush, box, lasso) carries `aria-pressed` (and the `.active` class
+    frameworks like Bootstrap style) while it is on. Each button takes the
+    pointer back from the panel (`ZOOM_PANEL_STYLE`).
+    @param viz The chart.
+    @param visible How many buttons show before the menu; all of them by default.
 */
-export function zoomControlsHtml(viz: Viz): string {
-  const extraClass = viz.schema.zoomControlClassName
-    ? ` ${viz.schema.zoomControlClassName}`
-    : "";
-  const button = (
-    cls: string,
-    label: string,
-    glyph: string,
-    pressed?: boolean,
-  ) =>
-    `<button type="button" style="pointer-events:auto" class="zoom-control ${cls}${pressed ? " active" : ""}${extraClass}" aria-label="${viz.schema.translate(label)}"${pressed === undefined ? "" : ` aria-pressed="${pressed}"`}>${glyph}</button>`;
+export function zoomControlsHtml(
+  viz: Viz,
+  visible: number = zoomControlsBox(viz)?.visible ?? 6,
+): string {
+  const specs = zoomButtonSpecs(viz);
+  const hidden = specs.slice(visible);
   return (
-    button("zoom-in", "Zoom In", iconFor(viz, "zoomIn", ZOOM_IN_ICON)) +
-    button("zoom-out", "Zoom Out", iconFor(viz, "zoomOut", ZOOM_OUT_ICON)) +
-    button(
-      "zoom-reset",
-      "Reset Zoom",
-      iconFor(viz, "zoomReset", ZOOM_RESET_ICON),
-    ) +
-    button(
-      "zoom-brush",
-      "Brush Zoom",
-      iconFor(viz, "zoomBrush", ZOOM_BRUSH_ICON),
-      isBrushing(viz),
-    ) +
-    button(
-      "select-box",
-      "Box Select",
-      iconFor(viz, "selectBox", SELECT_BOX_ICON),
-      viz._selectTool === "box",
-    ) +
-    button(
-      "select-lasso",
-      "Lasso Select",
-      iconFor(viz, "selectLasso", SELECT_LASSO_ICON),
-      viz._selectTool === "lasso",
-    )
+    specs
+      .slice(0, visible)
+      .map(spec => buttonHtml(viz, spec))
+      .join("") + (hidden.length ? moreHtml(viz, hidden) : "")
   );
 }
 
@@ -332,23 +425,55 @@ export function overlayHost(viz: Viz): HTMLElement | null {
 */
 export function syncBrushButton(viz: Viz): void {
   syncToggle(viz, "zoom-brush", isBrushing(viz));
+  syncMoreButton(viz);
 }
 
 /** Reflects the select tool onto the box and lasso select buttons, as `syncBrushButton` does for brush mode. */
 export function syncSelectButtons(viz: Viz): void {
   syncToggle(viz, "select-box", viz._selectTool === "box");
   syncToggle(viz, "select-lasso", viz._selectTool === "lasso");
+  syncMoreButton(viz);
 }
 
-/** Sets a toggle button's `.active` class, `aria-pressed`, and style. */
-function syncToggle(viz: Viz, cls: string, pressed: boolean): void {
-  const btn = overlayHost(viz)?.querySelector<HTMLElement>(
-    `.d3plus-zoom-control .${cls}`,
+/**
+    Shows the icon of a tool that is on while its button sits in the "More
+    Controls" menu on that menu's button (pressed), or three dots.
+*/
+export function syncMoreButton(viz: Viz): void {
+  const host = overlayHost(viz);
+  const btn = host?.querySelector<HTMLElement>(
+    ".d3plus-zoom-control .zoom-more",
   );
-  if (!btn) return;
-  btn.classList.toggle("active", pressed);
-  btn.setAttribute("aria-pressed", String(pressed));
+  if (!host || !btn) return;
+  const active = host.querySelector<HTMLElement>(
+    ".d3plus-zoom-menu .zoom-menu-item.active",
+  );
+  btn.innerHTML = active
+    ? [...active.childNodes]
+        .filter(
+          n =>
+            !(n instanceof Element && n.classList.contains("zoom-menu-label")),
+        )
+        .map(n => (n instanceof Element ? n.outerHTML : n.textContent))
+        .join("")
+    : ZOOM_MORE_ICON;
+  btn.classList.toggle("active", Boolean(active));
   paintZoomButton(viz, btn, btn.matches(":hover"));
+}
+
+/** Sets a toggle's `.active` class and `aria-pressed` (or a menu item's `aria-checked`), and its style. */
+function syncToggle(viz: Viz, cls: string, pressed: boolean): void {
+  overlayHost(viz)
+    ?.querySelectorAll<HTMLElement>(`.d3plus-zoom-control .${cls}`)
+    .forEach(el => {
+      el.classList.toggle("active", pressed);
+      if (el.classList.contains("zoom-menu-item")) {
+        el.setAttribute("aria-checked", String(pressed));
+        return;
+      }
+      el.setAttribute("aria-pressed", String(pressed));
+      paintZoomButton(viz, el, el.matches(":hover"));
+    });
 }
 
 /** Whether a chart shows the zoom-control panel: it zooms, and `zoomControls` isn't false. */
@@ -359,13 +484,15 @@ export function showsZoomControls(viz: Viz): boolean {
 }
 
 /**
-    The zoom-control panel's measured size (padding included), and the
-    width of its four zoom buttons alone (zoom in, zoom out, reset, brush),
-    which the minimap matches.
+    The zoom-control panel's measured size (padding included); how many of
+    its six buttons show before the "More Controls" menu takes the rest; and
+    the width of its four zoom buttons alone (zoom in, zoom out, reset,
+    brush), which the minimap matches.
 */
 export interface ZoomControlsBox {
   width: number;
   height: number;
+  visible: number;
   zoomWidth: number;
 }
 
@@ -373,27 +500,70 @@ export interface ZoomControlsBox {
 const ESTIMATED_BOX: ZoomControlsBox = {
   width: 6 * 20 + 5 * 4 + ZOOM_PANEL_PADDING,
   height: 20 + ZOOM_PANEL_PADDING,
+  visible: 6,
   zoomWidth: 4 * 20 + 3 * 4 + ZOOM_PANEL_PADDING,
 };
 
-/** The classes of the four zoom buttons, the ones the minimap matches in width. */
-const ZOOM_BUTTONS = ["zoom-in", "zoom-out", "zoom-reset", "zoom-brush"];
+/** A measured panel: its buttons' widths, the "More Controls" button's, and its spacing. */
+export interface ZoomPanelMetrics {
+  widths: number[];
+  more: number;
+  gap: number;
+  padLeft: number;
+  padRight: number;
+  height: number;
+}
+
+/**
+    Lays the panel out in `available` pixels: every button when they all
+    fit, else as many as fit (in order) beside the "More Controls" button,
+    which takes the rest. Returns the panel's size and how many buttons show.
+    @param m The measured panel (see `ZoomPanelMetrics`).
+    @param available The room from the chart's right edge to the top-left controls.
+*/
+export function fitZoomPanel(
+  m: ZoomPanelMetrics,
+  available: number,
+): ZoomControlsBox {
+  const run = (k: number): number =>
+    m.widths.slice(0, k).reduce((sum, w) => sum + w, 0) +
+    Math.max(0, k - 1) * m.gap;
+  const zoomWidth = Math.ceil(run(4) + m.padRight);
+  const box = (width: number, visible: number): ZoomControlsBox => ({
+    width: Math.ceil(width),
+    height: Math.ceil(m.height),
+    visible,
+    zoomWidth,
+  });
+  const all = m.widths.length;
+  const full = m.padLeft + run(all) + m.padRight;
+  if (full <= available) return box(full, all);
+  for (let k = all - 1; k > 0; k--) {
+    const width = m.padLeft + run(k) + m.gap + m.more + m.padRight;
+    if (width <= available) return box(width, k);
+  }
+  return box(m.padLeft + m.more + m.padRight, 0);
+}
 
 /**
     The zoom-control panel's size (padding included) as it will render in the
-    chart's page, so top-positioned content can leave room for it. Measured
-    by mounting a hidden copy beside the chart — the buttons' size depends on
-    the host page's CSS (a `zoomControlClassName`, a global `button` reset) —
-    and cached until the markup or styling changes. Returns null when the
-    chart shows no controls.
+    chart's page, so top-positioned content can leave room for it, and how
+    many buttons fit beside the top-left controls (see `fitZoomPanel`).
+    Measured by mounting a hidden copy of every button beside the chart — the
+    buttons' size depends on the host page's CSS (a `zoomControlClassName`, a
+    global `button` reset) — and cached until the markup, styling, or room
+    changes. Returns null when the chart shows no controls.
 */
 export function zoomControlsBox(viz: Viz): ZoomControlsBox | null {
   if (!showsZoomControls(viz)) return null;
-  const html = zoomControlsHtml(viz);
+  const html =
+    zoomButtonSpecs(viz)
+      .map(spec => buttonHtml(viz, spec))
+      .join("") + moreButtonHtml(viz);
   const {base} = buttonStyles(viz);
-  const style = zoomPanelStyle(viz);
+  const reserve = leftReserve(viz);
   const width = viz.schema.width;
-  const signature = `${html}|${JSON.stringify(base)}|${style.paddingLeft}|${width}`;
+  const signature = `${html}|${JSON.stringify(base)}|${reserve}|${width}`;
   const cached = viz._zoomControlsBox;
   if (cached && cached.signature === signature) return cached;
 
@@ -402,14 +572,11 @@ export function zoomControlsBox(viz: Viz): ZoomControlsBox | null {
   if (host) {
     const probe = document.createElement("div");
     probe.className = "d3plus-zoom-control";
-    for (const key in style) probe.style.setProperty(kebab(key), style[key]);
-    // Laid out at the panel's width (or shrink-wrapped without one) and
-    // invisible, so it measures without affecting layout.
-    if (width) probe.style.setProperty("width", `${width}px`);
-    else probe.style.setProperty("display", "inline-flex");
+    for (const key in ZOOM_PANEL_STYLE)
+      probe.style.setProperty(kebab(key), ZOOM_PANEL_STYLE[key]);
+    // Shrink-wrapped and invisible, so it measures without affecting layout.
+    probe.style.setProperty("display", "inline-flex");
     probe.style.setProperty("position", "absolute");
-    probe.style.setProperty("left", "0");
-    probe.style.setProperty("top", "0");
     probe.style.setProperty("visibility", "hidden");
     probe.style.setProperty("pointer-events", "none");
     probe.innerHTML = html;
@@ -417,25 +584,25 @@ export function zoomControlsBox(viz: Viz): ZoomControlsBox | null {
     buttons.forEach(btn => paintZoomButton(viz, btn));
     host.appendChild(probe);
     const rect = probe.getBoundingClientRect();
-    // From the leftmost button to the panel's right edge (its right padding
-    // included), and the panel's height, however the buttons wrapped.
     const rects = buttons.map(btn => btn.getBoundingClientRect());
-    const zoomRects = rects.filter((_, i) =>
-      ZOOM_BUTTONS.some(cls => buttons[i].classList.contains(cls)),
-    );
     host.removeChild(probe);
-    const left = Math.min(...rects.map(r => r.left));
-    const padRight = rect.right - Math.max(...rects.map(r => r.right));
-    if (rects.length && rect.width && rect.height)
-      box = {
-        width: Math.ceil(rect.right - left),
-        height: Math.ceil(rect.height),
-        zoomWidth: Math.ceil(
-          Math.max(...zoomRects.map(r => r.right)) -
-            Math.min(...zoomRects.map(r => r.left)) +
-            padRight,
-        ),
-      };
+    const more = rects.pop();
+    if (more && rects.length > 1 && rect.width && rect.height) {
+      const available = width
+        ? width - (reserve ? reserve + ZOOM_PANEL_PADDING : 0)
+        : Infinity;
+      box = fitZoomPanel(
+        {
+          widths: rects.map(r => r.width),
+          more: more.width,
+          gap: rects[1].left - rects[0].right,
+          padLeft: rects[0].left - rect.left,
+          padRight: rect.right - more.right,
+          height: rect.height,
+        },
+        available,
+      );
+    }
   }
   viz._zoomControlsBox = {...box, signature};
   return viz._zoomControlsBox;

@@ -18,8 +18,8 @@ import {
   syncBrushButton,
   syncSelectButtons,
   syncSelectTool,
+  ZOOM_PANEL_STYLE,
   zoomControlsHtml,
-  zoomPanelStyle,
 } from "./zoomControlsMarkup.js";
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 import {startsOnBrush} from "./zoomGesture.js";
@@ -36,6 +36,7 @@ import {forgetTransform, recordTransform, showsTransform} from "./zoomShown.js";
 import {effectiveDuration, motionReduced} from "../viz/reducedMotion.js";
 import type {SelectTool} from "./selectRegion.js";
 import {syncSelectSurface} from "./selectGesture.js";
+import {zoomMenuEvents} from "./zoomControlsMenu.js";
 
 /**
     Builds the four zoom-control buttons as an `htmlOverlay` scene-node
@@ -59,30 +60,23 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
     x: 0,
     y: 0,
     width: viz.schema.width,
-    style: zoomPanelStyle(viz),
+    style: ZOOM_PANEL_STYLE,
     className: "d3plus-zoom-control",
     html: zoomControlsHtml(viz),
     events: {
       ".zoom-in": {click: () => zoomMath.bind(viz)(viz.schema.zoomFactor)},
       ".zoom-out": {click: () => zoomMath.bind(viz)(1 / viz.schema.zoomFactor)},
       ".zoom-reset": {click: () => zoomMath.bind(viz)(0)},
+      // The button, or its "More Controls" menu item, reports the mode.
       ".zoom-brush": {
-        click: (e: Event) => {
-          // Delegated dispatch: `e.currentTarget` is the host wrapper, so
-          // resolve the actual button from the event target.
-          const btn = (e.target as Element).closest(
-            ".zoom-brush",
-          ) as HTMLElement | null;
-          if (!btn) return;
-          const willBrush = !isBrushing(viz);
-          btn.classList.toggle("active", willBrush);
-          btn.setAttribute("aria-pressed", String(willBrush));
-          paintZoomButton(viz, btn, btn.matches(":hover"));
-          zoomEvents.bind(viz)(willBrush);
+        click: () => {
+          zoomEvents.bind(viz)(!isBrushing(viz));
+          syncBrushButton(viz);
         },
       },
       ".select-box": {click: () => toggleSelectTool(viz, "box")},
       ".select-lasso": {click: () => toggleSelectTool(viz, "lasso")},
+      ...zoomMenuEvents(viz),
     },
     onUpdate: (host: HTMLElement) => {
       host.querySelectorAll<HTMLElement>(".zoom-control").forEach(btn => {
@@ -94,6 +88,11 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
         );
         btn.addEventListener("mouseleave", () => paintZoomButton(viz, btn));
         mountCustomIcons(viz, btn);
+      });
+      host.querySelectorAll<HTMLElement>(".zoom-menu-item").forEach(item => {
+        if (item.dataset.zoomBound) return;
+        item.dataset.zoomBound = "1";
+        mountCustomIcons(viz, item);
       });
     },
   };
