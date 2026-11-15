@@ -66,5 +66,5 @@ const config = {
   data: words,
   facet: "group",
   groupBy: "word",
-  sum: "count",
+  size: "count",
 };

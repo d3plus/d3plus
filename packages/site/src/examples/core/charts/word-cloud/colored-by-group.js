@@ -66,5 +66,5 @@ const config = {
   color: "group",
   data: words,
   groupBy: ["group", "word"],
-  sum: "count",
+  size: "count",
 };

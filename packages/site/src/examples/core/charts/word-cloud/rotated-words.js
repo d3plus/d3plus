@@ -67,5 +67,5 @@ const config = {
   data: words,
   groupBy: "word",
   rotate: [0, 90, -90],
-  sum: "count",
+  size: "count",
 };

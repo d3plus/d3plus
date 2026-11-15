@@ -10,14 +10,16 @@ import coloredByGroup from "~/examples/core/charts/word-cloud/colored-by-group.j
 import rotatedWords from "~/examples/core/charts/word-cloud/rotated-words.js?raw";
 import colorScale from "~/examples/core/charts/word-cloud/color-scale.js?raw";
 import smallMultiples from "~/examples/core/charts/word-cloud/small-multiples.js?raw";
+import threshold from "~/examples/core/charts/word-cloud/threshold.js?raw";
 
-Draws one word per row, its font size set by its value (`sum`, read from
+Draws one word per row, its font size set by its value (`size`, read from
 `value` by default). The words are placed largest first, each walking a
 spiral out from the middle of the chart until it lands clear of the words
 before it. Collisions are tested against each word's actual glyphs, not its
 box, so small words nest in the gaps of large ones. The same data always
 gives the same layout. When the words don't all fit, every font size shrinks
-together until they do. Hover a word to see its value.
+together until they do. Hover a word to see its value and its share of every
+word drawn, and scroll or use the zoom controls to read the small ones.
 
 ## Basic example
 
@@ -26,7 +28,7 @@ id add up. Font sizes run from `fontMin` to `fontMax`, by the square root of
 the value by default (`fontScale`), so each word's ink area grows roughly in
 step with its count.
 
-<Playground chart="WordCloud" code={basicExample} controls={["fontMin","fontMax","fontScale","fontWeight","wordPadding","spiral"]} />
+<Playground chart="WordCloud" code={basicExample} controls={["size","fontMin","fontMax","fontScale","fontWeight","wordPadding","spiral"]} />
 
 ## Colored by group
 
@@ -51,6 +53,14 @@ By default every word is horizontal.
 mentions that come from positive reviews.
 
 <Playground chart="WordCloud" code={colorScale} controls={["colorScale"]} />
+
+## Threshold
+
+`threshold` merges the words under that share of the total into one word,
+named by `thresholdName` and drawn like any other, sized by their summed
+value. Its tooltip lists the words it holds. It is off by default.
+
+<Playground chart="WordCloud" code={threshold} controls={["threshold","thresholdName"]} />
 
 ## Small multiples
 

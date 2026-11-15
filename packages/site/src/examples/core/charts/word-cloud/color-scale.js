@@ -69,5 +69,5 @@ const config = {
   },
   data: words,
   groupBy: "word",
-  sum: "count",
+  size: "count",
 };
