@@ -16,6 +16,7 @@ import {
   CyclePlot as CyclePlotClass,
   DensityPlot as DensityPlotClass,
   Donut as DonutClass,
+  DotPlot as DotPlotClass,
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
   Funnel as FunnelClass,
@@ -129,6 +130,8 @@ export const CyclePlot = createD3plusComponent(CyclePlotClass, "chart");
 export const DensityPlot = createD3plusComponent(DensityPlotClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */
 export const Donut = createD3plusComponent(DonutClass, "chart");
+/** Vue component for rendering a d3plus DotPlot visualization. */
+export const DotPlot = createD3plusComponent(DotPlotClass, "chart");
 /** Vue component for rendering a d3plus Dumbbell visualization. */
 export const Dumbbell = createD3plusComponent(DumbbellClass, "chart");
 /** Vue component for rendering a d3plus FanChart visualization. */

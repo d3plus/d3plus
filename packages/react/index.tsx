@@ -18,6 +18,7 @@ import {
   CyclePlot as CyclePlotClass,
   DensityPlot as DensityPlotClass,
   Donut as DonutClass,
+  DotPlot as DotPlotClass,
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
   Funnel as FunnelClass,
@@ -164,6 +165,10 @@ export const DensityPlot = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Donut visualization. */
 export const Donut = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={DonutClass} {...props} />
+);
+/** React component for rendering a d3plus DotPlot visualization. */
+export const DotPlot = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={DotPlotClass} {...props} />
 );
 /** React component for rendering a d3plus Dumbbell visualization. */
 export const Dumbbell = (props: D3plusComponentProps) => (
