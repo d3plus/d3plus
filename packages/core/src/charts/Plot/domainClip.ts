@@ -25,7 +25,7 @@ import {pathBounds} from "@d3plus/math";
 import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
 
 import {boxesOverlap} from "../features/circleLabelPlacement.js";
-import {namesMark, OUTSIDE_LABEL_Z} from "../features/labelLayering.js";
+import {namesMark} from "../features/labelLayering.js";
 import {applyTransform, markBoxes} from "../features/sceneBounds.js";
 import type {MaskFrame} from "./plotBreaks.js";
 
@@ -234,7 +234,7 @@ export function clipToPlotArea(
   let mark: SceneNode | undefined;
   for (const node of nodes) {
     if (isLabel(node)) {
-      if (mark && namesMark(node, mark) && node.z !== OUTSIDE_LABEL_Z) {
+      if (mark && namesMark(node, mark) && !node.aboveRaised) {
         run.push(node);
         continue;
       }

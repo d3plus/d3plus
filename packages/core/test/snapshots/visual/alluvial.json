@@ -323,18 +323,6 @@
   ],
   "texts": [
     {
-      "s": "region",
-      "a": "start"
-    },
-    {
-      "s": "product",
-      "a": "middle"
-    },
-    {
-      "s": "channel",
-      "a": "end"
-    },
-    {
       "s": "West",
       "a": "start"
     },
@@ -364,6 +352,18 @@
     },
     {
       "s": "Store",
+      "a": "end"
+    },
+    {
+      "s": "region",
+      "a": "start"
+    },
+    {
+      "s": "product",
+      "a": "middle"
+    },
+    {
+      "s": "channel",
       "a": "end"
     },
     {

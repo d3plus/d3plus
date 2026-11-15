@@ -42,12 +42,6 @@ export function namesMark(label: SceneNode, mark: SceneNode): boolean {
   );
 }
 
-/** z that floats a hovered, active or highlighted node above its (z-less, i.e. 0) siblings. */
-export const RAISE_Z = 1e6;
-
-/** z that keeps a label drawn outside its shape over every shape, raised ones too. */
-export const OUTSIDE_LABEL_Z = RAISE_Z + 1;
-
 /** Slack (px) for a label's glyphs sitting on its shape's edge. */
 const EDGE = 1;
 
@@ -78,8 +72,8 @@ function drawnInside(label: SceneNode, box: Bounds | null): boolean {
     keyed to it) to just after the last shape node that carries its datum
     (or a row its datum wraps), taking that node's `z`, so the backends'
     stable `z` sort keeps the two together and a shape drawn later covers
-    it. A label drawn outside its shape's bounds stays in place, over every
-    shape (`OUTSIDE_LABEL_Z`), even a raised one. Shapes keep their order; a
+    it. A label drawn outside its shape's bounds stays in place, over the
+    shapes, and over a raised one too (`aboveRaised`). Shapes keep their order; a
     label with no shape in `nodes` stays in place, and when the shapes are
     layered by `z`, it goes over the top one.
     @param nodes One group's shapes and labels.
@@ -151,11 +145,12 @@ export function labelsWithShapes(nodes: SceneNode[]): SceneNode[] {
   nodes.forEach((n, i) => {
     if (moved.has(n)) return;
     const key = labelKey(n);
-    if (key !== null && outside.has(key))
-      out.push({...n, z: OUTSIDE_LABEL_Z} as SceneNode);
+    const flag = key !== null && outside.has(key) ? {aboveRaised: true} : {};
     // An unpaired label goes over every shape when they are layered by `z`.
-    else if (key !== null && top !== -Infinity)
-      out.push({...n, z: top + 1} as SceneNode);
+    if (key !== null && top !== -Infinity)
+      out.push({...n, ...flag, z: top + 1} as SceneNode);
+    else if (key !== null && outside.has(key))
+      out.push({...n, ...flag} as SceneNode);
     else out.push(n);
     const labels = after.get(i);
     if (labels) out.push(...labels);

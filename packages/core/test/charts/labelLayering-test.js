@@ -5,8 +5,6 @@ import {
   largestFirstRanks,
   labelsWithShapes,
   namesMark,
-  OUTSIDE_LABEL_Z,
-  RAISE_Z,
 } from "../../internal.ts";
 import {collectComputed} from "../../src/charts/features/emitHelpers.ts";
 
@@ -169,13 +167,21 @@ describe("charts/labelLayering labelsWithShapes", () => {
     const nodes = [a, b, line("inside", 40), line("beside", 75)];
     const out = labelsWithShapes(nodes);
     assert.deepStrictEqual(keys(out), ["a", "inside", "b", "beside"]);
-    assert.strictEqual(out[1].z, undefined, "the inside label paints with a");
+    assert.ok(!out[1].aboveRaised, "the inside label paints with a");
     assert.strictEqual(
-      out[3].z,
-      OUTSIDE_LABEL_Z,
+      out[3].aboveRaised,
+      true,
       "the outside one stays on top",
     );
-    assert.ok(OUTSIDE_LABEL_Z > RAISE_Z, "even over a raised shape");
+    assert.strictEqual(out[3].z, undefined, "in place, as before");
+    // Layered by z, it goes over the top shape, as an unpaired label does.
+    const ranked = labelsWithShapes([
+      {...a, z: 1},
+      {...b, z: 0},
+      line("beside", 75),
+    ]);
+    assert.strictEqual(ranked[2].z, 2);
+    assert.strictEqual(ranked[2].aboveRaised, true);
   });
 
   it("returns the nodes as they are when there are no labels", () => {

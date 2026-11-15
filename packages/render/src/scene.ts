@@ -274,6 +274,12 @@ export interface NodeBase {
   /** Z-order within the parent group; stable sort key replacing DOM append order. */
   z?: number;
   /**
+      Keeps the node over its raised (hovered, active or highlighted)
+      siblings, as a label drawn outside its shape stays over every shape.
+      Interaction metadata only — backends never read it for drawing.
+  */
+  aboveRaised?: boolean;
+  /**
       Hint for the animate layer to draw a motion trail (a tapering cone that
       fades from the mark's color at its current position to transparent at its
       previous one) as it moves between frames — e.g. points sliding

@@ -2312,8 +2312,6 @@ export {
 export {
   labelsWithShapes,
   namesMark,
-  OUTSIDE_LABEL_Z,
-  RAISE_Z,
 } from "./src/charts/features/labelLayering.js";
 export {
   colorScaleColor,

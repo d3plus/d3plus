@@ -931,19 +931,15 @@
       "a": "start"
     },
     {
-      "s": "Build",
-      "a": "start"
-    },
-    {
-      "s": "Today",
-      "a": "start"
-    },
-    {
       "s": "Kickoff",
       "a": "start"
     },
     {
       "s": "Research",
+      "a": "start"
+    },
+    {
+      "s": "Build",
       "a": "start"
     },
     {
@@ -956,6 +952,10 @@
     },
     {
       "s": "Launch",
+      "a": "start"
+    },
+    {
+      "s": "Today",
       "a": "start"
     },
     {
