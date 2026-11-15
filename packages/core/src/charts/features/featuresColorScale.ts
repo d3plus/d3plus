@@ -21,7 +21,11 @@ import type {InsetOrient} from "./insetState.js";
 import type {FacetAccessor} from "../facet/facetConfig.js";
 import {facetKey} from "../facet/facetData.js";
 import {colorScaleBucketRows} from "./colorScaleBucket.js";
-import {colorScaleValue, linkColorScaleRows} from "./colorScaleValue.js";
+import {
+  colorScaleValue,
+  linkColorScaleRows,
+  ownColorScale,
+} from "./colorScaleValue.js";
 import {bivariateFieldNames, bivariateSpec} from "./colorScaleBivariate.js";
 import {
   axisRoom,
@@ -59,7 +63,7 @@ interface ColorScaleFrame {
 */
 function colorScaleData(viz: VizInstance): DataPoint[] {
   const links = linkColorScaleRows(viz);
-  if (typeof viz.schema.colorScale !== "function") return links;
+  if (!ownColorScale(viz)) return links;
   const own = viz._colorScaleRows
     ? viz._colorScaleRows()
     : (dataRows(viz) as unknown as DataPoint[]);

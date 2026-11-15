@@ -57,6 +57,7 @@ export {
   Streamgraph,
   StripPlot,
   Sunburst,
+  TileGridMap,
   Tree,
   Treemap,
   Venn,

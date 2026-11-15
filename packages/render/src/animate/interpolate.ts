@@ -3,6 +3,7 @@ import {interpolateNumber, interpolateRgb} from "d3-interpolate";
 import {clamp, pathBounds} from "@d3plus/math";
 
 import {interpolatePathD} from "../paths.js";
+import {morphPathD} from "./morph.js";
 import {interpolateSeries, seriesPath} from "./series.js";
 import {textVisualCenter} from "../scene.js";
 import {
@@ -295,7 +296,7 @@ export function interpolateNode(
           const s = series(t);
           return {...(base(t) as PathNode), series: s, d: seriesPath(s)};
         };
-      const d = interpolatePathD(f.d, to.d);
+      const d = (n.morph ? morphPathD : interpolatePathD)(f.d, to.d);
       return t => ({...(base(t) as PathNode), d: d(t)});
     }
     case "text":

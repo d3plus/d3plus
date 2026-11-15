@@ -1,0 +1,39 @@
+---
+title: TileGridMap
+description: "Creates a tile-grid map: each region drawn as one equal hexagon (or square) at a fixed cell of a grid, the US states by default."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/tile-grid-map/basic-example.js?raw";
+import squareTiles from "~/examples/core/charts/tile-grid-map/square-tiles.js?raw";
+import customLayout from "~/examples/core/charts/tile-grid-map/custom-layout.js?raw";
+import morphingFromTheMap from "~/examples/core/charts/tile-grid-map/morphing-from-the-map.js?raw";
+
+Creates a tile-grid map: each region drawn as one equal hexagon (or square) at a fixed cell of a grid, so a small region counts as much as a large one. It's a [Geomap](/core/charts/geomap/) with `tileGrid` set to `"us-states"`, so colors, tooltips, the color scale, the legend, and zooming work as on the map.
+
+## Basic example
+
+The built-in grid of the 50 states and DC, colored by population. It finds each state by its postal abbreviation, its FIPS code (as here), or an id ending in it, labels each tile with its abbreviation (up to 14 pixels), and needs no `topojson`. A state without data keeps its tile in the no-data fill.
+
+<Playground chart="TileGridMap" code={basicExample} controls={["colorScale","tileGridShape","tileGridPadding","renderer"]} />
+
+## Square tiles
+
+`tileGridShape: "square"` draws squares in the same grid, each row offset like bricks, and `tileGridPadding` sets the gap between tiles (`2` pixels by default, `4` here).
+
+<Playground chart="TileGridMap" code={squareTiles} controls={["tileGridShape","tileGridPadding"]} />
+
+## A layout of your own
+
+Pass `tileGrid` a layout, `{[id]: [column, row]}`, to place any other regions: here ten countries of Northern Europe, by their ISO numeric codes. Odd rows sit half a tile to the right, and each tile takes the chart's label when it fits.
+
+<Playground chart="TileGridMap" code={customLayout} controls={["tileGrid","tileGridShape"]} />
+
+## Morphing from the map
+
+Given the states' `topojson` too, setting `tileGrid` to `false` morphs each tile into its state's outline, and back to its tile when the grid returns.
+
+<Playground chart="TileGridMap" code={morphingFromTheMap} controls={["tileGrid","renderer"]} />
+
+<ApiReference name="TileGridMap" pkg="core" />

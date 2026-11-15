@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DotDensity · Geomap</title>
+    <meta
+      name="description"
+      content="Dot-density maps: US state and county populations, and sales by category mixed inside each state with a timeline."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #controls {
+        display: flex;
+        font-size: 14px;
+        gap: 12px;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <label>
+        Map
+        <select id="map">
+          <option value="states">US states, 1 dot = 20,000 people</option>
+          <option value="counties">
+            US counties, 1 dot = 10,000 people (on Canvas)
+          </option>
+          <option value="sales">Sales by category, 1 dot = $50,000</option>
+        </select>
+      </label>
+      <label>
+        <input id="tiles" type="checkbox" />
+        Tiles
+      </label>
+      <button id="shuffle">Shuffle values</button>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    var maps = {
+      states: {
+        data: "./state-population.json",
+        dotDensity: {value: "Population", per: 20000},
+        groupBy: "State ID",
+        label: d => d.State,
+        projection: "geoAlbersUsa",
+        time: undefined,
+        topojson: "./State.json",
+      },
+      counties: {
+        data: "./county-population.json",
+        dotDensity: {value: "Population", per: 10000, r: 1},
+        groupBy: "County ID",
+        label: d => d.County,
+        projection: "geoAlbersUsaTerritories",
+        time: undefined,
+        topojson: "./County.json",
+      },
+      sales: {
+        // The rows name their states: each takes its id from the population file.
+        data: "./fake_state_data.json",
+        dataFormat: rows =>
+          rows.map(d => Object.assign({id: stateIds[d.State]}, d)),
+        dotDensity: {value: "Sales", per: 50000},
+        groupBy: ["Category", "id"],
+        label: d => d.State,
+        projection: "geoAlbersUsa",
+        time: "Sale Date",
+        topojson: "./State.json",
+      },
+    };
+
+    var stateIds = {};
+    var chart;
+
+    fetch("./state-population.json")
+      .then(r => r.json())
+      .then(rows => {
+        rows.forEach(d => (stateIds[d.State] = d["State ID"]));
+        chart = new d3plus.Geomap()
+          .select("#viz")
+          .config({height: 560, tiles: false, ...maps.states})
+          .render();
+      });
+
+    document.querySelector("#map").addEventListener("change", function (e) {
+      chart.config({dataFormat: d => d, ...maps[e.target.value]}).render();
+    });
+
+    document.querySelector("#tiles").addEventListener("change", function (e) {
+      chart.tiles(e.target.checked).render();
+    });
+
+    document.querySelector("#shuffle").addEventListener("click", function () {
+      var key = chart.dotDensity().value;
+      var rows = chart.data();
+      var values = rows.map(d => d[key]);
+      for (var i = values.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = values[i];
+        values[i] = values[j];
+        values[j] = t;
+      }
+      chart
+        .data(rows.map((d, i) => Object.assign({}, d, {[key]: values[i]})))
+        .render();
+    });
+  </script>
+</html>
