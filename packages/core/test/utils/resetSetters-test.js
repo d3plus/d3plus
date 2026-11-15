@@ -94,6 +94,15 @@ describe("every setter takes RESET directly", () => {
     assert.strictEqual(viz.on("click.shape"), own);
   });
 
+  it("on(key, RESET) restores that event's default handler", () => {
+    const viz = new Treemap();
+    const own = viz.on("click.shape");
+    viz.on("click.shape", () => 1).on("click.shape", RESET);
+    assert.strictEqual(viz.on("click.shape"), own);
+    viz.on("dblclick", () => 1).on("dblclick", RESET);
+    assert.strictEqual("dblclick" in viz.on(), false, "no default");
+  });
+
   it("on(RESET) restores the default handlers", () => {
     const viz = new Donut();
     const defaults = {...viz.on()};

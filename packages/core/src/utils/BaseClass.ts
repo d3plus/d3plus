@@ -315,6 +315,14 @@ new Plot
       this.schema.on = {...(this._defaultConfig().on as object)};
       return this;
     }
+    if ((f as unknown) === RESET && arguments.length === 2) {
+      const handler = (this._defaultConfig().on as Record<string, unknown>)?.[
+        _ as string
+      ];
+      if (handler === undefined) delete this.schema.on[_ as string];
+      else this.schema.on[_ as string] = handler as typeof f & {};
+      return this;
+    }
     return arguments.length === 2
       ? ((this.schema.on[_ as string] = f!), this)
       : arguments.length
