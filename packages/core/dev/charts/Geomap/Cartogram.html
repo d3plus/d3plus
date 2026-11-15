@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Cartogram</title>
+    <meta
+      name="description"
+      content="Dorling and Demers cartograms of US states, world countries, and US counties by population, morphing to and from the map."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #controls {
+        display: flex;
+        font-size: 14px;
+        gap: 12px;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <label>
+        Map
+        <select id="map">
+          <option value="states">US states</option>
+          <option value="world">World countries</option>
+          <option value="counties">US counties</option>
+        </select>
+      </label>
+      <label>
+        Cartogram
+        <select id="kind">
+          <option value="dorling">Dorling</option>
+          <option value="demers">Demers</option>
+          <option value="false">Off</option>
+        </select>
+      </label>
+      <button id="shuffle">Shuffle values</button>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    var maps = {
+      states: {
+        data: "./state-population.json",
+        groupBy: "State ID",
+        label: d => d.Abbr,
+        projection: "geoAlbersUsa",
+        topojson: "./State.json",
+        topojsonId: f => f.id,
+        topojsonKey: undefined,
+      },
+      world: {
+        data: "./country-population.json",
+        groupBy: "id",
+        label: d => d.Country,
+        projection: "geoEqualEarth",
+        topojson: "./countries-110m.json",
+        // The topojson ids are zero-padded strings ("076"); the data's are numbers.
+        topojsonId: f => +f.id,
+        topojsonKey: "countries",
+      },
+      counties: {
+        data: "./county-population.json",
+        groupBy: "County ID",
+        label: d => d.County,
+        projection: "geoAlbersUsaTerritories",
+        topojson: "./County.json",
+        topojsonId: f => f.id,
+        topojsonKey: undefined,
+      },
+    };
+
+    var chart = new d3plus.Geomap()
+      .select("#viz")
+      .config({
+        cartogram: "dorling",
+        colorScale: "Population",
+        height: 560,
+        ...maps.states,
+      })
+      .render();
+
+    var map = document.querySelector("#map");
+    var kind = document.querySelector("#kind");
+
+    map.addEventListener("change", function () {
+      chart.config(maps[map.value]).render();
+    });
+
+    kind.addEventListener("change", function () {
+      chart.cartogram(kind.value === "false" ? false : kind.value).render();
+    });
+
+    document.querySelector("#shuffle").addEventListener("click", function () {
+      var rows = chart.data();
+      var values = rows.map(d => d.Population);
+      for (var i = values.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = values[i];
+        values[i] = values[j];
+        values[j] = t;
+      }
+      chart
+        .data(rows.map((d, i) => Object.assign({}, d, {Population: values[i]})))
+        .render();
+    });
+  </script>
+</html>
