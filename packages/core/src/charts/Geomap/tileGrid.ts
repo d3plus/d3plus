@@ -19,6 +19,9 @@ import type {CartogramRegion, CartogramShape} from "./cartogramLayout.js";
 /** A tile-grid layout: each region's `[column, row]`, by id. Odd rows sit half a tile to the right. */
 export type TileGridLayout = Record<string, [number, number]>;
 
+/** The largest a tile grid's labels grow, in pixels. */
+export const TILE_GRID_FONT_MAX = 14;
+
 /** The tile shapes a tile grid draws. */
 export type TileGridShape = "hex" | "square";
 

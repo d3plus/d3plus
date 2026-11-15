@@ -2997,7 +2997,9 @@ export interface D3plusConfig {
       `6`), or an id ending in it (`"04000US06"`), and labels each tile with
       its abbreviation. A layout of your own, `{[id]: [column, row]}`, places
       the regions whose ids it names (odd rows sit half a tile to the right)
-      and labels them with the chart's label when it fits. Every cell gets a
+      and labels them with the chart's label when it fits. Labels grow with
+      the tiles up to 14 pixels (`shapeConfig.Path.labelConfig.fontMax`
+      changes it). Every cell gets a
       tile, with the no-data fill when no row names it. The grid fills the
       map, less `projectionPadding`. Without a `topojson`, the tiles are the
       layout's cells; with one, toggling the grid morphs each outline to and

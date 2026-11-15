@@ -22,7 +22,7 @@ import type {FlowLink} from "./flowLinks.js";
 import {emitBins, emitDots} from "./densityEmit.js";
 import type {GeomapDensity} from "./densityLayout.js";
 import {geoHexbinSettings} from "./geoHexbin.js";
-import {tileGridOcean, tileGridOf} from "./tileGrid.js";
+import {TILE_GRID_FONT_MAX, tileGridOcean, tileGridOf} from "./tileGrid.js";
 
 interface GeomapCtx {
   density?: GeomapDensity;
@@ -103,8 +103,8 @@ function emitGeomapBasemap(viz: VizInstance): SceneNode[] {
 
 /**
     The labels inside a cartogram's shapes or a tile grid's tiles (a tile
-    grid labels every tile, a built-in layout with its own keys), or none
-    on the map.
+    grid labels every tile, a built-in layout with its own keys, up to
+    `TILE_GRID_FONT_MAX` pixels), or none on the map.
 */
 function reshapedLabels(
   viz: VizInstance,
@@ -119,7 +119,11 @@ function reshapedLabels(
     c.cartogram,
     pathConfig,
     grid
-      ? {all: true, text: grid.builtin ? r => grid.key(r.id) : undefined}
+      ? {
+          all: true,
+          text: grid.builtin ? r => grid.key(r.id) : undefined,
+          fontMax: TILE_GRID_FONT_MAX,
+        }
       : undefined,
   );
 }

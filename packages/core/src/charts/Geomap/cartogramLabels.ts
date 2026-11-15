@@ -48,15 +48,19 @@ export function cartogramLabelBox(shape: {r: number; square: boolean}): {
     @param shapes Each region's cartogram shape, by region id.
     @param pathConfig The merged Path shapeConfig.
     @param options `all` labels the shapes of regions without data too
-    (whose datum is the region), and `text` gives a region's label in place
-    of the chart's.
+    (whose datum is the region), `text` gives a region's label in place of
+    the chart's, and `fontMax` caps the font size (24 by default).
 */
 export function cartogramLabels(
   viz: VizInstance,
   regions: CartogramRegion[],
   shapes: Map<string | number, CartogramShape>,
   pathConfig: Record<string, unknown>,
-  options: {all?: boolean; text?: (region: CartogramRegion) => unknown} = {},
+  options: {
+    all?: boolean;
+    text?: (region: CartogramRegion) => unknown;
+    fontMax?: number;
+  } = {},
 ): SceneNode[] {
   if (pathConfig.label === false) return [];
   const items: Labeled[] = [];
@@ -97,7 +101,7 @@ export function cartogramLabels(
           viz.schema.colorDefaults,
         );
       },
-      fontMax: 24,
+      fontMax: options.fontMax ?? 24,
       fontResize: true,
       padding: 2,
       textAnchor: "middle",
