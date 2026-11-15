@@ -382,8 +382,9 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
   v.projectionRotate = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.projectionRotate = _;
-      this.schema.projection.rotate(_);
-      v.tiles(false);
+      // No rotation (its default, which RESET restores) turns the globe back.
+      this.schema.projection.rotate(_ ?? [0, 0, 0]);
+      if (_ !== undefined) v.tiles(false);
       this._zoomSet = false;
       return this;
     }

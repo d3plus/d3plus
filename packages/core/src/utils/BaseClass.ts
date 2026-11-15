@@ -124,15 +124,24 @@ export default class BaseClass {
   }
 
   /**
-      Ends the constructor of `Cls`: when `Cls` is the class being
-      constructed, takes the snapshot of defaults `RESET` restores, now that
-      every constructor has set them and before any config.
+      Ends the constructor of `Cls`: when `Cls` is the most-derived d3plus
+      class of the one being constructed (a d3plus class states its own
+      `_displayName`), takes the snapshot of defaults `RESET` restores, now
+      that every d3plus constructor has set them and before any config. A
+      user's subclass is not a d3plus class, so what its own constructor sets
+      afterwards is not a default.
       @param target The constructor's `new.target`.
       @param Cls The class whose constructor is ending.
       @private
   */
   _constructed(target: unknown, Cls: unknown): void {
-    if (target === Cls) this._defaultConfig();
+    for (
+      let p = target as object | null;
+      p && p !== Cls;
+      p = Object.getPrototypeOf(p)
+    )
+      if (Object.prototype.hasOwnProperty.call(p, "_displayName")) return;
+    this._defaultConfig();
   }
 
   /**
@@ -177,13 +186,20 @@ export default class BaseClass {
   _defaultConfig(): D3plusConfig {
     if (!this._configDefault) {
       const config: D3plusConfig = {};
-      getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
-        const v = (this as unknown as Record<string, () => unknown>)[k]();
-        if (v !== this)
-          config[k] = isObject(v)
-            ? assign({}, v as Record<string, unknown>)
-            : v;
-      });
+      const self = this as unknown as Record<string, () => unknown>;
+      // The setters a chart definition's `setup` installs on the instance.
+      const own = Object.keys(this).filter(
+        k => !notSetter(k) && typeof self[k] === "function",
+      );
+      new Set([...getAllMethods(Object.getPrototypeOf(this)), ...own]).forEach(
+        k => {
+          const v = self[k]();
+          if (v !== this)
+            config[k] = isObject(v)
+              ? assign({}, v as Record<string, unknown>)
+              : v;
+        },
+      );
       this._configDefault = config;
     }
     return this._configDefault;
