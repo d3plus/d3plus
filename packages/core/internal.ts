@@ -2038,6 +2038,7 @@ export {
   breakLineNodes,
   breakLinePaint,
   maskBreaks,
+  maskedGaps,
   maskPath,
   unwrapBreakMasks,
 } from "./src/charts/Plot/plotBreaks.js";
@@ -2269,12 +2270,15 @@ export {
   boxCoverage,
   boxesOverlap,
   boxHitsCircle,
+  coveredInside,
+  insideBox,
   placeCircleLabels,
   ringCentroid,
   sideBox,
   sideOrder,
 } from "./src/charts/features/circleLabelPlacement.js";
 export type {
+  BoxInset,
   CircleLabelBox,
   CircleLabelPlacement,
   CircleLabelRequest,
@@ -2303,9 +2307,13 @@ export type {
   PointLabelSettings,
 } from "./src/charts/features/circleLabels.js";
 export {
-  labelsOverCircles,
+  largestFirstRanks,
   plotCircleLabels,
 } from "./src/charts/Plot/circleLabels.js";
+export {
+  labelsWithShapes,
+  namesMark,
+} from "./src/charts/features/labelLayering.js";
 export {
   colorScaleColor,
   colorScaleValue,

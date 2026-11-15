@@ -2044,6 +2044,8 @@ export interface D3plusConfig {
         is short. Stacked bars always label inside.
       - Circles (Plot points, Network nodes, Geomap points): inside the
         circle, or beside it when it doesn't fit (`"outside"` always beside).
+        `"auto"` also moves it beside when a circle drawn over its own
+        covers it, and keeps it inside when no side has room.
       - Stacked areas: `"auto"` and `"along"` run each name along its band;
         `"inside"` puts it in the band's largest box.
 

@@ -21,6 +21,7 @@ import type {PieSweep} from "./arcFit.js";
 import {pieOutsideLabels} from "./outsideNodes.js";
 import {pieLabelPlan, pieSharePct} from "./pieLabels.js";
 import type {PieSlice} from "./pieLabels.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 const isDefaultSweep = (s: PieSweep) => s.start === 0 && s.end === FULL_TURN;
 
@@ -182,7 +183,7 @@ function stampLabelFlip(
   }
 }
 
-export const pieEmit: ChartEmit = ({viz, shapeData}) => {
+export const pieEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const slices = (shapeData ?? []) as Slice[];
   if (!slices.length) return [];
 
@@ -272,4 +273,4 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
       value,
     ),
   ];
-};
+});

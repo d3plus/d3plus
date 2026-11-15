@@ -28,7 +28,7 @@ import type {Shape} from "../../shapes/index.js";
 
 import {emitBarConfidence} from "../Plot/barConfidence.js";
 import {emitPointConfidence} from "../Plot/pointConfidence.js";
-import {labelsOverCircles, plotCircleLabels} from "../Plot/circleLabels.js";
+import {plotCircleLabels} from "../Plot/circleLabels.js";
 import {emitLineBands} from "../Plot/lineBands.js";
 import {lineLabelConfig} from "../Plot/lineLabelEmit.js";
 import {breakLines, clipBands, lineGaps} from "../Plot/connectGapsScene.js";
@@ -45,6 +45,7 @@ import {DEFAULT_TICK_LENGTH, jitterAccessor, plotBand} from "../Plot/jitter.js";
 import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
 import {lineMarkerKeys} from "../Plot/lineMarkerKeys.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
+import {labelsWithShapes} from "./labelLayering.js";
 import {boxLabelsOnly} from "../Plot/areaLabelsAlong.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -108,6 +109,9 @@ export interface ShapeEmitContext {
 
   /** Line rows with no plottable value, where `connectGaps` breaks lines. */
   missingRows?: PlotDatum[];
+
+  /** The circles paint largest first, as BubbleChart repaints them (see `largestFirst`). */
+  largestFirst?: boolean;
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -196,21 +200,35 @@ function finishShape(
   const besideLabels =
     key === "Circle" ? plotCircleLabels(ctx, s, userConfig) : null;
   s.render();
-  const nodes = collectComputed(s);
+  return markNodes(ctx, key, collectComputed(s, {pair: false}), besideLabels);
+}
+
+/**
+    A shape group's marks, error bars, and labels, in paint order: each
+    mark's labels paint with it (see `labelsWithShapes`), all but bar labels
+    under error bars, which paint over every error bar.
+*/
+function markNodes(
+  ctx: ShapeEmitContext,
+  key: string,
+  nodes: SceneNode[],
+  besideLabels: (() => SceneNode[]) | null,
+): SceneNode[] {
   // Points paint over their error bars.
   if (key === "Circle")
-    return labelsOverCircles([
+    return labelsWithShapes([
       ...emitPointConfidence(ctx, nodes),
       ...nodes,
       ...(besideLabels?.() ?? []),
     ]);
   // Areas grow out of the value axis's baseline.
   if (key === "Area") growAreasFromBaseline(ctx, nodes);
-  if (key !== "Bar") return nodes;
-  // Error bars paint over their bars but under the bar labels. Stacked bars
+  if (key !== "Bar") return labelsWithShapes(nodes);
+  // Error bars paint over their bars but under the bar labels, as a lower
+  // stack level's error bar reaches into the bar above it. Stacked bars
   // grow in one stack level after another.
   const errorBars = emitBarConfidence(ctx, nodes);
-  if (!errorBars.length) return stackEnterWindows(ctx, nodes);
+  if (!errorBars.length) return stackEnterWindows(ctx, labelsWithShapes(nodes));
   let last = -1;
   nodes.forEach((n, i) => {
     if (n.shapeType === "Bar") last = i;
