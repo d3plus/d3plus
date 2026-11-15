@@ -57,8 +57,11 @@ export interface TileContent {
   /** The inset around the content. */
   pad: number;
   label?: TileLine;
-  value: TileLine;
+  /** The value's line, left out of a tile too small to hold it. */
+  value?: TileLine;
   delta?: TileLine;
+  /** Whether the words after the delta have room. */
+  comparison: boolean;
   sparkline?: Box;
 }
 
@@ -78,52 +81,82 @@ export const MIN_SPARKLINE_HEIGHT = 16;
 /** The smallest value a tile keeps room for beside a sparkline, in pixels. */
 export const MIN_VALUE_SIZE = 18;
 
+/** The smallest any text in a tile is drawn; text that would be smaller is left out. */
+export const MIN_TEXT_SIZE = 8;
+
 /** The line height, as a multiple of the font size. */
 const LEADING = 1.25;
 
 const clamp = (v: number, lo: number, hi: number) =>
   Math.max(lo, Math.min(hi, v));
 
+/** The height of lines of these font sizes, `gap` apart. */
+const blockHeight = (sizes: number[], gap: number) =>
+  sizes.reduce((sum, s) => sum + s * LEADING, 0) +
+  Math.max(0, sizes.length - 1) * gap;
+
 /**
     Lays out a `width` × `height` tile: the label, the value, and the delta
     stacked from the top, and the sparkline filling the bottom. Font sizes
-    grow with the tile. A tile without a sparkline centers its text.
+    grow with the tile. A tile without a sparkline centers its text. In a
+    tile too short for its text, the value shrinks first; then the label and
+    delta shrink and the comparison words go, then the label, then the
+    delta, and last the value, so nothing is drawn outside the tile.
 */
 export function tileContent(
   width: number,
   height: number,
   parts: TileParts,
 ): TileContent {
-  const pad = clamp(Math.min(width, height) * 0.08, 6, 18);
+  const pad = Math.min(
+    clamp(Math.min(width, height) * 0.08, 6, 18),
+    Math.min(width, height) * 0.15,
+  );
   const inner = Math.max(0, height - pad * 2);
   const gap = clamp(height * 0.03, 2, 8);
-  const labelSize = parts.label ? clamp(height * 0.085, 10, 15) : 0;
-  const deltaSize = parts.delta ? clamp(height * 0.08, 10, 14) : 0;
-  const lines = [labelSize, deltaSize].filter(s => s > 0);
-  const textHeight = lines.reduce((sum, s) => sum + s * LEADING + gap, 0);
+  let labelSize = parts.label ? clamp(height * 0.085, 10, 15) : 0;
+  let deltaSize = parts.delta ? clamp(height * 0.08, 10, 14) : 0;
+  const lines = () => [labelSize, deltaSize].filter(s => s > 0);
+  // The room left for the value beside the other lines, as a font size.
+  const valueRoom = (extra = 0) =>
+    (inner - blockHeight(lines(), gap) - (lines().length ? gap : 0) - extra) /
+    LEADING;
   let spark = parts.sparkline ? Math.min(inner * 0.32, 96) : 0;
   // A sparkline gives way when it would leave the value too little room.
-  if (
-    spark < MIN_SPARKLINE_HEIGHT ||
-    (inner - textHeight - spark - gap) / LEADING < MIN_VALUE_SIZE
-  )
+  if (spark < MIN_SPARKLINE_HEIGHT || valueRoom(spark + gap) < MIN_VALUE_SIZE)
     spark = 0;
-  const room = inner - textHeight - (spark ? spark + gap : 0);
-  const valueSize = clamp(
-    room / LEADING,
-    12,
-    spark ? MAX_VALUE_SIZE : Math.min(MAX_VALUE_SIZE, inner * 0.45),
+  const cap = spark ? MAX_VALUE_SIZE : Math.min(MAX_VALUE_SIZE, inner * 0.45);
+  const preferred = clamp(valueRoom(spark ? spark + gap : 0), 12, cap);
+  let valueSize = Math.min(preferred, valueRoom(spark ? spark + gap : 0));
+  let comparison = true;
+  if (!spark && valueSize < 12) {
+    comparison = false;
+    if (labelSize) labelSize = MIN_TEXT_SIZE;
+    if (deltaSize) deltaSize = MIN_TEXT_SIZE;
+    valueSize = Math.min(preferred, valueRoom());
+    if (valueSize < 10 && labelSize) {
+      labelSize = 0;
+      valueSize = Math.min(preferred, valueRoom());
+    }
+    if (valueSize < 10 && deltaSize) {
+      deltaSize = 0;
+      valueSize = Math.min(preferred, valueRoom());
+    }
+  }
+  const hasValue = valueSize >= MIN_TEXT_SIZE;
+  const sizes = [labelSize, hasValue ? valueSize : 0, deltaSize].filter(
+    v => v > 0,
   );
-  const block = textHeight + valueSize * LEADING;
+  const block = blockHeight(sizes, gap);
   let y = spark ? pad : pad + Math.max(0, (inner - block) / 2);
   const line = (size: number): TileLine => {
     const out = {y: y + (size * LEADING) / 2, size};
     y += size * LEADING + gap;
     return out;
   };
-  const out: TileContent = {pad, value: {y: 0, size: valueSize}};
+  const out: TileContent = {pad, comparison};
   if (labelSize) out.label = line(labelSize);
-  out.value = line(valueSize);
+  if (hasValue) out.value = line(valueSize);
   if (deltaSize) out.delta = line(deltaSize);
   if (spark)
     out.sparkline = {

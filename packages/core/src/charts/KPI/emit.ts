@@ -8,6 +8,7 @@
 import {interpolateRgb} from "d3-interpolate";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode, TextNode} from "@d3plus/render";
+import {rtl as detectRTL, textWidth} from "@d3plus/dom";
 import {fontFamilyStringify} from "@d3plus/text";
 
 import type {ChartEmit} from "../definition/ChartDefinition.js";
@@ -37,6 +38,8 @@ export interface KpiStyle {
   rx: number;
   background: string;
   delta: DeltaColors;
+  /** Whether the page reads right to left. */
+  rtl: boolean;
 }
 
 /** The value's font weight. */
@@ -60,10 +63,14 @@ export function kpiStyle(viz: VizInstance): KpiStyle {
     rx: rx >= 0 ? rx : 6,
     background,
     delta: deltaColors(viz),
+    rtl: detectRTL(),
   };
 }
 
-/** A single line of text starting at `(x, y)`, centered on `y`. */
+/**
+    A single line of text starting at `(x, y)`, centered on `y`: running
+    rightward from `x`, or leftward with `rtl`.
+*/
 export function tileText(
   key: string,
   text: string,
@@ -75,6 +82,7 @@ export function tileText(
     color: string;
     width: number;
     weight?: number;
+    rtl?: boolean;
   },
 ): TextNode {
   return {
@@ -91,9 +99,31 @@ export function tileText(
       weight: opts.weight ?? 400,
       anchor: "start",
       baseline: "middle",
+      ...(opts.rtl ? {dir: "rtl" as const} : {}),
     },
     paint: {fill: opts.color},
   };
+}
+
+/**
+    The value's font size: `size`, or shrunk a little past where it measures
+    `width` wide, so a value that only just overflows shrinks instead of
+    being cut short (text doesn't measure exactly in proportion to its size).
+*/
+export function valueSize(
+  text: string,
+  family: string,
+  size: number,
+  width: number,
+): number {
+  const measured = textWidth(text, {
+    "font-family": family,
+    "font-size": size,
+    "font-weight": VALUE_WEIGHT,
+  });
+  return measured > width && measured > 0
+    ? (size * width * 0.97) / measured
+    : size;
 }
 
 /** The words after a tile's delta, such as "vs. previous", or "" for none. */
@@ -195,7 +225,11 @@ function sparklineNodes(
   return nodes;
 }
 
-/** The label, value, and delta lines of a tile. */
+/**
+    The label, value, and delta lines of a tile, from its start edge (the
+    left, or the right on a right-to-left page), with the comparison words
+    after the delta. A line that can't fit the tile's width is left out.
+*/
 function textNodes(
   viz: VizInstance,
   tile: KpiTile,
@@ -204,77 +238,73 @@ function textNodes(
   style: KpiStyle,
 ): SceneNode[] {
   const {data: d, i, box} = tile;
-  const x = content.pad;
+  const {rtl} = style;
+  const x = rtl ? box.width - content.pad : content.pad;
   const width = Math.max(0, box.width - content.pad * 2);
-  const common = {datum: d, index: i};
   const nodes: SceneNode[] = [];
+  const add = (
+    part: string,
+    text: string,
+    at: number,
+    y: number,
+    fit: {size: number; width: number},
+    color: string,
+    weight?: number,
+  ) => {
+    if (!text || fit.width > width + 0.5) return;
+    nodes.push({
+      ...tileText(`${key}-${part}`, text, at, y, {
+        size: fit.size,
+        family: style.family,
+        color,
+        width: fit.width,
+        weight,
+        rtl,
+      }),
+      datum: d,
+      index: i,
+    });
+  };
   if (content.label) {
     const {size, y} = content.label;
     const fit = fitText(viz._drawLabel(d, i), style.family, size, width, size);
-    nodes.push({
-      ...tileText(`${key}-label`, fit.text, x, y, {
-        size,
-        family: style.family,
-        color: style.muted,
-        width: fit.width,
-      }),
-      ...common,
-    });
+    add("label", fit.text, x, y, fit, style.muted);
   }
-  const valueFormat = viz.schema.valueFormat as (
-    v: number,
-    d: DataPoint,
-  ) => string;
-  const value = Number.isFinite(tile.value)
-    ? `${valueFormat(tile.value, d)}`
-    : "–";
-  const fit = fitText(
-    value,
-    style.family,
-    content.value.size,
-    width,
-    12,
-    VALUE_WEIGHT,
-  );
-  nodes.push({
-    ...tileText(`${key}-value`, fit.text, x, content.value.y, {
-      size: fit.size,
-      family: style.family,
-      color: style.text,
-      width: fit.width,
-      weight: VALUE_WEIGHT,
-    }),
-    ...common,
-  });
+  if (content.value) {
+    const valueFormat = viz.schema.valueFormat as (
+      v: number,
+      d: DataPoint,
+    ) => string;
+    const value = Number.isFinite(tile.value)
+      ? `${valueFormat(tile.value, d)}`
+      : "–";
+    const {y} = content.value;
+    const fit = fitText(
+      value,
+      style.family,
+      Math.max(
+        Math.min(12, content.value.size),
+        valueSize(value, style.family, content.value.size, width),
+      ),
+      width,
+      Math.min(12, content.value.size),
+      VALUE_WEIGHT,
+    );
+    add("value", fit.text, x, y, fit, style.text, VALUE_WEIGHT);
+  }
   const mode = deltaMode(viz.schema.delta);
   if (content.delta && tile.delta && mode) {
     const {size, y} = content.delta;
     const text = deltaText(tile.delta, mode, deltaFormats(viz, d));
     const change = fitText(text, style.family, size, width, size, 600);
-    nodes.push({
-      ...tileText(`${key}-delta`, change.text, x, y, {
-        size,
-        family: style.family,
-        color: style.delta[tile.tone],
-        width: change.width,
-        weight: 600,
-      }),
-      ...common,
-    });
-    const words = comparisonText(viz, d, i);
+    add("delta", change.text, x, y, change, style.delta[tile.tone], 600);
+    const words = content.comparison ? comparisonText(viz, d, i) : "";
     const gap = size * 0.4;
-    const room = width - change.width - gap;
     const compare = words && fitText(words, style.family, size, Infinity);
-    if (compare && compare.width <= room)
-      nodes.push({
-        ...tileText(`${key}-compare`, words, x + change.width + gap, y, {
-          size,
-          family: style.family,
-          color: style.muted,
-          width: compare.width,
-        }),
-        ...common,
-      });
+    if (compare && compare.width <= width - change.width - gap) {
+      const step = change.width + gap;
+      add("compare", words, rtl ? x - step : x + step, y, compare, style.muted);
+    }
   }
   return nodes;
 }

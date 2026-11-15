@@ -5,7 +5,7 @@
     <title>KPI</title>
     <meta
       name="description"
-      content="KPI tiles: a big value per metric with its change against the previous month (good or bad by deltaDirection) and a sparkline; previous values from data, bar sparklines in fixed columns, small multiples by region, a dark theme, and a timeline with a Spanish locale."
+      content="KPI tiles: a big value per metric with its change against the previous month (good or bad by deltaDirection) and a sparkline; previous values from data, bar sparklines in fixed columns, small multiples by region, a dark theme, a timeline with a Spanish locale, and short tiles that drop parts to fit."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -28,6 +28,9 @@
       }
       .viz {
         height: 360px;
+      }
+      .viz.short {
+        height: 110px;
       }
       .dark {
         background: #1d1f23;
@@ -68,6 +71,10 @@
       <div>
         <h3>timeline: true, locale: "es-ES"</h3>
         <div class="viz" id="locale"></div>
+      </div>
+      <div>
+        <h3>Short tiles: text shrinks, then drops, to stay inside</h3>
+        <div class="viz short" id="short"></div>
       </div>
     </div>
   </body>
@@ -188,6 +195,11 @@
         locale: "es-ES",
         timeline: true,
       })
+      .render();
+
+    new d3plus.KPI()
+      .select("#short")
+      .config({...base, data: north})
       .render();
   </script>
 </html>

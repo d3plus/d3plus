@@ -1802,6 +1802,7 @@ export {
   kpiStyle,
   tileText,
   VALUE_WEIGHT,
+  valueSize,
 } from "./src/charts/KPI/emit.js";
 export type {KpiStyle} from "./src/charts/KPI/emit.js";
 export {
