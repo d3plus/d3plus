@@ -8,6 +8,7 @@ import {constant} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
+import {pathSeries} from "./pathSeries.js";
 import type {LineConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
 
@@ -19,6 +20,7 @@ const lineSchema: ConfigField[] = [
     coerce: "identity",
     default: (d: DataPoint) => d as unknown as DataPoint[keyof DataPoint],
   },
+  {key: "pointKey", coerce: "identity", default: null},
 ];
 
 /**
@@ -127,7 +129,20 @@ export default class Line extends Shape {
       .defined(this.schema.defined)
       .x((v: DataPoint, z: number) => (this.schema.x(v, z) as number) - cx)
       .y((v: DataPoint, z: number) => (this.schema.y(v, z) as number) - cy);
-    return {type: "path", d: gen(d.values as unknown as DataPoint[]) || ""};
+    const values = d.values as unknown as DataPoint[];
+    return {
+      type: "path",
+      d: gen(values) || "",
+      ...pathSeries(values, {
+        key: this.schema.pointKey,
+        curve: userCurve,
+        defined: this.schema.defined,
+        x: this.schema.x,
+        y: this.schema.y,
+        cx,
+        cy,
+      }),
+    };
   }
 
   /**
