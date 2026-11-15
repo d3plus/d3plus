@@ -12,9 +12,8 @@ import type {ColorDefaultsConfig, D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
 import type {ResolvedTheme} from "./theme.js";
 import {
-  containsReset,
-  isPlainObject,
   mergeConfigBag,
+  nestedReset,
   resolvesReset,
   RESOLVES_RESET,
 } from "../fluent.js";
@@ -26,29 +25,6 @@ import {
   type ElementsSource,
 } from "./className.js";
 import {displayName} from "./displayName.js";
-
-/**
-    Swaps every nested `RESET` in a config value for the matching entry of
-    `defaults`, dropping the key when that default is `undefined`. Objects
-    holding a `RESET` are copied on the way down, so the caller's value is
-    untouched; any other value passes through as is.
-    @private
-*/
-function nestedReset(value: unknown, defaults: unknown): unknown {
-  if (!isPlainObject(value) || !containsReset(value)) return value;
-  const out: Record<string, unknown> = {...value};
-  const fallbacks = isObject(defaults)
-    ? (defaults as Record<string, unknown>)
-    : {};
-  for (const key of Object.keys(out)) {
-    if (key.startsWith("_")) continue;
-    if (out[key] === RESET) {
-      if (fallbacks[key] === undefined) delete out[key];
-      else out[key] = fallbacks[key];
-    } else out[key] = nestedReset(out[key], fallbacks[key]);
-  }
-  return out;
-}
 
 type Setter = ((v: unknown) => unknown) & {[RESOLVES_RESET]?: boolean};
 

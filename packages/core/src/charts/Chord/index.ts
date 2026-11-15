@@ -19,6 +19,7 @@ import constant from "../../utils/constant.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {resetArg} from "../../fluent.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
 
@@ -146,6 +147,7 @@ export const chordDef: ChartDefinition = {
     };
     v.value = function (this: VizInstance, _: unknown) {
       if (!arguments.length) return this.schema.value;
+      _ = resetArg(this, "value", _);
       this.schema.value = (
         typeof _ === "function"
           ? (_ as (...a: unknown[]) => unknown)

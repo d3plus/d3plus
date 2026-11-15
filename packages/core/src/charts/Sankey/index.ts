@@ -22,6 +22,7 @@ import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {resetArg} from "../../fluent.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
 
@@ -172,6 +173,7 @@ export const sankeyDef: ChartDefinition = {
         @type {"justify" | "left" | "right" | "center" | function}
     */
     v.nodeAlign = function (this: VizInstance, _: unknown) {
+      _ = resetArg(this, "nodeAlign", _);
       return arguments.length
         ? ((this.schema.nodeAlign =
             typeof _ === "function"
@@ -208,6 +210,7 @@ export const sankeyDef: ChartDefinition = {
     */
     v.value = function (this: VizInstance, _: unknown) {
       if (!arguments.length) return this.schema.value;
+      _ = resetArg(this, "value", _);
       this.schema.value = (
         typeof _ === "function"
           ? (_ as (...a: unknown[]) => unknown)

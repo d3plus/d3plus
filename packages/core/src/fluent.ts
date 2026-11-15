@@ -7,6 +7,8 @@
     of being copy-pasted per chart.
 */
 
+import {isObject} from "@d3plus/dom";
+
 import type {VizInstance} from "./charts/viz/vizTypes.js";
 import accessor from "./utils/accessor.js";
 import constant from "./utils/constant.js";
@@ -92,6 +94,43 @@ export function mergeConfig(
 export function containsReset(value: unknown): boolean {
   if (value === RESET) return true;
   return isPlainObject(value) && Object.values(value).some(containsReset);
+}
+
+/**
+    Swaps every nested `RESET` in a config value for the matching entry of
+    `defaults`, dropping the key when that default is `undefined`. Objects
+    holding a `RESET` are copied on the way down, so the caller's value is
+    untouched; any other value passes through as is.
+    @private
+*/
+export function nestedReset(value: unknown, defaults: unknown): unknown {
+  if (!isPlainObject(value) || !containsReset(value)) return value;
+  const out: Record<string, unknown> = {...value};
+  const fallbacks = isObject(defaults)
+    ? (defaults as Record<string, unknown>)
+    : {};
+  for (const key of Object.keys(out)) {
+    if (key.startsWith("_")) continue;
+    if (out[key] === RESET) {
+      if (fallbacks[key] === undefined) delete out[key];
+      else out[key] = fallbacks[key];
+    } else out[key] = nestedReset(out[key], fallbacks[key]);
+  }
+  return out;
+}
+
+/**
+    A hand-written setter's argument, with a whole-value `RESET` swapped for
+    the host's default snapshot entry under `key`, so `viz.key(RESET)`
+    restores the default `config({key: RESET})` does.
+    @private
+*/
+export function resetArg(
+  host: FluentHost,
+  key: string,
+  value: unknown,
+): unknown {
+  return value === RESET ? host._defaultConfig?.()[key] : value;
 }
 
 /**
@@ -304,6 +343,40 @@ export function isSetEntry(host: object, key: string, entry: string): boolean {
 
 const FLUENT_ACCESSOR = Symbol("d3plus.fluentAccessor");
 
+/** The seed of a generated accessor's field, or of the nearest field it overrides that has one. */
+const FIELD_SEED = Symbol("d3plus.fieldSeed");
+
+type FieldSeed = (host: FluentHost) => unknown;
+
+/** Whether `field` declares its own default (a `default` or a `factory`). */
+function hasSeed(field: ConfigField): boolean {
+  return "default" in field || field.factory !== undefined;
+}
+
+/** The value `field` seeds `host` with: its default or factory output, coerced and decorated. */
+function seedValue(field: ConfigField, host: unknown): unknown {
+  const raw =
+    "default" in field
+      ? field.default
+      : (field.factory as (v: unknown) => unknown)(host);
+  const value = coerceValue(field, raw);
+  return field.decorate ? field.decorate(host as VizInstance, value) : value;
+}
+
+/**
+    The value `RESET` restores a generated accessor's field to: the host's
+    default snapshot entry, or the field's seed for a key the snapshot leaves
+    out (such as `layout`) or a host without one.
+*/
+function defaultValue(
+  host: FluentHost,
+  key: string,
+  seed: FieldSeed | undefined,
+): unknown {
+  const defaults = host._defaultConfig?.();
+  return defaults && key in defaults ? defaults[key] : seed?.(host);
+}
+
 /** The schemas already installed on each prototype. */
 const installedSchemas = new WeakMap<object, WeakSet<ConfigField[]>>();
 
@@ -357,6 +430,12 @@ function isHandWritten(proto: object, key: string): boolean {
     to a generated accessor is re-installed, so a subclass's schema (which its
     constructor installs after its parent's) replaces the parent's accessor.
 
+    Every generated accessor resolves `RESET` itself, the same whether it is
+    called directly or through `config()`: a whole-value `RESET` restores the
+    host's default snapshot entry (or, for a key the snapshot leaves out, the
+    field's own default, or that of the field it overrides), and a nested one
+    the matching entry of it.
+
     @param target Object to install methods on (typically a class instance).
     @param schema The config fields to install.
     @param defaults Default values (applied to `this.schema.<key>` when unset).
@@ -382,16 +461,11 @@ export function installFluent(
     //   - field.default / field.factory: declared by the chart def; an
     //     explicit claim that overrides any parent-set value.
     //   - defaults parameter: caller-supplied seed; only applies when unset.
-    const fieldHasSeed = "default" in field || field.factory !== undefined;
+    const fieldHasSeed = hasSeed(field);
     const paramHasSeed = key in defaults;
 
     if (fieldHasSeed) {
-      const raw =
-        "default" in field
-          ? field.default
-          : (field.factory as (v: typeof target) => unknown)(target);
-      let value = coerceValue(field, raw);
-      if (field.decorate) value = field.decorate(target, value);
+      const value = seedValue(field, target);
       const existing = target.schema[key];
       const merged =
         field.merge && isPlainObject(value)
@@ -417,18 +491,35 @@ export function installFluent(
   for (const field of schema) {
     if (isHandWritten(proto, field.key)) continue;
     const key = field.key;
+    const inherited = proto[key];
+    const seed: FieldSeed | undefined = hasSeed(field)
+      ? host => seedValue(field, host)
+      : isFluentAccessor(inherited)
+        ? inherited[FIELD_SEED]
+        : undefined;
     proto[key] = function (this: FluentHost, ...args: unknown[]) {
       if (!args.length) return this.schema[key];
-      const value = coerceValue(field, args[0]);
-      if (field.merge) noteSetEntries(this, key, value);
-      const next = field.merge ? mergeFieldValue(this, key, value) : value;
+      let next: unknown;
+      if (field.merge) {
+        const value = coerceValue(field, args[0]);
+        noteSetEntries(this, key, value);
+        next = mergeFieldValue(this, key, value);
+      } else if (args[0] === RESET)
+        next = cloneConfig(defaultValue(this, key, seed));
+      else if (containsReset(args[0]))
+        next = coerceValue(
+          field,
+          nestedReset(args[0], defaultValue(this, key, seed)),
+        );
+      else next = coerceValue(field, args[0]);
       this.schema[key] = next;
       // `onSet` is declared only by Viz chart defs; at runtime `this` is that
       // Viz instance, so the cast across the generic accessor body is sound.
       field.onSet?.(this as unknown as VizInstance, next);
       return this;
     };
-    if (field.merge) proto[key][RESOLVES_RESET] = true;
+    proto[key][RESOLVES_RESET] = true;
+    proto[key][FIELD_SEED] = seed;
     Object.defineProperty(proto[key], FLUENT_ACCESSOR, {value: true});
   }
 }
