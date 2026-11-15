@@ -218,6 +218,13 @@ export interface VizInstance {
       when unset.
   */
   _colorScaleRows?: () => DataPoint[];
+  /**
+      The value the colorScale reads from a row, for a chart whose colored
+      marks aren't its rows (a Geomap's `hexbin` bins): in place of the
+      chart's `colorScale` while it returns one.
+  */
+  _colorScaleAccessor?: () =>
+    ((d: DataPoint, i: number) => unknown) | undefined;
   _timeFilter?: (d: DataPoint, i: number) => boolean;
 
   /* 3. Grouping & aggregation */
@@ -243,6 +250,8 @@ export interface VizInstance {
   _size?: (d: DataPoint, i?: number) => number;
   /** The data key `size` was set to, when it was set with a string; the size legend's default title. */
   _sizeKey?: string;
+  /** The marks the size legend draws: circles, or squares for a Demers cartogram. */
+  _sizeLegendShape?: "circle" | "square";
   _time?: (d: DataPoint, i: number) => string | number | Date;
   _label?: (d: DataPoint, i: number) => string;
   _sum?: (d: DataPoint, i: number) => number;

@@ -10,11 +10,7 @@ import type {TimeLocaleDefinition as D3TimeLocale} from "d3-time-format";
 import type {DataPoint} from "@d3plus/data";
 import {dateFullFormatter, formatAbbreviate} from "@d3plus/format";
 
-import {
-  normalizeRangeBreaks,
-  visibleBetween,
-} from "../../components/Axis/rangeBreaks.js";
-import type {RangeBreakRule} from "../../components/Axis/rangeBreaks.js";
+import {visibleBetween} from "../../components/Axis/rangeBreaks.js";
 import {calendarTimeLocale} from "../Calendar/calendarFormat.js";
 import {
   isTimeAxis,
@@ -24,7 +20,9 @@ import {
 } from "../Priestley/timeAxis.js";
 import type {TimeValue} from "../Priestley/timeAxis.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {isDateOnly, offsetDays, workingBreaks} from "./ganttCalendar.js";
 import {isMilestone, normalizeProgress} from "./ganttRows.js";
+import {taskSlack} from "./ganttSlack.js";
 
 type RowFn = ((d: DataPoint, i: number) => unknown) | false | undefined;
 
@@ -59,22 +57,10 @@ export function timeFormatter(
 }
 
 /**
-    The time axis's `rangeBreaks` rules (from `axisConfig`) when they hide
-    whole days (weekends, weekdays, dates, or explicit ranges), else none: a
-    rule hiding hours of every day leaves no whole days to count.
-    @param viz The chart.
-*/
-export function ganttDayBreaks(viz: VizInstance): RangeBreakRule[] {
-  const config = viz.schema.axisConfig as {rangeBreaks?: unknown} | undefined;
-  const rules = normalizeRangeBreaks(config?.rangeBreaks);
-  return rules.some(r => typeof r === "object" && "hours" in r) ? [] : rules;
-}
-
-/**
-    A task's duration: whole (or tenths of) days on a time axis, translated
-    ("12 days"), else the difference of its end and start. When the axis's
-    `rangeBreaks` hide whole days (see `ganttDayBreaks`), only the days left
-    showing count ("8 working days").
+    A task's duration: whole (or tenths of) days on a time axis, translated,
+    counting only working days ("8 working days"; see `workingBreaks`), or
+    every day ("12 days") when `criticalPathConfig.workingDays` is false
+    and the axis hides no days; else the difference of its end and start.
 */
 export function ganttDuration(
   viz: VizInstance,
@@ -83,13 +69,28 @@ export function ganttDuration(
 ): string {
   const span = +end - +start;
   if (!isTimeAxis(viz)) return formatAbbreviate(span, viz.schema.locale);
-  const rules = ganttDayBreaks(viz);
+  const rules = workingBreaks(viz);
   const shown = rules.length
     ? visibleBetween(rules, +start, +end, isUtcAxis(viz))
     : span;
-  const days = Math.round((shown / DAY) * 10) / 10;
+  return daysLabel(viz, shown, rules.length > 0);
+}
+
+/**
+    A span of time in whole (or tenths of) days, translated ("3 days", or
+    "3 working days" when `working`); negative spans keep their sign.
+    @param viz The chart.
+    @param ms The span, in milliseconds.
+    @param working Whether the span counts only working days.
+*/
+export function daysLabel(
+  viz: VizInstance,
+  ms: number,
+  working: boolean,
+): string {
+  const days = Math.round((ms / DAY) * 10) / 10 || 0;
   const unit = viz.schema.translate(
-    `${rules.length ? "working " : ""}${days === 1 ? "day" : "days"}`,
+    `${working ? "working " : ""}${Math.abs(days) === 1 ? "day" : "days"}`,
   );
   return `${dayCount(days, viz.schema.locale)} ${unit}`;
 }
@@ -114,15 +115,22 @@ export const percent = (share: number): string => `${Math.round(share * 100)}%`;
 /** A task's times, milestone flag, and progress. */
 export interface TaskTimes {
   start: TimeValue;
+  /** Where the task ends: the end of its last day when `inclusive`. */
   end: TimeValue;
   milestone: boolean;
   progress: number | undefined;
+  /** Whether the end named a whole day (see `isDateOnly`) the task runs through; never a milestone. */
+  inclusive: boolean;
+  /** Whether the task is a milestone on a whole day, which accepts predecessors finishing within it. */
+  wholeDay: boolean;
 }
 
 /**
     Reads a row's start, end, milestone flag, and progress. A missing start
     or end takes the other's value, and reversed times are swapped; null
-    when both are missing.
+    when both are missing. An end naming a whole day (`"2024-03-08"`) runs
+    through the end of that day. A milestone is a point at its start: the
+    start of its day, when it names a whole day.
 */
 export function taskTimes(
   viz: VizInstance,
@@ -131,26 +139,41 @@ export function taskTimes(
 ): TaskTimes | null {
   const time = isTimeAxis(viz);
   const utc = isUtcAxis(viz);
-  let start = parseTime(rowTime(viz, "start", d, i), time, utc);
-  let end = parseTime(rowTime(viz, "end", d, i), time, utc);
+  const read = (key: "start" | "end") => {
+    const raw = rowTime(viz, key, d, i);
+    const t = parseTime(raw, time, utc);
+    return t === null ? null : {t, day: time && isDateOnly(raw)};
+  };
+  let start = read("start");
+  let end = read("end");
   if (start === null && end === null) return null;
-  start ??= end;
+  start ??= end!;
   end ??= start;
-  if (+end! < +start!) [start, end] = [end, start];
+  if (+end.t < +start.t) [start, end] = [end, start];
   const milestoneFn = viz.schema.milestone as RowFn;
   const progressFn = viz.schema.progress as RowFn;
+  const milestone = isMilestone(
+    start.t,
+    end.t,
+    typeof milestoneFn === "function" ? milestoneFn(d, i) : undefined,
+  );
+  // A milestone is a point at its start (the start of its day).
+  const inclusive = end.day && !milestone;
   return {
-    start: start!,
-    end: end!,
-    milestone: isMilestone(
-      start!,
-      end!,
-      typeof milestoneFn === "function" ? milestoneFn(d, i) : undefined,
-    ),
+    start: start.t,
+    end: milestone ? start.t : inclusive ? offsetDays(end.t, 1, utc) : end.t,
+    milestone,
     progress: normalizeProgress(
       typeof progressFn === "function" ? progressFn(d, i) : undefined,
     ),
+    inclusive,
+    wholeDay: milestone && start.day,
   };
+}
+
+/** The end a task shows in its tooltip and aria label: the day it runs through. */
+export function shownEnd(times: TaskTimes, utc = false): TimeValue {
+  return times.inclusive ? offsetDays(times.end, -1, utc) : times.end;
 }
 
 /** The layout's start/end formatter, or one built from this row alone. */
@@ -165,7 +188,8 @@ function formatFor(
 
 /**
     The tooltip rows for a task: Start, End, Duration, and Progress, or a
-    milestone's date and Progress, each label translated.
+    milestone's date and Progress, then its slack (see `slackRows`), each
+    label translated.
 */
 export function ganttTooltipRows(
   viz: VizInstance,
@@ -176,21 +200,48 @@ export function ganttTooltipRows(
   if (!task) return [];
   const t = (s: string) => viz.schema.translate(s);
   const format = formatFor(viz, [task.start, task.end]);
+  const end = shownEnd(task, isUtcAxis(viz));
   const rows: [string, string][] = task.milestone
-    ? [[t("Milestone"), format(task.end)]]
+    ? [[t("Milestone"), format(end)]]
     : [
         [t("Start"), format(task.start)],
-        [t("End"), format(task.end)],
+        [t("End"), format(end)],
         [t("Duration"), ganttDuration(viz, task.start, task.end)],
       ];
   if (task.progress !== undefined)
     rows.push([t("Progress"), percent(task.progress)]);
+  return [...rows, ...slackRows(viz, d, format)];
+}
+
+/**
+    A task's Slack and, when it has any, its Latest start, while the chart
+    draws a critical path; else none. Slack reads in working days unless
+    `criticalPathConfig.workingDays` is false and the axis hides no days.
+    @param viz The chart.
+    @param d The task's data row.
+    @param format Formats a start or end.
+*/
+export function slackRows(
+  viz: VizInstance,
+  d: DataPoint,
+  format: (v: TimeValue) => string,
+): [string, string][] {
+  const info = taskSlack(viz, d);
+  if (!info) return [];
+  const t = (s: string) => viz.schema.translate(s);
+  const slack = isTimeAxis(viz)
+    ? daysLabel(viz, info.slack, info.working)
+    : formatAbbreviate(info.slack, viz.schema.locale);
+  const rows: [string, string][] = [[t("Slack"), slack]];
+  if (info.slack !== 0)
+    rows.push([t("Latest start"), format(info.latestStart)]);
   return rows;
 }
 
 /**
-    A task's aria label: its name and span (or a milestone's date), and its
-    progress, such as `"Design, Jan 8, 2024 - Jan 19, 2024, Progress 60%."`.
+    A task's aria label: its name and span (or a milestone's date), its
+    progress, and whether it's on the critical path, such as
+    `"Design, Jan 8, 2024 - Jan 19, 2024, Progress 60%, Critical path."`.
 */
 export function ganttAriaLabel(
   viz: VizInstance,
@@ -201,12 +252,16 @@ export function ganttAriaLabel(
   const task = taskTimes(viz, d, i);
   if (!task) return `${name}.`;
   const format = formatFor(viz, [task.start, task.end]);
+  const end = shownEnd(task, isUtcAxis(viz));
   const when = task.milestone
-    ? `${viz.schema.translate("Milestone")} ${format(task.end)}`
-    : `${format(task.start)} - ${format(task.end)}`;
+    ? `${viz.schema.translate("Milestone")} ${format(end)}`
+    : `${format(task.start)} - ${format(end)}`;
   const progress =
     task.progress === undefined
       ? ""
       : `, ${viz.schema.translate("Progress")} ${percent(task.progress)}`;
-  return `${name}, ${when}${progress}.`;
+  const critical = taskSlack(viz, d)?.critical
+    ? `, ${viz.schema.translate("Critical path")}`
+    : "";
+  return `${name}, ${when}${progress}${critical}.`;
 }

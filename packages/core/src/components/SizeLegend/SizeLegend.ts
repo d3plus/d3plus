@@ -52,6 +52,7 @@ const sizeLegendSchema: ConfigField[] = [
   {key: "padding", coerce: "identity", default: 4},
   {key: "renderMode", coerce: "identity", default: "full"},
   {key: "scale", coerce: "identity"},
+  {key: "shape", coerce: "identity", default: "circle"},
   {key: "tickFormat", coerce: "identity"},
   {key: "title", coerce: "identity"},
   {key: "values", coerce: "identity"},
@@ -234,16 +235,31 @@ export default class SizeLegend extends BaseClass {
     const labelFamily = familyString(label.fontFamily);
     const children: SceneNode[] = [];
 
+    const square = this.schema.shape === "square";
+    // A square is drawn where its circle would be, its side the diameter.
     layout.circles.forEach(c =>
-      children.push({
-        type: "circle",
-        key: `circle-${c.value}`,
-        interactive: false,
-        cx: c.cx,
-        cy: c.cy,
-        r: c.r,
-        paint: {...shape},
-      }),
+      children.push(
+        square
+          ? {
+              type: "rect",
+              key: `square-${c.value}`,
+              interactive: false,
+              x: c.cx - c.r,
+              y: c.cy - c.r,
+              width: 2 * c.r,
+              height: 2 * c.r,
+              paint: {...shape},
+            }
+          : {
+              type: "circle",
+              key: `circle-${c.value}`,
+              interactive: false,
+              cx: c.cx,
+              cy: c.cy,
+              r: c.r,
+              paint: {...shape},
+            },
+      ),
     );
     layout.lines.forEach(l =>
       children.push({
