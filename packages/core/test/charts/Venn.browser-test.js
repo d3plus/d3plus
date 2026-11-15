@@ -228,4 +228,83 @@ for (const renderer of ["svg", "canvas"]) {
     assert.deepStrictEqual(out.facetKeys, ["facet-2023", "facet-2024"]);
     assert.strictEqual(out.facetPaths, 6);
   });
+
+  it(`Venn (${renderer}): with proportional false, four and five sets draw every combination on ellipses, and hovering one lights it and the regions inside it`, async () => {
+    const out = await page(async renderer => {
+      const combos = names => {
+        const rows = [];
+        for (let mask = 1; mask < 1 << names.length; mask++) {
+          const sets = names.filter((_, k) => mask & (1 << k));
+          rows.push({sets, size: 60 - sets.length * 10});
+        }
+        return rows;
+      };
+      const four = await window.build({
+        renderer,
+        data: combos(["A", "B", "C", "D"]),
+        config: {proportional: false},
+      });
+      const fourPaths = window.regions(four).length;
+      const polygons = Object.keys(four.ctx.vennPolygons);
+      document.querySelector("#viz").innerHTML = "";
+      const five = await window.build({
+        renderer,
+        data: combos(["A", "B", "C", "D", "E"]),
+        config: {proportional: false},
+      });
+      const fivePaths = window.regions(five).length;
+      const labels = window
+        .flat(five._chartScene)
+        .filter(
+          n => n.type === "text" && /venn-label/.test(String(n.key)),
+        ).length;
+      const laid = five.ctx.vennRegions.find(r => r.sets.join() === "A,C");
+      const target = window
+        .regions(five)
+        .find(n => window.setsOf(n).join() === "A,C");
+      const host = document.querySelector(
+        renderer === "svg" ? "#viz svg.d3plus-render-svg" : "#viz canvas",
+      );
+      const box = host.getBoundingClientRect();
+      const t = five._chartTransform || {};
+      const clientX = box.left + (t.x || 0) + laid.label.x;
+      const clientY = box.top + (t.y || 0) + laid.label.y;
+      if (renderer === "canvas")
+        host.dispatchEvent(
+          new MouseEvent("mousemove", {clientX, clientY, bubbles: true}),
+        );
+      else
+        for (const type of ["mouseenter", "mousemove"])
+          five._routeSceneEvent({
+            type,
+            point: [1, 1],
+            pick: {node: target, datum: target.datum, index: target.index},
+            nativeEvent: {stopPropagation() {}, clientX, clientY},
+          });
+      await window.wait(150);
+      const bright = window
+        .regions(five)
+        .filter(n => five._hover && five._hover(n.datum, n.index))
+        .map(n => window.setsOf(n).join(""));
+      const tooltip = document.querySelector(".d3plus-tooltip");
+      return {
+        fourPaths,
+        polygons,
+        fivePaths,
+        labels,
+        bright,
+        tooltip: tooltip ? tooltip.textContent : "",
+      };
+    }, renderer);
+    assert.strictEqual(out.fourPaths, 15);
+    assert.deepStrictEqual(out.polygons, ["A", "B", "C", "D"]);
+    assert.strictEqual(out.fivePaths, 31);
+    assert.ok(out.labels > 0, "labels");
+    assert.deepStrictEqual(
+      out.bright.sort(),
+      ["AC", "ABC", "ACD", "ACE", "ABCD", "ABCE", "ACDE", "ABCDE"].sort(),
+    );
+    assert.ok(/A ∩ C/.test(out.tooltip), out.tooltip);
+    assert.ok(/Value\s*40/.test(out.tooltip), out.tooltip);
+  });
 }
