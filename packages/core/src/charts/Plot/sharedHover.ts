@@ -12,6 +12,7 @@ import {facetPanelAt} from "../facet/facetPanel.js";
 import {linkAs} from "../viz/linkGroup.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {leavesSurface} from "../drawSteps/gestureHover.js";
 import {
   renderSharedTooltip,
   renderSingleTooltip,
@@ -508,13 +509,10 @@ export function handleSharedHover(viz: VizInstance, event: SceneEvent): void {
       hover = resolveHover(viz, event, [cx, cy], inside);
     }
   }
-  // Only leaving the whole surface clears; a node-to-node hand-off also
-  // dispatches "mouseleave" (from a native mousemove) and is followed by a move.
-  else if (
-    event.type !== "mouseleave" ||
-    (event.nativeEvent && event.nativeEvent.type !== "mouseleave")
-  )
-    return;
+  // Only leaving the whole chart clears (see `leavesSurface`); a
+  // node-to-node hand-off also dispatches "mouseleave" and is followed by a
+  // move.
+  else if (!leavesSurface(viz, event)) return;
   const prev = viz._sharedHoverState;
   if (hover) {
     viz._sharedHoverActive = true;

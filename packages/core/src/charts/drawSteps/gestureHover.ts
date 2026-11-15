@@ -10,6 +10,8 @@
     @module
 */
 
+import type {SceneEvent} from "@d3plus/render";
+
 import type {ZoomGestureEvent} from "./zoomGesture.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -48,6 +50,23 @@ export function gestureMoves(
 /** Whether a zoom gesture is moving the chart, so pointer events wait. */
 export function gestureHolds(viz: Pick<VizInstance, "_gestureHover">): boolean {
   return !!viz._gestureHover?.moving;
+}
+
+/**
+    Whether a routed "mouseleave" leaves the whole chart: one the pointer
+    makes off the drawing surface, or the one a moving zoom gesture sends
+    (see `leaveHover`), as opposed to the leave that crossing from one node
+    to the next fires ahead of its move.
+    @param viz The chart.
+    @param event The routed scene event.
+*/
+export function leavesSurface(
+  viz: Pick<VizInstance, "_gestureHover">,
+  event: SceneEvent,
+): boolean {
+  if (event.type !== "mouseleave") return false;
+  const native = event.nativeEvent as Event | undefined;
+  return !native || native.type === "mouseleave" || gestureHolds(viz);
 }
 
 /** A zoom gesture begins (d3-zoom's "start"). */

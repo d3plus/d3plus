@@ -20,6 +20,7 @@ import {
 } from "../Plot/sharedTooltip.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {leavesSurface} from "../drawSteps/gestureHover.js";
 import {HORIZON_ROW} from "./emit.js";
 import {handleRowLabel} from "./rowFilter.js";
 import {
@@ -210,13 +211,10 @@ export function handleHorizonHover(viz: VizInstance, event: SceneEvent): void {
         );
     }
   }
-  // Only leaving the whole surface clears; a node-to-node hand-off also
-  // dispatches "mouseleave" and is followed by a move.
-  else if (
-    event.type !== "mouseleave" ||
-    (event.nativeEvent && event.nativeEvent.type !== "mouseleave")
-  )
-    return;
+  // Only leaving the whole chart clears (see `leavesSurface`); a
+  // node-to-node hand-off also dispatches "mouseleave" and is followed by a
+  // move.
+  else if (!leavesSurface(viz, event)) return;
   const prev = viz._sharedHoverState;
   if (hover) {
     viz._sharedHoverActive = true;
