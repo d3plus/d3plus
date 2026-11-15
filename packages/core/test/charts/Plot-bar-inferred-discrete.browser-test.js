@@ -6,10 +6,10 @@ import {probeChart, sceneNodes} from "~test/browser/helpers.js";
     A Plot drawing Bars, Areas, or Boxes with no `discrete` and numbers on
     both axes stands them on x, as a BarChart, AreaPlot, or BoxWhisker does
     (see `Plot/inferDiscrete.ts`), on both renderers: every bar draws, one
-    slot per x value, series side by side. Bars grow from `0`, as a
-    BarChart's do, unless the chart sets a baseline; areas with no baseline
-    fill down to the value axis's low end. A swarm can't pack bars, so it's
-    off for them, with a warning.
+    slot per x value, series side by side. Bars and areas grow from `0`, as
+    a BarChart's and AreaPlot's do, unless a baseline is set. A swarm packs
+    only the circles beside them, in their lanes; with no circles it has
+    nothing to do, and says so once.
 */
 
 const data = ["A", "B"].flatMap((id, k) =>
@@ -45,8 +45,12 @@ const read = viz => {
     sceneNodes(body ? body.children : []).filter(
       n => n.shapeType === type && n.datum && !`${n.key}`.endsWith("::hit"),
     );
+  const circles = sceneNodes(body ? body.children : [])
+    .filter(n => n.type === "circle" && n.shapeType === "Circle" && n.datum)
+    .map(n => [n.transform.x, n.transform.y]);
   return {
     bars,
+    circles,
     areas: shapes("Area").map(n => n.d),
     // A Box draws its body as a rect keyed `<id>-box`.
     boxes: sceneNodes(body ? body.children : []).filter(
@@ -162,8 +166,88 @@ for (const renderer of ["svg", "canvas"]) {
     for (const b of out.bars) assert.ok(b.height > 0, JSON.stringify(b));
   });
 
+  it(`Plot ${renderer} — a swarm packs the circles beside bars, in their lanes`, async () => {
+    const years = [2020, 2021, 2022];
+    const rows = [
+      ...years.map((year, j) => ({
+        id: `avg-${year}`,
+        kind: "Bar",
+        year,
+        value: 10 + j,
+      })),
+      ...years.flatMap(year =>
+        [0, 1, 2, 3, 4, 5].map(r => ({
+          id: `p${r}-${year}`,
+          kind: "Circle",
+          year,
+          value: 8 + (r % 2),
+        })),
+      ),
+    ];
+    const draw = chain =>
+      probeChart(
+        `(lib, data) => {
+          ${capture}
+          return new lib.Plot().data(data).groupBy("id").x("year").y("value").shape(d => d.kind)${chain};
+        }`,
+        read,
+        {data: rows, renderer},
+      );
+    const flat = await draw("");
+    const packed = await draw(".swarm(true)");
+    for (const out of [flat, packed]) {
+      assert.deepStrictEqual(out.errors, [], "draws without an error");
+      assert.deepStrictEqual(out.warnings, [], "nothing to warn about");
+      assert.strictEqual(out.bars.length, 3, "every bar draws");
+      assert.strictEqual(out.circles.length, 18, "every circle draws");
+      assert.strictEqual(out.xScale, "point");
+    }
+    const spots = out =>
+      new Set(out.circles.map(c => c.map(Math.round).join())).size;
+    // Unpacked, the circles of a year share two spots; packed, each has its own.
+    assert.strictEqual(spots(flat), 6);
+    assert.strictEqual(spots(packed), 18);
+    // Each year's circles stay in that year's lane, over its bar.
+    const xs = out => out.bars.map(b => b.x).sort((a, b) => a - b);
+    const lane = Math.min(
+      ...xs(packed)
+        .slice(1)
+        .map((x, i) => x - xs(packed)[i]),
+    );
+    for (const [x] of packed.circles)
+      assert.ok(
+        xs(packed).some(b => Math.abs(b - x) < lane / 2),
+        `${x} sits in a lane`,
+      );
+  });
+
+  it(`Plot ${renderer} — swarm("x") stands the bars beside it on y`, async () => {
+    const rows = [
+      {id: "avg", kind: "Bar", year: 2020, value: 10},
+      ...[0, 1, 2, 3].map(r => ({
+        id: `p${r}`,
+        kind: "Circle",
+        year: 2020,
+        value: 9 + (r % 2),
+      })),
+    ];
+    const out = await probeChart(
+      `(lib, data) => {
+        ${capture}
+        return new lib.Plot().data(data).groupBy("id").x("value").y("year").shape(d => d.kind).swarm("x");
+      }`,
+      read,
+      {data: rows, renderer},
+    );
+    assert.deepStrictEqual(out.errors, [], "draws without an error");
+    assert.strictEqual(out.yScale, "point", "bars stand on y");
+    assert.strictEqual(out.xScale, "linear");
+    assert.strictEqual(out.bars.length, 1);
+    assert.strictEqual(out.circles.length, 4);
+  });
+
   for (const swarm of ["true", `"x"`, `"y"`])
-    it(`Plot ${renderer} — swarm(${swarm}) leaves bars unpacked, with a warning`, async () => {
+    it(`Plot ${renderer} — swarm(${swarm}) with no circles notes it once`, async () => {
       const out = await probeChart(src(`.shape("Bar").swarm(${swarm})`), read, {
         data,
         renderer,
@@ -184,8 +268,8 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(out.xScale, "point");
     assert.strictEqual(out.areas.length, 2, "one area per series");
     for (const d of out.areas) assert.ok(d && !/NaN/.test(d), d);
-    // With no bars and no baseline, the value axis keeps to the data.
-    assert.ok(out.yDomain[0] > 0, `${out.yDomain}`);
+    // The areas fill down to 0, which the value axis reaches.
+    assert.strictEqual(out.yDomain[0], 0);
   });
 
   it(`Plot ${renderer} — Boxes with no discrete stand on x`, async () => {

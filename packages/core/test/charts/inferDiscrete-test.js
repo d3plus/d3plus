@@ -114,10 +114,19 @@ it("inferDiscrete — bars, areas, and boxes on two axes of numbers stand on x",
   );
 });
 
-it("inferDiscrete — a swarm a Plot's bars turn off doesn't stop it", () => {
-  const plot = new Plot().data(rows).x("value").y("value").shape("Bar");
-  assert.strictEqual(inferDiscrete(plot.swarm(true)), "x");
-  assert.strictEqual(inferDiscrete(plot.swarm("y")), "x");
+it("inferDiscrete — bars beside a swarm stand across its value axis", () => {
+  const bars = new Plot().data(rows).x("value").y("value").shape("Bar");
+  // With no circles, the swarm is off, and the bars stand on x.
+  assert.strictEqual(inferDiscrete(bars.swarm(true)), "x");
+  assert.strictEqual(inferDiscrete(bars.swarm("x")), "x");
+  const mixed = new Plot()
+    .data(rows)
+    .x("value")
+    .y("value")
+    .shape(d => (d.id === "b" ? "Bar" : "Circle"));
+  assert.strictEqual(inferDiscrete(mixed.swarm(true)), "x");
+  assert.strictEqual(inferDiscrete(mixed.swarm("y")), "x");
+  assert.strictEqual(inferDiscrete(mixed.swarm("x")), "y");
 });
 
 it("resolveDiscrete — notes the inferred axis; the setting wins at once", () => {
@@ -137,9 +146,9 @@ it("resolveDiscrete — notes the inferred axis; the setting wins at once", () =
   // Bars with no baseline grow from 0.
   const bars = new Plot().data(rows).x("value").y("value").shape("Bar");
   resolveDiscrete(bars);
-  assert.strictEqual(bars._barBaseline, 0);
+  assert.strictEqual(bars._shapeBaseline, 0);
   resolveDiscrete(bars.baseline(5));
-  assert.strictEqual(bars._barBaseline, undefined, "the user's baseline");
+  assert.strictEqual(bars._shapeBaseline, undefined, "the user's baseline");
   // Charts that set discrete themselves keep it, whatever their values.
   for (const Chart of [BarChart, LinePlot, BoxWhisker]) {
     const viz = new Chart().data(rows).x("value").y("fruit");

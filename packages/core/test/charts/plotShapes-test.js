@@ -3,7 +3,7 @@ import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {AreaPlot, BarChart, Plot} from "../../index.ts";
 import {
-  barBaseline,
+  shapeBaseline,
   drawsAnyShape,
   drawsDiscreteShapes,
   plotSwarm,
@@ -43,14 +43,16 @@ it("drawsDiscreteShapes — whether any row draws a Bar, Area, or Box", () => {
   assert.strictEqual(drawsDiscreteShapes(plot(mixed), rows), true);
 });
 
-it("barBaseline — 0 under bars when neither the chart nor the user sets one", () => {
-  assert.strictEqual(barBaseline(plot("Bar"), rows), 0);
-  assert.strictEqual(barBaseline(plot(mixed), rows), 0, "any row's bar");
-  for (const shape of ["Area", "Box", "Line"])
-    assert.strictEqual(barBaseline(plot(shape), rows), undefined, shape);
-  assert.strictEqual(barBaseline(plot("Bar").baseline(5), rows), undefined);
+it("shapeBaseline — 0 under bars or areas when neither the chart nor the user sets one", () => {
+  assert.strictEqual(shapeBaseline(plot("Bar"), rows), 0);
+  assert.strictEqual(shapeBaseline(plot("Area"), rows), 0);
+  assert.strictEqual(shapeBaseline(plot(mixed), rows), 0, "any row's bar");
+  for (const shape of ["Box", "Circle", "Line"])
+    assert.strictEqual(shapeBaseline(plot(shape), rows), undefined, shape);
+  assert.strictEqual(shapeBaseline(plot("Bar").baseline(5), rows), undefined);
+  assert.strictEqual(shapeBaseline(plot("Area").baseline(5), rows), undefined);
   assert.strictEqual(
-    barBaseline(new AreaPlot().data(rows).shape("Bar"), rows),
+    shapeBaseline(new AreaPlot().data(rows).shape("Bar"), rows),
     undefined,
     "the chart's own baseline",
   );
@@ -60,15 +62,21 @@ it("plotBaseline — the chart's baseline, else the bars'", () => {
   assert.strictEqual(plotBaseline(new BarChart()), 0);
   assert.strictEqual(plotBaseline(new Plot()), undefined);
   const bars = plot("Bar");
-  bars._barBaseline = 0;
+  bars._shapeBaseline = 0;
   assert.strictEqual(plotBaseline(bars), 0);
   assert.strictEqual(baselineValue(bars), 0);
   assert.strictEqual(baselineValue(bars.baseline(5)), 5, "the user's wins");
 });
 
-it("plotSwarm — off, with one warning, for bars, areas, and boxes", () => {
+it("plotSwarm — the setting while circles draw; off, with one note, without them", () => {
   const warnings = [];
   console.warn = message => warnings.push(message);
+  const circlesAndBars = d => (d.id === "b" ? "Bar" : "Circle");
+  for (const swarm of [true, "x", "y"]) {
+    assert.strictEqual(plotSwarm(plot(circlesAndBars).swarm(swarm)), swarm);
+    assert.strictEqual(plotSwarm(plot("Circle").swarm(swarm)), swarm);
+  }
+  assert.strictEqual(warnings.length, 0, "nothing lost, nothing said");
   for (const swarm of [true, "x", "y"]) {
     const viz = plot("Bar").swarm(swarm);
     assert.strictEqual(plotSwarm(viz), false, `${swarm}`);
@@ -76,9 +84,9 @@ it("plotSwarm — off, with one warning, for bars, areas, and boxes", () => {
   }
   assert.strictEqual(warnings.length, 3, "once per chart");
   assert.match(warnings[0], /swarm/);
-  assert.strictEqual(plotSwarm(plot("Area").swarm(true)), false);
-  assert.strictEqual(plotSwarm(plot("Circle").swarm("x")), "x");
+  for (const shape of ["Area", "Box", mixed])
+    assert.strictEqual(plotSwarm(plot(shape).swarm(true)), false);
   assert.strictEqual(plotSwarm(plot("Bar").swarm("auto")), "auto");
   assert.strictEqual(plotSwarm(plot("Bar").swarm(false)), false);
-  assert.strictEqual(warnings.length, 4);
+  assert.strictEqual(warnings.length, 6);
 });
