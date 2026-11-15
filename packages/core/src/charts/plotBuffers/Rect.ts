@@ -2,6 +2,7 @@ import type Plot from "../Plot/index.js";
 import discreteBuffer from "./discreteBuffer.js";
 import numericBuffer from "./numericBuffer.js";
 import type {D3Scale} from "../../utils/index.js";
+import type {BufferConfig} from "./bufferConfig.js";
 import {vizDiscrete} from "../viz/discrete.js";
 
 /**
@@ -31,7 +32,7 @@ export default function (
     y2?: D3Scale;
     yScale?: string;
     xScale?: string;
-    config?: Record<string, (...args: unknown[]) => unknown>;
+    config?: BufferConfig;
   },
 ): [unknown, unknown] {
   x = x.copy();
