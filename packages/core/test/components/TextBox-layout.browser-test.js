@@ -202,8 +202,9 @@ it("TextBox canvas hit testing follows justified and right-to-left lines", async
 });
 
 it("chart titles take percentage and justified anchors", async () => {
+  // 600px plus the box and lasso select buttons' 48px in the zoom panel.
   const out = await render(
-    '<div id="viz" style="width:600px;height:400px"></div>',
+    '<div id="viz" style="width:648px;height:400px"></div>',
     () =>
       new Promise(resolve => {
         const viz = new window.d3plus.Plot()

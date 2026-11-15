@@ -41,6 +41,9 @@ it("gestureMoves: wheels, touch moves, and mouse moves off the press move the ch
   assert.strictEqual(gestureMoves(press, mouse("mousedown", 10, 20)), false);
   assert.strictEqual(gestureMoves(press, mouse("dblclick", 30, 20)), false);
   assert.strictEqual(gestureMoves(press, null), false);
+  // A box or lasso selection drag reports pointer moves.
+  assert.strictEqual(gestureMoves(press, mouse("pointermove", 12, 20)), true);
+  assert.strictEqual(gestureMoves(press, mouse("pointermove", 10, 20)), false);
 });
 
 it("gestureHolds: only a moving gesture holds pointer events", () => {

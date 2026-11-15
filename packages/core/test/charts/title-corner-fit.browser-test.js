@@ -15,13 +15,13 @@ import {sceneNodes} from "~test/browser/helpers.js";
 */
 
 /**
-    Renders a 300px-wide Plot titled `title`, with zoom, table view and
-    search showing, and returns the title's scene lines, its page-space
-    box, and the page-space boxes of the corner controls.
+    Renders a 396px-wide Plot titled `title`, with zoom (all six buttons),
+    table view and search showing, and returns the title's scene lines, its
+    page-space box, and the page-space boxes of the corner controls.
 */
 const titleLayout = (title, renderer) =>
   render(
-    '<div id="s" style="width:300px;height:300px;"></div>',
+    '<div id="s" style="width:396px;height:300px;"></div>',
     ({title, renderer}) =>
       new Promise((resolve, reject) => {
         const viz = new window.d3plus.Plot()

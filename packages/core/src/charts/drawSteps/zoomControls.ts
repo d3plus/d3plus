@@ -16,6 +16,8 @@ import {
   setBrushing,
   showsZoomControls,
   syncBrushButton,
+  syncSelectButtons,
+  syncSelectTool,
   ZOOM_PANEL_STYLE,
   zoomControlsHtml,
 } from "./zoomControlsMarkup.js";
@@ -32,6 +34,9 @@ import {
 import type {ZoomGestureEvent} from "./zoomGesture.js";
 import {forgetTransform, recordTransform, showsTransform} from "./zoomShown.js";
 import {effectiveDuration, motionReduced} from "../viz/reducedMotion.js";
+import type {SelectTool} from "./selectRegion.js";
+import {syncSelectSurface} from "./selectGesture.js";
+import {zoomMenuEvents} from "./zoomControlsMenu.js";
 
 /**
     Builds the four zoom-control buttons as an `htmlOverlay` scene-node
@@ -62,21 +67,16 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
       ".zoom-in": {click: () => zoomMath.bind(viz)(viz.schema.zoomFactor)},
       ".zoom-out": {click: () => zoomMath.bind(viz)(1 / viz.schema.zoomFactor)},
       ".zoom-reset": {click: () => zoomMath.bind(viz)(0)},
+      // The button, or its "More Controls" menu item, reports the mode.
       ".zoom-brush": {
-        click: (e: Event) => {
-          // Delegated dispatch: `e.currentTarget` is the host wrapper, so
-          // resolve the actual button from the event target.
-          const btn = (e.target as Element).closest(
-            ".zoom-brush",
-          ) as HTMLElement | null;
-          if (!btn) return;
-          const willBrush = !isBrushing(viz);
-          btn.classList.toggle("active", willBrush);
-          btn.setAttribute("aria-pressed", String(willBrush));
-          paintZoomButton(viz, btn, btn.matches(":hover"));
-          zoomEvents.bind(viz)(willBrush);
+        click: () => {
+          zoomEvents.bind(viz)(!isBrushing(viz));
+          syncBrushButton(viz);
         },
       },
+      ".select-box": {click: () => toggleSelectTool(viz, "box")},
+      ".select-lasso": {click: () => toggleSelectTool(viz, "lasso")},
+      ...zoomMenuEvents(viz),
     },
     onUpdate: (host: HTMLElement) => {
       host.querySelectorAll<HTMLElement>(".zoom-control").forEach(btn => {
@@ -88,6 +88,11 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
         );
         btn.addEventListener("mouseleave", () => paintZoomButton(viz, btn));
         mountCustomIcons(viz, btn);
+      });
+      host.querySelectorAll<HTMLElement>(".zoom-menu-item").forEach(item => {
+        if (item.dataset.zoomBound) return;
+        item.dataset.zoomBound = "1";
+        mountCustomIcons(viz, item);
       });
     },
   };
@@ -107,7 +112,7 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
       1. Installs stateful D3 zoom + brush behaviors (`viz._zoomBehavior`,
          `viz._zoomBrush`) and wires `viz._zoomToBounds`. d3-zoom binds to
          the SVG element directly via `viz._container.call(zoomBehavior)`.
-      2. Returns the four control buttons (in/out/reset/brush) as an
+      2. Returns the control buttons (in/out/reset/brush/box/lasso) as an
          `htmlOverlay` scene-node panel; `runVizPipeline` appends it to
          `viz._featurePanels`. `onUpdate` is the scene's interactive-HTML
          escape hook: it wires the hover handlers + applies the user's
@@ -126,6 +131,8 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
 export const zoomFeature: FeatureModule = {
   name: "zoom",
   layout: ({viz}) => {
+    syncSelectTool(viz);
+    if (viz._selectTool) setBrushing(viz, false);
     if (!viz.schema.zoom) resetZoom(viz);
     else ensureZoomSurface(viz);
     if (!viz._container || !viz._zoomGroup) return {panel: null, margin: {}};
@@ -291,14 +298,16 @@ export function bindCanvasZoom(viz: Viz): void {
 }
 
 /**
-    Routes pointer events between the chart surface and the zoom brush.
-    While brush mode is on, the outer <svg> goes transparent to pointer
-    events and only the brush group opts back in, so a drag anywhere over the
-    chart (shapes included) reaches the brush rather than a shape. On the
-    Canvas backend the compute <svg> stays transparent otherwise, so the
-    <canvas> beneath is the interaction surface.
+    Routes pointer events between the chart surface, the zoom brush, and
+    box and lasso selection (see `syncSelectSurface`). While brush mode is
+    on, the outer <svg> goes transparent to pointer events and only the
+    brush group opts back in, so a drag anywhere over the chart (shapes
+    included) reaches the brush rather than a shape. On the Canvas backend
+    the compute <svg> stays transparent otherwise, so the <canvas> beneath
+    is the interaction surface.
 */
 export function applyZoomPointerEvents(viz: Viz): void {
+  syncSelectSurface(viz as unknown as VizInstance);
   const canvas = viz._renderer === "canvas";
   const brushing = isBrushing(viz);
   if (viz._select)
@@ -343,6 +352,11 @@ function resetZoom(viz: Viz): void {
 */
 export function zoomEvents(this: Viz, brush: boolean = false): void {
   setBrushing(this, brush);
+  if (brush && this._selectTool) {
+    this._selectTool = null;
+    syncSelectButtons(this);
+    syncSelectSurface(this as unknown as VizInstance);
+  }
 
   if (brush) this._brushGroup.style("display", "inline");
   else this._brushGroup.style("display", "none");
@@ -375,6 +389,24 @@ export function zoomEvents(this: Viz, brush: boolean = false): void {
   }
 }
 
+/**
+    Turns a select tool on (a drag draws a box or lasso, see
+    `selectGesture.ts`), or off again when it's the one already on, as the
+    box and lasso select buttons do. Turning one on leaves brush mode.
+    @param viz The chart.
+    @param tool The tool the button stands for.
+*/
+export function toggleSelectTool(viz: Viz, tool: SelectTool): void {
+  viz._selectTool = viz._selectTool === tool ? null : tool;
+  if (viz._selectTool && isBrushing(viz)) {
+    zoomEvents.bind(viz)(false);
+    syncBrushButton(viz);
+  }
+  syncSelectButtons(viz);
+  syncSelectSurface(viz as unknown as VizInstance);
+  applyTouchAction(viz);
+}
+
 /** Whether the chart is currently zoomed in (or panned) from its natural view. */
 function isZoomedIn(viz: Viz): boolean {
   const tgt = viz._zoomEventTarget || viz._container;
@@ -401,6 +433,13 @@ function zoomGestureFilter(viz: Viz, event: MouseEvent & TouchEvent): boolean {
   if (event.type === "wheel")
     return !modifier || event.ctrlKey || event.metaKey;
   if (startsOnBrush(event)) return false;
+  // A select tool takes single presses; a pinch still zooms.
+  if (
+    viz._selectTool &&
+    (event.type === "mousedown" ||
+      (event.type === "touchstart" && (event.touches?.length ?? 0) < 2))
+  )
+    return false;
   if (
     event.type === "mousedown" &&
     viz.schema.zoomDrag === "brush" &&
@@ -439,6 +478,11 @@ function wheelDelta(event: WheelEvent): number {
 function applyTouchAction(viz: Viz): void {
   const tgt = viz._zoomEventTarget || viz._container;
   if (!tgt) return;
+  // A select tool draws with one finger (see `selectGesture.ts`).
+  if (viz._selectTool) {
+    tgt.style("touch-action", "none");
+    return;
+  }
   const modifier = viz.schema.zoomScroll === "modifier" && viz.schema.zoomPan;
   tgt.style(
     "touch-action",

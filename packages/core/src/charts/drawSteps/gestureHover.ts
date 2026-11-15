@@ -28,8 +28,8 @@ export function clientPoint(event: Event | null | undefined): Point | null {
 
 /**
     Whether a zoom gesture's source event moves the chart: a wheel, a touch
-    move, or a mouse move away from where the press began. Programmatic zooms
-    (no source event) and the press itself don't.
+    move, or a mouse or pointer move away from where the press began.
+    Programmatic zooms (no source event) and the press itself don't.
     @param press The press's client position, if the gesture began with one.
     @param source The event behind a d3-zoom "zoom" event.
 */
@@ -39,7 +39,8 @@ export function gestureMoves(
 ): boolean {
   if (!source) return false;
   if (source.type === "wheel" || source.type === "touchmove") return true;
-  if (source.type !== "mousemove") return false;
+  if (source.type !== "mousemove" && source.type !== "pointermove")
+    return false;
   const at = clientPoint(source);
   return !press || !at || at[0] !== press[0] || at[1] !== press[1];
 }
