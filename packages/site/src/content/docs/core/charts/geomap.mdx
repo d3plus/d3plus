@@ -61,7 +61,7 @@ Two fields given to `colorScale` color each region by both at once. Each variabl
 
 ## Tile-grid map
 
-`tileGrid` draws each region as one equal hexagon at a fixed cell of a grid, so a small state counts as much as a large one: here the built-in `"us-states"` grid of the 50 states and DC, colored by population. The built-in grid finds each state by its postal abbreviation, its FIPS code, or an id ending in it, and labels each tile with its abbreviation; it needs no `topojson`. Colors, tooltips, the color scale, and the legend work as on the map, and a state without data keeps its tile in the no-data fill. Switch `tileGridShape` to `"square"` for square tiles, and set `tileGridPadding` for the gap between them (`2` pixels). For other regions, pass a layout of your own, `{[id]: [column, row]}`, where odd rows sit half a tile to the right. Given a `topojson` too, toggling `tileGrid` morphs each outline into its tile and back.
+`tileGrid` draws each region as one equal hexagon at a fixed cell of a grid, so a small state counts as much as a large one: here the built-in `"us-states"` grid of the 50 states and DC, colored by population. The built-in grid finds each state by its postal abbreviation, its FIPS code, or an id ending in it, labels each tile with its abbreviation, and needs no `topojson`. Colors, tooltips, the color scale, and the legend work as on the map, and a state without data keeps its tile in the no-data fill. [TileGridMap](/core/charts/tile-grid-map/) is a Geomap with this grid on by default; its page covers square tiles, layouts of your own, and morphing from the map.
 
 <Playground chart="Geomap" code={tileGridMap} controls={["tileGrid","tileGridShape","tileGridPadding","renderer"]} />
 
