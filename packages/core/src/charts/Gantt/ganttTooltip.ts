@@ -207,8 +207,8 @@ export function ganttTooltipRows(
 
 /**
     A task's Slack and, when it has any, its Latest start, while the chart
-    draws a critical path; else none. Slack counts working days when the
-    axis hides whole days (see `ganttDayBreaks`).
+    draws a critical path; else none. Slack reads in working days unless
+    `criticalPathConfig.workingDays` is false and the axis hides no days.
     @param viz The chart.
     @param d The task's data row.
     @param format Formats a start or end.
@@ -222,7 +222,7 @@ export function slackRows(
   if (!info) return [];
   const t = (s: string) => viz.schema.translate(s);
   const slack = isTimeAxis(viz)
-    ? daysLabel(viz, info.slack, ganttDayBreaks(viz).length > 0)
+    ? daysLabel(viz, info.slack, info.working)
     : formatAbbreviate(info.slack, viz.schema.locale);
   const rows: [string, string][] = [[t("Slack"), slack]];
   if (info.slack !== 0)

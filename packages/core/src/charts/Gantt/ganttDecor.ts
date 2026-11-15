@@ -55,14 +55,19 @@ export interface CriticalStyle {
   arrowSize: number;
   /** The opacity tasks off the critical path take. */
   mutedOpacity: number;
+  /** The critical tasks' outline color (undefined: each task's own), or false for none. */
+  barStroke: string | false | undefined;
+  /** The critical tasks' outline width. */
+  barStrokeWidth: number;
   /** The key's label, or false for no key. */
   label: string | false;
 }
 
 /**
     Reads `criticalPathConfig`: critical arrows take the dependency color at
-    full opacity, twice as wide, with larger heads; other tasks are muted to
-    0.35 opacity; and the key reads the translated "Critical path".
+    full opacity, twice as wide, with larger heads; critical tasks are
+    outlined 2px in their own color; other tasks are muted to 0.35 opacity;
+    and the key reads the translated "Critical path".
 */
 export function criticalStyle(viz: VizInstance): CriticalStyle {
   const cfg = (viz.schema.criticalPathConfig ?? {}) as Record<string, unknown>;
@@ -77,6 +82,13 @@ export function criticalStyle(viz: VizInstance): CriticalStyle {
       num(cfg.arrowSize, dep.arrowSize + (strokeWidth - dep.strokeWidth) * 2),
     ),
     mutedOpacity: Math.max(0, Math.min(1, num(cfg.mutedOpacity, 0.35))),
+    barStroke:
+      cfg.barStroke === false
+        ? false
+        : typeof cfg.barStroke === "string" && cfg.barStroke
+          ? cfg.barStroke
+          : undefined,
+    barStrokeWidth: Math.max(0, num(cfg.barStrokeWidth, 2)),
     label: criticalKeyLabel(viz),
   };
 }

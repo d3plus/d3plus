@@ -15,6 +15,8 @@ export interface TaskSlack {
   /** The latest the task could start. */
   latestStart: TimeValue;
   critical: boolean;
+  /** Whether the slack counts working days only. */
+  working: boolean;
 }
 
 const store = new WeakMap<object, WeakMap<DataPoint, TaskSlack>>();

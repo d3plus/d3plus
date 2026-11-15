@@ -1,10 +1,12 @@
 /**
     The Gantt's critical path: runs the critical path method over the drawn
-    tasks (see `criticalPath.ts`), counting time the axis's `rangeBreaks`
-    hide as no time at all, and records each task's slack for its tooltip.
+    tasks (see `criticalPath.ts`) in working time, counting weekends and the
+    days the axis's `rangeBreaks` hide as no time at all, and records each
+    task's slack for its tooltip.
 */
 
 import {
+  hidesAllTime,
   offsetVisible,
   visibleBetween,
 } from "../../components/Axis/rangeBreaks.js";
@@ -41,7 +43,7 @@ export interface WorkClock {
 /**
     A clock that leaves out the time `rules` hide, measured from `origin`.
     Without rules, working time is plain time.
-    @param rules The axis's whole-day `rangeBreaks` (see `ganttDayBreaks`).
+    @param rules The days that count as no time (see `slackBreaks`).
     @param origin The time working time counts from.
     @param utc Whether a day is a UTC day rather than a local one.
 */
@@ -50,7 +52,8 @@ export function workClock(
   origin: number,
   utc = false,
 ): WorkClock {
-  if (!rules.length) return {toWork: t => t, shift: (t, delta) => t + delta};
+  if (!rules.length || hidesAllTime(rules, utc))
+    return {toWork: t => t, shift: (t, delta) => t + delta};
   return {
     toWork: t =>
       t >= origin
@@ -77,6 +80,19 @@ export function criticalKeyLabel(viz: VizInstance): string | false {
     : viz.schema.translate("Critical path");
 }
 
+/**
+    The time the critical path counts as no time at all: weekends (unless
+    `criticalPathConfig.workingDays` is false) and every whole day the time
+    axis's `rangeBreaks` hide, such as holidays; none on a numeric axis.
+    @param viz The chart.
+*/
+export function slackBreaks(viz: VizInstance): RangeBreakRule[] {
+  if (!isTimeAxis(viz)) return [];
+  const cfg = (viz.schema.criticalPathConfig ?? {}) as {workingDays?: unknown};
+  const days = ganttDayBreaks(viz);
+  return cfg.workingDays === false ? days : ["weekends", ...days];
+}
+
 /** Quotes a task id in a warning. */
 const quote = (id: string): string => `"${id}"`;
 
@@ -99,7 +115,7 @@ export function ganttCriticalPath(
       : null;
   for (const task of tasks) recordSlack(viz, task.data, null);
   if (!critical) return null;
-  const {result, clock, time} = critical;
+  const {result, clock, time, working} = critical;
   for (const task of tasks) {
     const cpm = result.get(task.id);
     if (!cpm) continue;
@@ -108,6 +124,7 @@ export function ganttCriticalPath(
       slack: cpm.slack,
       latestStart: time ? new Date(latest) : latest,
       critical: cpm.critical,
+      working,
     });
   }
   return critical.drawn;
@@ -121,15 +138,13 @@ function computeCritical(
   result: Map<string, CpmTask>;
   clock: WorkClock;
   time: boolean;
+  working: boolean;
   drawn: GanttCritical;
 } | null {
   const time = isTimeAxis(viz);
   const origin = Math.min(...tasks.map(t => +t.start));
-  const clock = workClock(
-    time ? ganttDayBreaks(viz) : [],
-    origin,
-    isUtcAxis(viz),
-  );
+  const rules = slackBreaks(viz);
+  const clock = workClock(rules, origin, isUtcAxis(viz));
   const cpm = criticalPath(
     tasks.map(t => ({
       id: t.id,
@@ -152,6 +167,7 @@ function computeCritical(
     result: cpm.tasks,
     clock,
     time,
+    working: rules.length > 0,
     drawn: {
       tasks: cpm.tasks,
       links: new Set(

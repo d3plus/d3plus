@@ -92,26 +92,32 @@ export const ganttDef: DataDrivenChartDefinition = {
         that sets the project's finish. It takes each task's dates as given,
         and works back from the latest end to find how late each task could
         start without delaying it; a task's slack is how much later that is
-        than its start (counting only working days when `rangeBreaks` hide
-        whole days). Tasks with no slack, or less when a dependent starts
-        before they end, are critical: their arrows draw bold and every other
-        task is muted. Tied chains are all critical. The tooltip lists each
-        task's Slack and Latest start, and a key in the label column's corner
-        names the bold arrows. Dependencies naming tasks that aren't drawn are
-        skipped. On (`true`) by default, it draws only when a critical
-        dependency joins two drawn tasks, so a chart without dependencies (or
-        whose dependencies never chain to the finish) looks the same; a cycle
-        draws nothing and logs a warning. `false` turns it off.
+        than its start, in working days: weekends, and any whole days
+        `rangeBreaks` hide (such as holidays), count as no time, so a task
+        ending on a Friday and its dependent starting on Monday hand off with
+        no slack. Tasks with no slack, or less when a dependent starts before
+        they end, are critical: they're outlined in their own color, their
+        arrows draw bold, and every other task is muted. Tied chains are all
+        critical. The tooltip lists each task's Slack (in working days) and
+        Latest start, and a key in the label column's corner names the bold
+        arrows. Dependencies naming tasks that aren't drawn are skipped. On
+        (`true`) by default, it draws only when a critical dependency joins
+        two drawn tasks, so a chart without dependencies (or whose
+        dependencies never chain to the finish) looks the same; a cycle draws
+        nothing and logs a warning. `false` turns it off.
         @type {boolean}
     */
     {key: "criticalPath", default: true},
     /**
         Styles the critical path: `stroke` (the dependency arrows' color by
         default), `strokeWidth` (twice theirs), `strokeOpacity` (1), and
-        `arrowSize` for its arrows; `mutedOpacity` (0.35) for the tasks off
-        it; and the key's `label` (the translated "Critical path"; `false`
-        for no key).
-        @type {{stroke, strokeWidth, strokeOpacity, arrowSize, mutedOpacity, label}}
+        `arrowSize` for its arrows; `barStroke` (each task's own color;
+        `false` for none) and `barStrokeWidth` (2) for the outline of its
+        tasks; `mutedOpacity` (0.35) for the tasks off it; the key's `label`
+        (the translated "Critical path"; `false` for no key); and
+        `workingDays` (`true`), which leaves weekends out of slack (`false`
+        counts them, leaving out only the days `rangeBreaks` hide).
+        @type {{stroke, strokeWidth, strokeOpacity, arrowSize, barStroke, barStrokeWidth, mutedOpacity, label, workingDays}}
     */
     {key: "criticalPathConfig", merge: true, default: {}},
     /**
