@@ -5,7 +5,8 @@
     project's finish (the latest end) finds how late each task could start
     without delaying it. A task's slack is that latest start less its start;
     the tasks with none (or less, when the schedule overlaps a dependency)
-    form the critical path.
+    form the critical path. A milestone with a window (`accepts`), such as
+    one on a day, falls at its predecessors' latest end within it.
 */
 
 /** A task as the method reads it: its id, times (as numbers), and predecessors. */
@@ -15,6 +16,12 @@ export interface CpmInput {
   end: number;
   /** The ids of the tasks it waits on. */
   dependencies: string[];
+  /**
+      How long after its start a milestone may fall (0 by default): one on a
+      day falls anywhere in it, at its predecessors' latest end, so those
+      finishing that day hand off to it with no slack.
+  */
+  accepts?: number;
 }
 
 /** One task's result. */
@@ -149,6 +156,31 @@ export function findCycle(
 }
 
 /**
+    Places each task with an `accepts` window at its predecessors' latest
+    end, held within the window; a task without a window, or without drawn
+    predecessors, stays where it is.
+    @param tasks The tasks, by id.
+*/
+export function placeMilestones(
+  tasks: Map<string, CpmInput>,
+): Map<string, CpmInput> {
+  const out = new Map<string, CpmInput>();
+  for (const [id, task] of tasks) {
+    const window = task.accepts ?? 0;
+    const ends = task.dependencies
+      .filter(dep => dep !== id && tasks.has(dep))
+      .map(dep => tasks.get(dep)!.end);
+    if (!(window > 0) || !ends.length) {
+      out.set(id, task);
+      continue;
+    }
+    const at = Math.min(task.start + window, Math.max(task.start, ...ends));
+    out.set(id, {...task, start: at, end: task.end + (at - task.start)});
+  }
+  return out;
+}
+
+/**
     Runs the critical path method over tasks whose dates are given (see the
     module notes). Without a cycle, every task gets its late start and
     finish, its slack, and whether it's critical; tied paths are all
@@ -158,7 +190,7 @@ export function findCycle(
     a billionth of the schedule's span by default.
 */
 export function criticalPath(tasks: CpmInput[], tolerance?: number): CpmResult {
-  const byId = new Map(tasks.map(t => [t.id, t]));
+  const byId = placeMilestones(new Map(tasks.map(t => [t.id, t])));
   const ids = Array.from(byId.keys());
   const {links, missing} = cpmLinks(byId);
   const all = Array.from(byId.values());

@@ -15,7 +15,7 @@ import {warnConfigOnce} from "../../utils/configWarnings.js";
 import {isTimeAxis, isUtcAxis} from "../Priestley/timeAxis.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {criticalPath} from "./criticalPath.js";
-import {workingBreaks} from "./ganttCalendar.js";
+import {offsetDays, workingBreaks} from "./ganttCalendar.js";
 import type {CpmTask} from "./criticalPath.js";
 import type {GanttTask} from "./ganttRows.js";
 import {recordSlack} from "./ganttSlack.js";
@@ -106,7 +106,10 @@ export function ganttCriticalPath(
   for (const task of tasks) {
     const cpm = result.get(task.id);
     if (!cpm) continue;
-    const latest = clock.shift(+task.start, cpm.slack);
+    const latest = clock.shift(
+      +task.start,
+      cpm.lateStart - clock.toWork(+task.start),
+    );
     recordSlack(viz, task.data, {
       slack: cpm.slack,
       latestStart: time ? new Date(latest) : latest,
@@ -132,13 +135,21 @@ function computeCritical(
   const origin = Math.min(...tasks.map(t => +t.start));
   const rules = workingBreaks(viz);
   const clock = workClock(rules, origin, isUtcAxis(viz));
+
+  const utc = isUtcAxis(viz);
   const cpm = criticalPath(
-    tasks.map(t => ({
-      id: t.id,
-      start: clock.toWork(+t.start),
-      end: clock.toWork(+t.end),
-      dependencies: t.dependencies,
-    })),
+    tasks.map(t => {
+      const start = clock.toWork(+t.start);
+      return {
+        id: t.id,
+        start,
+        end: clock.toWork(+t.end),
+        dependencies: t.dependencies,
+        accepts: t.wholeDay
+          ? clock.toWork(+offsetDays(t.start, 1, utc)) - start
+          : 0,
+      };
+    }),
   );
   if (cpm.cycle) {
     const loop = [...cpm.cycle, cpm.cycle[0]].map(quote).join(" → ");

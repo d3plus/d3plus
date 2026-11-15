@@ -224,6 +224,64 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
+  it(`Gantt [${renderer}]: a milestone on its predecessor's last day chains, and a flagged one sits at its start`, async () => {
+    const week = [
+      {task: "Build", start: "2024-03-04", end: "2024-03-08"},
+      {
+        task: "Sign-off",
+        start: "2024-03-08",
+        end: "2024-03-08",
+        dependencies: "Build",
+      },
+      {
+        task: "Ship",
+        start: "2024-03-11",
+        end: "2024-03-12",
+        dependencies: "Sign-off",
+      },
+      {task: "Window", start: "2024-03-05", end: "2024-03-07", milestone: true},
+    ];
+    const {nodes} = await render(
+      '<div id="viz" style="width:800px;height:300px"></div>',
+      ({config, renderer}) =>
+        new Promise(resolve => {
+          const viz = new window.d3plus.Gantt()
+            .config(config)
+            .renderer(renderer)
+            .duration(0)
+            .select("#viz");
+          viz.render(() => {
+            const at = v => {
+              const [y, m, d] = v.split("-").map(Number);
+              return viz.ctx.gantt.x(new Date(y, m - 1, d));
+            };
+            const byKey = Object.fromEntries(
+              viz._chartScene.map(n => [n.key, n]),
+            );
+            resolve({
+              nodes: {
+                signOff: {
+                  x: byKey["gantt-milestone-Sign-off"].transform.x,
+                  at: at("2024-03-08"),
+                  stroke: byKey["gantt-milestone-Sign-off"].paint.strokeWidth,
+                },
+                build: byKey["gantt-task-Build"].paint.strokeWidth,
+                window: {
+                  x: byKey["gantt-milestone-Window"].transform.x,
+                  at: at("2024-03-05"),
+                },
+              },
+            });
+          });
+        }),
+      {config: {data: week, groupBy: "task", legend: false}, renderer},
+    );
+    assert.ok(Math.abs(nodes.signOff.x - nodes.signOff.at) < 0.5);
+    assert.strictEqual(nodes.signOff.stroke, 2, "Sign-off is critical");
+    assert.strictEqual(nodes.build, 2, "Build hands off with no slack");
+    assert.ok(Math.abs(nodes.window.x - nodes.window.at) < 0.5, "at its start");
+  });
+
   it(`Gantt [${renderer}]: the weekend follows the locale`, async () => {
     // Sunday through Thursday, then the next Sunday: a Fri–Sat weekend.
     const week = [

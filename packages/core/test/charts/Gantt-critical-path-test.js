@@ -4,6 +4,7 @@ import {
   cpmLinks,
   criticalPath,
   findCycle,
+  placeMilestones,
   topologicalOrder,
 } from "../../src/charts/Gantt/criticalPath.ts";
 
@@ -211,4 +212,52 @@ it("findCycle walks to a cycle past the tasks only waiting on it", () => {
     ),
     ["X", "Y", "Z"],
   );
+});
+
+it("placeMilestones puts a windowed task at its predecessors' latest end, within its window", () => {
+  const byId = tasks => new Map(tasks.map(t => [t.id, t]));
+  const m = (start, deps, accepts = 1) => ({
+    id: "M",
+    start,
+    end: start,
+    dependencies: deps,
+    accepts,
+  });
+  const at = (tasks, id = "M") => placeMilestones(byId(tasks)).get(id);
+  // Inside the window: at the latest predecessor end.
+  const inside = at([task("A", 0, 5.5), task("B", 0, 5.2), m(5, ["A", "B"])]);
+  assert.deepStrictEqual([inside.start, inside.end], [5.5, 5.5]);
+  // Before the window: at its start; past it: at its end.
+  assert.strictEqual(at([task("A", 0, 4), m(5, ["A"])]).start, 5);
+  assert.strictEqual(at([task("A", 0, 7), m(5, ["A"])]).start, 6);
+  // No window, no drawn predecessors, or only itself: unchanged.
+  const plain = m(5, ["A"], 0);
+  assert.strictEqual(at([task("A", 0, 5.5), plain]), plain);
+  const lone = m(5, ["Gone", "M"]);
+  assert.strictEqual(at([lone]), lone);
+});
+
+it("criticalPath: a milestone on its predecessor's last day hands off with no slack", () => {
+  // Days are 1 long: A runs through day 4 (ends at 5), M is on day 4.
+  const result = criticalPath([
+    task("A", 0, 5),
+    {id: "M", start: 4, end: 4, dependencies: ["A"], accepts: 1},
+    task("B", 5, 7, ["M"]),
+  ]);
+  assert.deepStrictEqual(pick(result, "slack"), {A: 0, M: 0, B: 0});
+  assert.ok(result.links.every(l => l.critical));
+  // As the last task, it still ends the project with no slack.
+  const last = criticalPath([
+    task("A", 0, 5),
+    {id: "M", start: 4, end: 4, dependencies: ["A"], accepts: 1},
+  ]);
+  assert.deepStrictEqual(pick(last, "slack"), {A: 0, M: 0});
+  // Without a window it sits at the start of its day, a day before B
+  // starts: M is left a day of slack, which breaks the chain.
+  const none = criticalPath([
+    task("A", 0, 5),
+    {id: "M", start: 4, end: 4, dependencies: ["A"]},
+    task("B", 5, 7, ["M"]),
+  ]);
+  assert.deepStrictEqual(pick(none, "slack"), {A: 0, M: 1, B: 0});
 });

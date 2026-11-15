@@ -235,6 +235,7 @@ export {
   cpmLinks,
   criticalPath,
   findCycle,
+  placeMilestones,
   topologicalOrder,
 } from "./src/charts/Gantt/criticalPath.js";
 export type {

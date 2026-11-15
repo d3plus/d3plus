@@ -169,7 +169,7 @@ function barNodes(
 }
 
 /**
-    A milestone's diamond at its end. With a progress, a milestone not yet
+    A milestone's diamond at its start. With a progress, a milestone not yet
     reached (below 100%) draws in the paler remaining shade, outlined in its
     color; a reached one fills in its color.
 */

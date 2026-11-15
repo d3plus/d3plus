@@ -121,13 +121,16 @@ export interface TaskTimes {
   progress: number | undefined;
   /** Whether the end named a whole day (see `isDateOnly`) the task runs through; never a milestone. */
   inclusive: boolean;
+  /** Whether the task is a milestone on a whole day, which accepts predecessors finishing within it. */
+  wholeDay: boolean;
 }
 
 /**
     Reads a row's start, end, milestone flag, and progress. A missing start
     or end takes the other's value, and reversed times are swapped; null
     when both are missing. An end naming a whole day (`"2024-03-08"`) runs
-    through the end of that day, and a milestone on one sits at its start.
+    through the end of that day. A milestone is a point at its start: the
+    start of its day, when it names a whole day.
 */
 export function taskTimes(
   viz: VizInstance,
@@ -154,16 +157,17 @@ export function taskTimes(
     end.t,
     typeof milestoneFn === "function" ? milestoneFn(d, i) : undefined,
   );
-  // A milestone stays a point at the start of its day.
+  // A milestone is a point at its start (the start of its day).
   const inclusive = end.day && !milestone;
   return {
     start: start.t,
-    end: inclusive ? offsetDays(end.t, 1, utc) : end.t,
+    end: milestone ? start.t : inclusive ? offsetDays(end.t, 1, utc) : end.t,
     milestone,
     progress: normalizeProgress(
       typeof progressFn === "function" ? progressFn(d, i) : undefined,
     ),
     inclusive,
+    wholeDay: milestone && start.day,
   };
 }
 

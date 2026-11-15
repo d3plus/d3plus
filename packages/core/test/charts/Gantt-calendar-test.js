@@ -96,14 +96,14 @@ it("taskTimes runs a whole-day end through that day; Dates end where given", () 
   assert.strictEqual(+point.start, +new Date(2024, 2, 8));
   assert.strictEqual(+point.end, +point.start);
   assert.strictEqual(+shownEnd(point), +new Date(2024, 2, 8));
-  // A flagged milestone spanning days keeps its start.
+  // A flagged milestone spanning days sits at its start.
   const flagged = taskTimes(
     viz,
     {start: "2024-03-04", end: "2024-03-08", milestone: true},
     0,
   );
   assert.strictEqual(+flagged.start, +new Date(2024, 2, 4));
-  assert.strictEqual(+flagged.end, +new Date(2024, 2, 8), "its diamond's day");
+  assert.strictEqual(+flagged.end, +new Date(2024, 2, 4), "a point");
   // A numeric axis has no whole days.
   viz.axisConfig({scale: "linear"});
   const n = taskTimes(viz, {start: 1, end: 4}, 0);
@@ -180,6 +180,49 @@ it("a milestone the next day, or the next working day, has no slack", () => {
       `${end} → ${on}`,
     );
   }
+});
+
+it("a milestone on its predecessor's last day, or ending the project, has no slack", () => {
+  const data = [
+    {id: "Build", start: "2024-03-04", end: "2024-03-08"},
+    {
+      id: "Sign-off",
+      start: "2024-03-08",
+      end: "2024-03-08",
+      dependencies: "Build",
+    },
+    {
+      id: "Ship",
+      start: "2024-03-11",
+      end: "2024-03-12",
+      dependencies: "Sign-off",
+    },
+    {id: "Live", start: "2024-03-12", end: "2024-03-12", dependencies: "Ship"},
+  ];
+  const viz = gantt(data);
+  const {marks, layout: l} = layout(viz);
+  assert.strictEqual(
+    marks[1].x1,
+    l.x(new Date(2024, 2, 8)),
+    "drawn at the start of its day",
+  );
+  assert.deepStrictEqual(
+    data.map(d => taskSlack(viz, d).slack),
+    [0, 0, 0, 0],
+  );
+  assert.ok(data.every(d => taskSlack(viz, d).critical));
+  assert.deepStrictEqual(ganttTooltipRows(viz, data[1], 1), [
+    ["Milestone", "Mar 8, 2024"],
+    ["Slack", "0 working days"],
+  ]);
+  // A Friday milestone after a Thursday finish leaves Friday as slack before
+  // a Monday start.
+  const early = data.map(d =>
+    d.id === "Build" ? {...d, end: "2024-03-07"} : d,
+  );
+  const v2 = gantt(early);
+  layout(v2);
+  assert.strictEqual(taskSlack(v2, early[1]).slack, 864e5);
 });
 
 it("weekendRule and workingBreaks follow the locale's weekend", () => {
