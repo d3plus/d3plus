@@ -205,3 +205,37 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 }
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`TileGridMap ${renderer}: draws the US states grid with no tileGrid set`, async () => {
+    const {page, errors, close} = await openPage(box);
+    try {
+      await page.evaluate(
+        ([json, kind]) =>
+          new Promise(resolve => {
+            const viz = new window.d3plus.TileGridMap()
+              .select("#viz")
+              .renderer(kind)
+              .duration(0)
+              .config({colorScale: "Population", groupBy: "State ID"})
+              .label(d => d.State)
+              .data(JSON.parse(json));
+            window.__viz = viz;
+            viz.render(() => resolve(true));
+          }),
+        [JSON.stringify(population), renderer],
+      );
+      const nodes = await page.evaluate(painted);
+      const tiles = nodes.filter(n => n.key.startsWith("geomap-path-"));
+      assert.strictEqual(tiles.length, 51);
+      tiles.forEach(n => assert.strictEqual(pathRings(n.d)[0].length, 6));
+      const labels = nodes.filter(
+        n => n.type === "text" && n.key.startsWith("geomap-cartogram-label-"),
+      );
+      assert.ok(labels.length > 40, "labeled");
+      assert.deepStrictEqual(errors, [], "no page errors");
+    } finally {
+      await close();
+    }
+  });
+}

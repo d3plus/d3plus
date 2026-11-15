@@ -5,9 +5,11 @@ import {readFileSync} from "node:fs";
 import {pathRings} from "@d3plus/render";
 
 import {useJsdom} from "~test/jsdom.js";
-import {Geomap} from "../../index.ts";
+import {Geomap, TileGridMap} from "../../index.ts";
+import {tileGridMapDef} from "../../src/charts/TileGridMap/index.ts";
 import {applyGeomapLayout} from "../../src/charts/Geomap/applyLayout.ts";
 import {
+  TILE_GRID_FONT_MAX,
   US_STATES_TILE_GRID,
   geomapTileGrid,
   hexPathD,
@@ -304,4 +306,56 @@ it("tileGridOcean drops the default ocean behind a tile grid, but not one that i
   assert.strictEqual(tileGridOcean(viz), "transparent");
   viz.ocean("#cde");
   assert.strictEqual(tileGridOcean(viz), "#cde");
+});
+
+it("TileGridMap is a Geomap drawing the US states tile grid by default", () => {
+  const viz = new TileGridMap();
+  assert.ok(viz instanceof Geomap);
+  assert.strictEqual(viz.tileGrid(), "us-states");
+  assert.strictEqual(viz.tileGridShape(), "hex");
+  viz.tileGrid({a: [0, 0]});
+  assert.deepStrictEqual(viz.tileGrid(), {a: [0, 0]});
+  assert.strictEqual(new Geomap().tileGrid(), false, "Geomap's own is off");
+  assert.deepStrictEqual(
+    tileGridMapDef.fields.map(f => [f.key, f.default]),
+    [["tileGrid", "us-states"]],
+  );
+});
+
+it("a TileGridMap lays out a tile per state without a topojson", () => {
+  const viz = new TileGridMap().config({
+    width: 800,
+    height: 500,
+    groupBy: "State ID",
+    colorScale: "Population",
+    legend: false,
+  });
+  viz._margin = {top: 0, right: 0, bottom: 0, left: 0};
+  viz._filteredData = population;
+  viz._drawDepth = 0;
+  viz._id = d => d["State ID"];
+  viz._ids = d => [d["State ID"]];
+  viz._drawLabel = d => d.State ?? "";
+  applyGeomapLayout({viz});
+  assert.strictEqual(viz.ctx.geomapCtx.cartogram.size, 51);
+});
+
+it("tile-grid labels grow no larger than TILE_GRID_FONT_MAX", () => {
+  const viz = laidOut({
+    tileGrid: "us-states",
+    topojson: false,
+    width: 2400,
+    height: 1500,
+  });
+  const texts = geomapEmit({viz}).filter(
+    n => n.type === "text" && n.key.startsWith("geomap-cartogram-label-"),
+  );
+  assert.ok(texts.length > 40);
+  for (const n of texts)
+    assert.ok(n.font.size <= TILE_GRID_FONT_MAX, `${n.key}: ${n.font.size}`);
+  assert.ok(
+    texts.some(n => n.font.size === TILE_GRID_FONT_MAX),
+    "the cap is reached",
+  );
+  assert.strictEqual(TILE_GRID_FONT_MAX, 14);
 });
