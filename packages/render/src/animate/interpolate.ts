@@ -4,6 +4,7 @@ import {clamp, pathBounds} from "@d3plus/math";
 
 import {interpolatePathD} from "../paths.js";
 import {morphPathD} from "./morph.js";
+import {interpolateSeries, seriesPath} from "./series.js";
 import {textVisualCenter} from "../scene.js";
 import {
   fitTransform,
@@ -284,6 +285,17 @@ export function interpolateNode(
         const arc = lerpArc(f.arc, n.arc);
         return t => ({...(base(t) as PathNode), d: arcPath(arc(t))});
       }
+      // Both carry keyed points (a streaming line or area): tween them by key
+      // and rebuild `d`, carrying the frame's points so an interrupting draw
+      // picks up from them.
+      const series =
+        f.series && n.series && interpolateSeries(f.series, n.series);
+      if (series)
+        return t => {
+          if (t >= 1) return base(t);
+          const s = series(t);
+          return {...(base(t) as PathNode), series: s, d: seriesPath(s)};
+        };
       const d = (n.morph ? morphPathD : interpolatePathD)(f.d, to.d);
       return t => ({...(base(t) as PathNode), d: d(t)});
     }
@@ -410,7 +422,7 @@ export function arcEnterStart(node: SceneNode): SceneNode | null {
 */
 export function pathEnterStart(node: SceneNode): SceneNode | null {
   if (node.type !== "path" || node.enterD === undefined) return null;
-  return {...node, arc: undefined, d: node.enterD};
+  return {...node, arc: undefined, series: undefined, d: node.enterD};
 }
 
 /**
@@ -498,6 +510,7 @@ export function collapse(node: SceneNode): SceneNode {
         return {
           ...node,
           paint,
+          series: undefined,
           d: node.enterD ?? flatAreaPath(pathBounds(node.d)),
         };
       // A Pie/Donut wedge collapses to a zero-WIDTH slice at its OWN full
@@ -720,7 +733,7 @@ export function collapseTo(
         );
         return {...node, paint, transform: fitTransform(source, rect, scale)};
       }
-      return {...node, paint, d: flatAreaPath(rect)};
+      return {...node, paint, series: undefined, d: flatAreaPath(rect)};
     case "text": {
       // Only reached for shapeType "Label" — isFlipEligible excludes every
       // other text node (title/subtitle/legend/axis, none of which are

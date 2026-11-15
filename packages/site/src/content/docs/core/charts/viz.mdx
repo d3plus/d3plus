@@ -6,6 +6,7 @@ description: "The base class every d3plus chart extends."
 import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import LiveSales from "~/components/demos/LiveSales.astro";
+import StreamingLine from "~/components/demos/StreamingLine.astro";
 import linkedTreemap from "~/examples/core/charts/viz/linked-treemap.js?raw";
 import linkedBarChart from "~/examples/core/charts/viz/linked-bar-chart.js?raw";
 import smallMultiples from "~/examples/core/charts/viz/small-multiples.js?raw";
@@ -147,6 +148,37 @@ hidden or the chart is scrolled out of view. This page answers the example's
 URL itself, with a new reading on every request.
 
 <Playground chart="BarChart" code={dataPolling} controls={["dataPollingInterval"]} />
+
+## Streaming rows
+
+`append(rows, {window})` adds rows to the chart's data and redraws it. Each
+line and area slides along by its x value: points already drawn move with the
+axis, new ones grow out of the line's end, and the oldest fold away, so a live
+feed reads as one chart moving rather than a redraw. Appends that land before
+the next animation frame share one redraw, and one that lands mid-animation
+picks up from where the marks are.
+
+`window` keeps the latest rows: a number keeps that many, and a time span
+(`"5 minutes"`, `"90s"`, `"300000ms"`, `"1.5 hours"`) keeps the rows within it
+of the latest time, read from `time` or else the x axis. Unlike setting
+`data`, appending keeps the series a viewer hid in the legend and the period
+they picked on the timeline. Setting `data` and calling `render()` tweens the
+same way, matching marks by their `groupBy` id.
+
+```js
+const viz = new LinePlot()
+  .select("#chart")
+  .data(rows)
+  .groupBy("region")
+  .x("time")
+  .y("value")
+  .xConfig({scale: "time"})
+  .render();
+
+socket.onmessage = e => viz.append(JSON.parse(e.data), {window: "1 minute"});
+```
+
+<StreamingLine />
 
 ## Styling with a class name
 
