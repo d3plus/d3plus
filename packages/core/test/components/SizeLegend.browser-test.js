@@ -202,6 +202,27 @@ it("SizeLegend component: lays out from config and emits non-interactive scene n
   );
 });
 
+it('SizeLegend component: shape "square" draws a square as wide as each circle', async () => {
+  const out = await inPage(`
+    const legend = new d3plus.SizeLegend().scale(scale([1, 100], [3, 24], true));
+    legend.layout();
+    const circles = legend.toScene().children.filter(c => c.type === "circle");
+    legend.shape("square").layout();
+    const squares = legend.toScene().children.filter(c => c.type === "rect");
+    return {circles, squares, shape: legend.shape()};
+  `);
+  assert.strictEqual(out.shape, "square");
+  assert.strictEqual(out.squares.length, out.circles.length);
+  out.squares.forEach((sq, k) => {
+    const c = out.circles[k];
+    assert.strictEqual(sq.width, 2 * c.r);
+    assert.strictEqual(sq.height, 2 * c.r);
+    assert.strictEqual(sq.x, c.cx - c.r);
+    assert.strictEqual(sq.y + sq.height, c.cy + c.r, "on the same bottom line");
+    assert.strictEqual(sq.interactive, false);
+  });
+});
+
 it("SizeLegend component: renders standalone into its container", async () => {
   const out = await render('<div id="legend"></div>', () => {
     const legend = new window.d3plus.SizeLegend()

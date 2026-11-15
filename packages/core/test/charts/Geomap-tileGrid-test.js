@@ -245,7 +245,7 @@ it("a tile grid without a topojson draws a tile per cell, joined to the data", (
   );
 });
 
-it("a tile grid leaves out points, links, dots, bins and the tiles, and takes a cartogram's place", () => {
+it("a tile grid leaves out points, dots, bins and the tiles, keeps links, and takes a cartogram's place", () => {
   const viz = laidOut(
     {
       tileGrid: "us-states",
@@ -263,7 +263,8 @@ it("a tile grid leaves out points, links, dots, bins and the tiles, and takes a 
   const ring = pathRings(c.cartogram.get("04000US06").d)[0];
   assert.strictEqual(ring.length, 6, "hexagons, not Dorling circles");
   assert.deepStrictEqual(c.pointData, []);
-  assert.deepStrictEqual(c.flowLinks, []);
+  // Links run between the tiles' centers.
+  assert.strictEqual(c.flowLinks.length, 1);
   assert.deepStrictEqual(c.density, {dots: null, bins: null});
   assert.strictEqual(dotDensitySettings(viz), null);
   assert.strictEqual(geoHexbinSettings(viz), null);

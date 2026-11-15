@@ -33,6 +33,14 @@ import {
   geomapFacetHooks,
 } from "../../src/charts/Geomap/cartogramFields.ts";
 import {
+  cartogramScale,
+  drawnCartogramScale,
+  estimateCartogramScale,
+  setCartogramLegend,
+} from "../../src/charts/Geomap/cartogramLegend.ts";
+import {cartogramAnchors} from "../../src/charts/Geomap/applyLayout.ts";
+import {fieldNameOf} from "../../src/utils/fieldAccessor.ts";
+import {
   currentTileUrl,
   syncTileAttribution,
   tileExtent,
@@ -221,7 +229,10 @@ it("cartogramFields declares the cartogram config and its defaults", () => {
   const fields = Object.fromEntries(cartogramFields().map(f => [f.key, f]));
   assert.strictEqual(fields.cartogram.default, false);
   assert.strictEqual(fields.cartogramPadding.default, 1);
-  assert.strictEqual(fields.cartogramSize.coerce, "accessor");
+  assert.strictEqual(fields.cartogramSize.coerce(false), false);
+  const fn = d => d.v;
+  assert.strictEqual(fields.cartogramSize.coerce(fn), fn);
+  assert.strictEqual(fieldNameOf(fields.cartogramSize.coerce("pop")), "pop");
   const viz = new Geomap().cartogram("demers").cartogramSize("pop");
   assert.strictEqual(viz.cartogram(), "demers");
   assert.strictEqual(viz.cartogramSize()({pop: 3}), 3);
@@ -288,7 +299,7 @@ it("geomapCartogram sizes and places each state with data", () => {
       assert.ok(s.x - s.r >= 19.5 && s.x + s.r <= 780.5, "inside the padding");
       assert.ok(s.y - s.r >= 19.5 && s.y + s.r <= 480.5);
     }
-    // Points and links aren't drawn on a cartogram.
+    // Coordinate points aren't drawn on a cartogram (and no links are set).
     assert.deepStrictEqual(viz.ctx.geomapCtx.pointData, []);
     assert.deepStrictEqual(viz.ctx.geomapCtx.flowLinks, []);
   }
@@ -426,4 +437,99 @@ it("currentTileUrl and tileExtent read the theme and the map area", () => {
   const [[x0, y0], [x1, y1]] = tileExtent(viz);
   assert.deepStrictEqual([x0, y0], [0, 0]);
   assert.ok(x1 > 0 && y1 > 0);
+});
+
+it("cartogramScale draws a value at c·√value", () => {
+  const scale = cartogramScale(2, 4, 100);
+  assert.deepStrictEqual(scale.domain(), [4, 100]);
+  assert.ok(Math.abs(scale(4) - 4) < 1e-9);
+  assert.ok(Math.abs(scale(25) - 10) < 1e-9);
+  assert.ok(Math.abs(scale.invert(20) - 100) < 1e-9);
+});
+
+it("setCartogramLegend picks squares for Demers and titles the legend by the sizing key", () => {
+  const viz = new Geomap().colorScale("Population");
+  assert.strictEqual(setCartogramLegend(viz), false);
+  assert.strictEqual(viz._sizeKey, undefined);
+  viz.cartogram("dorling");
+  assert.strictEqual(setCartogramLegend(viz), true);
+  assert.strictEqual(viz._sizeLegendShape, "circle");
+  assert.strictEqual(viz._sizeKey, "Population");
+  viz.cartogram("demers").cartogramSize("GDP");
+  setCartogramLegend(viz);
+  assert.strictEqual(viz._sizeLegendShape, "square");
+  assert.strictEqual(viz._sizeKey, "GDP");
+  viz.cartogramSize(d => d.GDP);
+  setCartogramLegend(viz);
+  assert.strictEqual(viz._sizeKey, undefined, "an accessor has no key");
+});
+
+it("estimateCartogramScale sizes the legend before layout, none when sizes don't differ", () => {
+  const viz = laidOut({cartogram: "dorling"});
+  const scale = estimateCartogramScale(viz, {width: 800, height: 500});
+  const values = population.map(d => d.Population);
+  assert.deepStrictEqual(scale.domain(), [
+    Math.min(...values),
+    Math.max(...values),
+  ]);
+  assert.ok(scale(Math.max(...values)) > 0);
+  viz._filteredData = population.map(d => ({...d, Population: 5}));
+  assert.strictEqual(
+    estimateCartogramScale(viz, {width: 800, height: 500}),
+    null,
+  );
+});
+
+it("drawnCartogramScale matches the shapes drawn, and a Dorling Geomap paints its legend with it", () => {
+  for (const kind of ["dorling", "demers"]) {
+    const viz = laidOut({cartogram: kind});
+    const {topoData, cartogram} = viz.ctx.geomapCtx;
+    const scale = drawnCartogramScale(viz, topoData, cartogram);
+    for (const id of ["04000US06", "04000US56", "04000US36"]) {
+      const value = population.find(d => d["State ID"] === id).Population;
+      assert.ok(
+        Math.abs(scale(value) - cartogram.get(id).r) < 1e-6,
+        `${kind} ${id}`,
+      );
+    }
+    assert.strictEqual(viz._sizeLegendFinal(39538223), scale(39538223));
+  }
+  const plain = laidOut({cartogram: false});
+  assert.strictEqual(plain._sizeLegendFinal, null);
+});
+
+it("cartogramAnchors lists each shape's center and radius by id", () => {
+  const anchors = cartogramAnchors(
+    new Map([
+      [6, {d: "", x: 10, y: 20, r: 5, square: false}],
+      ["ny", {d: "", x: 1, y: 2, r: 0, square: false}],
+    ]),
+  );
+  assert.deepStrictEqual(anchors.get("6"), {at: [10, 20], r: 5});
+  assert.deepStrictEqual(anchors.get("ny"), {at: [1, 2], r: 0});
+});
+
+it("links on a cartogram run between the shapes' centers, leaving out other ends", () => {
+  const links = [
+    {source: "04000US06", target: "04000US48"},
+    {source: "04000US06", target: [-74, 40.7]},
+    {source: "nowhere", target: "04000US48"},
+  ];
+  const viz = laidOut({cartogram: "dorling", links});
+  const {flowLinks, cartogram} = viz.ctx.geomapCtx;
+  assert.strictEqual(flowLinks.length, 1);
+  const [link] = flowLinks;
+  const ca = cartogram.get("04000US06"),
+    tx = cartogram.get("04000US48");
+  assert.deepStrictEqual(link.sourceAt, [ca.x, ca.y]);
+  assert.deepStrictEqual(link.targetAt, [tx.x, tx.y]);
+  assert.strictEqual(link.source.r, ca.r, "stops at the circle's outline");
+  assert.deepStrictEqual(link.points[0], [ca.x, ca.y]);
+  assert.deepStrictEqual(link.points.at(-1), [tx.x, tx.y]);
+  const map = laidOut({cartogram: false, links});
+  assert.strictEqual(
+    map.ctx.geomapCtx.flowLinks.length,
+    2,
+    "both drawn on the map",
+  );
 });

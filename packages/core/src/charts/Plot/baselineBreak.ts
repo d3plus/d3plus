@@ -8,6 +8,7 @@ import {mergeConfig} from "../../fluent.js";
 import {barSpanAxisConfig} from "./barWidth.js";
 import {openEndAxisConfig, valueAxis} from "./baselineDomain.js";
 import {periodAxisConfig} from "./periodLabels.js";
+import {levelAxisConfig, levelDomain} from "./plotLevels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
@@ -26,8 +27,15 @@ export function plotAxisConfig(
   axis: "x" | "y",
 ): Record<string, unknown> {
   const brk = viz.schema[`${axis}Break`];
-  const base = {break: brk === undefined ? false : brk};
-  const user = periodAxisConfig(viz, axis, openEndAxisConfig(viz, axis));
+  const base = {
+    break: brk === undefined ? false : brk,
+    ...levelAxisConfig(viz, axis),
+  };
+  const given = periodAxisConfig(viz, axis, openEndAxisConfig(viz, axis));
+  // Lists of level values name a multi-level axis's categories.
+  const user = Array.isArray(given.domain)
+    ? {...given, domain: levelDomain(viz, axis, given.domain)}
+    : given;
   const own = {
     ...barSpanAxisConfig(viz, axis),
     ...viz._plotAxisDefaults?.[axis],

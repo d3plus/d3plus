@@ -39,14 +39,10 @@ import {isPointShape} from "../viz/nearestHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
 
-import {
-  applyGeomapLayout,
-  geomapPointData,
-  geomapPointSizeScale,
-} from "./applyLayout.js";
+import {applyGeomapLayout, geomapSizeLegendScale} from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
 import {cartogramFields, geomapFacetHooks} from "./cartogramFields.js";
-import {regionsReshaped, tileGridFields, tileGridOcean} from "./tileGrid.js";
+import {tileGridFields, tileGridOcean} from "./tileGrid.js";
 import {
   currentTileUrl,
   syncTileAttribution,
@@ -522,11 +518,7 @@ export const geomapDef: ChartDefinition = {
   name: "Geomap",
 
   layoutStage: applyGeomapLayout,
-  sizeLegendScale: viz => {
-    if (regionsReshaped(viz) || geoHexbinSettings(viz)) return null;
-    const pointData = geomapPointData(viz);
-    return pointData.length ? geomapPointSizeScale(viz, pointData) : null;
-  },
+  sizeLegendScale: geomapSizeLegendScale,
   emit: geomapEmit,
   facet: geomapFacetHooks,
   insetRegion: sceneInsetRegion,

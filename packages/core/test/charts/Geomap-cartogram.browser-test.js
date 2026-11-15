@@ -97,7 +97,7 @@ const config = (extra = {}) =>
   });
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`Geomap ${renderer}: a Dorling cartogram draws a labeled circle per state, and no points, links, or tiles`, async () => {
+  it(`Geomap ${renderer}: a Dorling cartogram draws a labeled circle per state, a link between circles, a size legend, and no points or tiles`, async () => {
     const {page, errors, close} = await openPage(box);
     try {
       await page.evaluate(draw, [
@@ -117,7 +117,28 @@ for (const renderer of ["svg", "canvas"]) {
         !nodes.some(n => n.key.startsWith("geomap-point-")),
         "no points",
       );
-      assert.ok(!nodes.some(n => n.key.startsWith("geomap-link-")), "no links");
+      const link = nodes.find(
+        n => n.key === "geomap-link-04000US06-04000US48-0",
+      );
+      assert.ok(link, "the link between California and Texas");
+      const ends = link.d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi).map(Number);
+      const circle = key =>
+        ringShape(pathRings(nodes.find(n => n.key === key).d)[0]);
+      const ca = circle(CA),
+        tx = circle("geomap-path-04000US48");
+      const off = (x, y, c) => Math.hypot(x - c.cx, y - c.cy) - c.max;
+      assert.ok(
+        Math.abs(off(ends[0], ends[1], ca)) < 3,
+        "leaves California's outline",
+      );
+      assert.ok(
+        Math.abs(off(ends.at(-2), ends.at(-1), tx)) < 3,
+        "reaches Texas's outline",
+      );
+      assert.ok(
+        nodes.some(n => n.type === "circle" && n.key.startsWith("circle-")),
+        "a size legend of nested circles",
+      );
       const label = nodes.find(n =>
         n.key.startsWith("geomap-cartogram-label-04000US06"),
       );
@@ -193,6 +214,10 @@ for (const renderer of ["svg", "canvas"]) {
             `squares ${i} and ${j} overlap by ${overlap}`,
           );
         }
+      assert.ok(
+        nodes.some(n => n.type === "rect" && n.key.startsWith("square-")),
+        "a size legend of nested squares",
+      );
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {
       await close();

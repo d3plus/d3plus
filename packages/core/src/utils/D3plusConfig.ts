@@ -77,9 +77,11 @@ export interface AxisConfig {
       The axis's domain: `[min, max]` on a continuous axis, or the categories
       to show on a discrete one. In a Plot it overrides `xDomain`/`yDomain`
       and isn't rounded unless `rounding` says so; a single end (`[min]` or
-      `[undefined, max]`) pins that end like `yDomain([min])`.
+      `[undefined, max]`) pins that end like `yDomain([min])`. On a Plot's
+      multi-level axis (an Array `x` or `y`), each category can be the list
+      of its level values, outermost first: `[[2023, "Q1"], [2023, "Q2"]]`.
   */
-  domain?: (number | string | Date | undefined)[];
+  domain?: (number | string | Date | undefined | (number | string | Date)[])[];
   /**
       The tick the axis's `baselineBreak` returns to. Defaults to `0`. To start
       a Plot's value axis at a value, set the chart's `baseline` instead.
@@ -162,6 +164,47 @@ export interface AxisConfig {
   */
   labels?: unknown[];
   labelOffset?: false | number;
+  /**
+      Nests a category axis's categories in outer groups: given a category,
+      returns its labels, outermost first (`d => d.split("|")` for
+      `"2020|Q1"`). Each tick is labeled with its innermost label (which a
+      `tickFormat` receives in place of the category), and each run of
+      neighboring categories sharing an outer label is labeled once,
+      centered across the run, in a row of its own past the tick labels
+      (a column, on a vertical axis), with a divider between neighboring
+      runs. An outer label drawn cut short shows its whole text on hover
+      (unless `tickTooltip` is `false`), and `levelFormat` writes them. A
+      horizontal axis's outer labels wrap to two lines at most, and
+      a vertical axis's columns are as wide as their labels, up to a fifth
+      of the axis's width. A Plot sets this for an Array `x` or `y`. Only a
+      `"band"`, `"point"`, or `"ordinal"` axis reads it.
+      @example
+      {scale: "point", domain: ["2020|Q1", "2020|Q2", "2021|Q1"], levels: d => d.split("|")}
+  */
+  levels?: ((d: unknown) => unknown[]) | false;
+  /**
+      TextBox config for the outer level labels (see `levels`): `fontSize`,
+      `fontWeight`, `fontColor`, and the like. They start from the tick
+      labels' font.
+  */
+  levelConfig?: TextBoxConfig;
+  /**
+      Style of the dividers between outer level groups (see `levels`):
+      `stroke`, `stroke-width`, and other line styles, over the axis line's
+      `barConfig` style. `{stroke: "transparent"}` hides them.
+  */
+  levelDividerConfig?: Record<string, string | number>;
+  /**
+      Writes the outer level labels (see `levels`): called with each label's
+      value and its level, counted from the outermost (0), and the axis as
+      `this`. By default a Date is written as the axis's tick labels write
+      dates (a year as "2023", a month as "Mar"), against the other Dates at
+      its level, and any other value as text. The innermost level is the tick
+      label, which `tickFormat` writes.
+      @example
+      {levelFormat: (value, level) => (level === 0 ? `FY${value}` : `${value}`)}
+  */
+  levelFormat?: (value: unknown, level: number) => string;
   /**
       Whether to rotate the axis labels: `true` rotates them -90 degrees,
       `false` keeps them flat, and a number rotates them that many degrees
@@ -692,8 +735,10 @@ export interface SizeLegendConfig {
   values?: number[] | number | ((domain: [number, number]) => number[]);
   /** Formats each value's label. Defaults to the locale's abbreviated number format. */
   tickFormat?: (value: number) => string;
-  /** Title above the circles. Defaults to the `size` key when `size` is set to a string. */
+  /** Title above the circles. Defaults to the `size` key when `size` is set to a string (on a Geomap `cartogram`, the `cartogramSize` key, else the `colorScale` key). */
   title?: string;
+  /** The marks drawn for each value: nested `"circle"`s, or `"square"`s (each as wide as its circle; a Demers `cartogram` draws them). */
+  shape?: "circle" | "square";
   /** Circle paint: `fill`, `fillOpacity`, `stroke`, `strokeWidth`, `strokeOpacity`. */
   shapeConfig?: SizeLegendShapeConfig;
   /** Leader-line paint: `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`. */
@@ -1379,10 +1424,13 @@ export interface D3plusConfig {
       set at the center of the region's largest part and nudged apart until
       none overlap, with a pull back toward home; the shapes shrink together
       when they would spill out of the map. Regions without data or a
-      positive value are left out, and so are coordinate points, `links`,
-      and the tiles. Each region's label sits inside its shape when it fits,
-      and toggling the cartogram, or a change of value, morphs each outline
-      to and from its shape. Defaults to `false`, which draws the map.
+      positive value are left out, and so are coordinate points and the
+      tiles. Each region's label sits inside its shape when it fits, `links`
+      run between the shapes' centers (leaving out a link with an end that
+      isn't a drawn region), and a size legend of nested circles or squares
+      shows a few values of `cartogramSize` (see `sizeLegend`). Toggling
+      the cartogram, or a change of value, morphs each outline to and from
+      its shape. Defaults to `false`, which draws the map.
   */
   cartogram?: "dorling" | "demers" | false;
   /** Geomap: the gap left between neighboring `cartogram` shapes, in pixels. Defaults to `1`. */
@@ -2784,7 +2832,7 @@ export interface D3plusConfig {
   /** Pyramid: draws the name of each side above its half of the chart. */
   sideTitles?: boolean;
   /**
-      Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.
+      Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize` and Dorling or Demers cartograms via `cartogramSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.
   */
   sizeLegend?:
     | boolean
@@ -3003,9 +3051,10 @@ export interface D3plusConfig {
       tile, with the no-data fill when no row names it. The grid fills the
       map, less `projectionPadding`. Without a `topojson`, the tiles are the
       layout's cells; with one, toggling the grid morphs each outline to and
-      from its tile. Coordinate points, `links`, dots, bins, and the tiles
-      are left out, and so is the `ocean` unless it is set. Takes the place
-      of a `cartogram`. Defaults to `false`.
+      from its tile. `links` run between the tiles' centers; coordinate
+      points, dots, bins, and the tiles are left out, and so is the `ocean`
+      unless it is set. Takes the place of a `cartogram` (and shows no size
+      legend). Defaults to `false`.
   */
   tileGrid?: false | "us-states" | Record<string, [number, number]>;
   /** Geomap: the gap between neighboring `tileGrid` tiles, in pixels. Defaults to `2`. */
@@ -3172,8 +3221,18 @@ export interface D3plusConfig {
   weekStart?: number | string;
   /** Overall width of the visualization in pixels. */
   width?: number;
-  /** Key, index, or accessor function for x-axis values. */
-  x?: string | number | ((d: DataPoint, i: number) => unknown);
+  /**
+      Key, index, or accessor function for x-axis values. On a Plot, an
+      Array of keys or accessors, outermost first, draws a multi-level
+      category axis, which is the chart's discrete axis: `["year", "quarter"]` labels each tick with
+      its quarter and each year once, centered across its quarters, with a
+      divider between neighboring years (see the axis's `levels`).
+  */
+  x?:
+    | string
+    | number
+    | ((d: DataPoint, i: number) => unknown)
+    | (string | ((d: DataPoint, i: number) => unknown))[];
   /** Configuration for the x-axis. */
   xConfig?: AxisConfig;
   /**
@@ -3186,17 +3245,29 @@ export interface D3plusConfig {
       The x domain: `[min, max]` on a continuous axis, or the categories to
       show, in order, on a discrete one. Setting one end (`[min]` or
       `[undefined, max]`) pins only that end; the data fills the other. An
-      `xConfig.domain` overrides this.
+      `xConfig.domain` overrides this. On a multi-level axis (an Array
+      `x`), each category can be the list of its level values, outermost
+      first: `[[2023, "Q1"], [2023, "Q2"]]`.
   */
-  xDomain?: (number | string | Date)[];
+  xDomain?: (number | string | Date | (number | string | Date)[])[];
   /** The x2 domain as an array. If either value is undefined, it is calculated from the data. */
   x2Domain?: (number | Date)[];
   /** Custom sort function for x-axis values. */
   xSort?: (a: DataPoint, b: DataPoint) => number;
   /** Defines a custom sorting comparator function for discrete x2 axes. */
   x2Sort?: (a: DataPoint, b: DataPoint) => number;
-  /** Key, index, or accessor function for y-axis values. */
-  y?: string | number | ((d: DataPoint, i: number) => unknown);
+  /**
+      Key, index, or accessor function for y-axis values. On a Plot, an
+      Array of keys or accessors, outermost first, draws a multi-level
+      category axis, which is the chart's discrete axis: `["year", "quarter"]` labels each tick with
+      its quarter and each year once, centered across its quarters, with a
+      divider between neighboring years (see the axis's `levels`).
+  */
+  y?:
+    | string
+    | number
+    | ((d: DataPoint, i: number) => unknown)
+    | (string | ((d: DataPoint, i: number) => unknown))[];
   /** Configuration for the y-axis. */
   yConfig?: AxisConfig;
   /**
@@ -3210,9 +3281,11 @@ export interface D3plusConfig {
       The y domain: `[min, max]` on a continuous axis, or the categories to
       show, in order, on a discrete one. Setting one end (`[min]` or
       `[undefined, max]`) pins only that end; the data fills the other. A
-      `yConfig.domain` overrides this.
+      `yConfig.domain` overrides this. On a multi-level axis (an Array
+      `y`), each category can be the list of its level values, outermost
+      first: `[[2023, "Q1"], [2023, "Q2"]]`.
   */
-  yDomain?: (number | string | Date)[];
+  yDomain?: (number | string | Date | (number | string | Date)[])[];
   /** The y2 domain as an array. If either value is undefined, it is calculated from the data. */
   y2Domain?: (number | Date)[];
   /** Custom sort function for y-axis values. */
