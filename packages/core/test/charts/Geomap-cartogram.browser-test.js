@@ -277,3 +277,62 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 }
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`Geomap ${renderer}: a contiguous cartogram stretches the states, keeping their outlines' points`, async () => {
+    const {page, errors, close} = await openPage(box);
+    try {
+      await page.evaluate(draw, [config({cartogram: "dorling"}), renderer]);
+      await page.evaluate(
+        () =>
+          new Promise(resolve =>
+            window.__viz.cartogram("contiguous").render(() => resolve(true)),
+          ),
+      );
+      const nodes = await page.evaluate(painted);
+      const outlines = await page.evaluate(() => {
+        const c = window.__viz.ctx.geomapCtx;
+        return Object.fromEntries(
+          c.topoData.map(d => [`geomap-path-${d.id}`, c.pathFn(d)]),
+        );
+      });
+      const shapes = nodes.filter(n => n.key.startsWith("geomap-path-"));
+      assert.strictEqual(
+        shapes.length,
+        Object.values(outlines).filter(Boolean).length,
+        "every state the projection draws",
+      );
+      const area = d =>
+        pathRings(d).reduce(
+          (t, ring) =>
+            t +
+            Math.abs(
+              ring.reduce((s, p, i) => {
+                const q = ring[(i + 1) % ring.length];
+                return s + p[0] * q[1] - q[0] * p[1];
+              }, 0) / 2,
+            ),
+          0,
+        );
+      for (const n of shapes)
+        assert.deepStrictEqual(
+          pathRings(n.d).map(r => r.length),
+          pathRings(outlines[n.key]).map(r => r.length),
+          `${n.key}: its outline's rings and points`,
+        );
+      const ca = shapes.find(n => n.key === CA);
+      assert.ok(area(ca.d) > area(outlines[CA]), "California grows");
+      assert.ok(
+        !nodes.some(n => n.key.startsWith("geomap-cartogram-label-")),
+        "no labels",
+      );
+      assert.ok(
+        !nodes.some(n => n.key.startsWith("geomap-point-")),
+        "no points",
+      );
+      assert.deepStrictEqual(errors, [], "no page errors");
+    } finally {
+      await close();
+    }
+  });
+}

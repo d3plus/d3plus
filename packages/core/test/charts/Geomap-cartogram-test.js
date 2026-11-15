@@ -169,7 +169,9 @@ it("cartogramKind and cartogramValue read the config", () => {
   assert.strictEqual(cartogramKind(viz), "dorling");
   viz.schema.cartogram = "demers";
   assert.strictEqual(cartogramKind(viz), "demers");
-  for (const off of [false, undefined, "contiguous", "circles"]) {
+  viz.schema.cartogram = "contiguous";
+  assert.strictEqual(cartogramKind(viz), "contiguous");
+  for (const off of [false, undefined, "circles"]) {
     viz.schema.cartogram = off;
     assert.strictEqual(cartogramKind(viz), false);
   }
