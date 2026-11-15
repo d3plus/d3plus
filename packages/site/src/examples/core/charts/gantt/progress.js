@@ -33,7 +33,7 @@ const schedule = [
   {
     task: "Wireframes",
     phase: "Design",
-    start: "2024-03-25",
+    start: "2024-03-22",
     end: "2024-04-05",
     progress: 0.8,
     dependencies: ["Sign-off"],
