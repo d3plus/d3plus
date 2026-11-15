@@ -1,7 +1,7 @@
 /**
     What a Plot's shapes ask of the chart around them: bars, areas, and boxes
-    stand on a discrete axis (see `inferDiscrete.ts`), bars grow from `0` as
-    a BarChart's do, and none of them can be packed into a swarm.
+    stand on a discrete axis (see `inferDiscrete.ts`), bars and areas grow
+    from `0` as a BarChart's and AreaPlot's do, and only circles swarm.
 
     @module
 */
@@ -17,8 +17,11 @@ type RowAccessor = (d: DataPoint, i: number) => unknown;
 /** The shapes that stand on a discrete axis, and draw nothing sensible without one. */
 const DISCRETE_SHAPES = new Set(["Area", "Bar", "Box"]);
 
-/** The shape that grows from a baseline of `0` by default. */
-const BAR = new Set(["Bar"]);
+/** The shapes that grow from a baseline of `0` by default. */
+const BASELINE_SHAPES = new Set(["Area", "Bar"]);
+
+/** The shape a swarm packs. */
+const CIRCLE = new Set(["Circle"]);
 
 /**
     Whether any of a Plot's rows draws one of `shapes`.
@@ -50,35 +53,40 @@ export const drawsDiscreteShapes = (
 ): boolean => drawsAnyShape(viz, rows, DISCRETE_SHAPES);
 
 /**
-    The baseline a Plot's bars grow from when neither the chart nor the user
-    sets one: `0` when any row draws a Bar, as on a BarChart, else undefined.
+    The baseline a Plot's bars and areas grow from when neither the chart nor
+    the user sets one: `0` when any row draws a Bar or Area, as on a BarChart
+    or AreaPlot, else undefined.
     @param viz The Plot.
     @param rows Its data.
 */
-export function barBaseline(
+export function shapeBaseline(
   viz: VizInstance,
   rows: DataPoint[],
 ): number | undefined {
   return viz.schema.baseline === undefined &&
     viz._userBaseline === undefined &&
-    drawsAnyShape(viz, rows, BAR)
+    drawsAnyShape(viz, rows, BASELINE_SHAPES)
     ? 0
     : undefined;
 }
 
 /**
-    The `swarm` a Plot draws with: its setting, or `false` when a row draws a
-    Bar, Area, or Box, which a swarm can't pack (with a one-time warning).
+    The `swarm` a Plot draws with: its setting, which packs only its circles
+    (bars, areas, and boxes beside them keep their places), or `false`, with
+    a one-time note, when it draws bars, areas, or boxes and no circles,
+    leaving nothing to swarm.
     @param viz The Plot.
 */
 export function plotSwarm(viz: VizInstance): SwarmSetting | undefined {
   const swarm = viz.schema.swarm as SwarmSetting | undefined;
   if (!swarm || swarm === "auto") return swarm;
-  if (!drawsDiscreteShapes(viz, viz._data || [])) return swarm;
+  const rows = viz._data || [];
+  if (!drawsDiscreteShapes(viz, rows) || drawsAnyShape(viz, rows, CIRCLE))
+    return swarm;
   warnConfigOnce(
     viz,
-    "swarm-shapes",
-    "swarm packs circles only, so it is off for a Plot that draws bars, areas, or boxes.",
+    "swarm-no-circles",
+    "swarm packs a Plot's circles, and this one draws none, so there is nothing to swarm.",
   );
   return false;
 }

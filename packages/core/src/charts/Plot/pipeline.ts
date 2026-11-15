@@ -338,7 +338,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
   );
   viz._formattedData = formattedData;
 
-  const discrete = viz.schema.discrete as "x" | "y" | undefined;
+  const discrete = vizDiscrete(viz) as "x" | "y" | undefined;
   const swarm = (viz._swarm = resolveSwarm(
     plotSwarm(viz),
     axisData,

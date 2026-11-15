@@ -568,8 +568,8 @@ export interface VizInstance {
   _x2Time?: boolean;
   _yTime?: boolean;
   _y2Time?: boolean;
-  /** The baseline a Plot's bars grow from this draw when the chart sets none (see `Plot/plotShapes.ts`). */
-  _barBaseline?: number;
+  /** The baseline a Plot's bars and areas grow from this draw when the chart sets none (see `Plot/plotShapes.ts`). */
+  _shapeBaseline?: number;
   /** The `baseline` the user set: one end of the value axis's domain, like `yDomain([n])` (see `Plot/baselineDomain.ts`). */
   _userBaseline?: number;
   _stackOffset?: (series: number[][][], order: number[]) => void;
