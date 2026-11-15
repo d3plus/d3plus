@@ -53,6 +53,7 @@ function layoutSizeLegend(
     .titleConfig({fontColor: ink, fontFamily: viz.schema.fontFamily})
     .lineConfig({stroke: ink})
     .shapeConfig({fill: ink, stroke: ink})
+    .shape(viz._sizeLegendShape ?? "circle")
     .config(viz.schema.sizeLegendConfig)
     .scale(scale);
   const {width, height} = legend.layout();

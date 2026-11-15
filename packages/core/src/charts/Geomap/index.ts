@@ -44,6 +44,7 @@ import {
 import {projectionByName} from "./projections.js";
 import {cartogramFields, geomapFacetHooks} from "./cartogramFields.js";
 import {cartogramKind} from "./cartogramLayout.js";
+import {estimateCartogramScale, setCartogramLegend} from "./cartogramLegend.js";
 import {
   currentTileUrl,
   syncTileAttribution,
@@ -514,7 +515,8 @@ export const geomapDef: ChartDefinition = {
   name: "Geomap",
 
   layoutStage: applyGeomapLayout,
-  sizeLegendScale: viz => {
+  sizeLegendScale: (viz, available) => {
+    if (setCartogramLegend(viz)) return estimateCartogramScale(viz, available);
     if (cartogramKind(viz)) return null;
     const pointData = geomapPointData(viz);
     return pointData.length ? geomapPointSizeScale(viz, pointData) : null;

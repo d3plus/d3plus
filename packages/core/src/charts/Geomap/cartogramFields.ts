@@ -8,6 +8,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import type {ConfigField} from "../../fluent.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {FacetHooks, FacetPanelContext} from "../facet/facetConfig.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {cartogramKind, cartogramValue} from "./cartogramLayout.js";
@@ -35,7 +36,13 @@ export function cartogramFields(): ConfigField[] {
         accessor function. Defaults to the `colorScale` value.
         @type {string | function}
     */
-    {key: "cartogramSize", coerce: "accessor"},
+    {
+      key: "cartogramSize",
+      coerce: value =>
+        !value || typeof value === "function"
+          ? value
+          : fieldAccessor(value as string),
+    },
   ];
 }
 

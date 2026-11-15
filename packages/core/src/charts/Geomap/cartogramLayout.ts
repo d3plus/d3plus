@@ -72,7 +72,7 @@ export function cartogramValue(
   d: DataPoint,
   i: number,
 ): number {
-  const size = (viz.schema.cartogramSize ?? viz.schema.colorScale) as
+  const size = (viz.schema.cartogramSize || viz.schema.colorScale) as
     ((d: DataPoint, i: number) => unknown) | false | undefined;
   if (typeof size !== "function") return 1;
   const value = size(d, i);

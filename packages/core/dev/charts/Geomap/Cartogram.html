@@ -43,6 +43,7 @@
           <option value="false">Off</option>
         </select>
       </label>
+      <label><input id="links" type="checkbox" checked /> Links</label>
       <button id="shuffle">Shuffle values</button>
     </div>
     <div id="viz"></div>
@@ -51,6 +52,15 @@
   <script>
     var maps = {
       states: {
+        flows: [
+          {source: "04000US06", target: "04000US48", people: 102000},
+          {source: "04000US06", target: "04000US04", people: 74000},
+          {source: "04000US36", target: "04000US12", people: 64000},
+          {source: "04000US36", target: "04000US34", people: 50000},
+          {source: "04000US17", target: "04000US18", people: 30000},
+          {source: "04000US12", target: "04000US13", people: 34000},
+          {source: "04000US06", target: "04000US53", people: 33000},
+        ],
         data: "./state-population.json",
         groupBy: "State ID",
         label: d => d.Abbr,
@@ -60,6 +70,14 @@
         topojsonKey: undefined,
       },
       world: {
+        flows: [
+          {source: 484, target: 840, people: 11000},
+          {source: 356, target: 784, people: 3500},
+          {source: 156, target: 840, people: 2900},
+          {source: 608, target: 840, people: 2000},
+          {source: 804, target: 616, people: 1600},
+          {source: 50, target: 356, people: 3100},
+        ],
         data: "./country-population.json",
         groupBy: "id",
         label: d => d.Country,
@@ -70,6 +88,7 @@
         topojsonKey: "countries",
       },
       counties: {
+        flows: [],
         data: "./county-population.json",
         groupBy: "County ID",
         label: d => d.County,
@@ -80,21 +99,36 @@
       },
     };
 
+    var map = document.querySelector("#map");
+    var kind = document.querySelector("#kind");
+    var links = document.querySelector("#links");
+
+    /** The chosen map's config, with its links when the box is checked. */
+    function mapConfig() {
+      var m = Object.assign({}, maps[map.value]);
+      var flows = m.flows;
+      delete m.flows;
+      return Object.assign(m, {links: links.checked ? flows : []});
+    }
+
     var chart = new d3plus.Geomap()
       .select("#viz")
       .config({
+        arrows: true,
         cartogram: "dorling",
         colorScale: "Population",
         height: 560,
-        ...maps.states,
+        linkSize: d => d.people,
+        ...mapConfig(),
       })
       .render();
 
-    var map = document.querySelector("#map");
-    var kind = document.querySelector("#kind");
-
     map.addEventListener("change", function () {
-      chart.config(maps[map.value]).render();
+      chart.config(mapConfig()).render();
+    });
+
+    links.addEventListener("change", function () {
+      chart.config(mapConfig()).render();
     });
 
     kind.addEventListener("change", function () {

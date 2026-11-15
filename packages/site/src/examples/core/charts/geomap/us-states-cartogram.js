@@ -54,11 +54,24 @@ const data = [
   {id: "56", state: "Wyoming", population: 576851},
 ];
 
+// Illustrative yearly moves between a few pairs of states.
+const links = [
+  {source: "06", target: "48", people: 102000},
+  {source: "06", target: "04", people: 74000},
+  {source: "36", target: "12", people: 64000},
+  {source: "36", target: "34", people: 50000},
+  {source: "12", target: "13", people: 34000},
+  {source: "06", target: "53", people: 33000},
+];
+
 const config = {
   data,
   groupBy: "id",
   label: d => d.state,
+  arrows: true,
   cartogram: "dorling",
+  links,
+  linkSize: d => d.people,
   colorScale: "population",
   ocean: "transparent",
   projection: "geoAlbersUsa",
