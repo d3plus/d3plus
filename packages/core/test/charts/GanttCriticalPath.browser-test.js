@@ -11,16 +11,19 @@ import {render} from "~test/browser/render.js";
     console warning however often the chart redraws.
 */
 
-/** Plan → Design → Review → Ship is critical; Copy has a week of slack. */
+/**
+    Plan → Design → Review → Ship is critical, each running through its end
+    date; Copy has five working days of slack.
+*/
 const tasks = [
   {task: "Plan", start: "2024-03-04", end: "2024-03-08"},
   {
     task: "Design",
-    start: "2024-03-08",
+    start: "2024-03-11",
     end: "2024-03-20",
     dependencies: "Plan",
   },
-  {task: "Copy", start: "2024-03-08", end: "2024-03-13", dependencies: "Plan"},
+  {task: "Copy", start: "2024-03-11", end: "2024-03-13", dependencies: "Plan"},
   {
     task: "Review",
     start: "2024-03-20",
@@ -29,7 +32,7 @@ const tasks = [
   },
   {
     task: "Ship",
-    start: "2024-03-20",
+    start: "2024-03-21",
     end: "2024-03-27",
     dependencies: "Review",
   },
@@ -150,15 +153,15 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`Gantt [${renderer}]: weekend handoffs chain, and critical bars are outlined in their color`, async () => {
-    // Each task ends with a Friday (at Saturday's midnight) and its
-    // dependent starts the next Monday; "Docs" has slack.
+    // Each task runs through a Friday and its dependent starts the next
+    // Monday; "Docs" has slack.
     const weekly = [
-      {task: "Plan", phase: "One", start: "2024-03-04", end: "2024-03-09"},
+      {task: "Plan", phase: "One", start: "2024-03-04", end: "2024-03-08"},
       {
         task: "Build",
         phase: "One",
         start: "2024-03-11",
-        end: "2024-03-16",
+        end: "2024-03-15",
         progress: 0,
         dependencies: "Plan",
       },
@@ -166,14 +169,14 @@ for (const renderer of ["svg", "canvas"]) {
         task: "Docs",
         phase: "Two",
         start: "2024-03-11",
-        end: "2024-03-13",
+        end: "2024-03-12",
         dependencies: "Plan",
       },
       {
         task: "Ship",
         phase: "Two",
         start: "2024-03-18",
-        end: "2024-03-23",
+        end: "2024-03-22",
         progress: 0.5,
         dependencies: ["Build", "Docs"],
       },
@@ -218,6 +221,27 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(nodes["gantt-group-One"], "phases keep their brackets");
       assert.deepStrictEqual(warnings, []);
     }
+  });
+
+  it(`Gantt [${renderer}]: the weekend follows the locale`, async () => {
+    // Sunday through Thursday, then the next Sunday: a Fri–Sat weekend.
+    const week = [
+      {task: "A", start: "2024-03-03", end: "2024-03-07"},
+      {task: "B", start: "2024-03-10", end: "2024-03-12", dependencies: "A"},
+    ];
+    const read = locale =>
+      render('<div id="viz" style="width:800px;height:300px"></div>', draw, {
+        config: {data: week, groupBy: "task", legend: false, locale},
+        renderer,
+      });
+    const sa = await read("ar-SA");
+    assert.ok(sa.nodes["gantt-critical-key-label"], "chains in ar-SA");
+    assert.strictEqual(sa.nodes["gantt-task-A"].paint.strokeWidth, 2);
+    const us = await read("en-US");
+    assert.ok(
+      !us.nodes["gantt-critical-key-label"],
+      "Friday has slack in en-US",
+    );
   });
 
   it(`Gantt [${renderer}]: a dependency cycle draws no critical path and warns once`, async () => {
@@ -280,7 +304,7 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(/Copy/.test(tip), `names the task (${tip})`);
       const expected =
         renderer === "svg"
-          ? ["Slack", "5 working days", "Latest start", "Mar 15, 2024"]
+          ? ["Slack", "5 working days", "Latest start", "Mar 18, 2024"]
           : ["Holgura", "5 días laborables", "Inicio más tardío"];
       for (const s of expected)
         assert.ok(tip.includes(s), `tooltip has ${s} (${tip})`);

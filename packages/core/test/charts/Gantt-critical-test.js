@@ -12,7 +12,6 @@ import {
 import {
   ganttCriticalPath,
   linkKey,
-  slackBreaks,
   workClock,
 } from "../../src/charts/Gantt/ganttCritical.ts";
 import {
@@ -21,6 +20,7 @@ import {
   dependencyNodes,
   dependencyStyle,
 } from "../../src/charts/Gantt/ganttDecor.ts";
+import {workingBreaks} from "../../src/charts/Gantt/ganttCalendar.ts";
 import {recordSlack, taskSlack} from "../../src/charts/Gantt/ganttSlack.ts";
 import {
   daysLabel,
@@ -40,18 +40,21 @@ useJsdom();
 
 afterEach(() => vi.restoreAllMocks());
 
-/** Plan → Design → Review → Ship is critical; Copy has a week of slack. */
+/**
+    Plan → Design → Review → Ship is critical, each running through its end
+    date; Copy has five working days of slack.
+*/
 const plan = [
   {id: "Plan", start: "2024-03-04", end: "2024-03-08"},
-  {id: "Design", start: "2024-03-08", end: "2024-03-20", dependencies: "Plan"},
-  {id: "Copy", start: "2024-03-08", end: "2024-03-13", dependencies: "Plan"},
+  {id: "Design", start: "2024-03-11", end: "2024-03-20", dependencies: "Plan"},
+  {id: "Copy", start: "2024-03-11", end: "2024-03-13", dependencies: "Plan"},
   {
     id: "Review",
     start: "2024-03-20",
     end: "2024-03-20",
     dependencies: ["Design", "Copy"],
   },
-  {id: "Ship", start: "2024-03-20", end: "2024-03-27", dependencies: "Review"},
+  {id: "Ship", start: "2024-03-21", end: "2024-03-27", dependencies: "Review"},
 ];
 
 /** A Gantt wired up the way the pipeline leaves it before layout. */
@@ -171,9 +174,9 @@ it("Gantt: ganttCriticalPath records each task's slack and latest start", () => 
   const copy = taskSlack(viz, byId("Copy"));
   assert.strictEqual(copy.critical, false);
   assert.strictEqual(copy.working, true);
-  // Mar 13 to Mar 20 holds five working days.
+  // Thursday, Mar 14 through Wednesday, Mar 20 holds five working days.
   assert.strictEqual(copy.slack, 5 * 864e5);
-  assert.strictEqual(sameDay(copy.latestStart, new Date(2024, 2, 15)), true);
+  assert.strictEqual(sameDay(copy.latestStart, new Date(2024, 2, 18)), true);
   assert.strictEqual(taskSlack(viz, byId("Design")).slack, 0);
   // Turned off, the slack is forgotten.
   viz.criticalPath(false);
@@ -182,10 +185,9 @@ it("Gantt: ganttCriticalPath records each task's slack and latest start", () => 
 });
 
 it("Gantt: weekends add no slack, whether or not rangeBreaks hide them", () => {
-  // Plan ends with Friday (at Saturday's midnight) and Design starts the
-  // next Monday.
+  // Plan runs through Friday and Design starts the next Monday.
   const data = [
-    {id: "Plan", start: "2024-03-04", end: "2024-03-09"},
+    {id: "Plan", start: "2024-03-04", end: "2024-03-08"},
     {
       id: "Design",
       start: "2024-03-11",
@@ -202,13 +204,14 @@ it("Gantt: weekends add no slack, whether or not rangeBreaks hide them", () => {
   }
   // A task spanning a weekend measures only its working days: Friday to
   // Monday is one, the same as Friday to Saturday.
+  // (Dates at midnight, which the tasks end at rather than run through.)
   const span = [
-    {id: "Long", start: "2024-03-08", end: "2024-03-11"},
-    {id: "Short", start: "2024-03-08", end: "2024-03-09"},
+    {id: "Long", start: new Date(2024, 2, 8), end: new Date(2024, 2, 11)},
+    {id: "Short", start: new Date(2024, 2, 8), end: new Date(2024, 2, 9)},
     {
       id: "Next",
-      start: "2024-03-11",
-      end: "2024-03-13",
+      start: new Date(2024, 2, 11),
+      end: new Date(2024, 2, 13),
       dependencies: ["Long", "Short"],
     },
   ];
@@ -252,20 +255,20 @@ it("Gantt: criticalPathConfig.workingDays false counts weekends as slack", () =>
   assert.strictEqual(taskSlack(viz, byId("Copy")).working, true);
 });
 
-it("Gantt: slackBreaks lists weekends and the axis's whole-day breaks", () => {
-  assert.deepStrictEqual(slackBreaks(gantt()), ["weekends"]);
+it("Gantt: workingBreaks lists weekends and the axis's whole-day breaks", () => {
+  assert.deepStrictEqual(workingBreaks(gantt()), [{days: [6, 0]}]);
   assert.deepStrictEqual(
-    slackBreaks(
+    workingBreaks(
       gantt(plan, {axisConfig: {rangeBreaks: {values: ["2024-03-14"]}}}),
     ),
-    ["weekends", {values: ["2024-03-14"]}],
+    [{days: [6, 0]}, {values: ["2024-03-14"]}],
   );
   assert.deepStrictEqual(
-    slackBreaks(gantt(plan, {criticalPathConfig: {workingDays: false}})),
+    workingBreaks(gantt(plan, {criticalPathConfig: {workingDays: false}})),
     [],
   );
   assert.deepStrictEqual(
-    slackBreaks(gantt(plan, {axisConfig: {scale: "linear"}})),
+    workingBreaks(gantt(plan, {axisConfig: {scale: "linear"}})),
     [],
   );
   // Rules that hide all of time leave plain time.
@@ -383,7 +386,7 @@ it("Gantt: the tooltip lists Slack and Latest start, translated", () => {
   const copy = ganttTooltipRows(viz, byId("Copy"), 2);
   assert.deepStrictEqual(copy.slice(-2), [
     ["Slack", "5 working days"],
-    ["Latest start", "Mar 15, 2024"],
+    ["Latest start", "Mar 18, 2024"],
   ]);
   assert.deepStrictEqual(ganttTooltipRows(viz, byId("Design"), 1).at(-1), [
     "Slack",
