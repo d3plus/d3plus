@@ -1,0 +1,58 @@
+---
+title: DotPlot
+description: "Creates a dot plot from an array of data: each row draws as one dot at its value along the x axis (or y), and the dots are swept into stacks one dot wide (Wilkinson's dot-density algorithm), each stack at the mean of its values."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/dot-plot/basic-example.js?raw";
+import categoryRows from "~/examples/core/charts/dot-plot/category-rows.js?raw";
+import coloredGroups from "~/examples/core/charts/dot-plot/colored-groups.js?raw";
+import centeredStacks from "~/examples/core/charts/dot-plot/centered-stacks.js?raw";
+import verticalRows from "~/examples/core/charts/dot-plot/vertical-rows.js?raw";
+import oneDotPer from "~/examples/core/charts/dot-plot/one-dot-per.js?raw";
+
+Creates a dot plot from an array of data: each row draws as one dot at its
+value along the `x` axis (or `y`), and the dots are swept into stacks one
+dot wide (Wilkinson's dot-density algorithm), each stack at the mean of
+its values. Set the other axis to a categorical key to stack each category
+on its own row, `groupBy` to color the dots, `stackDirection` to center the
+stacks, and `per` to draw one dot per `per` units of a `value` column.
+
+## Basic example
+
+Every row is one dot. Sorted by value, the dots are swept into stacks one dot wide: the first value opens a stack, every value within one dot's width of it joins, and the stack is drawn at the mean of its values. The dots are as large as they can be while the tallest stack still fits the chart (up to 10 pixels); `dotRadius` fixes their size, and `binWidth` sets the stacks' width in data units instead.
+
+<Playground chart="DotPlot" code={basicExample} controls={["x","dotRadius","binWidth"]} />
+
+## Groups as rows
+
+Set the other axis to a categorical key and each category stacks on its own row, inside its band. A second `groupBy` level names each dot, so its tooltip shows the country.
+
+<Playground chart="DotPlot" code={categoryRows} controls={["x","y","stackDirection"]} />
+
+## Colored groups in one column
+
+Without a category axis, `groupBy` colors the dots and every stack lists its groups in the same order, so the colors band across the stacks like a stacked histogram.
+
+<Playground chart="DotPlot" code={coloredGroups} controls={["groupBy","dotRadius"]} />
+
+## Centered stacks
+
+`stackDirection: "center"` spreads each stack evenly on both sides of its row's center, for a symmetric, violin-like shape.
+
+<Playground chart="DotPlot" code={centeredStacks} controls={["stackDirection"]} />
+
+## Vertical rows
+
+Swap `x` and `y` for vertical rows: the values run up the chart and the stacks grow to the right.
+
+<Playground chart="DotPlot" code={verticalRows} controls={["x","y"]} />
+
+## One dot per unit
+
+With `per`, a row's `value` becomes `round(value / per)` dots, like a unit chart: here each dot stands for 50 people. A dot's tooltip names its row, its value, and what each dot stands for.
+
+<Playground chart="DotPlot" code={oneDotPer} controls={["per","value"]} />
+
+<ApiReference name="DotPlot" pkg="core" />
