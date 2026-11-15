@@ -243,6 +243,12 @@ export interface VizInstance {
   */
   _mergeRows?: (leaves: DataPoint[]) => DataPoint;
   /**
+      Reads a `shapeConfig` as the chart takes it, each time one is set (a
+      Plot makes its shapes' per-datum keys functions, see
+      `Plot/shapeAccessors.ts`).
+  */
+  _readShapeConfig?: <T extends object>(config: T) => T;
+  /**
       Further keys the rollup nests rows by, after the group and discrete
       keys, so rows that differ on one never merge (a Plot's time axes).
   */
