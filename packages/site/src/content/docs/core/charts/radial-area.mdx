@@ -1,0 +1,43 @@
+---
+title: RadialArea
+description: "Creates a radial area chart from an array of data: each groupBy group is an area around a circle, for cyclical data such as hours or months."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/radial-area/basic-example.js?raw";
+import stacked from "~/examples/core/charts/radial-area/stacked.js?raw";
+import smoothRing from "~/examples/core/charts/radial-area/smooth-ring.js?raw";
+import smallMultiples from "~/examples/core/charts/radial-area/small-multiples.js?raw";
+
+Creates a radial area chart from an array of data: each `groupBy` group is an
+area around a circle, for cyclical data such as hours or months. It is a
+[RadialLine](/core/charts/radial-line/) with each line filled down to the
+center, or, with `stacked`, on top of the lines before it. Every RadialLine
+option works here too.
+
+## Basic example
+
+Each area is a see-through fill outlined in its color, so overlapping areas stay readable; `shapeConfig.Area` restyles them (`fillOpacity: 1` for solid shapes). The value rings' labels sit above the areas.
+
+<Playground chart="RadialArea" code={basicExample} controls={["x","y","groupBy"]} />
+
+## Stacked
+
+`stacked: true` stacks each series on top of the ones before it, in the order they appear in the data, so each band's thickness is its value and the outer edge shows the total. A series with no row at some `x` counts as 0 there. Each band is named inside it, where it has room; with every band named, the legend hides (`lineLabels: false` brings it back). Hovering a dot shows the series' own value.
+
+<Playground chart="RadialArea" code={stacked} controls={["stacked","lineLabels"]} />
+
+## Smooth ring
+
+`innerRadius` opens an empty center, so a stack reads as a ring, and a `curve` in `shapeConfig.Area` smooths its edges.
+
+<Playground chart="RadialArea" code={smoothRing} controls={["innerRadius","shapeConfig","startAngle"]} />
+
+## Small multiples
+
+`facet` draws one chart per region. With `facetConfig: {scales: "shared"}`, every panel uses one value domain, so a smaller region draws a smaller ring.
+
+<Playground chart="RadialArea" code={smallMultiples} controls={["facet","facetConfig"]} />
+
+<ApiReference name="RadialArea" pkg="core" />

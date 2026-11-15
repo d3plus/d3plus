@@ -68,6 +68,15 @@ const marks = () => {
   const hits = {};
   const legend = [];
   let axisDims = false;
+  // The axis hover badges drawn, by key: a tick label a badge overlaps is
+  // hidden under it, naming that badge in `coveredBy`.
+  const badges = new Set();
+  const findBadges = n => {
+    if (/plot-axis-hover-badge-\w+$/.test(String(n.key)))
+      badges.add(String(n.key));
+    (n.children || []).forEach(findBadges);
+  };
+  findBadges(viz._paintedScene.root);
   const walk = (n, x, y, inherited, axis, inLegend) => {
     const t = n.transform || {};
     const nx = x + (t.x || 0),
@@ -76,9 +85,10 @@ const marks = () => {
       inherited *
       (n.paint && typeof n.paint.opacity === "number" ? n.paint.opacity : 1);
     const inAxis = axis || n.interactionGroup === "axis";
-    // Discrete tick labels follow the hover (`hoverMatch`); the rest of an
-    // axis stays bright.
-    if (inAxis && opacity < 1 && !n.hoverMatch) axisDims = true;
+    // Discrete tick labels follow the hover (`hoverMatch`), and a label under
+    // a drawn badge hides; the rest of an axis stays bright.
+    const covered = n.coveredBy !== undefined && badges.has(n.coveredBy);
+    if (inAxis && opacity < 1 && !n.hoverMatch && !covered) axisDims = true;
     const key = String(n.key);
     const swatches = inLegend || n.interactionGroup === "legend";
     if (swatches && n.type === "rect" && n.datum)

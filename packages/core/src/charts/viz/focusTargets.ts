@@ -55,7 +55,7 @@ const ROOT_GROUPS: Record<string, FocusTarget["group"]> = {
 };
 
 /** Interaction groups that are chart chrome rather than data marks. */
-const CHROME_GROUPS = new Set(["axis", "timeline", "trend"]);
+const CHROME_GROUPS = new Set(["axis", "timeline", "trend", "marginal"]);
 
 /** Whether a node (and everything inside it) is out of keyboard reach. */
 function skipped(node: SceneNode): boolean {
