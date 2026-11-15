@@ -83,5 +83,4 @@ const config = {
   data: schedule,
   groupBy: "task",
   color: "phase",
-  criticalPath: true,
 };
