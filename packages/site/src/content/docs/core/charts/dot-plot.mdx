@@ -10,14 +10,14 @@ import categoryRows from "~/examples/core/charts/dot-plot/category-rows.js?raw";
 import coloredGroups from "~/examples/core/charts/dot-plot/colored-groups.js?raw";
 import centeredStacks from "~/examples/core/charts/dot-plot/centered-stacks.js?raw";
 import verticalRows from "~/examples/core/charts/dot-plot/vertical-rows.js?raw";
-import oneDotPer from "~/examples/core/charts/dot-plot/one-dot-per.js?raw";
+import oneDotPerUnit from "~/examples/core/charts/dot-plot/one-dot-per-unit.js?raw";
 
 Creates a dot plot from an array of data: each row draws as one dot at its
 value along the `x` axis (or `y`), and the dots are swept into stacks one
 dot wide (Wilkinson's dot-density algorithm), each stack at the mean of
 its values. Set the other axis to a categorical key to stack each category
 on its own row, `groupBy` to color the dots, `stackDirection` to center the
-stacks, and `per` to draw one dot per `per` units of a `value` column.
+stacks, and `unit` to draw one dot per `unit` of a `value` column.
 
 ## Basic example
 
@@ -51,8 +51,8 @@ Swap `x` and `y` for vertical rows: the values run up the chart and the stacks g
 
 ## One dot per unit
 
-With `per`, a row's `value` becomes `round(value / per)` dots, like a unit chart: here each dot stands for 50 people. A dot's tooltip names its row, its value, and what each dot stands for.
+With `unit`, a row's `value` becomes `round(value / unit)` dots, like a unit chart: here each dot stands for 50 people. A dot's tooltip names its row, its value, and what each dot stands for.
 
-<Playground chart="DotPlot" code={oneDotPer} controls={["per","value"]} />
+<Playground chart="DotPlot" code={oneDotPerUnit} controls={["unit","value"]} />
 
 <ApiReference name="DotPlot" pkg="core" />

@@ -1,6 +1,6 @@
 /**
     DotPlot's tooltip: a dot names its row (its label, else its value) and
-    lists its value, its category row, and, with `per`, its row's value and
+    lists its value, its category row, and, with `unit`, its row's value and
     what one dot stands for.
 */
 
@@ -54,7 +54,7 @@ export function dotTooltipTitle(viz: VizInstance, row: Row) {
 /**
     A dot's tooltip rows: its value (unless the title shows it) and its
     category row, as `[axis title, value]`, unless a `discrete` axis's
-    tooltip lists them already; then, with `per`, its row's `value` and
+    tooltip lists them already; then, with `unit`, its row's `value` and
     what one dot stands for ("Each Dot", translated).
     @param viz The chart.
     @param row Unwraps a hovered datum to the row the dot came from.
@@ -77,8 +77,8 @@ export function dotTooltipRows(viz: VizInstance, row: Row) {
           axisText(viz, swarm.cross, source, i),
         ]);
     }
-    const per = positive(viz.schema.per);
-    if (per) {
+    const unit = positive(viz.schema.unit);
+    if (unit) {
       const t = viz.schema.translate;
       const fmt = (n: number) => formatAbbreviate(n, viz.schema.locale);
       const value = viz.schema.value as AxisAccessor;
@@ -87,7 +87,7 @@ export function dotTooltipRows(viz: VizInstance, row: Row) {
           valueKeyOf(viz.schema.value) ?? t("Value"),
           fmt(Number(value(source, i))),
         ],
-        [t("Each Dot"), fmt(per)],
+        [t("Each Dot"), fmt(unit)],
       );
     }
     return rows;

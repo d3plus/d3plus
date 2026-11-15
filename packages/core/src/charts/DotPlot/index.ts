@@ -1,7 +1,7 @@
 /**
     DotPlot — a Wilkinson dot plot: a Plot in swarm mode whose circles are
     laid out in stacks along the value axis (see `placements.ts`), one dot
-    per row (or per `per` units of `value`).
+    per row (or per `unit` of `value`).
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -12,7 +12,8 @@ import {makeChart} from "../definition/makeChart.js";
 import {valueField} from "../helpers/valueTitle.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {expandPer} from "./dotLayout.js";
+import {expandUnit} from "./dotLayout.js";
+import {settleFacetSize, trackFacetSize} from "./facetSize.js";
 import {dotPlacements} from "./placements.js";
 import {dotTooltipRows, dotTooltipTitle} from "./tooltip.js";
 
@@ -20,9 +21,9 @@ import {dotTooltipRows, dotTooltipTitle} from "./tooltip.js";
 interface DotPlotState {
   /** The user's rows. */
   raw: DataPoint[];
-  /** The rows last written to `viz._data` (one per dot, with `per`). */
+  /** The rows last written to `viz._data` (one per dot, with `unit`). */
   rows: DataPoint[];
-  /** Each dot row's source row, with `per`. */
+  /** Each dot row's source row, with `unit`. */
   source: Map<DataPoint, DataPoint>;
 }
 
@@ -35,7 +36,7 @@ function dotRow(d: DataPoint): DataPoint {
   return d;
 }
 
-/** The row a dot came from: its source row with `per`, else the row itself. */
+/** The row a dot came from: its source row with `unit`, else the row itself. */
 export function sourceRow(viz: VizInstance, d: DataPoint): DataPoint {
   const row = dotRow(d);
   const state = viz.ctx.dotPlot as DotPlotState;
@@ -43,21 +44,21 @@ export function sourceRow(viz: VizInstance, d: DataPoint): DataPoint {
 }
 
 /**
-    With `per`, turns each user row into one row per dot before Plot's
+    With `unit`, turns each user row into one row per dot before Plot's
     pre-draw; without it, the user's rows draw as they are.
 */
 function dotsBeforePreDraw(viz: VizInstance): void {
   const state = viz.ctx.dotPlot as DotPlotState;
   if (viz._data !== state.rows) state.raw = viz._data;
-  const per = positive(viz.schema.per);
-  if (!per) {
+  const unit = positive(viz.schema.unit);
+  if (!unit) {
     state.source = new Map();
     state.rows = viz._data = state.raw;
     return;
   }
   viz._sourceData = state.raw;
   const value = viz.schema.value as (d: DataPoint, i: number) => unknown;
-  const out = expandPer(state.raw, value, per);
+  const out = expandUnit(state.raw, value, unit);
   state.source = out.source;
   state.rows = viz._data = out.rows;
 }
@@ -101,7 +102,15 @@ export const dotPlotDef: ChartDefinition = {
       dotsBeforePreDraw(viz);
       preDraw();
     };
+    const draw = viz._draw.bind(viz);
+    viz._draw = (callback?: () => void) => {
+      trackFacetSize(viz);
+      return draw(callback);
+    };
   },
+
+  // Small multiples share one dot size: the smallest any panel fits.
+  facet: {redraw: settleFacetSize},
 
   ctx: {},
 
@@ -121,12 +130,6 @@ export const dotPlotDef: ChartDefinition = {
         @type {number}
     */
     {key: "dotRadius"},
-    /**
-        What one dot stands for, in units of `value`: each row draws
-        `round(value / per)` dots instead of one.
-        @type {number}
-    */
-    {key: "per"},
     {key: "shape", default: constant("Circle"), coerce: "const"},
     // Dots are too small to carry labels, and restacking moves them short
     // distances that would leave motion trails.
@@ -162,7 +165,13 @@ export const dotPlotDef: ChartDefinition = {
     // A stack holds many dots; each tooltip names one.
     {key: "tooltipShared", default: false},
     /**
-        Accessor function or string key for each row's value, which `per`
+        What one dot stands for, in units of `value`: each row draws
+        `round(value / unit)` dots instead of one.
+        @type {number}
+    */
+    {key: "unit"},
+    /**
+        Accessor function or string key for each row's value, which `unit`
         turns into dots.
         @type {string | function}
     */
@@ -177,6 +186,6 @@ export const dotPlotDef: ChartDefinition = {
     its values. Set the other axis to a categorical key to stack each
     category on its own row, `groupBy` to color the dots (each stack lists its
     groups in the same order), `stackDirection` to center the stacks, and
-    `per` to draw one dot per `per` units of a `value` column.
+    `unit` to draw one dot per `unit` of a `value` column.
 */
 export default makeChart(dotPlotDef, Plot);

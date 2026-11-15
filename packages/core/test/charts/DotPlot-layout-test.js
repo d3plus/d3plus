@@ -3,9 +3,10 @@ import assert from "assert";
 import {
   MAX_DOT_DIAMETER,
   MIN_DOT_DIAMETER,
-  expandPer,
+  expandUnit,
   fitDotDiameter,
   groupOrder,
+  separateStacks,
   stackCenters,
   stackOffsets,
   tallestStack,
@@ -22,6 +23,11 @@ import {
   namedRow,
 } from "../../src/charts/DotPlot/tooltip.ts";
 import {sourceRow} from "../../src/charts/DotPlot/index.ts";
+import {
+  panelDiameter,
+  settleFacetSize,
+  trackFacetSize,
+} from "../../src/charts/DotPlot/facetSize.ts";
 
 const close = (a, b, msg) =>
   assert.ok(Math.abs(a - b) < 1e-9, `${msg ?? ""} ${a} ≈ ${b}`);
@@ -48,6 +54,46 @@ it("stackCenters — each stack sits at the mean of its values", () => {
   close(centers[0], 1.4 / 3);
   close(centers[1], 1.1);
   close(centers[2], 3);
+});
+
+it("separateStacks — overlapping neighbors pushed apart until they touch", () => {
+  assert.deepStrictEqual(
+    separateStacks([0, 20, 45], 10),
+    [0, 20, 45],
+    "stacks a gap apart keep their place",
+  );
+  assert.deepStrictEqual(
+    separateStacks([0, 5, 30], 10),
+    [-2.5, 7.5, 30],
+    "a pair spreads evenly around its mean",
+  );
+  assert.deepStrictEqual(
+    separateStacks([0, 1, 2], 10),
+    [-9, 1, 11],
+    "a run spreads around its mean",
+  );
+  assert.deepStrictEqual(
+    separateStacks([0, 6, 12, 40], 10),
+    [-4, 6, 16, 40],
+    "a push stops where it no longer overlaps",
+  );
+  separateStacks([0, 9, 17], 10).forEach((x, i) =>
+    close(x, 26 / 3 + (i - 1) * 10, "a chain pools into one run"),
+  );
+  assert.deepStrictEqual(
+    separateStacks([30, 5, 0], 10),
+    [30, 7.5, -2.5],
+    "any input order, returned in that order",
+  );
+  assert.deepStrictEqual(separateStacks([], 10), []);
+  const out = separateStacks([3, 3.5, 4, 20, 21], 4);
+  const sum = values => values.reduce((a, b) => a + b, 0);
+  assert.ok(
+    Math.abs(sum(out) - sum([3, 3.5, 4, 20, 21])) < 1e-9,
+    "the overall position is kept",
+  );
+  for (let i = 1; i < out.length; i++)
+    assert.ok(out[i] - out[i - 1] >= 4 - 1e-9, "neighbors just touch or clear");
 });
 
 it("tallestStack — the largest stack's dot count", () => {
@@ -109,9 +155,9 @@ it("groupOrder — groups in natural order, level by level", () => {
   assert.ok(nested(2, 1) < 0, "the top level decides first");
 });
 
-it("expandPer — one copy per `per` units, rounded", () => {
+it("expandUnit — one copy per `unit` of the value, rounded", () => {
   const rows = [{v: 12}, {v: 4}, {v: "x"}, {v: 2}];
-  const {rows: dots, source} = expandPer(rows, d => d.v, 5);
+  const {rows: dots, source} = expandUnit(rows, d => d.v, 5);
   assert.strictEqual(dots.length, 3);
   assert.deepStrictEqual(
     dots.map(d => source.get(d)),
@@ -130,7 +176,7 @@ it("dotGap — 1px, or a quarter of a small dot", () => {
 /** A swarm-mode viz and paint inputs over rows of `[value, group, lane]`. */
 function placementInputs(rows, {swarm, schema = {}, lanes = []} = {}) {
   const state = swarm ?? {axis: "x", cross: "y", lanes: false};
-  const viz = {_swarm: state, schema, _ids: d => [d.g]};
+  const viz = {_swarm: state, schema, ctx: {dotPlot: {}}, _ids: d => [d.g]};
   const values = rows.map(([v, g, lane = ""], i) => ({
     id: g,
     [state.axis]: v,
@@ -218,6 +264,24 @@ it("dotPlacements — centered stacks, a fixed radius, or a fixed bin width", ()
   const first = b.get(binned.values[0]);
   close(first.x, 12, "the stack's mean value, scaled");
   assert.strictEqual(first.r, 4.5, "dots as wide as a 10px bin");
+});
+
+it("dotPlacements — stacks that overlap at their means are pushed apart", () => {
+  const {values, place} = placementInputs(
+    [
+      [1, "a"],
+      [2.8, "a"],
+      [3.2, "a"],
+    ],
+    {schema: {dotRadius: 10}},
+  );
+  const out = place();
+  // 20px bins: 10 and 28px stack at 19, 32px stacks alone, 13px off.
+  assert.deepStrictEqual(
+    values.map(d => out.get(d).x),
+    [15.5, 15.5, 35.5],
+    "both move 3.5px, until they touch",
+  );
 });
 
 it("dotPlacements — one row per category, sized to fit the band", () => {
@@ -310,8 +374,8 @@ it("dotTooltipTitle / dotTooltipRows — the row, its value, and its category", 
   assert.deepStrictEqual(dotTooltipRows(discrete, row)({id: 1, v: 3}, 0), []);
 });
 
-it("dotTooltipRows — with `per`, the row's value and what a dot stands for", () => {
-  const viz = tooltipViz({per: 5}, {axis: "x", cross: "y", lanes: false});
+it("dotTooltipRows — with `unit`, the row's value and what a dot stands for", () => {
+  const viz = tooltipViz({unit: 5}, {axis: "x", cross: "y", lanes: false});
   assert.deepStrictEqual(
     dotTooltipRows(viz, d => d)({id: 1, v: 2, count: 42}, 0),
     [
@@ -322,11 +386,40 @@ it("dotTooltipRows — with `per`, the row's value and what a dot stands for", (
   );
 });
 
-it("sourceRow — a dot's own row, or with `per` the row it came from", () => {
+it("sourceRow — a dot's own row, or with `unit` the row it came from", () => {
   const raw = {v: 1};
   const copy = {v: 1};
   const viz = {ctx: {dotPlot: {source: new Map([[copy, raw]])}}};
   assert.strictEqual(sourceRow(viz, {__d3plus__: true, data: copy}), raw);
   const other = {v: 2};
   assert.strictEqual(sourceRow(viz, {__d3plus__: true, data: other}), other);
+});
+
+it("facet dot size — panels note their fit, then share the smallest", () => {
+  const viz = {ctx: {dotPlot: {}}, _facetStep: undefined};
+  trackFacetSize(viz);
+  assert.strictEqual(panelDiameter(viz, 12), 12, "outside small multiples");
+  assert.strictEqual(settleFacetSize(viz), false);
+
+  viz._facetStep = "chrome";
+  trackFacetSize(viz);
+  viz._facetStep = "panel";
+  trackFacetSize(viz);
+  assert.strictEqual(panelDiameter(viz, 12), 12, "first pass: own fit");
+  assert.strictEqual(panelDiameter(viz, 7), 7);
+  assert.strictEqual(panelDiameter(viz, 9), 9);
+  assert.strictEqual(settleFacetSize(viz), true, "draw the panels again");
+  assert.strictEqual(panelDiameter(viz, 12), 7, "second pass: the smallest");
+  assert.strictEqual(settleFacetSize(viz), false, "settled once");
+
+  viz._facetStep = "chrome";
+  trackFacetSize(viz);
+  viz._facetStep = "panel";
+  panelDiameter(viz, 5);
+  panelDiameter(viz, 5);
+  assert.strictEqual(settleFacetSize(viz), false, "equal fits draw once");
+
+  viz._facetStep = undefined;
+  trackFacetSize(viz);
+  assert.strictEqual(viz.ctx.dotPlot.facet, undefined, "a plain draw drops it");
 });

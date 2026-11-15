@@ -1744,7 +1744,7 @@ export {
 export type {RugConfig} from "./src/charts/DensityPlot/rug.js";
 export {dotPlotDef, sourceRow} from "./src/charts/DotPlot/index.js";
 export {
-  expandPer,
+  expandUnit,
   fitDotDiameter,
   groupOrder,
   MAX_DOT_DIAMETER,

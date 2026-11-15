@@ -2,12 +2,13 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {separateStacks} from "../../src/charts/DotPlot/dotLayout.ts";
 
 /**
     DotPlot in a real browser, on SVG and Canvas: one dot per row swept into
     Wilkinson stacks (each at the mean of its values, piled from the
     baseline one diameter apart), category rows, groups ordered within each
-    stack, centered stacks, vertical rows, `per`, and a hovered dot's
+    stack, centered stacks, vertical rows, `unit`, and a hovered dot's
     tooltip and highlight.
 */
 
@@ -100,6 +101,7 @@ const probe = ([renderer, config, hover]) =>
         yRange: viz._yAxis.range(),
         xRange: viz._xAxis.range(),
         missing: viz.schema.colorDefaults.missing,
+        facet: viz.ctx.dotPlot.facet,
       };
       if (hover) {
         const target = dots[Math.floor(dots.length / 2)];
@@ -180,15 +182,32 @@ for (const renderer of ["svg", "canvas"]) {
       .sort((a, b) => b - a);
     const step = pair[0] - pair[1];
     assert.ok(step >= 2 * r, "dots don't overlap");
+    const means = [];
     for (const stack of stacks) {
       const ys = stack.map(d => d.y).sort((a, b) => b - a);
       near(bottom - ys[0], step / 2, "the first dot sits half a step up");
       for (let k = 1; k < ys.length; k++)
         near(ys[k - 1] - ys[k], step, "dots one step apart");
-      const mean =
-        stack.reduce((sum, d) => sum + out.pixels[d.key], 0) / stack.length;
-      near(stack[0].x, mean, "the stack sits at the mean of its values");
+      means.push(
+        stack.reduce((sum, d) => sum + out.pixels[d.key], 0) / stack.length,
+      );
     }
+    // Each stack starts at the mean of its values, and overlapping
+    // neighbors are pushed apart until they just touch.
+    const xs = stacks.map(st => st[0].x);
+    separateStacks(means, step).forEach((x, i) =>
+      near(xs[i], x, "the stack sits at its smoothed mean"),
+    );
+    const sorted = xs.slice().sort((a, b) => a - b);
+    for (let k = 1; k < sorted.length; k++)
+      assert.ok(
+        sorted[k] - sorted[k - 1] >= step - 0.01,
+        "stacks don't overlap",
+      );
+    assert.ok(
+      means.some((m, i) => Math.abs(m - xs[i]) > 0.5),
+      "some stacks were pushed apart",
+    );
     const tallest = Math.max(...stacks.map(st => st.length));
     assert.ok(tallest * step <= bottom - top + 0.01, "the tallest stack fits");
     assert.ok(
@@ -287,7 +306,25 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
-  it(`DotPlot draws one dot per \`per\` units, and its tooltip names the row (${renderer})`, async function () {
+  it(`DotPlot small multiples share one dot size, the smallest any panel fits (${renderer})`, async function () {
+    const out = await render("", probe, [
+      renderer,
+      {x: "value", groupBy: "region", facet: "region"},
+    ]);
+    assert.strictEqual(out.dots.length, 90);
+    const radii = new Set(out.dots.map(d => d.r));
+    assert.strictEqual(radii.size, 1, `one dot size: ${[...radii]}`);
+    const {sizes, shared} = out.facet;
+    assert.ok(
+      new Set(sizes.map(v => v.toFixed(3))).size > 1,
+      `the panels fit different sizes: ${sizes}`,
+    );
+    near(shared, Math.min(...sizes), "the shared size is the smallest");
+    const r = out.dots[0].r;
+    near(r, (shared - Math.min(1, shared / 4)) / 2, "every panel draws it");
+  });
+
+  it(`DotPlot draws one dot per \`unit\`, and its tooltip names the row (${renderer})`, async function () {
     const out = await render("", probe, [
       renderer,
       {
@@ -295,7 +332,7 @@ for (const renderer of ["svg", "canvas"]) {
         x: "value",
         groupBy: "name",
         value: "count",
-        per: 5,
+        unit: 5,
       },
       true,
     ]);

@@ -2606,8 +2606,6 @@ export interface D3plusConfig {
   pathLabels?: boolean | ((d: DataPoint, i: number) => string | false | null);
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
-  /** DotPlot: what one dot stands for, in units of `value`: each row draws `round(value / per)` dots instead of one. */
-  per?: number;
   /**
       Calendar: what each block covers — `"year"` (the default; whole years,
       stacked) or `"month"` (whole months, as a grid of small calendars).
@@ -3180,6 +3178,8 @@ export interface D3plusConfig {
       Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
   */
   totalPadding?: boolean | ((viz: VizBase) => boolean);
+  /** DotPlot: what one dot stands for, in units of `value`: each row draws `round(value / unit)` dots instead of one. */
+  unit?: number;
   /** Candlestick: the color of periods that closed at or above their open, or an accessor of the row. Defaults to green. */
   upColor?: string | ((d: DataPoint, i: number) => string);
   /** Value accessor for the visualization. */

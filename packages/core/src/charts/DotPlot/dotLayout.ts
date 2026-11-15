@@ -63,6 +63,40 @@ export function tallestStack(values: number[], width: number): number {
   );
 }
 
+/**
+    Pushes overlapping neighbors apart until they just touch: the positions
+    nearest `centers` (least squares) that keep their order with neighbors
+    at least `gap` apart. Stacks already `gap` apart keep their place; a run
+    that overlaps spreads out evenly around its mean. Found exactly, by
+    pooling adjacent violators on `center - k × gap` (k the rank).
+    Deterministic; returns the positions in input order.
+    @param centers Each stack's position.
+    @param gap The least distance between neighboring stacks.
+*/
+export function separateStacks(centers: number[], gap: number): number[] {
+  const order = centers
+    .map((_, i) => i)
+    .sort((a, b) => centers[a] - centers[b] || a - b);
+  const blocks: {sum: number; count: number}[] = [];
+  order.forEach((i, k) => {
+    blocks.push({sum: centers[i] - k * gap, count: 1});
+    while (blocks.length > 1) {
+      const last = blocks[blocks.length - 1];
+      const prev = blocks[blocks.length - 2];
+      if (prev.sum / prev.count <= last.sum / last.count) break;
+      prev.sum += last.sum;
+      prev.count += last.count;
+      blocks.pop();
+    }
+  });
+  const out: number[] = new Array(centers.length);
+  let k = 0;
+  for (const block of blocks)
+    for (let n = 0; n < block.count; n++, k++)
+      out[order[k]] = block.sum / block.count + k * gap;
+  return out;
+}
+
 /** Options for `fitDotDiameter`. */
 export interface DotFitOptions {
   /** The room each stack may fill across the value axis, in pixels. */
@@ -163,22 +197,22 @@ export function groupOrder(
 }
 
 /**
-    One row per dot: each row whose `value` is `per` or more becomes
-    `round(value / per)` copies of itself (rows that round to no dots are
+    One row per dot: each row becomes `round(value / unit)` copies of
+    itself (rows that round to no dots are
     left out). Returns the copies and, for each, the row it came from.
     @param rows The rows.
     @param value Each row's value.
-    @param per What one dot stands for, in the value's units.
+    @param unit What one dot stands for, in the value's units.
 */
-export function expandPer<T extends object>(
+export function expandUnit<T extends object>(
   rows: T[],
   value: (d: T, i: number) => unknown,
-  per: number,
+  unit: number,
 ): {rows: T[]; source: Map<T, T>} {
   const out: T[] = [];
   const source = new Map<T, T>();
   rows.forEach((d, i) => {
-    const count = Math.round(Number(value(d, i)) / per);
+    const count = Math.round(Number(value(d, i)) / unit);
     if (!Number.isFinite(count)) return;
     for (let k = 0; k < count; k++) {
       const copy = {...d};

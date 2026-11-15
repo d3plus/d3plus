@@ -5,7 +5,7 @@
     <title>DotPlot</title>
     <meta
       name="description"
-      content="DotPlot variants: Wilkinson stacks along x, category rows, groups colored within one column, centered stacks, vertical rows, one dot per 5 units with per, fixed bins, and small multiples."
+      content="DotPlot variants: Wilkinson stacks along x, category rows, groups colored within one column, centered stacks, vertical rows, one dot per 5 units with unit, fixed bins, and small multiples."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -57,8 +57,8 @@
         <div class="viz" id="vertical"></div>
       </div>
       <div>
-        <h3>One dot per 5 units (per: 5, value: "count")</h3>
-        <div class="viz" id="per"></div>
+        <h3>One dot per 5 units (unit: 5, value: "count")</h3>
+        <div class="viz" id="unit"></div>
       </div>
       <div>
         <h3>Fixed bins (binWidth: 2), centered</h3>
@@ -133,12 +133,12 @@
       .render();
 
     new d3plus.DotPlot()
-      .select("#per")
+      .select("#unit")
       .data(ages)
       .groupBy("group")
       .x("age")
       .value("count")
-      .per(5)
+      .unit(5)
       .render();
 
     new d3plus.DotPlot()

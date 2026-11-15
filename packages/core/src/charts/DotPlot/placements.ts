@@ -12,11 +12,13 @@ import type {
   SwarmState,
 } from "../Plot/swarm.js";
 import {uniqueIds} from "../../shapes/uniqueIds.js";
+import {panelDiameter} from "./facetSize.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   fitDotDiameter,
   groupOrder,
   MIN_DOT_DIAMETER,
+  separateStacks,
   stackCenters,
   stackOffsets,
   wilkinsonStacks,
@@ -50,13 +52,58 @@ function binWidthPixels(
   return Math.abs(scale(start + width, axis) - scale(start, axis));
 }
 
+/** A lane's rows, their values, and their pixel positions along the value axis. */
+interface Lane {
+  rows: DataPoint[];
+  data: number[];
+  pixels: number[];
+}
+
+/**
+    The distance between dot centers: twice `dotRadius` when set; with a
+    `binWidth`, the bin's pixel width, shrunk until the tallest stack fits
+    `extent`; else the largest that fits (see `fitDotDiameter`). Small
+    multiples share the smallest size any panel fits.
+*/
+function dotDiameter(
+  viz: VizInstance,
+  lanes: Lane[],
+  extent: number,
+  binPixels: (values: number[], width: number) => number,
+): number {
+  const radius = positive(viz.schema.dotRadius);
+  if (radius) return radius * 2;
+  const binWidth = positive(viz.schema.binWidth);
+  const finite = lanes.flatMap(g => g.data.filter(Number.isFinite));
+  let diameter: number;
+  if (binWidth && finite.length) {
+    const tallest = Math.max(
+      1,
+      ...lanes.map(g =>
+        Math.max(0, ...wilkinsonStacks(g.data, binWidth).map(s => s.length)),
+      ),
+    );
+    diameter = Math.max(
+      MIN_DOT_DIAMETER,
+      Math.min(binPixels(finite, binWidth), extent / tallest),
+    );
+  } else
+    diameter = fitDotDiameter(
+      lanes.map(g => g.pixels),
+      {extent},
+    );
+  return panelDiameter(viz, diameter);
+}
+
 /**
     Lays out a DotPlot's dots, lane by lane: each lane's values are swept into
     stacks one dot wide (`binWidth` data units when set, else one dot's
-    diameter in pixels), each stack sits at the mean of its values, and its
+    diameter in pixels), each stack starts at the mean of its values and
+    is pushed off any neighbor it overlaps until they just touch, and its
     dots, ordered by group, pile up from the lane's baseline (or center, with
     `stackDirection: "center"`). Every lane shares one dot size: `dotRadius`
-    when set, else the largest that fits the tallest stack in its lane.
+    when set, else the largest that fits the tallest stack in its lane (the
+    smallest any panel fits, in small multiples).
     Returns each row's placement, keyed by row.
 */
 export function dotPlacements(
@@ -88,7 +135,7 @@ export function dotPlacements(
     if (!lanes.has(key)) lanes.set(key, []);
     lanes.get(key)!.push(d);
   }
-  const groups = Array.from(lanes.values()).map(rows => {
+  const groups: Lane[] = Array.from(lanes.values()).map(rows => {
     const data = rows.map(d =>
       Number(d[axis] instanceof Date ? +d[axis] : d[axis]),
     );
@@ -97,30 +144,10 @@ export function dotPlacements(
 
   const direction: StackDirection =
     viz.schema.stackDirection === "center" ? "center" : "up";
-  const radius = positive(viz.schema.dotRadius);
   const binWidth = positive(viz.schema.binWidth);
-  const finite = groups.flatMap(g => g.data.filter(Number.isFinite));
-  let diameter: number;
-  if (radius) diameter = radius * 2;
-  else if (binWidth && finite.length) {
-    const tallest = Math.max(
-      1,
-      ...groups.map(g =>
-        Math.max(0, ...wilkinsonStacks(g.data, binWidth).map(s => s.length)),
-      ),
-    );
-    diameter = Math.max(
-      MIN_DOT_DIAMETER,
-      Math.min(
-        binWidthPixels(valueFn, axis, finite, binWidth),
-        extent / tallest,
-      ),
-    );
-  } else
-    diameter = fitDotDiameter(
-      groups.map(g => g.pixels),
-      {extent},
-    );
+  const diameter = dotDiameter(viz, groups, extent, (values, width) =>
+    binWidthPixels(valueFn, axis, values, width),
+  );
   const r = Math.max(0.5, (diameter - dotGap(diameter)) / 2);
   // Stacks pile up the screen (toward smaller y) or to the right.
   const sign = cross === "y" ? -1 : 1;
@@ -142,9 +169,14 @@ export function dotPlacements(
     const stacks = binWidth
       ? wilkinsonStacks(group.data, binWidth)
       : wilkinsonStacks(group.pixels, diameter);
-    const at = binWidth
-      ? stackCenters(group.data, stacks).map(v => valueFn(v, axis))
-      : stackCenters(group.pixels, stacks);
+    // Each stack starts at its mean, and overlapping neighbors are pushed
+    // apart until they just touch.
+    const at = separateStacks(
+      binWidth
+        ? stackCenters(group.data, stacks).map(v => valueFn(v, axis))
+        : stackCenters(group.pixels, stacks),
+      diameter,
+    );
     const index = group.rows.map(d => rank.get(d)!);
     stacks.forEach((stack, s) => {
       // By group, then by value (the stack's own order).

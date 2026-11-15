@@ -24,5 +24,5 @@ const config = {
   groupBy: "group",
   x: "age",
   value: "people",
-  per: 50,
+  unit: 50,
 };
