@@ -20,7 +20,7 @@ import {renderAxes} from "./axes.js";
 import {emitEndLabels} from "./plotEndLabels.js";
 import type {EndLabelBox, XLabelMode} from "./plotEndLabels.js";
 import {valueAxisExtent} from "../Plot/baselineBreak.js";
-import {breakLineNodes, maskBreaks} from "../Plot/plotBreaks.js";
+import {breakLineNodes, maskBreaks, maskedGaps} from "../Plot/plotBreaks.js";
 import {clipToPlotArea} from "../Plot/domainClip.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
 import {discreteAxis, tagHoverTicks} from "./hoverTicks.js";
@@ -616,6 +616,7 @@ export function plotEmit(
       clip
         ? undefined
         : {xRange, yRange: clipRange, x2Height: pCtx.x2Height, yOffset},
+      maskedGaps(viz, {xRange, yRange, x2Height: pCtx.x2Height}),
     ),
   );
 

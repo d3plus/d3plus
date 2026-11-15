@@ -1,7 +1,9 @@
 /**
     Labels of a Plot's Circle marks (scatter, bubble, beeswarm points): each
-    stays inside its circle when it fits there, else moves beside it where
-    there's room, else hides (see `labelPosition` and `features/circleLabels.ts`).
+    stays inside its circle when it fits there and no point drawn over it
+    covers it, else moves beside it where there's room, else stays inside
+    when it fits there, else hides (see `labelPosition` and
+    `features/circleLabels.ts`).
 
     @module
 */
@@ -11,6 +13,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import type {Shape} from "../../shapes/index.js";
 import type {ShapeAes} from "../../shapes/Shape.js";
+import {sortRanks} from "../../shapes/sceneSort.js";
 import {
   emitOutsideLabels,
   insideFontMin,
@@ -66,6 +69,16 @@ export function plotCircleLabels(
     labelBounds: LabelBounds;
   };
   const labelConfig = schema.labelConfig;
+  // The circles paint in `sort` order (see `Shape.toScene`), or else
+  // largest first when the chart repaints them so.
+  const rank =
+    sortRanks(
+      values,
+      s.schema.sort as ((a: DataPoint, b: DataPoint) => number) | null,
+    ) ??
+    (ctx.largestFirst
+      ? largestFirstRanks(values.map((d, i) => Number(schema.r(d, i))))
+      : null);
   const items: CircleLabelItem<DataPoint>[] = values.map((d, i) => {
     const row = d as PlotDatum;
     const r = Number(schema.r(d, i));
@@ -77,6 +90,7 @@ export function plotCircleLabels(
       y: Number(schema.y(d, i)),
       r,
       text: schema.label(d, i),
+      order: rank ? rank[i] : i,
       inside: {
         width: r * 2,
         height: r * 2,
@@ -126,14 +140,14 @@ export function plotCircleLabels(
 }
 
 /**
-    Lifts a Circle group's labels over every circle. Sized circles are layered
-    by a `z` rank (largest behind), and a node without one sorts as 0, so
-    without this a label would paint beneath the circles layered over its own.
-    @param nodes The group's circles and labels.
+    The paint position of each circle drawn largest first (see
+    `largestFirst`): larger radii first, equal radii in input order.
+    @param radii Each circle's radius, in input order.
 */
-export function labelsOverCircles(nodes: SceneNode[]): SceneNode[] {
-  let top = -Infinity;
-  for (const n of nodes) if (typeof n.z === "number") top = Math.max(top, n.z);
-  if (top === -Infinity) return nodes;
-  return nodes.map(n => (n.type === "text" ? {...n, z: top + 1} : n));
+export function largestFirstRanks(radii: readonly number[]): number[] {
+  const r = (i: number) => (Number.isFinite(radii[i]) ? radii[i] : 0);
+  const order = radii.map((_, i) => i).sort((a, b) => r(b) - r(a) || a - b);
+  const rank = new Array<number>(radii.length);
+  order.forEach((at, pos) => (rank[at] = pos));
+  return rank;
 }

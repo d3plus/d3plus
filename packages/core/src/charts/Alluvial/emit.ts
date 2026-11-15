@@ -20,6 +20,7 @@ import type {AlluvialCtx} from "./applyLayout.js";
 import {alluvialRibbon} from "./layout.js";
 import {alluvialMeta} from "./meta.js";
 import {alluvialTitleNodes, alluvialTitleTooltip} from "./titles.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /** A value as the chart prints it. */
 export function formatAlluvialValue(viz: VizInstance, value: number): string {
@@ -36,7 +37,7 @@ function nodeLabel(cfg: Record<string, unknown>) {
   };
 }
 
-export const alluvialEmit: ChartEmit = ({viz}) => {
+export const alluvialEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.alluvial as AlluvialCtx | undefined;
   if (!c) return [];
   const v = viz as VizInstance;
@@ -95,4 +96,4 @@ export const alluvialEmit: ChartEmit = ({viz}) => {
     ),
   );
   return out;
-};
+});

@@ -326,14 +326,6 @@
       "a": "middle"
     },
     {
-      "s": "Pharma",
-      "a": "middle"
-    },
-    {
-      "s": "Iota",
-      "a": "middle"
-    },
-    {
       "s": "Hardware",
       "a": "start"
     },
@@ -344,6 +336,10 @@
     {
       "s": "Care",
       "a": "start"
+    },
+    {
+      "s": "Pharma",
+      "a": "middle"
     },
     {
       "s": "Power",
@@ -380,6 +376,10 @@
     {
       "s": "Theta",
       "a": "start"
+    },
+    {
+      "s": "Iota",
+      "a": "middle"
     },
     {
       "s": "Tech",

@@ -23,6 +23,7 @@ import type {FlowLink} from "./flowLinks.js";
 import {emitBins, emitDots} from "./densityEmit.js";
 import type {GeomapDensity} from "./densityLayout.js";
 import {geoHexbinSettings} from "./geoHexbin.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface GeomapCtx {
   density?: GeomapDensity;
@@ -101,7 +102,7 @@ function emitGeomapBasemap(viz: VizInstance): SceneNode[] {
   return out;
 }
 
-export const geomapEmit: ChartEmit = ({viz}) => {
+export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = emitGeomapBasemap(viz);
@@ -213,4 +214,4 @@ export const geomapEmit: ChartEmit = ({viz}) => {
 
   out.push(...emitFlowLabels(viz, links, circles));
   return out;
-};
+});

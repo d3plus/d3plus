@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>KPI</title>
+    <meta
+      name="description"
+      content="KPI tiles: a big value per metric with its change against the previous month (good or bad by deltaDirection) and a sparkline; previous values from data, bar sparklines in fixed columns, small multiples by region, a dark theme, a timeline with a Spanish locale, and short tiles that drop parts to fit."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 360px;
+      }
+      .viz.short {
+        height: 110px;
+      }
+      .dark {
+        background: #1d1f23;
+      }
+      .dark-title {
+        color: #e9ecef;
+        background: #1d1f23;
+        padding: 4px 6px 0;
+        margin: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>
+          Monthly metrics (time: "month"), churn and tickets good when down
+        </h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>previous: "lastYear", delta: "both", no time</h3>
+        <div class="viz" id="previous"></div>
+      </div>
+      <div>
+        <h3>sparkline: "bar", tileConfig: {columns: 2}, delta: "absolute"</h3>
+        <div class="viz" id="bars"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "region")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3 class="dark-title">A dark background, sparkline: "line"</h3>
+        <div class="viz dark" id="dark"></div>
+      </div>
+      <div>
+        <h3>timeline: true, locale: "es-ES"</h3>
+        <div class="viz" id="locale"></div>
+      </div>
+      <div>
+        <h3>Short tiles: text shrinks, then drops, to stay inside</h3>
+        <div class="viz short" id="short"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Twelve months of five metrics for two regions, from a seeded walk.
+    const metrics = [
+      {metric: "Revenue", start: 182000, step: 0.06, trend: 0.018},
+      {metric: "Orders", start: 2400, step: 0.07, trend: 0.012},
+      {metric: "Avg. order value", start: 76, step: 0.03, trend: 0.004},
+      {metric: "Churn rate", start: 4.2, step: 0.08, trend: -0.01},
+      {metric: "Support tickets", start: 310, step: 0.09, trend: 0.01},
+    ];
+    const months = [
+      "2025-01",
+      "2025-02",
+      "2025-03",
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+    ];
+    let seed = 7;
+    const random = () =>
+      ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+    const rows = [];
+    for (const region of ["North", "South"])
+      for (const m of metrics) {
+        let v = m.start * (region === "North" ? 1 : 0.7);
+        for (const month of months) {
+          v *= 1 + m.trend + (random() - 0.5) * m.step;
+          rows.push({region, metric: m.metric, month, value: +v.toFixed(2)});
+        }
+      }
+    const north = rows.filter(d => d.region === "North");
+    const goodWhenDown = d =>
+      d.metric === "Churn rate" || d.metric === "Support tickets"
+        ? "down"
+        : "up";
+    const compact = new Intl.NumberFormat("en-US", {
+      notation: "compact",
+      maximumFractionDigits: 1,
+    }).format;
+    const format = (v, d) =>
+      d.metric === "Churn rate"
+        ? `${v.toFixed(1)}%`
+        : d.metric === "Revenue" || d.metric === "Avg. order value"
+          ? `$${compact(v)}`
+          : compact(v);
+    const base = {
+      groupBy: "metric",
+      time: "month",
+      deltaDirection: goodWhenDown,
+      valueFormat: format,
+    };
+
+    new d3plus.KPI()
+      .select("#basic")
+      .config({...base, data: north})
+      .render();
+
+    new d3plus.KPI()
+      .select("#previous")
+      .config({
+        data: [
+          {kpi: "Active users", value: 48210, lastYear: 41870},
+          {kpi: "Sessions", value: 120400, lastYear: 125950},
+          {kpi: "Bounce rate", value: 38.2, lastYear: 41.5, good: "down"},
+          {kpi: "New signups", value: 3120, lastYear: 3120},
+        ],
+        groupBy: "kpi",
+        previous: "lastYear",
+        comparisonLabel: "vs. last year",
+        delta: "both",
+        deltaDirection: d => d.good || "up",
+      })
+      .render();
+
+    new d3plus.KPI()
+      .select("#bars")
+      .config({
+        ...base,
+        data: north.filter(d => d.metric !== "Avg. order value"),
+        sparkline: "bar",
+        delta: "absolute",
+        tileConfig: {columns: 2},
+      })
+      .render();
+
+    new d3plus.KPI()
+      .select("#facet")
+      .config({
+        ...base,
+        data: rows.filter(
+          d => d.metric === "Revenue" || d.metric === "Churn rate",
+        ),
+        facet: "region",
+      })
+      .render();
+
+    new d3plus.KPI()
+      .select("#dark")
+      .config({...base, data: north, sparkline: "line"})
+      .render();
+
+    new d3plus.KPI()
+      .select("#locale")
+      .config({
+        data: north.filter(d => d.metric !== "Support tickets"),
+        groupBy: "metric",
+        time: "month",
+        deltaDirection: goodWhenDown,
+        locale: "es-ES",
+        timeline: true,
+      })
+      .render();
+
+    new d3plus.KPI()
+      .select("#short")
+      .config({...base, data: north})
+      .render();
+  </script>
+</html>

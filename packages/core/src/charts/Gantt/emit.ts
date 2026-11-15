@@ -26,6 +26,7 @@ import {
 } from "./ganttDecor.js";
 import {diamondPath, progressSplit} from "./ganttGeometry.js";
 import {ganttAriaLabel} from "./ganttTooltip.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /** How far the remaining part of a bar mixes toward the background. */
 export const REMAINING_MIX = 0.6;
@@ -158,7 +159,7 @@ function milestoneNode(
   } as PathNode;
 }
 
-export const ganttEmit: ChartEmit = ({viz, shapeData}) => {
+export const ganttEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const v = viz as VizInstance;
   const layout = v.ctx.gantt as GanttLayout | undefined;
   const marks = (shapeData ?? []) as unknown as GanttMark[];
@@ -178,4 +179,4 @@ export const ganttEmit: ChartEmit = ({viz, shapeData}) => {
     ...labelNodes(layout, marks),
     ...todayNodes(v, layout),
   ];
-};
+});

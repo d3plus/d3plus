@@ -25,6 +25,7 @@ export {default as Hexbin} from "./Hexbin/index.js";
 export {default as Histogram} from "./Histogram/index.js";
 export {default as HorizonChart} from "./HorizonChart/index.js";
 export {default as Icicle} from "./Icicle/index.js";
+export {default as KPI} from "./KPI/index.js";
 export {default as LinePlot} from "./LinePlot/index.js";
 export {default as Lollipop} from "./Lollipop/index.js";
 export {default as Marimekko} from "./Marimekko/index.js";

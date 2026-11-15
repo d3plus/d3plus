@@ -38,6 +38,7 @@ import {
 import type {CircularShape} from "./circularLinks.js";
 import {sankeyLabels} from "./labels.js";
 import {bandRibbonD} from "./ribbons.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 export interface SankeyLink {
   source: SankeyNode;
@@ -219,7 +220,7 @@ function emitSankeyNodes(
   return {out, labels};
 }
 
-export const sankeyEmit: ChartEmit = ({viz}) => {
+export const sankeyEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.sankeyCtx as SankeyCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];
@@ -273,4 +274,4 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
     out.push(...sankeyLinkLabels(viz, c, nodes.labels, ids));
   out.push(...nodes.out);
   return out;
-};
+});

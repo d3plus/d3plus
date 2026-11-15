@@ -8,6 +8,7 @@ import {
   breakLineNodes,
   breakLinePaint,
   maskBreaks,
+  maskedGaps,
   maskPath,
   plotAxisConfig,
   unwrapBreakMasks,
@@ -402,4 +403,15 @@ it("plotAxisConfig folds xBreak/yBreak into the axis config, always setting brea
     {break: [3, 4], levels: false},
     "a yConfig break wins",
   );
+});
+
+it("maskedGaps boxes each masked break's gap across the plot", () => {
+  const y = yAxis();
+  const [g0, g1] = breakGap(y, y._breaks[0]);
+  assert.deepStrictEqual(maskedGaps(stubViz(y), frame), [
+    {x: 10, y: g0, width: 380, height: g1 - g0},
+  ]);
+  const unmasked = yAxis({breakConfig: {mask: false}});
+  assert.deepStrictEqual(maskedGaps(stubViz(unmasked), frame), []);
+  assert.deepStrictEqual(maskedGaps(stubViz(), frame), []);
 });
