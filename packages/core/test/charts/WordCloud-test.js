@@ -110,7 +110,7 @@ it("WordCloud: fluent defaults", () => {
   assert.notStrictEqual(viz.zoom(), false);
   assert.strictEqual(viz.dataCutoff(), 500);
   assert.strictEqual(viz.size()({value: 6}), 6);
-  assert.strictEqual(viz.schema.threshold([]), 0, "no threshold bucket");
+  assert.strictEqual(viz.schema.threshold([]), 0.0001, "Treemap's default");
   viz.size("count");
   assert.strictEqual(viz.size()({count: 3}), 3);
   assert.strictEqual(viz._sizeKey, "count");
@@ -194,9 +194,27 @@ it("WordCloud: stamps each word with its share of the drawn words' total", () =>
   );
 });
 
+it("WordCloud: by default, words under 0.01% of the total merge into one word", () => {
+  // 300 words of 1 beside one of 1,000,000: each is 0.0001% of the total.
+  const data = [
+    {id: "huge", value: 1e6},
+    ...Array.from({length: 300}, (_, k) => ({id: `tiny${k}`, value: 1})),
+  ];
+  const {words} = draw({}, data);
+  assert.strictEqual(words.length, 2);
+  const bucket = words.find(w => w.data._isAggregation);
+  assert.strictEqual(bucket.value, 300);
+  assert.strictEqual(bucket.text, "Values < 0.01%");
+  assert.ok(words.some(w => w.text === "huge"));
+  // `threshold: 0` draws every word (as many as fit).
+  const every = draw({threshold: 0, fontMin: 6, fontMax: 12}, data).words;
+  assert.ok(!every.some(w => w.data._isAggregation));
+  assert.ok(every.length > 2);
+});
+
 it("WordCloud: threshold merges the smallest words into one bucket word", () => {
-  const off = draw().words;
-  assert.strictEqual(off.length, rows.length, "off by default");
+  const none = draw().words;
+  assert.strictEqual(none.length, rows.length, "no word under 0.01%");
   const {viz, words} = draw({threshold: 0.05});
   const total = rows.reduce((a, d) => a + d.value, 0);
   const small = rows.filter(d => d.value < 0.05 * total);

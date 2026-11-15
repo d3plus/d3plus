@@ -16,7 +16,6 @@
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
-import constant from "../../utils/constant.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -103,8 +102,6 @@ export const wordCloudDef: DataDrivenChartDefinition = {
   setup: (viz: VizInstance) => {
     installSize(viz as WordCloudViz);
     viz.schema.thresholdKey = viz._size;
-    // Small words merge into one only when `threshold` is set.
-    viz.schema.threshold = constant(0);
   },
 
   ctx: {},
@@ -185,6 +182,7 @@ export const wordCloudDef: DataDrivenChartDefinition = {
     the gaps of large ones. The layout is the same on every draw. When the
     words don't all fit, every font size shrinks until they do. Color the
     words by `groupBy` or `colorScale`; hover a word to see its value and
-    share. With `threshold`, the smallest words merge into one.
+    share. Words under `threshold` of the total (0.01% by default) merge
+    into one.
 */
 export default makeChart(wordCloudDef);

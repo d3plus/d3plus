@@ -3174,7 +3174,9 @@ export interface D3plusConfig {
       merge into one series, labelled by `thresholdName` and stacked on top.
       A bucket needs at least two items (a lone small item stays as
       itself), and its tooltips list the items it holds with their values.
-      Off by default on Plot charts.
+      Off by default on Plot charts; `0.0001` (0.01%) elsewhere, as on
+      Treemap. On WordCloud the bucket is drawn as one more word, sized by
+      the summed value of the words it holds.
   */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */

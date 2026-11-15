@@ -58,7 +58,9 @@ mentions that come from positive reviews.
 
 `threshold` merges the words under that share of the total into one word,
 named by `thresholdName` and drawn like any other, sized by their summed
-value. Its tooltip lists the words it holds. It is off by default.
+value. Its tooltip lists the words it holds. By default, as on Treemap, the
+words under 0.01% of the total merge; set `threshold: 0` to draw every
+word.
 
 <Playground chart="WordCloud" code={threshold} controls={["threshold","thresholdName"]} />
 
