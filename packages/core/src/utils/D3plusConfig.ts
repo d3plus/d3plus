@@ -1372,6 +1372,23 @@ export interface D3plusConfig {
     fontSize?: number;
     fontWeight?: number | string;
   };
+  /**
+      Geomap: redraws the map as a cartogram, its regions sized by
+      `cartogramSize`. `"dorling"` draws each region as a circle and
+      `"demers"` as a square, its area in proportion to the region's value,
+      set at the center of the region's largest part and nudged apart until
+      none overlap, with a pull back toward home; the shapes shrink together
+      when they would spill out of the map. Regions without data or a
+      positive value are left out, and so are coordinate points, `links`,
+      and the tiles. Each region's label sits inside its shape when it fits,
+      and toggling the cartogram, or a change of value, morphs each outline
+      to and from its shape. Defaults to `false`, which draws the map.
+  */
+  cartogram?: "dorling" | "demers" | false;
+  /** Geomap: the gap left between neighboring `cartogram` shapes, in pixels. Defaults to `1`. */
+  cartogramPadding?: number;
+  /** Geomap: the value that sizes each region in a `cartogram`, as a data key or an accessor function. Defaults to the `colorScale` value, or the same size for every region with data when there is none. */
+  cartogramSize?: string | ((d: DataPoint, i: number) => number);
   /** Matrix and Calendar: the gap between neighboring cells, in pixels. */
   cellPadding?: number;
   /** Calendar: each cell's corner radius, in pixels (kept below a third of the cell). Defaults to `2`. */

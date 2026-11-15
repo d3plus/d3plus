@@ -17,9 +17,12 @@ import {resolveThemed} from "./basemapTheme.js";
 import {geomapPointLabels} from "./pointLabels.js";
 import type {Themed} from "./basemapTheme.js";
 import {emitFlowLabels, emitFlowLinks} from "./flowEmit.js";
+import {cartogramLabels} from "./cartogramLabels.js";
+import type {CartogramShape} from "./cartogramLayout.js";
 import type {FlowLink} from "./flowLinks.js";
 
 interface GeomapCtx {
+  cartogram?: Map<string | number, CartogramShape> | null;
   flowLinks?: FlowLink[];
   topoData: Array<{
     __d3plus__?: true;
@@ -104,15 +107,22 @@ export const geomapEmit: ChartEmit = ({viz}) => {
     const colorScale = viz.schema.colorScale as
       ((d: DataPoint, i: number) => unknown) | undefined;
     const start = out.length;
+    const drawn: number[] = [];
     for (let i = 0; i < c.topoData.length; i++) {
       const d = c.topoData[i];
+      // A cartogram draws only the regions it sized.
+      const shape = c.cartogram?.get(d.id);
+      if (c.cartogram && !shape) continue;
+      drawn.push(i);
       const datum = (d.data ?? d) as DataPoint;
       const paint = paintFromShapeConfig(pathConfig, datum, i);
       const validColorScale = colorScale ? `, ${colorScale(datum, i)}` : "";
       out.push({
         type: "path",
         key: `geomap-path-${d.id}`,
-        d: c.pathFn(d),
+        d: shape ? shape.d : c.pathFn(d),
+        // Outlines and cartogram shapes morph into one another.
+        morph: true,
         datum,
         // Topojson geography is a data shape: keep its border stroke a constant
         // screen width as the map zooms (v3 parity), rather than scaling with
@@ -126,10 +136,12 @@ export const geomapEmit: ChartEmit = ({viz}) => {
     }
     out.push(
       ...backgroundImageNodes(pathConfig, out.slice(start), k => {
-        const d = c.topoData[k];
-        return [(d.data ?? d) as DataPoint, k];
+        const d = c.topoData[drawn[k]];
+        return [(d.data ?? d) as DataPoint, drawn[k]];
       }),
     );
+    if (c.cartogram)
+      out.push(...cartogramLabels(viz, c.topoData, c.cartogram, pathConfig));
   }
 
   const links = c.flowLinks ?? [];

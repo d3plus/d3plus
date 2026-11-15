@@ -19,7 +19,6 @@ import type {DataPoint} from "@d3plus/data";
 import {parseSides} from "@d3plus/dom";
 
 import accessor from "../../utils/accessor.js";
-import attributions from "../helpers/tileAttributions.js";
 import constant from "../../utils/constant.js";
 import {chartAreaRect, chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -43,6 +42,14 @@ import {
   geomapPointSizeScale,
 } from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
+import {cartogramFields, geomapFacetHooks} from "./cartogramFields.js";
+import {cartogramKind} from "./cartogramLayout.js";
+import {
+  currentTileUrl,
+  syncTileAttribution,
+  tileExtent,
+  tilesShown,
+} from "./tileState.js";
 import {geomapEmit} from "./emit.js";
 import {setupGeomapLinks} from "./flowEvents.js";
 import {installGlobeKeys} from "./globeKeys.js";
@@ -70,42 +77,6 @@ type GeomapFluent = {
   topojsonId: (_?: unknown) => unknown;
 };
 
-function findAttribution(url: string): string | false {
-  const a = attributions.find((d: {matches: string[]; text: string}) =>
-    d.matches.some((m: string) => url.includes(m)),
-  );
-  return a ? a.text : false;
-}
-
-/** The tile layer's extent: the map rect in `_container`'s own (margin-relative) space. */
-function tileExtent(viz: VizInstance): [[number, number], [number, number]] {
-  const {width, height} = chartBounds(viz);
-  return [
-    [0, 0],
-    [width, height],
-  ];
-}
-
-/** The tile URL template for the chart's current light/dark backdrop. */
-function currentTileUrl(viz: VizInstance): string {
-  return resolveThemed(
-    viz.schema.tileUrl as Themed<string>,
-    Boolean(viz._basemapDark),
-  );
-}
-
-/**
-    Keeps the tile credit in sync with the active tile URL (a `{light, dark}`
-    pair can mix providers), unless the attribution was set by hand.
-*/
-function syncTileAttribution(viz: VizInstance): void {
-  const auto = viz.schema.tiles ? findAttribution(currentTileUrl(viz)) : false;
-  const current = viz.schema.attribution;
-  if (!current || current === viz._tileAttribution)
-    viz.schema.attribution = auto || "";
-  viz._tileAttribution = auto;
-}
-
 /** Installs `_renderTiles`, the per-instance method that mutates the tile group. */
 function setupGeomapRenderTiles(viz: VizInstance): void {
   // `_renderTiles` is a per-instance method that mutates the tile group.
@@ -126,7 +97,7 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
     }
     let tileData: number[][] & {scale?: number; translate?: number[]} =
       [] as unknown as number[][] & {scale?: number; translate?: number[]};
-    if (this.schema.tiles) {
+    if (tilesShown(this)) {
       tileData = this._tileGen
         .extent(tileExtent(this))
         .scale(this.schema.projection.scale() * (2 * Math.PI) * transform.k)
@@ -201,7 +172,7 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
   viz._computeTileList = function (
     this: VizInstance,
   ): Array<{key: string; url: string; x: number; y: number; size: number}> {
-    if (!this.schema.tiles) return [];
+    if (!tilesShown(this)) return [];
     const tileData = this._tileGen
       .extent(tileExtent(this))
       .scale(this.schema.projection.scale() * (2 * Math.PI))
@@ -544,10 +515,12 @@ export const geomapDef: ChartDefinition = {
 
   layoutStage: applyGeomapLayout,
   sizeLegendScale: viz => {
+    if (cartogramKind(viz)) return null;
     const pointData = geomapPointData(viz);
     return pointData.length ? geomapPointSizeScale(viz, pointData) : null;
   },
   emit: geomapEmit,
+  facet: geomapFacetHooks,
   insetRegion: sceneInsetRegion,
   // A row without a coordinate point draws as its topojson Path.
   colorScaleShape: (viz, d, i) =>
@@ -594,6 +567,7 @@ export const geomapDef: ChartDefinition = {
     ...loaderFormatFields("topojson", "links"),
     {key: "fitObject", default: false},
     ...geomapLinkFields(),
+    ...cartogramFields(),
     {key: "noDataMessage", default: false},
     /**
         The color behind the map's shapes and tiles: any CSS color (including

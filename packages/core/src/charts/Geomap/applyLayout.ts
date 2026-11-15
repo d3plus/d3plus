@@ -19,6 +19,8 @@ import type {FlowLayoutInput} from "./flowLinks.js";
 import {clipsToCircle, coordinateVisible, toLonLat} from "./flowGeometry.js";
 import {cachedPaths, fitExtentOnce, topoFeatures} from "./geoCache.js";
 import {globeHome} from "./globeRotate.js";
+import {geomapCartogram} from "./cartogramLayout.js";
+import type {CartogramRegion} from "./cartogramLayout.js";
 import type {GeoPathFn, LonLat} from "./flowGeometry.js";
 
 type GeomapViz = VizContext["viz"];
@@ -284,6 +286,16 @@ function fitProjection(
   if (live) v.schema.projection.rotate(live);
 }
 
+/** The box a cartogram's shapes fit: the map area, less `projectionPadding`. */
+function cartogramBounds(
+  v: GeomapViz,
+  width: number,
+  height: number,
+): [number, number, number, number] {
+  const p = v.schema.projectionPadding;
+  return [p.left, p.top, width - p.right, height - p.bottom];
+}
+
 export const applyGeomapLayout: TransformStage = ({viz}) => {
   const v = viz;
   const ctx = viz.ctx as unknown as GeomapCtx;
@@ -345,20 +357,36 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   const featurePath = cachedPaths(v.schema.projection, path);
 
   const pointR = (d: DataPoint, i: number) => r(v.schema.pointSize(d, i));
+  // A cartogram draws its regions only: points and links have no place on it.
+  const cartogram = geomapCartogram(
+    v,
+    topoData as unknown as CartogramRegion[],
+    {
+      pathD: region => featurePath(region.feature),
+      area: region => path.area(region.feature),
+      bounds: cartogramBounds(v, width, height),
+    },
+  );
+  if (cartogram) v._sizeLegendFinal = null;
   ctx.geomapCtx = {
-    flowLinks: geomapFlowLinks(v, {
-      pointData,
-      topoData: topoData as unknown as FlowLayoutInput["topoData"],
-      pointR,
-      path: path as unknown as FlowLayoutInput["path"],
-    }),
+    cartogram,
+    flowLinks: cartogram
+      ? []
+      : geomapFlowLinks(v, {
+          pointData,
+          topoData: topoData as unknown as FlowLayoutInput["topoData"],
+          pointR,
+          path: path as unknown as FlowLayoutInput["path"],
+        }),
     topoData,
     pathFn: (d: Record<string, unknown>) => featurePath(d.feature),
-    pointData: visiblePointData(
-      v,
-      pointData,
-      path as unknown as FlowLayoutInput["path"],
-    ),
+    pointData: cartogram
+      ? []
+      : visiblePointData(
+          v,
+          pointData,
+          path as unknown as FlowLayoutInput["path"],
+        ),
     pointR,
     pointSort: (a: DataPoint, b: DataPoint) =>
       v.schema.pointSize(b) - v.schema.pointSize(a),
