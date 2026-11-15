@@ -60,6 +60,7 @@ import {
   syncDensityColorScale,
 } from "./densityFields.js";
 import {geoHexbinSettings} from "./geoHexbin.js";
+import {trackRendererChoice} from "./dotRenderer.js";
 import {setupGeomapLinks} from "./flowEvents.js";
 import {installGlobeKeys} from "./globeKeys.js";
 import {installGlobeRotation} from "./globeRotate.js";
@@ -555,6 +556,7 @@ export const geomapDef: ChartDefinition = {
     setupGeomapDraw(viz);
     setupGeomapFluent(viz);
     setupGeomapLinks(viz);
+    trackRendererChoice(viz);
     viz.schema.legend = viz._defaultLegend = densityLegend(viz);
     // Dragging a globe, or Shift and the arrow keys, re-lays the map out for
     // each new rotation.
