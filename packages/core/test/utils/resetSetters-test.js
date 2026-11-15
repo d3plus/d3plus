@@ -126,8 +126,6 @@ describe("resetSetters", () => {
   /** A BaseClass subclass with a hand-written setter, a tagged one, and a generated one. */
   function makeClass() {
     class Host extends BaseClass {
-      // A d3plus class states its own display name (see `_constructed`).
-      static _displayName = "Host";
       constructor() {
         super();
         this.schema.size = 4;

@@ -148,6 +148,28 @@ describe("RESET restores a chart definition's own field default", () => {
       });
     }
 
+    it("a user's class built straight on BaseClass keeps its constructor's defaults", () => {
+      class Widget extends BaseClass {
+        constructor() {
+          super();
+          this._size = 10;
+        }
+        size(_) {
+          return arguments.length ? ((this._size = _), this) : this._size;
+        }
+      }
+      class Gadget extends Widget {}
+      for (const Cls of [Widget, Gadget]) {
+        const widget = new Cls();
+        assert.strictEqual(widget._configDefault, undefined, "first use");
+        widget.config({size: 20});
+        widget.size(RESET);
+        assert.strictEqual(widget.size(), 10, `${Cls.name}: size(RESET)`);
+        widget.size(30).config({size: RESET});
+        assert.strictEqual(widget.size(), 10, `${Cls.name}: config RESET`);
+      }
+    });
+
     it("a subclass of a user's subclass snapshots at the same point", () => {
       class A extends Donut {
         constructor() {
@@ -231,6 +253,20 @@ describe("RESET on the chart setters a definition writes by hand", () => {
       assert.deepStrictEqual(shape(config[key]()), want, "config");
     });
   }
+
+  it("Geomap.projectionRotate(RESET) turns the tiles back to what they were", () => {
+    const on = new Geomap().projectionRotate([90, 0]);
+    assert.strictEqual(on.tiles(), false, "a rotation turns tiles off");
+    on.projectionRotate([45, 10]).projectionRotate(RESET);
+    assert.strictEqual(on.projectionRotate(), undefined);
+    assert.deepStrictEqual(on.projection().rotate(), [0, 0, 0]);
+    assert.strictEqual(on.tiles(), true, "tiles back on");
+    const off = new Geomap().tiles(false).projectionRotate([90, 0]);
+    off.config({projectionRotate: RESET});
+    assert.strictEqual(off.tiles(), false, "tiles stay off");
+    const plain = new Geomap().tiles(false).projectionRotate(RESET);
+    assert.strictEqual(plain.tiles(), false, "no rotation to undo");
+  });
 
   it("Geomap.projectionPadding takes back the sides object it returns", () => {
     const viz = new Geomap().projectionPadding("4 8");

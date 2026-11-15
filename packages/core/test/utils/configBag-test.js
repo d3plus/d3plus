@@ -154,8 +154,6 @@ it("mergeConfigBag merges into an explicit current value and ignores non-object 
 
 it("resolvesReset tags setters so config() passes their patch through", () => {
   class Tagged extends BaseClass {
-    // A d3plus class: its defaults include what its constructor seeds.
-    static _displayName = "Tagged";
     constructor() {
       super();
       this.schema.bag = {a: {b: 1, c: 2}, keep: true};
@@ -191,8 +189,6 @@ it("resolvesReset tags setters so config() passes their patch through", () => {
 
 /** A setter that merges but leaves RESET to `config()`. */
 class Untagged extends BaseClass {
-  // A d3plus class: its defaults include what its constructor seeds.
-  static _displayName = "Untagged";
   constructor() {
     super();
     this.schema.opts = {Circle: {trail: false, size: 0}, label: "", keep: 1};
