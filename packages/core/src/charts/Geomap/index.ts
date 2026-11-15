@@ -7,6 +7,9 @@
       - `flowLinks.ts` / `flowGeometry.ts` — `links`: their ends, widths,
         and great-circle paths; `flowEmit.ts` draws them, `flowEvents.ts`
         wires their hover and click, and `flowFields.ts` declares their config.
+      - `dotDensityLayout.ts` / `geoHexbin.ts` — `dotDensity` dots and
+        `hexbin` bins, laid out by `densityLayout.ts` and drawn by
+        `densityEmit.ts`; `densityFields.ts` declares their config.
 */
 
 import {color} from "d3-color";
@@ -36,15 +39,10 @@ import {isPointShape} from "../viz/nearestHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
 
-import {
-  applyGeomapLayout,
-  geomapPointData,
-  geomapPointSizeScale,
-} from "./applyLayout.js";
+import {applyGeomapLayout, geomapSizeLegendScale} from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
 import {cartogramFields, geomapFacetHooks} from "./cartogramFields.js";
-import {cartogramKind} from "./cartogramLayout.js";
-import {estimateCartogramScale, setCartogramLegend} from "./cartogramLegend.js";
+import {tileGridFields, tileGridOcean} from "./tileGrid.js";
 import {
   currentTileUrl,
   syncTileAttribution,
@@ -52,6 +50,13 @@ import {
   tilesShown,
 } from "./tileState.js";
 import {bareFeature, geomapEmit} from "./emit.js";
+import {
+  densityFields,
+  densityLegend,
+  syncDensityColorScale,
+} from "./densityFields.js";
+import {geoHexbinSettings} from "./geoHexbin.js";
+import {trackRendererChoice} from "./dotRenderer.js";
 import {setupGeomapLinks} from "./flowEvents.js";
 import {installGlobeKeys} from "./globeKeys.js";
 import {installGlobeRotation} from "./globeRotate.js";
@@ -201,6 +206,7 @@ function setupGeomapDraw(viz: VizInstance): void {
     // Resolve `{light, dark}` basemaps against the chart's theme.
     viz._basemapDark = viz._theme ? viz._theme.dark : pageIsDark(viz);
     syncTileAttribution(viz);
+    syncDensityColorScale(viz);
     const result = supDraw(callback);
     const {width, height} = chartBounds(viz);
     ensureZoomDom(viz, {
@@ -214,10 +220,7 @@ function setupGeomapDraw(viz: VizInstance): void {
       // ocean into the scene instead (see geomapEmit).
       ocean: viz._facetStep
         ? "transparent"
-        : resolveThemed(
-            viz.schema.ocean as Themed<string>,
-            Boolean(viz._basemapDark),
-          ),
+        : resolveThemed(tileGridOcean(viz), Boolean(viz._basemapDark)),
     });
     viz._zoomSet = true;
     return result;
@@ -515,12 +518,7 @@ export const geomapDef: ChartDefinition = {
   name: "Geomap",
 
   layoutStage: applyGeomapLayout,
-  sizeLegendScale: (viz, available) => {
-    if (setCartogramLegend(viz)) return estimateCartogramScale(viz, available);
-    if (cartogramKind(viz)) return null;
-    const pointData = geomapPointData(viz);
-    return pointData.length ? geomapPointSizeScale(viz, pointData) : null;
-  },
+  sizeLegendScale: geomapSizeLegendScale,
   emit: geomapEmit,
   facet: geomapFacetHooks,
   insetRegion: sceneInsetRegion,
@@ -548,6 +546,8 @@ export const geomapDef: ChartDefinition = {
     setupGeomapDraw(viz);
     setupGeomapFluent(viz);
     setupGeomapLinks(viz);
+    trackRendererChoice(viz);
+    viz.schema.legend = viz._defaultLegend = densityLegend(viz);
     // Dragging a globe, or Shift and the arrow keys, re-lays the map out for
     // each new rotation.
     const relayout = () => runChartDraw(viz, geomapDef, applyGeomapLayout);
@@ -571,6 +571,8 @@ export const geomapDef: ChartDefinition = {
     {key: "fitObject", default: false},
     ...geomapLinkFields(),
     ...cartogramFields(),
+    ...densityFields(),
+    ...tileGridFields(),
     {key: "noDataMessage", default: false},
     /**
         The color behind the map's shapes and tiles: any CSS color (including
@@ -624,8 +626,10 @@ export const geomapDef: ChartDefinition = {
             const coordFeatures =
               (viz.ctx.coordData as {features: DataPoint[]} | undefined)
                 ?.features ?? [];
-            const cs = viz.schema.colorScale as
-              ((d: DataPoint) => unknown) | undefined;
+            // Bins take the colorScale from the regions.
+            const cs = (
+              geoHexbinSettings(viz) ? undefined : viz.schema.colorScale
+            ) as ((d: DataPoint) => unknown) | undefined;
             if (cs && !coordFeatures.includes(d)) {
               const c = cs(d);
               if (c !== undefined && c !== null) {

@@ -1846,6 +1846,37 @@ export interface D3plusConfig {
       tie); numbers stored as text stay continuous.
   */
   discrete?: "x" | "y" | "radius" | "angle";
+  /**
+      Geomap: draws one dot for every `per` units of each row's `value`
+      (`1000` by default), scattered inside the row's region. Each region
+      (and each category in it) draws its dots from a random stream seeded
+      by its id, so a redraw, a resize, or a new value never moves the dots
+      already there; a dot never falls outside its region or inside one of
+      its holes. With more than one `groupBy` level, the outer levels split
+      each region into categories (e.g. `groupBy: ["race", "state"]`),
+      whose dots take the chart's colors for them, mix together, and show in
+      the legend; with one level, every dot takes `fill`, or the first color
+      of the chart's palette (lightened over a dark basemap). `r` sets the
+      dot radius in pixels (`1.5`) and `fillOpacity` their opacity (`0.8`).
+      Each dot stands for exactly `per` units: past 20,000 dots, a chart
+      whose `renderer` isn't set draws on Canvas instead of SVG (noting it
+      once in the console), and back on SVG once the dots fit. Only past
+      `max` dots in all (`100000`) does each dot stand for the next round
+      number of units at which the dots fit. The region outlines stay
+      drawn; hovering a region shows its totals, and hovering its dots shows
+      their value and count. A `cartogram` turns the dots off. Defaults to
+      `false`.
+  */
+  dotDensity?:
+    | false
+    | {
+        value: string | ((d: DataPoint, i: number) => unknown);
+        per?: number;
+        r?: number;
+        fill?: CssColor | ((d: DataPoint, i: number) => CssColor);
+        fillOpacity?: number;
+        max?: number;
+      };
   /** Candlestick: the color of periods that closed below their open, or an accessor of the row. Defaults to red. */
   downColor?: string | ((d: DataPoint, i: number) => string);
   /** Default duration of transitions, in milliseconds. */
@@ -1980,6 +2011,27 @@ export interface D3plusConfig {
   groupPadding?: number;
   /** Overall height of the visualization in pixels. */
   height?: number;
+  /**
+      Geomap: bins the coordinate points into hexagons on the projected map,
+      each colored on the colorScale by how many points it holds, in place of
+      the points themselves. `true` bins at a `12`-pixel radius; an object
+      sets the `radius`, and with a `value` (a data key or accessor), colors
+      each bin by the `"sum"` (default) or `"mean"` (`agg`) of it over the
+      bin's points, named `label` in the bin's tooltip. As the map zooms, the
+      points are binned again so each hexagon keeps its pixel radius and
+      zooming in shows finer detail, and the colorScale refits to the bins
+      in view. Bins aren't clipped to land. The regions keep the no-data fill, and
+      the legend and point size legend are hidden. A `cartogram` turns the
+      bins off. Defaults to `false`.
+  */
+  hexbin?:
+    | boolean
+    | {
+        radius?: number;
+        value?: string | ((d: DataPoint, i: number) => unknown);
+        agg?: "sum" | "mean";
+        label?: string;
+      };
   /**
       Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
   */
@@ -3043,6 +3095,30 @@ export interface D3plusConfig {
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */
   thresholdName?: string | ((d: DataPoint, i: number) => string);
+  /**
+      Geomap: draws each region as one equal tile at a fixed cell of a grid,
+      colored, labeled, and hovered like the map's regions. `"us-states"` is
+      the built-in hexagon grid of the 50 states and DC, which finds each
+      state by its postal abbreviation (`"CA"`), its FIPS code (`"06"` or
+      `6`), or an id ending in it (`"04000US06"`), and labels each tile with
+      its abbreviation. A layout of your own, `{[id]: [column, row]}`, places
+      the regions whose ids it names (odd rows sit half a tile to the right)
+      and labels them with the chart's label when it fits. Labels grow with
+      the tiles up to 14 pixels (`shapeConfig.Path.labelConfig.fontMax`
+      changes it). Every cell gets a
+      tile, with the no-data fill when no row names it. The grid fills the
+      map, less `projectionPadding`. Without a `topojson`, the tiles are the
+      layout's cells; with one, toggling the grid morphs each outline to and
+      from its tile. `links` run between the tiles' centers; coordinate
+      points, dots, bins, and the tiles are left out, and so is the `ocean`
+      unless it is set. Takes the place of a `cartogram` (and shows no size
+      legend). Defaults to `false`.
+  */
+  tileGrid?: false | "us-states" | Record<string, [number, number]>;
+  /** Geomap: the gap between neighboring `tileGrid` tiles, in pixels. Defaults to `2`. */
+  tileGridPadding?: number;
+  /** Geomap: the tiles of a `tileGrid`, `"hex"` for hexagons (the default) or `"square"` for squares. */
+  tileGridShape?: "hex" | "square";
   /**
       URL template for XYZ map tiles, with `{z}`, `{x}`, `{y}` (and optional
       `{s}` subdomain) placeholders — or a `{light, dark}` pair, chosen by the
