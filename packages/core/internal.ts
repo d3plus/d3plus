@@ -296,12 +296,20 @@ export type {
   TaskSort,
 } from "./src/charts/Gantt/ganttRows.js";
 export {
+  ganttDayBreaks,
+  isDateOnly,
+  offsetDays,
+  weekendRule,
+  workingBreaks,
+} from "./src/charts/Gantt/ganttCalendar.js";
+export {
   dayCount,
   daysLabel,
   ganttAriaLabel,
   ganttDuration,
   ganttTooltipRows,
   percent,
+  shownEnd,
   slackRows,
   taskTimes,
   timeFormatter,

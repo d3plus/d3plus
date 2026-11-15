@@ -83,8 +83,9 @@ export const ganttDef: DataDrivenChartDefinition = {
     /**
         The time axis along the top of the rows (`orient: "bottom"` moves it
         under them). It reads dates by default (`scale: "time"`); a
-        `rangeBreaks` setting such as `"weekends"` hides those times, and a
-        task's Duration then counts only the working days left showing.
+        `rangeBreaks` setting such as `"weekends"` hides those times. A
+        task's Duration counts working days, leaving out the locale's weekend
+        and the whole days `rangeBreaks` hide (see `criticalPathConfig`).
     */
     {key: "axisConfig", merge: true, default: {scale: "time"}},
     /**
@@ -92,10 +93,11 @@ export const ganttDef: DataDrivenChartDefinition = {
         that sets the project's finish. It takes each task's dates as given,
         and works back from the latest end to find how late each task could
         start without delaying it; a task's slack is how much later that is
-        than its start, in working days: weekends, and any whole days
-        `rangeBreaks` hide (such as holidays), count as no time, so a task
-        ending on a Friday and its dependent starting on Monday hand off with
-        no slack. Tasks with no slack, or less when a dependent starts before
+        than its start, in working days: the locale's weekend (Saturday and
+        Sunday in `en-US`, Friday and Saturday in `ar-SA`), and any whole
+        days `rangeBreaks` hide (such as holidays), count as no time, so a
+        task ending on a Friday and its dependent starting on Monday hand off
+        with no slack. Tasks with no slack, or less when a dependent starts before
         they end, are critical: they're outlined in their own color, their
         arrows draw bold, and every other task is muted. Tied chains are all
         critical. The tooltip lists each task's Slack (in working days) and
@@ -115,8 +117,9 @@ export const ganttDef: DataDrivenChartDefinition = {
         `false` for none) and `barStrokeWidth` (2) for the outline of its
         tasks; `mutedOpacity` (0.35) for the tasks off it; the key's `label`
         (the translated "Critical path"; `false` for no key); and
-        `workingDays` (`true`), which leaves weekends out of slack (`false`
-        counts them, leaving out only the days `rangeBreaks` hide).
+        `workingDays` (`true`), which leaves the locale's weekend out of
+        slack and each task's Duration (`false` counts it, leaving out only
+        the days `rangeBreaks` hide).
         @type {{stroke, strokeWidth, strokeOpacity, arrowSize, barStroke, barStrokeWidth, mutedOpacity, label, workingDays}}
     */
     {key: "criticalPathConfig", merge: true, default: {}},
@@ -175,8 +178,9 @@ export const ganttDef: DataDrivenChartDefinition = {
     },
     /**
         Accessor function or string key for whether a task is a milestone,
-        drawn as a diamond at its `end`. Without one, a task that starts and
-        ends at the same time is a milestone.
+        drawn as a diamond at its `end` (the end of that day, when `end`
+        names a whole day). Without one, a task that starts and ends at the
+        same time, or on the same day, is a milestone.
         @type {string | function | false}
     */
     {key: "milestone", default: accessor("milestone"), coerce: taskAccessor},
@@ -249,9 +253,10 @@ export const ganttDef: DataDrivenChartDefinition = {
 
 /**
     Creates a Gantt chart from an array of tasks: one labeled row per task,
-    its bar running from `start` to `end` over a time axis. Tasks can be
-    grouped into phases (`group`), drawn as milestones (`milestone`), linked
-    by dependency arrows (`dependencies`) with their critical path
+    its bar running from `start` to `end` over a time axis (through the end
+    of the day, when `end` names a whole day such as `"2024-03-08"`). Tasks
+    can be grouped into phases (`group`), drawn as milestones (`milestone`),
+    linked by dependency arrows (`dependencies`) with their critical path
     emphasized (`criticalPath`), and filled by their `progress`, with an
     optional `today` line.
 */

@@ -10,11 +10,7 @@ import type {TimeLocaleDefinition as D3TimeLocale} from "d3-time-format";
 import type {DataPoint} from "@d3plus/data";
 import {dateFullFormatter, formatAbbreviate} from "@d3plus/format";
 
-import {
-  normalizeRangeBreaks,
-  visibleBetween,
-} from "../../components/Axis/rangeBreaks.js";
-import type {RangeBreakRule} from "../../components/Axis/rangeBreaks.js";
+import {visibleBetween} from "../../components/Axis/rangeBreaks.js";
 import {calendarTimeLocale} from "../Calendar/calendarFormat.js";
 import {
   isTimeAxis,
@@ -24,6 +20,7 @@ import {
 } from "../Priestley/timeAxis.js";
 import type {TimeValue} from "../Priestley/timeAxis.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {isDateOnly, offsetDays, workingBreaks} from "./ganttCalendar.js";
 import {isMilestone, normalizeProgress} from "./ganttRows.js";
 import {taskSlack} from "./ganttSlack.js";
 
@@ -60,22 +57,10 @@ export function timeFormatter(
 }
 
 /**
-    The time axis's `rangeBreaks` rules (from `axisConfig`) when they hide
-    whole days (weekends, weekdays, dates, or explicit ranges), else none: a
-    rule hiding hours of every day leaves no whole days to count.
-    @param viz The chart.
-*/
-export function ganttDayBreaks(viz: VizInstance): RangeBreakRule[] {
-  const config = viz.schema.axisConfig as {rangeBreaks?: unknown} | undefined;
-  const rules = normalizeRangeBreaks(config?.rangeBreaks);
-  return rules.some(r => typeof r === "object" && "hours" in r) ? [] : rules;
-}
-
-/**
-    A task's duration: whole (or tenths of) days on a time axis, translated
-    ("12 days"), else the difference of its end and start. When the axis's
-    `rangeBreaks` hide whole days (see `ganttDayBreaks`), only the days left
-    showing count ("8 working days").
+    A task's duration: whole (or tenths of) days on a time axis, translated,
+    counting only working days ("8 working days"; see `workingBreaks`), or
+    every day ("12 days") when `criticalPathConfig.workingDays` is false
+    and the axis hides no days; else the difference of its end and start.
 */
 export function ganttDuration(
   viz: VizInstance,
@@ -84,7 +69,7 @@ export function ganttDuration(
 ): string {
   const span = +end - +start;
   if (!isTimeAxis(viz)) return formatAbbreviate(span, viz.schema.locale);
-  const rules = ganttDayBreaks(viz);
+  const rules = workingBreaks(viz);
   const shown = rules.length
     ? visibleBetween(rules, +start, +end, isUtcAxis(viz))
     : span;
@@ -130,15 +115,19 @@ export const percent = (share: number): string => `${Math.round(share * 100)}%`;
 /** A task's times, milestone flag, and progress. */
 export interface TaskTimes {
   start: TimeValue;
+  /** Where the task ends: the end of its last day when `inclusive`. */
   end: TimeValue;
   milestone: boolean;
   progress: number | undefined;
+  /** Whether the end named a whole day (see `isDateOnly`), which the task runs through. */
+  inclusive: boolean;
 }
 
 /**
     Reads a row's start, end, milestone flag, and progress. A missing start
     or end takes the other's value, and reversed times are swapped; null
-    when both are missing.
+    when both are missing. An end naming a whole day (`"2024-03-08"`) runs
+    through the end of that day, and a milestone on one sits at its end.
 */
 export function taskTimes(
   viz: VizInstance,
@@ -147,26 +136,39 @@ export function taskTimes(
 ): TaskTimes | null {
   const time = isTimeAxis(viz);
   const utc = isUtcAxis(viz);
-  let start = parseTime(rowTime(viz, "start", d, i), time, utc);
-  let end = parseTime(rowTime(viz, "end", d, i), time, utc);
+  const read = (key: "start" | "end") => {
+    const raw = rowTime(viz, key, d, i);
+    const t = parseTime(raw, time, utc);
+    return t === null ? null : {t, day: time && isDateOnly(raw)};
+  };
+  let start = read("start");
+  let end = read("end");
   if (start === null && end === null) return null;
-  start ??= end;
+  start ??= end!;
   end ??= start;
-  if (+end! < +start!) [start, end] = [end, start];
+  if (+end.t < +start.t) [start, end] = [end, start];
   const milestoneFn = viz.schema.milestone as RowFn;
   const progressFn = viz.schema.progress as RowFn;
+  const milestone = isMilestone(
+    start.t,
+    end.t,
+    typeof milestoneFn === "function" ? milestoneFn(d, i) : undefined,
+  );
+  const last = end.day ? offsetDays(end.t, 1, utc) : end.t;
   return {
-    start: start!,
-    end: end!,
-    milestone: isMilestone(
-      start!,
-      end!,
-      typeof milestoneFn === "function" ? milestoneFn(d, i) : undefined,
-    ),
+    start: milestone && +start.t === +end.t ? last : start.t,
+    end: last,
+    milestone,
     progress: normalizeProgress(
       typeof progressFn === "function" ? progressFn(d, i) : undefined,
     ),
+    inclusive: end.day,
   };
+}
+
+/** The end a task shows in its tooltip and aria label: the day it runs through. */
+export function shownEnd(times: TaskTimes, utc = false): TimeValue {
+  return times.inclusive ? offsetDays(times.end, -1, utc) : times.end;
 }
 
 /** The layout's start/end formatter, or one built from this row alone. */
@@ -193,11 +195,12 @@ export function ganttTooltipRows(
   if (!task) return [];
   const t = (s: string) => viz.schema.translate(s);
   const format = formatFor(viz, [task.start, task.end]);
+  const end = shownEnd(task, isUtcAxis(viz));
   const rows: [string, string][] = task.milestone
-    ? [[t("Milestone"), format(task.end)]]
+    ? [[t("Milestone"), format(end)]]
     : [
         [t("Start"), format(task.start)],
-        [t("End"), format(task.end)],
+        [t("End"), format(end)],
         [t("Duration"), ganttDuration(viz, task.start, task.end)],
       ];
   if (task.progress !== undefined)
@@ -244,9 +247,10 @@ export function ganttAriaLabel(
   const task = taskTimes(viz, d, i);
   if (!task) return `${name}.`;
   const format = formatFor(viz, [task.start, task.end]);
+  const end = shownEnd(task, isUtcAxis(viz));
   const when = task.milestone
-    ? `${viz.schema.translate("Milestone")} ${format(task.end)}`
-    : `${format(task.start)} - ${format(task.end)}`;
+    ? `${viz.schema.translate("Milestone")} ${format(end)}`
+    : `${format(task.start)} - ${format(end)}`;
   const progress =
     task.progress === undefined
       ? ""

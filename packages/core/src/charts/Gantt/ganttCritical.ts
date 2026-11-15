@@ -1,8 +1,8 @@
 /**
     The Gantt's critical path: runs the critical path method over the drawn
-    tasks (see `criticalPath.ts`) in working time, counting weekends and the
-    days the axis's `rangeBreaks` hide as no time at all, and records each
-    task's slack for its tooltip.
+    tasks (see `criticalPath.ts`) in working time, counting the locale's
+    weekend and the days the axis's `rangeBreaks` hide as no time at all
+    (see `workingBreaks`), and records each task's slack for its tooltip.
 */
 
 import {
@@ -15,10 +15,10 @@ import {warnConfigOnce} from "../../utils/configWarnings.js";
 import {isTimeAxis, isUtcAxis} from "../Priestley/timeAxis.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {criticalPath} from "./criticalPath.js";
+import {workingBreaks} from "./ganttCalendar.js";
 import type {CpmTask} from "./criticalPath.js";
 import type {GanttTask} from "./ganttRows.js";
 import {recordSlack} from "./ganttSlack.js";
-import {ganttDayBreaks} from "./ganttTooltip.js";
 
 /** The critical path the Gantt draws. */
 export interface GanttCritical {
@@ -43,7 +43,7 @@ export interface WorkClock {
 /**
     A clock that leaves out the time `rules` hide, measured from `origin`.
     Without rules, working time is plain time.
-    @param rules The days that count as no time (see `slackBreaks`).
+    @param rules The days that count as no time (see `workingBreaks`).
     @param origin The time working time counts from.
     @param utc Whether a day is a UTC day rather than a local one.
 */
@@ -78,19 +78,6 @@ export function criticalKeyLabel(viz: VizInstance): string | false {
   return typeof cfg.label === "string"
     ? cfg.label
     : viz.schema.translate("Critical path");
-}
-
-/**
-    The time the critical path counts as no time at all: weekends (unless
-    `criticalPathConfig.workingDays` is false) and every whole day the time
-    axis's `rangeBreaks` hide, such as holidays; none on a numeric axis.
-    @param viz The chart.
-*/
-export function slackBreaks(viz: VizInstance): RangeBreakRule[] {
-  if (!isTimeAxis(viz)) return [];
-  const cfg = (viz.schema.criticalPathConfig ?? {}) as {workingDays?: unknown};
-  const days = ganttDayBreaks(viz);
-  return cfg.workingDays === false ? days : ["weekends", ...days];
 }
 
 /** Quotes a task id in a warning. */
@@ -143,7 +130,7 @@ function computeCritical(
 } | null {
   const time = isTimeAxis(viz);
   const origin = Math.min(...tasks.map(t => +t.start));
-  const rules = slackBreaks(viz);
+  const rules = workingBreaks(viz);
   const clock = workClock(rules, origin, isUtcAxis(viz));
   const cpm = criticalPath(
     tasks.map(t => ({
