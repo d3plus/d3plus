@@ -7,6 +7,7 @@ import type Axis from "./Axis.js";
 import {layoutAxis} from "./axisLayout.js";
 import type {AxisLayoutResult} from "./axisLayout.js";
 import {resolveAutoScale} from "./axisScaleType.js";
+import {labelSizeSession} from "./labelSizeSession.js";
 
 /**
     Lays out `axis` (see `layoutAxis`) and returns the layout the paint
@@ -19,6 +20,11 @@ import {resolveAutoScale} from "./axisScaleType.js";
     it draws.
 */
 export function measureAxis(axis: Axis): AxisLayoutResult {
+  return labelSizeSession(() => measureAxisLabels(axis));
+}
+
+/** `measureAxis` inside a label measurement session. */
+function measureAxisLabels(axis: Axis): AxisLayoutResult {
   resolveAutoScale(axis);
   axis._dropTitle = false;
   const titled = layoutAxis(axis);
