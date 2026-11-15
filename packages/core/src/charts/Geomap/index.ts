@@ -386,12 +386,11 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
       // restores) turns the globe back and the tiles back to what they were.
       this.schema.projection.rotate(_ ?? [0, 0, 0]);
       if (_ !== undefined) {
-        this.ctx.tilesBeforeRotate ??= this.schema.tiles;
+        const before = this.ctx.tilesBeforeRotate ?? this.schema.tiles;
         v.tiles(false);
-      } else if (this.ctx.tilesBeforeRotate !== undefined) {
+        this.ctx.tilesBeforeRotate = before;
+      } else if (this.ctx.tilesBeforeRotate !== undefined)
         v.tiles(this.ctx.tilesBeforeRotate);
-        this.ctx.tilesBeforeRotate = undefined;
-      }
       this._zoomSet = false;
       return this;
     }
@@ -409,6 +408,8 @@ function setupGeomapTileFluent(viz: VizInstance): void {
   */
   v.tiles = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
+      // Set by hand, tiles stay as set when a rotation is reset.
+      this.ctx.tilesBeforeRotate = undefined;
       this.schema.tiles = _ as boolean;
       syncTileAttribution(this);
       return this;

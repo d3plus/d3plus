@@ -266,6 +266,12 @@ describe("RESET on the chart setters a definition writes by hand", () => {
     assert.strictEqual(off.tiles(), false, "tiles stay off");
     const plain = new Geomap().tiles(false).projectionRotate(RESET);
     assert.strictEqual(plain.tiles(), false, "no rotation to undo");
+    const byHand = new Geomap().projectionRotate([90, 0]).tiles(false);
+    byHand.projectionRotate(RESET);
+    assert.strictEqual(byHand.tiles(), false, "tiles set by hand stay so");
+    const turnedOn = new Geomap().tiles(false).projectionRotate([90, 0]);
+    turnedOn.tiles(true).projectionRotate([10, 0]).projectionRotate(RESET);
+    assert.strictEqual(turnedOn.tiles(), true, "the later call wins");
   });
 
   it("Geomap.projectionPadding takes back the sides object it returns", () => {
