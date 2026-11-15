@@ -315,7 +315,8 @@ export function buildTickData(
           bounds.width -
             margin[axis._position.opposite] -
             hBuff -
-            margin[axis.schema.orient] +
+            margin[axis.schema.orient] -
+            (axis._levelLayout?.room ?? 0) +
             p);
       // A `fixedSize` label space can be narrower than a label: widen that
       // label's box (outward, away from the axis line) instead of dropping it.
