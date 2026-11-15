@@ -1736,6 +1736,7 @@ export {funnelDef} from "./src/charts/Funnel/index.js";
 export {ganttDef, progressAgg, taskAccessor} from "./src/charts/Gantt/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
+export {tileGridMapDef} from "./src/charts/TileGridMap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
 export {

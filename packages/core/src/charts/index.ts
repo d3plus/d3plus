@@ -55,6 +55,7 @@ export {default as StackedArea} from "./StackedArea/index.js";
 export {default as Streamgraph} from "./Streamgraph/index.js";
 export {default as StripPlot} from "./StripPlot/index.js";
 export {default as Sunburst} from "./Sunburst/index.js";
+export {default as TileGridMap} from "./TileGridMap/index.js";
 export {default as Tree} from "./Tree/index.js";
 export {default as Treemap} from "./Treemap/index.js";
 export {default as Violin} from "./Violin/index.js";
