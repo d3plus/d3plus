@@ -29,7 +29,7 @@ const texts = viz => {
 };
 
 /** Draws a LinePlot with `config` and returns its painted texts. */
-async function draw(config, renderer) {
+async function draw(config, renderer, rows = data) {
   const out = await probeChart(
     `(lib, data) => {
       const errors = [];
@@ -50,7 +50,7 @@ async function draw(config, renderer) {
       return viz;
     }`,
     viz => ({texts: texts(viz), errors: window.__drawErrors}),
-    {data, renderer},
+    {data: rows, renderer},
   );
   assert.deepStrictEqual(out.errors, [], "draws without an error");
   return out.texts;
@@ -75,8 +75,32 @@ for (const renderer of ["svg", "canvas"]) {
       `{shapeConfig: {Line: {label: "Series"}}}`,
       renderer,
     );
-    assert.ok(along(out).length > 0, "labels run along the lines");
+    // Each series gets its own label, though they share the text.
+    assert.deepStrictEqual(
+      along(out)
+        .map(t => t.key)
+        .sort(),
+      ["line-label-along-A", "line-label-along-B", "line-label-along-C"],
+    );
     for (const t of along(out)) assert.strictEqual(t.text, "Series");
+  });
+
+  it(`LinePlot ${renderer} — a series drawn as several lines is named once`, async () => {
+    // B misses a value, so a dashed bridge draws across its gap as a line of its own.
+    const gapped = data.map(d =>
+      d.id === "B" && d.x === 2 ? {...d, y: null} : d,
+    );
+    const out = await draw(
+      `{connectGaps: "dashed", shapeConfig: {Line: {label: d => d.id + "!"}}}`,
+      renderer,
+      gapped,
+    );
+    assert.deepStrictEqual(
+      along(out)
+        .map(t => t.text)
+        .sort(),
+      ["A!", "B!", "C!"],
+    );
   });
 
   it(`LinePlot ${renderer} — a Line label names the labels at the lines' ends`, async () => {
