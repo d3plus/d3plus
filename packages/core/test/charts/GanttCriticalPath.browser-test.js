@@ -125,6 +125,30 @@ for (const renderer of ["svg", "canvas"]) {
     assert.deepStrictEqual(warnings, []);
   });
 
+  it(`Gantt [${renderer}]: the path draws by default, and a schedule without dependencies looks as before`, async () => {
+    const {criticalPath, ...defaults} = base;
+    assert.strictEqual(criticalPath, true);
+    const on = await render(
+      '<div id="viz" style="width:800px;height:400px"></div>',
+      draw,
+      {config: defaults, renderer},
+    );
+    assert.strictEqual(on.nodes["gantt-task-Copy"].paint.opacity, 0.35);
+    assert.ok(on.nodes["gantt-critical-key-label"]);
+    const plain = tasks.map(({task, start, end}) => ({task, start, end}));
+    const off = await render(
+      '<div id="viz" style="width:800px;height:400px"></div>',
+      draw,
+      {config: {...defaults, data: plain}, renderer},
+    );
+    assert.ok(!off.nodes["gantt-critical-key-label"], "no key");
+    assert.ok(
+      Object.values(off.nodes).every(n => (n.paint.opacity ?? 1) === 1),
+      "nothing muted",
+    );
+    assert.deepStrictEqual(off.warnings, []);
+  });
+
   it(`Gantt [${renderer}]: a dependency cycle draws no critical path and warns once`, async () => {
     const cyclic = tasks.map(t =>
       t.task === "Plan" ? {...t, dependencies: "Ship"} : t,

@@ -76,15 +76,44 @@ const byId = id => plan.find(d => d.id === id);
 /** Whether two dates fall within an hour (a daylight saving shift) of each other. */
 const sameDay = (a, b) => Math.abs(+a - +b) <= 36e5;
 
-it("Gantt: criticalPath is off by default, with an empty criticalPathConfig", () => {
+it("Gantt: criticalPath is on by default, and false turns it off", () => {
   const viz = new Gantt();
-  assert.strictEqual(viz.criticalPath(), false);
+  assert.strictEqual(viz.criticalPath(), true);
   assert.deepStrictEqual(viz.criticalPathConfig(), {});
   const fields = ganttDef.fields.map(f => f.key);
   assert.ok(fields.includes("criticalPath"));
   assert.ok(fields.includes("criticalPathConfig"));
+  const viz2 = new Gantt().config({width: 800, height: 400});
+  Object.assign(viz2, {
+    _filteredData: plan,
+    _margin: {top: 0, right: 0, bottom: 0, left: 0},
+    _id: d => d.id,
+    _drawLabel: d => `${d.id}`,
+    _chartScene: [],
+  });
+  assert.ok(layout(viz2).layout.critical, "draws by default");
   const {layout: l} = layout(gantt(plan, {criticalPath: false}));
   assert.strictEqual(l.critical, null);
+});
+
+it("Gantt: without dependencies the default draws as before: no key, no muting", () => {
+  const data = plan.map(({id, start, end}) => ({id, start, end}));
+  const viz = new Gantt().config({width: 800, height: 400});
+  viz._filteredData = data;
+  viz._margin = {top: 0, right: 0, bottom: 0, left: 0};
+  viz._id = d => d.id;
+  viz._drawLabel = d => `${d.id}`;
+  viz._chartScene = [];
+  const {marks, layout: l} = layout(viz);
+  assert.strictEqual(viz.criticalPath(), true);
+  assert.strictEqual(l.critical, null);
+  const nodes = ganttEmit({viz, shapeData: marks});
+  assert.ok(!nodes.some(n => `${n.key}`.startsWith("gantt-critical-key")));
+  assert.ok(nodes.every(n => (n.paint?.opacity ?? 1) === 1));
+  assert.deepStrictEqual(
+    ganttTooltipRows(viz, data[1], 1).map(r => r[0]),
+    ["Start", "End", "Duration"],
+  );
 });
 
 it("Gantt: workClock leaves out hidden days, and is plain time without rules", () => {
@@ -175,7 +204,7 @@ it("Gantt: the critical path reads numbers on a linear axis", () => {
   );
 });
 
-it("Gantt: no critical path without a link between drawn tasks", () => {
+it("Gantt: no critical path without a critical link between drawn tasks", () => {
   const data = [
     {id: "A", start: "2024-03-04", end: "2024-03-08", dependencies: "Gone"},
     {id: "B", start: "2024-03-08", end: "2024-03-12"},
@@ -185,6 +214,15 @@ it("Gantt: no critical path without a link between drawn tasks", () => {
   assert.strictEqual(l.critical, null);
   assert.strictEqual(taskSlack(viz, data[0]), undefined);
   assert.strictEqual(ganttCriticalPath(viz, []), null);
+  // A chain that ends before a lone task ending last has no critical link.
+  const unchained = [
+    {id: "A", start: "2024-03-04", end: "2024-03-08"},
+    {id: "B", start: "2024-03-08", end: "2024-03-12", dependencies: "A"},
+    {id: "C", start: "2024-03-04", end: "2024-03-20"},
+  ];
+  const lone = gantt(unchained);
+  assert.strictEqual(layout(lone).layout.critical, null);
+  assert.strictEqual(taskSlack(lone, unchained[2]), undefined);
 });
 
 it("Gantt: a dependency cycle warns once, naming it, and draws no critical path", () => {
