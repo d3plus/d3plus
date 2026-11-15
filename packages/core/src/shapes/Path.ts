@@ -44,6 +44,7 @@ export default class Path extends Shape {
       textAnchor: "middle",
       verticalAlign: "middle",
     });
+    this._constructed(new.target, Path);
   }
 
   /**

@@ -19,7 +19,7 @@ import {geoMercator} from "d3-geo";
 
 import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
-import {parseSides} from "@d3plus/dom";
+import {isObject, parseSides} from "@d3plus/dom";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
@@ -356,10 +356,11 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
       @type {number | string}
   */
   v.projectionPadding = function (this: VizInstance, _?: unknown) {
+    // A sides object (what the getter returns) is stored as given.
     return arguments.length
-      ? ((this.schema.projectionPadding = parseSides(
-          _ as Parameters<typeof parseSides>[0],
-        )),
+      ? ((this.schema.projectionPadding = isObject(_)
+          ? {...(_ as ReturnType<typeof parseSides>)}
+          : parseSides(_ as Parameters<typeof parseSides>[0])),
         this)
       : this.schema.projectionPadding;
   };
@@ -381,8 +382,15 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
   v.projectionRotate = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.projectionRotate = _;
-      this.schema.projection.rotate(_);
-      v.tiles(false);
+      // A rotation turns tiles off; no rotation (its default, which RESET
+      // restores) turns the globe back and the tiles back to what they were.
+      this.schema.projection.rotate(_ ?? [0, 0, 0]);
+      if (_ !== undefined) {
+        const before = this.ctx.tilesBeforeRotate ?? this.schema.tiles;
+        v.tiles(false);
+        this.ctx.tilesBeforeRotate = before;
+      } else if (this.ctx.tilesBeforeRotate !== undefined)
+        v.tiles(this.ctx.tilesBeforeRotate);
       this._zoomSet = false;
       return this;
     }
@@ -400,6 +408,8 @@ function setupGeomapTileFluent(viz: VizInstance): void {
   */
   v.tiles = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
+      // Set by hand, tiles stay as set when a rotation is reset.
+      this.ctx.tilesBeforeRotate = undefined;
       this.schema.tiles = _ as boolean;
       syncTileAttribution(this);
       return this;

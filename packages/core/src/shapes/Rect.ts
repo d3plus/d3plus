@@ -42,6 +42,7 @@ export default class Rect extends Shape {
       x: -(s.width as number) / 2,
       y: -(s.height as number) / 2,
     });
+    this._constructed(new.target, Rect);
   }
 
   // v4: render() is inherited from Shape — the scene path handles drawing.

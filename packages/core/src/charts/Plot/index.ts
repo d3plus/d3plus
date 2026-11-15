@@ -93,6 +93,7 @@ export default class Plot extends Viz {
     installFluent(this, plotSchema);
     initPlotDefaults(this);
     initPlotAxes(this);
+    this._constructed(new.target, Plot);
   }
 
   /**

@@ -132,6 +132,7 @@ export default class Whisker extends BaseClass {
     this.schema.lineConfig = {};
     this._whiskerEndpoint = [];
     this._owned = new Map();
+    this._constructed(new.target, Whisker);
   }
 
   /**

@@ -12,5 +12,6 @@ export default class AxisRight extends Axis {
   constructor() {
     super();
     this.orient("right");
+    this._constructed(new.target, AxisRight);
   }
 }
