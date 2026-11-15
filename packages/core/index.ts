@@ -59,6 +59,7 @@ export {
   Sunburst,
   Tree,
   Treemap,
+  Venn,
   Violin,
   Viz,
   Waffle,

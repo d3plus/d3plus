@@ -59,6 +59,7 @@ import {
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Venn as VennClass,
   Violin as ViolinClass,
   Waterfall as WaterfallClass,
   Viz as VizClass,
@@ -219,6 +220,8 @@ export const Sunburst = createD3plusComponent(SunburstClass, "chart");
 export const Tree = createD3plusComponent(TreeClass, "chart");
 /** Vue component for rendering a d3plus Treemap visualization. */
 export const Treemap = createD3plusComponent(TreemapClass, "chart");
+/** Vue component for rendering a d3plus Venn visualization. */
+export const Venn = createD3plusComponent(VennClass, "chart");
 /** Vue component for rendering a d3plus Violin visualization. */
 export const Violin = createD3plusComponent(ViolinClass, "chart");
 /** Vue component for rendering a d3plus Waterfall visualization. */

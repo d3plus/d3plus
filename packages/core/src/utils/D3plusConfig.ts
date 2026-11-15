@@ -2032,6 +2032,13 @@ export interface D3plusConfig {
   */
   label?: string | string[] | false | AccessorFn;
   /**
+      Venn: what each region label's count means. `"exclusive"` (default)
+      counts the items in that region and none of the smaller regions drawn
+      inside it, so the counts add up to the whole; `"inclusive"` shows each
+      row's own size, every item in all of its sets. Tooltips show both.
+  */
+  labelCounts?: "exclusive" | "inclusive";
+  /**
       Gantt: the most the task label column may take: a share of the chart's
       width when 1 or below (default `0.3`), else pixels. The column fits the
       widest label up to it, wrapping or truncating longer ones; `0` hides it.
@@ -2648,6 +2655,17 @@ export interface D3plusConfig {
   /** Rotation offset for the map projection center. */
   projectionRotate?: [number, number];
   /**
+      Venn: when `true` (default), each set is a circle whose area matches
+      its size and each overlap's area its row's size, as closely as circles
+      allow (exact for two sets, close for three, approximate beyond); sets
+      that share nothing are drawn apart and a set inside another inside its
+      circle. When `false`, the sets take the textbook arrangement in which
+      every combination has a region: equal circles for two or three sets,
+      Venn's four ellipses, Grünbaum's five symmetric ellipses, and a ring of
+      equal circles for six or more (where not every combination appears).
+  */
+  proportional?: boolean;
+  /**
       How PolarArea maps values onto radii: `"sqrt"` (default) keeps each
       wedge's area proportional to its value; `"linear"` its radius.
   */
@@ -2789,6 +2807,12 @@ export interface D3plusConfig {
       `fill`, `fill-opacity`, `stroke`, and `stroke-dasharray`.
   */
   selectStyle?: Record<string, string | number>;
+  /**
+      Venn: accessor or data key for the sets each row stands for: an array
+      of set names (`["A", "B"]` for where A and B overlap) or a single name
+      for a set on its own. Defaults to `"sets"`.
+  */
+  sets?: string | ((d: DataPoint, i: number) => unknown);
   /**
       Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
   */
@@ -3164,7 +3188,7 @@ export interface D3plusConfig {
   upColor?: string | ((d: DataPoint, i: number) => string);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
-  /** Funnel, Gauge, and KPI: formats each value shown in labels and tooltips, as `(value, datum) => string`. */
+  /** Funnel, Gauge, KPI, and Venn: formats each value shown in labels and tooltips, as `(value, datum) => string`. */
   valueFormat?: (value: number, d: DataPoint) => string;
   /**
       Candlestick: how each period draws — `"candlestick"` (default), a wick
