@@ -4,6 +4,8 @@
     @module
 */
 
+import {color} from "d3-color";
+
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 import type {SceneNode} from "@d3plus/render";
@@ -23,7 +25,7 @@ import {geoBinMeta, geoBinTitle} from "./geoHexbin.js";
 /**
     The color of a group of dots: `dotDensity.fill`, else, with categories,
     the color the chart gives their row (as its legend shows), else the
-    chart's text color.
+    first color of the chart's palette (see `singleDotFill`).
     @param viz The Geomap.
     @param layout The dots.
     @param group The group.
@@ -44,8 +46,26 @@ export function dotFill(
     );
     if (paint.fill) return paint.fill;
   }
-  return backgroundInk(viz);
+  return singleDotFill(viz);
 }
+
+/**
+    The color of dots without categories: the first color of the chart's
+    palette, lightened over a dark basemap so the dots stand out from the
+    dark regions.
+    @param viz The Geomap.
+*/
+export function singleDotFill(viz: VizInstance): string {
+  const palette = viz.schema.colorDefaults?.scale?.range?.() as
+    string[] | undefined;
+  const first = palette?.[0] ?? backgroundInk(viz);
+  if (!viz._basemapDark) return first;
+  const c = color(first);
+  return c ? c.brighter(DARK_LIFT).formatHex() : first;
+}
+
+/** How much `singleDotFill` lightens the palette color over a dark basemap. */
+const DARK_LIFT = 0.8;
 
 /** Each group's dots, as one path of circles. */
 export function emitDots(

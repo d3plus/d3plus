@@ -67,7 +67,7 @@ Two fields given to `colorScale` color each region by both at once. Each variabl
 
 ## Dot-density map
 
-`dotDensity` draws one dot for every `per` units of each region's `value`, here one for every 25,000 people, scattered inside the state. The dots are placed by a random stream seeded by each state's id, so redrawing, resizing, or changing a value never moves a dot already on the map (a larger value only adds dots), and every dot lands inside its state, outside any hole in it. The outlines stay drawn: hover a state for its total, or its dots for their count and what each stands for. `r` sets the dot radius (`1.5` pixels) and `fillOpacity` their opacity (`0.8`). So the map stays quick to draw, it holds the total to `max` dots (20,000 on SVG, 100,000 on Canvas), raising `per` to the next round number past it.
+`dotDensity` draws one dot for every `per` units of each region's `value`, here one for every 25,000 people, scattered inside the state. The dots are placed by a random stream seeded by each state's id, so redrawing, resizing, or changing a value never moves a dot already on the map (a larger value only adds dots), and every dot lands inside its state, outside any hole in it. The outlines stay drawn: hover a state for its total, or its dots for their count and what each stands for. Without categories, the dots take the first color of the palette, lightened over a dark basemap; `r` sets their radius (`1.5` pixels) and `fillOpacity` their opacity (`0.8`). Each dot always stands for `per` units: so a dense map stays quick to draw, past 20,000 dots a chart whose `renderer` isn't set draws on Canvas instead of SVG (it says so once in the console) and goes back to SVG when the dots fit again. Only past `max` dots (`100000`) does `per` rise, to the next round number at which they fit.
 
 <Playground chart="Geomap" code={dotDensityMap} controls={["dotDensity","renderer","tiles"]} />
 
@@ -85,7 +85,7 @@ Rather than shading regions, this drops a marker per datum: `point` returns each
 
 ## Hexbin map
 
-`hexbin` bins the coordinate points into hexagons on the map, the way the [Hexbin](/core/charts/hexbin/) chart does, and colors each on the colorScale by how many points it holds, here the cities of each 20-pixel hexagon. Give it a `value` to color each bin by the `"sum"` (or, with `agg`, the `"mean"`) of that value over its points instead. Hover a bin for its measure. The bins are laid out for the map's size, so they grow with it as you zoom in, and they sit over the tiles without being clipped to land.
+`hexbin` bins the coordinate points into hexagons on the map, the way the [Hexbin](/core/charts/hexbin/) chart does, and colors each on the colorScale by how many points it holds, here the cities of each 20-pixel hexagon. Give it a `value` to color each bin by the `"sum"` (or, with `agg`, the `"mean"`) of that value over its points instead. Hover a bin for its measure. Zoom in and the points are binned again at the same 20-pixel radius, so finer detail appears, and the color scale refits to the bins in view. The bins sit over the tiles without being clipped to land.
 
 <Playground chart="Geomap" code={hexbinMap} controls={["hexbin","colorScaleConfig","tiles"]} />
 

@@ -158,7 +158,7 @@ export function geoBinRows(
 }
 
 /** The point rows a Geomap bins: those with a coordinate. */
-function pointRows(viz: VizInstance, rows: DataPoint[]): DataPoint[] {
+export function geoPointRows(viz: VizInstance, rows: DataPoint[]): DataPoint[] {
   return rows.filter((d, i) => viz.schema.point(d, i) instanceof Array);
 }
 
@@ -186,7 +186,7 @@ export function geoBinColorRows(
   const origin = geoBinOrigin(viz);
   return groups.flatMap(rows =>
     geoBinRows(
-      geoBinPoints(viz, pointRows(viz, rows), settings),
+      geoBinPoints(viz, geoPointRows(viz, rows), settings),
       settings,
       origin,
     ),

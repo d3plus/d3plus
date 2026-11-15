@@ -15,6 +15,7 @@ import {fieldAccessor, fieldNameOf} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {regionsReshaped} from "./tileGrid.js";
 import {DotScatter, dotCounts} from "./dotDensity.js";
+import {syncDotRenderer} from "./dotRenderer.js";
 import type {DotPoint, DotRing} from "./dotDensity.js";
 
 type Accessor = (d: DataPoint, i: number) => unknown;
@@ -31,7 +32,7 @@ export interface DotDensityConfig {
   fill?: string | Accessor;
   /** The dots' opacity. */
   fillOpacity?: number;
-  /** The most dots the map draws; past it, each dot stands for more. */
+  /** The most dots the map draws; past it, each dot stands for a round number more. */
   max?: number;
 }
 
@@ -54,8 +55,8 @@ export const DOT_DEFAULTS = {
   fillOpacity: 0.8,
 };
 
-/** The most dots drawn on each renderer, unless `dotDensity.max` sets it. */
-export const DOT_MAX = {svg: 20000, canvas: 100000};
+/** The most dots drawn, unless `dotDensity.max` sets it: past it, `per` rises. */
+export const DOT_MAX = 100000;
 
 /** A group of dots: a row's share of its region. */
 export interface DotGroup {
@@ -76,7 +77,7 @@ export interface DotGroup {
 /** A Geomap's dots. */
 export interface DotDensityLayout {
   groups: DotGroup[];
-  /** The units each dot stands for, after the `max` cap. */
+  /** The units each dot stands for: `per`, or past the `max` cap, a round number more. */
   per: number;
   /** Whether the rows split each region into categories (more than one `groupBy` level). */
   categories: boolean;
@@ -109,7 +110,6 @@ export function dotDensitySettings(
   if (!accessor) return null;
   const num = (v: unknown, fallback: number) =>
     typeof v === "number" && Number.isFinite(v) && v > 0 ? v : fallback;
-  const canvas = viz._renderer === "canvas";
   return {
     value: accessor,
     valueName:
@@ -121,7 +121,7 @@ export function dotDensitySettings(
       typeof option.fillOpacity === "number"
         ? Math.min(1, Math.max(0, option.fillOpacity))
         : DOT_DEFAULTS.fillOpacity,
-    max: num(option.max, canvas ? DOT_MAX.canvas : DOT_MAX.svg),
+    max: num(option.max, DOT_MAX),
   };
 }
 
@@ -151,7 +151,9 @@ function rowValue(settings: DotDensitySettings, d: DataPoint, i: number) {
 /**
     The dots of every region with rows: each row's value over `per` (held
     to `max` dots in all), scattered inside its region's projected shape.
-    Null when `dotDensity` is off.
+    Past the dots SVG draws quickly, a chart whose `renderer` was never set
+    switches to Canvas (see `syncDotRenderer`). Null when `dotDensity` is
+    off.
     @param viz The Geomap.
     @param regions The topojson regions.
     @param rows Each region's rows (with their indices), by region id as a string.
@@ -190,6 +192,10 @@ export function geomapDotDensity(
     drawn.map(g => g.value),
     settings.per,
     settings.max,
+  );
+  syncDotRenderer(
+    viz,
+    counts.reduce((a, b) => a + b, 0),
   );
 
   let kept = scatters.get(viz);

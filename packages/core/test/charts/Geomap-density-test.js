@@ -53,7 +53,25 @@ import {
   dotFill,
   emitBins,
   emitDots,
+  singleDotFill,
 } from "../../src/charts/Geomap/densityEmit.ts";
+import {
+  DOT_SVG_MAX,
+  rendererChosen,
+  syncDotRenderer,
+  trackRendererChoice,
+} from "../../src/charts/Geomap/dotRenderer.ts";
+import {
+  geoBinsAt,
+  geoBinsInView,
+  geoHexbinColorRows,
+  geoZoom,
+  rebinOnZoom,
+  refreshGeoColorScale,
+  replaceBinNodes,
+} from "../../src/charts/Geomap/geoHexbinZoom.ts";
+import {geomapEmit} from "../../src/charts/Geomap/emit.ts";
+import {rgb} from "d3-color";
 import {ownColorScale} from "../../src/charts/features/colorScaleValue.ts";
 
 useJsdom();
@@ -209,11 +227,9 @@ it("dotDensitySettings reads dotDensity, with defaults, off without a value or u
   assert.strictEqual(s.per, DOT_DEFAULTS.per);
   assert.strictEqual(s.r, DOT_DEFAULTS.r);
   assert.strictEqual(s.fillOpacity, DOT_DEFAULTS.fillOpacity);
-  assert.strictEqual(s.max, DOT_MAX.svg);
+  assert.strictEqual(s.max, DOT_MAX);
   assert.strictEqual(s.valueName, "Population");
   assert.strictEqual(s.value({Population: 5}), 5);
-  viz._renderer = "canvas";
-  assert.strictEqual(dotDensitySettings(viz).max, DOT_MAX.canvas);
   viz.dotDensity({value: d => d.n, per: 5, r: 2, fillOpacity: 3, max: 9});
   const t = dotDensitySettings(viz);
   assert.deepStrictEqual(
@@ -551,8 +567,10 @@ it("dotFill takes dotDensity.fill, else the category color, else the text color"
     ),
     "green",
   );
-  const ink = dotFill(viz, {...dots, categories: false}, g);
-  assert.ok(ink && ink !== "red");
+  assert.strictEqual(
+    dotFill(viz, {...dots, categories: false}, g),
+    singleDotFill(viz),
+  );
 });
 
 it("emitDots draws a path of dots per group, and emitBins a hexagon per bin", () => {
@@ -626,4 +644,186 @@ it("densityLegend hides the legend under hexbin bins, or one-color dots", () => 
   assert.strictEqual(legend({}, arr), false);
   viz._drawDepth = 1;
   assert.notStrictEqual(legend({}, arr), false);
+});
+
+/** The WCAG contrast ratio of two colors. */
+function contrast(a, b) {
+  const lum = c => {
+    const {r, g, b: bl} = rgb(c);
+    const ch = v => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(bl);
+  };
+  const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+  return (x + 0.05) / (y + 0.05);
+}
+
+it("singleDotFill is the palette's first color, lightened over a dark basemap", () => {
+  const viz = new Geomap();
+  const first = viz.schema.colorDefaults.scale.range()[0];
+  assert.strictEqual(singleDotFill(viz), first);
+  viz._basemapDark = true;
+  const dark = singleDotFill(viz);
+  assert.notStrictEqual(dark, first);
+  // Each reads against its basemap's no-data fill.
+  assert.ok(contrast(first, "#f5f5f3") >= 3, "on light");
+  assert.ok(
+    contrast(dark, "#3d3e44") >= 3,
+    `on dark: ${contrast(dark, "#3d3e44")}`,
+  );
+});
+
+it("syncDotRenderer switches an unset renderer to Canvas past the SVG cap, once noted, and back", () => {
+  const viz = new Geomap();
+  const logged = [];
+  const info = console.info;
+  console.info = m => logged.push(m);
+  try {
+    syncDotRenderer(viz, DOT_SVG_MAX);
+    assert.strictEqual(viz.renderer(), "svg", "at the cap");
+    syncDotRenderer(viz, DOT_SVG_MAX + 1);
+    assert.strictEqual(viz.renderer(), "canvas");
+    syncDotRenderer(viz, 50);
+    assert.strictEqual(viz.renderer(), "svg", "back once the dots fit");
+    syncDotRenderer(viz, DOT_SVG_MAX + 1);
+    assert.strictEqual(logged.length, 1, "noted once");
+    assert.ok(logged[0].includes(`${DOT_SVG_MAX + 1} dots`));
+    // A small-multiples panel with few dots keeps the switch.
+    viz._facetStep = "panel";
+    syncDotRenderer(viz, 5);
+    assert.strictEqual(viz.renderer(), "canvas");
+    viz._facetStep = undefined;
+  } finally {
+    console.info = info;
+  }
+});
+
+it("syncDotRenderer never overrides a renderer the user set", () => {
+  const svg = new Geomap();
+  assert.strictEqual(rendererChosen(svg), false);
+  svg.renderer("svg");
+  assert.strictEqual(rendererChosen(svg), true);
+  syncDotRenderer(svg, DOT_SVG_MAX * 2);
+  assert.strictEqual(svg.renderer(), "svg");
+  const canvas = new Geomap().config({renderer: "canvas"});
+  assert.ok(rendererChosen(canvas), "set through config");
+  syncDotRenderer(canvas, 0);
+  assert.strictEqual(canvas.renderer(), "canvas");
+  // trackRendererChoice is what Geomap installs.
+  const other = new Geomap();
+  trackRendererChoice(other);
+  other.renderer("canvas");
+  assert.ok(rendererChosen(other));
+});
+
+it("geomapDotDensity keeps `per` as given up to the cap, switching to Canvas past the SVG cap", () => {
+  const info = console.info;
+  console.info = () => {};
+  try {
+    const viz = laidOut({dotDensity: {value: "Population", per: 10000}});
+    const {dots} = viz.ctx.geomapCtx.density;
+    assert.strictEqual(dots.per, 10000, "per as given");
+    const total = dots.groups.reduce((s, g) => s + g.points.length, 0);
+    assert.ok(total > DOT_SVG_MAX, `${total} dots`);
+    assert.strictEqual(viz._renderer, "canvas");
+  } finally {
+    console.info = info;
+  }
+});
+
+const zoomCities = Array.from({length: 40}, (_, i) => ({
+  id: `c${i}`,
+  point: [-100 + (i % 8) * 0.05, 40 + Math.floor(i / 8) * 0.05],
+}));
+
+it("geoBinsAt keeps each bin's zoomed radius, splitting bins as the map zooms in", () => {
+  const viz = laidOut({hexbin: {radius: 12}, point: d => d.point}, zoomCities);
+  const settings = geoHexbinSettings(viz);
+  const points = viz.ctx.geomapCtx.density.binState.points;
+  const one = geoBinsAt(viz, points, settings, 1);
+  const eight = geoBinsAt(viz, points, settings, 8);
+  assert.ok(eight.length > one.length, `${eight.length} > ${one.length}`);
+  const width = row => {
+    const xs = pathRings(geoBinMeta(row).path)[0].map(p => p[0]);
+    return Math.max(...xs) - Math.min(...xs);
+  };
+  assert.ok(Math.abs(width(eight[0]) * 8 - width(one[0])) < 0.2, "radius / k");
+  assert.strictEqual(
+    eight.reduce((s, b) => s + geoBinMeta(b).count, 0),
+    zoomCities.length,
+  );
+});
+
+it("geoBinsInView keeps the bins that reach into the map area at a zoom", () => {
+  const viz = laidOut({hexbin: true, point: d => d.point}, cities);
+  const {bins} = viz.ctx.geomapCtx.density;
+  assert.strictEqual(
+    geoBinsInView(viz, bins, {k: 1, x: 0, y: 0}, 12).length,
+    3,
+  );
+  assert.strictEqual(
+    geoBinsInView(viz, bins, {k: 1, x: 5000, y: 0}, 12).length,
+    0,
+    "panned away",
+  );
+  assert.deepStrictEqual(geoZoom(viz), {k: 1, x: 0, y: 0});
+  viz._zoomTransform = {scale: 3, x: -10, y: 4};
+  assert.deepStrictEqual(geoZoom(viz), {k: 3, x: -10, y: 4});
+  viz._facetStep = "panel";
+  assert.deepStrictEqual(geoZoom(viz), {k: 1, x: 0, y: 0}, "not in a panel");
+});
+
+it("replaceBinNodes swaps the bins in place, or puts them under links and points", () => {
+  const scene = [
+    {key: "geomap-path-a"},
+    {key: "geomap-bin-1"},
+    {key: "geomap-bin-2"},
+    {key: "geomap-point-x"},
+  ];
+  assert.deepStrictEqual(
+    replaceBinNodes(scene, [{key: "geomap-bin-9"}]).map(n => n.key),
+    ["geomap-path-a", "geomap-bin-9", "geomap-point-x"],
+  );
+  assert.deepStrictEqual(
+    replaceBinNodes(
+      [{key: "geomap-path-a"}, {key: "geomap-link-1"}],
+      [{key: "geomap-bin-9"}],
+    ).map(n => n.key),
+    ["geomap-path-a", "geomap-bin-9", "geomap-link-1"],
+  );
+  assert.deepStrictEqual(
+    replaceBinNodes([{key: "a"}], [{key: "geomap-bin-9"}]).map(n => n.key),
+    ["a", "geomap-bin-9"],
+  );
+});
+
+it("rebinOnZoom re-bins at the new zoom scale and redraws the bins, leaving the zoom to move the map", () => {
+  const viz = laidOut({hexbin: {radius: 12}, point: d => d.point}, zoomCities);
+  syncDensityColorScale(viz);
+  viz._chartScene = geomapEmit({viz});
+  const before = viz._chartScene.filter(n => n.key.startsWith("geomap-bin-"));
+  assert.strictEqual(rebinOnZoom(viz, {k: 8, x: 0, y: 0}), false);
+  const after = viz._chartScene.filter(n => n.key.startsWith("geomap-bin-"));
+  assert.ok(after.length > before.length, "finer bins");
+  assert.strictEqual(viz.ctx.geomapCtx.density.binState.k, 8);
+  assert.strictEqual(viz.ctx.geomapCtx.density.bins.length, after.length);
+  assert.strictEqual(viz._zoomRescale({k: 8, x: 0, y: 0}), false, "the hook");
+  viz.hexbin(false);
+  assert.strictEqual(rebinOnZoom(viz, {k: 2, x: 0, y: 0}), false);
+});
+
+it("geoHexbinColorRows bins the chart's points at its zoom, in view", () => {
+  const viz = laidOut({hexbin: {radius: 12}, point: d => d.point}, zoomCities);
+  const settings = geoHexbinSettings(viz);
+  const one = geoHexbinColorRows(viz, settings).length;
+  const center = viz.ctx.geomapCtx.density.binState.points[0];
+  viz._zoomTransform = {
+    scale: 8,
+    x: 400 - center.x * 8,
+    y: 250 - center.y * 8,
+  };
+  assert.ok(geoHexbinColorRows(viz, settings).length > one);
+  refreshGeoColorScale(viz, []);
 });

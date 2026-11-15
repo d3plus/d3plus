@@ -9,17 +9,18 @@ import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import type {VizInstance} from "../viz/vizTypes.js";
-import {colorScaleValue} from "../features/colorScaleValue.js";
 import {dotDensitySettings, geomapDotDensity} from "./dotDensityLayout.js";
 import type {DotDensityLayout, DotRegion} from "./dotDensityLayout.js";
 import {noteDotRows} from "./densityTooltip.js";
+import {syncDotRenderer} from "./dotRenderer.js";
+import {geoBinColorRows, geoBinPoints, geoHexbinSettings} from "./geoHexbin.js";
 import {
-  geoBinColorRows,
-  geoBinOrigin,
-  geoBinPoints,
-  geoBinRows,
-  geoHexbinSettings,
-} from "./geoHexbin.js";
+  geoBinsAt,
+  geoBinsInView,
+  geoZoom,
+  refreshGeoColorScale,
+} from "./geoHexbinZoom.js";
+import type {GeoBinState} from "./geoHexbinZoom.js";
 
 /** Each region's rows, with their indices in the drawn data, by region id (as a string). */
 export type RegionRows = Map<string, {row: DataPoint; index: number}[]>;
@@ -56,19 +57,12 @@ export function geomapRegionRows(viz: VizInstance): {
   return {rows, data};
 }
 
-/**
-    Lays the colorScale out again over `rows`, in the frame it already
-    claimed, so the scale the bins are filled from spans what's drawn.
-*/
-function refreshColorScale(viz: VizInstance, rows: DataPoint[]): void {
-  const cs = viz._colorScaleClass;
-  if (cs && colorScaleValue(viz)) cs.data(rows).render();
-}
-
 /** The dots and bins of a Geomap draw. */
 export interface GeomapDensity {
   dots: DotDensityLayout | null;
   bins: DataPoint[] | null;
+  /** The projected points behind the bins, to re-bin them as the map zooms. */
+  binState?: GeoBinState;
 }
 
 /**
@@ -89,6 +83,8 @@ export function geomapDensity(
   },
 ): GeomapDensity {
   const dots = geomapDotDensity(viz, input.regions, input.rows, input.pathD);
+  // A chart switched to Canvas for its dots goes back without them.
+  if (!dots) syncDotRenderer(viz, 0);
   if (dots) {
     const regionDots = new Map<DataPoint, DotDensityLayout["groups"]>();
     const byRegion = new Map<string, DotDensityLayout["groups"]>();
@@ -104,17 +100,16 @@ export function geomapDensity(
     noteDotRows(viz, dots, regionDots);
   }
   const settings = geoHexbinSettings(viz);
-  let bins: DataPoint[] | null = null;
-  if (settings) {
-    bins = geoBinRows(
-      geoBinPoints(viz, input.points, settings),
-      settings,
-      geoBinOrigin(viz),
-    );
-    refreshColorScale(
-      viz,
-      viz._facetStep === "panel" ? geoBinColorRows(viz, settings) : bins,
-    );
-  }
-  return {dots, bins};
+  if (!settings) return {dots, bins: null};
+  // Bins keep their pixel radius at the chart's zoom.
+  const zoom = geoZoom(viz);
+  const points = geoBinPoints(viz, input.points, settings);
+  const bins = geoBinsAt(viz, points, settings, zoom.k);
+  refreshGeoColorScale(
+    viz,
+    viz._facetStep === "panel"
+      ? geoBinColorRows(viz, settings)
+      : geoBinsInView(viz, bins, zoom, settings.radius),
+  );
+  return {dots, bins, binState: {points, k: zoom.k, bins}};
 }

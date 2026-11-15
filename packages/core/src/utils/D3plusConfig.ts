@@ -1789,10 +1789,13 @@ export interface D3plusConfig {
       its holes. With more than one `groupBy` level, the outer levels split
       each region into categories (e.g. `groupBy: ["race", "state"]`),
       whose dots take the chart's colors for them, mix together, and show in
-      the legend; with one level, every dot takes `fill`, or the chart's
-      text color. `r` sets the dot radius in pixels (`1.5`), `fillOpacity`
-      their opacity (`0.8`), and `max` the most dots drawn in all (20,000 on
-      SVG and 100,000 on Canvas): past it, each dot stands for the next round
+      the legend; with one level, every dot takes `fill`, or the first color
+      of the chart's palette (lightened over a dark basemap). `r` sets the
+      dot radius in pixels (`1.5`) and `fillOpacity` their opacity (`0.8`).
+      Each dot stands for exactly `per` units: past 20,000 dots, a chart
+      whose `renderer` isn't set draws on Canvas instead of SVG (noting it
+      once in the console), and back on SVG once the dots fit. Only past
+      `max` dots in all (`100000`) does each dot stand for the next round
       number of units at which the dots fit. The region outlines stay
       drawn; hovering a region shows its totals, and hovering its dots shows
       their value and count. A `cartogram` turns the dots off. Defaults to
@@ -1948,9 +1951,10 @@ export interface D3plusConfig {
       the points themselves. `true` bins at a `12`-pixel radius; an object
       sets the `radius`, and with a `value` (a data key or accessor), colors
       each bin by the `"sum"` (default) or `"mean"` (`agg`) of it over the
-      bin's points, named `label` in the bin's tooltip. Bins are laid out
-      once for the map's size, so zooming enlarges them with the map, and
-      they aren't clipped to land. The regions keep the no-data fill, and
+      bin's points, named `label` in the bin's tooltip. As the map zooms, the
+      points are binned again so each hexagon keeps its pixel radius and
+      zooming in shows finer detail, and the colorScale refits to the bins
+      in view. Bins aren't clipped to land. The regions keep the no-data fill, and
       the legend and point size legend are hidden. A `cartogram` turns the
       bins off. Defaults to `false`.
   */
