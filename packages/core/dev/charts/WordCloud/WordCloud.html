@@ -5,7 +5,7 @@
     <title>WordCloud</title>
     <meta
       name="description"
-      content="Word clouds: font size by value, glyph-tight packing, colors and a legend by group, rotated words, a colorScale, the rectangular spiral, shrink-to-fit in a small chart, and small multiples."
+      content="Word clouds: font size by value, glyph-tight packing, colors and a legend by group, rotated words, a colorScale, the rectangular spiral, a threshold word, shrink-to-fit in a small chart, and small multiples."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -59,6 +59,10 @@
         <div class="viz" id="rectangular"></div>
       </div>
       <div>
+        <h3>size: d => d.value, threshold: 0.003, thresholdName: "Other"</h3>
+        <div class="viz" id="threshold"></div>
+      </div>
+      <div>
         <h3>Shrink to fit: fontMax 120 in a 300 × 200 chart</h3>
         <div class="viz small" id="shrink"></div>
       </div>
@@ -103,6 +107,14 @@
       .spiral("rectangular")
       .fontScale("log")
       .fontWeight(400)
+      .render();
+
+    new d3plus.WordCloud()
+      .select("#threshold")
+      .config(words)
+      .size(d => d.value)
+      .threshold(0.003)
+      .thresholdName("Other")
       .render();
 
     new d3plus.WordCloud()
