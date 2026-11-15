@@ -13,7 +13,7 @@ import {pathRings} from "@d3plus/render";
 
 import {fieldAccessor, fieldNameOf} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {cartogramKind} from "./cartogramLayout.js";
+import {regionsReshaped} from "./tileGrid.js";
 import {DotScatter, dotCounts} from "./dotDensity.js";
 import {syncDotRenderer} from "./dotRenderer.js";
 import type {DotPoint, DotRing} from "./dotDensity.js";
@@ -92,13 +92,14 @@ export interface DotRegion {
 
 /**
     `dotDensity`, resolved: null when it is off, has no `value`, or a
-    `cartogram` reshapes the regions.
+    `cartogram` or `tileGrid` reshapes the regions.
 */
 export function dotDensitySettings(
   viz: VizInstance,
 ): DotDensitySettings | null {
   const option = viz.schema.dotDensity as DotDensityConfig | false | undefined;
-  if (!option || typeof option !== "object" || cartogramKind(viz)) return null;
+  if (!option || typeof option !== "object" || regionsReshaped(viz))
+    return null;
   const {value} = option;
   const accessor =
     typeof value === "function"

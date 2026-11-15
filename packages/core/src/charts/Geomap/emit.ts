@@ -15,7 +15,6 @@ import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveThemed} from "./basemapTheme.js";
 import {geomapPointLabels} from "./pointLabels.js";
-import type {Themed} from "./basemapTheme.js";
 import {emitFlowLabels, emitFlowLinks} from "./flowEmit.js";
 import {cartogramLabels} from "./cartogramLabels.js";
 import type {CartogramShape} from "./cartogramLayout.js";
@@ -23,6 +22,7 @@ import type {FlowLink} from "./flowLinks.js";
 import {emitBins, emitDots} from "./densityEmit.js";
 import type {GeomapDensity} from "./densityLayout.js";
 import {geoHexbinSettings} from "./geoHexbin.js";
+import {TILE_GRID_FONT_MAX, tileGridOcean, tileGridOf} from "./tileGrid.js";
 import {pairLabels} from "../features/labelLayering.js";
 
 interface GeomapCtx {
@@ -59,7 +59,7 @@ function emitGeomapBasemap(viz: VizInstance): SceneNode[] {
   const panel = viz._facetStep === "panel";
   if (viz._ssr || panel) {
     const ocean = resolveThemed(
-      viz.schema.ocean as Themed<string>,
+      tileGridOcean(viz),
       Boolean(viz._basemapDark),
     ) as string | undefined;
     if (ocean && ocean !== "transparent") {
@@ -102,6 +102,33 @@ function emitGeomapBasemap(viz: VizInstance): SceneNode[] {
   return out;
 }
 
+/**
+    The labels inside a cartogram's shapes or a tile grid's tiles (a tile
+    grid labels every tile, a built-in layout with its own keys, up to
+    `TILE_GRID_FONT_MAX` pixels), or none on the map.
+*/
+function reshapedLabels(
+  viz: VizInstance,
+  c: GeomapCtx,
+  pathConfig: Record<string, unknown>,
+): SceneNode[] {
+  if (!c.cartogram) return [];
+  const grid = tileGridOf(viz);
+  return cartogramLabels(
+    viz,
+    c.topoData,
+    c.cartogram,
+    pathConfig,
+    grid
+      ? {
+          all: true,
+          text: grid.builtin ? r => grid.key(r.id) : undefined,
+          fontMax: TILE_GRID_FONT_MAX,
+        }
+      : undefined,
+  );
+}
+
 export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
   if (!c) return [];
@@ -117,7 +144,7 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
     const drawn: number[] = [];
     for (let i = 0; i < c.topoData.length; i++) {
       const d = c.topoData[i];
-      // A cartogram draws only the regions it sized.
+      // A cartogram or tile grid draws only the regions it placed.
       const shape = c.cartogram?.get(d.id);
       if (c.cartogram && !shape) continue;
       drawn.push(i);
@@ -147,8 +174,7 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
         return [(d.data ?? d) as DataPoint, drawn[k]];
       }),
     );
-    if (c.cartogram)
-      out.push(...cartogramLabels(viz, c.topoData, c.cartogram, pathConfig));
+    out.push(...reshapedLabels(viz, c, pathConfig));
   }
 
   out.push(...emitDots(viz, c.density?.dots));

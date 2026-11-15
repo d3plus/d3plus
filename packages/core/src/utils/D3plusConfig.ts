@@ -3062,6 +3062,30 @@ export interface D3plusConfig {
   /** Label for the threshold group, or a `(datum, index)` accessor. */
   thresholdName?: string | ((d: DataPoint, i: number) => string);
   /**
+      Geomap: draws each region as one equal tile at a fixed cell of a grid,
+      colored, labeled, and hovered like the map's regions. `"us-states"` is
+      the built-in hexagon grid of the 50 states and DC, which finds each
+      state by its postal abbreviation (`"CA"`), its FIPS code (`"06"` or
+      `6`), or an id ending in it (`"04000US06"`), and labels each tile with
+      its abbreviation. A layout of your own, `{[id]: [column, row]}`, places
+      the regions whose ids it names (odd rows sit half a tile to the right)
+      and labels them with the chart's label when it fits. Labels grow with
+      the tiles up to 14 pixels (`shapeConfig.Path.labelConfig.fontMax`
+      changes it). Every cell gets a
+      tile, with the no-data fill when no row names it. The grid fills the
+      map, less `projectionPadding`. Without a `topojson`, the tiles are the
+      layout's cells; with one, toggling the grid morphs each outline to and
+      from its tile. `links` run between the tiles' centers; coordinate
+      points, dots, bins, and the tiles are left out, and so is the `ocean`
+      unless it is set. Takes the place of a `cartogram` (and shows no size
+      legend). Defaults to `false`.
+  */
+  tileGrid?: false | "us-states" | Record<string, [number, number]>;
+  /** Geomap: the gap between neighboring `tileGrid` tiles, in pixels. Defaults to `2`. */
+  tileGridPadding?: number;
+  /** Geomap: the tiles of a `tileGrid`, `"hex"` for hexagons (the default) or `"square"` for squares. */
+  tileGridShape?: "hex" | "square";
+  /**
       URL template for XYZ map tiles, with `{z}`, `{x}`, `{y}` (and optional
       `{s}` subdomain) placeholders — or a `{light, dark}` pair, chosen by the
       chart's `theme` (the page behind it in `"auto"` mode). Defaults to

@@ -13,6 +13,7 @@ import worldCartogram from "~/examples/core/charts/geomap/world-cartogram.js?raw
 import dotDensityMap from "~/examples/core/charts/geomap/dot-density-map.js?raw";
 import dotDensityCategories from "~/examples/core/charts/geomap/dot-density-categories.js?raw";
 import hexbinMap from "~/examples/core/charts/geomap/hexbin-map.js?raw";
+import tileGridMap from "~/examples/core/charts/geomap/tile-grid-map.js?raw";
 import flowMap from "~/examples/core/charts/geomap/flow-map.js?raw";
 import globe from "~/examples/core/charts/geomap/globe.js?raw";
 import edgeBundling from "~/examples/core/charts/geomap/edge-bundling.js?raw";
@@ -57,6 +58,12 @@ Two fields given to `colorScale` color each region by both at once. Each variabl
 `cartogram: "demers"` draws squares instead, which pack edge to edge, `cartogramPadding` pixels apart (`1` by default). Every country with a population gets a square as large as its share of the world's, so China and India dwarf the rest while Russia and Canada shrink to a sliver of their land; countries without data are left out.
 
 <Playground chart="Geomap" code={worldCartogram} controls={["cartogram","cartogramPadding","projection","renderer"]} />
+
+## Tile-grid map
+
+`tileGrid` draws each region as one equal hexagon at a fixed cell of a grid, so a small state counts as much as a large one: here the built-in `"us-states"` grid of the 50 states and DC, colored by population. The built-in grid finds each state by its postal abbreviation, its FIPS code, or an id ending in it, labels each tile with its abbreviation, and needs no `topojson`. Colors, tooltips, the color scale, and the legend work as on the map, and a state without data keeps its tile in the no-data fill. [TileGridMap](/core/charts/tile-grid-map/) is a Geomap with this grid on by default; its page covers square tiles, layouts of your own, and morphing from the map.
+
+<Playground chart="Geomap" code={tileGridMap} controls={["tileGrid","tileGridShape","tileGridPadding","renderer"]} />
 
 ## Dot-density map
 
