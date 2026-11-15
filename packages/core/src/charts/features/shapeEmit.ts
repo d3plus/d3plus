@@ -283,7 +283,8 @@ const tickEmit: ShapeEmitter = (ctx, key) => {
 
 /**
     Circle — in swarm mode, each circle is packed off its lane's centerline
-    (see `Plot/swarm.ts`); otherwise a point mark.
+    (see `Plot/swarm.ts`), or placed by the chart's own `_swarmPlacements`
+    (DotPlot's stacks); otherwise a point mark.
 */
 const circleEmit: ShapeEmitter = (ctx, key) => {
   if (!ctx.viz._swarm) return pointEmit(ctx, key);
@@ -294,7 +295,7 @@ const circleEmit: ShapeEmitter = (ctx, key) => {
     .data(values);
   return finishShape(ctx, "Circle", s, userConfig => {
     const r = userConfig.r as ((d: DataPoint, i: number) => number) | number;
-    const placed = swarmPlacements(viz, {
+    const placed = (viz._swarmPlacements ?? swarmPlacements)(viz, {
       values,
       x,
       y,
@@ -304,10 +305,12 @@ const circleEmit: ShapeEmitter = (ctx, key) => {
       r: typeof r === "function" ? r : () => r,
     });
     const at = (d: DataPoint) => placed.get(d) as SwarmPlacement;
+    const keyed = values.some(d => placed.get(d)?.key !== undefined);
     return {
       x: (d: DataPoint) => at(d).x,
       y: (d: DataPoint) => at(d).y,
       r: (d: DataPoint) => at(d).r,
+      ...(keyed && {id: (d: DataPoint) => at(d).key ?? d.id}),
     };
   });
 };

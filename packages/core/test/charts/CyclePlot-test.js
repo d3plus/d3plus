@@ -556,11 +556,14 @@ it("cycleTooltipTitle, cycleAxisLabel, cycleTooltipRows — the tooltip", () => 
   );
 });
 
-it("scaleTimeAxis — a time scale over Dates makes a time axis", () => {
+it("scaleTimeAxis — a time scale over Dates or date strings makes a time axis", () => {
   const viz = {_xConfig: {scale: "time"}, _yConfig: {scale: "utc"}};
   const date = new Date(2020, 0, 1);
   assert.strictEqual(scaleTimeAxis(viz, "x", date), true);
   assert.strictEqual(scaleTimeAxis(viz, "y", date), true);
+  assert.strictEqual(scaleTimeAxis(viz, "x", "2020-03-01"), true);
+  assert.strictEqual(scaleTimeAxis(viz, "y", "2020"), true);
+  assert.strictEqual(scaleTimeAxis(viz, "x", "Apples"), false);
   assert.strictEqual(scaleTimeAxis(viz, "x", 2020), false, "numbers aren't");
   assert.strictEqual(scaleTimeAxis(viz, "x", new Date(NaN)), false);
   assert.strictEqual(scaleTimeAxis({_xConfig: {}}, "x", date), false);

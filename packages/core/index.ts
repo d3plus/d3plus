@@ -16,6 +16,7 @@ export {
   CyclePlot,
   DensityPlot,
   Donut,
+  DotPlot,
   Dumbbell,
   FanChart,
   Funnel,

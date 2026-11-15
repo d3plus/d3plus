@@ -9,6 +9,7 @@ import {
   gestureHoverStart,
   gestureMoves,
 } from "../../src/charts/drawSteps/gestureHover.ts";
+import {leavesSurface} from "../../src/charts/drawSteps/leavesSurface.ts";
 
 const mouse = (type, clientX, clientY) => ({type, clientX, clientY});
 
@@ -55,6 +56,39 @@ it("gestureHolds: only a moving gesture holds pointer events", () => {
   assert.strictEqual(
     gestureHolds({_gestureHover: {press: null, moving: true}}),
     true,
+  );
+});
+
+it("leavesSurface: a leave off the chart or a moving gesture's leave, not a hand-off", () => {
+  const idle = {};
+  const moving = {_gestureHover: {press: [0, 0], moving: true}};
+  const leave = native => ({
+    type: "mouseleave",
+    point: [0, 0],
+    pick: null,
+    nativeEvent: native,
+  });
+  assert.strictEqual(leavesSurface(idle, leave(mouse("mouseleave"))), true);
+  assert.strictEqual(leavesSurface(idle, leave(undefined)), true);
+  assert.strictEqual(
+    leavesSurface(idle, leave(mouse("mousemove"))),
+    false,
+    "a node-to-node hand-off",
+  );
+  assert.strictEqual(
+    leavesSurface(
+      {_gestureHover: {press: [0, 0], moving: false}},
+      leave(mouse("mousemove")),
+    ),
+    false,
+    "a press that hasn't moved",
+  );
+  assert.strictEqual(leavesSurface(moving, leave(mouse("mousemove"))), true);
+  assert.strictEqual(leavesSurface(moving, leave({type: "wheel"})), true);
+  assert.strictEqual(
+    leavesSurface(moving, {...leave(mouse("mousemove")), type: "mousemove"}),
+    false,
+    "only a leave",
   );
 });
 

@@ -77,6 +77,13 @@ it("inferDiscrete — none when discrete is set, for a swarm, or on a time axis"
     undefined,
     "the time axis",
   );
+  assert.strictEqual(
+    inferDiscrete(
+      new Scatter().data(rows).x("day").y("value").xConfig({scale: "time"}),
+    ),
+    undefined,
+    "date strings on a time scale",
+  );
 });
 
 it("resolveDiscrete — notes the inferred axis; the setting wins at once", () => {

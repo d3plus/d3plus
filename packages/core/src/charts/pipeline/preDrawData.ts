@@ -219,7 +219,7 @@ export function computeFilteredData(
       i: number,
     ) => DataPoint[keyof DataPoint])[] = [];
     for (let i = 0; i <= drawDepth; i++) nestKeys.push(viz.schema.groupBy[i]);
-    nestKeys.push(...discreteNestKeys(viz));
+    nestKeys.push(...discreteNestKeys(viz), ...(viz._nestKeys || []));
     // A path's steps stay apart: rows merge only when they share an order
     // value, and rows joined as they come don't merge at all.
     const order = typeof viz.schema.order === "function" && viz.schema.order;

@@ -166,6 +166,12 @@ export interface FacetHooks {
       it draws (see `panelAlignment` in `facet/drawFacets.ts`).
   */
   align?: boolean;
+  /**
+      Runs after every panel has drawn; returning true draws the panels
+      again, for a chart that sizes its marks to fit every panel (DotPlot's
+      dots).
+  */
+  redraw?: (viz: VizInstance) => boolean;
   /** Captures the chart state (viz slots, by name) a panel puts back while the pointer is over it, for hover and tooltips (see `facet/facetPanel.ts`). */
   capture?: (viz: VizInstance) => Record<string, unknown>;
 }
