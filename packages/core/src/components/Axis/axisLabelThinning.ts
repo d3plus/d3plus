@@ -243,6 +243,44 @@ function crowds(
 }
 
 /**
+    The largest interval at which every pair of labels that far apart is
+    sure to crowd (see `crowds`), as the labels measure now: no pair sits
+    further apart than that many of the widest gaps between neighbors, and
+    every pair needs at least the smallest extent plus the smallest padding.
+    0 when even neighbors may not crowd, or a position or size isn't a
+    number.
+    @param textData The measured labels, in axis order.
+    @param horizontal Whether the axis runs horizontally.
+*/
+export function crowdedUpTo(
+  textData: AxisTextDatum[],
+  horizontal: boolean,
+): number {
+  if (textData.length < 2) return 0;
+  let gap = 0,
+    extent = Infinity,
+    padding = Infinity;
+  for (let i = 0; i < textData.length; i++) {
+    const t = textData[i];
+    extent = Math.min(extent, labelExtent(t, horizontal));
+    padding = Math.min(padding, t.fP);
+    if (i) gap = Math.max(gap, Math.abs(t.position - textData[i - 1].position));
+  }
+  // A margin for rounding, so an interval counted here surely crowds.
+  const room = extent + padding - 1e-6;
+  if (!Number.isFinite(gap) || !Number.isFinite(room) || room <= 0) return 0;
+  if (gap === 0) return textData.length;
+  return Math.max(0, Math.ceil(room / gap) - 1);
+}
+
+/**
+    The fewest intervals a discrete axis whose labels measure again for each
+    interval (see `thinEvenly`) must surely crowd at before its search skips
+    them.
+*/
+export const DENSE_SKIP = 8;
+
+/**
     Hides labels on a discrete axis at a regular interval: every label when
     they all fit side by side, otherwise every second label, or third, and so
     on, using the shortest interval at which no two shown labels crowd.
@@ -258,6 +296,15 @@ export function thinEvenly(
       if (crowds(textData[i - n], textData[i], horizontal)) return true;
     return false;
   };
+  // Every interval up to `crowdedUpTo` crowds as the labels measure now, so
+  // the search starts past it. Labels measured again for each interval (a
+  // date dropping its year) can stop crowding sooner, so those skip ahead
+  // only on a dense axis.
+  const skip = Math.min(crowdedUpTo(textData, horizontal), textData.length - 1);
+  if (skip >= (show ? DENSE_SKIP : 1)) {
+    step = skip + 1;
+    show?.(step, false);
+  }
   while (step < textData.length && crowded(step)) {
     step++;
     show?.(step, false);
