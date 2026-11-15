@@ -18,6 +18,7 @@ const {
   Rect,
   Sankey,
   TextBox,
+  Treemap,
 } = core;
 
 /** A value's structure, with functions called on an empty row, for comparing across instances. */
@@ -85,6 +86,13 @@ describe("every setter takes RESET directly", () => {
       }
     });
   }
+
+  it("on() swaps a nested RESET for that event's default handler", () => {
+    const viz = new Treemap();
+    const own = viz.on("click.shape");
+    viz.on("click.shape", () => 1).on({"click.shape": RESET});
+    assert.strictEqual(viz.on("click.shape"), own);
+  });
 
   it("on(RESET) restores the default handlers", () => {
     const viz = new Donut();

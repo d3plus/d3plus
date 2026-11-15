@@ -320,7 +320,12 @@ new Plot
       : arguments.length
         ? typeof _ === "string"
           ? this.schema.on[_]
-          : ((this.schema.on = Object.assign({}, this.schema.on, _)), this)
+          : ((this.schema.on = Object.assign(
+              {},
+              this.schema.on,
+              nestedReset(_, this._defaultConfig().on),
+            )),
+            this)
         : this.schema.on;
   }
 
