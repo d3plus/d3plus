@@ -455,6 +455,8 @@ export function applyInteractionOpacity(
         next = {...next, z: RAISE_Z} as SceneNode;
       }
     }
+    // A label drawn outside its shape stays over the raised marks.
+    if (node.aboveRaised) next = {...next, z: RAISE_Z + 1} as SceneNode;
     const kids = (next as {children?: SceneNode[]}).children;
     if (kids && kids.length) {
       next = {...next, children: kids.map(walk)} as SceneNode;

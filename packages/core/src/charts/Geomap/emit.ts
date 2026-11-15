@@ -18,6 +18,7 @@ import {geomapPointLabels} from "./pointLabels.js";
 import type {Themed} from "./basemapTheme.js";
 import {emitFlowLabels, emitFlowLinks} from "./flowEmit.js";
 import type {FlowLink} from "./flowLinks.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface GeomapCtx {
   flowLinks?: FlowLink[];
@@ -103,7 +104,7 @@ export function bareFeature(node: SceneNode): boolean {
   return Boolean((node.datum as {feature?: unknown} | undefined)?.feature);
 }
 
-export const geomapEmit: ChartEmit = ({viz}) => {
+export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = emitGeomapBasemap(viz);
@@ -201,4 +202,4 @@ export const geomapEmit: ChartEmit = ({viz}) => {
 
   out.push(...emitFlowLabels(viz, links, circles));
   return out;
-};
+});

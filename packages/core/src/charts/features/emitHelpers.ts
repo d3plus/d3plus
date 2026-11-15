@@ -8,7 +8,8 @@
     mode but populates internal state), then extract:
 
       - the shape's own scene via `shape.toScene().children`
-      - its labels via `shape._labelClass.toScene().children`
+      - its labels via `shape._labelClass.toScene().children`, each moved
+        to paint right after its own shape (see `labelsWithShapes`)
 
     These two helpers reduce that boilerplate to a single call and
     centralize the `configPrep.bind(viz)(viz.schema.shapeConfig, "shape", key)`
@@ -29,6 +30,7 @@ import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import * as shapes from "../../shapes/index.js";
 import {textureKey} from "../../shapes/textureKey.js";
+import {labelsWithShapes} from "./labelLayering.js";
 
 /** The shape registry indexed by key, typed as constructable classes. */
 const shapeCtors = shapes as unknown as Record<string, new () => shapes.Shape>;
@@ -215,10 +217,13 @@ export function userLabelConfig(
     @param opts.shape Include `shape.toScene().children` (default true).
     @param opts.labels Include `shape._labelClass.toScene().children`
                        (default true).
+    @param opts.pair Paint each label right after its own shape (see
+                     `labelsWithShapes`), so a shape drawn later covers it
+                     (default true).
 */
 export function collectComputed(
   shape: ShapeLike | null | undefined,
-  opts: {shape?: boolean; labels?: boolean} = {},
+  opts: {shape?: boolean; labels?: boolean; pair?: boolean} = {},
 ): SceneNode[] {
   if (!shape) return [];
   const includeShape = opts.shape !== false;
@@ -237,7 +242,7 @@ export function collectComputed(
         if (ls && Array.isArray(ls.children)) out.push(...ls.children);
       }
     }
-    return out;
+    return opts.pair === false ? out : labelsWithShapes(out);
   } catch {
     return [];
   }

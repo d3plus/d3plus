@@ -17,6 +17,7 @@ import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import {matrixCellIsCircle, matrixSizeValue} from "./bubbles.js";
 import type {MatrixCell} from "./bubbles.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /**
     A circle cell's radius: its size value through the radius scale, or the
@@ -36,7 +37,7 @@ function circleRadius(
   return r > 0 ? Math.min(r, maxRadius) : null;
 }
 
-export const matrixEmit: ChartEmit = ({viz, shapeData}) => {
+export const matrixEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const cells = (shapeData ?? []) as MatrixCell[];
   if (!cells.length) return [];
   const columnScale = viz.ctx.columnScale as (v: unknown) => number;
@@ -118,4 +119,4 @@ export const matrixEmit: ChartEmit = ({viz, shapeData}) => {
     ...images("rect", rectConfig),
     ...images("circle", circleConfig),
   ];
-};
+});

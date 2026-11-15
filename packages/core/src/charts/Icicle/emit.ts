@@ -27,6 +27,7 @@ import type {IcicleRect} from "./geometry.js";
 import {icicleLabelBox} from "./labelFit.js";
 import type {IcicleLabelBox} from "./labelFit.js";
 import type {IcicleNode} from "./layout.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 type EmitViz = Parameters<ChartEmit>[0]["viz"];
 
@@ -105,7 +106,7 @@ function rowOf(d: DataPoint): DataPoint {
   return row;
 }
 
-export const icicleEmit: ChartEmit = ({viz, shapeData}) => {
+export const icicleEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as unknown as IcicleNode[];
   if (!nodes.length) return [];
 
@@ -219,4 +220,4 @@ export const icicleEmit: ChartEmit = ({viz, shapeData}) => {
     ...imageNodes,
     ...labelNodes,
   ];
-};
+});

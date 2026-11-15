@@ -179,3 +179,19 @@ it("bubbleEmit — emits the rows in data order, then paints largest first", () 
     ["large", "small"],
   );
 });
+
+it("bubbleEmit — paints each label with its bubble, largest first", () => {
+  const small = {id: "small"},
+    large = {id: "large"};
+  shapeEmitters.Circle = () => [
+    {type: "circle", key: "small", r: 3, datum: small},
+    {type: "circle", key: "large", r: 8, datum: large},
+    {type: "text", key: "small_0", datum: small},
+    {type: "text", key: "large_0", datum: large},
+  ];
+  const out = bubbleEmit({viz: {}, values: []}, "Circle");
+  assert.deepStrictEqual(
+    out.map(n => n.key),
+    ["large", "large_0", "small", "small_0"],
+  );
+});

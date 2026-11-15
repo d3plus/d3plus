@@ -550,6 +550,10 @@ describe("exported classes", () => {
     assert.deepStrictEqual(shadows, []);
   });
 
+  /** A chart's ChartDefinition export: `treemapDef` for Treemap, `kpiDef` for KPI. */
+  const defName = name =>
+    `${/^[A-Z]+$/.test(name) ? name.toLowerCase() : `${name[0].toLowerCase()}${name.slice(1)}`}Def`;
+
   it("chart def fields on Viz field keys coerce and merge like the Viz field", async () => {
     const {vizFields} = await import("../../src/charts/viz/vizFields.ts");
     const viz = Object.fromEntries(vizFields.map(f => [f.key, f]));
@@ -560,7 +564,7 @@ describe("exported classes", () => {
     const sample = ["key", "", 0, false, () => 1, {a: 1}];
     for (const [name] of charts) {
       const module = await import(`../../src/charts/${name}/index.ts`);
-      const def = module[`${name[0].toLowerCase()}${name.slice(1)}Def`];
+      const def = module[defName(name)];
       for (const field of def.fields ?? []) {
         const base = viz[field.key];
         if (!base) continue;
@@ -605,7 +609,7 @@ describe("exported classes", () => {
     let defs = 0;
     for (const [name, C] of charts) {
       const module = await import(`../../src/charts/${name}/index.ts`);
-      const def = module[`${name[0].toLowerCase()}${name.slice(1)}Def`];
+      const def = module[defName(name)];
       assert.ok(def, `${name} exports its ChartDefinition`);
       defs++;
       const viz = new C();

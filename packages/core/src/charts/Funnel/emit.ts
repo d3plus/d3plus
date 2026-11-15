@@ -19,6 +19,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import type {FunnelShared, FunnelStage} from "./applyLayout.js";
 import {funnelLabelNodes} from "./labelNodes.js";
 import {slicePath} from "./funnelGeometry.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /**
     The shape config a neck paints from: the stage's own (`sc`), with
@@ -69,7 +70,7 @@ export function stageAria(viz: VizInstance, stage: FunnelStage): string {
   return `${stage.i + 1}. ${viz._drawLabel(stage.data, stage.i)}${value}.`;
 }
 
-export const funnelEmit: ChartEmit = ({viz, shapeData}) => {
+export const funnelEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const stages = (shapeData ?? []) as unknown as FunnelStage[];
   const shared = viz.ctx.funnel as FunnelShared | undefined;
   if (!stages.length || !shared) return [];
@@ -132,4 +133,4 @@ export const funnelEmit: ChartEmit = ({viz, shapeData}) => {
     ...imageNodes,
     ...labelNodes,
   ];
-};
+});

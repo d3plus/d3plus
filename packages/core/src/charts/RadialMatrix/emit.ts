@@ -13,6 +13,7 @@ import {
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface RmCell extends Record<string, unknown> {
   row: unknown;
@@ -20,7 +21,7 @@ interface RmCell extends Record<string, unknown> {
   data?: DataPoint;
 }
 
-export const radialMatrixEmit: ChartEmit = ({viz, shapeData}) => {
+export const radialMatrixEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const cells = (shapeData ?? []) as RmCell[];
   if (!cells.length) return [];
   const arcData = viz.ctx.arcData as (d: RmCell) => string;
@@ -56,4 +57,4 @@ export const radialMatrixEmit: ChartEmit = ({viz, shapeData}) => {
     ...cellNodes,
     ...backgroundImageNodes(sc, cellNodes, k => [cells[k] as DataPoint, k]),
   ];
-};
+});

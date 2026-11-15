@@ -177,6 +177,28 @@ export function bandPolygon(
 }
 
 /**
+    The gaps the masked breaks cut across the plot, as boxes in shape
+    coordinates (see `maskBreaks`).
+    @param viz The Plot.
+    @param frame The plot's ranges.
+*/
+export function maskedGaps(
+  viz: VizInstance,
+  frame: MaskFrame,
+): {x: number; y: number; width: number; height: number}[] {
+  return placedBreaks(viz, frame)
+    .filter(p => p.brk.mask)
+    .map(({gap, extent, vertical}) => {
+      const polygon = bandPolygon(gap, extent, vertical);
+      const xs = polygon.map(p => p[0]),
+        ys = polygon.map(p => p[1]);
+      const x = Math.min(...xs),
+        y = Math.min(...ys);
+      return {x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y};
+    });
+}
+
+/**
     Wraps `nodes` (the plot content) in a clip group per axis, so every
     shape gets each masked break's gap cut straight across it. Labels split
     the content into runs and stay outside the clip groups, in paint order,
