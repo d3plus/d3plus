@@ -41,7 +41,8 @@ export function plotRangeBreaks(
 /**
     Whether an axis's config `scale` makes it a time axis without `time`:
     the scale is `"time"` or `"utc"`, and `value` (the first row's) is a
-    valid Date.
+    valid Date or a string that reads as a date. Numbers stay as they are:
+    a time scale reads them as timestamps.
 */
 export function scaleTimeAxis(
   viz: PlotViz,
@@ -52,8 +53,8 @@ export function scaleTimeAxis(
   const scale = config?.scale;
   return (
     (scale === "time" || scale === "utc") &&
-    value instanceof Date &&
-    !isNaN(+value)
+    (value instanceof Date || typeof value === "string") &&
+    Number.isFinite(rangeBreakTime(value))
   );
 }
 
