@@ -49,8 +49,8 @@ const schedule = [
   {
     task: "Design review",
     phase: "Design",
-    start: "2024-04-22",
-    end: "2024-04-22",
+    start: "2024-04-19",
+    end: "2024-04-19",
     progress: 0,
     dependencies: ["Visual design"],
   },
