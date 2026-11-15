@@ -47,6 +47,7 @@ import type {LineLabelSide} from "../Plot/lineLabelSides.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {plotBaseline} from "../Plot/baselineDomain.js";
 
 /** An axis position function: maps a domain value to a pixel coordinate. */
 export type PlotAxisFn = (d: unknown, axis?: string) => number;
@@ -313,6 +314,7 @@ function buildShapeConfig(
   yOffset: number,
 ): Record<string, unknown> {
   const discrete = vizDiscrete(viz) || "x";
+  const baseline = plotBaseline(viz);
 
   return markSharedConfig({
     discrete: vizDiscrete(viz),
@@ -322,11 +324,7 @@ function buildShapeConfig(
     x0:
       discrete === "x"
         ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
-        : x(
-            typeof viz.schema.baseline === "number"
-              ? viz.schema.baseline
-              : domains.x[0],
-          ),
+        : x(typeof baseline === "number" ? baseline : domains.x[0]),
     x1:
       discrete === "x"
         ? null
@@ -335,11 +333,7 @@ function buildShapeConfig(
     y0:
       discrete === "y"
         ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
-        : y(
-            typeof viz.schema.baseline === "number"
-              ? viz.schema.baseline
-              : domains.y[1],
-          ) - yOffset,
+        : y(typeof baseline === "number" ? baseline : domains.y[0]) - yOffset,
     y1:
       discrete === "y"
         ? null

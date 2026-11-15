@@ -26,6 +26,7 @@ import {
   syncConfidenceAxes,
 } from "./confidenceAxes.js";
 import {applySwarmLanes, resolveSwarm} from "./swarm.js";
+import {plotSwarm} from "./plotShapes.js";
 import {orderAxisLevels} from "./plotLevels.js";
 import {applyPaddedDomains} from "./facetScales.js";
 import {
@@ -338,9 +339,9 @@ export const formatPlotData: TransformStage = ({viz}) => {
   );
   viz._formattedData = formattedData;
 
-  const discrete = viz.schema.discrete as "x" | "y" | undefined;
+  const discrete = vizDiscrete(viz) as "x" | "y" | undefined;
   const swarm = (viz._swarm = resolveSwarm(
-    viz.schema.swarm,
+    plotSwarm(viz),
     axisData,
     discrete === "x" || discrete === "y" ? discrete : undefined,
   ));
