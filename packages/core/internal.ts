@@ -28,6 +28,17 @@ export {applyChordLayout} from "./src/charts/Chord/applyLayout.js";
 export {applyFunnelLayout} from "./src/charts/Funnel/applyLayout.js";
 export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
+export {
+  applyKpiLayout,
+  kpiKey,
+  rowNumber as kpiRowNumber,
+  tileSettings as kpiTileSettings,
+} from "./src/charts/KPI/applyLayout.js";
+export type {
+  KpiShared,
+  KpiTile,
+  KpiTileConfig,
+} from "./src/charts/KPI/applyLayout.js";
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
 export {
   applyNetworkLayout,
@@ -1738,6 +1749,62 @@ export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {hexbinDef, keepNumericRows} from "./src/charts/Hexbin/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {kpiAccessor, kpiDef, kpiTooltipRows} from "./src/charts/KPI/index.js";
+export {
+  DELTA_GLYPHS,
+  deltaColors,
+  deltaMode,
+  deltaText,
+  deltaTone,
+  goodDirection,
+  kpiDelta,
+  kpiPercentFormat,
+} from "./src/charts/KPI/delta.js";
+export type {
+  DeltaColors,
+  DeltaFormats,
+  KpiDelta,
+  KpiDeltaMode,
+  KpiDirection,
+  KpiTone,
+} from "./src/charts/KPI/delta.js";
+export {kpiPeriods, kpiSeries} from "./src/charts/KPI/series.js";
+export type {
+  IndexedRow,
+  KpiPeriod,
+  KpiPoint,
+  KpiSeries,
+} from "./src/charts/KPI/series.js";
+export {
+  kpiGrid,
+  MAX_VALUE_SIZE,
+  MIN_SPARKLINE_HEIGHT,
+  MIN_VALUE_SIZE,
+  sparklinePoints,
+  sparklineType,
+  TILE_ASPECT,
+  TILE_PADDING,
+  tileContent,
+} from "./src/charts/KPI/tileLayout.js";
+export type {
+  KpiGridOptions,
+  SparklineType,
+  SparkPoint,
+  TileContent,
+  TileLine,
+  TileParts,
+} from "./src/charts/KPI/tileLayout.js";
+export {
+  comparisonText,
+  deltaFormats,
+  kpiAriaLabel,
+  kpiEmit,
+  kpiStyle,
+  tileText,
+  VALUE_WEIGHT,
+  valueSize,
+} from "./src/charts/KPI/emit.js";
+export type {KpiStyle} from "./src/charts/KPI/emit.js";
 export {
   horizonChartDef,
   rowLabelOpacity,
