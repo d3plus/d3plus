@@ -153,6 +153,7 @@ const hiddenMethods = {
   Streamgraph: ["shape", "stacked"],
   Sunburst: ["shape"],
   Treemap: ["shape"],
+  Venn: ["shape"],
   Violin: [
     "shape",
     "x",

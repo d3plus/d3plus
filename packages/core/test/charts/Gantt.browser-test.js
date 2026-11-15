@@ -98,6 +98,7 @@ const draw = ({config, renderer, html = true}) =>
           [
             "2024-03-04",
             "2024-03-08",
+            "2024-03-09",
             "2024-03-11",
             "2024-03-15",
             "2024-03-22",
@@ -161,7 +162,7 @@ for (const renderer of ["svg", "canvas"]) {
       draw,
       {config: {...base, today: "2024-03-15"}, renderer},
     );
-    // The milestone diamond is centered on its date.
+    // The milestone diamond is centered on the start of its day.
     const review = nodes["gantt-milestone-Review"];
     near(review.x, xs["2024-03-22"], "milestone x");
     assert.strictEqual(review.datum, "Review");
@@ -170,7 +171,8 @@ for (const renderer of ["svg", "canvas"]) {
 
     // Plan → Design: from Plan's end to Design's start.
     const dep = nodes["gantt-dependency-Plan-Design"];
-    near(dep.points[0][0], xs["2024-03-08"], "leaves the predecessor's end");
+    // Plan runs through its end date, Friday, Mar 8.
+    near(dep.points[0][0], xs["2024-03-09"], "leaves the predecessor's end");
     near(
       dep.points[0][1],
       nodes["gantt-task-Plan"].y,
@@ -339,7 +341,7 @@ for (const renderer of ["svg", "canvas"]) {
           "Start",
           "End",
           "Duration",
-          "11 days",
+          "10 working days",
           "Progress",
           "60%",
         ])
@@ -349,7 +351,7 @@ for (const renderer of ["svg", "canvas"]) {
           "Inicio",
           "Fin",
           "Duración",
-          "11 días",
+          "10 días laborables",
           "Progreso",
           "60%",
         ])

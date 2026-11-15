@@ -1,15 +1,19 @@
 /**
     Gantt — a project schedule: one labeled row per task, its bar running
     from its start to its end over a time axis, with milestones, phases,
-    dependency arrows, progress, and a "today" line.
+    dependency arrows and their critical path, progress, and a "today"
+    line.
 
     Implementation files in this folder:
       - `ganttRows.ts` — pure: task fields, ordering, and group rows.
+      - `criticalPath.ts` — pure: the critical path method.
       - `ganttGeometry.ts` — pure: diamonds, progress, brackets, elbows.
       - `ganttLabels.ts` — the label column's font and fitted labels.
       - `ganttTooltip.ts` — task times, tooltip rows, and aria labels.
+      - `ganttCritical.ts` — the drawn tasks' critical path, in working time.
+      - `ganttSlack.ts` — each task's slack, for its tooltip.
       - `applyLayout.ts` — chart-specific `TransformStage`.
-      - `ganttDecor.ts` — labels, brackets, dependencies, "today".
+      - `ganttDecor.ts` — labels, brackets, dependencies, key, "today".
       - `emit.ts` — the scene nodes of each task.
 */
 
@@ -79,10 +83,46 @@ export const ganttDef: DataDrivenChartDefinition = {
     /**
         The time axis along the top of the rows (`orient: "bottom"` moves it
         under them). It reads dates by default (`scale: "time"`); a
-        `rangeBreaks` setting such as `"weekends"` hides those times, and a
-        task's Duration then counts only the working days left showing.
+        `rangeBreaks` setting such as `"weekends"` hides those times. A
+        task's Duration counts working days, leaving out the locale's weekend
+        and the whole days `rangeBreaks` hide (see `criticalPathConfig`).
     */
     {key: "axisConfig", merge: true, default: {scale: "time"}},
+    /**
+        Finds and emphasizes the critical path: the chain of `dependencies`
+        that sets the project's finish. It takes each task's dates as given,
+        and works back from the latest end to find how late each task could
+        start without delaying it; a task's slack is how much later that is
+        than its start, in working days: the locale's weekend (Saturday and
+        Sunday in `en-US`, Friday and Saturday in `ar-SA`), and any whole
+        days `rangeBreaks` hide (such as holidays), count as no time, so a
+        task ending on a Friday and its dependent starting on Monday hand off
+        with no slack. Tasks with no slack, or less when a dependent starts before
+        they end, are critical: they're outlined in their own color, their
+        arrows draw bold, and every other task is muted. Tied chains are all
+        critical. The tooltip lists each task's Slack (in working days) and
+        Latest start, and a key in the label column's corner names the bold
+        arrows. Dependencies naming tasks that aren't drawn are skipped. On
+        (`true`) by default, it draws only when a critical dependency joins
+        two drawn tasks, so a chart without dependencies (or whose
+        dependencies never chain to the finish) looks the same; a cycle draws
+        nothing and logs a warning. `false` turns it off.
+        @type {boolean}
+    */
+    {key: "criticalPath", default: true},
+    /**
+        Styles the critical path: `stroke` (the dependency arrows' color by
+        default), `strokeWidth` (twice theirs), `strokeOpacity` (1), and
+        `arrowSize` for its arrows; `barStroke` (each task's own color;
+        `false` for none) and `barStrokeWidth` (2) for the outline of its
+        tasks; `mutedOpacity` (0.35) for the tasks off it; the key's `label`
+        (the translated "Critical path"; `false` for no key); and
+        `workingDays` (`true`), which leaves the locale's weekend out of
+        slack and each task's Duration (`false` counts it, leaving out only
+        the days `rangeBreaks` hide).
+        @type {{stroke, strokeWidth, strokeOpacity, arrowSize, barStroke, barStrokeWidth, mutedOpacity, label, workingDays}}
+    */
+    {key: "criticalPathConfig", merge: true, default: {}},
     /**
         Accessor function or string key for each task's predecessors: the ids
         (by `groupBy`) of the tasks it waits on, as an array or a
@@ -138,8 +178,10 @@ export const ganttDef: DataDrivenChartDefinition = {
     },
     /**
         Accessor function or string key for whether a task is a milestone,
-        drawn as a diamond at its `end`. Without one, a task that starts and
-        ends at the same time is a milestone.
+        drawn as a diamond at its `start` (the start of that day, when it
+        names a whole day). A milestone on a whole day takes predecessors
+        finishing any time that day with no slack. Without one, a task that
+        starts and ends at the same time is a milestone.
         @type {string | function | false}
     */
     {key: "milestone", default: accessor("milestone"), coerce: taskAccessor},
@@ -212,9 +254,11 @@ export const ganttDef: DataDrivenChartDefinition = {
 
 /**
     Creates a Gantt chart from an array of tasks: one labeled row per task,
-    its bar running from `start` to `end` over a time axis. Tasks can be
-    grouped into phases (`group`), drawn as milestones (`milestone`), linked
-    by dependency arrows (`dependencies`), and filled by their `progress`,
-    with an optional `today` line.
+    its bar running from `start` to `end` over a time axis (through the end
+    of the day, when `end` names a whole day such as `"2024-03-08"`). Tasks
+    can be grouped into phases (`group`), drawn as milestones (`milestone`),
+    linked by dependency arrows (`dependencies`) with their critical path
+    emphasized (`criticalPath`), and filled by their `progress`, with an
+    optional `today` line.
 */
 export default makeChart(ganttDef);

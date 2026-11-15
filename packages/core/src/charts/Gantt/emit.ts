@@ -1,7 +1,9 @@
 /**
     `ganttEmit` — the Gantt's scene: the group brackets and dependency
     arrows behind the tasks, each task's bar (split by its progress) or
-    milestone diamond, the label column, and the "today" line.
+    milestone diamond (muted off the critical path, outlined on it), the
+    label column, the
+    critical path's key, and the "today" line.
 */
 
 import {interpolateRgb} from "d3-interpolate";
@@ -19,6 +21,8 @@ import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {GanttLayout, GanttMark} from "./applyLayout.js";
 import {
+  criticalKeyNodes,
+  criticalStyle,
   dependencyNodes,
   groupNodes,
   labelNodes,
@@ -46,12 +50,44 @@ export const milestoneRadius = (band: number): number =>
 
 type Paint = Record<string, unknown>;
 
-/** A task's paint from `shapeConfig[shape]`, and its plain color when it has one. */
+/** How the critical path styles a task. */
+export interface TaskLook {
+  /** The share of its opacity the task keeps: below 1 off the critical path. */
+  muted: number;
+  /** A critical task's outline, its stroke defaulting to the task's color. */
+  outline?: {stroke: string | undefined; width: number};
+}
+
+/** How a task looks: muted off the critical path, outlined on it. */
+export function taskLook(
+  viz: VizInstance,
+  layout: GanttLayout,
+  m: GanttMark,
+): TaskLook {
+  if (!layout.critical) return {muted: 1};
+  const style = criticalStyle(viz);
+  if (!layout.critical.tasks.get(m.id)?.critical)
+    return {muted: style.mutedOpacity};
+  return style.barStroke === false || !(style.barStrokeWidth > 0)
+    ? {muted: 1}
+    : {
+        muted: 1,
+        outline: {stroke: style.barStroke, width: style.barStrokeWidth},
+      };
+}
+
+/**
+    A task's paint from `shapeConfig[shape]`, and its plain color when it has
+    one. A task off the critical path takes `muted` times its opacity, and
+    one on it takes its outline.
+*/
 function taskPaint(
   viz: VizInstance,
   sc: Record<string, unknown>,
   m: GanttMark,
+  look: TaskLook = {muted: 1},
 ): {paint: Paint; color: string | undefined} {
+  const {muted, outline} = look;
   const fill = resolveAccessor<unknown>(sc.fill, m.data, m.i);
   const paint: Paint = {
     fill: textureFill(sc, m.data, m.i, fill),
@@ -59,11 +95,17 @@ function taskPaint(
     strokeWidth: resolveAccessor<number>(sc.strokeWidth, m.data, m.i),
   };
   const opacity = resolveAccessor<number>(sc.opacity, m.data, m.i);
-  if (typeof opacity === "number") paint.opacity = opacity;
+  if (typeof opacity === "number" || muted < 1)
+    paint.opacity = (typeof opacity === "number" ? opacity : 1) * muted;
   const color =
     typeof paint.fill === "string" && !paint.fill.startsWith("pattern:")
       ? paint.fill
       : undefined;
+  const stroke = outline && (outline.stroke ?? color);
+  if (outline && stroke) {
+    paint.stroke = stroke;
+    paint.strokeWidth = outline.width;
+  }
   return {paint, color};
 }
 
@@ -78,8 +120,9 @@ function barNodes(
   layout: GanttLayout,
   m: GanttMark,
   sc: Record<string, unknown>,
+  look: TaskLook,
 ): SceneNode[] {
-  const {paint, color} = taskPaint(viz, sc, m);
+  const {paint, color} = taskPaint(viz, sc, m, look);
   const width = Math.max(1, m.x1 - m.x0);
   const split = m.progress !== undefined && color !== undefined;
   const key = `gantt-task-${m.id}`;
@@ -126,7 +169,7 @@ function barNodes(
 }
 
 /**
-    A milestone's diamond at its end. With a progress, a milestone not yet
+    A milestone's diamond at its start. With a progress, a milestone not yet
     reached (below 100%) draws in the paler remaining shade, outlined in its
     color; a reached one fills in its color.
 */
@@ -135,8 +178,9 @@ function milestoneNode(
   layout: GanttLayout,
   m: GanttMark,
   sc: Record<string, unknown>,
+  look: TaskLook,
 ): PathNode {
-  const {paint, color} = taskPaint(viz, sc, m);
+  const {paint, color} = taskPaint(viz, sc, m, look);
   const r = milestoneRadius(layout.band);
   const pending = m.progress !== undefined && m.progress < 1 && !!color;
   return {
@@ -151,8 +195,8 @@ function milestoneNode(
       ? {
           ...paint,
           fill: remainingShade(color!, chartBackground(viz)),
-          stroke: color,
-          strokeWidth: 1.5,
+          stroke: look.outline ? paint.stroke : color,
+          strokeWidth: look.outline ? paint.strokeWidth : 1.5,
         }
       : paint,
     aria: {label: ganttAriaLabel(viz, m.data, m.i)},
@@ -169,14 +213,15 @@ export const ganttEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const r = milestoneRadius(layout.band);
   const tasks = marks.flatMap(m =>
     m.milestone
-      ? [milestoneNode(v, layout, m, pathConfig)]
-      : barNodes(v, layout, m, rectConfig),
+      ? [milestoneNode(v, layout, m, pathConfig, taskLook(v, layout, m))]
+      : barNodes(v, layout, m, rectConfig, taskLook(v, layout, m)),
   );
   return [
     ...groupNodes(v, layout),
     ...dependencyNodes(v, layout, marks, r),
     ...tasks,
     ...labelNodes(layout, marks),
+    ...criticalKeyNodes(v, layout),
     ...todayNodes(v, layout),
   ];
 });

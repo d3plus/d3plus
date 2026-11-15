@@ -28,9 +28,9 @@ import {
   LABEL_FONT_SIZE,
   labelWidth,
 } from "../../src/charts/Gantt/ganttLabels.ts";
+import {ganttDayBreaks} from "../../src/charts/Gantt/ganttCalendar.ts";
 import {
   ganttAriaLabel,
-  ganttDayBreaks,
   ganttDuration,
   ganttTooltipRows,
   taskTimes,
@@ -178,6 +178,8 @@ it("Gantt: taskTimes fills a missing end, swaps reversed times, and reads milest
   assert.ok(+a.start < +a.end);
   assert.strictEqual(a.progress, 0.5);
   assert.strictEqual(a.milestone, false);
+  // A swapped end keeps its whole day.
+  assert.strictEqual(+a.end, +new Date(2024, 2, 9));
   const b = taskTimes(viz, {start: "2024-03-08"}, 0);
   assert.strictEqual(+b.start, +b.end);
   assert.strictEqual(b.milestone, true);
@@ -350,6 +352,12 @@ it("Gantt: timeFormatter and ganttDuration read dates and days, or numbers", () 
   const viz = gantt();
   const days = [new Date(2024, 2, 4), new Date(2024, 2, 8)];
   assert.strictEqual(timeFormatter(viz, days)(days[0]), "Mar 4, 2024");
+  assert.strictEqual(ganttDuration(viz, days[0], days[1]), "4 working days");
+  assert.strictEqual(
+    ganttDuration(viz, days[0], new Date(2024, 2, 5)),
+    "1 working day",
+  );
+  viz.criticalPathConfig({workingDays: false});
   assert.strictEqual(ganttDuration(viz, days[0], days[1]), "4 days");
   assert.strictEqual(
     ganttDuration(viz, days[0], new Date(2024, 2, 5)),
@@ -400,8 +408,14 @@ it("Gantt: ganttDuration counts only the working days the axis shows", () => {
   viz.locale("en-US").axisConfig({rangeBreaks: {hours: [18, 8]}});
   assert.strictEqual(
     ganttDuration(viz, mon, new Date(2024, 2, 13)),
+    "7 working days",
+    "breaks hiding hours leave the weekend out",
+  );
+  viz.criticalPathConfig({workingDays: false});
+  assert.strictEqual(
+    ganttDuration(viz, mon, new Date(2024, 2, 13)),
     "9 days",
-    "calendar days when the breaks hide hours",
+    "calendar days when weekends count and the breaks hide hours",
   );
 });
 
@@ -413,8 +427,9 @@ it("Gantt: ganttTooltipRows lists start, end, duration, and progress, translated
     rows.map(r => r[0]),
     ["Start", "End", "Duration", "Progress"],
   );
+  // The end names a whole day, which the task runs through.
   assert.strictEqual(rows[1][1], "Mar 22, 2024");
-  assert.strictEqual(rows[2][1], "11 days");
+  assert.strictEqual(rows[2][1], "10 working days");
   assert.strictEqual(rows[3][1], "50%");
   assert.deepStrictEqual(ganttTooltipRows(viz, plan[2], 2), [
     ["Milestone", "Mar 22, 2024"],
@@ -425,7 +440,10 @@ it("Gantt: ganttTooltipRows lists start, end, duration, and progress, translated
     ganttTooltipRows(viz, plan[1], 1).map(r => r[0]),
     ["Inicio", "Fin", "Duración", "Progreso"],
   );
-  assert.strictEqual(ganttTooltipRows(viz, plan[1], 1)[2][1], "11 días");
+  assert.strictEqual(
+    ganttTooltipRows(viz, plan[1], 1)[2][1],
+    "10 días laborables",
+  );
 });
 
 it("Gantt: ganttAriaLabel names the task, its span, and its progress", () => {
