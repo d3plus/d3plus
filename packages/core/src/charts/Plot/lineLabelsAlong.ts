@@ -31,7 +31,7 @@ import {
 import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {LineLabelConfig} from "./lineLabelSides.js";
-import {rowLabelsAlong} from "./lineLabelSides.js";
+import {lineLabelName, rowLabelsAlong} from "./lineLabelSides.js";
 
 /** The steepest stretch a line's label runs along by default, in degrees: past 45°, it would read more up than across. */
 export const LINE_LABEL_MAX_SLOPE = 45;
@@ -368,8 +368,14 @@ export function emitAlongLabels(
   // A series drawn as several lines (observed and predicted, say) is named
   // once: its later lines count as named when an earlier one was.
   const named = new Set<string>();
+  const name = shapeConfigFor(viz, "Line").label;
   const labels = along.flatMap(line => {
-    const text = `${viz._drawLabel(line.row, line.row.i ?? 0)}`;
+    const i = line.row.i ?? 0;
+    const label = lineLabelName(name, line.row, i, () =>
+      viz._drawLabel(line.row, i),
+    );
+    if (label === false) return [];
+    const text = `${label}`;
     if (named.has(text)) {
       if (stats) stats.placed++;
       return [];

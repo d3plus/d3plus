@@ -450,6 +450,7 @@ export {
 export type {LineGaps, SeriesGaps} from "./src/charts/Plot/connectGapsScene.js";
 export {
   lineLabelKey,
+  lineLabelName,
   lineLabelSides,
   lineLabelText,
   lineLabelValue,
