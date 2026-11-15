@@ -2236,6 +2236,8 @@ export {
   spiralKind,
 } from "./src/charts/WordCloud/spiral.js";
 export type {SpiralKind, SpiralOptions} from "./src/charts/WordCloud/spiral.js";
+export {defaultSize, wordSize} from "./src/charts/WordCloud/size.js";
+export type {SizeFn} from "./src/charts/WordCloud/size.js";
 
 // ── Fluent-accessor generation ───────────────────────────────────────────────
 export {

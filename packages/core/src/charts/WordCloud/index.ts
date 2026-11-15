@@ -16,32 +16,66 @@
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
-import accessor from "../../utils/accessor.js";
+import constant from "../../utils/constant.js";
 import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
-import {legendLargestFirst, rowLegend} from "../features/sharedFields.js";
+import {
+  legendLargestFirst,
+  rowLegend,
+  shareRow,
+} from "../features/sharedFields.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {thresholdFunction} from "../Treemap/thresholdFunction.js";
 
 import {applyWordCloudLayout} from "./applyLayout.js";
 import {wordCloudEmit} from "./emit.js";
+import {defaultSize, wordSize} from "./size.js";
+import type {SizeFn} from "./size.js";
 
-/** The tooltip's "Value" row: the word's summed value. */
-export function wordCloudTooltipRows(
-  viz: VizInstance,
-): [() => string, (d: DataPoint, i: number) => string][] {
+/** A WordCloud, with the `size` accessor it installs. */
+type WordCloudViz = VizInstance & {size: (value?: unknown) => unknown};
+
+/** The tooltip's rows: the word's summed value, then its share of the drawn words. */
+export function wordCloudTooltipRows(viz: VizInstance): unknown[][] {
   return [
     [
       () => viz.schema.translate("Value"),
-      (d, i) => {
-        const sum = viz.schema.sum as (d: DataPoint, i: number) => number;
-        const v = Number(sum(d, i));
+      (d: DataPoint, i: number, x?: Record<string, unknown>) => {
+        if (x && x._isColorScaleBucket) return "";
+        const v = wordSize(viz)(d, i);
         return Number.isFinite(v)
           ? formatAbbreviate(v, viz.schema.locale as string)
           : "";
       },
     ],
+    shareRow(viz, wordSize(viz)),
   ];
+}
+
+/**
+    Installs `size`, stored on `_size` as Plot and Network store theirs, and
+    pointed at by `thresholdKey` so the threshold compares word values.
+*/
+function installSize(v: WordCloudViz): void {
+  /**
+      Accessor function or data key for each word's value, which sets its
+      font size. Rows with the same id add up. Defaults to `"value"`.
+      @type {string | function}
+  */
+  v.size = function (this: WordCloudViz, _?: unknown) {
+    if (!arguments.length) return this._size;
+    const fn =
+      typeof _ === "function"
+        ? (_ as SizeFn)
+        : _ === undefined || _ === null || _ === false
+          ? defaultSize
+          : (fieldAccessor(String(_)) as unknown as SizeFn);
+    this._size = fn;
+    this._sizeKey = typeof _ === "string" ? _ : undefined;
+    this.schema.thresholdKey = fn;
+    return this;
+  };
 }
 
 export const wordCloudDef: DataDrivenChartDefinition = {
@@ -49,6 +83,29 @@ export const wordCloudDef: DataDrivenChartDefinition = {
 
   layoutStage: applyWordCloudLayout,
   emit: wordCloudEmit,
+
+  thresholdFunction: (viz: VizInstance, data: unknown[]) =>
+    thresholdFunction(data as DataPoint[], {
+      aggs: viz.schema.aggs,
+      drawDepth: viz._drawDepth,
+      groupBy: viz.schema.groupBy as ((
+        d: DataPoint,
+      ) => DataPoint[keyof DataPoint])[],
+      threshold: viz.schema.threshold as (branchData: DataPoint[]) => number,
+      thresholdKey: viz.schema.thresholdKey as (d: DataPoint) => number,
+      label: (d: DataPoint, i: number) => viz._drawLabel(d, i),
+    }),
+
+  defaults: {
+    size: defaultSize,
+  },
+
+  setup: (viz: VizInstance) => {
+    installSize(viz as WordCloudViz);
+    viz.schema.thresholdKey = viz._size;
+    // Small words merge into one only when `threshold` is set.
+    viz.schema.threshold = constant(0);
+  },
 
   ctx: {},
 
@@ -99,24 +156,10 @@ export const wordCloudDef: DataDrivenChartDefinition = {
     */
     {key: "spiral", default: "archimedean"},
     /**
-        Accessor function or string key for each word's value, which sets
-        its font size. Rows with the same id add up.
-        @type {string | function}
-    */
-    {
-      key: "sum",
-      default: accessor("value"),
-      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
-      onSet: (viz, v) => {
-        viz.schema.thresholdKey = v;
-      },
-    },
-    /**
         The clearance, in pixels, kept around each word's glyphs.
         @type {number}
     */
-    {key: "wordPadding", default: 1},
-    {key: "zoom", default: false},
+    {key: "wordPadding", default: 2},
     {
       key: "tooltipConfig",
       merge: true,
@@ -129,7 +172,7 @@ export const wordCloudDef: DataDrivenChartDefinition = {
     },
     {
       key: "legendSort",
-      factory: (viz: VizInstance) => legendLargestFirst(viz, "sum"),
+      factory: (viz: VizInstance) => legendLargestFirst(viz, wordSize(viz)),
     },
     {key: "legend", coerce: "const", factory: rowLegend},
   ],
@@ -137,10 +180,11 @@ export const wordCloudDef: DataDrivenChartDefinition = {
 
 /**
     Draws a word cloud: one word per row, its font size set by its value
-    (`sum`), packed around the middle of the chart, largest first, each word
+    (`size`), packed around the middle of the chart, largest first, each word
     fitted against the glyphs of the words before it so small words nest in
     the gaps of large ones. The layout is the same on every draw. When the
     words don't all fit, every font size shrinks until they do. Color the
-    words by `groupBy` or `colorScale`; hover a word to see its value.
+    words by `groupBy` or `colorScale`; hover a word to see its value and
+    share. With `threshold`, the smallest words merge into one.
 */
 export default makeChart(wordCloudDef);

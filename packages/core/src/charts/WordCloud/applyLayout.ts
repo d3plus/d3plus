@@ -10,6 +10,7 @@ import {fontFamilyStringify} from "@d3plus/text";
 
 import {chartBounds} from "../features/chartGeometry.js";
 import {resolveAccessor} from "../features/emitHelpers.js";
+import {stampShare} from "../features/shareKey.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {fitCloud} from "./cloudLayout.js";
@@ -19,6 +20,7 @@ import {glyphFontLoads, rasterizeWords} from "./glyphMask.js";
 import type {GlyphMetrics, GlyphWord} from "./glyphMask.js";
 import {wordRotation} from "./rotation.js";
 import {spiralKind} from "./spiral.js";
+import {wordSize} from "./size.js";
 
 /** One placed word. */
 export interface WordCloudWord {
@@ -63,19 +65,19 @@ const numberOr = (v: unknown, fallback: number): number => {
 /**
     The drawn rows as words, largest value first (ties in data order): every
     row with text and a positive, finite value, sized by `fontScale` onto
-    `fontMin`–`fontMax`.
+    `fontMin`–`fontMax`. Stamps each row with its share of their total.
     @param viz The chart.
 */
 export function wordCandidates(viz: VizInstance): Candidate[] {
   const data = (viz._filteredData ?? []) as DataPoint[];
-  const sum = viz.schema.sum as (d: DataPoint, i: number) => unknown;
+  const valueOf = wordSize(viz);
   const family = fontFamilyStringify(
     viz.schema.fontFamily as string | string[],
   );
-  const padding = Math.max(0, numberOr(viz.schema.wordPadding, 1));
+  const padding = Math.max(0, numberOr(viz.schema.wordPadding, 2));
   const rows: Omit<Candidate, "size">[] = [];
   data.forEach((d, i) => {
-    const value = Number(sum(d, i));
+    const value = valueOf(d, i);
     const text = String(viz._drawLabel(d, i) ?? "").trim();
     if (!text || !(value > 0) || !Number.isFinite(value)) return;
     const id = viz._ids(d, i).join("-");
@@ -99,6 +101,9 @@ export function wordCandidates(viz: VizInstance): Candidate[] {
     [min, max],
     fontScaleKind(viz.schema.fontScale),
   );
+  // Each word's share of every drawn word's value, for the tooltip.
+  const total = rows.reduce((a, r) => a + r.value, 0);
+  for (const r of rows) stampShare(r.d, r.value / total);
   return rows
     .map(r => ({...r, size: size(r.value)}))
     .sort((a, b) => b.value - a.value || a.i - b.i);

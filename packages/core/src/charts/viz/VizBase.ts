@@ -324,7 +324,7 @@ Unlike setting `data`, appending keeps the series a viewer hid or soloed in the 
       across every position is under that share of the whole chart's total
       merge into one series, stacked on top. A bucket needs at least two
       items, and its tooltips list them. Off (`0`) by default on Plot
-      charts.
+      charts and WordCloud.
 */
   threshold(
     _?: number | ((data: DataPoint[]) => number),

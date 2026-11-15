@@ -2971,8 +2971,13 @@ export interface D3plusConfig {
       on a continuous time axis.
   */
   skipGaps?: boolean;
-  /** Size accessor key: sizes a Plot's circles, and on BumpChart draws each series as a band as thick as its value (see `bandPadding`). */
-  size?: string;
+  /**
+      Size accessor key: sizes a Plot's circles, and on BumpChart draws each
+      series as a band as thick as its value (see `bandPadding`). WordCloud:
+      each word's value, which sets its font size (a data key or an accessor
+      `(d, i) => number`, default `"value"`); rows with the same id add up.
+  */
+  size?: string | ((d: DataPoint, i: number) => number);
   /**
       Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.
   */
@@ -3375,7 +3380,7 @@ export interface D3plusConfig {
   weekStart?: number | string;
   /** Overall width of the visualization in pixels. */
   width?: number;
-  /** WordCloud: the clearance, in pixels, kept around each word's glyphs (default `1`). */
+  /** WordCloud: the clearance, in pixels, kept around each word's glyphs (default `2`). */
   wordPadding?: number;
   /**
       Key, index, or accessor function for x-axis values. On a Plot, an
