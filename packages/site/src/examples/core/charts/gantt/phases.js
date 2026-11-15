@@ -17,7 +17,7 @@ const schedule = [
   {
     task: "Requirements",
     phase: "Discovery",
-    start: "2024-03-11",
+    start: "2024-03-14",
     end: "2024-03-22",
     progress: 1,
     dependencies: ["Stakeholder interviews"],
@@ -25,8 +25,8 @@ const schedule = [
   {
     task: "Sign-off",
     phase: "Discovery",
-    start: "2024-03-22",
-    end: "2024-03-22",
+    start: "2024-03-25",
+    end: "2024-03-25",
     progress: 1,
     dependencies: ["Requirements"],
   },
@@ -65,7 +65,7 @@ const schedule = [
   {
     task: "Front end",
     phase: "Build",
-    start: "2024-04-15",
+    start: "2024-04-29",
     end: "2024-05-10",
     progress: 0.1,
     dependencies: ["Wireframes", "API"],
@@ -73,7 +73,7 @@ const schedule = [
   {
     task: "Testing",
     phase: "Launch",
-    start: "2024-05-06",
+    start: "2024-05-13",
     end: "2024-05-17",
     progress: 0,
     dependencies: ["Front end"],
