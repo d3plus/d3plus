@@ -48,9 +48,9 @@ Two fields given to `colorScale` color each region by both at once. Each variabl
 
 ## Dorling cartogram
 
-`cartogram: "dorling"` redraws each region as a circle whose area stands for its value, here each state's population, read from `cartogramSize` or, without one, the `colorScale` value. Each circle starts at the center of its state's largest part and is nudged apart from its neighbors until none overlap, while a pull back toward home keeps the country's outline recognizable; the circles shrink together when they would spill out of the map. A state's label sits inside its circle when it fits. Switch `cartogram` to `"demers"` or `false`: each outline morphs into its circle or square and back, and a change of value morphs the shapes the same way. Colors, tooltips, the color scale, and zooming work as on the map, while coordinate points, `links`, and the tiles are left out.
+`cartogram: "dorling"` redraws each region as a circle whose area stands for its value, here each state's population, read from `cartogramSize` or, without one, the `colorScale` value. Each circle starts at the center of its state's largest part and is nudged apart from its neighbors until none overlap, while a pull back toward home keeps the country's outline recognizable; the circles shrink together when they would spill out of the map. A state's label sits inside its circle when it fits. Switch `cartogram` to `"demers"` or `false`: each outline morphs into its circle or square and back, and a change of value morphs the shapes the same way. Colors, tooltips, the color scale, and zooming work as on the map. `links` run between the circles' centers, here a few illustrative moves between states, and tween with the shapes; coordinate points and the tiles are left out. The size legend in the corner draws nested circles (nested squares for Demers) as large as the shapes drawn for a few populations, so you can read a state's size; set `sizeLegend: false` to hide it.
 
-<Playground chart="Geomap" code={usStatesCartogram} controls={["cartogram","cartogramPadding","renderer"]} />
+<Playground chart="Geomap" code={usStatesCartogram} controls={["cartogram","cartogramPadding","linkCurve","sizeLegend","renderer"]} />
 
 ## Demers cartogram
 

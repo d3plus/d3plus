@@ -168,9 +168,9 @@ export default class CanvasRenderer implements Renderer {
       throw new Error("CanvasRenderer.drawScene called before mount()");
     // Cancel any in-flight animation with the "soft" path — don't
     // snap-paint the previous target. The new animation that's about
-    // to start will pick up from the visible canvas pixels and
-    // smoothly transition to `scene`. Only handle.cancel() invocations
-    // by external callers want the snap-to-target behavior.
+    // to start picks up from the frame last painted and smoothly
+    // transitions to `scene`. Only handle.cancel() invocations by
+    // external callers want the snap-to-target behavior.
     if (this._cancelAnim) this._cancelAnim(true);
 
     const duration = opts?.duration ?? 0;
@@ -214,6 +214,7 @@ export default class CanvasRenderer implements Renderer {
     });
     const start = now();
     let cancelled = false;
+    let painted: Scene | null = null;
 
     const finished = new Promise<void>(resolve => {
       const tick = (): void => {
@@ -222,6 +223,7 @@ export default class CanvasRenderer implements Renderer {
         const t = Math.min(1, elapsed / duration);
         const frame = interp(ease(t));
         this._paint(frame);
+        painted = frame;
         opts?.onFrame?.(t);
         if (t < 1) {
           this._frame = raf(tick) as unknown as number;
@@ -238,14 +240,14 @@ export default class CanvasRenderer implements Renderer {
       // `soft` distinguishes the two cancel paths:
       //   - external `handle.cancel()` → snap to target + paint so a
       //     subsequent resize/toSVGString matches the visible canvas
-      //   - internal auto-cancel from drawScene → just stop ticking;
-      //     the new animation handles the visible transition.
+      //   - internal auto-cancel from drawScene → stop ticking and keep
+      //     the frame last painted as the next animation's start.
       this._cancelAnim = (soft = false): void => {
         cancelled = true;
         if (!soft) {
           this._scene = scene;
           this._paint(scene);
-        }
+        } else if (painted) this._scene = painted;
         this._cancelAnim = null;
       };
       this._frame = raf(tick) as unknown as number;

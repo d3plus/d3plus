@@ -500,11 +500,14 @@ export function computeAxisBounds(
     [x]: rangeOuter[0],
   });
 
+  // Outer level rows (see `levels`) lie past the labels' space.
+  const levels = axis._levelLayout;
   bounds[height] =
-    typeof axis.schema.fixedSize === "number"
+    (typeof axis.schema.fixedSize === "number"
       ? axis.schema.fixedSize
-      : max([axis.schema.minSize, bounds[height]])!;
+      : max([axis.schema.minSize, bounds[height]])!) + (levels?.room ?? 0);
   axis._labelSpace = bounds[height];
+  if (levels) levels.start = hBuff + bounds[height] - levels.room;
 
   margin[axis.schema.orient] += hBuff;
   margin[opposite] =

@@ -7,7 +7,9 @@
     naming a row of the chart's data or a topojson feature. An id ends at
     its row's coordinate point when the row has one (`point`), and otherwise
     at the centroid of its topojson shape. Links with an end that names
-    nothing on the map are left out.
+    nothing on the map are left out. On a cartogram, links run on the screen
+    between the centers of the regions' cartogram shapes, and a link with an
+    end that isn't one is left out.
 */
 
 import {extent} from "d3-array";
@@ -31,6 +33,7 @@ import {
   flowArc,
   greatCircleCut,
   isLonLat,
+  screenArc,
   polylineBox,
   polylinePath,
   toLonLat,
@@ -44,6 +47,8 @@ export interface FlowEnd extends LinkEnd {
   shape?: "Circle" | "Path";
   /** The radius of the point at the end, or 0. */
   r: number;
+  /** Where a cartogram draws the end's region, on the screen. */
+  at?: Point;
 }
 
 /** A link as Geomap draws it. */
@@ -73,12 +78,20 @@ interface TopoRow {
   id: string | number;
 }
 
+/** A region's cartogram shape, as a link end: its center and the radius a link stops at. */
+export interface FlowAnchor {
+  at: Point;
+  r: number;
+}
+
 /** What `geomapFlowLinks` reads from Geomap's layout. */
 export interface FlowLayoutInput {
   pointData: DataPoint[];
   topoData: TopoRow[];
   pointR: (d: DataPoint, i: number) => number;
   path: GeoPathFn;
+  /** On a cartogram, each region's shape by id: the only ends links take. */
+  anchors?: Map<string, FlowAnchor>;
 }
 
 /**
@@ -146,6 +159,7 @@ export function flowEndResolver(
     const key = linkEndRef(ref);
     if (key === null) return null;
     if (typeof key !== "string") {
+      if (input.anchors) return null;
       const id = key.join(",");
       if (!coords.has(id))
         coords.set(id, {
@@ -158,14 +172,15 @@ export function flowEndResolver(
         });
       return coords.get(id)!;
     }
-    const point = points.get(key);
+    const point = input.anchors ? undefined : points.get(key);
     if (point) return point;
     if (!anchors.has(key)) {
       const shape = shapes.get(key);
       const coord = shape ? featureAnchor(shape.row.feature) : null;
+      const drawn = input.anchors?.get(key);
       anchors.set(
         key,
-        shape && coord
+        shape && coord && (drawn || !input.anchors)
           ? {
               // The datum the shape is drawn with, so hovering it finds its links.
               data: (shape.row.data ?? shape.row) as DataPoint,
@@ -173,7 +188,8 @@ export function flowEndResolver(
               id: key,
               coord,
               shape: "Path",
-              r: 0,
+              r: drawn ? drawn.r : 0,
+              ...(drawn ? {at: drawn.at} : {}),
             }
           : null,
       );
@@ -269,7 +285,8 @@ export function bundleFlowLinks(
       l.points &&
       l.sourceAt &&
       l.targetAt &&
-      !greatCircleCut(l.source.coord, l.target.coord, projection, path),
+      ((l.source.at && l.target.at) ||
+        !greatCircleCut(l.source.coord, l.target.coord, projection, path)),
   );
   if (!shown.length) return;
   const paths = bundleLinkPaths(
@@ -309,22 +326,20 @@ export function geomapFlowLinks(
     const source = resolve(row.source);
     const target = resolve(row.target);
     if (!source || !target) return;
-    const arc = flowArc(
-      source.coord,
-      target.coord,
-      projection,
-      input.path,
-      curve,
-    );
-    if (!arc) return;
+    const screen = source.at && target.at;
+    const arc =
+      source.at && target.at
+        ? screenArc(source.at, target.at, curve)
+        : flowArc(source.coord, target.coord, projection, input.path, curve);
+    if (!arc || (screen && source.id === target.id)) return;
     drawn.push({
       datum: makeLinkDatum(row, source, target, index),
       index,
       source,
       target,
       ...arc,
-      sourceAt: drawnAt(source.coord),
-      targetAt: drawnAt(target.coord),
+      sourceAt: source.at ?? drawnAt(source.coord),
+      targetAt: target.at ?? drawnAt(target.coord),
       box: arc.points ? polylineBox(arc.points) : pathBox(arc.d),
     });
   });

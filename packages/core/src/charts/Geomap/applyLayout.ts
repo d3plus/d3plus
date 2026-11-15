@@ -20,7 +20,9 @@ import {clipsToCircle, coordinateVisible, toLonLat} from "./flowGeometry.js";
 import {cachedPaths, fitExtentOnce, topoFeatures} from "./geoCache.js";
 import {globeHome} from "./globeRotate.js";
 import {geomapCartogram} from "./cartogramLayout.js";
-import type {CartogramRegion} from "./cartogramLayout.js";
+import type {CartogramRegion, CartogramShape} from "./cartogramLayout.js";
+import {drawnCartogramScale, setCartogramLegend} from "./cartogramLegend.js";
+import type {FlowAnchor} from "./flowLinks.js";
 import type {GeoPathFn, LonLat} from "./flowGeometry.js";
 import {geomapDensity, geomapRegionRows} from "./densityLayout.js";
 import {geoHexbinSettings} from "./geoHexbin.js";
@@ -288,6 +290,16 @@ function fitProjection(
   if (live) v.schema.projection.rotate(live);
 }
 
+/** Each cartogram shape as a link end, by region id: its center and radius. */
+export function cartogramAnchors(
+  shapes: Map<string | number, CartogramShape>,
+): Map<string, FlowAnchor> {
+  const out = new Map<string, FlowAnchor>();
+  for (const [id, shape] of shapes)
+    out.set(`${id}`, {at: [shape.x, shape.y], r: shape.r});
+  return out;
+}
+
 /** The box a cartogram's shapes fit: the map area, less `projectionPadding`. */
 function cartogramBounds(
   v: GeomapViz,
@@ -354,7 +366,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   const featurePath = cachedPaths(v.schema.projection, path);
 
   const pointR = (d: DataPoint, i: number) => r(v.schema.pointSize(d, i));
-  // A cartogram draws its regions only: points and links have no place on it.
+  // A cartogram draws no coordinate points.
   const cartogram = geomapCartogram(
     v,
     topoData as unknown as CartogramRegion[],
@@ -364,7 +376,14 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
       bounds: cartogramBounds(v, width, height),
     },
   );
-  if (cartogram) v._sizeLegendFinal = null;
+  // Its size legend shows the shapes' sizes; links run between their centers.
+  if (setCartogramLegend(v) && cartogram)
+    v._sizeLegendFinal = drawnCartogramScale(
+      v,
+      topoData as unknown as CartogramRegion[],
+      cartogram,
+    );
+  else if (cartogram) v._sizeLegendFinal = null;
   const visible = cartogram
     ? []
     : visiblePointData(
@@ -381,14 +400,13 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   ctx.geomapCtx = {
     density,
     cartogram,
-    flowLinks: cartogram
-      ? []
-      : geomapFlowLinks(v, {
-          pointData,
-          topoData: topoData as unknown as FlowLayoutInput["topoData"],
-          pointR,
-          path: path as unknown as FlowLayoutInput["path"],
-        }),
+    flowLinks: geomapFlowLinks(v, {
+      pointData,
+      topoData: topoData as unknown as FlowLayoutInput["topoData"],
+      pointR,
+      path: path as unknown as FlowLayoutInput["path"],
+      anchors: cartogram ? cartogramAnchors(cartogram) : undefined,
+    }),
     topoData,
     pathFn: (d: Record<string, unknown>) => featurePath(d.feature),
     pointData: binned ? [] : visible,

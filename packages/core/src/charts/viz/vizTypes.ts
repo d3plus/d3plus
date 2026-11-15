@@ -248,6 +248,8 @@ export interface VizInstance {
   _size?: (d: DataPoint, i?: number) => number;
   /** The data key `size` was set to, when it was set with a string; the size legend's default title. */
   _sizeKey?: string;
+  /** The marks the size legend draws: circles, or squares for a Demers cartogram. */
+  _sizeLegendShape?: "circle" | "square";
   _time?: (d: DataPoint, i: number) => string | number | Date;
   _label?: (d: DataPoint, i: number) => string;
   _sum?: (d: DataPoint, i: number) => number;

@@ -2,11 +2,15 @@
     The axis's backend-agnostic scene: gridlines and the domain bar emitted
     natively, composed with the tick Shape's and title TextBox's scenes.
 */
+import type {DataPoint} from "@d3plus/data";
 import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 
 import type Axis from "./Axis.js";
 import {axisBarNodes} from "./axisBreak.js";
+import {configureLevelBox} from "./axisLevels.js";
+import TextBox from "../TextBox.js";
 import {
+  stampLevelTooltips,
   stampTickTooltips,
   stampTitleTooltip,
   tickRank,
@@ -151,6 +155,80 @@ export function barLinePoints(axis: Axis): {points: [number, number][]} | null {
 }
 
 /**
+    The outer level rows the last layout pass laid out (see `levels`): each
+    row's labels centered across their groups, and a divider between
+    neighboring groups, from the axis line out through the outermost row
+    the groups it divides belong to, styled as the axis line is under
+    `levelDividerConfig`.
+    @private
+*/
+export function levelNodes(axis: Axis): SceneNode[] {
+  const layout = axis._levelLayout;
+  if (!layout) return [];
+  const {height, x: xKey, y: yKey, opposite} = axis._position;
+  const flip = ["top", "left"].includes(axis.schema.orient);
+  const sign = flip ? -1 : 1;
+  const line = flip
+    ? axis._outerBounds[yKey] +
+      axis._outerBounds[height] -
+      axis._margin[opposite]
+    : axis._outerBounds[yKey] + axis._margin[opposite];
+  const horizontal = xKey === "x";
+  const at = (along: number, across: number): [number, number] =>
+    horizontal ? [along, across] : [across, along];
+
+  // Where each row starts, past the axis line.
+  const starts: number[] = [];
+  layout.rows.reduce((start, row) => {
+    starts.push(start);
+    return start + row.depth;
+  }, layout.start);
+
+  const paint = configToPaint(axis, {
+    ...(axis.schema.barConfig as Record<string, unknown>),
+    ...(axis.schema.levelDividerConfig as Record<string, unknown>),
+  });
+  const nodes: SceneNode[] = layout.dividers.map((divider, i) => {
+    const row = layout.rows[divider.row];
+    const end = starts[divider.row] + row.text;
+    return {
+      type: "line",
+      key: `level-divider-${i}`,
+      points: [at(divider.at, line), at(divider.at, line + sign * end)],
+      paint,
+    };
+  });
+
+  const data = layout.rows.flatMap((row, r) =>
+    row.boxes.map(box => {
+      const near = line + sign * starts[r];
+      const across = flip ? near - row.text : near;
+      const p = horizontal ? (axis.schema.padding as number) : 0;
+      return {
+        id: box.id,
+        text: box.text,
+        value: box.value,
+        level: box.level,
+        [xKey]: box.lo + p / 2,
+        [yKey]: across,
+        [horizontal ? "width" : "height"]: Math.max(0, box.hi - box.lo - p),
+        [horizontal ? "height" : "width"]: row.text,
+      };
+    }),
+  );
+  if (data.length) {
+    const box = configureLevelBox(
+      new TextBox().renderMode("compute"),
+      axis,
+    ).data(data as unknown as DataPoint[]);
+    const labels = box.toScene().children as SceneNode[];
+    stampLevelTooltips(labels, axis.schema.tickTooltip);
+    nodes.push(...labels);
+  }
+  return nodes;
+}
+
+/**
     Produces a backend-agnostic scene graph for the axis with no DOM dependency:
     gridlines + domain bar emitted natively, tick marks/labels composed from the
     tick Shape's toScene(), and the title from the title TextBox's toScene().
@@ -219,6 +297,8 @@ export function axisToScene(axis: Axis): GroupNode {
       }
     }
   }
+
+  children.push(...levelNodes(axis));
 
   const bar = barLinePoints(axis);
   if (bar)
