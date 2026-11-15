@@ -5,7 +5,7 @@
     <title>Gantt Critical Path</title>
     <meta
       name="description"
-      content="Gantt critical path: outlined critical tasks, muted tasks with slack, bold arrows, the key, working-day slack tooltips, a holiday, phases, and facets, light and dark."
+      content="Gantt critical path: outlined critical tasks, muted tasks with slack, bold arrows, the key, working-day slack tooltips, a holiday, a locale weekend, phases, and facets, light and dark."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -41,6 +41,9 @@
     </div>
     <div class="panel">
       <div id="phases" class="viz"></div>
+    </div>
+    <div class="panel">
+      <div id="locale" class="viz"></div>
     </div>
     <div class="panel">
       <div id="facets" class="facet"></div>
@@ -150,6 +153,11 @@
       group: "phase",
       criticalPathConfig: {stroke: "#c92a2a", mutedOpacity: 0.25},
       title: "Phases, with a red critical path",
+    });
+    // A Friday–Saturday weekend: the handoffs that cross it carry no slack.
+    gantt("#locale", {
+      locale: "ar-SA",
+      title: "ar-SA: a Friday and Saturday weekend",
     });
     gantt("#facets", {
       facet: "phase",
