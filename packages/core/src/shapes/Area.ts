@@ -10,6 +10,8 @@ import type {AccessorFn} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
+import {downsampleAreas, drawnValues} from "./downsample.js";
+import type {AreaSchema} from "./downsample.js";
 import {pathSeries} from "./pathSeries.js";
 import type {AreaConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
@@ -19,6 +21,8 @@ const areaSchema: ConfigField[] = [
   {key: "curve", coerce: "const", default: constant("linear")},
   {key: "defined", coerce: "identity", default: () => true},
   {key: "pointKey", coerce: "identity", default: null},
+  {key: "downsample", coerce: "identity", default: false},
+  {key: "downsampleExtent", coerce: "identity", default: null},
 ];
 
 /**
@@ -92,7 +96,7 @@ export default class Area extends Shape {
     else gen.x1(null);
     if (this.schema.y1) gen.y1(offY(this.schema.y1));
     else gen.y1(null);
-    const values = d.values as unknown as DataPoint[];
+    const values = drawnValues(d);
     return {
       type: "path",
       d: gen(values) || "",
@@ -198,6 +202,9 @@ export default class Area extends Shape {
         return d;
       },
     );
+
+    if (typeof this.schema.downsample === "number")
+      downsampleAreas(areas, this.schema as AreaSchema);
 
     areas.key = (d: DataPoint) => d.key;
     return areas;

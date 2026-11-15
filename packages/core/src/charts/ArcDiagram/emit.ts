@@ -30,6 +30,7 @@ import {chordArrowNodes} from "../features/curvedArrows.js";
 import {emitArcLabels} from "./arcLabels.js";
 import {clearOfBoxes, crossReach} from "./arcNodeBox.js";
 import {selfLoopArrows, selfLoopD} from "../features/selfLoops.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /** A node's paint, from the node shape's config. */
 function nodePaint(config: Record<string, unknown>, n: ArcNode): Paint {
@@ -254,7 +255,7 @@ function nodeMark(
   };
 }
 
-export const arcDiagramEmit: ChartEmit = ({viz}) => {
+export const arcDiagramEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.arcCtx as ArcCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = emitArcs(viz, c);
@@ -268,4 +269,4 @@ export const arcDiagramEmit: ChartEmit = ({viz}) => {
   }
   out.push(...images, ...emitArcLabels(viz, c.labels, c.labelHalo));
   return out;
-};
+});

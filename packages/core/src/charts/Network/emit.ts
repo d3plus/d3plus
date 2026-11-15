@@ -58,6 +58,7 @@ import type {CircleNetwork} from "./circleLayout.js";
 import {pointLabelSettings} from "../features/circleLabels.js";
 import {emitSpokeLabels} from "../features/spokeLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface NetworkLink {
   source: DataPoint & {x: number; y: number};
@@ -451,7 +452,7 @@ function circleNodeLabels(
   });
 }
 
-export const networkEmit: ChartEmit = ({viz}) => {
+export const networkEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.networkCtx as NetworkCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];
@@ -474,7 +475,7 @@ export const networkEmit: ChartEmit = ({viz}) => {
       if (!values.length) continue;
       const vizCfg = shapeConfigFor(viz, shapeKind);
       const merged = {...vizCfg, ...c.nodeShapeConfig};
-      const images: SceneNode[] = [];
+      const nodes: SceneNode[] = [];
 
       for (let i = 0; i < values.length; i++) {
         const d = values[i];
@@ -498,15 +499,18 @@ export const networkEmit: ChartEmit = ({viz}) => {
         );
         // Other shape kinds: skipped (Network's default is Circle).
         if (!node) continue;
-        out.push(node);
+        nodes.push(node);
         const image = backgroundImageNode(merged, node, datum, d.i ?? i);
-        if (image) images.push(image);
+        if (image) nodes.push(image);
       }
-      out.push(...images);
-
-      out.push(...networkNodeLabels(viz, c, shapeKind, values, merged, placed));
+      // Each node's image paints with it, as its labels do (see
+      // `labelsWithShapes`), so a node drawn over another covers them.
+      out.push(
+        ...nodes,
+        ...networkNodeLabels(viz, c, shapeKind, values, merged, placed),
+      );
     }
   }
 
   return out;
-};
+});

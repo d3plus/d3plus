@@ -23,8 +23,9 @@ import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {TreemapShapeNode} from "./applyLayout.js";
 import {groupHeaderNodes} from "./emitGroupHeaders.js";
 import {collectGroupHeaders, groupLabelStyle} from "./groupHeaders.js";
+import {pairLabels} from "../features/labelLayering.js";
 
-export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
+export const treemapEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as TreemapShapeNode[];
   if (!nodes.length) return [];
 
@@ -134,4 +135,4 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
     : [];
 
   return [...rectNodes, ...imageNodes, ...labelNodes, ...headerNodes];
-};
+});

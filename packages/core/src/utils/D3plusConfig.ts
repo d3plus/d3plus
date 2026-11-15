@@ -1588,6 +1588,8 @@ export interface D3plusConfig {
   categoryPosition?: "center" | "left";
   /** Pyramid: a comparison value per row (data key or accessor), drawn as an outline around each side's bars. */
   comparison?: string | ((d: DataPoint, i: number) => number) | false;
+  /** KPI: the words after each tile's delta (a string, a `(d, i)` accessor, or `false` for none). Defaults to "vs. previous", translated. */
+  comparisonLabel?: string | ((d: DataPoint, i: number) => string) | false;
   /** Pyramid: line styles for the comparison outline (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the side value and its index. */
   comparisonConfig?: Record<string, unknown>;
   /** Waterfall: draws a thin line from the end of each bar to the start of the next. */
@@ -1633,6 +1635,18 @@ export interface D3plusConfig {
       `strokeDasharray` (default `"2 4"`), `strokeWidth`, and `opacity`.
   */
   connectGaps?: ConnectGaps;
+  /**
+      Thins dense lines and areas to draw: when a series has more than
+      about 2 points per pixel of plot along its axis, it draws a subset
+      chosen by Largest-Triangle-Three-Buckets, which keeps its peaks and
+      dips. A number sets how many points each series draws instead, and
+      `false` draws every point. Only the drawn path is thinned: hover,
+      tooltips, and the nearest-point lookup still read every row. A zoomed
+      plot thins the part it shows, so zooming in brings back detail.
+      Stacked areas, and a line's confidence bands, keep the same points
+      along the axis so their edges still meet.
+  */
+  downsample?: boolean | number;
   /**
       Funnel: fills the gap between consecutive stages with a neck joining
       their widths. Dumbbell: how each category's values are joined,
@@ -1713,6 +1727,10 @@ export interface D3plusConfig {
       `colorDefaults.off`.
   */
   decreaseColor?: string;
+  /** KPI: what each tile's delta shows — the `"percent"` change (default), the `"absolute"` change, `"both"`, or `false` for none. */
+  delta?: "percent" | "absolute" | "both" | false;
+  /** KPI: which way is good news — `"up"` (default) or `"down"` (for costs or churn), or a `(d, i)` accessor per tile. */
+  deltaDirection?: "up" | "down" | ((d: DataPoint, i: number) => "up" | "down");
   /**
       Kernel density options for Violin, Ridgeline, and DensityPlot curves:
       `kernel` (`"gaussian"` or `"epanechnikov"`), `bandwidth` (in data units,
@@ -2054,6 +2072,8 @@ export interface D3plusConfig {
         is short. Stacked bars always label inside.
       - Circles (Plot points, Network nodes, Geomap points): inside the
         circle, or beside it when it doesn't fit (`"outside"` always beside).
+        `"auto"` also moves it beside when a circle drawn over its own
+        covers it, and keeps it inside when no side has room.
       - Stacked areas: `"auto"` and `"along"` run each name along its band;
         `"inside"` puts it in the band's largest box.
 
@@ -2636,6 +2656,8 @@ export interface D3plusConfig {
       outlined. A key also averages grouped rows' progress.
   */
   progress?: string | ((d: DataPoint, i: number) => unknown) | false;
+  /** KPI: each tile's previous value, the one its delta compares against (a data key, an accessor, or `false`). Defaults to the `previous` key, else, with `time` set, the period before the current one. */
+  previous?: string | ((d: DataPoint, i: number) => unknown) | false;
   /** Map projection name or function. */
   projection?: string | ((x: number, y: number) => [number, number]);
   /** Outer padding between the visualization edge and map shapes. */
@@ -2818,6 +2840,8 @@ export interface D3plusConfig {
       The legend and markers follow.
   */
   slopeColor?: SlopeColorSetting;
+  /** KPI: how each tile draws its history when `time` is set — `"area"` (default), `"line"`, `"bar"`, or `false` for none. */
+  sparkline?: "area" | "line" | "bar" | false;
   /**
       With two groupBy levels, Violin places violins by the first and sets
       them side by side by the second. `split` draws a category holding
@@ -2994,6 +3018,21 @@ export interface D3plusConfig {
   tileUrl?: string | {light: string; dark: string};
   /** Whether to show map tiles. */
   tiles?: boolean;
+  /**
+      KPI: how the tiles fill the chart area (`aspect`, 1.75 by default;
+      `columns` or `rows` for a fixed grid; `padding`, 12 by default) and how
+      each tile's card looks (`fill`, `stroke`, `strokeWidth`, `rx`).
+  */
+  tileConfig?: {
+    aspect?: number;
+    columns?: number;
+    rows?: number;
+    padding?: number;
+    fill?: string;
+    stroke?: string;
+    strokeWidth?: number;
+    rx?: number;
+  };
   /** Time key for temporal data. */
   time?: string;
   /**
@@ -3113,7 +3152,7 @@ export interface D3plusConfig {
   upColor?: string | ((d: DataPoint, i: number) => string);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
-  /** Funnel and Gauge: formats each value shown in labels and tooltips, as `(value, datum) => string`. */
+  /** Funnel, Gauge, and KPI: formats each value shown in labels and tooltips, as `(value, datum) => string`. */
   valueFormat?: (value: number, d: DataPoint) => string;
   /**
       Candlestick: how each period draws — `"candlestick"` (default), a wick

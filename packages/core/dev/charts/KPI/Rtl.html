@@ -1,0 +1,59 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+  <head>
+    <meta charset="utf-8" />
+    <title>KPI right to left</title>
+    <meta
+      name="description"
+      content="KPI tiles on a right-to-left page in Arabic (ar-SA): each tile's label, value, and delta start at its right edge, with the comparison words to the left of the delta."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .viz {
+        height: 360px;
+        margin: 16px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="viz" id="rtl"></div>
+  </body>
+
+  <script>
+    const months = [
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+    ];
+    const series = {
+      الإيرادات: [201, 209, 216, 213, 224, 231],
+      الطلبات: [2650, 2590, 2700, 2760, 2810, 2790],
+      "معدل الإلغاء": [4.6, 4.4, 4.5, 4.2, 4.0, 3.7],
+      "تذاكر الدعم": [298, 305, 312, 309, 301, 318],
+    };
+    const fallingIsGood = ["معدل الإلغاء", "تذاكر الدعم"];
+
+    new d3plus.KPI()
+      .select("#rtl")
+      .config({
+        data: Object.entries(series).flatMap(([metric, values]) =>
+          values.map((value, i) => ({metric, month: months[i], value})),
+        ),
+        groupBy: "metric",
+        time: "month",
+        locale: "ar-SA",
+        deltaDirection: d => (fallingIsGood.includes(d.metric) ? "down" : "up"),
+      })
+      .render();
+  </script>
+</html>

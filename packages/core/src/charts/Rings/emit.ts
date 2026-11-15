@@ -51,6 +51,7 @@ import type {SelfLoopGeometry} from "../features/selfLoops.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 export interface RingsEdge {
   /** The edge's index in `links`. */
@@ -404,7 +405,7 @@ function ringsNode(
   return null;
 }
 
-export const ringsEmit: ChartEmit = ({viz}) => {
+export const ringsEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.ringsCtx as RingsCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];
@@ -500,4 +501,4 @@ export const ringsEmit: ChartEmit = ({viz}) => {
   }
 
   return out;
-};
+});
