@@ -46,7 +46,7 @@ import {
 } from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
 import {cartogramFields, geomapFacetHooks} from "./cartogramFields.js";
-import {cartogramKind} from "./cartogramLayout.js";
+import {regionsReshaped, tileGridFields, tileGridOcean} from "./tileGrid.js";
 import {
   currentTileUrl,
   syncTileAttribution,
@@ -223,10 +223,7 @@ function setupGeomapDraw(viz: VizInstance): void {
       // ocean into the scene instead (see geomapEmit).
       ocean: viz._facetStep
         ? "transparent"
-        : resolveThemed(
-            viz.schema.ocean as Themed<string>,
-            Boolean(viz._basemapDark),
-          ),
+        : resolveThemed(tileGridOcean(viz), Boolean(viz._basemapDark)),
     });
     viz._zoomSet = true;
     return result;
@@ -525,7 +522,7 @@ export const geomapDef: ChartDefinition = {
 
   layoutStage: applyGeomapLayout,
   sizeLegendScale: viz => {
-    if (cartogramKind(viz) || geoHexbinSettings(viz)) return null;
+    if (regionsReshaped(viz) || geoHexbinSettings(viz)) return null;
     const pointData = geomapPointData(viz);
     return pointData.length ? geomapPointSizeScale(viz, pointData) : null;
   },
@@ -580,6 +577,7 @@ export const geomapDef: ChartDefinition = {
     ...geomapLinkFields(),
     ...cartogramFields(),
     ...densityFields(),
+    ...tileGridFields(),
     {key: "noDataMessage", default: false},
     /**
         The color behind the map's shapes and tiles: any CSS color (including

@@ -24,6 +24,7 @@ import type {CartogramRegion} from "./cartogramLayout.js";
 import type {GeoPathFn, LonLat} from "./flowGeometry.js";
 import {geomapDensity, geomapRegionRows} from "./densityLayout.js";
 import {geoHexbinSettings} from "./geoHexbin.js";
+import {geomapTileGrid, tileGridOf, tileGridRegions} from "./tileGrid.js";
 
 type GeomapViz = VizContext["viz"];
 
@@ -329,14 +330,19 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
 
   const {rows: regionRows, data: pathData} = geomapRegionRows(v);
 
-  const topoData = coordData.features.reduce(
+  const features = coordData.features.reduce(
     (arr: Record<string, unknown>[], feature: Record<string, unknown>) => {
       const id = v.schema.topojsonId(feature);
       arr.push({__d3plus__: true, data: pathData[id], feature, id});
       return arr;
     },
     [],
-  );
+  ); // A tile grid without a topojson draws a tile for each cell of its layout.
+  const grid = tileGridOf(v);
+  const topoData =
+    grid && !features.length
+      ? (tileGridRegions(grid, pathData) as unknown as typeof features)
+      : features;
 
   const r = geomapPointSizeScale(v, pointData);
   // Binned points draw no circles to size.
@@ -354,16 +360,19 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   const featurePath = cachedPaths(v.schema.projection, path);
 
   const pointR = (d: DataPoint, i: number) => r(v.schema.pointSize(d, i));
-  // A cartogram draws its regions only: points and links have no place on it.
-  const cartogram = geomapCartogram(
-    v,
-    topoData as unknown as CartogramRegion[],
-    {
+  // A cartogram or tile grid draws its regions only: points and links have
+  // no place on it.
+  const cartogram =
+    geomapTileGrid(
+      v,
+      topoData as unknown as CartogramRegion[],
+      cartogramBounds(v, width, height),
+    ) ??
+    geomapCartogram(v, topoData as unknown as CartogramRegion[], {
       pathD: region => featurePath(region.feature),
       area: region => path.area(region.feature),
       bounds: cartogramBounds(v, width, height),
-    },
-  );
+    });
   if (cartogram) v._sizeLegendFinal = null;
   const visible = cartogram
     ? []

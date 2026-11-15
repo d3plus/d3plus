@@ -14,7 +14,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {binMeasure, binPath, binPoints} from "../Hexbin/binning.js";
 import type {BinAgg, PixelPoint} from "../Hexbin/binning.js";
 import {resolveBinValue} from "../Hexbin/settings.js";
-import {cartogramKind} from "./cartogramLayout.js";
+import {regionsReshaped} from "./tileGrid.js";
 import {toLonLat} from "./flowGeometry.js";
 
 /** The `hexbin` option. */
@@ -62,11 +62,11 @@ export interface GeoBinMeta {
 /**
     `hexbin`, resolved: `true` bins by count at the default radius, and an
     object sets the radius and what each bin measures. Null when it is off,
-    or a `cartogram` leaves the points out.
+    or a `cartogram` or `tileGrid` leaves the points out.
 */
 export function geoHexbinSettings(viz: VizInstance): GeoHexbinSettings | null {
   const option = viz.schema.hexbin as GeoHexbinConfig | boolean | undefined;
-  if (!option || cartogramKind(viz)) return null;
+  if (!option || regionsReshaped(viz)) return null;
   const config: GeoHexbinConfig = typeof option === "object" ? option : {};
   const radius = Number(config.radius);
   const measure = resolveBinValue(

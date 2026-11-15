@@ -47,19 +47,24 @@ export function cartogramLabelBox(shape: {r: number; square: boolean}): {
     @param regions The regions, in the order they're drawn.
     @param shapes Each region's cartogram shape, by region id.
     @param pathConfig The merged Path shapeConfig.
+    @param options `all` labels the shapes of regions without data too
+    (whose datum is the region), and `text` gives a region's label in place
+    of the chart's.
 */
 export function cartogramLabels(
   viz: VizInstance,
   regions: CartogramRegion[],
   shapes: Map<string | number, CartogramShape>,
   pathConfig: Record<string, unknown>,
+  options: {all?: boolean; text?: (region: CartogramRegion) => unknown} = {},
 ): SceneNode[] {
   if (pathConfig.label === false) return [];
   const items: Labeled[] = [];
   regions.forEach((region, index) => {
     const shape = shapes.get(region.id);
-    if (shape && region.data)
-      items.push({region, datum: region.data, index, shape});
+    const datum = region.data ?? (options.all ? region : undefined);
+    if (shape && datum)
+      items.push({region, datum: datum as DataPoint, index, shape});
   });
   if (!items.length) return [];
   const rows = items.map(item => item.datum);
@@ -72,6 +77,7 @@ export function cartogramLabels(
     const {index} = item(d);
     if (pathConfig.label !== undefined)
       return resolveAccessor(pathConfig.label, d, index) ?? false;
+    if (options.text) return options.text(item(d).region);
     return viz._drawLabel(d, index);
   };
   const nodes = emitLabels({
