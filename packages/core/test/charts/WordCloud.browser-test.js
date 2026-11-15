@@ -41,29 +41,70 @@ const setup = `
   window.host = renderer => document.querySelector(
     renderer === "svg" ? "#viz svg.d3plus-render-svg" : "#viz canvas.d3plus-render-canvas",
   );
+  window.surface = chart => chart._sceneRenderer.elements()
+    .find(el => el.localName === "svg" || el.localName === "canvas");
+  window.origin = chart => {
+    const el = window.surface(chart);
+    const ctm = el.localName === "svg" ? el.getScreenCTM() : null;
+    if (ctm) return [ctm.e, ctm.f];
+    const r = el.getBoundingClientRect();
+    return [r.left, r.top];
+  };
+  // Each word's box center on screen, through every transform it is painted
+  // under (chart, zoom, and its own turn).
+  window.centers = chart => {
+    const [ox, oy] = window.origin(chart);
+    const out = {};
+    const walk = (n, m) => {
+      const t = n.transform || {};
+      const a = ((t.rotate || 0) * Math.PI) / 180, s = t.scale ?? 1;
+      const [ma, mb, mc, md, me, mf] = m;
+      const ex = me + ma * (t.x || 0) + mc * (t.y || 0);
+      const fy = mf + mb * (t.x || 0) + md * (t.y || 0);
+      const c = Math.cos(a) * s, sn = Math.sin(a) * s;
+      const next = [ma * c + mc * sn, mb * c + md * sn, -ma * sn + mc * c, -mb * sn + md * c, ex, fy];
+      if (n.type === "rect" && /wordcloud-/.test(String(n.key)) && n.datum) {
+        const at = (x, y) => [
+          ox + next[4] + next[0] * x + next[2] * y,
+          oy + next[5] + next[1] * x + next[3] * y,
+        ];
+        const corners = [[n.x, n.y], [n.x + n.width, n.y], [n.x, n.y + n.height], [n.x + n.width, n.y + n.height]].map(([x, y]) => at(x, y));
+        out[n.datum.id] = at(n.x + n.width / 2, n.y + n.height / 2);
+        out[n.datum.id].box = [
+          Math.min(...corners.map(c => c[0])), Math.min(...corners.map(c => c[1])),
+          Math.max(...corners.map(c => c[0])), Math.max(...corners.map(c => c[1])),
+        ];
+      }
+      (n.children || []).forEach(k => walk(k, next));
+    };
+    walk(chart._paintedScene.root, [1, 0, 0, 1, 0, 0]);
+    return out;
+  };
+  // Moves the pointer onto a word: on SVG to the element under that point,
+  // on Canvas to the canvas, which hit-tests it.
   window.hoverWord = async (chart, renderer, text) => {
-    const box = window.boxes(chart).find(n => n.datum.id === text);
-    const word = chart._shapeData
-      ? chart._shapeData.find(w => w.text === text)
-      : null;
-    const host = window.host(renderer);
-    const r = host.getBoundingClientRect();
-    const t = chart._chartTransform || {};
-    // The middle of the word's box, turned with the word.
-    const a = ((box.transform.rotate || 0) * Math.PI) / 180;
-    const mx = box.x + box.width / 2;
-    const my = box.y + box.height / 2;
-    const clientX = r.left + (t.x || 0) + box.transform.x + mx * Math.cos(a) - my * Math.sin(a);
-    const clientY = r.top + (t.y || 0) + box.transform.y + mx * Math.sin(a) + my * Math.cos(a);
-    // On SVG, the event goes to the word's rect element, as a real pointer's
-    // would; the Canvas renderer hit-tests the point itself.
+    const [clientX, clientY] = window.centers(chart)[text];
     const target = renderer === "canvas"
-      ? host
-      : host.querySelector(\`[data-key="wordcloud-\${text}"]\`);
+      ? window.surface(chart)
+      : document.elementFromPoint(clientX, clientY);
     for (const type of ["mouseover", "mouseenter", "mousemove"])
       target.dispatchEvent(new MouseEvent(type, {clientX, clientY, bubbles: true}));
     await window.wait(150);
-    return word;
+    return target && target.getAttribute ? target.getAttribute("data-key") : null;
+  };
+  window.pointer = (type, target, [x, y]) =>
+    target.dispatchEvent(new PointerEvent(type, {
+      bubbles: true, cancelable: true, composed: true, view: window,
+      clientX: x, clientY: y, pointerId: 1, isPrimary: true,
+      pointerType: "mouse", button: 0, buttons: 1,
+    }));
+  window.drag = async (chart, from, to) => {
+    const el = window.surface(chart).localName === "canvas" ? window.surface(chart) : chart._select.node();
+    window.pointer("pointerdown", el, from);
+    window.pointer("pointermove", el, [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2]);
+    window.pointer("pointermove", el, to);
+    window.pointer("pointerup", el, to);
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   };
 `;
 
@@ -116,17 +157,20 @@ for (const renderer of ["svg", "canvas"]) {
   it(`WordCloud (${renderer}): hovering a word highlights it and shows its value`, async () => {
     const out = await page(async renderer => {
       const chart = await window.build({renderer});
-      await window.hoverWord(chart, renderer, "draw");
+      const target = await window.hoverWord(chart, renderer, "draw");
       const bright = window
         .texts(chart)
         .filter(n => chart._hover && chart._hover(n.datum, n.index))
         .map(n => n.lines[0].text);
       const tooltip = document.querySelector(".d3plus-tooltip");
-      return {bright, tooltip: tooltip ? tooltip.textContent : ""};
+      return {bright, target, tooltip: tooltip ? tooltip.textContent : ""};
     }, renderer);
+    if (renderer === "svg") assert.strictEqual(out.target, "wordcloud-draw");
     assert.deepStrictEqual(out.bright, ["draw"]);
     assert.ok(/draw/.test(out.tooltip), out.tooltip);
     assert.ok(/Value\s*45/.test(out.tooltip), out.tooltip);
+    // 45 of the 321 drawn: 14%.
+    assert.ok(/Share\s*14%/.test(out.tooltip), out.tooltip);
   });
 
   it(`WordCloud (${renderer}): colors and a legend by group, hovered from the legend`, async () => {
@@ -149,7 +193,10 @@ for (const renderer of ["svg", "canvas"]) {
         .texts(chart)
         .filter(n => chart._hover && chart._hover(n.datum, n.index))
         .map(n => n.datum.group);
+      const [, shareCell] = chart.schema.legendTooltip.tbody[1];
+      const verb = legend.find(d => d.group === "verb");
       return {
+        verbShare: shareCell(verb, 0, verb),
         legend: legend.map(d => d.group),
         noun: [...fills.noun],
         verb: [...fills.verb],
@@ -158,6 +205,8 @@ for (const renderer of ["svg", "canvas"]) {
       };
     }, renderer);
     assert.deepStrictEqual(out.legend, ["noun", "verb"]);
+    // draw, render, hover, and zoom: 79 of 321.
+    assert.strictEqual(out.verbShare, "24.6%");
     assert.strictEqual(out.noun.length, 1);
     assert.strictEqual(out.verb.length, 1);
     assert.notStrictEqual(out.noun[0], out.verb[0]);
@@ -197,5 +246,96 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(out.panels, 2);
     assert.strictEqual(out.darkWords, data.length);
     assert.ok(out.darkBackground, "a dark background");
+  });
+
+  it(`WordCloud (${renderer}): size, and a threshold bucket drawn as a word`, async () => {
+    const out = await page(async renderer => {
+      const chart = await window.build({
+        renderer,
+        data: window.DATA.map(d => ({word: d.id, count: d.value})),
+        config: {groupBy: "word", size: "count", threshold: 0.05},
+      });
+      const texts = window.texts(chart);
+      const bucket = texts.find(n => n.datum._isAggregation);
+      return {
+        words: texts.map(n => n.lines[0].text),
+        bucket: bucket ? bucket.lines[0].text : null,
+        size: bucket ? bucket.font.size : 0,
+      };
+    }, renderer);
+    // The words under 5% of the 321 drawn (axis, hover, zoom) merge into one.
+    assert.deepStrictEqual(out.words.slice(0, 4), [
+      "data",
+      "chart",
+      "draw",
+      "scale",
+    ]);
+    assert.ok(out.words.includes("Values < 5%"), out.words.join());
+    assert.ok(!out.words.includes("hover") && !out.words.includes("zoom"));
+    assert.ok(out.size >= 10);
+  });
+
+  it(`WordCloud (${renderer}): zoomed in, hover, the tooltip, and box select line up with the words`, async () => {
+    const out = await page(async renderer => {
+      const chart = await window.build({renderer, config: {selectMode: "box"}});
+      const buttons = document.querySelectorAll(
+        "#viz .d3plus-zoom-control button",
+      ).length;
+      chart.zoomIn();
+      await window.wait(700);
+      const zoomed = chart._zoomTransform ? chart._zoomTransform.scale : 1;
+      const target = await window.hoverWord(chart, renderer, "chart");
+      const bright = window
+        .texts(chart)
+        .filter(n => chart._hover && chart._hover(n.datum, n.index))
+        .map(n => n.lines[0].text);
+      const tooltip = document.querySelector(".d3plus-tooltip");
+      const tip = tooltip ? tooltip.textContent : "";
+      // A box drawn on the chart selects the words whose boxes it touches,
+      // as they show zoomed in (inside the chart area).
+      const [ox, oy] = window.origin(chart);
+      const from = [ox + 200, oy + 120],
+        to = [ox + 330, oy + 180];
+      const m = chart._margin;
+      const want = Object.entries(window.centers(chart))
+        .filter(
+          ([
+            ,
+            {
+              box: [x0, y0, x1, y1],
+            },
+          ]) =>
+            x1 >= from[0] &&
+            x0 <= to[0] &&
+            y1 >= from[1] &&
+            y0 <= to[1] &&
+            x1 >= ox + m.left &&
+            x0 <= ox + 600 - m.right &&
+            y1 >= oy + m.top &&
+            y0 <= oy + 400 - m.bottom,
+        )
+        .map(([id]) => id)
+        .sort();
+      await window.drag(chart, from, to);
+      return {
+        buttons,
+        zoomed,
+        target,
+        bright,
+        tip,
+        want,
+        got: chart
+          .selection()
+          .map(d => d.id)
+          .sort(),
+      };
+    }, renderer);
+    assert.ok(out.buttons > 0, "zoom controls show");
+    assert.ok(out.zoomed > 1, `zoomed in (${out.zoomed})`);
+    if (renderer === "svg") assert.strictEqual(out.target, "wordcloud-chart");
+    assert.deepStrictEqual(out.bright, ["chart"]);
+    assert.ok(/chart/.test(out.tip) && /Value\s*80/.test(out.tip), out.tip);
+    assert.ok(out.want.length > 0, "the box covers some words");
+    assert.deepStrictEqual(out.got, out.want);
   });
 }

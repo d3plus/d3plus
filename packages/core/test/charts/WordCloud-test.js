@@ -63,8 +63,12 @@ function zipf(count) {
   });
 }
 
-/** Whether any two placed words' glyph masks cover the same pixel. */
-function overlaps(viz, words) {
+/**
+    Whether any two placed words' glyph masks cover the same pixel, with
+    each word's ink grown by `gap` pixels (so `gap: 1` also finds words
+    that touch).
+*/
+function overlaps(viz, words, gap = 0) {
   const glyphs = rasterizeWords(
     words.map(w => ({
       text: w.text,
@@ -72,7 +76,7 @@ function overlaps(viz, words) {
       weight: w.weight,
       size: w.size,
       rotate: w.rotate,
-      padding: 0,
+      padding: gap,
     })),
   );
   const board = new OccupancyBoard(viz.schema.width, viz.schema.height);
@@ -102,11 +106,18 @@ it("WordCloud: fluent defaults", () => {
   assert.strictEqual(viz.fontWeight(), 600);
   assert.strictEqual(viz.rotate(), 0);
   assert.strictEqual(viz.spiral(), "archimedean");
-  assert.strictEqual(viz.wordPadding(), 1);
-  assert.strictEqual(viz.zoom(), false);
+  assert.strictEqual(viz.wordPadding(), 2);
+  assert.notStrictEqual(viz.zoom(), false);
   assert.strictEqual(viz.dataCutoff(), 500);
-  assert.strictEqual(viz.sum()({value: 6}), 6);
-  assert.strictEqual(viz.sum("count").sum()({count: 3}), 3);
+  assert.strictEqual(viz.size()({value: 6}), 6);
+  assert.strictEqual(viz.schema.threshold([]), 0, "no threshold bucket");
+  viz.size("count");
+  assert.strictEqual(viz.size()({count: 3}), 3);
+  assert.strictEqual(viz._sizeKey, "count");
+  assert.strictEqual(viz.schema.thresholdKey, viz.size());
+  viz.size(d => d.n * 2);
+  assert.strictEqual(viz.size()({n: 4}), 8);
+  assert.strictEqual(viz.size(null).size()({value: 5}), 5, "null resets it");
   assert.deepStrictEqual(viz.rotate([0, 90]).rotate(), [0, 90]);
 });
 
@@ -121,7 +132,7 @@ it("WordCloud: wordCandidates sizes rows by value, largest first, and skips rows
   assert.strictEqual(words[words.length - 1].size, 10);
   assert.ok(words.every((w, k) => !k || w.size <= words[k - 1].size));
   assert.ok(words.every(w => w.weight === 600 && w.rotate === 0));
-  assert.ok(words.every(w => w.padding === 1 && w.id === w.text));
+  assert.ok(words.every(w => w.padding === 2 && w.id === w.text));
 
   const {viz: odd} = draw(
     {
@@ -146,6 +157,61 @@ it("WordCloud: wordCandidates sizes rows by value, largest first, and skips rows
       ["Beta", 300, 0],
     ],
   );
+});
+
+it("WordCloud: size reads each word's value from a key or an accessor, and repeated words add up", () => {
+  const data = [
+    {word: "data", count: 10},
+    {word: "data", count: 15},
+    {word: "chart", count: 5},
+  ];
+  const byKey = draw({groupBy: "word", size: "count"}, data).words;
+  assert.deepStrictEqual(
+    byKey.map(w => [w.text, w.value]),
+    [
+      ["data", 25],
+      ["chart", 5],
+    ],
+  );
+  const byFn = draw({groupBy: "word", size: d => d.count * 2}, data).words;
+  assert.deepStrictEqual(
+    byFn.map(w => w.value),
+    [50, 10],
+  );
+});
+
+it("WordCloud: stamps each word with its share of the drawn words' total", () => {
+  const {viz, words} = draw();
+  const total = rows.reduce((a, d) => a + d.value, 0);
+  for (const w of words)
+    assert.ok(Math.abs(w.data.share - w.value / total) < 1e-12, w.text);
+  const [, share] = wordCloudTooltipRows(viz);
+  const data = words.find(w => w.text === "data").data;
+  assert.strictEqual(share[0](), "Share");
+  assert.strictEqual(
+    share[1](data, 0, data),
+    `${Math.round((120 / total) * 1000) / 10}%`,
+  );
+});
+
+it("WordCloud: threshold merges the smallest words into one bucket word", () => {
+  const off = draw().words;
+  assert.strictEqual(off.length, rows.length, "off by default");
+  const {viz, words} = draw({threshold: 0.05});
+  const total = rows.reduce((a, d) => a + d.value, 0);
+  const small = rows.filter(d => d.value < 0.05 * total);
+  assert.ok(small.length >= 2);
+  assert.strictEqual(words.length, rows.length - small.length + 1);
+  const bucket = words.find(w => w.data._isAggregation);
+  assert.ok(bucket, "a bucket word");
+  assert.strictEqual(
+    bucket.value,
+    small.reduce((a, d) => a + d.value, 0),
+  );
+  assert.ok(/^Values < 5%$/.test(bucket.text), bucket.text);
+  assert.ok(!overlaps(viz, words));
+  const named = draw({threshold: 0.05, thresholdName: "Other"}).words;
+  assert.ok(named.some(w => /^Other < 5%$/.test(w.text)));
 });
 
 it("WordCloud: words take the chart's fontFamily", () => {
@@ -176,7 +242,7 @@ it("WordCloud: repeated ids add up through the groupBy aggregation", () => {
 it("WordCloud: places every word inside the chart without overlapping glyphs, centered", () => {
   const {viz, words} = draw();
   assert.strictEqual(words.length, rows.length);
-  assert.ok(!overlaps(viz, words), "no glyphs overlap");
+  assert.ok(!overlaps(viz, words, 1), "no glyphs touch");
   const fit = viz.ctx.wordCloudFit;
   assert.strictEqual(fit.scale, 1);
   let x0 = Infinity,
@@ -225,7 +291,7 @@ it("WordCloud: rotated words keep their angles and still don't overlap", () => {
   const {viz, words} = draw({rotate: [0, 90, -45]});
   assert.ok(words.some(w => w.rotate === 90 || w.rotate === -45));
   assert.ok(words.every(w => [0, 90, -45].includes(w.rotate)));
-  assert.ok(!overlaps(viz, words));
+  assert.ok(!overlaps(viz, words, 1), "no two words touch");
   const again = draw({rotate: [0, 90, -45]}).words;
   assert.deepStrictEqual(
     again.map(w => w.rotate),
@@ -267,7 +333,12 @@ it("WordCloud: lays out 200 words at 800 × 500 quickly", () => {
     `WordCloud: ${words.length} words at 800 × 500 in ${ms.toFixed(0)}ms (scale ${viz.ctx.wordCloudFit.scale.toFixed(2)})`,
   );
   assert.strictEqual(words.length, 200);
-  assert.ok(!overlaps(viz, words));
+  assert.ok(!overlaps(viz, words, 1));
+  const turned = draw({rotate: [0, 90, -90]}, data, [800, 500]);
+  assert.ok(
+    !overlaps(turned.viz, turned.words, 1),
+    "rotated words don't touch",
+  );
   assert.ok(ms < 3000, `${ms}ms`);
 });
 
@@ -327,10 +398,12 @@ it("WordCloud: wordBox and wordAriaLabel describe a word", () => {
 
 it("WordCloud: the tooltip shows the word's value, translated", () => {
   const viz = new WordCloud();
-  const [[label, value]] = wordCloudTooltipRows(viz);
+  const [[label, value], [shareLabel]] = wordCloudTooltipRows(viz);
+  assert.strictEqual(shareLabel(), "Share");
   assert.strictEqual(label(), "Value");
   assert.strictEqual(value({value: 1500}, 0), "1.5k");
   assert.strictEqual(value({}, 0), "");
+  assert.strictEqual(value({value: 3}, 0, {_isColorScaleBucket: true}), "");
   viz.locale("es-ES");
   assert.notStrictEqual(label(), "Value");
 });
