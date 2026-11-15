@@ -23,6 +23,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import type {CalendarCellDatum, CalendarLabelStyle} from "./applyLayout.js";
 import {cellCornerRadius} from "./calendarGrid.js";
 import type {CalendarLabel, CalendarLayoutResult} from "./calendarLayout.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /** The colors Calendar draws its chrome in when the config leaves them unset. */
 export interface CalendarPalette {
@@ -196,7 +197,7 @@ function outlineNodes(
   );
 }
 
-export const calendarEmit: ChartEmit = ({viz, shapeData}) => {
+export const calendarEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const cells = (shapeData ?? []) as unknown as CalendarCellDatum[];
   const layout = viz.ctx.calendarLayout as CalendarLayoutResult | undefined;
   if (!cells.length || !layout) return [];
@@ -248,4 +249,4 @@ export const calendarEmit: ChartEmit = ({viz, shapeData}) => {
     ...outlineNodes(viz, layout, palette.outline),
     ...labelNodes,
   ];
-};
+});

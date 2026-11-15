@@ -6,6 +6,7 @@
 
 import type {SceneNode} from "@d3plus/render";
 
+import {labelsWithShapes} from "../features/labelLayering.js";
 import {shapeEmitters, type ShapeEmitter} from "../features/shapeEmit.js";
 
 /** The bubble a node belongs to: its key, without a `::hit`-style suffix. */
@@ -34,9 +35,11 @@ export function largestFirst(nodes: SceneNode[]): SceneNode[] {
 }
 
 /**
-    Plot's Circle emitter, drawing the bubbles largest first. The rows are
-    emitted in data order, so each series takes the color it would in a
-    Scatter; only the painted nodes are reordered.
+    Plot's Circle emitter, drawing the bubbles largest first, each with its
+    labels. The rows are emitted in data order, so each series takes the
+    color it would in a Scatter; only the painted nodes are reordered.
 */
 export const bubbleEmit: ShapeEmitter = (ctx, key) =>
-  largestFirst(shapeEmitters.Circle(ctx, key));
+  labelsWithShapes(
+    largestFirst(shapeEmitters.Circle({...ctx, largestFirst: true}, key)),
+  );

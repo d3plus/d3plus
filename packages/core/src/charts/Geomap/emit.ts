@@ -20,6 +20,7 @@ import {emitFlowLabels, emitFlowLinks} from "./flowEmit.js";
 import {cartogramLabels} from "./cartogramLabels.js";
 import type {CartogramShape} from "./cartogramLayout.js";
 import type {FlowLink} from "./flowLinks.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface GeomapCtx {
   cartogram?: Map<string | number, CartogramShape> | null;
@@ -97,7 +98,7 @@ function emitGeomapBasemap(viz: VizInstance): SceneNode[] {
   return out;
 }
 
-export const geomapEmit: ChartEmit = ({viz}) => {
+export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = emitGeomapBasemap(viz);
@@ -204,4 +205,4 @@ export const geomapEmit: ChartEmit = ({viz}) => {
 
   out.push(...emitFlowLabels(viz, links, circles));
   return out;
-};
+});

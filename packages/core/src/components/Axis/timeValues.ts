@@ -94,7 +94,79 @@ export function timeDataInDomain(
   scale: {domain(): unknown[]},
 ): Date[] {
   const [lo, hi] = (extent(scale.domain() as Date[]) as Date[]).map(Number);
-  return data.filter(d => +d >= lo && +d <= hi);
+  const cached = inDomain.get(data);
+  if (cached && cached.lo === lo && cached.hi === hi) return cached.out;
+  const out = data.filter(d => +d >= lo && +d <= hi);
+  inDomain.set(data, {lo, hi, out});
+  return out;
+}
+
+/** The last `timeDataInDomain` each data array answered, by array. */
+const inDomain = new WeakMap<
+  unknown[],
+  {lo: number; hi: number; out: Date[]}
+>();
+
+/** Each data array's times as sorted milliseconds, by array. */
+const sortedMs = new WeakMap<unknown[], Float64Array>();
+
+/**
+    Whether a time axis's data holds a time within `within` milliseconds of
+    `t`. Reads the data's times once per array, then searches them.
+    @param data The axis's data (Dates or millisecond numbers).
+    @param t The time, in milliseconds.
+    @param within How far from `t` a time may be.
+    @private
+*/
+export function hasTimeNear(
+  data: unknown[],
+  t: number,
+  within: number,
+): boolean {
+  let ms = sortedMs.get(data);
+  if (!ms) {
+    ms = Float64Array.from(data, Number).sort();
+    sortedMs.set(data, ms);
+  }
+  let lo = 0,
+    hi = ms.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (ms[mid] < t - within) lo = mid + 1;
+    else hi = mid;
+  }
+  return lo < ms.length && ms[lo] <= t + within;
+}
+
+/** Each data array's extent and closest step, by array. */
+const spacing = new WeakMap<unknown[], TimeSpacing>();
+
+/** See {@link timeDataSpacing}. */
+interface TimeSpacing {
+  extent: [Date, Date];
+  span: number;
+  step: number;
+}
+
+/**
+    A time axis's data's extent, its span (latest minus earliest), and the
+    smallest gap between neighbors as listed, in milliseconds, read once per
+    array.
+    @param data The axis's data in its domain.
+    @private
+*/
+export function timeDataSpacing(data: Date[]): TimeSpacing {
+  const cached = spacing.get(data);
+  if (cached) return cached;
+  const [first, last] = extent(data) as [Date, Date];
+  let step = Infinity;
+  for (let i = 1; i < data.length; i++) {
+    const gap = Math.abs(+data[i] - +data[i - 1]);
+    if (gap < step) step = gap;
+  }
+  const out: TimeSpacing = {extent: [first, last], span: +last - +first, step};
+  spacing.set(data, out);
+  return out;
 }
 
 /**

@@ -87,6 +87,7 @@ export interface TranslationStrings {
   Polynomial: string;
   Power: string;
   "Powered by D3plus": string;
+  Previous: string;
   Progress: string;
   Projected: string;
   Range: string;
@@ -121,6 +122,7 @@ export interface TranslationStrings {
   Value: string;
   Values: string;
   Volume: string;
+  "vs. previous": string;
   week: string;
   weeks: string;
   Width: string;
@@ -262,6 +264,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Power: "\u0642\u0648\u0629",
     "Powered by D3plus":
       "\u0645\u062f\u0639\u0648\u0645 \u0628\u0648\u0627\u0633\u0637\u0629 D3plus",
+    Previous: "\u0627\u0644\u0633\u0627\u0628\u0642",
     Progress: "\u0627\u0644\u062a\u0642\u062f\u0645",
     Projected: "\u0645\u062a\u0648\u0642\u0639",
     Range: "\u0627\u0644\u0646\u0637\u0627\u0642",
@@ -309,6 +312,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
+    "vs. previous":
+      "\u0645\u0642\u0627\u0631\u0646\u0629 \u0628\u0627\u0644\u0633\u0627\u0628\u0642",
     week: "\u0623\u0633\u0628\u0648\u0639",
     weeks: "\u0623\u0633\u0627\u0628\u064a\u0639",
     Width: "\u0627\u0644\u0639\u0631\u0636",
@@ -414,6 +419,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Polynomial: "Polin\u00f3mica",
     Power: "Potencial",
     "Powered by D3plus": "Funciona con D3plus",
+    Previous: "Anterior",
     Progress: "Progreso",
     Projected: "Proyectado",
     Range: "Rango",
@@ -449,6 +455,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "Valor",
     Values: "Valores",
     Volume: "Volumen",
+    "vs. previous": "vs. anterior",
     week: "semana",
     weeks: "semanas",
     Width: "Ancho",
@@ -554,6 +561,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Polynomial: "Polinomial",
     Power: "Pot\u00eancia",
     "Powered by D3plus": "Funciona com D3plus",
+    Previous: "Anterior",
     Progress: "Progresso",
     Projected: "Projetado",
     Range: "Intervalo",
@@ -589,6 +597,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "Valor",
     Values: "Valores",
     Volume: "Volume",
+    "vs. previous": "vs. anterior",
     week: "semana",
     weeks: "semanas",
     Width: "Largura",
@@ -697,6 +706,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Polynomial: "\u591a\u9879\u5f0f",
     Power: "\u5e42",
     "Powered by D3plus": "\u7531 D3plus \u63d0\u4f9b\u652f\u6301",
+    Previous: "\u4e0a\u671f",
     Progress: "\u8fdb\u5ea6",
     Projected: "\u9884\u6d4b",
     Range: "\u8303\u56f4",
@@ -732,6 +742,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "\u503c",
     Values: "\u503c",
     Volume: "\u6210\u4ea4\u91cf",
+    "vs. previous": "\u8f83\u4e0a\u671f",
     week: "\u5468",
     weeks: "\u5468",
     Width: "\u5bbd\u5ea6",
