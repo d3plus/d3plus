@@ -6,6 +6,7 @@ export interface TranslationStrings {
   Band: string;
   "Bar Total": string;
   Betweenness: string;
+  "Box Select": string;
   "Brush Zoom": string;
   Centered: string;
   Change: string;
@@ -52,6 +53,7 @@ export interface TranslationStrings {
   Increase: string;
   "interactive chart": string;
   "JPG image": string;
+  "Lasso Select": string;
   Linear: string;
   "Loading Visualization": string;
   Logarithmic: string;
@@ -72,6 +74,7 @@ export interface TranslationStrings {
   month: string;
   months: string;
   more: string;
+  "More Controls": string;
   "Moving Average": string;
   "No Data": string;
   "No Data Available": string;
@@ -101,6 +104,7 @@ export interface TranslationStrings {
   Seats: string;
   second: string;
   seconds: string;
+  "Selection cleared": string;
   Share: string;
   "Share of Parent": string;
   "Shift+Click to Hide": string;
@@ -137,6 +141,7 @@ export interface TranslationStrings {
   "{node} cluster": string;
   "{0} hidden": string;
   "{0} highlighted": string;
+  "{0} selected": string;
   "{0} shown": string;
 }
 
@@ -156,6 +161,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0639\u0645\u0648\u062f",
     Betweenness:
       "\u0645\u0631\u0643\u0632\u064a\u0629 \u0627\u0644\u0628\u064a\u0646\u064a\u0629",
+    "Box Select":
+      "\u062a\u062d\u062f\u064a\u062f \u0645\u0633\u062a\u0637\u064a\u0644",
     "Brush Zoom":
       "\u062a\u0643\u0628\u064a\u0631 \u0628\u0627\u0644\u062a\u062d\u062f\u064a\u062f",
     Centered: "\u0645\u0631\u0643\u0632\u064a",
@@ -218,6 +225,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart":
       "\u0645\u062e\u0637\u0637 \u062a\u0641\u0627\u0639\u0644\u064a",
     "JPG image": "\u0635\u0648\u0631\u0629 JPG",
+    "Lasso Select": "\u062a\u062d\u062f\u064a\u062f \u062d\u0631",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
@@ -249,6 +257,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Milestone: "\u0645\u0639\u0644\u0645",
     Minimum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     more: "\u0623\u062e\u0631\u0649",
+    "More Controls":
+      "\u0639\u0646\u0627\u0635\u0631 \u062a\u062d\u0643\u0645 \u0625\u0636\u0627\u0641\u064a\u0629",
     "Moving Average":
       "\u0627\u0644\u0645\u062a\u0648\u0633\u0637 \u0627\u0644\u0645\u062a\u062d\u0631\u0643",
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
@@ -284,6 +294,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Seats: "\u0627\u0644\u0645\u0642\u0627\u0639\u062f",
     second: "\u062b\u0627\u0646\u064a\u0629",
     seconds: "\u062b\u0648\u0627\u0646",
+    "Selection cleared":
+      "\u062a\u0645 \u0645\u0633\u062d \u0627\u0644\u062a\u062d\u062f\u064a\u062f",
     Share: "\u062d\u0635\u0629",
     "Share of Parent":
       "\u0627\u0644\u062d\u0635\u0629 \u0645\u0646 \u0627\u0644\u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0623\u0639\u0644\u0649",
@@ -330,6 +342,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "{node} cluster": "\u0645\u062c\u0645\u0648\u0639\u0629 {node}",
     "{0} hidden": "\u062a\u0645 \u0625\u062e\u0641\u0627\u0621 {0}",
     "{0} highlighted": "\u062a\u0645 \u062a\u062d\u062f\u064a\u062f {0}",
+    "{0} selected": "\u062a\u0645 \u062a\u062d\u062f\u064a\u062f {0}",
     "{0} shown": "\u062a\u0645 \u0639\u0631\u0636 {0}",
   },
   "es-ES": {
@@ -340,6 +353,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Band: "Banda",
     "Bar Total": "Total de la Barra",
     Betweenness: "Intermediaci\u00f3n",
+    "Box Select": "Selecci\u00f3n Rectangular",
     "Brush Zoom": "Zoom de Selecci\u00f3n",
     Centered: "Centrado",
     Change: "Variaci\u00f3n",
@@ -387,6 +401,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interactivo",
     "JPG image": "Imagen JPG",
+    "Lasso Select": "Selecci\u00f3n de Lazo",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
@@ -408,6 +423,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     month: "mes",
     months: "meses",
     more: "m\u00e1s",
+    "More Controls": "M\u00e1s Controles",
     "Moving Average": "Media M\u00f3vil",
     "No Data": "Sin Datos",
     "No Data Available": "Datos No Disponibles",
@@ -436,6 +452,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Seats: "Esca\u00f1os",
     second: "segundo",
     seconds: "segundos",
+    "Selection cleared": "Selecci\u00f3n borrada",
     Share: "Porcentaje",
     "Share of Parent": "Porcentaje del Nivel Superior",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
@@ -473,6 +490,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "{node} cluster": "Grupo de {node}",
     "{0} hidden": "{0} oculto",
     "{0} highlighted": "{0} resaltado",
+    "{0} selected": "{0} seleccionados",
     "{0} shown": "{0} mostrado",
   },
   "pt-BR": {
@@ -483,6 +501,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Band: "Faixa",
     "Bar Total": "Total da Barra",
     Betweenness: "Intermedia\u00e7\u00e3o",
+    "Box Select": "Sele\u00e7\u00e3o Retangular",
     "Brush Zoom": "Zoom de Seleção",
     Centered: "Centralizado",
     Change: "Varia\u00e7\u00e3o",
@@ -530,6 +549,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Increase: "Aumento",
     "interactive chart": "gr\u00e1fico interativo",
     "JPG image": "Imagem JPG",
+    "Lasso Select": "Sele\u00e7\u00e3o de La\u00e7o",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
@@ -551,6 +571,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     month: "m\u00eas",
     months: "meses",
     more: "mais",
+    "More Controls": "Mais Controles",
     "Moving Average": "M\u00e9dia M\u00f3vel",
     "No Data": "Sem Dados",
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
@@ -579,6 +600,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Seats: "Assentos",
     second: "segundo",
     seconds: "segundos",
+    "Selection cleared": "Sele\u00e7\u00e3o limpa",
     Share: "Porcentagem",
     "Share of Parent": "Porcentagem do N\u00edvel Superior",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
@@ -616,6 +638,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "{node} cluster": "Grupo de {node}",
     "{0} hidden": "{0} oculto",
     "{0} highlighted": "{0} destacado",
+    "{0} selected": "{0} selecionados",
     "{0} shown": "{0} exibido",
   },
   "zh-CN": {
@@ -628,6 +651,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Band: "\u533a\u95f4",
     "Bar Total": "\u67f1\u603b\u8ba1",
     Betweenness: "\u4e2d\u4ecb\u4e2d\u5fc3\u6027",
+    "Box Select": "\u6846\u9009",
     "Brush Zoom": "\u6846\u9009\u7f29\u653e",
     Centered: "\u5c45\u4e2d",
     Change: "\u6da8\u8dcc\u5e45",
@@ -676,6 +700,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Increase: "\u589e\u52a0",
     "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
     "JPG image": "JPG \u56fe\u7247",
+    "Lasso Select": "\u5957\u7d22\u9009\u62e9",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",
@@ -697,6 +722,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     month: "\u4e2a\u6708",
     months: "\u4e2a\u6708",
     more: "\u66f4\u591a",
+    "More Controls": "\u66f4\u591a\u63a7\u4ef6",
     "Moving Average": "\u79fb\u52a8\u5e73\u5747",
     "No Data": "\u65e0\u6570\u636e",
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
@@ -725,6 +751,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Seats: "\u5e2d\u4f4d",
     second: "\u79d2",
     seconds: "\u79d2",
+    "Selection cleared": "\u5df2\u6e05\u9664\u9009\u62e9",
     Share: "\u5360\u6bd4",
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
@@ -762,6 +789,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "{node} cluster": "{node}\u96c6\u7fa4",
     "{0} hidden": "\u5df2\u9690\u85cf{0}",
     "{0} highlighted": "\u5df2\u7a81\u51fa\u663e\u793a{0}",
+    "{0} selected": "\u5df2\u9009\u62e9 {0} \u9879",
     "{0} shown": "\u5df2\u663e\u793a{0}",
   },
 };

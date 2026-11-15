@@ -112,8 +112,8 @@ const onControlsRow = out =>
 for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: a word hyphenated only to pack a line is drawn whole beside the controls`, async function () {
     const text = "{buffer: false} (New Default)";
-    // Widths where the title used to read "(New De-" / "fault)".
-    for (const width of [240, 300, 310, 400, 420]) {
+    // Widths at which a hyphen would pack the line ("(New De-" / "fault)").
+    for (const width of [288, 348, 358, 448, 468]) {
       const out = await textLayout(text, renderer, width);
       assertWholeWords(out, text, `${renderer} @ ${width}px`);
       assert.ok(
@@ -126,7 +126,7 @@ for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: a title whose word is too wide for the symmetric inset insets each side instead`, async function () {
     // The symmetric inset used to break "Unemployment" across lines.
     const text = "Quarterly Unemployment Rate";
-    const out = await textLayout(text, renderer, 300);
+    const out = await textLayout(text, renderer, 348);
     assertWholeWords(out, text, renderer);
     assert.ok(onControlsRow(out), "the title stays on the controls' row");
   });

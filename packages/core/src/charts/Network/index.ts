@@ -374,6 +374,7 @@ export const networkDef: ChartDefinition = {
   // Nodes (and loops, which sit within reach of their node) are points for
   // `hoverDistance`; links keep exact hit-testing.
   pointMark: (_viz, node) => isPointShape(node) || isSelfLoopMark(node),
+  selectMark: (_viz, node) => isPointShape(node),
 
   ctx: {},
 

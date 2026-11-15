@@ -24,7 +24,12 @@ import {backContribution} from "./backControl.js";
 import {tableViewContribution} from "./tableViewControl.js";
 import {saveContribution} from "./saveControl.js";
 import {searchContribution} from "./searchControls.js";
-import {buildTopLeftPanel, type Contribution} from "./topLeftControlsMarkup.js";
+import {
+  buildTopLeftPanel,
+  topLeftControlsBox,
+  type Contribution,
+} from "./topLeftControlsMarkup.js";
+import {reserveZoomControlsLeft} from "./zoomControlsMarkup.js";
 
 export type {Contribution};
 
@@ -48,6 +53,11 @@ export function getTopLeftContributions(viz: Viz): Contribution[] {
   }
   return contributions;
 }
+
+// On a narrow chart, the zoom buttons that would reach these controls move into a menu.
+reserveZoomControlsLeft(
+  viz => topLeftControlsBox(viz, getTopLeftContributions(viz))?.width ?? 0,
+);
 
 export const topLeftControlsFeature: FeatureModule = {
   name: "topLeftControls",

@@ -19,7 +19,14 @@ it("zoomControlsHtml — every button takes the pointer back", () => {
   const buttons = [...host.querySelectorAll("button")];
   assert.deepStrictEqual(
     buttons.map(button => button.classList[1]),
-    ["zoom-in", "zoom-out", "zoom-reset", "zoom-brush"],
+    [
+      "zoom-in",
+      "zoom-out",
+      "zoom-reset",
+      "zoom-brush",
+      "select-box",
+      "select-lasso",
+    ],
   );
   for (const button of buttons)
     assert.strictEqual(button.style.pointerEvents, "auto", button.className);
