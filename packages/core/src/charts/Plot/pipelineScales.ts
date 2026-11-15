@@ -12,7 +12,11 @@ import {
   drawnAxisScale,
 } from "../../components/Axis/axisScaleType.js";
 import {userDomainBreaksBaseline} from "./baselineBreak.js";
-import {configOpenDomain, userAxisDomain} from "./baselineDomain.js";
+import {
+  configOpenDomain,
+  plotBaseline,
+  userAxisDomain,
+} from "./baselineDomain.js";
 import {fillOpenEnds, openEnd} from "./openDomainEnds.js";
 import {isSpanAxis} from "./discreteSpan.js";
 import {widenReferenceDomains} from "./referenceDomains.js";
@@ -74,7 +78,7 @@ function applyOppDomains(
       domains[o] = d;
     } else if (
       o &&
-      viz.schema.baseline !== void 0 &&
+      plotBaseline(viz) !== void 0 &&
       !userDomainBreaksBaseline(
         viz,
         o,
@@ -82,9 +86,9 @@ function applyOppDomains(
         user[o],
       )
     ) {
-      const b = viz.schema.baseline;
-      if (domains[o] && domains[o][0] > b) domains[o][0] = b;
-      else if (domains[o] && domains[o][1] < b) domains[o][1] = b;
+      const b = plotBaseline(viz) as number;
+      if (domains[o] && (domains[o][0] as number) > b) domains[o][0] = b;
+      else if (domains[o] && (domains[o][1] as number) < b) domains[o][1] = b;
     }
   });
 }
@@ -246,12 +250,12 @@ export const computePlotScales: TransformStage = ({
     x: openEnd(
       user.x,
       domains.x,
-      opps.includes("x") ? viz.schema.baseline : undefined,
+      opps.includes("x") ? plotBaseline(viz) : undefined,
     ),
     y: openEnd(
       user.y,
       domains.y,
-      opps.includes("y") ? viz.schema.baseline : undefined,
+      opps.includes("y") ? plotBaseline(viz) : undefined,
     ),
   };
 

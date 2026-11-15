@@ -1261,6 +1261,8 @@ export interface D3plusConfig {
       `xDomain([n])` for horizontal charts); the far end comes from the data.
       Bars, areas, and stems still grow from `0`, so with `baselineBreak` on
       the axis breaks back to a `0` tick. A bound in `yDomain`/`xDomain` wins.
+      Left unset on a Plot that draws bars, the bars grow from `0` and the
+      value axis reaches it, as on a BarChart.
   */
   baseline?: number;
   /**

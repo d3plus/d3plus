@@ -6,7 +6,7 @@
 */
 import {mergeConfig} from "../../fluent.js";
 import {barSpanAxisConfig} from "./barWidth.js";
-import {openEndAxisConfig, valueAxis} from "./baselineDomain.js";
+import {openEndAxisConfig, plotBaseline, valueAxis} from "./baselineDomain.js";
 import {periodAxisConfig} from "./periodLabels.js";
 import {levelAxisConfig, levelDomain} from "./plotLevels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -61,7 +61,7 @@ export function baselineBreakAxisConfig(
   axis: "x" | "y",
 ): Record<string, unknown> {
   const on = Boolean(viz.schema.baselineBreak) && valueAxis(viz) === axis;
-  const {baseline} = viz.schema;
+  const baseline = plotBaseline(viz);
   return typeof baseline === "number"
     ? {baseline, baselineBreak: on}
     : {baselineBreak: on};
@@ -86,7 +86,7 @@ export function userDomainBreaksBaseline(
     configScale !== "linear"
   )
     return false;
-  const {baseline} = viz.schema;
+  const baseline = plotBaseline(viz);
   if (typeof baseline !== "number" || !Array.isArray(domain)) return false;
   const [lo, hi] = domain;
   return (

@@ -64,9 +64,17 @@ const givenDomain = (
   configOpenDomain(viz, axis) ??
   (viz.schema[`${axis}Domain`] as DomainValue[] | undefined);
 
+/**
+    Where a Plot's bars and areas start: the chart's own baseline (BarChart's
+    `0`), else `0` under bars (see `barBaseline`), else undefined.
+*/
+export function plotBaseline(viz: VizInstance): number | undefined {
+  return viz.schema.baseline ?? viz._barBaseline;
+}
+
 /** `Plot.baseline()`: the user's baseline, or the chart's own when none is set. */
 export function baselineValue(viz: VizInstance): number | undefined {
-  return viz._userBaseline ?? viz.schema.baseline;
+  return viz._userBaseline ?? plotBaseline(viz);
 }
 
 /** `Plot.baseline(_)`: stores the user's baseline; `RESET` and `undefined` clear it. */

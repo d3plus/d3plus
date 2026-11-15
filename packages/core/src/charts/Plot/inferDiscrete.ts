@@ -8,6 +8,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import {rangeBreaksTimeAxis} from "./plotRangeBreaks.js";
+import {barBaseline, drawsDiscreteShapes, plotSwarm} from "./plotShapes.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A row accessor, such as a Plot's `_x` or `_y`. */
@@ -22,26 +23,6 @@ export function hasCategoryValues(values: readonly unknown[]): boolean {
   return values.some(v => typeof v === "string" && isNaN(Number(v)));
 }
 
-/** The shapes that stand on a discrete axis, and draw nothing sensible without one. */
-const DISCRETE_SHAPES = new Set(["Area", "Bar", "Box"]);
-
-/**
-    Whether any of a Plot's rows draws a shape that stands on a discrete
-    axis: a Bar, Area, or Box.
-    @param viz The Plot.
-    @param rows Its data.
-*/
-export function drawsDiscreteShapes(
-  viz: VizInstance,
-  rows: DataPoint[],
-): boolean {
-  const shape = viz.schema.shape as RowAccessor | undefined;
-  return (
-    typeof shape === "function" &&
-    rows.some((d, i) => DISCRETE_SHAPES.has(shape(d, i) as string))
-  );
-}
-
 /**
     The axis a Plot with no `discrete` setting draws as discrete: the axis
     whose values include text (see `hasCategoryValues`), or, when both do,
@@ -49,12 +30,13 @@ export function drawsDiscreteShapes(
     either axis (or only on a time axis), `"x"` when any row draws a Bar,
     Area, or Box (see `drawsDiscreteShapes`). Undefined when `discrete` is
     set, when `swarm` is on (a swarm lays out its own categories; `"auto"`
-    swarms only a single axis of numbers, which has no text), or when
+    swarms only a single axis of numbers, which has no text; see
+    `plotSwarm` for the shapes that turn it off), or when
     neither axis has text and no row draws one of those.
     @param viz The Plot.
 */
 export function inferDiscrete(viz: VizInstance): "x" | "y" | undefined {
-  const swarm = viz.schema.swarm;
+  const swarm = plotSwarm(viz);
   if (viz.schema.discrete || (swarm && swarm !== "auto")) return undefined;
   const rows: DataPoint[] = viz._data || [];
   if (!rows.length) return undefined;
@@ -78,9 +60,12 @@ export function inferDiscrete(viz: VizInstance): "x" | "y" | undefined {
 
 /**
     Notes the discrete axis a Plot infers for this draw (`viz._discrete`,
-    see `inferDiscrete`), which `vizDiscrete` reads when `discrete` is unset.
+    see `inferDiscrete`), which `vizDiscrete` reads when `discrete` is unset,
+    and the baseline its bars grow from when it sets none (`viz._barBaseline`,
+    see `barBaseline`).
     @param viz The Plot.
 */
 export function resolveDiscrete(viz: VizInstance): void {
   viz._discrete = inferDiscrete(viz);
+  viz._barBaseline = barBaseline(viz, viz._data || []);
 }

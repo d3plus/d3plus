@@ -10,6 +10,7 @@ import type {EnterWindow, SceneNode} from "@d3plus/render";
 import {growFromLine} from "../helpers/densityEnter.js";
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {plotBaseline} from "./baselineDomain.js";
 
 /**
     The pixel line, along the value axis, that areas grow out of.
@@ -22,7 +23,7 @@ export function areaBaseline(ctx: ShapeEmitContext): number | null {
   if (!viz.schema.stacked && typeof own === "number" && Number.isFinite(own))
     return own;
   const domain = (axis === "x" ? ctx.xDomain : ctx.yDomain).map(Number);
-  const baseline = viz.schema.baseline;
+  const baseline = plotBaseline(viz);
   const value = typeof baseline === "number" ? baseline : 0;
   const lo = Math.min(...domain);
   const hi = Math.max(...domain);
