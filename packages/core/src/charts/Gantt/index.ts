@@ -98,12 +98,13 @@ export const ganttDef: DataDrivenChartDefinition = {
         task is muted. Tied chains are all critical. The tooltip lists each
         task's Slack and Latest start, and a key in the label column's corner
         names the bold arrows. Dependencies naming tasks that aren't drawn are
-        skipped; with no dependency between drawn tasks, or with a cycle
-        (which logs a warning), nothing is emphasized. Off (`false`) by
-        default.
+        skipped. On (`true`) by default, it draws only when a critical
+        dependency joins two drawn tasks, so a chart without dependencies (or
+        whose dependencies never chain to the finish) looks the same; a cycle
+        draws nothing and logs a warning. `false` turns it off.
         @type {boolean}
     */
-    {key: "criticalPath", default: false},
+    {key: "criticalPath", default: true},
     /**
         Styles the critical path: `stroke` (the dependency arrows' color by
         default), `strokeWidth` (twice theirs), `strokeOpacity` (1), and

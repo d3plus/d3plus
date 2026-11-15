@@ -82,8 +82,9 @@ const quote = (id: string): string => `"${id}"`;
 
 /**
     The critical path of the drawn `tasks` when `criticalPath` is on, else
-    null; also null when no dependency joins two drawn tasks, or when the
-    dependencies form a cycle (which warns once, naming it). Records each
+    null; also null when no critical dependency joins two drawn tasks (a
+    path needs a chain), or when the dependencies form a cycle (which warns
+    once, naming it). Records each
     task's slack and latest start for its tooltip, or clears them.
     @param viz The chart.
     @param tasks The drawn tasks.
@@ -146,7 +147,7 @@ function computeCritical(
     );
     return null;
   }
-  if (!cpm.links.length) return null;
+  if (!cpm.links.some(l => l.critical)) return null;
   return {
     result: cpm.tasks,
     clock,
