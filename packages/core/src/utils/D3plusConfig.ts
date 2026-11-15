@@ -1314,6 +1314,13 @@ export interface D3plusConfig {
   */
   binSize?: number;
   /**
+      Histogram and DotPlot: a uniform bin width, in data units. Histogram
+      places its edges at multiples of it (taking precedence over
+      `binThresholds`); DotPlot sweeps its stacks this wide, shrinking the
+      dots to fit (defaults to one dot's diameter).
+  */
+  binWidth?: number;
+  /**
       Hexbin: what each bin measures, which its color shows. `"count"`
       (default) is the number of observations in the bin; `{value, agg,
       label}` is the `"sum"` (default) or `"mean"` of `value` (a data key or
@@ -1824,6 +1831,11 @@ export interface D3plusConfig {
       tie); numbers stored as text stay continuous.
   */
   discrete?: "x" | "y" | "radius" | "angle";
+  /**
+      DotPlot: a fixed dot radius, in pixels. Defaults to the largest dot (up
+      to 10 pixels) at which the tallest stack fits its row (or the chart).
+  */
+  dotRadius?: number;
   /** Candlestick: the color of periods that closed below their open, or an accessor of the row. Defaults to red. */
   downColor?: string | ((d: DataPoint, i: number) => string);
   /** Default duration of transitions, in milliseconds. */
@@ -2594,6 +2606,8 @@ export interface D3plusConfig {
   pathLabels?: boolean | ((d: DataPoint, i: number) => string | false | null);
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
+  /** DotPlot: what one dot stands for, in units of `value`: each row draws `round(value / per)` dots instead of one. */
+  per?: number;
   /**
       Calendar: what each block covers — `"year"` (the default; whole years,
       stacked) or `"month"` (whole months, as a grid of small calendars).
@@ -2869,6 +2883,12 @@ export interface D3plusConfig {
   stagePadding?: number;
   /** Whether to stack series. */
   stacked?: boolean;
+  /**
+      DotPlot: where each stack's dots pile — `"up"` (default) from the
+      baseline of its row (or of the chart), or `"center"`, spread evenly on
+      both sides of the row's center.
+  */
+  stackDirection?: "up" | "center";
   /**
       BarChart: centers a diverging stack on a neutral series, as a Likert
       chart does. Names the series by its id (matched against each row's
