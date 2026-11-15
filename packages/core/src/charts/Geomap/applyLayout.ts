@@ -24,6 +24,8 @@ import type {CartogramRegion, CartogramShape} from "./cartogramLayout.js";
 import {drawnCartogramScale, setCartogramLegend} from "./cartogramLegend.js";
 import type {FlowAnchor} from "./flowLinks.js";
 import type {GeoPathFn, LonLat} from "./flowGeometry.js";
+import {geomapDensity, geomapRegionRows} from "./densityLayout.js";
+import {geoHexbinSettings} from "./geoHexbin.js";
 
 type GeomapViz = VizContext["viz"];
 
@@ -337,14 +339,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
 
   const pointData = geomapPointData(v);
 
-  const pathData = v._filteredData
-    .filter(
-      (d: DataPoint, i: number) => !(v.schema.point(d, i) instanceof Array),
-    )
-    .reduce((obj: Record<string, DataPoint>, d: DataPoint, i: number) => {
-      obj[v._id(d, i)] = d;
-      return obj;
-    }, {});
+  const {rows: regionRows, data: pathData} = geomapRegionRows(v);
 
   const topoData = coordData.features.reduce(
     (arr: Record<string, unknown>[], feature: Record<string, unknown>) => {
@@ -356,7 +351,9 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   );
 
   const r = geomapPointSizeScale(v, pointData);
-  v._sizeLegendFinal = pointData.length ? r : null;
+  // Binned points draw no circles to size.
+  const binned = Boolean(geoHexbinSettings(v));
+  v._sizeLegendFinal = pointData.length && !binned ? r : null;
 
   if (!v._zoomSet || !ctx.extentBounds)
     fitExtentBounds(v, ctx, coordData, path, pointData, r);
@@ -387,7 +384,21 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
       cartogram,
     );
   else if (cartogram) v._sizeLegendFinal = null;
+  const visible = cartogram
+    ? []
+    : visiblePointData(
+        v,
+        pointData,
+        path as unknown as FlowLayoutInput["path"],
+      );
+  const density = geomapDensity(v, {
+    regions: topoData as unknown as CartogramRegion[],
+    rows: regionRows,
+    pathD: region => featurePath(region.feature),
+    points: visible,
+  });
   ctx.geomapCtx = {
+    density,
     cartogram,
     flowLinks: geomapFlowLinks(v, {
       pointData,
@@ -398,13 +409,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     }),
     topoData,
     pathFn: (d: Record<string, unknown>) => featurePath(d.feature),
-    pointData: cartogram
-      ? []
-      : visiblePointData(
-          v,
-          pointData,
-          path as unknown as FlowLayoutInput["path"],
-        ),
+    pointData: binned ? [] : visible,
     pointR,
     pointSort: (a: DataPoint, b: DataPoint) =>
       v.schema.pointSize(b) - v.schema.pointSize(a),

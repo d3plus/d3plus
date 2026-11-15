@@ -20,9 +20,13 @@ import {emitFlowLabels, emitFlowLinks} from "./flowEmit.js";
 import {cartogramLabels} from "./cartogramLabels.js";
 import type {CartogramShape} from "./cartogramLayout.js";
 import type {FlowLink} from "./flowLinks.js";
+import {emitBins, emitDots} from "./densityEmit.js";
+import type {GeomapDensity} from "./densityLayout.js";
+import {geoHexbinSettings} from "./geoHexbin.js";
 import {pairLabels} from "../features/labelLayering.js";
 
 interface GeomapCtx {
+  density?: GeomapDensity;
   cartogram?: Map<string | number, CartogramShape> | null;
   flowLinks?: FlowLink[];
   topoData: Array<{
@@ -105,8 +109,10 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
 
   if (c.topoData && c.topoData.length) {
     const pathConfig = shapeConfigFor(viz, "Path");
-    const colorScale = viz.schema.colorScale as
-      ((d: DataPoint, i: number) => unknown) | undefined;
+    // Bins take the colorScale from the regions.
+    const colorScale = (
+      geoHexbinSettings(viz) ? undefined : viz.schema.colorScale
+    ) as ((d: DataPoint, i: number) => unknown) | undefined;
     const start = out.length;
     const drawn: number[] = [];
     for (let i = 0; i < c.topoData.length; i++) {
@@ -144,6 +150,9 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
     if (c.cartogram)
       out.push(...cartogramLabels(viz, c.topoData, c.cartogram, pathConfig));
   }
+
+  out.push(...emitDots(viz, c.density?.dots));
+  out.push(...emitBins(viz, c.density?.bins));
 
   const links = c.flowLinks ?? [];
   out.push(...emitFlowLinks(viz, links));
