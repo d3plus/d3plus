@@ -255,18 +255,23 @@ const ATTRIBUTION_HEIGHT = 22;
 function chromeBoxes(viz: VizInstance): Bounds[] {
   const boxes: Bounds[] = [];
   const {width, height} = chartBounds(viz);
-  const zoom = viz.schema.minimap
-    ? minimapAnchor(viz as never)
-    : zoomControlsBox(viz as never);
-  if (zoom) {
-    const minimap = viz.schema.minimap
-      ? (zoom.width - MINIMAP_RIGHT_INSET) * (height / Math.max(1, width))
-      : 0;
+  const zoom = zoomControlsBox(viz as never);
+  if (zoom)
     boxes.push({
       x: viz.schema.width - zoom.width,
       y: 0,
       width: zoom.width,
-      height: zoom.height + minimap,
+      height: zoom.height,
+    });
+  const anchor = viz.schema.minimap ? minimapAnchor(viz as never) : null;
+  if (anchor) {
+    const minimap =
+      (anchor.width - MINIMAP_RIGHT_INSET) * (height / Math.max(1, width));
+    boxes.push({
+      x: viz.schema.width - anchor.width,
+      y: 0,
+      width: anchor.width,
+      height: anchor.height + minimap,
     });
   }
   const topLeft = topLeftControlsBox(

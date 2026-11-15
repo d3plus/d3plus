@@ -74,8 +74,9 @@ function dimSettings(viz: VizInstance): {
   predicate: Predicate;
   dimOpacity: number;
   gray: boolean;
-  kind: "hover" | "active" | "highlight";
+  kind: "hover" | "active" | "highlight" | "select";
   activePredicate: Predicate | null;
+  hoverPredicate?: Predicate | null;
 } | null {
   const hover =
     typeof viz._hover === "function" ? (viz._hover as Predicate) : null;
@@ -83,12 +84,25 @@ function dimSettings(viz: VizInstance): {
     typeof viz._active === "function" ? (viz._active as Predicate) : null;
   const highlight =
     typeof viz._highlight === "function" ? (viz._highlight as Predicate) : null;
-  if (!hover && !active && !highlight) return null;
+  const selection =
+    typeof viz._selection === "function" ? (viz._selection as Predicate) : null;
+  if (!hover && !active && !highlight && !selection) return null;
   const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
   let hoverOpacity =
     typeof sc.hoverOpacity === "number" ? sc.hoverOpacity : 0.5;
   const activeOpacity =
     typeof sc.activeOpacity === "number" ? sc.activeOpacity : 0.25;
+  // A selection holds its marks lit while the pointer moves over the chart:
+  // a hovered mark only takes the hover outline. `active` still wins.
+  if (selection && !active)
+    return {
+      predicate: selection,
+      dimOpacity: activeOpacity,
+      gray: false,
+      kind: "select",
+      activePredicate: null,
+      hoverPredicate: hover,
+    };
   const gray = !hover && !active;
   // A colorScale bucket hover must dim the non-matching marks to read as a
   // highlight, even on charts (Geomap) that set hoverOpacity:1 to keep a plain
@@ -354,7 +368,7 @@ export function applyInteractionOpacity(
   // compounding when several are momentarily set.
   const settings = dimSettings(viz);
   if (!settings) return nodes;
-  const {dimOpacity, gray, kind, activePredicate} = settings;
+  const {dimOpacity, gray, kind, activePredicate, hoverPredicate} = settings;
   const predicate = marks
     ? followMarks(viz, settings.predicate, marks)
     : settings.predicate;
@@ -418,7 +432,14 @@ export function applyInteractionOpacity(
         // (not labels/groups). Highlight keeps its color-vs-gray treatment and
         // adds no outline. An active node keeps the stronger active stroke even
         // while hovered, rather than dropping to the thinner hover stroke.
-        if (kind !== "highlight" && MARK_TYPES.has(node.type)) {
+        if (kind === "select") {
+          if (
+            hoverPredicate &&
+            MARK_TYPES.has(node.type) &&
+            nodeMatches(node, hoverPredicate)
+          )
+            next = emphasizeStroke(node, "hover");
+        } else if (kind !== "highlight" && MARK_TYPES.has(node.type)) {
           const active =
             kind === "active" ||
             (activePredicate

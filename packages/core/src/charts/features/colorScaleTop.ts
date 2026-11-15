@@ -9,6 +9,7 @@ import type {GroupNode, SceneNode} from "@d3plus/render";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {cornerPlacements} from "./features.js";
 import {drawsSwatches} from "./colorScaleLimit.js";
+import {markBoxes} from "./sceneBounds.js";
 
 /** The part of a colorScale's frame a top placement moves. */
 interface TopFrame {
@@ -41,6 +42,17 @@ function scaleShown(viz: VizInstance): ScaleShown {
     claim: height ? height + cs.padding() * 2 : 0,
     labels: height ? sceneLabels(cs.toScene()) : [],
   };
+}
+
+/** Whether every mark and label the colorScale draws lies between `x0` and `x1`. */
+function withinX(viz: VizInstance, x0: number, x1: number): boolean {
+  const boxes = markBoxes(
+    [viz._colorScaleClass!.toScene()],
+    undefined,
+    undefined,
+    true,
+  );
+  return boxes.every(b => b.x >= x0 - 1 && b.x + b.width <= x1 + 1);
 }
 
 /** The labels cut short in `labels`. */
@@ -91,14 +103,18 @@ export function paintTopColorScale<T extends TopFrame>(
   const swatches = drawsSwatches(viz._colorScaleClass!);
   for (const [i, {left, right: r, drop}] of placements.entries()) {
     const last = i === placements.length - 1;
+    const width = frame.width - left - r;
     paint({
       ...frame,
       x: frame.x + left,
       y: frame.y + drop,
-      width: frame.width - left - r,
+      width,
       height: Math.max(0, Math.min(frame.height, room - drop)),
     });
-    if (last || drawsAsWell(swatches, scaleShown(viz), whole)) return drop;
+    // A gap narrower than the scale's least width leaves it overflowing.
+    const fits = withinX(viz, frame.x + left, frame.x + left + width);
+    if (last || (fits && drawsAsWell(swatches, scaleShown(viz), whole)))
+      return drop;
   }
   return 0;
 }

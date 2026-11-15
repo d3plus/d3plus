@@ -9,6 +9,7 @@ import Playground from "~/components/Playground/Playground.astro";
 import tooltipDeepestLevel from "~/examples/guides/interactivity/tooltip-deepest-level.js?raw";
 import axisTooltips from "~/examples/guides/interactivity/axis-tooltips.js?raw";
 import zoomWithoutButtons from "~/examples/guides/interactivity/zoom-without-buttons.js?raw";
+import boxAndLassoSelection from "~/examples/guides/interactivity/box-and-lasso-selection.js?raw";
 
 D3plus charts are interactive out of the box: hovering a shape highlights it and
 shows a tooltip, and a legend lets viewers toggle series. Everything below works
@@ -357,9 +358,15 @@ trails** by default, and `trailPersist` can keep the whole path visible. See
 ## Zoom & pan
 
 Charts zoom and pan their content by default, with controls in the
-chart's top-right corner (zoom in, zoom out, reset, and a drag-to-zoom brush
-that ends after one selection), wheel zoom, drag-to-pan, and double-click to
-zoom in.
+chart's top-right corner (zoom in, zoom out, reset, a drag-to-zoom brush
+that ends after one selection, and the box and lasso select tools — see
+[Box and lasso selection](#box-and-lasso-selection)), wheel zoom,
+drag-to-pan, and double-click to zoom in. On a chart too narrow to fit them
+all beside the top-left controls, the buttons that don't fit (from the end of
+that order) move into a **More Controls** ("⋯") menu, which lists each with
+its label. A click or <kbd>Enter</kbd> opens it, the arrow keys move between
+its items, and <kbd>Escape</kbd> or a click outside closes it. While a tool
+in the menu is on, the menu button shows that tool's icon.
 
 Charts leave page scrolling alone: Ctrl/⌘ + wheel (or a trackpad pinch)
 zooms, a plain wheel scrolls the page, and on touch screens one finger
@@ -393,7 +400,9 @@ The control buttons are real `<button>`s: the brush toggle carries
 `aria-pressed` and an `.active` class while on, and by default paints the OS
 accent color. Set `zoomControlClassName` to style them with your own CSS.
 
-The four control icons render as inline SVGs by default; `zoomControlIcons`
+The six control icons render as inline SVGs by default; `zoomControlIcons`
+(keys `zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`, `selectBox`, and
+`selectLasso`)
 overrides any of them — pass a raw HTML string, or a mount function
 (`(el) => void | (() => void)`) that receives the button's reserved icon
 element to render into imperatively. That's the escape hatch for a live
@@ -426,7 +435,7 @@ disabling zoom, and zoom limits.
 
 ### Zooming without the buttons
 
-`zoomControls: false` hides the four buttons and gives their corner back to
+`zoomControls: false` hides the buttons and gives their corner back to
 the title, legend, and other top content, which no longer leave room for
 them; zoom itself stays on (`zoom: false` still turns everything off). Two
 more options change what the pointer does:
@@ -467,3 +476,59 @@ document.querySelector("#reset").onclick = () => chart.zoomReset();
 document.querySelector("#brush").onclick = () =>
   chart.zoomBrush(!chart.zoomBrush());
 ```
+
+## Box and lasso selection
+
+The zoom controls of every chart that shows them include a **Box Select** and
+a **Lasso Select** button, which let viewers pick out marks by drawing around
+them. Pressing one turns its tool on; pressing it again goes back to panning,
+and the brush-zoom button turns selection off too. `selectMode: "box"` or
+`"lasso"` starts a chart with that tool on (`false`, the default, starts out
+panning), and changing it later resets the tool. The tools work the same on
+a chart whose zoom controls are hidden (`zoomControls: false`) or off
+(`zoom: false`), where `selectMode` is the only way to turn one on.
+
+While a tool is on, a drag over the chart draws a box (or a freehand lasso)
+instead of panning, and letting go selects every mark inside: those stay lit
+while the rest dim (by `shapeConfig.activeOpacity`), and the legend dims its
+entries the same way. A bar or other rectangle is selected when any part of
+it is inside; a point (including each point of a line or area) when its
+center is, and an area's point when the area's height at that point crosses
+the region. A line or area stays lit while any of its points is selected.
+Network and Geomap select their nodes and points, and the regions a Geomap
+draws for its data.
+
+- <kbd>Shift</kbd> + drag adds to the selection.
+- A click on a mark selects just that mark, and <kbd>Shift</kbd> + click
+  toggles it. While a select tool is on, this takes the place of the chart's
+  own click action (such as drilling down).
+- A click on no mark, or <kbd>Escape</kbd>, clears the selection.
+- With small multiples, a drag selects within the panel it starts in.
+- The wheel and a pinch still zoom, and one finger draws on a touch screen.
+
+`selectStyle` styles the box or lasso as it is drawn (SVG attributes such as
+`fill`, `stroke`, and `stroke-dasharray`). Draw around some points:
+
+<Playground chart="Plot" code={boxAndLassoSelection} controls={["selectMode"]} height={320} />
+
+Each selection fires the chart's `select` event with the selected rows (and
+an empty array when it is cleared), so other parts of a page can follow it:
+
+```js
+const chart = new d3plus.Plot()
+  .select("#chart")
+  .config({data, groupBy: "id", x: "x", y: "y", selectMode: "box"})
+  .on("select", rows => showTable(rows))
+  .render();
+```
+
+`selection()` reads the selected rows back, and `selection(value)` sets the
+selection from code with an array of rows, a predicate such as
+`d => d.y > 40`, or `false` to clear it. A selection set this way fires no
+`select` event. A selection holds when the chart redraws, zooms, or gets new
+data, for as long as its rows (rows with the same values) are still drawn.
+
+With keyboard navigation, <kbd>Enter</kbd> on a focused mark selects it while
+a select tool is on, and <kbd>Shift</kbd>+<kbd>Enter</kbd> toggles it; the
+chart's live region announces how many marks are selected. A first
+<kbd>Escape</kbd> leaves the focused mark, and the next clears the selection.
