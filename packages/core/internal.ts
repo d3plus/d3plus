@@ -2278,6 +2278,7 @@ export {
   sideOrder,
 } from "./src/charts/features/circleLabelPlacement.js";
 export type {
+  BoxInset,
   CircleLabelBox,
   CircleLabelPlacement,
   CircleLabelRequest,

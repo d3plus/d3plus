@@ -319,10 +319,29 @@ const circleBox = (c: LabelCircle): CircleLabelBox => ({
   height: c.r * 2,
 });
 
-/** The box a label inside a circle sits in: the square inscribed in the circle. */
-export function insideBox(circle: LabelCircle): CircleLabelBox {
+/** Space kept clear on each side of a box. */
+export interface BoxInset {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+/**
+    The box a label inside a circle sits in: the square inscribed in the
+    circle, less the label's padding, which it never draws in.
+    @param circle The circle.
+    @param inset The label's padding (default none).
+*/
+export function insideBox(
+  circle: LabelCircle,
+  inset?: BoxInset,
+): CircleLabelBox {
   const h = circle.r * Math.SQRT1_2;
-  return {x: circle.x - h, y: circle.y - h, width: h * 2, height: h * 2};
+  const pad = inset ?? {top: 0, right: 0, bottom: 0, left: 0};
+  const width = Math.max(0, h * 2 - pad.left - pad.right),
+    height = Math.max(0, h * 2 - pad.top - pad.bottom);
+  return {x: circle.x - h + pad.left, y: circle.y - h + pad.top, width, height};
 }
 
 /**
@@ -333,11 +352,13 @@ export function insideBox(circle: LabelCircle): CircleLabelBox {
     @param which The indices of the circles to test.
     @param order Each circle's paint position: a higher one paints over a
     lower one (default: its index).
+    @param insets Each circle's inside label padding (default none).
 */
 export function coveredInside(
   circles: readonly LabelCircle[],
   which: readonly number[],
   order?: readonly number[],
+  insets?: readonly (BoxInset | undefined)[],
 ): Set<number> {
   const out = new Set<number>();
   const valid = (c: LabelCircle | undefined): c is LabelCircle =>
@@ -350,7 +371,8 @@ export function coveredInside(
   for (const i of live) grid.add(circleBox(circles[i]), i);
   const rank = (i: number) => order?.[i] ?? i;
   for (const i of tested) {
-    const box = insideBox(circles[i]);
+    const box = insideBox(circles[i], insets?.[i]);
+    if (!(box.width > 0 && box.height > 0)) continue;
     for (const j of grid.near(box))
       if (rank(j) > rank(i) && boxHitsCircle(box, circles[j])) {
         out.add(i);

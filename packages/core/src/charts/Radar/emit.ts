@@ -20,6 +20,7 @@ import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 import {radarGroupPointNodes} from "./points.js";
 import type {RadarPointGroup} from "./points.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface RadarGroupDatum extends RadarPointGroup {
   __d3plus__?: true;
@@ -27,7 +28,7 @@ interface RadarGroupDatum extends RadarPointGroup {
   d: string;
 }
 
-export const radarEmit: ChartEmit = ({viz}) => {
+export const radarEmit: ChartEmit = pairLabels(({viz}) => {
   const groupData = viz.ctx.groupData as RadarGroupDatum[] | undefined;
   const pathConfig = viz.ctx.pathConfig as Record<string, unknown> | undefined;
   if (!groupData || !pathConfig || !groupData.length) return [];
@@ -66,4 +67,4 @@ export const radarEmit: ChartEmit = ({viz}) => {
     out.push(...dots);
   }
   return out;
-};
+});

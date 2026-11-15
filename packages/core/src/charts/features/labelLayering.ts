@@ -2,8 +2,9 @@
     Paints each shape's labels together with the shape, so a shape drawn
     later covers the labels drawn inside the shapes beneath it, as it covers
     the shapes themselves; labels drawn outside their shapes stay over every
-    shape. Every chart's emit runs through it (`runChartDraw`,
-    `collectComputed`, and the Plot shape emitters).
+    shape. Every chart's emit runs through it (`pairLabels` on each
+    data-driven chart's emit, `collectComputed`, and the Plot shape
+    emitters).
 
     @module
 */
@@ -12,6 +13,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {Bounds} from "@d3plus/math";
 import type {SceneNode} from "@d3plus/render";
 
+import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {markBoxes} from "./sceneBounds.js";
 
 /** Suffix of a label hitbox's key (see `textBoxHitbox`). */
@@ -156,4 +158,14 @@ export function labelsWithShapes(nodes: SceneNode[]): SceneNode[] {
     if (labels) out.push(...labels);
   });
   return out;
+}
+
+/**
+    A chart emit whose labels paint with their own shapes (see
+    `labelsWithShapes`): every data-driven chart's emit is one, so calling
+    it directly yields the scene the chart draws.
+    @param emit The chart's emit.
+*/
+export function pairLabels(emit: ChartEmit): ChartEmit {
+  return ctx => labelsWithShapes(emit(ctx));
 }

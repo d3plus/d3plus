@@ -15,8 +15,9 @@ import type {PolarFrame, PolarWedge} from "../polar/wedgeLayout.js";
 
 import {radialBarCurvedLabels} from "./curvedLabels.js";
 import type {RadialBarFrame} from "./trackLayout.js";
+import {pairLabels} from "../features/labelLayering.js";
 
-export const radialBarEmit: ChartEmit = ({viz, shapeData}) => {
+export const radialBarEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const wedges = (shapeData ?? []) as unknown as PolarWedge[];
   if (!wedges.length) return [];
   const angular = viz.schema.discrete === "angle";
@@ -55,4 +56,4 @@ export const radialBarEmit: ChartEmit = ({viz, shapeData}) => {
     viz.schema.value as (d: DataPoint, i: number) => unknown,
   );
   return [...hits, ...bars, ...labels, ...center];
-};
+});

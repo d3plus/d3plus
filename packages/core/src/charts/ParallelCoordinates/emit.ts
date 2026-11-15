@@ -14,6 +14,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {autoLineOpacity} from "./dimensions.js";
 import {formatDimensionValue} from "./format.js";
 import type {ParallelDimension} from "./dimensions.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /** Marks the scene keys of the chart's lines (see `lineStates.ts`). */
 export const LINE_KEY = "pc-line-";
@@ -52,7 +53,7 @@ export function lineAriaLabel(
   return `${viz._drawLabel(row, i)}${values ? `: ${values}` : ""}.`;
 }
 
-export const parallelEmit: ChartEmit = ({viz, shapeData}) => {
+export const parallelEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const lines = (shapeData ?? []) as unknown as ParallelLine[];
   const axisNodes = (viz.ctx.axisNodes ?? []) as SceneNode[];
   if (!lines.length) return axisNodes;
@@ -95,4 +96,4 @@ export const parallelEmit: ChartEmit = ({viz, shapeData}) => {
     } as SceneNode);
   });
   return [...out, ...axisNodes];
-};
+});

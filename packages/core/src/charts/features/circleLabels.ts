@@ -16,6 +16,7 @@ import {fontFamily as defaultFontFamily, textWrap} from "@d3plus/text";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import constant from "../../utils/constant.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
+import {userLabelConfig} from "./emitHelpers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {coveredInside, placeCircleLabels} from "./circleLabelPlacement.js";
 import type {
@@ -106,7 +107,33 @@ export interface PointLabelSettings {
   text: Record<string, unknown>;
 }
 
-/** Reads `pointLabelConfig`: numbers for fontMin/fontSize/padding, the rest as TextBox config. */
+/**
+    The chart's own label font (`fontFamily()`, `shapeConfig.labelConfig`),
+    for labels beside circles. An accessor gets the circle's row, from a
+    label record (a beside label's TextBox) or the row itself (measuring).
+*/
+export function shapeLabelFont(viz: VizInstance): Record<string, unknown> {
+  const user = userLabelConfig(viz, "Circle");
+  const out: Record<string, unknown> = {};
+  for (const key of ["fontFamily", "fontWeight"]) {
+    const v = user[key];
+    if (v === undefined) continue;
+    out[key] =
+      typeof v === "function"
+        ? (d: DataPoint, i: number) => {
+            const label = (d?.data as {datum?: DataPoint} | undefined)?.datum;
+            return (v as (d: DataPoint, i: number) => unknown)(label ?? d, i);
+          }
+        : v;
+  }
+  return out;
+}
+
+/**
+    Reads `pointLabelConfig`: numbers for fontMin/fontSize/padding, the rest
+    as TextBox config, over the chart's own label font (see
+    `shapeLabelFont`).
+*/
 export function pointLabelSettings(viz: VizInstance): PointLabelSettings {
   const cfg = (viz.schema.pointLabelConfig ?? {}) as Record<string, unknown>;
   const num = (v: unknown, fallback: number): number =>
@@ -116,7 +143,7 @@ export function pointLabelSettings(viz: VizInstance): PointLabelSettings {
     fontMin: num(fontMin, 10),
     fontSize: num(fontSize, 11),
     padding: num(padding, 3),
-    text,
+    text: {...shapeLabelFont(viz), ...text},
   };
 }
 
@@ -201,6 +228,7 @@ export function layoutCircleLabels<K>(
     circles,
     labeled.flatMap(({at}, j) => (fits[j].fitsInside ? [at] : [])),
     items.map((item, at) => item.order ?? at),
+    items.map(item => parseSides(item.inside?.padding ?? 0)),
   );
   const requests = labeled.map(({item, at, text}, j) => {
     const {mode, fitsInside} = fits[j];

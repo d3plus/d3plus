@@ -58,6 +58,7 @@ import type {CircleNetwork} from "./circleLayout.js";
 import {pointLabelSettings} from "../features/circleLabels.js";
 import {emitSpokeLabels} from "../features/spokeLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface NetworkLink {
   source: DataPoint & {x: number; y: number};
@@ -451,7 +452,7 @@ function circleNodeLabels(
   });
 }
 
-export const networkEmit: ChartEmit = ({viz}) => {
+export const networkEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.networkCtx as NetworkCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];
@@ -512,4 +513,4 @@ export const networkEmit: ChartEmit = ({viz}) => {
   }
 
   return out;
-};
+});

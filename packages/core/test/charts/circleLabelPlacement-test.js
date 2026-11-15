@@ -417,7 +417,30 @@ describe("charts/circleLabelPlacement insideBox", () => {
   });
 });
 
+describe("charts/circleLabelPlacement insideBox inset", () => {
+  it("leaves out the label's padding", () => {
+    const pad = {top: 1, right: 2, bottom: 3, left: 4};
+    const box = insideBox({x: 10, y: 20, r: Math.SQRT2 * 10}, pad);
+    for (const [k, v] of Object.entries({x: 4, y: 11, width: 14, height: 16}))
+      assert.ok(Math.abs(box[k] - v) < 1e-9, `${k} ${box[k]}`);
+  });
+});
+
 describe("charts/circleLabelPlacement coveredInside", () => {
+  it("ignores a later circle that only reaches the label's padding", () => {
+    // It cuts the inscribed square's corner, but not the square less 5px.
+    const circles = [
+      {x: 100, y: 100, r: 40},
+      {x: 100 + 52, y: 100 + 52, r: 40},
+    ];
+    const pad = {top: 5, right: 5, bottom: 5, left: 5};
+    assert.deepStrictEqual([...coveredInside(circles, [0])], [0]);
+    assert.deepStrictEqual(
+      [...coveredInside(circles, [0], undefined, [pad])],
+      [],
+    );
+  });
+
   const big = {x: 100, y: 100, r: 40};
   it("finds a circle painted later over the inside label's box", () => {
     const circles = [big, {x: 95, y: 100, r: 10}];

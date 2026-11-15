@@ -18,6 +18,7 @@ import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {WaffleCell} from "./applyLayout.js";
 import {waffleArcDecor} from "./arcEmit.js";
 import type {WaffleArc} from "./arcStage.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /** How each cell is drawn. */
 export type WaffleCellShape = "square" | "rounded" | "circle";
@@ -57,7 +58,7 @@ export function waffleCellShape(value: unknown): WaffleCellShape {
   return value === "rounded" || value === "circle" ? value : "square";
 }
 
-export const waffleEmit: ChartEmit = ({viz, shapeData}) => {
+export const waffleEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const cells = (shapeData ?? []) as unknown as WaffleCell[];
   if (!cells.length) return [];
 
@@ -115,4 +116,4 @@ export const waffleEmit: ChartEmit = ({viz, shapeData}) => {
 
   const arc = viz.ctx.waffleArc as WaffleArc | undefined;
   return [...nodes, ...images, ...(arc ? waffleArcDecor(viz, arc) : [])];
-};
+});
