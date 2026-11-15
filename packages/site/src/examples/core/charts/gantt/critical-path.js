@@ -1,5 +1,6 @@
-// The critical chain hands off on the same day, so it has no slack: Kickoff →
-// Requirements → Wireframes → Visual design → Front end → QA → Launch.
+// Each task runs through its end date, and the critical chain picks up the
+// next working day, so it has no slack: Kickoff → Requirements → Wireframes →
+// Visual design → Front end → QA → Launch.
 const schedule = [
   {
     task: "Kickoff",
@@ -10,21 +11,21 @@ const schedule = [
   {
     task: "Requirements",
     phase: "Discovery",
-    start: "2024-03-04",
+    start: "2024-03-05",
     end: "2024-03-13",
     dependencies: ["Kickoff"],
   },
   {
     task: "Content audit",
     phase: "Discovery",
-    start: "2024-03-04",
+    start: "2024-03-05",
     end: "2024-03-08",
     dependencies: ["Kickoff"],
   },
   {
     task: "Wireframes",
     phase: "Design",
-    start: "2024-03-13",
+    start: "2024-03-14",
     end: "2024-03-22",
     dependencies: ["Requirements"],
   },
@@ -38,35 +39,35 @@ const schedule = [
   {
     task: "Visual design",
     phase: "Design",
-    start: "2024-03-22",
+    start: "2024-03-25",
     end: "2024-04-05",
     dependencies: ["Wireframes"],
   },
   {
     task: "API",
     phase: "Build",
-    start: "2024-03-13",
+    start: "2024-03-14",
     end: "2024-04-03",
     dependencies: ["Requirements"],
   },
   {
     task: "Front end",
     phase: "Build",
-    start: "2024-04-05",
+    start: "2024-04-08",
     end: "2024-04-24",
     dependencies: ["Visual design", "API"],
   },
   {
     task: "Content entry",
     phase: "Build",
-    start: "2024-03-27",
+    start: "2024-03-28",
     end: "2024-04-10",
     dependencies: ["Copywriting"],
   },
   {
     task: "QA",
     phase: "Launch",
-    start: "2024-04-24",
+    start: "2024-04-25",
     end: "2024-05-03",
     dependencies: ["Front end", "Content entry"],
   },

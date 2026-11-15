@@ -9,7 +9,7 @@ const schedule = [
   {
     task: "Stakeholder interviews",
     phase: "Discovery",
-    start: "2024-03-04",
+    start: "2024-03-05",
     end: "2024-03-13",
     progress: 1,
     dependencies: ["Kickoff"],
@@ -17,7 +17,7 @@ const schedule = [
   {
     task: "Requirements",
     phase: "Discovery",
-    start: "2024-03-13",
+    start: "2024-03-14",
     end: "2024-03-22",
     progress: 1,
     dependencies: ["Stakeholder interviews"],
@@ -33,7 +33,7 @@ const schedule = [
   {
     task: "Wireframes",
     phase: "Design",
-    start: "2024-03-22",
+    start: "2024-03-25",
     end: "2024-04-05",
     progress: 0.8,
     dependencies: ["Sign-off"],
@@ -41,7 +41,7 @@ const schedule = [
   {
     task: "Visual design",
     phase: "Design",
-    start: "2024-04-05",
+    start: "2024-04-08",
     end: "2024-04-19",
     progress: 0.4,
     dependencies: ["Wireframes"],
@@ -57,7 +57,7 @@ const schedule = [
   {
     task: "API",
     phase: "Build",
-    start: "2024-03-22",
+    start: "2024-03-25",
     end: "2024-04-26",
     progress: 0.5,
     dependencies: ["Sign-off"],
@@ -65,7 +65,7 @@ const schedule = [
   {
     task: "Front end",
     phase: "Build",
-    start: "2024-04-26",
+    start: "2024-04-29",
     end: "2024-05-10",
     progress: 0.1,
     dependencies: ["Wireframes", "API"],
@@ -73,16 +73,16 @@ const schedule = [
   {
     task: "Testing",
     phase: "Launch",
-    start: "2024-05-10",
-    end: "2024-05-20",
+    start: "2024-05-13",
+    end: "2024-05-17",
     progress: 0,
     dependencies: ["Front end"],
   },
   {
     task: "Go live",
     phase: "Launch",
-    start: "2024-05-20",
-    end: "2024-05-20",
+    start: "2024-05-17",
+    end: "2024-05-17",
     dependencies: ["Testing"],
   },
 ];
