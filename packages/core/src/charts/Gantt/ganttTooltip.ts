@@ -25,6 +25,7 @@ import {
 import type {TimeValue} from "../Priestley/timeAxis.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {isMilestone, normalizeProgress} from "./ganttRows.js";
+import {taskSlack} from "./ganttSlack.js";
 
 type RowFn = ((d: DataPoint, i: number) => unknown) | false | undefined;
 
@@ -87,9 +88,24 @@ export function ganttDuration(
   const shown = rules.length
     ? visibleBetween(rules, +start, +end, isUtcAxis(viz))
     : span;
-  const days = Math.round((shown / DAY) * 10) / 10;
+  return daysLabel(viz, shown, rules.length > 0);
+}
+
+/**
+    A span of time in whole (or tenths of) days, translated ("3 days", or
+    "3 working days" when `working`); negative spans keep their sign.
+    @param viz The chart.
+    @param ms The span, in milliseconds.
+    @param working Whether the span counts only working days.
+*/
+export function daysLabel(
+  viz: VizInstance,
+  ms: number,
+  working: boolean,
+): string {
+  const days = Math.round((ms / DAY) * 10) / 10 || 0;
   const unit = viz.schema.translate(
-    `${rules.length ? "working " : ""}${days === 1 ? "day" : "days"}`,
+    `${working ? "working " : ""}${Math.abs(days) === 1 ? "day" : "days"}`,
   );
   return `${dayCount(days, viz.schema.locale)} ${unit}`;
 }
@@ -165,7 +181,8 @@ function formatFor(
 
 /**
     The tooltip rows for a task: Start, End, Duration, and Progress, or a
-    milestone's date and Progress, each label translated.
+    milestone's date and Progress, then its slack (see `slackRows`), each
+    label translated.
 */
 export function ganttTooltipRows(
   viz: VizInstance,
@@ -185,12 +202,38 @@ export function ganttTooltipRows(
       ];
   if (task.progress !== undefined)
     rows.push([t("Progress"), percent(task.progress)]);
+  return [...rows, ...slackRows(viz, d, format)];
+}
+
+/**
+    A task's Slack and, when it has any, its Latest start, while the chart
+    draws a critical path; else none. Slack counts working days when the
+    axis hides whole days (see `ganttDayBreaks`).
+    @param viz The chart.
+    @param d The task's data row.
+    @param format Formats a start or end.
+*/
+export function slackRows(
+  viz: VizInstance,
+  d: DataPoint,
+  format: (v: TimeValue) => string,
+): [string, string][] {
+  const info = taskSlack(viz, d);
+  if (!info) return [];
+  const t = (s: string) => viz.schema.translate(s);
+  const slack = isTimeAxis(viz)
+    ? daysLabel(viz, info.slack, ganttDayBreaks(viz).length > 0)
+    : formatAbbreviate(info.slack, viz.schema.locale);
+  const rows: [string, string][] = [[t("Slack"), slack]];
+  if (info.slack !== 0)
+    rows.push([t("Latest start"), format(info.latestStart)]);
   return rows;
 }
 
 /**
-    A task's aria label: its name and span (or a milestone's date), and its
-    progress, such as `"Design, Jan 8, 2024 - Jan 19, 2024, Progress 60%."`.
+    A task's aria label: its name and span (or a milestone's date), its
+    progress, and whether it's on the critical path, such as
+    `"Design, Jan 8, 2024 - Jan 19, 2024, Progress 60%, Critical path."`.
 */
 export function ganttAriaLabel(
   viz: VizInstance,
@@ -208,5 +251,8 @@ export function ganttAriaLabel(
     task.progress === undefined
       ? ""
       : `, ${viz.schema.translate("Progress")} ${percent(task.progress)}`;
-  return `${name}, ${when}${progress}.`;
+  const critical = taskSlack(viz, d)?.critical
+    ? `, ${viz.schema.translate("Critical path")}`
+    : "";
+  return `${name}, ${when}${progress}${critical}.`;
 }

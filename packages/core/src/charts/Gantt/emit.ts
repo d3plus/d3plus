@@ -1,7 +1,8 @@
 /**
     `ganttEmit` — the Gantt's scene: the group brackets and dependency
     arrows behind the tasks, each task's bar (split by its progress) or
-    milestone diamond, the label column, and the "today" line.
+    milestone diamond (muted off the critical path), the label column, the
+    critical path's key, and the "today" line.
 */
 
 import {interpolateRgb} from "d3-interpolate";
@@ -19,6 +20,8 @@ import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {GanttLayout, GanttMark} from "./applyLayout.js";
 import {
+  criticalKeyNodes,
+  criticalStyle,
   dependencyNodes,
   groupNodes,
   labelNodes,
@@ -45,11 +48,15 @@ export const milestoneRadius = (band: number): number =>
 
 type Paint = Record<string, unknown>;
 
-/** A task's paint from `shapeConfig[shape]`, and its plain color when it has one. */
+/**
+    A task's paint from `shapeConfig[shape]`, and its plain color when it has
+    one. A task off the critical path takes `muted` times its opacity.
+*/
 function taskPaint(
   viz: VizInstance,
   sc: Record<string, unknown>,
   m: GanttMark,
+  muted = 1,
 ): {paint: Paint; color: string | undefined} {
   const fill = resolveAccessor<unknown>(sc.fill, m.data, m.i);
   const paint: Paint = {
@@ -58,7 +65,8 @@ function taskPaint(
     strokeWidth: resolveAccessor<number>(sc.strokeWidth, m.data, m.i),
   };
   const opacity = resolveAccessor<number>(sc.opacity, m.data, m.i);
-  if (typeof opacity === "number") paint.opacity = opacity;
+  if (typeof opacity === "number" || muted < 1)
+    paint.opacity = (typeof opacity === "number" ? opacity : 1) * muted;
   const color =
     typeof paint.fill === "string" && !paint.fill.startsWith("pattern:")
       ? paint.fill
@@ -77,8 +85,9 @@ function barNodes(
   layout: GanttLayout,
   m: GanttMark,
   sc: Record<string, unknown>,
+  muted: number,
 ): SceneNode[] {
-  const {paint, color} = taskPaint(viz, sc, m);
+  const {paint, color} = taskPaint(viz, sc, m, muted);
   const width = Math.max(1, m.x1 - m.x0);
   const split = m.progress !== undefined && color !== undefined;
   const key = `gantt-task-${m.id}`;
@@ -134,8 +143,9 @@ function milestoneNode(
   layout: GanttLayout,
   m: GanttMark,
   sc: Record<string, unknown>,
+  muted: number,
 ): PathNode {
-  const {paint, color} = taskPaint(viz, sc, m);
+  const {paint, color} = taskPaint(viz, sc, m, muted);
   const r = milestoneRadius(layout.band);
   const pending = m.progress !== undefined && m.progress < 1 && !!color;
   return {
@@ -166,16 +176,22 @@ export const ganttEmit: ChartEmit = ({viz, shapeData}) => {
   const rectConfig = shapeConfigFor(v, "Rect");
   const pathConfig = shapeConfigFor(v, "Path");
   const r = milestoneRadius(layout.band);
+  const mutedOpacity = layout.critical ? criticalStyle(v).mutedOpacity : 1;
+  const muted = (m: GanttMark): number =>
+    layout.critical && !layout.critical.tasks.get(m.id)?.critical
+      ? mutedOpacity
+      : 1;
   const tasks = marks.flatMap(m =>
     m.milestone
-      ? [milestoneNode(v, layout, m, pathConfig)]
-      : barNodes(v, layout, m, rectConfig),
+      ? [milestoneNode(v, layout, m, pathConfig, muted(m))]
+      : barNodes(v, layout, m, rectConfig, muted(m)),
   );
   return [
     ...groupNodes(v, layout),
     ...dependencyNodes(v, layout, marks, r),
     ...tasks,
     ...labelNodes(layout, marks),
+    ...criticalKeyNodes(v, layout),
     ...todayNodes(v, layout),
   ];
 };

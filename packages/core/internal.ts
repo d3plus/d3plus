@@ -221,6 +221,34 @@ export {
   REMAINING_MIX,
 } from "./src/charts/Gantt/emit.js";
 export {
+  cpmLinks,
+  criticalPath,
+  findCycle,
+  topologicalOrder,
+} from "./src/charts/Gantt/criticalPath.js";
+export type {
+  CpmInput,
+  CpmLink,
+  CpmResult,
+  CpmTask,
+} from "./src/charts/Gantt/criticalPath.js";
+export {
+  criticalKeyLabel,
+  ganttCriticalPath,
+  KEY_GAP,
+  KEY_SAMPLE,
+  linkKey,
+  workClock,
+} from "./src/charts/Gantt/ganttCritical.js";
+export type {
+  GanttCritical,
+  WorkClock,
+} from "./src/charts/Gantt/ganttCritical.js";
+export {recordSlack, taskSlack} from "./src/charts/Gantt/ganttSlack.js";
+export type {TaskSlack} from "./src/charts/Gantt/ganttSlack.js";
+export {
+  criticalKeyNodes,
+  criticalStyle,
   dependencyNodes,
   dependencyStyle,
   groupNodes,
@@ -230,7 +258,10 @@ export {
   todayNodes,
   todayValue,
 } from "./src/charts/Gantt/ganttDecor.js";
-export type {DependencyStyle} from "./src/charts/Gantt/ganttDecor.js";
+export type {
+  CriticalStyle,
+  DependencyStyle,
+} from "./src/charts/Gantt/ganttDecor.js";
 export {
   bracketPath,
   diamondPath,
@@ -266,10 +297,12 @@ export type {
 } from "./src/charts/Gantt/ganttRows.js";
 export {
   dayCount,
+  daysLabel,
   ganttAriaLabel,
   ganttDuration,
   ganttTooltipRows,
   percent,
+  slackRows,
   taskTimes,
   timeFormatter,
 } from "./src/charts/Gantt/ganttTooltip.js";
