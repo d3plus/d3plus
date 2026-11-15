@@ -9,7 +9,9 @@ import {Geomap} from "../../index.ts";
 import {applyGeomapLayout} from "../../src/charts/Geomap/applyLayout.ts";
 import {
   CONTIGUOUS_ITERATIONS,
+  CONTIGUOUS_TOLERANCE,
   contiguousCartogram,
+  largestError,
 } from "../../src/charts/Geomap/cartogramContiguous.ts";
 import {
   cartogramKind,
@@ -164,5 +166,48 @@ it("a contiguous Geomap distorts every drawn state, with or without data, and la
   assert.strictEqual(
     again.ctx.geomapCtx.cartogram.get("04000US06").d,
     cartogram.get("04000US06").d,
+  );
+});
+
+it("contiguousCartogram runs 12 passes at most and stops once every region is within 1%", () => {
+  assert.strictEqual(CONTIGUOUS_ITERATIONS, 12);
+  assert.strictEqual(CONTIGUOUS_TOLERANCE, 0.01);
+  const regions = [
+    {rings: [left], value: 3},
+    {rings: [right], value: 1},
+  ];
+  // Already within a loose tolerance: no pass runs.
+  assert.deepStrictEqual(
+    contiguousCartogram(
+      [
+        {rings: [left], value: 1.05},
+        {rings: [right], value: 1},
+      ],
+      {tolerance: 0.1},
+    ),
+    [[left], [right]],
+  );
+  const share = out => area(out[0][0]) / (area(out[0][0]) + area(out[1][0]));
+  // A loose tolerance stops sooner than a strict one.
+  const loose = share(
+    contiguousCartogram(regions, {iterations: 40, tolerance: 0.2}),
+  );
+  const strict = share(
+    contiguousCartogram(regions, {iterations: 40, tolerance: 0.001}),
+  );
+  assert.ok(Math.abs(loose - 0.75) / 0.75 < 0.2);
+  assert.ok(Math.abs(strict - 0.75) < Math.abs(loose - 0.75));
+});
+
+it("largestError is the worst share error among the regions with a value", () => {
+  const shapes = [{area: 60}, {area: 30}, {area: 10}];
+  // Targets: 50% and 40%; the third has no value.
+  assert.ok(
+    Math.abs(largestError(shapes, [5, 4, 1], [true, true, false], 10) - 0.25) <
+      1e-9,
+  );
+  assert.strictEqual(
+    largestError(shapes, [6, 3, 1], [true, true, true], 10),
+    0,
   );
 });
