@@ -7,7 +7,7 @@
 */
 import type {DataPoint} from "@d3plus/data";
 
-import {rangeBreaksTimeAxis} from "./plotRangeBreaks.js";
+import {rangeBreaksTimeAxis, scaleTimeAxis} from "./plotRangeBreaks.js";
 import {barBaseline, drawsDiscreteShapes, plotSwarm} from "./plotShapes.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -31,8 +31,9 @@ export function hasCategoryValues(values: readonly unknown[]): boolean {
     Area, or Box (see `drawsDiscreteShapes`). Undefined when `discrete` is
     set, when `swarm` is on (a swarm lays out its own categories; `"auto"`
     swarms only a single axis of numbers, which has no text; see
-    `plotSwarm` for the shapes that turn it off), or when
-    neither axis has text and no row draws one of those.
+    `plotSwarm` for the shapes that turn it off), or when neither axis has
+    text (a time axis, one that plots `time` or reads dates through a time
+    scale or `rangeBreaks`, has none) and no row draws one of those.
     @param viz The Plot.
 */
 export function inferDiscrete(viz: VizInstance): "x" | "y" | undefined {
@@ -47,7 +48,11 @@ export function inferDiscrete(viz: VizInstance): "x" | "y" | undefined {
     if (typeof accessor !== "function") return [];
     const first = accessor(rows[0], 0);
     if (firstTime !== undefined && first === firstTime) return [];
-    if (rangeBreaksTimeAxis(viz, axis, first)) return [];
+    if (
+      rangeBreaksTimeAxis(viz, axis, first) ||
+      scaleTimeAxis(viz, axis, first)
+    )
+      return [];
     const values = rows.map(accessor);
     return hasCategoryValues(values)
       ? [{axis, distinct: new Set(values).size}]

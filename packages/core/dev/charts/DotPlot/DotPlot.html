@@ -1,0 +1,161 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>DotPlot</title>
+    <meta
+      name="description"
+      content="DotPlot variants: Wilkinson stacks along x, category rows, groups colored within one column, centered stacks, vertical rows, one dot per 5 units with unit, fixed bins, and small multiples."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Inter, sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 360px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Default (one dot per row, stacked up along x)</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>Category rows, a named dot per country (y: "region")</h3>
+        <div class="viz" id="rows"></div>
+      </div>
+      <div>
+        <h3>Groups colored within one column (groupBy: "region")</h3>
+        <div class="viz" id="groups"></div>
+      </div>
+      <div>
+        <h3>Centered stacks (stackDirection: "center")</h3>
+        <div class="viz" id="centered"></div>
+      </div>
+      <div>
+        <h3>Vertical rows (x: "region", y: value)</h3>
+        <div class="viz" id="vertical"></div>
+      </div>
+      <div>
+        <h3>One dot per 5 units (unit: 5, value: "count")</h3>
+        <div class="viz" id="unit"></div>
+      </div>
+      <div>
+        <h3>Fixed bins (binWidth: 2), centered</h3>
+        <div class="viz" id="binWidth"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "region")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Seeded rows so the page renders identically every load.
+    let seed = 7;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const normal = () =>
+      Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
+    const regions = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
+    const countries = Array.from({length: 120}, (_, i) => {
+      const income = Math.round(Math.exp(8.6 + 0.3 * (i % 5) + 0.8 * normal()));
+      return {
+        country: `Country ${i + 1}`,
+        region: regions[i % 5],
+        "Life Expectancy":
+          Math.round((48 + 3 * Math.log(income) + 2.5 * normal()) * 10) / 10,
+      };
+    });
+    const ages = Array.from({length: 18}, (_, i) => ({
+      age: i * 5,
+      group: i < 4 ? "Children" : i < 13 ? "Adults" : "Seniors",
+      count: Math.round(40 * Math.exp(-Math.pow((i - 7) / 5, 2)) + 3),
+    }));
+
+    new d3plus.DotPlot()
+      .select("#basic")
+      .data(countries)
+      .x("Life Expectancy")
+      .label(d => d.country)
+      .render();
+
+    new d3plus.DotPlot()
+      .select("#rows")
+      .data(countries)
+      .groupBy(["region", "country"])
+      .x("Life Expectancy")
+      .y("region")
+      .render();
+
+    new d3plus.DotPlot()
+      .select("#groups")
+      .data(countries)
+      .groupBy("region")
+      .x("Life Expectancy")
+      .render();
+
+    new d3plus.DotPlot()
+      .select("#centered")
+      .data(countries)
+      .groupBy("region")
+      .x("Life Expectancy")
+      .y("region")
+      .stackDirection("center")
+      .render();
+
+    new d3plus.DotPlot()
+      .select("#vertical")
+      .data(countries)
+      .groupBy("region")
+      .x("region")
+      .y("Life Expectancy")
+      .render();
+
+    new d3plus.DotPlot()
+      .select("#unit")
+      .data(ages)
+      .groupBy("group")
+      .x("age")
+      .value("count")
+      .unit(5)
+      .render();
+
+    new d3plus.DotPlot()
+      .select("#binWidth")
+      .data(countries)
+      .groupBy("region")
+      .x("Life Expectancy")
+      .binWidth(2)
+      .stackDirection("center")
+      .render();
+
+    new d3plus.DotPlot()
+      .select("#facet")
+      .data(countries)
+      .groupBy("region")
+      .facet("region")
+      .x("Life Expectancy")
+      .render();
+  </script>
+</html>

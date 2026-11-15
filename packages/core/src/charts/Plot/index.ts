@@ -63,6 +63,7 @@ import {displayName} from "../../utils/displayName.js";
 import {axisAccessorInput, levelAggs} from "./plotLevels.js";
 import {vizDiscrete} from "../viz/discrete.js";
 import {resolveDiscrete} from "./inferDiscrete.js";
+import {timeNestKeys} from "./timeNestKeys.js";
 
 /** A y-axis config patch with its `domain` array reversed (y scales run top-down). */
 function reverseDomain(patch: unknown): unknown {
@@ -104,6 +105,8 @@ export default class Plot extends Viz {
     // `discrete`, else an axis of text values, else x under bars, areas, or
     // boxes, is the discrete axis.
     resolveDiscrete(this as unknown as VizInstance);
+    // Rows at different times stay apart, wherever the discrete axis is.
+    this._nestKeys = timeNestKeys(this as unknown as VizInstance);
     // logic repeated for each axis
     ["x", "y", "x2", "y2"].forEach(k => {
       // if user has supplied a String key as the main method value
