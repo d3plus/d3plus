@@ -26,6 +26,7 @@ import {
   Histogram as HistogramClass,
   HorizonChart as HorizonChartClass,
   Icicle as IcicleClass,
+  KPI as KPIClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
   Marimekko as MarimekkoClass,
@@ -148,6 +149,8 @@ export const Histogram = createD3plusComponent(HistogramClass, "chart");
 export const HorizonChart = createD3plusComponent(HorizonChartClass, "chart");
 /** Vue component for rendering a d3plus Icicle visualization. */
 export const Icicle = createD3plusComponent(IcicleClass, "chart");
+/** Vue component for rendering a d3plus KPI visualization. */
+export const KPI = createD3plusComponent(KPIClass, "chart");
 /** Vue component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = createD3plusComponent(LinePlotClass, "chart");
 /** Vue component for rendering a d3plus Lollipop visualization. */
