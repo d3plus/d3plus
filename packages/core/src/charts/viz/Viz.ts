@@ -746,13 +746,15 @@ export default class Viz extends VizBase {
     if (!pick || !pick.node) return;
     // Scene nodes carry interaction metadata stamped by Viz.toScene.
     const nodeAny = pick.node as {interactionGroup?: string};
-    // Axis ticks/labels, the timeline, and Plot's trend lines are chrome —
-    // they carry data but are not chart shapes, so they must not fire shape
-    // tooltips/handlers (a trend line's own tooltip runs in `_sharedHover`).
+    // Axis ticks/labels, the timeline, and Plot's trend lines and marginal
+    // strips are chrome — they carry data but are not chart shapes, so they
+    // must not fire shape tooltips/handlers (their own tooltips run in
+    // `_sharedHover`).
     if (
       nodeAny.interactionGroup === "axis" ||
       nodeAny.interactionGroup === "timeline" ||
-      nodeAny.interactionGroup === "trend"
+      nodeAny.interactionGroup === "trend" ||
+      nodeAny.interactionGroup === "marginal"
     )
       return;
     // Prefer the node's stamped interaction group (set by Viz.toScene), so

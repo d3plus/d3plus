@@ -1,0 +1,229 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>RadialLine</title>
+    <meta
+      name="description"
+      content="RadialLine: series labels on by default (hiding the legend when every series is named, keeping it when one has no room, or turned off), monthly temperatures by city, hourly traffic on a 24-hour clock, an open counterclockwise smooth line without dots, compass bearings in degrees, small multiples with per-panel or shared value domains, and a dark background."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 420px;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      .pair {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+        gap: 16px;
+      }
+      #dark {
+        background: #212529;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <section>
+        <h3>
+          Monthly highs by city (categories): Sydney has no room for its label,
+          so the legend stays
+        </h3>
+        <div class="viz" id="months"></div>
+      </section>
+      <section>
+        <h3>
+          Hourly traffic (numbers) + xDomain([0, 24]) + xFormat (a 24-hour
+          clock): both lines named, so no legend
+        </h3>
+        <div class="viz" id="hours"></div>
+      </section>
+      <section>
+        <h3>
+          closed(false) + direction("counterclockwise") + startAngle(90) +
+          catmullRom curve + no dots
+        </h3>
+        <div class="viz" id="open"></div>
+      </section>
+      <section>
+        <h3>
+          Compass bearings in degrees + xDomain([0, 360]) + innerRadius(30)
+        </h3>
+        <div class="viz" id="compass"></div>
+      </section>
+      <section class="wide pair">
+        <div>
+          <h3>facet("city"): each panel fits its own values (default)</h3>
+          <div class="viz" id="facet"></div>
+        </div>
+        <div>
+          <h3>facet("city") + facetConfig({scales: "shared"})</h3>
+          <div class="viz" id="facetShared"></div>
+        </div>
+      </section>
+      <section>
+        <h3>
+          Dark background + levelLabelAngle(45) + yDomain([0, 40]) +
+          lineLabels(false)
+        </h3>
+        <div class="viz" id="dark"></div>
+      </section>
+    </div>
+
+    <script>
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      // Average daily highs (°C), rounded.
+      const highs = {
+        Oslo: [-1, 0, 4, 10, 16, 20, 22, 21, 16, 9, 4, 0],
+        Sydney: [26, 26, 25, 23, 20, 18, 17, 18, 20, 22, 24, 25],
+        Cairo: [19, 21, 24, 28, 32, 34, 35, 35, 33, 30, 25, 21],
+        "Buenos Aires": [30, 29, 26, 23, 19, 16, 15, 17, 19, 22, 25, 28],
+      };
+      const temperatures = Object.keys(highs).flatMap(city =>
+        months.map((month, m) => ({city, month, high: highs[city][m]})),
+      );
+
+      new d3plus.RadialLine()
+        .select("#months")
+        .data(temperatures)
+        .groupBy("city")
+        .x("month")
+        .y("high")
+        .render();
+
+      const traffic = ["Weekday", "Weekend"].flatMap(day =>
+        Array.from({length: 24}, (_v, hour) => ({
+          day,
+          hour,
+          cars: Math.round(
+            day === "Weekday"
+              ? 120 +
+                  900 * Math.exp(-((hour - 8) ** 2) / 3) +
+                  800 * Math.exp(-((hour - 17.5) ** 2) / 4)
+              : 100 + 500 * Math.exp(-((hour - 14) ** 2) / 14),
+          ),
+        })),
+      );
+
+      new d3plus.RadialLine()
+        .select("#hours")
+        .data(traffic)
+        .groupBy("day")
+        .x("hour")
+        .y("cars")
+        .xDomain([0, 24])
+        .xFormat(h => `${String(h).padStart(2, "0")}:00`)
+        .render();
+
+      new d3plus.RadialLine()
+        .select("#open")
+        .data(temperatures.filter(d => d.city !== "Cairo"))
+        .groupBy("city")
+        .x("month")
+        .y("high")
+        .closed(false)
+        .direction("counterclockwise")
+        .startAngle(90)
+        .shapeConfig({Line: {curve: "catmullRom"}, Circle: {r: 0}})
+        .render();
+
+      const bearings = ["Spring", "Autumn"].flatMap((season, s) =>
+        Array.from({length: 12}, (_v, k) => ({
+          season,
+          bearing: k * 30,
+          hours: Math.round(
+            20 + 60 * Math.exp(-((k - (s ? 8 : 3)) ** 2) / (s ? 3 : 5)),
+          ),
+        })),
+      );
+
+      new d3plus.RadialLine()
+        .select("#compass")
+        .data(bearings)
+        .groupBy("season")
+        .x("bearing")
+        .y("hours")
+        .xDomain([0, 360])
+        .xFormat(d => `${d}°`)
+        .innerRadius(30)
+        .render();
+
+      const cities = ["Lisbon", "Denver", "Osaka"];
+      const visits = cities.flatMap((city, c) =>
+        ["Mobile", "Desktop"].flatMap((device, v) =>
+          Array.from({length: 24}, (_x, hour) => ({
+            city,
+            device,
+            hour,
+            visits: Math.round(
+              (c + 1) *
+                (v ? 60 : 40) *
+                (1 + Math.sin(((hour - 6 - c * 2) / 24) * Math.PI * 2)),
+            ),
+          })),
+        ),
+      );
+
+      [
+        ["#facet", {}],
+        ["#facetShared", {scales: "shared"}],
+      ].forEach(([select, facetConfig]) =>
+        new d3plus.RadialLine()
+          .select(select)
+          .data(visits)
+          .groupBy("device")
+          .x("hour")
+          .y("visits")
+          .xDomain([0, 24])
+          .facet("city")
+          .facetConfig(facetConfig)
+          .render(),
+      );
+
+      new d3plus.RadialLine()
+        .select("#dark")
+        .data(temperatures)
+        .groupBy("city")
+        .x("month")
+        .y("high")
+        .levelLabelAngle(45)
+        .yDomain([0, 40])
+        .lineLabels(false)
+        .render();
+    </script>
+  </body>
+</html>

@@ -35,8 +35,9 @@ export type YAxisMeasure = {
 type FinalYAxes = YAxisMeasure & {xOffsetLeft: number; xOffsetRight: number};
 
 /**
-    The room the plot leaves on its right for the y2 axis and for the x/x2
-    axes' last labels, once those axes start at `xOffsetLeft`. The x and x2
+    The room the plot leaves on its right for the y2 axis (and any
+    `insetRight` a chart reserves beyond it) and for the x/x2 axes' last
+    labels, once those axes start at `xOffsetLeft`. The x and x2
     test axes are re-measured from there: where an axis starts decides its
     ticks, and so which label is last and how far it reaches past the
     range's end.
@@ -49,17 +50,19 @@ export function xRightInset(
     x2Exists: boolean;
     xRangeMax: number | undefined;
     width: number;
+    insetRight?: number;
   },
   xOffsetLeft: number,
   y2Width: number | undefined,
 ): number {
-  const {xTest, x2Test, showX, x2Exists, width} = axes;
+  const {xTest, x2Test, showX, x2Exists, width, insetRight = 0} = axes;
   const xRangeMax = axes.xRangeMax || undefined;
   if (showX) xTest.range([xOffsetLeft, xRangeMax]).measure();
   if (x2Exists) x2Test.range([xOffsetLeft, xRangeMax]).measure();
   const xEnd = (xTest._getRange() as number[])[1];
   const x2End = (x2Test._getRange() as number[])[1];
-  return max([0, y2Width, width - xEnd, width - x2End] as number[])!;
+  const beside = insetRight ? (y2Width ?? 0) + insetRight : y2Width;
+  return max([0, beside, width - xEnd, width - x2End] as number[])!;
 }
 
 /**
@@ -124,7 +127,11 @@ function solveFinalYAxes(
   const y2Width = y2Bounds.width
     ? y2Bounds.width + y2Test.padding()
     : undefined;
-  xOffsetRight = xRightInset(pCtx, xOffsetLeft, y2Width);
+  xOffsetRight = xRightInset(
+    {...pCtx, insetRight: viz._plotMarginals?.right},
+    xOffsetLeft,
+    y2Width,
+  );
 
   return {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight};
 }
