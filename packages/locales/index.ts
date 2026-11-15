@@ -5,6 +5,7 @@ export {default as locale} from "./src/dictionaries/timeLocale.js";
 
 export {default as findLocale} from "./src/findLocale.js";
 export {default as findWeekStart} from "./src/findWeekStart.js";
+export {default as findWeekend} from "./src/findWeekend.js";
 export {default as fillPlaceholders} from "./src/fillPlaceholders.js";
 
 export type {TranslationStrings} from "./src/dictionaries/translateLocale.js";

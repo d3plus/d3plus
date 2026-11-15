@@ -24,6 +24,7 @@ export interface TranslationStrings {
   Comparison: string;
   Connections: string;
   Count: string;
+  "Critical path": string;
   "Cumulative Count": string;
   "Cumulative Relative Frequency": string;
   "Cumulative Share": string;
@@ -56,6 +57,7 @@ export interface TranslationStrings {
   "interactive chart": string;
   "JPG image": string;
   "Lasso Select": string;
+  "Latest start": string;
   Linear: string;
   "Loading Visualization": string;
   Logarithmic: string;
@@ -113,6 +115,7 @@ export interface TranslationStrings {
   "Shift+Click to Highlight": string;
   "Shift+Enter to Hide": string;
   "Shift+Enter to Highlight": string;
+  Slack: string;
   Start: string;
   "SVG vector": string;
   Target: string;
@@ -189,6 +192,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
     Connections: "\u0627\u0644\u0627\u062a\u0635\u0627\u0644\u0627\u062a",
     Count: "\u0627\u0644\u0639\u062f\u062f",
+    "Critical path":
+      "\u0627\u0644\u0645\u0633\u0627\u0631 \u0627\u0644\u062d\u0631\u062c",
     "Cumulative Count":
       "\u0627\u0644\u0639\u062f\u062f \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     "Cumulative Relative Frequency":
@@ -230,6 +235,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0645\u062e\u0637\u0637 \u062a\u0641\u0627\u0639\u0644\u064a",
     "JPG image": "\u0635\u0648\u0631\u0629 JPG",
     "Lasso Select": "\u062a\u062d\u062f\u064a\u062f \u062d\u0631",
+    "Latest start":
+      "\u0622\u062e\u0631 \u0645\u0648\u0639\u062f \u0644\u0644\u0628\u062f\u0621",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
@@ -311,6 +318,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift+Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Enter to Highlight":
       "Shift+Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
+    Slack:
+      "\u0627\u0644\u0648\u0642\u062a \u0627\u0644\u0641\u0627\u0626\u0636",
     Start: "\u0627\u0644\u0628\u062f\u0627\u064a\u0629",
     "SVG vector": "\u0631\u0633\u0645 \u0645\u062a\u062c\u0647 SVG",
     Target: "\u0627\u0644\u0647\u062f\u0641",
@@ -375,6 +384,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Comparison: "Comparaci\u00f3n",
     Connections: "Conexiones",
     Count: "Recuento",
+    "Critical path": "Ruta cr\u00edtica",
     "Cumulative Count": "Recuento Acumulado",
     "Cumulative Relative Frequency": "Frecuencia Relativa Acumulada",
     "Cumulative Share": "Porcentaje Acumulado",
@@ -408,6 +418,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart": "gr\u00e1fico interactivo",
     "JPG image": "Imagen JPG",
     "Lasso Select": "Selecci\u00f3n de Lazo",
+    "Latest start": "Inicio m\u00e1s tard\u00edo",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
@@ -465,6 +476,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
     "Shift+Enter to Hide": "May\u00fas+Enter para Ocultar",
     "Shift+Enter to Highlight": "May\u00fas+Enter para Resaltar",
+    Slack: "Holgura",
     Start: "Inicio",
     "SVG vector": "Vector SVG",
     Target: "Objetivo",
@@ -525,6 +537,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Comparison: "Compara\u00e7\u00e3o",
     Connections: "Conex\u00f5es",
     Count: "Contagem",
+    "Critical path": "Caminho cr\u00edtico",
     "Cumulative Count": "Contagem Acumulada",
     "Cumulative Relative Frequency": "Frequ\u00eancia Relativa Acumulada",
     "Cumulative Share": "Porcentagem Acumulada",
@@ -558,6 +571,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart": "gr\u00e1fico interativo",
     "JPG image": "Imagem JPG",
     "Lasso Select": "Sele\u00e7\u00e3o de La\u00e7o",
+    "Latest start": "In\u00edcio mais tardio",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
@@ -615,6 +629,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
     "Shift+Enter to Hide": "Shift+Enter para Ocultar",
     "Shift+Enter to Highlight": "Shift+Enter para Destacar",
+    Slack: "Folga",
     Start: "In\u00edcio",
     "SVG vector": "Vetor SVG",
     Target: "Meta",
@@ -677,6 +692,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Comparison: "\u5bf9\u6bd4",
     Connections: "\u8fde\u63a5\u6570",
     Count: "\u8ba1\u6570",
+    "Critical path": "\u5173\u952e\u8def\u5f84",
     "Cumulative Count": "\u7d2f\u8ba1\u8ba1\u6570",
     "Cumulative Relative Frequency": "\u7d2f\u8ba1\u76f8\u5bf9\u9891\u7387",
     "Cumulative Share": "\u7d2f\u8ba1\u5360\u6bd4",
@@ -711,6 +727,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
     "JPG image": "JPG \u56fe\u7247",
     "Lasso Select": "\u5957\u7d22\u9009\u62e9",
+    "Latest start": "\u6700\u665a\u5f00\u59cb",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",
@@ -768,6 +785,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     "Shift+Enter to Hide": "Shift+Enter \u9690\u85cf",
     "Shift+Enter to Highlight": "Shift+Enter \u7a81\u51fa\u663e\u793a",
+    Slack: "\u6d6e\u52a8\u65f6\u95f4",
     Start: "\u5f00\u59cb",
     "SVG vector": "SVG \u77e2\u91cf\u56fe",
     Target: "\u76ee\u6807",

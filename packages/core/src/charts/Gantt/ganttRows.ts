@@ -25,6 +25,8 @@ export interface GanttTask {
   dependencies: string[];
   /** The task's group, or undefined when it has none. */
   group: string | undefined;
+  /** Whether the task is a milestone on a whole day (see `taskTimes`). */
+  wholeDay?: boolean;
 }
 
 /** A group's header row: its label and the span of its tasks. */
