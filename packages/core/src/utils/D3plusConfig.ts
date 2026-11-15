@@ -2542,7 +2542,12 @@ export interface D3plusConfig {
       in `"auto"` mode). Defaults to the default basemap's own water colors.
   */
   ocean?: string | {light: string; dark: string};
-  /** Event listeners keyed by event name. */
+  /**
+      Event listeners keyed by event name. Besides pointer events (`click`,
+      `mousemove`, … scoped as `click.shape` or `click.legend`), a chart
+      fires `select` with the rows a box or lasso selection holds (see
+      `selectMode`), and with no rows when it is cleared.
+  */
   on?: Record<string, (event: Event) => void>;
   /** Candlestick: accessor or data key for each period's opening value (default `"open"`). */
   open?: string | ((d: DataPoint, i: number) => number);
@@ -2777,6 +2782,35 @@ export interface D3plusConfig {
       An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
   */
   searchControlStyleHover?: Record<string, unknown> | false;
+  /**
+      The box and lasso selection tool a chart starts with: `"box"` or
+      `"lasso"`, or `false` (the default) to start out panning. Whatever it
+      starts with, the zoom controls' Box Select and Lasso Select buttons
+      switch between the tools, or back to panning when the one on is
+      pressed again (the brush-zoom button turns selection off too), and
+      changing `selectMode` later resets the tool.
+
+      While a tool is on, a drag over the chart draws a box (or a freehand
+      lasso) instead of panning, and releasing it selects the marks inside,
+      which stay lit while the rest dim (as `activeOpacity` dims them), the
+      legend included. A bar or other rectangle is inside when any part of
+      it is, every other mark (a point, a point of a line or area) when its
+      center is, and a line or area stays lit while any of its points is
+      selected. Shift + drag adds to the selection, a click on a mark selects
+      it (Shift + click toggles it, and the chart's own click action, such as
+      drilling down, waits until no select tool is on), and Escape or a
+      click on no mark clears it. With small multiples, a drag selects
+      within the panel it starts in. A wheel or pinch still zooms. Each
+      selection fires the chart's `select` event with the selected rows
+      (`viz.on("select", rows => …)`), and `selection` reads or sets the
+      selection from code.
+  */
+  selectMode?: "box" | "lasso" | false;
+  /**
+      SVG attributes for the box or lasso a selection drag draws, such as
+      `fill`, `fill-opacity`, `stroke`, and `stroke-dasharray`.
+  */
+  selectStyle?: Record<string, string | number>;
   /**
       Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
   */
@@ -3276,29 +3310,37 @@ export interface D3plusConfig {
   */
   zoomBrushSelectionStyle?: Record<string, unknown> | false;
   /**
-      An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+      An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` / `select-box` / `select-lasso` / `zoom-more` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
   */
   zoomControlClassName?: string;
   /**
-      Whether the zoom-control buttons (zoom in, zoom out, reset, and brush)
-      show in the chart's top-right corner. `false` hides them and gives the
-      room they take back to the chart's title, legend, and other top
-      content, while zooming stays on: the wheel, pinch, drag, and
-      double-click gestures still work, and the chart's `zoomIn`, `zoomOut`,
-      `zoomReset`, and `zoomBrush` methods let buttons of your own drive it.
+      Whether the zoom-control buttons (zoom in, zoom out, reset, brush, and
+      the box and lasso select tools, see `selectMode`) show in the chart's
+      top-right corner; on a chart too narrow for all of them beside the
+      top-left controls, the ones that don't fit move into a "More Controls"
+      menu. `false` hides them and gives the room they take back
+      to the chart's title, legend, and other top content, while zooming
+      stays on: the wheel, pinch, drag, and double-click gestures still work,
+      and the chart's `zoomIn`, `zoomOut`, `zoomReset`, and `zoomBrush`
+      methods let buttons of your own drive it.
       Defaults to `true`.
   */
   zoomControls?: boolean;
   /**
       Overrides the zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`,
-      `zoomBrush`). Each value is an HTML string, or a mount function
+      `zoomBrush`, `selectBox`, `selectLasso`). Each value is an HTML string, or a mount function
       `(el) => void | (() => void)` called with the button's 12×12px icon slot
       (for a React tree, an `<img>`, …); a returned cleanup runs when the
       buttons redraw.
   */
   zoomControlIcons?: Partial<
     Record<
-      "zoomIn" | "zoomOut" | "zoomReset" | "zoomBrush",
+      | "zoomIn"
+      | "zoomOut"
+      | "zoomReset"
+      | "zoomBrush"
+      | "selectBox"
+      | "selectLasso",
       string | ((el: HTMLElement) => void | (() => void))
     >
   >;

@@ -140,7 +140,7 @@ function hideBox(viz: Viz): void {
 }
 
 /** Swallows the click a drag ends with, so it reaches no shape. */
-function suppressClick(view: Window): void {
+export function suppressClick(view: Window): void {
   const win = select(view);
   win.on(
     `click.${NS}`,
@@ -162,6 +162,8 @@ function suppressClick(view: Window): void {
     left alone, so it clicks as usual. Escape cancels a box mid-drag.
 */
 function pressed(viz: Viz, event: MouseEvent): void {
+  // A select tool takes the drag (see `selectGesture.ts`).
+  if (viz._selectTool) return;
   const surface = event.currentTarget as Element;
   const area = zoomArea(viz);
   const start = pointer(event, surface) as Point;

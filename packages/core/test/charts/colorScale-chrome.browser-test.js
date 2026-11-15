@@ -259,7 +259,7 @@ for (const renderer of ["svg", "canvas"]) {
             return el?.closest("button") === b;
           }),
         );
-        assert.deepStrictEqual(hit, [true, true, true, true]);
+        assert.deepStrictEqual(hit, [true, true, true, true, true, true]);
       },
     ));
 

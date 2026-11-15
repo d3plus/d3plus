@@ -161,7 +161,7 @@ for (const renderer of ["svg", "canvas"])
     const [withButtons, without] = await drawVariants(
       {renderer, scale: scales.swatches},
       [{}, {controls: false}],
-      [600, 400],
+      [696, 400],
     );
     assert.ok(withButtons.labels.length > 0, "labeled");
     assert.deepStrictEqual(withButtons.labels, without.labels, "same labels");

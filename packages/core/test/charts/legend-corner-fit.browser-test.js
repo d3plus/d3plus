@@ -155,9 +155,9 @@ for (const renderer of ["svg", "canvas"]) {
 
   it(`${renderer}: a top legend too wide for the symmetric inset insets each side by its own corner`, async function () {
     for (const [width, css] of [
-      [350, ""],
-      [350, padded],
-      [400, inflated],
+      [398, ""],
+      [398, padded],
+      [448, inflated],
     ]) {
       const label = `${renderer} @ ${width}px${cssLabel[css] || ""}`;
       const out = await legendLayout(width, renderer, {css});

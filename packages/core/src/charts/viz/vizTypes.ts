@@ -34,6 +34,8 @@ import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {AxisHoverState} from "../Plot/axisHover.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
+import type {SelectTool} from "../drawSteps/selectRegion.js";
+import type {SelectSurfaceState} from "../drawSteps/selectGesture.js";
 import type {ZoomTransform} from "d3-zoom";
 import type {TabStopTest} from "./focusTargets.js";
 import type {KeyboardNavState} from "./keyboardNav.js";
@@ -371,6 +373,14 @@ export interface VizInstance {
   _userHover?: number;
   _userDuration?: number;
   _brushing?: boolean;
+  /** The standing box or lasso selection (see `selection`). */
+  _selection?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** The tool a drag selects with, or null while a drag pans (see `selectMode`). */
+  _selectTool?: SelectTool | null;
+  /** The `selectMode` the select tool was last reset from. */
+  _selectModeSeen?: SelectTool | false;
+  /** The surface box and lasso selection listen on (see `selectGesture.ts`). */
+  _selectSurface?: SelectSurfaceState;
   /** Whether the table-view toggle is currently showing the data table instead of the chart. */
   _tableView?: boolean;
   /** The data table's current page (0-indexed), when `tableViewPageSize` paginates it. */
@@ -761,6 +771,8 @@ export interface VizInstance {
   _drawSceneToTarget(durationOverride?: number): void;
   /** Whether a painted node is a point mark nearest-point hover resolves to (see `hoverDistance`). */
   _pointMark?(node: SceneNode): boolean;
+  /** Whether a box or lasso selection can pick a scene node (see `ChartDefinition.selectMark`). */
+  _selectMark?(node: SceneNode): boolean;
   /** Nearest-point hover's cached diagrams and resolved mark (see `nearestHover.ts`). */
   _nearestHover?: NearestHoverState;
   /** Routes a renderer pointer event (or a replayed one) to the chart's handlers. */
