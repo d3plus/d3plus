@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>WordCloud</title>
+    <meta
+      name="description"
+      content="Word clouds: font size by value, glyph-tight packing, colors and a legend by group, rotated words, a colorScale, the rectangular spiral, shrink-to-fit in a small chart, and small multiples."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 380px;
+      }
+      .small {
+        height: 200px;
+        width: 300px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Basic: a color per word, sized by value</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>Colored by group, with a legend</h3>
+        <div class="viz" id="grouped"></div>
+      </div>
+      <div>
+        <h3>rotate: [0, 90, -90]</h3>
+        <div class="viz" id="rotated"></div>
+      </div>
+      <div>
+        <h3>colorScale: "positive", rotate: (d, i) => degrees</h3>
+        <div class="viz" id="colorScale"></div>
+      </div>
+      <div>
+        <h3>spiral: "rectangular", fontScale: "log", fontWeight: 400</h3>
+        <div class="viz" id="rectangular"></div>
+      </div>
+      <div>
+        <h3>Shrink to fit: fontMax 120 in a 300 × 200 chart</h3>
+        <div class="viz small" id="shrink"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "group")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const words = {data: "./words.json", label: d => d.word, groupBy: "word"};
+
+    new d3plus.WordCloud().select("#basic").config(words).render();
+
+    new d3plus.WordCloud()
+      .select("#grouped")
+      .config(words)
+      .groupBy(["group", "word"])
+      .color("group")
+      .render();
+
+    new d3plus.WordCloud()
+      .select("#rotated")
+      .config(words)
+      .rotate([0, 90, -90])
+      .render();
+
+    new d3plus.WordCloud()
+      .select("#colorScale")
+      .config(words)
+      .colorScale("positive")
+      .colorScaleConfig({
+        axisConfig: {tickFormat: d => `${Math.round(d * 100)}%`},
+      })
+      .rotate(d => (d.positive < 0.4 ? -30 : 0))
+      .render();
+
+    new d3plus.WordCloud()
+      .select("#rectangular")
+      .config(words)
+      .spiral("rectangular")
+      .fontScale("log")
+      .fontWeight(400)
+      .render();
+
+    new d3plus.WordCloud()
+      .select("#shrink")
+      .config(words)
+      .data("./words.json", rows => rows.slice(0, 30))
+      .fontMax(120)
+      .render();
+
+    new d3plus.WordCloud()
+      .select("#facet")
+      .config(words)
+      .facet("group")
+      .render();
+  </script>
+</html>
