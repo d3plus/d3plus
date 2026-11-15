@@ -9,11 +9,15 @@ import type {SceneNode} from "@d3plus/render";
 
 /** The label a pointer can show an axis tooltip for. */
 export interface AxisTooltipTarget {
-  /** Which part of the axis the label is. */
-  part: "title" | "tick";
-  /** The tick's value, or the title. */
+  /** Which part of the axis the label is: an outer `level` label (see `levels`) too. */
+  part: "title" | "tick" | "level";
+  /** The tick's value, an outer label's level value, or the title. */
   value: unknown;
-  /** The tick's index among the axis's labels, from the start of its domain (0 for a title). */
+  /**
+      The tick's index among the axis's labels, from the start of its
+      domain; an outer label's level, counted from the outermost (0 for a
+      title).
+  */
   index: number;
   /** The label's whole text. */
   text: string;
@@ -146,6 +150,42 @@ export function stampTickTooltips(
     const target = targets.get(node.datum);
     if (target && canShow(option, target.truncated))
       (node as Stamped).axisTooltip = target;
+  }
+}
+
+/** An outer level label's record (see `levelNodes`). */
+interface LevelRecord {
+  text?: unknown;
+  value?: unknown;
+  level?: unknown;
+}
+
+/**
+    Stamps an axis's outer level label nodes (see `levels`) that are drawn
+    cut short with their tooltip target, which shows the label's whole
+    text. None are stamped when the axis's `tickTooltip` is `false`.
+    @param nodes The outer labels' scene nodes.
+    @param tickTooltip The axis's `tickTooltip`.
+*/
+export function stampLevelTooltips(
+  nodes: SceneNode[],
+  tickTooltip: unknown,
+): void {
+  if (tickTooltip === false) return;
+  for (const node of flatten(nodes)) {
+    const record = node.datum as LevelRecord | undefined;
+    if (node.type !== "text" || !record || typeof record.level !== "number")
+      continue;
+    const text = `${record.text}`;
+    if (!labelCut(node, text)) continue;
+    (node as Stamped).axisTooltip = {
+      part: "level",
+      value: record.value,
+      index: record.level,
+      text,
+      truncated: true,
+      option: undefined,
+    };
   }
 }
 

@@ -54,6 +54,7 @@ type Setter = ((v: unknown) => unknown) & {[RESOLVES_RESET]?: boolean};
 
 /** Public methods that are not config accessors, left out of `getAllMethods`. */
 const REFLECT_SKIP = new Set([
+  "append",
   "config",
   "constructor",
   "destroy",
@@ -90,8 +91,9 @@ function getAllMethods(obj: object): string[] {
       // axis-layout pass; `destroy` tears down the scene renderer (which defeats
       // keyed reconcile and forces a full remount on the next draw);
       // `toSVGString` serializes the drawn chart (through a throwaway SVG
-      // backend on Canvas), `layout` recomputes a SizeLegend's layout, and
-      // the zoom methods zoom a rendered chart.
+      // backend on Canvas), `layout` recomputes a SizeLegend's layout,
+      // `append` adds rows and redraws, and the zoom methods zoom a rendered
+      // chart.
       !REFLECT_SKIP.has(e),
   );
 }

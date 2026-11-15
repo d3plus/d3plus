@@ -5,7 +5,7 @@ import {openPage} from "~test/browser/page.js";
 /**
     Hovering one series of a Plot line or area chart on a discrete x axis
     keeps the x tick labels of that series' points lit, in Chromium on both
-    backends. A Line or Area's own datum is its points' merged aggregate,
+    backends; the label under the hovered x value's badge counts as lit. A Line or Area's own datum is its points' merged aggregate,
     whose numeric x values sum, so the labels follow its points instead.
 */
 
@@ -57,13 +57,25 @@ const hover = async (Chart, config, at, renderer) => {
     await page.mouse.move(point[0], point[1], {steps: 3});
     await page.waitForTimeout(150);
     const state = await page.evaluate(() => {
+      const root = window.__viz._paintedScene.root;
+      // The axis hover badges drawn, by key: a tick label a badge overlaps is
+      // hidden under it, naming that badge in `coveredBy`, and reads as lit.
+      const badges = new Set();
+      const findBadges = n => {
+        if (/plot-axis-hover-badge-\w+$/.test(String(n.key)))
+          badges.add(String(n.key));
+        (n.children || []).forEach(findBadges);
+      };
+      findBadges(root);
       const ticks = [];
       const walk = n => {
-        if (n.type === "text" && n.hoverMatch?.field === "x")
-          ticks.push([n.lines[0].text, n.paint?.opacity ?? 1]);
+        if (n.type === "text" && n.hoverMatch?.field === "x") {
+          const covered = n.coveredBy !== undefined && badges.has(n.coveredBy);
+          ticks.push([n.lines[0].text, covered ? 1 : (n.paint?.opacity ?? 1)]);
+        }
         (n.children || []).forEach(walk);
       };
-      walk(window.__viz._paintedScene.root);
+      walk(root);
       return {hovered: typeof window.__viz._hover === "function", ticks};
     });
     assert.deepStrictEqual(errors, []);

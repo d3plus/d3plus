@@ -380,10 +380,34 @@ export interface ArcGeometry {
   padAngle?: number;
 }
 
+/**
+    The keyed points a line or area path's `d` is drawn through, in the
+    path's own (transform-local) space. See `PathNode.series`.
+*/
+export interface PathSeries {
+  /** Each point's stable key (such as its x value), in drawing order. */
+  keys: (string | number)[];
+  /** The line's points, or an area's top edge. */
+  top: [number, number][];
+  /** An area's base edge, point for point with `top`; absent for a line. */
+  base?: [number, number][];
+  /** The curve the path is drawn with (see `curveFor`). */
+  curve?: CurveName;
+}
+
 /** Pre-serialized SVG path data (the Path shape, Geomap, d3-geo output). */
 export interface PathNode extends NodeBase {
   type: "path";
   d: string;
+  /**
+      The keyed points `d` is the line (or, with a `base`, the area) through.
+      When a path's previous and next draws both carry one, it tweens point
+      by point by key: a kept point slides to its new place, a new point
+      grows out of its nearest kept neighbor, and a dropped point folds into
+      its nearest kept neighbor, with `d` rebuilt from the points each
+      frame. Streaming data then slides along instead of morphing.
+  */
+  series?: PathSeries;
   /**
       What hover and active emphasis change on this path beyond the thicker,
       darker stroke every emphasized mark takes: the `d` it is drawn with

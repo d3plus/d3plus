@@ -38,6 +38,7 @@ import {
   wholeLineLabels,
 } from "./axisLayoutLabels.js";
 import {labelRoom} from "./axisLabelSize.js";
+import {layoutAxisLevels} from "./axisLevels.js";
 import {strictMaxSize} from "./axisMaxSize.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, labelSets, setAxisScale} from "./axisLayoutScale.js";
@@ -123,11 +124,14 @@ export function layoutAxis(axis: Axis): AxisLayoutResult {
       newRange,
     ));
   axis._labelSet = 0;
+  axis._levelLayout = undefined;
   rescale();
 
   const titleRange = applyTitleMargin(axis, {range, p, height, margin});
 
   const {hBuff, wBuff} = computeBuffers(axis, ticks, tickGet, height);
+  // Outer level rows take room the labels can't (see `labelRoom`).
+  axis._levelLayout = layoutAxisLevels(axis, labels, hBuff);
 
   // Labels at given values naming things (one per variable-width bar, or a
   // bucketed color scale's) wrap within their own share of the axis: along
@@ -177,6 +181,7 @@ export function layoutAxis(axis: Axis): AxisLayoutResult {
   // The title is drawn across the final range, which the label passes can
   // have changed.
   applyTitleMargin(axis, {range, p, height, margin, measured: titleRange});
+  axis._levelLayout = layoutAxisLevels(axis, labels, hBuff);
 
   const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
 

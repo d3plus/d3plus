@@ -1,10 +1,13 @@
 import {
   area as d3area,
   curveBasis,
+  curveBumpX,
+  curveBumpY,
   curveCardinal,
   curveCatmullRom,
   curveLinear,
   curveMonotoneX,
+  curveMonotoneY,
   curveNatural,
   curveStep,
   curveStepAfter,
@@ -20,10 +23,13 @@ import type {AreaNode, CurveName, LineNode} from "./scene.js";
 
 const CURVES: Record<string, CurveFactory> = {
   basis: curveBasis,
+  bumpX: curveBumpX,
+  bumpY: curveBumpY,
   cardinal: curveCardinal,
   catmullRom: curveCatmullRom as unknown as CurveFactory,
   linear: curveLinear,
   monotoneX: curveMonotoneX,
+  monotoneY: curveMonotoneY,
   natural: curveNatural,
   step: curveStep,
   stepAfter: curveStepAfter,
@@ -37,6 +43,14 @@ const CURVES: Record<string, CurveFactory> = {
 */
 export function curveFor(name?: CurveName): CurveFactory {
   return (name && CURVES[name]) || curveLinear;
+}
+
+/**
+    Whether `curveFor` knows a curve name (an unknown one draws linear).
+    @param name The curve name.
+*/
+export function hasCurve(name?: CurveName): boolean {
+  return name === undefined || Object.hasOwn(CURVES, name);
 }
 
 /**
