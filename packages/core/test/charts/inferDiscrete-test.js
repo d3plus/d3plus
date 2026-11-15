@@ -11,6 +11,7 @@ import {
   Scatter,
 } from "../../index.ts";
 import {
+  drawsDiscreteShapes,
   hasCategoryValues,
   inferDiscrete,
   resolveDiscrete,
@@ -76,6 +77,50 @@ it("inferDiscrete — none when discrete is set, for a swarm, or on a time axis"
     inferDiscrete(new Scatter().data(rows).x("day").y("value").time("day")),
     undefined,
     "the time axis",
+  );
+});
+
+it("drawsDiscreteShapes — whether any row draws a Bar, Area, or Box", () => {
+  const plot = shape => new Plot().data(rows).shape(shape);
+  for (const shape of ["Bar", "Area", "Box"])
+    assert.strictEqual(drawsDiscreteShapes(plot(shape), rows), true, shape);
+  for (const shape of ["Circle", "Line", "Rect"])
+    assert.strictEqual(drawsDiscreteShapes(plot(shape), rows), false, shape);
+  assert.strictEqual(
+    drawsDiscreteShapes(
+      plot(d => (d.id === "b" ? "Bar" : "Line")),
+      rows,
+    ),
+    true,
+  );
+  assert.strictEqual(drawsDiscreteShapes(plot("Bar"), []), false, "no rows");
+});
+
+it("inferDiscrete — bars, areas, and boxes on two axes of numbers stand on x", () => {
+  const plot = () => new Plot().data(rows).x("value").y("value");
+  for (const shape of ["Bar", "Area", "Box"])
+    assert.strictEqual(inferDiscrete(plot().shape(shape)), "x", shape);
+  assert.strictEqual(
+    inferDiscrete(plot().shape(d => (d.id === "b" ? "Bar" : "Line"))),
+    "x",
+    "any row's bar",
+  );
+  assert.strictEqual(inferDiscrete(plot().shape("Circle")), undefined);
+  assert.strictEqual(
+    inferDiscrete(plot().shape("Bar").discrete("y")),
+    undefined,
+  );
+  // Text still picks the axis.
+  assert.strictEqual(
+    inferDiscrete(new Plot().data(rows).x("value").y("fruit").shape("Bar")),
+    "y",
+  );
+  assert.strictEqual(
+    inferDiscrete(
+      new Plot().data(rows).x("day").y("value").time("day").shape("Bar"),
+    ),
+    "x",
+    "bars on a time axis",
   );
 });
 
