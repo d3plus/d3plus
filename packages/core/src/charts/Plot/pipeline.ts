@@ -337,7 +337,12 @@ export const formatPlotData: TransformStage = ({viz}) => {
   );
   viz._formattedData = formattedData;
 
-  const swarm = (viz._swarm = resolveSwarm(viz.schema.swarm, axisData));
+  const discrete = viz.schema.discrete as "x" | "y" | undefined;
+  const swarm = (viz._swarm = resolveSwarm(
+    viz.schema.swarm,
+    axisData,
+    discrete === "x" || discrete === "y" ? discrete : undefined,
+  ));
   if (swarm) {
     applySwarmLanes(formattedData, swarm);
     if (axisData !== formattedData) applySwarmLanes(axisData, swarm);

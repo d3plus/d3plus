@@ -104,9 +104,10 @@ function plotBarLabels(
       : viz._drawLabel;
   const labels: string[] = [];
   const rows: Record<string, unknown>[] = [];
-  // A Box draws no label, so its rows never make a tick redundant.
+  // A Box draws no label, and a swarm's lane holds many circles, so their
+  // rows never make a tick redundant.
   for (const d of axisData) {
-    if (d.shape === "Box") continue;
+    if (d.shape === "Box" || (viz._swarm && d.shape === "Circle")) continue;
     const label = barLabelFunction(d.data, d.i);
     if (typeof label !== "number" && !label) continue;
     labels.push(String(label));

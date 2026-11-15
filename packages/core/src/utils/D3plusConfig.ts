@@ -1316,6 +1316,13 @@ export interface D3plusConfig {
   */
   binSize?: number;
   /**
+      Histogram and DotPlot: a uniform bin width, in data units. Histogram
+      places its edges at multiples of it (taking precedence over
+      `binThresholds`); DotPlot sweeps its stacks this wide, shrinking the
+      dots to fit (defaults to one dot's diameter).
+  */
+  binWidth?: number;
+  /**
       Hexbin: what each bin measures, which its color shows. `"count"`
       (default) is the number of observations in the bin; `{value, agg,
       label}` is the `"sum"` (default) or `"mean"` of `value` (a data key or
@@ -1883,6 +1890,11 @@ export interface D3plusConfig {
         fillOpacity?: number;
         max?: number;
       };
+  /**
+      DotPlot: a fixed dot radius, in pixels. Defaults to the largest dot (up
+      to 10 pixels) at which the tallest stack fits its row (or the chart).
+  */
+  dotRadius?: number;
   /** Candlestick: the color of periods that closed below their open, or an accessor of the row. Defaults to red. */
   downColor?: string | ((d: DataPoint, i: number) => string);
   /** Default duration of transitions, in milliseconds. */
@@ -2974,6 +2986,12 @@ export interface D3plusConfig {
   /** Whether to stack series. */
   stacked?: boolean;
   /**
+      DotPlot: where each stack's dots pile — `"up"` (default) from the
+      baseline of its row (or of the chart), or `"center"`, spread evenly on
+      both sides of the row's center.
+  */
+  stackDirection?: "up" | "center";
+  /**
       BarChart: centers a diverging stack on a neutral series, as a Likert
       chart does. Names the series by its id (matched against each row's
       `groupBy` ids) or with an accessor that is truthy for its rows. Each
@@ -3288,6 +3306,8 @@ export interface D3plusConfig {
       Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
   */
   totalPadding?: boolean | ((viz: VizBase) => boolean);
+  /** DotPlot: what one dot stands for, in units of `value`: each row draws `round(value / unit)` dots instead of one. */
+  unit?: number;
   /** Candlestick: the color of periods that closed at or above their open, or an accessor of the row. Defaults to green. */
   upColor?: string | ((d: DataPoint, i: number) => string);
   /** Value accessor for the visualization. */

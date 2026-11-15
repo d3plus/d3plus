@@ -536,7 +536,7 @@ export function drawFacets(viz: VizInstance): boolean {
   };
 
   const shared = facetScalesShared(config, hooks);
-  const {states, zoomShapes} = drawPanels(viz, {
+  const plan: FacetPlan = {
     config,
     hooks,
     panels,
@@ -545,7 +545,10 @@ export function drawFacets(viz: VizInstance): boolean {
     scales: undefined,
     padding,
     places: placed ? placed.placed.map(p => p.cell) : undefined,
-  });
+  };
+  let drawn = drawPanels(viz, plan);
+  if (hooks.redraw?.(viz)) drawn = drawPanels(viz, plan);
+  const {states, zoomShapes} = drawn;
 
   viz._filteredData = all;
   viz._margin = margin;

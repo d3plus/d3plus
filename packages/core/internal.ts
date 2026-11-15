@@ -716,6 +716,7 @@ export {
 } from "./src/charts/Plot/swarm.js";
 export type {
   SwarmConfig,
+  SwarmPaintInputs,
   SwarmPlacement,
   SwarmSetting,
   SwarmState,
@@ -1898,6 +1899,30 @@ export {
   rugTickSize,
 } from "./src/charts/DensityPlot/rug.js";
 export type {RugConfig} from "./src/charts/DensityPlot/rug.js";
+export {
+  dotPlotDef,
+  sourceRow as dotSourceRow,
+} from "./src/charts/DotPlot/index.js";
+export {
+  expandUnit,
+  fitDotDiameter,
+  groupOrder,
+  MAX_DOT_DIAMETER,
+  MIN_DOT_DIAMETER,
+  stackCenters,
+  stackOffsets,
+  tallestStack,
+  wilkinsonStacks,
+} from "./src/charts/DotPlot/dotLayout.js";
+export type {
+  DotFitOptions,
+  StackDirection,
+} from "./src/charts/DotPlot/dotLayout.js";
+export {
+  dotGap,
+  dotPlacements,
+  LANE_GAP,
+} from "./src/charts/DotPlot/placements.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {funnelDef} from "./src/charts/Funnel/index.js";
