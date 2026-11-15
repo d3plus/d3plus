@@ -23,6 +23,7 @@ import {hasTimeNear, timeDataInDomain, timeDataSpacing} from "./timeValues.js";
 import {minorTickCount} from "./axisMinorTicks.js";
 import {slantedLabelBox} from "./axisLabelAngle.js";
 import {labelLineHeight} from "./axisLabelLineHeight.js";
+import {tickLookups} from "./axisTickLookups.js";
 import {configureTitle} from "./axisTitle.js";
 import {axisLabelEllipsis} from "./axisDefaults.js";
 import type {AxisOrient} from "./axisLabelAngle.js";
@@ -289,8 +290,10 @@ export function buildTickData(
   const margin: Record<string, number> = axis._margin;
   const bounds = axis._outerBounds;
 
+  const lookup = tickLookups(ticks, labels, textData, axis._scaleData);
+
   const labelOnly = labels.filter(
-    (d: unknown, i: number) => textData[i].lines.length && !ticks.includes(d),
+    (d: unknown, i: number) => textData[i].lines.length && !lookup.isTick(d),
   );
 
   const rotated = textData.some((d: AxisTextDatum) => d.rotate);
@@ -298,7 +301,7 @@ export function buildTickData(
   let tickData: Record<string, unknown>[] = ticks
     .concat(labelOnly)
     .map((d: unknown) => {
-      const data = textData.find((td: AxisTextDatum) => td.d === d);
+      const data = lookup.text(d);
 
       const xPos = axis._getPosition(d);
       const space = data ? data.space : 0;
@@ -356,19 +359,19 @@ export function buildTickData(
         cut: !!data?.cut,
         lineHeight: data?.lineHeight,
         size:
-          labels.includes(d) ||
+          lookup.isLabel(d) ||
           (axis.schema.scale === "log" &&
             Math.log10(Math.abs(d as number)) % 1 === 0)
             ? size
-            : ticks.includes(d)
+            : lookup.isTick(d)
               ? Math.ceil(size / 2)
               : axis.schema.scale === "time"
                 ? hasTimeNear(axis._scaleData, +(d as number), 0)
-                : axis._scaleData.find((t: unknown) => +(t as number) === d)
+                : lookup.scaleValue(d)
                   ? Math.ceil(size / 4)
                   : 0,
-        text: !data?.truncated && labels.includes(d) ? tickFormat(d) : false,
-        tick: ticks.includes(d),
+        text: !data?.truncated && lookup.isLabel(d) ? tickFormat(d) : false,
+        tick: lookup.isTick(d),
         [x]:
           xPos +
           (axis.schema.scale === "band" ? axis._d3Scale!.bandwidth!() / 2 : 0),

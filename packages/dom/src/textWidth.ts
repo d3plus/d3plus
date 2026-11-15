@@ -70,16 +70,31 @@ export function decodeEntities(input: string): string {
 }
 
 /**
+ * Text the HTML parser can change besides dropping its leading whitespace: an
+ * entity or tag (`&`, `<`), a carriage return or NUL it rewrites or drops, or
+ * a surrogate it may replace.
+ */
+const PARSED_TEXT = /[&<\r\0\uD800-\uDFFF]/;
+
+/** One parser, reused for every label that needs it while its window lasts. */
+let parser: {make: typeof DOMParser; parser: DOMParser} | undefined;
+
+/**
  * Strips HTML and "un-escapes" escape characters. Uses `DOMParser` when present
  * (browser / jsdom) for full entity coverage, falling back to a DOM-free decode
- * so text measurement works in any headless environment.
+ * so text measurement works in any headless environment. Plain text skips the
+ * parser, which would only drop its leading whitespace.
+ * Exported for testing; not part of the package's public API.
  * @param {String} input
  */
-function htmlDecode(input: string): string {
+export function htmlDecode(input: string): string {
   if (input.replace(/\s+/g, "") === "") return input;
   const stripped = input.replace(/<[^>]+>/g, "");
   if (typeof DOMParser !== "undefined") {
-    const doc = new DOMParser().parseFromString(stripped, "text/html");
+    if (!PARSED_TEXT.test(stripped)) return stripped.replace(/^[\t\n\f ]+/, "");
+    if (parser?.make !== DOMParser)
+      parser = {make: DOMParser, parser: new DOMParser()};
+    const doc = parser.parser.parseFromString(stripped, "text/html");
     return doc.documentElement ? doc.documentElement.textContent! : input;
   }
   return decodeEntities(stripped);
@@ -101,6 +116,9 @@ function buildFont(styleObj: Record<string, string | number>): string {
   return `${style} ${variant} ${weight} ${size} ${family}`;
 }
 
+/** Each font-family list `cssFamilies` has read (up to a few hundred), as it reads it. */
+const familyCache = new Map<string, string>();
+
 /**
  * Quotes each family in a font-family list that a font string can't take bare
  * (one that isn't a run of CSS identifiers, such as `1nvalid?Face`): a canvas,
@@ -108,6 +126,20 @@ function buildFont(styleObj: Record<string, string | number>): string {
  * @param {String} families
  */
 function cssFamilies(families: string): string {
+  let out = familyCache.get(families);
+  if (out === undefined) {
+    out = quoteFamilies(families);
+    if (familyCache.size >= 500) familyCache.clear();
+    familyCache.set(families, out);
+  }
+  return out;
+}
+
+/**
+ * `cssFamilies` without its cache.
+ * @param {String} families
+ */
+function quoteFamilies(families: string): string {
   const names = families.match(/\s*"[^"]*"|\s*'[^']*'|[^,]+/g) || [];
   return names
     .map(name => name.trim())

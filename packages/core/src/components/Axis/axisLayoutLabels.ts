@@ -350,9 +350,9 @@ export function createTextData(
       horizontal,
       wholeLine
         ? (step: number, all: boolean) => {
-            const shown = textData.filter(
-              (_t: AxisTextDatum, i: number) => i % step === 0,
-            );
+            const shown: AxisTextDatum[] = [];
+            for (let i = 0; i < textData.length; i += step)
+              shown.push(textData[i]);
             show(shown, all ? textData : shown);
           }
         : undefined,
