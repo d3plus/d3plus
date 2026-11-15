@@ -16,10 +16,7 @@ import {
   applyLegendOpacity,
 } from "./interactionOpacity.js";
 import {chartAreaRect} from "../features/chartGeometry.js";
-import {
-  initInsetDefaults,
-  insetComponentScene,
-} from "../features/insetState.js";
+import {insetComponentScene} from "../features/insetState.js";
 import type {InsetKey, InsetRegion} from "../features/insetState.js";
 import {
   applyZoomPointerEvents,
@@ -82,7 +79,7 @@ export default class Viz extends VizBase {
   constructor() {
     super();
     initVizDefaults(this);
-    initInsetDefaults(this as unknown as VizInstance);
+    this._constructed(new.target, Viz);
   }
 
   /**

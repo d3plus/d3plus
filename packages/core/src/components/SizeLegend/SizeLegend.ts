@@ -115,6 +115,7 @@ export default class SizeLegend extends BaseClass {
       fontSize: 11,
       fontWeight: 600,
     };
+    this._constructed(new.target, SizeLegend);
   }
 
   /**

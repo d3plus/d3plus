@@ -17,7 +17,6 @@ import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
-import {resetArg} from "../../fluent.js";
 import {runPostDrawFeatures} from "../pipeline/runVizPipeline.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {drawChart} from "../facet/drawFacets.js";
@@ -102,7 +101,6 @@ function installRingsAccessors(viz: VizInstance): void {
       @type {number | function}
   */
   v.linkSize = function (this: VizInstance, _?: RingsAccessor) {
-    _ = resetArg(this, "linkSize", _) as RingsAccessor | undefined;
     return arguments.length
       ? ((this.schema.linkSize =
           typeof _ === "function" ? _ : constant(_ as never)),

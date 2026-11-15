@@ -14,6 +14,7 @@ import type {ResolvedTheme} from "./theme.js";
 import {
   mergeConfigBag,
   nestedReset,
+  reflectedMethods,
   resolvesReset,
   RESOLVES_RESET,
 } from "../fluent.js";
@@ -25,28 +26,9 @@ import {
   type ElementsSource,
 } from "./className.js";
 import {displayName} from "./displayName.js";
+import {notSetter, resetSetters} from "./resetSetters.js";
 
 type Setter = ((v: unknown) => unknown) & {[RESOLVES_RESET]?: boolean};
-
-/** Public methods that are not config accessors, left out of `getAllMethods`. */
-const REFLECT_SKIP = new Set([
-  "append",
-  "config",
-  "constructor",
-  "destroy",
-  "layout",
-  "measure",
-  "parent",
-  "render",
-  "renderMode",
-  "toCanvas",
-  "toSVGString",
-  "toScene",
-  "zoomBrush",
-  "zoomIn",
-  "zoomOut",
-  "zoomReset",
-]);
 
 /**
     finds all prototype methods of a class and it's parent classes
@@ -54,24 +36,17 @@ const REFLECT_SKIP = new Set([
     @private
 */
 function getAllMethods(obj: object): string[] {
+  const cached = reflectedMethods.get(obj);
+  if (cached) return cached;
+  const proto = obj;
   let props: string[] = [];
   do {
     props = props.concat(Object.getOwnPropertyNames(obj));
     obj = Object.getPrototypeOf(obj);
   } while (obj && obj !== Object.prototype);
-  return props.filter(
-    e =>
-      e.indexOf("_") !== 0 &&
-      // Side-effect/lifecycle methods excluded from config reflection: invoking
-      // them as no-arg getters would run real work. `measure` runs the full
-      // axis-layout pass; `destroy` tears down the scene renderer (which defeats
-      // keyed reconcile and forces a full remount on the next draw);
-      // `toSVGString` serializes the drawn chart (through a throwaway SVG
-      // backend on Canvas), `layout` recomputes a SizeLegend's layout,
-      // `append` adds rows and redraws, and the zoom methods zoom a rendered
-      // chart.
-      !REFLECT_SKIP.has(e),
-  );
+  const methods = [...new Set(props.filter(e => !notSetter(e)))];
+  reflectedMethods.set(proto, methods);
+  return methods;
 }
 
 /**
@@ -144,6 +119,20 @@ export default class BaseClass {
       return fillPlaceholders(text, args);
     };
     this._uuid = crypto.randomUUID();
+    resetSetters(Object.getPrototypeOf(this), notSetter);
+    this._constructed(new.target, BaseClass);
+  }
+
+  /**
+      Ends the constructor of `Cls`: when `Cls` is the class being
+      constructed, takes the snapshot of defaults `RESET` restores, now that
+      every constructor has set them and before any config.
+      @param target The constructor's `new.target`.
+      @param Cls The class whose constructor is ending.
+      @private
+  */
+  _constructed(target: unknown, Cls: unknown): void {
+    if (target === Cls) this._defaultConfig();
   }
 
   /**
@@ -160,8 +149,7 @@ export default class BaseClass {
           if (k in this) {
             const v = _![k];
             const setter = (this as unknown as Record<string, Setter>)[k];
-            if (v === RESET && k === "on") this.schema.on = defaults[k];
-            else if (setter[RESOLVES_RESET]) setter.call(this, v);
+            if (setter[RESOLVES_RESET]) setter.call(this, v);
             else if (v === RESET) setter.call(this, defaults[k]);
             else setter.call(this, nestedReset(v, defaults[k]));
           } else if (!isSharedConfig(_)) {
@@ -181,7 +169,9 @@ export default class BaseClass {
 
   /**
       The snapshot of every getter's value that `RESET` restores from, taken
-      the first time it is needed.
+      once the class being constructed has set its defaults (see
+      `_constructed`), or the first time it is needed for a class that
+      doesn't take it then.
       @private
   */
   _defaultConfig(): D3plusConfig {
@@ -302,6 +292,10 @@ new Plot
     | ((...args: unknown[]) => unknown)
     | undefined
     | this {
+    if (_ === RESET && arguments.length === 1) {
+      this.schema.on = {...(this._defaultConfig().on as object)};
+      return this;
+    }
     return arguments.length === 2
       ? ((this.schema.on[_ as string] = f!), this)
       : arguments.length
@@ -355,4 +349,4 @@ new Plot
   }
 }
 
-resolvesReset(BaseClass.prototype, "shapeConfig");
+resolvesReset(BaseClass.prototype, "on", "shapeConfig");

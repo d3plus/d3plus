@@ -47,9 +47,7 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
       applyDefinition(this as unknown as VizInstance, def);
       if (def.colorScaleTooltip === false)
         (this as unknown as VizInstance)._colorScaleTooltip = false;
-      // The most-derived chart class snapshots the defaults `RESET` restores
-      // once every definition has seeded its fields, before any user config.
-      if (new.target === Chart) this._defaultConfig();
+      this._constructed(new.target, Chart);
     }
 
     _draw(callback?: () => void) {

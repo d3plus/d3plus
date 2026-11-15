@@ -1,7 +1,7 @@
 import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
-import {isPlainObject, resetArg} from "../../fluent.js";
+import {isPlainObject} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 import {isPollable} from "./vizDataPolling.js";
 import type {VizInstance} from "./vizTypes.js";
@@ -92,9 +92,8 @@ export function storePayload(
 /**
     Sets a loader's value (`data`, `links`, `nodes`, `topojson`): a URL or
     request object is queued to load on the next render, and an inline value is
-    stored at once, and `RESET` restores the default. Passing a formatter as
-    the second argument sets `<key>Format`; leaving it out keeps the current
-    one.
+    stored at once. Passing a formatter as the second argument sets
+    `<key>Format`; leaving it out keeps the current one.
     @param viz The chart.
     @param key The loader.
     @param args The loader's arguments: the value, then an optional formatter.
@@ -105,7 +104,7 @@ export function setLoaderValue(
   key: FormatKey,
   args: ArrayLike<unknown>,
 ): void {
-  const value = resetArg(viz, key, args[0]);
+  const value = args[0];
   if (args.length > 1) viz.schema[`${key}Format`] = args[1];
   addToQueue.call(
     viz as unknown as ThisParameterType<typeof addToQueue>,

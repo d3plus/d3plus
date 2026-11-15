@@ -61,6 +61,7 @@ export default class Area extends Shape {
     this.schema.y = constant(0);
     this.schema.y0 = constant(0);
     this.schema.y1 = accessor("y");
+    this._constructed(new.target, Area);
   }
 
   /**

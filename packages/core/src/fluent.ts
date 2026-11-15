@@ -122,7 +122,8 @@ export function nestedReset(value: unknown, defaults: unknown): unknown {
 /**
     A hand-written setter's argument, with a whole-value `RESET` swapped for
     the host's default snapshot entry under `key`, so `viz.key(RESET)`
-    restores the default `config({key: RESET})` does.
+    restores the default `config({key: RESET})` does (see `resetSetters`,
+    which wraps every hand-written setter in it).
     @private
 */
 export function resetArg(
@@ -271,7 +272,8 @@ type ResetResolver = ((...args: never[]) => unknown) & {
 /**
     Tags hand-written setters that resolve `RESET` themselves (typically via
     `mergeConfigBag`), so `BaseClass.config()` passes their argument through
-    untouched instead of substituting defaults into it first. A subclass that
+    untouched instead of substituting defaults into it first, and a direct
+    `RESET` reaches them as is (see `resetSetters`). A subclass that
     overrides a tagged setter must tag its own override.
     @param proto The class prototype that defines the setters.
     @param keys The setter names.
@@ -342,6 +344,13 @@ export function isSetEntry(host: object, key: string, entry: string): boolean {
 }
 
 const FLUENT_ACCESSOR = Symbol("d3plus.fluentAccessor");
+
+/**
+    Each prototype's config method names, as `BaseClass` reflects them;
+    installing accessors on a prototype forgets its entry.
+    @private
+*/
+export const reflectedMethods = new WeakMap<object, string[]>();
 
 /** The seed of a generated accessor's field, or of the nearest field it overrides that has one. */
 const FIELD_SEED = Symbol("d3plus.fieldSeed");
@@ -488,6 +497,7 @@ export function installFluent(
   if (!done) installedSchemas.set(proto, (done = new WeakSet()));
   if (done.has(schema)) return;
   done.add(schema);
+  reflectedMethods.delete(proto);
   for (const field of schema) {
     if (isHandWritten(proto, field.key)) continue;
     const key = field.key;

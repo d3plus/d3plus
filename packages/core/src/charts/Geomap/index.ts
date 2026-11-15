@@ -33,7 +33,6 @@ import {
 import type {Themed} from "./basemapTheme.js";
 import {pageIsDark} from "../viz/pageTheme.js";
 import {makeChart} from "../definition/makeChart.js";
-import {resetArg} from "../../fluent.js";
 import {isPointShape} from "../viz/nearestHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
@@ -312,7 +311,7 @@ function setupGeomapFitFluent(viz: VizInstance): void {
   v.fitObject = function (this: VizInstance, _?: unknown, f?: unknown) {
     if (arguments.length) {
       (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
-        resetArg(this, "fitObject", _),
+        _,
         f,
         "fitObject",
       );
@@ -331,7 +330,13 @@ function setupGeomapFitFluent(viz: VizInstance): void {
       @type {number[] | function}
   */
   v.point = function (this: VizInstance, _?: unknown) {
-    return arguments.length ? setConst(this, "point", _) : this.schema.point;
+    return arguments.length
+      ? ((this.schema.point =
+          typeof _ === "function"
+            ? (_ as (...a: unknown[]) => unknown)
+            : constant(_)),
+        this)
+      : this.schema.point;
   };
   /**
       Accessor (or constant) for the value that sizes each coordinate point,
@@ -340,19 +345,13 @@ function setupGeomapFitFluent(viz: VizInstance): void {
   */
   v.pointSize = function (this: VizInstance, _?: unknown) {
     return arguments.length
-      ? setConst(this, "pointSize", _)
+      ? ((this.schema.pointSize =
+          typeof _ === "function"
+            ? (_ as (...a: unknown[]) => unknown)
+            : constant(_)),
+        this)
       : this.schema.pointSize;
   };
-}
-
-/**
-    Stores a function as given and any other value as a constant, with
-    `RESET` restoring the default.
-*/
-function setConst(viz: VizInstance, key: string, value: unknown): VizInstance {
-  const v = resetArg(viz, key, value);
-  viz.schema[key] = typeof v === "function" ? v : constant(v);
-  return viz;
 }
 
 /** Installs the projection fluent accessors. */
@@ -382,7 +381,6 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
       @type {number | string}
   */
   v.projectionPadding = function (this: VizInstance, _?: unknown) {
-    _ = resetArg(this, "projectionPadding", _);
     // A sides object (what the getter returns) is stored as given.
     return arguments.length
       ? ((this.schema.projectionPadding = isObject(_)
@@ -479,7 +477,11 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
   */
   v.topojsonFill = function (this: VizInstance, _?: unknown) {
     return arguments.length
-      ? setConst(this, "topojsonFill", _)
+      ? ((this.schema.topojsonFill =
+          typeof _ === "function"
+            ? (_ as (...a: unknown[]) => unknown)
+            : constant(_)),
+        this)
       : this.schema.topojsonFill;
   };
   /**
@@ -494,7 +496,6 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
   */
   v.topojsonFilter = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
-      _ = resetArg(this, "topojsonFilter", _);
       this._zoomSet = false;
       if (typeof _ === "function") {
         this.schema.topojsonFilter = _ as (

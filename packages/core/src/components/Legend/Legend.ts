@@ -100,6 +100,7 @@ export default class Legend extends BaseClass {
     this._rtl = false;
     this._titleHeight = 0;
     this._titleWidth = 0;
+    this._constructed(new.target, Legend);
   }
 
   /**

@@ -181,6 +181,7 @@ export default class Tooltip extends BaseClass {
     const cellAlign = (_d: unknown, i: number) => (i ? "right" : "left");
     this.schema.tdStyle = {"text-align": cellAlign};
     this.schema.thStyle = {"text-align": cellAlign};
+    this._constructed(new.target, Tooltip);
   }
 
   /**

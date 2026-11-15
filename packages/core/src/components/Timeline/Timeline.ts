@@ -76,6 +76,7 @@ export default class Timeline extends Axis {
     // the scene itself at the end of render() so Axis.render() must not paint
     // a half-built scene mid-way through.
     this._managesOwnScenePaint = true;
+    this._constructed(new.target, Timeline);
   }
 
   /**

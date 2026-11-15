@@ -179,6 +179,7 @@ export default class ColorScale extends BaseClass {
       stroke: "#999",
       strokeWidth: 1,
     };
+    this._constructed(new.target, ColorScale);
   }
 
   /**

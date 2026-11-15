@@ -12,5 +12,6 @@ export default class AxisBottom extends Axis {
   constructor() {
     super();
     this.orient("bottom");
+    this._constructed(new.target, AxisBottom);
   }
 }
