@@ -5,7 +5,7 @@
     <title>Gantt Critical Path</title>
     <meta
       name="description"
-      content="Gantt critical path: muted tasks with slack, bold critical arrows, the key, slack tooltips, weekends hidden, phases, and facets, light and dark."
+      content="Gantt critical path: outlined critical tasks, muted tasks with slack, bold arrows, the key, working-day slack tooltips, a holiday, phases, and facets, light and dark."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -142,8 +142,8 @@
     gantt("#light", {title: "Critical path"});
     gantt("#dark", {theme: "dark", title: "Critical path, dark"});
     gantt("#weekends", {
-      axisConfig: {rangeBreaks: "weekends"},
-      title: "Weekends hidden: slack counts working days",
+      title: "Weekends hidden, holidays too",
+      axisConfig: {rangeBreaks: ["weekends", {values: ["2024-04-15"]}]},
     });
     gantt("#phases", {
       group: "phase",
