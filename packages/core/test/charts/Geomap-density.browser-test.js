@@ -115,6 +115,50 @@ const cityRows = cities.map(d => ({
   point: [d.longitude, d.latitude],
 }));
 
+it("Geomap: past the SVG cap, dot density switches a chart without a renderer to Canvas, and back", async () => {
+  const {page, errors, close} = await openPage(box);
+  try {
+    const host = await page.evaluate(
+      json =>
+        new Promise(resolve => {
+          const {topojson, data} = JSON.parse(json);
+          const info = [];
+          console.info = m => info.push(m);
+          const viz = new window.d3plus.Geomap()
+            .select("#viz")
+            .duration(0)
+            .config({
+              groupBy: "State ID",
+              projection: "geoAlbersUsa",
+              tiles: false,
+              dotDensity: {value: "Population", per: 10000},
+            })
+            .data(data)
+            .topojson(topojson);
+          window.__viz = viz;
+          const kind = () =>
+            document.querySelector("#viz canvas") ? "canvas" : "svg";
+          viz.render(() => {
+            const first = {
+              kind: kind(),
+              per: viz.ctx.geomapCtx.density.dots.per,
+            };
+            viz.dotDensity({value: "Population", per: 100000}).render(() => {
+              resolve({first, second: kind(), info});
+            });
+          });
+        }),
+      JSON.stringify({topojson: states, data: population}),
+    );
+    assert.deepStrictEqual(host.first, {kind: "canvas", per: 10000});
+    assert.strictEqual(host.second, "svg");
+    assert.strictEqual(host.info.length, 1, "one note");
+    assert.deepStrictEqual(errors, [], "no page errors");
+  } finally {
+    await close();
+  }
+});
+
 for (const renderer of ["svg", "canvas"]) {
   it(`Geomap ${renderer}: dot density scatters each state's dots inside it, and a dot's tooltip counts them`, async () => {
     const {page, errors, close} = await openPage(box);
@@ -273,6 +317,76 @@ for (const renderer of ["svg", "canvas"]) {
         ring.reduce((s, p) => s + p[1], 0) / 6,
       ];
       const tip = await hoverAt(page, bin, center);
+      assert.ok(/Count: \d+/.test(tip), `tooltip: ${tip}`);
+      assert.deepStrictEqual(errors, [], "no page errors");
+    } finally {
+      await close();
+    }
+  });
+
+  it(`Geomap ${renderer}: zooming in re-bins the points into hexagons of the same pixel size`, async () => {
+    const {page, errors, close} = await openPage(box);
+    try {
+      await page.evaluate(draw, [
+        JSON.stringify({
+          topojson: states,
+          data: cityRows,
+          groupBy: "id",
+          hexbin: {radius: 18},
+        }),
+        renderer,
+      ]);
+      const bins = nodes => nodes.filter(n => n.key.startsWith("geomap-bin-"));
+      const before = bins(await page.evaluate(painted));
+      const top = () =>
+        page.evaluate(() =>
+          Math.max(...window.__viz._colorScaleClass._colorScale.domain()),
+        );
+      const topBefore = await top();
+      await page.evaluate(
+        () =>
+          new Promise(resolve => {
+            window.__viz._zoomToBounds([
+              [500, 120],
+              [700, 260],
+            ]);
+            setTimeout(resolve, 200);
+          }),
+      );
+      const after = bins(await page.evaluate(painted));
+      const k = await page.evaluate(() => window.__viz._zoomTransform.scale);
+      assert.ok(k > 2, `zoomed ${k}`);
+      assert.ok(after.length > before.length, "finer bins");
+      assert.ok((await top()) < topBefore, "the colorScale refits");
+      // Each hexagon is as wide on screen as before the zoom.
+      const width = n => {
+        const xs = pathRings(n.d)[0].map(p => p[0]);
+        return (Math.max(...xs) - Math.min(...xs)) * n.scale;
+      };
+      assert.ok(
+        Math.abs(width(after[0]) - width(before[0])) < 0.5,
+        `${width(after[0])} vs ${width(before[0])}`,
+      );
+      // A bin in view still shows its tooltip.
+      const rect = await page.evaluate(() =>
+        document.querySelector("#viz").getBoundingClientRect().toJSON(),
+      );
+      const seen = after.find(n => {
+        const ring = pathRings(n.d)[0];
+        const x = n.origin[0] + ((ring[0][0] + ring[3][0]) / 2) * n.scale;
+        const y = n.origin[1] + ((ring[0][1] + ring[3][1]) / 2) * n.scale;
+        return (
+          x > rect.left + 40 &&
+          x < rect.right - 40 &&
+          y > rect.top + 60 &&
+          y < rect.bottom - 40
+        );
+      });
+      const ring = pathRings(seen.d)[0];
+      const tip = await hoverAt(page, seen, [
+        (ring[0][0] + ring[3][0]) / 2,
+        (ring[0][1] + ring[3][1]) / 2,
+      ]);
       assert.ok(/Count: \d+/.test(tip), `tooltip: ${tip}`);
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {
