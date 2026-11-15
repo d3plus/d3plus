@@ -30,6 +30,7 @@ import {
 } from "./confidenceTooltip.js";
 import type {SharedHover, SharedRow} from "./sharedHover.js";
 import {plotAxisUtc} from "./plotRangeBreaks.js";
+import {levelAxisName, levelAxisValue} from "./plotLevels.js";
 import {vizDiscrete} from "../viz/discrete.js";
 
 type Axis = "x" | "y";
@@ -40,7 +41,7 @@ export function axisName(viz: VizInstance, k: Axis): string {
   const config = viz[`_${k}Config`] as {title?: unknown} | undefined;
   if (config && typeof config.title === "string") return config.title;
   const key = viz[`_${k}Key`];
-  return typeof key === "string" ? key : "";
+  return typeof key === "string" ? key : (levelAxisName(viz, k) ?? "");
 }
 
 /**
@@ -86,6 +87,8 @@ export function axisValue(
 ): string {
   const config = viz[`_${k}Config`] as
     {tickFormat?: (d: unknown) => string} | undefined;
+  const levels = levelAxisValue(viz, k, value, ticks);
+  if (levels !== undefined) return levels;
   const tickFormat = config?.tickFormat;
   const valueFormat = viz._tickLabelFormats?.get(tickFormat);
   if (valueFormat && !ticks) return valueFormat(value);

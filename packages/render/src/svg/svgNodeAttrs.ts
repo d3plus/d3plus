@@ -2,11 +2,13 @@ import {select, type Selection} from "d3-selection";
 import type {Transition} from "d3-transition";
 
 import {arcPath, isWrapperGroup, lerpArc} from "../animate/interpolate.js";
+import {interpolateSeries, seriesPath} from "../animate/series.js";
 import {areaPath, interpolatePathD, linePath} from "../paths.js";
 import {textVisualCenter} from "../scene.js";
 import {lineLeft} from "../textAlign.js";
 import type {
   ArcGeometry,
+  PathSeries,
   SceneNode,
   TextLine,
   TextNode,
@@ -407,16 +409,24 @@ export function applyPaint(
     back to `interpolatePathD` when either endpoint has no `arc` (a plain
     path/Area band/Sankey link), or on the very first draw (nothing stashed
     yet to interpolate from).
+
+    A `series` (a line or area's keyed points, see `PathNode.series`) tweens
+    by key from the points the element draws now, stashed on every frame,
+    so a draw that interrupts a tween picks up where it left off.
 */
 export function setPath(
   target: AttrTarget,
   d: string,
   animated: boolean,
   arc?: ArcGeometry,
+  series?: PathSeries,
 ): void {
   const el = (
     target as unknown as {
-      node?: () => Element & {__d3plusArcPrev__?: ArcGeometry};
+      node?: () => Element & {
+        __d3plusArcPrev__?: ArcGeometry;
+        __d3plusSeries__?: PathSeries;
+      };
     }
   ).node?.();
   const prevArc = el?.__d3plusArcPrev__;
@@ -428,10 +438,27 @@ export function setPath(
           const lerp = lerpArc(prevArc, arc);
           return (k: number) => arcPath(lerp(k));
         }
-        return interpolatePathD(this.getAttribute("d") || d, d);
+        const stash = this as Element & {__d3plusSeries__?: PathSeries};
+        const prevSeries = stash.__d3plusSeries__;
+        const tween =
+          series && prevSeries && interpolateSeries(prevSeries, series);
+        if (tween)
+          return (k: number) => {
+            const frame = tween(k);
+            stash.__d3plusSeries__ = frame;
+            return k >= 1 ? d : seriesPath(frame);
+          };
+        const morph = interpolatePathD(this.getAttribute("d") || d, d);
+        return (k: number) => {
+          stash.__d3plusSeries__ = k >= 1 ? series : undefined;
+          return morph(k);
+        };
       },
     );
-  else target.attr("d", d);
+  else {
+    target.attr("d", d);
+    if (el) el.__d3plusSeries__ = series;
+  }
   if (el) el.__d3plusArcPrev__ = arc;
 }
 
@@ -462,7 +489,7 @@ export function applyGeometry(
       setPath(target, areaPath(node), animated);
       break;
     case "path":
-      setPath(target, node.d, animated, node.arc);
+      setPath(target, node.d, animated, node.arc, node.series);
       break;
     case "image":
       target
