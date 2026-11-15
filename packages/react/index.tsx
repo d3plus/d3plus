@@ -43,7 +43,9 @@ import {
   Priestley as PriestleyClass,
   Pyramid as PyramidClass,
   Radar as RadarClass,
+  RadialArea as RadialAreaClass,
   RadialBar as RadialBarClass,
+  RadialLine as RadialLineClass,
   RadialMatrix as RadialMatrixClass,
   RadialTree as RadialTreeClass,
   Ridgeline as RidgelineClass,
@@ -266,9 +268,17 @@ export const Pyramid = (props: D3plusComponentProps) => (
 export const Radar = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={RadarClass} {...props} />
 );
+/** React component for rendering a d3plus RadialArea visualization. */
+export const RadialArea = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={RadialAreaClass} {...props} />
+);
 /** React component for rendering a d3plus RadialBar visualization. */
 export const RadialBar = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={RadialBarClass} {...props} />
+);
+/** React component for rendering a d3plus RadialLine visualization. */
+export const RadialLine = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={RadialLineClass} {...props} />
 );
 /** React component for rendering a d3plus RadialMatrix visualization. */
 export const RadialMatrix = (props: D3plusComponentProps) => (

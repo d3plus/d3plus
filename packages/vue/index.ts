@@ -41,7 +41,9 @@ import {
   Priestley as PriestleyClass,
   Pyramid as PyramidClass,
   Radar as RadarClass,
+  RadialArea as RadialAreaClass,
   RadialBar as RadialBarClass,
+  RadialLine as RadialLineClass,
   RadialMatrix as RadialMatrixClass,
   RadialTree as RadialTreeClass,
   Ridgeline as RidgelineClass,
@@ -179,8 +181,12 @@ export const Priestley = createD3plusComponent(PriestleyClass, "chart");
 export const Pyramid = createD3plusComponent(PyramidClass, "chart");
 /** Vue component for rendering a d3plus Radar visualization. */
 export const Radar = createD3plusComponent(RadarClass, "chart");
+/** Vue component for rendering a d3plus RadialArea visualization. */
+export const RadialArea = createD3plusComponent(RadialAreaClass, "chart");
 /** Vue component for rendering a d3plus RadialBar visualization. */
 export const RadialBar = createD3plusComponent(RadialBarClass, "chart");
+/** Vue component for rendering a d3plus RadialLine visualization. */
+export const RadialLine = createD3plusComponent(RadialLineClass, "chart");
 /** Vue component for rendering a d3plus RadialMatrix visualization. */
 export const RadialMatrix = createD3plusComponent(RadialMatrixClass, "chart");
 /** Vue component for rendering a d3plus RadialTree visualization. */
