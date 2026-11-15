@@ -149,6 +149,77 @@ for (const renderer of ["svg", "canvas"]) {
     assert.deepStrictEqual(off.warnings, []);
   });
 
+  it(`Gantt [${renderer}]: weekend handoffs chain, and critical bars are outlined in their color`, async () => {
+    // Each task ends with a Friday (at Saturday's midnight) and its
+    // dependent starts the next Monday; "Docs" has slack.
+    const weekly = [
+      {task: "Plan", phase: "One", start: "2024-03-04", end: "2024-03-09"},
+      {
+        task: "Build",
+        phase: "One",
+        start: "2024-03-11",
+        end: "2024-03-16",
+        progress: 0,
+        dependencies: "Plan",
+      },
+      {
+        task: "Docs",
+        phase: "Two",
+        start: "2024-03-11",
+        end: "2024-03-13",
+        dependencies: "Plan",
+      },
+      {
+        task: "Ship",
+        phase: "Two",
+        start: "2024-03-18",
+        end: "2024-03-23",
+        progress: 0.5,
+        dependencies: ["Build", "Docs"],
+      },
+    ];
+    for (const theme of ["light", "dark"]) {
+      const {nodes, warnings} = await render(
+        '<div id="viz" style="width:800px;height:400px"></div>',
+        draw,
+        {
+          config: {
+            data: weekly,
+            groupBy: "task",
+            group: "phase",
+            color: "phase",
+            legend: false,
+            theme,
+          },
+          renderer,
+        },
+      );
+      const build = nodes["gantt-task-Build"].paint;
+      const done = nodes["gantt-task-Ship-progress"].paint;
+      assert.strictEqual(nodes["gantt-task-Docs"].paint.opacity, 0.35);
+      for (const key of [
+        "gantt-task-Plan",
+        "gantt-task-Build",
+        "gantt-task-Ship",
+      ])
+        assert.strictEqual(nodes[key].paint.strokeWidth, 2, `${key} outlined`);
+      assert.notStrictEqual(nodes["gantt-task-Docs"].paint.strokeWidth, 2);
+      // The pale 0% bar's outline is its phase's full color.
+      assert.notStrictEqual(
+        build.fill,
+        build.stroke,
+        "pale fill, full outline",
+      );
+      assert.strictEqual(
+        nodes["gantt-task-Plan"].paint.stroke,
+        nodes["gantt-task-Plan"].paint.fill,
+      );
+      assert.strictEqual(nodes["gantt-task-Ship"].paint.stroke, done.fill);
+      assert.ok(nodes["gantt-group-One"], "phases keep their brackets");
+      assert.deepStrictEqual(warnings, []);
+    }
+  });
+
   it(`Gantt [${renderer}]: a dependency cycle draws no critical path and warns once`, async () => {
     const cyclic = tasks.map(t =>
       t.task === "Plan" ? {...t, dependencies: "Ship"} : t,
@@ -209,8 +280,8 @@ for (const renderer of ["svg", "canvas"]) {
       assert.ok(/Copy/.test(tip), `names the task (${tip})`);
       const expected =
         renderer === "svg"
-          ? ["Slack", "7 days", "Latest start", "Mar 15, 2024"]
-          : ["Holgura", "7 días", "Inicio más tardío"];
+          ? ["Slack", "5 working days", "Latest start", "Mar 15, 2024"]
+          : ["Holgura", "5 días laborables", "Inicio más tardío"];
       for (const s of expected)
         assert.ok(tip.includes(s), `tooltip has ${s} (${tip})`);
       assert.deepStrictEqual(errors, []);

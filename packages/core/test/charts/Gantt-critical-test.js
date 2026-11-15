@@ -4,10 +4,15 @@ import {useJsdom} from "~test/jsdom.js";
 import {Gantt} from "../../index.ts";
 import {configWarnings} from "../../src/utils/configWarnings.ts";
 import {applyGanttLayout} from "../../src/charts/Gantt/applyLayout.ts";
-import {ganttEmit, milestoneRadius} from "../../src/charts/Gantt/emit.ts";
+import {
+  ganttEmit,
+  milestoneRadius,
+  taskLook,
+} from "../../src/charts/Gantt/emit.ts";
 import {
   ganttCriticalPath,
   linkKey,
+  slackBreaks,
   workClock,
 } from "../../src/charts/Gantt/ganttCritical.ts";
 import {
@@ -165,7 +170,9 @@ it("Gantt: ganttCriticalPath records each task's slack and latest start", () => 
   layout(viz);
   const copy = taskSlack(viz, byId("Copy"));
   assert.strictEqual(copy.critical, false);
-  assert.strictEqual(copy.slack, 7 * 864e5);
+  assert.strictEqual(copy.working, true);
+  // Mar 13 to Mar 20 holds five working days.
+  assert.strictEqual(copy.slack, 5 * 864e5);
   assert.strictEqual(sameDay(copy.latestStart, new Date(2024, 2, 15)), true);
   assert.strictEqual(taskSlack(viz, byId("Design")).slack, 0);
   // Turned off, the slack is forgotten.
@@ -174,12 +181,98 @@ it("Gantt: ganttCriticalPath records each task's slack and latest start", () => 
   assert.strictEqual(taskSlack(viz, byId("Copy")), undefined);
 });
 
-it("Gantt: weekends hidden by rangeBreaks don't count as slack", () => {
-  const viz = gantt(plan, {axisConfig: {rangeBreaks: "weekends"}});
+it("Gantt: weekends add no slack, whether or not rangeBreaks hide them", () => {
+  // Plan ends with Friday (at Saturday's midnight) and Design starts the
+  // next Monday.
+  const data = [
+    {id: "Plan", start: "2024-03-04", end: "2024-03-09"},
+    {
+      id: "Design",
+      start: "2024-03-11",
+      end: "2024-03-15",
+      dependencies: "Plan",
+    },
+  ];
+  for (const axisConfig of [{}, {rangeBreaks: "weekends"}]) {
+    const viz = gantt(data, {axisConfig});
+    const {layout: l} = layout(viz);
+    assert.ok(l.critical, "the handoff chains");
+    assert.strictEqual(taskSlack(viz, data[0]).slack, 0);
+    assert.strictEqual(taskSlack(viz, data[0]).critical, true);
+  }
+  // A task spanning a weekend measures only its working days: Friday to
+  // Monday is one, the same as Friday to Saturday.
+  const span = [
+    {id: "Long", start: "2024-03-08", end: "2024-03-11"},
+    {id: "Short", start: "2024-03-08", end: "2024-03-09"},
+    {
+      id: "Next",
+      start: "2024-03-11",
+      end: "2024-03-13",
+      dependencies: ["Long", "Short"],
+    },
+  ];
+  const viz = gantt(span);
+  layout(viz);
+  assert.deepStrictEqual(
+    span.map(d => taskSlack(viz, d).slack),
+    [0, 0, 0],
+  );
+  const calendar = gantt(span, {criticalPathConfig: {workingDays: false}});
+  layout(calendar);
+  // (Calendar days cross the daylight saving change, so round them.)
+  assert.strictEqual(Math.round(taskSlack(calendar, span[1]).slack / 864e5), 2);
+  const copy = gantt(plan, {axisConfig: {rangeBreaks: "weekends"}});
+  layout(copy);
+  assert.strictEqual(taskSlack(copy, byId("Copy")).slack, 5 * 864e5);
+});
+
+it("Gantt: days rangeBreaks hide, such as holidays, add no slack either", () => {
+  const viz = gantt(plan, {
+    axisConfig: {rangeBreaks: {values: ["2024-03-14"]}},
+  });
+  layout(viz);
+  assert.strictEqual(taskSlack(viz, byId("Copy")).slack, 4 * 864e5);
+});
+
+it("Gantt: criticalPathConfig.workingDays false counts weekends as slack", () => {
+  const viz = gantt(plan, {criticalPathConfig: {workingDays: false}});
   layout(viz);
   const copy = taskSlack(viz, byId("Copy"));
-  assert.strictEqual(copy.slack, 5 * 864e5);
-  assert.strictEqual(sameDay(copy.latestStart, new Date(2024, 2, 15)), true);
+  assert.strictEqual(copy.slack, 7 * 864e5);
+  assert.strictEqual(copy.working, false);
+  assert.deepStrictEqual(ganttTooltipRows(viz, byId("Copy"), 2).at(-2), [
+    "Slack",
+    "7 days",
+  ]);
+  // Days rangeBreaks hide still count as no time.
+  viz.axisConfig({rangeBreaks: "weekends"});
+  layout(viz);
+  assert.strictEqual(taskSlack(viz, byId("Copy")).slack, 5 * 864e5);
+  assert.strictEqual(taskSlack(viz, byId("Copy")).working, true);
+});
+
+it("Gantt: slackBreaks lists weekends and the axis's whole-day breaks", () => {
+  assert.deepStrictEqual(slackBreaks(gantt()), ["weekends"]);
+  assert.deepStrictEqual(
+    slackBreaks(
+      gantt(plan, {axisConfig: {rangeBreaks: {values: ["2024-03-14"]}}}),
+    ),
+    ["weekends", {values: ["2024-03-14"]}],
+  );
+  assert.deepStrictEqual(
+    slackBreaks(gantt(plan, {criticalPathConfig: {workingDays: false}})),
+    [],
+  );
+  assert.deepStrictEqual(
+    slackBreaks(gantt(plan, {axisConfig: {scale: "linear"}})),
+    [],
+  );
+  // Rules that hide all of time leave plain time.
+  assert.strictEqual(
+    workClock([{days: [0, 1, 2, 3, 4, 5, 6]}], 0).toWork(9),
+    9,
+  );
 });
 
 it("Gantt: the critical path reads numbers on a linear axis", () => {
@@ -194,6 +287,7 @@ it("Gantt: the critical path reads numbers on a linear axis", () => {
     slack: 4,
     latestStart: 8,
     critical: false,
+    working: false,
   });
   assert.deepStrictEqual(
     slackRows(viz, data[2], v => `${v}`),
@@ -260,7 +354,12 @@ it("Gantt: recordSlack keeps a row's slack per chart, and null forgets it", () =
   const a = {},
     b = {},
     row = {};
-  recordSlack(a, row, {slack: 1, latestStart: 2, critical: false});
+  recordSlack(a, row, {
+    slack: 1,
+    latestStart: 2,
+    critical: false,
+    working: false,
+  });
   assert.strictEqual(taskSlack(a, row).slack, 1);
   assert.strictEqual(taskSlack(b, row), undefined);
   recordSlack(a, row, null);
@@ -283,16 +382,16 @@ it("Gantt: the tooltip lists Slack and Latest start, translated", () => {
   layout(viz);
   const copy = ganttTooltipRows(viz, byId("Copy"), 2);
   assert.deepStrictEqual(copy.slice(-2), [
-    ["Slack", "7 days"],
+    ["Slack", "5 working days"],
     ["Latest start", "Mar 15, 2024"],
   ]);
   assert.deepStrictEqual(ganttTooltipRows(viz, byId("Design"), 1).at(-1), [
     "Slack",
-    "0 days",
+    "0 working days",
   ]);
   assert.deepStrictEqual(ganttTooltipRows(viz, byId("Review"), 3), [
     ["Milestone", "Mar 20, 2024"],
-    ["Slack", "0 days"],
+    ["Slack", "0 working days"],
   ]);
   viz.locale("es-ES");
   assert.deepStrictEqual(
@@ -330,6 +429,10 @@ it("Gantt: criticalStyle reads criticalPathConfig over the arrows' style", () =>
       style.mutedOpacity,
     ],
     [2, 1, 8, 0.35],
+  );
+  assert.deepStrictEqual(
+    [style.barStroke, style.barStrokeWidth],
+    [undefined, 2],
   );
   assert.strictEqual(style.label, "Critical path");
   viz.dependencyConfig({stroke: "blue"}).criticalPathConfig({
@@ -436,4 +539,67 @@ it("Gantt: criticalKeyNodes sit in the label column's corner beside the axis", (
   );
   const none = gantt(plan, {labelWidth: 0});
   assert.deepStrictEqual(criticalKeyNodes(none, layout(none).layout), []);
+});
+
+it("Gantt: taskLook mutes tasks off the path and outlines those on it", () => {
+  const viz = gantt();
+  const {marks, layout: l} = layout(viz);
+  const look = id =>
+    taskLook(
+      viz,
+      l,
+      marks.find(m => m.id === id),
+    );
+  assert.deepStrictEqual(look("Copy"), {muted: 0.35});
+  assert.deepStrictEqual(look("Design"), {
+    muted: 1,
+    outline: {stroke: undefined, width: 2},
+  });
+  viz.criticalPathConfig({barStroke: "#000", barStrokeWidth: 3});
+  assert.deepStrictEqual(look("Design").outline, {stroke: "#000", width: 3});
+  viz.criticalPathConfig({barStroke: false});
+  assert.deepStrictEqual(look("Design"), {muted: 1});
+  viz.criticalPathConfig({barStroke: undefined, barStrokeWidth: 0});
+  assert.deepStrictEqual(look("Design"), {muted: 1});
+  assert.deepStrictEqual(taskLook(viz, {...l, critical: null}, marks[0]), {
+    muted: 1,
+  });
+});
+
+it("Gantt: critical bars and diamonds are outlined in their own color", () => {
+  const data = plan.map(d => ({
+    ...d,
+    progress: {Design: 0, Ship: 0.5, Review: 0}[d.id],
+  }));
+  const viz = gantt(data).color(() => "#4c6ef5");
+  const {marks} = layout(viz);
+  const byKey = Object.fromEntries(
+    ganttEmit({viz, shapeData: marks}).map(n => [n.key, n]),
+  );
+  // A critical task at 0% draws pale, outlined in its full color.
+  const design = byKey["gantt-task-Design"];
+  assert.notStrictEqual(design.paint.fill, "#4c6ef5");
+  assert.deepStrictEqual(
+    [design.paint.stroke, design.paint.strokeWidth],
+    ["#4c6ef5", 2],
+  );
+  // A muted task has no outline.
+  assert.notStrictEqual(byKey["gantt-task-Copy"].paint.stroke, "#4c6ef5");
+  // With progress, the bar keeps the outline under its done part.
+  assert.strictEqual(byKey["gantt-task-Ship"].paint.stroke, "#4c6ef5");
+  assert.ok(byKey["gantt-task-Ship-progress"]);
+  // A pending critical milestone takes the outline's width.
+  const review = byKey["gantt-milestone-Review"];
+  assert.deepStrictEqual(
+    [review.paint.stroke, review.paint.strokeWidth],
+    ["#4c6ef5", 2],
+  );
+  viz.criticalPathConfig({barStroke: "red", barStrokeWidth: 1.5});
+  const red = ganttEmit({viz, shapeData: marks}).find(
+    n => n.key === "gantt-task-Plan",
+  );
+  assert.deepStrictEqual(
+    [red.paint.stroke, red.paint.strokeWidth],
+    ["red", 1.5],
+  );
 });
