@@ -24,7 +24,11 @@
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {GestureHoverState, ZoomGesture} from "../drawSteps/zoomGesture.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
-import type {SwarmState} from "../Plot/swarm.js";
+import type {
+  SwarmPaintInputs,
+  SwarmPlacement,
+  SwarmState,
+} from "../Plot/swarm.js";
 import type {MarginalLayout} from "../Plot/marginalLayout.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {BarSpanLayout} from "../Plot/barWidth.js";
@@ -606,6 +610,11 @@ export interface VizInstance {
   _trendFits?: TrendFit[];
   /** The swarm resolved by `formatPlotData` for the current draw, or null when off. */
   _swarm?: SwarmState | null;
+  /** Places a swarm's circles in place of Plot's packing (DotPlot's stacks; see `swarmPlacements`). */
+  _swarmPlacements?: (
+    viz: VizInstance,
+    inputs: SwarmPaintInputs,
+  ) => Map<DataPoint, SwarmPlacement>;
   _discreteCutoff?: number;
   /** Per-datum `[start, end]` along the discrete axis; makes that axis continuous (see Plot/discreteSpan.ts). */
   _discreteExtent?: (d: DataPoint) => [number, number];
