@@ -7,11 +7,18 @@ import {isBreakable} from "./textUnits.js";
 
 const wordSegmenter = new Intl.Segmenter(undefined, {granularity: "word"});
 
-/** Whether a segment is a run of word characters, which pretext can break between letters. */
-function isWordRun(str: string): boolean {
+/** ASCII letters and digits, which always segment as one word. */
+const ASCII_WORD = /^[A-Za-z0-9]+$/;
+
+/**
+    Whether a segment is a run of word characters, which pretext can break
+    between letters. Exported for testing.
+*/
+export function isWordRun(str: string): boolean {
   return (
     str.length > 1 &&
-    Array.from(wordSegmenter.segment(str)).some(s => s.isWordLike)
+    (ASCII_WORD.test(str) ||
+      Array.from(wordSegmenter.segment(str)).some(s => s.isWordLike))
   );
 }
 
