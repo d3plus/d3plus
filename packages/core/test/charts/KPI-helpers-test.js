@@ -13,6 +13,7 @@ import {
   kpiGrid,
   MAX_VALUE_SIZE,
   MIN_SPARKLINE_HEIGHT,
+  MIN_TEXT_SIZE,
   sparklinePoints,
   sparklineType,
   TILE_ASPECT,
@@ -189,6 +190,7 @@ it("KPI: tileContent stacks the text and gives the bottom to the sparkline", () 
   assert.strictEqual(bare.label, undefined);
   assert.strictEqual(bare.delta, undefined);
   assert.strictEqual(bare.sparkline, undefined);
+  assert.strictEqual(bare.comparison, true);
   assert.ok(
     Math.abs(bare.value.y - 100) < 1,
     "a lone value centers in the tile",
@@ -207,6 +209,43 @@ it("KPI: tileContent stacks the text and gives the bottom to the sparkline", () 
     sparkline: true,
   });
   assert.strictEqual(huge.value.size, MAX_VALUE_SIZE);
+});
+
+/** The top and bottom of a tile's text lines, with the line height tileContent uses. */
+const extent = content => {
+  const lines = [content.label, content.value, content.delta].filter(Boolean);
+  return {
+    top: Math.min(...lines.map(l => l.y - (l.size * 1.25) / 2)),
+    bottom: Math.max(...lines.map(l => l.y + (l.size * 1.25) / 2)),
+  };
+};
+
+it("KPI: tileContent keeps a short tile's text inside it, dropping parts as room runs out", () => {
+  const parts = {label: true, delta: true, sparkline: false};
+  const roomy = tileContent(300, 200, parts);
+  assert.strictEqual(roomy.comparison, true);
+  for (const height of [90, 60, 44, 30, 22, 14, 6]) {
+    const c = tileContent(300, height, parts);
+    if (c.value) {
+      const {top, bottom} = extent(c);
+      assert.ok(top >= c.pad - 1e-9, `${height}: top inside`);
+      assert.ok(bottom <= height - c.pad + 1e-9, `${height}: bottom inside`);
+    }
+    for (const l of [c.label, c.value, c.delta].filter(Boolean))
+      assert.ok(l.size >= MIN_TEXT_SIZE, `${height}: legible text`);
+  }
+  const tight = tileContent(300, 44, parts);
+  assert.strictEqual(tight.comparison, false, "the comparison words go first");
+  assert.ok(tight.label === undefined || tight.delta !== undefined);
+  const tiny = tileContent(300, 22, parts);
+  assert.strictEqual(tiny.label, undefined, "then the label");
+  assert.ok(tiny.value, "the value stays longest");
+  const sliver = tileContent(300, 6, parts);
+  assert.deepStrictEqual(
+    [sliver.label, sliver.value, sliver.delta],
+    [undefined, undefined, undefined],
+    "nothing fits",
+  );
 });
 
 it("KPI: sparklineType coerces the setting", () => {

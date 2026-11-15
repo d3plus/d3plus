@@ -29,7 +29,7 @@ const setup = `
       .groupBy("metric")
       .time("month")
       .duration(0)
-      .width(600).height(300);
+      .width(opts.width || 600).height(opts.height || 300);
     if (opts.renderer) chart.renderer(opts.renderer);
     if (opts.config) chart.config(opts.config);
     chart.render(() => resolve(chart));
@@ -156,5 +156,104 @@ for (const renderer of ["svg", "canvas"]) {
     assert.deepStrictEqual(out.deltas, ["▼ 10%"]);
     assert.strictEqual(out.bars, 8);
     assert.ok(out.stacked, "one column of tiles");
+  });
+
+  it(`KPI (${renderer}): a tiny tile keeps its text inside its card`, async () => {
+    const out = await page(async renderer => {
+      const chart = await window.build({renderer, width: 600, height: 80});
+      const groups = window
+        .nodes(chart)
+        .filter(n => n.type === "group" && /kpi-[^-]+$/.test(String(n.key)));
+      const outside = [];
+      for (const g of groups) {
+        const card = g.children.find(n => String(n.key).endsWith("-card"));
+        for (const n of g.children.filter(c => c.type === "text")) {
+          const half = (n.font.size * 1.25) / 2;
+          const {x, y} = n.transform;
+          if (
+            y - half < 0 ||
+            y + half > card.height ||
+            x < 0 ||
+            x + n.lines[0].width > card.width
+          )
+            outside.push(n.key);
+        }
+      }
+      let dom = [];
+      if (renderer === "svg") {
+        const cards = [
+          ...document.querySelectorAll("#viz svg [data-key$='-card']"),
+        ];
+        for (const card of cards) {
+          const c = card.getBoundingClientRect();
+          const key = card.getAttribute("data-key").replace(/-card$/, "");
+          for (const t of document.querySelectorAll(
+            `#viz svg text[data-key^='${key}-']`,
+          )) {
+            const b = t.getBoundingClientRect();
+            if (b.top < c.top - 1 || b.bottom > c.bottom + 1)
+              dom.push(t.getAttribute("data-key"));
+          }
+        }
+      }
+      return {
+        tiles: groups.length,
+        texts: groups.flatMap(g => g.children.filter(c => c.type === "text"))
+          .length,
+        outside,
+        dom,
+      };
+    }, renderer);
+    assert.strictEqual(out.tiles, 2);
+    assert.ok(out.texts >= 2, "the values still show");
+    assert.deepStrictEqual(out.outside, []);
+    assert.deepStrictEqual(out.dom, []);
+  });
+
+  it(`KPI (${renderer}): a right-to-left page lays the delta and its words out right to left`, async () => {
+    const out = await page(async renderer => {
+      document.documentElement.dir = "rtl";
+      try {
+        const chart = await window.build({renderer, config: {locale: "ar-SA"}});
+        const nodes = window.nodes(chart);
+        const get = part =>
+          nodes.find(n => String(n.key).endsWith(`kpi-Revenue-${part}`));
+        const delta = get("delta"),
+          compare = get("compare"),
+          card = get("card");
+        const svgText =
+          renderer === "svg"
+            ? document.querySelector(
+                "#viz svg text[data-key$='kpi-Revenue-compare']",
+              )
+            : null;
+        return {
+          dirs: ["label", "value", "delta", "compare"].map(
+            p => get(p).font.dir,
+          ),
+          anchors: ["label", "value", "delta", "compare"].map(
+            p => get(p).font.anchor,
+          ),
+          startsRight: delta.transform.x > card.width / 2,
+          wordsLeft:
+            compare.transform.x <= delta.transform.x - delta.lines[0].width,
+          glyphFirst: delta.lines[0].text.startsWith("▲"),
+          words: compare.lines[0].text,
+          domDir: svgText
+            ? svgText.getAttribute("dir") ||
+              svgText.closest("[dir]")?.getAttribute("dir")
+            : "rtl",
+        };
+      } finally {
+        document.documentElement.dir = "";
+      }
+    }, renderer);
+    assert.deepStrictEqual(out.dirs, ["rtl", "rtl", "rtl", "rtl"]);
+    assert.deepStrictEqual(out.anchors, ["start", "start", "start", "start"]);
+    assert.ok(out.startsRight, "lines start at the card's right edge");
+    assert.ok(out.wordsLeft, "the words sit to the left of the delta");
+    assert.ok(out.glyphFirst);
+    assert.strictEqual(out.words, "مقارنة بالسابق");
+    assert.strictEqual(out.domDir, "rtl");
   });
 }

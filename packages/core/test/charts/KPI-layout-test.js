@@ -19,6 +19,7 @@ import {
   kpiStyle,
   tileText,
   VALUE_WEIGHT,
+  valueSize,
 } from "../../src/charts/KPI/emit.ts";
 import {
   kpiAccessor,
@@ -39,12 +40,12 @@ const rows = Object.entries(series).flatMap(([metric, values]) =>
 );
 
 /** A 600×300 KPI chart laid out with no margins, ready to read. */
-function draw(config = {}, data = rows) {
+function draw(config = {}, data = rows, size = [600, 300]) {
   const viz = new KPI()
     .data(data.map(d => ({...d})))
     .config({groupBy: "metric", time: "month", ...config})
-    .width(600)
-    .height(300);
+    .width(size[0])
+    .height(size[1]);
   viz._preDraw();
   viz._margin = {top: 0, right: 0, bottom: 0, left: 0};
   viz._padding = {top: 0, right: 0, bottom: 0, left: 0};
@@ -370,6 +371,79 @@ it("KPI: kpiEmit honors sparkline, delta, and comparisonLabel settings", () => {
     colored.filter(n => n.type === "line").map(n => n.paint.stroke),
   );
   assert.strictEqual(strokes.size, 3, "a color of your own colors by it");
+});
+
+it("KPI: kpiEmit keeps every line of a tiny tile inside its card", () => {
+  for (const size of [
+    [600, 40],
+    [600, 24],
+    [90, 60],
+  ]) {
+    const {viz, tiles} = draw({}, rows, size);
+    const groups = kpiEmit({viz, shapeData: tiles});
+    for (const g of groups) {
+      const card = g.children.find(n => n.key.endsWith("-card"));
+      for (const n of g.children.filter(c => c.type === "text")) {
+        const half = (n.font.size * 1.25) / 2;
+        const {x, y} = n.transform;
+        assert.ok(
+          y - half >= 0 && y + half <= card.height,
+          `${size}: ${n.key} y`,
+        );
+        assert.ok(
+          x >= 0 && x + n.lines[0].width <= card.width,
+          `${size}: ${n.key} x`,
+        );
+      }
+      assert.ok(
+        !g.children.some(n => n.type === "line" || n.type === "area"),
+        "no room for a sparkline",
+      );
+    }
+  }
+  const {viz, tiles} = draw({}, rows, [600, 40]);
+  const keys = flat(kpiEmit({viz, shapeData: tiles})).map(n => n.key);
+  assert.ok(
+    !keys.some(k => k.endsWith("-compare")),
+    "comparison words go first",
+  );
+});
+
+it("KPI: kpiEmit lays the text out right to left on a right-to-left page", () => {
+  assert.strictEqual(kpiStyle(draw().viz).rtl, false);
+  document.documentElement.dir = "rtl";
+  try {
+    const {viz, tiles} = draw({locale: "ar-SA"});
+    assert.strictEqual(kpiStyle(viz).rtl, true);
+    const nodes = flat(kpiEmit({viz, shapeData: tiles}));
+    const get = part => nodes.find(n => n.key === `kpi-Revenue-${part}`);
+    const card = get("card");
+    const texts = ["label", "value", "delta", "compare"].map(get);
+    for (const n of texts) {
+      assert.strictEqual(n.font.dir, "rtl", n.key);
+      assert.strictEqual(n.font.anchor, "start", n.key);
+    }
+    const [label, value, delta, compare] = texts;
+    assert.strictEqual(label.transform.x, value.transform.x);
+    assert.strictEqual(value.transform.x, delta.transform.x);
+    assert.ok(delta.transform.x > card.width / 2, "lines start at the right");
+    assert.ok(
+      compare.transform.x <= delta.transform.x - delta.lines[0].width,
+      "the comparison words follow the delta, to its left",
+    );
+    assert.ok(delta.lines[0].text.startsWith("▲"), "the glyph leads");
+    assert.strictEqual(compare.lines[0].text, "مقارنة بالسابق");
+  } finally {
+    document.documentElement.dir = "";
+  }
+});
+
+it("KPI: valueSize shrinks an overflowing value just past its fit", () => {
+  assert.strictEqual(valueSize("12", "sans-serif", 20, 1000), 20);
+  const size = valueSize("$230.3K", "sans-serif", 40, 60);
+  assert.ok(size < 40 && size > 0);
+  const wide = valueSize("$230.3K", "sans-serif", 40, 120);
+  assert.ok(wide > size, "more room, larger text");
 });
 
 it("KPI: kpiEmit draws nothing without tiles", () => {
