@@ -34,6 +34,8 @@ export interface SwarmPlacement {
   x: number;
   y: number;
   r: number;
+  /** The circle's scene key, when rows can share an id (DotPlot's dots). */
+  key?: string;
 }
 
 type Row = Record<string, unknown>;
@@ -48,19 +50,23 @@ const isNumericAxis = (values: unknown[]): boolean =>
 
 /**
     Resolves a `swarm` setting against a draw's formatted rows. `true` swarms
-    along x when x is numeric, else along y. `"auto"` swarms only when every
-    row is a Circle and one axis has no values at all (a Plot drawn without
-    its y accessor). Returns null when there is nothing to swarm.
+    along x when x is numeric, else along y; with a `discrete` axis, along
+    the other one, with a lane per discrete value (numbers included).
+    `"auto"` swarms only when every row is a Circle and one axis has no
+    values at all (a Plot drawn without its y accessor). Returns null when
+    there is nothing to swarm.
 */
 export function resolveSwarm(
   setting: SwarmSetting | undefined,
   rows: Row[],
+  discrete?: "x" | "y",
 ): SwarmState | null {
   if (!setting || !rows.length) return null;
   const xs = rows.map(d => d.x);
   const ys = rows.map(d => d.y);
   let axis: "x" | "y" | undefined;
   if (setting === "x" || setting === "y") axis = setting;
+  else if (setting === true && discrete) axis = discrete === "x" ? "y" : "x";
   else if (setting === "auto") {
     if (!rows.every(d => d.shape === "Circle")) return null;
     if (ys.every(isMissing)) axis = "x";
@@ -68,7 +74,9 @@ export function resolveSwarm(
   } else axis = isNumericAxis(xs) ? "x" : "y";
   if (!axis || !isNumericAxis(axis === "x" ? xs : ys)) return null;
   const cross = axis === "x" ? "y" : "x";
-  const lanes = rows.some(d => !isMissing(d[cross]) && !isValue(d[cross]));
+  const lanes =
+    (discrete === cross && rows.some(d => !isMissing(d[cross]))) ||
+    rows.some(d => !isMissing(d[cross]) && !isValue(d[cross]));
   return {axis, cross, lanes};
 }
 

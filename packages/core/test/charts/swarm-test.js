@@ -88,6 +88,33 @@ it("resolveSwarm — true picks a numeric value axis; categories make lanes", ()
   );
 });
 
+it("resolveSwarm — a discrete axis holds the lanes, numbers included", () => {
+  const rows = circles([
+    {x: 1, y: 2019},
+    {x: 2, y: 2020},
+  ]);
+  assert.deepStrictEqual(
+    resolveSwarm(true, rows, "y"),
+    {axis: "x", cross: "y", lanes: true},
+    "numeric categories on y",
+  );
+  assert.deepStrictEqual(
+    resolveSwarm(true, rows, "x"),
+    {axis: "y", cross: "x", lanes: true},
+    "discrete x swarms along y",
+  );
+  assert.deepStrictEqual(
+    resolveSwarm(true, circles([{x: 1}, {x: 2}]), "y"),
+    {axis: "x", cross: "y", lanes: false},
+    "no categories, no lanes",
+  );
+  assert.deepStrictEqual(
+    resolveSwarm("x", rows, "y"),
+    {axis: "x", cross: "y", lanes: true},
+    "an explicit axis takes lanes from the discrete axis too",
+  );
+});
+
 it("resolveSwarm — an explicit axis must hold numbers", () => {
   assert.deepStrictEqual(resolveSwarm("y", circles([{x: 1, y: 2}])), {
     axis: "y",

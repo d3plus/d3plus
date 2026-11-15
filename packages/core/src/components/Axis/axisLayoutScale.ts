@@ -354,32 +354,36 @@ function applyTickSuffixUnit(axis: Axis, labels: unknown[]): void {
   }
 }
 
-/** Drops ticks that would visually collide, recording available/visible sets. */
-function filterVisibleTicks(
+/**
+    Drops ticks that would visually collide, recording available/visible
+    sets: a tick is kept when it sits more than twice its size from the
+    nearest tick kept before it. The ticks arrive sorted by position, so the
+    nearest kept tick is the furthest along one, which keeps this linear; a
+    tick placed before it (or at an infinite position) is checked against
+    every kept tick.
+*/
+export function filterVisibleTicks(
   axis: Axis,
   ticks: unknown[],
   tickGet: TickGet,
 ): unknown[] {
-  const pixels: (number | false)[] = [];
+  const kept: number[] = [];
+  let furthest = NaN;
   axis._availableTicks = ticks;
-  ticks.forEach((d: unknown, i: number) => {
+  ticks = ticks.filter((d: unknown, i: number) => {
     let s = tickGet({id: d, tick: true}, i);
     if (axis.schema.shape === "Circle") s *= 2;
     const t = axis._getPosition(d);
-    if (
-      !pixels.length ||
-      Math.abs(
-        closest(
-          t,
-          pixels.filter((pix): pix is number => pix !== false),
-        )! - t,
-      ) >
-        s * 2
-    )
-      pixels.push(t);
-    else pixels.push(false);
+    if (kept.length) {
+      if (Number.isNaN(t)) return false;
+      const nearest =
+        Number.isFinite(t) && t >= furthest ? furthest : closest(t, kept)!;
+      if (!(Math.abs(nearest - t) > s * 2)) return false;
+    }
+    kept.push(t);
+    if (!(t <= furthest)) furthest = t;
+    return true;
   });
-  ticks = ticks.filter((_d: unknown, i: number) => pixels[i] !== false);
   axis._visibleTicks = ticks;
   return ticks;
 }

@@ -253,11 +253,11 @@ export function thinEvenly(
   show?: (step: number, all: boolean) => void,
 ): void {
   let step = 1;
-  const crowded = (n: number) =>
-    textData.some(
-      (datum: AxisTextDatum, i: number) =>
-        i >= n && i % n === 0 && crowds(textData[i - n], datum, horizontal),
-    );
+  const crowded = (n: number) => {
+    for (let i = n; i < textData.length; i += n)
+      if (crowds(textData[i - n], textData[i], horizontal)) return true;
+    return false;
+  };
   while (step < textData.length && crowded(step)) {
     step++;
     show?.(step, false);
@@ -297,32 +297,58 @@ export function thinGreedilyShown(
 /**
     Hides each continuous-axis label that would crowd the last one shown
     before it, keeping the final label and hiding the ones before it that
-    crowd it instead.
+    crowd it instead. Labels in order (by `i`) keep the ones shown so far on
+    a stack, so each finds the last one shown at once.
 */
 export function thinGreedily(
   textData: AxisTextDatum[],
   horizontal: boolean,
 ): void {
+  const extent = (t: AxisTextDatum) => labelExtent(t, horizontal);
+  const crowding = (datum: AxisTextDatum, prev: AxisTextDatum) =>
+    datum.position - extent(datum) / 2 - datum.fP <
+    prev.position + extent(prev) / 2;
+  const ordered = textData.every(
+    (t: AxisTextDatum, k: number) => !k || t.i > textData[k - 1].i,
+  );
+  if (!ordered) return thinGreedilyUnordered(textData, crowding);
+  const shown: AxisTextDatum[] = [];
+  textData.forEach((datum: AxisTextDatum) => {
+    let prev = datum.i ? shown[shown.length - 1] : undefined;
+    if (datum.i === textData.length - 1) {
+      while (prev && crowding(datum, prev)) {
+        prev.truncated = true;
+        shown.pop();
+        prev = shown[shown.length - 1];
+      }
+    }
+    datum.truncated = prev ? crowding(datum, prev) : false;
+    if (!datum.truncated) shown.push(datum);
+  });
+}
+
+/**
+    `thinGreedily` for labels out of order: each looks back through every
+    label for the last one shown before it.
+*/
+function thinGreedilyUnordered(
+  textData: AxisTextDatum[],
+  crowding: (datum: AxisTextDatum, prev: AxisTextDatum) => boolean,
+): void {
   const reverseTextData = textData.slice().reverse();
   textData.forEach((datum: AxisTextDatum) => {
-    const {fP, i, position} = datum;
-    const extent = (t: AxisTextDatum) => labelExtent(t, horizontal);
+    const {i} = datum;
     let prev: AxisTextDatum | undefined = i
       ? reverseTextData.find((t: AxisTextDatum) => t.i < i && !t.truncated)
       : undefined;
     if (i === textData.length - 1) {
-      while (
-        prev &&
-        position - extent(datum) / 2 - fP < prev.position + extent(prev) / 2
-      ) {
+      while (prev && crowding(datum, prev)) {
         prev.truncated = true;
         prev = reverseTextData.find(
           (t: AxisTextDatum) => t.i < i && !t.truncated,
         );
       }
     }
-    datum.truncated = prev
-      ? position - extent(datum) / 2 - fP < prev.position + extent(prev) / 2
-      : false;
+    datum.truncated = prev ? crowding(datum, prev) : false;
   });
 }

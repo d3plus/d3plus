@@ -5,7 +5,7 @@
 */
 import type {DataPoint} from "@d3plus/data";
 
-import {rangeBreaksTimeAxis} from "./plotRangeBreaks.js";
+import {rangeBreaksTimeAxis, scaleTimeAxis} from "./plotRangeBreaks.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A row accessor, such as a Plot's `_x` or `_y`. */
@@ -25,8 +25,9 @@ export function hasCategoryValues(values: readonly unknown[]): boolean {
     whose values include text (see `hasCategoryValues`), or, when both do,
     the one with fewer distinct values (`"x"` on a tie). Undefined when `discrete` is set, when `swarm` is on (a
     swarm lays out its own categories; `"auto"` swarms only a single axis
-    of numbers, which has no text), for a time axis, or when neither axis
-    has text.
+    of numbers, which has no text), for a time axis (one that plots `time`,
+    or reads dates through a time scale or `rangeBreaks`), or when neither
+    axis has text.
     @param viz The Plot.
 */
 export function inferDiscrete(viz: VizInstance): "x" | "y" | undefined {
@@ -41,7 +42,11 @@ export function inferDiscrete(viz: VizInstance): "x" | "y" | undefined {
     if (typeof accessor !== "function") return [];
     const first = accessor(rows[0], 0);
     if (firstTime !== undefined && first === firstTime) return [];
-    if (rangeBreaksTimeAxis(viz, axis, first)) return [];
+    if (
+      rangeBreaksTimeAxis(viz, axis, first) ||
+      scaleTimeAxis(viz, axis, first)
+    )
+      return [];
     const values = rows.map(accessor);
     return hasCategoryValues(values)
       ? [{axis, distinct: new Set(values).size}]
