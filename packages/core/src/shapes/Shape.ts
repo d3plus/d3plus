@@ -136,6 +136,8 @@ export default class Shape extends BaseClass {
   _transition!: ReturnType<typeof transition>;
   /** @param data The raw data array to filter. */
   _dataFilter?(data: DataPoint[]): DataPoint[];
+  /** The `_dataFilter` output a render's labels and scene share (see `_filtered`). */
+  _filterMemo?: {data: DataPoint[]; out: DataPoint[]};
   _group!: D3Selection;
   _update!: D3Selection;
   _enter!: D3Selection;
@@ -266,6 +268,18 @@ export default class Shape extends BaseClass {
   }
 
   /**
+      The shape's data through `_dataFilter` (a Line's or Area's series),
+      grouped once for a render's labels and its scene.
+      @private
+*/
+  _filtered(): DataPoint[] {
+    if (!this._dataFilter) return this._data;
+    if (this._filterMemo?.data !== this._data)
+      this._filterMemo = {data: this._data, out: this._dataFilter(this._data)};
+    return this._filterMemo.out;
+  }
+
+  /**
       Adds labels to each shape group.
       @private
 */
@@ -280,7 +294,7 @@ export default class Shape extends BaseClass {
     // and friends inside their bodies.
     return buildLabelData({
       data: this._data,
-      dataFilter: this._dataFilter ? this._dataFilter.bind(this) : undefined,
+      dataFilter: this._dataFilter ? () => this._filtered() : undefined,
       label: this.schema.label,
       labelBounds: this.schema.labelBounds
         ? this.schema.labelBounds.bind(this)
@@ -392,9 +406,8 @@ export default class Shape extends BaseClass {
       the @d3plus/render pluggable backends; it has no effect on render().
 */
   toScene(): GroupNode {
-    let data: DataPoint[] & {key?: AccessorFn} = this._data;
-    if (this._dataFilter)
-      data = this._dataFilter(data) as DataPoint[] & {key?: AccessorFn};
+    const data = this._filtered() as DataPoint[] & {key?: AccessorFn};
+    this._filterMemo = undefined;
     const children: SceneNode[] = [];
     // Collected background images, emitted below (after the geometry) as clipped,
     // transformed groups. Each datum whose `backgroundImage(d, i)` resolves to a
@@ -521,6 +534,7 @@ export default class Shape extends BaseClass {
   }
 
   render(callback?: () => void): this {
+    this._filterMemo = undefined;
     // Populate the label TextBox so toScene() reads correct label data. The
     // label class is always in compute mode — the scene path materializes text.
     const lc = this._labelClass as unknown as {

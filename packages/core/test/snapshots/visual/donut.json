@@ -152,14 +152,6 @@
   ],
   "texts": [
     {
-      "s": "Delta",
-      "a": "middle"
-    },
-    {
-      "s": "14.7%",
-      "a": "middle"
-    },
-    {
       "s": "Alpha",
       "a": "start"
     },
@@ -182,6 +174,14 @@
     {
       "s": "17.6%",
       "a": "start"
+    },
+    {
+      "s": "Delta",
+      "a": "middle"
+    },
+    {
+      "s": "14.7%",
+      "a": "middle"
     },
     {
       "s": "Epsilon",

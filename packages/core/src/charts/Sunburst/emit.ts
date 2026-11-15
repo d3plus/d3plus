@@ -30,6 +30,7 @@ import {partitionFillResolver} from "../partition/shade.js";
 import type {PartitionFillable} from "../partition/shade.js";
 import type {SunburstNode} from "./partition.js";
 import type {SunburstGhost} from "./applyLayout.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /** The polar geometry of one node, padded per the `padAngle`/`padPixel` config. */
 export function sunburstArcGeometry(
@@ -194,7 +195,7 @@ function sunburstLabels(
   return [...labelNodes, ...curvedNodes];
 }
 
-export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
+export const sunburstEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as unknown as SunburstNode[];
   if (!nodes.length) return [];
 
@@ -253,4 +254,4 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
     : [];
 
   return [...ghosts, ...pathNodes, ...imageNodes, ...labelNodes, ...center];
-};
+});

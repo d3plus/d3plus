@@ -26,6 +26,7 @@ export {
   Histogram,
   HorizonChart,
   Icicle,
+  KPI,
   LinePlot,
   Lollipop,
   Marimekko,

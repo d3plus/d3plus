@@ -20,8 +20,9 @@ import {packDatum, packNeutral, packPaintDatum} from "./groupRows.js";
 import {packNeutralPaint} from "./neutralPaint.js";
 import type {PackLeaf} from "./applyLayout.js";
 import {packNodeKey, packNodeLabel} from "./nodeNames.js";
+import {pairLabels} from "../features/labelLayering.js";
 
-export const packEmit: ChartEmit = ({viz, shapeData}) => {
+export const packEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as PackLeaf[];
   if (!nodes.length) return [];
 
@@ -107,4 +108,4 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
   ]);
 
   return [...circleNodes, ...imageNodes, ...labelNodes];
-};
+});

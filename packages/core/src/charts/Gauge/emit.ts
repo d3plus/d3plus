@@ -28,6 +28,7 @@ import type {DialLayout} from "./dialLayout.js";
 import {emitDialLabels, emitDialParts} from "./emitDial.js";
 import type {DialStyle} from "./emitDial.js";
 import {needlePath, toDegrees} from "./gaugeGeometry.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface AxisShapeConfig {
   fill?: unknown;
@@ -170,7 +171,7 @@ function indicatorNodes(g: GaugeDatum, ctx: IndicatorCtx): SceneNode[] {
   return [hit, needle, hub];
 }
 
-export const gaugeEmit: ChartEmit = ({viz, shapeData}) => {
+export const gaugeEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const rows = (shapeData ?? []) as unknown as GaugeDatum[];
   const shared = viz.ctx.gauge as GaugeShared | undefined;
   if (!rows.length || !shared || !(shared.radius > 0)) return [];
@@ -228,4 +229,4 @@ export const gaugeEmit: ChartEmit = ({viz, shapeData}) => {
       children,
     },
   ];
-};
+});

@@ -30,6 +30,7 @@ import {
 import type {BulletRect} from "./bulletGeometry.js";
 import {TICK_GAP, TICK_LENGTH} from "./bulletLayout.js";
 import type {BulletStyle} from "./bulletStyle.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 type Anchor = "start" | "middle" | "end";
 
@@ -310,7 +311,7 @@ function markNodes(
   return nodes;
 }
 
-export const bulletEmit: ChartEmit = ({viz, shapeData}) => {
+export const bulletEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const bullets = (shapeData ?? []) as unknown as BulletDatum[];
   const shared = viz.ctx.bullet as BulletShared | undefined;
   if (!bullets.length || !shared) return [];
@@ -344,4 +345,4 @@ export const bulletEmit: ChartEmit = ({viz, shapeData}) => {
       ],
     };
   });
-};
+});

@@ -23,6 +23,7 @@ import {emitBins, emitDots} from "./densityEmit.js";
 import type {GeomapDensity} from "./densityLayout.js";
 import {geoHexbinSettings} from "./geoHexbin.js";
 import {TILE_GRID_FONT_MAX, tileGridOcean, tileGridOf} from "./tileGrid.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 interface GeomapCtx {
   density?: GeomapDensity;
@@ -128,7 +129,7 @@ function reshapedLabels(
   );
 }
 
-export const geomapEmit: ChartEmit = ({viz}) => {
+export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = emitGeomapBasemap(viz);
@@ -239,4 +240,4 @@ export const geomapEmit: ChartEmit = ({viz}) => {
 
   out.push(...emitFlowLabels(viz, links, circles));
   return out;
-};
+});

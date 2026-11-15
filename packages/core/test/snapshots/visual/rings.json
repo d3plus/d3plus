@@ -297,6 +297,10 @@
   ],
   "texts": [
     {
+      "s": "alpha",
+      "a": "middle"
+    },
+    {
       "s": "beta",
       "a": "start"
     },
@@ -323,10 +327,6 @@
     {
       "s": "eta",
       "a": "end"
-    },
-    {
-      "s": "alpha",
-      "a": "middle"
     }
   ]
 }

@@ -7,7 +7,6 @@ import {
   insideFontMin,
   labelFitsInside,
   labelPositionOf,
-  labelsOverCircles,
   layoutCircleLabels,
   measureLabel,
   outsideLabels,
@@ -195,6 +194,52 @@ describe("charts/circleLabels layoutCircleLabels", () => {
     assert.strictEqual(layout.get("n").text, "42");
   });
 
+  it("moves a label a circle painted over it covers beside its circle", () => {
+    // Beta paints after Alpha, over Alpha's center.
+    const items = [
+      item("alpha", 200, 150, 60, "Alpha"),
+      item("beta", 190, 150, 20, "Beta"),
+    ];
+    const layout = layoutCircleLabels(chart(), items, bounds);
+    assert.strictEqual(layout.get("alpha").position, "outside");
+    assert.strictEqual(layout.get("alpha").mode, "auto");
+    assert.strictEqual(layout.get("beta").position, "inside");
+  });
+
+  it("reads the paint order from each item's order", () => {
+    // Alpha paints last, so nothing covers it; Beta, under its edge, is covered.
+    const items = [
+      item("alpha", 200, 150, 60, "Alpha", {order: 1}),
+      item("beta", 255, 150, 20, "Beta", {order: 0}),
+    ];
+    const layout = layoutCircleLabels(chart(), items, bounds);
+    assert.strictEqual(layout.get("alpha").position, "inside");
+    assert.strictEqual(layout.get("beta").position, "outside");
+    assert.strictEqual(layout.get("beta").side, "right");
+  });
+
+  it("keeps a covered label inside when no side has room", () => {
+    // The bounds hug Alpha, so no label fits beside it.
+    const items = [
+      item("alpha", 200, 150, 60, "Alpha"),
+      item("beta", 190, 150, 20, "Beta"),
+    ];
+    const tight = {x: 140, y: 90, width: 120, height: 120};
+    const layout = layoutCircleLabels(chart(), items, tight);
+    assert.strictEqual(layout.get("alpha").position, "inside");
+    assert.strictEqual(layout.get("alpha").mode, "auto");
+  });
+
+  it('leaves a covered "inside" label inside', () => {
+    const items = [
+      item("alpha", 200, 150, 60, "Alpha"),
+      item("beta", 190, 150, 20, "Beta"),
+    ];
+    const viz = chart({labelPosition: constant("inside")});
+    const layout = layoutCircleLabels(viz, items, bounds);
+    assert.strictEqual(layout.get("alpha").position, "inside");
+  });
+
   it("judges inside fit at pointLabelConfig.fontMin", () => {
     // A 40px circle holds "Delta" at 10px, but not at 30px.
     const items = [item("c", 200, 150, 20, "Delta")];
@@ -293,25 +338,5 @@ describe("charts/circleLabels emitOutsideLabels", () => {
 
   it("emits nothing for no labels", () => {
     assert.deepStrictEqual(emitOutsideLabels(chart(), []), []);
-  });
-});
-
-describe("charts/circleLabels labelsOverCircles", () => {
-  it("lifts text above the highest-ranked circle", () => {
-    const nodes = [
-      {type: "circle", key: "a", z: 0},
-      {type: "circle", key: "b", z: 4},
-      {type: "text", key: "t"},
-    ];
-    const out = labelsOverCircles(nodes);
-    assert.strictEqual(out[2].z, 5);
-    assert.strictEqual(out[0], nodes[0]);
-  });
-  it("leaves an unranked group as it is", () => {
-    const nodes = [
-      {type: "circle", key: "a"},
-      {type: "text", key: "t"},
-    ];
-    assert.strictEqual(labelsOverCircles(nodes), nodes);
   });
 });
