@@ -574,24 +574,20 @@ const lineEmit: ShapeEmitter = ctx => {
     ctx.shapeConfig,
     ctx,
   );
-  // Labels at a line's left end, with values, or shortened to fit keep their own text,
-  // bounds, and anchor over the user's, taking only the series name from them.
-  const labelOverride =
-    labels &&
-    labelWidths.some(
-      l => l.side === "start" || l.valueText || l.name !== undefined,
-    )
-      ? (user: Record<string, unknown>) => {
-          const own = lineLabelConfig({...labelInputs, name: user.label});
-          return {
-            label: own.label,
-            labelBounds: own.labelBounds,
-            labelConfig: {
-              textAnchor: own.textAnchor(s.labelConfig().textAnchor),
-            },
-          };
-        }
-      : undefined;
+  // Line labels keep their own text, bounds, and anchor over the user's,
+  // taking only the series name from them, so every label has its bounds.
+  const labelOverride = labels
+    ? (user: Record<string, unknown>) => {
+        const own = lineLabelConfig({...labelInputs, name: user.label});
+        return {
+          label: own.label,
+          labelBounds: own.labelBounds,
+          labelConfig: {
+            textAnchor: own.textAnchor(s.labelConfig().textAnchor),
+          },
+        };
+      }
+    : undefined;
   const lines = finishShape(
     ctx,
     "Line",

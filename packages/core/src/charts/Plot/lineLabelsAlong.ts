@@ -31,7 +31,7 @@ import {
 import {PATH_LABEL_FONT_SIZE, pathLabelNodes} from "../features/pathLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {LineLabelConfig} from "./lineLabelSides.js";
-import {rowLabelsAlong} from "./lineLabelSides.js";
+import {lineLabelName, rowLabelsAlong} from "./lineLabelSides.js";
 
 /** The steepest stretch a line's label runs along by default, in degrees: past 45°, it would read more up than across. */
 export const LINE_LABEL_MAX_SLOPE = 45;
@@ -365,12 +365,20 @@ export function emitAlongLabels(
     minRadius: labelMinRadius(config?.minRadius),
     maxSlope: lineLabelMaxSlope(config?.maxSlope),
   };
-  // A series drawn as several lines (observed and predicted, say) is named
-  // once: its later lines count as named when an earlier one was.
+  // Each series is named once, even when another shares its text: a series
+  // drawn as several lines (a gap's bridge, say) counts as named when an
+  // earlier one of its lines was.
   const named = new Set<string>();
+  const name = shapeConfigFor(viz, "Line").label;
   const labels = along.flatMap(line => {
-    const text = `${viz._drawLabel(line.row, line.row.i ?? 0)}`;
-    if (named.has(text)) {
+    const i = line.row.i ?? 0;
+    const label = lineLabelName(name, line.row, i, () =>
+      viz._drawLabel(line.row, i),
+    );
+    if (label === false) return [];
+    const text = `${label}`;
+    const series = `${line.row.id ?? line.key}`;
+    if (named.has(series)) {
       if (stats) stats.placed++;
       return [];
     }
@@ -381,7 +389,7 @@ export function emitAlongLabels(
     const stretch = bestStretch(pieces, length, ctx);
     if (!stretch) return [];
     grid.add(labelBand(stretch, ctx));
-    named.add(text);
+    named.add(series);
     if (stats) stats.placed++;
     return [
       {

@@ -106,6 +106,23 @@ export function lineLabelValue(
     : `${text}`;
 }
 
+/**
+    The series name a line label shows: `name` (the Line shape's own `label`,
+    a value or a function of the row) when it is set, else `fallback()`.
+    False when `name` is, or returns, `false`: that line goes unlabeled.
+*/
+export function lineLabelName<D>(
+  name: unknown,
+  d: D,
+  i: number,
+  fallback: () => unknown,
+): unknown {
+  if (name === undefined || name === null) return fallback();
+  return typeof name === "function"
+    ? (name as (d: D, i: number) => unknown)(d, i)
+    : name;
+}
+
 /** A line label's text: the series name, followed by its value when there is one. */
 export function lineLabelText(name: unknown, value?: string): string {
   return value === undefined ? `${name}` : `${name} ${value}`;

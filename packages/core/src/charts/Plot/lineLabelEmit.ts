@@ -15,6 +15,7 @@ import type {LabelWidth, PlotDatum} from "../features/plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {
   lineLabelKey,
+  lineLabelName,
   lineLabelText,
   rowLineLabelSides,
   type LineLabelSide,
@@ -65,14 +66,11 @@ function entryText(
   const name =
     measure.name !== undefined
       ? measure.name
-      : inputs.name === undefined || inputs.name === null
-        ? viz._drawLabel(d as unknown as Parameters<Viz["_drawLabel"]>[0], i)
-        : typeof inputs.name === "function"
-          ? inputs.name(d, i)
-          : inputs.name;
-  return measure.valueText === undefined
-    ? name
-    : lineLabelText(name, measure.valueText);
+      : lineLabelName(inputs.name, d, i, () =>
+          viz._drawLabel(d as unknown as Parameters<Viz["_drawLabel"]>[0], i),
+        );
+  if (name === false) return false;
+  return lineLabelText(name, measure.valueText);
 }
 
 /** The labels a line shows, left end first. */
