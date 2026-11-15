@@ -31,7 +31,9 @@ const treemap = (setup, [width, height]) =>
 it("titleFeature composes a title TextNode into the scene", async () => {
   const res = await treemap(
     viz => viz.title(() => "My Chart Title"),
-    [300, 200],
+    // 300px plus the box and lasso select buttons' 48px, so the title keeps
+    // the room beside the corner panels it had with four zoom buttons.
+    [348, 200],
   );
   assert.ok(res.vizFeaturesGroup, "viz-features group composed into scene");
   assert.ok(res.hasTitle, "title text node present in scene");
