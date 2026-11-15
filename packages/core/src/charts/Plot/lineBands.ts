@@ -22,6 +22,8 @@ import {
   layerOpacities,
 } from "./confidenceBands.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {plotDownsample} from "./downsample.js";
+import {plotPointKey} from "./pointKey.js";
 
 /** `confidenceConfig` keys that style error bars, tooltips, or the ramp rather than the band's Area. */
 const NON_AREA_KEYS = ["bandOpacity", "capWidth", "tooltip"];
@@ -73,6 +75,8 @@ export function emitLineBands(ctx: ShapeEmitContext): SceneNode[] {
     areaConfig[`${key}1`] = (d: PlotDatum) => bound(band.upper, d, d[key]);
     // The first band keeps its line's id, so adding inner bands leaves it in place.
     if (k) areaConfig.id = (d: PlotDatum) => `${d.id}::band-${k}`;
+    areaConfig.pointKey = plotPointKey(viz);
+    Object.assign(areaConfig, plotDownsample(viz, ctx.xRange, ctx.yRange));
     const area = makeShape("Area")
       .renderMode("compute")
       .config(areaConfig)

@@ -234,6 +234,13 @@ export interface CircleConfig extends BaseShapeConfig {
 export interface LineConfig extends BaseShapeConfig {
   curve?: ConstOrAccessor<string>;
   defined?: AccessorFn;
+  /**
+      Each point's stable key (such as its x value). With one, a redraw
+      tweens the line point by point: kept points slide, new points grow out
+      of their neighbors, and dropped points fold into theirs. Without one
+      (the default), the line morphs from its old shape to its new one.
+  */
+  pointKey?: AccessorFn | null;
 }
 
 /** Area-specific config (curve, defined, dual-edge x/y). */
@@ -245,6 +252,13 @@ export interface AreaConfig extends BaseShapeConfig {
   x1?: ConstOrAccessor<number> | null;
   y0?: ConstOrAccessor<number>;
   y1?: ConstOrAccessor<number> | null;
+  /**
+      Each point's stable key (such as its x value). With one, a redraw
+      tweens the area point by point: kept points slide, new points grow out
+      of their neighbors, and dropped points fold into theirs. Without one
+      (the default), the area morphs from its old shape to its new one.
+  */
+  pointKey?: AccessorFn | null;
 }
 
 /** Path-specific config (raw SVG path d string or generator). */

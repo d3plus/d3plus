@@ -1,0 +1,223 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Streaming · LinePlot</title>
+    <meta
+      name="description"
+      content="Streaming data: append with a row-count or time-span window on lines and stacked areas, appends faster than the animation, a series joining mid-stream with a timeline and legend, a color scale, and bars redrawn with .data(rows).render()."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 300px;
+      }
+      .tall {
+        height: 380px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .controls {
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="controls">
+      <button id="toggle">Pause</button>
+      <button id="step">Append one tick</button>
+    </div>
+    <div class="grid">
+      <div>
+        <h3>append(rows, {window: "1 minute"}), one row per series a second</h3>
+        <div class="viz" id="window-time"></div>
+      </div>
+      <div>
+        <h3>Appends every 250ms, faster than the 600ms animation</h3>
+        <div class="viz" id="fast"></div>
+      </div>
+      <div>
+        <h3>StackedArea, append(rows, {window: 90})</h3>
+        <div class="viz" id="stacked"></div>
+      </div>
+      <div>
+        <h3>A series joins mid-stream: time, timeline, and legend</h3>
+        <div class="viz tall" id="timeline"></div>
+      </div>
+      <div>
+        <h3>
+          Points colored by value, with a color scale, append(rows, {window:
+          75})
+        </h3>
+        <div class="viz" id="colors"></div>
+      </div>
+      <div>
+        <h3>BarChart redrawn with .data(rows).render()</h3>
+        <div class="viz" id="bars"></div>
+      </div>
+    </div>
+
+    <script>
+      // A seeded random walk per series, so every load streams the same data.
+      let seed = 11;
+      const random = () =>
+        ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+      const start = Date.UTC(2026, 0, 1, 9, 0, 0);
+      const walks = {};
+      const step = (id, base) => {
+        walks[id] = (walks[id] ?? base) + (random() - 0.5) * 6;
+        return Math.max(1, walks[id]);
+      };
+      const rowsAt = (tick, ids) =>
+        ids.map(([id, base]) => ({
+          id,
+          point: `${id} ${tick}`,
+          second: tick,
+          time: new Date(start + tick * 1000),
+          value: step(id, base),
+        }));
+      const history = (ticks, ids) => {
+        const out = [];
+        for (let t = 0; t < ticks; t++) out.push(...rowsAt(t, ids));
+        return out;
+      };
+
+      const series = [
+        ["Alpha", 40],
+        ["Beta", 60],
+        ["Gamma", 80],
+      ];
+      const charts = [];
+      const stream = (viz, ids, initial, options, every = 1) => {
+        let tick = initial;
+        viz.data(history(initial, ids)).render();
+        charts.push({
+          every,
+          next: () => viz.append(rowsAt(tick++, ids), options),
+        });
+      };
+
+      stream(
+        new d3plus.LinePlot()
+          .select("#window-time")
+          .groupBy("id")
+          .x("time")
+          .y("value")
+          .xConfig({scale: "time"}),
+        series,
+        40,
+        {window: "1 minute"},
+      );
+
+      stream(
+        new d3plus.LinePlot()
+          .select("#fast")
+          .groupBy("id")
+          .x("time")
+          .y("value")
+          .xConfig({scale: "time"})
+          .duration(600),
+        series.slice(0, 2),
+        30,
+        {window: 60},
+        0.25,
+      );
+
+      stream(
+        new d3plus.StackedArea()
+          .select("#stacked")
+          .groupBy("id")
+          .x("time")
+          .y("value")
+          .xConfig({scale: "time"}),
+        series,
+        20,
+        {window: 90},
+      );
+
+      // Delta joins at tick 30.
+      const timeline = new d3plus.LinePlot()
+        .select("#timeline")
+        .groupBy("id")
+        .x("time")
+        .y("value")
+        .time("time")
+        .lineLabels(false)
+        .legend(true);
+      let timelineTick = 20;
+      timeline.data(history(20, series)).render();
+      charts.push({
+        every: 1,
+        next: () => {
+          const ids = timelineTick >= 30 ? [...series, ["Delta", 30]] : series;
+          timeline.append(rowsAt(timelineTick++, ids), {window: "45 seconds"});
+        },
+      });
+
+      const colors = new d3plus.Plot()
+        .select("#colors")
+        .groupBy("point")
+        .x("second")
+        .y("value")
+        .colorScale("value")
+        .shapeConfig({r: 4});
+      let colorTick = 20;
+      colors.data(history(20, series)).render();
+      charts.push({
+        every: 1,
+        next: () => colors.append(rowsAt(colorTick++, series), {window: 75}),
+      });
+
+      // Bars: the latest 12 seconds of one series, redrawn by setting data.
+      const bars = new d3plus.BarChart()
+        .select("#bars")
+        .groupBy("id")
+        .x("time")
+        .y("value")
+        .xConfig({scale: "time"});
+      let barRows = history(12, series.slice(0, 1));
+      let barTick = 12;
+      bars.data(barRows).render();
+      charts.push({
+        every: 1,
+        next: () => {
+          barRows = barRows
+            .slice(1)
+            .concat(rowsAt(barTick++, series.slice(0, 1)));
+          bars.data(barRows).render();
+        },
+      });
+
+      let playing = true;
+      let elapsed = 0;
+      const tick = () => {
+        elapsed += 0.25;
+        charts.forEach(c => {
+          if (Math.abs((elapsed / c.every) % 1) < 1e-9) c.next();
+        });
+      };
+      setInterval(() => playing && tick(), 250);
+      document.getElementById("toggle").addEventListener("click", e => {
+        playing = !playing;
+        e.target.textContent = playing ? "Pause" : "Play";
+      });
+      document.getElementById("step").addEventListener("click", () => {
+        for (let i = 0; i < 4; i++) tick();
+      });
+    </script>
+  </body>
+</html>

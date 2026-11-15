@@ -34,6 +34,7 @@ import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ChordCtx, ChordNode} from "./applyLayout.js";
 import {chordLabelFontSize} from "./labels.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /**
     The group labels the layout stage placed: curved ones along the ring,
@@ -163,7 +164,7 @@ function emitChordRibbons(
   return [...ribbons, ...ribbonImages];
 }
 
-export const chordEmit: ChartEmit = ({viz}) => {
+export const chordEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.chordCtx as ChordCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = [];
@@ -207,4 +208,4 @@ export const chordEmit: ChartEmit = ({viz}) => {
   if (arcData.length) out.push(...chordLabels(viz, arcData));
 
   return out;
-};
+});

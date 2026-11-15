@@ -21,6 +21,7 @@ import {radialIsArea} from "./applyLayout.js";
 import type {RadialFrame, RadialSeriesDatum} from "./applyLayout.js";
 import {radialDotNodes} from "./points.js";
 import {radialLabelNodes} from "./seriesLabelNodes.js";
+import {pairLabels} from "../features/labelLayering.js";
 
 /** A shape config's paint for one series, with its fill and stroke opacity and dashes. */
 export function radialPaint(
@@ -72,7 +73,7 @@ function seriesNode(
   } as SceneNode;
 }
 
-export const radialLineEmit: ChartEmit = ({viz, shapeData}) => {
+export const radialLineEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const series = (shapeData ?? []) as unknown as RadialSeriesDatum[];
   const frame = viz.ctx.radial as RadialFrame | undefined;
   const levelLabels = frame?.levelLabels ?? [];
@@ -93,4 +94,4 @@ export const radialLineEmit: ChartEmit = ({viz, shapeData}) => {
     ...dots.flat(),
     ...radialLabelNodes(viz, series, sc),
   ];
-};
+});

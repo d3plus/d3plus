@@ -10,6 +10,8 @@ import sortingBars from "~/examples/core/charts/bar-chart/sorting-bars.js?raw";
 import customBarPadding from "~/examples/core/charts/bar-chart/custom-bar-padding.js?raw";
 import stackedBars from "~/examples/core/charts/bar-chart/stacked-bars.js?raw";
 import horizontalBars from "~/examples/core/charts/bar-chart/horizontal-bars.js?raw";
+import multiLevelAxis from "~/examples/core/charts/bar-chart/multi-level-axis.js?raw";
+import multiLevelDomainAndFormat from "~/examples/core/charts/bar-chart/multi-level-domain-and-format.js?raw";
 import reversedAxis from "~/examples/core/charts/bar-chart/reversed-axis.js?raw";
 import trendLine from "~/examples/core/charts/bar-chart/trend-line.js?raw";
 import trendLineProjection from "~/examples/core/charts/bar-chart/trend-line-projection.js?raw";
@@ -69,6 +71,16 @@ Set `stacked: true` to stack the series into one bar per `x` position rather tha
 Run the bars horizontally by setting `discrete: "y"` so the category sits on the vertical axis and the measured length extends along `x`. Reach for this when category labels are long or numerous.
 
 <Playground chart="BarChart" code={horizontalBars} controls={["discrete","x","y"]} />
+
+## Multi-level category axis
+
+Give `x` (or, with `discrete: "y"`, `y`) an Array of keys, outermost first, to nest the categories: `["year", "quarter"]` places each bar at its quarter within its year, labels each tick with its quarter, and labels each year once, centered under its quarters, with a divider between neighboring years. Years sort ascending, as a numeric discrete axis does, and each year's quarters stay together whatever order the data lists them in (`xSort` orders them within their years instead). Crowded tick labels wrap, rotate, or thin as on any category axis, while each outer label wraps to two lines at most within its group. Tooltips name every level ("2024 / Q3") and the axis hover badge the quarter. `xConfig.levelConfig` styles the outer labels, which start from the tick labels' font, and `levelDividerConfig` the dividers, which start from the axis line's style. Small multiples label the levels wherever they label the axis.
+
+<Playground chart="BarChart" code={multiLevelAxis} controls={["x","stacked","xConfig"]} />
+
+An outer label too long for its group is cut short, and hovering it shows its whole text. Outer levels of Dates are written as the axis's tick labels write dates (a year of January firsts as "2024"), and `xConfig.levelFormat(value, level)` writes them yourself, `level` counting from the outermost (0); the quarters keep `tickFormat`. `xDomain` (or `xConfig.domain`) lists the categories to show, in order, each as its level values: `[[2023, "Q3"], [2023, "Q4"], …]`.
+
+<Playground chart="BarChart" code={multiLevelDomainAndFormat} controls={["xDomain","xConfig"]} />
 
 ## Reversed axis
 

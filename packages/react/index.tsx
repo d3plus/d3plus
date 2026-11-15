@@ -28,6 +28,7 @@ import {
   Histogram as HistogramClass,
   HorizonChart as HorizonChartClass,
   Icicle as IcicleClass,
+  KPI as KPIClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
   Marimekko as MarimekkoClass,
@@ -204,6 +205,10 @@ export const HorizonChart = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Icicle visualization. */
 export const Icicle = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={IcicleClass} {...props} />
+);
+/** React component for rendering a d3plus KPI visualization. */
+export const KPI = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={KPIClass} {...props} />
 );
 /** React component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = (props: D3plusComponentProps) => (

@@ -8,6 +8,7 @@ import {
   breakLineNodes,
   breakLinePaint,
   maskBreaks,
+  maskedGaps,
   maskPath,
   plotAxisConfig,
   unwrapBreakMasks,
@@ -390,16 +391,27 @@ it("maskBreaks masks every break by default, unless turned off", () => {
 it("plotAxisConfig folds xBreak/yBreak into the axis config, always setting break", () => {
   assert.deepStrictEqual(
     plotAxisConfig({schema: {yBreak: [1, 2]}, _yConfig: {title: "t"}}, "y"),
-    {break: [1, 2], title: "t"},
+    {break: [1, 2], levels: false, title: "t"},
   );
   assert.deepStrictEqual(
     plotAxisConfig({schema: {}, _xConfig: {}}, "x"),
-    {break: false},
+    {break: false, levels: false},
     "cleared when unset",
   );
   assert.deepStrictEqual(
     plotAxisConfig({schema: {yBreak: [1, 2]}, _yConfig: {break: [3, 4]}}, "y"),
-    {break: [3, 4]},
+    {break: [3, 4], levels: false},
     "a yConfig break wins",
   );
+});
+
+it("maskedGaps boxes each masked break's gap across the plot", () => {
+  const y = yAxis();
+  const [g0, g1] = breakGap(y, y._breaks[0]);
+  assert.deepStrictEqual(maskedGaps(stubViz(y), frame), [
+    {x: 10, y: g0, width: 380, height: g1 - g0},
+  ]);
+  const unmasked = yAxis({breakConfig: {mask: false}});
+  assert.deepStrictEqual(maskedGaps(stubViz(unmasked), frame), []);
+  assert.deepStrictEqual(maskedGaps(stubViz(), frame), []);
 });

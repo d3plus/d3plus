@@ -123,7 +123,7 @@ export function slantWithin(
   return res;
 }
 
-/** How far labels may reach out from the axis, past its ticks and margins. */
+/** How far labels may reach out from the axis, past its ticks, margins, and outer level rows (see `levels`). */
 export function labelRoom(
   axis: Axis,
   horizontal: boolean,
@@ -131,17 +131,20 @@ export function labelRoom(
   p: number,
 ): number {
   const maxSize = axisMaxSize(axis.schema, horizontal);
-  return horizontal
-    ? min([maxSize, axis.schema.height])! -
+  const levels = axis._levelLayout?.room ?? 0;
+  return (
+    (horizontal
+      ? min([maxSize, axis.schema.height])! -
         hBuff -
         p -
         axis._margin.top -
         axis._margin.bottom
-    : min([maxSize, axis.schema.width])! -
+      : min([maxSize, axis.schema.width])! -
         hBuff -
         p -
         axis._margin.left -
-        axis._margin.right;
+        axis._margin.right) - levels
+  );
 }
 
 /** A label's wrapped lines and measured size (see `calculateLabelSize`). */

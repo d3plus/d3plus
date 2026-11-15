@@ -13,6 +13,7 @@ import type {SceneNode} from "@d3plus/render";
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {pairLabels} from "../features/labelLayering.js";
 import {
   paintFromShapeConfig,
   resolveAccessor,
@@ -143,7 +144,7 @@ function vennLabels(
   });
 }
 
-export const vennEmit: ChartEmit = ({viz, shapeData}) => {
+export const vennEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const regions = (shapeData ?? []) as unknown as VennRegion[];
   if (!regions.length) return [];
   const sc = shapeConfigFor(viz, "Path");
@@ -174,4 +175,4 @@ export const vennEmit: ChartEmit = ({viz, shapeData}) => {
   const labels =
     userShape.label === false ? [] : vennLabels(viz, regions, fills);
   return [...paths, ...labels];
-};
+});

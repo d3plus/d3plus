@@ -1,6 +1,7 @@
 /**
     Labels of a Geomap's coordinate points: each sits inside its point when it
-    fits there, else beside it where there's room, else hides (see
+    fits there and no point drawn over it covers it, else beside it where
+    there's room, else inside when it fits there, else hides (see
     `labelPosition`).
 
     @module
@@ -48,7 +49,7 @@ function pointLabel(
 }
 
 /**
-    The scene nodes of a Geomap's point labels, painted above the points.
+    The scene nodes of a Geomap's point labels.
     @param viz The Geomap.
     @param c The projected points, in the order they're drawn.
     @param circleConfig The merged Circle shapeConfig.
