@@ -37,7 +37,7 @@ Without `time`, give each row its own comparison: `previous` reads it from a key
 
 ## Sparklines and the grid
 
-`sparkline` draws each tile's history as an `"area"` (the default), a `"line"`, or `"bar"`s with the current period in full color, or `false` for none. Every tile's sparkline takes one color, the color defaults' `sequential` blue, so it never reads as good or bad news; set `color` to color the tiles by a key. The grid picks the column count that draws the tiles largest at `tileConfig.aspect` (1.75 by default); `tileConfig.columns` or `rows` fixes it, `padding` spaces the tiles, and `fill`, `stroke`, `strokeWidth`, and `rx` style each tile's card.
+`sparkline` draws each tile's history as an `"area"` (the default), a `"line"`, or `"bar"`s with the current period in full color, or `false` for none. Every tile's sparkline takes one color, the color defaults' `sequential` blue, so it never reads as good or bad news; set `color` to color the tiles by a key. The grid picks the column count that draws the tiles largest at `tileConfig.aspect` (1.75 by default); `tileConfig.columns` or `rows` fixes it, `padding` spaces the tiles, and `fill`, `stroke`, `strokeWidth`, and `rx` style each tile's card. A tile too short for everything shrinks its text, then leaves out the comparison words, the label, and the delta, in that order, so nothing spills out of its card. On a right-to-left page (`dir="rtl"`), each tile's text starts at its right edge, with the comparison words to the left of the change.
 
 <Playground chart="KPI" code={sparklines} controls={["sparkline","tileConfig"]} />
 
