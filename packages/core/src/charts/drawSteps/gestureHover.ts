@@ -10,8 +10,7 @@
     @module
 */
 
-import type {SceneEvent} from "@d3plus/render";
-
+import {holdKeyHover} from "../features/keyHold.js";
 import type {ZoomGestureEvent} from "./zoomGesture.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -50,23 +49,6 @@ export function gestureMoves(
 /** Whether a zoom gesture is moving the chart, so pointer events wait. */
 export function gestureHolds(viz: Pick<VizInstance, "_gestureHover">): boolean {
   return !!viz._gestureHover?.moving;
-}
-
-/**
-    Whether a routed "mouseleave" leaves the whole chart: one the pointer
-    makes off the drawing surface, or the one a moving zoom gesture sends
-    (see `leaveHover`), as opposed to the leave that crossing from one node
-    to the next fires ahead of its move.
-    @param viz The chart.
-    @param event The routed scene event.
-*/
-export function leavesSurface(
-  viz: Pick<VizInstance, "_gestureHover">,
-  event: SceneEvent,
-): boolean {
-  if (event.type !== "mouseleave") return false;
-  const native = event.nativeEvent as Event | undefined;
-  return !native || native.type === "mouseleave" || gestureHolds(viz);
 }
 
 /** A zoom gesture begins (d3-zoom's "start"). */
@@ -108,12 +90,15 @@ function leaveHover(viz: VizInstance, source: Event): void {
   const rect = node?.getBoundingClientRect();
   const point: Point =
     at && rect ? [at[0] - rect.left, at[1] - rect.top] : [0, 0];
-  viz._routeSceneEvent?.({
-    type: "mouseleave",
+  const leave = {
+    type: "mouseleave" as const,
     point,
     pick: null,
     nativeEvent: source,
-  });
+  };
+  // A key entry's held highlight lets go too (see `holdKeyHover`).
+  holdKeyHover(viz, leave);
+  viz._routeSceneEvent?.(leave);
   // The leave handlers hide a mark's tooltip a macrotask later; hide it now,
   // along with one that no mark owns (a keyboard-focused mark's).
   const tooltip = viz._tooltipClass;

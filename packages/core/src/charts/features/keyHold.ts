@@ -10,6 +10,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneEvent, SceneNode, Transform} from "@d3plus/render";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {leavesSurface} from "../drawSteps/leavesSurface.js";
 import {colorScaleBucketOf} from "./colorScaleBucket.js";
 import {mapper, ownBoxes} from "./sceneBounds.js";
 
@@ -91,9 +92,9 @@ export function keyHull(
     @param event The pointer event.
 */
 export function holdKeyHover(viz: VizInstance, event: SceneEvent): void {
-  // A leave between two nodes carries the move that crossed; the chart's
-  // own leave carries a native mouseleave.
-  const inChart = event.nativeEvent?.type !== "mouseleave";
+  // A leave between two nodes carries the move that crossed; leaving the
+  // chart, or a zoom gesture moving it, leaves for good (see `leavesSurface`).
+  const inChart = !leavesSurface(viz, event);
   const hold = viz._keyHold;
   if (event.type === "mouseleave" && !hold) {
     const pick = viz._lastScenePick;

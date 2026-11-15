@@ -20,7 +20,7 @@ import {
 } from "../Plot/sharedTooltip.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {leavesSurface} from "../drawSteps/gestureHover.js";
+import {leavesSurface} from "../drawSteps/leavesSurface.js";
 import {HORIZON_ROW} from "./emit.js";
 import {handleRowLabel} from "./rowFilter.js";
 import {

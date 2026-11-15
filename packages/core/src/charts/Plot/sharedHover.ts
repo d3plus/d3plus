@@ -12,7 +12,7 @@ import {facetPanelAt} from "../facet/facetPanel.js";
 import {linkAs} from "../viz/linkGroup.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {leavesSurface} from "../drawSteps/gestureHover.js";
+import {leavesSurface} from "../drawSteps/leavesSurface.js";
 import {
   renderSharedTooltip,
   renderSingleTooltip,
