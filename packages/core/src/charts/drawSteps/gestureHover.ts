@@ -10,6 +10,7 @@
     @module
 */
 
+import {holdKeyHover} from "../features/keyHold.js";
 import type {ZoomGestureEvent} from "./zoomGesture.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -89,12 +90,15 @@ function leaveHover(viz: VizInstance, source: Event): void {
   const rect = node?.getBoundingClientRect();
   const point: Point =
     at && rect ? [at[0] - rect.left, at[1] - rect.top] : [0, 0];
-  viz._routeSceneEvent?.({
-    type: "mouseleave",
+  const leave = {
+    type: "mouseleave" as const,
     point,
     pick: null,
     nativeEvent: source,
-  });
+  };
+  // A key entry's held highlight lets go too (see `holdKeyHover`).
+  holdKeyHover(viz, leave);
+  viz._routeSceneEvent?.(leave);
   // The leave handlers hide a mark's tooltip a macrotask later; hide it now,
   // along with one that no mark owns (a keyboard-focused mark's).
   const tooltip = viz._tooltipClass;
