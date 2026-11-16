@@ -176,6 +176,7 @@ const hiddenMethods = {
     "barPadding",
   ],
   Waterfall: ["shape", "stacked", "stackOffset", "stackOrder"],
+  WordCloud: ["shape"],
 };
 
 function isWrappedInQuotes(str) {

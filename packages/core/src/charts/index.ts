@@ -64,4 +64,5 @@ export {default as Venn} from "./Venn/index.js";
 export {default as Violin} from "./Violin/index.js";
 export {default as Waffle} from "./Waffle/index.js";
 export {default as Waterfall} from "./Waterfall/index.js";
+export {default as WordCloud} from "./WordCloud/index.js";
 export {default as Viz} from "./viz/Viz.js";
