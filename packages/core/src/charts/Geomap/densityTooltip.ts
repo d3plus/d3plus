@@ -9,6 +9,7 @@
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
+import {bareRegionName} from "../features/bareRegion.js";
 import {linkTooltipConfig} from "../features/linkInteraction.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {DotDensityLayout, DotGroup} from "./dotDensityLayout.js";
@@ -97,19 +98,25 @@ export function densityTooltipRows(
 
 /**
     Geomap's default `tooltipConfig`: a cluster titled by its count and
-    listing its first points, a bin titled by its measure, dots and
-    regions under them listing their values and dots, and links and
-    their ends as on the other node-link charts (see `linkTooltipConfig`).
+    listing its first points, a bin titled by its measure, a region with no
+    data row by its own name (see `bareRegionName`), dots and regions under
+    them listing their values and dots, and links and their ends as on the
+    other node-link charts (see `linkTooltipConfig`).
     @param viz The Geomap.
 */
 export function geomapTooltipConfig(viz: VizInstance): {
-  title: (d: DataPoint, i: number) => string;
+  title: (d: DataPoint, i: number, wrapper?: unknown) => string;
   tbody: (d: DataPoint, i: number) => unknown[];
 } {
   const links = linkTooltipConfig(viz);
   return {
-    title: (d, i) =>
-      geoClusterTitle(viz, d) ?? geoBinTitle(viz, d) ?? links.title(d, i),
+    // A region with no data row reaches here as its bare feature, with the
+    // region wrapping it after.
+    title: (d, i, wrapper) =>
+      geoClusterTitle(viz, d) ??
+      geoBinTitle(viz, d) ??
+      bareRegionName(wrapper) ??
+      links.title(d, i),
     tbody: (d, i) => {
       const cluster = geoClusterTooltipRows(viz, d);
       if (cluster.length) return cluster;
