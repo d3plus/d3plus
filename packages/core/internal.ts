@@ -49,6 +49,7 @@ export {
   graphNodeId,
   graphNodeRows,
   graphPeriod,
+  panelNodeIds,
   resolveGraphLinks,
   resolveGraphNodes,
   zoomToNodeBounds,
