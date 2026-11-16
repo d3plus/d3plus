@@ -28,7 +28,8 @@ const tiles = new Map<string, string>();
 /**
     The CSS that draws a texture's `pattern:<json>` token over a swatch: the
     one tile the Canvas renderer repeats (see `patternTileSvg`), as an SVG
-    data URI at its own size. Empty without a DOM or for a bad token.
+    data URI at its own size, centered so a small swatch shows the tile's
+    middle. Empty without a DOM or for a bad token.
 */
 export function textureStyle(token: string): string {
   if (typeof document === "undefined") return "";
@@ -39,7 +40,7 @@ export function textureStyle(token: string): string {
       tile &&
       `data:image/svg+xml,${encodeURIComponent(tile.svg).replace(/'/g, "%27")}`;
     css = tile
-      ? ` background-image: url('${uri}'); background-size: ${tile.width}px ${tile.height}px;`
+      ? ` background-image: url('${uri}'); background-size: ${tile.width}px ${tile.height}px; background-position: center;`
       : "";
     tiles.set(token, css);
   }

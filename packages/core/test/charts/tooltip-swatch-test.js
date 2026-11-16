@@ -475,6 +475,7 @@ it("textureStyle — the texture's tile, repeated at its own size", () => {
   assert.ok(svg.includes("#4c6ef5"), "over its background");
   assert.ok(svg.includes("#1c3bb5"), "in its stroke");
   assert.match(css, /background-size: \d+px \d+px;/);
+  assert.match(css, /background-position: center;/);
   assert.strictEqual(textureStyle(lines), css, "the same tile again");
   assert.strictEqual(textureStyle("pattern:{oops"), "", "a bad token");
   assert.strictEqual(textureStyle("#fff"), "", "not a texture");
