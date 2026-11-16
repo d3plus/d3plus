@@ -92,17 +92,37 @@ function periodLinks(v: VizInstance): {link: RawLink; i: number}[] {
 }
 
 /**
+    The ids of a small-multiple panel's own rows (see `facet`), or
+    undefined outside a panel: a panel draws only the nodes its rows stand
+    for, so `nodes` and `links` shared by every panel don't pull in the
+    other panels' nodes.
+*/
+export function panelNodeIds(v: VizInstance): Set<string> | undefined {
+  if (v._facetStep !== "panel") return undefined;
+  const data = (v._filteredData ?? []) as DataPoint[];
+  return new Set(data.map((d, i) => graphNodeId(v, d, i)));
+}
+
+/**
     The chart's node rows: `nodes` when set, else one row per data row and
     one per link end no data row stands for (the link's own object, or
     `{id}` for an id), so a chart given only `data` and `links` still draws
-    its nodes, linked or not.
+    its nodes, linked or not. A small-multiple panel keeps only the rows
+    its own data rows stand for (see `panelNodeIds`).
 */
 export function graphNodeRows(v: VizInstance): DataPoint[] {
   const nodes = v.schema.nodes as DataPoint[];
   const period = graphPeriod(v);
-  if (nodes.length) return period ? nodes.filter(period) : nodes;
+  const panel = panelNodeIds(v);
+  if (nodes.length) {
+    const rows = period ? nodes.filter(period) : nodes;
+    return panel
+      ? rows.filter((d, i) => panel.has(graphNodeId(v, d, i)))
+      : rows;
+  }
   const data = v._filteredData as DataPoint[];
   const rows: DataPoint[] = [...data];
+  if (panel) return rows;
   const ids = new Set(data.map((d, i) => graphNodeId(v, d, i)));
   for (const {link: l} of periodLinks(v))
     for (const end of [l.source, l.target]) {

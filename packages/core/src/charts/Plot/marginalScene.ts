@@ -14,6 +14,8 @@ import type {DataPoint} from "@d3plus/data";
 import type {Paint, SceneNode} from "@d3plus/render";
 
 import type {PlotAxisFn, PlotDatum} from "../features/plotPaint.js";
+import {swatchOutline} from "../features/swatchPaint.js";
+import type {SwatchOutline} from "../features/swatchPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {marginalBands, type MarginalBand} from "./marginalLayout.js";
 import type {MarginalConfig} from "../../utils/D3plusConfig.js";
@@ -57,6 +59,8 @@ export interface MarginalMark {
   curve?: MarginalCurve;
   /** The color its tooltip's swatch shows: its fill, or a line's stroke. */
   swatch?: string;
+  /** Its tooltip swatch's outline: a filled mark's stroke. */
+  swatchOutline?: SwatchOutline;
 }
 
 /** A marginal mark's scene node. */
@@ -93,6 +97,7 @@ function paintOf(
 function swatch(mark: MarginalMark, paint: Paint): Paint {
   const fill = paint.fill && paint.fill !== "none" ? paint.fill : undefined;
   mark.swatch = fill ?? paint.stroke ?? mark.series.color;
+  mark.swatchOutline = fill ? swatchOutline(paint) : undefined;
   return paint;
 }
 

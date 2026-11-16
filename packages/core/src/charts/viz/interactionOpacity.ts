@@ -17,6 +17,7 @@ import type {InteractionPoint, SceneNode} from "@d3plus/render";
 
 import {activeBucketColors} from "../features/colorScaleBucket.js";
 import {hoveredSwatch} from "../features/colorScaleHover.js";
+import {SWATCH_OUTLINE} from "../features/swatchPaint.js";
 import {datumValues} from "../features/hoverTicks.js";
 import {STROKE_EMPHASIS} from "./emphasis.js";
 import type {EmphasisKind} from "./emphasis.js";
@@ -35,9 +36,15 @@ type Predicate = (d: DataPoint, i: number) => boolean;
     0/absent width as 1, matching the shape defaults; see `STROKE_EMPHASIS`).
     A path with an `emphasis` takes its `d` for the kind, and a filled glyph
     (an arrowhead) darkens its fill instead, so it stays the color of its
-    edge's stroke. Non-mark nodes (labels, groups) are untouched.
+    edge's stroke. A legend swatch (`swatch`) keeps its 1px outline width and
+    takes only the darker color. Non-mark nodes (labels, groups) are
+    untouched.
 */
-function emphasizeStroke(node: SceneNode, kind: EmphasisKind): SceneNode {
+function emphasizeStroke(
+  node: SceneNode,
+  kind: EmphasisKind,
+  swatch = false,
+): SceneNode {
   const {darken, width} = STROKE_EMPHASIS[kind];
   const paint = {...((node.paint ?? {}) as Record<string, unknown>)};
   const emphasis = node.type === "path" ? node.emphasis : undefined;
@@ -60,7 +67,7 @@ function emphasizeStroke(node: SceneNode, kind: EmphasisKind): SceneNode {
     typeof paint.strokeWidth === "number" && paint.strokeWidth
       ? paint.strokeWidth
       : 1;
-  paint.strokeWidth = w * width;
+  paint.strokeWidth = swatch ? SWATCH_OUTLINE : w * width;
   return {...shaped, paint} as SceneNode;
 }
 
@@ -356,7 +363,8 @@ export function applyLegendOpacity(
 
 /**
     Dims the nodes the chart's predicate leaves out. Given `marks`, `nodes`
-    are a legend's (see `applyLegendOpacity`).
+    are a legend's (see `applyLegendOpacity`), whose emphasized swatches keep
+    their 1px outline.
 */
 export function applyInteractionOpacity(
   nodes: SceneNode[],
@@ -438,14 +446,14 @@ export function applyInteractionOpacity(
             MARK_TYPES.has(node.type) &&
             nodeMatches(node, hoverPredicate)
           )
-            next = emphasizeStroke(node, "hover");
+            next = emphasizeStroke(node, "hover", !!marks);
         } else if (kind !== "highlight" && MARK_TYPES.has(node.type)) {
           const active =
             kind === "active" ||
             (activePredicate
               ? nodeMatches(node, activePredicate) === true
               : false);
-          next = emphasizeStroke(node, active ? "active" : "hover");
+          next = emphasizeStroke(node, active ? "active" : "hover", !!marks);
         }
         // Raise the matched node above its siblings. Both renderers paint by
         // ascending `z`; restore is automatic — the next repaint rebuilds the

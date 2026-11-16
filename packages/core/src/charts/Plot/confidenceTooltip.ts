@@ -16,6 +16,11 @@ import type {ConfidenceBounds} from "./barConfidence.js";
 import {confidenceBands, rowBands} from "./confidenceBands.js";
 import {confidenceValueAxis, rowCrossConfidence} from "./confidenceAxes.js";
 import {axisName, axisValue} from "./sharedTooltip.js";
+import {
+  addTooltipRows,
+  type TbodyHost,
+  TOOLTIP_ROW_RANK,
+} from "../features/tooltipRows.js";
 
 /** Formats a bound the way the tooltip formats the value it bounds. */
 type Format = (value: number) => string;
@@ -198,41 +203,32 @@ export function rangeText(
   return "";
 }
 
-/** The tooltip surface `appendPointConfidence` extends. */
-interface TbodyHost {
-  tbody(): unknown;
-  tbody(_: (d: DataPoint, i: number) => unknown): unknown;
-}
-
 /**
     Adds a hovered point's bounds (see `confidenceRows`) after the rows its
-    tooltip already lists, each formatted like its axis's values. Only a
-    point mark (a Circle or Rect, or its error bar) takes them: bars and
-    lines list theirs in Plot's snapped tooltips.
+    tooltip already lists, each formatted like its axis's values and read
+    from the row the tooltip renders. Only a point mark (a Circle or Rect,
+    or its error bar) takes them: bars and lines list theirs in Plot's
+    snapped tooltips.
     @param tooltip The tooltip being rendered.
     @param viz The chart.
-    @param d The hovered source row.
-    @param i The row's index.
     @param shapeType The hovered mark's shape type.
 */
 export function appendPointConfidence<T extends TbodyHost>(
   tooltip: T,
   viz: VizInstance,
-  d: DataPoint,
-  i: number,
   shapeType: string | undefined,
 ): T {
-  if (!shapeType || !["Circle", "Rect"].includes(shapeType)) return tooltip;
-  const axis = confidenceValueAxis(viz);
-  const rows = confidenceRows(viz, d, i, v => axisValue(viz, axis, v));
-  if (!rows.length) return tooltip;
-  const base = tooltip.tbody();
-  tooltip.tbody((dd: DataPoint, ii: number) => {
-    const own =
-      typeof base === "function"
-        ? (base as (d: DataPoint, i: number) => unknown)(dd, ii)
-        : base;
-    return [...(Array.isArray(own) ? own : []), ...rows];
-  });
-  return tooltip;
+  if (!confidenceTooltipEnabled(viz)) return tooltip;
+  const point = !!shapeType && ["Circle", "Rect"].includes(shapeType);
+  return addTooltipRows(
+    tooltip,
+    "confidence",
+    (d, i) =>
+      point
+        ? confidenceRows(viz, d, i, v =>
+            axisValue(viz, confidenceValueAxis(viz), v),
+          )
+        : [],
+    TOOLTIP_ROW_RANK.confidence,
+  );
 }

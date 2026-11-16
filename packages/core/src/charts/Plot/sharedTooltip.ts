@@ -21,6 +21,7 @@ import {
 } from "../features/tooltipSwatch.js";
 import {colorScaleTooltipRows} from "../features/colorScaleTooltip.js";
 import {thresholdMemberRows} from "../features/thresholdMembers.js";
+import {ownTbody} from "../features/tooltipRows.js";
 import {hasOwnClick} from "../viz/userClick.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
@@ -32,6 +33,7 @@ import type {SharedHover, SharedRow} from "./sharedHover.js";
 import {plotAxisUtc} from "./plotRangeBreaks.js";
 import {levelAxisName, levelAxisValue} from "./plotLevels.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {outlierRows, outlierSuffix} from "./outlierTooltip.js";
 
 type Axis = "x" | "y";
 const other = (k: Axis): Axis => (k === "x" ? "y" : "x");
@@ -155,8 +157,10 @@ export function snappedPosition(
     Holds the tooltip's own arrow/thead/tbody to restore once the snapped
     hover ends (see `restoreTooltip`), so the next legend or default tooltip
     isn't left with these rows — and resets thead/tbody to them before each
-    render so rows never accumulate. Also restores the default title swatch,
-    which `tooltipConfig` may then turn off.
+    render so rows never accumulate. It holds the `tbody` without the rows a
+    point's hover adds (see `addTooltipRows`), which these tooltips list
+    themselves. Also restores the default title swatch, which
+    `tooltipConfig` may then turn off.
 */
 export function prepareTooltip(viz: VizInstance) {
   const tip = viz._tooltipClass!;
@@ -164,7 +168,7 @@ export function prepareTooltip(viz: VizInstance) {
     viz._sharedTooltipSaved = {
       arrow: tip.arrow(),
       thead: tip.thead(),
-      tbody: tip.tbody(),
+      tbody: ownTbody(tip.tbody()),
     };
   const saved = viz._sharedTooltipSaved;
   return tip.thead(saved.thead).tbody(saved.tbody).titleSwatch(true);
@@ -222,7 +226,7 @@ export const SHARED_MEMBER_LIMIT = 5;
 /**
     The shared tooltip: title from the continuous axis, a header row naming
     the hovered discrete value, then one `[name, value]` row per series, the
-    name led by a swatch in its series stroke and the value followed by its
+    name led by its mark's swatch and the value followed by its
     `confidence` range, and a threshold bucket's series listed under its row.
     A chart's own value column (`viz._sharedTooltipValue`) replaces the
     axis's title and values, and its own rows (`viz._sharedTooltipRows`)
@@ -250,7 +254,10 @@ export function renderSharedTooltip(
       hover.rows
         .flatMap((r, i) => [
           [
-            withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
+            withSwatch(
+              tooltipSwatch(r, r.shape),
+              `${names[i]}${outlierSuffix(viz, r.datum)}`,
+            ),
             own
               ? own.value(r.datum, r.index)
               : `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
@@ -304,7 +311,7 @@ export function renderSingleTooltip(
   const tbody = tip.tbody();
   const extra =
     typeof tbody === "function" ? tbody(row.datum, row.index) : tbody;
-  leadTitleWithSwatch(tip, tooltipSwatch(row.color, row.shape))
+  leadTitleWithSwatch(tip, tooltipSwatch(row, row.shape))
     .tbody([
       ...(viz._tooltipAxisRows === false
         ? []
@@ -318,6 +325,7 @@ export function renderSingleTooltip(
         : confidenceRows(viz, row.datum, row.index, v =>
             axisValue(viz, other(hover.axis), v),
           )),
+      ...outlierRows(viz, row.datum),
       ...colorScaleTooltipRows(viz, row.datum, row.index),
       ...(Array.isArray(extra) ? extra : []),
       ...thresholdMemberRows(viz, row.datum),

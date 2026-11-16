@@ -11,7 +11,9 @@ import type {SceneEvent} from "@d3plus/render";
 
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
+import {swatchOutline} from "../features/swatchPaint.js";
 import {leadTitleWithSwatch, tooltipSwatch} from "../features/tooltipSwatch.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 import {shapeHoverEnabled} from "../viz/shapeHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {MarginalMark} from "./marginalScene.js";
@@ -129,7 +131,15 @@ export function handleMarginalHover(
   const shape = mark.kind === "density" ? "Area" : "Rect";
   leadTitleWithSwatch(
     tip,
-    tooltipSwatch(mark.swatch ?? mark.series.color, shape),
+    tooltipSwatch(
+      {
+        color: mark.swatch ?? mark.series.color,
+        outline:
+          mark.swatchOutline &&
+          swatchOutline(mark.swatchOutline, {background: chartBackground(viz)}),
+      },
+      shape,
+    ),
   )
     .thead([])
     .tbody(

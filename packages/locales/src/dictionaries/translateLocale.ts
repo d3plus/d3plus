@@ -92,6 +92,7 @@ export interface TranslationStrings {
   "Only in This Region": string;
   Open: string;
   "Out-degree": string;
+  Outlier: string;
   "Percent of Total": string;
   "PNG image": string;
   Polynomial: string;
@@ -291,6 +292,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Open: "\u0627\u0644\u0627\u0641\u062a\u062a\u0627\u062d",
     "Out-degree":
       "\u0627\u0644\u062f\u0631\u062c\u0629 \u0627\u0644\u062e\u0627\u0631\u062c\u0629",
+    Outlier: "\u0642\u064a\u0645\u0629 \u0645\u062a\u0637\u0631\u0641\u0629",
     "Percent of Total":
       "\u0627\u0644\u0646\u0633\u0628\u0629 \u0645\u0646 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a",
     "PNG image": "\u0635\u0648\u0631\u0629 PNG",
@@ -474,6 +476,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Only in This Region": "Solo en Esta Regi\u00f3n",
     Open: "Apertura",
     "Out-degree": "Grado de salida",
+    Outlier: "Valor at\u00edpico",
     "Percent of Total": "Porcentaje del Total",
     "PNG image": "Imagen PNG",
     Polynomial: "Polin\u00f3mica",
@@ -636,6 +639,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Only in This Region": "Apenas Nesta Regi\u00e3o",
     Open: "Abertura",
     "Out-degree": "Grau de sa\u00edda",
+    Outlier: "Valor at\u00edpico",
     "Percent of Total": "Porcentagem do Total",
     "PNG image": "Imagem PNG",
     Polynomial: "Polinomial",
@@ -801,6 +805,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Only in This Region": "\u4ec5\u5728\u6b64\u533a\u57df",
     Open: "\u5f00\u76d8",
     "Out-degree": "\u51fa\u5ea6",
+    Outlier: "\u5f02\u5e38\u503c",
     "Percent of Total": "\u5360\u603b\u6570\u767e\u5206\u6bd4",
     "PNG image": "PNG \u56fe\u7247",
     Polynomial: "\u591a\u9879\u5f0f",

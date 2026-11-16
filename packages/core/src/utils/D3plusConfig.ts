@@ -1132,6 +1132,44 @@ export interface MarginalConfig extends MarginalPaintConfig {
   density?: MarginalPaintConfig;
 }
 
+/** An `outlier` setting: on, the rule that finds outliers, or a predicate that flags rows. */
+export type OutlierSetting =
+  | boolean
+  | {
+      /** `"iqr"` (default), `"zscore"`, or `"mad"`. */
+      method?: "iqr" | "zscore" | "mad";
+      /** How far past the quartiles, mean, or median the fences sit (defaults `1.5`, `3`, `3.5`). */
+      k?: number;
+      /** What each mark is compared with: `"auto"` (default), `"series"`, `"discrete"`, or `"all"`. */
+      group?: "auto" | "series" | "discrete" | "all";
+    }
+  | ((d: DataPoint, i: number) => boolean);
+
+/** A ring style key: a value, or an accessor of the outlier's row. */
+type OutlierStyle<T> = T | ((d: DataPoint, i: number) => T);
+
+/** `outlierConfig`: how outliers are ringed and labeled. */
+export interface OutlierConfig {
+  /** The ring's color (default the chart's text color, which contrasts with its background). */
+  stroke?: OutlierStyle<string>;
+  /** The ring's width in pixels (default `2`). */
+  strokeWidth?: OutlierStyle<number>;
+  /** The ring's opacity. */
+  strokeOpacity?: OutlierStyle<number>;
+  /** The ring's dash pattern, as `"4 2"` or `[4, 2]`. */
+  strokeDasharray?: OutlierStyle<string | number[]>;
+  /** The space between a mark's edge and its ring, in pixels (default `2`). */
+  gap?: number;
+  /** The ring's radius around a line or area's point, which has no mark of its own (default `6`). */
+  r?: number;
+  /** The label: `true` (default) names the row and its value, a function returns the text (or `false` for none), and `false` draws none. */
+  label?: boolean | ((d: DataPoint, i: number) => string | false);
+  /** TextBox config for the label (`fontSize` defaults to `pointLabelConfig`'s). */
+  labelConfig?: Record<string, unknown>;
+  /** Notes "Outlier" in the tooltip and the mark's aria label (default `true`). */
+  tooltip?: boolean;
+}
+
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
@@ -2691,6 +2729,42 @@ export interface D3plusConfig {
       A number reserves exactly that much room.
   */
   outerPadding?: number | "auto";
+  /**
+      Plot charts: rings each outlier and labels it with its name and value
+      (see `outlierConfig`), and notes it in its tooltip and aria label. A
+      mark is an outlier when its value-axis value lies past the fences of
+      the values it's compared with. `true` uses Tukey's rule: more than 1.5
+      interquartile ranges past the first or third quartile, the rule
+      BoxWhisker's whiskers follow. An object picks the `method`: `"iqr"`
+      (Tukey's rule, `k` interquartile ranges, default `1.5`), `"zscore"`
+      (`k` standard deviations from the mean, default `3`), or `"mad"`
+      (a modified z-score, 0.6745 × the distance from the median over the
+      median absolute deviation, of at least `k`, default `3.5`). `group`
+      sets what each mark is compared with: `"series"` (its line or series,
+      or every point when each series is one point), `"discrete"` (the
+      other marks in its category), `"all"`, or `"auto"` (the default: a
+      line or area along its series, other marks within their category).
+      A group needs three values or more. A function flags each row itself.
+      BoxWhisker's boxes draw their own outliers and are left out. Off by
+      default.
+
+      Box shapes: the shape each outlier draws as (see `BoxConfig`).
+  */
+  outlier?: OutlierSetting | ConstOrAccessor<"Circle" | "Rect" | false>;
+  /**
+      Styles the `outlier` marks: the ring's `stroke` (default the chart's
+      text color), `strokeWidth` (default `2`), `strokeOpacity`, and
+      `strokeDasharray`; `gap`, the space between a mark and its ring
+      (default `2`); `r`, the ring's radius around a line or area's point
+      (default `6`); `label`, `false` to draw none or a function returning
+      each outlier's text (default its name and value); `labelConfig`, the
+      label's TextBox config (its `fontSize` defaults to
+      `pointLabelConfig`'s); and `tooltip: false` to leave "Outlier" out of
+      tooltips and aria labels. Style keys also take an accessor of the row.
+
+      Box shapes: the config of each outlier's shape (see `BoxConfig`).
+  */
+  outlierConfig?: OutlierConfig | Record<string, unknown>;
   /** Priestley and Gantt: the space between neighboring bars, as a share of each row (d3's band `paddingInner`). */
   paddingInner?: number;
   /** Priestley and Gantt: the space before the first row and after the last, as a share of a row (d3's band `paddingOuter`). */

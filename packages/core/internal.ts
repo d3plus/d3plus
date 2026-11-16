@@ -42,6 +42,8 @@ export type {
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
 export {
   applyNetworkLayout,
+  axisFitShare,
+  layoutMaxRadius,
   placeLoneNodes,
 } from "./src/charts/Network/applyLayout.js";
 export {
@@ -59,6 +61,7 @@ export {
   graphNodeId,
   graphNodeRows,
   graphPeriod,
+  panelNodeIds,
   resolveGraphLinks,
   resolveGraphNodes,
   zoomToNodeBounds,
@@ -668,6 +671,62 @@ export {
   marginalTitle,
   marginalTooltipRows,
 } from "./src/charts/Plot/marginalHover.js";
+export {
+  OUTLIER_K,
+  OUTLIER_MIN_VALUES,
+  OUTLIER_SHAPES,
+  computePlotOutliers,
+  findOutliers,
+  outlierAxis,
+  outlierFences,
+  outlierGroups,
+  resolveOutlier,
+} from "./src/charts/Plot/outlierDetect.js";
+export type {
+  OutlierGroup,
+  OutlierMethod,
+  OutlierRule,
+  PlotOutlier,
+} from "./src/charts/Plot/outlierDetect.js";
+export {
+  barEndHigh,
+  clampRingBox,
+  dropMarkLabels,
+  edgePoint,
+  growBox,
+  outlierDefaults,
+  outlierOf,
+  outlierRings,
+  ringPaint,
+  outlierRingRadius,
+  withOutliers,
+} from "./src/charts/Plot/outlierScene.js";
+export {
+  barLabelSpots,
+  emitOutlierLabels,
+  outlierLabel,
+  outlierLabelSpots,
+  outlierSides,
+  placeOutlierLabels,
+} from "./src/charts/Plot/outlierLabels.js";
+export type {
+  OutlierLabelSpot,
+  OutlierRing,
+} from "./src/charts/Plot/outlierLabels.js";
+export {
+  OUTLIER_LINE_STEP,
+  boxCrossesSegment,
+  lineSegments,
+  seriesSegments,
+} from "./src/charts/Plot/outlierLines.js";
+export type {LineSegment} from "./src/charts/Plot/outlierLines.js";
+export {
+  appendOutlier,
+  notedOutlier,
+  outlierAria,
+  outlierRows,
+  outlierSuffix,
+} from "./src/charts/Plot/outlierTooltip.js";
 export {
   anchorPoint,
   axisPixel,
