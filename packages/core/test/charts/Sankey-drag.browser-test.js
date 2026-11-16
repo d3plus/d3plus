@@ -57,9 +57,11 @@ const laidOut = () => {
   const t = viz._chartTransform || {x: 0, y: 0};
   const nodes = {};
   const paths = {};
+  const order = [];
   const walk = n => {
     const key = String(n.key);
     const node = key.match(/^sankey-Rect-(.+)$/);
+    if (node) order.push(node[1]);
     if (node)
       nodes[node[1]] = {
         x: n.x,
@@ -79,7 +81,7 @@ const laidOut = () => {
     (n.children || []).forEach(walk);
   };
   walk(viz._paintedScene.root);
-  return {nodes, paths, clicks: window.__clicks};
+  return {nodes, paths, order, clicks: window.__clicks};
 };
 
 async function drag(page, id, dy) {
@@ -114,6 +116,7 @@ for (const renderer of ["svg", "canvas"]) {
         "its link follows",
       );
       assert.strictEqual(after.clicks, 0, "the drag doesn't click");
+      assert.strictEqual(after.order.at(-1), "a", "drawn over the rest");
 
       // Dragged far past the edge, it stops at the bottom.
       await drag(page, "a", 1000);
