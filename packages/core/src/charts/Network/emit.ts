@@ -59,8 +59,11 @@ import {pointLabelSettings} from "../features/circleLabels.js";
 import {emitSpokeLabels} from "../features/spokeLabels.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {pairLabels} from "../features/labelLayering.js";
+import {polylineSegments} from "../features/labelSlots.js";
+import type {LabelSegment, LabelSlot} from "../features/labelSlots.js";
+import {networkLive} from "./liveForce.js";
 
-interface NetworkLink {
+export interface NetworkLink {
   source: DataPoint & {x: number; y: number};
   target: DataPoint & {x: number; y: number};
   size?: number;
@@ -282,7 +285,31 @@ function networkNode(
   return null;
 }
 
-/** Places the Circle nodes' labels among every node (see `labelPosition`). */
+/** Every link's run as segments, for node labels to keep clear of. */
+export function networkLinkSegments(
+  links: readonly NetworkLink[],
+): LabelSegment[] {
+  return links.flatMap(link =>
+    link.loop
+      ? polylineSegments(curvePoints(link.loop.d))
+      : link.points
+        ? polylineSegments(link.points)
+        : link.source && link.target
+          ? polylineSegments([
+              [link.source.x, link.source.y],
+              [link.target.x, link.target.y],
+            ])
+          : [],
+  );
+}
+
+/**
+    Places the Circle nodes' labels among every node (see `labelPosition`):
+    a label beside no side of its node slides along one, crossing as few
+    links as it can. On a frame of the live layout or a drag, each label
+    keeps the slot it held while that slot stays open, so labels don't jump
+    from side to side as their nodes move.
+*/
 function placeNetworkLabels(
   viz: VizInstance,
   c: NetworkCtx,
@@ -334,7 +361,31 @@ function placeNetworkLabels(
     });
   }
   const {width, height} = chartBounds(viz);
-  return layoutCircleLabels(viz, items, {x: 0, y: 0, width, height});
+  const live = viz._facetStep ? undefined : networkLive(viz);
+  const held = live?.frameDraw ? live.labelSlots : undefined;
+  const placed = layoutCircleLabels(
+    viz,
+    items,
+    {x: 0, y: 0, width, height},
+    [],
+    {
+      segments: networkLinkSegments(c.links ?? []),
+      previous: held && (d => held.get(d.id)),
+    },
+  );
+  if (live) live.labelSlots = labelSlots(placed);
+  return placed;
+}
+
+/** The slot each node's label took beside it, by node id. */
+function labelSlots(
+  placed: Map<NetworkNode, CircleLabelLayout>,
+): Map<string, LabelSlot> {
+  const out = new Map<string, LabelSlot>();
+  for (const [d, p] of placed)
+    if (p.position === "outside")
+      out.set(d.id, {side: p.side, slide: p.slide ?? 0});
+  return out;
 }
 
 /**

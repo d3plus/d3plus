@@ -532,3 +532,171 @@ describe("charts/circleLabelPlacement placeCircleLabels (covered)", () => {
     assert.strictEqual(p.position, "hidden");
   });
 });
+
+describe("charts/circleLabelPlacement placeCircleLabels slide", () => {
+  // Boxes that leave one open window above and right of a circle at
+  // (200, 150): only its label slid all the way right along the top fits,
+  // half a pixel from the boxes (so these tests keep no `slideSpacing`).
+  const circle = {x: 200, y: 150, r: 5};
+  const walls = (left = 199.5) => [
+    {x: 0, y: 0, width: left, height: 300},
+    {x: 0, y: 142.5, width: 400, height: 158},
+    {x: 0, y: 0, width: 400, height: 119},
+    {x: 262, y: 0, width: 138, height: 300},
+  ];
+
+  it("hides a label with no open side unless it may slide", () => {
+    const [plain] = placeCircleLabels([circle], [label(0)], bounds, {
+      obstacles: walls(),
+    });
+    assert.deepStrictEqual(plain, {position: "hidden"});
+    const [slid] = placeCircleLabels([circle], [label(0)], bounds, {
+      obstacles: walls(),
+      slide: true,
+      slideSpacing: 0,
+    });
+    assert.deepStrictEqual(slid, {
+      position: "outside",
+      side: "top",
+      slide: 1,
+      box: {x: 200, y: 128, width: 40, height: 14},
+    });
+  });
+
+  it("keeps a slid label `slideClearance` from other circles", () => {
+    // A circle 1px from the open window: in the way at the default
+    // clearance (the 3px gap), not with no clearance.
+    const near = {x: 246, y: 135, r: 5};
+    const opts = {obstacles: walls(), slide: true, slideSpacing: 0};
+    const [kept] = placeCircleLabels([circle, near], [label(0)], bounds, opts);
+    assert.strictEqual(kept.position, "hidden");
+    const [close] = placeCircleLabels([circle, near], [label(0)], bounds, {
+      ...opts,
+      slideClearance: 0,
+    });
+    assert.strictEqual(close.position, "outside");
+    assert.strictEqual(close.slide, 1);
+  });
+
+  it("keeps a slid label `slideSpacing` from other boxes", () => {
+    // The window's walls sit half a pixel from the slid label: too near at
+    // the default spacing (the 3px gap), not at a quarter pixel.
+    const opts = {obstacles: walls(), slide: true};
+    const [spaced] = placeCircleLabels([circle], [label(0)], bounds, opts);
+    assert.strictEqual(spaced.position, "hidden");
+    const [close] = placeCircleLabels([circle], [label(0)], bounds, {
+      ...opts,
+      slideSpacing: 0.25,
+    });
+    assert.strictEqual(close.slide, 1);
+  });
+
+  it("takes the open slot crossing the fewest segments", () => {
+    // Two slots open (slid half and all the way right); a link crosses the first.
+    const opts = {obstacles: walls(189.5), slide: true, slideSpacing: 0};
+    const [first] = placeCircleLabels([circle], [label(0)], bounds, opts);
+    assert.strictEqual(first.slide, 0.5);
+    const [clear] = placeCircleLabels([circle], [label(0)], bounds, {
+      ...opts,
+      segments: [{x1: 195, y1: 0, x2: 195, y2: 140}],
+    });
+    assert.strictEqual(clear.slide, 1);
+  });
+
+  it("moves another label aside to make room", () => {
+    // A row with room only to the left and right of each circle. A's label
+    // holds the right of A (its previous slot), the only side of B's in
+    // bounds; A's label moves left so B's fits.
+    const row = {x: 0, y: 0, width: 220, height: 30};
+    const circles = [
+      {x: 100, y: 15, r: 4},
+      {x: 180, y: 15, r: 4},
+    ];
+    const labels = [label(0, {previous: {side: "right", slide: 0}}), label(1)];
+    const held = placeCircleLabels(circles, labels, row);
+    assert.strictEqual(held[0].side, "right");
+    assert.strictEqual(held[1].position, "hidden");
+    const [a, b] = placeCircleLabels(circles, labels, row, {slide: true});
+    assert.strictEqual(a.side, "left");
+    assert.deepStrictEqual(b, {
+      position: "outside",
+      side: "left",
+      box: {x: 133, y: 8, width: 40, height: 14},
+    });
+    assertClear(circles, [a, b]);
+  });
+
+  it("keeps a label's previous slot while it is open", () => {
+    // Alone in a wide cell, a label goes right; told it was on the left
+    // (slid up) last frame, it stays there.
+    const circles = [{x: 200, y: 150, r: 5}];
+    const [fresh] = placeCircleLabels(circles, [label(0)], bounds, {
+      slide: true,
+    });
+    assert.strictEqual(fresh.side, "right");
+    const [kept] = placeCircleLabels(
+      circles,
+      [label(0, {previous: {side: "left", slide: -0.5}})],
+      bounds,
+      {slide: true},
+    );
+    assert.strictEqual(kept.side, "left");
+    assert.strictEqual(kept.slide, -0.5);
+    // A previous slot out of bounds is passed over.
+    const [moved] = placeCircleLabels(
+      [{x: 20, y: 150, r: 5}],
+      [label(0, {previous: {side: "left", slide: 0}})],
+      bounds,
+      {slide: true},
+    );
+    assert.strictEqual(moved.side, "right");
+  });
+
+  it("spaces a kept slot only when it is slid", () => {
+    // A box 1px right of the label's right side: a centered previous slot
+    // keeps no spacing and holds; one slid down needs the gap and moves.
+    const circles = [{x: 200, y: 150, r: 5}];
+    const opts = {
+      slide: true,
+      obstacles: [{x: 249, y: 140, width: 10, height: 30}],
+    };
+    const [centered] = placeCircleLabels(
+      circles,
+      [label(0, {previous: {side: "right", slide: 0}})],
+      bounds,
+      opts,
+    );
+    assert.strictEqual(centered.side, "right");
+    assert.strictEqual(centered.slide, undefined);
+    const [slid] = placeCircleLabels(
+      circles,
+      [label(0, {previous: {side: "right", slide: 0.5}})],
+      bounds,
+      opts,
+    );
+    assert.ok(!(slid.side === "right" && slid.slide === 0.5), "moved");
+  });
+
+  it("places the same labels the same way every time", () => {
+    let seed = 3;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const circles = Array.from({length: 80}, () => ({
+      x: 20 + rand() * 360,
+      y: 20 + rand() * 260,
+      r: 3 + rand() * 4,
+    }));
+    const labels = circles.map((_, i) => label(i));
+    const segments = circles
+      .slice(1)
+      .map((c, i) => ({x1: circles[i].x, y1: circles[i].y, x2: c.x, y2: c.y}));
+    const run = () =>
+      placeCircleLabels(circles, labels, bounds, {slide: true, segments});
+    const once = run();
+    assert.deepStrictEqual(run(), once);
+    assertClear(circles, once);
+    // Sliding shows more labels than the sides alone.
+    const sides = placeCircleLabels(circles, labels, bounds);
+    const shown = p => p.filter(x => x.position === "outside").length;
+    assert.ok(shown(once) > shown(sides), `${shown(once)} > ${shown(sides)}`);
+  });
+});

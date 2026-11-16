@@ -255,6 +255,57 @@ describe("charts/circleLabels layoutCircleLabels", () => {
       "outside",
     );
   });
+
+  it("slides a label along its circle, clear of segments, when asked", () => {
+    // A strip too short for a centered label beside the circle: it fits
+    // only slid down along the circle's right or left side.
+    const strip = {x: 0, y: 0, width: 400, height: 20};
+    const items = [item("a", 200, 4, 3, "Beta")];
+    assert.strictEqual(
+      layoutCircleLabels(chart(), items, strip, [], {slide: false}).get("a")
+        .position,
+      "hidden",
+    );
+    const slid = layoutCircleLabels(chart(), items, strip, [], {slide: true});
+    assert.strictEqual(slid.get("a").side, "right");
+    assert.strictEqual(slid.get("a").slide, 0.5);
+    const clear = layoutCircleLabels(chart(), items, strip, [], {
+      slide: true,
+      segments: [{x1: 215, y1: 0, x2: 215, y2: 20}],
+    });
+    assert.strictEqual(clear.get("a").side, "left");
+  });
+
+  it("slides by default, unless the chart's labelSlide is false", () => {
+    const strip = {x: 0, y: 0, width: 400, height: 20};
+    const items = [item("a", 200, 4, 3, "Beta")];
+    assert.strictEqual(
+      layoutCircleLabels(chart(), items, strip).get("a").slide,
+      0.5,
+    );
+    assert.strictEqual(
+      layoutCircleLabels(chart({labelSlide: true}), items, strip).get("a")
+        .position,
+      "outside",
+    );
+    assert.strictEqual(
+      layoutCircleLabels(chart({labelSlide: false}), items, strip).get("a")
+        .position,
+      "hidden",
+    );
+  });
+
+  it("keeps the slot a label held last frame", () => {
+    const items = [item("a", 200, 150, 4, "Beta")];
+    assert.strictEqual(
+      layoutCircleLabels(chart(), items, bounds).get("a").side,
+      "right",
+    );
+    const held = layoutCircleLabels(chart(), items, bounds, [], {
+      previous: key => (key === "a" ? {side: "top", slide: 0} : undefined),
+    });
+    assert.strictEqual(held.get("a").side, "top");
+  });
 });
 
 describe("charts/circleLabels sideAnchor", () => {

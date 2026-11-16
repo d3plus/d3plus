@@ -26,6 +26,7 @@ import {
 } from "d3-force";
 import type {Simulation, SimulationNodeDatum} from "d3-force";
 
+import type {LabelSlot} from "../features/labelSlots.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {motionReduced} from "../viz/reducedMotion.js";
 import type {GraphLink, GraphNode} from "./graph.js";
@@ -99,6 +100,8 @@ export interface NetworkLive {
   clickTimer?: ReturnType<typeof setTimeout>;
   /** Re-runs the chart's layout and emit (set by the chart's `setup`). */
   relayout?: () => void;
+  /** The slot each node's label took beside it on the last draw, by node id. */
+  labelSlots?: Map<string, LabelSlot>;
 }
 
 /** The chart's remembered layout, created on first use. */

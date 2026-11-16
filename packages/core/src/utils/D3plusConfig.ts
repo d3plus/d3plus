@@ -2223,6 +2223,15 @@ export interface D3plusConfig {
     | "outside"
     | ((d: DataPoint, i: number) => "auto" | "along" | "inside" | "outside");
   /**
+      Circles (Plot points, Network nodes, Geomap points): whether a label
+      that fits neither inside its circle nor centered on a side of it slides
+      along a side before it hides, clear of the other circles and labels
+      (and, on a Network, crossing as few links as it can). It may also move
+      a neighbor's label aside to make room. `false` keeps each label
+      centered on a side, or hides it. Defaults to `true`.
+  */
+  labelSlide?: boolean;
+  /**
       Whether to display the legend. By default it shows when it has more than
       one entry and each entry stands for a single group, or when entries are
       colored by a category that isn't a `groupBy` level. It hides when the

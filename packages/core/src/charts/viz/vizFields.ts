@@ -76,6 +76,7 @@ const fields = {
   keyboardNavConfig: {merge: true, default: {padding: 2, strokeWidth: 2}},
   label: {coerce: "const"},
   labelPosition: {coerce: "const", default: "auto"},
+  labelSlide: {default: true},
   legend: {coerce: "const"},
   legendConfig: {merge: true},
   legendFilterInvert: {coerce: "const"},

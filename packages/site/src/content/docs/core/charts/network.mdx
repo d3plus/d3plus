@@ -104,9 +104,9 @@ A network gathered in the middle of a wide chart leaves its corners empty, so th
 
 ## Label placement
 
-A node's label stays inside it when it fits there at a readable size (`pointLabelConfig.fontMin`, 10px by default). Otherwise it moves beside the node, on the side with the most open room, as long as it overlaps no other node or label; a label with no room is hidden, and the node's tooltip still names it. Bigger nodes are labeled first. Set `labelPosition` to `"inside"` to keep every label inside its node, shrinking it to fit, or `"outside"` to put every label beside its node.
+A node's label stays inside it when it fits there at a readable size (`pointLabelConfig.fontMin`, 10px by default). Otherwise it moves beside the node, on the side with the most open room, as long as it overlaps no other node or label. With no side open, it slides along a side of its node, clear of the other nodes and labels and crossing as few links as it can, and may move a neighbor's label aside to make room (`labelSlide: false` turns this off); a label with no room is hidden, and the node's tooltip still names it. Bigger nodes are labeled first. While the layout moves, each label keeps its place beside its node as long as it still fits there. Set `labelPosition` to `"inside"` to keep every label inside its node, shrinking it to fit, or `"outside"` to put every label beside its node.
 
-<Playground chart="Network" code={labelPlacement} controls={["labelPosition","pointLabelConfig"]} height={500} />
+<Playground chart="Network" code={labelPlacement} controls={["labelPosition","labelSlide","pointLabelConfig"]} height={500} />
 
 ## Link tooltips
 

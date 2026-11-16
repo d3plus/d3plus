@@ -19,6 +19,7 @@ import {backgroundInk} from "../viz/backgroundInk.js";
 import {userLabelConfig} from "./emitHelpers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {coveredInside, placeCircleLabels} from "./circleLabelPlacement.js";
+import type {LabelSegment, LabelSlot} from "./labelSlots.js";
 import type {
   CircleLabelPlacement,
   CircleLabelBox,
@@ -177,6 +178,19 @@ export interface CircleLabelItem<K> {
   order?: number;
 }
 
+/** How `layoutCircleLabels` places labels beyond their circles' sides. */
+export interface CircleLabelOptions<K> {
+  /**
+      Whether a label no side takes slides along its circle's sides (see
+      `placeCircleLabels`; default the chart's `labelSlide`).
+  */
+  slide?: boolean;
+  /** Lines a slid label crosses as few of as it can. */
+  segments?: readonly LabelSegment[];
+  /** The slot a circle's label held last frame, kept while it stays open. */
+  previous?: (key: K) => LabelSlot | undefined;
+}
+
 /** A label's placement, with the mode it was placed in and its text. */
 export type CircleLabelLayout = CircleLabelPlacement & {
   mode: LabelPosition;
@@ -188,17 +202,21 @@ export type CircleLabelLayout = CircleLabelPlacement & {
     each row's `labelPosition` and the chart's `pointLabelConfig`. An
     `"auto"` label counts as fitting inside when it fits at
     `pointLabelConfig.fontMin`, and as covered when a circle painted over
-    its own overlaps it (see `coveredInside`).
+    its own overlaps it (see `coveredInside`). A label no side takes slides
+    along one unless the chart's `labelSlide` is `false`.
     @param viz The chart.
     @param items Every circle, labeled or not.
     @param bounds The box labels must stay in, in the circles' space.
     @param obstacles Boxes no label beside a circle may overlap.
+    @param options Slid labels and the lines they avoid (see
+    `placeCircleLabels`), and the slot each label held last frame.
 */
 export function layoutCircleLabels<K>(
   viz: VizInstance,
   items: readonly CircleLabelItem<K>[],
   bounds: Bounds,
   obstacles: readonly CircleLabelBox[] = [],
+  options: CircleLabelOptions<K> = {},
 ): Map<K, CircleLabelLayout> {
   const settings = pointLabelSettings(viz);
   const font = outsideFont(settings);
@@ -237,17 +255,21 @@ export function layoutCircleLabels<K>(
       mode === "inside" || (fitsInside && !covered.has(at))
         ? {width: 0, height: 0}
         : measureLabel(text, resolveFont(font, item));
+    const previous = options.previous?.(item.key);
     return {
       circle: at,
       ...size,
       position: mode,
       fitsInside,
       covered: covered.has(at),
+      ...(previous ? {previous} : {}),
     };
   });
   const placements = placeCircleLabels(circles, requests, bounds, {
     gap: settings.padding,
     obstacles,
+    slide: options.slide ?? viz.schema.labelSlide !== false,
+    segments: options.segments,
   });
   const out = new Map<K, CircleLabelLayout>();
   labeled.forEach(({item, text}, j) =>
