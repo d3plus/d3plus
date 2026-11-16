@@ -455,12 +455,15 @@ export default class Shape extends BaseClass {
         );
         // Share the datum's rank so the hit area stays paired just behind its
         // own geometry (equal `z`, kept in push order by the stable sort).
+        // A `hitAreaStyle` (Bar) paints it while its datum is hovered.
+        const style = this.schema.hitAreaStyle as Paint | false | undefined;
         if (ha)
-          children.push(
-            rank
-              ? ({...ha, ...iPoints, z: rank[i]} as SceneNode)
-              : ({...ha, ...iPoints} as SceneNode),
-          );
+          children.push({
+            ...ha,
+            ...iPoints,
+            ...(rank ? {z: rank[i]} : {}),
+            ...(style ? {hoverPaint: {...style}} : {}),
+          } as SceneNode);
       }
 
       children.push({

@@ -77,7 +77,7 @@ const probe = ([data, config, year]) =>
         bars: svg
           ? Array.from(
               svg.querySelectorAll(
-                "[data-key='plot-zoom-content'] rect.d3plus-render-rect",
+                "[data-key='plot-zoom-content'] rect.d3plus-render-rect:not([data-key$='::hit'])",
               ),
             )
               .filter(r => r.getAttribute("data-key").includes("_"))
@@ -431,7 +431,7 @@ it("Pyramid hides a side from the legend without moving the other", async functi
             viz._xFunc(viz.ctx.pyramid.inset);
           const bars = Array.from(
             svg.querySelectorAll(
-              "[data-key='plot-zoom-content'] rect.d3plus-render-rect",
+              "[data-key='plot-zoom-content'] rect.d3plus-render-rect:not([data-key$='::hit'])",
             ),
           )
             .filter(r => r.getAttribute("data-key").includes("_"))
@@ -787,7 +787,7 @@ const gutterProbe = ([data, config, year, size]) =>
       };
       const bars = Array.from(
         svg.querySelectorAll(
-          "[data-key='plot-zoom-content'] rect.d3plus-render-rect",
+          "[data-key='plot-zoom-content'] rect.d3plus-render-rect:not([data-key$='::hit'])",
         ),
       )
         .filter(r => r.getAttribute("data-key").includes("_"))
@@ -1022,7 +1022,8 @@ const sceneProbe = ([data, renderer, size]) =>
         else if (
           n.type === "rect" &&
           g === "plot-zoom-content" &&
-          /^(Male|Female)_/.test(n.key)
+          /^(Male|Female)_/.test(n.key) &&
+          !n.key.endsWith("::hit")
         )
           found.bars.push({
             sex: n.key.split("_")[0],

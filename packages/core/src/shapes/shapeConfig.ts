@@ -25,6 +25,7 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
+import type {Paint} from "@d3plus/render";
 
 import type {AccessorFn} from "../utils/index.js";
 
@@ -268,6 +269,17 @@ export interface PathConfig extends BaseShapeConfig {
 
 /** Bar-specific config (Rect + start/end coords). */
 export interface BarConfig extends RectConfig {
+  /**
+      The band a hovered bar's `hitArea` shows: while a bar is hovered (on
+      the bar, or anywhere in its slot), its hit area is drawn behind the
+      bars with this paint (`fill`, `fillOpacity`, `stroke`,
+      `strokeWidth`, `opacity`), showing the slot a click acts on. A
+      Plot's side-by-side bars default to the theme's text color at 10%
+      opacity, and stacked bars take a band over their slot that the
+      pointer passes through. `false` draws no band, and neither does
+      `hitArea: false`.
+  */
+  hitAreaStyle?: Paint | false;
   x0?: ConstOrAccessor<number>;
   x1?: ConstOrAccessor<number> | null;
   y0?: ConstOrAccessor<number>;

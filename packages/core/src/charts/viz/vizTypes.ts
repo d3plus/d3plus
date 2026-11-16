@@ -389,6 +389,8 @@ export interface VizInstance {
     i?: number;
     isLegend?: boolean;
   } | null;
+  /** The row whose bar's hover band shows (see `hoverBand.ts`). */
+  _hoverBandRow?: unknown;
   /** Epoch ms until which an animated transition is in flight (pointer routing pauses). */
   _transitionEndsAt?: number;
   /** Keyboard navigation's host element and focused mark (see `keyboardNav.ts`). */

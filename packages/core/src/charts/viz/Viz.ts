@@ -51,6 +51,7 @@ import {
 } from "./keyboardNav.js";
 import {mountTargetFor} from "./mountTarget.js";
 import {resetCursor} from "./setCursor.js";
+import {leaveMark, syncHoverBand} from "./hoverBand.js";
 import {routePointerEvent} from "./nearestHover.js";
 import {nearestHoverSurface} from "./nearestHoverSurface.js";
 import {selectClick} from "../drawSteps/selectActions.js";
@@ -708,6 +709,7 @@ export default class Viz extends VizBase {
     const axisTip = handleAxisTooltip(this as unknown as VizInstance, event);
     handleSwatchLabelHover(this as unknown as VizInstance, event, axisTip);
     if (axisTip) return;
+    if (event.type === "mouseleave") leaveMark(this as unknown as VizInstance);
     if (this._transitionEndsAt && Date.now() < this._transitionEndsAt) return;
     const pick = event.pick;
     // Dispatch helper shared by the live-pick path and the leave path.
@@ -807,6 +809,7 @@ export default class Viz extends VizBase {
       node: pick.node,
     };
     this._hoverDatum = rawDatum;
+    syncHoverBand(this as unknown as VizInstance);
     fire(handlerKey, sourceDatum, sourceIndex, rawDatum);
     for (const t of shapeTargets)
       fire(`${event.type}.${t.shapeType}`, t.d, t.i, t.x);

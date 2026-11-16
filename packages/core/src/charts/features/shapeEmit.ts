@@ -34,7 +34,12 @@ import {lineLabelConfig} from "../Plot/lineLabelEmit.js";
 import {breakLines, clipBands, lineGaps} from "../Plot/connectGapsScene.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {barSeries, seriesSlot} from "../Plot/barWidth.js";
-import {applyBarHitArea, hitColumn} from "../Plot/barHitArea.js";
+import {
+  applyBarHitArea,
+  barHitBand,
+  hitColumn,
+  stackSlotTargets,
+} from "../Plot/barHitArea.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
 import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
@@ -224,6 +229,9 @@ function markNodes(
   // Areas grow out of the value axis's baseline.
   if (key === "Area") growAreasFromBaseline(ctx, nodes);
   if (key !== "Bar") return labelsWithShapes(nodes);
+  // A stacked column's empty slot reaches its nearest segment.
+  if (ctx.viz.schema.stacked)
+    nodes = stackSlotTargets(nodes, vizDiscrete(ctx.viz) === "y" ? "y" : "x");
   // Error bars paint over their bars but under the bar labels, as a lower
   // stack level's error bar reaches into the bar above it. Stacked bars
   // grow in one stack level after another.
@@ -455,7 +463,7 @@ const barEmit: ShapeEmitter = emitCtx => {
 
   s.width(barSize);
   s.height(barSize);
-  barHits(ctx, s, column);
+  barHits(ctx, s, column, () => hitColumn(step, 1, 0, 0));
 
   return finishShape(ctx, "Bar", s);
 };
@@ -488,7 +496,8 @@ function spanBarEmit(
   if (series.length < 2) {
     s.width(space);
     s.height(space);
-    barHits(ctx, s, (d: PlotDatum) => hitColumn(step(d), 1, 0, 0));
+    const lone = (d: PlotDatum) => hitColumn(step(d), 1, 0, 0);
+    barHits(ctx, s, lone, lone);
     return finishShape(ctx, "Bar", s);
   }
   const slot = (d: PlotDatum) =>
@@ -502,30 +511,41 @@ function spanBarEmit(
   s[axis]((d: PlotDatum, i: number) => position(d, i) + slot(d).offset);
   s.width((d: PlotDatum) => slot(d).size);
   s.height((d: PlotDatum) => slot(d).size);
-  barHits(ctx, s, (d: PlotDatum) =>
-    hitColumn(
-      step(d),
-      series.length,
-      series.indexOf(d.group),
-      Math.max(0, space(d) - slot(d).size) / 2,
-    ),
+  barHits(
+    ctx,
+    s,
+    (d: PlotDatum) =>
+      hitColumn(
+        step(d),
+        series.length,
+        series.indexOf(d.group),
+        Math.max(0, space(d) - slot(d).size) / 2,
+      ),
+    (d: PlotDatum) => hitColumn(step(d), 1, 0, 0),
   );
   return finishShape(ctx, "Bar", s);
 }
 
-/** Side-by-side bars' hit areas (see `Plot/barHitArea.ts`); stacked bars take none. */
+/**
+    Bars' hit areas and hover bands (see `Plot/barHitArea.ts`): side-by-side
+    bars each take their `column`, and stacked bars a band over the whole
+    `slot` that the pointer passes through (the empty part of the slot
+    takes `stackSlotTargets` instead).
+*/
 function barHits(
   ctx: ShapeEmitContext,
   s: Shape,
   column: (d: PlotDatum, i: number) => [number, number],
+  slot: (d: PlotDatum, i: number) => [number, number],
 ): void {
   const {viz} = ctx;
-  if (viz.schema.stacked) return;
+  const stacked = Boolean(viz.schema.stacked);
   applyBarHitArea(
     s,
     vizDiscrete(viz) === "y" ? "y" : "x",
     ctx.valueExtent,
-    column as (d: DataPoint, i: number) => [number, number],
+    (stacked ? slot : column) as (d: DataPoint, i: number) => [number, number],
+    {band: barHitBand(viz._theme?.text ?? "#000"), inert: stacked},
   );
 }
 

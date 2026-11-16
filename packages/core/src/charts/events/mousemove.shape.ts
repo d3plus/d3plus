@@ -9,7 +9,7 @@ import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
 import {keyTooltipAnchor} from "../features/keyTooltip.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {pointTooltipAnchor} from "../viz/pointTooltipAnchor.js";
-import {setCursor} from "../viz/setCursor.js";
+import {setMarkCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import {hasOwnClick, hasUserClick} from "../viz/userClick.js";
 import type Viz from "../viz/Viz.js";
@@ -47,12 +47,9 @@ export default function (
           this._filteredData ?? [],
         );
 
-  // only show the hand cursor when the shape has a click event, whether or
-  // not it shows a tooltip
-  setCursor(
-    this,
-    userClick || (hasDefaultClick && hasDeeperLevel) ? "pointer" : "auto",
-  );
+  // only show the hand cursor while the pointer is on a shape with a click
+  // event, whether or not it shows a tooltip
+  setMarkCursor(this, userClick || (hasDefaultClick && hasDeeperLevel));
 
   if (!tooltipEnabled(this, d, i)) return;
 

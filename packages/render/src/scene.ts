@@ -259,6 +259,12 @@ export interface NodeBase {
       slot). Interaction metadata only — backends never read it for drawing.
   */
   hoverKeys?: Record<string, unknown>;
+  /**
+      Paint laid over the node's own while its datum is hovered, as a
+      bar's hit area shows its slot as a band. Interaction metadata only:
+      the chart applies it before the scene reaches a backend.
+  */
+  hoverPaint?: Paint;
   paint?: Paint;
   transform?: Transform;
   /**

@@ -21,21 +21,24 @@ it("Histogram draws contiguous, count-proportional bins", async function () {
           .height(500);
         configure(viz);
         viz.render(() => {
+          // The bars, not the hover bands behind them.
           const rects = [
             ...el.querySelectorAll(
               "g[data-key='plot-zoom-content'] rect.d3plus-render-rect",
             ),
-          ].map(r => {
-            const b = r.getBoundingClientRect();
-            return {
-              key: r.getAttribute("data-key"),
-              left: b.left,
-              right: b.right,
-              top: b.top,
-              bottom: b.bottom,
-              height: b.height,
-            };
-          });
+          ]
+            .filter(r => !r.getAttribute("data-key").endsWith("::hit"))
+            .map(r => {
+              const b = r.getBoundingClientRect();
+              return {
+                key: r.getAttribute("data-key"),
+                left: b.left,
+                right: b.right,
+                top: b.top,
+                bottom: b.bottom,
+                height: b.height,
+              };
+            });
           const nan = [...el.querySelectorAll("*")].filter(n =>
             [...n.attributes].some(a => a.value.includes("NaN")),
           ).length;

@@ -29,6 +29,7 @@ export interface ConnectorSegment {
 /** The parts of a Bar's scene node the connectors read. */
 interface BarNode {
   type?: string;
+  key?: string | number;
   shapeType?: string;
   x?: number;
   y?: number;
@@ -40,8 +41,9 @@ interface BarNode {
 }
 
 /**
-    Each Bar rect in `nodes` with a step, with its pixel extent along the
-    discrete axis (x for vertical bars, y for horizontal ones).
+    Each Bar rect in `nodes` with a step (not its hover band), with its
+    pixel extent along the discrete axis (x for vertical bars, y for
+    horizontal ones).
 */
 export function connectorBars(
   nodes: SceneNode[],
@@ -50,7 +52,13 @@ export function connectorBars(
 ): ConnectorBar[] {
   const bars: ConnectorBar[] = [];
   const walk = (node: BarNode): void => {
-    if (node.type === "rect" && node.shapeType === "Bar" && node.datum?.data) {
+    const band = String(node.key).endsWith("::hit");
+    if (
+      node.type === "rect" &&
+      node.shapeType === "Bar" &&
+      !band &&
+      node.datum?.data
+    ) {
       const datum = node.datum.data;
       const step = stepOf(datum);
       const offset = vertical

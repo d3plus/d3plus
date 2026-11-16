@@ -42,7 +42,7 @@ const probe = ([data, config, hover]) =>
       const bars = svg
         ? Array.from(
             svg.querySelectorAll(
-              "[data-key$='plot-zoom-content'] rect.d3plus-render-rect",
+              "[data-key$='plot-zoom-content'] rect.d3plus-render-rect:not([data-key$='::hit'])",
             ),
           ).map(r => ({
             key: r.getAttribute("data-key"),

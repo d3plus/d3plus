@@ -1,11 +1,16 @@
 import assert from "assert";
 import {select} from "d3-selection";
-import {resetCursor, setCursor} from "../../src/charts/viz/setCursor.ts";
+import {
+  resetCursor,
+  setCursor,
+  setMarkCursor,
+} from "../../src/charts/viz/setCursor.ts";
 import {jsdomit} from "~test/jsdom.js";
 
 /**
     The chart cursor goes on the element under the pointer: the root svg, or
-    the Canvas renderer's canvas. A reset returns both to the default.
+    the Canvas renderer's canvas. A reset returns both to the default. A
+    keyboard move leaves the cursor as it is.
 */
 
 /** A chart stand-in: a root svg in a container, and a renderer's elements beside it. */
@@ -100,4 +105,25 @@ jsdomit(
 jsdomit("resetCursor does nothing for a chart with no element", () => {
   assert.doesNotThrow(() => resetCursor({schema: {}}));
   assert.doesNotThrow(() => resetCursor({schema: {}, _renderer: "canvas"}));
+});
+
+jsdomit("setMarkCursor: the hand on a mark a click acts on", () => {
+  const {viz, svg} = chart("svg");
+  setMarkCursor(viz, true);
+  assert.strictEqual(svg.style.cursor, "pointer");
+  setMarkCursor(viz, false);
+  assert.strictEqual(svg.style.cursor, "auto", "nothing to click");
+});
+
+jsdomit("setMarkCursor: a keyboard move leaves the cursor as it is", () => {
+  const {viz, svg, elements} = chart("canvas", ["canvas"]);
+  setMarkCursor(viz, true);
+  assert.strictEqual(elements[0].style.cursor, "pointer");
+  viz._keyboardNav = {replaying: true};
+  setMarkCursor(viz, false);
+  assert.strictEqual(elements[0].style.cursor, "pointer");
+  viz._keyboardNav.replaying = false;
+  setMarkCursor(viz, false);
+  assert.strictEqual(elements[0].style.cursor, "auto");
+  assert.strictEqual(svg.style.cursor, "", "the root svg is left alone");
 });

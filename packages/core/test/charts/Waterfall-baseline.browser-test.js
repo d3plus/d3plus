@@ -42,7 +42,11 @@ const probe = ([data, config]) =>
       const bars = [];
       const walk = (n, o = 0) => {
         const t = o + ((n.transform && n.transform[along]) || 0);
-        if (n.shapeType === "Bar" && n.type === "rect") {
+        if (
+          n.shapeType === "Bar" &&
+          n.type === "rect" &&
+          !`${n.key}`.endsWith("::hit")
+        ) {
           let row = n.datum;
           while (row && (row.__d3plus__ || row.__d3plusShape__) && row.data)
             row = row.data;
@@ -210,7 +214,11 @@ const maskProbe = ([chart, data, config, renderer]) =>
         const isMask =
           String(n.key).startsWith("plot-break-mask") && Boolean(n.clip);
         if (isMask) masks.push(n.key);
-        if (n.shapeType === "Bar" && n.type === "rect") {
+        if (
+          n.shapeType === "Bar" &&
+          n.type === "rect" &&
+          !`${n.key}`.endsWith("::hit")
+        ) {
           let row = n.datum;
           while (row && (row.__d3plus__ || row.__d3plusShape__) && row.data)
             row = row.data;
