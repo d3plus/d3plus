@@ -11,6 +11,8 @@ import assert from "~test/browser/assert.js";
     image, a quadrant per color, so a pixel tells which part of the picture
     landed there, or that the box is empty there. The SVG render is rasterized
     through an `<img>` and sampled at the same points as the Canvas render.
+    The Image shape's `preserveAspectRatio` accessor then sets each case, and
+    its scene (on both backends) and its own SVG render must match.
 */
 
 const SIZE = 100,
@@ -64,6 +66,35 @@ function scene(href) {
   };
 }
 
+/** Rasterizes an `<svg>` through an `<img>`, returning a 2D context holding it. */
+async function rasterize(svg, width, height) {
+  const raster = document.createElement("img");
+  raster.src = `data:image/svg+xml,${encodeURIComponent(
+    new XMLSerializer().serializeToString(svg),
+  )}`;
+  await raster.decode();
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(raster, 0, 0);
+  return ctx;
+}
+
+/** Names the color at each point of a `width`×`height` context. */
+function sampler(ctx, width, height) {
+  const {data} = ctx.getImageData(0, 0, width, height);
+  return (x, y) => {
+    const i = (y * width + x) * 4;
+    if (data[i + 3] < 128) return "empty";
+    const rgb = [data[i], data[i + 1], data[i + 2]];
+    const near = Object.entries(COLORS).find(([, c]) =>
+      c.every((v, k) => Math.abs(v - rgb[k]) < 40),
+    );
+    return near ? near[0] : rgb.join(",");
+  };
+}
+
 /** Draws `sc` with `Renderer` and returns its pixels at device ratio 1. */
 async function paint(Renderer, sc) {
   const container = document.createElement("div");
@@ -80,50 +111,36 @@ async function paint(Renderer, sc) {
   if (Renderer === CanvasRenderer) {
     await renderer.whenSettled();
     ctx = container.querySelector("canvas").getContext("2d");
-  } else {
-    const svg = container.querySelector("svg");
-    const raster = document.createElement("img");
-    raster.src = `data:image/svg+xml,${encodeURIComponent(
-      new XMLSerializer().serializeToString(svg),
-    )}`;
-    await raster.decode();
-    const canvas = document.createElement("canvas");
-    canvas.width = sc.width;
-    canvas.height = sc.height;
-    ctx = canvas.getContext("2d");
-    ctx.drawImage(raster, 0, 0);
-  }
-  const {data} = ctx.getImageData(0, 0, sc.width, sc.height);
+  } else
+    ctx = await rasterize(container.querySelector("svg"), sc.width, sc.height);
+  const sample = sampler(ctx, sc.width, sc.height);
   renderer.destroy();
   container.remove();
-  return (x, y) => {
-    const i = (y * sc.width + x) * 4;
-    if (data[i + 3] < 128) return "empty";
-    const rgb = [data[i], data[i + 1], data[i + 2]];
-    const near = Object.entries(COLORS).find(([, c]) =>
-      c.every((v, k) => Math.abs(v - rgb[k]) < 40),
-    );
-    return near ? near[0] : rgb.join(",");
-  };
+  return sample;
 }
 
 // Sample points inside each box, clear of every quadrant and letterbox edge.
 const OFFSETS = [8, 18, 32, 42, 58, 68, 82, 92];
 
+/** The named colors at every sample point of box `i`. */
+function grid(sample, i) {
+  const out = [];
+  for (const dy of OFFSETS)
+    for (const dx of OFFSETS) out.push(sample(i * (SIZE + GAP) + dx, dy));
+  return out;
+}
+
 it("Canvas places images like SVG for every preserveAspectRatio", async () => {
   const sc = scene(quadrants());
   const svg = await paint(SvgRenderer, sc);
   const canvas = await paint(CanvasRenderer, sc);
-  CASES.forEach((par, i) => {
-    const grid = {svg: [], canvas: []};
-    for (const dy of OFFSETS)
-      for (const dx of OFFSETS) {
-        const x = i * (SIZE + GAP) + dx;
-        grid.svg.push(svg(x, dy));
-        grid.canvas.push(canvas(x, dy));
-      }
-    assert.deepStrictEqual(grid.canvas, grid.svg, `${par}: Canvas matches SVG`);
-  });
+  CASES.forEach((par, i) =>
+    assert.deepStrictEqual(
+      grid(canvas, i),
+      grid(svg, i),
+      `${par}: Canvas matches SVG`,
+    ),
+  );
 
   // The SVG layout itself, in each box's corners and center.
   const at = (i, dx, dy) => svg(i * (SIZE + GAP) + dx, dy);
@@ -156,5 +173,61 @@ it("Canvas places images like SVG for every preserveAspectRatio", async () => {
     [at(5, 8, 8), at(5, 8, 32)],
     ["empty", "red"],
     "an invalid value: xMidYMid meet",
+  );
+});
+
+it("the Image shape's preserveAspectRatio places images alike on SVG and Canvas", async () => {
+  const href = quadrants();
+  // Every valid case, set per datum through the shape's accessor.
+  const fits = CASES.slice(0, 5);
+  const rows = fits.map((fit, i) => ({
+    id: `fit-${i}`,
+    x: i * (SIZE + GAP),
+    y: 0,
+    width: SIZE,
+    height: SIZE,
+    url: href,
+    fit,
+  }));
+  const width = fits.length * (SIZE + GAP);
+  const shape = () => new Image().data(rows).preserveAspectRatio(d => d.fit);
+  const fromShape = {width, height: SIZE, root: shape().toScene()};
+
+  const reference = await paint(SvgRenderer, scene(href));
+  const canvas = await paint(CanvasRenderer, fromShape);
+  const svgScene = await paint(SvgRenderer, fromShape);
+
+  // The shape's own SVG render, outside the scene renderers.
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", width);
+  svg.setAttribute("height", SIZE);
+  document.body.appendChild(svg);
+  await new Promise(cb => shape().select(svg).duration(0).render(cb));
+  const dom = sampler(await rasterize(svg, width, SIZE), width, SIZE);
+  svg.remove();
+
+  fits.forEach((fit, i) => {
+    const expected = grid(reference, i);
+    assert.deepStrictEqual(grid(canvas, i), expected, `${fit}: Canvas`);
+    assert.deepStrictEqual(grid(svgScene, i), expected, `${fit}: SVG scene`);
+    assert.deepStrictEqual(grid(dom, i), expected, `${fit}: Image.render()`);
+  });
+
+  // A constant applies to every image.
+  const constant = await paint(CanvasRenderer, {
+    width,
+    height: SIZE,
+    root: new Image()
+      .data(rows)
+      .preserveAspectRatio("xMaxYMax slice")
+      .toScene(),
+  });
+  const sliced = grid(reference, 2);
+  fits.forEach((fit, i) =>
+    assert.deepStrictEqual(
+      grid(constant, i),
+      sliced,
+      `box ${i}: xMaxYMax slice`,
+    ),
   );
 });

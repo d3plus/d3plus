@@ -282,6 +282,14 @@ export interface ImageConfig {
   id?: AccessorFn;
   opacity?: ConstOrAccessor<number>;
   pointerEvents?: ConstOrAccessor<string>;
+  /**
+      How each image fits its `width`×`height` box, as an SVG
+      `preserveAspectRatio` value: `"none"` stretches it, and an alignment
+      (`"xMinYMin"` … `"xMaxYMax"`) with `meet` or `slice` fits it inside the
+      box or covers the box, cropped. Unset, it is SVG's `"xMidYMid meet"`,
+      the whole image centered in its box. Applies on SVG and Canvas.
+  */
+  preserveAspectRatio?: ConstOrAccessor<string>;
   select?: string | HTMLElement | SVGElement | null;
   /** URL accessor returning the image src. */
   url?: AccessorFn;
