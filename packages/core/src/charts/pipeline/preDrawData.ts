@@ -17,6 +17,7 @@ import {discreteNestKeys} from "./stages.js";
 import {timelineUtc} from "../Plot/plotRangeBreaks.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {keepGroupLevels} from "../viz/groupByLevels.js";
 
 /** A time filter synthesized from the chart's `time` key. */
 export type TimeFilterFn =
@@ -237,6 +238,7 @@ export function computeFilteredData(
         const d = viz._mergeRows
           ? viz._mergeRows(leaves)
           : (merge(leaves, viz.schema.aggs) as DataPoint);
+        keepGroupLevels(viz.schema.groupBy, d, leaves, indexOf);
 
         if (
           !viz._hidden.includes(localId) &&
