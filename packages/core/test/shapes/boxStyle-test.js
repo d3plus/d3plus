@@ -3,16 +3,29 @@ import assert from "assert";
 // The package entry loads first so the shape modules resolve in their usual order.
 import {Box} from "../../index.ts";
 import {
+  boxBareInk,
+  boxInk,
   boxMedianConfig,
   boxMedianInk,
   boxOutlierConfig,
   boxRectConfig,
+  overBoxBody,
 } from "../../src/shapes/boxStyle.ts";
 import {useJsdom} from "~test/jsdom.js";
 
 useJsdom();
 
-const box = {data: {id: "alpha", value: 300}, i: 4, key: "alpha", values: []};
+const box = {
+  data: {id: "alpha", value: 300},
+  i: 4,
+  key: "alpha",
+  values: [],
+  first: 100,
+  median: 120,
+  third: 140,
+};
+// A box whose quartiles meet: no body under its median.
+const flat = {...box, first: 120, third: 120};
 
 it("boxRectConfig: passes the Box's texture and backgroundImage to its box Rect", () => {
   const config = boxRectConfig(
@@ -106,9 +119,71 @@ it("boxMedianConfig: contrasts with the box fill, resolved on the same datum", (
   assert.strictEqual(boxMedianConfig("black", {}).fill(box, 0), "white");
 });
 
+it("boxMedianConfig: a median off the box's body takes the bare ink", () => {
+  const config = boxMedianConfig("#1a1b4b", {});
+  assert.strictEqual(config.fill(box, 0), "white");
+  assert.strictEqual(config.fill(flat, 0), "black");
+  const seen = [];
+  const themed = boxMedianConfig(
+    "#1a1b4b",
+    {},
+    (d, i) => (seen.push([d, i]), "#f8f9fa"),
+  );
+  assert.strictEqual(themed.fill(flat, 1), "#f8f9fa");
+  assert.deepStrictEqual(seen, [[flat, 1]]);
+  assert.strictEqual(
+    boxMedianConfig("#1a1b4b", {}, "red").fill(flat, 0),
+    "red",
+  );
+});
+
 it("boxMedianConfig: medianConfig.fill wins", () => {
   const medianConfig = {fill: "red"};
   assert.strictEqual(boxMedianConfig("black", medianConfig), medianConfig);
+});
+
+it("overBoxBody: between the quartiles of a body at least 1px thick", () => {
+  assert.ok(overBoxBody(box, 120));
+  assert.ok(overBoxBody(box, 100), "on the lower edge");
+  assert.ok(overBoxBody(box, 140), "on the upper edge");
+  assert.ok(!overBoxBody(box, 99));
+  assert.ok(!overBoxBody(box, 141));
+  assert.ok(overBoxBody({first: 140, third: 100}, 120), "reversed quartiles");
+  assert.ok(!overBoxBody(flat, 120), "quartiles meet");
+  assert.ok(!overBoxBody({first: 120, third: 120.5}, 120), "thinner than 1px");
+  assert.ok(overBoxBody({first: 120, third: 121}, 120), "1px");
+  assert.ok(!overBoxBody(box, undefined));
+  assert.ok(!overBoxBody(box, NaN));
+  assert.ok(!overBoxBody({}, 120));
+});
+
+it("boxInk: contrasts with the fill over the body, takes the bare ink off it", () => {
+  const ink = boxInk(
+    d => (d.key === "alpha" ? "#1a1b4b" : "white"),
+    "gray",
+    d => d.mean,
+  );
+  assert.strictEqual(ink({...box, mean: 130}, 0), "white");
+  assert.strictEqual(ink({...box, key: "beta", mean: 130}, 0), "black");
+  assert.strictEqual(ink({...box, mean: 160}, 0), "gray", "past the box");
+  assert.strictEqual(ink({...flat, mean: 120}, 0), "gray", "no body");
+  const calls = [];
+  const bare = boxInk(
+    "black",
+    (d, i) => (calls.push(i), "pink"),
+    d => d.median,
+  );
+  assert.strictEqual(bare(flat, 3), "pink");
+  assert.strictEqual(bare(box, 3), "white");
+  assert.deepStrictEqual(calls, [3]);
+});
+
+it("boxBareInk: the whiskers' line color, else black", () => {
+  assert.strictEqual(boxBareInk({}), "black");
+  assert.strictEqual(boxBareInk({lineConfig: {}}), "black");
+  assert.strictEqual(boxBareInk({lineConfig: {stroke: "red"}}), "red");
+  const stroke = () => "blue";
+  assert.strictEqual(boxBareInk({lineConfig: {stroke}}), stroke);
 });
 
 it("boxOutlierConfig: outliers take the Box's fill, resolved on their observation", () => {
@@ -198,6 +273,57 @@ it("Box: rectConfig, medianConfig and outlierConfig fills win over fill", () => 
   assert.strictEqual(p["A-box"].fill, "white");
   assert.strictEqual(p["A-median"].fill, "red");
   assert.strictEqual(p["A-outlier-4"].fill, "green");
+});
+
+// Box C's observations are all equal: its quartiles meet.
+const flatRows = [
+  ...rows,
+  {key: "C", v: 5, tone: "dark"},
+  {key: "C", v: 5, tone: "dark"},
+  {key: "C", v: 5, tone: "dark"},
+];
+
+it("Box: a box whose quartiles meet draws its median and mean in the whiskers' color", () => {
+  const draw = whiskerConfig => {
+    const box = new Box()
+      .data(flatRows)
+      .x(d => d.key)
+      .y(d => d.v)
+      .fill(d => (d.tone === "dark" ? "#1a1b4b" : "#ffd43b"))
+      .boxMean(true);
+    if (whiskerConfig) box.whiskerConfig(whiskerConfig);
+    return paints(box.renderMode("compute").render());
+  };
+  const p = draw();
+  assert.strictEqual(p["A-median"].fill, "white", "over A's dark body");
+  assert.strictEqual(p["C-median"].fill, "black");
+  assert.strictEqual(p["C-mean"].fill, "black");
+  const themed = draw({
+    lineConfig: {stroke: d => (d.key === "C" ? "#f8f9fa" : "red")},
+  });
+  assert.strictEqual(
+    themed["C-median"].fill,
+    "#f8f9fa",
+    "resolved on the box's row",
+  );
+  assert.strictEqual(themed["C-mean"].fill, "#f8f9fa");
+  assert.strictEqual(themed["A-median"].fill, "white");
+});
+
+it("Box: a mean past its box's body takes the whiskers' color", () => {
+  const box = new Box()
+    .data(rows)
+    .x(d => d.key)
+    .y(d => d.v)
+    .fill("#1a1b4b")
+    .boxMean(true)
+    .whiskerConfig({lineConfig: {stroke: "gray"}})
+    .renderMode("compute")
+    .render();
+  const p = paints(box);
+  // A's outlier at 50 pulls its mean past its upper quartile.
+  assert.strictEqual(p["A-mean"].fill, "gray");
+  assert.strictEqual(p["B-mean"].fill, "white");
 });
 
 it("box style helpers keep a configPrep'd config marked as shared", async () => {

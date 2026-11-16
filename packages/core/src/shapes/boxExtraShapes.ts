@@ -7,7 +7,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import Circle from "./Circle.js";
 import Path from "./Path.js";
-import {boxMedianConfig} from "./boxStyle.js";
+import {boxInk, boxMedianInk} from "./boxStyle.js";
 import {diamondPath} from "../charts/Gantt/ganttGeometry.js";
 import {
   boxPointData,
@@ -80,6 +80,7 @@ function pointRecords(
     @param rectConfig The box body's resolved config.
     @param computed Whether the boxes summarize observations.
     @param m How the Box mounts and renders inner shapes.
+    @param bareInk The mean's ink off its box's body (see `boxInk`).
 */
 export function drawBoxExtras(
   host: BoxExtrasDrawHost,
@@ -88,6 +89,7 @@ export function drawBoxExtras(
   rectConfig: Record<string, unknown>,
   computed: boolean,
   m: Mount,
+  bareInk: unknown = "black",
 ): BoxExtraShapes {
   const {schema} = host;
   const out: BoxExtraShapes = {};
@@ -108,10 +110,13 @@ export function drawBoxExtras(
       m,
     );
   }
-  const ink = boxMedianConfig(rectConfig.fill, {}).fill as (
-    d: DataPoint,
-    i?: number,
-  ) => string;
+  const fill = rectConfig.fill;
+  const ink = (d: DataPoint, i?: number): string =>
+    boxMedianInk(
+      typeof fill === "function"
+        ? (fill as (d: DataPoint, i?: number) => unknown)(d, i)
+        : fill,
+    );
   if (schema.boxPoints && computed) {
     const points = pointRecords(host, boxes, outliers);
     if (points.length)
@@ -136,7 +141,11 @@ export function drawBoxExtras(
         .x((d: DataPoint) => (d.orient === "vertical" ? d.x : d.mean))
         .y((d: DataPoint) => (d.orient === "vertical" ? d.mean : d.y))
         .d(diamondPath(0, 0, MEAN_SIZE))
-        .config({fill: ink, stroke: "none", ...m.prep(schema.meanConfig)}),
+        .config({
+          fill: boxInk(fill, bareInk, d => d.mean),
+          stroke: "none",
+          ...m.prep(schema.meanConfig),
+        }),
       "g.d3plus-Box-Mean",
       m,
     );
