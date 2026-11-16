@@ -74,3 +74,40 @@ it("merge", () => {
   assert.strictEqual(single.value, 10, "Single Object Merge");
   assert.strictEqual(single.id, "only", "Single Object String");
 });
+
+it("merge: a shared array of two or more items stays whole", () => {
+  assert.deepStrictEqual(merge([{id: "a", p: [0, 0]}]).p, [0, 0], "one row");
+  assert.deepStrictEqual(
+    merge([
+      {id: "a", p: [5, 5]},
+      {id: "b", p: [5, 5]},
+    ]).p,
+    [5, 5],
+    "every row",
+  );
+  assert.deepStrictEqual(
+    merge([{id: "a", p: [3, 1, 3]}, {id: "b"}]).p,
+    [3, 1, 3],
+    "rows without the key",
+  );
+  const at = new Date(2020, 0, 1);
+  assert.deepStrictEqual(
+    merge([{d: [at, new Date(+at)]}, {d: [new Date(+at), at]}]).d,
+    [at, at],
+    "Dates by time",
+  );
+  const p = [1, 1];
+  const merged = merge([{p}]).p;
+  assert.notStrictEqual(merged, p, "a copy");
+});
+
+it("merge: arrays that differ, or hold one item, still flatten to their unique items", () => {
+  assert.deepStrictEqual(
+    merge([{p: [0, 0]}, {p: [0, 1]}]).p,
+    [0, 1],
+    "different arrays",
+  );
+  assert.strictEqual(merge([{p: [7]}, {p: [7]}]).p, 7, "one item");
+  assert.strictEqual(merge([{p: [7]}, {p: 7}]).p, 7, "an array and a scalar");
+  assert.deepStrictEqual(merge([{p: [2, 2]}, {p: 2}]).p, 2, "with a scalar");
+});

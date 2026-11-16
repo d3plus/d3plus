@@ -15,10 +15,34 @@ type AggregationFunction = (
   accessor: (d: DataPoint) => DataValue,
 ) => MergedValue;
 
+/** Whether two values are the same, as `unique` compares them (Dates by time). */
+const same = (a: unknown, b: unknown): boolean =>
+  a instanceof Date && b instanceof Date ? +a === +b : Object.is(a, b);
+
+/**
+    The one array of two or more items that every row with a value holds
+    (item by item), such as a coordinate the rows share, or `null`. A
+    coordinate like `[0, 0]` is then kept whole rather than flattened to
+    its unique items, `0`.
+*/
+function sharedArray(values: DataValue[]): DataValue[] | null {
+  const given = values.filter(v => v !== void 0);
+  const first = given[0];
+  if (!(first instanceof Array) || first.length < 2) return null;
+  return given.every(
+    v =>
+      v instanceof Array &&
+      v.length === first.length &&
+      v.every((item, i) => same(item, first[i])),
+  )
+    ? (first as DataValue[])
+    : null;
+}
+
 /**
     Combines an Array of Objects together and returns a new Object.
     @param objects The Array of objects to be merged together.
-    @param aggs An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values.
+    @param aggs An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values. Arrays are flattened to their unique items, unless every object holds the same array of two or more items (a shared coordinate like `[0, 0]`), which is kept whole.
     @example <caption>this</caption>
 merge([
   {id: "foo", group: "A", value: 10, links: [1, 2]},
@@ -46,13 +70,17 @@ function objectMerge(
         .filter(v => v !== void 0);
       if (!types.length) value = undefined as unknown as MergedValue;
       else if (types.indexOf(Array) >= 0) {
-        const flattened: DataValue[] = merge(
-          values.map(v =>
-            v instanceof Array ? v : [v],
-          ) as unknown as DataValue[][],
-        );
-        const merged = unique(flattened);
-        value = merged.length === 1 ? merged[0] : merged;
+        const shared = sharedArray(values);
+        if (shared) value = shared.slice();
+        else {
+          const flattened: DataValue[] = merge(
+            values.map(v =>
+              v instanceof Array ? v : [v],
+            ) as unknown as DataValue[][],
+          );
+          const merged = unique(flattened);
+          value = merged.length === 1 ? merged[0] : merged;
+        }
       } else if (types.indexOf(String) >= 0) {
         const uniq = unique(values as unknown as string[]);
         value = uniq.length === 1 ? uniq[0] : uniq;
