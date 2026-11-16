@@ -379,6 +379,14 @@ it("rememberPositions: keeps where each node was drawn", () => {
   const viz = fakeViz();
   rememberPositions(viz, [node("a", 1, 2)]);
   assert.deepStrictEqual(networkLive(viz).positions.get("a"), {x: 1, y: 2});
+  assert.deepStrictEqual(networkLive(viz).laid.get("a"), {x: 1, y: 2});
+  networkLive(viz).custom = true;
+  rememberPositions(viz, [node("a", 5, 6)]);
+  assert.deepStrictEqual(
+    networkLive(viz).laid.get("a"),
+    {x: 1, y: 2},
+    "a moved layout keeps the laid-out places",
+  );
 });
 
 it("scheduleFrame / stopLiveLoop / stopLive: one pending frame, cancelled on stop", () => {

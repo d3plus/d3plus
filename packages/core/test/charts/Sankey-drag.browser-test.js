@@ -57,11 +57,9 @@ const laidOut = () => {
   const t = viz._chartTransform || {x: 0, y: 0};
   const nodes = {};
   const paths = {};
-  const order = [];
   const walk = n => {
     const key = String(n.key);
     const node = key.match(/^sankey-Rect-(.+)$/);
-    if (node) order.push(node[1]);
     if (node)
       nodes[node[1]] = {
         x: n.x,
@@ -81,7 +79,7 @@ const laidOut = () => {
     (n.children || []).forEach(walk);
   };
   walk(viz._paintedScene.root);
-  return {nodes, paths, order, clicks: window.__clicks};
+  return {nodes, paths, clicks: window.__clicks};
 };
 
 async function drag(page, id, dy) {
@@ -96,48 +94,86 @@ async function drag(page, id, dy) {
   await page.waitForTimeout(50);
 }
 
-for (const renderer of ["svg", "canvas"]) {
-  it(`a dragged node moves along its column, its links follow, and it stays put (${renderer})`, () =>
-    withPage(box, async page => {
-      await page.evaluate(start, [JSON.stringify({links}), renderer]);
-      await painted(page);
-      const before = await page.evaluate(laidOut);
-      await drag(page, "a", 60);
-      const after = await page.evaluate(laidOut);
-      assert.ok(
-        Math.abs(after.nodes.a.y - before.nodes.a.y - 60) < 0.5,
-        `moved down: ${before.nodes.a.y} → ${after.nodes.a.y}`,
-      );
-      assert.strictEqual(after.nodes.a.x, before.nodes.a.x, "same column");
-      assert.strictEqual(after.nodes.b.y, before.nodes.b.y, "others stay");
-      assert.notStrictEqual(
-        after.paths["sankey-link-a-c"],
-        before.paths["sankey-link-a-c"],
-        "its link follows",
-      );
-      assert.strictEqual(after.clicks, 0, "the drag doesn't click");
-      assert.strictEqual(after.order.at(-1), "a", "drawn over the rest");
+/**
+    Three sources over five targets, with wide gaps: the source column has
+    room to move in, the target column is full.
+*/
+const roomy = {
+  links: [
+    {source: "s1", target: "m1", value: 1},
+    {source: "s1", target: "m2", value: 1},
+    {source: "s2", target: "m3", value: 1},
+    {source: "s3", target: "m4", value: 1},
+    {source: "s3", target: "m5", value: 1},
+  ],
+  nodePadding: 40,
+};
 
-      // Dragged far past the edge, it stops at the bottom.
-      await drag(page, "a", 1000);
-      const edge = await page.evaluate(laidOut);
+/** Whether `ids` (one column) sit apart by at least `gap`, inside 0 → `bottom`. */
+function apart(nodes, ids, gap, bottom) {
+  const col = ids.map(id => nodes[id]).sort((a, b) => a.y - b.y);
+  return (
+    col[0].y >= -0.5 &&
+    col[col.length - 1].y + col[col.length - 1].height <= bottom + 0.5 &&
+    col.every(
+      (n, i) => !i || n.y >= col[i - 1].y + col[i - 1].height + gap - 0.5,
+    )
+  );
+}
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`a dragged node pushes its column's other nodes aside, its links follow, and the column stays put (${renderer})`, () =>
+    withPage(box, async page => {
+      await page.evaluate(start, [JSON.stringify(roomy), renderer]);
+      await painted(page);
       const bottom = await page.evaluate(
         () => window.__viz.ctx.sankeyCtx.height,
       );
-      assert.ok(edge.nodes.a.y + edge.nodes.a.height <= bottom + 0.5);
+      const before = await page.evaluate(laidOut);
+      const {s1, s2, s3} = before.nodes;
+      assert.ok(s1.y < s2.y && s2.y < s3.y, "s1, s2, s3 top to bottom");
+      // Far enough that s1 reaches s2 and pushes it 10px down.
+      const reach = s2.y - s1.y - s1.height - 40;
+      await drag(page, "s1", reach + 10);
+      const after = await page.evaluate(laidOut);
+      const sources = ["s1", "s2", "s3"];
+      assert.ok(apart(after.nodes, sources, 40, bottom), "no overlap");
+      assert.ok(Math.abs(after.nodes.s1.y - s1.y - reach - 10) < 0.5);
+      assert.ok(Math.abs(after.nodes.s2.y - s2.y - 10) < 0.5, "pushed s2");
+      assert.strictEqual(after.nodes.s3.y, s3.y, "s3 out of the way");
+      assert.strictEqual(after.nodes.s1.x, s1.x, "same column");
+      for (const id of ["m1", "m2", "m3", "m4", "m5"])
+        assert.strictEqual(after.nodes[id].y, before.nodes[id].y, id);
+      assert.notStrictEqual(
+        after.paths["sankey-link-s1-m1"],
+        before.paths["sankey-link-s1-m1"],
+        "its links follow",
+      );
+      assert.strictEqual(after.clicks, 0, "the drag doesn't click");
+
+      // Dragged past the others' middles, s1 takes the bottom, pushing them up.
+      await drag(page, "s1", 1000);
+      const passed = await page.evaluate(laidOut);
+      assert.ok(passed.nodes.s3.y < passed.nodes.s1.y, "order changed");
+      assert.ok(apart(passed.nodes, sources, 40, bottom));
+
+      // A full column only reorders.
+      await drag(page, "m1", 30);
+      const full = await page.evaluate(laidOut);
+      assert.ok(apart(full.nodes, ["m1", "m2", "m3", "m4", "m5"], 39, bottom));
 
       await page.evaluate(redraw);
       await painted(page);
-      assert.strictEqual(
-        (await page.evaluate(laidOut)).nodes.a.y,
-        edge.nodes.a.y,
+      assert.deepStrictEqual(
+        (await page.evaluate(laidOut)).nodes,
+        full.nodes,
         "stays through a redraw",
       );
-      await page.evaluate(redraw, JSON.stringify(links.slice()));
+      await page.evaluate(redraw, JSON.stringify(roomy.links.slice()));
       await painted(page);
-      assert.strictEqual(
-        (await page.evaluate(laidOut)).nodes.a.y,
-        before.nodes.a.y,
+      assert.deepStrictEqual(
+        (await page.evaluate(laidOut)).nodes,
+        before.nodes,
         "new links lay it out afresh",
       );
     }));

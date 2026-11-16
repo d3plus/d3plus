@@ -11,7 +11,9 @@ import {
   networkNodeDrag,
   networkNodeId,
   networkSimulation,
+  nudgeNetworkNode,
   unbindNodeDrag,
+  unpinNetworkNode,
 } from "../../internal.ts";
 
 /**
@@ -293,3 +295,34 @@ jsdomit(
     assert.deepStrictEqual(calls, []);
   },
 );
+
+it("nudgeNetworkNode: moves a node by pixels, inside the chart, and pins it", () => {
+  const viz = fakeNetwork();
+  let relayouts = 0;
+  networkLive(viz).relayout = () => relayouts++;
+  assert.strictEqual(nudgeNetworkNode(viz, "a", [10, -10]), true);
+  const state = networkLive(viz);
+  assert.deepStrictEqual(state.pinned.get("a"), {x: 60, y: 40});
+  assert.deepStrictEqual(state.positions.get("a"), {x: 60, y: 40});
+  assert.strictEqual(relayouts, 1, "repainted");
+  state.positions.set("a", {x: 200, y: 40});
+  assert.strictEqual(nudgeNetworkNode(viz, "a", [10, 0]), false, "at the edge");
+  assert.strictEqual(nudgeNetworkNode(viz, "z", [10, 0]), false);
+});
+
+it("nudgeNetworkNode / unpinNetworkNode: the live simulation holds the node, then lets it go", () => {
+  const viz = fakeNetwork();
+  const state = networkLive(viz);
+  const nodes = [
+    {id: "a", x: 50, y: 50, rx: 5, ry: 5},
+    {id: "b", x: 100, y: 50, rx: 5, ry: 5},
+  ];
+  state.sim = networkSimulation(nodes, [], state.bounds, 20);
+  state.sim.alpha(0);
+  nudgeNetworkNode(viz, "a", [0, 10]);
+  assert.deepStrictEqual([nodes[0].fx, nodes[0].fy], [50, 60]);
+  assert.ok(state.sim.alpha() >= 0.3, "reheated");
+  assert.strictEqual(unpinNetworkNode(viz, "a"), true);
+  assert.strictEqual(nodes[0].fx, null);
+  assert.strictEqual(unpinNetworkNode(viz, "a"), false, "not pinned now");
+});

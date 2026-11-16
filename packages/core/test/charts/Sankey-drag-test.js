@@ -2,7 +2,9 @@ import {afterEach, beforeEach, it, vi} from "vitest";
 import assert from "assert";
 import {
   clampTop,
-  dragShare,
+  nudgeSankeyNode,
+  pushColumn,
+  resetSankeyNode,
   layOutCircular,
   sankeyDragState,
   sankeyNodeDrag,
@@ -46,7 +48,7 @@ const extent = [
 /** A stand-in Sankey with the inputs its offsets were made on. */
 const fakeSankey = () => ({
   ctx: {},
-  schema: {nodes: [], links: []},
+  schema: {nodes: [], links: [], nodePadding: 8},
   _data: [],
   _sceneRenderer: {},
   drawn: 0,
@@ -70,12 +72,44 @@ it("clampTop: keeps a node between the extent's top and bottom", () => {
   assert.strictEqual(clampTop(30, 20, 0, 100), 30);
 });
 
-it("dragShare: the offset a drag leaves, as a share of the extent, held inside it", () => {
-  const laid = {y0: 40, height: 20, top: 0, bottom: 100};
-  assert.strictEqual(dragShare(laid, 0, 10), 0.1);
-  assert.strictEqual(dragShare(laid, 0.1, 10), 0.2);
-  assert.strictEqual(dragShare(laid, 0, 500), 0.4, "stops at the bottom");
-  assert.strictEqual(dragShare(laid, 0, -500), -0.4, "stops at the top");
+it("pushColumn: pushes the nodes in the way aside, keeping their order and gap", () => {
+  const column = [
+    {id: "a", y0: 0, height: 20},
+    {id: "b", y0: 30, height: 20},
+    {id: "c", y0: 60, height: 20},
+  ];
+  // a moves down onto b, which moves down onto c: both pushed, 10px apart.
+  const down = pushColumn(column, "a", 25, 0, 200, 10);
+  assert.deepStrictEqual(Object.fromEntries(down), {a: 25, b: 55, c: 85});
+  // Nodes out of the way stay put.
+  const small = pushColumn(column, "c", 70, 0, 200, 10);
+  assert.deepStrictEqual(Object.fromEntries(small), {c: 70, b: 30, a: 0});
+});
+
+it("pushColumn: a node dragged past another's middle takes its place", () => {
+  const column = [
+    {id: "a", y0: 0, height: 20},
+    {id: "b", y0: 30, height: 20},
+  ];
+  const tops = pushColumn(column, "a", 45, 0, 200, 10);
+  // a's middle (55) is past b's (40): b now sits above a, pushed up.
+  assert.deepStrictEqual(Object.fromEntries(tops), {a: 45, b: 15});
+});
+
+it("pushColumn: stops where the pushed nodes reach the extent", () => {
+  const column = [
+    {id: "a", y0: 0, height: 20},
+    {id: "b", y0: 30, height: 20},
+  ];
+  // Past b's middle, a takes the bottom and b stays.
+  const tops = pushColumn(column, "a", 500, 0, 100, 10);
+  assert.deepStrictEqual(Object.fromEntries(tops), {a: 80, b: 30});
+  const up = pushColumn(column, "b", -500, 0, 100, 10);
+  assert.deepStrictEqual(Object.fromEntries(up), {b: 0, a: 30});
+  // A column too full for the gap closes it.
+  const tight = pushColumn(column, "a", 500, 0, 44, 10);
+  assert.deepStrictEqual(Object.fromEntries(tight), {a: 24, b: 0});
+  assert.strictEqual(pushColumn(column, "z", 0, 0, 1, 1).size, 0);
 });
 
 it("sankeyDragState: one state per chart", () => {
@@ -107,6 +141,7 @@ it("shiftSankeyNodes: moves dragged nodes by their offsets and records where eac
   assert.deepStrictEqual(state.laid.get("a"), {
     y0: a0,
     height: nodes[0].y1 - nodes[0].y0,
+    column: 0,
     top: 0,
     bottom: 100,
   });
@@ -132,26 +167,56 @@ it("shiftSankeyNodes: forgets the offsets once the data, nodes, or links change"
   assert.strictEqual(sankeyDragState(viz).offsets.size, 0);
 });
 
-it("sankeyNodeDrag: a drag sets the node's offset and repaints on the next frame", () => {
+/** A laid-out Sankey whose last column (d) has room to move in. */
+function roomy(viz) {
+  const nodes = [{id: "a"}, {id: "b"}, {id: "c"}, {id: "d"}];
+  const links = [
+    {source: 0, target: 2, value: 5},
+    {source: 1, target: 2, value: 5},
+    {source: 2, target: 3, value: 4},
+  ];
+  sankey().nodes(nodes).links(links).nodeWidth(10).size([300, 100])();
+  shiftSankeyNodes(viz, nodes, extent);
+  viz.ctx.nodeLookup = {a: 0, b: 1, c: 2, d: 3};
+  return nodes;
+}
+
+it("sankeyNodeDrag: a drag sets the column's offsets and repaints on the next frame", () => {
   const viz = fakeSankey();
-  viz.ctx.nodeLookup = {a: 0, b: 1, c: 2};
+  const d = roomy(viz)[3];
   let relayouts = 0;
   sankeyDragState(viz).relayout = () => relayouts++;
-  shiftSankeyNodes(viz, laidOut().nodes, extent);
   const drag = sankeyNodeDrag(viz);
-  assert.strictEqual(drag.nodeAt({key: "sankey-Rect-a"}), "a");
-  drag.start("a", [5, 20]);
-  drag.move("a", [9, 30]);
-  drag.move("a", [9, 40]);
-  drag.end("a", [9, 40]);
-  assert.strictEqual(sankeyDragState(viz).offsets.get("a"), 0.2);
+  assert.strictEqual(drag.nodeAt({key: "sankey-Rect-d"}), "d");
+  const top = d.y0;
+  drag.start("d", [5, 20]);
+  drag.move("d", [9, 30]);
+  drag.move("d", [9, 25]);
+  drag.end("d", [9, 25]);
+  assert.ok(Math.abs(sankeyDragState(viz).offsets.get("d") - 0.05) < 1e-9);
   assert.strictEqual(frames.length, 1, "one frame");
   frames[0]();
   assert.deepStrictEqual([relayouts, viz.drawn], [1, 1]);
-  // A second drag starts from the offset the first left.
-  drag.start("a", [5, 40]);
-  drag.move("a", [5, 30]);
-  assert.ok(Math.abs(sankeyDragState(viz).offsets.get("a") - 0.1) < 1e-9);
+  // Dragged far down, it stops at the bottom.
+  drag.start("d", [5, 0]);
+  drag.move("d", [5, 1000]);
+  const share = sankeyDragState(viz).offsets.get("d");
+  assert.ok(Math.abs(top + share * 100 + (d.y1 - d.y0) - 100) < 1e-9);
+});
+
+it("nudgeSankeyNode / resetSankeyNode: move a node by pixels, then back", () => {
+  const viz = fakeSankey();
+  const [a, , , d] = roomy(viz);
+  assert.ok(nudgeSankeyNode(viz, "d", 10));
+  assert.ok(Math.abs(sankeyDragState(viz).offsets.get("d") - 0.1) < 1e-9);
+  assert.strictEqual(frames.length, 1, "repaints");
+  assert.ok(!nudgeSankeyNode(viz, "a", -10), "a full column can't move");
+  assert.ok(!nudgeSankeyNode(viz, "a", 10));
+  assert.ok(!nudgeSankeyNode(viz, "z", 10));
+  assert.ok(resetSankeyNode(viz, "d"));
+  assert.ok(!sankeyDragState(viz).offsets.has("d"), "back in its place");
+  assert.ok(!resetSankeyNode(viz, "d"), "nothing to reset");
+  assert.ok(a && d);
 });
 
 it("stopSankeyDrag: cancels a pending repaint", () => {
