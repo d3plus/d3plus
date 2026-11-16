@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BoxWhisker Flat Boxes</title>
+    <meta
+      name="description"
+      content="Precomputed boxes whose quartiles meet draw as flat rules in their whiskers' color, whatever their fill, with legend filtering, degenerate statistics, and a horizontal layout."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 360px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>q1 = median = q3, a color per category (shift-click to hide)</h3>
+        <div class="viz" id="flat"></div>
+      </div>
+      <div>
+        <h3>Degenerate statistics</h3>
+        <div class="viz" id="degenerate"></div>
+      </div>
+      <div>
+        <h3>Flat boxes, horizontal</h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+      <div>
+        <h3>Flat boxes, dark theme</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Each category's x is "name|index"; the tick format shows the name.
+    var flat = [
+      {name: "[blank]", colour: "#adb5bd", min: 500, q: 750, max: 1000},
+      {name: "Amber", colour: "#1a1b4b", min: 0, q: 420, max: 1500},
+      {name: "Red", colour: "#ffd43b", min: 0, q: 80, max: 150},
+      {name: "Green", colour: "#ae3ec9", min: 200, q: 600, max: 900},
+    ].map(function (d, i) {
+      return {
+        id: d.name + "|" + i,
+        group: d.name + "|" + i,
+        colour: d.colour,
+        min: d.min,
+        q1: d.q,
+        median: d.q,
+        q3: d.q,
+        max: d.max,
+      };
+    });
+    var degenerate = [
+      {
+        id: "median beside equal quartiles|0",
+        colour: "#1a1b4b",
+        min: 10,
+        q1: 30,
+        median: 50,
+        q3: 30,
+        max: 70,
+      },
+      {
+        id: "every statistic equal|1",
+        colour: "#2f9e44",
+        min: 40,
+        q1: 40,
+        median: 40,
+        q3: 40,
+        max: 40,
+      },
+      {
+        id: "flat at its max|2",
+        colour: "#ae3ec9",
+        min: 20,
+        q1: 60,
+        median: 60,
+        q3: 60,
+        max: 60,
+      },
+    ];
+    var tickName = function (d) {
+      return d.split("|")[0];
+    };
+
+    function chart(select, data) {
+      return new d3plus.BoxWhisker()
+        .select(select)
+        .data(data)
+        .boxMin("min")
+        .boxQ1("q1")
+        .boxMedian("median")
+        .boxQ3("q3")
+        .boxMax("max")
+        .color("colour")
+        .legendFilterInvert(true);
+    }
+
+    chart("#flat", flat).x("group").xConfig({tickFormat: tickName}).render();
+    chart("#degenerate", degenerate)
+      .x("id")
+      .xConfig({tickFormat: tickName})
+      .render();
+    chart("#horizontal", flat)
+      .discrete("y")
+      .y("group")
+      .yConfig({tickFormat: tickName})
+      .render();
+    chart("#dark", flat)
+      .x("group")
+      .xConfig({tickFormat: tickName})
+      .theme("dark")
+      .render();
+  </script>
+</html>
