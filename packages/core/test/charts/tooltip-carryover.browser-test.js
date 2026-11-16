@@ -85,3 +85,48 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 }
+
+/** Points around 10, with one outlier at 40; each has bounds 1 either side. */
+const outlierRows = [11, 12, 10, 13, 11, 12, 40, 10, 12].map((y, k) => ({
+  id: `p${k}`,
+  x: k,
+  y,
+  lo: y - 1,
+  hi: y + 1,
+}));
+
+const outlierScatter = `lib => new lib.Scatter()
+  .data(${JSON.stringify(outlierRows)})
+  .groupBy("id")
+  .x("x")
+  .y("y")
+  .confidence(["lo", "hi"])
+  .outlier(true)
+  .legend(false)`;
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`${renderer}: Scatter — an outlier lists its bounds, then Outlier, and the next point neither`, async () => {
+    const {page, close} = await chart(outlierScatter, renderer);
+    try {
+      await hover(page, await pointOf(page, circle("p6")));
+      assert.deepStrictEqual(await tooltipRows(page), [
+        ["Lower Bound", "39"],
+        ["Upper Bound", "41"],
+        ["Outlier"],
+      ]);
+      await hover(page, await pointOf(page, circle("p5")));
+      assert.deepStrictEqual(await tooltipRows(page), [
+        ["Lower Bound", "11"],
+        ["Upper Bound", "13"],
+      ]);
+      await hover(page, await pointOf(page, circle("p6")));
+      assert.deepStrictEqual(
+        (await tooltipRows(page)).filter(r => r[0] === "Outlier").length,
+        1,
+        "one Outlier row however often it's hovered",
+      );
+    } finally {
+      await close();
+    }
+  });
+}

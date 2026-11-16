@@ -51,6 +51,7 @@ import {
   outlierRows,
   outlierSuffix,
 } from "../../src/charts/Plot/outlierTooltip.ts";
+import {addTooltipRows} from "../../src/charts/features/tooltipRows.ts";
 
 useJsdom();
 
@@ -678,6 +679,14 @@ it("appendOutlier: wraps the tooltip's rows once, adding the row for each hovere
   assert.deepStrictEqual(wrapped(series[0], 0), [["x", "1"]]);
   appendOutlier(tooltip, viz);
   assert.strictEqual(tbody, wrapped, "not wrapped twice");
+  // It shares the one wrapper with the other kinds of row, after confidence.
+  addTooltipRows(tooltip, "confidence", () => [["Lower Bound", "0"]], 1);
+  assert.strictEqual(tbody, wrapped, "the same wrapper");
+  assert.deepStrictEqual(wrapped(source, 0), [
+    ["x", "1"],
+    ["Lower Bound", "0"],
+    ["Outlier"],
+  ]);
   const plain = {tbody: () => "untouched"};
   viz._plotOutliers = new Map();
   assert.strictEqual(appendOutlier(plain, viz), plain);
