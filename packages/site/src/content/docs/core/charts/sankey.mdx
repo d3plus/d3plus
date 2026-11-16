@@ -12,6 +12,7 @@ import nodeLabels from "~/examples/core/charts/sankey/node-labels.js?raw";
 import linkColor from "~/examples/core/charts/sankey/link-color.js?raw";
 import unlinkedNodes from "~/examples/core/charts/sankey/unlinked-nodes.js?raw";
 import circularLinks from "~/examples/core/charts/sankey/circular-links.js?raw";
+import nodeDrag from "~/examples/core/charts/sankey/node-drag.js?raw";
 
 Creates a Sankey visualization based on a defined set of nodes and links.
 
@@ -56,6 +57,12 @@ Every entry in `nodes` is drawn, including nodes that no link touches. Such a no
 A flow that returns to a node it already left can't run left to right, so Sankey draws it as a circular band: it leaves its source's right side, turns up or down, runs along a lane above or below the nodes, and turns back into its target's left side. Here recycled material returns to raw materials and manufacturing, and manufacturing reworks some of its own output (a link from a node to itself). On a loop through several nodes, the lightest link is the one drawn this way. A band runs above the nodes when its two ends sit in the upper half of the chart, else below; shorter loops nest inside longer ones, and the chart makes room for the lanes so none is cut off at its edge. Each node is as tall as the flow through it, returns included. Circular bands take `linkColor`, `linkLabel` (on the lane), tooltips, and focus like the others; `circularLinks: false` leaves them out instead and logs a warning naming them.
 
 <Playground chart="Sankey" code={circularLinks} controls={["circularLinks","linkColor"]} />
+
+## Dragging nodes
+
+Drag a node up or down its column to untangle crossing flows: its links follow it, and it stays where it is dropped (inside the chart) through redraws, until the data, `nodes`, or `links` change. A dropped node may overlap its neighbors. A drag doesn't click, and the tooltip waits until the node is dropped. Set `nodeDrag` to `false` to keep every node where the layout puts it.
+
+<Playground chart="Sankey" code={nodeDrag} controls={["nodeDrag","nodePadding"]} />
 
 ## Network measures
 
