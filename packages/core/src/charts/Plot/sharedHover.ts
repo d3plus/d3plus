@@ -7,8 +7,11 @@
 import type {DataPoint} from "@d3plus/data";
 import type {InteractionPoint, SceneEvent, SceneNode} from "@d3plus/render";
 
-import {nodeColor, ownerNode, visibleColor} from "../features/tooltipSwatch.js";
+import {markSwatch} from "../features/swatchPaint.js";
+import type {SwatchOutline, SwatchPaint} from "../features/swatchPaint.js";
+import {nodeSwatch, ownerNode} from "../features/tooltipSwatch.js";
 import {facetPanelAt} from "../facet/facetPanel.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 import {linkAs} from "../viz/linkGroup.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -30,6 +33,8 @@ export interface SharedRow {
   name: string;
   value: number;
   color?: string;
+  /** The mark's stroke, which outlines the row's swatch. */
+  outline?: SwatchOutline;
   /** The mark's shape type, which picks the row's swatch (dot vs. square). */
   shape?: string;
   datum: DataPoint;
@@ -94,6 +99,7 @@ const discreteKey = (v: unknown): string =>
 interface Member {
   wrapped: Wrapped;
   color?: string;
+  outline?: SwatchOutline;
   shape?: string;
   trend?: {fit: TrendFit; sample: TrendSample};
 }
@@ -153,7 +159,7 @@ function collectColumns(
   const add = (
     wrapped: Wrapped,
     px: number,
-    color?: string,
+    swatch: SwatchPaint,
     shape?: string,
   ): Column | null => {
     if (!wrapped || !Number.isFinite(px)) return null;
@@ -176,23 +182,30 @@ function collectColumns(
     }
     const id = String(wrapped.id);
     const member = column.members.get(id);
-    if (!member) column.members.set(id, {wrapped, color, shape});
-    else if (!member.color) member.color = color;
+    if (!member)
+      column.members.set(id, {
+        wrapped,
+        color: swatch.color,
+        outline: swatch.outline,
+        shape,
+      });
+    else if (!member.color)
+      Object.assign(member, {color: swatch.color, outline: swatch.outline});
     return column;
   };
   // A Line's hit-area and visible path share points; mark each point once.
   const marked = new Set<DataPoint>();
+  const background = chartBackground(viz);
   const walk = (node: ShapeNode): void => {
     if (node.interactionGroup || node.interactive === false) return;
     if (node.children) node.children.forEach(child => walk(child as ShapeNode));
     if (node.shapeType === "Box") found.box = true;
     if (!sharedMark(viz, node)) return;
-    const paint = node.paint || {};
-    const color = visibleColor(paint.stroke) ?? visibleColor(paint.fill);
+    const swatch = markSwatch(node.paint, node.shapeType, {background});
     if (node.shapeType === "Area") found.area = true;
     if (node.interactionPoints) {
       for (const p of node.interactionPoints) {
-        const column = add(p.datum as Wrapped, p[axis], color, node.shapeType);
+        const column = add(p.datum as Wrapped, p[axis], swatch, node.shapeType);
         if (column && node.shapeType === "Line" && !marked.has(p.datum)) {
           marked.add(p.datum);
           column.markers.push({datum: p.datum, x: p.x, y: p.y});
@@ -203,7 +216,12 @@ function collectColumns(
       !(node.datum as {__d3plusShape__?: boolean}).__d3plusShape__
     ) {
       const wrapped = node.datum as Wrapped;
-      add(wrapped, position(wrapped[axis] as DataPoint), color, node.shapeType);
+      add(
+        wrapped,
+        position(wrapped[axis] as DataPoint),
+        swatch,
+        node.shapeType,
+      );
     }
   };
   (viz._chartScene || []).forEach(node => walk(node as ShapeNode));
@@ -282,6 +300,7 @@ function memberRow(
     name,
     value,
     color: member.color,
+    outline: member.outline,
     shape: member.shape,
     datum,
     index,
@@ -385,7 +404,7 @@ function resolveHover(
     const member =
       column?.members.get(id) ??
       (wrapped
-        ? {wrapped, color: nodeColor(viz, pick), shape: pick?.shapeType}
+        ? {wrapped, ...nodeSwatch(viz, pick), shape: pick?.shapeType}
         : undefined);
     const row = member ? memberRow(viz, axis, id, member) : null;
     if (!row || !Number.isFinite(px)) return null;

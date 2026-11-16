@@ -4,6 +4,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {
   leadTitleWithSwatch,
   nodeColor,
+  nodeSwatch,
   pickSwatch,
   tooltipSwatch,
   visibleColor,
@@ -299,4 +300,153 @@ it("leadTitleWithSwatch — off when the tooltip's titleSwatch is false", () => 
   assert.strictEqual(tip.titleSwatch(), true, "on by default");
   leadTitleWithSwatch(tip.titleSwatch(false), tooltipSwatch("red", "Rect"));
   assert.strictEqual(tip.title()({}, 0), "Plain");
+});
+
+it("tooltipSwatch — outlined by its mark's stroke", () => {
+  const sw = parse(
+    tooltipSwatch({color: "blue", outline: {stroke: "red", strokeWidth: 1}}),
+  );
+  assert.strictEqual(sw.style.background, "blue");
+  assert.strictEqual(sw.style.borderStyle, "solid");
+  assert.strictEqual(sw.style.borderColor, "red");
+  assert.strictEqual(sw.style.borderWidth, "1px");
+  assert.strictEqual(sw.style.boxSizing, "border-box", "inside its 10px");
+  assert.strictEqual(sw.style.width, "10px");
+  const thick = parse(
+    tooltipSwatch(
+      {color: "blue", outline: {stroke: "red", strokeWidth: 6}},
+      "Circle",
+    ),
+  );
+  assert.strictEqual(thick.style.borderWidth, "2px", "a fifth of the swatch");
+  assert.strictEqual(thick.style.borderRadius, "50%");
+  assert.strictEqual(
+    parse(tooltipSwatch({color: "blue"})).style.borderStyle,
+    "",
+    "no outline without a stroke",
+  );
+});
+
+it("tooltipSwatch — a Line's swatch takes no outline", () => {
+  const sw = parse(
+    tooltipSwatch(
+      {color: "red", outline: {stroke: "black", strokeWidth: 1}},
+      "Line",
+    ),
+  );
+  assert.ok(sw.classList.contains("d3plus-tooltip-swatch-line"));
+  assert.strictEqual(sw.style.borderStyle, "");
+  assert.strictEqual(tooltipSwatch({}, "Rect"), "", "nothing without a color");
+});
+
+it("nodeSwatch — a mark's fill outlined by its stroke", () => {
+  const node = {
+    type: "path",
+    key: "geomap-path-a",
+    shapeType: "Path",
+    paint: {fill: "#eee", stroke: "#999", strokeWidth: 1},
+  };
+  assert.deepStrictEqual(nodeSwatch({_chartScene: [node]}, node), {
+    color: "#eee",
+    outline: {stroke: "#999", strokeWidth: 1},
+  });
+  assert.deepStrictEqual(nodeSwatch({}, undefined), {}, "no node");
+});
+
+it("nodeSwatch — a hovered mark reads its paint without the emphasis", () => {
+  const drawn = {
+    type: "rect",
+    key: "Alpha",
+    shapeType: "Rect",
+    paint: {fill: "#4c6ef5", stroke: "#3b5bdb", strokeWidth: 0},
+  };
+  const viz = {
+    _chartScene: [
+      {type: "group", key: "Alpha", children: [drawn]},
+      {type: "text", key: "Alpha", paint: {fill: "#000"}},
+    ],
+  };
+  const painted = {
+    ...drawn,
+    paint: {...drawn.paint, stroke: "#1c3bb5", strokeWidth: 2},
+  };
+  assert.deepStrictEqual(
+    nodeSwatch(viz, painted),
+    {color: "#4c6ef5"},
+    "the drawn rect, not a group or text sharing its key",
+  );
+  const lined = {...drawn, paint: {...drawn.paint, strokeWidth: 1}};
+  assert.deepStrictEqual(
+    nodeSwatch({_chartScene: [lined]}, painted).outline,
+    {stroke: "#3b5bdb", strokeWidth: 1},
+    "its own stroke, not the hover's",
+  );
+  assert.deepStrictEqual(
+    nodeSwatch({_chartScene: []}, painted).outline,
+    {stroke: "#1c3bb5", strokeWidth: 2},
+    "the picked paint when the chart's scene lacks it",
+  );
+});
+
+it("nodeSwatch — a legend swatch reads the legend's own scene", () => {
+  const drawn = {
+    type: "rect",
+    key: "A_1_",
+    shapeType: "Rect",
+    paint: {fill: "blue", stroke: "red", strokeWidth: 1},
+  };
+  const painted = {
+    ...drawn,
+    interactionGroup: "legend",
+    paint: {...drawn.paint, stroke: "black", strokeWidth: 2},
+  };
+  const chartMark = {...drawn, paint: {fill: "green"}};
+  const viz = {
+    _chartScene: [chartMark],
+    _legendClass: {toScene: () => ({type: "group", children: [drawn]})},
+  };
+  assert.deepStrictEqual(nodeSwatch(viz, painted), {
+    color: "blue",
+    outline: {stroke: "red", strokeWidth: 1},
+  });
+  const hit = {
+    type: "rect",
+    key: "A_1_::hit",
+    interactionGroup: "legend",
+    paint: {fill: "transparent"},
+  };
+  assert.strictEqual(
+    nodeSwatch(viz, hit).color,
+    "blue",
+    "a hover target reads its swatch",
+  );
+});
+
+it("nodeSwatch — a stroke in the chart's background is no outline", () => {
+  const wedge = {
+    type: "path",
+    key: "Alpha",
+    shapeType: "Path",
+    paint: {fill: "blue", stroke: "#000000", strokeWidth: 2},
+  };
+  const dark = {_chartScene: [wedge], _theme: {background: "#000"}};
+  assert.deepStrictEqual(nodeSwatch(dark, wedge), {color: "blue"});
+  const light = {_chartScene: [wedge], _theme: {background: "#fff"}};
+  assert.deepStrictEqual(nodeSwatch(light, wedge).outline, {
+    stroke: "#000000",
+    strokeWidth: 2,
+  });
+});
+
+it("pickSwatch — the picked mark's swatch carries its stroke", () => {
+  const node = {
+    type: "path",
+    key: "geomap-path-a",
+    shapeType: "Path",
+    paint: {fill: "#eee", stroke: "rgb(1, 2, 3)", strokeWidth: 1},
+    datum: {id: "a"},
+  };
+  const sw = parse(pickSwatch({_chartScene: [node]}, {node, d: node.datum}));
+  assert.strictEqual(sw.style.borderColor, "rgb(1, 2, 3)");
+  assert.strictEqual(sw.style.borderWidth, "1px");
 });

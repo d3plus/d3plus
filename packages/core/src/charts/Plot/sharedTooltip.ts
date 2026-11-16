@@ -222,7 +222,7 @@ export const SHARED_MEMBER_LIMIT = 5;
 /**
     The shared tooltip: title from the continuous axis, a header row naming
     the hovered discrete value, then one `[name, value]` row per series, the
-    name led by a swatch in its series stroke and the value followed by its
+    name led by its mark's swatch and the value followed by its
     `confidence` range, and a threshold bucket's series listed under its row.
     A chart's own value column (`viz._sharedTooltipValue`) replaces the
     axis's title and values, and its own rows (`viz._sharedTooltipRows`)
@@ -250,7 +250,7 @@ export function renderSharedTooltip(
       hover.rows
         .flatMap((r, i) => [
           [
-            withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
+            withSwatch(tooltipSwatch(r, r.shape), names[i]),
             own
               ? own.value(r.datum, r.index)
               : `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
@@ -304,7 +304,7 @@ export function renderSingleTooltip(
   const tbody = tip.tbody();
   const extra =
     typeof tbody === "function" ? tbody(row.datum, row.index) : tbody;
-  leadTitleWithSwatch(tip, tooltipSwatch(row.color, row.shape))
+  leadTitleWithSwatch(tip, tooltipSwatch(row, row.shape))
     .tbody([
       ...(viz._tooltipAxisRows === false
         ? []
