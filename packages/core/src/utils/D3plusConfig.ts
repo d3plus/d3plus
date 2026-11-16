@@ -2711,9 +2711,9 @@ export interface D3plusConfig {
       Geomap: combines coordinate points that sit near one another on screen
       into one bubble, while any two points' circles overlap on the map as
       first drawn. A bubble is sized by its points' summed `pointSize` (by
-      their count when it's constant), shows how many points it holds, and
-      is a pie of its points' colors (a plain circle when they share one);
-      its tooltip lists the first few. Zooming in splits the bubbles as the
+      their count when it's constant) and shows how many points it holds,
+      inside a ring of its points' colors (a plain circle when they share
+      one); its tooltip lists the first few. Zooming in splits the bubbles as the
       points spread apart, and zooming out merges them, so the points and
       bubbles keep their pixel size through zoom. Clicking a bubble zooms
       in until it splits; one whose points sit too close to ever split fans
