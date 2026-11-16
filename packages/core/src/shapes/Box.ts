@@ -21,7 +21,12 @@ import {boxStats, whiskerPair} from "./boxStats.js";
 import {applyBoxExtras, toBoxExtra} from "./boxExtras.js";
 import {drawBoxExtras} from "./boxExtraShapes.js";
 import type {BoxExtraShapes} from "./boxExtraShapes.js";
-import {boxMedianConfig, boxOutlierConfig, boxRectConfig} from "./boxStyle.js";
+import {
+  boxBareInk,
+  boxMedianConfig,
+  boxOutlierConfig,
+  boxRectConfig,
+} from "./boxStyle.js";
 import {
   computeSummaryBoxes,
   hasBoxStats,
@@ -371,6 +376,10 @@ export default class Box extends BaseClass {
       this.schema,
       this._prep(this.schema.rectConfig),
     );
+    const whiskerConfig = this._prep(this.schema.whiskerConfig);
+    // A median or mean off its box's body sits on the chart's background,
+    // beside the whiskers, and takes their color.
+    const bareInk = boxBareInk(whiskerConfig);
 
     this._extras = drawBoxExtras(
       this,
@@ -383,6 +392,7 @@ export default class Box extends BaseClass {
         select: mountInner,
         prep: config => this._prep(config as Record<string, unknown>),
       },
+      bareInk,
     );
 
     // Draw box: a notched box draws its body with the extras.
@@ -411,20 +421,20 @@ export default class Box extends BaseClass {
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Median") as never)
       .config(
-        boxMedianConfig(rectConfig.fill, this._prep(this.schema.medianConfig)),
+        boxMedianConfig(
+          rectConfig.fill,
+          this._prep(this.schema.medianConfig),
+          bareInk,
+        ),
       )
       .render();
 
-    // Draw 2 lines using Whisker class.
-    // Construct coordinates for whisker startpoints and push it to the whiskerData.
-    const whiskerData = buildWhiskerData(filteredData);
-
-    // Draw whiskers.
+    // Draw whiskers from each box's startpoint coordinates.
     this._whisker = new Whisker()
-      .data(whiskerData)
+      .data(buildWhiskerData(filteredData))
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Whisker") as never)
-      .config(this._prep(this.schema.whiskerConfig))
+      .config(whiskerConfig)
       .render();
 
     // Draw outliers.

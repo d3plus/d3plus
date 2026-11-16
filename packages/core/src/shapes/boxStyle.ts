@@ -70,19 +70,66 @@ export function boxMedianInk(fill: unknown): string {
 }
 
 /**
-    The median Rect's config: `medianConfig`, with a fill that contrasts with
-    the box's `boxFill` (resolved on the same box datum) where `medianConfig`
-    leaves it unset.
+    The thinnest box body, in pixels, that a 1px median line reads against:
+    thick enough for the body to show on both sides of the line.
+*/
+const MIN_BODY = 2;
+
+/**
+    Whether `v`, a position along a box datum's value axis, lies over the
+    box's body: between its quartiles (`first` and `third`), on a body at
+    least 2px thick. A box whose quartiles meet has no body, so its median
+    sits on the chart's background.
+*/
+export function overBoxBody(d: DataPoint, v: unknown): boolean {
+  const first = d.first as number;
+  const third = d.third as number;
+  const lo = Math.min(first, third);
+  const hi = Math.max(first, third);
+  return hi - lo >= MIN_BODY && typeof v === "number" && v >= lo && v <= hi;
+}
+
+/**
+    The ink of a mark the Box draws at `at` along each box: black or white
+    contrasting with the box's `boxFill` where the mark lies over the box's
+    body (see `overBoxBody`), and `bareInk` where it lies on the chart's
+    background. Both resolve on the same box datum.
+*/
+export function boxInk(
+  boxFill: unknown,
+  bareInk: unknown,
+  at: (d: DataPoint) => unknown,
+): (d: DataPoint, i: number) => unknown {
+  const resolve = (value: unknown, d: DataPoint, i: number): unknown =>
+    typeof value === "function" ? (value as Accessor)(d, i) : value;
+  return (d, i) =>
+    overBoxBody(d, at(d))
+      ? boxMedianInk(resolve(boxFill, d, i))
+      : resolve(bareInk, d, i);
+}
+
+/**
+    The ink of a Box's marks off its body: its whiskers' line color, from its
+    prepared `whiskerConfig`, or black (a Line's own default).
+*/
+export function boxBareInk(whiskerConfig: Record<string, unknown>): unknown {
+  const line = whiskerConfig.lineConfig as Record<string, unknown> | undefined;
+  return line?.stroke ?? "black";
+}
+
+/**
+    The median Rect's config: `medianConfig`, with a fill (see `boxInk`) that
+    contrasts with the box's `boxFill` where the median lies over the box's
+    body, and takes `bareInk` where it doesn't (a box whose quartiles meet),
+    where `medianConfig` leaves it unset.
 */
 export function boxMedianConfig(
   boxFill: unknown,
   medianConfig: Record<string, unknown>,
+  bareInk: unknown = "black",
 ): Record<string, unknown> {
   if ("fill" in medianConfig) return medianConfig;
-  const fill =
-    typeof boxFill === "function"
-      ? (d: DataPoint, i: number) => boxMedianInk((boxFill as Accessor)(d, i))
-      : () => boxMedianInk(boxFill);
+  const fill = boxInk(boxFill, bareInk, d => d.median);
   return extend(medianConfig, {...medianConfig, fill});
 }
 
