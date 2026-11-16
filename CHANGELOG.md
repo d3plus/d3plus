@@ -2,6 +2,180 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## 4.13.0
+
+This release adds 17 chart types, from Venn, WordCloud, KPI tiles, and Parliament to ScatterMatrix, HorizonChart, and radial trees. Networks lay themselves out live, their nodes (and Sankey's) can be dragged, and they follow the timeline. Geomap gains drill-down by topojson level, cartograms, dot-density and hexbin maps, tile grids, and point clusters. Plots can find and label outliers, draw marginal distributions, nest category axes, and show minor ticks, period labels, and UTC dates. Charts take box and lasso selection and streaming rows, and dense lines and axes draw several times faster. Several defaults change what existing charts look like; see the breaking changes.
+
+### Added
+
+#### New charts
+
+- **`Venn`** draws sets and their overlaps from rows of `{sets, size}`. By default each set's and overlap's area matches its size (exact for 2 sets, close for 3), and sets that share nothing sit apart as an Euler diagram. `proportional: false` draws the classic layout, with ellipses for 4 and 5 sets so every combination gets a region. Each region is its own shape, colored by a blend of its sets and labeled with its own count (`labelCounts: "inclusive"` shows each row's size). (#1214) [Example ↗](https://d3plus.org/core/charts/venn/#basic-example)
+- **`WordCloud`** sizes one word per row by `size`. Words are placed largest first along a spiral (`spiral`), checked against their letters' real shapes so small words fill the gaps of large ones. The layout is deterministic, shrinks every word before leaving any out, and runs in SSR. `rotate`, `fontMin`, `fontMax`, `fontScale`, `fontWeight`, and `wordPadding` tune it. (#1229) [Example ↗](https://d3plus.org/core/charts/word-cloud/#basic-example)
+- **`KPI`** draws a tile per row or group: a label, the value, its change against the previous value in the theme's good or bad color, and a sparkline. With `time` a tile compares the selected periods with the ones before. `delta`, `deltaDirection`, `comparisonLabel`, `sparkline`, and `tileConfig` set it up. (#1213) [Example ↗](https://d3plus.org/core/charts/kpi/#basic-example)
+- **`Parliament`** seats one dot per seat along half-circle rings, party by party, with the total in the middle and a dashed majority line. It is built on Waffle's new `layout: "arc"`, which takes `rings`, `innerRadius`, `startAngle`, `endAngle`, `majority`, and `centerLabel`. (#1183) [Parliament ↗](https://d3plus.org/core/charts/parliament/#basic-example) · [Waffle ↗](https://d3plus.org/core/charts/waffle/#arc-layout)
+- **`DotPlot`** draws a distribution as stacks of dots (a Wilkinson dot plot), one dot per row or per `unit` of a value, with category rows, colored groups, and centered stacks (`stackDirection: "center"`). `dotRadius` and `binWidth` override the automatic sizing. (#1220) [Example ↗](https://d3plus.org/core/charts/dot-plot/#basic-example)
+- **`StripPlot`, `jitter`, and the `Tick` shape.** StripPlot draws one point per row along a category band, jittered sideways. `jitter` on any Plot scatters Circle and Rect marks across their band, each by a hash of its id so nothing jumps on redraw. `shape: "Tick"` draws barcode plots. (#1170) [StripPlot ↗](https://d3plus.org/core/charts/strip-plot/#basic-example) · [Barcode ↗](https://d3plus.org/core/charts/strip-plot/#barcode-plot)
+- **`DensityPlot`** draws kernel density curves, overlaid or `stacked`, with one shared bandwidth (`densityConfig.bandwidth`), a `densityScale` of `"area"`, `"count"`, or `"width"`, and an optional `rug`. (#1164) [Example ↗](https://d3plus.org/core/charts/density-plot/#basic-example)
+- **`HorizonChart`** folds each time series into a short row of `bands` (negatives flipped in a contrasting hue), with one band size across rows, a band key for a legend, a crosshair through every row, and row labels that hide or solo a row by click or keyboard. (#1174) [Example ↗](https://d3plus.org/core/charts/horizon-chart/#basic-example)
+- **`Pareto`** sorts bars largest first under a cumulative-share line on a 0–100% axis, with a dashed 80% reference line (`paretoThreshold`, `paretoThresholdConfig`). (#1162) [Example ↗](https://d3plus.org/core/charts/pareto/#basic-example)
+- **`ConnectedScatter`, and `order` on any Plot.** `order` joins each series' points in that order, so a line can double back. `pathArrows` marks the direction and `pathLabels` labels each path's ends. ConnectedScatter is a Scatter with `order` on. (#1165) [ConnectedScatter ↗](https://d3plus.org/core/charts/connected-scatter/#basic-example) · [Scatter ↗](https://d3plus.org/core/charts/scatter/#connected-points)
+- **`CyclePlot`** sets one line per month (or quarter, weekday, or hour, via `period`) side by side, each with its mean (`mean`, `meanConfig`). (#1188) [Example ↗](https://d3plus.org/core/charts/cycle-plot/#basic-example)
+- **`RadialLine` and `RadialArea`** run each group around a circle for cyclical data: `x` sets the angle and `y` the distance from the center. `closed`, `startAngle`, `direction`, `innerRadius`, and RadialArea's `stacked` shape them. Series are named beside their lines, and the legend hides when every one is. (#1205) [RadialLine ↗](https://d3plus.org/core/charts/radial-line/#basic-example) · [RadialArea ↗](https://d3plus.org/core/charts/radial-area/#basic-example)
+- **`RadialTree`, and `orient: "radial"` on Tree**, lay a tree around a circle with its leaves on the edge. `nodeHeight` sets each node's height above the leaves, for dendrograms on any orientation. (#1181) [RadialTree ↗](https://d3plus.org/core/charts/radial-tree/#basic-example) · [Dendrogram ↗](https://d3plus.org/core/charts/tree/#dendrogram)
+- **`ScatterMatrix`** draws every pair of `dimensions` as a scatter, with a histogram of each on the diagonal. Hovering a point highlights it in every panel. (#1189) [Example ↗](https://d3plus.org/core/charts/scatter-matrix/#basic-example)
+- **`BubbleMatrix`, and `shape: "Circle"` on Matrix**, draw each cell as a circle whose area follows `size` (`sizeScale`), with a size legend. BubbleMatrix's color scale diverges symmetrically around 0 when the values cross it, as a correlation matrix needs. (#1179) [BubbleMatrix ↗](https://d3plus.org/core/charts/bubble-matrix/#basic-example) · [Matrix ↗](https://d3plus.org/core/charts/matrix/#circles-sized-by-value)
+- **`TileGridMap`** is a Geomap that draws the US states as equal hexagons; see tile grids below. (#1218) [Example ↗](https://d3plus.org/core/charts/tile-grid-map/#basic-example)
+
+#### Plot charts
+
+- **Outliers.** `outlier: true` finds the outliers in any Plot-family chart by Tukey's fences, or by `"zscore"` or `"mad"` (`outlier: {method, k, group}`), or by your own function. Each is ringed in the text color and labeled "name: value" where there is room, and its tooltip and aria label say "Outlier". `outlierConfig` styles them. (#1230; closes #279) [Example ↗](https://d3plus.org/core/charts/plot/#outliers)
+- **Marginal distributions.** `marginals` draws a histogram, box, or density strip of each axis beside a Scatter or any Plot with two continuous axes, per legend group, following the legend, timeline, filter, zoom, and facets. Hovering a point lights the bins holding it, and hovering a bin lights its points. `marginalConfig` sizes and styles them. (#1206) [Example ↗](https://d3plus.org/core/charts/scatter/#marginal-distributions)
+- **Error bars on either axis, and on points.** `confidence` takes `{x, y}` bounds, and Scatter, Beeswarm, and other point Plots draw error bars (a cross with both). Labels keep clear of them. (#1171) [Example ↗](https://d3plus.org/core/charts/scatter/#error-bars)
+- **BoxWhisker means, points, notches, and widths.** Each box shows a mean diamond (`boxMean`) and its jittered points (`boxPoints`). `boxNotch` notches it at the median's 95% interval, and `boxWidthByCount` sizes it by √n (`boxCount` for precomputed boxes). (#1172) [Example ↗](https://d3plus.org/core/charts/box-whisker/#means-and-points)
+- **Moving-average trend lines.** `trendLine: "movingAverage"` draws a rolling mean over a `window` of points or of time (`{days: 30}`), trailing or `center`ed, with ±2σ Bollinger `bands`. A trend label that would run off the plot slides back along its line. `@d3plus/math` gains `movingAverage`, `movingWindow`, and `movingSpan`. (#1163) [Example ↗](https://d3plus.org/core/charts/line-plot/#moving-average)
+- **Dumbbell arrows and bars.** `arrows: true` draws each connector as an arrow from the first value to the last, and `connector: "bar"` draws a floating bar (`connectorWidth`). Arrows and bars are colored by direction (`increaseColor`, `decreaseColor`), and the tooltip adds a Change or Range row. (#1185) [Example ↗](https://d3plus.org/core/charts/dumbbell/#change-arrows)
+- **Likert centering.** `stackNeutral` names a diverging stacked BarChart's neutral answer, which then straddles zero with the other answers stacked outward from it, without negating any data. (#1184) [Example ↗](https://d3plus.org/core/charts/bar-chart/#likert-scale-with-a-neutral-center)
+- **Area bump charts.** `size` on a BumpChart turns each series into a band whose thickness shows its value, with `bandPadding` between ranks. (#1178) [Example ↗](https://d3plus.org/core/charts/bump-chart/#bands-sized-by-value)
+- **Fixed aspect ratio.** `aspectRatio` draws one y unit that many times as long as one x unit, shrinking the plot along its long side. (#1177) [Example ↗](https://d3plus.org/core/charts/plot/#fixed-aspect-ratio)
+- **Downsampling.** LinePlot and AreaPlot series with more than 2 points per pixel are thinned with Largest-Triangle-Three-Buckets, keeping their peaks and dips, while hover and tooltips read every row. Zooming in brings detail back. `downsample` sets the point count, and `false` turns it off. (#1209) [Example ↗](https://d3plus.org/core/charts/line-plot/#downsampling-dense-lines)
+- **A hover band over a bar's slot.** Hovering a bar, or the empty part of its slot, draws a light band over the whole slot to show where its hover and click reach. `shapeConfig.Bar.hitAreaStyle` restyles it, and `false` turns it off. The empty part of a stacked column now reaches its nearest segment. (#1247; closes #1243)
+
+#### Axes
+
+- **Multi-level category axes.** An array of keys in `x` (or `y`), outermost first, nests the categories: `x: ["year", "quarter"]` labels each quarter and each year once beneath them, with dividers between years. `levelConfig`, `levelDividerConfig`, and `levelFormat` style the outer levels, and `xDomain` takes lists of level values. Standalone Axis gains `levels`. (#1207) [BarChart ↗](https://d3plus.org/core/charts/bar-chart/#multi-level-category-axis) · [Axis ↗](https://d3plus.org/core/components/axis/#multi-level-categories)
+- **Minor ticks and grid lines.** `minorTicks` draws short unlabeled ticks between the labeled ones (calendar units on time axes), thinning whole levels when crowded. `minorGrid` and `minorGridConfig` draw fainter grid lines at them. (#1176) [Example ↗](https://d3plus.org/core/components/axis/#minor-ticks)
+- **Period labels.** `tickLabelPosition: "period"` centers each date label in the period it names, with ticks and grid lines staying on the boundaries. `@d3plus/format` gains `dateInterval`. (#1175) [Example ↗](https://d3plus.org/core/charts/line-plot/#period-labels)
+- **UTC time axes.** `utc: true` on any axis config places, labels, and parses that axis's dates in UTC, along with its domain, ticks, `rangeBreaks`, reference lines, annotations, tooltips, and the timeline. Gantt, Priestley, Candlestick, and Calendar follow it, and `scale: "utc"` is shorthand. `@d3plus/format`'s date formatters and `@d3plus/dom`'s `date` take a `utc` option. (#1166) [Guide ↗](https://d3plus.org/guides/data/#utc-time-axes) · [Calendar ↗](https://d3plus.org/core/charts/calendar/#utc-days)
+
+#### Networks, trees, and maps
+
+- **Live network layouts.** A Network of up to `forceLive` nodes (200 by default) draws its usual layout, then settles it on screen with a force simulation in about 2.5s. (#1232; closes #111) [Example ↗](https://d3plus.org/core/charts/network/#live-layout-and-dragging)
+- **Dragging nodes.** `nodeDrag` (on by default) lets you drag Network nodes, which stay pinned where dropped until double-clicked, and move Sankey nodes up and down their column, pushing the others aside. Shift + arrow keys move a focused node, and Shift+Backspace puts it back. (#1232) [Network ↗](https://d3plus.org/core/charts/network/#live-layout-and-dragging) · [Sankey ↗](https://d3plus.org/core/charts/sankey/#dragging-nodes)
+- **Networks over time.** `time` filters `nodes` and `links` too. Nodes keep their place between periods, new ones enter beside a neighbor, and link widths keep one scale. (#1232; closes #64) [Example ↗](https://d3plus.org/core/charts/network/#networks-over-time)
+- **Circular Network layout.** `layout: "circle"` places nodes around a circle, grouped by cluster (`nodeSort`), with links bowed toward the center by `linkBow`. (#1181) [Example ↗](https://d3plus.org/core/charts/network/#circle-layout)
+- **Labels slide before they hide.** A Network, Plot, or Geomap point label with no room inside or beside its mark slides along a side or onto a diagonal, choosing the spot that crosses the fewest links, and can move a neighbor's label to make room. `labelSlide: false` turns it off. (#1241)
+- **Geomap drill-down.** `topojson` (and `topojsonKey`) take one entry per `groupBy` level. Clicking a region zooms to it and draws its children, its neighbors stay faded (`topojsonNeighborOpacity`), and Back climbs out. (#1238) [Example ↗](https://d3plus.org/core/charts/geomap/#drill-down-map)
+- **Cartograms.** `cartogram` takes `"dorling"` (circles), `"demers"` (squares), or `"contiguous"` (regions stretched in place), sized by `cartogramSize` and morphing from the map. Dorling and Demers draw a size legend; `SizeLegend` gains `shape`. (#1215, #1216; part of #516) [Dorling ↗](https://d3plus.org/core/charts/geomap/#dorling-cartogram) · [Demers ↗](https://d3plus.org/core/charts/geomap/#demers-cartogram) · [Contiguous ↗](https://d3plus.org/core/charts/geomap/#contiguous-cartogram)
+- **Dot-density and hexbin maps.** `dotDensity: {value, per}` scatters a dot per `per` units inside each region, colored by category with an outer `groupBy`, switching to Canvas past 20,000 dots. `hexbin` bins point data into hexagons that re-bin as you zoom. (#1217) [Dot density ↗](https://d3plus.org/core/charts/geomap/#dot-density-map) · [Hexbin ↗](https://d3plus.org/core/charts/geomap/#hexbin-map)
+- **Tile-grid maps.** `tileGrid: "us-states"` draws each state as an equal hexagon, with no topojson needed. A `{id: [col, row]}` grid lays out any regions, `tileGridShape: "square"` draws squares, and with a topojson the outlines morph to their tiles. (#1218) [Example ↗](https://d3plus.org/core/charts/geomap/#tile-grid-map)
+- **Point clusters.** Overlapping Geomap points merge into pie bubbles that split as you zoom in. Clicking one zooms to its points, and points that still coincide fan out. `pointCluster` sets the `radius`, and `false` turns it off. (#1231; closes #7) [Example ↗](https://d3plus.org/core/charts/geomap/#point-clusters)
+- **Map-shaped small multiples.** `facetConfig.layout` arranges panels like a map: `"us-states"`, `"eu-countries"`, `"world-regions"`, or your own grid. (#1190) [Guide ↗](https://d3plus.org/guides/small-multiples/#map-layouts)
+
+#### Interaction and data
+
+- **Box and lasso selection.** Charts with zoom controls gain Box Select and Lasso Select buttons (`selectMode` starts with one on). The marks inside stay lit, Shift adds to the selection, and Esc clears it. `on("select", rows => …)` reports it, `selection()` reads or sets it from code, and `selectStyle` styles the drawn region. (#1212) [Guide ↗](https://d3plus.org/guides/interactivity/#box-and-lasso-selection)
+- **"More Controls" menu.** Top-left buttons that don't fit move into a "⋯" menu. (#1212)
+- **Streaming rows.** `viz.append(rows, {window})` adds rows and redraws, sliding the axis along. `window` keeps a number of rows or a span of time such as `"5 minutes"`. (#1208) [Example ↗](https://d3plus.org/core/charts/viz/#streaming-rows)
+- **`Image` `preserveAspectRatio`**, as a constant or per row, on SVG and Canvas. `@d3plus/render` exports `parsePreserveAspectRatio` and `imageFit`. (#1245) [Example ↗](https://d3plus.org/core/shapes/image/#fitting-the-box)
+- **Tooltip stacking.** A `z-index` in `tooltipStyle` now lifts the tooltip's portal, so a page's sticky header no longer covers it. (#1169) [Example ↗](https://d3plus.org/core/components/tooltip/#stacking-above-sticky-headers)
+- `@d3plus/format` exports `formatOrdinal(n, locale)`, and `@d3plus/locales` exports `findWeekend(locale)` and `fillPlaceholders`, so translations can take numbered placeholders (`"{0} hidden"`). (#1174, #1194, #1219) [`formatOrdinal` ↗](https://d3plus.org/format/format-ordinal/)
+- `@d3plus/render` exports `explicitPathD` and `interpolatePathD`. (#1167)
+- New chart classes are available from the React, Vue, and custom-element wrappers.
+- New strings are translated in every locale, among them "Outlier", "Majority: {0}", "Seats", "Cumulative Share", "Relative Density", "Moving Average", "Critical path", "Slack", "Box Select", "Lasso Select", "More Controls", and the node-drag announcements.
+
+### Changed
+
+- **The hand cursor shows only where a click lands**: over the mark, its bar slot, or a point within `hoverDistance`, and no longer over axes, titles, and empty plot. It no longer sticks after a click redraws the chart. (#1247)
+- **Labels paint with their own shapes**, so a shape drawn on top covers the labels beneath it. With `labelPosition: "auto"`, a covered circle label moves beside its circle. Labels outside their shapes stay on top. (#1211)
+- **Network's precomputed layout is a real force simulation.** Stars draw as rings, trees spread out, and nodes are about twice their old size. Every Network without `x`/`y` in its data lays out differently. (#1239)
+- **Network and Sankey nodes can be dragged by default**, and small Networks settle live after their first paint. (#1232)
+- **Geomap clusters overlapping points automatically.** Maps whose points don't overlap look the same. (#1231)
+- **Gantt highlights its critical path** when its `dependencies` chain from the first task to the last, fading every other task. Slack counts working days in the locale's week. `criticalPath: false` turns it off. (#1219) [Example ↗](https://d3plus.org/core/charts/gantt/#critical-path)
+- **A Gantt date-only `end` runs through the end of that day**, so a task ending March 8 covers March 8. (#1219)
+- **BoxWhisker shows a mean diamond and its jittered points** on every computed box. (#1172)
+- **BoxWhisker boxes follow `discrete`**: `discrete: "y"` draws horizontal boxes without setting `orient`. (#1204)
+- **A flat box draws its median in the whiskers' color.** A median contrasts with its box's fill only when the body is at least 2px thick. (#1246)
+- **Axes near zero start at zero**: an axis whose low end is under 10% of its high end starts at 0, so [24, 313] becomes [0, 320]. (#1196)
+- **A domain end you set stays put** on value axes, and points beyond it are clipped. (#1197)
+- **An axis of text values is discrete** when `discrete` isn't set, on Scatter, BubbleChart, and any Plot, where every point drew at NaN. (#1201)
+- **A Plot's bars and areas grow from 0** with no `baseline` set, and a Plot drawing bars, areas, or boxes infers `discrete: "x"` as BarChart does. (#1228)
+- **Links stop at their nodes' outlines** in Network, Rings, ArcDiagram, Tree, and Geomap flows, and arrowed links stop at the head's base. (#1168)
+- **Log axes draw minor ticks at 2–9** in each decade, thinning on short axes. (#1176)
+- **In a Plot, `scale: "auto"` on a date axis is a time scale.** (#1166)
+- **Swatches carry their mark's stroke and texture** in tooltips and legends, and legend swatches read per-shape `stroke` and `texture`. (#1242)
+- **Legend entries stay lit while their group is lit**, on hover, `active`, and `highlight`, for nested Sunburst, Icicle, and Pack marks and Network clusters. (#1160)
+- **Key highlights hold across the gaps** between legend entries and color-scale swatches, and their tooltips open beside the key instead of over it. (#1161)
+- **Axis hover badges cover their tick label** and hide the labels they overlap. (#1199)
+- **Hovered, active, and highlighted marks rise above other marks' labels**, also under breaks and domain clips, and marks slide instead of flashing when a break or domain cut toggles. (#1186)
+- **Line and area updates slide**: points are matched by x across redraws, so a `.data(rows).render()` update slides each line along. On Canvas, an interrupted animation starts from the frame last painted. (#1208)
+- **SVG elements fade in and out** on enter and exit, as on Canvas. (#1167)
+- **Labels along paths** follow a smoothed copy of their path, skip bends too tight for their letters (`minRadius`), and line labels don't climb past 45° (`lineLabelConfig.maxSlope`). Tight inner Sunburst and Donut ring labels on the bottom half draw straight. (#1180)
+- **Line, trend, and contour labels gray and dim with their lines** under `highlight` and hover. (#1193)
+- **BumpChart ranks read as ordinals** ("1st", "2nd") in tooltips, and a hovered series keeps its rank labels lit. (#1194)
+- **`formatAbbreviate` trims whole numbers in comma-decimal locales** ("30", not "30,0") and keeps an explicit precision's zeros (`",.2f"` gives "1.50"). Candlestick's change shows two decimals. (#1173)
+- **Image on Canvas letterboxes** like SVG when `preserveAspectRatio` is unset, as do server-rendered PNGs. (#1245)
+- **`merge` (`@d3plus/data`) keeps an array every merged row shares whole**, so a Geomap point at `[0, 0]` or `[-30, -30]` draws. (#1235)
+- **Two Dates for the same moment are one category** when rows merge. (#1207)
+- **Swarm charts give numeric categories their own lanes** with `discrete` set. (#1220)
+- **Color scales over 2 or 3 values that cross zero** keep a color on each side, and even `buckets` counts split evenly around the midpoint. (#1182)
+- **Diverging quantile scales** split each side at its own quantiles, and log axes crossing zero size each side by decades. (#1187)
+- zh-CN and ar-SA translate "Share" as a proportion, not as sharing. (#1162)
+- **Dense axes draw much faster.** Tick filtering and label measurement run in linear time and share their measurements across a draw, so a 10,000-point numeric LinePlot draws in about 1.65s instead of 11.5s, with the same labels. A 100,000-point LinePlot draws in 3.7s instead of 6s. (#1209, #1223, #1227)
+
+### Fixed
+
+- `config({key: RESET})` and `viz.key(RESET)` restore the default the chart itself declares. A Donut's `padPixel(RESET)` drew nothing, a value set before the first `config()` was taken for the default, and Geomap's `projectionRotate(RESET)` threw. (#1225)
+- A Plot's `shapeConfig` sizes threw on numbers (`Rect: {width: 36}`), and now also take field names. (#1224)
+- `shapeConfig.Line.label` on a LinePlot threw whenever a line had no end label. (#1226)
+- A generic Plot of bars with no `discrete` threw, and its areas and boxes summed their years. (#1228)
+- A Plot over Dates drew nothing when rows shared a `groupBy` id, and a `scale: "time"` axis drew date strings at NaN. An axis with `scale: "time"` over Dates without `time` drew NaN paths. (#1188, #1221)
+- A LinePlot with a continuous x scale read `xDomain` as two categories and dropped every other row. (#1234)
+- A Scatter's x axis stretched to fit its y `confidence` bounds, and a Scatter with `confidence` drew no error bars. (#1171)
+- Dragging a brush, panning, or drawing a selection left the previously hovered mark lit, with the crosshair showing. (#1222)
+- Hovering one point after another stacked the first point's confidence, threshold, and color-scale rows in later tooltips. (#1233)
+- A `groupBy` function gave every legend swatch the same color and every Treemap header the same name. (#1236)
+- A Geomap region with no data read "undefined, undefined" when hovered. It is now named by its topojson `properties.name`. (#1237)
+- Geomap's flow-link and cluster click handlers stopped drillable regions from showing "Click to Expand", and hovering a group row marked a value on the color scale. (#1238)
+- A faceted Network or ArcDiagram drew every node in every panel, and a degenerate layout could fail the draw with "Network could not draw". (#1239, #1240)
+- Network and ArcDiagram drew Rect nodes as 2r squares, ignoring `shapeConfig.Rect`. Rings, Network, and ArcDiagram ran links, loops, and labels to a circle inside Rect nodes. (#1191, #1198, #1203)
+- A BoxWhisker box with no body vanished on dark colors. (#1246; closes #1244)
+- Single-level BoxWhisker tooltips had an empty title. (#1195)
+- On Canvas, a bar's click slot showed the hand over most of the plot. (#1247)
+- Hovering a line with numeric x categories dimmed every x tick label. (#1202)
+- Canvas Matrix and BubbleMatrix drew black lines along their cell edges, and Canvas drew any unparseable stroke black. (#1192)
+- Straight links and Radar spokes vanished during a redraw transition, and a tweened SVG path with no shape logged `d: "null"`. (#1167, #1168)
+- Color scale edge cases: a `color` array including the midpoint color added a bucket, log diverging scales near ±1 lost their poles, Jenks over negative values used the wrong ramp, and a log scale rewrote the user's `buckets`. (#1187)
+- A horizontal or vertical Tree under a tall top margin lost every label at a depth. (#1181)
+- Small-multiple edge panels drew smaller plots in narrow grids. (#1190)
+- A Plot's y grid lines ran past the plot when the y axis was shifted right. (#1177)
+- A horizontal bar chart's top bar ran under its x2 axis. (#1162)
+- A swarm whose dots were labeled with their category hid the category tick labels. (#1220)
+- Under `highlight`, text halos were grayed. (#1193)
+- `pack.hover()` with no argument cleared the hover. It returns the hover predicate again. (#1160)
+- On d3plus.org, tooltips drew under the sidebar and the "On this page" strip. (#1169)
+
+### Documentation
+
+- Site pages for every new chart, `formatOrdinal`, and `TileGridMap`, and new sections on the Plot, LinePlot, Scatter, BarChart, BoxWhisker, BumpChart, Dumbbell, Gantt, Geomap, Matrix, Network, Sankey, Tree, Waffle, Viz, Calendar, Axis, Tooltip, and Image pages.
+- New guide sections: box and lasso selection, UTC time axes, map layouts for small multiples, translation placeholders, and row-label Tab stops.
+- Site data adds us-atlas `counties-10m.json` and county population for the drill-down example. (#1238)
+
+### Developer & tooling
+
+- `ChartDefinition` facet hooks gain `align`, so panels labeled only on their outer edges line up. Charts can add reference lines of their own (`_plotReferenceLines`) and mark a `tickFormat` as a tick label (`_tickLabelFormats`). (#1162, #1189, #1194)
+- Browser tests can run in another time zone (`emulateTimezone`). (#1166)
+- Fixed a hover tick test that failed on main when #1199 and #1202 met. (#1210)
+
+### Breaking changes
+
+Most charts upgrade without code changes, but many new defaults change what existing charts look like, and visual-regression snapshots will change.
+
+- **Network layouts change.** Every Network without `x`/`y` in its data gets a new precomputed layout, then settles live when it has 200 nodes or fewer. `forceLive: false` keeps it still. (#1232, #1239)
+- **Network and Sankey nodes drag**, and Shift + arrow keys move a focused node. `nodeDrag: false` turns both off. (#1232)
+- **Geomap clusters overlapping points.** `pointCluster: false` keeps one marker per row. (#1231)
+- **Gantt highlights its critical path**, and date-only `end` dates run through their day. `criticalPath: false` turns the highlight off. (#1219)
+- **BoxWhisker draws means and points.** `boxMean: false` and `boxPoints: false` bring the old look back. (#1172)
+- **LinePlots and AreaPlots thin dense series.** `downsample: false` draws every point. (#1209)
+- **Bars show a hover band.** `shapeConfig: {Bar: {hitAreaStyle: false}}` hides it. (#1247)
+- **Axes near zero start at zero**, and a domain end you set is no longer padded. (#1196, #1197)
+- **Labels paint with their shapes**, and covered circle labels move outside them. `labelPosition: "inside"` keeps them inside. (#1211)
+- **Point labels slide along their marks** instead of hiding. `labelSlide: false` hides them as before. (#1241)
+- **`"symlog"` is no longer an axis `scale`.** Log axes already handle 0 and negatives; any name an axis doesn't draw warns and draws linear. (#1166)
+- **`formatAbbreviate`** drops ",0" from whole numbers in comma-decimal locales and keeps an explicit precision's zeros. (#1173)
+- **Charts no longer call `Legend.hover()` or `Legend.active()`**; legend dimming comes from the scene. (#1160)
+- **More controls in the toolbar.** Box Select and Lasso Select join the zoom buttons, so the top-left toolbar is wider. (#1212)
+
 ## 4.12.0
 
 This release adds center labels to Donut, Sunburst, and RadialBar, a bivariate color scale, network measures in node tooltips, more rings on Rings, vertex dots on Radar, and ways to zoom without the zoom buttons. Axis titles and tick labels take tooltips, and a `tooltip` function learns which `groupBy` level it is showing. Axes and color scales keep within their room: labels are cut short instead of left out, `maxSize` holds, and a color scale takes at most a third of the chart. Every chart on a page shares one data cache. Several defaults change what existing charts look like; see Changed.
