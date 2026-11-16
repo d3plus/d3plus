@@ -53,9 +53,9 @@ Set `trendLine: true` to fit a least-squares line to each series (here each `spe
 
 ## Point labels
 
-Points too small to hold their label get it beside them instead, on the side facing the most open room (the point's Voronoi cell), where it overlaps no other point or label and stays inside the plot. Where the points crowd together there is no such room, so those labels hide; hover a point for its name. `labelPosition: "inside"` keeps labels inside the points, and `pointLabelConfig` sets the size and style of the labels beside them.
+Points too small to hold their label get it beside them instead, on the side facing the most open room (the point's Voronoi cell), where it overlaps no other point or label and stays inside the plot. With no side open, a label slides along a side of its point, clear of the other points and labels, and may move a neighbor's label aside (`labelSlide: false` turns this off). Where the points crowd together there is no room at all, so those labels hide; hover a point for its name. `labelPosition: "inside"` keeps labels inside the points, and `pointLabelConfig` sets the size and style of the labels beside them.
 
-<Playground chart="Scatter" code={pointLabels} controls={["labelPosition","pointLabelConfig"]} />
+<Playground chart="Scatter" code={pointLabels} controls={["labelPosition","labelSlide","pointLabelConfig"]} />
 
 ## Connected points
 
