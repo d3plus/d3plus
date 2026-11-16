@@ -6,6 +6,7 @@ import {
   barHitsFirst,
   hitBounds,
   hitColumn,
+  stackSlotTargets,
 } from "../../src/charts/Plot/barHitArea.ts";
 
 it("hitColumn: a lone bar takes its whole slot", () => {
@@ -137,4 +138,101 @@ it("barHitsFirst: moves Bar hit areas in front, keeping every other node's order
 it("barHitsFirst: returns the nodes as given when there are no Bar hit areas", () => {
   const nodes = [{key: "a", shapeType: "Bar"}];
   assert.strictEqual(barHitsFirst(nodes), nodes);
+});
+
+/** A stacked segment and its slot-wide band, in a vertical column at x 50. */
+const segment = (key, y, top, height) => [
+  {
+    type: "rect",
+    key,
+    shapeType: "Bar",
+    x: -10,
+    y: top,
+    width: 20,
+    height,
+    transform: {x: 50, y},
+    datum: {key},
+    index: 0,
+  },
+  {
+    type: "rect",
+    key: `${key}::hit`,
+    shapeType: "Bar",
+    x: -15,
+    y: -y,
+    width: 30,
+    height: 300,
+    transform: {x: 50, y},
+    datum: {key},
+    index: 0,
+    interactive: false,
+    hoverPaint: {fill: "#000"},
+  },
+];
+
+it("stackSlotTargets: the empty slot at each end reaches the nearest segment", () => {
+  // a spans 100–200 and b 50–100 of a 0–300 slot.
+  const nodes = [
+    ...segment("a", 200, -100, 100),
+    ...segment("b", 100, -50, 50),
+  ];
+  const targets = stackSlotTargets(nodes, "x").slice(nodes.length);
+  assert.deepStrictEqual(
+    targets.map(t => [t.key, t.datum.key, t.x, t.y, t.width, t.height]),
+    [
+      ["b::start::hit", "b", -15, -100, 30, 50],
+      ["a::end::hit", "a", -15, 0, 30, 100],
+    ],
+  );
+  for (const t of targets) {
+    assert.deepStrictEqual(t.paint, {fill: "transparent"}, "draws nothing");
+    assert.strictEqual(t.interactive, undefined, "takes the pointer");
+    assert.strictEqual(t.hoverPaint, undefined, "the bands show the slot");
+  }
+});
+
+it("stackSlotTargets: a full column, or bars without bands, take none", () => {
+  const full = [...segment("a", 300, -300, 300)];
+  assert.strictEqual(stackSlotTargets(full, "x"), full);
+  const unbanded = segment("a", 200, -100, 100).map(n => ({
+    ...n,
+    interactive: undefined,
+  }));
+  assert.strictEqual(stackSlotTargets(unbanded, "x"), unbanded);
+});
+
+it("stackSlotTargets: horizontal columns reach along x", () => {
+  const nodes = [
+    {
+      type: "rect",
+      key: "a",
+      shapeType: "Bar",
+      x: 0,
+      y: -10,
+      width: 100,
+      height: 20,
+      transform: {x: 50, y: 40},
+      datum: {},
+    },
+    {
+      type: "rect",
+      key: "a::hit",
+      shapeType: "Bar",
+      x: -50,
+      y: -15,
+      width: 400,
+      height: 30,
+      transform: {x: 50, y: 40},
+      datum: {},
+      interactive: false,
+    },
+  ];
+  const targets = stackSlotTargets(nodes, "y").slice(nodes.length);
+  assert.deepStrictEqual(
+    targets.map(t => [t.key, t.x, t.y, t.width, t.height]),
+    [
+      ["a::start::hit", -50, -15, 50, 30],
+      ["a::end::hit", 100, -15, 250, 30],
+    ],
+  );
 });

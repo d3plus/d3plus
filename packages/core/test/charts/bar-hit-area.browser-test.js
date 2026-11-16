@@ -7,9 +7,9 @@ import {openPage} from "~test/browser/page.js";
     hovering anywhere in a side-by-side bar's slot, far from the bar itself,
     shows that bar's tooltip, hovers it (dimming the others), and a click
     there fires `click.shape` and `click.Bar` with the bar's row. Grouped
-    bars each own their column, stacked bars' hit areas are bands the
-    pointer passes through, `hitArea: false` draws none, and small
-    multiples get them in every panel.
+    bars each own their column, a stacked column's empty slot reaches the
+    segment nearest it (its bands take no pointer), `hitArea: false` draws
+    none, and small multiples get them in every panel.
 */
 
 const sales = [
@@ -211,23 +211,64 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
-  it(`BarChart ${renderer}: stacked bars' hit areas take no pointer`, async () => {
-    await run(
-      {...grouped, stacked: true},
-      renderer,
-      {unit: "Retail"},
-      0.05,
-      async (page, {hits, inert, point}) => {
-        assert.strictEqual(hits, 0, "no hit areas the pointer stops on");
-        assert.strictEqual(inert, change.length, "a band per bar");
-        await page.mouse.move(...point, {steps: 3});
-        await page.waitForTimeout(150);
-        const key = await page.evaluate(
-          () => window.__viz._lastScenePick?.node?.key ?? null,
-        );
-        assert.ok(!String(key).endsWith("::hit"), `picked ${key}`);
-      },
-    );
+  it(`BarChart ${renderer}: a stacked column's empty slot reaches its nearest segment`, async () => {
+    /** Hovers then clicks a point and reads the row each reached. */
+    const reach = async (page, point) => {
+      await page.evaluate(() => (window.__log = []));
+      await page.mouse.move(point[0] - 4, point[1] - 4);
+      await page.mouse.move(...point, {steps: 3});
+      await page.waitForTimeout(150);
+      const picked = await page.evaluate(() => {
+        const d = window.__viz._lastScenePick?.d;
+        return d && `${d.unit} ${d.quarter}`;
+      });
+      await page.mouse.click(...point);
+      const clicked = await page.evaluate(() =>
+        window.__log.map(e => `${e.key} ${e.d.unit} ${e.d.quarter}`).sort(),
+      );
+      return {picked, clicked};
+    };
+    /** Q2's segments, top to bottom on screen. */
+    const order = page =>
+      page.evaluate(() => {
+        const out = [];
+        const walk = (n, y) => {
+          const ny = y + (n.transform?.y || 0);
+          const d = n.datum?.data;
+          if (
+            n.shapeType === "Bar" &&
+            n.type === "rect" &&
+            !`${n.key}`.endsWith("::hit") &&
+            d?.quarter === "Q2"
+          )
+            out.push([ny + n.y, d.unit]);
+          (n.children || []).forEach(c => walk(c, ny));
+        };
+        walk(window.__viz._paintedScene.root, 0);
+        return out.sort((a, b) => a[0] - b[0]).map(([, unit]) => unit);
+      });
+    // Q2 stacks Retail (0.4) and Wholesale (9) under a 12 axis, with Q1's
+    // -4 below the baseline: empty slot above the stack and below it.
+    const match = {quarter: "Q2", unit: "Wholesale"};
+    for (const [frac, end] of [
+      [0.03, 0],
+      [0.97, -1],
+    ])
+      await run(
+        {...grouped, stacked: true},
+        renderer,
+        match,
+        frac,
+        async (page, {hits, inert, point}) => {
+          assert.strictEqual(inert, change.length, "a band per bar");
+          assert.ok(hits > 0, "the empty slots take the pointer");
+          const unit = (await order(page)).at(end);
+          assert.deepStrictEqual(await reach(page, point), {
+            picked: `${unit} Q2`,
+            clicked: [`click.Bar ${unit} Q2`, `click.shape ${unit} Q2`],
+          });
+        },
+      );
   });
 
   it(`BarChart ${renderer}: shapeConfig.Bar.hitArea false keeps hovers on the bars`, async () => {

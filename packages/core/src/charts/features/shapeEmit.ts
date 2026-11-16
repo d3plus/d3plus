@@ -34,7 +34,12 @@ import {lineLabelConfig} from "../Plot/lineLabelEmit.js";
 import {breakLines, clipBands, lineGaps} from "../Plot/connectGapsScene.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {barSeries, seriesSlot} from "../Plot/barWidth.js";
-import {applyBarHitArea, barHitBand, hitColumn} from "../Plot/barHitArea.js";
+import {
+  applyBarHitArea,
+  barHitBand,
+  hitColumn,
+  stackSlotTargets,
+} from "../Plot/barHitArea.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
 import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
@@ -224,6 +229,9 @@ function markNodes(
   // Areas grow out of the value axis's baseline.
   if (key === "Area") growAreasFromBaseline(ctx, nodes);
   if (key !== "Bar") return labelsWithShapes(nodes);
+  // A stacked column's empty slot reaches its nearest segment.
+  if (ctx.viz.schema.stacked)
+    nodes = stackSlotTargets(nodes, vizDiscrete(ctx.viz) === "y" ? "y" : "x");
   // Error bars paint over their bars but under the bar labels, as a lower
   // stack level's error bar reaches into the bar above it. Stacked bars
   // grow in one stack level after another.
@@ -521,7 +529,8 @@ function spanBarEmit(
 /**
     Bars' hit areas and hover bands (see `Plot/barHitArea.ts`): side-by-side
     bars each take their `column`, and stacked bars a band over the whole
-    `slot` that the pointer passes through.
+    `slot` that the pointer passes through (the empty part of the slot
+    takes `stackSlotTargets` instead).
 */
 function barHits(
   ctx: ShapeEmitContext,

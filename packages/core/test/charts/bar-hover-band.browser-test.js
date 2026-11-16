@@ -7,9 +7,11 @@ import {openPage} from "~test/browser/page.js";
     renderers, with a real pointer: hovering the bar or anywhere in its slot
     draws the band (the theme's text color at 10% opacity, in light and dark
     themes) behind the bars, and leaving clears it. Grouped bars band their
-    own column, stacked bars their whole slot, horizontal bars their row,
+    own column, stacked bars their whole slot (its empty part reaching the
+    nearest segment), horizontal bars their row,
     and a small multiple its own panel's bar: the band follows the bar
-    under the pointer, not every bar the hover lights. `hitAreaStyle` restyles the
+    under the pointer, not every bar the hover lights, with hover styling
+    on or off (`hoverOpacity: 1`). `hitAreaStyle` restyles the
     band or, `false`, turns it off; `hitArea: false` draws none.
 */
 
@@ -37,6 +39,12 @@ async function open() {
       horizontal: {data: bars, discrete: "y", x: "y", y: "x"},
       grouped: {data: units},
       stacked: {data: units, stacked: true},
+      // Q2's short stack leaves most of its slot empty.
+      stackedLow: {
+        data: units.map(d => (d.x === "Q2" ? {...d, y: d.y / 4} : d)),
+        stacked: true,
+      },
+      unhovered: {data: bars, shapeConfig: {hoverOpacity: 1}},
       facet: {
         data: ["P", "Q"].flatMap(panel => bars.map(d => ({...d, panel}))),
         facet: "panel",
@@ -246,6 +254,28 @@ for (const renderer of ["svg", "canvas"]) {
       );
       assert.strictEqual(shown.length, 1, "one band for the slot");
 
+      // The empty slot above a short stack reaches its top segment.
+      bars = await draw(page, "stackedLow", renderer);
+      const q2 = Object.keys(bars).filter(k => /Q2$/.test(k));
+      const top = q2.reduce((a, b) => (bars[b].y < bars[a].y ? b : a));
+      const target = bars[`${top}::start::hit`];
+      assert.ok(target && target.interactive === undefined, "a slot target");
+      now = await hover(page, inSlot(bars[`${top}::hit`], 0.05));
+      assert.strictEqual(now[`${top}::hit`].paint.fillOpacity, 0.1, "its band");
+      assert.strictEqual(
+        Object.keys(now).filter(k => now[k].paint?.fillOpacity === 0.1).length,
+        1,
+        "one band",
+      );
+      assert.ok(
+        await page.evaluate(() =>
+          [...document.querySelectorAll(".d3plus-tooltip")].some(
+            t => getComputedStyle(t).visibility === "visible",
+          ),
+        ),
+        "the column's tooltip",
+      );
+
       bars = await draw(page, "facet", renderer);
       const hits = Object.keys(bars).filter(k => /a_A::hit$/.test(k));
       assert.strictEqual(hits.length, 2, "a band per panel");
@@ -253,6 +283,24 @@ for (const renderer of ["svg", "canvas"]) {
       // The hover lights the bar in every panel; the band, the one hovered.
       assert.strictEqual(now[hits[1]].paint.fillOpacity, 0.1, "this panel");
       assert.deepStrictEqual(now[hits[0]].paint, {fill: "transparent"});
+    } finally {
+      await close();
+    }
+  });
+
+  it(`hover band (${renderer}): the band shows with hover styling off`, async () => {
+    const {page, close} = await open();
+    try {
+      const bars = await draw(page, "unhovered", renderer);
+      let now = await hover(page, inSlot(bars["a_A::hit"]));
+      assert.deepStrictEqual(
+        now["a_A::hit"].paint.fillOpacity,
+        0.1,
+        "hoverOpacity: 1",
+      );
+      assert.ok(!(now.b_B.paint.opacity < 1), "nothing dims");
+      now = await hover(page, [598, 2]);
+      assert.deepStrictEqual(now["a_A::hit"].paint, {fill: "transparent"});
     } finally {
       await close();
     }

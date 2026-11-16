@@ -118,6 +118,87 @@ export function applyBarHitArea(
   });
 }
 
+/** A rect node's box in its parent's space. */
+function boxOf(node: SceneNode & {type: "rect"}): HitBounds {
+  const t = node.transform ?? {};
+  return {
+    x: (t.x ?? 0) + node.x,
+    y: (t.y ?? 0) + node.y,
+    width: node.width,
+    height: node.height,
+  };
+}
+
+/**
+    The pointer targets in the empty part of each stacked column: its slot
+    beyond either end of the stack, where a single bar's hit area would
+    reach (a pixel or more of it). Each reaches the segment nearest it, the
+    stack's outermost at that end, and draws nothing (the segments' own bands show the slot).
+    Read off the stacked bars' slot-wide bands (inert `::hit` rects).
+    @param nodes A stacked Bar shape's scene nodes.
+    @param discrete The discrete axis.
+*/
+export function stackSlotTargets(
+  nodes: SceneNode[],
+  discrete: "x" | "y",
+): SceneNode[] {
+  const along = discrete === "x" ? "y" : "x";
+  const size = along === "y" ? "height" : "width";
+  const segments = new Map<string, HitBounds>();
+  for (const n of nodes)
+    if (n.type === "rect" && n.shapeType === "Bar" && !isBarHit(n))
+      segments.set(String(n.key), boxOf(n));
+  const columns = new Map<string, {band: SceneNode; seg: HitBounds}[]>();
+  for (const band of nodes) {
+    if (band.type !== "rect" || !isBarHit(band) || band.interactive !== false)
+      continue;
+    const seg = segments.get(String(band.key).replace(/::hit$/, ""));
+    if (!seg) continue;
+    const box = boxOf(band);
+    const id = [box[discrete], box[discrete === "x" ? "width" : "height"]]
+      .map(Math.round)
+      .join();
+    if (!columns.has(id)) columns.set(id, []);
+    columns.get(id)!.push({band, seg});
+  }
+  const targets: SceneNode[] = [];
+  for (const column of columns.values()) {
+    const slot = boxOf(column[0].band as SceneNode & {type: "rect"});
+    const start = (b: HitBounds) => Math.min(b[along], b[along] + b[size]);
+    const end = (b: HitBounds) => Math.max(b[along], b[along] + b[size]);
+    const first = column.reduce((a, b) =>
+      start(b.seg) < start(a.seg) ? b : a,
+    );
+    const last = column.reduce((a, b) => (end(b.seg) > end(a.seg) ? b : a));
+    const reaches: [string, (typeof column)[number], number, number][] = [
+      ["start", first, start(slot), start(first.seg)],
+      ["end", last, end(last.seg), end(slot)],
+    ];
+    for (const [side, {band}, lo, hi] of reaches) {
+      // Less than a pixel is a stack's rounding, not an empty slot.
+      if (hi - lo < 1) continue;
+      const rect = band as SceneNode & {type: "rect"};
+      const t = rect.transform ?? {};
+      const offset = along === "y" ? (t.y ?? 0) : (t.x ?? 0);
+      targets.push({
+        type: "rect",
+        key: `${String(rect.key).replace(/::hit$/, "")}::${side}::hit`,
+        x: along === "y" ? rect.x : lo - offset,
+        y: along === "y" ? lo - offset : rect.y,
+        width: along === "y" ? rect.width : hi - lo,
+        height: along === "y" ? hi - lo : rect.height,
+        datum: rect.datum,
+        index: rect.index,
+        shapeType: "Bar",
+        paint: {fill: "transparent"},
+        transform: rect.transform,
+        aria: {hidden: true},
+      } as SceneNode);
+    }
+  }
+  return targets.length ? [...nodes, ...targets] : nodes;
+}
+
 /** Whether a scene node is a Bar's hit area. */
 const isBarHit = (node: SceneNode): boolean =>
   node.shapeType === "Bar" && String(node.key).endsWith("::hit");

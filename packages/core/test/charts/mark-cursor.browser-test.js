@@ -59,6 +59,24 @@ async function open() {
           },
         },
       ],
+      stacked: () => [
+        "BarChart",
+        {
+          data: [
+            {id: "a", x: "A", y: 30},
+            {id: "b", x: "A", y: 10},
+            {id: "a", x: "B", y: 5},
+            {id: "b", x: "B", y: 3},
+          ],
+          groupBy: "id",
+          x: "x",
+          y: "y",
+          stacked: true,
+          legend: false,
+          duration: 0,
+          on: {click},
+        },
+      ],
       scatter: () => [
         "Plot",
         {
@@ -160,6 +178,33 @@ async function open() {
       document.querySelector("#layout").innerHTML = "";
       return [box.left + box.width / 2, box.top + box.height / 2];
     };
+    // Client coordinates in the tallest empty slot above a stacked column,
+    // beside its middle (off the column's gridline).
+    window.emptySlot = () => {
+      const surface = document
+        .querySelector("#viz svg, #viz canvas")
+        .getBoundingClientRect();
+      let found = null;
+      const walk = (n, x, y) => {
+        const t = n.transform || {};
+        const nx = x + (t.x || 0),
+          ny = y + (t.y || 0);
+        if (
+          `${n.key}`.endsWith("::start::hit") &&
+          (!found || n.height > found.height)
+        )
+          found = {
+            height: n.height,
+            at: [
+              surface.left + nx + n.x + n.width / 3,
+              surface.top + ny + n.y + n.height / 2,
+            ],
+          };
+        (n.children || []).forEach(c => walk(c, nx, ny));
+      };
+      walk(window.__viz._paintedScene.root, 0, 0);
+      return found?.at;
+    };
     // The cursor of the element under a point, and the tooltips showing.
     window.state = ([x, y]) => ({
       cursor: getComputedStyle(document.elementFromPoint(x, y)).cursor,
@@ -227,6 +272,22 @@ for (const renderer of ["svg", "canvas"]) {
         assert.strictEqual((await hover(page, onBar)).cursor, "pointer");
         assert.strictEqual((await hover(page, point)).cursor, "auto", place);
       }
+    } finally {
+      await close();
+    }
+  });
+
+  it(`mark cursor (${renderer}): a stacked column's empty slot shows the hand`, async () => {
+    const {page, close} = await open();
+    try {
+      await draw(page, "stacked", renderer);
+      const point = await page.evaluate(() => window.emptySlot());
+      assert.ok(point, "an empty slot above B's stack");
+      assert.strictEqual((await hover(page, point)).cursor, "pointer");
+      await page.mouse.click(...point);
+      await page.waitForTimeout(60);
+      assert.strictEqual(await page.evaluate(() => window.__clicks), 1);
+      assert.strictEqual((await hover(page, [598, 2])).cursor, "auto");
     } finally {
       await close();
     }

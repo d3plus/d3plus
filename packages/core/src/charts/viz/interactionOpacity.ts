@@ -72,6 +72,32 @@ function emphasizeStroke(
 }
 
 /**
+    A node with a `hoverPaint` (a bar's hit area), with it laid over its
+    paint while the pointer or keyboard rests on its row (`_hoverBandRow`):
+    the bar under the pointer, not every row a hover lights (a series, a
+    stacked column, a legend entry). Never dimmed or raised, the band stays
+    behind the marks.
+*/
+function hoverBand(node: SceneNode, viz: VizInstance): SceneNode {
+  const row = viz._hoverBandRow;
+  return row !== undefined && nodeMatches(node, d => d === row)
+    ? ({...node, paint: {...node.paint, ...node.hoverPaint}} as SceneNode)
+    : node;
+}
+
+/** Shows the hover bands under a node, with no other interaction set. */
+function bandsIn(viz: VizInstance): (node: SceneNode) => SceneNode {
+  const walk = (node: SceneNode): SceneNode => {
+    if (node.hoverPaint) return hoverBand(node, viz);
+    const kids = (node as {children?: SceneNode[]}).children;
+    return kids && kids.length
+      ? ({...node, children: kids.map(walk)} as SceneNode)
+      : node;
+  };
+  return walk;
+}
+
+/**
     Reads the interaction predicate + treatment off a viz, or null when nothing
     is set. Precedence: transient `hover`, then `active`, then the standing
     `highlight`. `hover`/`active` dim non-matching marks by opacity; `highlight`
@@ -375,7 +401,8 @@ export function applyInteractionOpacity(
   // resolved once in dimSettings; picking one source avoids ambiguous
   // compounding when several are momentarily set.
   const settings = dimSettings(viz);
-  if (!settings) return nodes;
+  if (!settings)
+    return viz._hoverBandRow === undefined ? nodes : nodes.map(bandsIn(viz));
   const {dimOpacity, gray, kind, activePredicate, hoverPredicate} = settings;
   const predicate = marks
     ? followMarks(viz, settings.predicate, marks)
@@ -413,21 +440,8 @@ export function applyInteractionOpacity(
     return values?.get(field)?.has(String(value)) ? node : fade(node);
   };
 
-  /**
-      A node with a `hoverPaint` (a bar's hit area) takes it while the
-      chart is hovered through its own mark: the row the pointer (or the
-      keyboard) rests on, not every row the hover lights (a series, a
-      stacked column, a legend entry). It shows whatever else is active,
-      highlighted or selected, and is never dimmed or raised: it stays
-      behind the marks.
-  */
-  const picked =
-    typeof viz._hover === "function" ? viz._lastScenePick?.d : undefined;
-  const isPicked: Predicate = d => d === picked;
-  const band = (node: SceneNode): SceneNode =>
-    picked !== undefined && nodeMatches(node, isPicked)
-      ? ({...node, paint: {...node.paint, ...node.hoverPaint}} as SceneNode)
-      : node;
+  /** A hover band shows whatever else is active, highlighted or selected. */
+  const band = (node: SceneNode): SceneNode => hoverBand(node, viz);
 
   /** Chrome keeps full opacity, all but its `hoverMatch` labels. */
   const chrome = (node: SceneNode): SceneNode => {
