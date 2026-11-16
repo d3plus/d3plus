@@ -152,6 +152,7 @@ describe("Plot facet helpers", () => {
       _xFunc: 3,
       _yFunc: 4,
       _trendFits: 5,
+      _plotOutliers: 8,
       _barSpans: 7,
       _other: 6,
     };
@@ -161,6 +162,7 @@ describe("Plot facet helpers", () => {
       _xFunc: 3,
       _yFunc: 4,
       _trendFits: 5,
+      _plotOutliers: 8,
       _barSpans: 7,
     });
   });

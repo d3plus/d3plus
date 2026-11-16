@@ -4,6 +4,7 @@ import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {groupDepthOf, groupNarrows, groupPath} from "../viz/groupRow.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {appendPointConfidence} from "../Plot/confidenceTooltip.js";
+import {appendOutlier} from "../Plot/outlierTooltip.js";
 import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
 import {keyTooltipAnchor} from "../features/keyTooltip.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
@@ -109,6 +110,8 @@ export default function (
     this as unknown as VizInstance,
     this._lastScenePick?.node?.shapeType,
   );
+  // An outlier says so.
+  appendOutlier(this._tooltipClass, this as unknown as VizInstance);
   // A threshold bucket lists what it holds.
   appendThresholdMembers(
     this._tooltipClass,
