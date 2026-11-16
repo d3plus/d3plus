@@ -489,10 +489,12 @@ export interface ImageNode extends NodeBase {
   href: string;
   /**
       SVG `preserveAspectRatio` value controlling how the image fits its
-      `width`×`height` box. Passed straight through by the SVG backend; the
-      Canvas backend honors the `meet`/`slice`/`none` mode (slice = CSS
-      `cover`, meet = `contain`, none = stretch). Omitted = the SVG default
-      (`xMidYMid meet`, i.e. contain).
+      `width`×`height` box: `none` stretches it, and an alignment
+      (`xMinYMin` … `xMaxYMax`) with `meet` (CSS `contain`, the default) or
+      `slice` (CSS `cover`) places it. Passed straight through by the SVG
+      backend; the Canvas backend reads it the same way (see
+      `parsePreserveAspectRatio`). Omitted or invalid = the SVG default,
+      `xMidYMid meet`.
   */
   preserveAspectRatio?: string;
 }

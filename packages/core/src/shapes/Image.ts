@@ -16,6 +16,7 @@ const imageSchema: ConfigField[] = [
   {key: "id", coerce: "identity", default: accessor("id")},
   {key: "opacity", coerce: "const", default: constant(1)},
   {key: "pointerEvents", coerce: "const", default: constant("auto")},
+  {key: "preserveAspectRatio", coerce: "const", default: constant(undefined)},
   {key: "renderMode", coerce: "identity", default: "full"},
   {key: "url", coerce: "identity", default: accessor("url")},
   {key: "width", coerce: "accessor", default: accessor("width")},
@@ -126,6 +127,11 @@ export default class Image {
 
     update
       .attr("xlink:href", this.schema.url)
+      .attr(
+        "preserveAspectRatio",
+        (d: DataPoint, i: number) =>
+          (this.schema.preserveAspectRatio(d, i) as string | undefined) || null,
+      )
       .style("pointer-events", this.schema.pointerEvents)
       .transition(t)
       .attr("opacity", this.schema.opacity)
@@ -202,6 +208,8 @@ export default class Image {
           datum: d,
           index: i,
         };
+        const fit = this.schema.preserveAspectRatio(d, i) as string | undefined;
+        if (fit) node.preserveAspectRatio = fit;
         return node;
       },
     );
