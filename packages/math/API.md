@@ -14,6 +14,9 @@
 | [`linearPrediction`](#linearprediction)         | Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − x̄)²/Sxx)`.                                                                            |
 | [`lineIntersection`](#lineintersection)         | Finds the intersection point (if there is one) of the lines p1q1 and p2q2.                                                                                                                                     |
 | [`louvain`](#louvain)                           | Finds communities in a graph with the Louvain method (Blondel et al., 2008): each node joins the neighboring community that raises modularity most, then each community becomes one node, until nothing moves. |
+| [`movingAverage`](#movingaverage)               | Computes a rolling mean over `points` (ordered by x), with bands a set number of standard deviations either side of it (Bollinger bands).                                                                      |
+| [`movingSpan`](#movingspan)                     | The points averaged at index `i` of the ordered x values `xs` when each average spans a stretch of x, as `[start, end]` indices (inclusive), or null when the stretch has no length.                           |
+| [`movingWindow`](#movingwindow)                 | The window of points averaged at index `i` of `length` sorted points, as `[start, end]` indices (inclusive), or null when the window would run past either end.                                                |
 | [`negativeSpace`](#negativespace)               | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely outside the marks described by `obstacles`.                                                                                          |
 | [`path2polygon`](#path2polygon)                 | Transforms a path string into an Array of points, with no DOM involved.                                                                                                                                        |
 | [`pathBounds`](#pathbounds)                     | Computes the exact bounding box of an SVG path string with no DOM involved, evaluating the true extrema of each Bézier and arc segment (not a sampled approximation).                                          |
@@ -40,6 +43,9 @@
 | [`LouvainGraph`](#louvaingraph)                 | The graph `louvain` partitions: node ids, and the links between them.                                                                                                           |
 | [`LouvainLink`](#louvainlink)                   | One undirected link of a `louvain` graph, with an optional weight (default 1).                                                                                                  |
 | [`LouvainOptions`](#louvainoptions)             | Options for `louvain`.                                                                                                                                                          |
+| [`MovingAverageOptions`](#movingaverageoptions) | Options for `movingAverage`.                                                                                                                                                    |
+| [`MovingAveragePoint`](#movingaveragepoint)     | One point of a moving average.                                                                                                                                                  |
+| [`MovingAverageResult`](#movingaverageresult)   | A moving average of a set of points.                                                                                                                                            |
 | [`NegativeSpaceOptions`](#negativespaceoptions) | Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid.                                                                              |
 | [`PathCommand`](#pathcommand)                   | One command of an SVG path as written: its letter (case kept, so relative commands stay relative) and its arguments, one array per segment when the command repeats implicitly. |
 | [`RegressionOptions`](#regressionoptions)       |                                                                                                                                                                                 |
@@ -370,6 +376,96 @@ node with no links is a community of its own.
 #### Returns
 
 `Map`\<[`LouvainId`](#louvainid), `number`\>
+
+---
+
+<a id="movingaverage"></a>
+
+### movingAverage()
+
+> **movingAverage**(`points`: \[`number`, `number`\][], `options?`: [`MovingAverageOptions`](#movingaverageoptions)): [`MovingAverageResult`](#movingaverageresult) \| `null`
+
+Defined in: [movingAverage.ts:124](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L124)
+
+Computes a rolling mean over `points` (ordered by x), with bands a set
+number of standard deviations either side of it (Bollinger bands). Points
+sharing an x value are first averaged into one, so the window counts
+distinct x values; non-finite pairs are ignored. Points without a full
+window (the first `window − 1`, or the ends of a centered window) have no
+average. With a `span`, each average takes the points within a stretch
+of x instead (see `movingSpan`), so gaps and uneven spacing average over
+the same length of x, and every point has one: where the stretch reaches
+past the data, it averages the points it holds so far (a lone point has
+a deviation of 0). Returns `null` when no point has an average.
+
+#### Parameters
+
+| Parameter  | Type                                            | Description                                    |
+| ---------- | ----------------------------------------------- | ---------------------------------------------- |
+| `points`   | \[`number`, `number`\][]                        | An array of `[x, y]` pairs.                    |
+| `options?` | [`MovingAverageOptions`](#movingaverageoptions) | The window, its alignment, and the band width. |
+
+#### Returns
+
+[`MovingAverageResult`](#movingaverageresult) \| `null`
+
+---
+
+<a id="movingspan"></a>
+
+### movingSpan()
+
+> **movingSpan**(`xs`: `number`[], `i`: `number`, `span`: (`x`: `number`) => `number`, `center?`: `boolean`): \[`number`, `number`\] \| `null`
+
+Defined in: [movingAverage.ts:92](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L92)
+
+The points averaged at index `i` of the ordered x values `xs` when each
+average spans a stretch of x, as `[start, end]` indices (inclusive), or
+null when the stretch has no length. A trailing stretch runs from just
+after `span(x)` up to x; a centered one is as long and centered on x,
+from just after its start up to its end. A stretch reaching past the
+first or last x holds the points it covers so far.
+
+#### Parameters
+
+| Parameter | Type                        | Default    | Description                                      |
+| --------- | --------------------------- | ---------- | ------------------------------------------------ |
+| `xs`      | `number`[]                  | _required_ | The x values, in ascending order.                |
+| `i`       | `number`                    | _required_ | The point's index.                               |
+| `span`    | (`x`: `number`) => `number` | _required_ | Returns where the stretch ending at an x starts. |
+| `center?` | `boolean`                   | `false`    | Whether the stretch is centered on the point.    |
+
+#### Returns
+
+\[`number`, `number`\] \| `null`
+
+---
+
+<a id="movingwindow"></a>
+
+### movingWindow()
+
+> **movingWindow**(`i`: `number`, `length`: `number`, `window`: `number`, `center?`: `boolean`): \[`number`, `number`\] \| `null`
+
+Defined in: [movingAverage.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L69)
+
+The window of points averaged at index `i` of `length` sorted points, as
+`[start, end]` indices (inclusive), or null when the window would run past
+either end. A trailing window ends at `i`; a centered one starts
+`floor(window / 2)` points before it.
+
+#### Parameters
+
+| Parameter | Type      | Default    | Description                                  |
+| --------- | --------- | ---------- | -------------------------------------------- |
+| `i`       | `number`  | _required_ | The point's index.                           |
+| `length`  | `number`  | _required_ | The number of points.                        |
+| `window`  | `number`  | _required_ | How many points the window spans.            |
+| `center?` | `boolean` | `false`    | Whether the window is centered on the point. |
+
+#### Returns
+
+\[`number`, `number`\] \| `null`
 
 ---
 
@@ -916,6 +1012,68 @@ Options for `louvain`.
 
 ---
 
+<a id="movingaverageoptions"></a>
+
+### MovingAverageOptions
+
+Defined in: [movingAverage.ts:2](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L2)
+
+Options for `movingAverage`.
+
+#### Properties
+
+| Property                                       | Type                        | Description                                                                                                                                                                                                                                                                                                                                                                                     | Defined in                                                                                               |
+| ---------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| <a id="property-center"></a> `center?`         | `boolean`                   | Centers each window on its point instead of ending it there. Defaults to `false`: each point averages itself and the `window − 1` points before it.                                                                                                                                                                                                                                             | [movingAverage.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L18) |
+| <a id="property-deviations"></a> `deviations?` | `number`                    | How many standard deviations the bands sit either side of the average (Bollinger bands). Defaults to 2; `0` draws no bands.                                                                                                                                                                                                                                                                     | [movingAverage.ts:23](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L23) |
+| <a id="property-span"></a> `span?`             | (`x`: `number`) => `number` | Spans each average across a stretch of x instead of a number of points: given a point's x, returns where the stretch ending at it starts (such as 30 days earlier). The stretch runs from just after that start up to the point, or, with `center`, is as long and centered on it. Every point has an average: where its stretch reaches past the data, it averages the points it holds so far. | [movingAverage.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L13) |
+| <a id="property-window"></a> `window?`         | `number`                    | How many points each average spans, unless `span` is given. Defaults to 7.                                                                                                                                                                                                                                                                                                                      | [movingAverage.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L4)   |
+
+---
+
+<a id="movingaveragepoint"></a>
+
+### MovingAveragePoint
+
+Defined in: [movingAverage.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L27)
+
+One point of a moving average.
+
+#### Properties
+
+| Property                                    | Type     | Description                                                        | Defined in                                                                                               |
+| ------------------------------------------- | -------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| <a id="property-deviation"></a> `deviation` | `number` | The standard deviation of the y values in its window (population). | [movingAverage.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L33) |
+| <a id="property-lower"></a> `lower`         | `number` | The lower band: `mean − deviations · deviation`.                   | [movingAverage.ts:35](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L35) |
+| <a id="property-mean"></a> `mean`           | `number` | The mean of the y values in its window.                            | [movingAverage.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L31) |
+| <a id="property-upper"></a> `upper`         | `number` | The upper band: `mean + deviations · deviation`.                   | [movingAverage.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L37) |
+| <a id="property-x-1"></a> `x`               | `number` | The point's x value.                                               | [movingAverage.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L29) |
+
+---
+
+<a id="movingaverageresult"></a>
+
+### MovingAverageResult
+
+Defined in: [movingAverage.ts:41](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L41)
+
+A moving average of a set of points.
+
+#### Properties
+
+| Property                                        | Type                                          | Description                                                                        | Defined in                                                                                               |
+| ----------------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| <a id="property-center-1"></a> `center`         | `boolean`                                     | Whether each window is centered on its point.                                      | [movingAverage.ts:48](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L48) |
+| <a id="property-deviations-1"></a> `deviations` | `number`                                      | How many standard deviations the bands sit from the average.                       | [movingAverage.ts:50](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L50) |
+| <a id="property-extent-1"></a> `extent`         | \[`number`, `number`\]                        | The smallest and largest x values averaged.                                        | [movingAverage.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L56) |
+| <a id="property-n"></a> `n`                     | `number`                                      | The number of distinct x values averaged.                                          | [movingAverage.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L54) |
+| <a id="property-points-1"></a> `points`         | [`MovingAveragePoint`](#movingaveragepoint)[] | The averages, by x, at every point with a full window.                             | [movingAverage.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L52) |
+| <a id="property-spanned"></a> `spanned`         | `boolean`                                     | Whether each average spans a stretch of x (`span`) rather than a number of points. | [movingAverage.ts:46](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L46) |
+| <a id="property-type"></a> `type`               | `"movingAverage"`                             | -                                                                                  | [movingAverage.ts:42](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L42) |
+| <a id="property-window-1"></a> `window`         | `number`                                      | How many points each average spans (0 when it spans a stretch of x).               | [movingAverage.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/math/src/movingAverage.ts#L44) |
+
+---
+
 <a id="negativespaceoptions"></a>
 
 ### NegativeSpaceOptions
@@ -980,11 +1138,11 @@ Defined in: [regression.ts:4](https://github.com/d3plus/d3plus/blob/main/package
 | Property                                          | Type                                | Description                                                                                                                                                                                                                                | Defined in                                                                                         |
 | ------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
 | <a id="property-coefficients"></a> `coefficients` | `number`[]                          | The fitted coefficients, in original units: - linear / polynomial: `[c0, c1, …]` for `y = c0 + c1·x + c2·x² …` - exponential: `[a, b]` for `y = a·e^(b·x)` - logarithmic: `[a, b]` for `y = a + b·ln(x)` - power: `[a, b]` for `y = a·x^b` | [regression.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L14) |
-| <a id="property-extent-1"></a> `extent`           | \[`number`, `number`\]              | The smallest and largest x values used in the fit.                                                                                                                                                                                         | [regression.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L22) |
-| <a id="property-n"></a> `n`                       | `number`                            | The number of points used in the fit.                                                                                                                                                                                                      | [regression.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L20) |
+| <a id="property-extent-2"></a> `extent`           | \[`number`, `number`\]              | The smallest and largest x values used in the fit.                                                                                                                                                                                         | [regression.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L22) |
+| <a id="property-n-1"></a> `n`                     | `number`                            | The number of points used in the fit.                                                                                                                                                                                                      | [regression.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L20) |
 | <a id="property-predict"></a> `predict`           | (`x`: `number`) => `number`         | Predicts y for a given x.                                                                                                                                                                                                                  | [regression.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L16) |
 | <a id="property-r2"></a> `r2`                     | `number`                            | The coefficient of determination, measured in original y units.                                                                                                                                                                            | [regression.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L18) |
-| <a id="property-type"></a> `type`                 | [`RegressionType`](#regressiontype) | The type of regression that was fit.                                                                                                                                                                                                       | [regression.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L6)   |
+| <a id="property-type-1"></a> `type`               | [`RegressionType`](#regressiontype) | The type of regression that was fit.                                                                                                                                                                                                       | [regression.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L6)   |
 
 ## Type Aliases
 

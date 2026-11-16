@@ -22,6 +22,7 @@
 | Interfaces                          | Description                                                                                      |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------ |
 | [`D3plusInstance`](#d3plusinstance) | A minimal structural interface for the d3plus class instances that the framework wrappers drive. |
+| [`DateOptions`](#dateoptions)       | Options for `date`.                                                                              |
 
 | Type Aliases                              | Description                                                              |
 | ----------------------------------------- | ------------------------------------------------------------------------ |
@@ -145,17 +146,18 @@ to "rgb(255, 255, 255)" (white) if every ancestor is transparent.
 
 ### date()
 
-> **date**(`d`: `string` \| `number` \| `false` \| `undefined`): `false` \| `Date` \| `undefined`
+> **date**(`d`: `string` \| `number` \| `false` \| `undefined`, `options?`: `number` \| [`DateOptions`](#dateoptions)): `false` \| `Date` \| `undefined`
 
-Defined in: [date.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/date.ts#L5)
+Defined in: [date.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/date.ts#L34)
 
 Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats.
 
 #### Parameters
 
-| Parameter | Type                                          | Description                                        |
-| --------- | --------------------------------------------- | -------------------------------------------------- |
-| `d`       | `string` \| `number` \| `false` \| _required_ | The date value to parse (number, string, or Date). |
+| Parameter  | Type                                          | Description                                                                                                                                                                  |
+| ---------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `d`        | `string` \| `number` \| `false` \| _required_ | The date value to parse (number, string, or Date).                                                                                                                           |
+| `options?` | `number` \| [`DateOptions`](#dateoptions)     | `{utc: true}` reads a value that names no time zone in UTC. Anything other than an object is ignored, so `values.map(date)` (which passes each index here) reads local time. |
 
 #### Returns
 
@@ -392,7 +394,7 @@ Applies each key/value in an object as a style.
 
 > **textWidth**(`text`: `string`, `style?`: `Record`\<`string`, `string` \| `number`\>): `number`
 
-Defined in: [textWidth.ts:141](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L141)
+Defined in: [textWidth.ts:173](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L173)
 
 Given a text string, returns the predicted pixel width of the string when placed into DOM.
 
@@ -411,7 +413,7 @@ Given a text string, returns the predicted pixel width of the string when placed
 
 > **textWidth**(`text`: `string`[], `style?`: `Record`\<`string`, `string` \| `number`\>): `number`[]
 
-Defined in: [textWidth.ts:145](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L145)
+Defined in: [textWidth.ts:177](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L177)
 
 ##### Parameters
 
@@ -489,6 +491,22 @@ Defined in: [renderer.ts:10](https://github.com/d3plus/d3plus/blob/main/packages
 ###### Returns
 
 `unknown`
+
+---
+
+<a id="dateoptions"></a>
+
+### DateOptions
+
+Defined in: [date.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/date.ts#L24)
+
+Options for `date`.
+
+#### Properties
+
+| Property                         | Type      | Description                                                                                                                   | Defined in                                                                            |
+| -------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| <a id="property-utc"></a> `utc?` | `boolean` | Read a value that names no time zone (a year, a quarter, a month, or a date string without one) in UTC instead of local time. | [date.ts:26](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/date.ts#L26) |
 
 ## Type Aliases
 

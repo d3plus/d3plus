@@ -76,7 +76,7 @@ Removes all non ASCII characters from a string.
 
 > **textSplit**(`sentence`: `string`): `string`[]
 
-Defined in: [textSplit.ts:48](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.ts#L48)
+Defined in: [textSplit.ts:55](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.ts#L55)
 
 Splits a given sentence into an array of words.
 

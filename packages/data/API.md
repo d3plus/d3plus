@@ -187,16 +187,16 @@ When the context caches (its `_cache` flag, else its `schema.cache`), each respo
 
 > **merge**(`objects`: [`DataPoint`](#datapoint)[], `aggs?`: `Record`\<`string`, `AggregationFunction`\>): [`MergedDataPoint`](#mergeddatapoint)
 
-Defined in: [merge.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/data/src/merge.ts#L30)
+Defined in: [merge.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/data/src/merge.ts#L54)
 
 Combines an Array of Objects together and returns a new Object.
 
 #### Parameters
 
-| Parameter | Type                                        | Description                                                                                                                                                            |
-| --------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `objects` | [`DataPoint`](#datapoint)[]                 | The Array of objects to be merged together.                                                                                                                            |
-| `aggs?`   | `Record`\<`string`, `AggregationFunction`\> | An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values. |
+| Parameter | Type                                        | Description                                                                                                                                                                                                                                                                                                                                |
+| --------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `objects` | [`DataPoint`](#datapoint)[]                 | The Array of objects to be merged together.                                                                                                                                                                                                                                                                                                |
+| `aggs?`   | `Record`\<`string`, `AggregationFunction`\> | An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values. Arrays are flattened to their unique items, unless every object holds the same array of two or more items (a shared coordinate like `[0, 0]`), which is kept whole. |
 
 #### Returns
 
