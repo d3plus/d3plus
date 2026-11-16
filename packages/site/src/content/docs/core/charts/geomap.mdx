@@ -14,6 +14,7 @@ import contiguousCartogram from "~/examples/core/charts/geomap/contiguous-cartog
 import dotDensityMap from "~/examples/core/charts/geomap/dot-density-map.js?raw";
 import dotDensityCategories from "~/examples/core/charts/geomap/dot-density-categories.js?raw";
 import hexbinMap from "~/examples/core/charts/geomap/hexbin-map.js?raw";
+import pointClusters from "~/examples/core/charts/geomap/point-clusters.js?raw";
 import tileGridMap from "~/examples/core/charts/geomap/tile-grid-map.js?raw";
 import flowMap from "~/examples/core/charts/geomap/flow-map.js?raw";
 import globe from "~/examples/core/charts/geomap/globe.js?raw";
@@ -86,9 +87,15 @@ With two `groupBy` levels, the outer one splits each region's dots into categori
 
 ## Coordinate point map
 
-Rather than shading regions, this drops a marker per datum: `point` returns each row's `[longitude, latitude]`, and `pointSize` scales the radius between `pointSizeMin` and `pointSizeMax` by `dma_code`.
+Rather than shading regions, this drops a marker per datum: `point` returns each row's `[longitude, latitude]`, and `pointSize` scales the radius between `pointSizeMin` and `pointSizeMax` by `dma_code`. `pointCluster: false` keeps every marker on its own, even where they overlap (see [Point clusters](#point-clusters)).
 
 <Playground chart="Geomap" code={coordinatePointMap} controls={["point","pointSize","pointSizeMin","pointSizeMax"]} />
+
+## Point clusters
+
+When coordinate points overlap, the points near one another on screen combine into one bubble (`pointCluster` is on by default, and `false` turns it off). Each bubble shows how many cities it holds inside a ring of their time zones' colors (a plain circle when they all share one), and is sized by their count, or by their summed `pointSize` when it varies. Hover a bubble for its first few cities. Zoom in and the bubbles split as the cities spread apart, keeping their pixel size; zoom back out and they merge again. Click a bubble to zoom in until it splits, and a bubble whose points sit in one place fans them out around it instead. `radius` sets how near points combine, here 40 pixels on screen. Links to a clustered point run to its bubble.
+
+<Playground chart="Geomap" code={pointClusters} controls={["pointCluster","renderer"]} />
 
 ## Hexbin map
 
@@ -194,7 +201,7 @@ Motion trails aren't just for scatter plots — Geomap coordinate points trail t
 
 ## Point size legend
 
-Coordinate points sized by `pointSize` get a size legend in the corner, drawn with the same `pointSizeScale` as the points. The points scale with the map as you zoom in, so the legend keeps its circles the same size and relabels them: at 4× zoom, the largest circle represents a much smaller population than it does unzoomed.
+Coordinate points sized by `pointSize` get a size legend in the corner, drawn with the same `pointSizeScale` as the points. The points scale with the map as you zoom in, so the legend keeps its circles the same size and relabels them: at 4× zoom, the largest circle represents a much smaller population than it does unzoomed. (Clustered points keep their pixel size through zoom, so `pointCluster: false` here keeps the points scaling with the map.)
 
 <Playground chart="Geomap" code={pointSizeLegend} controls={["pointSize","pointSizeMin","pointSizeMax","pointSizeScale","sizeLegendConfig"]} />
 
