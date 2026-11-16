@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>NoDataRegions · Geomap</title>
+    <meta
+      name="description"
+      content="Regions without data are named by their feature (properties.name, else id) in tooltips and aria labels, not by the chart's label accessor."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // The label reads the data rows' fields. Hover Canada or Mexico (named
+    // in their topojson properties) or any other region without data (named
+    // by its id).
+    const names = {can: "Canada", mex: "Mexico"};
+
+    var chart = new d3plus.Geomap()
+      .data([
+        {id: "usa", capital: "Washington", continent: "North America", v: 5},
+        {id: "bra", capital: "Brasília", continent: "South America", v: 3},
+        {id: "fra", capital: "Paris", continent: "Europe", v: 4},
+      ])
+      .groupBy("id")
+      .label(d => `${d.capital}, ${d.continent}`)
+      .colorScale("v")
+      .topojson("./countries.json", topo => {
+        topo.objects.countries.geometries.forEach(g => {
+          if (names[g.id]) g.properties = {name: names[g.id]};
+        });
+        return topo;
+      })
+      .topojsonKey("countries")
+      .topojsonFilter(d => d.id !== "ata")
+      .render();
+  </script>
+</html>

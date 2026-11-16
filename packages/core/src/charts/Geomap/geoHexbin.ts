@@ -16,6 +16,7 @@ import type {BinAgg, PixelPoint} from "../Hexbin/binning.js";
 import {resolveBinValue} from "../Hexbin/settings.js";
 import {regionsReshaped} from "./tileGrid.js";
 import {toLonLat} from "./flowGeometry.js";
+import {isPointRow} from "./pointRows.js";
 
 /** The `hexbin` option. */
 export interface GeoHexbinConfig {
@@ -159,7 +160,7 @@ export function geoBinRows(
 
 /** The point rows a Geomap bins: those with a coordinate. */
 export function geoPointRows(viz: VizInstance, rows: DataPoint[]): DataPoint[] {
-  return rows.filter((d, i) => viz.schema.point(d, i) instanceof Array);
+  return rows.filter((d, i) => isPointRow(viz, d, i));
 }
 
 /** Where a Geomap anchors its bin grid: its projection's center. */

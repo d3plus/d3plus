@@ -74,7 +74,18 @@ const draw = ([src, renderer]) =>
           nodes.some(n => typeof n.d === "string" && n.d.includes("NaN"));
         const axis = viz._xAxis;
         const svg = document.querySelector("#viz svg.d3plus-render-svg");
+        // The clip of the group each line paints in, if any.
+        const clips = {};
+        const findClips = (list, clip) =>
+          list.forEach(n => {
+            const next = n.clip || clip;
+            if (n.shapeType === "Line" && n.type === "path")
+              clips[n.key] = next || null;
+            if (n.children) findClips(n.children, next);
+          });
+        findClips(viz._chartScene, null);
         resolve({
+          clips,
           lines,
           bars,
           sceneNaN,
@@ -172,5 +183,31 @@ for (const renderer of ["svg", "canvas"]) {
       "b_2016",
       "b_2019",
     ]);
+  });
+
+  it(`LinePlot xDomain on a linear xConfig.scale is a range: every point, clipped to it (${renderer})`, async () => {
+    const r = await run(
+      "(lib, data) => new lib.LinePlot().data(data).x('year').y('value').xConfig({scale: 'linear'}).xDomain([2016, 2019])",
+      renderer,
+    );
+    assert.deepStrictEqual(r.domain, [2016, 2019]);
+    assert.strictEqual(r.sceneNaN, false, "no NaN in the scene");
+    assert.strictEqual(r.domNaN, 0, "no NaN attribute in the DOM");
+    for (const line of r.lines) {
+      assert.strictEqual(line.xs.length, 6, `line ${line.key}: every year`);
+      // 2016 and 2019 sit on the axis's ends; 2015 and 2020 fall past them.
+      const offset = line.xs[1] - r.positions[0];
+      assert.ok(
+        Math.abs(line.xs[4] - offset - r.positions[1]) < 0.01,
+        `line ${line.key}: 2019 at the axis's end`,
+      );
+      assert.ok(line.xs[0] < line.xs[1] && line.xs[5] > line.xs[4]);
+      const clip = r.clips[line.key];
+      assert.ok(clip, `line ${line.key}: clipped to the plot`);
+      assert.ok(
+        clip.x <= line.xs[1] && clip.x > line.xs[0],
+        "the clip starts at the domain's min",
+      );
+    }
   });
 }

@@ -15,6 +15,11 @@ import {shapeHoverEnabled} from "./shapeHover.js";
 import {appendData} from "./appendRows.js";
 import type {AppendOptions} from "./appendRows.js";
 import {dataChanged} from "./dataChanged.js";
+import {
+  groupLevelAccessor,
+  groupLevelAgg,
+  groupLevelKey,
+} from "./groupByLevels.js";
 import {setLoaderValue} from "./loaderFormat.js";
 import {stopDataPolling} from "./vizDataPolling.js";
 import {setZoomBrush, zoomBy} from "../drawSteps/zoomActions.js";
@@ -207,9 +212,13 @@ Unlike setting `data`, appending keeps the series a viewer hid or soloed in the 
       (this.schema.groupBy = arr.map(
         (
           k: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]),
+          level: number,
         ) => {
-          if (typeof k === "function") return k;
-          else {
+          // A merged row keeps the value a function gave its rows.
+          if (typeof k === "function") {
+            this.schema.aggs[groupLevelKey(level)] = groupLevelAgg;
+            return groupLevelAccessor(k, level);
+          } else {
             if (!this.schema.aggs[k]) {
               this.schema.aggs[k] = (
                 a: DataPoint[],

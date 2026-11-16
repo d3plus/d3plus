@@ -2725,6 +2725,23 @@ export interface D3plusConfig {
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /**
+      Geomap: combines coordinate points that sit near one another on screen
+      into one bubble, while any two points' circles overlap on the map as
+      first drawn. A bubble is sized by its points' summed `pointSize` (by
+      their count when it's constant) and is a pie of its points' colors (a
+      plain circle when they share one), labeled with how many points it
+      holds; its tooltip lists the first few. Zooming in splits the bubbles as the
+      points spread apart, and zooming out merges them, so the points and
+      bubbles keep their pixel size through zoom. Clicking a bubble zooms
+      in until it splits; one whose points sit too close to ever split fans
+      them out around it instead (click it again to fold them back). Links
+      to a point in a bubble run to the bubble. `{radius}` sets how near
+      points combine, in pixels on screen (`40` by default); `false` draws
+      every point. A `hexbin`, `cartogram`, or `tileGrid` leaves the points
+      out. Defaults to `true`.
+  */
+  pointCluster?: boolean | {radius?: number};
+  /**
       Hexbin: the style of the observations `points` draws: `r`, the dot
       radius in pixels (default `1.5`); `fill` (defaults to the chart's text
       color); and `fillOpacity` (default `0.35`). Merged into the current
@@ -3329,8 +3346,13 @@ export interface D3plusConfig {
       `strokeWidth`, `strokeDasharray`, …).
   */
   trendLineConfig?: TrendLineConfig;
-  /** Path or object for the topojson data. */
-  topojson?: string | object;
+  /**
+      Path or object for the topojson data, or (Geomap) a list of them, one
+      per `groupBy` level, which makes the map's drill-down geographic:
+      clicking a region zooms to it and draws its children over it and its
+      faded neighbors.
+  */
+  topojson?: string | object | false | (string | object)[];
   /**
       Geomap: transforms `topojson` before it is drawn. The function receives
       the loaded file (or the object passed as `topojson`) and returns the
@@ -3344,6 +3366,10 @@ export interface D3plusConfig {
   topojsonFill?: CssColor;
   /** Accessor function for topojson feature IDs. */
   topojsonId?: (obj: Record<string, unknown>) => string;
+  /** Geomap: the key of the object in `topojson` to draw, or a key for each level of a `topojson` list. Defaults to the first object. */
+  topojsonKey?: string | string[];
+  /** Geomap: the opacity of the regions beside the ones a click drilled into, with a `topojson` list. Defaults to `0.5`. */
+  topojsonNeighborOpacity?: number;
   /** Waterfall: fill for subtotal bars. Defaults to `colorDefaults.sequential`. */
   totalColor?: string;
   /**
@@ -3412,7 +3438,8 @@ export interface D3plusConfig {
   xBreak?: [number, number] | [number, number][];
   /**
       The x domain: `[min, max]` on a continuous axis, or the categories to
-      show, in order, on a discrete one. Setting one end (`[min]` or
+      show, in order, on a discrete one (unless `xConfig.scale` draws it
+      continuous, like `"linear"`). Setting one end (`[min]` or
       `[undefined, max]`) pins only that end; the data fills the other. An
       `xConfig.domain` overrides this. On a multi-level axis (an Array
       `x`), each category can be the list of its level values, outermost
@@ -3448,7 +3475,8 @@ export interface D3plusConfig {
   yBreak?: [number, number] | [number, number][];
   /**
       The y domain: `[min, max]` on a continuous axis, or the categories to
-      show, in order, on a discrete one. Setting one end (`[min]` or
+      show, in order, on a discrete one (unless `yConfig.scale` draws it
+      continuous, like `"linear"`). Setting one end (`[min]` or
       `[undefined, max]`) pins only that end; the data fills the other. A
       `yConfig.domain` overrides this. On a multi-level axis (an Array
       `y`), each category can be the list of its level values, outermost

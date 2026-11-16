@@ -5,6 +5,7 @@ const config = {
   label: d => d.city + ", " + d.region,
   point: d => [d.longitude, d.latitude],
   pointSize: d => d.dma_code,
+  pointCluster: false,
   pointSizeMin: 1,
   pointSizeMax: 10,
 };

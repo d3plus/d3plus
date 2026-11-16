@@ -4,6 +4,7 @@ import {
   hasOwnClick,
   hasUserClick,
   setOwnClick,
+  wrapClick,
 } from "../../src/charts/viz/userClick.ts";
 
 /**
@@ -94,4 +95,22 @@ it("hasUserClick ignores handlers that are unset", () => {
     assert.strictEqual(hasUserClick(viz, "click.shape"), false);
   }
   assert.strictEqual(hasUserClick({schema: {}}, "click.shape"), false);
+});
+
+it("wrapClick keeps a wrapped handler the chart's own only when it was", () => {
+  const {viz, own} = chart();
+  const wrapper = (...a) => own(...a);
+  wrapClick(viz, "click.shape", wrapper);
+  assert.strictEqual(viz.schema.on["click.shape"], wrapper);
+  assert.strictEqual(hasOwnClick(viz, "click.shape"), true);
+  assert.strictEqual(hasUserClick(viz, "click.shape"), false);
+  const user = () => undefined;
+  viz.schema.on["click.shape"] = user;
+  wrapClick(viz, "click.shape", (...a) => user(...a));
+  assert.strictEqual(hasOwnClick(viz, "click.shape"), false);
+  assert.strictEqual(hasUserClick(viz, "click.shape"), true);
+  const bare = {schema: {}};
+  wrapClick(bare, "click.shape", wrapper);
+  assert.strictEqual(bare.schema.on["click.shape"], wrapper);
+  assert.strictEqual(hasOwnClick(bare, "click.shape"), false);
 });

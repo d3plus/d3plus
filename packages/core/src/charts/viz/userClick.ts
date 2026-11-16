@@ -42,6 +42,23 @@ export function hasOwnClick(viz: ClickHost, key: string): boolean {
 }
 
 /**
+    Puts `handler` under `key` in place of the handler it wraps, keeping it
+    the chart's own when the wrapped one was (see `setOwnClick`).
+    @param viz The chart.
+    @param key The event: `"click.shape"` or `"click.legend"`.
+    @param handler The wrapping handler.
+*/
+export function wrapClick(
+  viz: ClickHost,
+  key: string,
+  handler: ClickHandler,
+): void {
+  const own = hasOwnClick(viz, key);
+  (viz.schema.on ??= {})[key] = handler;
+  if (own) setOwnClick(viz, key, handler);
+}
+
+/**
     Whether a click runs a handler of the user's: any `click` handler, or one
     under `key` that is not the chart's own.
     @param viz The chart.
