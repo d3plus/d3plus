@@ -3429,7 +3429,8 @@ export interface D3plusConfig {
   xBreak?: [number, number] | [number, number][];
   /**
       The x domain: `[min, max]` on a continuous axis, or the categories to
-      show, in order, on a discrete one. Setting one end (`[min]` or
+      show, in order, on a discrete one (unless `xConfig.scale` draws it
+      continuous, like `"linear"`). Setting one end (`[min]` or
       `[undefined, max]`) pins only that end; the data fills the other. An
       `xConfig.domain` overrides this. On a multi-level axis (an Array
       `x`), each category can be the list of its level values, outermost
@@ -3465,7 +3466,8 @@ export interface D3plusConfig {
   yBreak?: [number, number] | [number, number][];
   /**
       The y domain: `[min, max]` on a continuous axis, or the categories to
-      show, in order, on a discrete one. Setting one end (`[min]` or
+      show, in order, on a discrete one (unless `yConfig.scale` draws it
+      continuous, like `"linear"`). Setting one end (`[min]` or
       `[undefined, max]`) pins only that end; the data fills the other. A
       `yConfig.domain` overrides this. On a multi-level axis (an Array
       `y`), each category can be the list of its level values, outermost
