@@ -289,7 +289,6 @@ export function placeNetworkNodes(
     applyPositions(nodes, state.positions);
     return true;
   }
-  state.laid = new Map(nodes.map(n => [n.id, {x: n.x ?? 0, y: n.y ?? 0}]));
   const hot = state.sim && state.sim.alpha() >= state.sim.alphaMin();
   const heat = state.sim?.alpha() ?? 0;
   stopLiveLoop(viz);
@@ -298,6 +297,9 @@ export function placeNetworkNodes(
   const first = state.key === undefined;
   const changed = !first && key !== state.key;
   state.key = key;
+  // A new graph's precomputed places (see `rememberPositions`).
+  if (first || changed)
+    state.laid = new Map(nodes.map(n => [n.id, {x: n.x ?? 0, y: n.y ?? 0}]));
   // With every node placed by the data there is nothing to simulate.
   const allData = dataCoords.size > 0 && dataCoords.size === nodes.length;
   const live = liveForceOn(viz, nodes.length) && !allData;
@@ -354,13 +356,18 @@ function applyPositions(
   }
 }
 
-/** Remembers where each node was drawn. */
+/**
+    Remembers where each node was drawn, and — while the layout is the
+    precomputed one — where each node's laid-out place is.
+*/
 export function rememberPositions(viz: VizInstance, nodes: GraphNode[]): void {
   if (viz._facetStep) return;
   const state = networkLive(viz);
   state.positions = new Map(
     nodes.map(n => [n.id, {x: n.x ?? 0, y: n.y ?? 0}] as const),
   );
+  // Drawn as laid out (kept inside the chart): where an unpinned node returns.
+  if (!state.custom) state.laid = new Map(state.positions);
 }
 
 /** Asks for the next frame of the live loop. */

@@ -20,7 +20,7 @@ import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {warnConfigOnce} from "../../utils/configWarnings.js";
 import {layOutCircular} from "./circularLayout.js";
-import {sankeyDragState, shiftSankeyNodes} from "./sankeyDrag.js";
+import {shiftSankeyNodes} from "./sankeyDrag.js";
 import type {DraggedNode} from "./sankeyDrag.js";
 import {sankeyNodeValue} from "./circularLinks.js";
 import type {CircularNode} from "./circularLinks.js";
@@ -260,19 +260,7 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     height,
     padding: v.schema.nodePadding as number,
   });
-  // Dropped nodes draw over the nodes they may overlap.
-  const moved = sankeyDragState(v).offsets;
-  const nodeGroups = Array.from(
-    groups(
-      moved.size
-        ? [
-            ...nodes.filter(n => !moved.has(String(n.id))),
-            ...nodes.filter(n => moved.has(String(n.id))),
-          ]
-        : nodes,
-      d => d.shape,
-    ),
-  );
+  const nodeGroups = Array.from(groups(nodes, d => d.shape));
   v.ctx.sankeyCtx = {
     links: [...links, ...laid],
     nodeGroups,

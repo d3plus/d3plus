@@ -2,7 +2,9 @@
     Dragging Network nodes (see `features/nodeDrag.ts`): the node follows the
     pointer, its links with it, and stays pinned where it is dropped. A live
     simulation reacts while it moves; without one only the node moves.
-    Double-clicking a pinned node lets it go again.
+    Double-clicking a pinned node lets it go again. From the keyboard (see
+    `features/nodeKeys.ts`), Shift and the arrow keys nudge the focused node
+    and Shift+Backspace lets it go.
 
     @module
 */
@@ -54,10 +56,7 @@ export function clampToBounds([x, y]: Point, bounds?: Bounds): Position {
 export function networkNodeDrag(viz: VizInstance): NodeDrag {
   // Where the pointer took hold of the node, from its center.
   let grab: Point = [0, 0];
-  const simNode = (id: string) =>
-    networkLive(viz)
-      .sim?.nodes()
-      .find(n => n.id === id);
+  const simNode = (id: string) => simNodeOf(viz, id);
   return {
     nodeAt(node) {
       const lookup = (viz.ctx.nodeLookup ?? {}) as Record<string, unknown>;
@@ -86,21 +85,62 @@ export function networkNodeDrag(viz: VizInstance): NodeDrag {
       networkLive(viz).dragging = undefined;
       dragHeat(viz, false);
     },
-    dblclick(id) {
-      const state = networkLive(viz);
-      if (!state.pinned.delete(id)) return false;
-      clearTimeout(state.clickTimer);
-      const n = simNode(id);
-      if (n) n.fx = n.fy = null;
-      else {
-        // Without a simulation to move it, the node goes back to its place.
-        const home = state.laid?.get(id);
-        if (home) state.positions.set(id, home);
-      }
-      reheat(viz);
-      return true;
-    },
+    dblclick: id => unpinNetworkNode(viz, id),
   };
+}
+
+/** The simulated node for `id`, while a live simulation runs. */
+const simNodeOf = (viz: VizInstance, id: string) =>
+  networkLive(viz)
+    .sim?.nodes()
+    .find(n => n.id === id);
+
+/**
+    Moves a node `by` pixels (kept inside the chart) and pins it there; a
+    live simulation reacts. Returns whether it moved.
+    @param viz The chart.
+    @param id The node.
+    @param by How far to move it, `[dx, dy]`.
+*/
+export function nudgeNetworkNode(
+  viz: VizInstance,
+  id: string,
+  [dx, dy]: [number, number],
+): boolean {
+  const state = networkLive(viz);
+  const from = state.positions.get(id);
+  if (!from) return false;
+  const p = clampToBounds([from.x + dx, from.y + dy], state.bounds);
+  state.pinned.set(id, p);
+  state.positions.set(id, p);
+  const n = simNodeOf(viz, id);
+  if (n) {
+    n.x = n.fx = p.x;
+    n.y = n.fy = p.y;
+  }
+  reheat(viz);
+  return p.x !== from.x || p.y !== from.y;
+}
+
+/**
+    Lets a pinned node go: a live simulation moves it again, or without one
+    it goes back to its laid-out place. Returns whether it was pinned.
+    @param viz The chart.
+    @param id The node.
+*/
+export function unpinNetworkNode(viz: VizInstance, id: string): boolean {
+  const state = networkLive(viz);
+  if (!state.pinned.delete(id)) return false;
+  clearTimeout(state.clickTimer);
+  const n = simNodeOf(viz, id);
+  if (n) n.fx = n.fy = null;
+  else {
+    // Without a simulation to move it, the node goes back to its place.
+    const home = state.laid?.get(id);
+    if (home) state.positions.set(id, home);
+  }
+  reheat(viz);
+  return true;
 }
 
 /**

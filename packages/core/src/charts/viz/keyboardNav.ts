@@ -39,6 +39,8 @@ export interface KeyboardNavState extends KeyboardNavHost {
   replaying?: boolean;
   /** A message the next focus announces in place of its target's name (a change it made). */
   announce?: string;
+  /** The message announced for the focused target, kept while redraws re-enter it. */
+  announced?: string;
   /** Replayed events waiting for an animated transition to settle. */
   queue: (() => void)[];
   timer?: ReturnType<typeof setTimeout>;
@@ -212,8 +214,9 @@ function updateOutline(viz: VizInstance, state: KeyboardNavState): void {
 }
 
 /**
-    Focuses `target`: announces it (or the change pending in `announce`),
-    replays the hover over it, and redraws
+    Focuses `target`: announces it (or the change pending in `announce`;
+    re-entering it after a redraw keeps what was announced), replays the
+    hover over it, and redraws
     the ring (unless the paint that called this already drew it).
 */
 function focusOn(
@@ -222,11 +225,15 @@ function focusOn(
   target: FocusTarget,
   repaint = true,
 ): void {
+  // Re-entering the same mark after a redraw leaves the last announcement
+  // (a change the chart made to it) in place.
+  const reentry = !repaint && state.current === target.id;
   state.current = target.id;
   state.chartScene = viz._chartScene;
   state.zoom = viz._zoomTransform;
-  const label = state.announce ?? targetLabel(viz, target);
+  state.announced = state.announce ?? (reentry ? state.announced : undefined);
   state.announce = undefined;
+  const label = state.announced ?? targetLabel(viz, target);
   if (state.live.textContent !== label) state.live.textContent = label;
   whenSettled(viz, state, () => {
     hover(viz, state, target);

@@ -95,16 +95,27 @@ export {
   deferPinnedClicks,
   networkNodeDrag,
   networkNodeId,
+  nudgeNetworkNode,
+  unpinNetworkNode,
 } from "./src/charts/Network/networkDrag.js";
 export {
   bindNodeDrag,
   chartPoint,
   unbindNodeDrag,
 } from "./src/charts/features/nodeDrag.js";
+export {
+  NODE_KEY_STEP,
+  installNodeKeys,
+  nodeKeyShortcuts,
+  nodeKeyStep,
+} from "./src/charts/features/nodeKeys.js";
+export type {NodeKeys} from "./src/charts/features/nodeKeys.js";
 export type {NodeDrag} from "./src/charts/features/nodeDrag.js";
 export {
   clampTop,
-  dragShare,
+  nudgeSankeyNode,
+  pushColumn,
+  resetSankeyNode,
   sankeyDragState,
   sankeyNodeDrag,
   sankeyNodeId,
@@ -112,7 +123,9 @@ export {
   stopSankeyDrag,
 } from "./src/charts/Sankey/sankeyDrag.js";
 export type {
+  ColumnNode,
   DraggedNode,
+  LaidNode,
   SankeyDragState,
 } from "./src/charts/Sankey/sankeyDrag.js";
 export {sankeyRelink} from "./src/charts/Sankey/sankeyLayout.js";

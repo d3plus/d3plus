@@ -31,7 +31,7 @@ export type Point = [number, number];
 /** How a chart drags its nodes. Points are in the chart's own (unzoomed) space. */
 export interface NodeDrag {
   /** The id of the node a painted scene node draws, or null when it isn't a draggable node. */
-  nodeAt(node: SceneNode): string | null;
+  nodeAt(node: Pick<SceneNode, "key">): string | null;
   /** A drag begins on a node, from `at`. */
   start(id: string, at: Point): void;
   /** The node is dragged to `at`. */

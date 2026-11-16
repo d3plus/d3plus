@@ -56,7 +56,17 @@ import {clusterFields, installClusters} from "./clusters.js";
 import {runChartDraw} from "../pipeline/runChartDraw.js";
 import {bindNodeDrag, unbindNodeDrag} from "../features/nodeDrag.js";
 import {FORCE_LIVE_DEFAULT, networkLive, stopLive} from "./liveForce.js";
-import {deferPinnedClicks, networkNodeDrag} from "./networkDrag.js";
+import {
+  deferPinnedClicks,
+  networkNodeDrag,
+  nudgeNetworkNode,
+  unpinNetworkNode,
+} from "./networkDrag.js";
+import {installNodeKeys} from "../features/nodeKeys.js";
+
+/** The node keys' instructions, read after keyboard navigation's own. */
+const NETWORK_KEY_INSTRUCTIONS =
+  "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.";
 
 const getNodeId = graphNodeId;
 
@@ -383,6 +393,14 @@ export const networkDef: ChartDefinition = {
       viz.schema.nodeDrag !== false &&
       viz.schema.layout !== "circle" &&
       !viz._facetPanels?.length;
+    installNodeKeys(viz, {
+      nodeAt: key => drag.nodeAt({key}),
+      nudge: (id, by) => nudgeNetworkNode(viz, id, by),
+      reset: id => unpinNetworkNode(viz, id),
+      enabled: draggable,
+      messages: {nudge: "{0} moved and pinned", reset: "{0} unpinned"},
+      instructions: NETWORK_KEY_INSTRUCTIONS,
+    });
 
     // Wrap _draw to also call ensureZoomDom (Network needs a DOM zoom group).
     const supDraw = v._draw.bind(viz);
