@@ -1,7 +1,9 @@
 import {it} from "vitest";
 import assert from "assert";
 import {
+  isTexture,
   markSwatch,
+  SWATCH_OUTLINE,
   swatchColor,
   swatchOutline,
   visibleColor,
@@ -25,32 +27,14 @@ it("swatchColor — a texture shows its background", () => {
   assert.strictEqual(swatchColor(undefined), undefined);
 });
 
-it("swatchOutline — the mark's stroke at its width", () => {
-  assert.deepStrictEqual(swatchOutline({stroke: "red", strokeWidth: 1.5}), {
-    stroke: "red",
-    strokeWidth: 1.5,
-  });
-  assert.deepStrictEqual(
-    swatchOutline({stroke: "red", strokeWidth: "2"}),
-    {stroke: "red", strokeWidth: 2},
-    "a numeric string width",
-  );
-});
-
-it("swatchOutline — at most a fifth of the swatch", () => {
-  assert.deepStrictEqual(
-    swatchOutline({stroke: "red", strokeWidth: 8}, {size: 10}),
-    {stroke: "red", strokeWidth: 2},
-  );
-  assert.deepStrictEqual(
-    swatchOutline({stroke: "red", strokeWidth: 1}, {size: 10}),
-    {stroke: "red", strokeWidth: 1},
-    "a thinner stroke keeps its width",
-  );
-  assert.strictEqual(
-    swatchOutline({stroke: "red", strokeWidth: 8}, {size: 12}).strokeWidth,
-    2.4,
-  );
+it("swatchOutline — 1px of the mark's stroke, whatever its width", () => {
+  for (const strokeWidth of [0.5, 1, 1.5, 2, "3", 8])
+    assert.deepStrictEqual(
+      swatchOutline({stroke: "red", strokeWidth}),
+      {stroke: "red", strokeWidth: 1},
+      `${strokeWidth}`,
+    );
+  assert.strictEqual(SWATCH_OUTLINE, 1);
 });
 
 it("swatchOutline — none for a stroke that doesn't show", () => {
@@ -76,13 +60,13 @@ it("swatchOutline — none for a stroke in the chart's background", () => {
     );
   assert.deepStrictEqual(
     swatchOutline({stroke: "#222", strokeWidth: 2}, {background: "#fff"}),
-    {stroke: "#222", strokeWidth: 2},
+    {stroke: "#222", strokeWidth: 1},
   );
 });
 
 it("markSwatch — a fill outlined by its stroke", () => {
   assert.deepStrictEqual(
-    markSwatch({fill: "blue", stroke: "navy", strokeWidth: 1}, "Path"),
+    markSwatch({fill: "blue", stroke: "navy", strokeWidth: 3}, "Path"),
     {color: "blue", outline: {stroke: "navy", strokeWidth: 1}},
   );
   assert.deepStrictEqual(
@@ -91,19 +75,35 @@ it("markSwatch — a fill outlined by its stroke", () => {
     "no outline without a stroke width",
   );
   assert.deepStrictEqual(
-    markSwatch(
-      {fill: pattern("#123456"), stroke: "navy", strokeWidth: 1},
-      "Rect",
-    ),
-    {color: "#123456", outline: {stroke: "navy", strokeWidth: 1}},
-    "a texture's background",
+    markSwatch({fill: "blue", stroke: "#fff", strokeWidth: 2}, "Circle", {
+      background: "white",
+    }),
+    {color: "blue"},
+    "no outline in the chart's background",
+  );
+});
+
+it("markSwatch — a texture over its background", () => {
+  const token = pattern("#123456");
+  assert.deepStrictEqual(
+    markSwatch({fill: token, stroke: "navy", strokeWidth: 1}, "Rect"),
+    {
+      color: "#123456",
+      texture: token,
+      outline: {stroke: "navy", strokeWidth: 1},
+    },
   );
   assert.deepStrictEqual(
-    markSwatch({fill: "blue", stroke: "navy", strokeWidth: 9}, "Circle", {
-      size: 10,
-    }),
-    {color: "blue", outline: {stroke: "navy", strokeWidth: 2}},
+    markSwatch({fill: token}, "Circle"),
+    {color: "#123456", texture: token},
+    "without a stroke",
   );
+});
+
+it("isTexture — a pattern token", () => {
+  assert.ok(isTexture(pattern("#fff")));
+  for (const fill of ["#fff", "none", undefined, 3])
+    assert.ok(!isTexture(fill), `${fill}`);
 });
 
 it("markSwatch — a Line is its stroke, with no outline", () => {

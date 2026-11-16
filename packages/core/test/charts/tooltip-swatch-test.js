@@ -6,6 +6,7 @@ import {
   nodeColor,
   nodeSwatch,
   pickSwatch,
+  textureStyle,
   tooltipSwatch,
   visibleColor,
   withSwatch,
@@ -318,7 +319,11 @@ it("tooltipSwatch — outlined by its mark's stroke", () => {
       "Circle",
     ),
   );
-  assert.strictEqual(thick.style.borderWidth, "2px", "a fifth of the swatch");
+  assert.strictEqual(
+    thick.style.borderWidth,
+    "1px",
+    "1px whatever the mark's width",
+  );
   assert.strictEqual(thick.style.borderRadius, "50%");
   assert.strictEqual(
     parse(tooltipSwatch({color: "blue"})).style.borderStyle,
@@ -383,7 +388,7 @@ it("nodeSwatch — a hovered mark reads its paint without the emphasis", () => {
   );
   assert.deepStrictEqual(
     nodeSwatch({_chartScene: []}, painted).outline,
-    {stroke: "#1c3bb5", strokeWidth: 2},
+    {stroke: "#1c3bb5", strokeWidth: 1},
     "the picked paint when the chart's scene lacks it",
   );
 });
@@ -434,7 +439,7 @@ it("nodeSwatch — a stroke in the chart's background is no outline", () => {
   const light = {_chartScene: [wedge], _theme: {background: "#fff"}};
   assert.deepStrictEqual(nodeSwatch(light, wedge).outline, {
     stroke: "#000000",
-    strokeWidth: 2,
+    strokeWidth: 1,
   });
 });
 
@@ -449,4 +454,62 @@ it("pickSwatch — the picked mark's swatch carries its stroke", () => {
   const sw = parse(pickSwatch({_chartScene: [node]}, {node, d: node.datum}));
   assert.strictEqual(sw.style.borderColor, "rgb(1, 2, 3)");
   assert.strictEqual(sw.style.borderWidth, "1px");
+});
+
+const lines = `pattern:${JSON.stringify({
+  texture: "lines",
+  background: "#4c6ef5",
+  stroke: "#1c3bb5",
+  orientation: ["diagonal"],
+})}`;
+
+it("textureStyle — the texture's tile, repeated at its own size", () => {
+  const css = textureStyle(lines);
+  const uri = /background-image: url\('data:image\/svg\+xml,([^']+)'\)/.exec(
+    css,
+  );
+  assert.ok(uri, css);
+  const svg = decodeURIComponent(uri[1]);
+  assert.ok(svg.startsWith("<svg"), "an SVG tile");
+  assert.ok(svg.includes("<pattern"), "holding the pattern");
+  assert.ok(svg.includes("#4c6ef5"), "over its background");
+  assert.ok(svg.includes("#1c3bb5"), "in its stroke");
+  assert.match(css, /background-size: \d+px \d+px;/);
+  assert.strictEqual(textureStyle(lines), css, "the same tile again");
+  assert.strictEqual(textureStyle("pattern:{oops"), "", "a bad token");
+  assert.strictEqual(textureStyle("#fff"), "", "not a texture");
+});
+
+it("tooltipSwatch — a texture draws over its background", () => {
+  const sw = parse(
+    tooltipSwatch({
+      color: "#4c6ef5",
+      texture: lines,
+      outline: {stroke: "#1c3bb5", strokeWidth: 1},
+    }),
+  );
+  assert.strictEqual(sw.style.backgroundColor, "rgb(76, 110, 245)");
+  assert.ok(sw.style.backgroundImage.startsWith('url("data:image/svg+xml,'));
+  assert.ok(sw.style.backgroundSize.endsWith("px"));
+  assert.strictEqual(sw.style.borderWidth, "1px");
+  assert.ok(
+    !/url\(/.test(
+      parse(tooltipSwatch({color: "#4c6ef5"})).style.backgroundImage,
+    ),
+    "no image without a texture",
+  );
+});
+
+it("nodeSwatch — a textured mark's swatch carries its texture", () => {
+  const node = {
+    type: "rect",
+    key: "Alpha",
+    shapeType: "Rect",
+    paint: {fill: lines, stroke: "#1c3bb5", strokeWidth: 1},
+  };
+  assert.deepStrictEqual(nodeSwatch({_chartScene: [node]}, node), {
+    color: "#4c6ef5",
+    texture: lines,
+    outline: {stroke: "#1c3bb5", strokeWidth: 1},
+  });
 });

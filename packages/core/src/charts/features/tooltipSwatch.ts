@@ -2,8 +2,9 @@
     The small colored glyph that ties a tooltip row or title to the mark it
     describes, matching the legend's swatches: a dot with a short line through
     it for a Line, a dot for a Circle, and a square for everything else, each
-    outlined by its mark's stroke.
+    in its mark's color or texture and outlined by its mark's stroke.
 */
+import {patternTileSvg} from "@d3plus/render";
 import type {PickResult, SceneNode} from "@d3plus/render";
 
 import type Tooltip from "../../components/Tooltip.js";
@@ -21,11 +22,35 @@ const SIZE = 10;
 /** Inline styles shared by every swatch: a fixed box, spaced from its text. */
 const BASE = `display: inline-block; flex: none; margin-right: 6px; width: ${SIZE}px; height: ${SIZE}px;`;
 
+/** Each texture's tile, as the CSS that repeats it, keyed by its token. */
+const tiles = new Map<string, string>();
+
+/**
+    The CSS that draws a texture's `pattern:<json>` token over a swatch: the
+    one tile the Canvas renderer repeats (see `patternTileSvg`), as an SVG
+    data URI at its own size. Empty without a DOM or for a bad token.
+*/
+export function textureStyle(token: string): string {
+  if (typeof document === "undefined") return "";
+  let css = tiles.get(token);
+  if (css === undefined) {
+    const tile = patternTileSvg(token);
+    const uri =
+      tile &&
+      `data:image/svg+xml,${encodeURIComponent(tile.svg).replace(/'/g, "%27")}`;
+    css = tile
+      ? ` background-image: url('${uri}'); background-size: ${tile.width}px ${tile.height}px;`
+      : "";
+    tiles.set(token, css);
+  }
+  return css;
+}
+
 /**
     A swatch's HTML for a mark of `shape`, to lead a tooltip title or row
-    (see `withSwatch`): in the mark's color, outlined by its stroke (see
-    `markSwatch`). A Line's swatch takes no outline, its stroke being the line
-    itself. Empty without a color.
+    (see `withSwatch`): in the mark's color or texture, outlined in 1px of its
+    stroke (see `markSwatch`). A Line's swatch takes no outline, its stroke
+    being the line itself. Empty without a color.
     @param paint The mark's color, or its swatch paint.
     @param shape The mark's shape type (e.g. "Line", "Circle", "Bar").
 */
@@ -33,8 +58,8 @@ export function tooltipSwatch(
   paint?: string | SwatchPaint,
   shape?: string,
 ): string {
-  const {color, outline} =
-    typeof paint === "object" ? paint : {color: paint, outline: undefined};
+  const {color, outline, texture}: SwatchPaint =
+    typeof paint === "object" ? paint : {color: paint};
   if (!color) return "";
   if (shape === "Line") {
     const dot = SIZE * 0.6;
@@ -46,11 +71,12 @@ export function tooltipSwatch(
     );
   }
   const radius = shape === "Circle" ? "50%" : "1px";
-  const edge = outline && swatchOutline(outline, {size: SIZE});
+  const edge = outline && swatchOutline(outline);
   const border = edge
     ? ` box-sizing: border-box; border: ${edge.strokeWidth}px solid ${edge.stroke};`
     : "";
-  return `<span class="d3plus-tooltip-swatch" style="${BASE} border-radius: ${radius}; background: ${color};${border}"></span>`;
+  const pattern = texture ? textureStyle(texture) : "";
+  return `<span class="d3plus-tooltip-swatch" style="${BASE} border-radius: ${radius}; background: ${color};${pattern}${border}"></span>`;
 }
 
 /**

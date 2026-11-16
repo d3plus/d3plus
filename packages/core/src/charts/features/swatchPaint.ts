@@ -1,9 +1,12 @@
 /**
     The paint of a swatch that stands for a mark (a tooltip's, or a legend
-    entry's): the mark's color, outlined by the mark's own stroke when the
-    mark draws one.
+    entry's): the mark's color (or texture), outlined in the mark's own stroke
+    when the mark draws one.
 */
 import {color} from "d3-color";
+
+/** The width of every swatch outline, in pixels, whatever its mark's stroke width. */
+export const SWATCH_OUTLINE = 1;
 
 /** A swatch's outline: the stroke of the mark it stands for. */
 export interface SwatchOutline {
@@ -11,18 +14,21 @@ export interface SwatchOutline {
   strokeWidth: number;
 }
 
-/** What a swatch draws: its color, and its outline when the mark has one. */
+/** What a swatch draws: its color, its texture, and its outline when the mark has them. */
 export interface SwatchPaint {
   color?: string;
+  /** The mark's texture, a `pattern:<json>` token drawn over `color`. */
+  texture?: string;
   outline?: SwatchOutline;
 }
-
-/** A swatch's outline is at most its size over this. */
-const MAX_OUTLINE = 5;
 
 /** A paint color that actually shows: not unset, "none", or transparent. */
 export const visibleColor = (s: unknown): string | undefined =>
   typeof s === "string" && s !== "none" && s !== "transparent" ? s : undefined;
+
+/** Whether a fill is a texture: a `pattern:<json>` token. */
+export const isTexture = (fill: unknown): fill is string =>
+  typeof fill === "string" && fill.startsWith("pattern:");
 
 /**
     The color a fill shows as a flat swatch: a texture (a `pattern:<json>`
@@ -31,7 +37,7 @@ export const visibleColor = (s: unknown): string | undefined =>
 */
 export function swatchColor(fill: unknown): string | undefined {
   const c = visibleColor(fill);
-  if (!c || !c.startsWith("pattern:")) return c;
+  if (!c || !isTexture(c)) return c;
   try {
     return visibleColor(
       (JSON.parse(c.slice("pattern:".length)) as {background?: unknown})
@@ -52,8 +58,6 @@ export interface MarkPaint {
 
 /** How a swatch reads a mark's stroke. */
 export interface SwatchOptions {
-  /** The swatch's size, in pixels: its outline is at most a fifth of it. */
-  size?: number;
   /**
       The chart's background: a stroke in it is a gap cut between marks (a
       Pie's wedges, a BubbleChart's bubbles), not an outline.
@@ -70,31 +74,32 @@ function sameColor(a: string, b: string | undefined): boolean {
 }
 
 /**
-    The outline a swatch draws for a mark's stroke: the mark's stroke color,
-    at the mark's stroke width up to a fifth of the swatch's `size`. None when
-    the stroke doesn't show: no visible color, no width or opacity, or the
-    chart's `background` color.
-    @param paint The mark's stroke, strokeWidth (in pixels), and strokeOpacity.
-    @param options The swatch's size and the chart's background.
+    The outline a swatch draws for a mark's stroke: 1px in the mark's stroke
+    color, whatever the mark's stroke width. None when the stroke doesn't
+    show: no visible color, no width or opacity, or the chart's `background`
+    color.
+    @param paint The mark's stroke, strokeWidth, and strokeOpacity.
+    @param options The chart's background.
 */
 export function swatchOutline(
   paint: MarkPaint,
-  {size = Infinity, background}: SwatchOptions = {},
+  {background}: SwatchOptions = {},
 ): SwatchOutline | undefined {
   const stroke = visibleColor(paint.stroke);
   const width = Number(paint.strokeWidth);
   if (!stroke || !(width > 0) || paint.strokeOpacity === 0) return undefined;
   if (sameColor(stroke, background)) return undefined;
-  return {stroke, strokeWidth: Math.min(width, size / MAX_OUTLINE)};
+  return {stroke, strokeWidth: SWATCH_OUTLINE};
 }
 
 /**
     A mark's swatch paint: a Line's stroke color, with no outline (its stroke
-    is the line itself); otherwise its fill outlined by its stroke (see
-    `swatchOutline`), or, for an unfilled mark, its stroke color alone.
+    is the line itself); otherwise its fill (and texture) outlined by its
+    stroke (see `swatchOutline`), or, for an unfilled mark, its stroke color
+    alone.
     @param paint The mark's paint.
     @param shape The mark's shape type (e.g. "Line", "Circle", "Path").
-    @param options The swatch's size and the chart's background.
+    @param options The chart's background.
 */
 export function markSwatch(
   paint: MarkPaint | undefined,
@@ -105,6 +110,9 @@ export function markSwatch(
   const fill = swatchColor(paint.fill);
   if (shape === "Line") return {color: visibleColor(paint.stroke) ?? fill};
   if (!fill) return {color: visibleColor(paint.stroke)};
+  const out: SwatchPaint = {color: fill};
+  if (isTexture(paint.fill)) out.texture = paint.fill;
   const outline = swatchOutline(paint, options);
-  return outline ? {color: fill, outline} : {color: fill};
+  if (outline) out.outline = outline;
+  return out;
 }

@@ -174,26 +174,18 @@ function paintLegend(
     );
   };
 
-  // An entry's swatch takes its marks' stroke, sized to the swatch; a Line's
+  // An entry's swatch takes a 1px outline in its marks' stroke; a Line's
   // glyph (the line itself) and a hidden entry's take none.
   const background = chartBackground(viz);
-  const sharedStroke = (d: DataPoint, i: number): unknown => {
-    const stroke = viz.schema.shapeConfig.stroke;
-    return typeof stroke === "function" ? stroke.bind(viz)(d, i) : stroke;
-  };
   const outline = (d: DataPoint, i: number): SwatchOutline | undefined => {
     if (hidden(d, i) || viz.schema.shape(d, i) === "Line") return undefined;
-    const line = viz._legendClass!._lineData?.[i];
-    const size = line
-      ? Math.min(line.shapeWidth as number, line.shapeHeight as number)
-      : undefined;
     return swatchOutline(
       {
         stroke: getAttr(d, i, "stroke"),
         strokeWidth: getAttr(d, i, "strokeWidth"),
         strokeOpacity: getAttr(d, i, "strokeOpacity"),
       },
-      {size, background},
+      {background},
     );
   };
 
@@ -239,10 +231,12 @@ function paintLegend(
     .shapeConfig({
       fill: (d: DataPoint, i: number) =>
         hidden(d, i) ? viz.schema.hiddenColor(d, i) : getAttr(d, i, "fill"),
-      // Without an outline, the stroke draws at no width: keep the shared one.
+      // Resolved like the fill, so a texture draws its lines in the marks'
+      // stroke even where the swatch takes no outline.
       stroke: (d: DataPoint, i: number) =>
-        outline(d, i)?.stroke ?? sharedStroke(d, i),
+        outline(d, i)?.stroke ?? getAttr(d, i, "stroke"),
       strokeWidth: (d: DataPoint, i: number) => outline(d, i)?.strokeWidth ?? 0,
+      texture: (d: DataPoint, i: number) => getAttr(d, i, "texture"),
       labelConfig: {
         fontOpacity: (d: DataPoint, i: number) =>
           hidden(d, i) ? viz.schema.hiddenOpacity(d, i) : 1,

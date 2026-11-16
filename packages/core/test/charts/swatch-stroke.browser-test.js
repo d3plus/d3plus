@@ -83,6 +83,7 @@ const swatches = page =>
       return {
         line,
         fill: (line ? sw.lastElementChild : sw).style.backgroundColor,
+        image: /url\("data:image\/svg\+xml/.test(sw.style.backgroundImage),
         outline:
           sw.style.borderStyle === "solid"
             ? [sw.style.borderColor, sw.style.borderWidth]
@@ -149,6 +150,59 @@ const legendStrokes = page =>
     return out;
   });
 
+/** The painted legend swatches, after any hover or active emphasis: `[stroke, strokeWidth]` per swatch. */
+const paintedLegend = page =>
+  page.evaluate(() => {
+    const out = [];
+    const walk = node => {
+      if (
+        node.interactionGroup === "legend" &&
+        (node.type === "rect" || node.type === "circle") &&
+        node.datum &&
+        !String(node.key).endsWith("::hit")
+      )
+        out.push([node.paint.stroke, node.paint.strokeWidth]);
+      (node.children || []).forEach(walk);
+    };
+    walk(window.__viz._paintedScene.root);
+    return out;
+  });
+
+/** Sets the chart's active predicate and waits for its repaint. */
+const activate = (page, id) =>
+  page.evaluate(
+    id =>
+      new Promise(resolve => {
+        window.__viz.active(d => d.id === id);
+        requestAnimationFrame(() => setTimeout(resolve, 50));
+      }),
+    id,
+  );
+
+/** The legend's textured swatches: their scene fill tokens, and on SVG the DOM fills. */
+const legendTextures = page =>
+  page.evaluate(() => {
+    const scene = [];
+    const walk = node => {
+      if (
+        node.interactionGroup === "legend" &&
+        (node.type === "rect" || node.type === "circle") &&
+        node.datum &&
+        !String(node.key).endsWith("::hit")
+      )
+        scene.push(String(node.paint.fill));
+      (node.children || []).forEach(walk);
+    };
+    walk(window.__viz._paintedScene.root);
+    const legend = document.querySelector('#viz [data-key="viz-legend"]');
+    const dom = legend
+      ? Array.from(legend.querySelectorAll("rect, circle"))
+          .map(n => n.getAttribute("fill") || "")
+          .filter(f => f.startsWith("url("))
+      : [];
+    return {scene, dom};
+  });
+
 const bar = id =>
   `n => n.shapeType === "Bar" && n.datum && (n.datum.data || n.datum).id === "${id}" && (n.datum.data || n.datum).year === 2010`;
 
@@ -169,7 +223,7 @@ for (const renderer of ["svg", "canvas"]) {
           assert.strictEqual(title.fill, await css(page, paint.fill));
           assert.deepStrictEqual(title.outline, [
             await css(page, paint.stroke),
-            `${paint.strokeWidth}px`,
+            "1px",
           ]);
         } finally {
           await close();
@@ -191,6 +245,12 @@ for (const renderer of ["svg", "canvas"]) {
       assert.strictEqual(title.outline, null);
       for (const [, width] of await legendStrokes(page))
         assert.strictEqual(width, 0, "no legend swatch outline");
+      const lit = (await paintedLegend(page)).map(([, w]) => w);
+      assert.ok(lit.includes(1), "the lit legend swatch takes a 1px outline");
+      assert.ok(
+        lit.every(w => w === 0 || w === 1),
+        `and none wider (${lit})`,
+      );
     } finally {
       await close();
     }
@@ -207,7 +267,7 @@ for (const renderer of ["svg", "canvas"]) {
       assert.strictEqual(legend.length, 3, "a swatch per entry");
       for (const [stroke, width] of legend) {
         assert.strictEqual(stroke, "#ff0000");
-        assert.strictEqual(width, 2.4, "a fifth of the 12px swatch at most");
+        assert.strictEqual(width, 1, "1px, whatever the mark's width");
       }
       await hoverAgain(
         page,
@@ -219,9 +279,14 @@ for (const renderer of ["svg", "canvas"]) {
       const [title] = await swatches(page);
       assert.deepStrictEqual(
         title.outline,
-        [red, "2px"],
-        "a fifth of the 10px swatch at most",
+        [red, "1px"],
+        "1px, whatever the mark's width",
       );
+      for (const [, width] of await paintedLegend(page))
+        assert.strictEqual(width, 1, "a lit legend swatch stays 1px");
+      await activate(page, "Beta");
+      for (const [, width] of await paintedLegend(page))
+        assert.strictEqual(width, 1, "an active legend swatch stays 1px");
     } finally {
       await close();
     }
@@ -306,29 +371,75 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
-  it(`${renderer}: a textured mark's swatch shows the texture's background`, async () => {
-    const {page, close} = await chart(
-      treemap({texture: "lines", stroke: "#123456", strokeWidth: 1}),
-      renderer,
-    );
-    try {
-      const alpha = `n => n.type === "rect" && n.datum && n.datum.id === "Alpha"`;
-      const {fill} = await markPaint(page, alpha);
-      assert.ok(fill.startsWith("pattern:"), "the mark is textured");
-      await hoverAgain(page, await pointOf(page, alpha));
-      const [title] = await swatches(page);
-      assert.strictEqual(
-        title.fill,
-        await css(page, JSON.parse(fill.slice("pattern:".length)).background),
+  for (const theme of ["light", "dark"]) {
+    it(`${renderer}, ${theme}: a textured mark's swatches draw its texture`, async () => {
+      const {page, close} = await chart(
+        treemap({
+          Rect: {texture: "lines", stroke: "#123456", strokeWidth: 1},
+        }).replace(".legend(true)", `.legend(true).theme("${theme}")`),
+        renderer,
       );
-      assert.deepStrictEqual(title.outline, [
-        await css(page, "#123456"),
-        "1px",
-      ]);
-    } finally {
-      await close();
-    }
-  });
+      try {
+        const alpha = `n => n.type === "rect" && n.datum && n.datum.id === "Alpha"`;
+        const {fill} = await markPaint(page, alpha);
+        assert.ok(fill.startsWith("pattern:"), "the mark is textured");
+        const legend = await legendTextures(page);
+        assert.strictEqual(legend.scene.length, 3, "a swatch per entry");
+        assert.ok(
+          legend.scene.every(f => f.startsWith("pattern:")),
+          "every legend swatch takes the per-shape texture",
+        );
+        assert.ok(
+          legend.scene.includes(fill),
+          "Alpha's swatch draws Alpha's own pattern",
+        );
+        if (renderer === "svg")
+          assert.strictEqual(legend.dom.length, 3, "drawn as SVG patterns");
+        await hoverAgain(page, await pointOf(page, alpha));
+        const [title] = await swatches(page);
+        assert.ok(title.image, "the tooltip swatch draws the pattern");
+        assert.strictEqual(
+          title.fill,
+          await css(page, JSON.parse(fill.slice("pattern:".length)).background),
+          "over its background",
+        );
+        assert.deepStrictEqual(title.outline, [
+          await css(page, "#123456"),
+          "1px",
+        ]);
+      } finally {
+        await close();
+      }
+    });
+
+    it(`${renderer}, ${theme}: shared tooltip rows draw each bar's texture`, async () => {
+      const {page, close} = await chart(
+        plot("BarChart", {
+          stacked: true,
+          theme,
+          shapeConfig: {Bar: {texture: "lines"}},
+        }),
+        renderer,
+      );
+      try {
+        await hoverAgain(page, await pointOf(page, bar("Beta")));
+        const rows = await swatches(page);
+        assert.strictEqual(rows.length, 3, "a row per series");
+        assert.ok(
+          rows.every(r => r.image),
+          "every row draws its texture",
+        );
+        const legend = await legendTextures(page);
+        assert.ok(
+          legend.scene.length === 3 &&
+            legend.scene.every(f => f.startsWith("pattern:")),
+          "the legend draws shapeConfig.Bar's texture",
+        );
+      } finally {
+        await close();
+      }
+    });
+  }
 
   for (const theme of ["light", "dark"])
     it(`${renderer}, ${theme}: a stroke in the chart's background is a gap, not an outline`, async () => {

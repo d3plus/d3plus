@@ -35,6 +35,8 @@ export interface SharedRow {
   color?: string;
   /** The mark's stroke, which outlines the row's swatch. */
   outline?: SwatchOutline;
+  /** The mark's texture, which the row's swatch draws. */
+  texture?: string;
   /** The mark's shape type, which picks the row's swatch (dot vs. square). */
   shape?: string;
   datum: DataPoint;
@@ -100,6 +102,7 @@ interface Member {
   wrapped: Wrapped;
   color?: string;
   outline?: SwatchOutline;
+  texture?: string;
   shape?: string;
   trend?: {fit: TrendFit; sample: TrendSample};
 }
@@ -187,10 +190,15 @@ function collectColumns(
         wrapped,
         color: swatch.color,
         outline: swatch.outline,
+        texture: swatch.texture,
         shape,
       });
     else if (!member.color)
-      Object.assign(member, {color: swatch.color, outline: swatch.outline});
+      Object.assign(member, {
+        color: swatch.color,
+        outline: swatch.outline,
+        texture: swatch.texture,
+      });
     return column;
   };
   // A Line's hit-area and visible path share points; mark each point once.
@@ -301,6 +309,7 @@ function memberRow(
     value,
     color: member.color,
     outline: member.outline,
+    texture: member.texture,
     shape: member.shape,
     datum,
     index,
