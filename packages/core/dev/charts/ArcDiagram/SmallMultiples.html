@@ -1,0 +1,61 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Small Multiples · ArcDiagram</title>
+    <meta
+      name="description"
+      content="Faceted ArcDiagram: two teams split into panels from shared nodes and links, each panel drawing only its own members and the arcs between them."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      #viz {
+        height: 420px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    // The links across the two teams draw in neither panel.
+    var people = [
+      {id: "Ada", team: "Design"},
+      {id: "Ben", team: "Design"},
+      {id: "Cy", team: "Design"},
+      {id: "Dee", team: "Design"},
+      {id: "Eli", team: "Research"},
+      {id: "Fay", team: "Research"},
+      {id: "Gus", team: "Research"},
+      {id: "Hal", team: "Research"},
+    ];
+    var links = [
+      {source: "Ada", target: "Ben"},
+      {source: "Ada", target: "Cy"},
+      {source: "Ben", target: "Dee"},
+      {source: "Cy", target: "Dee"},
+      {source: "Eli", target: "Fay"},
+      {source: "Eli", target: "Hal"},
+      {source: "Fay", target: "Gus"},
+      {source: "Gus", target: "Hal"},
+      {source: "Ada", target: "Eli"},
+      {source: "Dee", target: "Gus"},
+    ];
+    new d3plus.ArcDiagram()
+      .select("#viz")
+      .data(people)
+      .nodes(people)
+      .links(links)
+      .facet("team")
+      .color("team")
+      .legend(false)
+      .render();
+  </script>
+</html>
