@@ -44,6 +44,19 @@ it("networkNodeId: a node's shape or label key gives its id", () => {
   assert.strictEqual(networkNodeId({key: "network-Circle-a"}, ids), "a");
   assert.strictEqual(networkNodeId({key: "network-Rect-b-c"}, ids), "b-c");
   assert.strictEqual(networkNodeId({key: "network-label-a"}, ids), "a");
+  // A label inside the node carries its line's index.
+  assert.strictEqual(networkNodeId({key: "network-label-a_0"}, ids), "a");
+  assert.strictEqual(networkNodeId({key: "network-label-b-c_12"}, ids), "b-c");
+  const suffixed = new Set(["x_1", "x"]);
+  assert.strictEqual(
+    networkNodeId({key: "network-label-x_1"}, suffixed),
+    "x_1",
+  );
+  assert.strictEqual(
+    networkNodeId({key: "network-label-x_1_0"}, suffixed),
+    "x_1",
+  );
+  assert.strictEqual(networkNodeId({key: "network-Circle-a_0"}, ids), null);
   assert.strictEqual(networkNodeId({key: "network-link-a-b-0"}, ids), null);
   assert.strictEqual(networkNodeId({key: "network-Circle-z"}, ids), null);
   assert.strictEqual(networkNodeId({}, ids), null);
