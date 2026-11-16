@@ -43,7 +43,7 @@ interface SimLink extends SimulationLinkDatum<ForceLayoutNode> {
 /** The length the heaviest links settle near, in the layout's own units. */
 const LINK_DISTANCE = 30;
 /** The share of `LINK_DISTANCE` every node keeps clear around itself. */
-const COLLIDE_SHARE = 0.2;
+const COLLIDE_SHARE = 0.12;
 /** The pull toward the middle that holds separate groups of nodes together. */
 const CENTER_STRENGTH = 0.05;
 /** How hard every node pushes the others off, relative to `LINK_DISTANCE`. */
