@@ -146,6 +146,7 @@ export interface TranslationStrings {
   "{node} cluster": string;
   "{0} hidden": string;
   "{0} highlighted": string;
+  "{0} points": string;
   "{0} selected": string;
   "{0} shown": string;
 }
@@ -355,6 +356,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "{node} cluster": "\u0645\u062c\u0645\u0648\u0639\u0629 {node}",
     "{0} hidden": "\u062a\u0645 \u0625\u062e\u0641\u0627\u0621 {0}",
     "{0} highlighted": "\u062a\u0645 \u062a\u062d\u062f\u064a\u062f {0}",
+    "{0} points": "{0} \u0646\u0642\u0627\u0637",
     "{0} selected": "\u062a\u0645 \u062a\u062d\u062f\u064a\u062f {0}",
     "{0} shown": "\u062a\u0645 \u0639\u0631\u0636 {0}",
   },
@@ -508,6 +510,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "{node} cluster": "Grupo de {node}",
     "{0} hidden": "{0} oculto",
     "{0} highlighted": "{0} resaltado",
+    "{0} points": "{0} puntos",
     "{0} selected": "{0} seleccionados",
     "{0} shown": "{0} mostrado",
   },
@@ -661,6 +664,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "{node} cluster": "Grupo de {node}",
     "{0} hidden": "{0} oculto",
     "{0} highlighted": "{0} destacado",
+    "{0} points": "{0} pontos",
     "{0} selected": "{0} selecionados",
     "{0} shown": "{0} exibido",
   },
@@ -817,6 +821,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "{node} cluster": "{node}\u96c6\u7fa4",
     "{0} hidden": "\u5df2\u9690\u85cf{0}",
     "{0} highlighted": "\u5df2\u7a81\u51fa\u663e\u793a{0}",
+    "{0} points": "{0} \u4e2a\u70b9",
     "{0} selected": "\u5df2\u9009\u62e9 {0} \u9879",
     "{0} shown": "\u5df2\u663e\u793a{0}",
   },
