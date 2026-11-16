@@ -8,12 +8,8 @@
 */
 
 import {extent, max, min, groups} from "d3-array";
-import {forceLink, forceManyBody, forceSimulation} from "d3-force";
-import type {SimulationNodeDatum, SimulationLinkDatum} from "d3-force";
-import {polygonHull} from "d3-polygon";
 import * as scales from "d3-scale";
 
-import {largestRect, pointRotate} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../features/chartGeometry.js";
@@ -37,6 +33,7 @@ import type {FocusBox} from "../features/linkFocus.js";
 import {bundleNetworkLinks} from "./bundle.js";
 import {containNodes} from "./containNodes.js";
 import type {NodeReach} from "./containNodes.js";
+import {forceLayout} from "./forceLayout.js";
 import {minNodeDistance} from "./minNodeDistance.js";
 import {placeNetworkNodes, rememberPositions, stopLive} from "./liveForce.js";
 import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
@@ -47,15 +44,6 @@ import {
   placeCircleNetworkLabels,
 } from "./circleLayout.js";
 import type {GraphLink, GraphNode} from "./graph.js";
-
-interface NetworkLayoutNode extends SimulationNodeDatum {
-  id: string;
-  size?: number;
-  shape?: string;
-}
-interface NetworkLayoutLink extends SimulationLinkDatum<NetworkLayoutNode> {
-  size?: number;
-}
 
 /** Single laid-out node — accreted across the layout's passes. */
 type NetworkNode = GraphNode;
@@ -73,62 +61,6 @@ const buildNetworkLinks = resolveGraphLinks as (
   v: Parameters<TransformStage>[0]["viz"],
   nodes: NetworkNode[],
 ) => NetworkLink[];
-
-/** Runs the d3-force simulation, rotating results to the largest fitting rect. */
-function runForceLayout(nodes: NetworkNode[], links: NetworkLink[]): void {
-  const linkStrength = scales
-    .scaleLinear()
-    .domain(extent(links, (d: {size: number}) => d.size) as [number, number])
-    .range([0.1, 0.5]);
-
-  const simulation = forceSimulation()
-    .force(
-      "link",
-      forceLink(links as unknown as NetworkLayoutLink[])
-        .id((d: SimulationNodeDatum) => (d as NetworkLayoutNode).id)
-        .distance(1)
-        .strength((d: NetworkLayoutLink) => linkStrength(d.size as number))
-        .iterations(4),
-    )
-    .force("charge", forceManyBody().strength(-1))
-    .stop();
-
-  const iterations = 100;
-  const alphaMin = 0.001;
-  const alphaDecay = 1 - Math.pow(alphaMin, 1 / iterations);
-  simulation.velocityDecay(0);
-  simulation.alphaMin(alphaMin);
-  simulation.alphaDecay(alphaDecay);
-  simulation.alphaDecay(0);
-  simulation.nodes(nodes);
-  simulation.tick(iterations).stop();
-
-  const nodePositions = nodes.map(
-    n => [n.vx ?? 0, n.vy ?? 0] as [number, number],
-  );
-  let angle = 0,
-    cx = 0,
-    cy = 0;
-  if (nodePositions.length === 2) {
-    angle = 100;
-  } else if (nodePositions.length > 2) {
-    const hull = polygonHull(nodePositions) || [];
-    const rect = largestRect(hull, {verbose: true})!;
-    angle = rect.angle;
-    cx = rect.cx;
-    cy = rect.cy;
-  }
-
-  nodes.forEach(n => {
-    const p = pointRotate(
-      [n.vx ?? 0, n.vy ?? 0],
-      -1 * ((Math.PI / 180) * angle),
-      [cx, cy],
-    );
-    n.fx = p[0];
-    n.fy = p[1];
-  });
-}
 
 /**
     Places `lone` (nodes no link pulls on) in rows under `placed`, as far
@@ -201,7 +133,7 @@ function positionNetworkNodes(
   }
   const linked = new Set(pulling.flatMap(l => [l.source, l.target]));
   const placed = nodes.filter(n => linked.has(n));
-  if (placed.length) runForceLayout(placed, pulling);
+  if (placed.length) forceLayout(placed, pulling);
   placeLoneNodes(
     placed,
     nodes.filter(n => !linked.has(n)),

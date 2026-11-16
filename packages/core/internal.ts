@@ -45,6 +45,16 @@ export {
   placeLoneNodes,
 } from "./src/charts/Network/applyLayout.js";
 export {
+  forceLayout,
+  forceLayoutTicks,
+  layoutRotation,
+} from "./src/charts/Network/forceLayout.js";
+export type {
+  ForceLayoutLink,
+  ForceLayoutNode,
+  LayoutRotation,
+} from "./src/charts/Network/forceLayout.js";
+export {
   graphLinkEnd,
   graphNodeId,
   graphNodeRows,
