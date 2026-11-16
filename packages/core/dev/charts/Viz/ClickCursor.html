@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ClickCursor · Viz</title>
+    <meta
+      name="description"
+      content="Charts with a click handler show the hand cursor only over their marks: not over a bar's slot, a point's hoverDistance reach, the axes, titles or margins, nor after a click that redraws the chart."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 340px;
+      }
+      #log {
+        padding: 0 16px;
+        font-size: 12px;
+        color: #555;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <section>
+        <h3>BarChart: click a bar to drill in (the hand stays on the bars)</h3>
+        <div class="viz" id="bar"></div>
+      </section>
+      <section>
+        <h3>Scatter: a point's tooltip within reach, the hand on it</h3>
+        <div class="viz" id="scatter"></div>
+      </section>
+      <section>
+        <h3>LinePlot: the hand on a line</h3>
+        <div class="viz" id="line"></div>
+      </section>
+      <section>
+        <h3>Treemap: the hand on a tile, not the title</h3>
+        <div class="viz" id="treemap"></div>
+      </section>
+    </div>
+    <p id="log">Click a mark to log it.</p>
+
+    <script>
+      const log = document.getElementById("log");
+      const logClick = d => {
+        log.textContent = `Clicked ${JSON.stringify(d)}`;
+      };
+
+      const regions = [
+        {region: "North", sales: 42},
+        {region: "South", sales: 58},
+        {region: "East", sales: 6},
+        {region: "West", sales: 51},
+      ];
+      const cities = {
+        North: ["Duluth", "Fargo"],
+        South: ["Austin", "Mobile"],
+        East: ["Boston", "Albany"],
+        West: ["Reno", "Boise"],
+      };
+
+      new d3plus.BarChart()
+        .config({
+          data: regions,
+          groupBy: "region",
+          x: "region",
+          y: "sales",
+          xConfig: {title: "Region"},
+          yConfig: {title: "Sales"},
+          legend: false,
+          on: {
+            click(d) {
+              logClick(d);
+              if (!cities[d.region]) return;
+              this.config({
+                data: cities[d.region].map((city, i) => ({
+                  region: city,
+                  sales: Math.round(d.sales / (i + 2)),
+                })),
+                xConfig: {title: `Cities in ${d.region}`},
+              }).render();
+            },
+          },
+        })
+        .select("#bar")
+        .render();
+
+      new d3plus.Plot()
+        .config({
+          data: [
+            {id: "alpha", x: 4, y: 7},
+            {id: "beta", x: 10, y: 22},
+            {id: "gamma", x: 16, y: 12},
+            {id: "delta", x: 22, y: 30},
+            {id: "epsilon", x: 28, y: 18},
+          ],
+          groupBy: "id",
+          x: "x",
+          y: "y",
+          legend: false,
+          on: {click: logClick},
+        })
+        .select("#scatter")
+        .render();
+
+      new d3plus.LinePlot()
+        .config({
+          data: [
+            {id: "Revenue", year: 2020, value: 12},
+            {id: "Revenue", year: 2021, value: 18},
+            {id: "Revenue", year: 2022, value: 15},
+            {id: "Revenue", year: 2023, value: 24},
+            {id: "Costs", year: 2020, value: 8},
+            {id: "Costs", year: 2021, value: 9},
+            {id: "Costs", year: 2022, value: 12},
+            {id: "Costs", year: 2023, value: 11},
+          ],
+          groupBy: "id",
+          x: "year",
+          y: "value",
+          on: {click: logClick},
+        })
+        .select("#line")
+        .render();
+
+      new d3plus.Treemap()
+        .config({
+          data: regions,
+          groupBy: "region",
+          sum: "sales",
+          title: "Sales by region",
+          legend: false,
+          on: {click: logClick},
+        })
+        .select("#treemap")
+        .render();
+    </script>
+  </body>
+</html>
