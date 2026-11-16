@@ -60,7 +60,7 @@ A flow that returns to a node it already left can't run left to right, so Sankey
 
 ## Dragging nodes
 
-Drag a node up or down its column to untangle crossing flows: its links follow it, and it stays where it is dropped (inside the chart) through redraws, until the data, `nodes`, or `links` change. A dropped node may overlap its neighbors. A drag doesn't click, and the tooltip waits until the node is dropped. Set `nodeDrag` to `false` to keep every node where the layout puts it.
+Drag a node up or down its column to untangle crossing flows: the other nodes in the column make way, keeping their order and the gap between nodes (`nodePadding`), so no two nodes overlap and the column stays inside the chart, and a node dragged past another's middle takes its place. Links follow their nodes as you drag. The column stays as you left it through redraws, until the data, `nodes`, or `links` change. A drag doesn't click, and the tooltip waits until the node is dropped. From the keyboard, focus a node and hold Shift with the up or down arrow to move it 10 pixels the same way; Shift+Backspace moves it back to its place. Each move is announced to screen readers. Set `nodeDrag` to `false` to keep every node where the layout puts it.
 
 <Playground chart="Sankey" code={nodeDrag} controls={["nodeDrag","nodePadding"]} />
 
