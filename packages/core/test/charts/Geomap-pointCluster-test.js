@@ -53,6 +53,7 @@ import {
   syncPointCluster,
 } from "../../src/charts/Geomap/pointClusterZoom.ts";
 import {syncDensityColorScale} from "../../src/charts/Geomap/densityFields.ts";
+import {hasOwnClick, hasUserClick} from "../../src/charts/viz/userClick.ts";
 
 useJsdom();
 
@@ -768,6 +769,20 @@ it("installPointClusterEvents takes cluster clicks, and passes the rest on", () 
   viz.schema.on["click.shape"](rows[0], 0, undefined, {});
   viz.schema.on["mousemove.shape"](rows[0], 0, undefined, {});
   assert.deepStrictEqual(seen, ["k0", "move k0"]);
+});
+
+it("installPointClusterEvents keeps the chart's own click its own, and a user's the user's", () => {
+  const viz = new Geomap();
+  const own = viz.schema.on["click.shape"];
+  assert.notStrictEqual(own, undefined);
+  assert.ok(hasOwnClick(viz, "click.shape"), "the wrapper Geomap installs");
+  installPointClusterEvents(viz);
+  assert.ok(hasOwnClick(viz, "click.shape"), "wrapped again");
+  assert.ok(!hasUserClick(viz, "click.shape"));
+  viz.schema.on["click.shape"] = () => undefined;
+  installPointClusterEvents(viz);
+  assert.ok(!hasOwnClick(viz, "click.shape"), "a user's handler, wrapped");
+  assert.ok(hasUserClick(viz, "click.shape"));
 });
 
 it("syncPointCluster points the zoom hook at the clusters, unless hexbin has it", () => {
