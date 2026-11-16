@@ -139,6 +139,8 @@ export type {
   SankeyDragState,
 } from "./src/charts/Sankey/sankeyDrag.js";
 export {sankeyRelink} from "./src/charts/Sankey/sankeyLayout.js";
+export {networkLinkSegments} from "./src/charts/Network/emit.js";
+export type {NetworkLink} from "./src/charts/Network/emit.js";
 export {installGraphFluent} from "./src/charts/Network/graphFluent.js";
 export type {GraphFluent} from "./src/charts/Network/graphFluent.js";
 export {
@@ -2691,6 +2693,19 @@ export type {
   LabelSide,
   PlaceCircleLabelsOptions,
 } from "./src/charts/features/circleLabelPlacement.js";
+export {BoxGrid} from "./src/charts/features/boxGrid.js";
+export type {GridBox} from "./src/charts/features/boxGrid.js";
+export {
+  polylineSegments,
+  segmentBox,
+  segmentHitsBox,
+  slideBox,
+  slotOrder,
+} from "./src/charts/features/labelSlots.js";
+export type {
+  LabelSegment,
+  LabelSlot,
+} from "./src/charts/features/labelSlots.js";
 export {
   emitOutsideLabels,
   insideFontMin,
@@ -2705,6 +2720,7 @@ export {
 export type {
   CircleLabelItem,
   CircleLabelLayout,
+  CircleLabelOptions,
   InsideLabelBox,
   LabelFont,
   OutsideLabel,
