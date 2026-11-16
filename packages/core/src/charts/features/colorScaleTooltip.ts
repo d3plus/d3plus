@@ -10,6 +10,12 @@ import {isSetEntry} from "../../fluent.js";
 import {fieldNameOf} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
+  addTooltipRows,
+  hasTooltipRows,
+  type TbodyHost,
+  TOOLTIP_ROW_RANK,
+} from "./tooltipRows.js";
+import {
   bivariateSpec,
   bivariateTooltipRows,
   toNumber,
@@ -68,19 +74,10 @@ export function colorScaleTooltipRows(
   ];
 }
 
-/** A tooltip whose `tbody` can be read and replaced. */
-interface TbodyHost {
-  tbody(): unknown;
-  tbody(_: unknown): unknown;
-}
-
-/** The `tbody` a wrapped one stood in for. */
-const wrappedBase = new WeakMap<object, unknown>();
-
 /**
-    Leads `tooltip`'s `tbody` with the row's colorScale value rows (see
-    `colorScaleTooltipRows`), ahead of the chart's own rows. A `tbody` led on an earlier
-    hover is unwrapped first, so the rows never stack.
+    Leads `tooltip`'s `tbody` with the colorScale value rows (see
+    `colorScaleTooltipRows`) of each row it renders, ahead of the chart's
+    own rows. Does nothing until a hovered row has a value.
     @param tooltip The chart's tooltip.
     @param viz The chart.
     @param d The hovered row.
@@ -92,21 +89,15 @@ export function leadWithColorScaleRows<T extends TbodyHost>(
   d: DataPoint,
   i: number,
 ): T {
-  let base = tooltip.tbody();
-  if (typeof base === "function" && wrappedBase.has(base)) {
-    base = wrappedBase.get(base);
-    tooltip.tbody(base);
-  }
-  const rows = colorScaleTooltipRows(viz, d, i);
-  if (!rows.length) return tooltip;
-  const lead = (dd: DataPoint, ii: number): unknown[] => {
-    const own =
-      typeof base === "function"
-        ? (base as (d: DataPoint, i: number) => unknown)(dd, ii)
-        : base;
-    return [...rows, ...(Array.isArray(own) ? own : [])];
-  };
-  wrappedBase.set(lead, base);
-  tooltip.tbody(lead);
-  return tooltip;
+  if (
+    !colorScaleTooltipRows(viz, d, i).length &&
+    !hasTooltipRows(tooltip, "colorScale")
+  )
+    return tooltip;
+  return addTooltipRows(
+    tooltip,
+    "colorScale",
+    (dd, ii) => colorScaleTooltipRows(viz, dd, ii),
+    TOOLTIP_ROW_RANK.colorScale,
+  );
 }

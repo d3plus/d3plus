@@ -22,6 +22,7 @@ import {axisHoverDefaults} from "./axisHoverScene.js";
 import {fillBetweenDefaults} from "./fillBetween.js";
 import {forecastDefaults} from "./forecast.js";
 import {coerceOrder} from "./orderPath.js";
+import {outlierDefaults} from "./outlierScene.js";
 import {plotDef} from "./pipeline.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
 import {shapeLabelsPossible} from "./shapeLabelLegend.js";
@@ -58,6 +59,8 @@ export const plotSchema = [
   {key: "marginals", coerce: "identity" as const, default: false},
   {key: "marginalConfig", merge: true, factory: () => ({})},
   {key: "order", coerce: coerceOrder},
+  {key: "outlier", coerce: "identity" as const, default: false},
+  {key: "outlierConfig", merge: true, factory: outlierDefaults},
   {key: "pathArrows", coerce: "identity" as const, default: true},
   {key: "pathLabels", coerce: "identity" as const, default: true},
   {key: "referenceBands", coerce: "identity" as const, factory: () => []},

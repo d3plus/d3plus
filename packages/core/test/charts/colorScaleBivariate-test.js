@@ -166,22 +166,30 @@ it("leadWithColorScaleRows — leads the tbody, never stacking", () => {
     },
   };
   leadWithColorScaleRows(tooltip, viz, {a: 1, b: 2}, 0);
-  assert.deepStrictEqual(tbody({}, 0), [
+  assert.deepStrictEqual(tbody({a: 1, b: 2}, 0), [
     ["a", "1"],
     ["b", "2"],
     ["Share", "10%"],
   ]);
   leadWithColorScaleRows(tooltip, viz, {a: 3, b: 4}, 0);
-  assert.deepStrictEqual(tbody({}, 0), [
-    ["a", "3"],
-    ["b", "4"],
-    ["Share", "10%"],
-  ]);
+  assert.deepStrictEqual(
+    tbody({a: 3, b: 4}, 0),
+    [
+      ["a", "3"],
+      ["b", "4"],
+      ["Share", "10%"],
+    ],
+    "a second hover reads its own row, wrapped once",
+  );
   leadWithColorScaleRows(tooltip, viz, {_isColorScaleBucket: true}, 0);
-  assert.deepStrictEqual(tbody, [["Share", "10%"]], "a cell: the base back");
+  assert.deepStrictEqual(
+    tbody({_isColorScaleBucket: true}, 0),
+    [["Share", "10%"]],
+    "a cell: the base back",
+  );
   tbody = d => [["Name", d.name]];
   leadWithColorScaleRows(tooltip, viz, {a: 1, b: 2}, 0);
-  assert.deepStrictEqual(tbody({name: "x"}, 0), [
+  assert.deepStrictEqual(tbody({a: 1, b: 2, name: "x"}, 0), [
     ["a", "1"],
     ["b", "2"],
     ["Name", "x"],

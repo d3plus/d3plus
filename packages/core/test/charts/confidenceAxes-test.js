@@ -274,18 +274,26 @@ it("appendPointConfidence: a point's tooltip lists its bounds after its own rows
       return this;
     },
   };
-  appendPointConfidence(tip, viz, rows[0], 0, "Bar");
+  appendPointConfidence(tip, viz, "Bar");
   assert.deepStrictEqual(tbody(rows[0], 0), [["own", "0"]], "only points");
-  appendPointConfidence(tip, viz, rows[0], 0, "Circle");
+  appendPointConfidence(tip, viz, "Circle");
   assert.deepStrictEqual(tbody(rows[0], 0), [
     ["own", "0"],
     ["Lower Bound", "4"],
     ["Upper Bound", "7"],
   ]);
-  // Without bounds, the tooltip is left as it was.
-  const before = tbody;
-  appendPointConfidence(tip, new Scatter(), rows[0], 0, "Circle");
-  assert.strictEqual(tbody, before);
+  // Each row the tooltip renders lists its own bounds, however many hovers
+  // reused the tooltip.
+  appendPointConfidence(tip, viz, "Circle");
+  assert.deepStrictEqual(tbody(rows[1], 0), [
+    ["own", "0"],
+    ["Lower Bound", "6"],
+    ["Upper Bound", "11"],
+  ]);
+  // Without confidence, the tooltip is left as it was.
+  tbody = [["own", "0"]];
+  appendPointConfidence(tip, new Scatter(), "Circle");
+  assert.deepStrictEqual(tbody, [["own", "0"]]);
 });
 
 it("pointErrorBoxes: a box per stroke, widened by half its width", () => {

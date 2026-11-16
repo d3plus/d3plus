@@ -4,6 +4,7 @@ import {keyTooltipAnchor} from "../features/keyTooltip.js";
 import {legendLabel} from "../features/legendLabel.js";
 import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
+import {ownTbody} from "../features/tooltipRows.js";
 import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import {hasOwnClick, hasUserClick} from "../viz/userClick.js";
@@ -72,8 +73,10 @@ export default function (
   const solo = this._solo.includes(id);
   const hidden = this._hidden.includes(id);
 
+  // An entry lists none of the rows a hovered mark added.
   this._tooltipClass
     .data([x || d])
+    .tbody(ownTbody(this._tooltipClass.tbody()))
     .footer(
       hasDefaultClick
         ? invertedBehavior

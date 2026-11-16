@@ -28,6 +28,9 @@ import legendInset from "~/examples/core/charts/plot/legend-inset.js?raw";
 import colorByCategory from "~/examples/core/charts/plot/color-by-category.js?raw";
 import plotBackground from "~/examples/core/charts/plot/plot-background.js?raw";
 import aspectRatio from "~/examples/core/charts/plot/aspect-ratio.js?raw";
+import outliers from "~/examples/core/charts/plot/outliers.js?raw";
+import outlierMethods from "~/examples/core/charts/plot/outlier-methods.js?raw";
+import outlierStyling from "~/examples/core/charts/plot/outlier-styling.js?raw";
 
 Creates an x/y plot based on an array of data.
 
@@ -120,6 +123,24 @@ On a continuous axis, `trendLineConfig.projection` with `{to}` extends the fit t
 `trendLineConfig.label` writes a label along each trend line, near its end and just above it, in the line's color over a halo of the chart's background. It defaults to `"equation"`, the fitted equation and R² as the tooltip reports them (R² alone along a time axis); `false` turns it off. `true` names the series ("Trend" for a line fit to every point), and a function of the fit returns any text. Labels never overlap: one whose spot near the line's end is taken slides back along its line, or moves below it, and is skipped only when its line has no clear spot. The text follows the line, even a curved fit on a log axis, reads upright whichever way the line runs, and is cut short with an ellipsis when the line is too short for it. `labelConfig` styles it, such as its `fontSize`.
 
 <Playground chart="Plot" code={trendLineLabels} controls={["trendLine","trendLineConfig"]} />
+
+## Outliers
+
+`outlier: true` rings each outlier and labels it with its name and value, in place of its own label. A mark is an outlier when its value lies more than 1.5 interquartile ranges past the first or third quartile of the values it's compared with (Tukey's rule, the one BoxWhisker's whiskers follow). Each point here is compared with the others in its `region`: a line along its own series, bars and points on a category axis within their category, and single points with their parent `groupBy` level. Its tooltip and aria label note it as an outlier.
+
+<Playground chart="Plot" code={outliers} controls={["outlier","outlierConfig"]} />
+
+## Outlier methods
+
+An `outlier` object picks the `method`: `"iqr"` (the default, `k` interquartile ranges, 1.5 unless set), `"zscore"` (`k` standard deviations from the mean, default 3), or `"mad"` (a modified z-score from the median absolute deviation, default 3.5), which a single extreme value can't drag along. `group` sets what each mark is compared with: `"series"`, `"discrete"` (its category), `"all"`, or `"auto"`. A group needs at least three values.
+
+<Playground chart="Plot" code={outlierMethods} controls={["outlier"]} />
+
+## Styling outliers
+
+A function flags each row itself. `outlierConfig` styles the ring (`stroke`, `strokeWidth`, `strokeDasharray`, `gap` from the mark, and `r` around a line's point) and the label (`label` returns its text, or `false` hides it, and `labelConfig` styles it). `tooltip: false` leaves "Outlier" out of the tooltip and aria label.
+
+<Playground chart="Plot" code={outlierStyling} controls={["outlier","outlierConfig"]} />
 
 ## Multiple shapes
 

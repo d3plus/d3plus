@@ -39,6 +39,7 @@ import rangeBreaksTradingHours from "~/examples/core/charts/line-plot/range-brea
 import rangeBreaksMarkedRange from "~/examples/core/charts/line-plot/range-breaks-marked-range.js?raw";
 import utcAxis from "~/examples/core/charts/line-plot/utc-axis.js?raw";
 import periodLabels from "~/examples/core/charts/line-plot/period-labels.js?raw";
+import outliers from "~/examples/core/charts/line-plot/outliers.js?raw";
 
 Creates a line plot based on an array of data.
 
@@ -143,6 +144,12 @@ A number projects that many steps past the last value, at the data's own spacing
 `center: true` centers each window on its point, so the average lines up with the swings it smooths and leaves half a window out at each end. `bands` sets how many standard deviations wide the bands are (here 1, against the default 2), and `bands: false` drops them. With `label: true` each average is labeled with its series; the default label names the average and its window, such as "Moving Average (3)". A moving average follows the data, so `projection` doesn't extend it.
 
 <Playground chart="LinePlot" code={movingAverageCentered} controls={["trendLine","trendLineConfig"]} />
+
+## Outliers
+
+`outlier: true` checks each line against itself: a point more than 1.5 interquartile ranges past its line's quartiles gets a ring on the line and a label with its series and value, and the shared tooltip marks it "(Outlier)". See [Plot](/core/charts/plot/#outliers) for the other methods and styling.
+
+<Playground chart="LinePlot" code={outliers} controls={["outlier","outlierConfig"]} />
 
 ## Dashed lines
 

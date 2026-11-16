@@ -26,6 +26,7 @@ import {chartBackground} from "../viz/backgroundInk.js";
 import {legibleOn} from "../../utils/themeInk.js";
 import {themed} from "../../utils/theme.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {outlierAria} from "./outlierTooltip.js";
 
 /** Builds the `Area` shape config; `self` is the Plot instance. */
 function areaConfig(self: VizInstance) {
@@ -90,7 +91,8 @@ function ariaLabelConfig(self: VizInstance) {
       if (self._y2!(d, i) !== undefined)
         ariaLabelStr += `, y2: ${value("y", self._y2!(d, i))}`;
     }
-    return `${ariaLabelStr}.`;
+    const row = (d.nested ? d.data : d) as DataPoint;
+    return `${ariaLabelStr}.${outlierAria(self, row, d.nested ? (d.i as number) : i)}`;
   };
 }
 
