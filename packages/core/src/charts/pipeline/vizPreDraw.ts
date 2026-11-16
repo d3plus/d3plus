@@ -19,6 +19,7 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import {computeFilteredData, computeTimeFilter} from "./preDrawData.js";
 import type {VizPreDrawResult} from "./preDrawData.js";
+import {bareRegionName} from "../features/bareRegion.js";
 import {GROUP_LABEL_KEY, groupDepthOf} from "../viz/groupRow.js";
 import {warnMissingFields} from "../viz/missingFields.js";
 import {configureOrdinalColor} from "../viz/ordinalColor.js";
@@ -113,6 +114,9 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
       d = d.data as DataPoint;
       i = d.i as number;
     }
+    // A map region drawn for no data row reads its own feature's name.
+    const region = bareRegionName(d);
+    if (region !== undefined) return region;
     if (effDepth === groupDepth && typeof d[GROUP_LABEL_KEY] === "string")
       return d[GROUP_LABEL_KEY] as string;
     // ColorScale range buckets carry their label in `id` and have no groupBy
