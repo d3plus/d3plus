@@ -33,6 +33,24 @@ export function setCursor(viz: CursorHost, cursor: string): void {
   else viz._select?.style("cursor", cursor);
 }
 
+/** The parts of a chart `setMarkCursor` reads. */
+export type MarkCursorHost = CursorHost &
+  Partial<Pick<VizInstance, "_keyboardNav">>;
+
+/**
+    Sets the cursor for a hovered shape or legend entry: the hand on one a
+    click acts on (a bar's slot and a point's `hoverDistance` reach count as
+    the mark, taking its click), the default cursor anywhere else. A keyboard
+    move, which replays pointer events wherever the pointer rests, leaves the
+    cursor as it is.
+    @param viz The chart.
+    @param clickable Whether a click on the hovered mark does something.
+*/
+export function setMarkCursor(viz: MarkCursorHost, clickable: boolean): void {
+  if (viz._keyboardNav?.replaying) return;
+  setCursor(viz, clickable ? "pointer" : "auto");
+}
+
 /**
     Returns both of the chart's drawing surfaces to the default cursor. Run
     before the renderer is swapped for another: the pointer may rest on a

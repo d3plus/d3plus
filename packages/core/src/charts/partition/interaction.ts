@@ -11,7 +11,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {latestDrillEntry, removeLatestDrillEntry} from "../viz/history.js";
-import {setCursor} from "../viz/setCursor.js";
+import {setMarkCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import {hasOwnClick, hasUserClick} from "../viz/userClick.js";
 import type {DrillDownHistoryEntry, VizInstance} from "../viz/vizTypes.js";
@@ -261,10 +261,7 @@ export function partitionHandlers<N extends PartitionNode>(
       // a click zooms only while the chart's own handler is in place.
       const zooms =
         hasOwnClick(viz, "click.shape") && partitionClickable(viz, node);
-      setCursor(
-        viz,
-        zooms || hasUserClick(viz, "click.shape") ? "pointer" : "auto",
-      );
+      setMarkCursor(viz, zooms || hasUserClick(viz, "click.shape"));
       if (viz._tooltipClass && tooltipEnabled(viz, d, i))
         partitionTooltip(viz, node, shareRow, zooms);
     },

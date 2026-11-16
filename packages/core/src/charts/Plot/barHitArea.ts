@@ -95,7 +95,7 @@ export function applyBarHitArea(
 }
 
 /** Whether a scene node is a Bar's hit area. */
-const isBarHit = (node: SceneNode): boolean =>
+export const isBarHit = (node: SceneNode): boolean =>
   node.shapeType === "Bar" && String(node.key).endsWith("::hit");
 
 /**

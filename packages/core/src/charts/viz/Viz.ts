@@ -50,7 +50,7 @@ import {
   teardownKeyboardNav,
 } from "./keyboardNav.js";
 import {mountTargetFor} from "./mountTarget.js";
-import {resetCursor} from "./setCursor.js";
+import {resetCursor, setCursor} from "./setCursor.js";
 import {routePointerEvent} from "./nearestHover.js";
 import {nearestHoverSurface} from "./nearestHoverSurface.js";
 import {selectClick} from "../drawSteps/selectActions.js";
@@ -708,6 +708,9 @@ export default class Viz extends VizBase {
     const axisTip = handleAxisTooltip(this as unknown as VizInstance, event);
     handleSwatchLabelHover(this as unknown as VizInstance, event, axisTip);
     if (axisTip) return;
+    // Leaving a mark drops its hand cursor, even mid-transition, when the
+    // leave handlers wait.
+    if (event.type === "mouseleave") setCursor(this, "auto");
     if (this._transitionEndsAt && Date.now() < this._transitionEndsAt) return;
     const pick = event.pick;
     // Dispatch helper shared by the live-pick path and the leave path.

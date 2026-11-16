@@ -15,7 +15,7 @@ import {zoomTo} from "../drawSteps/zoomControls.js";
 import {fitBounds} from "../drawSteps/zoomFit.js";
 import type Viz from "../viz/Viz.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
-import {setCursor} from "../viz/setCursor.js";
+import {setMarkCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import {wrapClick} from "../viz/userClick.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -318,7 +318,7 @@ export function installPointClusterEvents(viz: VizInstance): void {
     move?.(d, i, x, event);
     // Small multiples draw clusters without zooming into them.
     if (!geoClusterMeta(d) || viz._facetPanels) return;
-    setCursor(viz, "pointer");
+    setMarkCursor(viz, true);
     if (viz._tooltipClass && tooltipEnabled(viz, d, i))
       viz._tooltipClass
         .footer(viz.schema.translate("Click to Expand") as string)

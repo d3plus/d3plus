@@ -5,6 +5,7 @@ import {
   barHitsFirst,
   hitBounds,
   hitColumn,
+  isBarHit,
 } from "../../src/charts/Plot/barHitArea.ts";
 
 it("hitColumn: a lone bar takes its whole slot", () => {
@@ -112,4 +113,11 @@ it("barHitsFirst: moves Bar hit areas in front, keeping every other node's order
 it("barHitsFirst: returns the nodes as given when there are no Bar hit areas", () => {
   const nodes = [{key: "a", shapeType: "Bar"}];
   assert.strictEqual(barHitsFirst(nodes), nodes);
+});
+
+it("isBarHit: accepts a Bar's hit area, not the bar or another shape's", () => {
+  assert.ok(isBarHit({type: "rect", key: "a::hit", shapeType: "Bar"}));
+  assert.ok(!isBarHit({type: "rect", key: "a", shapeType: "Bar"}));
+  assert.ok(!isBarHit({type: "path", key: "l::hit", shapeType: "Line"}));
+  assert.ok(!isBarHit({type: "rect", key: "plot-hover-surface"}));
 });
