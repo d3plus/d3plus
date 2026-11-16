@@ -42,6 +42,8 @@ export type {
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
 export {
   applyNetworkLayout,
+  axisFitShare,
+  layoutMaxRadius,
   placeLoneNodes,
 } from "./src/charts/Network/applyLayout.js";
 export {

@@ -550,7 +550,8 @@ export const networkDef: ChartDefinition = {
     {key: "nodes", default: []},
     /**
         The maximum pixel radius used when sizing nodes. Defaults to half the
-        distance between the two closest nodes.
+        distance between the two closest nodes, and, when Network lays the
+        nodes out itself, no more than a twelfth of the chart's smaller side.
         @type {number}
     */
     {key: "sizeMax"},
