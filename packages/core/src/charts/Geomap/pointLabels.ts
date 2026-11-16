@@ -48,16 +48,26 @@ function pointLabel(
   return viz._drawLabel(d, i);
 }
 
+/** Where `geomapPointLabels` lays its labels out. */
+export interface PointLabelSpace {
+  /** The box labels stay in (default: the map area). */
+  bounds?: {x: number; y: number; width: number; height: number};
+  /** Unlabeled circles no label may cover. */
+  obstacles?: {x: number; y: number; r: number}[];
+}
+
 /**
     The scene nodes of a Geomap's point labels.
     @param viz The Geomap.
     @param c The projected points, in the order they're drawn.
     @param circleConfig The merged Circle shapeConfig.
+    @param space Where the labels go, when not over the whole map.
 */
 export function geomapPointLabels(
   viz: VizInstance,
   c: GeomapPoints,
   circleConfig: Record<string, unknown>,
+  space: PointLabelSpace = {},
 ): SceneNode[] {
   const labelConfig = {
     ...((circleConfig.labelConfig as Record<string, unknown>) ?? {}),
@@ -94,8 +104,14 @@ export function geomapPointLabels(
       },
     };
   });
+  for (const o of space.obstacles ?? [])
+    items.push({key: o as DataPoint, datum: {}, index: -1, ...o});
   const {width, height} = chartBounds(viz);
-  const layout = layoutCircleLabels(viz, items, {x: 0, y: 0, width, height});
+  const layout = layoutCircleLabels(
+    viz,
+    items,
+    space.bounds ?? {x: 0, y: 0, width, height},
+  );
   if (!layout.size) return [];
 
   const index = new Map(c.points.map((d, i) => [d, i]));
