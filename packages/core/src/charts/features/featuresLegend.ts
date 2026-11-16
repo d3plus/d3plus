@@ -29,7 +29,10 @@ import type {InsetOrient} from "./insetState.js";
 import {legendCategories, legendMergesIds} from "./legendCategory.js";
 import {legendKeys, legendRows} from "./legendKeys.js";
 import type {LegendEntry} from "./legendCategory.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {swatchOutline} from "./swatchPaint.js";
+import type {SwatchOutline} from "./swatchPaint.js";
 
 /** The legend's rolled-up entries, with the key and paint accessors its render reuses. */
 export interface LegendData {
@@ -171,6 +174,29 @@ function paintLegend(
     );
   };
 
+  // An entry's swatch takes its marks' stroke, sized to the swatch; a Line's
+  // glyph (the line itself) and a hidden entry's take none.
+  const background = chartBackground(viz);
+  const sharedStroke = (d: DataPoint, i: number): unknown => {
+    const stroke = viz.schema.shapeConfig.stroke;
+    return typeof stroke === "function" ? stroke.bind(viz)(d, i) : stroke;
+  };
+  const outline = (d: DataPoint, i: number): SwatchOutline | undefined => {
+    if (hidden(d, i) || viz.schema.shape(d, i) === "Line") return undefined;
+    const line = viz._legendClass!._lineData?.[i];
+    const size = line
+      ? Math.min(line.shapeWidth as number, line.shapeHeight as number)
+      : undefined;
+    return swatchOutline(
+      {
+        stroke: getAttr(d, i, "stroke"),
+        strokeWidth: getAttr(d, i, "strokeWidth"),
+        strokeOpacity: getAttr(d, i, "strokeOpacity"),
+      },
+      {size, background},
+    );
+  };
+
   const transform = {transform: `translate(${frame.x}, ${frame.y})`};
 
   // The Legend instance renders into a `g.d3plus-viz-legend` group as a
@@ -213,6 +239,10 @@ function paintLegend(
     .shapeConfig({
       fill: (d: DataPoint, i: number) =>
         hidden(d, i) ? viz.schema.hiddenColor(d, i) : getAttr(d, i, "fill"),
+      // Without an outline, the stroke draws at no width: keep the shared one.
+      stroke: (d: DataPoint, i: number) =>
+        outline(d, i)?.stroke ?? sharedStroke(d, i),
+      strokeWidth: (d: DataPoint, i: number) => outline(d, i)?.strokeWidth ?? 0,
       labelConfig: {
         fontOpacity: (d: DataPoint, i: number) =>
           hidden(d, i) ? viz.schema.hiddenOpacity(d, i) : 1,
