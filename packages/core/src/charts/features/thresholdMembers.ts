@@ -8,6 +8,12 @@ import type {DataPoint} from "@d3plus/data";
 
 import {INTERNAL_KEY_PREFIX} from "./shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {
+  addTooltipRows,
+  hasTooltipRows,
+  type TbodyHost,
+  TOOLTIP_ROW_RANK,
+} from "./tooltipRows.js";
 
 /** The row key a threshold bucket lists its members under. */
 export const MEMBERS_KEY = `${INTERNAL_KEY_PREFIX}Members`;
@@ -87,30 +93,25 @@ export function thresholdMemberRows(
   return rows;
 }
 
-/** A tooltip whose `tbody` can be read and replaced. */
-interface TbodyHost {
-  tbody(): unknown;
-  tbody(_: unknown): unknown;
-}
-
 /**
     Appends a bucket's member rows to `tooltip`'s `tbody`, after the rows it
-    already has. Does nothing for a row that isn't a bucket.
+    already has, for each bucket the tooltip renders. Does nothing until a
+    hovered row is a bucket.
+    @param tooltip The tooltip being rendered.
+    @param viz The chart.
+    @param d The hovered row.
 */
 export function appendThresholdMembers<T extends TbodyHost>(
   tooltip: T,
   viz: VizInstance,
   d: unknown,
 ): T {
-  const rows = thresholdMemberRows(viz, d);
-  if (!rows.length) return tooltip;
-  const base = tooltip.tbody();
-  tooltip.tbody((dd: DataPoint, ii: number) => {
-    const own =
-      typeof base === "function"
-        ? (base as (d: DataPoint, i: number) => unknown)(dd, ii)
-        : base;
-    return [...(Array.isArray(own) ? own : []), ...rows];
-  });
-  return tooltip;
+  if (!thresholdMembers(d).length && !hasTooltipRows(tooltip, "threshold"))
+    return tooltip;
+  return addTooltipRows(
+    tooltip,
+    "threshold",
+    dd => thresholdMemberRows(viz, dd),
+    TOOLTIP_ROW_RANK.threshold,
+  );
 }

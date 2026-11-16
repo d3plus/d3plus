@@ -30,6 +30,7 @@ import type {
   SwarmState,
 } from "../Plot/swarm.js";
 import type {MarginalLayout} from "../Plot/marginalLayout.js";
+import type {PlotOutlier} from "../Plot/outlierDetect.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {BarSpanLayout} from "../Plot/barWidth.js";
 import type {ConfidenceAxes} from "../Plot/confidenceAxes.js";
@@ -649,6 +650,8 @@ export interface VizInstance {
   _plotInsetTop?: number;
   /** The marginal strips a Plot draws this render, and the room they take (see `Plot/marginalLayout.ts`). */
   _plotMarginals?: MarginalLayout | null;
+  /** The rows `outlier` flags this render, keyed by source row (see `Plot/outlierDetect.ts`). */
+  _plotOutliers?: Map<DataPoint, PlotOutlier>;
   /**
       Room (px) a chart reserves at the bottom of a Plot's area, between the
       value axis's range and the x axis, given the area's height. The plot
