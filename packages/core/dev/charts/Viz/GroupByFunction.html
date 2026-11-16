@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GroupByFunction · Viz</title>
+    <meta
+      name="description"
+      content="A function in groupBy that reads summed fields: legend swatches, Treemap group headers and BarChart bars keep each group's own color and name."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+      }
+      .chart {
+        display: inline-block;
+        height: 360px;
+        width: 560px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="chart" id="treemap"></div>
+    <div class="chart" id="bars"></div>
+  </body>
+
+  <script>
+    // Cities grouped by a time zone their longitude puts them in. Merging a
+    // zone's cities sums their longitudes, which on its own would put every
+    // zone in the West.
+    const zone = d =>
+      d.lon < -100 ? "Pacific" : d.lon < -87 ? "Central" : "Eastern";
+    const cities = [
+      {slug: "Seattle", lon: -122.3, population: 0.74},
+      {slug: "Portland", lon: -122.7, population: 0.65},
+      {slug: "Denver", lon: -105, population: 0.71},
+      {slug: "Dallas", lon: -96.8, population: 1.3},
+      {slug: "Chicago", lon: -87.6, population: 2.7},
+      {slug: "Houston", lon: -95.4, population: 2.3},
+      {slug: "Atlanta", lon: -84.4, population: 0.5},
+      {slug: "Boston", lon: -71.1, population: 0.65},
+      {slug: "New York", lon: -74, population: 8.3},
+    ];
+
+    new d3plus.Treemap()
+      .data(cities)
+      .groupBy([zone, "slug"])
+      .sum("population")
+      .legend(true)
+      .select("#treemap")
+      .render();
+
+    new d3plus.BarChart()
+      .data(cities)
+      .groupBy([zone, "slug"])
+      .x("slug")
+      .y("population")
+      .legend(true)
+      .select("#bars")
+      .render();
+  </script>
+</html>
