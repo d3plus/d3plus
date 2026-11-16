@@ -76,7 +76,7 @@ Lay the boxes out horizontally by setting `discrete: "y"`: categories stack down
 
 ## Coloring boxes
 
-Boxes fill with the chart's color like any other shape, so `color` (or `shapeConfig.fill`) colors them to match the legend, and their outliers take the same color. The median line turns white over a dark fill; set `shapeConfig.Box.rectConfig.fill` to color the boxes on their own.
+Boxes fill with the chart's color like any other shape, so `color` (or `shapeConfig.fill`) colors them to match the legend, and their outliers take the same color. The median line turns white over a dark fill, and takes the whiskers' color where there is no box behind it (a box whose quartiles meet draws as a flat rule); set `shapeConfig.Box.rectConfig.fill` to color the boxes on their own.
 
 <Playground chart="BoxWhisker" code={coloringBoxes} controls={["color","shapeConfig"]} />
 
