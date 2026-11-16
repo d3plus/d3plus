@@ -294,6 +294,8 @@ export interface VizInstance {
   _previousShapes?: string[];
   _previousAnnotations?: Record<string, string[]>;
   _zoomTransform?: Transform;
+  /** Whether the chart's point marks keep their pixel size through zoom (a Geomap's clustered points), so the size legend reads them unzoomed. */
+  _pointsHoldSize?: boolean;
   /** Data-shape nodes the automatic `zoomMax` measures when they aren't `_chartScene`'s top level (Plot). */
   _zoomShapes?: SceneNode[];
   /** The unzoomed Plot draw an axis-rescaling zoom rescales from. */

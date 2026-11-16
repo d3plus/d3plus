@@ -245,7 +245,7 @@ export function buildBottomRightPanel(
   viz: VizInstance,
   box: BottomRightBox,
 ): SceneNode | null {
-  const zoom = viz._zoomTransform?.scale ?? 1;
+  const zoom = viz._pointsHoldSize ? 1 : (viz._zoomTransform?.scale ?? 1);
   if (box.inset) return buildInsetPanel(viz, box, zoom);
   const children: SceneNode[] = [];
   let right = viz.schema.width;
