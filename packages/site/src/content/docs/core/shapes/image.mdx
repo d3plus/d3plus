@@ -7,6 +7,7 @@ import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import basicExample from "~/examples/core/shapes/image/basic-example.js?raw";
 import multipleImages from "~/examples/core/shapes/image/multiple-images.js?raw";
+import preserveAspectRatio from "~/examples/core/shapes/image/preserve-aspect-ratio.js?raw";
 
 Creates SVG images based on an array of data.
 
@@ -21,5 +22,11 @@ A single datum places one image at its `x`/`y` at the given `width`/`height`; th
 One image per datum, each sized by its own `width` and `height` and centered on its `x`/`y`; `opacity` fades the third. Geomap and Network use this shape for icons and flags.
 
 <Playground chart="Image" code={multipleImages} controls={["width","height","opacity"]} />
+
+## Fitting the box
+
+`preserveAspectRatio` sets how an image whose shape differs from its box fits it, as an SVG `preserveAspectRatio` value, the same on SVG and Canvas. Unset, the whole image sits centered inside the box (`"xMidYMid meet"`); an alignment with `slice` covers the box and crops the picture on the sides the alignment leaves out, here keeping its left edge; and `"none"` stretches it.
+
+<Playground chart="Image" code={preserveAspectRatio} controls={["preserveAspectRatio"]} />
 
 <ApiReference name="Image" pkg="core" />
