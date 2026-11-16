@@ -18,6 +18,7 @@ import type {DataPoint} from "@d3plus/data";
 import {rtl} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
+import {groupDepthOf} from "../viz/groupRow.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {colorCategory} from "./legendCategory.js";
 import {nodeStatRows, scheduleNodeStats} from "./nodeStats.js";
@@ -447,13 +448,15 @@ export function nodeConnectionRows(viz: VizInstance, d: DataPoint): Row[] {
 /**
     The color category a row merging several nodes stands for (a cluster's
     name, or a legend entry's color value), so a legend entry's tooltip
-    reads as the entry does instead of listing every node.
+    reads as the entry does instead of listing every node. A group row
+    titles itself (see `viz/groupRow.ts`).
 */
 function mergedCategory(
   viz: VizInstance,
   d: DataPoint,
   i: number,
 ): string | undefined {
+  if (groupDepthOf(d) !== undefined) return undefined;
   const ids = viz._id?.(d, i);
   if (!Array.isArray(ids) || ids.length < 2) return undefined;
   const color = viz.schema.color as

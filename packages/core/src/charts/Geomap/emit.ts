@@ -27,6 +27,8 @@ import {pairLabels} from "../features/labelLayering.js";
 import {emitClusterScene, pointNode} from "./pointClusterEmit.js";
 import type {ClusterSceneInput} from "./pointClusterEmit.js";
 import type {GeoClusterState} from "./pointClusterLayout.js";
+import {emitDrillRegions} from "./drillEmit.js";
+import type {GeoDrillScene} from "./drillEmit.js";
 
 interface GeomapCtx {
   density?: GeomapDensity;
@@ -45,6 +47,7 @@ interface GeomapCtx {
   pointY: (d: DataPoint, i: number) => number;
   pointSort?: (a: DataPoint, b: DataPoint) => number;
   cluster?: GeoClusterState | null;
+  drill?: GeoDrillScene | null;
 }
 
 /**
@@ -146,6 +149,14 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
   const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
   if (!c) return [];
   const out: SceneNode[] = emitGeomapBasemap(viz);
+
+  // Drilled into a region, it and its neighbors lie beneath its children.
+  if (c.drill)
+    out.push(
+      ...emitDrillRegions(viz, c.drill, region =>
+        c.pathFn({feature: region.feature}),
+      ),
+    );
 
   if (c.topoData && c.topoData.length) {
     const pathConfig = shapeConfigFor(viz, "Path");

@@ -4,6 +4,7 @@ import assert from "~test/browser/assert.js";
 import {openPage} from "~test/browser/page.js";
 import states from "../../dev/charts/Geomap/State.json";
 import cities from "../../dev/charts/Geomap/city_coords.json";
+import stateRows from "../../dev/charts/Geomap/state-population.json";
 
 /**
     Geomap's `pointCluster` in Chromium, on SVG and Canvas with a real
@@ -453,6 +454,84 @@ for (const renderer of ["svg", "canvas"]) {
           halo = lum(rgb(result.halo));
         if (theme === "dark") assert.ok(ink > 160 && halo < 80, `${theme}`);
         else assert.ok(ink < 100 && halo > 200, `${theme}`);
+      }
+      assert.deepStrictEqual(errors, [], "no page errors");
+    } finally {
+      await close();
+    }
+  });
+}
+
+/**
+    Runs in the page: hovers Texas by its centroid, through the scene's
+    transforms, and reads the tooltip and the cursor.
+*/
+const hoverTexas = async page => {
+  const at = await page.evaluate(() => {
+    const viz = window.__viz;
+    const host =
+      document.querySelector("#viz svg") ||
+      document.querySelector("#viz canvas");
+    const rect = host.getBoundingClientRect();
+    const tx = viz.ctx.geomapCtx.topoData.find(d => d.id === "04000US48");
+    const [x, y] = viz.ctx.path.centroid(tx.feature);
+    const ct = viz._chartTransform;
+    return [rect.left + ct.x + x, rect.top + ct.y + y];
+  });
+  await page.mouse.move(at[0] - 3, at[1] - 3);
+  await page.mouse.move(at[0], at[1], {steps: 3});
+  await settle(page, 400);
+  return page.evaluate(() => ({
+    tip: Array.from(document.querySelectorAll(".d3plus-tooltip"))
+      .filter(el => getComputedStyle(el).opacity !== "0")
+      .map(el => el.textContent)
+      .join("|"),
+    cursor: [
+      document.querySelector("#viz svg"),
+      document.querySelector("#viz canvas"),
+    ]
+      .filter(Boolean)
+      .map(el => getComputedStyle(el).cursor)
+      .join(","),
+  }));
+};
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`Geomap ${renderer}: a region notes "Click to Expand" and takes the pointer only where a click drills`, async () => {
+    const {page, errors, close} = await openPage(box);
+    try {
+      for (const [groupBy, drills] of [
+        [["State ID", "Abbr"], true],
+        [["State ID"], false],
+      ]) {
+        await page.evaluate(() => {
+          document.querySelector("#viz").innerHTML = "";
+        });
+        await page.evaluate(draw, [
+          JSON.stringify({
+            topojson: states,
+            data: stateRows,
+            groupBy,
+            depth: 0,
+            label: false,
+            point: false,
+            colorScale: "Population",
+          }),
+          renderer,
+        ]);
+        const {tip, cursor} = await hoverTexas(page);
+        assert.ok(tip.includes("Population"), `Texas's tooltip: ${tip}`);
+        assert.strictEqual(
+          tip.includes("Click to Expand"),
+          drills,
+          `${groupBy}: ${tip}`,
+        );
+        assert.strictEqual(
+          cursor.includes("pointer"),
+          drills,
+          `${groupBy}: ${cursor}`,
+        );
+        await page.mouse.move(1, 1);
       }
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {

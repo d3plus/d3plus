@@ -7,6 +7,7 @@ import Playground from "~/components/Playground/Playground.astro";
 import ApiReference from "~/components/ApiReference.astro";
 import choroplethMap from "~/examples/core/charts/geomap/choropleth-map.js?raw";
 import bivariateChoropleth from "~/examples/core/charts/geomap/bivariate-choropleth.js?raw";
+import drillDownMap from "~/examples/core/charts/geomap/drill-down-map.js?raw";
 import coordinatePointMap from "~/examples/core/charts/geomap/coordinate-point-map.js?raw";
 import usStatesCartogram from "~/examples/core/charts/geomap/us-states-cartogram.js?raw";
 import worldCartogram from "~/examples/core/charts/geomap/world-cartogram.js?raw";
@@ -48,6 +49,12 @@ Joins data to the `topojson` shapes via `groupBy` and fills each region by its `
 Two fields given to `colorScale` color each region by both at once. Each variable is split into quantile bins (3 by default; `colorScaleConfig.bivariateBuckets` takes 2 to 4), and the pair of bins picks a color from a grid: Joshua Stevens' blue–red scheme by default, where adult obesity rises toward red, physical inactivity toward blue, and both together toward the dark corner. The key turns the grid 45° into a diamond, each variable named along its lower edge. Hover a cell to highlight the states in it, or a state to light its cell and read both values in the tooltip. A state missing either value takes the no-data fill.
 
 <Playground chart="Geomap" code={bivariateChoropleth} controls={["colorScale","colorScaleConfig","projection"]} />
+
+## Drill-down map
+
+A list of topojsons, one per `groupBy` level, draws each level with its own shapes: states at the top, then counties. Click a state to zoom to it and draw its counties (the rows that carry its id in their own nesting) over it and its neighbors, which stay drawn but faded (`topojsonNeighborOpacity`). Hover a neighbor to name it, and click it to switch to its counties; Back goes up a level. Each level's `colorScale` reads its own rows. With `zoom` off, or in small multiples, the map fits its projection to the state instead of zooming. A level past the end of the list draws no regions, so a state's cities can draw as coordinate points (clustered, and keeping their size as the map zooms) or as `hexbin` bins. A `cartogram`, `tileGrid`, or `dotDensity` map draws each level as it does one topojson, without the neighbors or the zoom.
+
+<Playground chart="Geomap" code={drillDownMap} controls={["zoom","topojsonNeighborOpacity","renderer"]} />
 
 ## Dorling cartogram
 

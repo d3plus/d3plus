@@ -3346,8 +3346,13 @@ export interface D3plusConfig {
       `strokeWidth`, `strokeDasharray`, …).
   */
   trendLineConfig?: TrendLineConfig;
-  /** Path or object for the topojson data. */
-  topojson?: string | object;
+  /**
+      Path or object for the topojson data, or (Geomap) a list of them, one
+      per `groupBy` level, which makes the map's drill-down geographic:
+      clicking a region zooms to it and draws its children over it and its
+      faded neighbors.
+  */
+  topojson?: string | object | false | (string | object)[];
   /**
       Geomap: transforms `topojson` before it is drawn. The function receives
       the loaded file (or the object passed as `topojson`) and returns the
@@ -3361,6 +3366,10 @@ export interface D3plusConfig {
   topojsonFill?: CssColor;
   /** Accessor function for topojson feature IDs. */
   topojsonId?: (obj: Record<string, unknown>) => string;
+  /** Geomap: the key of the object in `topojson` to draw, or a key for each level of a `topojson` list. Defaults to the first object. */
+  topojsonKey?: string | string[];
+  /** Geomap: the opacity of the regions beside the ones a click drilled into, with a `topojson` list. Defaults to `0.5`. */
+  topojsonNeighborOpacity?: number;
   /** Waterfall: fill for subtotal bars. Defaults to `colorDefaults.sequential`. */
   totalColor?: string;
   /**

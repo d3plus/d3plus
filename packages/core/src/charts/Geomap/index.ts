@@ -10,6 +10,10 @@
       - `dotDensityLayout.ts` / `geoHexbin.ts` — `dotDensity` dots and
         `hexbin` bins, laid out by `densityLayout.ts` and drawn by
         `densityEmit.ts`; `densityFields.ts` declares their config.
+      - `drillDown.ts` — a `topojson` per `groupBy` level and the regions
+        a drill-down draws its children over; `drillEmit.ts` draws them,
+        and `drillEvents.ts` switches the drill and zooms to it.
+      - `topojsonFluent.ts` — the `topojson*` accessors.
 */
 
 import {color} from "d3-color";
@@ -37,7 +41,7 @@ import {pageIsDark} from "../viz/pageTheme.js";
 import {makeChart} from "../definition/makeChart.js";
 import {isPointShape} from "../viz/nearestHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {loaderFormatFields, setLoaderValue} from "../viz/loaderFormat.js";
+import {loaderFormatFields} from "../viz/loaderFormat.js";
 
 import {applyGeomapLayout, geomapSizeLegendScale} from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
@@ -62,12 +66,16 @@ import {
   installPointClusterEvents,
   syncPointCluster,
 } from "./pointClusterZoom.js";
+import {installDrillEvents, syncDrillZoom} from "./drillEvents.js";
+import {DRILL_NEIGHBOR_OPACITY} from "./drillEmit.js";
 import {installGlobeKeys} from "./globeKeys.js";
+import {setupGeomapTopojsonFluent} from "./topojsonFluent.js";
 import {installGlobeRotation} from "./globeRotate.js";
 import {runChartDraw} from "../pipeline/runChartDraw.js";
 import {geomapLinkFields} from "./flowFields.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {isPointRow} from "./pointRows.js";
 
 type GeomapFluent = {
   fitFilter: (_?: unknown) => unknown;
@@ -80,11 +88,6 @@ type GeomapFluent = {
   projectionRotate: (_?: unknown) => unknown;
   tiles: (_?: unknown) => unknown;
   tileUrl: (_?: unknown) => unknown;
-  topojson: (_?: unknown, f?: unknown) => unknown;
-  topojsonFill: (_?: unknown) => unknown;
-  topojsonFilter: (_?: unknown) => unknown;
-  topojsonKey: (_?: unknown) => unknown;
-  topojsonId: (_?: unknown) => unknown;
 };
 
 /** Installs `_renderTiles`, the per-instance method that mutates the tile group. */
@@ -228,6 +231,7 @@ function setupGeomapDraw(viz: VizInstance): void {
         : resolveThemed(tileGridOcean(viz), Boolean(viz._basemapDark)),
     });
     viz._zoomSet = true;
+    syncDrillZoom(viz);
     return result;
   };
 }
@@ -439,96 +443,6 @@ function setupGeomapTileFluent(viz: VizInstance): void {
   };
 }
 
-/** Installs the topojson fluent accessors. */
-function setupGeomapTopojsonFluent(viz: VizInstance): void {
-  const v = viz as VizInstance & GeomapFluent;
-  /**
-      The topojson to draw as geographic paths: a topojson object, or a filepath
-      or URL to load. `topojsonFormat` transforms it; a function passed as a
-      second argument sets it.
-      @type {string | object | false}
-  */
-  v.topojson = function (this: VizInstance) {
-    if (arguments.length) {
-      // eslint-disable-next-line prefer-rest-params
-      setLoaderValue(this, "topojson", arguments);
-      this._zoomSet = false;
-      return this;
-    }
-    return this.schema.topojson;
-  };
-  /**
-      The fill for topojson shapes that have no data (or no `colorScale` value):
-      a CSS color or a function of the feature. Defaults to the theme's
-      `colorScale.missing` when it sets one, else a quiet light gray, or its
-      dark counterpart over a dark basemap.
-      @type {CssColor | function}
-  */
-  v.topojsonFill = function (this: VizInstance, _?: unknown) {
-    return arguments.length
-      ? ((this.schema.topojsonFill =
-          typeof _ === "function"
-            ? (_ as (...a: unknown[]) => unknown)
-            : constant(_)),
-        this)
-      : this.schema.topojsonFill;
-  };
-  /**
-      Limits which topojson features are drawn: a single feature id or an array
-      of ids keeps only those features, and a filter function keeps the
-      features it returns true for. To draw only the areas that have data,
-      filter on the ids in your data (e.g.
-      `const ids = new Set(data.map(d => d.id));` then
-      `f => ids.has(f.id)`). Defaults to a filter that hides Antarctica (id
-      `"010"`).
-      @type {string | string[] | ((feature: object) => boolean)}
-  */
-  v.topojsonFilter = function (this: VizInstance, _?: unknown) {
-    if (arguments.length) {
-      this._zoomSet = false;
-      if (typeof _ === "function") {
-        this.schema.topojsonFilter = _ as (
-          d: Record<string, unknown>,
-        ) => boolean;
-        return this;
-      }
-      const ids = (_ instanceof Array ? _ : [_]) as string[];
-      this.schema.topojsonFilter = (d: Record<string, unknown>) =>
-        ids.includes(d.id as string);
-      return this;
-    }
-    return this.schema.topojsonFilter;
-  };
-  /**
-      The key of the object in `topojson` (its `objects` map) to draw. Defaults to
-      the first object.
-      @type {string}
-  */
-  v.topojsonKey = function (this: VizInstance, _?: unknown) {
-    if (arguments.length) {
-      this.schema.topojsonKey = _ as string | undefined;
-      this._zoomSet = false;
-      return this;
-    }
-    return this.schema.topojsonKey;
-  };
-  /**
-      The accessor, or key, that reads each topojson feature's id, which is
-      matched against each data point's id (its `groupBy` value) to join the
-      data to the map.
-      @type {string | function}
-  */
-  v.topojsonId = function (this: VizInstance, _?: unknown) {
-    return arguments.length
-      ? ((this.schema.topojsonId =
-          typeof _ === "function"
-            ? (_ as (...a: unknown[]) => unknown)
-            : accessor(_ as string)),
-        this)
-      : this.schema.topojsonId;
-  };
-}
-
 export const geomapDef: ChartDefinition = {
   name: "Geomap",
 
@@ -539,7 +453,7 @@ export const geomapDef: ChartDefinition = {
   insetRegion: sceneInsetRegion,
   // A row without a coordinate point draws as its topojson Path.
   colorScaleShape: (viz, d, i) =>
-    viz.schema.point(d, i) instanceof Array ? viz.schema.shape(d, i) : "Path",
+    isPointRow(viz, d, i) ? viz.schema.shape(d, i) : "Path",
   // Coordinate points are points for `hoverDistance`; regions keep exact hit-testing.
   pointMark: (_viz, node) => isPointShape(node),
   selectMark: (_viz, node) => isPointShape(node) || !bareFeature(node),
@@ -562,6 +476,7 @@ export const geomapDef: ChartDefinition = {
     setupGeomapFluent(viz);
     setupGeomapLinks(viz);
     installPointClusterEvents(viz);
+    installDrillEvents(viz);
     trackRendererChoice(viz);
     viz.schema.legend = viz._defaultLegend = densityLegend(viz);
     // Dragging a globe, or Shift and the arrow keys, re-lays the map out for
@@ -625,6 +540,12 @@ export const geomapDef: ChartDefinition = {
         !["010"].includes(d.id as string),
     },
     {key: "topojsonId", default: accessor("id")},
+    /**
+        The opacity of the regions beside the ones a click drilled into (see
+        `topojson`), drawn in `topojsonFill` behind the drilled regions'
+        children: clicking one drills into it instead.
+    */
+    {key: "topojsonNeighborOpacity", default: DRILL_NEIGHBOR_OPACITY},
     {
       key: "shapeConfig",
       merge: true,

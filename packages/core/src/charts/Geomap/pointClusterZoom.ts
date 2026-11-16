@@ -17,6 +17,7 @@ import type Viz from "../viz/Viz.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {setCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
+import {wrapClick} from "../viz/userClick.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {GeoZoom} from "./geoHexbinZoom.js";
 import {clusterLevelAt} from "./pointCluster.js";
@@ -293,7 +294,8 @@ export function clusterClick(viz: VizInstance, d: DataPoint): boolean {
 }
 
 /**
-    Installs the cluster click (see `clusterClick`), and a pointer cursor
+    Installs the cluster click (see `clusterClick`) in front of the chart's
+    shape click (still the chart's own when it was), and a pointer cursor
     and a "Click to Expand" note in a cluster's tooltip (outside small
     multiples).
     @param viz The Geomap.
@@ -301,13 +303,16 @@ export function clusterClick(viz: VizInstance, d: DataPoint): boolean {
 export function installPointClusterEvents(viz: VizInstance): void {
   const on = viz.schema.on as Record<string, Handler | undefined>;
   const click = on["click.shape"];
-  on["click.shape"] = (d, i, x, event) => {
+  // Still the chart's own click, so a region shows the pointer and "Click
+  // to Expand" only where a click drills.
+  const handler: Handler = (d, i, x, event) => {
     if (clusterClick(viz, d)) {
       event?.stopPropagation?.();
       return;
     }
     return click?.(d, i, x, event);
   };
+  wrapClick(viz, "click.shape", handler);
   const move = on["mousemove.shape"];
   on["mousemove.shape"] = (d, i, x, event) => {
     move?.(d, i, x, event);

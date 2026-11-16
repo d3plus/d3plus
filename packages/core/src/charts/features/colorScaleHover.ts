@@ -10,6 +10,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {isBivariatePair} from "../../components/ColorScale/bivariateScale.js";
 import {colorScaleBucketOf, hoverColorScaleBucket} from "./colorScaleBucket.js";
 import {colorScaleValue} from "./colorScaleValue.js";
+import {groupDepthOf} from "../viz/groupRow.js";
 
 type Wrapped = DataPoint & {__d3plus__?: boolean; data?: DataPoint};
 
@@ -17,8 +18,9 @@ type Wrapped = DataPoint & {__d3plus__?: boolean; data?: DataPoint};
     The colorScale value of a hovered scene node: its datum unwrapped to the
     source row (as the shapes' fill unwraps it), read through the chart's
     `colorScale`: a pair of values on a bivariate colorScale. Null for
-    chrome (legend, axes, the colorScale itself), a node without a row, or a
-    row without a finite value.
+    chrome (legend, axes, the colorScale itself), a group row (see
+    `viz/groupRow.ts`), a node without a row, or a row without a finite
+    value.
     @param viz The chart.
     @param node The hovered scene node.
 */
@@ -30,6 +32,10 @@ export function colorScaleHoverValue(
   if (!node || typeof colorScale !== "function") return null;
   if ((node as {interactionGroup?: string}).interactionGroup) return null;
   if (colorScaleBucketOf(node.datum)) return null;
+  // A group row stands above the level the scale describes (it is drawn
+  // neutral: a Treemap's header, a drilled Geomap's neighbor).
+  if (groupDepthOf(node.datum as DataPoint | undefined) !== undefined)
+    return null;
   let d = node.datum as Wrapped | undefined;
   let i = typeof node.index === "number" ? node.index : 0;
   while (d && d.__d3plus__ && d.data) {

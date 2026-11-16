@@ -70,15 +70,24 @@ function colorScaleData(viz: VizInstance): DataPoint[] {
   return links.length ? [...own, ...links] : own;
 }
 
-/** The chart's data rolled up per time/id/panel, keeping rows with a colorScale value. */
-function dataRows(viz: VizInstance): MergedDataPoint[] {
+/**
+    The chart's data rolled up per time/id/panel, keeping rows with a
+    colorScale value: per id at every `groupBy` level, or down to `depth`.
+*/
+export function dataRows(
+  viz: VizInstance,
+  depth: number = Infinity,
+): MergedDataPoint[] {
   const facet = viz.schema.facet as FacetAccessor | undefined;
   const data = Array.from(
     rollup(
       viz._data,
       (leaves: DataPoint[]) => merge(leaves, viz.schema.aggs),
       (d: DataPoint, i: number) =>
-        `${viz.schema.time ? viz.schema.time(d, i) : "all"}-${facet ? facetKey(facet(d, i)) : "all"}-${viz._ids(d, i).join("_")}`,
+        `${viz.schema.time ? viz.schema.time(d, i) : "all"}-${facet ? facetKey(facet(d, i)) : "all"}-${viz
+          ._ids(d, i)
+          .slice(0, depth + 1)
+          .join("_")}`,
     ).values(),
   );
   return data.filter((d: MergedDataPoint, i: number) => {

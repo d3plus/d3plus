@@ -145,17 +145,20 @@ export function clusterBubbleScale(
 
 /**
     The clusters of a draw's points, or null when clustering is off or none
-    of the points' circles overlap (see `pointsOverlap`).
+    of the points' circles overlap (see `pointsOverlap`) and `always` is
+    false.
     @param viz The Geomap.
     @param rows The points drawn, in data order.
     @param pointR Each point's radius, in pixels.
     @param k The zoom scale the map is drawn at.
+    @param always Cluster the points even where none overlap yet.
 */
 export function geomapPointClusters(
   viz: VizInstance,
   rows: DataPoint[],
   pointR: (d: DataPoint, i: number) => number,
   k: number = 1,
+  always: boolean = false,
 ): GeoClusterState | null {
   const settings = pointClusterSettings(viz);
   if (!settings || rows.length < 2) return null;
@@ -180,7 +183,7 @@ export function geomapPointClusters(
       weight: weighed ? weights[i] : 1,
     });
   });
-  if (!pointsOverlap(leaves)) return null;
+  if (!always && !pointsOverlap(leaves)) return null;
   const levels = buildClusterLevels(leaves, settings.radius);
   const finite = sizes.filter(Number.isFinite);
   return {
