@@ -32,6 +32,7 @@ import {
   pointClusterSettings,
 } from "../../src/charts/Geomap/pointClusterLayout.ts";
 import {
+  CLUSTER_HALO,
   CLUSTER_SCENE_KEYS,
   bubbleNodes,
   clusterColors,
@@ -386,22 +387,22 @@ it("clusterColors counts each fill, the most common first", () => {
   ]);
 });
 
-it("clusterWedges splits a ring by each color's share", () => {
+it("clusterWedges splits a full pie by each color's share", () => {
   const wedges = clusterWedges(
     [
       {fill: "blue", count: 3},
       {fill: "red", count: 1},
     ],
-    6,
     10,
   );
   assert.deepStrictEqual(
     wedges.map(w => w.fill),
     ["blue", "red"],
   );
-  // The first wedge starts at the top and runs three quarters of the way round.
-  assert.match(wedges[0].d, /^M0,-10A10,10,0,1,1,-10,0/);
-  assert.ok(wedges.every(w => w.d.length));
+  // The first wedge starts at the top, runs three quarters of the way
+  // round, and closes at the center.
+  assert.match(wedges[0].d, /^M0,-10A10,10,0,1,1,-10,0L0,0Z$/);
+  assert.match(wedges[1].d, /L0,0Z$/);
 });
 
 it("pointNode draws a point's circle, centered by its transform", () => {
@@ -428,7 +429,7 @@ it("pointNode draws a point's circle, centered by its transform", () => {
   assert.ok(!still.trail);
 });
 
-it("bubbleNodes draws a ring of colors around the count, or a plain circle", () => {
+it("bubbleNodes draws a pie of colors under a haloed count, or a plain circle", () => {
   const viz = laidOut({groupBy: "id"});
   const state = viz.ctx.geomapCtx.cluster;
   const node = state.levels[0].nodes.find(n => n.leaves.length === 6);
@@ -438,21 +439,32 @@ it("bubbleNodes draws a ring of colors around the count, or a plain circle", () 
   assert.strictEqual(circle.key, `geomap-cluster-${node.id}`);
   assert.strictEqual(circle.r, state.bubble(node.weight) / 2, "held in pixels");
   assert.strictEqual(geoClusterMeta(circle.datum).count, 6);
+  assert.strictEqual(circle.paint.stroke, "rgb(255, 255, 255)", "set apart");
   const wedges = rest.filter(n => n.type === "path");
   assert.deepStrictEqual(wedges.map(n => n.paint.fill).sort(), [
     "#0000ff",
     "#ff0000",
   ]);
   assert.ok(wedges.every(n => n.interactive === false));
+  assert.ok(
+    wedges.every(n => /L0,0Z$/.test(n.d)),
+    "wedges fill the whole circle",
+  );
   const label = rest.find(n => n.type === "text");
   assert.strictEqual(label.lines[0].text, "6");
   assert.strictEqual(label.transform.scale, 1 / 2);
+  assert.ok(label.halo, "a halo over the wedges");
+  assert.strictEqual(label.paint.stroke, circle.paint.stroke);
+  assert.strictEqual(label.paint.strokeWidth, CLUSTER_HALO);
+  assert.notStrictEqual(label.paint.fill, label.paint.stroke);
   assert.match(circle.aria.label, /6 points/);
 
   state.fills = state.rows.map(() => "#00aa00");
   const plain = bubbleNodes(viz, state, node, 1);
   assert.strictEqual(plain[0].paint.fill, "#00aa00");
   assert.ok(!plain.some(n => n.type === "path"));
+  const plainLabel = plain.find(n => n.type === "text");
+  assert.ok(!plainLabel.halo, "a solid disc needs no halo");
 });
 
 it("emitClusterScene draws the level held, and where each point is", () => {

@@ -407,23 +407,9 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
-  it(`Geomap ${renderer}: a dark theme rings its bubbles around the dark background`, async () => {
+  it(`Geomap ${renderer}: a mixed bubble is a full pie whose count reads on a halo, light or dark`, async () => {
     const {page, errors, close} = await openPage(box);
     try {
-      await page.evaluate(draw, [
-        JSON.stringify({topojson: states, data: rows, theme: "dark"}),
-        renderer,
-      ]);
-      const result = await page.evaluate(() => {
-        const viz = window.__viz;
-        const mixed = viz._chartScene.find(
-          n =>
-            /^geomap-cluster-\d+$/.test(n.key) &&
-            viz._chartScene.some(w => w.key === `${n.key}-wedge-1`),
-        );
-        const label = viz._chartScene.find(w => w.key === `${mixed.key}-label`);
-        return {fill: mixed.paint.fill, ink: label.paint.fill};
-      });
       const lum = c => {
         const [r, g, b] = c.match(/\d+/g).map(Number);
         return (r + g + b) / 3;
@@ -432,8 +418,42 @@ for (const renderer of ["svg", "canvas"]) {
         c.startsWith("#")
           ? `rgb(${parseInt(c.slice(1, 3), 16)},${parseInt(c.slice(3, 5), 16)},${parseInt(c.slice(5, 7), 16)})`
           : c;
-      assert.ok(lum(rgb(result.fill)) < 80, `dark center ${result.fill}`);
-      assert.ok(lum(rgb(result.ink)) > 160, `light count ${result.ink}`);
+      for (const theme of ["light", "dark"]) {
+        await page.evaluate(draw, [
+          JSON.stringify({topojson: states, data: rows, theme}),
+          renderer,
+        ]);
+        const result = await page.evaluate(() => {
+          const viz = window.__viz;
+          const mixed = viz._chartScene.find(
+            n =>
+              /^geomap-cluster-\d+$/.test(n.key) &&
+              viz._chartScene.some(w => w.key === `${n.key}-wedge-1`),
+          );
+          const label = viz._chartScene.find(
+            w => w.key === `${mixed.key}-label`,
+          );
+          const wedges = viz._chartScene.filter(w =>
+            w.key.startsWith(`${mixed.key}-wedge-`),
+          );
+          return {
+            wedges: wedges.map(w => w.d),
+            ink: label.paint.fill,
+            halo: label.halo ? label.paint.stroke : null,
+            outline: mixed.paint.stroke,
+          };
+        });
+        assert.ok(
+          result.wedges.every(d => /L0,0Z$/.test(d)),
+          "wedges reach the center",
+        );
+        assert.ok(result.halo, "the count has a halo");
+        assert.strictEqual(result.halo, result.outline, "of the background");
+        const ink = lum(rgb(result.ink)),
+          halo = lum(rgb(result.halo));
+        if (theme === "dark") assert.ok(ink > 160 && halo < 80, `${theme}`);
+        else assert.ok(ink < 100 && halo > 200, `${theme}`);
+      }
       assert.deepStrictEqual(errors, [], "no page errors");
     } finally {
       await close();

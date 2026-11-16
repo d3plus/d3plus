@@ -1,6 +1,6 @@
 /**
     The scene nodes of a Geomap's clustered points: the lone points, each
-    cluster's bubble (a pie of its points' colors around its count, or a
+    cluster's bubble (a pie of its points' colors under its count, or a
     plain circle when they share one), a fanned-out cluster's points and
     the legs to them, the points' labels, and the links rerouted to the
     clusters. Everything keeps its pixel size as the map zooms, so drawn
@@ -36,8 +36,8 @@ import {rerouteFlowLinks} from "./pointClusterLinks.js";
 /** The key prefixes of the nodes a clustered draw owns (see `emitClusterScene`). */
 export const CLUSTER_SCENE_KEYS = /^geomap-(link|point|cluster|spider|label)-/;
 
-/** A ring of a mixed cluster's bubble, as a share of its radius. */
-export const CLUSTER_RING = 0.3;
+/** The width of the halo around a pie's count, in pixels. */
+export const CLUSTER_HALO = 3;
 
 /** The largest font of a cluster's count, in pixels. */
 export const CLUSTER_FONT = 11;
@@ -69,21 +69,19 @@ export function clusterColors(
 }
 
 /**
-    The wedges of a ring between radii `inner` and `outer`, one per color,
-    each spanning its share of the points, clockwise from the top.
+    The wedges of a pie of radius `r`, one per color, each spanning its
+    share of the points, clockwise from the top.
     @param colors The colors.
-    @param inner The ring's inner radius.
-    @param outer The ring's outer radius.
+    @param r The pie's radius.
 */
 export function clusterWedges(
   colors: ClusterColor[],
-  inner: number,
-  outer: number,
+  r: number,
 ): {fill: string; d: string}[] {
   const total = colors.reduce((sum, c) => sum + c.count, 0);
   const shape = arc<{a0: number; a1: number}>()
-    .innerRadius(inner)
-    .outerRadius(outer)
+    .innerRadius(0)
+    .outerRadius(r)
     .startAngle(w => w.a0)
     .endAngle(w => w.a1);
   let a = 0;
@@ -142,7 +140,7 @@ export function pointNode(
   } as SceneNode;
 }
 
-/** The count printed on a cluster's bubble, sized to fit the space inside its ring. */
+/** The count printed on a cluster's bubble, sized to fit inside it. */
 function countLabel(
   viz: VizInstance,
   key: string,
@@ -177,7 +175,9 @@ function countLabel(
 
 /**
     A cluster's bubble at `[x, y]`: its circle (which takes the pointer),
-    the ring of its colors when they differ, and its count.
+    a pie of its colors when they differ, and its count, which over a pie
+    takes the chart's text color on a halo of its background, so it reads
+    on any wedge.
     @param viz The Geomap.
     @param state The clusters.
     @param node The cluster.
@@ -195,7 +195,8 @@ export function bubbleNodes(
   const key = `geomap-cluster-${node.id}`;
   const transform = {x: node.x, y: node.y};
   const mixed = colors.length > 1;
-  const fill = mixed ? chartBackground(viz) : colors[0]?.fill;
+  const fill = colors[0]?.fill;
+  const background = chartBackground(viz);
   const out: SceneNode[] = [
     {
       type: "circle",
@@ -207,16 +208,15 @@ export function bubbleNodes(
       datum: row,
       paint: {
         fill,
-        stroke: chartBackground(viz),
+        stroke: background,
         strokeWidth: 1.5,
         vectorEffect: "non-scaling-stroke",
       },
       aria: {label: `${geoClusterTitle(viz, row)}.`},
     } as SceneNode,
   ];
-  const inner = mixed ? R * (1 - CLUSTER_RING) : R;
   if (mixed)
-    clusterWedges(colors, inner / k, R / k).forEach((w, n) =>
+    clusterWedges(colors, R / k).forEach((w, n) =>
       out.push({
         type: "path",
         key: `${key}-wedge-${n}`,
@@ -227,17 +227,28 @@ export function bubbleNodes(
         paint: {fill: w.fill, stroke: "none", strokeWidth: 0},
       } as SceneNode),
     );
-  const ink = mixed
-    ? backgroundInk(viz)
-    : colorContrast(fill ?? "#fff", viz.schema.colorDefaults);
+  const label = countLabel(
+    viz,
+    `${key}-label`,
+    formatAbbreviate(node.leaves.length, viz.schema.locale),
+    R * 2 - 4 - (mixed ? CLUSTER_HALO * 2 : 0),
+    mixed
+      ? backgroundInk(viz)
+      : colorContrast(fill ?? "#fff", viz.schema.colorDefaults),
+  );
   out.push({
-    ...countLabel(
-      viz,
-      `${key}-label`,
-      formatAbbreviate(node.leaves.length, viz.schema.locale),
-      inner * 2 - 4,
-      ink,
-    ),
+    ...label,
+    ...(mixed
+      ? {
+          halo: true,
+          paint: {
+            ...label.paint,
+            stroke: background,
+            strokeWidth: CLUSTER_HALO,
+            strokeOpacity: 1,
+          },
+        }
+      : {}),
     datum: row,
     transform: {...transform, scale: 1 / k},
   } as SceneNode);

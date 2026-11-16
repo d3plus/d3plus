@@ -93,7 +93,7 @@ Rather than shading regions, this drops a marker per datum: `point` returns each
 
 ## Point clusters
 
-When coordinate points overlap, the points near one another on screen combine into one bubble (`pointCluster` is on by default, and `false` turns it off). Each bubble shows how many cities it holds inside a ring of their time zones' colors (a plain circle when they all share one), and is sized by their count, or by their summed `pointSize` when it varies. Hover a bubble for its first few cities. Zoom in and the bubbles split as the cities spread apart, keeping their pixel size; zoom back out and they merge again. Click a bubble to zoom in until it splits, and a bubble whose points sit in one place fans them out around it instead. `radius` sets how near points combine, here 40 pixels on screen. Links to a clustered point run to its bubble.
+When coordinate points overlap, the points near one another on screen combine into one bubble (`pointCluster` is on by default, and `false` turns it off). Each bubble is a pie of its cities' time-zone colors (a plain circle when they all share one), labeled with how many cities it holds, and is sized by their count, or by their summed `pointSize` when it varies. Hover a bubble for its first few cities. Zoom in and the bubbles split as the cities spread apart, keeping their pixel size; zoom back out and they merge again. Click a bubble to zoom in until it splits, and a bubble whose points sit in one place fans them out around it instead. `radius` sets how near points combine, here 40 pixels on screen. Links to a clustered point run to its bubble.
 
 <Playground chart="Geomap" code={pointClusters} controls={["pointCluster","renderer"]} />
 
