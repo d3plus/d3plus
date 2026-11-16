@@ -108,6 +108,12 @@ export interface PlaceCircleLabelsOptions {
       `gap`, so no other circle sits nearer to it than its own does).
   */
   slideClearance?: number;
+  /**
+      The room kept between a label slid along a side and every other label
+      and obstacle, so neighboring labels don't read as one (default
+      `gap`).
+  */
+  slideSpacing?: number;
 }
 
 /** The sides in their default order, with each one's direction (y down). */
@@ -424,7 +430,7 @@ export function placeCircleLabels(
       circles[labels[b].circle].r - circles[labels[a].circle].r || a - b,
   );
   const open = outside.filter(i => room.cell(i));
-  const take = (i: number, spot: Spot) => {
+  const take = (i: number, spot: Spot, spaced = true) => {
     room.release(i);
     const {slot, box} = spot;
     result[i] = {
@@ -433,21 +439,23 @@ export function placeCircleLabels(
       box,
       ...(slot.slide ? {slide: slot.slide} : {}),
     };
-    room.claim(box, i);
+    room.claim(box, i, spaced);
   };
   // A label keeps the slot it held last frame while that slot is still open.
   const unplaced = open.filter(i => {
     const prev = labels[i].previous;
     const spot = prev && room.spot(i, prev);
-    if (!spot || !room.fits(i, spot, "slide")) return true;
-    take(i, spot);
+    // A label centered on a side keeps no spacing, as on the first draw.
+    const spaced = !!prev?.slide;
+    if (!spot || !room.fits(i, spot, "slide", spaced)) return true;
+    take(i, spot, spaced);
     return false;
   });
   const sideless = unplaced.filter(i => {
     const spot = room
       .spots(i)
       .find(s => !s.slot.slide && room.fits(i, s, "side"));
-    if (spot) take(i, spot);
+    if (spot) take(i, spot, false);
     return !spot;
   });
   if (!options.slide) return result;
@@ -487,11 +495,23 @@ interface Spot {
 */
 type FitMode = "side" | "slide";
 
-/** A box a label beside a circle claims, and the label (-1 for an obstacle). */
+/**
+    A box a label beside a circle claims, the label (-1 for an obstacle), and
+    whether other labels keep `slideSpacing` from it (a slid label does).
+*/
 interface Claim {
   box: CircleLabelBox;
   owner: number;
+  spaced: boolean;
 }
+
+/** A box grown by `pad` on every side. */
+const grow = (box: CircleLabelBox, pad: number): CircleLabelBox => ({
+  x: box.x - pad,
+  y: box.y - pad,
+  width: box.width + pad * 2,
+  height: box.height + pad * 2,
+});
 
 /**
     Whether a box overlaps no circle, keeping `pad` pixels from every one but
@@ -504,19 +524,37 @@ function clearOfCircles(
   own: number,
   pad: number,
 ): boolean {
-  const reach = {
-    x: box.x - pad,
-    y: box.y - pad,
-    width: box.width + pad * 2,
-    height: box.height + pad * 2,
-  };
-  for (const c of grid.near(reach)) {
+  for (const c of grid.near(grow(box, pad))) {
     const circle = circles[c];
     const r = c === own ? circle.r : circle.r + pad;
     if (boxHitsCircle(box, {...circle, r})) return false;
   }
   return true;
 }
+
+/** The circles in a grid with buckets about the size of the labels. */
+function circleGrid(
+  circles: readonly LabelCircle[],
+  labels: readonly CircleLabelRequest[],
+  outside: readonly number[],
+): BoxGrid<number> {
+  const sizes = outside.map(i => Math.max(labels[i].width, labels[i].height));
+  const grid = new BoxGrid<number>(
+    Math.max(16, sizes.reduce((a, b) => a + b, 0) / sizes.length),
+  );
+  circles.forEach((c, i) => {
+    if (validCircle(c)) grid.add(circleBox(c), i);
+  });
+  return grid;
+}
+
+/**
+    Whether a circle is centered in the bounds: one centered outside them
+    (scrolled off by a zoom) is cut off there, so a label beside it would
+    name nothing in view.
+*/
+const shownCircle = (circle: LabelCircle, bounds: Bounds): boolean =>
+  inBounds({...circle, width: 0, height: 0}, bounds);
 
 /**
     The room around the circles for labels beside them: each label's
@@ -541,25 +579,18 @@ function labelRoom(
     circles.map((c, i) => ({x: c.x, y: c.y, r: c.r, item: i})),
     bounds,
   );
-  const sizes = outside.map(i => Math.max(labels[i].width, labels[i].height));
-  const grid = new BoxGrid<number>(
-    Math.max(16, sizes.reduce((a, b) => a + b, 0) / sizes.length),
-  );
-  circles.forEach((c, i) => {
-    if (validCircle(c)) grid.add(circleBox(c), i);
-  });
+  const grid = circleGrid(circles, labels, outside);
   const placed = new BoxGrid<Claim>(grid.size);
-  for (const box of options.obstacles ?? []) placed.add(box, {box, owner: -1});
+  for (const box of options.obstacles ?? [])
+    placed.add(box, {box, owner: -1, spaced: false});
+  const spacing = options.slideSpacing ?? gap;
   const claims = new Map<number, Claim>();
   const lines = new BoxGrid<LabelSegment>(grid.size);
   for (const s of options.segments ?? []) lines.add(segmentBox(s), s);
   const cells = new Map(
     outside.map(i => {
-      const circle = circles[labels[i].circle];
-      // A circle centered outside the bounds (scrolled off by a zoom) is cut
-      // off there, so a label beside it would name nothing in view.
-      const shown = inBounds({...circle, width: 0, height: 0}, bounds);
-      return [i, shown ? voronoi.cell(labels[i].circle) : null];
+      const c = labels[i].circle;
+      return [i, shownCircle(circles[c], bounds) ? voronoi.cell(c) : null];
     }),
   );
   const spotsOf = new Map<number, Spot[]>();
@@ -589,16 +620,25 @@ function labelRoom(
           boxCoverage(box, cells.get(i)!) >= coverage - EPSILON
         : clearOfCircles(box, circles, grid, own, clearance)));
   };
-  const taken = (b: CircleLabelBox) =>
-    [...placed.near(b)].filter(c => boxesOverlap(b, c.box));
-  const fits = (i: number, spot: Spot, mode: FitMode) =>
-    free(i, spot, mode) && !taken(spot.box).length;
+  /** The claims a box overlaps, or comes within `spacing` of when either is spaced. */
+  const taken = (b: CircleLabelBox, spaced: boolean) => {
+    const wide = grow(b, spacing);
+    return [...placed.near(wide)].filter(c =>
+      boxesOverlap(spaced || c.spaced ? wide : b, c.box),
+    );
+  };
+  const fits = (
+    i: number,
+    spot: Spot,
+    mode: FitMode,
+    spaced = mode === "slide",
+  ) => free(i, spot, mode) && !taken(spot.box, spaced).length;
   const crossings = (spot: Spot) =>
     (spot.crossings ??= [...lines.near(spot.box)].filter(s =>
       segmentHitsBox(s, spot.box),
     ).length);
-  const claim = (b: CircleLabelBox, owner: number) => {
-    const c = {box: b, owner};
+  const claim = (b: CircleLabelBox, owner: number, spaced: boolean) => {
+    const c = {box: b, owner, spaced};
     claims.set(owner, c);
     placed.add(b, c);
   };
@@ -646,14 +686,14 @@ function leastCrossed(
 function makeRoom(room: ReturnType<typeof labelRoom>, i: number) {
   for (const spot of room.spots(i)) {
     if (!room.free(i, spot, "slide")) continue;
-    const holders = room.taken(spot.box);
+    const holders = room.taken(spot.box, true);
     if (holders.length !== 1 || holders[0].owner < 0) continue;
     const other = holders[0];
     room.release(other.owner);
-    room.claim(spot.box, i);
+    room.claim(spot.box, i, true);
     const to = leastCrossed(room, other.owner);
     room.release(i);
-    room.claim(other.box, other.owner);
+    room.claim(other.box, other.owner, other.spaced);
     if (to) return {spot, moved: other.owner, to};
   }
   return undefined;

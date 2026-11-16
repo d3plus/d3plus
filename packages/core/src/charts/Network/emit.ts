@@ -369,7 +369,6 @@ function placeNetworkLabels(
     {x: 0, y: 0, width, height},
     [],
     {
-      slide: true,
       segments: networkLinkSegments(c.links ?? []),
       previous: held && (d => held.get(d.id)),
     },

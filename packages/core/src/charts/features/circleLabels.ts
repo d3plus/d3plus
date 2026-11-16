@@ -180,7 +180,10 @@ export interface CircleLabelItem<K> {
 
 /** How `layoutCircleLabels` places labels beyond their circles' sides. */
 export interface CircleLabelOptions<K> {
-  /** Whether a label no side takes slides along its circle's sides (see `placeCircleLabels`). */
+  /**
+      Whether a label no side takes slides along its circle's sides (see
+      `placeCircleLabels`; default the chart's `labelSlide`).
+  */
   slide?: boolean;
   /** Lines a slid label crosses as few of as it can. */
   segments?: readonly LabelSegment[];
@@ -199,7 +202,8 @@ export type CircleLabelLayout = CircleLabelPlacement & {
     each row's `labelPosition` and the chart's `pointLabelConfig`. An
     `"auto"` label counts as fitting inside when it fits at
     `pointLabelConfig.fontMin`, and as covered when a circle painted over
-    its own overlaps it (see `coveredInside`).
+    its own overlaps it (see `coveredInside`). A label no side takes slides
+    along one unless the chart's `labelSlide` is `false`.
     @param viz The chart.
     @param items Every circle, labeled or not.
     @param bounds The box labels must stay in, in the circles' space.
@@ -264,7 +268,7 @@ export function layoutCircleLabels<K>(
   const placements = placeCircleLabels(circles, requests, bounds, {
     gap: settings.padding,
     obstacles,
-    slide: options.slide,
+    slide: options.slide ?? viz.schema.labelSlide !== false,
     segments: options.segments,
   });
   const out = new Map<K, CircleLabelLayout>();
