@@ -276,3 +276,26 @@ it("nodeDrag: false leaves the nodes where they are", () =>
     },
     {},
   ));
+
+it("hovering a node shows its tooltip while the network settles, and after a drag", () =>
+  withPage(box, async page => {
+    await draw(page, ring, "svg");
+    const tip = () =>
+      page.evaluate(() =>
+        Array.from(document.querySelectorAll(".d3plus-tooltip"))
+          .filter(el => getComputedStyle(el).opacity !== "0")
+          .map(el => el.textContent)
+          .join(" "),
+      );
+    const hover = async () => {
+      const [x, y] = (await page.evaluate(live)).screen.n0;
+      await page.mouse.move(x - 3, y - 3);
+      await page.mouse.move(x, y, {steps: 2});
+      await page.waitForTimeout(400);
+    };
+    await hover();
+    assert.ok((await tip()).includes("n0"), "while it settles");
+    await dragNode(page, "n0", [-40, -30]);
+    await hover();
+    assert.ok((await tip()).includes("n0"), "after the drag");
+  }));
