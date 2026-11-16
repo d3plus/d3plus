@@ -121,6 +121,8 @@ export type {
   MarginalMarkDatum,
   MarginalPaintConfig,
   MarginalPaintValue,
+  OutlierConfig,
+  OutlierSetting,
   PointLabelConfig,
   SaveControlConfig,
   SaveFormat,

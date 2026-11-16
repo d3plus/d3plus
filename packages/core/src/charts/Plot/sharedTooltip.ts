@@ -32,6 +32,7 @@ import type {SharedHover, SharedRow} from "./sharedHover.js";
 import {plotAxisUtc} from "./plotRangeBreaks.js";
 import {levelAxisName, levelAxisValue} from "./plotLevels.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {outlierRows, outlierSuffix} from "./outlierTooltip.js";
 
 type Axis = "x" | "y";
 const other = (k: Axis): Axis => (k === "x" ? "y" : "x");
@@ -250,7 +251,10 @@ export function renderSharedTooltip(
       hover.rows
         .flatMap((r, i) => [
           [
-            withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
+            withSwatch(
+              tooltipSwatch(r.color, r.shape),
+              `${names[i]}${outlierSuffix(viz, r.datum)}`,
+            ),
             own
               ? own.value(r.datum, r.index)
               : `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
@@ -318,6 +322,7 @@ export function renderSingleTooltip(
         : confidenceRows(viz, row.datum, row.index, v =>
             axisValue(viz, other(hover.axis), v),
           )),
+      ...outlierRows(viz, row.datum),
       ...colorScaleTooltipRows(viz, row.datum, row.index),
       ...(Array.isArray(extra) ? extra : []),
       ...thresholdMemberRows(viz, row.datum),

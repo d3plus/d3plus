@@ -49,6 +49,7 @@ import {plotMarginalLayout} from "./marginalLayout.js";
 import {roundPlotOpenEnds} from "./openDomainEnds.js";
 import {recordStackLegendOrder} from "./stackLegendOrder.js";
 import {computePlotTrendFits} from "./trendLines.js";
+import {computePlotOutliers} from "./outlierDetect.js";
 import {vizDiscrete} from "../viz/discrete.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
@@ -68,6 +69,7 @@ function runPlotDataStages(viz: VizInstance) {
     formatPlotData,
     computePlotAxisValues,
     computePlotTrendFits,
+    computePlotOutliers,
   ]);
   // Time flags (xTime/x2Time/yTime/y2Time) are written onto `viz` by
   // `formatPlotData` and read directly via `viz._xTime` etc. downstream.

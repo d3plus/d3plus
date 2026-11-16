@@ -35,6 +35,7 @@ import {orderOf} from "../Plot/orderPath.js";
 import {orderedMarks} from "../Plot/orderPathScene.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
 import {emitTrendLabels} from "../Plot/trendLabels.js";
+import {withOutliers} from "../Plot/outlierScene.js";
 import {emitAlongLabels} from "../Plot/lineLabelsAlong.js";
 import {countShapeLabels} from "../Plot/shapeLabelLegend.js";
 import {emitAreaLabels} from "../Plot/areaLabelsAlong.js";
@@ -601,6 +602,8 @@ export function plotEmit(
   marks.push(...emitAlongLabels(viz, marks, edges));
   marks.push(...holdAreaLabels(emitAreaLabels(viz, marks, edges)));
   marks.push(...emitTrendLabels(viz, x, y, edges, marks));
+  // Outlier rings and their labels go over the marks, clear of every label.
+  marks.splice(0, marks.length, ...withOutliers(viz, marks, {x, y, edges}));
   // The plot area reaches down through any room reserved under the value
   // axis's range (see `_plotInsetBottom`), so marks drawn there stay.
   const clipRange = [yRange[0], yRange[1] + (mCtx.insetBottom ?? 0)];
