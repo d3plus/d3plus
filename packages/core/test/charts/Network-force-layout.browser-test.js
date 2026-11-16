@@ -104,14 +104,14 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`[${renderer}] a small network caps its nodes at a twelfth of the chart's smaller side`, async () => {
-    // The chart area is 640 × 451 (the 480px viz less its padding), so no
-    // node reaches 451 / 12 ≈ 37.6px.
+    // The chart area is the 480px viz less its controls and padding (451px
+    // on macOS, 452px on Linux, by font), so no node reaches 480 / 12 = 40px.
     for (const n of [1, 2, 3, 5, 12]) {
       const {circles} = await render(body, draw, {config: tree(n), renderer});
       assert.strictEqual(circles.length, n);
       const radii = circles.map(c => c.r);
       assert.ok(
-        radii.every(r => r > 25 && r <= 451 / 12),
+        radii.every(r => r > 25 && r <= 480 / 12),
         `${n} nodes: radii ${radii}`,
       );
     }
@@ -125,13 +125,13 @@ for (const renderer of ["svg", "canvas"]) {
       renderer,
     });
     const largest = Math.max(...capped.circles.map(c => c.r));
-    assert.ok(largest > 25 && largest <= 451 / 12, `largest ${largest}`);
+    assert.ok(largest > 25 && largest <= 480 / 12, `largest ${largest}`);
     const set = await render(body, draw, {
       config: {nodes: sized, links, size: "v", sizeMax: 60},
       renderer,
     });
     assert.ok(
-      Math.max(...set.circles.map(c => c.r)) > 451 / 12,
+      Math.max(...set.circles.map(c => c.r)) > 480 / 12,
       "sizeMax overrides the cap",
     );
   });
