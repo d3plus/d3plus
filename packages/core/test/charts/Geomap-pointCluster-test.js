@@ -140,6 +140,16 @@ it("clusterNodes merges each seed's neighbors in order, at their mean position",
   );
 });
 
+it("clusterNodes lists a merged node's points from its seed's first", () => {
+  const nodes = [
+    {id: 4, x: 0, y: 0, leaves: [4], weight: 1},
+    {id: 1, x: 3, y: 0, leaves: [1, 7], weight: 2},
+  ];
+  const [merged] = clusterNodes(nodes, 10);
+  assert.deepStrictEqual(merged.leaves, [4, 1, 7]);
+  assert.strictEqual(merged.id, merged.leaves[0]);
+});
+
 it("clusterNodes weighs each center by how many points a node holds", () => {
   const nodes = [
     {id: 0, x: 0, y: 0, leaves: [0, 1, 2], weight: 3},
@@ -325,7 +335,8 @@ it("clusterRow gives each node one row, carrying what it holds", () => {
   assert.strictEqual(meta.count, node.leaves.length);
   assert.deepStrictEqual(
     meta.rows,
-    node.leaves.map(i => state.rows[i]),
+    [...node.leaves].sort((a, b) => a - b).map(i => state.rows[i]),
+    "in data order",
   );
   assert.ok(meta.splitK > 1);
   assert.strictEqual(geoClusterMeta({__d3plus__: true, data: row}), meta);

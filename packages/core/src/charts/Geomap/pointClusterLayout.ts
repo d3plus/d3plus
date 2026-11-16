@@ -215,7 +215,7 @@ export function clusterRow(
       id: node.id,
       count: node.leaves.length,
       weight: node.weight,
-      rows: node.leaves.map(i => state.rows[i]),
+      rows: [...node.leaves].sort((a, b) => a - b).map(i => state.rows[i]),
       x: node.x,
       y: node.y,
       bounds: clusterBounds(state.leaves, node.leaves),

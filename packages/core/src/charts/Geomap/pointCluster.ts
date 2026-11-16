@@ -26,7 +26,7 @@ export interface ClusterNode {
   /** Its center: the mean of its points' positions, in unzoomed pixels. */
   x: number;
   y: number;
-  /** The indices of its points, ascending. */
+  /** The indices of its points, the one it grew from first. */
   leaves: number[];
   /** Its points' summed weight. */
   weight: number;
@@ -60,14 +60,68 @@ export function clusterScales(kMax: number = CLUSTER_K_MAX): number[] {
   return Array.from({length: top + 1}, (_, j) => 2 ** (j / CLUSTER_STEPS));
 }
 
-/** The grid cell a position falls in, as a key. */
-const cellKey = (cx: number, cy: number): string => `${cx},${cy}`;
+/** A grid cell's column or row, held to the range a 32-bit integer keeps. */
+const cellOf = (v: number): number =>
+  Math.max(-1e9, Math.min(1e9, Math.floor(v)));
+
+/** A grid cell's hash. */
+const cellHash = (cx: number, cy: number): number =>
+  (Math.imul(cx, 73856093) ^ Math.imul(cy, 19349663)) >>> 0;
+
+/** Nodes bucketed by grid cell: each node's cell, and its cellmates in order. */
+interface CellGrid {
+  cx: Int32Array;
+  cy: Int32Array;
+  /** The next node in the same cell, or -1. */
+  next: Int32Array;
+  /** The first node in a cell, or -1. */
+  first: (cx: number, cy: number) => number;
+}
+
+/**
+    Buckets nodes into square cells `size` wide, in an open-addressed hash
+    of typed arrays, so a level of thousands of points is bucketed without
+    allocating per node.
+*/
+function cellGrid(nodes: {x: number; y: number}[], size: number): CellGrid {
+  const n = nodes.length;
+  let cap = 2;
+  while (cap < n * 2) cap <<= 1;
+  const mask = cap - 1;
+  const head = new Int32Array(cap).fill(-1),
+    kx = new Int32Array(cap),
+    ky = new Int32Array(cap);
+  const cx = new Int32Array(n),
+    cy = new Int32Array(n),
+    next = new Int32Array(n);
+  const slot = (x: number, y: number): number => {
+    let h = cellHash(x, y) & mask;
+    while (head[h] !== -1 && (kx[h] !== x || ky[h] !== y)) h = (h + 1) & mask;
+    return h;
+  };
+  // Last to first, so each cell lists its nodes in order.
+  for (let i = n - 1; i >= 0; i--) {
+    const x = cellOf(nodes[i].x / size),
+      y = cellOf(nodes[i].y / size);
+    cx[i] = x;
+    cy[i] = y;
+    const h = slot(x, y);
+    if (head[h] === -1) {
+      kx[h] = x;
+      ky[h] = y;
+    }
+    next[i] = head[h];
+    head[h] = i;
+  }
+  return {cx, cy, next, first: (x, y) => head[slot(x, y)]};
+}
 
 /**
     One level of greedy clustering: each node not yet taken, in order,
     takes every other untaken node within `radius` of it, and the group
     becomes one node at their points' mean position, named by the seed.
-    A node with no neighbor stays as it is.
+    A node with no neighbor stays as it is (and with none at all, the
+    level is the nodes given).
     @param nodes The nodes of the level below.
     @param radius The cluster radius, in unzoomed pixels.
 */
@@ -76,61 +130,53 @@ export function clusterNodes(
   radius: number,
 ): ClusterNode[] {
   if (!(radius > 0) || nodes.length < 2) return nodes;
-  const grid = new Map<string, number[]>();
-  const cell = (v: number) => Math.floor(v / radius);
-  nodes.forEach((n, i) => {
-    const key = cellKey(cell(n.x), cell(n.y));
-    const list = grid.get(key);
-    if (list) list.push(i);
-    else grid.set(key, [i]);
-  });
+  const grid = cellGrid(nodes, radius);
   const taken = new Uint8Array(nodes.length);
   const r2 = radius * radius;
   const out: ClusterNode[] = [];
+  let merged = false;
   nodes.forEach((seed, i) => {
     if (taken[i]) return;
     taken[i] = 1;
-    const group = [seed];
-    const cx = cell(seed.x),
-      cy = cell(seed.y);
-    for (let gx = cx - 1; gx <= cx + 1; gx++)
-      for (let gy = cy - 1; gy <= cy + 1; gy++)
-        for (const j of grid.get(cellKey(gx, gy)) ?? []) {
+    let group: number[] | null = null;
+    for (let gx = grid.cx[i] - 1; gx <= grid.cx[i] + 1; gx++)
+      for (let gy = grid.cy[i] - 1; gy <= grid.cy[i] + 1; gy++)
+        for (let j = grid.first(gx, gy); j !== -1; j = grid.next[j]) {
           if (taken[j]) continue;
-          const n = nodes[j];
-          const dx = n.x - seed.x,
-            dy = n.y - seed.y;
+          const dx = nodes[j].x - seed.x,
+            dy = nodes[j].y - seed.y;
           if (dx * dx + dy * dy <= r2) {
             taken[j] = 1;
-            group.push(n);
+            (group ??= [i]).push(j);
           }
         }
-    if (group.length === 1) {
+    if (!group) {
       out.push(seed);
       return;
     }
-    let count = 0,
-      sx = 0,
-      sy = 0,
-      weight = 0;
-    const leaves: number[] = [];
-    for (const n of group) {
-      const c = n.leaves.length;
-      count += c;
-      sx += n.x * c;
-      sy += n.y * c;
-      weight += n.weight;
-      leaves.push(...n.leaves);
-    }
-    out.push({
-      id: seed.id,
-      x: sx / count,
-      y: sy / count,
-      leaves: leaves.sort((a, b) => a - b),
-      weight,
-    });
+    merged = true;
+    out.push(mergeNodes(nodes, group));
   });
-  return out;
+  return merged ? out : nodes;
+}
+
+/** One node from a group of them, named by the first, at their points' mean position. */
+function mergeNodes(nodes: ClusterNode[], group: number[]): ClusterNode {
+  let count = 0,
+    sx = 0,
+    sy = 0,
+    weight = 0;
+  const leaves: number[] = [];
+  for (const g of group) {
+    const n = nodes[g];
+    const c = n.leaves.length;
+    count += c;
+    sx += n.x * c;
+    sy += n.y * c;
+    weight += n.weight;
+    for (const leaf of n.leaves) leaves.push(leaf);
+  }
+  return {id: nodes[group[0]].id, x: sx / count, y: sy / count, leaves, weight};
 }
 
 /** Each point's node in `nodes`, by index. */
@@ -165,8 +211,17 @@ export function buildClusterLevels(
   }));
   const levels: ClusterLevel[] = new Array(ks.length);
   for (let j = ks.length - 1; j >= 0; j--) {
-    nodes = clusterNodes(nodes, radius / ks[j]);
-    levels[j] = {k: ks[j], nodes, nodeOf: leafIndex(nodes, leaves.length)};
+    const next = clusterNodes(nodes, radius / ks[j]);
+    const deeper = levels[j + 1];
+    levels[j] = {
+      k: ks[j],
+      nodes: next,
+      nodeOf:
+        deeper && next === nodes
+          ? deeper.nodeOf
+          : leafIndex(next, leaves.length),
+    };
+    nodes = next;
   }
   return levels;
 }
@@ -240,22 +295,16 @@ export function clusterBounds(
 export function pointsOverlap(leaves: ClusterLeaf[]): boolean {
   if (leaves.length < 2) return false;
   const size = Math.max(1e-6, 2 * Math.max(...leaves.map(l => l.r)));
-  const grid = new Map<string, number[]>();
-  const cell = (v: number) => Math.floor(v / size);
+  const grid = cellGrid(leaves, size);
   for (let i = 0; i < leaves.length; i++) {
     const a = leaves[i];
-    const cx = cell(a.x),
-      cy = cell(a.y);
-    for (let gx = cx - 1; gx <= cx + 1; gx++)
-      for (let gy = cy - 1; gy <= cy + 1; gy++)
-        for (const j of grid.get(cellKey(gx, gy)) ?? []) {
+    for (let gx = grid.cx[i] - 1; gx <= grid.cx[i] + 1; gx++)
+      for (let gy = grid.cy[i] - 1; gy <= grid.cy[i] + 1; gy++)
+        for (let j = grid.first(gx, gy); j !== -1; j = grid.next[j]) {
           const b = leaves[j];
-          if (Math.hypot(a.x - b.x, a.y - b.y) < a.r + b.r) return true;
+          if (j > i && Math.hypot(a.x - b.x, a.y - b.y) < a.r + b.r)
+            return true;
         }
-    const key = cellKey(cx, cy);
-    const list = grid.get(key);
-    if (list) list.push(i);
-    else grid.set(key, [i]);
   }
   return false;
 }

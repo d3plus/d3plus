@@ -294,7 +294,8 @@ export function clusterClick(viz: VizInstance, d: DataPoint): boolean {
 
 /**
     Installs the cluster click (see `clusterClick`), and a pointer cursor
-    and a "Click to Expand" note in a cluster's tooltip.
+    and a "Click to Expand" note in a cluster's tooltip (outside small
+    multiples).
     @param viz The Geomap.
 */
 export function installPointClusterEvents(viz: VizInstance): void {
@@ -310,7 +311,8 @@ export function installPointClusterEvents(viz: VizInstance): void {
   const move = on["mousemove.shape"];
   on["mousemove.shape"] = (d, i, x, event) => {
     move?.(d, i, x, event);
-    if (!geoClusterMeta(d)) return;
+    // Small multiples draw clusters without zooming into them.
+    if (!geoClusterMeta(d) || viz._facetPanels) return;
     setCursor(viz, "pointer");
     if (viz._tooltipClass && tooltipEnabled(viz, d, i))
       viz._tooltipClass
