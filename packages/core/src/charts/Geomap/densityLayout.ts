@@ -21,6 +21,7 @@ import {
   refreshGeoColorScale,
 } from "./geoHexbinZoom.js";
 import type {GeoBinState} from "./geoHexbinZoom.js";
+import {isPointRow} from "./pointRows.js";
 
 /** Each region's rows, with their indices in the drawn data, by region id (as a string). */
 export type RegionRows = Map<string, {row: DataPoint; index: number}[]>;
@@ -38,7 +39,7 @@ export function geomapRegionRows(viz: VizInstance): {
 } {
   const rows: RegionRows = new Map();
   viz._filteredData.forEach((row: DataPoint, index: number) => {
-    if (viz.schema.point(row, index) instanceof Array) return;
+    if (isPointRow(viz, row, index)) return;
     const id = `${viz._id(row, index)}`;
     const list = rows.get(id);
     if (list) list.push({row, index});

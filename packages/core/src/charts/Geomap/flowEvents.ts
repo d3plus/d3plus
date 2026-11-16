@@ -23,6 +23,7 @@ import {
 import type {LinkDatum} from "../features/linkInteraction.js";
 import {setLoaderValue} from "../viz/loaderFormat.js";
 import {simpleHover} from "../viz/simpleHover.js";
+import {wrapClick} from "../viz/userClick.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {FlowLink} from "./flowLinks.js";
 
@@ -99,7 +100,7 @@ export function setupGeomapLinks(viz: VizInstance): void {
     simpleHover.call(viz, false);
   };
   const click = on["click.shape"];
-  on["click.shape"] = (d, i, x, event) => {
+  const handler: Handler = (d, i, x, event) => {
     if (isLinkDatum(d)) {
       event?.stopPropagation?.();
       focusLink(viz, d, {
@@ -111,6 +112,7 @@ export function setupGeomapLinks(viz: VizInstance): void {
     if (clearLinkFocus(viz)) return;
     return click?.(d, i, x, event);
   };
+  wrapClick(viz, "click.shape", handler);
 
   // The ocean beneath an SVG map takes the clicks between marks.
   const draw = viz._draw.bind(viz);

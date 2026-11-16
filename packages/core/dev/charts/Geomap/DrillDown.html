@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DrillDown · Geomap</title>
+    <meta
+      name="description"
+      content="Geographic drill-down with a topojson per groupBy level: click a state to zoom to its counties (or its clustered or binned cities), click a faded neighbor to switch, and Back to go up."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #controls {
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 14px;
+        gap: 12px;
+        padding: 6px 12px;
+      }
+
+      #viz {
+        height: calc(100vh - 40px);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <label>
+        Children
+        <select id="mode">
+          <option value="counties">Counties, by population</option>
+          <option value="cities">Cities, clustered</option>
+          <option value="hexbin">Cities, binned</option>
+        </select>
+      </label>
+      <label>
+        <input id="zoom" type="checkbox" checked />
+        Zoom (off: the projection fits the state)
+      </label>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    const load = url => fetch(url).then(r => r.json());
+
+    Promise.all([
+      load("./state-population.json"),
+      load("./county-population.json"),
+      load("./city_coords.json"),
+    ]).then(([states, counties, cities]) => {
+      const stateById = new Map(states.map(d => [d["State ID"], d]));
+      const stateByAbbr = new Map(states.map(d => [d.Abbr, d]));
+
+      // Each county carries its state: its id's state FIPS digits.
+      const countyRows = counties
+        .map(d => {
+          const state = stateById.get(`04000US${d["County ID"].slice(7, 9)}`);
+          return (
+            state && {...d, "State ID": state["State ID"], State: state.State}
+          );
+        })
+        .filter(Boolean);
+
+      const cityRows = cities
+        .map(d => {
+          const state = stateByAbbr.get(d.region);
+          return (
+            state && {
+              ...d,
+              "State ID": state["State ID"],
+              State: state.State,
+              Cities: 1,
+              point: [d.longitude, d.latitude],
+            }
+          );
+        })
+        .filter(Boolean);
+
+      let viz;
+
+      function draw() {
+        const mode = document.querySelector("#mode").value;
+        const zoom = document.querySelector("#zoom").checked;
+        const base = {
+          depth: 0,
+          filter: false,
+          projection: "geoAlbersUsa",
+          ocean: "transparent",
+          tiles: false,
+          zoom,
+        };
+        // A new chart, so the Back history starts over.
+        document.querySelector("#viz").innerHTML = "";
+        viz = new d3plus.Geomap().select("#viz");
+        if (mode === "counties")
+          viz.config({
+            ...base,
+            data: countyRows,
+            topojson: ["./State.json", "./County.json"],
+            groupBy: ["State ID", "County ID"],
+            label: d => (typeof d.County === "string" ? d.County : d.State),
+            colorScale: "Population",
+            colorScaleConfig: {scale: "jenks"},
+            hexbin: false,
+          });
+        else
+          viz.config({
+            ...base,
+            data: cityRows,
+            topojson: ["./State.json"],
+            groupBy: ["State ID", "slug"],
+            label: d => (typeof d.slug === "string" ? d.city : d.State),
+            // States by their number of cities.
+            colorScale: "Cities",
+            hexbin: mode === "hexbin",
+          });
+        viz.render();
+      }
+
+      document.querySelector("#mode").addEventListener("change", draw);
+      document.querySelector("#zoom").addEventListener("change", draw);
+      draw();
+    });
+  </script>
+</html>

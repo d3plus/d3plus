@@ -7,6 +7,8 @@ import {
   hoveredSwatch,
 } from "../../src/charts/features/colorScaleHover.ts";
 
+import {GROUP_DEPTH_KEY} from "../../src/charts/viz/groupRow.ts";
+
 afterEach(() => vi.restoreAllMocks());
 
 /** A stand-in chart with a colorScale reading `value`, and its ColorScale. */
@@ -87,6 +89,18 @@ it("colorScaleHoverValue — null for chrome, buckets, and missing values", () =
     null,
     "no colorScale",
   );
+});
+
+it("colorScaleHoverValue — null for a group row, which the scale doesn't describe", () => {
+  const viz = fakeViz();
+  const group = {value: 900, [GROUP_DEPTH_KEY]: 0};
+  assert.strictEqual(colorScaleHoverValue(viz, shape(group)), null);
+  assert.strictEqual(
+    colorScaleHoverValue(viz, shape({__d3plus__: true, data: group})),
+    null,
+    "wrapped",
+  );
+  assert.strictEqual(colorScaleHoverValue(viz, shape({value: 9})), 9);
 });
 
 const event = (type, datum) => ({

@@ -34,12 +34,27 @@ import type {FlowAnchor} from "./flowLinks.js";
 import type {GeoPathFn, LonLat} from "./flowGeometry.js";
 import {geomapDensity, geomapRegionRows} from "./densityLayout.js";
 import {geoHexbinSettings} from "./geoHexbin.js";
+import {geoZoom} from "./geoHexbinZoom.js";
+import {geomapPointClusters} from "./pointClusterLayout.js";
+import {
+  drillBounds,
+  fitTopojson,
+  geomapDrillLayout,
+  levelFeatures,
+  topojsonAt,
+  topojsonKeyAt,
+} from "./drillDown.js";
+import {drillKey} from "./drillDown.js";
+import {geomapTopojson} from "./topojsonLevels.js";
+import type {Box, DrillLayout} from "./drillDown.js";
+import type {GeoClusterState} from "./pointClusterLayout.js";
 import {
   geomapTileGrid,
   regionsReshaped,
   tileGridOf,
   tileGridRegions,
 } from "./tileGrid.js";
+import {isPointRow} from "./pointRows.js";
 
 type GeomapViz = VizContext["viz"];
 
@@ -54,6 +69,7 @@ interface GeomapFeatureCollection {
 }
 type GeomapPath = ((d: unknown) => string) & {
   area: (d: unknown) => number;
+  bounds: (d: unknown) => Box;
   centroid: (d: unknown) => [number, number];
 };
 /** The structured slots `applyGeomapLayout` reads back off `viz.ctx`. */
@@ -65,6 +81,8 @@ interface GeomapCtx {
   geomapWidth: number;
   geomapHeight: number;
   geomapCtx: unknown;
+  /** The drill the projection was last fitted to (see `fitCollection`). */
+  fitDrill?: string;
 }
 
 /** Reduces fit features, trimming far-flung MultiPolygon parts via path geometry. */
@@ -190,8 +208,8 @@ function applyPointExtentBounds(
 
 /** The rows drawn as points: those whose `point` accessor returns coordinates. */
 export function geomapPointData(v: GeomapViz): DataPoint[] {
-  return v._filteredData.filter(
-    (d: DataPoint, i: number) => v.schema.point(d, i) instanceof Array,
+  return v._filteredData.filter((d: DataPoint, i: number) =>
+    isPointRow(v, d, i),
   );
 }
 
@@ -240,7 +258,7 @@ export function visiblePointData(
 function fitExtentBounds(
   v: GeomapViz,
   ctx: GeomapCtx,
-  coordData: GeomapFeatureCollection,
+  fit: {data: GeomapFeatureCollection; drilled: boolean},
   path: GeomapPath,
   pointData: DataPoint[],
   r: (n: number) => number,
@@ -248,15 +266,14 @@ function fitExtentBounds(
   // The point-radius padding belongs with the extent it was computed for,
   // so a later draw that reuses the cached extent fits the same way.
   ctx.effectivePadding = undefined;
-  const fitData = v.schema.fitObject
-    ? topoFeatures(v.schema.fitObject, v.schema.fitKey)
-    : coordData;
+  const fitData = fit.data;
 
   ctx.extentBounds = {
     type: "FeatureCollection",
-    features: v.schema.fitFilter
-      ? fitData.features.filter(v.schema.fitFilter)
-      : fitData.features.slice(),
+    features:
+      v.schema.fitFilter && !fit.drilled
+        ? fitData.features.filter(v.schema.fitFilter)
+        : fitData.features.slice(),
   };
   ctx.extentBounds.features = reduceExtentFeatures(
     ctx.extentBounds.features,
@@ -270,6 +287,53 @@ function fitExtentBounds(
   ) {
     applyPointExtentBounds(v, ctx, pointData, r, linkCoords);
   }
+}
+
+/**
+    Whether a drill-down zooms the map to the regions drilled into (see
+    `drillEvents.ts`). A map that can't zoom (`zoom` off, small multiples,
+    a server render) fits its projection to them instead.
+*/
+export function drillZooms(v: GeomapViz): boolean {
+  return Boolean(v.schema.zoom) && !v._ssr && !v._facetPanels && !v._facetStep;
+}
+
+/**
+    The features the projection fits, and a key naming them: the regions
+    drilled into on a map that can't zoom to them, else `fitObject`, else
+    the first level of a `topojson` list (so every drill keeps one home
+    view), else the drawn topojson.
+*/
+function fitCollection(
+  v: GeomapViz,
+  coordData: GeomapFeatureCollection,
+  drill: DrillLayout | null,
+): {data: GeomapFeatureCollection; drilled: boolean; key: string} {
+  const collection = (features: Record<string, unknown>[]) => ({
+    type: "FeatureCollection",
+    features,
+  });
+  if (drill && !drillZooms(v)) {
+    const active = drill.regions.filter(region => region.active);
+    return {
+      data: collection(active.map(region => region.feature)),
+      drilled: true,
+      key: `${drill.drill.depth}:${active.map(region => region.id).join("|")}`,
+    };
+  }
+  if (v.schema.fitObject)
+    return {
+      data: topoFeatures(v.schema.fitObject, v.schema.fitKey),
+      drilled: false,
+      key: "",
+    };
+  const topojson = geomapTopojson(v);
+  const home = Array.isArray(topojson) ? fitTopojson(topojson) : null;
+  return {
+    data: home ? collection(levelFeatures(v, home.depth)) : coordData,
+    drilled: false,
+    key: "",
+  };
 }
 
 /**
@@ -361,19 +425,74 @@ function reshapeRegions(
   return cartogram;
 }
 
+/**
+    The clusters of the points drawn, or null (see `geomapPointClusters`).
+    Clustered points keep their pixel size through zoom, so a map that
+    zooms to the regions it drilled into clusters its points from the
+    start. A pending repaint of the last layout's clusters has nothing left
+    to drop.
+*/
+function layoutClusters(
+  v: GeomapViz,
+  ctx: GeomapCtx,
+  visible: DataPoint[],
+  pointR: (d: DataPoint, i: number) => number,
+  drilled: boolean,
+): GeoClusterState | null {
+  const last = (ctx.geomapCtx as {cluster?: GeoClusterState | null} | undefined)
+    ?.cluster;
+  if (last) clearTimeout(last.timer);
+  const cluster = geomapPointClusters(
+    v,
+    visible,
+    pointR,
+    geoZoom(v).k,
+    drilled && drillZooms(v),
+  );
+  v._pointsHoldSize = Boolean(cluster);
+  return cluster;
+}
+
+/**
+    What a draw knows about its drill: the regions at the drilled level,
+    the ids drawn below them, and the view a drill zooms to.
+*/
+function drillScene(
+  drill: DrillLayout,
+  topoData: Record<string, unknown>[],
+  path: GeomapPath,
+  [width, height]: [number, number],
+) {
+  return {
+    regions: drill.regions,
+    childIds: new Set(topoData.map(d => `${d.id}`)),
+    bounds: drillBounds(drill.regions, f => path.bounds(f)),
+    key: drillKey(drill, width, height),
+  };
+}
+
+/**
+    The features of the topojson drawn at the chart's depth (see
+    `topojsonAt`), after `topojsonFilter`.
+*/
+function levelCoordData(v: GeomapViz): GeomapFeatureCollection {
+  const depth = v._drawDepth ?? 0;
+  const topo = topojsonAt(geomapTopojson(v), depth);
+  const coordData: GeomapFeatureCollection = topo
+    ? topoFeatures(topo, topojsonKeyAt(v.schema.topojsonKey, depth))
+    : {type: "FeatureCollection", features: []};
+  if (v.schema.topojsonFilter)
+    coordData.features = coordData.features.filter(v.schema.topojsonFilter);
+  return coordData;
+}
+
 export const applyGeomapLayout: TransformStage = ({viz}) => {
   const v = viz;
   const ctx = viz.ctx as unknown as GeomapCtx;
   const {width, height} = chartBounds(v);
 
-  const coordData: {type: string; features: Record<string, unknown>[]} = v
-    .schema.topojson
-    ? topoFeatures(v.schema.topojson, v.schema.topojsonKey)
-    : {type: "FeatureCollection", features: []};
+  const coordData = levelCoordData(v);
   ctx.coordData = coordData;
-
-  if (v.schema.topojsonFilter)
-    coordData.features = coordData.features.filter(v.schema.topojsonFilter);
 
   const path = (
     d3GeoCore.geoPath as () => {
@@ -382,19 +501,20 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
       centroid: (d: unknown) => [number, number];
       (d: unknown): string;
     }
-  )().projection(v.schema.projection) as ((d: unknown) => string) & {
-    area: (d: unknown) => number;
-    centroid: (d: unknown) => [number, number];
-  };
+  )().projection(v.schema.projection) as GeomapPath;
   ctx.path = path;
 
   const pointData = geomapPointData(v);
 
   const {rows: regionRows, data: pathData} = geomapRegionRows(v);
 
+  // Drilled into a region, the map draws only its children: the regions
+  // with rows (which the drill's filter has narrowed to the region's).
+  const drill = geomapDrillLayout(v);
   const features = coordData.features.reduce(
     (arr: Record<string, unknown>[], feature: Record<string, unknown>) => {
       const id = v.schema.topojsonId(feature);
+      if (drill && !pathData[id]) return arr;
       arr.push({__d3plus__: true, data: pathData[id], feature, id});
       return arr;
     },
@@ -411,8 +531,11 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   const binned = Boolean(geoHexbinSettings(v));
   v._sizeLegendFinal = pointData.length && !binned ? r : null;
 
-  if (!v._zoomSet || !ctx.extentBounds)
-    fitExtentBounds(v, ctx, coordData, path, pointData, r);
+  const fit = fitCollection(v, coordData, drill);
+  if (!v._zoomSet || !ctx.extentBounds || (ctx.fitDrill ?? "") !== fit.key) {
+    fitExtentBounds(v, ctx, fit, path, pointData, r);
+    ctx.fitDrill = fit.key;
+  }
 
   // A globe being dragged keeps the scale it was fitted at.
   if (!v._globeDragging) fitProjection(v, ctx, width, height);
@@ -440,6 +563,9 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
         pointData,
         path as unknown as FlowLayoutInput["path"],
       );
+  const cluster = binned
+    ? null
+    : layoutClusters(v, ctx, visible, pointR, Boolean(drill));
   const density = geomapDensity(v, {
     regions: topoData as unknown as CartogramRegion[],
     rows: regionRows,
@@ -457,8 +583,10 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
       anchors: cartogram ? cartogramAnchors(cartogram) : undefined,
     }),
     topoData,
+    drill: drill && drillScene(drill, topoData, path, [width, height]),
     pathFn: (d: Record<string, unknown>) => featurePath(d.feature),
     pointData: binned ? [] : visible,
+    cluster,
     pointR,
     pointSort: (a: DataPoint, b: DataPoint) =>
       v.schema.pointSize(b) - v.schema.pointSize(a),

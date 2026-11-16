@@ -13,6 +13,8 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {dotDensitySettings} from "./dotDensityLayout.js";
 import {geoBinValue, geoHexbinSettings} from "./geoHexbin.js";
 import {geoHexbinColorRows, rebinOnZoom} from "./geoHexbinZoom.js";
+import {dataRows} from "../features/featuresColorScale.js";
+import {drillsOnMap} from "./drillDown.js";
 
 /** Geomap's `dotDensity` and `hexbin` fields. */
 export function densityFields(): ConfigField[] {
@@ -48,7 +50,9 @@ export function densityFields(): ConfigField[] {
 /**
     Points the colorScale at the bins while `hexbin` is on (it reads each
     bin's measure, from the bins in view), and re-bins them as the map
-    zooms. Runs before each draw.
+    zooms. With a topojson for each level, it reads the rows of the level
+    drawn (every region of that level, through any drill). Runs before
+    each draw.
     @param viz The Geomap.
 */
 export function syncDensityColorScale(viz: VizInstance): void {
@@ -58,7 +62,9 @@ export function syncDensityColorScale(viz: VizInstance): void {
   viz._zoomRescale = settings ? zoom => rebinOnZoom(viz, zoom) : undefined;
   viz._colorScaleRows = settings
     ? () => geoHexbinColorRows(viz, settings)
-    : undefined;
+    : drillsOnMap(viz)
+      ? () => dataRows(viz, viz._drawDepth) as unknown as DataPoint[]
+      : undefined;
 }
 
 /**

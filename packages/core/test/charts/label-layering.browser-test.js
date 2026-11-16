@@ -241,6 +241,7 @@ for (const renderer of ["svg", "canvas"]) {
           .pointSize(d => d.value)
           .pointSizeMax(60)
           .pointSizeMin(30)
+          .pointCluster(false)
           .tiles(false)
           .topojson({
             type: "Topology",

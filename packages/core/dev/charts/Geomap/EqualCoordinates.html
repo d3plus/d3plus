@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>EqualCoordinates · Geomap</title>
+    <meta
+      name="description"
+      content="Points whose data holds an array coordinate with equal values, like [0, 0], draw like any other."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Each row holds its point as [longitude, latitude]; all but one sit
+    // where the two are equal.
+    const points = [
+      {id: "Null Island", coords: [0, 0], value: 40},
+      {id: "Equal 20", coords: [20, 20], value: 25},
+      {id: "Equal -45", coords: [-45, -45], value: 30},
+      {id: "Equal 30", coords: [30, 30], value: 20},
+      {id: "Equal 60", coords: [60, 60], value: 15},
+      {id: "Uneven", coords: [-100, 40], value: 35},
+    ];
+
+    new d3plus.Geomap()
+      .data(points)
+      .groupBy("id")
+      .topojson("./countries.json")
+      .topojsonKey("countries")
+      .topojsonFilter(d => d.id !== "ata")
+      .point(d => d.coords)
+      .pointSize(d => d.value)
+      .pointSizeMin(6)
+      .pointSizeMax(18)
+      .legend(false)
+      .render();
+  </script>
+</html>

@@ -1,7 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
-import {Icicle, RESET, Sunburst, Treemap} from "../../index.ts";
+import {Geomap, Icicle, RESET, Sunburst, Treemap} from "../../index.ts";
 import {hasOwnClick, hasUserClick} from "../../src/charts/viz/userClick.ts";
 
 useJsdom();
@@ -57,4 +57,15 @@ it("each chart knows only its own handlers", () => {
   const b = new Treemap();
   b.on("click.shape", a.on("click.shape"));
   assert.deepStrictEqual(both(b), {own: false, user: true});
+});
+
+it("Geomap: its cluster click wraps the chart's own, and stays its own", () => {
+  const viz = new Geomap();
+  assert.deepStrictEqual(both(viz), {own: true, user: false});
+  viz.config({on: {mouseenter: () => undefined}, depth: 0});
+  assert.deepStrictEqual(both(viz), {own: true, user: false}, "merged");
+  viz.on("click.shape", () => undefined);
+  assert.deepStrictEqual(both(viz), {own: false, user: true}, "the user's");
+  viz.config({on: {"click.shape": RESET}});
+  assert.deepStrictEqual(both(viz), {own: true, user: false}, "key RESET");
 });

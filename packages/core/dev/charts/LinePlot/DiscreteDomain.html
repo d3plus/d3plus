@@ -5,7 +5,7 @@
     <title>DiscreteDomain · LinePlot</title>
     <meta
       name="description"
-      content="xDomain and xConfig.domain on a discrete x axis list the categories it shows, on LinePlots and a BarChart."
+      content="xDomain and xConfig.domain on a discrete x axis list the categories it shows, on LinePlots and a BarChart; a linear xConfig.scale makes xDomain a clipped range."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -27,6 +27,7 @@
     <div class="chart" id="strings"></div>
     <div class="chart" id="config"></div>
     <div class="chart" id="bars"></div>
+    <div class="chart" id="linear"></div>
   </body>
 
   <script>
@@ -84,6 +85,17 @@
         xDomain: [2016, 2019],
       })
       .select("#bars")
+      .render();
+
+    new d3plus.LinePlot()
+      .config({
+        ...config,
+        title: "Linear x scale, xDomain: [2016, 2019]",
+        x: "year",
+        xConfig: {scale: "linear"},
+        xDomain: [2016, 2019],
+      })
+      .select("#linear")
       .render();
   </script>
 </html>

@@ -4,7 +4,10 @@ import {useJsdom} from "~test/jsdom.js";
 import {BarChart, LinePlot} from "../../index.ts";
 import {runStages} from "../../internal.ts";
 import {formatPlotData} from "../../src/charts/Plot/pipeline.ts";
-import {discreteDomainCategories} from "../../src/charts/Plot/discreteDomain.ts";
+import {
+  discreteDomainCategories,
+  isContinuousScale,
+} from "../../src/charts/Plot/discreteDomain.ts";
 
 useJsdom();
 
@@ -119,4 +122,23 @@ it("formatPlotData drops categories outside a horizontal BarChart's yDomain", ()
     ],
     [2016, 2018],
   );
+});
+
+it("isContinuousScale: a scale that draws a range of values, not categories", () => {
+  for (const scale of ["linear", "log", "pow", "sqrt", "time", "utc"])
+    assert.strictEqual(isContinuousScale(scale), true, scale);
+  for (const scale of [undefined, "auto", "band", "ordinal", "point"])
+    assert.strictEqual(isContinuousScale(scale), false, String(scale));
+});
+
+it("discreteDomainCategories: null when the axis config draws a continuous scale", () => {
+  const viz = lineChart().xDomain([2016, 2019]).xConfig({scale: "linear"});
+  viz._preDraw();
+  runStages({viz}, [formatPlotData]);
+  assert.strictEqual(discreteDomainCategories(viz), null);
+});
+
+it("formatPlotData keeps every row when xConfig.scale makes the x axis continuous", () => {
+  const viz = lineChart().xDomain([2016, 2019]).xConfig({scale: "linear"});
+  assert.deepStrictEqual(keptYears(viz), [2015, 2016, 2017, 2018, 2019, 2020]);
 });

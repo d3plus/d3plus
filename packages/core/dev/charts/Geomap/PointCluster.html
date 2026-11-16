@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PointCluster · Geomap</title>
+    <meta
+      name="description"
+      content="Overlapping coordinate points combined into bubbles that split as the map zooms: US cities by region color, 3,000 generated observations, and a building of offices that fans out on click."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #controls {
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 14px;
+        gap: 12px;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <label>
+        Points
+        <select id="points">
+          <option value="cities">US cities, by time zone</option>
+          <option value="observations">3,000 observations, by amount</option>
+          <option value="flows">Cities with flows</option>
+        </select>
+      </label>
+      <label>
+        Radius
+        <input id="radius" type="range" min="10" max="80" value="40" />
+      </label>
+      <label>
+        <input id="cluster" type="checkbox" checked />
+        Cluster
+      </label>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    /** A seeded random stream, so the observations are the same on every load. */
+    function random(seed) {
+      return function () {
+        seed = (seed + 0x6d2b79f5) | 0;
+        var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    /** A city's rough time zone, from its longitude. */
+    function zone(d) {
+      if (d.longitude > -87) return "Eastern";
+      if (d.longitude > -102) return "Central";
+      if (d.longitude > -115) return "Mountain";
+      return "Pacific";
+    }
+
+    var chart;
+    var radius = document.querySelector("#radius");
+    var cluster = document.querySelector("#cluster");
+    var sets = {};
+
+    function pointCluster() {
+      return cluster.checked ? {radius: +radius.value} : false;
+    }
+
+    fetch("./city_coords.json")
+      .then(r => r.json())
+      .then(cities => {
+        // Six offices in one building, which no zoom can pull apart.
+        var offices = ["A", "B", "C", "D", "E", "F"].map(s => ({
+          slug: `office-${s}`,
+          city: `Office ${s}`,
+          region: "NY",
+          latitude: 40.7484,
+          longitude: -73.9857,
+        }));
+        var rows = cities.concat(offices).map(d => ({...d, zone: zone(d)}));
+        sets.cities = {
+          data: rows,
+          groupBy: ["zone", "slug"],
+          label: d => (d.city ? `${d.city}, ${d.region}` : d.id),
+          point: d => [d.longitude, d.latitude],
+          pointSize: 1,
+        };
+
+        var r = random(11);
+        var observations = [];
+        for (var i = 0; i < 3000; i++) {
+          var c = cities[Math.floor(r() * cities.length)];
+          var a = r() * 2 * Math.PI,
+            dist = Math.sqrt(-2 * Math.log(1 - r())) * 0.5;
+          observations.push({
+            id: `obs-${i}`,
+            amount: Math.round(10 + r() * 90),
+            point: [
+              c.longitude + dist * Math.cos(a),
+              c.latitude + dist * Math.sin(a),
+            ],
+          });
+        }
+        sets.observations = {
+          colorScale: "amount",
+          data: observations,
+          groupBy: "id",
+          label: d => `Observation ${String(d.id).slice(4)}`,
+          point: d => d.point,
+          pointSize: d => d.amount,
+        };
+
+        var hubs = ["chicago-il", "atlanta-ga", "denver-co"];
+        sets.flows = {
+          ...sets.cities,
+          links: rows
+            .filter((d, j) => j % 9 === 0 && !hubs.includes(d.slug))
+            .map((d, j) => ({source: hubs[j % hubs.length], target: d.slug})),
+        };
+
+        draw();
+      });
+
+    /** Draws the chosen points on a new map. */
+    function draw() {
+      var kind = document.querySelector("#points").value;
+      document.querySelector("#viz").innerHTML = "";
+      chart = new d3plus.Geomap()
+        .select("#viz")
+        .config({
+          height: 560,
+          pointCluster: pointCluster(),
+          projection: "geoAlbersUsa",
+          topojson: "./State.json",
+          ...sets[kind],
+        })
+        .render();
+    }
+
+    /** Changes how the points cluster, keeping the map's zoom. */
+    function update() {
+      chart.config({pointCluster: pointCluster()}).render();
+    }
+
+    document.querySelector("#points").addEventListener("change", draw);
+    radius.addEventListener("change", update);
+    cluster.addEventListener("change", update);
+  </script>
+</html>
