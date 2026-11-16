@@ -13,7 +13,7 @@ import {canZoom} from "../drawSteps/zoomActions.js";
 import {zoomTo} from "../drawSteps/zoomControls.js";
 import {fitBounds} from "../drawSteps/zoomFit.js";
 import {groupDepthOf} from "../viz/groupRow.js";
-import {setOwnClick} from "../viz/userClick.js";
+import {wrapClick} from "../viz/userClick.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {drillZooms} from "./applyLayout.js";
@@ -60,13 +60,14 @@ export function switchDrill(viz: VizInstance, d: DataPoint): boolean {
 
 /**
     Installs the neighbor click (see `switchDrill`) in front of the chart's
-    shape click, registered as the chart's own so drillable regions keep
-    their pointer and "Click to Expand" note.
+    shape click, still the chart's own when that was (see `wrapClick`), so
+    drillable regions keep their pointer and "Click to Expand" note.
     @param viz The Geomap.
 */
 export function installDrillEvents(viz: VizInstance): void {
-  const on = viz.schema.on as Record<string, Handler | undefined>;
-  const click = on["click.shape"];
+  const click = (viz.schema.on as Record<string, Handler | undefined>)[
+    "click.shape"
+  ];
   const handler: Handler = (d, i, x, event) => {
     if (switchDrill(viz, d)) {
       event?.stopPropagation?.();
@@ -74,8 +75,7 @@ export function installDrillEvents(viz: VizInstance): void {
     }
     return click?.(d, i, x, event);
   };
-  on["click.shape"] = handler;
-  setOwnClick(viz, "click.shape", handler);
+  wrapClick(viz, "click.shape", handler);
 }
 
 /** What a draw knows about the view its drill zooms to. */
