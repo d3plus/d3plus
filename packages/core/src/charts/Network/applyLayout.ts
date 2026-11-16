@@ -38,6 +38,7 @@ import {bundleNetworkLinks} from "./bundle.js";
 import {containNodes} from "./containNodes.js";
 import type {NodeReach} from "./containNodes.js";
 import {minNodeDistance} from "./minNodeDistance.js";
+import {placeNetworkNodes, rememberPositions, stopLive} from "./liveForce.js";
 import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import {
   curveCircleLinks,
@@ -548,17 +549,30 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     v.schema.layout === "circle"
       ? layoutCircleNetwork(v, nodes, links, width, height)
       : undefined;
-  if (!circle) positionNetworkNodes(v, nodes, links);
+  // The `x`/`y` the data gives, before the layout fills every node's in.
+  const dataCoords = new Map(
+    nodes.flatMap(n =>
+      Number.isFinite(n.fx) && Number.isFinite(n.fy)
+        ? [[n.id, [n.fx, n.fy] as [number, number]] as const]
+        : [],
+    ),
+  );
+  if (circle) stopLive(v);
+  else positionNetworkNodes(v, nodes, links);
 
   const r = circle
     ? circle.r
     : scaleNetworkNodes(v, nodes, width, height, links);
   v._sizeLegendFinal = v._size ? (r as unknown as SizeLegendScale) : null;
   sizeRectNodes(v, nodes);
+  // Nodes kept where they were drawn, dropped, or simulated stay put.
+  const placed =
+    !circle && placeNetworkNodes(v, nodes, links, {width, height}, dataCoords);
   normalizeLinkStrokes(v, links, r);
   placeNetworkLoops(nodes, links, circle?.circle.center);
-  if (!circle && keepNodesInside(nodes, links, width, height))
+  if (!circle && !placed && keepNodesInside(nodes, links, width, height))
     placeNetworkLoops(nodes, links);
+  if (!circle) rememberPositions(v, nodes);
   if (circle) placeCircleNetworkLabels(v, nodes, links, circle.circle);
   bundleNetworkLinks(v, links);
   if (circle)

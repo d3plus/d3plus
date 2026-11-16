@@ -34,7 +34,11 @@ import {
 } from "../drawSteps/topLeftControlsMarkup.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {timelineRangeBreaks, timelineUtc} from "../Plot/plotRangeBreaks.js";
-import {startingSelection} from "../pipeline/preDrawData.js";
+import {
+  computeTimeFilter,
+  startingSelection,
+  timeRows,
+} from "../pipeline/preDrawData.js";
 import {classTimelineMode} from "../../components/Timeline/timelineMode.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
@@ -577,6 +581,18 @@ function setTimeFilter(viz: VizInstance, s: Date | Date[] | number[]): void {
 }
 
 /**
+    The rows in the period the chart starts on: its filtered data, or —
+    for a chart that reads time from rows beyond its data (see
+    `ChartDefinition.timeRows`) — those rows that the time filter keeps.
+*/
+function shownRows(viz: VizInstance): DataPoint[] {
+  const own = viz._timeRows?.();
+  if (!own) return viz._filteredData || [];
+  const filter = viz.schema.timeFilter || computeTimeFilter(viz);
+  return filter ? own.filter(filter) : own;
+}
+
+/**
     Converts `drawTimeline.ts` to a FeatureModule.
 
     Visible only when `_time` is set, `_timeline` is truthy, and there is more
@@ -592,7 +608,7 @@ export const timelineFeature: FeatureModule = {
     const utc = timelineUtc(viz);
     const ticks = (
       timelinePossible
-        ? unique(viz._data.map(viz.schema.time)).map((d: unknown) =>
+        ? unique(timeRows(viz).map(viz.schema.time)).map((d: unknown) =>
             date(d as string | number, {utc}),
           )
         : []
@@ -643,7 +659,7 @@ export const timelineFeature: FeatureModule = {
       // vizPreDraw). `timelineDefault` or `timelineConfig.selection` overrides it.
       // A row merged across periods holds each of their times.
       const filtered = extent(
-        (viz._filteredData || [])
+        shownRows(viz)
           .flatMap((d: DataPoint, i: number) => viz.schema.time(d, i))
           .map((d: unknown) => date(d as string | number, {utc})) as Date[],
       ) as [Date, Date];

@@ -185,6 +185,8 @@ function shapeLinks<N extends CircularNode, D>(
     @param links The other links, laid out in place by `run`.
     @param circular The circular links, with node indices for ends.
     @param padding The gap between nodes in a column (`nodePadding`).
+    @param settled Runs once the nodes have their final places, before the
+    circular links are laid out around them (Sankey moves dragged nodes).
 */
 export function layOutCircular<
   N extends CircularNode & {value?: number; depth?: number},
@@ -203,13 +205,18 @@ export function layOutCircular<
   width: number;
   height: number;
   padding: number;
+  settled?: (extent: Extent) => void;
 }): CircularLaidLink<N, D>[] {
-  const {run, nodes, links, circular, width, height, padding} = opts;
-  run([
+  const {run, nodes, links, circular, width, height, padding, settled} = opts;
+  const full: Extent = [
     [0, 0],
     [width, height],
-  ]);
-  if (!circular.length || !nodes.length) return [];
+  ];
+  run(full);
+  if (!circular.length || !nodes.length) {
+    settled?.(full);
+    return [];
+  }
 
   const sized = (ky: number): Sized<N, D>[] =>
     circular.map(l => ({
@@ -267,10 +274,12 @@ export function layOutCircular<
     sankeyScale(nodes),
   );
   const room = capReserve(roomAt(ky), width, height);
-  run([
+  const inner: Extent = [
     [room.left, room.top],
     [width - room.right, height - room.bottom],
-  ]);
+  ];
+  run(inner);
+  settled?.(inner);
 
   // The second pass draws at the scale the layout settled on.
   const columnX = new Map(nodes.map(n => [n.layer, [n.x0, n.x1]] as const));

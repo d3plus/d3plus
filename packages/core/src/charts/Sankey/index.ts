@@ -38,6 +38,9 @@ import {sankeyEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
 import {themeDark, themed} from "../../utils/theme.js";
 import {linkStyleFields} from "../features/linkFields.js";
+import {bindNodeDrag, unbindNodeDrag} from "../features/nodeDrag.js";
+import {runChartDraw} from "../pipeline/runChartDraw.js";
+import {sankeyDragState, sankeyNodeDrag, stopSankeyDrag} from "./sankeyDrag.js";
 
 const sankeyAligns = {
   center: sankeyCenter,
@@ -216,6 +219,25 @@ export const sankeyDef: ChartDefinition = {
       return this;
     };
     v.hover = simpleHover;
+
+    // Dragging a node moves it up or down its column (see `sankeyDrag.ts`).
+    sankeyDragState(viz).relayout = () =>
+      runChartDraw(viz, sankeyDef, applySankeyLayout);
+    const drag = sankeyNodeDrag(viz);
+    const draggable = () =>
+      viz.schema.nodeDrag !== false && !viz._facetPanels?.length;
+    const supDraw = viz._draw.bind(viz);
+    viz._draw = function (callback?: () => void) {
+      const result = supDraw(callback);
+      bindNodeDrag(viz, drag, draggable);
+      return result;
+    };
+    const supDestroy = viz.destroy.bind(viz);
+    viz.destroy = function () {
+      stopSankeyDrag(viz);
+      unbindNodeDrag(viz);
+      return supDestroy();
+    };
   },
 
   ctx: {
@@ -249,6 +271,12 @@ export const sankeyDef: ChartDefinition = {
     {key: "noDataMessage", default: false},
     {key: "nodes", default: accessor("nodes")},
     {key: "nodeAlign", default: sankeyJustify},
+    /**
+        Lets the viewer drag each node up or down its column, its links
+        following it. A dropped node stays where it is dropped until the
+        data, `nodes`, or `links` change.
+    */
+    {key: "nodeDrag", default: true},
     {key: "nodeId", default: accessor("id")},
     /** The vertical gap between nodes in the same column, in pixels. */
     {key: "nodePadding", default: 8},

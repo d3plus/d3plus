@@ -402,6 +402,21 @@ function reorderNodeLinks(
   }
 }
 
+/**
+    Re-stacks the links at each node after nodes have moved: each node's
+    links in the order of the nodes at their other ends (unless `linkSort`
+    orders them), then their places along the node.
+    @param nodes The laid-out nodes.
+    @param linkSort The layout's `linkSort`, if any.
+*/
+export function sankeyRelink(
+  nodes: SankeyNode[],
+  linkSort?: Comparator<SankeyLink> | null,
+): void {
+  reorderLinks({linkSort} as LayoutState, nodes);
+  computeLinkBreadths(nodes);
+}
+
 function reorderLinks(s: LayoutState, nodes: SankeyNode[]): void {
   if (s.linkSort === undefined) {
     for (const {sourceLinks, targetLinks} of nodes) {

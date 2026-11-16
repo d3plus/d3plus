@@ -63,6 +63,13 @@ interface ChartDefinitionBase {
   */
   tableData?: (viz: VizInstance) => DataPoint[] | null;
   /**
+      Optional rows whose `time` values the timeline lists and the starting
+      period is picked from, in place of the chart's data: for a chart whose
+      marks also come from rows outside it that carry a time (Network's
+      `nodes` and `links`).
+  */
+  timeRows?: (viz: VizInstance) => DataPoint[];
+  /**
       Optional shape a colorScale row draws as, when it isn't the row's
       `shape`: the `shapeConfig` key the colorScale's bucket swatches take
       their stroke and opacity from (a Geomap row drawn as a topojson Path).

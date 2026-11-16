@@ -20,6 +20,8 @@ import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {warnConfigOnce} from "../../utils/configWarnings.js";
 import {layOutCircular} from "./circularLayout.js";
+import {shiftSankeyNodes} from "./sankeyDrag.js";
+import type {DraggedNode} from "./sankeyDrag.js";
 import {sankeyNodeValue} from "./circularLinks.js";
 import type {CircularNode} from "./circularLinks.js";
 import {sankeyAcyclicLinks} from "./sankeyCycles.js";
@@ -247,6 +249,10 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     .iterations(v.schema.iterations);
   const laid = layOutCircular({
     run: extent => layout.extent(extent)(),
+    // Dragged nodes move once the layout settles, so moving one doesn't
+    // turn a circular link to the other side and shift every node.
+    settled: extent =>
+      shiftSankeyNodes(v, nodes as unknown as DraggedNode[], extent),
     nodes: nodes as unknown as (SankeyWrappedNode & CircularNode)[],
     links: links as unknown as LaidLink[],
     circular,

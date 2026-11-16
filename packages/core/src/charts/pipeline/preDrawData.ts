@@ -89,6 +89,31 @@ export function startingSelection(viz: Viz): Date[] | undefined {
 }
 
 /**
+    The rows the timeline reads its periods from: the chart's data, or the
+    rows its definition names (see `ChartDefinition.timeRows`).
+*/
+export function timeRows(viz: Viz): DataPoint[] {
+  return viz._timeRows?.() ?? viz._data;
+}
+
+/**
+    `filter`, passing every row without a `time` value too, for a chart that
+    reads time from rows beyond its data (see `ChartDefinition.timeRows`):
+    a row that names no period belongs to every one.
+    @param viz The chart.
+    @param filter The time filter.
+*/
+export function timelessPass(viz: Viz, filter: TimeFilterFn): TimeFilterFn {
+  const time = viz.schema.time as
+    ((d: DataPoint, i: number) => unknown) | undefined;
+  if (!time) return filter;
+  return (d, i) => {
+    const t = time(d, i);
+    return t === undefined || t === null || t === "" || filter(d, i);
+  };
+}
+
+/**
     Computes a NEW timeFilter when `time` is set but `timeFilter` isn't and
     data exists; returns undefined otherwise. It keeps the timeline's
     `startingSelection`, or else the latest period(s).
@@ -98,18 +123,19 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
   const time = viz.schema.time;
   const start = time && !viz.schema.timeFilter && startingSelection(viz);
   const utc = timelineUtc(viz);
-  if (time && start && viz._data.length) {
+  const rows = timeRows(viz);
+  if (time && start && rows.length) {
     const [from, to] = start.map(Number);
     return (d: DataPoint, i: number) => {
       const ms = Number(date(time(d, i) as Parameters<typeof date>[0], {utc}));
       return ms >= from && ms <= to;
     };
   }
-  if (viz.schema.time && !viz.schema.timeFilter && viz._data.length) {
-    const dates = viz._data
+  if (viz.schema.time && !viz.schema.timeFilter && rows.length) {
+    const dates = rows
       .map(viz.schema.time)
       .map(d => date(d as Parameters<typeof date>[0], {utc}));
-    const d = viz._data[0],
+    const d = rows[0],
       i = 0;
     if (
       viz._timeOnDiscrete ||
@@ -207,7 +233,9 @@ export function computeFilteredData(
   const filteredData: DataPoint[] = [];
   const legendData: DataPoint[] = [];
   if (data.length) {
-    const effectiveTimeFilter = viz.schema.timeFilter || computedTimeFilter;
+    let effectiveTimeFilter = viz.schema.timeFilter || computedTimeFilter;
+    if (effectiveTimeFilter && viz._timeRows?.())
+      effectiveTimeFilter = timelessPass(viz, effectiveTimeFilter);
     let flatData = effectiveTimeFilter
       ? data.filter(effectiveTimeFilter)
       : data;
