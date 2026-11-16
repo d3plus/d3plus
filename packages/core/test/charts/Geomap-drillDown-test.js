@@ -44,11 +44,12 @@ import {geomapTopojson} from "../../src/charts/Geomap/topojsonLevels.ts";
 import {dataRows} from "../../src/charts/features/featuresColorScale.ts";
 import {syncDensityColorScale} from "../../src/charts/Geomap/densityFields.ts";
 import {linkTooltipConfig} from "../../src/charts/features/linkInteraction.ts";
+import {colorScaleHoverValue} from "../../src/charts/features/colorScaleHover.ts";
 import {
   GROUP_DEPTH_KEY,
   GROUP_LABEL_KEY,
 } from "../../src/charts/viz/groupRow.ts";
-import {hasOwnClick} from "../../src/charts/viz/userClick.ts";
+import {hasOwnClick, hasUserClick} from "../../src/charts/viz/userClick.ts";
 
 useJsdom();
 
@@ -428,6 +429,8 @@ it("installDrillEvents puts the neighbor click before the chart's own", () => {
   const calls = [];
   viz.schema.on["click.shape"] = (...a) => calls.push(a);
   installDrillEvents(viz);
+  assert.ok(!hasOwnClick(viz, "click.shape"), "a user's handler stays theirs");
+  assert.ok(hasUserClick(viz, "click.shape"));
   viz.schema.on["click.shape"](countyRows[0], 0, undefined, {});
   assert.strictEqual(calls.length, 1, "not a neighbor: passed on");
 });
@@ -458,6 +461,19 @@ it("a drill-down map's colorScale reads the level drawn", () => {
   const single = laidOut(chart({topojson: states}));
   syncDensityColorScale(single);
   assert.strictEqual(single._colorScaleRows, undefined);
+});
+
+it("a neighbor marks nothing on the colorScale, a child its value", () => {
+  const viz = drillInto(chart());
+  const nodes = geomapEmit({viz});
+  const ok = nodes.find(n => n.key === `geomap-path-${OK}`);
+  const harris = nodes.find(n => n.key === "geomap-path-05000US48201");
+  viz._colorScaleClass = {hover: () => undefined};
+  assert.strictEqual(colorScaleHoverValue(viz, ok), null);
+  assert.strictEqual(
+    colorScaleHoverValue(viz, harris),
+    harris.datum.data?.Population ?? harris.datum.Population,
+  );
 });
 
 it("a group row titles its tooltip with its own label", () => {

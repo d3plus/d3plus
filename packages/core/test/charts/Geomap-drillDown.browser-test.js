@@ -138,6 +138,25 @@ const tooltipText = () =>
     .map(el => el.textContent.replace(/\s+/g, " "))
     .join("|");
 
+/**
+    Runs in the page: the value the colorScale marks, its swatches'
+    opacities, and how many hover-mark nodes it draws.
+*/
+const colorScaleMark = () => {
+  const viz = window.__viz;
+  const out = {value: viz._colorScaleClass.hover(), swatches: [], marks: 0};
+  const walk = n => {
+    let d = n.datum;
+    while (d && d.__d3plus__ && d.data) d = d.data;
+    if (d && d._isColorScaleBucket && n.type !== "text")
+      out.swatches.push(n.paint?.opacity ?? 1);
+    if (/-hover-(tick|pointer|outline)$/.test(String(n.key))) out.marks++;
+    (n.children || []).forEach(walk);
+  };
+  walk(viz._paintedScene.root);
+  return out;
+};
+
 /** Waits for the page's timers, frames, and redraws to settle. */
 const settle = (page, ms = 400) =>
   page.evaluate(ms => new Promise(r => setTimeout(r, ms)), ms);
@@ -174,6 +193,32 @@ for (const renderer of ["svg", "canvas"]) {
       const tip = await page.evaluate(tooltipText);
       assert.ok(tip.includes("Oklahoma"), `tooltip: ${tip}`);
       assert.ok(tip.includes("Click to Expand"), tip);
+      // The colorScale describes the counties: a state marks nothing on it.
+      const neighborMark = await page.evaluate(colorScaleMark);
+      assert.ok(!neighborMark.value, `marked ${neighborMark.value}`);
+      assert.ok(neighborMark.swatches.length > 1);
+      assert.ok(
+        neighborMark.swatches.every(o => o === 1),
+        "no swatch lit",
+      );
+      assert.strictEqual(neighborMark.marks, 0, "no hover mark");
+      const harris = drilled.paths[path("05000US48201")];
+      await page.mouse.move(harris.x - 2, harris.y - 2);
+      await page.mouse.move(harris.x, harris.y, {steps: 3});
+      await settle(page);
+      const countyMark = await page.evaluate(colorScaleMark);
+      assert.ok(countyMark.value > 1e6, `a county marks ${countyMark.value}`);
+      assert.ok(
+        countyMark.swatches.some(o => o < 1),
+        "its swatch lit, the others dimmed",
+      );
+      await page.mouse.move(ok.x - 3, ok.y - 3);
+      await page.mouse.move(ok.x, ok.y, {steps: 3});
+      await settle(page);
+      assert.ok(
+        !(await page.evaluate(colorScaleMark)).value,
+        "back on a state, it clears",
+      );
       await page.mouse.click(ok.x, ok.y);
       await settle(page);
       const switched = await page.evaluate(drawn);
