@@ -535,7 +535,8 @@ describe("charts/circleLabelPlacement placeCircleLabels (covered)", () => {
 
 describe("charts/circleLabelPlacement placeCircleLabels slide", () => {
   // Boxes that leave one open window above and right of a circle at
-  // (200, 150): only its label slid all the way right along the top fits.
+  // (200, 150): only its label slid all the way right along the top fits,
+  // half a pixel from the boxes (so these tests keep no `slideSpacing`).
   const circle = {x: 200, y: 150, r: 5};
   const walls = (left = 199.5) => [
     {x: 0, y: 0, width: left, height: 300},
@@ -552,6 +553,7 @@ describe("charts/circleLabelPlacement placeCircleLabels slide", () => {
     const [slid] = placeCircleLabels([circle], [label(0)], bounds, {
       obstacles: walls(),
       slide: true,
+      slideSpacing: 0,
     });
     assert.deepStrictEqual(slid, {
       position: "outside",
@@ -565,7 +567,7 @@ describe("charts/circleLabelPlacement placeCircleLabels slide", () => {
     // A circle 1px from the open window: in the way at the default
     // clearance (the 3px gap), not with no clearance.
     const near = {x: 246, y: 135, r: 5};
-    const opts = {obstacles: walls(), slide: true};
+    const opts = {obstacles: walls(), slide: true, slideSpacing: 0};
     const [kept] = placeCircleLabels([circle, near], [label(0)], bounds, opts);
     assert.strictEqual(kept.position, "hidden");
     const [close] = placeCircleLabels([circle, near], [label(0)], bounds, {
@@ -576,9 +578,22 @@ describe("charts/circleLabelPlacement placeCircleLabels slide", () => {
     assert.strictEqual(close.slide, 1);
   });
 
+  it("keeps a slid label `slideSpacing` from other boxes", () => {
+    // The window's walls sit half a pixel from the slid label: too near at
+    // the default spacing (the 3px gap), not at a quarter pixel.
+    const opts = {obstacles: walls(), slide: true};
+    const [spaced] = placeCircleLabels([circle], [label(0)], bounds, opts);
+    assert.strictEqual(spaced.position, "hidden");
+    const [close] = placeCircleLabels([circle], [label(0)], bounds, {
+      ...opts,
+      slideSpacing: 0.25,
+    });
+    assert.strictEqual(close.slide, 1);
+  });
+
   it("takes the open slot crossing the fewest segments", () => {
     // Two slots open (slid half and all the way right); a link crosses the first.
-    const opts = {obstacles: walls(189.5), slide: true};
+    const opts = {obstacles: walls(189.5), slide: true, slideSpacing: 0};
     const [first] = placeCircleLabels([circle], [label(0)], bounds, opts);
     assert.strictEqual(first.slide, 0.5);
     const [clear] = placeCircleLabels([circle], [label(0)], bounds, {
@@ -635,6 +650,31 @@ describe("charts/circleLabelPlacement placeCircleLabels slide", () => {
       {slide: true},
     );
     assert.strictEqual(moved.side, "right");
+  });
+
+  it("spaces a kept slot only when it is slid", () => {
+    // A box 1px right of the label's right side: a centered previous slot
+    // keeps no spacing and holds; one slid down needs the gap and moves.
+    const circles = [{x: 200, y: 150, r: 5}];
+    const opts = {
+      slide: true,
+      obstacles: [{x: 249, y: 140, width: 10, height: 30}],
+    };
+    const [centered] = placeCircleLabels(
+      circles,
+      [label(0, {previous: {side: "right", slide: 0}})],
+      bounds,
+      opts,
+    );
+    assert.strictEqual(centered.side, "right");
+    assert.strictEqual(centered.slide, undefined);
+    const [slid] = placeCircleLabels(
+      circles,
+      [label(0, {previous: {side: "right", slide: 0.5}})],
+      bounds,
+      opts,
+    );
+    assert.ok(!(slid.side === "right" && slid.slide === 0.5), "moved");
   });
 
   it("places the same labels the same way every time", () => {

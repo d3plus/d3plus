@@ -262,7 +262,8 @@ describe("charts/circleLabels layoutCircleLabels", () => {
     const strip = {x: 0, y: 0, width: 400, height: 20};
     const items = [item("a", 200, 4, 3, "Beta")];
     assert.strictEqual(
-      layoutCircleLabels(chart(), items, strip).get("a").position,
+      layoutCircleLabels(chart(), items, strip, [], {slide: false}).get("a")
+        .position,
       "hidden",
     );
     const slid = layoutCircleLabels(chart(), items, strip, [], {slide: true});
@@ -273,6 +274,25 @@ describe("charts/circleLabels layoutCircleLabels", () => {
       segments: [{x1: 215, y1: 0, x2: 215, y2: 20}],
     });
     assert.strictEqual(clear.get("a").side, "left");
+  });
+
+  it("slides by default, unless the chart's labelSlide is false", () => {
+    const strip = {x: 0, y: 0, width: 400, height: 20};
+    const items = [item("a", 200, 4, 3, "Beta")];
+    assert.strictEqual(
+      layoutCircleLabels(chart(), items, strip).get("a").slide,
+      0.5,
+    );
+    assert.strictEqual(
+      layoutCircleLabels(chart({labelSlide: true}), items, strip).get("a")
+        .position,
+      "outside",
+    );
+    assert.strictEqual(
+      layoutCircleLabels(chart({labelSlide: false}), items, strip).get("a")
+        .position,
+      "hidden",
+    );
   });
 
   it("keeps the slot a label held last frame", () => {
