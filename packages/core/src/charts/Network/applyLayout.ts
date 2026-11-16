@@ -7,13 +7,9 @@
     `viz.ctx` for the click/hover handlers installed by `setup`.
 */
 
-import {extent, max, min, groups} from "d3-array";
-import {forceLink, forceManyBody, forceSimulation} from "d3-force";
-import type {SimulationNodeDatum, SimulationLinkDatum} from "d3-force";
-import {polygonHull} from "d3-polygon";
+import {extent, min, groups} from "d3-array";
 import * as scales from "d3-scale";
 
-import {largestRect, pointRotate} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../features/chartGeometry.js";
@@ -37,7 +33,9 @@ import type {FocusBox} from "../features/linkFocus.js";
 import {bundleNetworkLinks} from "./bundle.js";
 import {containNodes} from "./containNodes.js";
 import type {NodeReach} from "./containNodes.js";
+import {forceLayout} from "./forceLayout.js";
 import {minNodeDistance} from "./minNodeDistance.js";
+import {placeNetworkNodes, rememberPositions, stopLive} from "./liveForce.js";
 import {graphLinkEnd, resolveGraphLinks, resolveGraphNodes} from "./graph.js";
 import {
   curveCircleLinks,
@@ -46,15 +44,6 @@ import {
   placeCircleNetworkLabels,
 } from "./circleLayout.js";
 import type {GraphLink, GraphNode} from "./graph.js";
-
-interface NetworkLayoutNode extends SimulationNodeDatum {
-  id: string;
-  size?: number;
-  shape?: string;
-}
-interface NetworkLayoutLink extends SimulationLinkDatum<NetworkLayoutNode> {
-  size?: number;
-}
 
 /** Single laid-out node — accreted across the layout's passes. */
 type NetworkNode = GraphNode;
@@ -72,62 +61,6 @@ const buildNetworkLinks = resolveGraphLinks as (
   v: Parameters<TransformStage>[0]["viz"],
   nodes: NetworkNode[],
 ) => NetworkLink[];
-
-/** Runs the d3-force simulation, rotating results to the largest fitting rect. */
-function runForceLayout(nodes: NetworkNode[], links: NetworkLink[]): void {
-  const linkStrength = scales
-    .scaleLinear()
-    .domain(extent(links, (d: {size: number}) => d.size) as [number, number])
-    .range([0.1, 0.5]);
-
-  const simulation = forceSimulation()
-    .force(
-      "link",
-      forceLink(links as unknown as NetworkLayoutLink[])
-        .id((d: SimulationNodeDatum) => (d as NetworkLayoutNode).id)
-        .distance(1)
-        .strength((d: NetworkLayoutLink) => linkStrength(d.size as number))
-        .iterations(4),
-    )
-    .force("charge", forceManyBody().strength(-1))
-    .stop();
-
-  const iterations = 100;
-  const alphaMin = 0.001;
-  const alphaDecay = 1 - Math.pow(alphaMin, 1 / iterations);
-  simulation.velocityDecay(0);
-  simulation.alphaMin(alphaMin);
-  simulation.alphaDecay(alphaDecay);
-  simulation.alphaDecay(0);
-  simulation.nodes(nodes);
-  simulation.tick(iterations).stop();
-
-  const nodePositions = nodes.map(
-    n => [n.vx ?? 0, n.vy ?? 0] as [number, number],
-  );
-  let angle = 0,
-    cx = 0,
-    cy = 0;
-  if (nodePositions.length === 2) {
-    angle = 100;
-  } else if (nodePositions.length > 2) {
-    const hull = polygonHull(nodePositions) || [];
-    const rect = largestRect(hull, {verbose: true})!;
-    angle = rect.angle;
-    cx = rect.cx;
-    cy = rect.cy;
-  }
-
-  nodes.forEach(n => {
-    const p = pointRotate(
-      [n.vx ?? 0, n.vy ?? 0],
-      -1 * ((Math.PI / 180) * angle),
-      [cx, cy],
-    );
-    n.fx = p[0];
-    n.fy = p[1];
-  });
-}
 
 /**
     Places `lone` (nodes no link pulls on) in rows under `placed`, as far
@@ -177,13 +110,14 @@ export function placeLoneNodes(
     depends only on the node ids and links, so its result is cached on
     `v.ctx` and reused by the size legend's pre-layout estimate and the
     layout that follows it. Links from a node to itself don't take part.
+    Returns whether the layout placed the nodes.
 */
 function positionNetworkNodes(
   v: Parameters<TransformStage>[0]["viz"],
   nodes: NetworkNode[],
   links: NetworkLink[],
-): void {
-  if (!nodes.some(n => n.fx === undefined || n.fy === undefined)) return;
+): boolean {
+  if (!nodes.some(n => n.fx === undefined || n.fy === undefined)) return false;
   // Only links between two resolved, distinct nodes pull on the layout.
   const pulling = links.filter(l => l.source && l.target && !isSelfLoop(l));
   const key = `${nodes.map(n => n.id).join("\u0000")}|${pulling
@@ -196,16 +130,17 @@ function positionNetworkNodes(
       n.fx = cache.positions[i][0];
       n.fy = cache.positions[i][1];
     });
-    return;
+    return true;
   }
   const linked = new Set(pulling.flatMap(l => [l.source, l.target]));
   const placed = nodes.filter(n => linked.has(n));
-  if (placed.length) runForceLayout(placed, pulling);
+  if (placed.length) forceLayout(placed, pulling);
   placeLoneNodes(
     placed,
     nodes.filter(n => !linked.has(n)),
   );
   v.ctx.networkForceCache = {key, positions: nodes.map(n => [n.fx, n.fy])};
+  return true;
 }
 
 /**
@@ -235,13 +170,14 @@ export function networkSizeLegendScale(
   if (v.schema.layout === "circle")
     return layoutCircleNetwork(v, nodes, links, width, height)
       .r as unknown as SizeLegendScale;
-  positionNetworkNodes(v, nodes, links);
+  const laidOut = positionNetworkNodes(v, nodes, links);
   return scaleNetworkNodes(
     v,
     nodes,
     width,
     height,
     links,
+    laidOut,
   ) as unknown as SizeLegendScale;
 }
 
@@ -308,10 +244,58 @@ function nodeBoxes(
   return boxes;
 }
 
+/** The share of the chart's smaller side a node's radius can reach. */
+const MAX_RADIUS_SHARE = 1 / 12;
+
+/**
+    The largest node radius a layout leaves room for, before the fit to the
+    chart: half the distance between the closest two nodes (at least 1),
+    and no more than a twelfth of the chart's smaller side, so a network of
+    few nodes doesn't draw them huge.
+    @param minDistance The distance between the closest two nodes, or
+    undefined for a single node.
+    @param width The chart area's width.
+    @param height The chart area's height.
+*/
+export function layoutMaxRadius(
+  minDistance: number | undefined,
+  width: number,
+  height: number,
+): number {
+  const spacing =
+    minDistance === undefined ? Infinity : Math.max(1, minDistance / 2 || 0);
+  return Math.min(spacing, Math.min(width, height) * MAX_RADIUS_SHARE);
+}
+
+/**
+    The share a node's radius keeps when the fit widens an axis's domain
+    from `before` to `after` to make room for the nodes. An axis the nodes
+    don't spread along (they sit in one row or column) keeps them at its
+    middle, so the radius only shrinks when the `needed` pixels exceed the
+    `available` ones.
+    @param before The domain's size before the fit.
+    @param after The domain's size after it.
+    @param spread The nodes' largest domain size on either axis.
+    @param needed The pixels the nodes and their loops cover on the axis.
+    @param available The chart's pixels on the axis.
+*/
+export function axisFitShare(
+  before: number,
+  after: number,
+  spread: number,
+  needed: number,
+  available: number,
+): number {
+  if (before > spread * 1e-9) return before / after;
+  return needed > available ? available / needed : 1;
+}
+
 /**
     Positions nodes within bounds and assigns final r/width/height via a
     fitted radius scale. Nodes with a link in `links` to themselves keep
-    room for their loops, strokes included.
+    room for their loops, strokes included. Nodes the force layout placed
+    (`laidOut`) are capped by `layoutMaxRadius` and fit by `axisFitShare`;
+    nodes at their data's x/y are sized by their spacing alone.
 */
 function scaleNetworkNodes(
   v: Parameters<TransformStage>[0]["viz"],
@@ -319,6 +303,7 @@ function scaleNetworkNodes(
   width: number,
   height: number,
   links: NetworkLink[] = [],
+  laidOut = false,
 ): RScale {
   const xExtent = extent(nodes.map(n => n.fx)) as unknown as [number, number];
   const yExtent = extent(nodes.map(n => n.fy)) as unknown as [number, number];
@@ -343,9 +328,12 @@ function scaleNetworkNodes(
   });
 
   const rExtent = extent(nodes.map(n => n.r)) as unknown as [number, number];
+  const minDistance = minNodeDistance(nodes);
   let rMax =
     v.schema.sizeMax ||
-    (max([1, (minNodeDistance(nodes) as number) / 2]) as unknown as number);
+    (laidOut
+      ? layoutMaxRadius(minDistance, width, height)
+      : Math.max(1, (minDistance ?? 0) / 2 || 0));
 
   const r: RScale = (scales as unknown as Record<string, () => RScale>)
     [
@@ -368,16 +356,27 @@ function scaleNetworkNodes(
   // the outline up to ~3×) isn't clipped by the container edge — a node sitting
   // flush against the bottom/side would otherwise lose a pixel or two of stroke.
   const strokePad = 3;
+  const reach = [Infinity, Infinity, -Infinity, -Infinity];
   for (const [[x0, y0], [x1, y1]] of nodeBoxes(v, nodes, links, r)) {
     xDomain[0] = Math.min(xDomain[0], x.invert(x0 - strokePad));
     xDomain[1] = Math.max(xDomain[1], x.invert(x1 + strokePad));
     yDomain[0] = Math.min(yDomain[0], y.invert(y0 - strokePad));
     yDomain[1] = Math.max(yDomain[1], y.invert(y1 + strokePad));
+    reach[0] = Math.min(reach[0], x0 - strokePad);
+    reach[1] = Math.min(reach[1], y0 - strokePad);
+    reach[2] = Math.max(reach[2], x1 + strokePad);
+    reach[3] = Math.max(reach[3], y1 + strokePad);
   }
 
   const xNewSize = xDomain[1] - xDomain[0];
   const yNewSize = yDomain[1] - yDomain[0];
-  rMax *= min([xOldSize / xNewSize, yOldSize / yNewSize])!;
+  const spread = Math.max(xOldSize, yOldSize);
+  rMax *= laidOut
+    ? Math.min(
+        axisFitShare(xOldSize, xNewSize, spread, reach[2] - reach[0], width),
+        axisFitShare(yOldSize, yNewSize, spread, reach[3] - reach[1], height),
+      )
+    : min([xOldSize / xNewSize, yOldSize / yNewSize])!;
   r.range([
     rExtent[0] === rExtent[1] ? rMax : min([rMax / 2, v.schema.sizeMin]),
     rMax,
@@ -548,17 +547,30 @@ export const applyNetworkLayout: TransformStage = ({viz}) => {
     v.schema.layout === "circle"
       ? layoutCircleNetwork(v, nodes, links, width, height)
       : undefined;
-  if (!circle) positionNetworkNodes(v, nodes, links);
+  // The `x`/`y` the data gives, before the layout fills every node's in.
+  const dataCoords = new Map(
+    nodes.flatMap(n =>
+      Number.isFinite(n.fx) && Number.isFinite(n.fy)
+        ? [[n.id, [n.fx, n.fy] as [number, number]] as const]
+        : [],
+    ),
+  );
+  const laidOut = !circle && positionNetworkNodes(v, nodes, links);
+  if (circle) stopLive(v);
 
   const r = circle
     ? circle.r
-    : scaleNetworkNodes(v, nodes, width, height, links);
+    : scaleNetworkNodes(v, nodes, width, height, links, laidOut);
   v._sizeLegendFinal = v._size ? (r as unknown as SizeLegendScale) : null;
   sizeRectNodes(v, nodes);
+  // Nodes kept where they were drawn, dropped, or simulated stay put.
+  const placed =
+    !circle && placeNetworkNodes(v, nodes, links, {width, height}, dataCoords);
   normalizeLinkStrokes(v, links, r);
   placeNetworkLoops(nodes, links, circle?.circle.center);
-  if (!circle && keepNodesInside(nodes, links, width, height))
+  if (!circle && !placed && keepNodesInside(nodes, links, width, height))
     placeNetworkLoops(nodes, links);
+  if (!circle) rememberPositions(v, nodes);
   if (circle) placeCircleNetworkLabels(v, nodes, links, circle.circle);
   bundleNetworkLinks(v, links);
   if (circle)

@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>NodeDrag · Sankey</title>
+    <meta
+      name="description"
+      content="Drag a node up or down its column (or Shift + arrow keys on a focused node); its neighbors make way and its links follow."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0 16px 16px;
+      }
+
+      .chart {
+        height: 480px;
+        margin-bottom: 24px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>
+      Drag a node up or down, or focus one and use Shift + Up/Down
+      (Shift+Backspace moves it back)
+    </h3>
+    <div id="energy" class="chart"></div>
+    <h3>Wide gaps: drag a source into its neighbors to push them aside</h3>
+    <div id="gaps" class="chart"></div>
+    <h3>With a circular link (Recycling feeds back into Production)</h3>
+    <div id="circular" class="chart"></div>
+    <h3>nodeDrag: false</h3>
+    <div id="fixed" class="chart"></div>
+  </body>
+
+  <script>
+    var links = [
+      {source: "Coal", target: "Electricity", value: 30},
+      {source: "Natural Gas", target: "Electricity", value: 25},
+      {source: "Natural Gas", target: "Residential", value: 12},
+      {source: "Natural Gas", target: "Industrial", value: 14},
+      {source: "Nuclear", target: "Electricity", value: 18},
+      {source: "Solar", target: "Electricity", value: 6},
+      {source: "Wind", target: "Electricity", value: 9},
+      {source: "Petroleum", target: "Transportation", value: 35},
+      {source: "Petroleum", target: "Industrial", value: 9},
+      {source: "Electricity", target: "Residential", value: 20},
+      {source: "Electricity", target: "Commercial", value: 18},
+      {source: "Electricity", target: "Industrial", value: 12},
+      {source: "Electricity", target: "Conversion Losses", value: 38},
+      {source: "Residential", target: "Energy Services", value: 21},
+      {source: "Residential", target: "Rejected Energy", value: 11},
+      {source: "Commercial", target: "Energy Services", value: 12},
+      {source: "Commercial", target: "Rejected Energy", value: 6},
+      {source: "Industrial", target: "Energy Services", value: 24},
+      {source: "Industrial", target: "Rejected Energy", value: 11},
+      {source: "Transportation", target: "Energy Services", value: 8},
+      {source: "Transportation", target: "Rejected Energy", value: 27},
+    ];
+
+    new d3plus.Sankey().select("#energy").links(links).value("value").render();
+
+    new d3plus.Sankey()
+      .select("#gaps")
+      .links([
+        {source: "North", target: "Ann", value: 1},
+        {source: "North", target: "Bo", value: 1},
+        {source: "Middle", target: "Cy", value: 1},
+        {source: "South", target: "Di", value: 1},
+        {source: "South", target: "Ed", value: 1},
+      ])
+      .nodePadding(40)
+      .value("value")
+      .render();
+
+    new d3plus.Sankey()
+      .select("#circular")
+      .links([
+        {source: "Mining", target: "Production", value: 20},
+        {source: "Production", target: "Use", value: 26},
+        {source: "Use", target: "Waste", value: 14},
+        {source: "Use", target: "Recycling", value: 12},
+        {source: "Recycling", target: "Production", value: 6},
+      ])
+      .value("value")
+      .render();
+
+    new d3plus.Sankey()
+      .select("#fixed")
+      .links(links)
+      .nodeDrag(false)
+      .value("value")
+      .render();
+  </script>
+</html>

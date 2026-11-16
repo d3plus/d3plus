@@ -268,6 +268,16 @@ const layoutCharts = [
     () => new Network().nodes(networkNodes).links(networkLinks),
     applyNetworkLayout,
   ],
+  // The same graph without x/y, placed by the precomputed force layout.
+  [
+    "layout-network-force",
+    () =>
+      new Network()
+        .forceLive(false)
+        .nodes(networkNodes.map(({id}) => ({id})))
+        .links(networkLinks),
+    applyNetworkLayout,
+  ],
 ];
 // Radar, Priestley, and Matrix are intentionally absent: their layout stages
 // emit geometry to the scene rather than returning it on `shapeData`, so the

@@ -1,0 +1,95 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Symmetric Graphs · Network</title>
+    <meta
+      name="description"
+      content="Precomputed force layout on symmetric graphs: a star, a binary tree, and Les Misérables, each spread out with readable node sizes (forceLive false)."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 480px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>A star: one hub, twelve leaves</h3>
+        <div class="viz" id="star"></div>
+      </div>
+      <div>
+        <h3>A binary tree of 31 nodes</h3>
+        <div class="viz" id="tree"></div>
+      </div>
+      <div>
+        <h3>Les Misérables, links sized by weight</h3>
+        <div class="viz" id="lesmis"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // forceLive(false) shows the precomputed layout as it is, without the
+    // live simulation settling it further.
+    var starNodes = [{id: "hub"}];
+    var starLinks = [];
+    for (var i = 1; i <= 12; i++) {
+      starNodes.push({id: "leaf " + i});
+      starLinks.push({source: "hub", target: "leaf " + i});
+    }
+    new d3plus.Network()
+      .select("#star")
+      .forceLive(false)
+      .nodes(starNodes)
+      .links(starLinks)
+      .render();
+
+    var treeNodes = [];
+    var treeLinks = [];
+    for (var j = 0; j < 31; j++) {
+      treeNodes.push({id: "n" + j});
+      if (j)
+        treeLinks.push({
+          source: "n" + Math.floor((j - 1) / 2),
+          target: "n" + j,
+        });
+    }
+    new d3plus.Network()
+      .select("#tree")
+      .forceLive(false)
+      .nodes(treeNodes)
+      .links(treeLinks)
+      .render();
+
+    fetch("./lesmis.json")
+      .then(resp => resp.json())
+      .then(function (graph) {
+        new d3plus.Network()
+          .select("#lesmis")
+          .forceLive(false)
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .render();
+      });
+  </script>
+</html>

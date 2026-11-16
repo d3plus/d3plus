@@ -802,6 +802,8 @@ export interface VizInstance {
   /** Plot's paint phase: builds `_chartScene` from the measured context. */
   _paint?(pCtx: PlotPaintContext): VizInstance;
   _drawSceneToTarget(durationOverride?: number): void;
+  /** Tears the chart down (see `Viz.destroy`). */
+  destroy(): unknown;
   /** Whether a painted node is a point mark nearest-point hover resolves to (see `hoverDistance`). */
   _pointMark?(node: SceneNode): boolean;
   /** Whether a box or lasso selection can pick a scene node (see `ChartDefinition.selectMark`). */
@@ -827,6 +829,8 @@ export interface VizInstance {
   _insetRegion?(): InsetRegion | null;
   /** The table view's rows in place of the chart's data (see `ChartDefinition.tableData`). */
   _tableData?(): DataPoint[] | null;
+  /** The rows the timeline reads its periods from, when not the data (see `ChartDefinition.timeRows`). */
+  _timeRows?(): DataPoint[] | undefined;
   /** The shape a colorScale row draws as (see `ChartDefinition.colorScaleShape`). */
   _colorScaleShape?(d: DataPoint, i: number): string;
   /** The `groupBy` level a shape's row stands for (see `ChartDefinition.shapeDepth`). */

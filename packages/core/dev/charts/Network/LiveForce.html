@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LiveForce · Network</title>
+    <meta
+      name="description"
+      content="Live force simulation: small networks settle in view, and nodes drag, pin, and unpin."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0 16px 16px;
+      }
+
+      .chart {
+        height: 520px;
+        margin-bottom: 24px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>
+      Live (58 nodes): drag a node, double-click it to let go; or focus one and
+      use Shift + arrow keys (Shift+Backspace lets go)
+    </h3>
+    <div id="live" class="chart"></div>
+    <h3>Some nodes placed by the data (x/y), the rest simulated</h3>
+    <div id="fixed" class="chart"></div>
+    <h3>forceLive: false (precomputed layout; dragging moves only the node)</h3>
+    <div id="static" class="chart"></div>
+  </body>
+
+  <script>
+    fetch("./lesmis.json")
+      .then(resp => resp.json())
+      .then(function (graph) {
+        new d3plus.Network()
+          .select("#live")
+          .color("group")
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .render();
+
+        new d3plus.Network()
+          .select("#static")
+          .forceLive(false)
+          .color("group")
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .render();
+      });
+
+    // Three hubs placed by the data; the chains around them are simulated.
+    var hubs = [
+      {id: "North", x: 0, y: 0},
+      {id: "West", x: -1, y: 1},
+      {id: "East", x: 1, y: 1},
+    ];
+    var others = [];
+    var hubLinks = [];
+    hubs.forEach(function (hub) {
+      for (var i = 0; i < 6; i++) {
+        var id = hub.id + " " + (i + 1);
+        others.push({id: id});
+        hubLinks.push({
+          source: i < 2 ? hub.id : hub.id + " " + (i - 1),
+          target: id,
+        });
+      }
+    });
+    hubLinks.push({source: "North 1", target: "West 1"});
+    hubLinks.push({source: "North 2", target: "East 1"});
+
+    new d3plus.Network()
+      .select("#fixed")
+      .config({
+        links: hubLinks,
+        nodes: hubs.concat(others),
+        size: function (d) {
+          return d.x === undefined ? 1 : 3;
+        },
+        sizeMax: 16,
+      })
+      .render();
+  </script>
+</html>

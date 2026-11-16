@@ -12,6 +12,7 @@ import {zoomTransform} from "d3-zoom";
 import type {DataPoint} from "@d3plus/data";
 
 import type {VizInstance} from "../viz/vizTypes.js";
+import {computeTimeFilter, timelessPass} from "../pipeline/preDrawData.js";
 import {makeLinkDatum, setLinkValue} from "../features/linkInteraction.js";
 import type {LinkDatum, LinkEnd} from "../features/linkInteraction.js";
 import type {SelfLoopGeometry} from "../features/selfLoops.js";
@@ -69,18 +70,61 @@ export function graphNodeId(
 }
 
 /**
+    Whether a `nodes` or `links` row is in the period the timeline selects
+    (the chart's `timeFilter`, or the one it starts on): a row with no
+    `time` value is in every period. Undefined without `time`.
+*/
+export function graphPeriod(
+  v: VizInstance,
+): ((d: DataPoint, i: number) => boolean) | undefined {
+  if (!v.schema.time) return undefined;
+  const filter = v.schema.timeFilter || computeTimeFilter(v);
+  return filter ? timelessPass(v, filter) : undefined;
+}
+
+/** The `links` in the selected period (see `graphPeriod`), each with its index in `links`. */
+function periodLinks(v: VizInstance): {link: RawLink; i: number}[] {
+  const links = (v.schema.links as RawLink[]).map((link, i) => ({link, i}));
+  const period = graphPeriod(v);
+  return period
+    ? links.filter(({link, i}) => period(link as unknown as DataPoint, i))
+    : links;
+}
+
+/**
+    The ids of a small-multiple panel's own rows (see `facet`), or
+    undefined outside a panel: a panel draws only the nodes its rows stand
+    for, so `nodes` and `links` shared by every panel don't pull in the
+    other panels' nodes.
+*/
+export function panelNodeIds(v: VizInstance): Set<string> | undefined {
+  if (v._facetStep !== "panel") return undefined;
+  const data = (v._filteredData ?? []) as DataPoint[];
+  return new Set(data.map((d, i) => graphNodeId(v, d, i)));
+}
+
+/**
     The chart's node rows: `nodes` when set, else one row per data row and
     one per link end no data row stands for (the link's own object, or
     `{id}` for an id), so a chart given only `data` and `links` still draws
-    its nodes, linked or not.
+    its nodes, linked or not. A small-multiple panel keeps only the rows
+    its own data rows stand for (see `panelNodeIds`).
 */
 export function graphNodeRows(v: VizInstance): DataPoint[] {
   const nodes = v.schema.nodes as DataPoint[];
-  if (nodes.length) return nodes;
+  const period = graphPeriod(v);
+  const panel = panelNodeIds(v);
+  if (nodes.length) {
+    const rows = period ? nodes.filter(period) : nodes;
+    return panel
+      ? rows.filter((d, i) => panel.has(graphNodeId(v, d, i)))
+      : rows;
+  }
   const data = v._filteredData as DataPoint[];
   const rows: DataPoint[] = [...data];
+  if (panel) return rows;
   const ids = new Set(data.map((d, i) => graphNodeId(v, d, i)));
-  for (const l of v.schema.links as RawLink[])
+  for (const {link: l} of periodLinks(v))
     for (const end of [l.source, l.target]) {
       if (typeof end === "number" || end === undefined || end === null)
         continue;
@@ -159,7 +203,9 @@ export function resolveGraphNodes(v: VizInstance): GraphNode[] {
     that matches no node is undefined. A link whose ends both resolve gets its
     datum, which `linkSize` receives (with the link's index). Stashes the id → node lookup on
     `v.ctx.nodeLookup` and the id → neighbor nodes lookup on
-    `v.ctx.linkLookup` (a link from a node to itself adds no neighbor).
+    `v.ctx.linkLookup` (a link from a node to itself adds no neighbor). A
+    link outside the timeline's selected period (see `graphPeriod`) resolves
+    neither end.
 */
 export function resolveGraphLinks(
   v: VizInstance,
@@ -182,10 +228,16 @@ export function resolveGraphLinks(
       : referenceType === "string"
         ? nodeLookup[ref as string]
         : nodeLookup[(ref as DataPoint).id as string]) as GraphNode;
+  const shown = new Set(periodLinks(v).map(({i}) => i));
   const links: GraphLink[] = (v.schema.links as RawLink[]).map((l, i) => {
     const referenceType = typeof l.source;
-    const source = endpoint(l.source, referenceType);
-    const target = endpoint(l.target, referenceType);
+    // A link outside the selected period resolves no ends.
+    const source = shown.has(i)
+      ? endpoint(l.source, referenceType)
+      : (undefined as unknown as GraphNode);
+    const target = shown.has(i)
+      ? endpoint(l.target, referenceType)
+      : (undefined as unknown as GraphNode);
     if (!source || !target)
       return {size: v.schema.linkSize(l, i) as number, source, target};
     const datum = makeLinkDatum(

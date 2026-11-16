@@ -53,6 +53,20 @@ import type {LinkDatum} from "../features/linkInteraction.js";
 import type {GraphLink} from "./graph.js";
 import {loaderFormatFields} from "../viz/loaderFormat.js";
 import {clusterFields, installClusters} from "./clusters.js";
+import {runChartDraw} from "../pipeline/runChartDraw.js";
+import {bindNodeDrag, unbindNodeDrag} from "../features/nodeDrag.js";
+import {FORCE_LIVE_DEFAULT, networkLive, stopLive} from "./liveForce.js";
+import {
+  deferPinnedClicks,
+  networkNodeDrag,
+  nudgeNetworkNode,
+  unpinNetworkNode,
+} from "./networkDrag.js";
+import {installNodeKeys} from "../features/nodeKeys.js";
+
+/** The node keys' instructions, read after keyboard navigation's own. */
+const NETWORK_KEY_INSTRUCTIONS =
+  "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.";
 
 const getNodeId = graphNodeId;
 
@@ -101,6 +115,20 @@ function includeNodeLoops(
     yDomain[0] = Math.min(yDomain[0], y0);
     yDomain[1] = Math.max(yDomain[1], y1);
   }
+}
+
+/** The data, `nodes`, and `links` rows that have a `time` value. */
+function networkTimeRows(viz: VizInstance): DataPoint[] {
+  const time = viz.schema.time as
+    ((d: DataPoint, i: number) => unknown) | undefined;
+  if (!time) return viz._data;
+  const rows = [viz._data, viz.schema.nodes, viz.schema.links].flatMap(r =>
+    Array.isArray(r) ? (r as DataPoint[]) : [],
+  );
+  return rows.filter((d, i) => {
+    const t = time(d, i);
+    return t !== undefined && t !== null && t !== "";
+  });
 }
 
 /** Installs the `click.shape` handler that focuses/zooms a node + its links. */
@@ -335,6 +363,8 @@ export const networkDef: ChartDefinition = {
     networkSizeLegendScale(viz, width, height),
   emit: networkEmit,
   insetRegion: sceneInsetRegion,
+  // `nodes` and `links` rows with a `time` value join the data's periods.
+  timeRows: networkTimeRows,
 
   // Network mounts its own zoom surface (with a background hitArea whose
   // click handler closes over class state); `chartTransform` (default
@@ -353,6 +383,25 @@ export const networkDef: ChartDefinition = {
     viz._x = accessor("x") as VizInstance["_x"];
     viz._y = accessor("y") as VizInstance["_y"];
 
+    // A frame of the live simulation, or a dragged node, re-lays the chart
+    // out at the nodes' new positions.
+    networkLive(viz).relayout = () =>
+      runChartDraw(viz, networkDef, applyNetworkLayout);
+    const drag = networkNodeDrag(viz);
+    deferPinnedClicks(viz);
+    const draggable = () =>
+      viz.schema.nodeDrag !== false &&
+      viz.schema.layout !== "circle" &&
+      !viz._facetPanels?.length;
+    installNodeKeys(viz, {
+      nodeAt: key => drag.nodeAt({key}),
+      nudge: (id, by) => nudgeNetworkNode(viz, id, by),
+      reset: id => unpinNetworkNode(viz, id),
+      enabled: draggable,
+      messages: {nudge: "{0} moved and pinned", reset: "{0} unpinned"},
+      instructions: NETWORK_KEY_INSTRUCTIONS,
+    });
+
     // Wrap _draw to also call ensureZoomDom (Network needs a DOM zoom group).
     const supDraw = v._draw.bind(viz);
     v._draw = function (callback?: () => void) {
@@ -364,7 +413,14 @@ export const networkDef: ChartDefinition = {
         height,
         duration: effectiveDuration(viz),
       });
+      bindNodeDrag(viz, drag, draggable);
       return result;
+    };
+    const supDestroy = v.destroy.bind(viz);
+    v.destroy = function () {
+      stopLive(viz);
+      unbindNodeDrag(viz);
+      return supDestroy();
     };
   },
 
@@ -396,6 +452,17 @@ export const networkDef: ChartDefinition = {
     */
     {key: "arrowSize"},
     ...clusterFields(),
+    /**
+        Keeps the force simulation running after the chart draws, so the
+        layout settles in view and the other nodes react while one is
+        dragged, when the network has at most this many nodes. `true` runs
+        it live at any size, `false` never. Larger networks are laid out
+        before they draw. Nodes with an `x` and `y` in the data stay where
+        the data puts them, and a viewer who asks for reduced motion (see
+        `reducedMotion`) gets the laid-out network without the motion.
+        @type {number | boolean}
+    */
+    {key: "forceLive", default: FORCE_LIVE_DEFAULT},
     ...linkStyleFields(),
     ...linkBundleFields(),
     ...loaderFormatFields("links", "nodes"),
@@ -449,6 +516,13 @@ export const networkDef: ChartDefinition = {
     */
     {key: "linkSizeScale", default: "sqrt"},
     {key: "noDataMessage", default: false},
+    /**
+        Lets the viewer drag the nodes (with the `"force"` layout). A dropped
+        node stays where it is dropped, and a double-click lets it go. While
+        the simulation runs live (see `forceLive`) the other nodes react to
+        the dragged one.
+    */
+    {key: "nodeDrag", default: true},
     {key: "nodeGroupBy", default: [accessor("id")]},
     /**
         The order of the nodes around the circle when `layout` is
@@ -476,7 +550,8 @@ export const networkDef: ChartDefinition = {
     {key: "nodes", default: []},
     /**
         The maximum pixel radius used when sizing nodes. Defaults to half the
-        distance between the two closest nodes.
+        distance between the two closest nodes, and, when Network lays the
+        nodes out itself, no more than a twelfth of the chart's smaller side.
         @type {number}
     */
     {key: "sizeMax"},

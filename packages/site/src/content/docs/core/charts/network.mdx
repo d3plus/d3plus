@@ -23,6 +23,8 @@ import clusterNames from "~/examples/core/charts/network/cluster-names.js?raw";
 import circleLayout from "~/examples/core/charts/network/circle-layout.js?raw";
 import circleNodeSort from "~/examples/core/charts/network/circle-node-sort.js?raw";
 import circleLinkBow from "~/examples/core/charts/network/circle-link-bow.js?raw";
+import liveLayout from "~/examples/core/charts/network/live-layout.js?raw";
+import overTime from "~/examples/core/charts/network/over-time.js?raw";
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -34,9 +36,21 @@ Each node supplies its own `x`/`y` coordinates, so d3plus places nodes exactly r
 
 ## Force directed layout
 
-Omitting `x`/`y` from the nodes lets a force simulation position them automatically—reach for this when connections matter but there's no meaningful spatial layout.
+Omitting `x`/`y` from the nodes lets a force simulation position them automatically—reach for this when connections matter but there's no meaningful spatial layout. A small network like this one keeps simulating after it draws (see [Live layout and dragging](#live-layout-and-dragging)).
 
 <Playground chart="Network" code={forceDirectedLayout} controls={["nodes","links"]} />
+
+## Live layout and dragging
+
+A network of up to `forceLive` nodes (200 by default) keeps its force simulation running after it draws: the layout settles in view, and the other nodes react while one is dragged. Drag a node and it stays where it is dropped, pinned, with its links following it; double-click it to let it go. A drag doesn't click (no focus or zoom), and the tooltip waits until the node is dropped. Larger networks are laid out before they draw and don't move on their own, but their nodes still drag. Nodes given an `x` and `y` in the data stay where the data puts them while the rest settle around them. From the keyboard, focus a node (Tab into the chart, then the arrow keys) and hold Shift with an arrow key to move it 10 pixels, pinning it the same way; Shift+Backspace unpins it. Each move is announced to screen readers. Set `forceLive` to `false` to lay out every network before it draws, or `true` to run any network live; `nodeDrag: false` turns dragging and the keyboard moves off. A viewer who asks for reduced motion (see `reducedMotion`) gets the laid-out network without the motion.
+
+<Playground chart="Network" code={liveLayout} controls={["forceLive","nodeDrag"]} height={520} />
+
+## Networks over time
+
+When `time` names a key on the `nodes` or `links`, they follow the timeline too: each row is drawn only in its own period, and a row without the key is drawn in every one. Their periods join the data's on the timeline (so a network given only `nodes` and `links` gets one), and the chart starts on the latest, or on `timelineDefault`. When the period changes, the nodes that stay keep their places, new ones enter beside a node they link to, and the ones that leave fade out; a live network then settles the change in view, while a larger one settles it before it draws, starting from where its nodes were. Dropped nodes stay pinned across periods.
+
+<Playground chart="Network" code={overTime} controls={["time","forceLive","timelineConfig"]} height={560} />
 
 ## Circle layout
 

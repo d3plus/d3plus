@@ -42,17 +42,106 @@ export type {
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
 export {
   applyNetworkLayout,
+  axisFitShare,
+  layoutMaxRadius,
   placeLoneNodes,
 } from "./src/charts/Network/applyLayout.js";
+export {
+  forceLayout,
+  forceLayoutTicks,
+  layoutRotation,
+} from "./src/charts/Network/forceLayout.js";
+export type {
+  ForceLayoutLink,
+  ForceLayoutNode,
+  LayoutRotation,
+} from "./src/charts/Network/forceLayout.js";
 export {
   graphLinkEnd,
   graphNodeId,
   graphNodeRows,
+  graphPeriod,
+  panelNodeIds,
   resolveGraphLinks,
   resolveGraphNodes,
   zoomToNodeBounds,
 } from "./src/charts/Network/graph.js";
 export type {GraphLink, GraphNode} from "./src/charts/Network/graph.js";
+export {
+  fitDataPositions,
+  graphKey,
+  linkSpacing,
+  neighborIds,
+  rescalePositions,
+  seedPositions,
+} from "./src/charts/Network/livePositions.js";
+export type {
+  Bounds,
+  EdgeEnds,
+  PlacedNode,
+  Position,
+} from "./src/charts/Network/livePositions.js";
+export {
+  FORCE_LIVE_DEFAULT,
+  containLive,
+  dragHeat,
+  liveForceOn,
+  networkLive,
+  networkSimulation,
+  placeNetworkNodes,
+  redrawPositions,
+  reheat,
+  rememberPositions,
+  scheduleFrame,
+  scheduleRedraw,
+  stopLive,
+  stopLiveLoop,
+} from "./src/charts/Network/liveForce.js";
+export type {
+  LiveLink,
+  LiveNode,
+  NetworkLive,
+} from "./src/charts/Network/liveForce.js";
+export {
+  DOUBLE_CLICK_WAIT,
+  clampToBounds,
+  deferPinnedClicks,
+  networkNodeDrag,
+  networkNodeId,
+  nudgeNetworkNode,
+  unpinNetworkNode,
+} from "./src/charts/Network/networkDrag.js";
+export {
+  bindNodeDrag,
+  chartPoint,
+  unbindNodeDrag,
+} from "./src/charts/features/nodeDrag.js";
+export {
+  NODE_KEY_STEP,
+  installNodeKeys,
+  nodeKeyShortcuts,
+  nodeKeyStep,
+} from "./src/charts/features/nodeKeys.js";
+export type {NodeKeys} from "./src/charts/features/nodeKeys.js";
+export type {NodeDrag} from "./src/charts/features/nodeDrag.js";
+export {
+  clampTop,
+  nudgeSankeyNode,
+  pushColumn,
+  resetSankeyNode,
+  sankeyDragState,
+  sankeyNodeDrag,
+  sankeyNodeId,
+  shiftSankeyNodes,
+  stopSankeyDrag,
+} from "./src/charts/Sankey/sankeyDrag.js";
+export type {
+  ColumnNode,
+  DraggedNode,
+  LaidNode,
+  SankeyDragState,
+} from "./src/charts/Sankey/sankeyDrag.js";
+export {sankeyRelink} from "./src/charts/Sankey/sankeyLayout.js";
 export {installGraphFluent} from "./src/charts/Network/graphFluent.js";
 export type {GraphFluent} from "./src/charts/Network/graphFluent.js";
 export {
@@ -3207,6 +3296,8 @@ export {
   computeTimeFilter,
   drawnRawRows,
   startingSelection,
+  timeRows,
+  timelessPass,
 } from "./src/charts/pipeline/preDrawData.js";
 export {
   classTimelineMode,

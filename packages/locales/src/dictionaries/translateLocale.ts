@@ -49,7 +49,9 @@ export interface TranslationStrings {
   Forecast: string;
   From: string;
   High: string;
+  "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.": string;
   "Hold Shift and use the arrow keys to rotate the globe.": string;
+  "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.": string;
   hour: string;
   hours: string;
   "In-degree": string;
@@ -145,6 +147,10 @@ export interface TranslationStrings {
   "Zoom In": string;
   "Zoom Out": string;
   "{node} cluster": string;
+  "{0} moved": string;
+  "{0} moved and pinned": string;
+  "{0} moved back": string;
+  "{0} unpinned": string;
   "{0} hidden": string;
   "{0} highlighted": string;
   "{0} points": string;
@@ -226,8 +232,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     From: "\u0645\u0646",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
+    "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.":
+      "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062d\u0631\u064a\u0643 \u0627\u0644\u0639\u0642\u062f\u0629 \u0627\u0644\u0645\u062d\u062f\u062f\u0629\u060c \u0648Shift+Backspace \u0644\u0625\u0644\u063a\u0627\u0621 \u062a\u062b\u0628\u064a\u062a\u0647\u0627.",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062f\u0648\u064a\u0631 \u0627\u0644\u0643\u0631\u0629 \u0627\u0644\u0623\u0631\u0636\u064a\u0629.",
+    "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.":
+      "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u062a\u0627\u062d\u064a \u0627\u0644\u0633\u0647\u0645 \u0644\u0623\u0639\u0644\u0649 \u0648\u0644\u0623\u0633\u0641\u0644 \u0644\u062a\u062d\u0631\u064a\u0643 \u0627\u0644\u0639\u0642\u062f\u0629 \u0627\u0644\u0645\u062d\u062f\u062f\u0629\u060c \u0648Shift+Backspace \u0644\u0625\u0639\u0627\u062f\u062a\u0647\u0627 \u0625\u0644\u0649 \u0645\u0643\u0627\u0646\u0647\u0627.",
     hour: "\u0633\u0627\u0639\u0629",
     hours: "\u0633\u0627\u0639\u0627\u062a",
     "In-degree":
@@ -356,6 +366,13 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
     "{node} cluster": "\u0645\u062c\u0645\u0648\u0639\u0629 {node}",
+    "{0} moved": "\u062a\u0645 \u062a\u062d\u0631\u064a\u0643 {0}",
+    "{0} moved and pinned":
+      "\u062a\u0645 \u062a\u062d\u0631\u064a\u0643 {0} \u0648\u062a\u062b\u0628\u064a\u062a\u0647\u0627",
+    "{0} moved back":
+      "\u062a\u0645\u062a \u0625\u0639\u0627\u062f\u0629 {0} \u0625\u0644\u0649 \u0645\u0643\u0627\u0646\u0647\u0627",
+    "{0} unpinned":
+      "\u062a\u0645 \u0625\u0644\u063a\u0627\u0621 \u062a\u062b\u0628\u064a\u062a {0}",
     "{0} hidden": "\u062a\u0645 \u0625\u062e\u0641\u0627\u0621 {0}",
     "{0} highlighted": "\u062a\u0645 \u062a\u062d\u062f\u064a\u062f {0}",
     "{0} points": "{0} \u0646\u0642\u0627\u0637",
@@ -413,8 +430,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "Pron\u00f3stico",
     From: "Origen",
     High: "M\u00e1ximo",
+    "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.":
+      "Mantenga pulsada May\u00fas y use las flechas para mover el nodo enfocado, y May\u00fas+Retroceso para soltarlo.",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenga pulsada May\u00fas y use las flechas para girar el globo.",
+    "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.":
+      "Mantenga pulsada May\u00fas y use las flechas arriba y abajo para mover el nodo enfocado, y May\u00fas+Retroceso para devolverlo a su sitio.",
     hour: "hora",
     hours: "horas",
     "In-degree": "Grado de entrada",
@@ -511,6 +532,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
     "{node} cluster": "Grupo de {node}",
+    "{0} moved": "{0} movido",
+    "{0} moved and pinned": "{0} movido y fijado",
+    "{0} moved back": "{0} devuelto a su sitio",
+    "{0} unpinned": "{0} liberado",
     "{0} hidden": "{0} oculto",
     "{0} highlighted": "{0} resaltado",
     "{0} points": "{0} puntos",
@@ -568,8 +593,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "Previs\u00e3o",
     From: "Origem",
     High: "M\u00e1xima",
+    "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.":
+      "Mantenha Shift pressionada e use as setas para mover o n\u00f3 em foco, e Shift+Backspace para solt\u00e1-lo.",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "Mantenha Shift pressionada e use as setas para girar o globo.",
+    "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.":
+      "Mantenha Shift pressionada e use as setas para cima e para baixo para mover o n\u00f3 em foco, e Shift+Backspace para devolv\u00ea-lo ao lugar.",
     hour: "hora",
     hours: "horas",
     "In-degree": "Grau de entrada",
@@ -666,6 +695,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
     "{node} cluster": "Grupo de {node}",
+    "{0} moved": "{0} movido",
+    "{0} moved and pinned": "{0} movido e fixado",
+    "{0} moved back": "{0} devolvido ao lugar",
+    "{0} unpinned": "{0} solto",
     "{0} hidden": "{0} oculto",
     "{0} highlighted": "{0} destacado",
     "{0} points": "{0} pontos",
@@ -726,8 +759,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "\u9884\u6d4b",
     From: "\u8d77\u70b9",
     High: "\u6700\u9ad8",
+    "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.":
+      "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u65b9\u5411\u952e\u79fb\u52a8\u5f53\u524d\u805a\u7126\u7684\u8282\u70b9\uff0c\u6309 Shift+Backspace \u53d6\u6d88\u56fa\u5b9a\u3002",
     "Hold Shift and use the arrow keys to rotate the globe.":
       "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u65b9\u5411\u952e\u65cb\u8f6c\u5730\u7403\u4eea\u3002",
+    "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.":
+      "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u4e0a\u4e0b\u65b9\u5411\u952e\u79fb\u52a8\u5f53\u524d\u805a\u7126\u7684\u8282\u70b9\uff0c\u6309 Shift+Backspace \u5c06\u5176\u79fb\u56de\u539f\u4f4d\u3002",
     hour: "\u5c0f\u65f6",
     hours: "\u5c0f\u65f6",
     "In-degree": "\u5165\u5ea6",
@@ -824,6 +861,10 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
     "{node} cluster": "{node}\u96c6\u7fa4",
+    "{0} moved": "\u5df2\u79fb\u52a8{0}",
+    "{0} moved and pinned": "\u5df2\u79fb\u52a8\u5e76\u56fa\u5b9a{0}",
+    "{0} moved back": "\u5df2\u5c06{0}\u79fb\u56de\u539f\u4f4d",
+    "{0} unpinned": "\u5df2\u53d6\u6d88\u56fa\u5b9a{0}",
     "{0} hidden": "\u5df2\u9690\u85cf{0}",
     "{0} highlighted": "\u5df2\u7a81\u51fa\u663e\u793a{0}",
     "{0} points": "{0} \u4e2a\u70b9",

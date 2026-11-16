@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>OverTime · Network</title>
+    <meta
+      name="description"
+      content="Nodes and links with a time key follow the timeline: kept nodes stay put, new ones enter beside their neighbors."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0 16px 16px;
+      }
+
+      .chart {
+        height: 560px;
+        margin-bottom: 24px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>Live: nodes and links by year</h3>
+    <div id="live" class="chart"></div>
+    <h3>Precomputed (forceLive: false): a change settles before it draws</h3>
+    <div id="static" class="chart"></div>
+  </body>
+
+  <script>
+    // A small collaboration network that grows year by year: each node row
+    // names the year it is active in, and so does each link.
+    var seed = 7;
+    function random() {
+      seed = (seed * 16807) % 2147483647;
+      return seed / 2147483647;
+    }
+    var teams = ["Research", "Design", "Sales", "Support"];
+    var people = [];
+    for (var i = 0; i < 40; i++)
+      people.push({
+        id: "P" + (i + 1),
+        team: teams[i % teams.length],
+        joined: 2019 + Math.floor((i / 40) * 5),
+      });
+    var nodes = [];
+    var links = [];
+    for (var year = 2019; year <= 2023; year++) {
+      var active = people.filter(function (p) {
+        return p.joined <= year;
+      });
+      active.forEach(function (p, k) {
+        nodes.push({id: p.id, team: p.team, year: year});
+        if (k === 0) return;
+        var other = active[Math.floor(random() * k)];
+        links.push({source: p.id, target: other.id, year: year});
+        if (random() < 0.35) {
+          var third = active[Math.floor(random() * active.length)];
+          if (third !== p)
+            links.push({source: p.id, target: third.id, year: year});
+        }
+      });
+    }
+
+    ["live", "static"].forEach(function (el) {
+      new d3plus.Network()
+        .select("#" + el)
+        .config({
+          color: "team",
+          forceLive: el === "live" ? 200 : false,
+          links: links,
+          nodes: nodes,
+          time: "year",
+          timelineConfig: {brushing: false},
+          timelineDefault: [2019],
+        })
+        .render();
+    });
+  </script>
+</html>
