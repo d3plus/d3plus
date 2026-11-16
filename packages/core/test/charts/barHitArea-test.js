@@ -2,10 +2,10 @@ import {it} from "vitest";
 import assert from "assert";
 import {
   applyBarHitArea,
+  barHitBand,
   barHitsFirst,
   hitBounds,
   hitColumn,
-  isBarHit,
 } from "../../src/charts/Plot/barHitArea.ts";
 
 it("hitColumn: a lone bar takes its whole slot", () => {
@@ -89,6 +89,30 @@ it("applyBarHitArea: sets a hitArea built from each bar's column and transform",
   });
 });
 
+it("applyBarHitArea: sets the hover band, and inert hit areas", () => {
+  const s = fakeShape({x: 50, y: 200});
+  const band = barHitBand("#123456");
+  applyBarHitArea(s, "x", [0, 300], () => [-10, 10], {band, inert: true});
+  assert.deepStrictEqual(s.applied.hitAreaStyle, band);
+  assert.deepStrictEqual(s.applied.hitArea({}, 0), {
+    x: -10,
+    y: -200,
+    width: 20,
+    height: 300,
+    interactive: false,
+  });
+  const plain = fakeShape({x: 0, y: 0});
+  applyBarHitArea(plain, "x", [0, 300], () => [-10, 10]);
+  assert.ok(!("hitAreaStyle" in plain.applied), "no band unless given");
+});
+
+it("barHitBand: the theme's text color at 10% opacity", () => {
+  assert.deepStrictEqual(barHitBand("#212529"), {
+    fill: "#212529",
+    fillOpacity: 0.1,
+  });
+});
+
 it("applyBarHitArea: does nothing without a value extent", () => {
   const s = fakeShape({x: 0, y: 0});
   applyBarHitArea(s, "x", undefined, () => [-10, 10]);
@@ -113,11 +137,4 @@ it("barHitsFirst: moves Bar hit areas in front, keeping every other node's order
 it("barHitsFirst: returns the nodes as given when there are no Bar hit areas", () => {
   const nodes = [{key: "a", shapeType: "Bar"}];
   assert.strictEqual(barHitsFirst(nodes), nodes);
-});
-
-it("isBarHit: accepts a Bar's hit area, not the bar or another shape's", () => {
-  assert.ok(isBarHit({type: "rect", key: "a::hit", shapeType: "Bar"}));
-  assert.ok(!isBarHit({type: "rect", key: "a", shapeType: "Bar"}));
-  assert.ok(!isBarHit({type: "path", key: "l::hit", shapeType: "Line"}));
-  assert.ok(!isBarHit({type: "rect", key: "plot-hover-surface"}));
 });

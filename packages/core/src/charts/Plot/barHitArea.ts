@@ -2,14 +2,15 @@
     Bar hit areas: a transparent hover target behind each side-by-side bar
     that fills the bar's slot along the discrete axis and the whole plot along
     the value axis, so a short bar is as easy to hover and click as a tall
-    one. Grouped bars each take their own column of the slot. Stacked bars
-    already fill their slot and take none. `shapeConfig.Bar.hitArea: false`
-    turns them off.
+    one. Grouped bars each take their own column of the slot. A hovered
+    bar's hit area shows as a band (`shapeConfig.Bar.hitAreaStyle`). Stacked
+    bars, which fill their slot, take a band over it that the pointer passes
+    through. `shapeConfig.Bar.hitArea: false` turns them off.
 
     @module
 */
 import type {DataPoint} from "@d3plus/data";
-import type {SceneNode} from "@d3plus/render";
+import type {Paint, SceneNode} from "@d3plus/render";
 
 import type {Shape} from "../../shapes/index.js";
 
@@ -68,34 +69,57 @@ export function hitBounds(
     : {x: vlo - (origin.x ?? 0), y: lo, width: vhi - vlo, height: hi - lo};
 }
 
+/** How `applyBarHitArea` shows and targets the hit areas. */
+export interface BarHitOptions {
+  /** The band a hovered bar's hit area shows (`hitAreaStyle`). */
+  band?: Paint;
+  /** Whether the pointer passes through them: a band, but no target. */
+  inert?: boolean;
+}
+
 /**
-    Gives a Bar shape its slot-filling hit areas (see `hitBounds`). Set
-    before the user's `shapeConfig`, so `hitArea` there (or `false`) wins.
+    The band a hovered bar's hit area shows by default: the theme's text
+    color at 10% opacity.
+    @param text The theme's text color.
+*/
+export function barHitBand(text: string): Paint {
+  return {fill: text, fillOpacity: 0.1};
+}
+
+/**
+    Gives a Bar shape its slot-filling hit areas (see `hitBounds`) and their
+    hover band. Set before the user's `shapeConfig`, so `hitArea` there (or
+    `false`) wins, and its `hitAreaStyle` merges over the band.
     @param s The Bar shape.
     @param discrete The discrete axis.
     @param valueExtent The value axis's pixel span, in shape coordinates.
     @param column Each bar's column (see `hitColumn`).
+    @param options The band, and whether the pointer passes through.
 */
 export function applyBarHitArea(
   s: Shape,
   discrete: "x" | "y",
   valueExtent: [number, number] | undefined,
   column: (d: DataPoint, i: number) => [number, number],
+  {band, inert = false}: BarHitOptions = {},
 ): void {
   if (!valueExtent) return;
   s.config({
-    hitArea: (d: DataPoint, i: number) =>
-      hitBounds(
+    hitArea: (d: DataPoint, i: number) => ({
+      ...hitBounds(
         discrete,
         column(d, i),
         valueExtent,
         s._sceneTransform(d, i),
-      ) as unknown as Record<string, unknown>,
+      ),
+      ...(inert ? {interactive: false} : {}),
+    }),
+    ...(band ? {hitAreaStyle: band} : {}),
   });
 }
 
 /** Whether a scene node is a Bar's hit area. */
-export const isBarHit = (node: SceneNode): boolean =>
+const isBarHit = (node: SceneNode): boolean =>
   node.shapeType === "Bar" && String(node.key).endsWith("::hit");
 
 /**

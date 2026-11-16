@@ -413,6 +413,22 @@ export function applyInteractionOpacity(
     return values?.get(field)?.has(String(value)) ? node : fade(node);
   };
 
+  /**
+      A node with a `hoverPaint` (a bar's hit area) takes it while the
+      chart is hovered through its own mark: the row the pointer (or the
+      keyboard) rests on, not every row the hover lights (a series, a
+      stacked column, a legend entry). It shows whatever else is active,
+      highlighted or selected, and is never dimmed or raised: it stays
+      behind the marks.
+  */
+  const picked =
+    typeof viz._hover === "function" ? viz._lastScenePick?.d : undefined;
+  const isPicked: Predicate = d => d === picked;
+  const band = (node: SceneNode): SceneNode =>
+    picked !== undefined && nodeMatches(node, isPicked)
+      ? ({...node, paint: {...node.paint, ...node.hoverPaint}} as SceneNode)
+      : node;
+
   /** Chrome keeps full opacity, all but its `hoverMatch` labels. */
   const chrome = (node: SceneNode): SceneNode => {
     if (node.hoverMatch) return label(node);
@@ -429,6 +445,7 @@ export function applyInteractionOpacity(
     const group = (node as {interactionGroup?: string}).interactionGroup;
     if (group === "axis" || group === "timeline") return chrome(node);
     if (node.hoverMatch) return label(node);
+    if (node.hoverPaint) return band(node);
     let next = node;
     const matched = nodeMatches(node, predicate);
     if (matched !== null) {

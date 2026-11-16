@@ -43,7 +43,12 @@ const draw = ([{neutralFn, shared, ...config}, data, renderer]) =>
         nodes.flatMap(n => [n, ...(n.children ? flat(n.children) : [])]);
       const horizontal = viz.schema.discrete === "y";
       const bars = flat(viz._chartScene)
-        .filter(n => n.type === "rect" && n.shapeType === "Bar")
+        .filter(
+          n =>
+            n.type === "rect" &&
+            n.shapeType === "Bar" &&
+            !`${n.key}`.endsWith("::hit"),
+        )
         .map(n => {
           const start = horizontal
             ? n.transform.x + n.x

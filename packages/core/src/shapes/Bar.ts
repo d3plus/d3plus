@@ -2,6 +2,7 @@ import type {BaseType, Selection} from "d3-selection";
 
 import type {DataPoint} from "@d3plus/data";
 import type {D3Selection} from "@d3plus/dom";
+import type {Paint} from "@d3plus/render";
 import {accessor, constant} from "../utils/index.js";
 import type {AccessorFn} from "../utils/index.js";
 import {installFluent} from "../fluent.js";
@@ -9,6 +10,16 @@ import type {ConfigField} from "../fluent.js";
 
 import type {BarConfig} from "./shapeConfig.js";
 import Shape, {type ShapeAes} from "./Shape.js";
+
+/** The paint a hover band (`hitAreaStyle`) takes. */
+const BAND_PAINT = [
+  "fill",
+  "fillOpacity",
+  "stroke",
+  "strokeWidth",
+  "strokeOpacity",
+  "opacity",
+] as const;
 
 /** Bar's own fluent accessor schema, layered on top of Shape's. */
 const barSchema: ConfigField[] = [
@@ -52,6 +63,28 @@ export default class Bar extends Shape {
   }
 
   // v4: render() is inherited from Shape — the scene path handles drawing.
+
+  /**
+      The band a hovered bar's hit area shows (see `BarConfig.hitAreaStyle`):
+      an object merges over the style already set, and `false` draws none.
+  */
+  hitAreaStyle(): Paint | false | undefined;
+  hitAreaStyle(_: Paint | false | undefined): this;
+  hitAreaStyle(
+    _?: Paint | false | undefined,
+  ): Paint | false | undefined | this {
+    if (!arguments.length) return this.schema.hitAreaStyle;
+    if (!_ || typeof _ !== "object") {
+      this.schema.hitAreaStyle = _;
+      return this;
+    }
+    const style: Record<string, unknown> = {
+      ...(this.schema.hitAreaStyle || {}),
+    };
+    for (const key of BAND_PAINT) if (_[key] !== undefined) style[key] = _[key];
+    this.schema.hitAreaStyle = style as Paint;
+    return this;
+  }
 
   /**
       Returns the bar geometry for a data point, matching _applyPosition: width/height

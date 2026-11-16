@@ -61,6 +61,17 @@ it("connectorBars reads each Bar rect's discrete-axis extent", () => {
           datum: {data: rowC},
         },
         {type: "text", shapeType: "Bar", datum: {data: rowA}},
+        {
+          type: "rect",
+          shapeType: "Bar",
+          key: "a::hit",
+          x: -30,
+          y: -200,
+          width: 60,
+          height: 300,
+          transform: {x: 50, y: 200},
+          datum: {data: rowA},
+        },
       ],
     },
   ];
@@ -71,7 +82,7 @@ it("connectorBars reads each Bar rect's discrete-axis extent", () => {
       ["a", 40, 60],
       ["b", 80, 100],
     ],
-    "rows without a step are skipped",
+    "rows without a step, and hover bands, are skipped",
   );
   const horizontal = connectorBars(nodes, d => steps.get(d), false);
   assert.deepStrictEqual(

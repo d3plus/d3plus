@@ -7,8 +7,9 @@ import {openPage} from "~test/browser/page.js";
     hovering anywhere in a side-by-side bar's slot, far from the bar itself,
     shows that bar's tooltip, hovers it (dimming the others), and a click
     there fires `click.shape` and `click.Bar` with the bar's row. Grouped
-    bars each own their column, stacked bars and `hitArea: false` draw no
-    hit areas, and small multiples get them in every panel.
+    bars each own their column, stacked bars' hit areas are bands the
+    pointer passes through, `hitArea: false` draws none, and small
+    multiples get them in every panel.
 */
 
 const sales = [
@@ -71,14 +72,16 @@ const draw = ([config, renderer, match, frac]) =>
       const matches = row =>
         !!row && Object.entries(match).every(([k, v]) => row[k] === v);
       const placed = {};
-      let hits = 0;
+      let hits = 0,
+        inert = 0;
       const walk = (n, x, y) => {
         const t = n.transform || {};
         const nx = x + (t.x || 0),
           ny = y + (t.y || 0);
         if (n.shapeType === "Bar" && n.type === "rect") {
           const hit = `${n.key}`.endsWith("::hit");
-          if (hit) hits++;
+          if (hit && n.interactive === false) inert++;
+          else if (hit) hits++;
           if (n.datum && matches(n.datum.data) && !placed[hit ? "hit" : "bar"])
             placed[hit ? "hit" : "bar"] = {
               x: nx + n.x,
@@ -104,7 +107,13 @@ const draw = ([config, renderer, match, frac]) =>
           ? {x: bar.x + bar.w / 2, y: chart.y + area.y + area.height * frac}
           : {x: chart.x + area.x + area.width * frac, y: bar.y + bar.h / 2};
       }
-      resolve({hits, bar, hit, point: at && [box.left + at.x, box.top + at.y]});
+      resolve({
+        hits,
+        inert,
+        bar,
+        hit,
+        point: at && [box.left + at.x, box.top + at.y],
+      });
     });
   });
 
@@ -202,13 +211,22 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
-  it(`BarChart ${renderer}: stacked bars draw no hit areas`, async () => {
+  it(`BarChart ${renderer}: stacked bars' hit areas take no pointer`, async () => {
     await run(
       {...grouped, stacked: true},
       renderer,
       {unit: "Retail"},
-      0.1,
-      async (page, {hits}) => assert.strictEqual(hits, 0),
+      0.05,
+      async (page, {hits, inert, point}) => {
+        assert.strictEqual(hits, 0, "no hit areas the pointer stops on");
+        assert.strictEqual(inert, change.length, "a band per bar");
+        await page.mouse.move(...point, {steps: 3});
+        await page.waitForTimeout(150);
+        const key = await page.evaluate(
+          () => window.__viz._lastScenePick?.node?.key ?? null,
+        );
+        assert.ok(!String(key).endsWith("::hit"), `picked ${key}`);
+      },
     );
   });
 

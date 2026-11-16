@@ -17,7 +17,8 @@ type HitArea =
     visible geometry are siblings, and the SVG keyed join can't hold two nodes
     under one key — sharing it made the geometry re-enter (collapse→grow) on every
     redraw (a "pulse" on e.g. every timeline step). Returns null when no hitArea
-    is configured. A path-style hitArea (Line: a fat, transparent stroke) reuses
+    is configured. Bounds with `interactive: false` give a rect the pointer
+    passes through (a band drawn on hover, but no target). A path-style hitArea (Line: a fat, transparent stroke) reuses
     the resolved geometry `d`/`transform` so the hover target overlaps the
     visible line exactly while extending past its ~1px stroke.
 */
@@ -76,5 +77,6 @@ export function hitAreaNode(
     paint: {fill: "transparent"},
     transform,
     aria: {hidden: true},
+    ...(bounds.interactive === false ? {interactive: false} : {}),
   } as unknown as SceneNode;
 }
