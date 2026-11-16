@@ -423,6 +423,7 @@ it("headless CanvasRenderer draws images with each preserveAspectRatio mode", ()
             width: 40,
             height: 40,
             href,
+            preserveAspectRatio: "none",
           },
           {
             type: "image",
@@ -463,7 +464,7 @@ it("headless CanvasRenderer draws images with each preserveAspectRatio mode", ()
     );
     await renderer.whenSettled();
     assert.deepStrictEqual(
-      pixel(renderer, 20, 20),
+      pixel(renderer, 2, 2),
       [255, 0, 0, 255],
       "stretched image fills its box",
     );
