@@ -12,25 +12,35 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {colorScaleBucketShare} from "./colorScaleBucket.js";
 import {summedShare} from "./shareKey.js";
 
+/** A row's size accessor: a schema key, or the accessor itself. */
+export type SizeKey = "sum" | "value" | ((d: DataPoint, i: number) => number);
+
+/** The accessor `sumKey` names, read when called so a later setting applies. */
+function sizeOf(
+  viz: VizInstance,
+  sumKey: SizeKey,
+): (d: DataPoint, i: number) => number {
+  return typeof sumKey === "function"
+    ? sumKey
+    : (viz.schema[sumKey] as (d: DataPoint, i: number) => number);
+}
+
 /**
     The tooltip's "Share" row: a row's share of the drawn whole. A colorScale
     bucket sums the share of every row in its color range, and a merged
     legend row sums its members' shares.
     @param viz The chart.
-    @param sumKey The schema accessor the chart sizes rows by.
+    @param sumKey The schema accessor the chart sizes rows by, or the
+    accessor itself.
 */
-export function shareRow(viz: VizInstance, sumKey: "sum" | "value"): unknown[] {
+export function shareRow(viz: VizInstance, sumKey: SizeKey): unknown[] {
   return [
     () => viz.schema.translate("Share"),
     (_d: DataPoint, _i: number, x: Record<string, unknown>) => {
       const pct = (s: number) =>
         `${formatAbbreviate(s * 100, viz.schema.locale)}%`;
       if (x._isColorScaleBucket) {
-        const s = colorScaleBucketShare(
-          viz,
-          x.color,
-          viz.schema[sumKey] as (d: DataPoint, i: number) => number,
-        );
+        const s = colorScaleBucketShare(viz, x.color, sizeOf(viz, sumKey));
         return s == null ? "" : pct(s);
       }
       const share = summedShare(x);
@@ -64,14 +74,15 @@ export function rowLegend(
     largest entry first, measured by the accessor the chart sizes rows by
     (read when the legend sorts, so a later `sum`/`value` applies).
     @param viz The chart.
-    @param sumKey The schema accessor the chart sizes rows by.
+    @param sumKey The schema accessor the chart sizes rows by, or the
+    accessor itself.
 */
 export function legendLargestFirst(
   viz: VizInstance,
-  sumKey: "sum" | "value",
+  sumKey: SizeKey,
 ): (a: DataPoint, b: DataPoint) => number {
   return (a: DataPoint, b: DataPoint) => {
-    const size = viz.schema[sumKey] as (d: DataPoint) => number;
-    return size(b) - size(a);
+    const size = sizeOf(viz, sumKey);
+    return size(b, 0) - size(a, 0);
   };
 }

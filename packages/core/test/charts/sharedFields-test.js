@@ -78,3 +78,18 @@ it("legendLargestFirst sorts by the chart's size accessor, read when sorting", (
     "a later sum applies",
   );
 });
+
+it("shareRow and legendLargestFirst take the size accessor itself", () => {
+  const viz = mockViz();
+  const [label, value] = shareRow(viz, d => d.count);
+  assert.strictEqual(label(), "t:Share");
+  assert.strictEqual(value({}, 0, {__d3plusShare: 0.5}), "50%");
+  const rows = [{count: 3}, {count: 9}, {count: 1}];
+  assert.deepStrictEqual(
+    rows
+      .slice()
+      .sort(legendLargestFirst(viz, d => d.count))
+      .map(d => d.count),
+    [9, 3, 1],
+  );
+});
