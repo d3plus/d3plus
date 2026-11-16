@@ -2173,6 +2173,72 @@ export {vennDef} from "./src/charts/Venn/index.js";
 export {violinDef} from "./src/charts/Violin/index.js";
 export {waffleDef} from "./src/charts/Waffle/index.js";
 export {waterfallDef} from "./src/charts/Waterfall/index.js";
+export {
+  wordCloudDef,
+  wordCloudTooltipRows,
+} from "./src/charts/WordCloud/index.js";
+export {
+  applyWordCloudLayout,
+  wordCandidates,
+} from "./src/charts/WordCloud/applyLayout.js";
+export type {WordCloudWord} from "./src/charts/WordCloud/applyLayout.js";
+export {
+  CLOUD_FONT_FLOOR,
+  CLOUD_SHRINK,
+  findSpot,
+  fitCloud,
+  nextScale,
+  placeSprites,
+  scaledSize,
+} from "./src/charts/WordCloud/cloudLayout.js";
+export type {
+  CloudFit,
+  CloudOptions,
+  CloudPlacement,
+  CloudWord,
+} from "./src/charts/WordCloud/cloudLayout.js";
+export {
+  WORD_SHAPE,
+  wordAriaLabel,
+  wordBox,
+  wordCloudEmit,
+} from "./src/charts/WordCloud/emit.js";
+export {fontScaleKind, wordFontSize} from "./src/charts/WordCloud/fontScale.js";
+export type {FontScaleKind} from "./src/charts/WordCloud/fontScale.js";
+export {
+  boxGlyphs,
+  estimateMetrics,
+  glyphContext,
+  glyphFont,
+  glyphFontLoads,
+  markFontsLoaded,
+  rasterizeWords,
+  rotatedBox,
+  sharedGlyphContext,
+} from "./src/charts/WordCloud/glyphMask.js";
+export type {
+  GlyphMetrics,
+  GlyphWord,
+  WordGlyph,
+} from "./src/charts/WordCloud/glyphMask.js";
+export {boxSprite, OccupancyBoard} from "./src/charts/WordCloud/occupancy.js";
+export type {GlyphSprite} from "./src/charts/WordCloud/occupancy.js";
+export {
+  hashString,
+  hashUnit,
+  wordRotation,
+} from "./src/charts/WordCloud/rotation.js";
+export {
+  archimedeanSpiral,
+  makeSpiral,
+  rectangularSpiral,
+  SPIRAL_SPACING,
+  SPIRAL_STEP,
+  spiralKind,
+} from "./src/charts/WordCloud/spiral.js";
+export type {SpiralKind, SpiralOptions} from "./src/charts/WordCloud/spiral.js";
+export {defaultSize, wordSize} from "./src/charts/WordCloud/size.js";
+export type {SizeFn} from "./src/charts/WordCloud/size.js";
 
 // ── Fluent-accessor generation ───────────────────────────────────────────────
 export {

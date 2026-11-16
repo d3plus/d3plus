@@ -66,6 +66,7 @@ import {
   Venn as VennClass,
   Violin as ViolinClass,
   Waterfall as WaterfallClass,
+  WordCloud as WordCloudClass,
   Viz as VizClass,
   Waffle as WaffleClass,
   Axis as AxisClass,
@@ -364,6 +365,10 @@ export const Violin = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Waterfall visualization. */
 export const Waterfall = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={WaterfallClass} {...props} />
+);
+/** React component for rendering a d3plus WordCloud visualization. */
+export const WordCloud = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={WordCloudClass} {...props} />
 );
 /** React component for rendering a base d3plus Viz instance. */
 export const Viz = (props: D3plusComponentProps) => (
