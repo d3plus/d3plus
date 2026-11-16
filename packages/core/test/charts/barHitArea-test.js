@@ -176,7 +176,13 @@ it("stackSlotTargets: the empty slot at each end reaches the nearest segment", (
     ...segment("a", 200, -100, 100),
     ...segment("b", 100, -50, 50),
   ];
-  const targets = stackSlotTargets(nodes, "x").slice(nodes.length);
+  const out = stackSlotTargets(nodes, "x");
+  const targets = out.slice(0, out.length - nodes.length);
+  assert.deepStrictEqual(
+    out.slice(targets.length),
+    nodes,
+    "ahead of the marks",
+  );
   assert.deepStrictEqual(
     targets.map(t => [t.key, t.datum.key, t.x, t.y, t.width, t.height]),
     [
@@ -227,7 +233,8 @@ it("stackSlotTargets: horizontal columns reach along x", () => {
       interactive: false,
     },
   ];
-  const targets = stackSlotTargets(nodes, "y").slice(nodes.length);
+  const out = stackSlotTargets(nodes, "y");
+  const targets = out.slice(0, out.length - nodes.length);
   assert.deepStrictEqual(
     targets.map(t => [t.key, t.x, t.y, t.width, t.height]),
     [

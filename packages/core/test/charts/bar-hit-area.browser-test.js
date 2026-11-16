@@ -82,7 +82,14 @@ const draw = ([config, renderer, match, frac]) =>
           const hit = `${n.key}`.endsWith("::hit");
           if (hit && n.interactive === false) inert++;
           else if (hit) hits++;
-          if (n.datum && matches(n.datum.data) && !placed[hit ? "hit" : "bar"])
+          // A stacked column's slot target is not the bar's own hit area.
+          const target = /::(start|end)::hit$/.test(`${n.key}`);
+          if (
+            !target &&
+            n.datum &&
+            matches(n.datum.data) &&
+            !placed[hit ? "hit" : "bar"]
+          )
             placed[hit ? "hit" : "bar"] = {
               x: nx + n.x,
               y: ny + n.y,

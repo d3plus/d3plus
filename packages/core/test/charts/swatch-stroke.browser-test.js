@@ -203,8 +203,9 @@ const legendTextures = page =>
     return {scene, dom};
   });
 
+// A bar itself, not its hover band or slot target (`::hit`).
 const bar = id =>
-  `n => n.shapeType === "Bar" && n.datum && (n.datum.data || n.datum).id === "${id}" && (n.datum.data || n.datum).year === 2010`;
+  `n => n.shapeType === "Bar" && !String(n.key).endsWith("::hit") && n.datum && (n.datum.data || n.datum).id === "${id}" && (n.datum.data || n.datum).year === 2010`;
 
 const region = id =>
   `n => n.type === "path" && n.datum && n.datum.id === ${JSON.stringify(id)}`;

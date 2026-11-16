@@ -134,7 +134,8 @@ function boxOf(node: SceneNode & {type: "rect"}): HitBounds {
     beyond either end of the stack, where a single bar's hit area would
     reach (a pixel or more of it). Each reaches the segment nearest it, the
     stack's outermost at that end, and draws nothing (the segments' own bands show the slot).
-    Read off the stacked bars' slot-wide bands (inert `::hit` rects).
+    Read off the stacked bars' slot-wide bands (inert `::hit` rects), and
+    returned ahead of `nodes`.
     @param nodes A stacked Bar shape's scene nodes.
     @param discrete The discrete axis.
 */
@@ -196,7 +197,9 @@ export function stackSlotTargets(
       } as SceneNode);
     }
   }
-  return targets.length ? [...nodes, ...targets] : nodes;
+  // Ahead of the marks, as hit areas go: appended, they would count as the
+  // last bar, after the labels, that error bars paint above.
+  return targets.length ? [...targets, ...nodes] : nodes;
 }
 
 /** Whether a scene node is a Bar's hit area. */
