@@ -310,10 +310,15 @@ export function placeNetworkNodes(
     for (const [id, p] of fitDataPositions(dataCoords, bounds, pad))
       if (!fixed.has(id)) fixed.set(id, p);
   }
-  const seeded =
-    (live || changed || state.custom) && !first
-      ? seedPositions(nodes, links, state.positions).positions
-      : seedPositions(nodes, links, new Map()).positions;
+  // Once the layout differs from the precomputed one (a live simulation, a
+  // dropped node, or a change it settled), the nodes start where they were.
+  const custom =
+    live || fixed.size > 0 || changed || (!!state.custom && !first);
+  const seeded = seedPositions(
+    nodes,
+    links,
+    custom && !first ? state.positions : new Map(),
+  ).positions;
   for (const [id, p] of fixed) seeded.set(id, p);
   if (live) {
     const sim = buildSimulation(nodes, links, seeded, fixed, bounds);
@@ -330,10 +335,10 @@ export function placeNetworkNodes(
     containLive(sim.nodes(), bounds);
     for (const n of sim.nodes()) seeded.set(n.id, {x: n.x!, y: n.y!});
   }
-  state.custom = live || fixed.size > 0 || (state.custom && !first) || changed;
-  if (!state.custom) return false;
+  state.custom = custom;
+  if (!custom) return false;
   applyPositions(nodes, seeded);
-  return state.custom;
+  return true;
 }
 
 /** Writes each node's position. */

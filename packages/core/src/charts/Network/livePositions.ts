@@ -27,7 +27,7 @@ export interface PlacedNode {
 }
 
 /** A link between two nodes, by their ids. */
-export interface LinkEnds {
+export interface EdgeEnds {
   source?: {id: string};
   target?: {id: string};
 }
@@ -66,7 +66,7 @@ export function rescalePositions(
     none).
     @param links The links.
 */
-export function neighborIds(links: readonly LinkEnds[]): Map<string, string[]> {
+export function neighborIds(links: readonly EdgeEnds[]): Map<string, string[]> {
   const out = new Map<string, string[]>();
   for (const l of links) {
     const a = l.source?.id;
@@ -94,7 +94,7 @@ export function neighborIds(links: readonly LinkEnds[]): Map<string, string[]> {
 */
 export function seedPositions(
   nodes: readonly PlacedNode[],
-  links: readonly LinkEnds[],
+  links: readonly EdgeEnds[],
   previous: ReadonlyMap<string, Position>,
 ): {positions: Map<string, Position>; entered: string[]} {
   const positions = new Map<string, Position>();
@@ -145,7 +145,7 @@ export function seedPositions(
 */
 export function graphKey(
   nodes: readonly {id: string}[],
-  links: readonly LinkEnds[],
+  links: readonly EdgeEnds[],
 ): string {
   const ids = nodes.map(n => n.id).join("\u0000");
   const ends = links
@@ -202,7 +202,7 @@ export function fitDataPositions(
 */
 export function linkSpacing(
   nodes: readonly PlacedNode[],
-  links: readonly LinkEnds[],
+  links: readonly EdgeEnds[],
 ): number {
   const byId = new Map(nodes.map(n => [n.id, n]));
   const lengths = links
