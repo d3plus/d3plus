@@ -118,21 +118,27 @@ it("thresholdMembers: appendThresholdMembers adds the member rows after a toolti
   const bucket = {[MEMBERS_KEY]: [{label: "a", value: 2}]};
   const fromArray = stubTooltip([["Share", "1%"]]);
   appendThresholdMembers(fromArray, stubViz(), bucket);
-  assert.deepStrictEqual(fromArray.tbody()({}, 0), [
+  assert.deepStrictEqual(fromArray.tbody()(bucket, 0), [
     ["Share", "1%"],
     [memberName("a"), "2"],
   ]);
 
   const fromFn = stubTooltip((d, i) => [[`row ${d.id} ${i}`, ""]]);
   appendThresholdMembers(fromFn, stubViz(), bucket);
-  assert.deepStrictEqual(fromFn.tbody()({id: "x"}, 3), [
+  assert.deepStrictEqual(fromFn.tbody()({...bucket, id: "x"}, 3), [
     ["row x 3", ""],
     [memberName("a"), "2"],
   ]);
+  // Each row resolves its own members: another row lists none, and a
+  // later hover reuses the wrapper rather than stacking another.
+  const wrapper = fromFn.tbody();
+  appendThresholdMembers(fromFn, stubViz(), {id: "y"});
+  assert.strictEqual(fromFn.tbody(), wrapper);
+  assert.deepStrictEqual(wrapper({id: "y"}, 0), [["row y 0", ""]]);
 
   const empty = stubTooltip(undefined);
   appendThresholdMembers(empty, stubViz(), bucket);
-  assert.deepStrictEqual(empty.tbody()({}, 0), [[memberName("a"), "2"]]);
+  assert.deepStrictEqual(empty.tbody()(bucket, 0), [[memberName("a"), "2"]]);
 
   const plain = stubTooltip([["Share", "1%"]]);
   appendThresholdMembers(plain, stubViz(), {id: "b"});

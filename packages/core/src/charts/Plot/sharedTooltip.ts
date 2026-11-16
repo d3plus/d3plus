@@ -21,6 +21,7 @@ import {
 } from "../features/tooltipSwatch.js";
 import {colorScaleTooltipRows} from "../features/colorScaleTooltip.js";
 import {thresholdMemberRows} from "../features/thresholdMembers.js";
+import {ownTbody} from "../features/tooltipRows.js";
 import {hasOwnClick} from "../viz/userClick.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
@@ -156,8 +157,10 @@ export function snappedPosition(
     Holds the tooltip's own arrow/thead/tbody to restore once the snapped
     hover ends (see `restoreTooltip`), so the next legend or default tooltip
     isn't left with these rows — and resets thead/tbody to them before each
-    render so rows never accumulate. Also restores the default title swatch,
-    which `tooltipConfig` may then turn off.
+    render so rows never accumulate. It holds the `tbody` without the rows a
+    point's hover adds (see `addTooltipRows`), which these tooltips list
+    themselves. Also restores the default title swatch, which
+    `tooltipConfig` may then turn off.
 */
 export function prepareTooltip(viz: VizInstance) {
   const tip = viz._tooltipClass!;
@@ -165,7 +168,7 @@ export function prepareTooltip(viz: VizInstance) {
     viz._sharedTooltipSaved = {
       arrow: tip.arrow(),
       thead: tip.thead(),
-      tbody: tip.tbody(),
+      tbody: ownTbody(tip.tbody()),
     };
   const saved = viz._sharedTooltipSaved;
   return tip.thead(saved.thead).tbody(saved.tbody).titleSwatch(true);

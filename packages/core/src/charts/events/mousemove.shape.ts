@@ -108,8 +108,6 @@ export default function (
   appendPointConfidence(
     this._tooltipClass,
     this as unknown as VizInstance,
-    tooltipDatum,
-    i,
     this._lastScenePick?.node?.shapeType,
   );
   // An outlier says so.
