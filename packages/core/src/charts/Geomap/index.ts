@@ -58,6 +58,10 @@ import {
 import {geoHexbinSettings} from "./geoHexbin.js";
 import {trackRendererChoice} from "./dotRenderer.js";
 import {setupGeomapLinks} from "./flowEvents.js";
+import {
+  installPointClusterEvents,
+  syncPointCluster,
+} from "./pointClusterZoom.js";
 import {installGlobeKeys} from "./globeKeys.js";
 import {installGlobeRotation} from "./globeRotate.js";
 import {runChartDraw} from "../pipeline/runChartDraw.js";
@@ -207,6 +211,7 @@ function setupGeomapDraw(viz: VizInstance): void {
     viz._basemapDark = viz._theme ? viz._theme.dark : pageIsDark(viz);
     syncTileAttribution(viz);
     syncDensityColorScale(viz);
+    syncPointCluster(viz);
     const result = supDraw(callback);
     const {width, height} = chartBounds(viz);
     ensureZoomDom(viz, {
@@ -556,6 +561,7 @@ export const geomapDef: ChartDefinition = {
     setupGeomapDraw(viz);
     setupGeomapFluent(viz);
     setupGeomapLinks(viz);
+    installPointClusterEvents(viz);
     trackRendererChoice(viz);
     viz.schema.legend = viz._defaultLegend = densityLegend(viz);
     // Dragging a globe, or Shift and the arrow keys, re-lays the map out for
@@ -593,6 +599,7 @@ export const geomapDef: ChartDefinition = {
     */
     {key: "ocean", default: DEFAULT_OCEAN},
     {key: "point", default: accessor("point")},
+    {key: "pointCluster", default: true},
     {key: "pointSize", default: constant(1)},
     /**
         The largest coordinate point radius, in pixels.

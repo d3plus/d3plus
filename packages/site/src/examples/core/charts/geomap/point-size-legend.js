@@ -39,6 +39,7 @@ const config = {
   legend: false,
   ocean: "transparent",
   point: d => [d.lon, d.lat],
+  pointCluster: false,
   pointSize: d => d.pop,
   pointSizeMax: 24,
   pointSizeMin: 3,

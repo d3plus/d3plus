@@ -230,6 +230,17 @@ it("size legend: Geomap relabels, not grows, when zoomed in", async () => {
   );
 });
 
+it("size legend: clustered Geomap points keep their pixel size, so it doesn't relabel", async () => {
+  const src = `lib => new lib.Geomap().tiles(false).ocean("transparent").legend(false)
+    .data([{id: "a", p: [1, 2], v: 1}, {id: "b", p: [1.1, 2], v: 50}, {id: "c", p: [-30, 25], v: 400}])
+    .point(d => d.p).pointSize(d => d.v).pointSizeMin(2).pointSizeMax(20).pointSizeScale("sqrt")`;
+  const base = await probe(src);
+  const zoomed = await probe(src, {zoomIn: 1});
+  assert.ok(zoomed.zoom > 1, "chart zoomed in");
+  assert.deepStrictEqual(zoomed.legendText, base.legendText, "same labels");
+  assert.deepStrictEqual(zoomed.legendCircles, base.legendCircles);
+});
+
 const graph = `
   nodes([{id: "a", v: 5}, {id: "b", v: 40}, {id: "c", v: 100}, {id: "d", v: 70}, {id: "e", v: 20}])
   .links([{source: "a", target: "b"}, {source: "a", target: "c"}, {source: "b", target: "d"}, {source: "c", target: "e"}])`;
