@@ -2708,6 +2708,23 @@ export interface D3plusConfig {
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /**
+      Geomap: combines coordinate points that sit near one another on screen
+      into one bubble, while any two points' circles overlap on the map as
+      first drawn. A bubble is sized by its points' summed `pointSize` (by
+      their count when it's constant), shows how many points it holds, and
+      is a pie of its points' colors (a plain circle when they share one);
+      its tooltip lists the first few. Zooming in splits the bubbles as the
+      points spread apart, and zooming out merges them, so the points and
+      bubbles keep their pixel size through zoom. Clicking a bubble zooms
+      in until it splits; one whose points sit too close to ever split fans
+      them out around it instead (click it again to fold them back). Links
+      to a point in a bubble run to the bubble. `{radius}` sets how near
+      points combine, in pixels on screen (`40` by default); `false` draws
+      every point. A `hexbin`, `cartogram`, or `tileGrid` leaves the points
+      out. Defaults to `true`.
+  */
+  pointCluster?: boolean | {radius?: number};
+  /**
       Hexbin: the style of the observations `points` draws: `r`, the dot
       radius in pixels (default `1.5`); `fill` (defaults to the chart's text
       color); and `fillOpacity` (default `0.35`). Merged into the current

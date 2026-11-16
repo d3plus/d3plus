@@ -34,6 +34,9 @@ import type {FlowAnchor} from "./flowLinks.js";
 import type {GeoPathFn, LonLat} from "./flowGeometry.js";
 import {geomapDensity, geomapRegionRows} from "./densityLayout.js";
 import {geoHexbinSettings} from "./geoHexbin.js";
+import {geoZoom} from "./geoHexbinZoom.js";
+import {geomapPointClusters} from "./pointClusterLayout.js";
+import type {GeoClusterState} from "./pointClusterLayout.js";
 import {
   geomapTileGrid,
   regionsReshaped,
@@ -361,6 +364,25 @@ function reshapeRegions(
   return cartogram;
 }
 
+/**
+    The clusters of the points drawn, or null (see `geomapPointClusters`).
+    Clustered points keep their pixel size through zoom. A pending repaint
+    of the last layout's clusters has nothing left to drop.
+*/
+function layoutClusters(
+  v: GeomapViz,
+  ctx: GeomapCtx,
+  visible: DataPoint[],
+  pointR: (d: DataPoint, i: number) => number,
+): GeoClusterState | null {
+  const last = (ctx.geomapCtx as {cluster?: GeoClusterState | null} | undefined)
+    ?.cluster;
+  if (last) clearTimeout(last.timer);
+  const cluster = geomapPointClusters(v, visible, pointR, geoZoom(v).k);
+  v._pointsHoldSize = Boolean(cluster);
+  return cluster;
+}
+
 export const applyGeomapLayout: TransformStage = ({viz}) => {
   const v = viz;
   const ctx = viz.ctx as unknown as GeomapCtx;
@@ -440,6 +462,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
         pointData,
         path as unknown as FlowLayoutInput["path"],
       );
+  const cluster = binned ? null : layoutClusters(v, ctx, visible, pointR);
   const density = geomapDensity(v, {
     regions: topoData as unknown as CartogramRegion[],
     rows: regionRows,
@@ -459,6 +482,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     topoData,
     pathFn: (d: Record<string, unknown>) => featurePath(d.feature),
     pointData: binned ? [] : visible,
+    cluster,
     pointR,
     pointSort: (a: DataPoint, b: DataPoint) =>
       v.schema.pointSize(b) - v.schema.pointSize(a),
