@@ -39,6 +39,12 @@ import {
   placeOutlierLabels,
 } from "../../src/charts/Plot/outlierLabels.ts";
 import {
+  OUTLIER_LINE_STEP,
+  boxCrossesSegment,
+  lineSegments,
+  seriesSegments,
+} from "../../src/charts/Plot/outlierLines.ts";
+import {
   appendOutlier,
   notedOutlier,
   outlierAria,
@@ -401,7 +407,9 @@ it("outlierSides / barLabelSpots / outlierLabelSpots: past the outlier's extreme
     20,
     10,
   );
-  assert.strictEqual(spots.length, 8);
+  assert.strictEqual(spots.length, 16, "each side, then each a label farther");
+  assert.strictEqual(spots[8].side, "top");
+  assert.strictEqual(spots[8].box.y, spots[0].box.y - 10);
   assert.deepStrictEqual(spots[0], {
     box: {x: 40, y: 50 - 8 - OUTLIER_LABEL_GAP - 10, width: 20, height: 10},
     side: "top",
@@ -412,7 +420,7 @@ it("outlierSides / barLabelSpots / outlierLabelSpots: past the outlier's extreme
   );
   assert.strictEqual(
     outlierLabelSpots({box, outlier}, 20, 10).length,
-    8,
+    16,
     "a square's label goes round its box",
   );
   assert.deepStrictEqual(outlierLabelSpots({outlier}, 20, 10), []);
@@ -446,6 +454,121 @@ it("placeOutlierLabels: each label's first open spot inside the bounds, or none"
     [null],
     "an obstacle is in the way",
   );
+  const crossed = placeOutlierLabels(
+    [[spot(10, 10), spot(40, 10)]],
+    [],
+    [],
+    bounds,
+    [
+      [
+        [0, 15],
+        [30, 15],
+      ],
+    ],
+  );
+  assert.deepStrictEqual(crossed, [spot(40, 10)], "a drawn line is in the way");
+});
+
+it("seriesSegments: a series' points joined along its curve, sampled and mapped", () => {
+  const points = [
+    [0, 0],
+    [10, 0],
+    [10, 10],
+  ];
+  const straight = seriesSegments(points, "linear", undefined, 100);
+  assert.deepStrictEqual(straight, [
+    [
+      [0, 0],
+      [10, 0],
+    ],
+    [
+      [10, 0],
+      [10, 10],
+    ],
+  ]);
+  const moved = seriesSegments(points, "linear", ([x, y]) => [x + 5, y + 1]);
+  assert.deepStrictEqual(moved[0][0], [5, 1], "mapped into plot space");
+  const curved = seriesSegments(
+    [
+      [0, 0],
+      [20, 30],
+      [40, 0],
+    ],
+    "monotoneX",
+  );
+  assert.ok(curved.length > 4, "a curve is sampled into short pieces");
+  const longest = Math.max(
+    ...curved.map(([a, b]) => Math.hypot(b[0] - a[0], b[1] - a[1])),
+  );
+  assert.ok(
+    longest < OUTLIER_LINE_STEP * 1.5,
+    `pieces about ${OUTLIER_LINE_STEP}px long: ${longest}`,
+  );
+  assert.deepStrictEqual(seriesSegments([[1, 1]], "linear"), []);
+});
+
+it("lineSegments: every line and area top edge in a scene, hit areas and plain paths aside", () => {
+  const series = {
+    top: [
+      [0, 0],
+      [10, 0],
+    ],
+    keys: [0, 1],
+    curve: "linear",
+  };
+  const nodes = [
+    {
+      type: "group",
+      key: "g",
+      transform: {x: 100, y: 50},
+      children: [
+        {type: "path", key: "a", d: "", series, transform: {x: 5, y: 0}},
+        {type: "path", key: "a::hit", d: "", series},
+        {type: "path", key: "wedge", d: "M0,0L5,5Z"},
+        {
+          type: "path",
+          key: "area",
+          d: "",
+          series: {
+            ...series,
+            top: [
+              [0, 20],
+              [10, 20],
+            ],
+            base: [
+              [0, 40],
+              [10, 40],
+            ],
+          },
+        },
+      ],
+    },
+  ];
+  assert.deepStrictEqual(lineSegments(nodes), [
+    [
+      [105, 50],
+      [115, 50],
+    ],
+    [
+      [100, 70],
+      [110, 70],
+    ],
+  ]);
+  assert.deepStrictEqual(lineSegments([]), []);
+});
+
+it("boxCrossesSegment: a segment through a box, or ending in it, but not one that misses or touches it", () => {
+  const box = {x: 10, y: 10, width: 20, height: 10};
+  const cross = (a, b) => boxCrossesSegment(box, [a, b]);
+  assert.ok(cross([0, 15], [40, 15]), "straight through");
+  assert.ok(cross([0, 0], [40, 30]), "diagonally through");
+  assert.ok(cross([15, 15], [50, 50]), "starting inside");
+  assert.ok(cross([0, 12], [12, 12]), "ending inside");
+  assert.ok(!cross([0, 0], [40, 0]), "passing above");
+  assert.ok(!cross([0, 25], [8, 0]), "missing the corner");
+  assert.ok(!cross([0, 10], [40, 10]), "running along its edge");
+  assert.ok(!cross([30, 0], [30, 40]), "along its right edge");
+  assert.ok(!cross([50, 15], [50, 15]), "a point outside");
 });
 
 it("outlierLabel: the row's name and value, a function's text, or none", () => {

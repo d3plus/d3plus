@@ -1,7 +1,8 @@
 /**
     The labels of a Plot's outliers (see `outlierScene.ts`): each names its
     row and value, and sits beside its ring, past the mark's value end where
-    there's room, clear of the other marks and labels and inside the plot.
+    there's room, clear of the other marks, lines, and labels and inside the
+    plot.
 */
 import type {DataPoint} from "@d3plus/data";
 import type {Bounds} from "@d3plus/math";
@@ -32,6 +33,8 @@ import {textHalo} from "../features/textHalo.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {PlotOutlier} from "./outlierDetect.js";
+import {boxCrossesSegment, lineSegments} from "./outlierLines.js";
+import type {LineSegment} from "./outlierLines.js";
 import {outlierOf} from "./outlierScene.js";
 import {axisValue} from "./sharedTooltip.js";
 
@@ -152,7 +155,8 @@ export function barLabelSpots(
 
 /**
     Every spot a ring's label can take, in order of preference (see
-    `outlierSides` and `barLabelSpots`).
+    `outlierSides` and `barLabelSpots`): a point's label tries each side
+    against its ring, then each side again a label's height farther out.
     @param ring The ring.
     @param w The label's width.
     @param h The label's height.
@@ -174,10 +178,10 @@ export function outlierLabelSpots(
       r: Math.hypot(ring.box.width, ring.box.height) / 2,
     });
   if (!circle) return [];
-  return outlierSides(along, ring.outlier.side).map(side => ({
-    box: sideBox(circle, side, w, h, gap),
-    side,
-  }));
+  const sides = outlierSides(along, ring.outlier.side);
+  return [gap, gap + h].flatMap(away =>
+    sides.map(side => ({box: sideBox(circle, side, w, h, away), side})),
+  );
 }
 
 /** Whether a box lies inside the bounds. */
@@ -189,18 +193,20 @@ const inside = (b: CircleLabelBox, bounds: Bounds): boolean =>
 
 /**
     Places labels greedily, in order: each takes its first spot inside
-    `bounds` that crosses no circle, obstacle, or label already placed.
-    Null for a label with no such spot.
+    `bounds` that crosses no circle, obstacle, drawn line, or label already
+    placed. Null for a label with no such spot.
     @param spots Each label's spots, in order of preference.
     @param circles Circles no label may cross.
     @param obstacles Boxes no label may overlap.
     @param bounds The box labels must stay in.
+    @param lines Drawn line segments no label may cross (see `lineSegments`).
 */
 export function placeOutlierLabels(
   spots: OutlierLabelSpot[][],
   circles: readonly LabelCircle[],
   obstacles: readonly CircleLabelBox[],
   bounds: Bounds,
+  lines: readonly LineSegment[] = [],
 ): (OutlierLabelSpot | null)[] {
   const taken = obstacles.slice();
   return spots.map(list => {
@@ -208,7 +214,8 @@ export function placeOutlierLabels(
       ({box}) =>
         inside(box, bounds) &&
         !circles.some(c => boxHitsCircle(box, c)) &&
-        !taken.some(b => boxesOverlap(box, b)),
+        !taken.some(b => boxesOverlap(box, b)) &&
+        !lines.some(s => boxCrossesSegment(box, s)),
     );
     if (spot) taken.push(spot.box);
     return spot ?? null;
@@ -273,7 +280,7 @@ function sceneObstacles(
 
 /**
     The text nodes of the rings' labels: each placed beside its ring (see
-    `placeOutlierLabels`), clear of the marks and labels in `nodes`, in the
+    `placeOutlierLabels`), clear of the marks, lines, and labels in `nodes`, in the
     chart's text color, haloed in its background, and inert to the pointer.
     Each carries its mark's datum, so it dims and lights with the mark, and
     stands in for the mark's own label: `sources` lists the rows labeled.
@@ -331,6 +338,7 @@ export function emitOutlierLabels(
       width: edges.x1 - edges.x0,
       height: edges.y1 - edges.y0,
     },
+    lineSegments(nodes),
   );
   const labels = placed.flatMap((spot, k) =>
     spot ? [{ring: rings[k], text: texts[k], ...spot}] : [],

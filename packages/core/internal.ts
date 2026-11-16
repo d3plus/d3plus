@@ -623,6 +623,13 @@ export type {
   OutlierRing,
 } from "./src/charts/Plot/outlierLabels.js";
 export {
+  OUTLIER_LINE_STEP,
+  boxCrossesSegment,
+  lineSegments,
+  seriesSegments,
+} from "./src/charts/Plot/outlierLines.js";
+export type {LineSegment} from "./src/charts/Plot/outlierLines.js";
+export {
   appendOutlier,
   notedOutlier,
   outlierAria,

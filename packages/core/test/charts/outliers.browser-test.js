@@ -123,6 +123,71 @@ function scene(page) {
   });
 }
 
+/**
+    Which outlier labels a drawn line passes through: each label's box (from
+    `markBoxes`) against every line and area path, traced through the
+    browser's own path geometry every pixel, a point counting when it lies
+    more than half a pixel inside a box.
+*/
+function labelLineCrossings(page) {
+  return page.evaluate(() => {
+    const viz = window.__viz;
+    const root = viz._paintedScene.root;
+    const isLabel = n =>
+      n.type === "text" && `${n.key}`.includes("outlier-label-");
+    const boxes = [];
+    const paths = [];
+    const walk = (n, chain) => {
+      const next = n.transform ? [...chain, n.transform] : chain;
+      if (isLabel(n))
+        boxes.push({
+          text: n.lines.map(l => l.text).join(" "),
+          box: window.d3plus.markBoxes([n], undefined, undefined, true)[0],
+          chain,
+        });
+      if (n.type === "path" && n.series && !`${n.key}`.endsWith("::hit"))
+        paths.push({d: n.d, chain: next});
+      (n.children || []).forEach(c => walk(c, next));
+    };
+    walk(root, []);
+    const place = (chain, [x, y]) =>
+      chain.reduceRight(
+        ([px, py], t) => [
+          px * (t.scale ?? 1) + (t.x || 0),
+          py * (t.scale ?? 1) + (t.y || 0),
+        ],
+        [x, y],
+      );
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    document.body.appendChild(svg);
+    const crossed = [];
+    for (const {d, chain} of paths) {
+      const el = document.createElementNS(ns, "path");
+      el.setAttribute("d", d);
+      svg.appendChild(el);
+      const length = el.getTotalLength();
+      for (let at = 0; at <= length; at += 1) {
+        const p = el.getPointAtLength(at);
+        const [x, y] = place(chain, [p.x, p.y]);
+        for (const {text, box, chain: c} of boxes) {
+          const [bx, by] = place(c, [box.x, box.y]);
+          if (
+            x > bx + 0.5 &&
+            x < bx + box.width - 0.5 &&
+            y > by + 0.5 &&
+            y < by + box.height - 0.5 &&
+            !crossed.includes(text)
+          )
+            crossed.push(text);
+        }
+      }
+    }
+    svg.remove();
+    return {labels: boxes.length, lines: paths.length, crossed};
+  });
+}
+
 /** Client coordinates of a point on the chart's surface. */
 function client(page, [x, y]) {
   return page.evaluate(
@@ -246,6 +311,10 @@ for (const renderer of ["svg", "canvas"]) {
           spike.geom[2],
         "the label sits beside the ring",
       );
+      const crossings = await labelLineCrossings(page);
+      assert.strictEqual(crossings.labels, 2);
+      assert.ok(crossings.lines >= 2, "both lines sampled");
+      assert.deepStrictEqual(crossings.crossed, [], "no label crosses a line");
       assert.ok(s.aria.some(a => /^North.* Outlier: 5\.$/.test(a)));
       const tip = await tooltip(page, north.points[4]);
       assert.ok(
