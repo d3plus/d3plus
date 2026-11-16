@@ -34,6 +34,13 @@ export type {
 
 export {gradientToken, parseGradient} from "./src/scene.js";
 
+export {imageFit, parsePreserveAspectRatio} from "./src/preserveAspectRatio.js";
+export type {
+  AspectAlign,
+  FitRect,
+  PreserveAspectRatio,
+} from "./src/preserveAspectRatio.js";
+
 export {
   alignLines,
   alignShare,

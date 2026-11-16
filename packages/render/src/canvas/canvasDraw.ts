@@ -1,3 +1,4 @@
+import {imageFit, parsePreserveAspectRatio} from "../preserveAspectRatio.js";
 import type {SceneNode, TextLine, TextNode} from "../scene.js";
 import {anchorSide, lineLeft} from "../textAlign.js";
 import {
@@ -138,9 +139,11 @@ function paintRuns(
 }
 
 /**
-    Paints a decoded image into an image node's box, honoring its
-    `preserveAspectRatio` (`slice` covers, `meet` contains, otherwise it
-    stretches).
+    Paints a decoded image into an image node's box per its
+    `preserveAspectRatio`, read as SVG does (see `parsePreserveAspectRatio`):
+    `meet` fits the whole image inside the box and `slice` covers it, cropped,
+    each placed by its alignment, `none` stretches, and an omitted or invalid
+    value is `xMidYMid meet`.
 */
 export function drawImage(
   ctx: Ctx,
@@ -149,39 +152,18 @@ export function drawImage(
   alpha: number,
 ): void {
   ctx.globalAlpha = alpha;
-  const par = node.preserveAspectRatio;
-  const iw = img.naturalWidth || img.width,
-    ih = img.naturalHeight || img.height;
-  if (par && par.includes("slice")) {
-    // CSS `cover`: scale the image to fill the box, cropping the overflow
-    // (centered), via drawImage's source-rect crop.
-    const scale = Math.max(node.width / iw, node.height / ih);
-    const sw = node.width / scale,
-      sh = node.height / scale;
-    ctx.drawImage(
-      img,
-      (iw - sw) / 2,
-      (ih - sh) / 2,
-      sw,
-      sh,
-      node.x,
-      node.y,
-      node.width,
-      node.height,
-    );
-  } else if (par && par !== "none" && par.includes("meet")) {
-    // CSS `contain`: fit the whole image inside the box (centered).
-    const scale = Math.min(node.width / iw, node.height / ih);
-    const dw = iw * scale,
-      dh = ih * scale;
-    ctx.drawImage(
-      img,
-      node.x + (node.width - dw) / 2,
-      node.y + (node.height - dh) / 2,
-      dw,
-      dh,
-    );
-  } else {
+  const natural = {
+    width: img.naturalWidth || img.width,
+    height: img.naturalHeight || img.height,
+  };
+  if (!(natural.width > 0) || !(natural.height > 0)) {
     ctx.drawImage(img, node.x, node.y, node.width, node.height);
+    return;
   }
+  const {source: s, dest: d} = imageFit(
+    node,
+    natural,
+    parsePreserveAspectRatio(node.preserveAspectRatio),
+  );
+  ctx.drawImage(img, s.x, s.y, s.width, s.height, d.x, d.y, d.width, d.height);
 }
