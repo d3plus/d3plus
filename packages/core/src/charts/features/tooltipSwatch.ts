@@ -1,13 +1,20 @@
 /**
     The small colored glyph that ties a tooltip row or title to the mark it
     describes, matching the legend's swatches: a dot with a short line through
-    it for a Line, a dot for a Circle, and a square for everything else.
+    it for a Line, a dot for a Circle, and a square for everything else, each
+    in its mark's color or texture and outlined by its mark's stroke.
 */
+import {patternTileSvg} from "@d3plus/render";
 import type {PickResult, SceneNode} from "@d3plus/render";
 
 import type Tooltip from "../../components/Tooltip.js";
 
+import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {markSwatch, swatchOutline} from "./swatchPaint.js";
+import type {SwatchPaint} from "./swatchPaint.js";
+
+export {visibleColor} from "./swatchPaint.js";
 
 /** Every swatch's size in pixels, so swatches line up down a tooltip. */
 const SIZE = 10;
@@ -15,13 +22,45 @@ const SIZE = 10;
 /** Inline styles shared by every swatch: a fixed box, spaced from its text. */
 const BASE = `display: inline-block; flex: none; margin-right: 6px; width: ${SIZE}px; height: ${SIZE}px;`;
 
+/** Each texture's tile, as the CSS that repeats it, keyed by its token. */
+const tiles = new Map<string, string>();
+
 /**
-    A swatch's HTML for a mark of `shape` in `color`, to lead a tooltip title
-    or row (see `withSwatch`). Empty without a color.
-    @param color The mark's color.
+    The CSS that draws a texture's `pattern:<json>` token over a swatch: the
+    one tile the Canvas renderer repeats (see `patternTileSvg`), as an SVG
+    data URI at its own size, centered so a small swatch shows the tile's
+    middle. Empty without a DOM or for a bad token.
+*/
+export function textureStyle(token: string): string {
+  if (typeof document === "undefined") return "";
+  let css = tiles.get(token);
+  if (css === undefined) {
+    const tile = patternTileSvg(token);
+    const uri =
+      tile &&
+      `data:image/svg+xml,${encodeURIComponent(tile.svg).replace(/'/g, "%27")}`;
+    css = tile
+      ? ` background-image: url('${uri}'); background-size: ${tile.width}px ${tile.height}px; background-position: center;`
+      : "";
+    tiles.set(token, css);
+  }
+  return css;
+}
+
+/**
+    A swatch's HTML for a mark of `shape`, to lead a tooltip title or row
+    (see `withSwatch`): in the mark's color or texture, outlined in 1px of its
+    stroke (see `markSwatch`). A Line's swatch takes no outline, its stroke
+    being the line itself. Empty without a color.
+    @param paint The mark's color, or its swatch paint.
     @param shape The mark's shape type (e.g. "Line", "Circle", "Bar").
 */
-export function tooltipSwatch(color?: string, shape?: string): string {
+export function tooltipSwatch(
+  paint?: string | SwatchPaint,
+  shape?: string,
+): string {
+  const {color, outline, texture}: SwatchPaint =
+    typeof paint === "object" ? paint : {color: paint};
   if (!color) return "";
   if (shape === "Line") {
     const dot = SIZE * 0.6;
@@ -33,7 +72,12 @@ export function tooltipSwatch(color?: string, shape?: string): string {
     );
   }
   const radius = shape === "Circle" ? "50%" : "1px";
-  return `<span class="d3plus-tooltip-swatch" style="${BASE} border-radius: ${radius}; background: ${color}"></span>`;
+  const edge = outline && swatchOutline(outline);
+  const border = edge
+    ? ` box-sizing: border-box; border: ${edge.strokeWidth}px solid ${edge.stroke};`
+    : "";
+  const pattern = texture ? textureStyle(texture) : "";
+  return `<span class="d3plus-tooltip-swatch" style="${BASE} border-radius: ${radius}; background: ${color};${pattern}${border}"></span>`;
 }
 
 /**
@@ -49,10 +93,6 @@ export function withSwatch(swatch: string, text: unknown): string {
   return `<span style="display: inline-flex; align-items: center">${swatch}<span>${text}</span></span>`;
 }
 
-/** A paint color that actually shows: not unset, "none", or transparent. */
-export const visibleColor = (s: unknown): string | undefined =>
-  typeof s === "string" && s !== "none" && s !== "transparent" ? s : undefined;
-
 type PaintNode = SceneNode & {
   key?: string;
   shapeType?: string;
@@ -60,11 +100,15 @@ type PaintNode = SceneNode & {
   children?: SceneNode[];
 };
 
-/** The scene node with a given key, searching depth-first. */
-function findNode(nodes: SceneNode[], key: string): PaintNode | undefined {
+/** The scene node with a given key (and `type`, when given), searching depth-first. */
+function findNode(
+  nodes: SceneNode[],
+  key: string,
+  type?: string,
+): PaintNode | undefined {
   for (const node of nodes as PaintNode[]) {
-    if (node.key === key) return node;
-    const child = node.children && findNode(node.children, key);
+    if (node.key === key && (!type || node.type === type)) return node;
+    const child = node.children && findNode(node.children, key, type);
     if (child) return child;
   }
   return undefined;
@@ -75,6 +119,14 @@ function findNode(nodes: SceneNode[], key: string): PaintNode | undefined {
     target, a bar's error bar, a lollipop's stem.
 */
 const OWNED_SUFFIXES = ["::hit", "::confidence", "::stem"];
+
+/** The key of the mark a node with `key` is drawn on behalf of (see `ownerNode`). */
+function ownerKey(key: string): string {
+  let owner = key;
+  for (const suffix of OWNED_SUFFIXES)
+    while (owner.endsWith(suffix)) owner = owner.slice(0, -suffix.length);
+  return owner;
+}
 
 /**
     The mark a picked scene node stands in for: the visible sibling of a
@@ -90,12 +142,55 @@ export function ownerNode<T extends SceneNode>(
 ): T | undefined {
   const key = node && (node as PaintNode).key;
   if (typeof key !== "string") return node;
-  let owner = key;
-  for (const suffix of OWNED_SUFFIXES)
-    while (owner.endsWith(suffix)) owner = owner.slice(0, -suffix.length);
+  const owner = ownerKey(key);
   return owner === key
     ? node
     : (findNode(viz._chartScene || [], owner) as T | undefined) || node;
+}
+
+type PickedNode = PaintNode & {interactionGroup?: string; datum?: unknown};
+
+/**
+    The mark a picked node stands for (see `ownerNode`), as the chart (or its
+    legend) draws it: hover and active emphasis restyle the painted scene's
+    copies of marks, never the chart's own scene or the legend's.
+*/
+function drawnMark(
+  viz: VizInstance,
+  node: PickedNode | undefined,
+): PickedNode | undefined {
+  const key = node?.key;
+  if (typeof key !== "string") return node;
+  const legend = node!.interactionGroup === "legend";
+  const scene = legend
+    ? viz._legendClass
+      ? [viz._legendClass.toScene()]
+      : []
+    : viz._chartScene || [];
+  const owner = ownerKey(key);
+  const type = owner === key ? node!.type : undefined;
+  return (findNode(scene, owner, type) as PickedNode | undefined) ?? node;
+}
+
+/**
+    A picked scene node's swatch paint: a Line's stroke, otherwise its fill
+    (or stroke, for an unfilled mark), outlined by its stroke (see
+    `markSwatch`). A node drawn on behalf of another mark (see `ownerNode`)
+    reads that mark's paint, and a hovered or active mark its paint without
+    the emphasis.
+    @param viz The chart, whose scene holds the mark.
+    @param node The picked scene node.
+*/
+export function nodeSwatch(
+  viz: VizInstance,
+  node: SceneNode | undefined,
+): SwatchPaint {
+  const n = drawnMark(viz, node as PickedNode | undefined) ?? node;
+  return n
+    ? markSwatch(n.paint, shapeOf(n as PickedNode), {
+        background: chartBackground(viz),
+      })
+    : {};
 }
 
 /**
@@ -109,20 +204,12 @@ export function nodeColor(
   viz: VizInstance,
   node: SceneNode | undefined,
 ): string | undefined {
-  const n = ownerNode(viz, node as PaintNode | undefined);
-  return n && paintColor(n);
+  return nodeSwatch(viz, node).color;
 }
 
 /** A Line's stroke, otherwise a mark's fill (or stroke, for an unfilled mark). */
-function paintColor(node: PaintNode): string | undefined {
-  const paint = node.paint;
-  if (!paint) return undefined;
-  return node.shapeType === "Line"
-    ? (visibleColor(paint.stroke) ?? visibleColor(paint.fill))
-    : (visibleColor(paint.fill) ?? visibleColor(paint.stroke));
-}
-
-type PickedNode = PaintNode & {interactionGroup?: string; datum?: unknown};
+const paintColor = (node: PickedNode): string | undefined =>
+  markSwatch(node.paint, node.shapeType).color;
 
 /** Whether a node draws a mark, rather than a label (which some charts tag with a shape type). */
 const isMark = (node: PickedNode): boolean =>
@@ -191,17 +278,17 @@ export function pickSwatch(
 ): string {
   if (!pick || !pick.node) return "";
   const node = pick.node as PickedNode;
-  const own = isMark(node) ? nodeColor(viz, node) : undefined;
-  if (own && !pick.isLegend) return tooltipSwatch(own, shapeOf(node));
+  const own = isMark(node) ? nodeSwatch(viz, node) : undefined;
+  if (own?.color && !pick.isLegend) return tooltipSwatch(own, shapeOf(node));
   const root = viz._paintedScene?.root;
-  const match = own
+  const match = own?.color
     ? node
     : root && markFor([root], sourceRow(pick.d), !!pick.isLegend);
   if (!match) return "";
   // A legend entry names its own glyph (a Line draws as a stroke and a dot).
   const entry = (match.datum as {shape?: unknown} | undefined)?.shape;
   return tooltipSwatch(
-    nodeColor(viz, match),
+    nodeSwatch(viz, match),
     pick.isLegend && typeof entry === "string" ? entry : shapeOf(match),
   );
 }
