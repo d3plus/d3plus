@@ -24,10 +24,12 @@ export const DOUBLE_CLICK_WAIT = 300;
 
 /** The scene keys of a node's shape and label, which carry its id. */
 const NODE_KEY = /^network-(?:Circle|Rect|label)-(.+)$/;
+/** A label drawn inside its node, keyed by the node's id and the label's index. */
+const INSIDE_LABEL_KEY = /^network-label-(.+)_\d+$/;
 
 /**
-    The id of the node a Network scene node draws (its shape or its label),
-    or null for anything else.
+    The id of the node a Network scene node draws (its shape, or its label
+    beside or inside it), or null for anything else.
     @param node The scene node.
     @param ids The ids of the chart's nodes.
 */
@@ -35,8 +37,12 @@ export function networkNodeId(
   node: Pick<SceneNode, "key">,
   ids: {has(id: string): boolean},
 ): string | null {
-  const match = NODE_KEY.exec(String(node.key ?? ""));
-  return match && ids.has(match[1]) ? match[1] : null;
+  const key = String(node.key ?? "");
+  for (const pattern of [NODE_KEY, INSIDE_LABEL_KEY]) {
+    const match = pattern.exec(key);
+    if (match && ids.has(match[1])) return match[1];
+  }
+  return null;
 }
 
 /**
