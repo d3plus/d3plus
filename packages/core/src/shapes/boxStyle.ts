@@ -69,14 +69,17 @@ export function boxMedianInk(fill: unknown): string {
   return colorContrast(c.formatRgb(), {dark: "black", light: "white"});
 }
 
-/** The thinnest box body, in pixels, that a 1px median line reads against. */
-const MIN_BODY = 1;
+/**
+    The thinnest box body, in pixels, that a 1px median line reads against:
+    thick enough for the body to show on both sides of the line.
+*/
+const MIN_BODY = 2;
 
 /**
     Whether `v`, a position along a box datum's value axis, lies over the
     box's body: between its quartiles (`first` and `third`), on a body at
-    least as thick as the median line. A box whose quartiles meet has no
-    body, so its median sits on the chart's background.
+    least 2px thick. A box whose quartiles meet has no body, so its median
+    sits on the chart's background.
 */
 export function overBoxBody(d: DataPoint, v: unknown): boolean {
   const first = d.first as number;

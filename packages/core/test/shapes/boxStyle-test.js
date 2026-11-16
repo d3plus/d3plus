@@ -142,7 +142,7 @@ it("boxMedianConfig: medianConfig.fill wins", () => {
   assert.strictEqual(boxMedianConfig("black", medianConfig), medianConfig);
 });
 
-it("overBoxBody: between the quartiles of a body at least 1px thick", () => {
+it("overBoxBody: between the quartiles of a body at least 2px thick", () => {
   assert.ok(overBoxBody(box, 120));
   assert.ok(overBoxBody(box, 100), "on the lower edge");
   assert.ok(overBoxBody(box, 140), "on the upper edge");
@@ -151,7 +151,9 @@ it("overBoxBody: between the quartiles of a body at least 1px thick", () => {
   assert.ok(overBoxBody({first: 140, third: 100}, 120), "reversed quartiles");
   assert.ok(!overBoxBody(flat, 120), "quartiles meet");
   assert.ok(!overBoxBody({first: 120, third: 120.5}, 120), "thinner than 1px");
-  assert.ok(overBoxBody({first: 120, third: 121}, 120), "1px");
+  assert.ok(!overBoxBody({first: 120, third: 121}, 120), "1px");
+  assert.ok(!overBoxBody({first: 120, third: 121.9}, 121), "thinner than 2px");
+  assert.ok(overBoxBody({first: 120, third: 122}, 121), "2px");
   assert.ok(!overBoxBody(box, undefined));
   assert.ok(!overBoxBody(box, NaN));
   assert.ok(!overBoxBody({}, 120));
@@ -310,20 +312,25 @@ it("Box: a box whose quartiles meet draws its median and mean in the whiskers' c
   assert.strictEqual(themed["A-median"].fill, "white");
 });
 
-it("Box: a mean past its box's body takes the whiskers' color", () => {
-  const box = new Box()
-    .data(rows)
-    .x(d => d.key)
-    .y(d => d.v)
-    .fill("#1a1b4b")
-    .boxMean(true)
-    .whiskerConfig({lineConfig: {stroke: "gray"}})
-    .renderMode("compute")
-    .render();
-  const p = paints(box);
-  // A's outlier at 50 pulls its mean past its upper quartile.
+it("Box: a mean off its box's body takes the whiskers' color", () => {
+  const draw = scale =>
+    paints(
+      new Box()
+        .data(rows)
+        .x(d => d.key)
+        .y(d => d.v * scale)
+        .fill("#1a1b4b")
+        .boxMean(true)
+        .whiskerConfig({lineConfig: {stroke: "gray"}})
+        .renderMode("compute")
+        .render(),
+    );
+  const p = draw(10);
+  // A's outlier pulls its mean past its upper quartile.
   assert.strictEqual(p["A-mean"].fill, "gray");
-  assert.strictEqual(p["B-mean"].fill, "white");
+  assert.strictEqual(p["B-mean"].fill, "white", "inside B's 15px body");
+  // Unscaled, B's body spans 1.5px: too thin to show around its mean.
+  assert.strictEqual(draw(1)["B-mean"].fill, "gray");
 });
 
 it("box style helpers keep a configPrep'd config marked as shared", async () => {
