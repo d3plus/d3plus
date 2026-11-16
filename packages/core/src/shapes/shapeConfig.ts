@@ -355,7 +355,7 @@ export interface BoxConfig {
   /** Scales each box's width by the square root of its count relative to the largest box's. Off by default. */
   boxWidthByCount?: boolean;
   data?: DataPoint[];
-  /** Each box's fill, resolved against its merged datum (white when unset); `rectConfig.fill` overrides it. Outliers take it too, resolved against each observation, and the median line defaults to black or white, whichever contrasts with it. */
+  /** Each box's fill, resolved against its merged datum (white when unset); `rectConfig.fill` overrides it. Outliers take it too, resolved against each observation, and the median line defaults to black or white, whichever contrasts with it, or to the whiskers' line color where it has no box body behind it (a box whose quartiles meet). */
   fill?: ConstOrAccessor<string>;
   /** Each box's id, read from its first row; keys every part the box draws. Defaults to the box's x (vertical) or y (horizontal) value. */
   id?: ConstOrAccessor<string | number>;
