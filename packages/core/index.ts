@@ -66,6 +66,7 @@ export {
   Viz,
   Waffle,
   Waterfall,
+  WordCloud,
 } from "./src/charts/index.js";
 
 export {

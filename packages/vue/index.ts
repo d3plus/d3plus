@@ -64,6 +64,7 @@ import {
   Venn as VennClass,
   Violin as ViolinClass,
   Waterfall as WaterfallClass,
+  WordCloud as WordCloudClass,
   Viz as VizClass,
   Waffle as WaffleClass,
   Axis as AxisClass,
@@ -232,6 +233,8 @@ export const Venn = createD3plusComponent(VennClass, "chart");
 export const Violin = createD3plusComponent(ViolinClass, "chart");
 /** Vue component for rendering a d3plus Waterfall visualization. */
 export const Waterfall = createD3plusComponent(WaterfallClass, "chart");
+/** Vue component for rendering a d3plus WordCloud visualization. */
+export const WordCloud = createD3plusComponent(WordCloudClass, "chart");
 /** Vue component for rendering a base d3plus Viz instance. */
 export const Viz = createD3plusComponent(VizClass, "chart");
 /** Vue component for rendering a d3plus Waffle visualization. */

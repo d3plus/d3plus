@@ -1981,6 +1981,23 @@ export interface D3plusConfig {
   /** Allows removing specific geographies from topojson file to improve zoom. */
   fitFilter?: number | string | ((d: Record<string, unknown>) => boolean);
   /**
+      WordCloud: the largest font size, in pixels, given to the word with
+      the largest value (default `60`). When the words don't all fit, every
+      size shrinks together until they do.
+  */
+  fontMax?: number;
+  /** WordCloud: the smallest font size, in pixels, given to the word with the smallest value (default `10`). */
+  fontMin?: number;
+  /**
+      WordCloud: how values map onto font sizes between `fontMin` and
+      `fontMax`: `"sqrt"` (default) so each word's ink area grows about in
+      step with its value, `"linear"` for its height, or `"log"` for values
+      spanning orders of magnitude.
+  */
+  fontScale?: "sqrt" | "linear" | "log";
+  /** WordCloud: the words' font weight (default `600`), or an accessor `(d, i) => weight` per word. */
+  fontWeight?: number | string | ((d: DataPoint, i: number) => number | string);
+  /**
       Marks a forecast: a shaded backdrop, a rule, and a "Forecast" label over
       the forecast stretch, with lines dashed there (see `forecastConfig`).
       A function flags the forecast rows; `"auto"` (or `true`) flags rows whose
@@ -2871,6 +2888,14 @@ export interface D3plusConfig {
       widens a continuous axis's domain to fit.
   */
   referenceLines?: ReferenceLineConfig[];
+  /**
+      WordCloud: the angle, in degrees clockwise, each word is drawn at: a
+      number for every word, an array of angles (each word takes one,
+      picked from a hash of its id, so it keeps its angle across redraws),
+      or an accessor `(d, i) => degrees`. Defaults to `0`, every word
+      horizontal.
+  */
+  rotate?: number | number[] | ((d: DataPoint, i: number) => unknown);
   /** Row key for matrix-style layouts. */
   row?: string;
   /** DensityPlot: draws a short tick for every observation just below the value axis, in its group's color, moving the axis's labels down to make room (default `false`; see `rugConfig`). */
@@ -3024,8 +3049,13 @@ export interface D3plusConfig {
       on a continuous time axis.
   */
   skipGaps?: boolean;
-  /** Size accessor key: sizes a Plot's circles, and on BumpChart draws each series as a band as thick as its value (see `bandPadding`). */
-  size?: string;
+  /**
+      Size accessor key: sizes a Plot's circles, and on BumpChart draws each
+      series as a band as thick as its value (see `bandPadding`). WordCloud:
+      each word's value, which sets its font size (a data key or an accessor
+      `(d, i) => number`, default `"value"`); rows with the same id add up.
+  */
+  size?: string | ((d: DataPoint, i: number) => number);
   /**
       Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.
   */
@@ -3048,6 +3078,12 @@ export interface D3plusConfig {
   slopeColor?: SlopeColorSetting;
   /** KPI: how each tile draws its history when `time` is set — `"area"` (default), `"line"`, `"bar"`, or `false` for none. */
   sparkline?: "area" | "line" | "bar" | false;
+  /**
+      WordCloud: the path each word walks out from the middle while looking
+      for room: `"archimedean"` (default) packs the words into a rounded
+      cloud, `"rectangular"` into a boxier one.
+  */
+  spiral?: "archimedean" | "rectangular";
   /**
       With two groupBy levels, Violin places violins by the first and sets
       them side by side by the second. `split` draws a category holding
@@ -3218,7 +3254,9 @@ export interface D3plusConfig {
       merge into one series, labelled by `thresholdName` and stacked on top.
       A bucket needs at least two items (a lone small item stays as
       itself), and its tooltips list the items it holds with their values.
-      Off by default on Plot charts.
+      Off by default on Plot charts; `0.0001` (0.01%) elsewhere, as on
+      Treemap. On WordCloud the bucket is drawn as one more word, sized by
+      the summed value of the words it holds.
   */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */
@@ -3424,6 +3462,8 @@ export interface D3plusConfig {
   weekStart?: number | string;
   /** Overall width of the visualization in pixels. */
   width?: number;
+  /** WordCloud: the clearance, in pixels, kept around each word's glyphs (default `2`). */
+  wordPadding?: number;
   /**
       Key, index, or accessor function for x-axis values. On a Plot, an
       Array of keys or accessors, outermost first, draws a multi-level
