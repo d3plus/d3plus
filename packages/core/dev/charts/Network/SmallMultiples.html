@@ -1,0 +1,63 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Small Multiples · Network</title>
+    <meta
+      name="description"
+      content="Faceted Network: Les Misérables split into one panel per group from shared nodes and links, each panel drawing only its own characters and the links between them; and the same from data and links alone."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .viz {
+        height: 720px;
+        margin-bottom: 24px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>facet("group") with shared nodes and links</h3>
+    <div class="viz" id="shared"></div>
+    <h3>facet("group") from data and links, no nodes</h3>
+    <div class="viz" id="dataOnly"></div>
+  </body>
+
+  <script>
+    // Every panel gets the whole `nodes` and `links`; each draws only the
+    // characters in its own group and the links between two of them.
+    fetch("./lesmis.json")
+      .then(resp => resp.json())
+      .then(function (graph) {
+        new d3plus.Network()
+          .select("#shared")
+          .data(graph.nodes)
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .linkSize(d => d.value)
+          .facet("group")
+          .color("group")
+          .legend(false)
+          .render();
+
+        new d3plus.Network()
+          .select("#dataOnly")
+          .data(graph.nodes)
+          .links(graph.links)
+          .facet("group")
+          .color("group")
+          .legend(false)
+          .render();
+      });
+  </script>
+</html>
