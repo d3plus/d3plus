@@ -103,12 +103,23 @@ it("leadWithColorScaleRows — ahead of the chart's or user's own rows", () => {
     },
   };
   leadWithColorScaleRows(tooltip, viz, {value: 3000}, 0);
-  assert.deepStrictEqual(tbody({}, 0), [
+  assert.deepStrictEqual(tbody({value: 3000}, 0), [
     ["value", "3k"],
     ["Share", "10%"],
   ]);
+  // Each row resolves its own value; a later hover reuses the wrapper.
+  const wrapper = tbody;
   leadWithColorScaleRows(tooltip, viz, {}, 0);
-  assert.deepStrictEqual(tbody, [["Share", "10%"]], "no value: the base back");
+  assert.strictEqual(tbody, wrapper);
+  assert.deepStrictEqual(tbody({value: 5600}, 0), [
+    ["value", "5.6k"],
+    ["Share", "10%"],
+  ]);
+  assert.deepStrictEqual(tbody({}, 0), [["Share", "10%"]], "no value");
+  // A tooltip no row of which had a value is left as it was.
+  tbody = [["Share", "10%"]];
+  leadWithColorScaleRows(tooltip, viz, {}, 0);
+  assert.deepStrictEqual(tbody, [["Share", "10%"]]);
 });
 
 it("colorScaleTooltip — Calendar and Hexbin show the value themselves", () => {
