@@ -1,0 +1,453 @@
+/*
+  The chart chooser. Its colors come from Starlight's theme tokens, so it
+  follows the light and dark themes like the playground beside it.
+*/
+
+/* The chooser needs room for the data and the tree side by side. */
+html:has(.d3p-chooser) {
+  --sl-content-width: 76rem;
+}
+
+.d3p-chooser {
+  --d3p-tree-line: var(--sl-color-gray-5);
+  --d3p-tree-dim: var(--sl-color-gray-4);
+  --d3p-tree-lit: var(--sl-color-accent);
+  --d3p-tree-lit-soft: color-mix(
+    in srgb,
+    var(--sl-color-accent) 14%,
+    var(--sl-color-bg)
+  );
+  --d3p-chooser-radius: 0.75rem;
+
+  container-type: inline-size;
+  margin-block: 1.5rem;
+}
+/* Dim charts stay legible on a dark page, where gray-4 is the darker gray. */
+:root[data-theme="dark"] .d3p-chooser {
+  --d3p-tree-dim: var(--sl-color-gray-3);
+}
+.d3p-chooser-grid {
+  display: grid;
+  grid-template-areas: "data" "tree" "chart";
+  gap: 1.5rem;
+}
+.d3p-chooser-data {
+  grid-area: data;
+  min-width: 0;
+}
+.d3p-chooser-tree {
+  grid-area: tree;
+  min-width: 0;
+}
+.d3p-chooser-chart {
+  grid-area: chart;
+  min-width: 0;
+}
+
+/* Side by side once there's room: data and chart left, tree right. The
+   chart stays in view beside the tree as the page scrolls. */
+@container (min-width: 64rem) {
+  .d3p-chooser-grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "data tree" "chart tree";
+    column-gap: 2rem;
+  }
+  .d3p-chooser-chart > * {
+    position: sticky;
+    top: calc(var(--sl-nav-height) + 1rem);
+  }
+  .d3p-chooser-back {
+    display: none;
+  }
+}
+
+/* Samples */
+.d3p-chooser-samples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.5rem;
+  align-items: baseline;
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-3);
+}
+.d3p-chooser-samples ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.d3p-chooser button {
+  font: inherit;
+  cursor: pointer;
+}
+.d3p-chooser-samples button {
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 999px;
+  background: var(--sl-color-bg);
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-xs);
+  line-height: 1.6;
+}
+.d3p-chooser-samples button:hover {
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-white);
+}
+.d3p-chooser-samples button[aria-pressed="true"] {
+  border-color: var(--sl-color-accent);
+  background: var(--d3p-tree-lit-soft);
+  color: var(--sl-color-white);
+}
+
+/* Input */
+.d3p-chooser-label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.375rem;
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+.d3p-chooser-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 13rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: var(--d3p-chooser-radius);
+  background: var(--sl-color-bg);
+  color: var(--sl-color-white);
+  font-family: var(--__sl-font-mono);
+  font-size: var(--sl-text-xs);
+  line-height: 1.5;
+  resize: vertical;
+  white-space: pre;
+  overflow: auto;
+}
+.d3p-chooser-input:focus {
+  outline: none;
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--sl-color-accent) 30%, transparent);
+}
+.d3p-chooser-input::placeholder {
+  color: var(--sl-color-gray-4);
+}
+
+/* Column summary */
+.d3p-chooser-summary {
+  margin-top: 0.75rem;
+  font-size: var(--sl-text-sm);
+}
+.d3p-chooser-summary p {
+  margin: 0;
+}
+.d3p-chooser-meta {
+  color: var(--sl-color-gray-3);
+}
+.d3p-chooser-error {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--sl-color-red-low);
+  color: var(--sl-color-red-high);
+  font-family: var(--__sl-font-mono);
+  font-size: var(--sl-text-xs);
+}
+.d3p-chooser-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  list-style: none;
+}
+.d3p-chooser-columns li {
+  display: inline-flex;
+  gap: 0.375rem;
+  align-items: center;
+  max-width: 100%;
+  padding: 0.125rem 0.625rem 0.125rem 0.5rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.375rem;
+  font-size: var(--sl-text-xs);
+  color: var(--sl-color-gray-3);
+}
+.d3p-chooser-columns code {
+  overflow: hidden;
+  padding: 0;
+  background: none;
+  color: var(--sl-color-white);
+  font-size: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.d3p-chooser-swatch {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 2px;
+  background: var(--d3p-swatch, var(--sl-color-gray-4));
+}
+.d3p-chooser-columns .is-number {
+  --d3p-swatch: var(--sl-color-blue);
+}
+.d3p-chooser-columns .is-date {
+  --d3p-swatch: var(--sl-color-orange);
+}
+.d3p-chooser-columns .is-category {
+  --d3p-swatch: var(--sl-color-purple);
+}
+.d3p-chooser-columns .is-geo {
+  --d3p-swatch: var(--sl-color-green);
+}
+.d3p-chooser-columns .is-sets {
+  --d3p-swatch: var(--sl-color-red);
+}
+
+/* Tree */
+.d3p-tree {
+  position: relative;
+  min-height: 20rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+}
+.d3p-tree-links {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.d3p-tree-links path {
+  fill: none;
+  stroke: var(--d3p-tree-line);
+  stroke-width: 1.25;
+  transition:
+    stroke 0.25s ease,
+    stroke-width 0.25s ease,
+    opacity 0.25s ease;
+}
+.d3p-tree-links path.is-dim {
+  opacity: 0.45;
+}
+.d3p-tree-links path.is-lit {
+  stroke: var(--d3p-tree-lit);
+  stroke-width: 2;
+}
+.d3p-tree-links path.is-active {
+  stroke-width: 2.5;
+  opacity: 1;
+}
+.d3p-tree-links path.is-dim.is-active {
+  stroke: var(--sl-color-gray-3);
+}
+.d3p-tree-branch,
+.d3p-tree-leaf {
+  position: absolute;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  transition:
+    color 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    opacity 0.25s ease;
+}
+.d3p-tree-branch {
+  padding: 0.1875rem 0.625rem;
+  border: 1px solid var(--d3p-tree-line);
+  border-radius: 999px;
+  background: var(--sl-color-bg);
+  color: var(--sl-color-gray-2);
+  font-weight: 600;
+  cursor: default;
+}
+.d3p-tree-branch.is-lit {
+  border-color: var(--d3p-tree-lit);
+  background: var(--d3p-tree-lit-soft);
+  color: var(--sl-color-white);
+}
+.d3p-tree-branch.is-dim {
+  color: var(--d3p-tree-dim);
+  border-style: dashed;
+}
+.d3p-tree-leaf {
+  display: inline-flex;
+  gap: 0.4375rem;
+  align-items: center;
+  padding: 0.125rem 0.5rem 0.125rem 0.25rem;
+  margin-left: -0.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--sl-color-gray-2);
+  font-size: inherit;
+  line-height: inherit;
+}
+.d3p-tree-dot {
+  flex: none;
+  width: 0.5625rem;
+  height: 0.5625rem;
+  border: 1.5px solid var(--d3p-tree-line);
+  border-radius: 50%;
+  background: var(--sl-color-bg);
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+.d3p-tree-leaf.is-lit {
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+.d3p-tree-leaf.is-lit .d3p-tree-dot {
+  border-color: var(--d3p-tree-lit);
+  background: var(--d3p-tree-lit);
+}
+.d3p-tree-leaf.is-lit:hover,
+.d3p-tree-leaf.is-lit.is-active {
+  background: var(--d3p-tree-lit-soft);
+}
+.d3p-tree-leaf.is-dim {
+  color: var(--d3p-tree-dim);
+  cursor: help;
+}
+.d3p-tree-leaf[aria-pressed="true"] {
+  background: var(--d3p-tree-lit);
+  color: var(--sl-color-black);
+}
+.d3p-tree-leaf[aria-pressed="true"] .d3p-tree-dot {
+  border-color: var(--sl-color-black);
+  background: var(--sl-color-black);
+}
+.d3p-tree-leaf[aria-pressed="true"]:hover {
+  background: var(--d3p-tree-lit);
+}
+.d3p-tree-leaf:focus-visible {
+  outline: 2px solid var(--sl-color-accent);
+  outline-offset: 1px;
+}
+
+/* Tree tooltip */
+.d3p-tree-tip {
+  position: absolute;
+  z-index: 5;
+  box-sizing: border-box;
+  width: 18rem;
+  max-width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.625rem;
+  background: var(--sl-color-bg-nav);
+  box-shadow: var(--sl-shadow-md);
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-xs);
+  line-height: 1.45;
+  white-space: normal;
+  pointer-events: none;
+}
+.d3p-tree-tip strong {
+  display: block;
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-sm);
+}
+.d3p-tree-tip p,
+.d3p-tree-tip ul {
+  margin: 0.375rem 0 0;
+}
+.d3p-tree-tip ul {
+  padding: 0;
+  list-style: none;
+}
+.d3p-tree-tip li {
+  position: relative;
+  padding-left: 1.125rem;
+}
+.d3p-tree-tip li::before {
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+.d3p-tree-tip li.is-found::before {
+  content: "✓";
+  color: var(--sl-color-green-high);
+}
+.d3p-tree-tip li.is-missing {
+  color: var(--sl-color-white);
+}
+.d3p-tree-tip li.is-missing::before {
+  content: "✗";
+  color: var(--sl-color-red-high);
+}
+.d3p-tree-status {
+  color: var(--sl-color-gray-3);
+  font-style: italic;
+}
+.d3p-tree-tip.is-lit .d3p-tree-status {
+  color: var(--sl-color-text-accent);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* Chart */
+.d3p-chooser-empty {
+  display: grid;
+  place-items: center;
+  min-height: 10rem;
+  padding: 1.5rem;
+  border: 1px dashed var(--sl-color-gray-5);
+  border-radius: var(--d3p-chooser-radius);
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+  text-align: center;
+}
+.d3p-chooser-empty p {
+  max-width: 26rem;
+  margin: 0;
+}
+.d3p-chooser-empty strong {
+  color: var(--sl-color-white);
+}
+.d3p-chooser-heading {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+.d3p-chooser-heading h2 {
+  margin: 0;
+  font-size: var(--sl-text-xl);
+}
+.d3p-chooser-heading a {
+  font-size: var(--sl-text-sm);
+}
+.d3p-chooser-heading button {
+  margin-left: auto;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 0.375rem;
+  background: none;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-xl);
+  line-height: 1.2;
+}
+.d3p-chooser-heading button:hover {
+  background: var(--d3p-tree-lit-soft);
+  color: var(--sl-color-white);
+}
+.d3p-chooser-result .d3p {
+  margin-block: 0.75rem 0;
+}
+.d3p-chooser-result .d3p-panel {
+  max-height: 22rem;
+  overflow: auto;
+}
+
+.d3p-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

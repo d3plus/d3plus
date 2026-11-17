@@ -1,0 +1,23 @@
+country,region,GDP per capita ($K),life expectancy,population (M)
+Brazil,Americas,8.9,75.3,216
+Canada,Americas,53.4,81.7,39
+Mexico,Americas,13.9,74.8,128
+United States,Americas,80.4,77.5,335
+Chile,Americas,17.1,79.5,20
+China,Asia,12.6,78.6,1410
+India,Asia,2.5,70.8,1429
+Indonesia,Asia,4.9,68.3,278
+Japan,Asia,33.8,84.5,124
+Vietnam,Asia,4.3,74.6,99
+France,Europe,44.5,82.3,68
+Germany,Europe,52.7,80.9,84
+Italy,Europe,38.4,83.1,59
+Poland,Europe,22.1,77.6,37
+Spain,Europe,32.7,83.2,48
+Egypt,Africa,3.5,70.2,113
+Kenya,Africa,2.0,62.1,55
+Nigeria,Africa,1.6,53.6,224
+South Africa,Africa,6.2,61.5,60
+Ethiopia,Africa,1.3,65.0,127
+Australia,Oceania,64.5,83.1,27
+New Zealand,Oceania,48.5,82.1,5

@@ -1,0 +1,31 @@
+---
+/**
+ * The interactive chart chooser: paste data, see which branches of a
+ * decision tree of every chart type it fits, and draw any of them.
+ */
+import {entryId, findEntry} from "../../lib/api";
+import ChooserIsland from "./ChooserIsland";
+import {leaves} from "./states";
+import type {ChartInfo} from "./TreeTip";
+import {TREE} from "./tree";
+import {firstSentence} from "./view";
+import "../Playground/playground.css";
+import "./chooser.css";
+
+const charts = [...new Set(leaves(TREE).map(l => l.node.chart!))];
+const info: Record<string, ChartInfo> = Object.fromEntries(
+  charts.map(name => {
+    const entry = findEntry(name, "core");
+    return [
+      name,
+      {
+        href: `/${entryId(entry)}/`,
+        description: firstSentence(entry.description),
+        flavors: entry.flavors,
+      },
+    ];
+  }),
+);
+---
+
+<ChooserIsland client:load info={info} />

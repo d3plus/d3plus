@@ -1,0 +1,11 @@
+task,phase,start,end
+Kickoff,Discovery,2025-03-03,2025-03-04
+User interviews,Discovery,2025-03-04,2025-03-14
+Requirements,Discovery,2025-03-12,2025-03-21
+Wireframes,Design,2025-03-24,2025-04-04
+Visual design,Design,2025-04-01,2025-04-18
+Prototype review,Design,2025-04-21,2025-04-23
+API build,Build,2025-04-14,2025-05-23
+Front end,Build,2025-04-28,2025-06-06
+QA,Launch,2025-06-02,2025-06-13
+Release,Launch,2025-06-16,2025-06-17
