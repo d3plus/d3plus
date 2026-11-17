@@ -9,6 +9,10 @@ import {leadWithColorScaleRows} from "../features/colorScaleTooltip.js";
 import {keyTooltipAnchor} from "../features/keyTooltip.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {pointTooltipAnchor} from "../viz/pointTooltipAnchor.js";
+import {
+  renderSelectionTooltip,
+  selectionTooltipRows,
+} from "../drawSteps/selectTooltip.js";
 import {setMarkCursor} from "../viz/setCursor.js";
 import {tooltipEnabled} from "../viz/tooltipEnabled.js";
 import {hasOwnClick, hasUserClick} from "../viz/userClick.js";
@@ -77,6 +81,16 @@ export default function (
   };
   while (tooltipDatum && tooltipDatum.__d3plus__ && tooltipDatum.data)
     tooltipDatum = tooltipDatum.data as typeof tooltipDatum;
+
+  // A selected mark stands for the whole selection.
+  const selected = selectionTooltipRows(
+    this as unknown as VizInstance,
+    tooltipDatum,
+  );
+  if (selected) {
+    renderSelectionTooltip(this as unknown as VizInstance, selected, position);
+    return;
+  }
 
   this._tooltipClass
     .data([tooltipDatum])

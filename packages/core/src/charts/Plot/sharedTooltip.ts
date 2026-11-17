@@ -22,6 +22,10 @@ import {
 import {colorScaleTooltipRows} from "../features/colorScaleTooltip.js";
 import {thresholdMemberRows} from "../features/thresholdMembers.js";
 import {ownTbody} from "../features/tooltipRows.js";
+import {
+  renderSelectionTooltip,
+  selectionTooltipRows,
+} from "../drawSteps/selectTooltip.js";
 import {hasOwnClick} from "../viz/userClick.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
@@ -290,7 +294,8 @@ export function singleTooltipFooter(viz: VizInstance): string | false {
     side-by-side bar): the default title (the mark's label, unless
     `tooltipConfig` sets one), its x and y values, its `confidence` bounds,
     its colorScale value, then any rows the chart's `tooltipConfig` adds, and a threshold bucket's
-    series.
+    series. A selected mark shows the selection's tooltip instead (see
+    `selectionTooltipRows`).
 */
 export function renderSingleTooltip(
   viz: VizInstance,
@@ -298,6 +303,12 @@ export function renderSingleTooltip(
   event: SceneEvent,
 ): void {
   const row = hover.rows[0];
+  const selected = selectionTooltipRows(viz, row.datum);
+  if (selected) {
+    prepareTooltip(viz).arrow(false);
+    renderSelectionTooltip(viz, selected, snappedPosition(viz, hover, event));
+    return;
+  }
   const tip = prepareTooltip(viz)
     .data([row.datum])
     .title(() => viz._drawLabel(row.datum, row.index))
