@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Priestley · Tick Hover</title>
+    <meta
+      name="description"
+      content="Priestley time axis tick labels that follow a band hover, a legend hover, or a box selection, dimming the ticks outside the bands' spans."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+
+      #viz {
+        width: 720px;
+        height: 400px;
+      }
+
+      p {
+        font-size: 12px;
+        margin: 8px 16px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="viz"></div>
+    <p>
+      Hover a band or a legend entry, or drag a box: the axis keeps the tick
+      labels the lit bands span.
+    </p>
+  </body>
+
+  <script>
+    new d3plus.Priestley()
+      .select("#viz")
+      .data([
+        {id: "Socrates", group: "Greek", start: -470, end: -399},
+        {id: "Plato", group: "Greek", start: -428, end: -348},
+        {id: "Aristotle", group: "Greek", start: -384, end: -322},
+        {id: "Cicero", group: "Roman", start: -106, end: -43},
+        {id: "Seneca", group: "Roman", start: -4, end: 65},
+        {id: "Marcus Aurelius", group: "Roman", start: 121, end: 180},
+      ])
+      .groupBy(["group", "id"])
+      .axisConfig({scale: "linear"})
+      .selectMode("box")
+      .render();
+  </script>
+</html>

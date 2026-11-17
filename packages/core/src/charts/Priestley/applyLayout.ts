@@ -15,6 +15,7 @@ import {nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import {chartBounds} from "../features/chartGeometry.js";
+import {hoverTickValues} from "../features/hoverTicks.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {
   isTimeAxis,
@@ -57,8 +58,22 @@ const packLanes = (nested: Branch[]): number => {
 };
 
 /**
-    Runs both axes, pushes the axis scene, and stashes scales/bandWidth on
-    `viz.ctx`. Everything is placed in the chart area's own coordinates: the
+    The field the time axis's tick labels follow the hover on: each band
+    lists the ticks it spans under it (see `bandTicks`).
+*/
+export const TICK_FIELD = "priestleyTick";
+
+/**
+    The ticks among `ticks` that fall within a band, its start and end
+    included, so the band lights their labels while it's hovered or
+    selected.
+*/
+export const bandTicks = (ticks: unknown[], d: PriestleyDatum): unknown[] =>
+  ticks.filter(t => Number(t) >= Number(d.start) && Number(t) <= Number(d.end));
+
+/**
+    Runs both axes, pushes the axis scene (its tick labels stamped with
+    `TICK_FIELD`), and stashes scales/bandWidth/ticks on `viz.ctx`. Everything is placed in the chart area's own coordinates: the
     default `_chartTransform` moves the area to the margin origin.
 */
 const runAxesAndScales = (
@@ -78,7 +93,10 @@ const runAxesAndScales = (
     ...frame,
     transform: {x: 0, y: 0},
     key: "priestley-axis",
+    hoverField: TICK_FIELD,
   });
+  const axisScene = viz._chartScene?.[viz._chartScene.length - 1];
+  viz.ctx.ticks = axisScene ? hoverTickValues(axisScene, TICK_FIELD) : [];
 
   const yScale = (
     scales as unknown as {
