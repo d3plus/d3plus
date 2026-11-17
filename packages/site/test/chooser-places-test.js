@@ -5,6 +5,7 @@ import {codeSource} from "../src/components/ChartChooser/code.ts";
 import {profileData} from "../src/components/ChartChooser/columns.ts";
 import {parseData} from "../src/components/ChartChooser/parse.ts";
 import {
+  CLUSTER_FROM,
   geomapPlan,
   tileGridPlan,
 } from "../src/components/ChartChooser/places.ts";
@@ -56,6 +57,21 @@ describe("geomapPlan", () => {
     const w = run(geomapPlan(world), world);
     assert.equal(w.topojson, "/data/countries-110m.json");
     assert.equal(w.groupBy({}, 1), 1);
+  });
+});
+
+describe("CLUSTER_FROM", () => {
+  /** A table of `n` points spread over the world. */
+  const points = n =>
+    traits(
+      `lat,lon\n${Array.from({length: n}, (_, i) => `${(i % 120) - 60},${(i % 300) - 150}`).join("\n")}`,
+    );
+  it("draws each point below the threshold, and clusters from it on", () => {
+    assert.equal(CLUSTER_FROM, 200);
+    const few = points(CLUSTER_FROM - 1);
+    assert.equal(run(geomapPlan(few), few).pointCluster, false);
+    const many = points(CLUSTER_FROM);
+    assert.equal(run(geomapPlan(many), many).pointCluster, undefined);
   });
 });
 

@@ -12,6 +12,7 @@ import {evaluate, leaves} from "./states.js";
 import {analyze} from "./traits.js";
 import type {ChartInfo} from "./TreeTip.js";
 import {TREE} from "./tree.js";
+import {chartHeight} from "./view.js";
 
 interface ChooserProps {
   /** Each chart's docs page, description, and code flavors. */
@@ -21,6 +22,19 @@ interface ChooserProps {
 /** How long typing pauses before the data is read again. */
 const READ_DELAY = 250;
 const CHART_COUNT = new Set(leaves(TREE).map(l => l.node.chart)).size;
+
+/** An element's width, tracked as it resizes (0 until it is measured). */
+function useWidth(ref: {current: HTMLElement | null}): number {
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => setWidth(el.clientWidth));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return width;
+}
 
 /** Reads pasted text into the traits that decide its charts. */
 function useData(input: string) {
@@ -39,10 +53,11 @@ function ChartPanel(props: {
   code: string | null;
   fits: number | null;
   info: Record<string, ChartInfo>;
+  height: number;
   onClose: () => void;
   onBack: () => void;
 }) {
-  const {chart, code, fits, info, onClose, onBack} = props;
+  const {chart, code, fits, info, height, onClose, onBack} = props;
   if (!chart || !code)
     return (
       <div class="d3p-chooser-empty">
@@ -84,13 +99,13 @@ function ChartPanel(props: {
         </button>
       </div>
       <PlaygroundIsland
-        key={`${chart}\n${code}`}
+        key={`${chart}\n${height}\n${code}`}
         id="chooser-playground"
         name={chart}
         code={code}
         controls={[]}
         flavors={info[chart].flavors}
-        height={360}
+        height={height}
         panel="code"
       />
     </div>
@@ -110,6 +125,7 @@ export default function ChooserIsland({info}: ChooserProps) {
   );
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const result = useRef<HTMLDivElement>(null);
+  const height = chartHeight(useWidth(result));
   const {parsed, profile, traits, states} = useData(input);
 
   const lit = selected && states?.get(selected.key)?.lit ? selected : null;
@@ -179,6 +195,7 @@ export default function ChooserIsland({info}: ChooserProps) {
         </section>
         <div class="d3p-chooser-chart" ref={result}>
           <ChartPanel
+            height={height}
             chart={lit?.chart ?? null}
             code={code}
             fits={fits}

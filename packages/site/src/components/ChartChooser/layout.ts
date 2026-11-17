@@ -156,8 +156,12 @@ export function outline(
 export function placeTree(tree: TreeNode, width: number): TreeLayout {
   if (width < OUTLINE_BELOW)
     return indented(tree, {row: 30, indent: 18, width});
+  // The leaves move right as the tree widens, and the branch columns
+  // spread out with them, so the links stay short.
+  const leaves = Math.min(Math.max(410, width - 170), 660);
+  const spread = leaves - 410;
   return dendrogram(tree, {
-    columns: [0, 96, 262, Math.min(Math.max(410, width - 160), 520)],
+    columns: [0, 96 + spread * 0.1, 262 + spread * 0.4, leaves],
     row: 21,
     gap: 10,
     width,

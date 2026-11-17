@@ -62,3 +62,13 @@ export function firstSentence(markdown: string): string {
     .replace(/`([^`]*)`/g, "$1")
     .split(/(?<=\.)\s/)[0];
 }
+
+/**
+ * A drawn chart's height for the width of its column: about half as tall as
+ * it is wide, from 360px up to 560px, in steps of 40px (so a resize only
+ * redraws it at a step).
+ */
+export function chartHeight(width: number): number {
+  const height = Math.min(Math.max(360, width * 0.45), 560);
+  return Math.round(height / 40) * 40;
+}

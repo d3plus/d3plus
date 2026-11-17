@@ -7,6 +7,7 @@ import {
   nodeClasses,
   onPath,
   TIP_WIDTH,
+  chartHeight,
   tipStyle,
 } from "../src/components/ChartChooser/view.ts";
 
@@ -88,5 +89,15 @@ describe("firstSentence", () => {
       "Draws a Pie with a hole.",
     );
     assert.equal(firstSentence("v1.2 is the version"), "v1.2 is the version");
+  });
+});
+
+describe("chartHeight", () => {
+  it("is about half the width, from 360 to 560px, in 40px steps", () => {
+    assert.equal(chartHeight(0), 360);
+    assert.equal(chartHeight(400), 360);
+    assert.equal(chartHeight(1000), 440);
+    assert.equal(chartHeight(1080), 480);
+    assert.equal(chartHeight(2000), 560);
   });
 });

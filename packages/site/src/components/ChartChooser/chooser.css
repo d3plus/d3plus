@@ -3,6 +3,29 @@
   follows the light and dark themes like the playground beside it.
 */
 
+/* The chooser fills the screen, past the splash page's content width, with
+   a gutter that grows with it; the prose keeps a readable measure. */
+html:not([data-has-sidebar]):has(.d3p-chooser) {
+  --sl-content-width: 150rem;
+}
+html:has(.d3p-chooser) .content-panel {
+  padding-inline: max(var(--sl-content-pad-x), 3vw);
+}
+html:has(.d3p-chooser) .sl-markdown-content > :not(astro-island) {
+  max-width: 48rem;
+}
+
+/* The link back to the guides, above the chooser. */
+.d3p-guides-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  font-size: var(--sl-text-sm);
+  text-decoration: none;
+}
+.d3p-guides-link:hover {
+  text-decoration: underline;
+}
+
 .d3p-chooser {
   --d3p-tree-line: var(--sl-color-gray-5);
   --d3p-tree-dim: var(--sl-color-gray-4);
@@ -41,9 +64,13 @@
 
 /* Side by side once there's room: data and chart left, tree right. The
    chart stays in view beside the tree as the page scrolls. */
-@container (min-width: 60rem) {
+@container (min-width: 64rem) {
   .d3p-chooser-grid {
-    grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+    /* The tree takes a little over half, and reads best up to about 52rem;
+       the data and chart take the rest of a wide screen. */
+    grid-template-columns:
+      minmax(26rem, 1fr)
+      minmax(35rem, min(52rem, max(40rem, 55%)));
     grid-template-rows: auto 1fr;
     grid-template-areas: "data tree" "chart tree";
     column-gap: 2rem;

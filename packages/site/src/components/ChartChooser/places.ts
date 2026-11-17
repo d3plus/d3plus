@@ -98,6 +98,13 @@ function states(t: Traits, state: Column): Plan {
   };
 }
 
+/**
+ * The fewest points a map clusters: below it, every row draws its own dot;
+ * from it on, nearby points merge into clusters, which keeps a dense map
+ * legible.
+ */
+export const CLUSTER_FROM = 200;
+
 /** A Geomap of points at each row's latitude and longitude. */
 function points(t: Traits, lat: Column, lon: Column): Plan {
   const inUs = t.rows.every(r => {
@@ -117,8 +124,10 @@ function points(t: Traits, lat: Column, lon: Column): Plan {
       ["data", "data"],
       ["groupBy", item ? str(item.key) : "(d, i) => i"],
       ["point", `d => [${prop(lon.key)}, ${prop(lat.key)}]`],
-      // Each row's own point, rather than clusters of nearby ones.
-      ["pointCluster", "false"],
+      // A few points each draw their own dot; many cluster (the default).
+      ...(t.rows.length < CLUSTER_FROM
+        ? ([["pointCluster", "false"]] as Field[])
+        : []),
       ...(t.value
         ? ([
             ["pointSize", `d => ${prop(t.value.key)}`],

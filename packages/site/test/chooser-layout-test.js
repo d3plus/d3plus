@@ -107,8 +107,14 @@ describe("placeTree", () => {
   it("draws a dendrogram when wide, its leaves as far right as fits", () => {
     const leafX = width => byKey(placeTree(tree, width))["root/a/A1"].x;
     assert.equal(leafX(OUTLINE_BELOW), 410);
-    assert.equal(leafX(640), 480);
-    assert.equal(leafX(1200), 520);
+    assert.equal(leafX(640), 470);
+    assert.equal(leafX(1200), 660);
+  });
+  it("spreads the branch columns as the leaves move right", () => {
+    const x = (width, key) => byKey(placeTree(tree, width))[key].x;
+    assert.equal(x(OUTLINE_BELOW, "root/a"), 96);
+    assert.equal(x(1200, "root/a"), 121);
+    assert.equal(x(1200, "root/b/c"), 362);
   });
 });
 
