@@ -1,5 +1,6 @@
 import {it} from "vitest";
 import assert from "assert";
+import {select} from "d3-selection";
 import {default as elem} from "../src/elem.ts";
 import {useJsdom} from "~test/jsdom.js";
 
@@ -45,4 +46,32 @@ it("removes the element on the transitioned exit path when condition is false", 
     0,
     "no update nodes when condition is false",
   );
+});
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+it("transitions an element whose parent is off the page", async () => {
+  // d3 finds a transition by walking up from each element, which never
+  // reaches <html> from inside a detached parent.
+  const parent = select(document.createElement("div"));
+  elem("p.moved", {parent, enter: {"data-n": 0}});
+  let update;
+  assert.doesNotThrow(() => {
+    update = elem("p.moved", {parent, duration: 30, update: {"data-n": 10}});
+  });
+  await wait(80);
+  assert.strictEqual(update.attr("data-n"), "10", "the update animates");
+  assert.doesNotThrow(() =>
+    elem("p.moved", {parent, condition: false, duration: 30}),
+  );
+  await wait(80);
+  assert.strictEqual(parent.selectAll("p").size(), 0, "the exit is removed");
+});
+
+it("leaves the parent's own transition running", async () => {
+  const parent = select(document.body).append("div").attr("data-n", 0);
+  parent.transition().duration(30).attr("data-n", 10);
+  elem("p.child", {parent, duration: 30, update: {"data-n": 1}});
+  await wait(80);
+  assert.strictEqual(parent.attr("data-n"), "10", "not interrupted");
 });
