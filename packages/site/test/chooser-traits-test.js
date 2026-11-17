@@ -14,6 +14,7 @@ import {
   ohlcColumns,
   pickCategory,
   primaryValue,
+  relatable,
   rangePair,
   seriesColumn,
   spanYears,
@@ -232,5 +233,20 @@ describe("pickCategory", () => {
     assert.equal(pickCategory(t, 2).key, "region");
     assert.equal(pickCategory(t, 1), undefined);
     assert.equal(pickCategory(t, Infinity, [t.categories[1]]).key, "iso");
+  });
+});
+
+describe("relatable", () => {
+  const keys = t => relatable(t).map(c => c.key);
+  it("keeps the data's order, or puts close and volume first for prices", () => {
+    assert.deepEqual(keys(traits("a,b\n1,2")), ["a", "b"]);
+    assert.deepEqual(
+      keys(traits("date,open,high,low,close,volume\n2024-01-01,1,2,0,1,9")),
+      ["close", "volume", "open", "high", "low"],
+    );
+  });
+  it("leaves out a band's bounds and mostly empty columns", () => {
+    assert.deepEqual(keys(traits("v,lower,upper\n1,0,2\n2,1,3")), ["v"]);
+    assert.deepEqual(keys(traits("a,b\n1,\n2,\n3,4")), ["a"]);
   });
 });

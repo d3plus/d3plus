@@ -1,8 +1,10 @@
 import beforeAfter from "./samples/before-after.csv?raw";
 import categories from "./samples/categories.csv?raw";
+import cities from "./samples/cities.csv?raw";
 import countries from "./samples/countries.csv?raw";
 import distribution from "./samples/distribution.tsv?raw";
 import flows from "./samples/flows.csv?raw";
+import forecast from "./samples/forecast.csv?raw";
 import headline from "./samples/headline.json?raw";
 import hierarchy from "./samples/hierarchy.csv?raw";
 import measures from "./samples/measures.csv?raw";
@@ -55,6 +57,12 @@ export const SAMPLES: Sample[] = [
     text: timeSeries,
   },
   {
+    id: "forecast",
+    label: "Forecast",
+    title: "An inflation forecast with its uncertainty band",
+    text: forecast,
+  },
+  {
     id: "before-after",
     label: "Two years",
     title: "Life expectancy in 2000 and 2020",
@@ -90,6 +98,12 @@ export const SAMPLES: Sample[] = [
     label: "US states",
     title: "Population by state",
     text: states,
+  },
+  {
+    id: "cities",
+    label: "Coordinates",
+    title: "The largest cities by metro population",
+    text: cities,
   },
   {
     id: "schedule",

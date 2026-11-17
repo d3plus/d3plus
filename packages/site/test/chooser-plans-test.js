@@ -7,7 +7,7 @@ import {
   chartCode,
   hub,
   itemGroups,
-  measureOrder,
+  measureData,
   PLANS,
   unnamed,
 } from "../src/components/ChartChooser/plans.ts";
@@ -168,13 +168,18 @@ describe("unnamed", () => {
   });
 });
 
-describe("measureOrder", () => {
-  it("keeps the data's order, or puts close and volume first for prices", () => {
-    const keys = t => measureOrder(t).map(c => c.key);
-    assert.deepEqual(keys(traits("a,b\n1,2")), ["a", "b"]);
+describe("measureData", () => {
+  it("is every row when the measures are complete, else the rows with them", () => {
+    const t = traits("a,b,c\n1,2,3\n4,,6");
+    const [a, b, c] = t.numbers;
+    assert.equal(measureData(t, [a, c]), "data");
+    assert.equal(measureData(t, [a, b]), "data.filter(d => d.b !== undefined)");
+  });
+  it("keeps a scatter's rows that have both measures", () => {
+    const t = traits("name,x,y\na,1,2\nb,3,\nc,5,6");
     assert.deepEqual(
-      keys(traits("date,open,high,low,close,volume\n2024-01-01,1,2,0,1,9")),
-      ["close", "volume", "open", "high", "low"],
+      config("Scatter", t).data.map(d => d.name),
+      ["a", "c"],
     );
   });
 });

@@ -357,3 +357,19 @@ export function pickCategory(
       (a, b) => b.unique - a.unique || (b.length ?? 0) - (a.length ?? 0),
     )[0];
 }
+
+/**
+ * The measures a chart relating several of them can plot: number columns
+ * filled in at least half the rows, other than a band's bounds, in the
+ * data's order, except prices put close and volume first (not open against
+ * high).
+ */
+export function relatable(t: Traits): Column[] {
+  const bounds = [t.bounds?.lower, t.bounds?.upper];
+  const usable = t.numbers.filter(
+    c => !bounds.includes(c) && c.count >= t.rows.length / 2,
+  );
+  const volume = usable.find(c => /^volume$/i.test(c.key));
+  const first = t.ohlc ? [t.ohlc.close, ...(volume ? [volume] : [])] : [];
+  return [...first, ...usable.filter(c => !first.includes(c))];
+}

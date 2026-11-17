@@ -46,10 +46,13 @@ describe("tipStyle", () => {
     assert.deepEqual(
       tipStyle({x: 500, y: 40, width: 700, outline: false}, true),
       {
-        top: "40px",
+        top: "26px",
         left: `${500 - TIP_WIDTH - 12}px`,
-        transform: "translateY(-50%)",
       },
+    );
+    assert.equal(
+      tipStyle({x: 500, y: 5, width: 700, outline: false}, true).top,
+      "0px",
     );
   });
   it("floats other tips beneath their node, inside the tree", () => {

@@ -1,9 +1,9 @@
 ---
 title: "Choosing a Chart"
 description: "Paste your data and see which D3plus charts it can draw, and why: the shape of a dataset decides which charts fit it."
-tableOfContents: false
+template: splash
 sidebar:
-  order: 5
+  order: 16
 ---
 import ChartChooser from "~/components/ChartChooser/ChartChooser.astro";
 
@@ -30,4 +30,4 @@ Each column is read as a **number**, a **date** (`2024-03-01`, `2024-03`, `2024 
 | Overlapping sets | Set names and their overlaps (`A`, `B`, `A & B`), with a size for each. |
 | Places | Country codes, US states, or coordinates. |
 
-Charts then add needs of their own: a Pie works best with 12 or fewer slices, a Bullet needs a target column, a stacked chart needs a category to split the rows into series. The generated config is a starting point: every chart's page lists the rest of what it can do.
+Charts then add needs of their own: a Pie works best with 12 or fewer slices, a Bullet needs a target column, a stacked chart needs a category to split the rows into series. The generated config is a starting point: every chart's page lists the rest of what it can do, and the [Data guide](/guides/data/) covers how charts read their data.

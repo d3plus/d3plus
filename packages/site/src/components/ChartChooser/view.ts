@@ -27,7 +27,8 @@ export const TIP_WIDTH = 288;
 
 /**
  * Where a tree tip floats: left of a dendrogram's leaf (the leaves are the
- * rightmost column), else beneath its node, kept inside the tree.
+ * rightmost column), hanging from its row so it never rises above the tree
+ * into the page's header; else beneath its node, kept inside the tree.
  */
 export function tipStyle(
   {
@@ -40,9 +41,8 @@ export function tipStyle(
 ): Record<string, string> {
   if (leaf && !outline)
     return {
-      top: `${y}px`,
+      top: `${Math.max(0, y - 14)}px`,
       left: `${Math.max(0, x - TIP_WIDTH - 12)}px`,
-      transform: "translateY(-50%)",
     };
   return {
     top: `${y + 16}px`,

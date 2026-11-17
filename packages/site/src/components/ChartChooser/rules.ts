@@ -1,6 +1,6 @@
 import type {Column} from "./columns.js";
 import type {Traits} from "./traits.js";
-import {pickCategory} from "./traits.js";
+import {pickCategory, relatable} from "./traits.js";
 
 /**
  * One requirement a branch or chart makes of the data: met, with what met
@@ -101,8 +101,8 @@ export const hasDate = rule(
 
 export const numbersAtLeast = (n: number) =>
   rule(`needs ${n} or more numeric columns`, t =>
-    t.numbers.length >= n
-      ? t.numbers.slice(0, n).map(q).join(", ") + " are numbers"
+    relatable(t).length >= n
+      ? relatable(t).slice(0, n).map(q).join(", ") + " are numbers"
       : null,
   );
 

@@ -3,7 +3,7 @@ import {codeSource, niceMax, prop, str, strList} from "./code.js";
 import type {Field, Plan} from "./code.js";
 import {geomapPlan, tileGridPlan} from "./places.js";
 import type {Traits} from "./traits.js";
-import {pickCategory} from "./traits.js";
+import {pickCategory, relatable} from "./traits.js";
 
 /** A column's key as source. */
 const k = (c: Column) => str(c.key);
@@ -45,13 +45,14 @@ export function unnamed(t: Traits): Field[] {
 }
 
 /**
- * The measures a chart of several plots in order: the data's own order,
- * except prices put close and volume first (not open against high).
+ * The data for a chart plotting some measures: every row, or only the rows
+ * that have each measure (a missing one would place a mark nowhere).
  */
-export function measureOrder(t: Traits): Column[] {
-  const volume = t.numbers.find(c => /^volume$/i.test(c.key));
-  const first = t.ohlc ? [t.ohlc.close, ...(volume ? [volume] : [])] : [];
-  return [...first, ...t.numbers.filter(c => !first.includes(c))];
+export function measureData(t: Traits, cols: Column[]): string {
+  const partial = cols.filter(c => c.count < t.rows.length);
+  if (!partial.length) return "data";
+  const has = partial.map(c => `${prop(c.key)} !== undefined`).join(" && ");
+  return `data.filter(d => ${has})`;
 }
 
 /** `groupBy` when the data has something to group by. */
@@ -202,13 +203,13 @@ const rowMarks = (t: Traits, lanes: boolean): Plan => ({
 
 /** Charts of two or more measures per item. */
 const measures =
-  (extra: (t: Traits) => Field[] = () => []) =>
+  (count: number, extra: (t: Traits) => Field[] = () => []) =>
   (t: Traits): Plan => ({
     fields: [
-      ["data", "data"],
+      ["data", measureData(t, relatable(t).slice(0, count))],
       ["groupBy", itemGroups(t)],
-      ["x", k(measureOrder(t)[0])],
-      ["y", k(measureOrder(t)[1])],
+      ["x", k(relatable(t)[0])],
+      ["y", k(relatable(t)[1])],
       ...extra(t),
       ...unnamed(t),
     ],
@@ -217,9 +218,16 @@ const measures =
 /** Charts of every measure at once. */
 const dimensions = (t: Traits): Plan => ({
   fields: [
-    ["data", "data"],
+    ["data", measureData(t, relatable(t).slice(0, 5))],
     ["groupBy", itemGroups(t)],
-    ["dimensions", strList(t.numbers.slice(0, 5).map(c => c.key))],
+    [
+      "dimensions",
+      strList(
+        relatable(t)
+          .slice(0, 5)
+          .map(c => c.key),
+      ),
+    ],
   ],
 });
 
@@ -478,30 +486,37 @@ export const PLANS: Record<string, (t: Traits) => Plan> = {
       ["end", k(t.range!.end)],
     ],
   }),
-  Scatter: measures(),
-  BubbleChart: measures(t => [["size", k(measureOrder(t)[2])]]),
+  Scatter: measures(2),
+  BubbleChart: measures(3, t => [["size", k(relatable(t)[2])]]),
   ConnectedScatter: t => ({
     fields: [
-      ["data", "data"],
+      ["data", measureData(t, relatable(t).slice(0, 2))],
       // One path per series, or a single path named by its measure.
-      ["groupBy", t.series ? k(t.series) : `() => ${k(measureOrder(t)[1])}`],
+      ["groupBy", t.series ? k(t.series) : `() => ${k(relatable(t)[1])}`],
       ["order", k(d(t))],
-      ["x", k(measureOrder(t)[0])],
-      ["y", k(measureOrder(t)[1])],
+      ["x", k(relatable(t)[0])],
+      ["y", k(relatable(t)[1])],
     ],
   }),
   Hexbin: t => ({
     fields: [
-      ["data", "data"],
-      ["x", k(measureOrder(t)[0])],
-      ["y", k(measureOrder(t)[1])],
+      ["data", measureData(t, relatable(t).slice(0, 2))],
+      ["x", k(relatable(t)[0])],
+      ["y", k(relatable(t)[1])],
     ],
   }),
   ScatterMatrix: t => ({
     fields: [
-      ["data", "data"],
+      ["data", measureData(t, relatable(t).slice(0, 4))],
       ...groupBy(t.groups && k(t.groups)),
-      ["dimensions", strList(t.numbers.slice(0, 4).map(c => c.key))],
+      [
+        "dimensions",
+        strList(
+          relatable(t)
+            .slice(0, 4)
+            .map(c => c.key),
+        ),
+      ],
     ],
   }),
   ParallelCoordinates: dimensions,

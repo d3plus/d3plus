@@ -3,11 +3,6 @@
   follows the light and dark themes like the playground beside it.
 */
 
-/* The chooser needs room for the data and the tree side by side. */
-html:has(.d3p-chooser) {
-  --sl-content-width: 76rem;
-}
-
 .d3p-chooser {
   --d3p-tree-line: var(--sl-color-gray-5);
   --d3p-tree-dim: var(--sl-color-gray-4);
@@ -46,7 +41,7 @@ html:has(.d3p-chooser) {
 
 /* Side by side once there's room: data and chart left, tree right. The
    chart stays in view beside the tree as the page scrolls. */
-@container (min-width: 64rem) {
+@container (min-width: 60rem) {
   .d3p-chooser-grid {
     grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
     grid-template-rows: auto 1fr;

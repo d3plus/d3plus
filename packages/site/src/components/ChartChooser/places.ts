@@ -117,6 +117,8 @@ function points(t: Traits, lat: Column, lon: Column): Plan {
       ["data", "data"],
       ["groupBy", item ? str(item.key) : "(d, i) => i"],
       ["point", `d => [${prop(lon.key)}, ${prop(lat.key)}]`],
+      // Each row's own point, rather than clusters of nearby ones.
+      ["pointCluster", "false"],
       ...(t.value
         ? ([
             ["pointSize", `d => ${prop(t.value.key)}`],

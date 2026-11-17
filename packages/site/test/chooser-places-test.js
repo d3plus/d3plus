@@ -48,6 +48,7 @@ describe("geomapPlan", () => {
     const c = run(geomapPlan(us), us);
     assert.deepEqual(c.point({lat: 1, lon: 2}), [2, 1]);
     assert.equal(c.pointSize({n: 3}), 3);
+    assert.equal(c.pointCluster, false);
     assert.equal(c.groupBy, "city");
     assert.equal(c.topojson, "/data/states-10m.json");
 

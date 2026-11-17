@@ -117,6 +117,8 @@ describe("samples", () => {
     schedule: ["hierarchy", "time"],
     prices: ["headline", "time", "relations"],
     sets: ["sets"],
+    forecast: ["headline", "time"],
+    cities: ["compare", "geo"],
   };
   for (const sample of SAMPLES)
     it(`${sample.id} lights its own branches`, () => {
@@ -127,7 +129,7 @@ describe("samples", () => {
         expected[sample.id],
       );
     });
-  it("light every chart but FanChart between them", () => {
+  it("light every chart between them", () => {
     const lit = new Set();
     for (const sample of SAMPLES) {
       const states = evaluate(TREE, traits(sample.text));
@@ -137,6 +139,6 @@ describe("samples", () => {
     const unlit = leaves(TREE)
       .map(l => l.node.chart)
       .filter(c => !lit.has(c));
-    assert.deepEqual([...new Set(unlit)], ["FanChart"]);
+    assert.deepEqual(unlit, []);
   });
 });
