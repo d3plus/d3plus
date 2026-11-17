@@ -420,19 +420,13 @@ function scheduleCallback(viz: Viz, callback?: () => void): void {
 }
 
 /**
-    Handles an error thrown while drawing: logs it, hides the loading message
-    this render showed, and still calls the render callback, so callers
-    waiting on it don't hang. The chart keeps whatever it last painted.
+    Ends a render that drew nothing: hides the loading message it showed and
+    still calls the render callback, so callers waiting on it don't hang. The
+    chart keeps whatever it last painted.
     @param loading Whether this render showed the loading message.
     @private
 */
-function drawFailed(
-  viz: Viz,
-  error: unknown,
-  loading: boolean,
-  callback?: () => void,
-): void {
-  reportDrawError(viz, error);
+function drawSkipped(viz: Viz, loading: boolean, callback?: () => void): void {
   if (loading && viz._messageClass._isVisible)
     viz._messageClass.hide({duration: effectiveDuration(viz)});
   scheduleCallback(viz, callback);
@@ -440,11 +434,21 @@ function drawFailed(
 
 /**
     Loads any queued data (showing the loading message while in flight) then
-    draws the chart. An error thrown while drawing is reported rather than
-    left as an unhandled rejection (see `drawFailed`).
+    draws the chart. An error thrown while drawing is logged rather than left
+    as an unhandled rejection, and the render ends as one that drew nothing.
+
+    The draw runs a microtask or more after `render()`, once the data loads,
+    and is dropped if by then the chart was destroyed (drawing would mount its
+    renderer and watchers again; its callback is dropped too) or its
+    container left the page (an animated SVG draw there has no document to
+    time its transitions by, and throws). A container that was never on the
+    page still draws.
     @private
 */
 function loadAndDraw(viz: Viz, callback?: () => void): void {
+  const destroys = viz._destroyCount;
+  const onPage = (): boolean => viz._select.node()?.isConnected !== false;
+  const wasOnPage = onPage();
   syncLoaderFormats(viz);
   const promises = queuePromises(viz);
 
@@ -460,8 +464,15 @@ function loadAndDraw(viz: Viz, callback?: () => void): void {
   }
 
   Promise.all(promises)
-    .then(() => finishDraw(viz, callback))
-    .catch(error => drawFailed(viz, error, loading, callback));
+    .then(() => {
+      if (viz._destroyCount !== destroys) return;
+      if (wasOnPage && !onPage()) drawSkipped(viz, loading, callback);
+      else finishDraw(viz, callback);
+    })
+    .catch(error => {
+      reportDrawError(viz, error);
+      drawSkipped(viz, loading, callback);
+    });
 }
 
 /**
