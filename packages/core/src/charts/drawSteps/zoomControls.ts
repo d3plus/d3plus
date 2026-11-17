@@ -36,6 +36,7 @@ import {forgetTransform, recordTransform, showsTransform} from "./zoomShown.js";
 import {effectiveDuration, motionReduced} from "../viz/reducedMotion.js";
 import type {SelectTool} from "./selectRegion.js";
 import {syncSelectSurface} from "./selectGesture.js";
+import {clearSelection} from "./selectActions.js";
 import {zoomMenuEvents} from "./zoomControlsMenu.js";
 
 /**
@@ -66,16 +67,22 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
     events: {
       ".zoom-in": {click: () => zoomMath.bind(viz)(viz.schema.zoomFactor)},
       ".zoom-out": {click: () => zoomMath.bind(viz)(1 / viz.schema.zoomFactor)},
-      ".zoom-reset": {click: () => zoomMath.bind(viz)(0)},
+      ".zoom-reset": {click: (e: Event) => viewerReset(viz, e)},
       // The button, or its "More Controls" menu item, reports the mode.
       ".zoom-brush": {
-        click: () => {
+        click: (e: Event) => {
+          const tool = viz._selectTool;
           zoomEvents.bind(viz)(!isBrushing(viz));
           syncBrushButton(viz);
+          // Brush mode turned the select tool off.
+          if (tool && !viz._selectTool)
+            clearSelection(viz as unknown as VizInstance, e);
         },
       },
-      ".select-box": {click: () => toggleSelectTool(viz, "box")},
-      ".select-lasso": {click: () => toggleSelectTool(viz, "lasso")},
+      ".select-box": {click: (e: Event) => toggleSelectTool(viz, "box", e)},
+      ".select-lasso": {
+        click: (e: Event) => toggleSelectTool(viz, "lasso", e),
+      },
       ...zoomMenuEvents(viz),
     },
     onUpdate: (host: HTMLElement) => {
@@ -383,7 +390,7 @@ export function zoomEvents(this: Viz, brush: boolean = false): void {
           null,
         );
     }
-    bindZoomGestures(this, tgt, () => zoomMath.bind(this)(0));
+    bindZoomGestures(this, tgt, (e: Event) => viewerReset(this, e));
   } else {
     unbindZoomGestures(tgt.on(".zoom", null));
   }
@@ -392,12 +399,19 @@ export function zoomEvents(this: Viz, brush: boolean = false): void {
 /**
     Turns a select tool on (a drag draws a box or lasso, see
     `selectGesture.ts`), or off again when it's the one already on, as the
-    box and lasso select buttons do. Turning one on leaves brush mode.
+    box and lasso select buttons do. Turning one on leaves brush mode, and
+    turning it off clears the selection.
     @param viz The chart.
     @param tool The tool the button stands for.
+    @param event The click behind it.
 */
-export function toggleSelectTool(viz: Viz, tool: SelectTool): void {
+export function toggleSelectTool(
+  viz: Viz,
+  tool: SelectTool,
+  event?: Event,
+): void {
   viz._selectTool = viz._selectTool === tool ? null : tool;
+  if (!viz._selectTool) clearSelection(viz as unknown as VizInstance, event);
   if (viz._selectTool && isBrushing(viz)) {
     zoomEvents.bind(viz)(false);
     syncBrushButton(viz);
@@ -571,6 +585,16 @@ export function zoomMath(this: Viz, factor: number = 0): void {
   // the center fixed on screen.
   const k = t.k * factor;
   zoomTo(this, k, cx - ((cx - t.x) / t.k) * k, cy - ((cy - t.y) / t.k) * k);
+}
+
+/**
+    A viewer's reset (the reset button or its menu item, or a double-click):
+    returns to the initial view (see `zoomMath`) and clears the selection.
+    `zoomReset` leaves the selection as it is.
+*/
+function viewerReset(viz: Viz, event?: Event): void {
+  zoomMath.bind(viz)(0);
+  clearSelection(viz as unknown as VizInstance, event);
 }
 
 /**
