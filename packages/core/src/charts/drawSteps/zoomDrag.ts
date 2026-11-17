@@ -232,7 +232,7 @@ function pressed(viz: Viz, event: MouseEvent): void {
 function bindDoubleClick(
   viz: Viz,
   tgt: NonNullable<Viz["_zoomEventTarget"]>,
-  reset: () => void,
+  reset: (event: Event) => void,
 ): void {
   const mode = viz.schema.zoomDoubleClick;
   if (mode === false) tgt.on("dblclick.zoom", null);
@@ -241,7 +241,7 @@ function bindDoubleClick(
       if (event.button || event.ctrlKey || startsOnBrush(event)) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      reset();
+      reset(event);
     });
 }
 
@@ -256,7 +256,7 @@ function bindDoubleClick(
 export function bindZoomGestures(
   viz: Viz,
   tgt: NonNullable<Viz["_zoomEventTarget"]>,
-  reset: () => void,
+  reset: (event: Event) => void,
 ): void {
   const brush = viz.schema.zoomDrag === "brush";
   tgt.on(`mousedown.${NS}`, brush ? (e: MouseEvent) => pressed(viz, e) : null);
