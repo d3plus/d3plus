@@ -12,6 +12,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode, Transform} from "@d3plus/render";
 
 import {pinMaxSize} from "../../components/Axis/axisMaxSize.js";
+import {tagHoverTicks} from "../features/hoverTicks.js";
 import {inertAxis} from "../../components/Axis/axisTooltipTargets.js";
 import {isTimeScaleName} from "../../components/Axis/axisScaleType.js";
 import {configUtc} from "../../components/Axis/timeValues.js";
@@ -133,6 +134,8 @@ export interface TimeAxisFrame {
   key: string;
   /** Extra config applied after `axisConfig` (e.g. a Gantt's default orient). */
   config?: Record<string, unknown>;
+  /** The field the tick labels follow the hover on (see `tagHoverTicks`). */
+  hoverField?: string;
 }
 
 /** The time axis's measured height and padding. */
@@ -170,8 +173,8 @@ export function measureTimeAxis(
 
 /**
     Renders the chart's time axis (`viz.ctx.axis`) over `frame`, pushes its
-    scene onto `viz._chartScene` as chrome (see `inertAxis`), and returns its
-    scale.
+    scene onto `viz._chartScene` as chrome (see `inertAxis`), its tick labels
+    stamped with `frame.hoverField`, and returns its scale.
 */
 export function renderTimeAxis(
   viz: VizInstance,
@@ -186,14 +189,14 @@ export function renderTimeAxis(
     .render();
   const axisScene = axis.toScene();
   if (axisScene) {
-    (viz._chartScene ||= []).push(
-      inertAxis({
-        type: "group",
-        key: frame.key,
-        transform: frame.transform,
-        children: (axisScene.children ?? []) as unknown as SceneNode[],
-      }),
-    );
+    const group: SceneNode = {
+      type: "group",
+      key: frame.key,
+      transform: frame.transform,
+      children: (axisScene.children ?? []) as unknown as SceneNode[],
+    };
+    if (frame.hoverField) tagHoverTicks(group, frame.hoverField);
+    (viz._chartScene ||= []).push(inertAxis(group));
   }
   return axis._d3Scale;
 }

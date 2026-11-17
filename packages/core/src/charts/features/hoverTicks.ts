@@ -42,6 +42,18 @@ export function tagHoverTicks(
 }
 
 /**
+    The values of the tick labels in an axis scene that `field` stamped (see
+    `tagHoverTicks`), in drawing order.
+    @param node The axis scene (or any subtree of it).
+    @param field The field the labels were stamped with.
+*/
+export function hoverTickValues(node: SceneNode, field: string): unknown[] {
+  const own = node.hoverMatch?.field === field ? [node.hoverMatch.value] : [];
+  const kids = (node as {children?: SceneNode[]}).children ?? [];
+  return [...own, ...kids.flatMap(child => hoverTickValues(child, field))];
+}
+
+/**
     The values under `field` in a datum or any datum it wraps (the first one
     that has it), as strings; an array value gives each of its items.
 */

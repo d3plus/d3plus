@@ -17,6 +17,7 @@ import {
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {bandTicks, TICK_FIELD} from "./applyLayout.js";
 import type {PriestleyDatum} from "./applyLayout.js";
 import {pairLabels} from "../features/labelLayering.js";
 
@@ -26,6 +27,7 @@ export const priestleyEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const xScale = viz.ctx.xScale as (v: number | Date) => number;
   const yScale = viz.ctx.yScale as (k: string) => number;
   const bandWidth = viz.ctx.bandWidth as number;
+  const ticks = (viz.ctx.ticks ?? []) as unknown[];
   const sc = shapeConfigFor(viz, "Rect");
 
   const rectNodes: SceneNode[] = data.map((d, i) => {
@@ -52,6 +54,8 @@ export const priestleyEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
       width,
       height: bandWidth,
       datum: d.data,
+      // Lights the labels of the ticks the band spans.
+      hoverKeys: {[TICK_FIELD]: bandTicks(ticks, d)},
       paint: {
         fill: textureFill(sc, d.data, i, fill),
         stroke,
