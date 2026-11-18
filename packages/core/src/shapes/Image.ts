@@ -1,5 +1,5 @@
 import {select} from "d3-selection";
-import {transition} from "d3-transition";
+import "d3-transition";
 
 import type {DataPoint} from "@d3plus/data";
 import type {D3Selection} from "@d3plus/dom";
@@ -121,7 +121,11 @@ export default class Image {
           (this.schema.height(d, i) as number) / 2,
       );
 
-    const t = transition().duration(this.schema.duration),
+    // Each image gets its own transition rather than one inherited from a
+    // shared transition: d3 finds an inherited one by walking up the
+    // element's ancestors, which never reach <html> (where a bare
+    // `transition()` lives) when the svg is off the page.
+    const duration = this.schema.duration,
       that = this,
       update = enter.merge(images);
 
@@ -133,7 +137,8 @@ export default class Image {
           (this.schema.preserveAspectRatio(d, i) as string | undefined) || null,
       )
       .style("pointer-events", this.schema.pointerEvents)
-      .transition(t)
+      .transition()
+      .duration(duration)
       .attr("opacity", this.schema.opacity)
       .attr("width", (d: DataPoint, i: number) => this.schema.width(d, i))
       .attr("height", (d: DataPoint, i: number) => this.schema.height(d, i))
@@ -165,7 +170,8 @@ export default class Image {
 
     images
       .exit<DataPoint>()
-      .transition(t)
+      .transition()
+      .duration(duration)
       .attr("width", (d: DataPoint, i: number) => this.schema.width(d, i))
       .attr("height", (d: DataPoint, i: number) => this.schema.height(d, i))
       .attr("x", (d: DataPoint, i: number) => this.schema.x(d, i))
