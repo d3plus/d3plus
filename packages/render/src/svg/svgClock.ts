@@ -17,9 +17,10 @@
     through the public `delay()`.
 */
 
-import type {BaseType} from "d3-selection";
+import {type BaseType, select} from "d3-selection";
 import {timer} from "d3-timer";
-import {transition, type Transition} from "d3-transition";
+import "d3-transition";
+import type {Transition} from "d3-transition";
 
 /** The transition a draw threads through its reconcile pass. */
 export type RenderTransition = Transition<BaseType, unknown, null, undefined>;
@@ -66,14 +67,23 @@ export function delayTransitions(group: Delayable[], lag: number): void {
 /**
     Creates a draw's shared transition, guarded against a stale d3 clock (see
     the module docs). Without a duration, or outside a browser, it is a plain
-    `transition().duration(duration)`.
+    transition of that duration.
+
+    It is scheduled on `root`, which must contain every element the draw
+    animates: d3 finds the transition by walking up from each of them, so one
+    scheduled on `<html>` can't be found from a chart that is off the page.
     @param duration The draw's transition duration in milliseconds.
+    @param root The element the draw's animated elements all sit inside.
 */
-export function clockedTransition(duration: number): RenderTransition {
+export function clockedTransition(
+  duration: number,
+  root: Element,
+): RenderTransition {
+  const transition = () =>
+    select<BaseType, unknown>(root).transition().duration(duration);
   const now =
     typeof performance !== "undefined" ? () => performance.now() : null;
-  if (!duration || !now || typeof document === "undefined")
-    return transition().duration(duration);
+  if (!duration || !now || typeof document === "undefined") return transition();
 
   const created = now();
   const group: Delayable[] = [];
@@ -83,7 +93,7 @@ export function clockedTransition(duration: number): RenderTransition {
     if (lag > FRAME) delayTransitions(group, lag);
   });
 
-  const t = transition().duration(duration);
+  const t = transition();
   group.push(t);
   tracked.set(t, group);
   return t;

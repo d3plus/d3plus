@@ -1,5 +1,5 @@
 import {select} from "d3-selection";
-import {transition} from "d3-transition";
+import "d3-transition";
 
 import {default as attrize} from "./attrize.js";
 import type {D3Selection} from "./D3Selection.js";
@@ -38,7 +38,6 @@ export default function (selector: string, p?: ElemParams): D3Selection {
 
   const className = /\.([^#]+)/g.exec(selector),
     id = /#([^.]+)/g.exec(selector),
-    t = transition().duration(params.duration),
     tag = /^([^.^#]+)/g.exec(selector)![1];
 
   const elem = params.parent
@@ -50,17 +49,26 @@ export default function (selector: string, p?: ElemParams): D3Selection {
   if (id) enter.attr("id", id[1]);
   if (className) enter.attr("class", className[1]);
 
+  // Each element is given its own transition rather than one inherited from a
+  // shared transition: d3 finds an inherited one by walking up the element's
+  // ancestors, which never reach <html> (where a bare `transition()` lives)
+  // when the parent is off the page. Created in the same task, they all share
+  // one start time.
   if (params.duration)
     elem
       .exit()
-      .transition(t)
+      .transition()
+      .duration(params.duration)
       .call(attrize as never, params.exit)
       .remove();
   else elem.exit().call(attrize, params.exit).remove();
 
   const update = enter.merge(elem);
   if (params.duration)
-    update.transition(t).call(attrize as never, params.update);
+    update
+      .transition()
+      .duration(params.duration)
+      .call(attrize as never, params.update);
   else update.call(attrize, params.update);
 
   return update as unknown as D3Selection;

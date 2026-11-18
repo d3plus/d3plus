@@ -210,7 +210,9 @@ export default class SvgRenderer implements Renderer {
     if (scene.meta?.background)
       this._svg.style.background = scene.meta.background;
 
-    const t = clockedTransition(duration);
+    // Scheduled on this renderer's own <svg>, so the elements it animates
+    // still find it when the chart is off the page.
+    const t = clockedTransition(duration, this._svg);
     const flip: FlipTransition = {
       enterFrom: opts?.enterFrom,
       enterFromBody: opts?.enterFromBody,

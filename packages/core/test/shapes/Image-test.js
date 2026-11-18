@@ -1,5 +1,6 @@
 import {it} from "vitest";
 import assert from "assert";
+import {select} from "d3-selection";
 import {Image} from "../../index.ts";
 import {useJsdom} from "~test/jsdom.js";
 
@@ -61,4 +62,30 @@ it("Image: config() sets preserveAspectRatio", () => {
     image.data(data).toScene().children[0].preserveAspectRatio,
     "xMaxYMid",
   );
+});
+
+it("Image: animates a render into an svg that is off the page", async () => {
+  // d3 finds an inherited transition by walking up from each element, which
+  // never reaches <html> from inside a detached svg.
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const image = new Image().select(svg).duration(30);
+  await new Promise(cb => image.data(data).render(cb));
+  const sizes = () =>
+    [...svg.querySelectorAll("image")].map(n => n.getAttribute("width"));
+  assert.deepStrictEqual(sizes(), ["100", "100"], "the images animate in");
+  const wider = data.slice(0, 1).map(d => ({...d, width: 150}));
+  await new Promise(cb => image.data(wider).render(cb));
+  assert.deepStrictEqual(sizes(), ["150"], "updates animate, exits leave");
+});
+
+it("Image: leaves the svg's own transition running", async () => {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  document.body.appendChild(svg);
+  svg.setAttribute("data-n", "0");
+  select(svg).transition().duration(30).attr("data-n", 10);
+  await new Promise(cb =>
+    new Image().select(svg).duration(30).data(data).render(cb),
+  );
+  assert.strictEqual(svg.getAttribute("data-n"), "10", "not interrupted");
+  svg.remove();
 });
