@@ -12,7 +12,6 @@ export interface ElemParams {
   exit?: AttrMap;
   duration?: number;
   parent?: D3Selection;
-  transition?: D3Selection;
   update?: AttrMap;
 }
 

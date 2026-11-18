@@ -1,6 +1,5 @@
 import {max} from "d3-array";
 import {select} from "d3-selection";
-import {transition} from "d3-transition";
 
 import {elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
@@ -205,12 +204,10 @@ export default class ColorScale extends BaseClass {
 
     const gradient =
       !bivariate && (this.schema.bucketAxis || !isBucketScale(compute!.scale));
-    const t = transition().duration(this.schema.duration);
     const groupParams: Record<string, unknown> = {
       enter: {opacity: 0},
       exit: {opacity: 0},
       parent: this._group,
-      transition: t,
       update: {opacity: 1},
     };
     const labelGroup = elem(
