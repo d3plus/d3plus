@@ -1,5 +1,3 @@
-import {select} from "d3-selection";
-
 import {date, getSize} from "@d3plus/dom";
 
 import {computeTrailCatchup} from "./trailCatchup.js";
@@ -23,11 +21,10 @@ import {
   bindCanvasZoom,
 } from "../drawSteps/zoomControls.js";
 import {initVizDefaults} from "./vizDefaults.js";
-import {unregisterLink} from "./linkGroup.js";
-import {stopDataPolling} from "./vizDataPolling.js";
 import type {FacetHooks} from "../facet/facetConfig.js";
 import {facetPanelAt, withFacetPanel} from "../facet/facetPanel.js";
 import {vizRender} from "./vizRender.js";
+import {vizDestroy} from "./vizDestroy.js";
 import {motionReduced} from "./reducedMotion.js";
 import {vizDraw} from "../pipeline/vizDraw.js";
 import {vizPreDraw} from "../pipeline/vizPreDraw.js";
@@ -35,8 +32,7 @@ import type {VizInstance} from "./vizTypes.js";
 import {handlerDatum, shapeClassTargets} from "./shapeClassTargets.js";
 import {reportHandlerError} from "./reportHandlerError.js";
 import {vizClassNameTargets} from "./vizClassName.js";
-import {themeBackground, unwatchPageTheme} from "./vizTheme.js";
-import {releaseScene, stopVisibilityWatch} from "./vizVisibility.js";
+import {themeBackground} from "./vizTheme.js";
 import {applyClassName, withRootClasses} from "../../utils/className.js";
 import {handleAxisTooltip} from "../features/axisTooltip.js";
 import {axisTooltipTarget} from "../../components/Axis/axisTooltipTargets.js";
@@ -44,18 +40,13 @@ import {
   handleColorScaleHover,
   handleSwatchLabelHover,
 } from "../features/colorScaleHover.js";
-import {
-  appendFocusRing,
-  syncKeyboardNav,
-  teardownKeyboardNav,
-} from "./keyboardNav.js";
+import {appendFocusRing, syncKeyboardNav} from "./keyboardNav.js";
 import {mountTargetFor} from "./mountTarget.js";
 import {resetCursor} from "./setCursor.js";
 import {leaveMark, syncHoverBand} from "./hoverBand.js";
 import {routePointerEvent} from "./nearestHover.js";
 import {nearestHoverSurface} from "./nearestHoverSurface.js";
 import {selectClick} from "../drawSteps/selectActions.js";
-import {syncSelectSurface} from "../drawSteps/selectGesture.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -841,22 +832,10 @@ export default class Viz extends VizBase {
   }
 
   /**
-      Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads and polling for data, cancels work waiting for idle time, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+      Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads and polling for data, cancels work waiting for idle time and a draw that has not run yet, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
   */
   destroy(): this {
-    unregisterLink(this as unknown as VizInstance);
-    teardownKeyboardNav(this as unknown as VizInstance);
-    nearestHoverSurface(this as unknown as VizInstance, true);
-    syncSelectSurface(this as unknown as VizInstance, true);
-    unwatchPageTheme(this as unknown as VizInstance);
-    stopDataPolling(this);
-    this._resizeObserver?.disconnect();
-    this._fontsUnsubscribe?.();
-    this._fontsUnsubscribe = undefined;
-    this._tooltipClass.data([]).render();
-    select("body").on(`touchstart.${this._uuid}`, null);
-    stopVisibilityWatch(this);
-    releaseScene(this);
+    vizDestroy(this);
     return this;
   }
 }
