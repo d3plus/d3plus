@@ -72,3 +72,24 @@ export function chartHeight(width: number): number {
   const height = Math.min(Math.max(360, width * 0.45), 560);
   return Math.round(height / 40) * 40;
 }
+
+/**
+ * Whether the page's back link should return through history, rather than
+ * follow its link to the guides: the visitor came from another page of this
+ * site (`referrer`, against the page's own `href`) and has a page to return
+ * to.
+ */
+export function goesBack(
+  referrer: string,
+  href: string,
+  historyLength: number,
+): boolean {
+  if (!referrer || historyLength < 2) return false;
+  try {
+    const from = new URL(referrer);
+    const here = new URL(href);
+    return from.origin === here.origin && from.pathname !== here.pathname;
+  } catch {
+    return false;
+  }
+}

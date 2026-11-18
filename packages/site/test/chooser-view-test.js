@@ -8,6 +8,7 @@ import {
   onPath,
   TIP_WIDTH,
   chartHeight,
+  goesBack,
   tipStyle,
 } from "../src/components/ChartChooser/view.ts";
 
@@ -99,5 +100,27 @@ describe("chartHeight", () => {
     assert.equal(chartHeight(1000), 440);
     assert.equal(chartHeight(1080), 480);
     assert.equal(chartHeight(2000), 560);
+  });
+});
+
+describe("goesBack", () => {
+  const here = "https://d3plus.org/guides/choosing-a-chart/";
+  it("returns through history from another page of the site", () => {
+    assert.equal(
+      goesBack("https://d3plus.org/core/charts/pie/", here, 3),
+      true,
+    );
+  });
+  it("follows the link otherwise", () => {
+    // A direct visit or a new tab.
+    assert.equal(goesBack("", here, 1), false);
+    assert.equal(goesBack("", here, 4), false);
+    // From another site.
+    assert.equal(goesBack("https://www.google.com/", here, 3), false);
+    // Nothing to go back to.
+    assert.equal(goesBack("https://d3plus.org/guides/data/", here, 1), false);
+    // From this page itself, as after a reload.
+    assert.equal(goesBack(`${here}#top`, here, 3), false);
+    assert.equal(goesBack("not a url", here, 3), false);
   });
 });
