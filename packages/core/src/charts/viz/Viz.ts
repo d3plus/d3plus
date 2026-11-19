@@ -47,6 +47,7 @@ import {leaveMark, syncHoverBand} from "./hoverBand.js";
 import {routePointerEvent} from "./nearestHover.js";
 import {nearestHoverSurface} from "./nearestHoverSurface.js";
 import {selectClick} from "../drawSteps/selectActions.js";
+import {ratioHeight} from "./sizeRatio.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -299,6 +300,14 @@ export default class Viz extends VizBase {
     w! -= parseFloat(this._select.style("border-right-width"));
     h! -= parseFloat(this._select.style("border-top-width"));
     h! -= parseFloat(this._select.style("border-bottom-width"));
+    // A `sizeRatio` sets a measured height from the chart's width.
+    const ratio = this._autoHeight
+      ? ratioHeight(
+          this.schema.sizeRatio,
+          this._autoWidth ? w : this.schema.width,
+        )
+      : undefined;
+    if (ratio !== undefined) h = ratio;
 
     if (this._autoWidth) this._measuredWidth = w;
     if (this._autoHeight) this._measuredHeight = h;

@@ -2677,6 +2677,11 @@ export type {
 export {goBack} from "./src/charts/drawSteps/backControl.js";
 export {forEachSceneRow, MARK_TYPES} from "./src/charts/viz/sceneRows.js";
 export {
+  applyResponsive,
+  matchBreakpoints,
+} from "./src/charts/viz/responsive.js";
+export {applySizeRatio, ratioHeight} from "./src/charts/viz/sizeRatio.js";
+export {
   effectiveDuration,
   motionReduced,
   prefersReducedMotion,

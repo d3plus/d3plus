@@ -19,6 +19,7 @@ export type {
   OutlierConfig,
   OutlierSetting,
   PointLabelConfig,
+  ResponsiveBreakpoint,
   SaveControlConfig,
   SaveFormat,
   SizeLegendConfig,

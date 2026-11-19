@@ -102,3 +102,17 @@ it("leaves a chart svg nested in another svg alone", () => {
   });
   assert.strictEqual(outer.children.length, 1);
 });
+
+it("reserves a height sizeRatio sets, though the chart measured it", () => {
+  const {container, viz} = setup({
+    schema: {width: 600, height: 300},
+    _autoWidth: true,
+    _autoHeight: true,
+    _sizeRatioHeight: true,
+  });
+  reserveContainerSize(viz);
+  const [spacer] = spacers(container);
+  assert.ok(spacer, "a spacer is added");
+  assert.strictEqual(spacer.style.height, "300px");
+  assert.strictEqual(spacer.style.width, "0px");
+});

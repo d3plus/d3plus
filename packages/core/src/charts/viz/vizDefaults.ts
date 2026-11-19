@@ -250,12 +250,15 @@ function initEventDefaults(viz: Viz): void {
   };
   viz._queue = [];
   // Applies a detected container resize: re-sizes the SVG and re-renders when
-  // the observed size actually differs from what the chart last drew at.
+  // the observed size actually differs from what the chart last drew at. A
+  // height set by `sizeRatio` follows the width, not the container.
   const applyResize = (entries: ResizeObserverEntry[]): void => {
     const {width, height} = entries[0]!.contentRect;
     if (
       ((width !== viz.schema.width && viz._autoWidth) ||
-        (height !== viz.schema.height && viz._autoHeight)) &&
+        (height !== viz.schema.height &&
+          viz._autoHeight &&
+          !viz._sizeRatioHeight)) &&
       width &&
       height
     ) {

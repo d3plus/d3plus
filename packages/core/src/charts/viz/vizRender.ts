@@ -21,6 +21,8 @@ import {
 import {queuedFormatter, syncLoaderFormats} from "./loaderFormat.js";
 import {recordDataSignature, syncDataPolling} from "./vizDataPolling.js";
 import {reportDrawError} from "./reportDrawError.js";
+import {applyResponsive} from "./responsive.js";
+import {applySizeRatio} from "./sizeRatio.js";
 
 /**
     Whether the chart counts as on-screen for this render. `_forceVisible` is set
@@ -512,6 +514,10 @@ export function vizRender(viz: Viz, callback?: () => void): Viz {
   // measuring and drawing have to agree on whether this render draws.
   const visible = isVisible(viz);
   autoSize(viz, visible);
+  // Breakpoints match the width just measured, and can change `sizeRatio`,
+  // which sets the height from that width.
+  applyResponsive(viz);
+  applySizeRatio(viz);
   reserveContainerSize(viz);
 
   const parent = select(viz._select.node().parentNode);
