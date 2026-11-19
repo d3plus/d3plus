@@ -56,7 +56,10 @@ export interface StaticRenderOptions extends GeomapTileOptions {
       window (1024×768).
   */
   width?: number;
-  /** Output height in pixels. Falls back to the chart's configured `height()`. */
+  /**
+      Output height in pixels. Falls back to the chart's configured `height()`,
+      then to the width divided by its `sizeRatio`.
+  */
   height?: number;
   /**
       A ready-made `window` to render into (e.g. from `linkedom`). Defaults to a
@@ -69,14 +72,19 @@ export interface StaticRenderOptions extends GeomapTileOptions {
 
 /**
     Resolves and validates output dimensions from options, falling back to the
-    chart's configured size. Throws when neither yields a positive number.
+    chart's configured size, and for the height to the width divided by the
+    chart's `sizeRatio`. Throws when neither yields a positive number.
 */
 export function resolveSize(
   viz: RenderableViz,
   opts: StaticRenderOptions,
 ): {width: number; height: number} {
   const width = opts.width ?? viz.width();
-  const height = opts.height ?? viz.height();
+  const ratio: unknown = viz.sizeRatio?.();
+  const height =
+    opts.height ??
+    viz.height() ??
+    (isPositive(width) && isPositive(ratio) ? width / ratio : undefined);
   if (!isPositive(width) || !isPositive(height))
     throw new Error(
       "@d3plus/ssr: an explicit width and height are required for server-side " +
