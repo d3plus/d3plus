@@ -1,0 +1,15 @@
+source,target,value
+Natural gas,Electricity,1520
+Natural gas,Industry,1010
+Natural gas,Homes,520
+Coal,Electricity,640
+Coal,Industry,90
+Nuclear,Electricity,775
+Wind,Electricity,425
+Solar,Electricity,238
+Hydro,Electricity,240
+Petroleum,Transport,2650
+Petroleum,Industry,940
+Electricity,Homes,1480
+Electricity,Industry,1010
+Electricity,Transport,30

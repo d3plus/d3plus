@@ -1,0 +1,51 @@
+---
+/**
+ * The interactive chart chooser: paste data, see which branches of a
+ * decision tree of every chart type it fits, and draw any of them.
+ */
+import {entryId, findEntry} from "../../lib/api";
+import ChooserIsland from "./ChooserIsland";
+import {leaves} from "./states";
+import type {ChartInfo} from "./TreeTip";
+import {TREE} from "./tree";
+import {firstSentence} from "./view";
+import "../Playground/playground.css";
+import "./chooser.css";
+
+const charts = [...new Set(leaves(TREE).map(l => l.node.chart!))];
+const info: Record<string, ChartInfo> = Object.fromEntries(
+  charts.map(name => {
+    const entry = findEntry(name, "core");
+    return [
+      name,
+      {
+        href: `/${entryId(entry)}/`,
+        description: firstSentence(entry.description),
+        flavors: entry.flavors,
+      },
+    ];
+  }),
+);
+---
+
+<a class="d3p-guides-link not-content" href="/guides/frameworks/" data-d3p-back>
+  ← Back
+</a>
+<ChooserIsland client:load info={info} />
+
+<script>
+  import {goesBack} from "./view";
+
+  // The link leads to the first guide; when the visitor came from another
+  // page of this site, it returns them there instead.
+  document.querySelector("[data-d3p-back]")?.addEventListener("click", e => {
+    const back = goesBack(
+      document.referrer,
+      window.location.href,
+      window.history.length,
+    );
+    if (!back) return;
+    e.preventDefault();
+    window.history.back();
+  });
+</script>

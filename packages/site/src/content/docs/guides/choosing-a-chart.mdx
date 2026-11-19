@@ -1,0 +1,33 @@
+---
+title: "Choosing a Chart"
+description: "Paste your data and see which D3plus charts it can draw, and why: the shape of a dataset decides which charts fit it."
+template: splash
+sidebar:
+  order: 16
+---
+import ChartChooser from "~/components/ChartChooser/ChartChooser.astro";
+
+The charts a dataset can draw follow from its shape: what kinds of columns it has, and how its rows relate to one another. A column of dates opens up charts of change over time; two columns that name the same things, like `source` and `target`, make a network; categories nested inside categories make a hierarchy.
+
+Paste your own data below (a JSON array of objects, CSV, or cells copied straight from a spreadsheet), or load a sample. The tree lights up every branch your data fits and every chart it can draw. Hover or focus a chart to see what it needs, and click a lit one to draw it from your data, with its config as code you can edit and copy.
+
+<ChartChooser />
+
+## How the tree decides
+
+Each column is read as a **number**, a **date** (`2024-03-01`, `2024-03`, `2024 Q1`, `3/1/2024`, or whole numbers in a column named like `year`), a **category**, or a **place** (ISO alpha-3 country codes, US states, or `lat`/`lon` columns). Each branch then asks one question of the columns and rows:
+
+| Branch | Asks for |
+|---|---|
+| A few numbers | A value, and 6 or fewer of them (or 6 or fewer series over time). |
+| Categories + a value | A number, and a category that names each row once. |
+| Category × category | A number, and two categories that cross, with one row for each pair. |
+| Nested categories | Two or more categories where each value sits inside exactly one parent value. |
+| Change over time | A date column; its branches ask for 3 or more dates, exactly two, dates finer than years, open/high/low/close columns, or start and end dates. |
+| Two+ measures | Two or more numeric columns over 5 or more rows. |
+| Distributions | 30 or more observations of one measure that aren't a time series. |
+| Connections | Columns named like `source` and `target`, or two columns that name the same things. |
+| Overlapping sets | Set names and their overlaps (`A`, `B`, `A & B`), with a size for each. |
+| Places | Country codes, US states, or coordinates. |
+
+Charts then add needs of their own: a Pie works best with 12 or fewer slices, a Bullet needs a target column, a stacked chart needs a category to split the rows into series. The generated config is a starting point: every chart's page lists the rest of what it can do, and the [Data guide](/guides/data/) covers how charts read their data.

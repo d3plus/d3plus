@@ -1,0 +1,21 @@
+age,sex,population (M)
+0-9,Male,9.9
+0-9,Female,9.5
+10-19,Male,10.4
+10-19,Female,10.0
+20-29,Male,10.9
+20-29,Female,10.6
+30-39,Male,11.0
+30-39,Female,10.9
+40-49,Male,10.6
+40-49,Female,10.7
+50-59,Male,9.8
+50-59,Female,10.1
+60-69,Male,8.6
+60-69,Female,9.4
+70-79,Male,6.4
+70-79,Female,7.3
+80-89,Male,3.7
+80-89,Female,4.6
+90+,Male,1.4
+90+,Female,2.4
