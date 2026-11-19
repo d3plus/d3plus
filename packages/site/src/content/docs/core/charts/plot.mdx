@@ -186,7 +186,7 @@ When `color` is a category that isn't one of the `groupBy` levels, here each cou
 
 ## Fixed aspect ratio
 
-`aspectRatio: 1` draws one unit of y as long as one unit of x, so these measurements, plotted against the same 0 to 10 scale on both axes, sit on a true 45 degree diagonal however wide the chart is. The plot area shrinks along its longer side and centers itself, and the axes keep their domains. Other numbers scale the y unit (`2` draws it twice an x unit). On log axes a decade is one unit, and a category axis ignores it with a warning.
+`aspectRatio: 1` draws one unit of y as long as one unit of x, so these measurements, plotted against the same 0 to 10 scale on both axes, sit on a true 45 degree diagonal however wide the chart is. The plot area shrinks along its longer side and centers itself, and the axes keep their domains. Other numbers scale the y unit (`2` draws it twice an x unit). On log axes a decade is one unit, and a category axis ignores it with a warning. To keep the whole chart's width-to-height shape instead, see [`sizeRatio`](/guides/rendering/#keeping-a-charts-shape-sizeratio).
 
 <Playground chart="Plot" code={aspectRatio} controls={["aspectRatio","xDomain","yDomain"]} />
 

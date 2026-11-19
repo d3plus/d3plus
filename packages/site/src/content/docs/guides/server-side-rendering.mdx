@@ -36,7 +36,10 @@ npm install jsdom @napi-rs/canvas
 
 `renderToStaticSVG` returns a standalone `<svg>` string for any chart. An
 explicit `width` and `height` are required (a headless page has no layout to
-size against):
+size against). A chart with a [`sizeRatio`](/guides/rendering/#keeping-a-charts-shape-sizeratio)
+needs only the width, and the chart's
+[`responsive`](/guides/rendering/#breakpoints-responsive) breakpoints apply at
+the width it renders at:
 
 ```js
 import {Treemap} from "@d3plus/core";
@@ -153,7 +156,7 @@ await renderToStaticPNG(map, {
 
 | Option | Applies to | Description |
 |---|---|---|
-| `width`, `height` | all | Output size in pixels. Required here or via `viz.width()`/`viz.height()`. |
+| `width`, `height` | all | Output size in pixels. Required here or via `viz.width()`/`viz.height()`; the height can also come from the chart's `sizeRatio`. |
 | `pixelRatio` | PNG / canvas | Backing-store scale for sharper rasters. Default `2`. |
 | `fonts` | PNG / canvas | Font files to register before rendering. |
 | `window` | all | A custom DOM window (e.g. from `linkedom`); defaults to `jsdom`. |
