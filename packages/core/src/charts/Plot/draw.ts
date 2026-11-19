@@ -324,6 +324,9 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
   // The axis hover's positions belong to the previous layout.
   viz._axisHoverState = null;
   viz._plotMarginals = null;
+  // Reference lines collect the rows they highlight as they paint (each
+  // small-multiples panel its own).
+  if (viz._facetStep !== "panel") viz._referenceHighlight = null;
   // A small-multiples chrome pass lays out the chrome only.
   if (
     viz._facetStep === "chrome" ||

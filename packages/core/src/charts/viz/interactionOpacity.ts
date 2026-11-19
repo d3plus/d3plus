@@ -19,6 +19,7 @@ import {activeBucketColors} from "../features/colorScaleBucket.js";
 import {hoveredSwatch} from "../features/colorScaleHover.js";
 import {SWATCH_OUTLINE} from "../features/swatchPaint.js";
 import {datumValues} from "../features/hoverTicks.js";
+import {referenceHighlightPredicate} from "../features/referenceHighlight.js";
 import {STROKE_EMPHASIS} from "./emphasis.js";
 import type {EmphasisKind} from "./emphasis.js";
 import {sharesGroup} from "./groupRow.js";
@@ -116,7 +117,9 @@ function dimSettings(viz: VizInstance): {
   const active =
     typeof viz._active === "function" ? (viz._active as Predicate) : null;
   const highlight =
-    typeof viz._highlight === "function" ? (viz._highlight as Predicate) : null;
+    typeof viz._highlight === "function"
+      ? (viz._highlight as Predicate)
+      : referenceHighlightPredicate(viz);
   const selection =
     typeof viz._selection === "function" ? (viz._selection as Predicate) : null;
   if (!hover && !active && !highlight && !selection) return null;

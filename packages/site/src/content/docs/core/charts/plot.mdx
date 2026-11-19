@@ -15,6 +15,8 @@ import persistentMotionTrails from "~/examples/core/charts/plot/persistent-motio
 import shapeBackgroundImages from "~/examples/core/charts/plot/shape-background-images.js?raw";
 import annotations from "~/examples/core/charts/plot/annotations.js?raw";
 import calloutsAndReferenceLines from "~/examples/core/charts/plot/callouts-and-reference-lines.js?raw";
+import referenceStatistics from "~/examples/core/charts/plot/reference-statistics.js?raw";
+import quadrants from "~/examples/core/charts/plot/quadrants.js?raw";
 import trendLine from "~/examples/core/charts/plot/trend-line.js?raw";
 import trendLineConfidence from "~/examples/core/charts/plot/trend-line-confidence.js?raw";
 import trendLineTypes from "~/examples/core/charts/plot/trend-line-types.js?raw";
@@ -93,6 +95,18 @@ Layer custom shapes over the data with `annotations`. Each entry names a `shape`
 The same notes as above, without hand-built shapes. `referenceLines` draws a line across the plot at a value (`dash: true` dashes it) with a label at its end, and `referenceBands` shades the span between two values, labeled in its corner; both sit behind the data (their labels above it, moved clear of the data's labels), and widen the axis to stay in view. A `"Callout"` annotation anchors wrapped text in a box at each row's `x`/`y`, offset by `dx`/`dy` pixels, with a connector ending in an arrowhead (or `marker: "dot"`), and stays inside the plot. `xRef`/`yRef: "plot"` position a callout by fractions of the plot area instead. Colors follow the chart's theme; every style can be overridden.
 
 <Playground chart="Plot" code={calloutsAndReferenceLines} controls={["annotations","referenceLines","referenceBands"]} />
+
+## Statistic reference lines
+
+A reference line's value can be a statistic of the rows the chart draws: `"mean"`, `"median"`, `"min"`, or `"max"` (labeled with the statistic's name, in the chart's locale), or a function given those rows. `highlight: "above"` (or `"below"`) grays the points on the other side of the line, and `from`/`to` draw only part of it. A callout's `select` picks its own rows (`"max"`, `"min"`, `"first"`, `"last"`, or a function), and `dropline: true` draws a line from the point down to the x axis (`"y"` across to the y axis, `"both"` for both).
+
+<Playground chart="Plot" code={referenceStatistics} controls={["referenceLines","annotations"]} />
+
+## Quadrants
+
+`quadrants` splits a scatter into four quadrants around the mean of each axis (or the `x`/`y` you give it: a value or a statistic), each with a label in its outer corner and an optional fill. A reference band given both an `x` and a `y` span shades the rectangle between them.
+
+<Playground chart="Plot" code={quadrants} controls={["quadrants","referenceBands"]} />
 
 ## Trend line
 
