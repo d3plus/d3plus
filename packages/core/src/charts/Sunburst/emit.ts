@@ -17,6 +17,7 @@ import {
   textureFill,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import {centerLabelNodes} from "../features/centerLabel.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
@@ -224,6 +225,7 @@ export const sunburstEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
         ? {...enterArcs.get(node.id)!, padAngle: 0}
         : undefined,
       datum: node.datum,
+      index: node.i ?? AGGREGATE_INDEX,
       paint: {
         fill: textureFill(sc, node.datum, i, fill),
         stroke: resolveAccessor<string>(sc.stroke, node.datum, i),

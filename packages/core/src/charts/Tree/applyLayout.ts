@@ -16,6 +16,7 @@ import {merge, nest} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import {stampDepth} from "../features/depthKey.js";
+import {AGGREGATE_INDEX, rowIndex} from "../features/rowIndex.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -33,6 +34,8 @@ type TreeNode = DataPoint & {
   __d3plus__?: true;
   depth?: number;
   i?: number;
+  /** The position of the row a leaf wraps in the drawn data (see `rowIndex`). */
+  row?: number;
   x?: number;
   y?: number;
   theta?: number;
@@ -84,6 +87,13 @@ function flattenBranchData(viz: VizInstance, branch: Branch): DataPoint {
   ) as DataPoint;
 }
 
+/** The data rows under a nest entry (the entry itself, for a row). */
+function branchRows(d: Branch): DataPoint[] {
+  return isBranch(d)
+    ? (d.values as Branch[]).flatMap(branchRows)
+    : [d as DataPoint];
+}
+
 /** Run the d3-hierarchy tree layout, flatten branch aggregations, and tag nodes. */
 function buildTreeData(
   viz: VizInstance,
@@ -130,9 +140,15 @@ function buildTreeData(
     // Each node gets a row of its own: a branch's merged leaves, or a copy of
     // the row it wraps, so the rows the legend and `data()` hold are never
     // written to.
-    const row: DataPoint = isBranch(dd)
+    const branch = isBranch(dd);
+    const row: DataPoint = branch
       ? flattenBranchData(viz, dd)
       : {...(dd as DataPoint)};
+    const rows = branchRows(dd);
+    d.row =
+      rows.length === 1
+        ? rowIndex(viz._filteredData, rows[0])
+        : AGGREGATE_INDEX;
     d.data = row;
     d.__d3plus__ = true;
     d.i = i;

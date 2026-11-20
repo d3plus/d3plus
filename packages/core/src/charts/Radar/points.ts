@@ -13,6 +13,7 @@ import {
   paintFromShapeConfig,
   resolveAccessor,
 } from "../features/emitHelpers.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** The metric and value a dot's datum stands for. */
@@ -26,6 +27,8 @@ export interface RadarPointGroup {
   id: string | number;
   /** Each vertex's merged row. */
   arr: DataPoint[];
+  /** The position of each vertex's row in the drawn data (see `rowIndex`). */
+  rows?: number[];
   /** Each vertex's metric. */
   metrics: unknown[];
   /** Each vertex's value. */
@@ -92,6 +95,7 @@ export function radarGroupPointNodes(
       r,
       transform: {x: p.x, y: p.y},
       datum,
+      index: g.rows?.[k] ?? AGGREGATE_INDEX,
       // Only this dot's metric label stays bright on hover.
       hoverKeys: {metric: [metric]},
       paint: paintFromShapeConfig(circleConfig, datum, gi),

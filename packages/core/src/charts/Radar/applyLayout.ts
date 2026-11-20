@@ -15,6 +15,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {shapeConfigFor} from "../features/emitHelpers.js";
+import {AGGREGATE_INDEX, rowIndex} from "../features/rowIndex.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
 
@@ -33,6 +34,7 @@ interface GroupDatum {
   __d3plus__: true;
   data: DataPoint;
   arr: DataPoint[];
+  rows: number[];
   id: string | number;
   /** The metrics the polygon has a value for. */
   metrics: unknown[];
@@ -111,9 +113,15 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
       registerRadarPoint(row, {metric: metrics[k], value: values[k]});
       return row;
     });
+    const rows = innerEntries.map(([, vals]) =>
+      vals.length === 1
+        ? rowIndex(viz._filteredData, vals[0] as DataPoint)
+        : AGGREGATE_INDEX,
+    );
     return {
       __d3plus__: true,
       arr,
+      rows,
       id: hKey as string | number,
       metrics,
       values,

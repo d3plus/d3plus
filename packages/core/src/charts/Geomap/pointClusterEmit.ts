@@ -32,6 +32,7 @@ import type {ClusterNode} from "./pointCluster.js";
 import {clusterRow, geoClusterTitle} from "./pointClusterLayout.js";
 import type {GeoClusterState} from "./pointClusterLayout.js";
 import {rerouteFlowLinks} from "./pointClusterLinks.js";
+import {AGGREGATE_INDEX, rowIndex} from "../features/rowIndex.js";
 
 /** The key prefixes of the nodes a clustered draw owns (see `emitClusterScene`). */
 export const CLUSTER_SCENE_KEYS = /^geomap-(link|point|cluster|spider|label)-/;
@@ -126,6 +127,7 @@ export function pointNode(
     r: p.r,
     transform: {x: p.x, y: p.y},
     datum: p.d,
+    index: rowIndex(viz._filteredData, p.d),
     paint: {
       ...paint,
       vectorEffect: paint.vectorEffect ?? "non-scaling-stroke",
@@ -206,6 +208,7 @@ export function bubbleNodes(
       r: R / k,
       transform,
       datum: row,
+      index: AGGREGATE_INDEX,
       paint: {
         fill,
         stroke: background,

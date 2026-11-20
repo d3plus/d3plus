@@ -11,6 +11,7 @@ import type {LabelCircle} from "../features/circleLabelPlacement.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {rowIndex} from "../features/rowIndex.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveThemed} from "./basemapTheme.js";
@@ -182,6 +183,7 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
         // Outlines and cartogram shapes morph into one another.
         morph: true,
         datum,
+        index: rowIndex(viz._filteredData, datum),
         // Topojson geography is a data shape: keep its border stroke a constant
         // screen width as the map zooms (v3 parity), rather than scaling with
         // the zoom transform. Honors an explicit shapeConfig.vectorEffect.

@@ -15,6 +15,7 @@ import {
   resolveAccessor,
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {rowIndex} from "../features/rowIndex.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {packDatum, packNeutral, packPaintDatum} from "./groupRows.js";
 import {packNeutralPaint} from "./neutralPaint.js";
@@ -64,6 +65,8 @@ export const packEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
       shapeType: "Pack",
       // A group circle carries its group's row (see `groupRows.ts`).
       datum: packDatum(d),
+      // A group circle draws no single row.
+      index: rowIndex(viz._filteredData, packDatum(d)),
       paint: {
         fill: textureFill(sc, datum, i, fill),
         stroke,

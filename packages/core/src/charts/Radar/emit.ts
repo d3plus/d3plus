@@ -16,6 +16,7 @@ import {
   shapeConfigFor,
 } from "../features/emitHelpers.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 import {radarGroupPointNodes} from "./points.js";
@@ -52,6 +53,7 @@ export const radarEmit: ChartEmit = pairLabels(({viz}) => {
       key: `radar-${g.id}`,
       d: g.d,
       datum,
+      index: AGGREGATE_INDEX,
       // The labels of the metrics it has a value for stay bright on hover.
       hoverKeys: {metric: g.metrics ?? []},
       paint,

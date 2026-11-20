@@ -90,6 +90,7 @@ type TreeLinkNode = DataPoint & {
   rho?: number;
   data?: DataPoint;
   i?: number;
+  row?: number;
   depth?: number;
   parent?: TreeLinkNode;
 };
@@ -171,6 +172,7 @@ export const treeEmit: ChartEmit = pairLabels(({viz}) => {
           parent: reach(d.parent, linkDirections(viz, d).parent),
         }),
         datum,
+        index: d.row,
         paint,
         transform: {x: tx, y: ty},
         aria: {label: `${nodeLabel(viz, datum, d.i ?? i)}.`},
@@ -190,6 +192,7 @@ export const treeEmit: ChartEmit = pairLabels(({viz}) => {
       y?: number;
       data?: DataPoint;
       i?: number;
+      row?: number;
       depth?: number;
     };
     const nodes: Node[] = values as unknown as Node[];
@@ -206,6 +209,7 @@ export const treeEmit: ChartEmit = pairLabels(({viz}) => {
         ...g.geom,
         key: `tree-${shapeKind}-${id}`,
         datum,
+        index: d.row,
         paint,
         aria: {label: `${nodeLabel(viz, datum, i)}.`},
       } as SceneNode;

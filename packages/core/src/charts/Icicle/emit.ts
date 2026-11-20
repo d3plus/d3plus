@@ -16,6 +16,7 @@ import {
   textureFill,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {measureLabel, partitionSplit} from "../partition/labelWords.js";
@@ -137,6 +138,7 @@ export const icicleEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
       enterRect: enterRects.get(node.id),
       enterWindow: enterWindows.get(node.id),
       datum: node.datum,
+      index: node.i ?? AGGREGATE_INDEX,
       paint: {
         fill: textureFill(sc, node.datum, i, fillOf(node)),
         stroke: resolveAccessor<string>(sc.stroke, node.datum, i),
