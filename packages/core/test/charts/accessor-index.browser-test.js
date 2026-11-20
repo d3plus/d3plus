@@ -171,3 +171,138 @@ it("SlopeChart: a line's markers read its stroke with the row and its index", as
     assert.strictEqual(typeof c.i, "number", "with an index");
   }
 });
+
+it("Geomap: point and pointSize read each row with its index", async () => {
+  const out = await render(
+    '<div id="viz" style="width:500px;height:400px"></div>',
+    async region => {
+      const data = [
+        {id: "Boston", at: [-71.06, 42.36], size: 3},
+        {id: "Providence", at: [-71.41, 41.82], size: 1},
+        {id: "Hartford", at: [-72.68, 41.76], size: 2},
+      ];
+      const ids = data.map(d => d.id);
+      const calls = [];
+      const viz = new window.d3plus.Geomap()
+        .data(data)
+        .groupBy("id")
+        .point((d, i) => {
+          calls.push(["point", d.id, i]);
+          return d.at;
+        })
+        .pointSize((d, i) => {
+          calls.push(["pointSize", d.id, i]);
+          return d.size;
+        })
+        .tiles(false)
+        .topojson(region)
+        .duration(0);
+      await new Promise(r => viz.select("#viz").render(r));
+      return {ids, calls: calls.filter(c => ids.includes(c[1]))};
+    },
+    region,
+  );
+  assert.ok(
+    out.calls.some(c => c[0] === "point"),
+    "point was read",
+  );
+  assert.ok(
+    out.calls.some(c => c[0] === "pointSize"),
+    "pointSize was read",
+  );
+  for (const [key, id, i] of out.calls)
+    assert.strictEqual(i, out.ids.indexOf(id), `${key}(${id})`);
+});
+
+it("LinePlot: lineMarkerConfig accessors read the source row and its index", async () => {
+  const out = await render(
+    '<div id="viz" style="width:500px;height:400px"></div>',
+    async () => {
+      const data = [
+        {id: "A", x: 1, y: 1},
+        {id: "A", x: 2, y: 3},
+        {id: "B", x: 1, y: 4},
+        {id: "B", x: 2, y: 2},
+      ];
+      const calls = [];
+      const viz = new window.d3plus.LinePlot()
+        .data(data)
+        .groupBy("id")
+        .x("x")
+        .y("y")
+        .lineMarkers(true)
+        .lineMarkerConfig({
+          fill: (d, i) => {
+            calls.push({wrapped: !!d.__d3plus__, id: d.id, x: d.x, i});
+            return "#222";
+          },
+        })
+        .duration(0);
+      await new Promise(r => viz.select("#viz").render(r));
+      const rows = data.map(d => `${d.id}${d.x}`);
+      return {rows, calls};
+    },
+  );
+  assert.ok(out.calls.length >= 4, `the marker fill ran (${out.calls.length})`);
+  for (const c of out.calls) {
+    assert.strictEqual(c.wrapped, false, "a source row, not a wrapper");
+    assert.strictEqual(
+      c.i,
+      out.rows.indexOf(`${c.id}${c.x}`),
+      `${c.id} ${c.x}`,
+    );
+  }
+});
+
+it("RadialLine: a series path and its label stand for several rows: -1", async () => {
+  const out = await render(
+    '<div id="viz" style="width:500px;height:400px"></div>',
+    async () => {
+      const calls = [];
+      const viz = new window.d3plus.RadialLine()
+        .data([
+          {id: "A", m: "Jan", v: 1},
+          {id: "A", m: "Feb", v: 2},
+          {id: "A", m: "Mar", v: 3},
+          {id: "B", m: "Jan", v: 3},
+          {id: "B", m: "Feb", v: 1},
+          {id: "B", m: "Mar", v: 2},
+        ])
+        .groupBy("id")
+        .x("m")
+        .y("v")
+        .shapeConfig({
+          Line: {
+            stroke: (d, i) => {
+              calls.push(i);
+              return "#222";
+            },
+          },
+        })
+        .duration(0);
+      await new Promise(r => viz.select("#viz").render(r));
+      const paths = [];
+      const labels = [];
+      const walk = n => {
+        if (n.shapeType === "Line" && n.datum) {
+          const {i} = viz._interactionDatum(
+            {node: n, datum: n.datum, index: n.index},
+            {type: "click"},
+          );
+          paths.push({index: n.index, handler: i});
+        }
+        if (n.type === "text" && n.datum && /^radial-series-label-/.test(n.key))
+          labels.push(n.index);
+        (n.children || []).forEach(walk);
+      };
+      walk(viz._paintedScene.root);
+      return {calls, paths, labels};
+    },
+  );
+  assert.strictEqual(out.paths.length, 2, "two series paths");
+  for (const p of out.paths)
+    assert.deepStrictEqual(p, {index: -1, handler: -1});
+  assert.deepStrictEqual([...new Set(out.calls)], [-1], "its stroke reads -1");
+  assert.ok(out.labels.length, "the series are labeled");
+  for (const index of out.labels) assert.strictEqual(index, -1, "its label");
+});

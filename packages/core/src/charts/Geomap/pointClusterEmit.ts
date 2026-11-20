@@ -33,6 +33,7 @@ import {clusterRow, geoClusterTitle} from "./pointClusterLayout.js";
 import type {GeoClusterState} from "./pointClusterLayout.js";
 import {rerouteFlowLinks} from "./pointClusterLinks.js";
 import {AGGREGATE_INDEX, rowIndex} from "../features/rowIndex.js";
+import {pointSizeOf} from "./pointAccessors.js";
 
 /** The key prefixes of the nodes a clustered draw owns (see `emitClusterScene`). */
 export const CLUSTER_SCENE_KEYS = /^geomap-(link|point|cluster|spider|label)-/;
@@ -135,7 +136,7 @@ export function pointNode(
       vectorEffect: paint.vectorEffect ?? "non-scaling-stroke",
     },
     aria: {
-      label: `${viz._drawLabel(p.d, i)}, ${(viz.schema.pointSize as (d: DataPoint, i: number) => unknown)(p.d, p.i)}.`,
+      label: `${viz._drawLabel(p.d, i)}, ${pointSizeOf(viz, p.d)}.`,
     },
     ...(trail ? {trail: true} : {}),
     ...(trail && circleConfig.trailPersist

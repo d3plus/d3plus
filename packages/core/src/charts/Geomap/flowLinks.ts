@@ -39,6 +39,7 @@ import {
   toLonLat,
 } from "./flowGeometry.js";
 import type {GeoPathFn, LonLat, Point, Projector} from "./flowGeometry.js";
+import {pointOf} from "./pointAccessors.js";
 
 /** One end of a drawn link: the place it names, and the mark drawn there. */
 export interface FlowEnd extends LinkEnd {
@@ -133,7 +134,7 @@ export function flowEndResolver(
 ): (ref: unknown) => FlowEnd | null {
   const points = new Map<string, FlowEnd>();
   input.pointData.forEach((d, i) => {
-    const coord = toLonLat(v.schema.point(d, i));
+    const coord = toLonLat(pointOf(v, d));
     if (!coord) return;
     const id = `${v._id(d, i)}`;
     if (points.has(id)) return;

@@ -17,6 +17,8 @@ import {resolveBinValue} from "../Hexbin/settings.js";
 import {regionsReshaped} from "./tileGrid.js";
 import {toLonLat} from "./flowGeometry.js";
 import {isPointRow} from "./pointRows.js";
+import {pointOf} from "./pointAccessors.js";
+import {rowIndex} from "../features/rowIndex.js";
 
 /** The `hexbin` option. */
 export interface GeoHexbinConfig {
@@ -113,15 +115,17 @@ export function geoBinPoints(
     c: [number, number],
   ) => [number, number] | null;
   const out: PixelPoint[] = [];
-  rows.forEach((row, i) => {
-    const coord = toLonLat(viz.schema.point(row, i));
+  rows.forEach(row => {
+    const coord = toLonLat(pointOf(viz, row));
     const p = coord ? projection(coord) : null;
     if (!p) return;
     out.push({
       x: p[0],
       y: p[1],
       row,
-      weight: settings.weight ? Number(settings.weight(row, i)) : undefined,
+      weight: settings.weight
+        ? Number(settings.weight(row, rowIndex(viz._filteredData, row)))
+        : undefined,
     });
   });
   return out;

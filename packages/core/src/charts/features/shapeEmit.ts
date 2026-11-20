@@ -58,6 +58,7 @@ import {markSharedConfig} from "../../utils/configWarnings.js";
 import {vizDiscrete} from "../viz/discrete.js";
 import {plotDownsample} from "../Plot/downsample.js";
 import {plotPointKey} from "../Plot/pointKey.js";
+import {lineMarkerAccessors} from "../Plot/lineMarkerAccessors.js";
 
 /**
     The cross-phase locals a shape emitter reads. Assembled once per draw by
@@ -629,7 +630,7 @@ const lineEmit: ShapeEmitter = ctx => {
     .renderMode("compute")
     .data(points)
     .config(ctx.shapeConfig)
-    .config(viz._lineMarkerConfig)
+    .config(lineMarkerAccessors(viz))
     .id((d: PlotDatum) => keys.get(d));
 
   viz._wirePlotShapeEvents!(markers, "Circle", ctx.events);
