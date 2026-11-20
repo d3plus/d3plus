@@ -2,8 +2,9 @@
     A `baseline` set on a Plot is shorthand for one end of the value axis's
     domain: `baseline(n)` renders exactly like `yDomain([n])` (or
     `xDomain([n])` for horizontal charts). It's kept apart from the chart's
-    own baseline (`schema.baseline`, BarChart's `0`), which still marks where
-    bars and areas start and where a `baselineBreak` returns to.
+    own baseline (`schema.baseline`, BarChart's `0`, or the user's
+    `growFrom`), which still marks where bars and areas start and where a
+    `baselineBreak` returns to.
 
     It also reads which domain the user gave an axis (an `xDomain`/`yDomain`
     or a one-sided axis-config `domain`) and whether that domain leaves an end
@@ -65,16 +66,28 @@ const givenDomain = (
   (viz.schema[`${axis}Domain`] as DomainValue[] | undefined);
 
 /**
-    Where a Plot's bars and areas start: the chart's own baseline (BarChart's
-    `0`), else `0` under bars or areas (see `shapeBaseline`), else undefined.
+    The `growFrom` a Plot's bars and areas start at (a stack's first band
+    included), or undefined when it's unset or not a finite number.
+*/
+export function growFromValue(viz: VizInstance): number | undefined {
+  const value = viz.schema.growFrom;
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : undefined;
+}
+
+/**
+    Where a Plot's bars and areas start: the user's `growFrom`, else the
+    chart's own baseline (BarChart's `0`), else `0` under bars or areas (see
+    `shapeBaseline`), else undefined.
 */
 export function plotBaseline(viz: VizInstance): number | undefined {
-  return viz.schema.baseline ?? viz._shapeBaseline;
+  return growFromValue(viz) ?? viz.schema.baseline ?? viz._shapeBaseline;
 }
 
 /** `Plot.baseline()`: the user's baseline, or the chart's own when none is set. */
 export function baselineValue(viz: VizInstance): number | undefined {
-  return viz._userBaseline ?? plotBaseline(viz);
+  return viz._userBaseline ?? viz.schema.baseline ?? viz._shapeBaseline;
 }
 
 /** `Plot.baseline(_)`: stores the user's baseline; `RESET` and `undefined` clear it. */

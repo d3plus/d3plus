@@ -17,7 +17,7 @@
     @module
 */
 
-import {extent, groups, max, merge} from "d3-array";
+import {groups, max, merge} from "d3-array";
 import * as scales from "d3-scale";
 
 import type {DataPoint} from "@d3plus/data";
@@ -41,6 +41,7 @@ import {
   stackSlotTargets,
 } from "../Plot/barHitArea.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
+import {barsInDomain} from "../Plot/barsInDomain.js";
 import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {stackEnterWindows} from "../Plot/stackEnter.js";
@@ -58,6 +59,12 @@ import {markSharedConfig} from "../../utils/configWarnings.js";
 import {vizDiscrete} from "../viz/discrete.js";
 import {plotDownsample} from "../Plot/downsample.js";
 import {plotPointKey} from "../Plot/pointKey.js";
+import type {ValueScale} from "../Plot/valueColors.js";
+import {
+  applyValueFill,
+  paintValueColors,
+  valueColored,
+} from "../Plot/valueColorsScene.js";
 
 /**
     The cross-phase locals a shape emitter reads. Assembled once per draw by
@@ -117,6 +124,9 @@ export interface ShapeEmitContext {
 
   /** The circles paint largest first, as BubbleChart repaints them (see `largestFirst`). */
   largestFirst?: boolean;
+
+  /** How marks are colored by their values, when they are (see `Plot/valueColors.ts`). */
+  valueScale?: ValueScale;
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -202,6 +212,8 @@ function finishShape(
   if (key === "Area" && viz.schema.stacked)
     s.label(boxLabelsOnly(viz, s.label()));
   if (viz.schema.stacked && key === "Bar") applyStackShareLabels(viz, s);
+  if ((key === "Bar" || key === "Circle") && valueColored(viz, key))
+    applyValueFill(viz, ctx.valueScale, s);
   const besideLabels =
     key === "Circle" ? plotCircleLabels(ctx, s, userConfig) : null;
   s.render();
@@ -322,35 +334,6 @@ const circleEmit: ShapeEmitter = (ctx, key) => {
     };
   });
 };
-
-/**
-    The bars a time axis's domain reaches. A user domain can stop short of the
-    data, and a bar centered outside it is not drawn (nor counted when
-    spacing the bars that are).
-*/
-function barsInDomain(ctx: ShapeEmitContext): DataPoint[] {
-  const {viz, values} = ctx;
-  const axis = vizDiscrete(viz) as string;
-  if ((axis === "x" ? ctx.xScale : ctx.yScale) !== "Time") return values;
-  // Zoomed, the domain is the visible window; bars keep to the unzoomed
-  // domain, which spans where the unzoomed plot range landed.
-  const zoomRange = ctx.zoomRanges?.[axis as "x" | "y"];
-  if (zoomRange) {
-    const scale = axis === "x" ? ctx.x : ctx.y;
-    const [lo, hi] = extent(zoomRange) as [number, number];
-    return values.filter(d => {
-      const at = scale(d[axis]);
-      return at >= lo - 0.5 && at <= hi + 0.5;
-    });
-  }
-  const [lo, hi] = extent(
-    (axis === "x" ? ctx.xDomain : ctx.yDomain).map(Number),
-  ) as [number, number];
-  return values.filter(d => {
-    const at = +(d[axis] as number);
-    return at >= lo && at <= hi;
-  });
-}
 
 /** Bar — discrete-axis spacing + multi-series grouping offsets. */
 const barEmit: ShapeEmitter = emitCtx => {
@@ -631,6 +614,7 @@ const lineEmit: ShapeEmitter = ctx => {
     .config(ctx.shapeConfig)
     .config(viz._lineMarkerConfig)
     .id((d: PlotDatum) => keys.get(d));
+  applyValueFill(viz, ctx.valueScale, markers);
 
   viz._wirePlotShapeEvents!(markers, "Circle", ctx.events);
   markers.render();
@@ -653,9 +637,12 @@ export const shapeEmitters: Record<string, ShapeEmitter> = {
     (`viz._plotShapeEmitters`), else the registry, else the generic path.
 */
 export function emitShape(ctx: ShapeEmitContext, key: string): SceneNode[] {
-  return (
+  const nodes = (
     ctx.viz._plotShapeEmitters?.[key] ??
     shapeEmitters[key] ??
     genericEmit
   )(ctx, key);
+  return valueColored(ctx.viz, key)
+    ? paintValueColors(ctx.viz, ctx.valueScale, ctx, nodes)
+    : nodes;
 }

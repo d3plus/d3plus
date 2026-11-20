@@ -8,7 +8,7 @@ import {ckmeans} from "@d3plus/math";
 
 import type ColorScale from "./ColorScale.js";
 import type {D3Scale} from "../../utils/index.js";
-import {themeRamp, themeScaleColor} from "../../utils/theme.js";
+import {scalePole, themeRamp} from "../../utils/theme.js";
 import {resolveColorScaleType} from "./colorScaleType.js";
 import type {ColorScaleType} from "./colorScaleType.js";
 
@@ -46,18 +46,15 @@ interface ScaleResult {
 }
 
 /**
-    The scale's poles: unset ones come from the theme's `colorScale` tokens on
-    a dark or custom theme, and from its `colorDefaults` otherwise.
+    The scale's poles and midpoint: unset ones come from its `colorDefaults`
+    and theme (see `scalePole`).
 */
 const colorMin = (cs: ColorScale): string =>
-  cs.schema.colorMin ??
-  themeScaleColor(cs._theme, "min", cs.schema.colorDefaults.off);
+  cs.schema.colorMin ?? scalePole(cs, "min");
 const colorMid = (cs: ColorScale): string =>
-  cs.schema.colorMid ??
-  themeScaleColor(cs._theme, "mid", cs.schema.colorDefaults.light);
+  cs.schema.colorMid ?? scalePole(cs, "mid");
 const colorMax = (cs: ColorScale): string =>
-  cs.schema.colorMax ??
-  themeScaleColor(cs._theme, "max", cs.schema.colorDefaults.sequential);
+  cs.schema.colorMax ?? scalePole(cs, "max");
 
 /**
     A single-hue low→high ramp toward `base` that reads on the scale's theme,

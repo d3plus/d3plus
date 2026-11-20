@@ -84,11 +84,13 @@ export function liftAnchor(
     @param node The mark's scene node.
     @param valueAxis The axis a Bar's length runs along.
     @param color The mark's color.
+    @param pointColor A point's own color, for a mark colored along its values (see `_datumColor`).
 */
 export function markAnchors(
   node: ShapeNode,
   valueAxis: "x" | "y",
   color?: string,
+  pointColor?: (datum: unknown) => string | undefined,
 ): AxisHoverAnchor[] {
   const n = node as GeometryNode;
   const datum = n.datum as AnchorDatum | undefined;
@@ -99,7 +101,7 @@ export function markAnchors(
       x: p.x,
       y: p.y,
       datum: p.datum as AnchorDatum,
-      color,
+      color: pointColor?.(p.datum) ?? color,
       shape,
     }));
   const tx = n.transform?.x ?? 0,
@@ -142,7 +144,9 @@ export function collectAnchors(viz: VizInstance): AxisHoverAnchor[] {
     if (node.interactionGroup || node.interactive === false) return;
     if (node.children) node.children.forEach(c => walk(c as ShapeNode));
     if (isAnchorMark(node))
-      out.push(...markAnchors(node, valueAxis, nodeColor(viz, node)));
+      out.push(
+        ...markAnchors(node, valueAxis, nodeColor(viz, node), viz._datumColor),
+      );
   };
   (viz._chartScene || []).forEach(node => walk(node as ShapeNode));
   return out;

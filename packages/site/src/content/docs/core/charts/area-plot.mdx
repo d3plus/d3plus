@@ -10,6 +10,8 @@ import changingAreaOpacity from "~/examples/core/charts/area-plot/changing-area-
 import stackedSeries from "~/examples/core/charts/area-plot/stacked-series.js?raw";
 import timeAxis from "~/examples/core/charts/area-plot/time-axis.js?raw";
 import stackedLabels from "~/examples/core/charts/area-plot/stacked-labels.js?raw";
+import aboveAndBelowTarget from "~/examples/core/charts/area-plot/above-and-below-target.js?raw";
+import valueBands from "~/examples/core/charts/area-plot/value-bands.js?raw";
 
 Creates an area plot based on an array of data.
 
@@ -42,5 +44,17 @@ Stacked series are named along the middle of their bands by default (`labelPosit
 Pointing `x` and `time` at a field of date strings makes the x axis a time scale: the `2024-01-01` style values are parsed into dates, ticks are labeled by month, and the areas flow across the calendar instead of across category positions.
 
 <Playground chart="AreaPlot" code={timeAxis} controls={["time","x"]} />
+
+## Above and below a target
+
+`growFrom` sets where an area grows from in place of `0`, and a `valueColors` threshold at the same value colors it on either side, so the stretches above the target fill up in green and those below fill down in red. `baseline` still only sets where the axis starts.
+
+<Playground chart="AreaPlot" code={aboveAndBelowTarget} controls={["growFrom","valueColors"]} />
+
+## Value bands
+
+With several thresholds the area fills in bands, each in its own `colors` entry. Stacked areas keep their series colors (and start at `growFrom` when it is set).
+
+<Playground chart="AreaPlot" code={valueBands} controls={["valueColors"]} />
 
 <ApiReference name="AreaPlot" pkg="core" />

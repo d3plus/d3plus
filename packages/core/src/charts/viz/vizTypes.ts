@@ -48,6 +48,7 @@ import type {KeyboardGesture} from "./keyboardNavHost.js";
 import type {NearestHoverState} from "./nearestHover.js";
 import type {ResolvedTheme} from "../../utils/theme.js";
 
+import type {ColorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import type {
   ClipShape,
@@ -690,6 +691,14 @@ export interface VizInstance {
   /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
   _plotShapeEmitters?: Record<string, ShapeEmitter>;
   /**
+      The color a mark draws a datum in where that differs along the mark (a
+      line colored by its values, see `Plot/valueColors.ts`), for swatches and
+      hover markers; undefined for the mark's own paint. Set each paint.
+  */
+  _datumColor?: (datum: unknown) => string | undefined;
+  /** A legend entry's fill in place of `fill`, its marks' color (see `Plot/valueColorsScene.ts`). */
+  _legendSwatchFill?: (d: DataPoint, i: number, fill: string) => string;
+  /**
       Row shapes a chart draws as circles sized by `size` (e.g. Lollipop's
       Bar rows, drawn as stems with Circle heads), so Plot's size legend keys
       them like Circle rows. `["Circle"]` when unset.
@@ -766,6 +775,8 @@ export interface VizInstance {
   _basemapDark?: boolean;
   /** The chart's theme, resolved on its latest draw (see `applyVizTheme`). */
   _theme?: ResolvedTheme;
+  /** The `colorDefaults` entries the user set, which win over the theme's (see `signalColor`). */
+  _ownColorDefaults?: Partial<ColorDefaults>;
   /** Stops the `"auto"` theme's page watcher, while one is installed. */
   _themeWatch?: () => void;
   /** The attribution d3plus last set from the tile URL (vs. a user-set one). */

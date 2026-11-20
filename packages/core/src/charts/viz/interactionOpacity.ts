@@ -13,6 +13,7 @@ import {color} from "d3-color";
 
 import {colorGrayscale} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
+import {gradientToken, parseGradient} from "@d3plus/render";
 import type {InteractionPoint, SceneNode} from "@d3plus/render";
 
 import {activeBucketColors} from "../features/colorScaleBucket.js";
@@ -69,6 +70,17 @@ function emphasizeStroke(
       : 1;
   paint.strokeWidth = swatch ? SWATCH_OUTLINE : w * width;
   return {...shaped, paint} as SceneNode;
+}
+
+/** A paint in gray: a color, or each stop of a `gradient:<json>` token. */
+export function grayPaint(paint: string): string {
+  const g = parseGradient(paint);
+  return g
+    ? gradientToken({
+        ...g,
+        stops: g.stops.map(s => ({...s, color: colorGrayscale(s.color)})),
+      })
+    : colorGrayscale(paint);
 }
 
 /**
@@ -422,12 +434,11 @@ export function applyInteractionOpacity(
       // highlight: recolor the mark to the de-emphasis gray so the
       // highlighted series keeps the only color on the chart.
       const next2: Record<string, unknown> = {...paint};
-      if (typeof paint.fill === "string")
-        next2.fill = colorGrayscale(paint.fill);
+      if (typeof paint.fill === "string") next2.fill = grayPaint(paint.fill);
       // A text halo's stroke is the chart's background, not the mark's color.
       const halo = node.type === "text" && node.halo;
       if (typeof paint.stroke === "string" && !halo)
-        next2.stroke = colorGrayscale(paint.stroke);
+        next2.stroke = grayPaint(paint.stroke);
       return {...node, paint: next2} as SceneNode;
     }
     const base = typeof paint.opacity === "number" ? paint.opacity : 1;

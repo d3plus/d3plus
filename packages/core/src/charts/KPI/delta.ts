@@ -5,11 +5,11 @@
 */
 
 import {interpolateRgb} from "d3-interpolate";
-import {colorContrast, colorDefaults} from "@d3plus/color";
 import {formatAbbreviate} from "@d3plus/format";
 
 import {backgroundInk, chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {signalColor} from "../../utils/theme.js";
 
 /** Which way a value moved: `"none"` when it held still. */
 export type KpiDirection = "up" | "down" | "none";
@@ -130,19 +130,15 @@ export interface DeltaColors {
 }
 
 /**
-    The delta colors for the chart's theme: `colorDefaults.on` for good news
-    and `colorDefaults.off` for bad, lifted toward the text color on a dark
-    background so they stay legible, and a muted text color for no change.
+    The delta colors for the chart's theme: `on` for good news and `off` for
+    bad (see `signalColor`), and a muted text color for no change.
 */
 export function deltaColors(viz: VizInstance): DeltaColors {
-  const defaults = {...colorDefaults, ...viz.schema.colorDefaults};
   const background = chartBackground(viz);
   const text = backgroundInk(viz);
-  const dark = colorContrast(background, defaults) !== defaults.dark;
-  const lift = (c: string) => (dark ? interpolateRgb(c, text)(0.3) : c);
   return {
-    good: lift(defaults.on),
-    bad: lift(defaults.off),
+    good: signalColor(viz, "on"),
+    bad: signalColor(viz, "off"),
     neutral: interpolateRgb(background, text)(0.6),
   };
 }

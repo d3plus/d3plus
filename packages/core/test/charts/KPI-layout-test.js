@@ -11,6 +11,7 @@ import {
   tileSettings,
 } from "../../src/charts/KPI/applyLayout.ts";
 import {deltaColors, kpiPercentFormat} from "../../src/charts/KPI/delta.ts";
+import {resolveTheme, themeDark} from "../../src/utils/theme.ts";
 import {
   comparisonText,
   deltaFormats,
@@ -269,19 +270,29 @@ it("KPI: kpiAriaLabel names the tile, its value, and its change", () => {
   assert.strictEqual(kpiAriaLabel(viz, t.Revenue), "Revenue, 132.");
 });
 
-it("KPI: deltaColors follow colorDefaults and lift on a dark background", () => {
+it("KPI: deltaColors are the theme's on and off, never lifted", () => {
   const {viz} = draw();
   const light = deltaColors(viz);
   assert.strictEqual(light.good, colorDefaults.on);
   assert.strictEqual(light.bad, colorDefaults.off);
   assert.notStrictEqual(light.neutral, light.good);
-  viz.colorDefaults({on: "#00ff00"});
-  assert.strictEqual(deltaColors(viz).good, "#00ff00");
-  viz.colorDefaults({on: colorDefaults.on});
-  viz._theme = {background: "#111111", text: "#f8f9fa"};
+  viz._theme = resolveTheme("dark");
   const dark = deltaColors(viz);
-  assert.notStrictEqual(dark.good, colorDefaults.on, "lifted for contrast");
-  assert.notStrictEqual(dark.bad, colorDefaults.off);
+  assert.strictEqual(dark.good, themeDark.on, "the dark theme's own green");
+  assert.strictEqual(dark.bad, themeDark.off);
+  viz._theme = {
+    ...resolveTheme("light"),
+    background: "#111111",
+    text: "#f8f9fa",
+  };
+  assert.strictEqual(
+    deltaColors(viz).good,
+    colorDefaults.on,
+    "not lifted on a dark background",
+  );
+  viz.colorDefaults({on: "#00ff00"});
+  viz._theme = resolveTheme("dark");
+  assert.strictEqual(deltaColors(viz).good, "#00ff00", "its own on wins");
 });
 
 it("KPI: kpiStyle reads tileConfig over the theme", () => {

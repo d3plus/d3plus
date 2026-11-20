@@ -1559,7 +1559,7 @@ export interface D3plusConfig {
       legend lists that column's categories.
   */
   colorBy?: number | string;
-  /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
+  /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). `off`, `caution`, and `on` are the red, amber, and green of a traffic light (threshold `valueColors`, Waterfall and Dumbbell changes, KPI deltas, and `true`/`false` color values), and `sequential` is the hue magnitudes ramp toward (Waterfall totals, Dumbbell bars, KPI tiles, `colorOrdinal`); `neutral` is a light fill (the color scale's midpoint, timeline handles, and the tooltip's background on light); `off` and `sequential` are also the color scale's low and high poles. Each of these five set here wins over the theme's token of the same name, which wins over the built-in default. `dark` and `light` are text colors, the two that text picks between to contrast with a fill; no theme changes them, and `light` does not color the scale's midpoint. */
   colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
   colorOrdinal?: boolean;
@@ -1601,11 +1601,11 @@ export interface D3plusConfig {
     width?: number;
     /** A scale at the top or bottom takes at most this many pixels of the chart's height, in place of a third of it. At the left or right, it is the scale's length, in place of `colorScaleMaxSize`. */
     height?: number;
-    /** The negative pole of a diverging scale, and the hue of an all-negative ramp. Defaults to `colorDefaults.off`, or the theme's `colorScale.min` on a dark or custom theme. */
+    /** The negative pole of a diverging scale, and the hue of an all-negative ramp. Defaults to the chart's own `colorDefaults.off` when set, else the theme's `colorScale.min` (the theme's `off` unless it sets `colorScale.min` itself), else `colorDefaults.off`. */
     colorMin?: CssColor;
-    /** The midpoint of a diverging scale. Defaults to `colorDefaults.light`, or the theme's `colorScale.mid` on a dark or custom theme. */
+    /** The midpoint of a diverging scale. Defaults to the chart's own `colorDefaults.neutral` when set, else the theme's `colorScale.mid` (the theme's `neutral` unless it sets `colorScale.mid` itself), else `colorDefaults.neutral`. */
     colorMid?: CssColor;
-    /** The high end of a single-hue ramp and the positive pole of a diverging scale. Defaults to `colorDefaults.sequential`, or the theme's `colorScale.max` on a dark or custom theme. On a dark theme every ramp runs from a dim tint near the background up to this color. */
+    /** The high end of a single-hue ramp and the positive pole of a diverging scale. Defaults to the chart's own `colorDefaults.sequential` when set, else the theme's `colorScale.max` (the theme's `sequential` unless it sets `colorScale.max` itself), else `colorDefaults.sequential`. On a dark theme every ramp runs from a dim tint near the background up to this color. */
     colorMax?: CssColor;
     /** The kind of scale, or a function that picks one from the colorScale values on each render (see `ColorScaleConfig.scale`). Defaults to `"jenks"`. */
     scale?: ColorScaleTypeSetting;
@@ -2086,6 +2086,17 @@ export interface D3plusConfig {
   groupLabels?: boolean;
   /** Padding between groups of bars in pixels. */
   groupPadding?: number;
+  /**
+      Plot: the value bars, areas, and lollipop stems grow from, in place of
+      `0`, so marks above it rise and marks below it hang down (e.g. bars
+      grow up or down from a target). The value axis stretches to include
+      it, unless a `baseline` or domain stops short of it on an axis with
+      `baselineBreak`, which then breaks back to it. `baseline` only sets
+      where the axis starts. A stack starts at it too: its first band rises
+      (or hangs) from `growFrom` and the rest stack on that. Unset by
+      default.
+  */
+  growFrom?: number;
   /** Overall height of the visualization in pixels. */
   height?: number;
   /**
@@ -3269,7 +3280,11 @@ export interface D3plusConfig {
       theme's background and take every chrome color from it. An object
       overrides tokens on top of its `base` preset, e.g.
       `{base: "dark", background: "#123", accent: "#ffd43b"}`. Colors set
-      elsewhere in the config win over the theme.
+      elsewhere in the config win over the theme. Its `on`, `caution`, `off`,
+      `sequential`, and `neutral` tokens give way to the same keys set in
+      `colorDefaults`, and set the defaults those keys would otherwise take.
+      Its `colorScale.min`, `mid`, and `max` are its `off`, `neutral`, and
+      `sequential` unless the theme sets them.
   */
   theme?: ThemeSetting;
   /**
@@ -3453,7 +3468,7 @@ export interface D3plusConfig {
   topojsonKey?: string | string[];
   /** Geomap: the opacity of the regions beside the ones a click drilled into, with a `topojson` list. Defaults to `0.5`. */
   topojsonNeighborOpacity?: number;
-  /** Waterfall: fill for subtotal bars. Defaults to `colorDefaults.sequential`. */
+  /** Waterfall: fill for subtotal bars. Defaults to `colorDefaults.sequential` (or the theme's `sequential`). */
   totalColor?: string;
   /**
       Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
@@ -3465,6 +3480,41 @@ export interface D3plusConfig {
   upColor?: string | ((d: DataPoint, i: number) => string);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
+  /**
+      Plot: colors lines, areas, bars, and points by where they fall on the
+      value axis, rather than by series. Every mark stays one mark, so a
+      series still hovers and highlights as one.
+
+      `type: "threshold"` (the default) splits the axis at each of `values`
+      (a number or a list): a line or area changes color exactly where it
+      crosses a threshold, and a bar or point takes the color of its band (a
+      value on a threshold counts as above it). `{values: [50]}` is enough.
+
+      `type: "gradient"` blends `colors` along the axis, so each line and
+      area shades by its values and each bar and point takes the color of
+      its value. Without `values` (or with `values: true`) the colors spread
+      from the lowest plotted value to the highest; a list of values places
+      one color at each, or, with a different number of colors, spreads the
+      colors evenly from the lowest value to the highest. `{type: "gradient"}`
+      is enough.
+
+      `colors` run from the lowest values up; `null` stands for each series'
+      own color, so `{values: [50], colors: ["#c92a2a", null]}` reddens only
+      what falls below 50. Thresholds take one more color than they have
+      values; given fewer, the colors are blended (or the last repeated) to
+      fit. Thresholds default to `colorDefaults.off` below and
+      `colorDefaults.on` above, with `colorDefaults.caution` (an amber)
+      between them when there are three or more bands; a gradient defaults to `colorScaleConfig.color`,
+      or else runs from `colorScaleConfig.colorMin` to `colorMax` (the
+      theme's color scale poles). Pair a threshold with `growFrom` at the
+      same value to fill above and below a target. Stacked areas and bars
+      keep their series colors. Unset by default.
+  */
+  valueColors?: {
+    type?: "threshold" | "gradient";
+    values?: number | number[] | boolean;
+    colors?: (string | null)[];
+  };
   /** Funnel, Gauge, KPI, and Venn: formats each value shown in labels and tooltips, as `(value, datum) => string`. */
   valueFormat?: (value: number, d: DataPoint) => string;
   /**

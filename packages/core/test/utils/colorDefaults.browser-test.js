@@ -58,6 +58,7 @@ it("viz colorDefaults() drive fills, label contrast, and child components", () =
   const viz = new Pack().colorDefaults({
     dark: "#010101",
     light: "#fefefe",
+    neutral: "#fdfdfd",
     sequential: "#00ff00",
   });
   const {shapeConfig} = viz.schema;
@@ -77,8 +78,8 @@ it("viz colorDefaults() drive fills, label contrast, and child components", () =
 
   assert.strictEqual(
     viz._tooltipClass.schema.background({}, 0),
-    "#fefefe",
-    "tooltip background",
+    "#fdfdfd",
+    "tooltip background: the neutral fill, not the light text color",
   );
   assert.strictEqual(
     viz._legendClass.colorDefaults().dark,

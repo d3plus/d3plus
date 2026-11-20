@@ -86,6 +86,7 @@ export function measureBands(viz: VizInstance): void {
     bands,
     viz.schema.colors as HorizonColorConfig | undefined,
     viz.schema.colorDefaults,
+    viz._ownColorDefaults,
   );
   viz._legendData = bandKeyRows(state, bands);
 }

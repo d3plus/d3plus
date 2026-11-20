@@ -1,7 +1,7 @@
 import {assign} from "@d3plus/dom";
 
 import {inkBackground, inkText} from "../../utils/themeInk.js";
-import {themed} from "../../utils/theme.js";
+import {signalColor, themed} from "../../utils/theme.js";
 import TextBox from "../TextBox.js";
 import type Timeline from "./Timeline.js";
 
@@ -119,7 +119,7 @@ export function initTimelineDefaults(tl: Timeline): void {
   tl.schema.domain = [2001, 2010];
   tl.schema.gridSize = 0;
   tl.schema.handleConfig = {
-    fill: () => tl.schema.colorDefaults.light,
+    fill: () => signalColor(tl, "neutral"),
     stroke: accent(tl),
     "stroke-width": 2,
     rx: 2,

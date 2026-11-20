@@ -63,6 +63,8 @@ function cascadeColorDefaults(
   if (seen.has(obj)) return;
   seen.add(obj);
   obj.schema.colorDefaults = {...obj.schema.colorDefaults, ...overrides};
+  // Kept apart, so a theme can't recolor what the chart was given.
+  obj._ownColorDefaults = {...obj._ownColorDefaults, ...overrides};
   for (const child of [...Object.values(obj), ...Object.values(obj.ctx)]) {
     if (child instanceof BaseClass)
       cascadeColorDefaults(child, overrides, seen);
@@ -91,6 +93,8 @@ export default class BaseClass {
   schema: Record<string, any>;
   /** Chart-internal scratch (d3 layout instances, computed derived state). */
   ctx: Record<string, unknown>;
+  /** The `colorDefaults` entries the user set, which win over the theme's (see `signalColor`). */
+  _ownColorDefaults?: Partial<ColorDefaults>;
 
   _uuid: string;
   _configDefault?: D3plusConfig;

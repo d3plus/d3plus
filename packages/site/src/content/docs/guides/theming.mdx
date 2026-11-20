@@ -51,10 +51,29 @@ the chart (minimap, search count, attribution).
 | `accent` | The timeline's selection and handle |
 | `hidden` | Legend items hidden by a click (`hiddenColor`) |
 | `link` | Links between nodes (Network, ArcDiagram, Rings, Sankey; the dark preset draws Sankey's wide bands in a dimmer gray unless you set this), and Alluvial's nodes outside its `colorBy` column |
+| `on` | Good news, a traffic light's green: Waterfall increases, Dumbbell gains, KPI rises, `true` color values, and the top band of threshold `valueColors` |
+| `caution` | A traffic light's amber: the middle bands of threshold `valueColors` |
+| `off` | Bad news, a traffic light's red: Waterfall decreases, Dumbbell losses, KPI falls, `false` color values, the bottom band of threshold `valueColors`, and the color scale's `min` unless set |
+| `sequential` | The hue magnitudes ramp toward: Waterfall totals, Dumbbell bars, KPI tiles, `colorOrdinal` ramps, and the color scale's `max` unless set |
+| `neutral` | A neutral fill: the color scale's `mid` unless set, the tooltip's background on the light preset, and the timeline's handles |
 | `tooltip` | `{background, text, border, shadow, divider}` |
 | `overlay` | `{background, text, border}` for the minimap, search count, and attribution |
 | `table` | `{background, text, header, border, rule}` for the table view |
 | `colorScale` | `{max, mid, min, missing}` for color scales (see [Color scales on a dark theme](#color-scales-on-a-dark-theme)) |
+
+The light preset's `on`, `caution`, `off`, and `sequential` are the
+`colorDefaults` of the same names (`#2b8a3e`, `#f08c00`, `#c92a2a`, and
+`#1c7ed6`); the dark preset brightens them to `#40c057`, `#f59f00`, `#ff6b6b`,
+and `#4dabf7` so they keep their contrast on the dark background. Each one set
+in the chart's own `colorDefaults` wins over the theme's token, which wins over
+the built-in default. The light preset's `neutral` is `colorDefaults.neutral`
+(`#f8f9fa`) and the dark preset's is `#343a40`, a gray just above the
+background.
+
+`neutral` is a fill, not text. Text that contrasts with a fill (a label
+inside a bar) picks between `colorDefaults.dark` and `colorDefaults.light`,
+and no theme changes those two: `light` stays near-white ink on every theme,
+and setting it never recolors a color scale.
 
 Colors you set elsewhere still win over the theme: an explicit
 `titleConfig.fontColor`, `tooltipConfig.background`, `minimapStyle`, and so on.
@@ -117,14 +136,16 @@ The theme's `colorScale` tokens set these colors:
 
 | Token | Light preset | Dark preset | Colors |
 | --- | --- | --- | --- |
-| `max` | `#1c7ed6` | `#4dabf7` | The high end of single-hue ramps and the positive pole of diverging scales |
-| `mid` | `#f8f9fa` | `#343a40` | The midpoint of diverging scales |
-| `min` | `#c92a2a` | `#ff6b6b` | The negative pole of diverging scales, and the hue of all-negative ramps |
+| `max` | `#1c7ed6` | `#4dabf7` | The high end of single-hue ramps and the positive pole of diverging scales (the theme's `sequential` unless set) |
+| `mid` | `#f8f9fa` | `#343a40` | The midpoint of diverging scales (the theme's `neutral` unless set) |
+| `min` | `#c92a2a` | `#ff6b6b` | The negative pole of diverging scales, and the hue of all-negative ramps (the theme's `off` unless set) |
 | `missing` | unset | unset | Marks without a value: Geomap regions and Calendar days (unset, each chart derives a quiet neutral from the background) |
 
-The light preset's values are the `colorDefaults` (`sequential`, `light`, and
-`off`), so a chart's own `colorDefaults` still apply on light. A custom theme
-can set any of them:
+`min`, `mid`, and `max` follow the theme's `off`, `neutral`, and `sequential`,
+so a custom theme that changes those recolors its color scales too, unless it
+also sets `colorScale.min`, `mid`, or `max`, which win. A chart's own
+`colorDefaults.off`, `neutral`, and `sequential` win over both, on any theme. A
+custom theme can set any of them:
 
 ```jsx
 <Geomap config={{

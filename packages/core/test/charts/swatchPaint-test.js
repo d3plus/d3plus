@@ -16,6 +16,11 @@ it("visibleColor — a color that shows", () => {
   assert.strictEqual(visibleColor("red"), "red");
   for (const c of ["none", "transparent", undefined, null, 3])
     assert.strictEqual(visibleColor(c), undefined, `${c}`);
+  assert.strictEqual(
+    visibleColor('gradient:{"type":"linear"}'),
+    undefined,
+    "a gradient is no one color",
+  );
 });
 
 it("swatchColor — a texture shows its background", () => {

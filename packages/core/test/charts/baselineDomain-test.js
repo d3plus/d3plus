@@ -2,6 +2,10 @@ import {it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {
+  growFromValue,
+  plotBaseline,
+} from "../../src/charts/Plot/baselineDomain.ts";
+import {
   baselineDomainAxis,
   hasUserDomain,
   userAxisDomain,
@@ -196,4 +200,24 @@ it("baseline() stores the user's baseline apart from the chart's own", () => {
     5,
     "config() reads it back",
   );
+});
+
+it("growFromValue and plotBaseline — bars and stacks grow from growFrom", () => {
+  assert.strictEqual(growFromValue(stub({growFrom: 50})), 50);
+  assert.strictEqual(
+    plotBaseline(stub({growFrom: 50})),
+    50,
+    "over the chart's 0",
+  );
+  assert.strictEqual(
+    plotBaseline(stub({growFrom: 50, stacked: true})),
+    50,
+    "a stack starts there too",
+  );
+  assert.strictEqual(growFromValue(stub({growFrom: "50"})), undefined);
+  assert.strictEqual(growFromValue(stub({growFrom: NaN})), undefined);
+  assert.strictEqual(plotBaseline(stub({})), 0);
+  const chart = new BarChart().growFrom(30);
+  assert.strictEqual(chart.growFrom(), 30, "a fluent accessor");
+  assert.strictEqual(chart.baseline(), 0, "baseline() keeps its own meaning");
 });

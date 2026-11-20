@@ -31,6 +31,7 @@ import {stackedConfidenceValues} from "./barConfidence.js";
 import {isSpanAxis, spanDomain} from "./discreteSpan.js";
 import {
   orderLast,
+  shiftStack,
   stackOffsetDiverging,
   stackOrderTotalDescending,
 } from "./stackHelpers.js";
@@ -46,6 +47,7 @@ import {plotSeriesIds, stackPositions} from "./stackLegendOrder.js";
 import {trendDomainValues} from "./trendLines.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {growFromValue} from "./baselineDomain.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
 type Row = Record<string, unknown>;
@@ -320,6 +322,8 @@ function computeStackedDomains(
     bucketKeys,
     neutralKeys?.size ? {keys: neutralKeys, rows: axisData} : null,
   );
+  // A stack starts at `growFrom`, when set.
+  shiftStack(stackData, growFromValue(viz) ?? 0);
 
   const discreteData = (
     vizDiscrete(viz) === "x" ? xData : yData

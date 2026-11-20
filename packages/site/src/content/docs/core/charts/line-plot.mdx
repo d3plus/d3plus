@@ -25,6 +25,8 @@ import movingAverageCentered from "~/examples/core/charts/line-plot/moving-avera
 import dashedLines from "~/examples/core/charts/line-plot/dashed-lines.js?raw";
 import customLineColors from "~/examples/core/charts/line-plot/custom-line-colors.js?raw";
 import fillBetween from "~/examples/core/charts/line-plot/fill-between.js?raw";
+import thresholdColors from "~/examples/core/charts/line-plot/threshold-colors.js?raw";
+import valueGradient from "~/examples/core/charts/line-plot/value-gradient.js?raw";
 import temperatureRange from "~/examples/core/charts/line-plot/temperature-range.js?raw";
 import sortingLines from "~/examples/core/charts/line-plot/sorting-lines.js?raw";
 import dottedLinePredictions from "~/examples/core/charts/line-plot/dotted-line-predictions.js?raw";
@@ -168,6 +170,18 @@ Return a color per series from `shapeConfig.Line.stroke` to override the automat
 `fillBetween` shades the area between two lines in the color of whichever is higher, switching exactly where they cross, so a trade surplus and deficit read at a glance. Name the pair by series id, pass `true` for the first two series, or give a list of pairs.
 
 <Playground chart="LinePlot" code={fillBetween} controls={["fillBetween","fillBetweenConfig"]} />
+
+## Threshold colors
+
+`valueColors` colors each line by where it sits on the value axis. Given threshold `values`, a line changes color exactly where it crosses each one, and its markers, tooltip swatches, and hover badges take the color of their point. `colors` run from the lowest band up, and a `null` keeps each series' own color, so here only the stretches below the target turn red. Without `colors`, two bands are red and green, and three or more add amber between them. Each line stays one mark, so it hovers and highlights as a whole.
+
+<Playground chart="LinePlot" code={thresholdColors} controls={["valueColors"]} />
+
+## Value gradient
+
+`type: "gradient"` blends the `colors` along the value axis instead. Without `values` they spread from the lowest value to the highest; a list of values places one color at each. Without `colors`, a gradient follows the chart's color scale.
+
+<Playground chart="LinePlot" code={valueGradient} controls={["valueColors"]} />
 
 ## Temperature range
 

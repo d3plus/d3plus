@@ -164,7 +164,12 @@ function secondaryAnchor(
   cursor: [number, number],
 ): AxisHoverAnchor | null {
   const valueAxis = discrete === "x" ? "y" : "x";
-  const anchors = markAnchors(mark, valueAxis, nodeColor(viz, mark));
+  const anchors = markAnchors(
+    mark,
+    valueAxis,
+    nodeColor(viz, mark),
+    viz._datumColor,
+  );
   if (!anchors.length || anchors[0].datum[`${valueAxis}2`] === undefined)
     return null;
   return nearestAnchor(
@@ -210,7 +215,7 @@ function hoveredAnchor(
     return nearestAnchor(column, cross, cursor[cross === "x" ? 0 : 1]);
   }
   if (!onMark) return null;
-  const anchors = markAnchors(mark, "y", nodeColor(viz, mark));
+  const anchors = markAnchors(mark, "y", nodeColor(viz, mark), viz._datumColor);
   return closestAnchor(
     anchors.map(a => areaAnchor(viz, a, "y")),
     cursor,

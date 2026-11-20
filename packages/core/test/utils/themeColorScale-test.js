@@ -11,7 +11,6 @@ import {
   themeDark,
   themeLight,
   themeRamp,
-  themeScaleColor,
 } from "../../src/utils/theme.ts";
 
 const L = c => colorToOklch(c).l;
@@ -70,39 +69,6 @@ describe("colorScale theme tokens", () => {
     assert.strictEqual(custom.colorScale.mid, themeDark.colorScale.mid);
     assert.strictEqual(custom.colorScale.missing, "#111");
     assert.ok(!("colorScale" in themeLight.tooltip));
-  });
-});
-
-describe("themeScaleColor", () => {
-  it("keeps the chart's own default on light", () => {
-    assert.strictEqual(themeScaleColor(undefined, "max", "#abc"), "#abc");
-    assert.strictEqual(
-      themeScaleColor(resolveTheme("light"), "max", "#abc"),
-      "#abc",
-    );
-    assert.strictEqual(
-      themeScaleColor(resolveTheme("auto", {dark: false}), "mid", "#def"),
-      "#def",
-    );
-  });
-
-  it("takes the dark or custom token", () => {
-    const dark = resolveTheme("dark");
-    assert.strictEqual(
-      themeScaleColor(dark, "max", "#abc"),
-      themeDark.colorScale.max,
-    );
-    assert.strictEqual(
-      themeScaleColor(dark, "mid", "#abc"),
-      themeDark.colorScale.mid,
-    );
-    assert.strictEqual(
-      themeScaleColor(dark, "min", "#abc"),
-      themeDark.colorScale.min,
-    );
-    const custom = resolveTheme({base: "light", colorScale: {max: "#0b7285"}});
-    assert.strictEqual(themeScaleColor(custom, "max", "#abc"), "#0b7285");
-    assert.strictEqual(themeScaleColor(custom, "min", "#abc"), "#abc");
   });
 });
 

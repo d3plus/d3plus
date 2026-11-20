@@ -10,7 +10,7 @@ import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
 import {setUserClasses} from "../utils/className.js";
-import {themed, themeLight} from "../utils/theme.js";
+import {signalColor, themed, themeLight} from "../utils/theme.js";
 import type {ResolvedTheme, ThemeTooltipTokens} from "../utils/theme.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
@@ -51,7 +51,7 @@ const tooltipSchema: ConfigField[] = [
     key: "background",
     coerce: "const",
     factory: t => () =>
-      themed(t._theme, x => x.tooltip.background, t.schema.colorDefaults.light),
+      themed(t._theme, x => x.tooltip.background, signalColor(t, "neutral")),
   },
   {key: "body", coerce: "const", default: accessor("body", "")},
   {

@@ -107,6 +107,13 @@ it("axisHover: markAnchors reads each mark's drawn point", () => {
       [50, 20],
     ],
   );
+  // A line colored along its values gives each point its own color.
+  assert.deepStrictEqual(
+    markAnchors(line, "y", "red", d =>
+      d === line.interactionPoints[1].datum ? "green" : undefined,
+    ).map(a => a.color),
+    ["red", "green"],
+  );
 
   // A vertical bar's transform sits on its base; it ends at its top.
   const bar = {

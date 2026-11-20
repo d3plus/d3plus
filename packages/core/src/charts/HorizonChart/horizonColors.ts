@@ -5,7 +5,7 @@
 import {colorDefaults as baseDefaults} from "@d3plus/color";
 import type {ColorDefaults} from "@d3plus/color";
 
-import {themeRamp, themeScaleColor} from "../../utils/theme.js";
+import {scalePole, themeRamp} from "../../utils/theme.js";
 import type {ResolvedTheme} from "../../utils/theme.js";
 
 /** A sign's colors in `colors`: a base color to ramp, or one color per band. */
@@ -52,17 +52,20 @@ export function horizonPalette(
   bands: number,
   colors: HorizonColorConfig | undefined,
   defaults: ColorDefaults = baseDefaults,
+  own?: Partial<ColorDefaults>,
 ): HorizonPalette {
+  const host = {
+    schema: {colorDefaults: defaults},
+    _theme: theme,
+    _ownColorDefaults: own,
+  };
   const count = Math.max(1, Math.floor(bands));
   const valid = (s: HorizonColorSetting | undefined) =>
     (typeof s === "string" && s) || (Array.isArray(s) && s.length)
       ? s
       : undefined;
-  const positive =
-    valid(colors?.positive) ??
-    themeScaleColor(theme, "max", defaults.sequential);
-  const negative =
-    valid(colors?.negative) ?? themeScaleColor(theme, "min", defaults.off);
+  const positive = valid(colors?.positive) ?? scalePole(host, "max");
+  const negative = valid(colors?.negative) ?? scalePole(host, "min");
   return {
     positive: signColors(theme, positive, count),
     negative: signColors(theme, negative, count),
