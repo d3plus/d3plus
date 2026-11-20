@@ -38,6 +38,13 @@ export interface AttrTarget {
   attr(name: string, value: null | string | number | boolean): this;
 }
 
+/**
+    Resolves a scene paint (a color or a `pattern:`/`gradient:` token) to an
+    SVG paint value. `owner` names the node and paint it is for (e.g.
+    `"line:stroke"`), which a node's own gradient is kept under.
+*/
+export type ResolvePaint = (paint?: string, owner?: string) => string | null;
+
 /** Maps a scene node to the SVG element tag that realizes it. */
 export function tagFor(node: SceneNode): string {
   switch (node.type) {
@@ -375,14 +382,16 @@ export function tweenOpacity(
 export function applyPaint(
   target: AttrTarget,
   node: SceneNode,
-  resolveFill: (f?: string) => string | null,
+  resolveFill: ResolvePaint,
   animated = false,
 ): void {
   const p = node.paint || {};
+  const fill = resolveFill(p.fill, `${node.key}:fill`),
+    stroke = resolveFill(p.stroke, `${node.key}:stroke`);
   target
-    .attr("fill", resolveFill(p.fill))
+    .attr("fill", fill)
     .attr("fill-opacity", p.fillOpacity ?? null)
-    .attr("stroke", p.stroke ?? null)
+    .attr("stroke", stroke)
     .attr("stroke-width", p.strokeWidth ?? null)
     .attr("stroke-opacity", p.strokeOpacity ?? null)
     .attr(
@@ -392,6 +401,15 @@ export function applyPaint(
     .attr("stroke-linecap", p.strokeLinecap ?? null)
     .attr("vector-effect", p.vectorEffect ?? null)
     .attr("shape-rendering", p.shapeRendering ?? null);
+  // A transition would tween a `url(#…)` paint as a string, through ids
+  // that don't exist: it takes the new paint at once instead.
+  if (animated)
+    for (const [name, value] of [
+      ["fill", fill],
+      ["stroke", stroke],
+    ] as const)
+      if (value?.startsWith("url("))
+        (target as unknown as SvgTransition).attrTween(name, () => () => value);
   if (animated && !isWrapperGroup(node))
     tweenOpacity(target as unknown as SvgTransition, p.opacity);
   else target.attr("opacity", p.opacity ?? null);
@@ -472,7 +490,7 @@ export function applyGeometry(
   target: AttrTarget,
   node: SceneNode,
   animated: boolean,
-  resolveFill: (f?: string) => string | null,
+  resolveFill: ResolvePaint,
 ): void {
   switch (node.type) {
     case "rect":

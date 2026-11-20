@@ -9,6 +9,7 @@ import {trackTransition} from "./svgClock.js";
 import type {RenderTransition} from "./svgClock.js";
 import {fadeSwapText} from "./svgFade.js";
 import {
+  type ResolvePaint,
   type SvgSelection,
   applyGeometry,
   applyStatic,
@@ -22,7 +23,7 @@ import {enterWindowed} from "./svgWindow.js";
 export interface UpdateContext {
   duration: number;
   t: RenderTransition;
-  resolveFill: (f?: string) => string | null;
+  resolveFill: ResolvePaint;
   trailLog: TrailLog;
   trailActive: boolean;
   trailGrads: TrailGradients;

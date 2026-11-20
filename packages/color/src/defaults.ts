@@ -2,9 +2,13 @@ import {ScaleOrdinal, scaleOrdinal} from "d3-scale";
 import colorGray from "./gray.js";
 
 export interface ColorDefaults {
+  /** The caution step between `off` and `on`: an amber (the middle band of a traffic light). */
+  caution: string;
   dark: string;
   light: string;
   missing: string;
+  /** A light neutral fill (not text): a diverging color scale's midpoint, timeline handles, and the tooltip's background. */
+  neutral: string;
   off: string;
   on: string;
   scale: ScaleOrdinal<string, string>;
@@ -24,12 +28,20 @@ export interface ColorDefaults {
  *
  * `sequential` is the default single-hue anchor for magnitude ramps (blue).
  *
+ * `dark` and `light` are the two text colors `colorContrast` picks between;
+ * `neutral` is a light fill (it starts as the same gray as `light`).
+ *
+ * `off`, `caution`, and `on` are a traffic light: red for bad, amber for the
+ * step between, green for good (e.g. a Plot's `valueColors` bands).
+ *
  * @defaultValue
  * ```
  * {
+ *   caution: "#f08c00",
  *   dark: "#495057",
  *   light: "#f8f9fa",
  *   missing: "#ced4da",
+ *   neutral: "#f8f9fa",
  *   off: "#c92a2a",
  *   on: "#2b8a3e",
  *   sequential: "#1c7ed6",
@@ -45,9 +57,11 @@ export interface ColorDefaults {
  * ```
  */
 const defaults: ColorDefaults = {
+  caution: "#f08c00", // yellow 800
   dark: colorGray[700],
   light: colorGray[50],
   missing: colorGray[400],
+  neutral: colorGray[50],
   off: "#c92a2a", // red 900
   on: "#2b8a3e", // green 900
   sequential: "#1c7ed6", // blue 700

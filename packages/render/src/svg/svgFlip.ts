@@ -13,7 +13,7 @@ import {
 } from "../animate/interpolate.js";
 import type {FlipTransition} from "../animate/diff.js";
 import type {SceneNode, TextNode} from "../scene.js";
-import {applyGeometry} from "./svgNodeAttrs.js";
+import {applyGeometry, type ResolvePaint} from "./svgNodeAttrs.js";
 import {trackTransition} from "./svgClock.js";
 import {fadeSwapTween} from "./svgFade.js";
 
@@ -71,7 +71,7 @@ export function reconcileExit(
   duration: number,
   t: RenderTransition,
   flip: FlipTransition | undefined,
-  resolveFill: (f?: string) => string | null,
+  resolveFill: ResolvePaint,
 ): void {
   // The clicked node's own exit is removed immediately regardless of
   // duration — it never gets an animated collapse, since the entering

@@ -99,12 +99,17 @@ function lerpNum(a: number | undefined, b: number): Interp<number> {
   return t => i(t);
 }
 
-/** Interpolates a color field, snapping when either endpoint is absent or equal. */
+/** Whether a paint is a `gradient:`/`pattern:` token rather than a color. */
+const isPaintToken = (c: string): boolean =>
+  c.startsWith("gradient:") || c.startsWith("pattern:");
+
+/** Interpolates a color field, snapping when either endpoint is absent, equal, or a paint token. */
 function lerpColor(
   a: string | undefined,
   b: string | undefined,
 ): Interp<string | undefined> {
   if (b === undefined || a === undefined || a === b) return () => b;
+  if (isPaintToken(a) || isPaintToken(b)) return () => b;
   const i = interpolateRgb(a, b);
   return t => i(t);
 }

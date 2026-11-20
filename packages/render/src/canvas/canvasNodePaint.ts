@@ -261,7 +261,9 @@ export function paint(
   }
   if (p.stroke && p.stroke !== "none" && (p.strokeWidth ?? 0) > 0) {
     ctx.globalAlpha = alpha * (p.strokeOpacity ?? 1);
-    setStrokeStyle(ctx, p.stroke);
+    if (p.stroke.startsWith("gradient:"))
+      ctx.strokeStyle = canvasFillStyle(ctx, node, p.stroke);
+    else setStrokeStyle(ctx, p.stroke);
     ctx.lineWidth =
       p.vectorEffect === "non-scaling-stroke" && cssScale
         ? (p.strokeWidth as number) / cssScale
