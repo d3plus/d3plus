@@ -23,6 +23,7 @@ import {
 import type {CircleLabelItem} from "../features/circleLabels.js";
 import {resolveAccessor, userLabelConfig} from "../features/emitHelpers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {rowIndex} from "../features/rowIndex.js";
 
 /** A Geomap's projected points (see `geomapCtx`). */
 export interface GeomapPoints {
@@ -73,14 +74,17 @@ export function geomapPointLabels(
     ...((circleConfig.labelConfig as Record<string, unknown>) ?? {}),
     ...userLabelConfig(viz, "Circle"),
   };
-  const items: CircleLabelItem<DataPoint>[] = c.points.map((d, i) => {
-    const r = c.pointR(d, i);
+  const items: CircleLabelItem<DataPoint>[] = c.points.map((d, k) => {
+    const r = c.pointR(d, k);
+    // Label accessors read the row's position in the data, as the point's
+    // own paint and handlers do.
+    const i = rowIndex(viz._filteredData, d);
     return {
       key: d,
       datum: d,
       index: i,
-      x: c.pointX(d, i),
-      y: c.pointY(d, i),
+      x: c.pointX(d, k),
+      y: c.pointY(d, k),
       r,
       text: pointLabel(viz, circleConfig, d, i),
       inside: {
@@ -136,7 +140,7 @@ export function geomapPointLabels(
         const fill = resolveAccessor<string>(
           circleConfig.fill,
           d,
-          index.get(d) ?? 0,
+          rowIndex(viz._filteredData, d),
         );
         return colorContrast(
           typeof fill === "string" ? fill : "rgb(255, 255, 255)",

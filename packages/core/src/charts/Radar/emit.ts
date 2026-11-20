@@ -35,8 +35,9 @@ export const radarEmit: ChartEmit = pairLabels(({viz}) => {
   if (!groupData || !pathConfig || !groupData.length) return [];
   const circleConfig = shapeConfigFor(viz, "Circle");
   const out: SceneNode[] = [];
-  for (let i = 0; i < groupData.length; i++) {
-    const g = groupData[i];
+  // A polygon stands for every row of its group.
+  const i = AGGREGATE_INDEX;
+  for (const g of groupData) {
     const datum = (g.data ?? g) as DataPoint;
     const fillOpacity = resolveAccessor<number>(
       pathConfig.fillOpacity,
@@ -47,13 +48,13 @@ export const radarEmit: ChartEmit = pairLabels(({viz}) => {
       ...paintFromShapeConfig(pathConfig, datum, i),
       ...(typeof fillOpacity === "number" ? {fillOpacity} : {}),
     };
-    const dots = radarGroupPointNodes(viz, g, i, circleConfig);
+    const dots = radarGroupPointNodes(viz, g, circleConfig);
     const path = {
       type: "path",
       key: `radar-${g.id}`,
       d: g.d,
       datum,
-      index: AGGREGATE_INDEX,
+      index: i,
       // The labels of the metrics it has a value for stay bright on hover.
       hoverKeys: {metric: g.metrics ?? []},
       paint,

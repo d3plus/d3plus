@@ -72,19 +72,20 @@ export function radarPointTooltipRows(
 }
 
 /**
-    One Circle node per vertex of group `g` (the `gi`th), painted from
-    `circleConfig`. None when the radius resolves to 0 or less.
+    One Circle node per vertex of group `g`, painted from `circleConfig`
+    with the vertex row's index (see `rowIndex`). None when the radius
+    resolves to 0 or less.
 */
 export function radarGroupPointNodes(
   viz: VizInstance,
   g: RadarPointGroup,
-  gi: number,
   circleConfig: Record<string, unknown>,
 ): SceneNode[] {
   const out: SceneNode[] = [];
   g.points.forEach((p, k) => {
     const datum = g.arr[k];
-    const r = Number(resolveAccessor<number>(circleConfig.r, datum, gi));
+    const i = g.rows?.[k] ?? AGGREGATE_INDEX;
+    const r = Number(resolveAccessor<number>(circleConfig.r, datum, i));
     if (!(r > 0)) return;
     const metric = g.metrics[k];
     out.push({
@@ -95,12 +96,12 @@ export function radarGroupPointNodes(
       r,
       transform: {x: p.x, y: p.y},
       datum,
-      index: g.rows?.[k] ?? AGGREGATE_INDEX,
+      index: i,
       // Only this dot's metric label stays bright on hover.
       hoverKeys: {metric: [metric]},
-      paint: paintFromShapeConfig(circleConfig, datum, gi),
+      paint: paintFromShapeConfig(circleConfig, datum, i),
       aria: {
-        label: `${viz._drawLabel(datum, gi)}, ${metric}: ${valueText(viz, g.values[k])}.`,
+        label: `${viz._drawLabel(datum, i)}, ${metric}: ${valueText(viz, g.values[k])}.`,
       },
     } as SceneNode);
   });
@@ -113,7 +114,7 @@ export const radarPointNodes = (
   groups: RadarPointGroup[],
   circleConfig: Record<string, unknown>,
 ): SceneNode[] =>
-  groups.flatMap((g, gi) => radarGroupPointNodes(viz, g, gi, circleConfig));
+  groups.flatMap(g => radarGroupPointNodes(viz, g, circleConfig));
 
 /**
     Wraps the chart's `mouseenter` handler so hovering a dot lights its

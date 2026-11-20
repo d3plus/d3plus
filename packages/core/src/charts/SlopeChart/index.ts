@@ -99,12 +99,15 @@ export const slopeChartDef: ChartDefinition = {
     const fill = viz.schema.shapeConfig.fill;
     viz.schema.shapeConfig.fill = (d: DataPoint, i: number) =>
       slopeFill(viz, d, i) ?? (typeof fill === "function" ? fill(d, i) : fill);
-    // Markers take their line's color.
+    // Markers take their line's color, read as the line reads it: from the
+    // marker's row and that row's index.
     viz._lineMarkerConfig = assign({}, viz._lineMarkerConfig ?? {}, {
       fill: (d: DataPoint, i: number) => {
         const {shapeConfig} = viz.schema;
         const stroke = shapeConfig.Line?.stroke ?? shapeConfig.stroke;
-        return typeof stroke === "function" ? stroke(d, i) : stroke;
+        if (typeof stroke !== "function") return stroke;
+        const row = d.__d3plus__ && d.data ? (d.data as DataPoint) : d;
+        return stroke(row, typeof d.i === "number" ? d.i : i);
       },
     });
     const preDraw = viz._preDraw.bind(viz);

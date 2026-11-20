@@ -400,7 +400,7 @@ function treeHeights(
   if (typeof accessor !== "function") return undefined;
   const leaf = isLeafOf(viz);
   return nodeHeights(treeData, d =>
-    accessor(d.data as DataPoint, d.i ?? 0, {
+    accessor(d.data as DataPoint, d.row ?? AGGREGATE_INDEX, {
       id: nodeId(viz, d, d.i ?? 0),
       level: (d.depth ?? 1) - 1,
       leaf: leaf(d),
@@ -424,7 +424,7 @@ function applyRadialTreeLayout(viz: VizInstance): TreeNode[] {
     treeData,
     distances,
     isLeafOf(viz),
-    d => shapeConfig.label(d, d.i ?? 0),
+    d => shapeConfig.label(d, d.row ?? AGGREGATE_INDEX),
     width,
     height,
   );

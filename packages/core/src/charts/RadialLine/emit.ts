@@ -83,7 +83,7 @@ export const radialLineEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const sc = shapeConfigFor(viz, shape);
   const circleConfig = shapeConfigFor(viz, "Circle");
   const dots = series.map(s =>
-    radialDotNodes(viz, s.id, s.i, s.dots, circleConfig, "radial"),
+    radialDotNodes(viz, s.id, s.dots, circleConfig, "radial"),
   );
   const paths = series.map((s, k) =>
     seriesNode(viz, s, sc, shape, area || !dots[k].length),

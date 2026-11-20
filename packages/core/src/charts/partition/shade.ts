@@ -10,6 +10,7 @@ import {colorLighter} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 
 import {resolveAccessor} from "../features/emitHelpers.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 
 /** How strongly levels lighten; the `shadeConfig` shape. */
 export interface PartitionShadeConfig {
@@ -105,7 +106,11 @@ export function partitionFillResolver(
   const shadeConfig = (schema.shadeConfig ??
     {}) as Partial<PartitionShadeConfig>;
   return node => {
-    const fill = resolveAccessor<unknown>(sc.fill, node.datum, node.i ?? 0);
+    const fill = resolveAccessor<unknown>(
+      sc.fill,
+      node.datum,
+      node.i ?? AGGREGATE_INDEX,
+    );
     if (typeof fill !== "string") return undefined;
     return shade
       ? partitionShadeFill(fill, partitionShadeAmount(node.level, shadeConfig))

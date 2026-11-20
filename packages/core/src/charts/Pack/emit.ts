@@ -15,7 +15,6 @@ import {
   resolveAccessor,
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
-import {rowIndex} from "../features/rowIndex.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {packDatum, packNeutral, packPaintDatum} from "./groupRows.js";
 import {packNeutralPaint} from "./neutralPaint.js";
@@ -38,7 +37,8 @@ export const packEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const labelFn = circleConfig.label as
     ((d: DataPoint, i: number) => unknown) | undefined;
 
-  const circleNodes: SceneNode[] = nodes.map((d, i) => {
+  const circleNodes: SceneNode[] = nodes.map(d => {
+    const i = d.i;
     const neutral = packNeutral(d, colorScaled);
     const datum = packPaintDatum(d, neutral) as DataPoint & {
       __d3plusOpacity__?: number;
@@ -66,7 +66,7 @@ export const packEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
       // A group circle carries its group's row (see `groupRows.ts`).
       datum: packDatum(d),
       // A group circle draws no single row.
-      index: rowIndex(viz._filteredData, packDatum(d)),
+      index: i,
       paint: {
         fill: textureFill(sc, datum, i, fill),
         stroke,
@@ -79,10 +79,10 @@ export const packEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
 
   const labelNodes = emitLabels({
     data: nodes as unknown as DataPoint[],
-    label: (d, i) => {
+    label: d => {
       const node = d as unknown as PackLeaf;
       if (node.children) return false;
-      if (labelFn) return labelFn(node.data as DataPoint, i);
+      if (labelFn) return labelFn(node.data as DataPoint, node.i);
       return node.parent ? ((node.data as DataPoint).id ?? false) : false;
     },
     x: d => (d as unknown as PackLeaf).x,
@@ -107,7 +107,7 @@ export const packEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
 
   const imageNodes = backgroundImageNodes(sc, circleNodes, k => [
     packPaintDatum(nodes[k], packNeutral(nodes[k], colorScaled)),
-    k,
+    nodes[k].i,
   ]);
 
   return [...circleNodes, ...imageNodes, ...labelNodes];

@@ -11,6 +11,7 @@ import type {HierarchyCircularNode, HierarchyNode} from "d3-hierarchy";
 import {nestGroups} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
+import {rowIndex} from "../features/rowIndex.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {attachGroupRows, packDatum, packPaintDatum} from "./groupRows.js";
 import type {GroupedNode} from "./groupRows.js";
@@ -19,6 +20,7 @@ type PackLeaf = Omit<HierarchyCircularNode<DataPoint>, "id"> & {
   __d3plus__: true;
   /** A group circle's row (see `groupRows.ts`), which its circle carries. */
   groupRow?: DataPoint;
+  /** The position of its row in the drawn data, or -1 for a group (see `rowIndex`). */
   i: number;
   id: string | number;
 };
@@ -70,9 +72,10 @@ export const applyPackLayout: TransformStage = ({viz}) => {
     viz.schema.aggs as Parameters<typeof attachGroupRows>[1],
   );
 
-  const packed = root.descendants().filter((d, i) => {
+  const packed = root.descendants().filter(d => {
     const node = d as unknown as PackLeaf;
     node.__d3plus__ = true;
+    const i = rowIndex(data, packDatum(node as unknown as GroupedNode));
     node.i = i;
     node.id = node.parent ? (node.parent.data.key as string | number) : "root";
     const grouped = node as unknown as GroupedNode;

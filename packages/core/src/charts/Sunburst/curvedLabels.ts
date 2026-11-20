@@ -24,6 +24,7 @@ import {sunburstLabelBox} from "./labelFit.js";
 import type {SunburstLabelBox} from "./labelFit.js";
 import type {SunburstArc} from "./geometry.js";
 import type {SunburstNode} from "./partition.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 
 /** Every labeled arc's straight box or curve. */
 export interface SunburstLabelPlacements {
@@ -76,7 +77,11 @@ export function sunburstLabelPlacements(
     const metrics = measureLabel(inputs.labelOf(node), node.datum, labelConfig);
     if (!metrics.words.length) continue;
     const arc = inputs.arcOf(node);
-    const position = ringLabelPosition(viz, node.datum, node.i ?? 0);
+    const position = ringLabelPosition(
+      viz,
+      node.datum,
+      node.i ?? AGGREGATE_INDEX,
+    );
     const box =
       position === "along"
         ? null
@@ -119,7 +124,7 @@ export function sunburstCurvedNodes(
     fit,
     color: inputs.colorOf(node),
     datum: node.datum,
-    index: node.i ?? 0,
+    index: node.i ?? AGGREGATE_INDEX,
   }));
   return ringLabelNodes(viz, labels, ringLabelFont(labelConfig));
 }
