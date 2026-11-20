@@ -8,6 +8,7 @@
 */
 
 import type {VizInstance} from "./vizTypes.js";
+import {chartWidth} from "./letterbox.js";
 
 /** The host's elements. */
 export interface KeyboardNavHost {
@@ -135,7 +136,7 @@ export function updateKeyboardNavHost(
   Object.assign(host.style, {
     top: svg?.style.top || "0px",
     left: svg?.style.left || "0px",
-    width: `${viz.schema.width || 0}px`,
+    width: `${chartWidth(viz) || 0}px`,
     height: `${viz.schema.height || 0}px`,
   });
 }

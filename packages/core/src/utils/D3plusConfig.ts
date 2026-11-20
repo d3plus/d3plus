@@ -2614,7 +2614,7 @@ export interface D3plusConfig {
   */
   noDataHTML?: string | ((viz: VizBase) => string);
   /**
-      Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
+      Toggles the visibility of the status message that is displayed when no data is supplied to the visualization. While it shows, the zoom controls and the top-left controls (download, search, table view) are hidden; the back button stays, so a drill-down that left nothing to draw can still be undone. An open table view closes meanwhile, moving keyboard focus that was inside it to the chart, and reopens when data returns.
   */
   noDataMessage?: boolean;
   /**
@@ -3131,8 +3131,16 @@ export interface D3plusConfig {
       height, such as `16 / 9` or `1` for a square. Used when the chart has
       no `height` of its own, in place of the height of its container: the
       chart's height follows its width, and a container without a height of
-      its own grows to hold it (a container with a fixed height lets the
-      chart overflow it). A `responsive` breakpoint can change it. Not to be
+      its own grows to hold it. In a container whose height is set (by CSS,
+      a flex or grid layout, or a `max-height`) and lower than the ratio
+      asks for, the chart takes the container's height and narrows to keep
+      its ratio, centered with equal space on both sides (like `object-fit:
+      contain`), and so do its loading and no-data messages. A chart with
+      an explicit `width` centers inside that width instead, and otherwise
+      takes its width ÷ ratio as its height. `width` keeps the full width
+      (the container's, or the one you set) while the chart draws narrower,
+      and `responsive` breakpoints match it; a breakpoint can change the
+      ratio. Not to be
       confused with a Plot's `aspectRatio`, which sets the ratio of one unit
       on the y axis to one on the x axis inside the plot area.
       @example

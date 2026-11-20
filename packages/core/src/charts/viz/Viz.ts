@@ -47,7 +47,8 @@ import {leaveMark, syncHoverBand} from "./hoverBand.js";
 import {routePointerEvent} from "./nearestHover.js";
 import {nearestHoverSurface} from "./nearestHoverSurface.js";
 import {selectClick} from "../drawSteps/selectActions.js";
-import {ratioHeight} from "./sizeRatio.js";
+import {chartWidth, placeCanvas, setLetterbox} from "./letterbox.js";
+import {ratioSize} from "./sizeRatio.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -208,7 +209,7 @@ export default class Viz extends VizBase {
     // Keyboard navigation's focus ring, above everything else.
     appendFocusRing(viz, children);
     return {
-      width: this.schema.width,
+      width: chartWidth(this),
       height: this.schema.height,
       root: {type: "group", key: "viz-root", children},
     };
@@ -300,23 +301,23 @@ export default class Viz extends VizBase {
     w! -= parseFloat(this._select.style("border-right-width"));
     h! -= parseFloat(this._select.style("border-top-width"));
     h! -= parseFloat(this._select.style("border-bottom-width"));
-    // A `sizeRatio` sets a measured height from the chart's width.
+    // A `sizeRatio` sets a measured height from the chart's width, kept
+    // inside its container; a letterbox narrows only the width it draws at.
+    const frame = this._autoWidth ? w : this.schema.width;
     const ratio = this._autoHeight
-      ? ratioHeight(
-          this.schema.sizeRatio,
-          this._autoWidth ? w : this.schema.width,
-        )
+      ? ratioSize(this, this.schema.sizeRatio, frame)
       : undefined;
-    if (ratio !== undefined) h = ratio;
+    if (ratio !== undefined) h = ratio.height;
 
+    const drawn = chartWidth(this);
     if (this._autoWidth) this._measuredWidth = w;
     if (this._autoHeight) this._measuredHeight = h;
-    if (this._autoWidth && this.schema.width !== w) {
-      this.width(w);
+    if (this._autoWidth && this.schema.width !== w) this.width(w);
+    setLetterbox(this, ratio?.width, this.schema.width);
+    if (chartWidth(this) !== drawn)
       this._select
-        .style("width", `${this.schema.width}px`)
-        .attr("width", `${this.schema.width}px`);
-    }
+        .style("width", `${chartWidth(this)}px`)
+        .attr("width", `${chartWidth(this)}px`);
     if (this._autoHeight && this.schema.height !== h) {
       this.height(h);
       this._select
@@ -390,9 +391,10 @@ export default class Viz extends VizBase {
     const mountTarget = mountTargetFor(kind, computeSvg as Element);
     const scene = this.toScene();
     this._paintedScene = scene;
-    const w = this.schema.width || 400;
+    const w = chartWidth(this) || 400;
     const h = this.schema.height || 300;
     this._ensureSceneRenderer(kind, mountTarget, w, h);
+    placeCanvas(this);
     applyClassName(this);
     // `durationOverride` defaults to the chart's `_duration` for normal
     // re-renders. Interaction handlers (zoomed, hover, etc.) pass 0 to

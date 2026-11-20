@@ -2680,7 +2680,19 @@ export {
   applyResponsive,
   matchBreakpoints,
 } from "./src/charts/viz/responsive.js";
-export {applySizeRatio, ratioHeight} from "./src/charts/viz/sizeRatio.js";
+export {
+  applySizeRatio,
+  containerRoom,
+  ratioHeight,
+  ratioSize,
+} from "./src/charts/viz/sizeRatio.js";
+export {
+  chartWidth,
+  letterboxOffset,
+  placeCanvas,
+  placeMessage,
+} from "./src/charts/viz/letterbox.js";
+export type {Letterbox} from "./src/charts/viz/letterbox.js";
 export {
   effectiveDuration,
   motionReduced,

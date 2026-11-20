@@ -95,6 +95,29 @@ it("alignOverlayHost fits the host to its container's content box", () => {
   );
 });
 
+it("alignOverlayHost moves the host in by a centered surface's offset", () => {
+  const container = document.body.appendChild(document.createElement("div"));
+  container.style.padding = "5px 6px 7px 8px";
+  const host = container.appendChild(document.createElement("div"));
+  const surface = container.appendChild(document.createElement("canvas"));
+  // JSDOM has no layout: fake a 600px wide container (plus padding) holding
+  // a 400px surface centered in its content box.
+  container.getBoundingClientRect = () => ({left: 10, width: 614});
+  surface.getBoundingClientRect = () => ({left: 10 + 8 + 100, width: 400});
+  alignOverlayHost(host, surface);
+  assert.deepStrictEqual(
+    [host.style.top, host.style.right, host.style.bottom, host.style.left],
+    ["5px", "106px", "7px", "108px"],
+  );
+  surface.getBoundingClientRect = () => ({left: 18, width: 600});
+  alignOverlayHost(host, surface);
+  assert.deepStrictEqual(
+    [host.style.right, host.style.left],
+    ["6px", "8px"],
+    "a surface at the content box's edge leaves the host there",
+  );
+});
+
 for (const Renderer of [SvgRenderer, CanvasRenderer]) {
   it(`${Renderer.name} guards its overlay host and re-aligns it on draw`, () => {
     const container = document.body.appendChild(document.createElement("div"));

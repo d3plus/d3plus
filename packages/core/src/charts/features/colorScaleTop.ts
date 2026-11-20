@@ -10,6 +10,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {cornerPlacements} from "./features.js";
 import {drawsSwatches} from "./colorScaleLimit.js";
 import {markBoxes} from "./sceneBounds.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** The part of a colorScale's frame a top placement moves. */
 interface TopFrame {
@@ -92,7 +93,7 @@ export function paintTopColorScale<T extends TopFrame>(
   room: number,
   paint: (frame: T) => void,
 ): number {
-  const right = viz.schema.width - frame.x - frame.width;
+  const right = chartWidth(viz) - frame.x - frame.width;
   const placements = cornerPlacements(viz, frame.y, frame.x, right, true);
   if (placements.length === 1 && !placements[0].drop) {
     paint(frame);

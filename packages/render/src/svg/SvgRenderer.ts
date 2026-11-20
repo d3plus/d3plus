@@ -471,7 +471,8 @@ export default class SvgRenderer implements Renderer {
   private _reconcileOverlays(scene: Scene): void {
     if (!this._overlayHost) return;
     const collected = walkOverlays(scene);
-    if (collected.length) alignOverlayHost(this._overlayHost);
+    if (collected.length)
+      alignOverlayHost(this._overlayHost, this._svg ?? undefined);
     const sel = select(this._overlayHost)
       .selectChildren<HTMLDivElement, OverlayItem>(".d3plus-render-overlay")
       .data(collected, d => String(d.node.key));

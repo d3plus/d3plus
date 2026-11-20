@@ -33,6 +33,7 @@ import {chartBackground} from "../viz/backgroundInk.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {swatchOutline} from "./swatchPaint.js";
 import type {SwatchOutline} from "./swatchPaint.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** The legend's rolled-up entries, with the key and paint accessors its render reuses. */
 export interface LegendData {
@@ -362,7 +363,7 @@ function renderLegendFeature(
       viz,
       insetOrient(viz, "legend"),
       {
-        width: viz.schema.width - layoutMargin.left - layoutMargin.right,
+        width: chartWidth(viz) - layoutMargin.left - layoutMargin.right,
         height: viz.schema.height - layoutMargin.top - layoutMargin.bottom,
       },
       built,
@@ -391,12 +392,12 @@ function renderLegendFeature(
     y: (wide ? layoutMargin.top : layoutMargin.top + padding.top) + drop,
     width:
       (wide
-        ? viz.schema.width -
+        ? chartWidth(viz) -
           (layoutMargin.left +
             layoutMargin.right +
             padding.left +
             padding.right)
-        : viz.schema.width - (layoutMargin.left + layoutMargin.right)) -
+        : chartWidth(viz) - (layoutMargin.left + layoutMargin.right)) -
       insetRight,
     height:
       (wide

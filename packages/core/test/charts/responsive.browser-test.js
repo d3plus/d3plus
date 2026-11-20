@@ -120,11 +120,11 @@ for (const renderer of ["svg", "canvas"]) {
   );
 
   it(
-    `${renderer}: an explicit height keeps sizeRatio out; a fixed-height container does not`,
+    `${renderer}: an explicit height keeps sizeRatio out`,
     {timeout: 120000},
     async function () {
       const r = await render(
-        `<div id="box" style="width: 600px; height: 200px"><div id="viz" style="height: 100%"></div></div>`,
+        `<div id="box" style="width: 600px"><div id="viz"></div></div>`,
         async ({makeSrc, renderer}) => {
           const make = eval(makeSrc);
           const viz = await make(renderer, {sizeRatio: 2});
@@ -135,8 +135,89 @@ for (const renderer of ["svg", "canvas"]) {
         },
         {makeSrc, renderer},
       );
-      assert.strictEqual(r.ratio, 300, "the ratio wins over the container");
+      assert.strictEqual(r.ratio, 300);
       assert.strictEqual(r.explicit, 150);
+    },
+  );
+
+  it(
+    `${renderer}: sizeRatio fits inside a container with a height of its own`,
+    {timeout: 120000},
+    async function () {
+      const r = await render(
+        `<div id="box" style="width: 600px; height: 200px; padding: 10px"><div id="viz" style="height: 100%"></div></div><p id="after">after</p>`,
+        async ({makeSrc, resizeSrc, renderer}) => {
+          const make = eval(makeSrc);
+          const resize = eval(resizeSrc);
+          let draws = 0;
+          const viz = await make(renderer, {sizeRatio: 2});
+          viz.render(() => draws++);
+          await new Promise(res => setTimeout(res, 300));
+          const read = () => ({
+            width: viz.width(),
+            height: viz.height(),
+            box: document.querySelector("#box").getBoundingClientRect().height,
+          });
+          const fitted = read();
+          // Narrow enough that width / ratio is shorter than the box.
+          await resize(300);
+          const narrow = read();
+          // The box's own height shrinks: the chart refits to it.
+          document.querySelector("#box").style.height = "120px";
+          document.querySelector("#box").style.width = "600px";
+          await new Promise(res => setTimeout(res, 1000));
+          const shrunk = read();
+          const before = draws;
+          await new Promise(res => setTimeout(res, 1500));
+          return {fitted, narrow, shrunk, idleDraws: draws - before};
+        },
+        {makeSrc, resizeSrc, renderer},
+      );
+      assert.strictEqual(r.fitted.width, 600, "width() keeps the box's width");
+      assert.strictEqual(r.fitted.height, 200, "capped at the box's height");
+      assert.strictEqual(
+        Math.round(r.fitted.box),
+        220,
+        "the box keeps its own height",
+      );
+      assert.strictEqual(r.narrow.width, 300);
+      assert.strictEqual(r.narrow.height, 150, "width / ratio fits the box");
+      assert.strictEqual(
+        r.shrunk.height,
+        120,
+        "refits to the box's new height",
+      );
+      assert.strictEqual(r.shrunk.width, 600);
+      assert.strictEqual(r.idleDraws, 0, "no resize loop once it settles");
+    },
+  );
+
+  it(
+    `${renderer}: sizeRatio in a container with no height settles without a resize loop`,
+    {timeout: 120000},
+    async function () {
+      const r = await render(
+        `<div id="box" style="width: 600px; min-height: 100px"><div id="viz"></div></div>`,
+        async ({makeSrc, resizeSrc, renderer}) => {
+          const make = eval(makeSrc);
+          const resize = eval(resizeSrc);
+          let draws = 0;
+          const viz = await make(renderer, {sizeRatio: 2});
+          viz.render(() => draws++);
+          await resize(400);
+          const before = draws;
+          await new Promise(res => setTimeout(res, 1500));
+          return {
+            height: viz.height(),
+            box: document.querySelector("#box").getBoundingClientRect().height,
+            idleDraws: draws - before,
+          };
+        },
+        {makeSrc, resizeSrc, renderer},
+      );
+      assert.strictEqual(r.height, 200, "a min-height does not cap the ratio");
+      assert.ok(Math.round(r.box) >= 200, `the box grows (${r.box}px)`);
+      assert.strictEqual(r.idleDraws, 0, "no resize loop once it settles");
     },
   );
 }

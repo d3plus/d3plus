@@ -7,6 +7,7 @@ import {
   matchBreakpoints,
 } from "../../src/charts/viz/responsive.ts";
 import {configWarnings} from "../../src/utils/configWarnings.ts";
+import {chartWidth} from "../../src/charts/viz/letterbox.ts";
 
 useJsdom();
 
@@ -191,4 +192,15 @@ it("warns about, and ignores, the keys a breakpoint cannot set", () => {
   }
   assert.ok(warned.some(m => /cannot set "width"/.test(m)));
   assert.ok(warned.some(m => /cannot set "height"/.test(m)));
+});
+
+it("matches a letterboxed chart's width, not the narrower width it draws at", () => {
+  const viz = chart(900, [{maxWidth: 800, config: {legend: false}}]);
+  viz._letterbox = {width: 900, offset: 100, drawn: 700};
+  viz.legend(true);
+  assert.strictEqual(chartWidth(viz), 700);
+  assert.strictEqual(applyResponsive(viz), true);
+  assert.strictEqual(viz.schema.legend(), true, "900 is out of range");
+  resize(viz, 700);
+  assert.strictEqual(viz.schema.legend(), false, "700 is in range");
 });

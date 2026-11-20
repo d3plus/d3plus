@@ -74,8 +74,16 @@ resizes and the content after it moves with it:
 
 `16 / 9` makes a wide chart and `1` a square one. The ratio is used whenever the
 chart has no `height` of its own, in place of its container's height: a
-container without a height grows to hold the chart, and one with a fixed height
-lets it overflow. An explicit `height` always wins. Not to be confused with a
+container without a height grows to hold the chart. In a container whose height
+is set (by CSS, a flex or grid layout, or a `max-height`) and lower than the
+ratio asks for, the chart takes the container's height and narrows to keep its
+ratio, centered with equal space on both sides, like `object-fit: contain`, so
+it never spills out of its box; its loading and no-data messages center over it
+too. A chart with an explicit `width` uses that width the same way: its height
+is the width divided by the ratio, or, in a shorter box, it narrows and centers
+inside the width you set. Either way `width` keeps the full width (the
+container's, or yours), and `chart.width()` and `config()` return it, while the
+chart draws narrower. An explicit `height` always wins. Not to be confused with a
 Plot's [`aspectRatio`](/core/charts/plot/), which keeps one unit of y as long as
 one unit of x inside the plot area.
 
@@ -102,7 +110,8 @@ hide the legend and the y-axis title:
 - A breakpoint can set `sizeRatio`, for example to draw a square chart on
   phones. It cannot set `data`, `select`, `width`, `height`, or `responsive`.
 - With small multiples (`facet`), breakpoints match the whole chart's width,
-  not each panel's. Server-side rendering applies the breakpoints the width
+  not each panel's. A chart `sizeRatio` narrowed to fit a container's height
+  matches the full width: the container's, or the `width` you set. Server-side rendering applies the breakpoints the width
   you render at is in.
 
 ## Rendering without a browser

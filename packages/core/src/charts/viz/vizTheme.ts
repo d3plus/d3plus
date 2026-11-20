@@ -21,6 +21,7 @@ type Rect = {x: number; y: number; width: number; height: number};
 
 export {unwatchPageTheme};
 import type {VizInstance} from "./vizTypes.js";
+import {chartWidth} from "./letterbox.js";
 
 /**
     Resolves the chart's theme for this draw onto `viz._theme` and its
@@ -47,7 +48,8 @@ type BackgroundTarget = Pick<VizInstance, "_theme" | "schema"> &
 function underlay(viz: BackgroundTarget): Rect | undefined {
   if (viz._ssr || !viz._tileGroup || !viz._margin) return undefined;
   const {top, right, bottom, left} = viz._margin;
-  const {width, height} = viz.schema;
+  const {height} = viz.schema;
+  const width = chartWidth(viz);
   return {
     x: left,
     y: top,
@@ -65,7 +67,8 @@ export function themeBackgroundNode(
 ): RectNode | PathNode | undefined {
   const theme = viz._theme;
   if (!theme?.painted) return undefined;
-  const {width, height} = viz.schema;
+  const {height} = viz.schema;
+  const width = chartWidth(viz);
   const base = {
     key: "viz-background",
     interactive: false,

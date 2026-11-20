@@ -20,6 +20,7 @@ import {
   defaultTimeFormat,
 } from "../../components/Axis/timeValues.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** A calendar unit the axis can tick on. */
 export type PeriodUnit = "day" | "week" | "month" | "quarter" | "year";
@@ -256,7 +257,7 @@ export function bandAxisDefaults(viz: VizInstance): Record<string, unknown> {
   const dates = rowDates(viz);
   const utc = configUtc(viz._xConfig);
   const width =
-    viz.schema.width - viz._margin.left - viz._margin.right - VALUE_AXIS_ROOM;
+    chartWidth(viz) - viz._margin.left - viz._margin.right - VALUE_AXIS_ROOM;
   return {
     labels: periodTickSets(dates, width / MIN_TICK_SPACING, utc),
     tickFormat: periodTickFormat(dates, utc),

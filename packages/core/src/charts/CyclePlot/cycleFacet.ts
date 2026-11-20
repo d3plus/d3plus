@@ -14,6 +14,7 @@ import type {FacetHooks, FacetPanelContext} from "../facet/facetConfig.js";
 import type {DomainValue, PlotFacetScales} from "../Plot/facetScales.js";
 import {plotFacetPanel, sharePlotScales} from "../Plot/plotFacet.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** The room inside each end of a panel, as a fraction of the span of cycles it plots. */
 export const CYCLE_INSET = 0.1;
@@ -125,7 +126,7 @@ export function shareCycleScales(
   state.endLabels = undefined;
   if (state.ends && state.endLabel) {
     const texts = state.ends.map(state.endLabel);
-    const width = viz.schema.width - viz._margin.left - viz._margin.right;
+    const width = chartWidth(viz) - viz._margin.left - viz._margin.right;
     const fit = endLabelInset(width, [
       labelWidth(viz, texts[0]),
       labelWidth(viz, texts[1]),

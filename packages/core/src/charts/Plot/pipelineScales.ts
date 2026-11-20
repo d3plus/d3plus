@@ -24,6 +24,7 @@ import {plotAxisUtc, plotTimeScale, type AxisName} from "./plotRangeBreaks.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** d3-scale's scale constructors, indexed by the dynamic `scale<Type>` name. */
 export const scaleConstructors = scales as unknown as Record<
@@ -227,7 +228,7 @@ export const computePlotScales: TransformStage = ({
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
   let domains = plotInitialDomains as Record<string, DomainValue[]>;
-  const width = viz.schema.width - viz._margin.left - viz._margin.right;
+  const width = chartWidth(viz) - viz._margin.left - viz._margin.right;
   const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
   const opp = vizDiscrete(viz)
     ? vizDiscrete(viz) === "x"

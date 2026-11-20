@@ -22,6 +22,7 @@ import {queuedFormatter, syncLoaderFormats} from "./loaderFormat.js";
 import {recordDataSignature, syncDataPolling} from "./vizDataPolling.js";
 import {reportDrawError} from "./reportDrawError.js";
 import {applyResponsive} from "./responsive.js";
+import {chartWidth, letterboxOffset, placeMessage} from "./letterbox.js";
 import {applySizeRatio} from "./sizeRatio.js";
 
 /**
@@ -105,7 +106,7 @@ function autoSize(viz: Viz, visible: boolean): void {
 */
 function applyRootSize(viz: Viz): void {
   const width =
-    viz.schema.width !== undefined ? `${viz.schema.width}px` : undefined;
+    viz.schema.width !== undefined ? `${chartWidth(viz)}px` : undefined;
   const height =
     viz.schema.height !== undefined ? `${viz.schema.height}px` : undefined;
   if (!viz._select.classed("d3plus-viz")) {
@@ -143,7 +144,10 @@ function applyRootAttributes(
     .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
     .style("position", "absolute")
     .style("top", parent.style("padding-top"))
-    .style("left", parent.style("padding-left"))
+    .style(
+      "left",
+      `${parseFloat(parent.style("padding-left")) + letterboxOffset(viz)}px`,
+    )
     // Lets the browser skip layout and paint of the SVG's contents while it
     // is far off-screen. The SVG is absolutely positioned and explicitly sized,
     // so it needs no intrinsic size, and tooltips live outside it so are not
@@ -463,6 +467,7 @@ function loadAndDraw(viz: Viz, callback?: () => void): void {
       mask: viz._filteredData ? viz.schema.messageMask : false,
       style: viz.schema.messageStyle,
     });
+    placeMessage(viz);
   }
 
   Promise.all(promises)
