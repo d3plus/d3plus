@@ -96,7 +96,7 @@ export function rowValue(d: PlotDatum | undefined, axis: "x" | "y"): number {
 
 /** Whether a chart's `key` shapes draw in value colors: all but stacked areas and bars. */
 export function valueColored(viz: VizInstance, key: string): boolean {
-  return !(viz.schema.stacked && (key === "Area" || key === "Bar"));
+  return !(viz.schema?.stacked && (key === "Area" || key === "Bar"));
 }
 
 /**

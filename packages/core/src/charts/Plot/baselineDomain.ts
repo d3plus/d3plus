@@ -70,7 +70,7 @@ const givenDomain = (
     included), or undefined when it's unset or not a finite number.
 */
 export function growFromValue(viz: VizInstance): number | undefined {
-  const value = viz.schema.growFrom;
+  const value = viz.schema?.growFrom;
   return typeof value === "number" && Number.isFinite(value)
     ? value
     : undefined;

@@ -34,7 +34,7 @@ export function growsBack(
   const value = (valueAxis === "y" ? viz._y! : viz._x!)(d, i) as number;
   const axis = valueAxis === "y" ? viz._yAxis : viz._xAxis;
   // A stacked band grows from the band below it, so only its sign counts.
-  const from = viz.schema.stacked ? 0 : (growFromValue(viz) ?? 0);
+  const from = viz.schema?.stacked ? 0 : (growFromValue(viz) ?? 0);
   return value < from !== Boolean(axis?.schema?.reverse);
 }
 
