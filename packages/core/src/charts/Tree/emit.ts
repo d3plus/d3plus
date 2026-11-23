@@ -17,6 +17,7 @@ import {
 } from "../features/emitHelpers.js";
 import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import {outlineReach} from "../features/nodeOutline.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {nodeLabel} from "./nodeLabel.js";
@@ -48,11 +49,17 @@ type TreeShapeConfig = {
 */
 function geometryFor(
   shapeKind: string,
-  d: DataPoint & {x?: number; y?: number; data?: DataPoint; i?: number},
+  d: DataPoint & {
+    x?: number;
+    y?: number;
+    data?: DataPoint;
+    i?: number;
+    row?: number;
+  },
   config: Record<string, unknown>,
 ): {geom: Record<string, unknown>; aes: Record<string, number>} | null {
   const dataD = (d.data ?? d) as DataPoint;
-  const i = (d.i ?? 0) as number;
+  const i = d.row ?? AGGREGATE_INDEX;
   const x = (d.x ?? 0) as number;
   const y = (d.y ?? 0) as number;
   switch (shapeKind) {
@@ -90,6 +97,7 @@ type TreeLinkNode = DataPoint & {
   rho?: number;
   data?: DataPoint;
   i?: number;
+  row?: number;
   depth?: number;
   parent?: TreeLinkNode;
 };
@@ -136,6 +144,45 @@ function linkDirections(
   return {child: spoke(d.theta) + Math.PI, parent: spoke(out)};
 }
 
+/** The links between each node and its parent, keyed by the node they lead to. */
+function treeLinkNodes(
+  viz: VizInstance,
+  linksData: TreeLinkNode[],
+  linkD: (d: DataPoint, reach: {child: number; parent: number}) => string,
+  chartShapeConfig: TreeShapeConfig,
+): SceneNode[] {
+  const out: SceneNode[] = [];
+  const pathConfig = shapeConfigFor(viz, "Path");
+  for (let i = 0; i < linksData.length; i++) {
+    const d = linksData[i];
+    const datum = (d.data ?? d) as DataPoint;
+    const row = d.row ?? AGGREGATE_INDEX;
+    const paint = paintFromShapeConfig(pathConfig, datum, row);
+    const reach = (n: TreeLinkNode | undefined, angle: number) =>
+      n ? treeNodeReach(viz, n, chartShapeConfig, angle) : 0;
+    // The link is keyed by the node it leads to.
+    const id = chartShapeConfig.id(d, d.i ?? i);
+    // Translate the path's local coords (relative to the source's
+    // position) by the node's x/y.
+    const tx = d.x ?? 0;
+    const ty = d.y ?? 0;
+    out.push({
+      type: "path",
+      key: `tree-link-${id}`,
+      d: linkD(d, {
+        child: reach(d, linkDirections(viz, d).child),
+        parent: reach(d.parent, linkDirections(viz, d).parent),
+      }),
+      datum,
+      index: row,
+      paint,
+      transform: {x: tx, y: ty},
+      aria: {label: `${nodeLabel(viz, datum, row)}.`},
+    } as SceneNode);
+  }
+  return out;
+}
+
 export const treeEmit: ChartEmit = pairLabels(({viz}) => {
   const linksData = viz.ctx.linksData as TreeLinkNode[] | undefined;
   const linkD = viz.ctx.linkD as
@@ -149,34 +196,8 @@ export const treeEmit: ChartEmit = pairLabels(({viz}) => {
   const out: SceneNode[] = [];
 
   // Links (Path nodes between parent and child).
-  if (linksData && linksData.length && linkD) {
-    const pathConfig = shapeConfigFor(viz, "Path");
-    for (let i = 0; i < linksData.length; i++) {
-      const d = linksData[i];
-      const datum = (d.data ?? d) as DataPoint;
-      const paint = paintFromShapeConfig(pathConfig, datum, i);
-      const reach = (n: TreeLinkNode | undefined, angle: number) =>
-        n ? treeNodeReach(viz, n, chartShapeConfig, angle) : 0;
-      // The link is keyed by the node it leads to.
-      const id = chartShapeConfig.id(d, d.i ?? i);
-      // Translate the path's local coords (relative to the source's
-      // position) by the node's x/y.
-      const tx = d.x ?? 0;
-      const ty = d.y ?? 0;
-      out.push({
-        type: "path",
-        key: `tree-link-${id}`,
-        d: linkD(d, {
-          child: reach(d, linkDirections(viz, d).child),
-          parent: reach(d.parent, linkDirections(viz, d).parent),
-        }),
-        datum,
-        paint,
-        transform: {x: tx, y: ty},
-        aria: {label: `${nodeLabel(viz, datum, d.i ?? i)}.`},
-      } as SceneNode);
-    }
-  }
+  if (linksData && linksData.length && linkD)
+    out.push(...treeLinkNodes(viz, linksData, linkD, chartShapeConfig));
 
   // Per-shape-kind node groups.
   for (const {key: shapeKind, values} of shapeGroups) {
@@ -190,6 +211,7 @@ export const treeEmit: ChartEmit = pairLabels(({viz}) => {
       y?: number;
       data?: DataPoint;
       i?: number;
+      row?: number;
       depth?: number;
     };
     const nodes: Node[] = values as unknown as Node[];
@@ -201,16 +223,18 @@ export const treeEmit: ChartEmit = pairLabels(({viz}) => {
       const g = geometryFor(shapeKind, d, merged);
       if (!g) continue;
       const id = chartShapeConfig.id(d, i);
-      const paint = paintFromShapeConfig(merged, datum, i);
+      const row = d.row ?? AGGREGATE_INDEX;
+      const paint = paintFromShapeConfig(merged, datum, row);
       const node = {
         ...g.geom,
         key: `tree-${shapeKind}-${id}`,
         datum,
+        index: row,
         paint,
-        aria: {label: `${nodeLabel(viz, datum, i)}.`},
+        aria: {label: `${nodeLabel(viz, datum, row)}.`},
       } as SceneNode;
       out.push(node);
-      const image = backgroundImageNode(merged, node, datum, i);
+      const image = backgroundImageNode(merged, node, datum, row);
       if (image) images.push(image);
     }
     out.push(...images);
@@ -219,14 +243,18 @@ export const treeEmit: ChartEmit = pairLabels(({viz}) => {
     // Labels via the chart-specific labelBounds/label/labelConfig.
     const labelNodes = emitLabels({
       data: nodes as DataPoint[],
-      label: (d, i) => chartShapeConfig.label(d, i),
+      label: d => chartShapeConfig.label(d, (d as Node).row ?? AGGREGATE_INDEX),
       x: d => (d as Node).x ?? 0,
       y: d => (d as Node).y ?? 0,
       aes: d => geometryFor(shapeKind, d as Node, merged)?.aes ?? {},
       rotate: constant(0),
       id: (d, i) => chartShapeConfig.id(d, i),
-      labelBounds: (d, i, aes) =>
-        chartShapeConfig.labelBounds(d, i, aes as Record<string, number>),
+      labelBounds: (d, _i, aes) =>
+        chartShapeConfig.labelBounds(
+          d,
+          (d as Node).row ?? AGGREGATE_INDEX,
+          aes as Record<string, number>,
+        ),
       labelConfig: {
         ...userLabelConfig(viz, shapeKind),
         ...chartShapeConfig.labelConfig,

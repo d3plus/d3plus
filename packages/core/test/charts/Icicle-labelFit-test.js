@@ -77,8 +77,9 @@ it("Icicle emit: icicleLabel reads the label at the node's own level", () => {
     icicleLabel(viz, {datum: {name: "A"}, i: 3, level: 1}),
     "A#3@1",
   );
+  // A node of several rows reads its label with i = -1, as its handlers get.
   assert.strictEqual(
     icicleLabel(viz, {datum: {name: "B"}, i: undefined, level: 0}),
-    "B#0@0",
+    "B#-1@0",
   );
 });

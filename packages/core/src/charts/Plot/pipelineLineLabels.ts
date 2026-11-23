@@ -94,8 +94,8 @@ function sourceRow(row: Record<string, unknown>): {
   let d = row;
   let i: number | undefined;
   while (d.__d3plus__ && d.data) {
+    if (typeof d.i === "number") i = d.i;
     d = d.data as Record<string, unknown>;
-    i = d.i as number | undefined;
   }
   return {d, i};
 }

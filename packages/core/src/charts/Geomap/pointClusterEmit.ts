@@ -32,6 +32,8 @@ import type {ClusterNode} from "./pointCluster.js";
 import {clusterRow, geoClusterTitle} from "./pointClusterLayout.js";
 import type {GeoClusterState} from "./pointClusterLayout.js";
 import {rerouteFlowLinks} from "./pointClusterLinks.js";
+import {AGGREGATE_INDEX, rowIndex} from "../features/rowIndex.js";
+import {pointSizeOf} from "./pointAccessors.js";
 
 /** The key prefixes of the nodes a clustered draw owns (see `emitClusterScene`). */
 export const CLUSTER_SCENE_KEYS = /^geomap-(link|point|cluster|spider|label)-/;
@@ -117,7 +119,9 @@ export function pointNode(
   p: PointAt,
   trail: boolean = Boolean(circleConfig.trail),
 ): SceneNode {
-  const paint = paintFromShapeConfig(circleConfig, p.d, p.i);
+  // The row's position in the data, as the point's handlers get it.
+  const i = rowIndex(viz._filteredData, p.d);
+  const paint = paintFromShapeConfig(circleConfig, p.d, i);
   return {
     type: "circle",
     key: `geomap-point-${viz._id(p.d, p.i)}`,
@@ -126,12 +130,13 @@ export function pointNode(
     r: p.r,
     transform: {x: p.x, y: p.y},
     datum: p.d,
+    index: i,
     paint: {
       ...paint,
       vectorEffect: paint.vectorEffect ?? "non-scaling-stroke",
     },
     aria: {
-      label: `${viz._drawLabel(p.d, p.i)}, ${(viz.schema.pointSize as (d: DataPoint, i: number) => unknown)(p.d, p.i)}.`,
+      label: `${viz._drawLabel(p.d, i)}, ${pointSizeOf(viz, p.d)}.`,
     },
     ...(trail ? {trail: true} : {}),
     ...(trail && circleConfig.trailPersist
@@ -206,6 +211,7 @@ export function bubbleNodes(
       r: R / k,
       transform,
       datum: row,
+      index: AGGREGATE_INDEX,
       paint: {
         fill,
         stroke: background,
@@ -376,7 +382,7 @@ function clusterLayer(
   const images = backgroundImageNodes(
     circleConfig,
     [...loneNodes, ...fanNodes],
-    m => [points[m].d, points[m].i],
+    m => [points[m].d, rowIndex(viz._filteredData, points[m].d)],
   );
   const circles: LabelCircle[] = [
     ...points.map(p => ({x: p.x, y: p.y, r: p.r})),

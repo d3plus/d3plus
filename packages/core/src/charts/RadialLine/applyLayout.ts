@@ -41,6 +41,7 @@ import {radialDomainValues, radialSeries} from "./series.js";
 import type {RadialSeries} from "./series.js";
 import {radialTextBoxes} from "./seriesLabels.js";
 import {radialSpokeNodes} from "./spokes.js";
+import {AGGREGATE_INDEX, rowIndex} from "../features/rowIndex.js";
 
 type Accessor<T> = (d: DataPoint, i: number) => T;
 
@@ -51,6 +52,7 @@ export interface RadialSeriesDatum {
   __d3plus__: true;
   /** The series' rows merged into one, the datum its line or area carries. */
   data: DataPoint;
+  /** Its row's index when it draws one row, else -1 (see `rowIndex`). */
   i: number;
   id: string;
   /** Its path, and the same path collapsed onto the baseline it grows from. */
@@ -224,6 +226,8 @@ function pushChrome(
 /** What `seriesDatum` lays a series out with. */
 interface SeriesGeometry {
   aggs: Parameters<typeof merge>[1];
+  /** The chart's drawn data, which a series' index points into. */
+  rows: DataPoint[];
   area: boolean;
   stacked: boolean;
   closed: boolean;
@@ -235,14 +239,11 @@ interface SeriesGeometry {
 }
 
 /** Lays out one series: its path, the path it grows from, and its dots (each registered for its tooltip). */
-function seriesDatum(
-  s: RadialSeries,
-  si: number,
-  g: SeriesGeometry,
-): RadialSeriesDatum {
-  const data = (
-    s.rows.length === 1 ? s.rows[0] : merge(s.rows, g.aggs)
-  ) as DataPoint;
+function seriesDatum(s: RadialSeries, g: SeriesGeometry): RadialSeriesDatum {
+  const single = s.rows.length === 1;
+  const data = (single ? s.rows[0] : merge(s.rows, g.aggs)) as DataPoint;
+  // A series of several rows stands for no one row.
+  const si = single ? rowIndex(g.rows, data) : AGGREGATE_INDEX;
   const curve = radialCurveName(g.curveSetting, data, si);
   const points = s.points.map(p => ({
     angle: p.angle,
@@ -336,9 +337,10 @@ export const applyRadialLineLayout: TransformStage = ({viz}) => {
     .curve as unknown;
   const shapeData = series
     .filter(s => s.points.length)
-    .map((s, si) =>
-      seriesDatum(s, si, {
+    .map(s =>
+      seriesDatum(s, {
         aggs,
+        rows: viz._filteredData,
         area,
         stacked,
         closed,

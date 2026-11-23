@@ -68,20 +68,19 @@ export function radialPointTooltipRows(
 }
 
 /**
-    One Circle node per dot of series `id` (drawn `si`th), painted from
-    `circleConfig`. None when the radius resolves to 0 or less.
+    One Circle node per dot of series `id`, painted from `circleConfig`
+    with its row's index. None when the radius resolves to 0 or less.
 */
 export function radialDotNodes(
   viz: VizInstance,
   id: string,
-  si: number,
   dots: RadialDot[],
   circleConfig: Record<string, unknown>,
   prefix: string,
 ): SceneNode[] {
   const out: SceneNode[] = [];
   for (const dot of dots) {
-    const r = Number(resolveAccessor<number>(circleConfig.r, dot.row, si));
+    const r = Number(resolveAccessor<number>(circleConfig.r, dot.row, dot.i));
     if (!(r > 0)) continue;
     out.push({
       type: "circle",
@@ -94,7 +93,7 @@ export function radialDotNodes(
       index: dot.i,
       // Only this dot's `x` label stays bright on hover.
       hoverKeys: {slot: [dot.info.key]},
-      paint: paintFromShapeConfig(circleConfig, dot.row, si),
+      paint: paintFromShapeConfig(circleConfig, dot.row, dot.i),
       aria: {
         label: `${viz._drawLabel(dot.row, dot.i)}, ${dot.info.label}: ${radialValueText(viz, dot.info.value)}.`,
       },

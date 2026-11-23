@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LabelClick · Viz</title>
+    <meta
+      name="description"
+      content="Clicking a mark's label reports the mark's own (d, i) to on('click') handlers: click a Pie wedge, a bar, or a line, then its label, and compare the two log lines."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+      }
+
+      section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      h2 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: normal;
+      }
+
+      .viz {
+        width: 360px;
+        height: 280px;
+      }
+
+      pre {
+        width: 360px;
+        min-height: 4.5em;
+        margin: 8px 0 0;
+        padding: 6px 8px;
+        background: #f1f3f5;
+        font-size: 11px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+
+  <body>
+    <section>
+      <div>
+        <h2>Pie</h2>
+        <div class="viz" id="pie"></div>
+        <pre id="pie-log">Click a wedge, then its label.</pre>
+      </div>
+      <div>
+        <h2>BarChart</h2>
+        <div class="viz" id="bar"></div>
+        <pre id="bar-log">Click a bar, then its label.</pre>
+      </div>
+      <div>
+        <h2>LinePlot</h2>
+        <div class="viz" id="line"></div>
+        <pre id="line-log">Click a line by its end, then its label.</pre>
+      </div>
+    </section>
+  </body>
+
+  <script>
+    // Each click logs the handler's (d, i) and whether a label or a mark
+    // was under the pointer.
+    function show(d) {
+      const seen = new WeakSet();
+      return JSON.stringify(d, (key, value) => {
+        if (value && typeof value === "object") {
+          if (seen.has(value)) return "[circular]";
+          seen.add(value);
+        }
+        return value;
+      });
+    }
+
+    function logClicks(id) {
+      const lines = [];
+      return function (d, i, x, event) {
+        const host = document.querySelector(`#${id} svg, #${id} canvas`);
+        const box = host.getBoundingClientRect();
+        const point = [event.clientX - box.left, event.clientY - box.top];
+        const node = this._sceneRenderer.pick(point)?.node;
+        const over = node && node.type === "text" ? "label" : "mark ";
+        lines.push(`${over}: d = ${show(d)}, i = ${i}`);
+        document.getElementById(`${id}-log`).textContent = lines
+          .slice(-2)
+          .join("\n");
+      };
+    }
+
+    const pieData = [
+      {id: "Wind", value: 8},
+      {id: "Solar", value: 72},
+      {id: "Hydro", value: 20},
+    ];
+
+    // Kept on the page for poking at from the console.
+    window.charts = {};
+
+    window.charts.pie = new d3plus.Pie()
+      .select("#pie")
+      .config({
+        data: pieData,
+        groupBy: "id",
+        value: "value",
+        legend: false,
+        on: {"click.shape": logClicks("pie")},
+      })
+      .render();
+
+    window.charts.bar = new d3plus.BarChart()
+      .select("#bar")
+      .config({
+        data: pieData.map(d => ({...d, x: d.id})),
+        groupBy: "id",
+        x: "x",
+        y: "value",
+        label: d => d.id,
+        legend: false,
+        on: {"click.shape": logClicks("bar")},
+      })
+      .render();
+
+    window.charts.line = new d3plus.LinePlot()
+      .select("#line")
+      .config({
+        data: [
+          {id: "Wind", year: 2021, value: 8},
+          {id: "Wind", year: 2022, value: 11},
+          {id: "Wind", year: 2023, value: 15},
+          {id: "Solar", year: 2021, value: 40},
+          {id: "Solar", year: 2022, value: 58},
+          {id: "Solar", year: 2023, value: 72},
+        ],
+        groupBy: "id",
+        x: "year",
+        y: "value",
+        discrete: "x",
+        lineLabels: true,
+        legend: false,
+        on: {"click.shape": logClicks("line")},
+      })
+      .render();
+  </script>
+</html>

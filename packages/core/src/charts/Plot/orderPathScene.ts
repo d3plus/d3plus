@@ -37,6 +37,7 @@ import {
   type OrderAccessor,
   type Pt,
 } from "./orderPath.js";
+import {lineMarkerAccessors} from "./lineMarkerAccessors.js";
 
 /** A formatted Plot row as the scene's datum type. */
 const asRow = (d: PlotDatum) => d as unknown as DataPoint;
@@ -130,7 +131,7 @@ export function orderTooltipRows(
 /** A point's mark radius: its circle's, a line marker's, or none. */
 function radiusOf(viz: VizInstance): (d: PlotDatum) => number {
   const circle = shapeConfigFor(viz, "Circle").r;
-  const marker = viz._lineMarkerConfig?.r;
+  const marker = lineMarkerAccessors(viz).r;
   const value = (v: unknown, d: PlotDatum) =>
     Number(typeof v === "function" ? v(d, d.i) : v) || 0;
   return d =>

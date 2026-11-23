@@ -384,6 +384,7 @@ function ringsNode(
     paint: Paint;
     transform: Transform;
     aria: {label: string};
+    index: number;
   },
 ): SceneNode | null {
   const key = `rings-${shapeKind}-${d.id}`;
@@ -487,6 +488,7 @@ export const ringsEmit: ChartEmit = pairLabels(({viz}) => {
           paint,
           transform,
           aria,
+          index: d.i ?? i,
         });
         // Other shape kinds: skipped (Rings's default is Circle).
         if (!node) continue;

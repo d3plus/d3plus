@@ -13,6 +13,7 @@ import {gestureHolds} from "../drawSteps/gestureHover.js";
 import {facetPanelAt} from "../facet/facetPanel.js";
 import {holdKeyHover} from "../features/keyHold.js";
 import {focusTargets} from "./focusTargets.js";
+import {labelOwnerPick} from "./labelOwner.js";
 import type {FocusTarget} from "./focusTargets.js";
 import {pointVoronoi} from "./pointVoronoi.js";
 import type {PointVoronoi, VoronoiPoint} from "./pointVoronoi.js";
@@ -138,7 +139,7 @@ export function pointTarget(
     The pick the pointer at `point` acts on, in place of `pick`: the nearest
     point mark within `hoverDistance` (in the same small-multiples panel),
     when `pick` is empty or something other than a point mark. A point mark,
-    a legend or timeline item, a trend line, or a mark's own label is kept as
+    a legend or timeline item, a trend line, or a label is kept as
     picked, as is everything when nearest-point hover is off.
 */
 export function nearestPick(
@@ -166,8 +167,9 @@ export function nearestPick(
 }
 
 /**
-    The renderer's pointer bridge: resolves each event's pick through
-    `nearestPick` and hands it to `viz._routeSceneEvent` (a click that
+    The renderer's pointer bridge: resolves each event's pick to the mark a
+    picked label belongs to (`labelOwnerPick`), then through `nearestPick`,
+    and hands it to `viz._routeSceneEvent` (a click that
     resolves to nothing also runs `viz._backgroundClick`), firing
     mouseleave/mouseenter whenever the mark the pointer resolves to changes
     (in place of the renderer's own, which follow the raw pick). Events that
@@ -184,6 +186,9 @@ export function routePointerEvent(viz: VizInstance, event: SceneEvent): void {
     viz._routeSceneEvent?.(e);
   };
   const state = (viz._nearestHover ??= {key: null});
+  // A mark's label acts as the mark it labels.
+  const own = labelOwnerPick(viz._paintedScene, event.pick);
+  if (own !== event.pick) event = {...event, pick: own};
   const native = (event.nativeEvent as Event | undefined)?.type;
   const fromMove = native === "mousemove";
   if (event.type === "mouseenter" || event.type === "mouseleave") {

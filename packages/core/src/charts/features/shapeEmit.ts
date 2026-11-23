@@ -65,6 +65,7 @@ import {
   paintValueColors,
   valueColored,
 } from "../Plot/valueColorsScene.js";
+import {lineMarkerAccessors} from "../Plot/lineMarkerAccessors.js";
 
 /**
     The cross-phase locals a shape emitter reads. Assembled once per draw by
@@ -612,7 +613,7 @@ const lineEmit: ShapeEmitter = ctx => {
     .renderMode("compute")
     .data(points)
     .config(ctx.shapeConfig)
-    .config(viz._lineMarkerConfig)
+    .config(lineMarkerAccessors(viz))
     .id((d: PlotDatum) => keys.get(d));
   applyValueFill(viz, ctx.valueScale, markers);
 

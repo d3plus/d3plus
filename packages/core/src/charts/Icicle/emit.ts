@@ -16,6 +16,7 @@ import {
   textureFill,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {measureLabel, partitionSplit} from "../partition/labelWords.js";
@@ -36,7 +37,7 @@ export function icicleLabel(
   viz: {_drawLabel: (d: DataPoint, i: number, depth?: number) => string},
   node: Pick<IcicleNode, "datum" | "i" | "level">,
 ): string {
-  return viz._drawLabel(node.datum, node.i ?? 0, node.level);
+  return viz._drawLabel(node.datum, node.i ?? AGGREGATE_INDEX, node.level);
 }
 
 /** Resolves a rectangle's fill: the shape config's fill, shaded by level on the default color path. */
@@ -124,7 +125,7 @@ export const icicleEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   >;
 
   const rectNodes: SceneNode[] = nodes.map(node => {
-    const i = node.i ?? 0;
+    const i = node.i ?? AGGREGATE_INDEX;
     return {
       type: "rect",
       key: `icicle-${node.id}`,
@@ -137,6 +138,7 @@ export const icicleEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
       enterRect: enterRects.get(node.id),
       enterWindow: enterWindows.get(node.id),
       datum: node.datum,
+      index: i,
       paint: {
         fill: textureFill(sc, node.datum, i, fillOf(node)),
         stroke: resolveAccessor<string>(sc.stroke, node.datum, i),
@@ -152,7 +154,7 @@ export const icicleEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
 
   const imageNodes = backgroundImageNodes(sc, rectNodes, k => [
     nodes[k].datum,
-    nodes[k].i ?? 0,
+    nodes[k].i ?? AGGREGATE_INDEX,
   ]);
 
   const labelConfig = (userLabelConfig(viz, "Rect") ?? {}) as Record<

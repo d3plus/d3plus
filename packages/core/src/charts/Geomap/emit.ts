@@ -11,6 +11,7 @@ import type {LabelCircle} from "../features/circleLabelPlacement.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {rowIndex} from "../features/rowIndex.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveThemed} from "./basemapTheme.js";
@@ -173,8 +174,10 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
       if (c.cartogram && !shape) continue;
       drawn.push(i);
       const datum = (d.data ?? d) as DataPoint;
-      const paint = paintFromShapeConfig(pathConfig, datum, i);
-      const validColorScale = colorScale ? `, ${colorScale(datum, i)}` : "";
+      // The row's position in the data, as the region's handlers get it.
+      const ri = rowIndex(viz._filteredData, datum);
+      const paint = paintFromShapeConfig(pathConfig, datum, ri);
+      const validColorScale = colorScale ? `, ${colorScale(datum, ri)}` : "";
       out.push({
         type: "path",
         key: `geomap-path-${d.id}`,
@@ -182,6 +185,7 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
         // Outlines and cartogram shapes morph into one another.
         morph: true,
         datum,
+        index: ri,
         // Topojson geography is a data shape: keep its border stroke a constant
         // screen width as the map zooms (v3 parity), rather than scaling with
         // the zoom transform. Honors an explicit shapeConfig.vectorEffect.
@@ -189,13 +193,14 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
           ...paint,
           vectorEffect: paint.vectorEffect ?? "non-scaling-stroke",
         },
-        aria: {label: `${viz._drawLabel(datum, i)}${validColorScale}.`},
+        aria: {label: `${viz._drawLabel(datum, ri)}${validColorScale}.`},
       } as SceneNode);
     }
     out.push(
       ...backgroundImageNodes(pathConfig, out.slice(start), k => {
         const d = c.topoData[drawn[k]];
-        return [(d.data ?? d) as DataPoint, drawn[k]];
+        const datum = (d.data ?? d) as DataPoint;
+        return [datum, rowIndex(viz._filteredData, datum)];
       }),
     );
     out.push(...reshapedLabels(viz, c, pathConfig));
@@ -230,7 +235,7 @@ export const geomapEmit: ChartEmit = pairLabels(({viz}) => {
     out.push(
       ...backgroundImageNodes(circleConfig, out.slice(start), k => [
         points[k],
-        k,
+        rowIndex(viz._filteredData, points[k]),
       ]),
     );
     out.push(

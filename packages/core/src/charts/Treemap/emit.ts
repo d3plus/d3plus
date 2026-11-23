@@ -19,11 +19,16 @@ import {
   resolveAccessor,
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {TreemapShapeNode} from "./applyLayout.js";
 import {groupHeaderNodes} from "./emitGroupHeaders.js";
 import {collectGroupHeaders, groupLabelStyle} from "./groupHeaders.js";
 import {pairLabels} from "../features/labelLayering.js";
+
+/** A resolved stroke as the scene takes it: a color string, or none. */
+const strokeText = (stroke: unknown): string | null | undefined =>
+  typeof stroke === "string" || stroke == null ? stroke : String(stroke);
 
 export const treemapEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as TreemapShapeNode[];
@@ -46,12 +51,10 @@ export const treemapEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
       width: d.x1 - d.x0,
       height: d.y1 - d.y0,
       datum: d.data,
+      index: d.i ?? AGGREGATE_INDEX,
       paint: {
         fill: textureFill(sc, d.data, d.i, fill),
-        stroke:
-          typeof stroke === "string" || stroke == null
-            ? stroke
-            : String(stroke),
+        stroke: strokeText(stroke),
         opacity,
         strokeWidth,
       },

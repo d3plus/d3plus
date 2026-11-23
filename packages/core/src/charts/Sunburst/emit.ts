@@ -17,6 +17,7 @@ import {
   textureFill,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import {centerLabelNodes} from "../features/centerLabel.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
@@ -53,7 +54,7 @@ export function sunburstLabel(
   viz: {_drawLabel: (d: DataPoint, i: number, depth?: number) => string},
   node: SunburstNode,
 ): string {
-  return viz._drawLabel(node.datum, node.i ?? 0, node.level);
+  return viz._drawLabel(node.datum, node.i ?? AGGREGATE_INDEX, node.level);
 }
 
 /**
@@ -186,7 +187,7 @@ function sunburstLabels(
       const color = resolveAccessor<unknown>(
         userColor,
         node.datum,
-        node.i ?? 0,
+        node.i ?? AGGREGATE_INDEX,
       );
       return typeof color === "string" ? color : contrast(node);
     },
@@ -211,7 +212,7 @@ export const sunburstEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
     SunburstArc
   >;
   const pathNodes: SceneNode[] = nodes.map(node => {
-    const i = node.i ?? 0;
+    const i = node.i ?? AGGREGATE_INDEX;
     const arc = sunburstArcGeometry(node, padAngle, padPixel);
     const fill = fillOf(node);
     return {
@@ -224,6 +225,7 @@ export const sunburstEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
         ? {...enterArcs.get(node.id)!, padAngle: 0}
         : undefined,
       datum: node.datum,
+      index: i,
       paint: {
         fill: textureFill(sc, node.datum, i, fill),
         stroke: resolveAccessor<string>(sc.stroke, node.datum, i),
@@ -239,7 +241,7 @@ export const sunburstEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
 
   const imageNodes = backgroundImageNodes(sc, pathNodes, k => [
     nodes[k].datum,
-    nodes[k].i ?? 0,
+    nodes[k].i ?? AGGREGATE_INDEX,
   ]);
 
   const ghosts = ghostNodes(viz, fillOf);
