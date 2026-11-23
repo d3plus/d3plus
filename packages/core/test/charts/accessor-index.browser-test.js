@@ -306,3 +306,49 @@ it("RadialLine: a series path and its label stand for several rows: -1", async (
   assert.ok(out.labels.length, "the series are labeled");
   for (const index of out.labels) assert.strictEqual(index, -1, "its label");
 });
+
+it("LinePlot: nested lineMarkerConfig accessors read the source row and its index", async () => {
+  const out = await render(
+    '<div id="viz" style="width:500px;height:400px"></div>',
+    async () => {
+      const data = [
+        {id: "A", x: 1, y: 1},
+        {id: "A", x: 2, y: 3},
+        {id: "B", x: 1, y: 4},
+        {id: "B", x: 2, y: 2},
+      ];
+      const calls = [];
+      const viz = new window.d3plus.LinePlot()
+        .data(data)
+        .groupBy("id")
+        .x("x")
+        .y("y")
+        .lineMarkers(true)
+        .lineMarkerConfig({
+          r: 24,
+          label: d => d.id,
+          labelConfig: {
+            fontColor: (d, i) => {
+              calls.push({wrapped: !!d.__d3plus__, id: d.id, x: d.x, i});
+              return "#222";
+            },
+          },
+        })
+        .duration(0);
+      await new Promise(r => viz.select("#viz").render(r));
+      return {rows: data.map(d => `${d.id}${d.x}`), calls};
+    },
+  );
+  assert.ok(
+    out.calls.length >= 4,
+    `the nested accessor ran (${out.calls.length})`,
+  );
+  for (const c of out.calls) {
+    assert.strictEqual(c.wrapped, false, "a source row, not a wrapper");
+    assert.strictEqual(
+      c.i,
+      out.rows.indexOf(`${c.id}${c.x}`),
+      `${c.id} ${c.x}`,
+    );
+  }
+});
