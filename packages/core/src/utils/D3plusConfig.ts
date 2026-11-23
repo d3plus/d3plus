@@ -34,6 +34,7 @@ import type {
 import type {ColorScaleTypeSetting} from "../components/ColorScale/colorScaleType.js";
 import type {ColorScaleHoverMarkConfig} from "../components/ColorScale/colorScaleHoverMark.js";
 import type {
+  QuadrantsConfig,
   ReferenceBandConfig,
   ReferenceLineConfig,
 } from "../charts/features/annotationTypes.js";
@@ -2893,6 +2894,20 @@ export interface D3plusConfig {
   */
   proportional?: boolean;
   /**
+      Plot: splits a scatter into four quadrants around a center, drawing a
+      line across the plot at the center's `x` and one at its `y`. `true`
+      centers them on the mean of the drawn rows on each axis; a config sets
+      `x`/`y` (a value, `"mean"`, `"median"`, `"min"`, `"max"`, or a function
+      given the drawn rows), and each quadrant (`topLeft`, `topRight`,
+      `bottomLeft`, `bottomRight`) takes a `label`, drawn in its outer
+      corner, and a `fill` (or set `fill` for all four; `fillOpacity`
+      defaults to `0.08`). The dividers take `stroke`, `strokeOpacity`,
+      `strokeWidth`, and `dash`, and the labels the font keys and
+      `maxWidth`. A given center widens a continuous axis's domain to fit.
+      Defaults to `false`.
+  */
+  quadrants?: boolean | QuadrantsConfig;
+  /**
       How PolarArea maps values onto radii: `"sqrt"` (default) keeps each
       wedge's area proportional to its value; `"linear"` its radius.
   */
@@ -2910,7 +2925,10 @@ export interface D3plusConfig {
       Plot: shaded spans between two values, such as a recession or a target
       range. Give each entry `x` (vertical) or `y` (horizontal) as
       `[start, end]` in data units, `x2`/`y2` for the secondary axes, or
-      `ref: "plot"` for fractions of the plot. Optional: a `label` (top-left;
+      `ref: "plot"` for fractions of the plot; give both an x and a y span to
+      shade the rectangle between them. An end can be a statistic of the
+      drawn rows (`"mean"`, `"median"`, `"min"`, `"max"`) or a function given
+      them. Optional: a `label` (top-left;
       `labelPosition: "end"` for top-right) with font keys and `maxWidth`,
       `fill`/`fillOpacity` (default the text color at `0.08`), `stroke`,
       `strokeWidth`, `strokeOpacity`, and `layer: "front"` to draw over the
@@ -2921,11 +2939,19 @@ export interface D3plusConfig {
       Plot: lines across the plot at one value, such as a target or a launch
       date. Give each entry `x` (vertical) or `y` (horizontal) in data units,
       `x2`/`y2` for the secondary axes, or `ref: "plot"` for a fraction of the
-      plot. Optional: a `label` at the line's `"end"` or `"start"`
-      (`labelPosition`) with font keys and `maxWidth`, `stroke`/`strokeOpacity`
-      (default the text color at `0.6`), `strokeWidth` (`1`), `dash` (`true`
-      or a dash pattern), and `layer: "front"` to draw over the data. A line
-      widens a continuous axis's domain to fit.
+      plot. The value can be a statistic of the rows the chart draws
+      (`"mean"`, `"median"`, `"min"`, or `"max"`, labeled with its translated
+      name; on a stacked chart's value axis, of the stacks' totals) or a
+      function given those rows; `perSeries: true` draws one such line per
+      series, in its color. `from`/`to` (values on the other axis) draw only
+      part of the line, and `highlight: "above"` (or `"below"`) grays the
+      rows on the other side of it while no `highlight` is set. Optional: a
+      `label` (or a function of the value and rows) at the line's `"end"` or
+      `"start"` (`labelPosition`) with font keys and `maxWidth`,
+      `stroke`/`strokeOpacity` (default the text color at `0.6`),
+      `strokeWidth` (`1`), `dash` (`true` or a dash pattern), and
+      `layer: "front"` to draw over the data. A line widens a continuous
+      axis's domain to fit.
   */
   referenceLines?: ReferenceLineConfig[];
   /**

@@ -30,6 +30,7 @@ import sortingLines from "~/examples/core/charts/line-plot/sorting-lines.js?raw"
 import dottedLinePredictions from "~/examples/core/charts/line-plot/dotted-line-predictions.js?raw";
 import forecastStart from "~/examples/core/charts/line-plot/forecast-start.js?raw";
 import referenceLinesAndBands from "~/examples/core/charts/line-plot/reference-lines-and-bands.js?raw";
+import seriesMeans from "~/examples/core/charts/line-plot/series-means.js?raw";
 import quarterlyData from "~/examples/core/charts/line-plot/quarterly-data.js?raw";
 import axisBreak from "~/examples/core/charts/line-plot/axis-break.js?raw";
 import connectGaps from "~/examples/core/charts/line-plot/connect-gaps.js?raw";
@@ -198,6 +199,12 @@ A discrete-axis value (a year, or a date on a time axis) starts the forecast at 
 On a time axis, `referenceLines` and `referenceBands` take dates (a Date, a year, or a date string) and `"Callout"` annotations anchor at a date and value. Reference values widen the axis to stay in view (callouts do not), and everything zooms and pans with the axes.
 
 <Playground chart="LinePlot" code={referenceLinesAndBands} controls={["referenceLines","referenceBands","annotations"]} />
+
+## Series means
+
+`perSeries: true` draws a statistic line for each series, over its own rows and in its color, labeled with its name. Callouts can select their rows the same way: here each series' `"last"` point.
+
+<Playground chart="LinePlot" code={seriesMeans} controls={["referenceLines","annotations"]} />
 
 ## Quarterly data
 

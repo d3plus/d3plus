@@ -24,13 +24,15 @@ import {
   REFERENCE_BAND,
   REFERENCE_LINE,
   referenceAxis,
-  referenceBandLabelAt,
   referenceBandNodes,
   referenceBandRect,
-  referenceLineLabelAt,
   referenceLineNodes,
   referenceLinePoints,
 } from "../../src/charts/features/referenceAnnotations.ts";
+import {
+  referenceBandLabelAt,
+  referenceLineLabelAt,
+} from "../../src/charts/features/referenceLabelSpots.ts";
 
 useJsdom();
 
@@ -98,6 +100,7 @@ it("referenceLinePoints: across the whole plot at the value", () => {
       [40, 160],
       [440, 160],
     ],
+    span: [40, 440],
   });
   assert.deepStrictEqual(referenceLinePoints(frame, {x: 50}).points, [
     [240, 310],

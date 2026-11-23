@@ -63,6 +63,7 @@ export const plotSchema = [
   {key: "outlierConfig", merge: true, factory: outlierDefaults},
   {key: "pathArrows", coerce: "identity" as const, default: true},
   {key: "pathLabels", coerce: "identity" as const, default: true},
+  {key: "quadrants", coerce: "identity" as const, default: false},
   {key: "referenceBands", coerce: "identity" as const, factory: () => []},
   {key: "referenceLines", coerce: "identity" as const, factory: () => []},
   {key: "shapeSort", coerce: "identity" as const},

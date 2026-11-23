@@ -26,6 +26,22 @@ export interface Annotation {
   [key: string]: unknown;
 }
 
+/**
+    A statistic of the values the chart draws on an axis: their `"mean"`,
+    `"median"`, `"min"`, or `"max"`.
+*/
+export type ReferenceStatistic = "mean" | "median" | "min" | "max";
+
+/**
+    A reference position: a value on the axis, a statistic of the drawn
+    rows' values on it, or a function given the drawn rows (the chart's own
+    data rows, or one series' rows) that returns a value.
+*/
+export type ReferenceValue =
+  | AnnotationValue
+  | ReferenceStatistic
+  | ((rows: DataPoint[]) => AnnotationValue | null | undefined);
+
 /** A constant, or a `(datum, index)` accessor over a callout's data rows. */
 type CalloutValue<T> = T | ((d: DataPoint, i: number) => T);
 
@@ -105,6 +121,33 @@ export interface CalloutAnnotation extends AnnotationTextStyle {
   standoff?: CalloutValue<number>;
   /** Whether the box is kept inside the plot area. Defaults to `true`. */
   clamp?: CalloutValue<boolean>;
+  /**
+      Picks the anchors from the rows the chart draws, in place of `data`:
+      the row with the largest (`"max"`) or smallest (`"min"`) value on the
+      value axis, the `"first"` or `"last"` along the other axis, or a
+      function given the drawn rows (the chart's own data rows) that returns
+      the ones to annotate. Each anchor row has the drawn `x`/`y`, and the
+      data row it came from as `data`; the label defaults to the row's
+      series label.
+  */
+  select?:
+    "max" | "min" | "first" | "last" | ((rows: DataPoint[]) => DataPoint[]);
+  /** With `select`: picks a row from each series instead of one over every row. Defaults to `false`. */
+  perSeries?: boolean;
+  /**
+      A line from the anchor straight to an axis: `"x"` (or `true`) down to
+      the x axis, `"y"` across to the y axis, or `"both"`. Defaults to
+      `false`.
+  */
+  dropline?: CalloutValue<boolean | "x" | "y" | "both">;
+  /** Dropline color. Defaults to the text color. */
+  droplineStroke?: CalloutValue<string>;
+  /** Dropline width. Defaults to `1`. */
+  droplineStrokeWidth?: CalloutValue<number>;
+  /** Dropline opacity. Defaults to `0.5`. */
+  droplineStrokeOpacity?: CalloutValue<number>;
+  /** Dropline dash pattern, as a string ("4 2", the default) or numbers. */
+  droplineStrokeDasharray?: CalloutValue<string | number[]>;
 }
 
 /** The line and label styles shared by reference lines and bands. */
@@ -118,16 +161,46 @@ export interface ReferenceStyle extends AnnotationTextStyle {
 /**
     A full-width or full-height line across the plot at one value: give `x`
     (a vertical line) or `y` (a horizontal one), or `x2`/`y2` for the
-    secondary axes. On a continuous or time axis the value widens the axis
+    secondary axes. The value can be a statistic of the rows the chart
+    draws (`"mean"`, `"median"`, `"min"`, `"max"`) or a function given
+    those rows, and the line is labeled with the statistic's name unless it
+    has a `label`. On a continuous or time axis the value widens the axis
     domain to show the line, unless the user set that end of the domain.
 */
-export interface ReferenceLineConfig extends ReferenceStyle {
-  x?: AnnotationValue;
-  y?: AnnotationValue;
-  x2?: AnnotationValue;
-  y2?: AnnotationValue;
+export interface ReferenceLineConfig extends Omit<ReferenceStyle, "label"> {
+  x?: ReferenceValue;
+  y?: ReferenceValue;
+  x2?: ReferenceValue;
+  y2?: ReferenceValue;
   /** How the value is read. Defaults to `"data"`. */
   ref?: AnnotationRef;
+  /**
+      The text drawn with it, or a function given the line's value and the
+      rows it was computed from. `false` draws none.
+  */
+  label?:
+    string | false | ((value: AnnotationValue, rows: DataPoint[]) => string);
+  /**
+      With a statistic or function value: draws one line per series, each
+      computed over that series' rows and drawn in its color (labeled with
+      the series' name). Defaults to `false`, one line over every row.
+  */
+  perSeries?: boolean;
+  /**
+      Where the line starts on the other axis (an x value for a horizontal
+      line, a y value for a vertical one), read like the line's own value.
+      Defaults to the plot's edge.
+  */
+  from?: AnnotationValue;
+  /** Where the line ends on the other axis. Defaults to the plot's edge. */
+  to?: AnnotationValue;
+  /**
+      Emphasizes the drawn rows whose value is `"above"` the line (or, for
+      a vertical line, to its right) or `"below"` it, graying the rest the
+      way `highlight` does, while no `highlight` is set. A row of a series
+      with its own line (`perSeries`) compares against that line.
+  */
+  highlight?: "above" | "below";
   /** Which end of the line the label sits at: `"end"` (the default: the right, or the top) or `"start"`. */
   labelPosition?: "start" | "end";
   /** Line color. Defaults to the chart's text color. */
@@ -142,16 +215,18 @@ export interface ReferenceLineConfig extends ReferenceStyle {
 
 /**
     A shaded span across the plot between two values: give `x` (a vertical
-    band) or `y` (a horizontal one) as `[start, end]`, or `x2`/`y2`. On a
-    category axis the band covers each end category's whole slot; on a
-    continuous or time axis its ends widen the axis domain, unless the user
-    set that end of the domain.
+    band) or `y` (a horizontal one) as `[start, end]`, or `x2`/`y2`. Give
+    both an x and a y range to shade the rectangle between them. Either end
+    can be a statistic of the drawn rows (`"mean"`, `"median"`, `"min"`,
+    `"max"`) or a function given them. On a category axis the band covers
+    each end category's whole slot; on a continuous or time axis its ends
+    widen the axis domain, unless the user set that end of the domain.
 */
 export interface ReferenceBandConfig extends ReferenceStyle {
-  x?: [AnnotationValue, AnnotationValue];
-  y?: [AnnotationValue, AnnotationValue];
-  x2?: [AnnotationValue, AnnotationValue];
-  y2?: [AnnotationValue, AnnotationValue];
+  x?: [ReferenceValue, ReferenceValue];
+  y?: [ReferenceValue, ReferenceValue];
+  x2?: [ReferenceValue, ReferenceValue];
+  y2?: [ReferenceValue, ReferenceValue];
   /** How the values are read. Defaults to `"data"`. */
   ref?: AnnotationRef;
   /** Which corner the label sits in: `"start"` (the default: the top left) or `"end"` (the top right). */
@@ -166,4 +241,50 @@ export interface ReferenceBandConfig extends ReferenceStyle {
   strokeOpacity?: number;
   /** Edge width. Defaults to `1`. */
   strokeWidth?: number;
+}
+
+/** One quadrant's label and fill. */
+export interface QuadrantStyle extends AnnotationTextStyle {
+  /** The text drawn in the quadrant's outer corner. */
+  label?: string;
+  /** The quadrant's fill. Defaults to the quadrants' `fill`. */
+  fill?: string;
+  /** The quadrant's fill opacity. Defaults to the quadrants' `fillOpacity`. */
+  fillOpacity?: number;
+}
+
+/**
+    Splits the plot into four quadrants around a center: a line across the
+    plot at the center's `x` and one at its `y`, with each quadrant's label
+    in its outer corner and an optional fill.
+*/
+export interface QuadrantsConfig extends AnnotationTextStyle {
+  /** The center's x value, a statistic of the drawn rows, or a function of them. Defaults to `"mean"`. */
+  x?: ReferenceValue;
+  /** The center's y value, a statistic of the drawn rows, or a function of them. Defaults to `"mean"`. */
+  y?: ReferenceValue;
+  /** How the center is read. Defaults to `"data"`. */
+  ref?: AnnotationRef;
+  /** The top-left quadrant. */
+  topLeft?: QuadrantStyle;
+  /** The top-right quadrant. */
+  topRight?: QuadrantStyle;
+  /** The bottom-left quadrant. */
+  bottomLeft?: QuadrantStyle;
+  /** The bottom-right quadrant. */
+  bottomRight?: QuadrantStyle;
+  /** Every quadrant's fill; unset, a quadrant has none unless it sets its own. */
+  fill?: string;
+  /** Every quadrant's fill opacity. Defaults to `0.08`. */
+  fillOpacity?: number;
+  /** Divider color. Defaults to the chart's text color. */
+  stroke?: string;
+  /** Divider opacity. Defaults to `0.6`. */
+  strokeOpacity?: number;
+  /** Divider width. Defaults to `1`. */
+  strokeWidth?: number;
+  /** `true` dashes the dividers ("4 4"); a dash pattern string or numbers sets its own. */
+  dash?: boolean | string | number[];
+  /** `"back"` (the default) or `"front"` of the data shapes. The labels draw above the data either way. */
+  layer?: "back" | "front";
 }

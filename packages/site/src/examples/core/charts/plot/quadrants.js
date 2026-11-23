@@ -1,0 +1,31 @@
+const config = {
+  data: [
+    {product: "Atlas", share: 4, growth: 22},
+    {product: "Beacon", share: 7, growth: 28},
+    {product: "Cobalt", share: 9, growth: 14},
+    {product: "Delta", share: 12, growth: 31},
+    {product: "Ember", share: 14, growth: 6},
+    {product: "Fjord", share: 17, growth: 19},
+    {product: "Garnet", share: 19, growth: -4},
+    {product: "Harbor", share: 22, growth: 24},
+    {product: "Iris", share: 25, growth: 3},
+    {product: "Juniper", share: 27, growth: 12},
+    {product: "Kestrel", share: 30, growth: -2},
+    {product: "Lumen", share: 33, growth: 8},
+    {product: "Maple", share: 3, growth: -6},
+    {product: "Nimbus", share: 6, growth: 2},
+  ],
+  groupBy: "product",
+  x: "share",
+  y: "growth",
+  legend: false,
+  quadrants: {
+    topLeft: {label: "Question marks", fill: "#ffb000"},
+    topRight: {label: "Stars", fill: "#2a9d8f"},
+    bottomLeft: {label: "Dogs", fill: "#e76f51"},
+    bottomRight: {label: "Cash cows", fill: "#457b9d"},
+  },
+  referenceBands: [
+    {x: [20, 35], y: [20, 35], label: "Invest", fill: "#2a9d8f"},
+  ],
+};
