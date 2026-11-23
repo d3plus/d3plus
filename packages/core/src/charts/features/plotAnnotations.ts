@@ -15,18 +15,20 @@ import {effectiveDuration} from "../viz/reducedMotion.js";
 import type {AnnotationFrame} from "./annotationFrame.js";
 import {calloutNodes} from "./calloutScene.js";
 import {
-  expandReferenceBands,
-  expandReferenceLines,
   REFERENCE_BAND,
   REFERENCE_LINE,
   referenceBandNodes,
   referenceLineNodes,
 } from "./referenceAnnotations.js";
+import {QUADRANTS, quadrantNodes} from "./referenceQuadrants.js";
+import {collectReferenceHighlight} from "./referenceHighlight.js";
+import {plotAnnotationList} from "./plotAnnotationList.js";
 
 import type {Annotation} from "./annotationTypes.js";
 import {vizDiscrete} from "../viz/discrete.js";
 
 export type {Annotation};
+export {plotAnnotationList};
 
 /**
     Annotations are decorative chrome, not data marks. Stamp their scene nodes
@@ -139,6 +141,7 @@ const SCENE_ANNOTATIONS: Record<
   ) => SceneNode[]
 > = {
   Callout: calloutNodes,
+  [QUADRANTS]: quadrantNodes,
   [REFERENCE_BAND]: referenceBandNodes,
   [REFERENCE_LINE]: referenceLineNodes,
 };
@@ -152,22 +155,6 @@ export function annotationLayer(annotation: Annotation): string {
   return (
     annotation.layer || (annotation.shape === "Callout" ? "front" : "back")
   );
-}
-
-/**
-    Every annotation a Plot draws: its `referenceBands`, then its
-    `referenceLines` and the chart's own (so lines draw over bands), then its
-    own `annotations`.
-    @param viz The chart.
-*/
-export function plotAnnotationList(viz: Viz): Annotation[] {
-  const own = (viz._annotations || []) as unknown as Annotation[];
-  return [
-    ...expandReferenceBands(viz.schema.referenceBands),
-    ...expandReferenceLines(viz.schema.referenceLines),
-    ...expandReferenceLines(viz._plotReferenceLines?.()),
-    ...own.filter(d => !!d && typeof d.shape === "string"),
-  ];
 }
 
 /**
@@ -191,6 +178,7 @@ export function emitAnnotations(
   const {x, y, frame} = axes;
   const front: SceneNode[] = [];
   const all = plotAnnotationList(viz);
+  collectReferenceHighlight(viz, all);
 
   Object.keys(viz._previousAnnotations!).forEach(layer => {
     const annotationData = all.filter(d => annotationLayer(d) === layer);
@@ -206,7 +194,7 @@ export function emitAnnotations(
         return;
       }
       const nodes = sceneKind(viz, annotation, frame, key);
-      // A reference line or band behind the data keeps its label above it.
+      // A reference line, band, or quadrant behind the data keeps its label above it.
       const lift = layer === "back" && annotation.shape !== "Callout";
       const group = annotationSceneGroup(
         lift ? nodes.filter(n => n.type !== "text") : nodes,

@@ -38,6 +38,7 @@ import {paintTopColorScale} from "./colorScaleTop.js";
 import {resolveAccessor, shapeConfigFor} from "./emitHelpers.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {resetKeys} from "../../fluent.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** Where and how the colorScale lays itself out for one render. */
 interface ColorScaleFrame {
@@ -276,7 +277,7 @@ export const colorScaleFeature: FeatureModule = {
   layout: ({viz, layoutMargin}) => {
     if (isInsetPending(viz, "colorScale")) {
       paintColorScaleInset(viz, insetOrient(viz, "colorScale"), {
-        width: viz.schema.width - layoutMargin.left - layoutMargin.right,
+        width: chartWidth(viz) - layoutMargin.left - layoutMargin.right,
         height: viz.schema.height - layoutMargin.top - layoutMargin.bottom,
       });
       return {panel: null, margin: {}};
@@ -313,12 +314,12 @@ export const colorScaleFeature: FeatureModule = {
     const setHeight = configSize(config, "height");
 
     const availableWidth =
-      viz.schema.width -
+      chartWidth(viz) -
       (layoutMargin.left + layoutMargin.right + padding.left + padding.right) -
       corner.inset;
     const width = wide
       ? min([setWidth ?? viz.schema.colorScaleMaxSize, availableWidth])!
-      : viz.schema.width - (layoutMargin.left + layoutMargin.right);
+      : chartWidth(viz) - (layoutMargin.left + layoutMargin.right);
 
     const availableHeight =
       viz.schema.height -

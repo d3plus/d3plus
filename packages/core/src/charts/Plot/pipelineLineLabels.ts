@@ -27,6 +27,7 @@ import {
   type LineLabelConfig,
   type LineLabelSide,
 } from "./lineLabelSides.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** A d3plus config value: a constant or a `(datum, index)` accessor. */
 type ConfigAccessor<T> = T | ((d: Record<string, unknown>, i?: number) => T);
@@ -372,7 +373,7 @@ export const measurePlotLineLabels: TransformStage = ({
   const yDomain = plotScales!.y.domain();
   const xConfigScale = plotConfigScales!.xConfigScale;
   const yConfigScale = plotConfigScales!.yConfigScale;
-  const width = viz.schema.width - viz._margin.left - viz._margin.right;
+  const width = chartWidth(viz) - viz._margin.left - viz._margin.right;
   const config = viz.schema.lineLabelConfig as LineLabelConfig | undefined;
 
   const labelCtx: LineLabelCtx = {

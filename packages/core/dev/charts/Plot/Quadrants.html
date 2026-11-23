@@ -1,0 +1,141 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Quadrants · Plot</title>
+    <meta
+      name="description"
+      content="The quadrants shorthand (centered on the mean, a median, or a given value, with corner labels and fills) and two-dimensional referenceBands that shade a rectangle, on scatter plots, with zoom and a dark theme."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 340px;
+      }
+      .dark {
+        background: #212529;
+        color: #f8f9fa;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Quadrants around the means, labeled and filled</h3>
+        <div class="viz" id="means"></div>
+      </div>
+      <div>
+        <h3>Quadrants around zero (scroll to zoom)</h3>
+        <div class="viz" id="zero"></div>
+      </div>
+      <div>
+        <h3>quadrants: true (the dividers alone)</h3>
+        <div class="viz" id="plain"></div>
+      </div>
+      <div>
+        <h3>Two-dimensional referenceBands</h3>
+        <div class="viz" id="bands"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark theme, centered on the medians</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+
+    <script>
+      const products = [];
+      for (let i = 0; i < 30; i++)
+        products.push({
+          product: `Product ${i + 1}`,
+          share: 2 + ((i * 41) % 60) / 2,
+          growth: -8 + ((i * 29) % 40),
+        });
+
+      const labels = {
+        topLeft: {label: "Question marks", fill: "#ffb000"},
+        topRight: {label: "Stars", fill: "#2a9d8f"},
+        bottomLeft: {label: "Dogs", fill: "#e76f51"},
+        bottomRight: {label: "Cash cows", fill: "#457b9d"},
+      };
+
+      new d3plus.Plot()
+        .select("#means")
+        .data(products)
+        .groupBy("product")
+        .x("share")
+        .y("growth")
+        .legend(false)
+        .quadrants(labels)
+        .render();
+
+      new d3plus.Plot()
+        .select("#zero")
+        .data(products)
+        .groupBy("product")
+        .x(d => d.share - 15)
+        .y("growth")
+        .legend(false)
+        .quadrants({
+          x: 0,
+          y: 0,
+          dash: true,
+          topLeft: {label: "II"},
+          topRight: {label: "I"},
+          bottomLeft: {label: "III"},
+          bottomRight: {label: "IV"},
+        })
+        .render();
+
+      new d3plus.Plot()
+        .select("#plain")
+        .data(products)
+        .groupBy("product")
+        .x("share")
+        .y("growth")
+        .legend(false)
+        .quadrants(true)
+        .render();
+
+      new d3plus.Plot()
+        .select("#bands")
+        .data(products)
+        .groupBy("product")
+        .x("share")
+        .y("growth")
+        .legend(false)
+        .referenceBands([
+          {x: [10, 25], y: [5, 25], label: "Sweet spot", fill: "#2a9d8f"},
+          {x: [0, 8], y: [-10, 0], label: "Review", fill: "#e76f51"},
+        ])
+        .render();
+
+      new d3plus.Plot()
+        .select("#dark")
+        .data(products)
+        .groupBy("product")
+        .x("share")
+        .y("growth")
+        .legend(false)
+        .backgroundConfig({fill: "#212529"})
+        .quadrants({x: "median", y: "median", ...labels})
+        .render();
+    </script>
+  </body>
+</html>

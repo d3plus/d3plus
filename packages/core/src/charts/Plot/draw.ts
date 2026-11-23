@@ -51,6 +51,7 @@ import {recordStackLegendOrder} from "./stackLegendOrder.js";
 import {computePlotTrendFits} from "./trendLines.js";
 import {computePlotOutliers} from "./outlierDetect.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
 type Row = Record<string, unknown>;
@@ -324,6 +325,9 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
   // The axis hover's positions belong to the previous layout.
   viz._axisHoverState = null;
   viz._plotMarginals = null;
+  // Reference lines collect the rows they highlight as they paint (each
+  // small-multiples panel its own).
+  if (viz._facetStep !== "panel") viz._referenceHighlight = null;
   // A small-multiples chrome pass lays out the chrome only.
   if (
     viz._facetStep === "chrome" ||
@@ -361,7 +365,7 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
 
   const height = viz.schema.height - viz._margin.top - viz._margin.bottom,
     opp = vizDiscrete(viz) ? (vizDiscrete(viz) === "x" ? "y" : "x") : undefined,
-    width = viz.schema.width - viz._margin.left - viz._margin.right;
+    width = chartWidth(viz) - viz._margin.left - viz._margin.right;
 
   const layoutCtx = runPlotLayoutStages(
     viz,

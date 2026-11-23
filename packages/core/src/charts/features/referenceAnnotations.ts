@@ -1,8 +1,9 @@
 /**
     Reference lines and bands: `referenceLines`/`referenceBands` entries
     expand into `"ReferenceLine"`/`"ReferenceBand"` annotations, drawn as a
-    line across the whole plot at one value, or a shaded span between two,
-    with an optional label. Both sit behind the data unless `layer: "front"`;
+    line across the plot (or the part of it between `from` and `to`) at one
+    value, or a shaded span between two (a rectangle, with both an x and a y
+    span), with an optional label. Both sit behind the data unless `layer: "front"`;
     their labels draw above it, clear of the data labels (see
     `placeReferenceLabels`).
 */
@@ -13,6 +14,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {
   axisPixel,
   axisSpan,
+  categoryHalfStep,
   clipSpan,
   isVertical,
   type AnnotationAxis,
@@ -22,17 +24,15 @@ import {
   annotationTextNode,
   annotationTextStyle,
   wrapAnnotationText,
-  type TextAlign,
   type TextBlock,
 } from "./annotationText.js";
 import type {Annotation, AnnotationRef} from "./annotationTypes.js";
 import type {Box} from "./calloutLayout.js";
+import {registerLabelSpots, type LabelSpot} from "./referenceLabelPlacement.js";
 import {
-  LABEL_PAD as PAD,
-  registerLabelSpots,
-  slideSteps,
-  type LabelSpot,
-} from "./referenceLabelPlacement.js";
+  referenceBandLabelSpots,
+  referenceLineLabelSpots,
+} from "./referenceLabelSpots.js";
 
 /** The annotation shape a `referenceLines` entry expands into. */
 export const REFERENCE_LINE = "ReferenceLine";
@@ -96,37 +96,77 @@ const extent = (frame: AnnotationFrame, axis: AnnotationAxis): number[] =>
     : [frame.plot.x0, frame.plot.x1];
 
 /**
+    The pixel extent a reference line spans along the other axis: from its
+    `from` value to its `to` value (each end taking in its category's whole
+    slot on a category axis of bars), else the plot's edges, clipped to the
+    plot. Null when an end it sets has no position, or nothing is left.
+    @param frame The plot area and its axes.
+    @param axis The line's axis.
+    @param entry The reference line.
+*/
+export function referenceLineSpan(
+  frame: AnnotationFrame,
+  axis: AnnotationAxis,
+  entry: Record<string, unknown>,
+): [number, number] | null {
+  const other: AnnotationAxis = isVertical(axis) ? "x" : "y";
+  const ref = entry.ref as AnnotationRef | undefined;
+  const [lo, hi] = extent(frame, other);
+  const given = (v: unknown) => v !== undefined && v !== null && v !== "";
+  // The plot's start along the other axis: the left, or the bottom.
+  const start = isVertical(other) ? hi : lo,
+    end = isVertical(other) ? lo : hi;
+  let a = given(entry.from) ? axisPixel(frame, other, entry.from, ref) : start;
+  let b = given(entry.to) ? axisPixel(frame, other, entry.to, ref) : end;
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+  const half = ref === "plot" ? 0 : categoryHalfStep(frame, other);
+  const dir = Math.sign(b - a) || 1;
+  if (given(entry.from)) a -= dir * half;
+  if (given(entry.to)) b += dir * half;
+  return clipSpan([Math.min(a, b), Math.max(a, b)], lo, hi);
+}
+
+/**
     Where a reference line runs: its axis, its pixel position `at` along that
-    axis, and its two end points across the plot (start first). Null when it
-    has no position or falls outside the plot area.
+    axis, its two end points (start first), and the extent it spans along
+    the other axis (see `referenceLineSpan`). Null when it has no position
+    or falls outside the plot area.
     @param frame The plot area and its axes.
     @param entry The reference line.
 */
 export function referenceLinePoints(
   frame: AnnotationFrame,
   entry: Record<string, unknown>,
-): {axis: AnnotationAxis; at: number; points: [number, number][]} | null {
+): {
+  axis: AnnotationAxis;
+  at: number;
+  points: [number, number][];
+  span: [number, number];
+} | null {
   const axis = referenceAxis(entry);
   if (!axis) return null;
   const at = axisPixel(frame, axis, entry[axis], entry.ref as AnnotationRef);
   const [lo, hi] = extent(frame, axis);
   if (!Number.isFinite(at) || at < lo - 0.5 || at > hi + 0.5) return null;
-  const {plot} = frame;
+  const span = referenceLineSpan(frame, axis, entry);
+  if (!span) return null;
   const points: [number, number][] = isVertical(axis)
     ? [
-        [plot.x0, at],
-        [plot.x1, at],
+        [span[0], at],
+        [span[1], at],
       ]
     : [
-        [at, plot.y1],
-        [at, plot.y0],
+        [at, span[1]],
+        [at, span[0]],
       ];
-  return {axis, at, points};
+  return {axis, at, points, span};
 }
 
 /**
     The rect a reference band shades, clipped to the plot area, and its
-    axis. Null when it has no position or lies wholly outside the plot.
+    axis: a span along one axis across the whole plot, or, with both an x
+    and a y span, the rectangle between them (its axis the x one). Null when
+    it has no position or lies wholly outside the plot.
     @param frame The plot area and its axes.
     @param entry The reference band.
 */
@@ -134,196 +174,44 @@ export function referenceBandRect(
   frame: AnnotationFrame,
   entry: Record<string, unknown>,
 ): {axis: AnnotationAxis; box: Box} | null {
-  const axis = referenceAxis(entry);
-  const values = axis ? entry[axis] : undefined;
-  if (!axis || !Array.isArray(values) || values.length < 2) return null;
-  const span = axisSpan(
-    frame,
-    axis,
-    [values[0], values[1]],
-    entry.ref as AnnotationRef,
-  );
-  const [lo, hi] = extent(frame, axis);
-  const clipped = span && clipSpan(span, lo, hi);
-  if (!clipped) return null;
+  const spans = AXES.filter(a => {
+    const v = entry[a];
+    return Array.isArray(v) && v.length >= 2;
+  });
+  const across = spans.find(a => !isVertical(a)),
+    along = spans.find(isVertical);
+  const axis = across ?? along;
+  if (!axis) return null;
   const {plot} = frame;
-  const box: Box = isVertical(axis)
-    ? {
-        x: plot.x0,
-        y: clipped[0],
-        width: plot.x1 - plot.x0,
-        height: clipped[1] - clipped[0],
-      }
-    : {
-        x: clipped[0],
-        y: plot.y0,
-        width: clipped[1] - clipped[0],
-        height: plot.y1 - plot.y0,
-      };
-  return {axis, box};
-}
-
-/**
-    Where a reference line's label goes (the top-left of its text block, and
-    its alignment): beside the line's `"end"` (the right of a horizontal line,
-    the top of a vertical one) or `"start"`, above a horizontal line (below
-    it near the plot's top) and right of a vertical one (left of it near the
-    plot's right edge).
-    @param frame The plot area and its axes.
-    @param line The line's axis and pixel position.
-    @param block The wrapped label.
-    @param position Which end of the line.
-*/
-export function referenceLineLabelAt(
-  frame: AnnotationFrame,
-  line: {axis: AnnotationAxis; at: number},
-  block: TextBlock,
-  position: "start" | "end" = "end",
-): {x: number; y: number; align: TextAlign} {
-  const {plot} = frame;
-  if (isVertical(line.axis)) {
-    const above = line.at - PAD - block.height;
-    return {
-      x: position === "start" ? plot.x0 + PAD : plot.x1 - PAD,
-      y: above >= plot.y0 ? above : line.at + PAD,
-      align: position === "start" ? "start" : "end",
-    };
-  }
-  const right = line.at + PAD + block.width <= plot.x1;
-  return {
-    x: right ? line.at + PAD : line.at - PAD,
-    y: position === "start" ? plot.y1 - PAD - block.height : plot.y0 + PAD,
-    align: right ? "start" : "end",
-  };
-}
-
-/**
-    Where a reference band's label goes: inside its top-left corner
-    (`"start"`) or top-right (`"end"`).
-    @param box The band's rect.
-    @param position Which corner.
-*/
-export function referenceBandLabelAt(
-  box: Box,
-  position: "start" | "end" = "start",
-): {x: number; y: number; align: TextAlign} {
-  return position === "end"
-    ? {x: box.x + box.width - PAD, y: box.y + PAD, align: "end"}
-    : {x: box.x + PAD, y: box.y + PAD, align: "start"};
-}
-
-/** Each spot of `firsts` crossed with each of `seconds`, `firsts` varying slowest. */
-const cross = <A, B>(firsts: A[], seconds: B[]): [A, B][] =>
-  firsts.flatMap(a => seconds.map(b => [a, b] as [A, B]));
-
-/**
-    Every spot a reference line's label may take, the one
-    `referenceLineLabelAt` picks first: then the other side of the line, then
-    the line's other end on either side, then along the line from the
-    preferred end on either side.
-    @param frame The plot area and its axes.
-    @param line The line's axis and pixel position.
-    @param block The wrapped label.
-    @param position Which end of the line is preferred.
-*/
-export function referenceLineLabelSpots(
-  frame: AnnotationFrame,
-  line: {axis: AnnotationAxis; at: number},
-  block: TextBlock,
-  position: "start" | "end" = "end",
-): LabelSpot[] {
-  const {plot} = frame;
-  const first = referenceLineLabelAt(frame, line, block, position);
-  const other = position === "start" ? "end" : "start";
-  if (isVertical(line.axis)) {
-    // A horizontal line: its ends are the plot's sides; its sides, above and below.
-    const sides = [
-      first.y,
-      first.y === line.at + PAD ? line.at - PAD - block.height : line.at + PAD,
-    ];
-    const ends: [number, TextAlign][] = [
-      [first.x, first.align],
-      other === "start" ? [plot.x0 + PAD, "start"] : [plot.x1 - PAD, "end"],
-    ];
-    const along = slideSteps(
-      first.align === "end" ? plot.x1 - PAD - block.width : plot.x0 + PAD,
-      first.align === "end" ? plot.x0 + PAD : plot.x1 - PAD - block.width,
+  const clipped = (a: AnnotationAxis): [number, number] | null => {
+    const values = entry[a] as unknown[];
+    const span = axisSpan(
+      frame,
+      a,
+      [values[0], values[1]],
+      entry.ref as AnnotationRef,
     );
-    return [
-      ...cross(ends, sides).map(([[x, align], y]) => ({x, y, align})),
-      ...cross(along, sides).map(([x, y]) => ({x, y, align: "start" as const})),
-    ];
-  }
-  // A vertical line: its ends are the plot's top and bottom; its sides, right and left.
-  const sides: [number, TextAlign][] = [
-    [first.x, first.align],
-    first.align === "start" ? [line.at - PAD, "end"] : [line.at + PAD, "start"],
-  ];
-  const top = plot.y0 + PAD,
-    bottom = plot.y1 - PAD - block.height;
-  const ends = [first.y, first.y === top ? bottom : top];
-  const along = slideSteps(first.y, first.y === top ? bottom : top);
-  return cross([...ends, ...along], sides).map(([y, [x, align]]) => ({
-    x,
-    y,
-    align,
-  }));
-}
-
-/**
-    Every spot a reference band's label may take, inside the band: the
-    corner `referenceBandLabelAt` picks first, then the other top corner,
-    then the bottom corners, then along the band's length from its top (or,
-    across the plot, from its preferred side).
-    @param box The band's rect.
-    @param axis The band's axis.
-    @param block The wrapped label.
-    @param position Which top corner is preferred.
-*/
-export function referenceBandLabelSpots(
-  box: Box,
-  axis: AnnotationAxis,
-  block: TextBlock,
-  position: "start" | "end" = "start",
-): LabelSpot[] {
-  const startX: [number, TextAlign] = [box.x + PAD, "start"],
-    endX: [number, TextAlign] = [box.x + box.width - PAD, "end"];
-  const xs = position === "end" ? [endX, startX] : [startX, endX];
-  const top = box.y + PAD,
-    bottom = box.y + box.height - PAD - block.height;
-  const corners = cross([top, bottom], xs).map(([y, [x, align]]) => ({
-    x,
-    y,
-    align,
-  }));
-  if (isVertical(axis)) {
-    const [[x0], [x1]] = xs;
-    const fromX = position === "end" ? x0 - block.width : x0;
-    const toX = position === "end" ? x1 : x1 - block.width;
-    return [
-      ...corners,
-      ...cross(slideSteps(fromX, toX), [top, bottom]).map(([x, y]) => ({
-        x,
-        y,
-        align: "start" as const,
-      })),
-    ];
-  }
-  return [
-    ...corners,
-    ...cross(slideSteps(top, bottom), xs).map(([y, [x, align]]) => ({
-      x,
-      y,
-      align,
-    })),
-  ];
+    const [lo, hi] = extent(frame, a);
+    return span && clipSpan(span, lo, hi);
+  };
+  const xs = across ? clipped(across) : [plot.x0, plot.x1];
+  const ys = along ? clipped(along) : [plot.y0, plot.y1];
+  if (!xs || !ys) return null;
+  return {
+    axis,
+    box: {x: xs[0], y: ys[0], width: xs[1] - xs[0], height: ys[1] - ys[0]},
+  };
 }
 
 /**
     The label's text node at its preferred spot, registered with the rest of
     its spots (see `placeReferenceLabels`), or null when the entry has no label.
+    @param viz The chart.
+    @param annotation The annotation, whose `label` and text styles it reads.
+    @param key The node's key.
+    @param spotsFor Every spot the wrapped label may take, the preferred first.
 */
-function labelNode(
+export function referenceLabelNode(
   viz: VizInstance,
   annotation: Annotation,
   key: string,
@@ -342,7 +230,7 @@ function labelNode(
 }
 
 /** A `dash` setting's pattern: `true` is "4 4". */
-function dashOf(annotation: Annotation): number[] | undefined {
+export function dashOf(annotation: Annotation): number[] | undefined {
   const dash = annotation.dash ?? annotation.strokeDasharray;
   if (dash === true) return [4, 4];
   if (dash === false) return undefined;
@@ -383,9 +271,17 @@ export function referenceLineNodes(
       paint,
     } as LineNode,
   ];
-  const label = labelNode(viz, annotation, `${key}-label`, block =>
+  // A partial line's label keeps to the part of the plot the line spans.
+  const {plot} = frame;
+  const spanned: AnnotationFrame = {
+    ...frame,
+    plot: isVertical(line.axis)
+      ? {...plot, x0: line.span[0], x1: line.span[1]}
+      : {...plot, y0: line.span[0], y1: line.span[1]},
+  };
+  const label = referenceLabelNode(viz, annotation, `${key}-label`, block =>
     referenceLineLabelSpots(
-      frame,
+      spanned,
       line,
       block,
       annotation.labelPosition === "start" ? "start" : "end",
@@ -429,7 +325,7 @@ export function referenceBandNodes(
       paint,
     } as RectNode,
   ];
-  const label = labelNode(viz, annotation, `${key}-label`, block =>
+  const label = referenceLabelNode(viz, annotation, `${key}-label`, block =>
     referenceBandLabelSpots(
       band.box,
       band.axis,

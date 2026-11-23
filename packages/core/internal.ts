@@ -771,20 +771,64 @@ export {
   calloutRowNodes,
 } from "./src/charts/features/calloutScene.js";
 export {
+  calloutAnchorRow,
+  pickRow,
+  resolveCalloutSelect,
+  selectRows,
+} from "./src/charts/features/calloutSelect.js";
+export type {CalloutPick} from "./src/charts/features/calloutSelect.js";
+export {droplineNodes} from "./src/charts/features/calloutScene.js";
+export {
+  dashOf,
   expandReferenceBands,
   expandReferenceLines,
   REFERENCE_BAND,
   REFERENCE_LINE,
   referenceAxis,
-  referenceBandLabelAt,
-  referenceBandLabelSpots,
   referenceBandNodes,
   referenceBandRect,
-  referenceLineLabelAt,
-  referenceLineLabelSpots,
+  referenceLabelNode,
   referenceLineNodes,
   referenceLinePoints,
+  referenceLineSpan,
 } from "./src/charts/features/referenceAnnotations.js";
+export {
+  referenceBandLabelAt,
+  referenceBandLabelSpots,
+  referenceLineLabelAt,
+  referenceLineLabelSpots,
+} from "./src/charts/features/referenceLabelSpots.js";
+export {
+  expandQuadrants,
+  QUADRANT_CORNERS,
+  QUADRANTS,
+  quadrantBoxes,
+  quadrantLabelSpots,
+  quadrantNodes,
+} from "./src/charts/features/referenceQuadrants.js";
+export type {QuadrantCorner} from "./src/charts/features/referenceQuadrants.js";
+export {
+  axisNumbers,
+  drawnRows,
+  isComputed,
+  isStatistic,
+  numericValue,
+  resolveReferenceBands,
+  resolveReferenceLine,
+  resolveReferenceLines,
+  resolveValue,
+  seriesColor,
+  seriesRows,
+  stackAxis,
+  STATISTIC_NAMES,
+  statisticOf,
+} from "./src/charts/features/referenceValues.js";
+export type {DrawnRow} from "./src/charts/features/referenceValues.js";
+export {
+  collectReferenceHighlight,
+  referenceHighlightRows,
+} from "./src/charts/features/referenceHighlight.js";
+export {referenceHighlightPredicate} from "./src/charts/viz/referenceHighlightPredicate.js";
 export {textHalo} from "./src/charts/features/textHalo.js";
 export {
   bindAccessors,
@@ -2676,6 +2720,23 @@ export type {
 } from "./src/charts/viz/vizTypes.js";
 export {goBack} from "./src/charts/drawSteps/backControl.js";
 export {forEachSceneRow, MARK_TYPES} from "./src/charts/viz/sceneRows.js";
+export {
+  applyResponsive,
+  matchBreakpoints,
+} from "./src/charts/viz/responsive.js";
+export {
+  applySizeRatio,
+  containerRoom,
+  ratioHeight,
+  ratioSize,
+} from "./src/charts/viz/sizeRatio.js";
+export {
+  chartWidth,
+  letterboxOffset,
+  placeCanvas,
+  placeMessage,
+} from "./src/charts/viz/letterbox.js";
+export type {Letterbox} from "./src/charts/viz/letterbox.js";
 export {
   effectiveDuration,
   motionReduced,

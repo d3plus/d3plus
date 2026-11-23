@@ -160,17 +160,50 @@ const OVERLAY_SELECTORS = [".d3plus-render-overlays", ".d3plus-render-overlay"];
     coordinates are surface coordinates, so a host spanning the padding box
     would shift every overlay up and left by the container's padding. Read
     on every draw, since the container's padding can change between draws.
+    A `surface` placed to the right of the content box's left edge (a chart
+    centered in a wider container) moves the host in by that much on both
+    sides.
+    @param host The overlay host.
+    @param surface The renderer's drawing surface.
 */
-export function alignOverlayHost(host: HTMLElement): void {
+export function alignOverlayHost(host: HTMLElement, surface?: Element): void {
   const mount = host.parentElement;
   const computed =
     mount && typeof getComputedStyle === "function"
       ? getComputedStyle(mount)
       : null;
   host.style.top = computed?.paddingTop || "0px";
-  host.style.right = computed?.paddingRight || "0px";
   host.style.bottom = computed?.paddingBottom || "0px";
-  host.style.left = computed?.paddingLeft || "0px";
+  const shift = surfaceShift(mount, surface, computed);
+  const left = parseFloat(computed?.paddingLeft || "0") || 0;
+  const right = parseFloat(computed?.paddingRight || "0") || 0;
+  host.style.left = `${left + shift}px`;
+  host.style.right = `${right + shift}px`;
+}
+
+/**
+    How far `surface` sits to the right of `mount`'s content box, in pixels;
+    0 when it sits at the content box's left edge, either has no layout, or
+    either is missing.
+*/
+function surfaceShift(
+  mount: HTMLElement | null,
+  surface: Element | undefined,
+  computed: CSSStyleDeclaration | null,
+): number {
+  if (!mount || !surface || !computed) return 0;
+  // A nested <svg> measures as the box of what it draws, not its viewport:
+  // measure the outermost one, which is laid out as a box.
+  let outer: Element = surface;
+  while ((outer as SVGElement).ownerSVGElement)
+    outer = (outer as SVGElement).ownerSVGElement as Element;
+  const box = mount.getBoundingClientRect();
+  const rect = outer.getBoundingClientRect();
+  if (!rect.width || !box.width) return 0;
+  const contentLeft =
+    box.left + mount.clientLeft + (parseFloat(computed.paddingLeft) || 0);
+  const shift = rect.left - contentLeft;
+  return shift > 0.5 ? shift : 0;
 }
 
 /**

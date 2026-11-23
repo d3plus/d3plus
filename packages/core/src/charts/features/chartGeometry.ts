@@ -19,16 +19,17 @@
 
 import type {ClipShape, Transform} from "@d3plus/render";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /**
     Margin-adjusted chart-area dimensions. Replaces the pattern:
 
       const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
-      const width = viz.schema.width - viz._margin.left - viz._margin.right;
+      const width = chartWidth(viz) - viz._margin.left - viz._margin.right;
 */
 export function chartBounds(viz: Viz): {width: number; height: number} {
   return {
-    width: viz.schema.width - viz._margin.left - viz._margin.right,
+    width: chartWidth(viz) - viz._margin.left - viz._margin.right,
     height: viz.schema.height - viz._margin.top - viz._margin.bottom,
   };
 }

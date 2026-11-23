@@ -369,6 +369,8 @@ export interface VizInstance {
   */
   _hoverOutline?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** The data rows reference lines with `highlight` emphasize, while no `_highlight` is set. */
+  _referenceHighlight?: Set<DataPoint> | null;
   /** The `link` group this chart is registered under (see `linkGroup.ts`). */
   _linkGroup?: string;
   /** The categorical scale `initColorDefaults` created; linked charts still using it share their group's instead. */

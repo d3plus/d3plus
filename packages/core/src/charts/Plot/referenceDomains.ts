@@ -1,17 +1,18 @@
 /**
-    Reference lines and bands count toward the axis domains they sit on, so
-    a target above the data (or a band below it) widens its continuous or
-    time axis into view. A domain end the user set stays put.
+    Reference lines, bands, and quadrant centers count toward the axis
+    domains they sit on, so a target above the data (or a band below it)
+    widens its continuous or time axis into view. A domain end the user set
+    stays put.
 */
 import {date} from "@d3plus/dom";
 
 import {
-  expandReferenceBands,
-  expandReferenceLines,
   REFERENCE_BAND,
   REFERENCE_LINE,
   referenceAxis,
 } from "../features/referenceAnnotations.js";
+import {plotAnnotationList} from "../features/plotAnnotationList.js";
+import {QUADRANTS} from "../features/referenceQuadrants.js";
 import type {Annotation} from "../features/annotationTypes.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {DomainValue} from "./pipelineScales.js";
@@ -23,25 +24,39 @@ type PlotViz = Parameters<TransformStage>[0]["viz"];
 /** The four Plot axes. */
 type AxisKey = "x" | "y" | "x2" | "y2";
 
+/** The four Plot axes, in order. */
+const AXES: AxisKey[] = ["x", "y", "x2", "y2"];
+
 /**
-    The data-unit values reference lines and bands place on each axis, from
-    a list of annotations (`"plot"`-fraction entries and other kinds left
-    out).
-    @param annotations The chart's annotations, with `referenceLines` and `referenceBands` expanded.
+    The data-unit values reference lines, bands, and quadrant centers place
+    on each axis, from a list of annotations (`"plot"`-fraction entries and
+    other kinds left out): a line's value and its `from`/`to` on the other
+    axis, each end of a band's spans, and a quadrant center's `x` and `y`.
+    @param annotations The chart's annotations, with `referenceLines`, `referenceBands`, and `quadrants` expanded.
 */
 export function referenceDomainValues(
   annotations: Annotation[],
 ): Record<AxisKey, unknown[]> {
   const out: Record<AxisKey, unknown[]> = {x: [], y: [], x2: [], y2: []};
   annotations.forEach(a => {
-    if (a.shape !== REFERENCE_LINE && a.shape !== REFERENCE_BAND) return;
     if (a.ref === "plot") return;
-    const axis = referenceAxis(a);
-    if (!axis) return;
-    const value = a[axis];
-    if (a.shape === REFERENCE_BAND) {
-      if (Array.isArray(value)) out[axis].push(value[0], value[1]);
-    } else out[axis].push(value);
+    if (a.shape === QUADRANTS) {
+      out.x.push(a.x);
+      out.y.push(a.y);
+    } else if (a.shape === REFERENCE_BAND) {
+      AXES.forEach(axis => {
+        const value = a[axis];
+        if (Array.isArray(value)) out[axis].push(value[0], value[1]);
+      });
+    } else if (a.shape === REFERENCE_LINE) {
+      const axis = referenceAxis(a);
+      if (!axis) return;
+      out[axis].push(a[axis]);
+      const other = axis[0] === "y" ? "x" : "y";
+      [a.from, a.to].forEach(v => {
+        if (v !== undefined && v !== null && v !== "") out[other].push(v);
+      });
+    }
   });
   return out;
 }
@@ -118,9 +133,10 @@ export function openDomainEnds(user: unknown): [boolean, boolean] {
 const CONTINUOUS = new Set(["Linear", "Time"]);
 
 /**
-    Widens a Plot's auto domains to take in its reference lines and bands
-    (from `referenceLines`, `referenceBands`, and `"ReferenceLine"`/
-    `"ReferenceBand"` annotations), on continuous and time axes only. An
+    Widens a Plot's auto domains to take in its reference lines, bands, and
+    quadrant center (from `referenceLines`, `referenceBands`, `quadrants`,
+    and `"ReferenceLine"`/`"ReferenceBand"` annotations), on continuous and
+    time axes only. An
     end set by the user's domain (`xDomain`, `xConfig.domain`, …) stays put.
     @param viz The chart.
     @param autoDomains Each axis's domain before the baseline is applied.
@@ -133,14 +149,9 @@ export function widenReferenceDomains(
   scales: Record<AxisKey, {type: string; config: string}>,
   user: Record<string, DomainValue[] | undefined>,
 ): Record<AxisKey, DomainValue[] | undefined> {
-  const values = referenceDomainValues([
-    ...expandReferenceBands(viz.schema.referenceBands),
-    ...expandReferenceLines(viz.schema.referenceLines),
-    ...expandReferenceLines(viz._plotReferenceLines?.()),
-    ...((viz._annotations || []) as Annotation[]),
-  ]);
+  const values = referenceDomainValues(plotAnnotationList(viz));
   const out = {...autoDomains};
-  (["x", "y", "x2", "y2"] as AxisKey[]).forEach(axis => {
+  AXES.forEach(axis => {
     const domain = autoDomains[axis];
     if (!domain || !values[axis].length) return;
     if (!CONTINUOUS.has(scales[axis].type)) return;

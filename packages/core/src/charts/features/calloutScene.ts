@@ -1,7 +1,7 @@
 /**
-    The scene of a callout annotation: per row, a connector from the box to
-    the anchor, an arrowhead or dot at the anchor, the box, and its wrapped
-    text, all inert.
+    The scene of a callout annotation: per row, any droplines from the
+    anchor to its axes, a connector from the box to the anchor, an arrowhead
+    or dot at the anchor, the box, and its wrapped text, all inert.
 */
 import type {
   CircleNode,
@@ -15,7 +15,12 @@ import type {
 import {parseDash} from "../../shapes/Shape.js";
 import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {anchorPoint, inPlot, type AnnotationFrame} from "./annotationFrame.js";
+import {
+  anchorPoint,
+  inPlot,
+  type AnnotationFrame,
+  type PlotRect,
+} from "./annotationFrame.js";
 import {
   annotationTextNode,
   annotationTextStyle,
@@ -149,6 +154,53 @@ function connectorNodes(
 }
 
 /**
+    The droplines of a callout row: a line from its anchor down (or up) to
+    the x axis it plots on, across to its y axis, or both, per `dropline`
+    (`true` is `"x"`). Nothing when `dropline` is off.
+    @param pick The row's style picker.
+    @param plot The plot area.
+    @param row The row and its key.
+    @param anchor The anchor's pixel position.
+    @param ink The default color.
+*/
+export function droplineNodes(
+  pick: (key: string) => unknown,
+  plot: PlotRect,
+  row: {d: Row; key: string},
+  anchor: Point,
+  ink: string,
+): LineNode[] {
+  const setting = pick("dropline");
+  if (!setting) return [];
+  const axes =
+    setting === "both" ? ["x", "y"] : setting === "y" ? ["y"] : ["x"];
+  const {d} = row;
+  const paint: Paint = {
+    fill: "none",
+    stroke: (pick("droplineStroke") as string) || ink,
+    strokeWidth: num(pick("droplineStrokeWidth"), 1),
+    strokeOpacity: num(pick("droplineStrokeOpacity"), 0.5),
+  };
+  const dash = parseDash(pick("droplineStrokeDasharray") ?? "4 2");
+  if (dash) paint.strokeDasharray = dash;
+  const [x, y] = anchor;
+  return axes.map(axis => {
+    const to: Point =
+      axis === "x"
+        ? [x, d.x === undefined && d.x2 !== undefined ? plot.y0 : plot.y1]
+        : [d.y === undefined && d.y2 !== undefined ? plot.x1 : plot.x0, y];
+    return {
+      type: "line",
+      key: `${row.key}-dropline-${axis}`,
+      interactive: false,
+      points: [anchor, to],
+      curve: "linear",
+      paint,
+    } as LineNode;
+  });
+}
+
+/**
     The scene nodes of one callout row, or nothing when it has no label or
     its anchor lies outside the plot area (a zoom that pans it out of view).
     @param viz The chart.
@@ -192,7 +244,8 @@ export function calloutRowNodes(
         ? box.x + box.width - padding
         : box.x + box.width / 2;
   const ink = style.fontColor;
-  const out = connectorNodes(pick, box, anchor, row.key, ink);
+  const out: SceneNode[] = droplineNodes(pick, frame.plot, row, anchor, ink);
+  out.push(...connectorNodes(pick, box, anchor, row.key, ink));
   const rect = boxNode(viz, pick, box, `${row.key}-box`, ink);
   if (rect) out.push(rect);
   out.push(

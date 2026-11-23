@@ -34,6 +34,7 @@ import type {
 import type {ColorScaleTypeSetting} from "../components/ColorScale/colorScaleType.js";
 import type {ColorScaleHoverMarkConfig} from "../components/ColorScale/colorScaleHoverMark.js";
 import type {
+  QuadrantsConfig,
   ReferenceBandConfig,
   ReferenceLineConfig,
 } from "../charts/features/annotationTypes.js";
@@ -1170,6 +1171,19 @@ export interface OutlierConfig {
   tooltip?: boolean;
 }
 
+/**
+    One entry of `responsive`: a chart width range and the config the chart
+    takes while its width is in it.
+*/
+export interface ResponsiveBreakpoint {
+  /** The narrowest chart width, in pixels, the entry applies at (inclusive). Unset, it has no lower bound. */
+  minWidth?: number;
+  /** The widest chart width, in pixels, the entry applies at (inclusive). Unset, it has no upper bound. */
+  maxWidth?: number;
+  /** Config merged over the chart's own while its width is in range, as `config()` merges it. */
+  config: D3plusConfig;
+}
+
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
@@ -1208,7 +1222,8 @@ export interface D3plusConfig {
       multiple holds it in its own panel, and a zoom keeps it (both axes
       zoom together). Ignored, with a warning, when either axis is a
       category, pow, or sqrt axis, or a log axis spanning zero. Unset (the
-      default), the plot fills its area.
+      default), the plot fills its area. To keep the whole chart's shape
+      instead, see `sizeRatio`.
       @example
       {aspectRatio: 1}
   */
@@ -2097,7 +2112,7 @@ export interface D3plusConfig {
       default.
   */
   growFrom?: number;
-  /** Overall height of the visualization in pixels. */
+  /** Overall height of the visualization in pixels. Unset, the chart takes its container's height, or its width divided by `sizeRatio`. */
   height?: number;
   /**
       Geomap: bins the coordinate points into hexagons on the projected map,
@@ -2611,7 +2626,7 @@ export interface D3plusConfig {
   */
   noDataHTML?: string | ((viz: VizBase) => string);
   /**
-      Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
+      Toggles the visibility of the status message that is displayed when no data is supplied to the visualization. While it shows, the zoom controls and the top-left controls (download, search, table view) are hidden; the back button stays, so a drill-down that left nothing to draw can still be undone. An open table view closes meanwhile, moving keyboard focus that was inside it to the chart, and reopens when data returns.
   */
   noDataMessage?: boolean;
   /**
@@ -2890,6 +2905,20 @@ export interface D3plusConfig {
   */
   proportional?: boolean;
   /**
+      Plot: splits a scatter into four quadrants around a center, drawing a
+      line across the plot at the center's `x` and one at its `y`. `true`
+      centers them on the mean of the drawn rows on each axis; a config sets
+      `x`/`y` (a value, `"mean"`, `"median"`, `"min"`, `"max"`, or a function
+      given the drawn rows), and each quadrant (`topLeft`, `topRight`,
+      `bottomLeft`, `bottomRight`) takes a `label`, drawn in its outer
+      corner, and a `fill` (or set `fill` for all four; `fillOpacity`
+      defaults to `0.08`). The dividers take `stroke`, `strokeOpacity`,
+      `strokeWidth`, and `dash`, and the labels the font keys and
+      `maxWidth`. A given center widens a continuous axis's domain to fit.
+      Defaults to `false`.
+  */
+  quadrants?: boolean | QuadrantsConfig;
+  /**
       How PolarArea maps values onto radii: `"sqrt"` (default) keeps each
       wedge's area proportional to its value; `"linear"` its radius.
   */
@@ -2907,7 +2936,10 @@ export interface D3plusConfig {
       Plot: shaded spans between two values, such as a recession or a target
       range. Give each entry `x` (vertical) or `y` (horizontal) as
       `[start, end]` in data units, `x2`/`y2` for the secondary axes, or
-      `ref: "plot"` for fractions of the plot. Optional: a `label` (top-left;
+      `ref: "plot"` for fractions of the plot; give both an x and a y span to
+      shade the rectangle between them. An end can be a statistic of the
+      drawn rows (`"mean"`, `"median"`, `"min"`, `"max"`) or a function given
+      them. Optional: a `label` (top-left;
       `labelPosition: "end"` for top-right) with font keys and `maxWidth`,
       `fill`/`fillOpacity` (default the text color at `0.08`), `stroke`,
       `strokeWidth`, `strokeOpacity`, and `layer: "front"` to draw over the
@@ -2918,13 +2950,43 @@ export interface D3plusConfig {
       Plot: lines across the plot at one value, such as a target or a launch
       date. Give each entry `x` (vertical) or `y` (horizontal) in data units,
       `x2`/`y2` for the secondary axes, or `ref: "plot"` for a fraction of the
-      plot. Optional: a `label` at the line's `"end"` or `"start"`
-      (`labelPosition`) with font keys and `maxWidth`, `stroke`/`strokeOpacity`
-      (default the text color at `0.6`), `strokeWidth` (`1`), `dash` (`true`
-      or a dash pattern), and `layer: "front"` to draw over the data. A line
-      widens a continuous axis's domain to fit.
+      plot. The value can be a statistic of the rows the chart draws
+      (`"mean"`, `"median"`, `"min"`, or `"max"`, labeled with its translated
+      name; on a stacked chart's value axis, of the stacks' totals) or a
+      function given those rows; `perSeries: true` draws one such line per
+      series, in its color. `from`/`to` (values on the other axis) draw only
+      part of the line, and `highlight: "above"` (or `"below"`) grays the
+      rows on the other side of it while no `highlight` is set. Optional: a
+      `label` (or a function of the value and rows) at the line's `"end"` or
+      `"start"` (`labelPosition`) with font keys and `maxWidth`,
+      `stroke`/`strokeOpacity` (default the text color at `0.6`),
+      `strokeWidth` (`1`), `dash` (`true` or a dash pattern), and
+      `layer: "front"` to draw over the data. A line widens a continuous
+      axis's domain to fit.
   */
   referenceLines?: ReferenceLineConfig[];
+  /**
+      Swaps in other settings when the chart is narrow (or wide): a list of
+      breakpoints, each a `minWidth` and/or `maxWidth` in pixels (both
+      inclusive) and the `config` the chart takes while its own width, not
+      the window's, is in that range. Every matching entry merges over the
+      chart's config in list order, so a later entry wins, and deep-merges
+      config objects such as `shapeConfig` the way `config()` does. When the
+      width leaves a range its settings are taken back off, restoring what
+      was set before. Setting a key while a breakpoint holds it updates the
+      value restored afterwards; the breakpoint keeps its own value until
+      the width leaves its range. Checked on every render, including the
+      ones a container resize starts. A breakpoint cannot set `data`,
+      `select`, `width`, `height`, or `responsive`.
+      @example
+      {
+        responsive: [
+          {maxWidth: 480, config: {legend: false, xConfig: {ticks: 4}}},
+          {minWidth: 1200, config: {titleConfig: {fontSize: 24}}}
+        ]
+      }
+  */
+  responsive?: ResponsiveBreakpoint[];
   /**
       WordCloud: the angle, in degrees clockwise, each word is drawn at: a
       number for every word, an array of angles (each word takes one,
@@ -3101,6 +3163,27 @@ export interface D3plusConfig {
       Which margin the size legend claims in the chart's bottom-right corner. `"right"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `"bottom"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.
   */
   sizeLegendPosition?: "right" | "bottom";
+  /**
+      Keeps the chart's shape as its width changes: its width divided by its
+      height, such as `16 / 9` or `1` for a square. Used when the chart has
+      no `height` of its own, in place of the height of its container: the
+      chart's height follows its width, and a container without a height of
+      its own grows to hold it. In a container whose height is set (by CSS,
+      a flex or grid layout, or a `max-height`) and lower than the ratio
+      asks for, the chart takes the container's height and narrows to keep
+      its ratio, centered with equal space on both sides (like `object-fit:
+      contain`), and so do its loading and no-data messages. A chart with
+      an explicit `width` centers inside that width instead, and otherwise
+      takes its width ÷ ratio as its height. `width` keeps the full width
+      (the container's, or the one you set) while the chart draws narrower,
+      and `responsive` breakpoints match it; a breakpoint can change the
+      ratio. Not to be
+      confused with a Plot's `aspectRatio`, which sets the ratio of one unit
+      on the y axis to one on the x axis inside the plot area.
+      @example
+      {sizeRatio: 16 / 9}
+  */
+  sizeRatio?: number;
   /**
       Anchors a Plot's size scale at zero, so a mark's size is proportional to its value: with the default `sizeScale` of `"sqrt"`, each circle's area is (a value twice as large draws a circle with twice the area), and with `"linear"`, its radius. The largest value still draws at `sizeMax`, while `sizeMin` no longer sets the smallest mark's radius, so values near zero draw as small as they are. Off by default, except on BubbleChart. Ignored when any size is negative or `sizeScale` is `"log"`.
   */

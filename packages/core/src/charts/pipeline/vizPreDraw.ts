@@ -22,6 +22,7 @@ import type {VizPreDrawResult} from "./preDrawData.js";
 import {bareRegionName} from "../features/bareRegion.js";
 import {GROUP_LABEL_KEY, groupDepthOf} from "../viz/groupRow.js";
 import {warnMissingFields} from "../viz/missingFields.js";
+import {placeMessage} from "../viz/letterbox.js";
 import {configureOrdinalColor} from "../viz/ordinalColor.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -271,6 +272,7 @@ export function vizPreDraw(viz: Viz): void {
       mask: false,
       style: viz.schema.messageStyle,
     });
+    placeMessage(viz as unknown as Parameters<typeof placeMessage>[0]);
     viz
       ._select!.transition()
       .duration(effectiveDuration(viz))

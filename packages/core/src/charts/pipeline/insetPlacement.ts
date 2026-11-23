@@ -52,6 +52,7 @@ import {
 } from "../drawSteps/zoomControlsMarkup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveSpec} from "./resolveSpec.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /**
     The default inset region: the chart area (or `bounds`, in surface
@@ -95,7 +96,7 @@ export const MIN_LEGEND_ENTRY =
 */
 function legendCouldFit(viz: VizInstance): boolean {
   const frame = insetFrame("column", {
-    width: viz.schema.width || 0,
+    width: chartWidth(viz) || 0,
     height: viz.schema.height || 0,
   });
   // Counting stops at the first entry past the most that could fit.
@@ -258,7 +259,7 @@ function chromeBoxes(viz: VizInstance): Bounds[] {
   const zoom = zoomControlsBox(viz as never);
   if (zoom)
     boxes.push({
-      x: viz.schema.width - zoom.width,
+      x: chartWidth(viz) - zoom.width,
       y: 0,
       width: zoom.width,
       height: zoom.height,
@@ -268,7 +269,7 @@ function chromeBoxes(viz: VizInstance): Bounds[] {
     const minimap =
       (anchor.width - MINIMAP_RIGHT_INSET) * (height / Math.max(1, width));
     boxes.push({
-      x: viz.schema.width - anchor.width,
+      x: chartWidth(viz) - anchor.width,
       y: 0,
       width: anchor.width,
       height: anchor.height + minimap,
@@ -288,7 +289,7 @@ function chromeBoxes(viz: VizInstance): Bounds[] {
     const text = String(viz.schema.attribution).replace(/<[^>]*>/g, "");
     const w = Math.min(node?.offsetWidth || text.length * 6 + 30, width / 2);
     const h = node?.offsetHeight || ATTRIBUTION_HEIGHT;
-    const right = viz.schema.width - viz._margin.right,
+    const right = chartWidth(viz) - viz._margin.right,
       bottom = viz.schema.height - viz._margin.bottom;
     boxes.push({x: right - w, y: bottom - h, width: w, height: h});
   }

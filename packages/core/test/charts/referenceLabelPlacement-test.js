@@ -6,13 +6,15 @@ import {LinePlot} from "../../index.ts";
 import {
   REFERENCE_BAND,
   REFERENCE_LINE,
-  referenceBandLabelAt,
-  referenceBandLabelSpots,
   referenceBandNodes,
-  referenceLineLabelAt,
-  referenceLineLabelSpots,
   referenceLineNodes,
 } from "../../src/charts/features/referenceAnnotations.ts";
+import {
+  referenceBandLabelAt,
+  referenceBandLabelSpots,
+  referenceLineLabelAt,
+  referenceLineLabelSpots,
+} from "../../src/charts/features/referenceLabelSpots.ts";
 import {
   labelSpotBox,
   pickLabelSpot,

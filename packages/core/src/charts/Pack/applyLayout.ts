@@ -15,6 +15,7 @@ import {rowIndex} from "../features/rowIndex.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {attachGroupRows, packDatum, packPaintDatum} from "./groupRows.js";
 import type {GroupedNode} from "./groupRows.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 type PackLeaf = Omit<HierarchyCircularNode<DataPoint>, "id"> & {
   __d3plus__: true;
@@ -30,7 +31,7 @@ export const applyPackLayout: TransformStage = ({viz}) => {
   if (!data || !data.length) return {shapeData: []};
 
   const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
-  const width = viz.schema.width - viz._margin.left - viz._margin.right;
+  const width = chartWidth(viz) - viz._margin.left - viz._margin.right;
   const diameter = Math.min(height, width);
 
   type Branch = {key?: string | number; values?: DataPoint[]} & DataPoint;

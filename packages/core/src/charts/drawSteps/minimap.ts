@@ -16,6 +16,7 @@ import {
 } from "./minimapMarkup.js";
 import {minimapAnchor} from "./zoomControlsMarkup.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 type MinimapStyles = ReturnType<typeof minimapStyles>;
 
@@ -360,7 +361,7 @@ function buildMinimapPanel(
   return {
     type: "htmlOverlay",
     key: "viz-minimap",
-    x: viz.schema.width - MINIMAP_RIGHT_INSET - mmW,
+    x: chartWidth(viz) - MINIMAP_RIGHT_INSET - mmW,
     y: controlsHeight + MINIMAP_GAP,
     width: mmW,
     height: mmH,

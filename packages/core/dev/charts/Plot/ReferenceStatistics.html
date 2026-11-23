@@ -1,0 +1,241 @@
+<!doctype html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Reference Statistics · Plot</title>
+    <meta
+      name="description"
+      content="Reference lines at the mean, median, min, max, or a function of the drawn rows (one line, or one per series), partial lines with from/to, highlighting above a line, and callouts that select their own rows with droplines, across line, stacked bar, time, scatter, and small-multiple plots."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 320px;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      .dark {
+        background: #212529;
+        color: #f8f9fa;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>LinePlot: one mean and one max line over every series</h3>
+        <div class="viz" id="line"></div>
+      </div>
+      <div>
+        <h3>LinePlot: a mean line per series, in its color</h3>
+        <div class="viz" id="series"></div>
+      </div>
+      <div>
+        <h3>Stacked BarChart: the median of the stack totals</h3>
+        <div class="viz" id="stacked"></div>
+      </div>
+      <div>
+        <h3>Time axis: the median date, and a partial target line</h3>
+        <div class="viz" id="time"></div>
+      </div>
+      <div>
+        <h3>Scatter: highlight the points above the mean (scroll to zoom)</h3>
+        <div class="viz" id="scatter"></div>
+      </div>
+      <div>
+        <h3>
+          Callouts that select their rows: each series' last point, and a
+          function's pick with droplines
+        </h3>
+        <div class="viz" id="callouts"></div>
+      </div>
+      <div>
+        <h3>A function of the drawn rows: the 90th percentile</h3>
+        <div class="viz" id="custom"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark theme: the mean, and the max with droplines to both axes</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+      <div class="wide">
+        <h3>Small multiples: each panel draws its own mean</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+
+    <script>
+      const series = [];
+      ["Alpha", "Beta", "Gamma"].forEach((id, k) => {
+        for (let i = 0; i <= 12; i++)
+          series.push({
+            id,
+            x: 2010 + i,
+            y: 20 + k * 18 + i * (k + 1) + ((i * (k + 3)) % 7) * 3,
+          });
+      });
+
+      new d3plus.LinePlot()
+        .select("#line")
+        .data(series)
+        .groupBy("id")
+        .referenceLines([{y: "mean"}, {y: "max", dash: true}])
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#series")
+        .data(series)
+        .groupBy("id")
+        .referenceLines([{y: "mean", perSeries: true, dash: true}])
+        .render();
+
+      const sales = [];
+      ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"].forEach((q, i) => {
+        sales.push({quarter: q, channel: "Online", sales: 20 + i * 6});
+        sales.push({quarter: q, channel: "Retail", sales: 35 - i * 2});
+        sales.push({quarter: q, channel: "Wholesale", sales: 10 + (i % 3) * 5});
+      });
+
+      new d3plus.BarChart()
+        .select("#stacked")
+        .data(sales)
+        .groupBy("channel")
+        .x("quarter")
+        .y("sales")
+        .stacked(true)
+        .referenceLines([{y: "median", dash: true}])
+        .render();
+
+      const monthly = [];
+      for (let i = 0; i < 36; i++)
+        monthly.push({
+          id: "Price",
+          date: new Date(2021, i, 1),
+          value: 100 + 30 * Math.sin(i / 4) + i,
+        });
+
+      new d3plus.LinePlot()
+        .select("#time")
+        .data(monthly)
+        .groupBy("id")
+        .x("date")
+        .time("date")
+        .y("value")
+        .timeline(false)
+        .legend(false)
+        .referenceLines([
+          {x: "median"},
+          {
+            y: 140,
+            from: "2022-06-01",
+            to: "2023-12-01",
+            label: "2023 goal",
+            dash: true,
+          },
+        ])
+        .render();
+
+      const points = [];
+      for (let i = 0; i < 40; i++)
+        points.push({
+          id: `P${i}`,
+          x: (i * 37) % 100,
+          y: 10 + ((i * 53) % 80) + (i % 5) * 2,
+        });
+
+      new d3plus.Plot()
+        .select("#scatter")
+        .data(points)
+        .groupBy("id")
+        .legend(false)
+        .referenceLines([{y: "mean", highlight: "above"}])
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#callouts")
+        .data(series)
+        .groupBy("id")
+        .legend(false)
+        .annotations([
+          {
+            shape: "Callout",
+            select: "last",
+            perSeries: true,
+            dx: -30,
+            dy: -30,
+            marker: "dot",
+          },
+          {
+            shape: "Callout",
+            select: rows => rows.filter(d => d.x === 2017),
+            label: d => `${d.id} in 2017: ${d.y}`,
+            dx: 30,
+            dy: -50,
+            dropline: true,
+          },
+        ])
+        .render();
+
+      new d3plus.Plot()
+        .select("#custom")
+        .data(points)
+        .groupBy("id")
+        .legend(false)
+        .referenceLines([
+          {
+            y: rows => {
+              const ys = rows.map(d => d.y).sort((a, b) => a - b);
+              return ys[Math.floor(ys.length * 0.9)];
+            },
+            label: v => `90th percentile: ${Math.round(v)}`,
+            dash: true,
+          },
+        ])
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#dark")
+        .data(series)
+        .groupBy("id")
+        .backgroundConfig({fill: "#212529"})
+        .referenceLines([{y: "mean", dash: true}])
+        .annotations([
+          {
+            shape: "Callout",
+            select: "max",
+            label: d => `Peak: ${d.y}`,
+            dropline: "both",
+            dx: -80,
+            dy: 20,
+          },
+        ])
+        .render();
+
+      new d3plus.Plot()
+        .select("#facet")
+        .data(points.map((d, i) => ({...d, group: i % 2 ? "Even" : "Odd"})))
+        .groupBy("id")
+        .facet("group")
+        .legend(false)
+        .referenceLines([{y: "mean"}])
+        .render();
+    </script>
+  </body>
+</html>

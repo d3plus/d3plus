@@ -79,6 +79,7 @@ import {
   prefixKeys,
 } from "./facetScene.js";
 import type {FacetTitle} from "./facetScene.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** A facet group with its drawable rows. */
 interface Panel extends FacetGroup {
@@ -117,7 +118,7 @@ export function facetAreaMargin(
   return {
     top: area.y,
     left: area.x,
-    right: viz.schema.width - area.x - area.width,
+    right: chartWidth(viz) - area.x - area.width,
     bottom: viz.schema.height - area.y - area.height,
   };
 }
@@ -531,7 +532,7 @@ export function drawFacets(viz: VizInstance): boolean {
   const area: FacetArea = {
     x: margin.left,
     y: margin.top,
-    width: viz.schema.width - margin.left - margin.right,
+    width: chartWidth(viz) - margin.left - margin.right,
     height: viz.schema.height - margin.top - margin.bottom,
   };
 

@@ -125,6 +125,7 @@ export type {
   OutlierConfig,
   OutlierSetting,
   PointLabelConfig,
+  ResponsiveBreakpoint,
   SaveControlConfig,
   SaveFormat,
   SizeLegendConfig,
@@ -141,9 +142,13 @@ export type {
   AnnotationTextStyle,
   AnnotationValue,
   CalloutAnnotation,
+  QuadrantStyle,
+  QuadrantsConfig,
   ReferenceBandConfig,
   ReferenceLineConfig,
+  ReferenceStatistic,
   ReferenceStyle,
+  ReferenceValue,
 } from "./src/charts/features/annotationTypes.js";
 export type {
   RangeBreakRule,

@@ -26,6 +26,7 @@
 import {select} from "d3-selection";
 
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 export type ZoomDomKind = "network" | "geomap" | "generic";
 
@@ -87,7 +88,7 @@ function zoomDomParent(
     .style("overflow", "hidden")
     .style("pointer-events", "none")
     .merge(underlay)
-    .attr("width", viz.schema.width)
+    .attr("width", chartWidth(viz))
     .attr("height", viz.schema.height) as unknown as NonNullable<
     Viz["_select"]
   >;

@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Responsive · Viz</title>
+    <meta
+      name="description"
+      content="A line chart in a resizable box that keeps a 16:9 sizeRatio and swaps in responsive breakpoints (no legend, line labels, fewer ticks, a shorter title, a square shape) as its own width narrows, and 16:9 charts letterboxed, centered, inside boxes with a fixed height: one filling the box (with a no-data toggle) and one with an explicit width."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+
+      #box {
+        width: 900px;
+        max-width: 100%;
+        min-width: 200px;
+        resize: horizontal;
+        overflow: hidden;
+        border: 1px dashed #aaa;
+      }
+
+      .fixed {
+        width: 900px;
+        max-width: 100%;
+        min-width: 200px;
+        height: 300px;
+        resize: both;
+        overflow: hidden;
+        border: 1px dashed #aaa;
+      }
+
+      h2 {
+        margin: 24px 0 8px;
+        font-size: 16px;
+      }
+
+      #after {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #666;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="controls">
+      <label
+        >Container width
+        <input id="width" type="range" min="200" max="1200" value="900"
+      /></label>
+      <span id="status"></span>
+    </div>
+    <div id="box"><div id="viz"></div></div>
+    <p id="after">
+      Content after the chart: the chart's height follows its width, so this
+      line moves with it. Drag the box's corner or the slider to resize it.
+    </p>
+    <h2>In a box with a fixed height (300px)</h2>
+    <p id="fixedStatus"></p>
+    <button type="button" id="noData">Toggle no data</button>
+    <div id="fixed" class="fixed">
+      <div id="vizFixed" style="height: 100%"></div>
+    </div>
+    <h2>An explicit width (700px) in a box with a fixed height (300px)</h2>
+    <p id="explicitStatus"></p>
+    <div class="fixed"><div id="vizExplicit" style="height: 100%"></div></div>
+  </body>
+
+  <script>
+    const regions = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
+    const data = [];
+    regions.forEach((region, r) => {
+      for (let year = 2000; year <= 2024; year++) {
+        const value =
+          20 + r * 12 + (year - 2000) * (1 + r * 0.4) + ((year * 7 + r) % 5);
+        data.push({region, year, value});
+      }
+    });
+
+    const status = document.getElementById("status");
+    const viz = new d3plus.LinePlot()
+      .select("#viz")
+      .data(data)
+      .groupBy("region")
+      .x("year")
+      .y("value")
+      .title("Exports by region, 2000 to 2024 (billions of dollars)")
+      .sizeRatio(16 / 9)
+      .responsive([
+        {
+          maxWidth: 640,
+          config: {
+            legend: false,
+            lineLabels: true,
+            title: "Exports by region",
+            xConfig: {ticks: [2000, 2008, 2016, 2024]},
+          },
+        },
+        {
+          maxWidth: 400,
+          config: {
+            search: false,
+            sizeRatio: 1,
+            yConfig: {title: false},
+            zoom: false,
+          },
+        },
+      ])
+      .render(() => {
+        const width = Math.round(viz.width());
+        const height = Math.round(viz.height());
+        const active = viz
+          .responsive()
+          .filter(d => !d.maxWidth || width <= d.maxWidth)
+          .map(d => `≤ ${d.maxWidth}px`);
+        status.textContent = `${width} × ${height} · breakpoints: ${active.join(", ") || "none"}`;
+      });
+
+    const fixedStatus = document.getElementById("fixedStatus");
+    const fixed = new d3plus.LinePlot()
+      .select("#vizFixed")
+      .data(data)
+      .groupBy("region")
+      .x("year")
+      .y("value")
+      .sizeRatio(16 / 9)
+      .render(() => {
+        fixedStatus.textContent = `sizeRatio 16:9, width() ${Math.round(fixed.width())}, drawn at ${Math.round(d3plus.chartWidth(fixed))} × ${Math.round(fixed.height())}: takes the box's height and narrows to keep its ratio, centered, or fills the width once the box is narrow enough. Drag the corner to resize it.`;
+      });
+
+    let empty = false;
+    document.getElementById("noData").addEventListener("click", () => {
+      empty = !empty;
+      fixed.data(empty ? [] : data).render();
+    });
+
+    const explicitStatus = document.getElementById("explicitStatus");
+    const explicit = new d3plus.LinePlot()
+      .select("#vizExplicit")
+      .data(data)
+      .groupBy("region")
+      .x("year")
+      .y("value")
+      .width(700)
+      .sizeRatio(16 / 9)
+      .render(() => {
+        explicitStatus.textContent = `width(700), sizeRatio 16:9: width() stays ${Math.round(explicit.width())}, drawn at ${Math.round(d3plus.chartWidth(explicit))} × ${Math.round(explicit.height())}, centered inside the 700px it was given.`;
+      });
+
+    const box = document.getElementById("box");
+    document.getElementById("width").addEventListener("input", event => {
+      box.style.width = `${event.target.value}px`;
+    });
+  </script>
+</html>
