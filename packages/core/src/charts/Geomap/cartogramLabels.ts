@@ -15,6 +15,7 @@ import constant from "../../utils/constant.js";
 import {resolveAccessor, userLabelConfig} from "../features/emitHelpers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {CartogramRegion, CartogramShape} from "./cartogramLayout.js";
+import {rowIndex} from "../features/rowIndex.js";
 
 /** A region drawn in the cartogram, with its row and its index among the regions. */
 interface Labeled {
@@ -64,12 +65,15 @@ export function cartogramLabels(
 ): SceneNode[] {
   if (pathConfig.label === false) return [];
   const items: Labeled[] = [];
-  regions.forEach((region, index) => {
+  regions.forEach(region => {
     const shape = shapes.get(region.id);
     const datum = region.data ?? (options.all ? region : undefined);
     // A distorted region (a contiguous cartogram) keeps the map's own labels: none.
-    if (shape && datum && shape.r > 0)
+    if (shape && datum && shape.r > 0) {
+      // The row's position in the data, as the region's paint reads it.
+      const index = rowIndex(viz._filteredData, datum as DataPoint);
       items.push({region, datum: datum as DataPoint, index, shape});
+    }
   });
   if (!items.length) return [];
   const rows = items.map(item => item.datum);

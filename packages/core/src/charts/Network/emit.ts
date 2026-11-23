@@ -259,7 +259,7 @@ function networkNode(
   shapeKind: string,
   d: NetworkNode,
   merged: Record<string, unknown>,
-  base: {datum: DataPoint; paint: Paint; aria: {label: string}},
+  base: {datum: DataPoint; paint: Paint; aria: {label: string}; index: number},
   i: number,
 ): SceneNode | null {
   const key = `network-${shapeKind}-${d.id}`;
@@ -545,7 +545,7 @@ export const networkEmit: ChartEmit = pairLabels(({viz}) => {
           shapeKind,
           d,
           merged,
-          {datum, paint, aria},
+          {datum, paint, aria, index: d.i ?? i},
           d.i ?? i,
         );
         // Other shape kinds: skipped (Network's default is Circle).

@@ -30,7 +30,9 @@ export const priestleyEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
   const ticks = (viz.ctx.ticks ?? []) as unknown[];
   const sc = shapeConfigFor(viz, "Rect");
 
-  const rectNodes: SceneNode[] = data.map((d, i) => {
+  const rectNodes: SceneNode[] = data.map((d, k) => {
+    // The row's position in the data, as the start/end accessors read it.
+    const i = d.i;
     const fill = resolveAccessor<string>(sc.fill, d.data, i);
     const stroke = resolveAccessor<string>(sc.stroke, d.data, i);
     const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d.data, i);
@@ -47,13 +49,14 @@ export const priestleyEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
     return {
       type: "rect",
       shapeType: "Bar",
-      key: `priestley-${d.id}-${i}`,
+      key: `priestley-${d.id}-${k}`,
       transform: {x: left, y: top},
       x: 0,
       y: -bandWidth / 2,
       width,
       height: bandWidth,
       datum: d.data,
+      index: i,
       // Lights the labels of the ticks the band spans.
       hoverKeys: {[TICK_FIELD]: bandTicks(ticks, d)},
       paint: {
@@ -67,7 +70,7 @@ export const priestleyEmit: ChartEmit = pairLabels(({viz, shapeData}) => {
 
   const labelNodes = emitLabels({
     data: data as unknown as DataPoint[],
-    label: (_d, i) => viz._drawLabel(data[i].data, i),
+    label: (_d, i) => viz._drawLabel(data[i].data, data[i].i),
     x: (_d, i) => {
       const d = data[i];
       return xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2;

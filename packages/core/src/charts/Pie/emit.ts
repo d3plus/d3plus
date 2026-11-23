@@ -122,6 +122,7 @@ function buildPathNode(d: Slice, rank: number, ctx: PathNodeCtx): SceneNode {
     startAngle: d.startAngle,
     endAngle: d.endAngle,
     datum: d.data,
+    index: d.i,
     paint: {
       fill: textureFill(sc, d.data as DataPoint, d.i ?? 0, fill),
       stroke,

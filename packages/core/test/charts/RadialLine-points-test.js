@@ -68,7 +68,6 @@ it("radialDotNodes puts a Circle on each dot, painted from the config", () => {
   const nodes = radialDotNodes(
     fakeViz(),
     "A",
-    0,
     dots(),
     {r: 3, fill: d => (d.month === "Jan" ? "red" : "blue")},
     "radial",
@@ -111,17 +110,13 @@ it("radialDotNodes puts a Circle on each dot, painted from the config", () => {
 
 it("radialDotNodes leaves out dots whose radius is 0 or less", () => {
   assert.deepStrictEqual(
-    radialDotNodes(fakeViz(), "A", 0, dots(), {r: 0}, "r"),
+    radialDotNodes(fakeViz(), "A", dots(), {r: 0}, "r"),
     [],
   );
-  assert.deepStrictEqual(
-    radialDotNodes(fakeViz(), "A", 0, dots(), {}, "r"),
-    [],
-  );
+  assert.deepStrictEqual(radialDotNodes(fakeViz(), "A", dots(), {}, "r"), []);
   const some = radialDotNodes(
     fakeViz(),
     "A",
-    0,
     dots(),
     {r: d => (d.month === "Feb" ? 2 : -1)},
     "r",

@@ -33,6 +33,8 @@ import type {VizInstance} from "../viz/vizTypes.js";
 export interface RadialTreeNode {
   data?: DataPoint;
   i?: number;
+  /** The position of its row in the drawn data (see `rowIndex`). */
+  row?: number;
   depth?: number;
   x?: number;
   y?: number;
@@ -202,7 +204,7 @@ export function radialNodeReach(
   const shape = shapeAccessor(row);
   const cfg = shapeConfigFor(viz, shape);
   const num = (key: string) =>
-    Number(resolveAccessor<number>(cfg[key], row, n.i) ?? 0) || 0;
+    Number(resolveAccessor<number>(cfg[key], row, n.row) ?? 0) || 0;
   if (shape === "Rect") return boxReach(num("width"), num("height"), theta);
   return num("r");
 }
@@ -215,11 +217,11 @@ export function radialLabelFont(
   const row = (n.data ?? n) as DataPoint;
   const shapeAccessor = viz.schema.shape as (d: DataPoint) => string;
   const cfg = userLabelConfig(viz, shapeAccessor(row));
-  const size = resolveAccessor<number>(cfg.fontSize, row, n.i);
+  const size = resolveAccessor<number>(cfg.fontSize, row, n.row);
   return {
     size: typeof size === "number" && size > 0 ? size : RADIAL_LABEL_FONT_SIZE,
-    family: resolveAccessor<string | string[]>(cfg.fontFamily, row, n.i),
-    weight: resolveAccessor<string | number>(cfg.fontWeight, row, n.i),
+    family: resolveAccessor<string | string[]>(cfg.fontFamily, row, n.row),
+    weight: resolveAccessor<string | number>(cfg.fontWeight, row, n.row),
   };
 }
 

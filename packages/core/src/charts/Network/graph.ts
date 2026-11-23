@@ -175,11 +175,14 @@ export function resolveGraphNodes(v: VizInstance): GraphNode[] {
       const d = data[id];
       const n = rawNodes[id];
       if (n === undefined) return false;
+      // Accessors read the node with its index, as its paint and handlers do.
       const pickFrom = <T>(
-        accessor: (x: DataPoint) => T,
+        accessor: (x: DataPoint, i: number) => T,
         validate: (x: T) => boolean = vv => vv !== undefined,
       ): T =>
-        d !== undefined && validate(accessor(d)) ? accessor(d) : accessor(n);
+        d !== undefined && validate(accessor(d, i))
+          ? accessor(d, i)
+          : accessor(n, i);
       const valid = (val: number) => !isNaN(val);
       return {
         __d3plus__: true,

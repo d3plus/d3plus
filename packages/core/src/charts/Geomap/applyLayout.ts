@@ -55,6 +55,7 @@ import {
   tileGridRegions,
 } from "./tileGrid.js";
 import {isPointRow} from "./pointRows.js";
+import {pointOf, pointSizeOf} from "./pointAccessors.js";
 
 type GeomapViz = VizContext["viz"];
 
@@ -166,7 +167,7 @@ function applyPointExtentBounds(
     [undefined, undefined],
   ];
   const coords: LonLat[] = pointData
-    .map((d: DataPoint, i: number) => v.schema.point(d, i) as LonLat)
+    .map((d: DataPoint) => pointOf(v, d) as LonLat)
     .concat(linkCoords);
   coords.forEach((coord: LonLat) => {
     const point = v.schema.projection(coord);
@@ -196,8 +197,7 @@ function applyPointExtentBounds(
     ],
   };
   const maxSize =
-    max(pointData, (d: DataPoint, i: number) => r(v.schema.pointSize(d, i))) ??
-    0;
+    max(pointData, (d: DataPoint) => r(pointSizeOf(v, d) as number)) ?? 0;
   ctx.effectivePadding = {
     top: v.schema.projectionPadding.top + maxSize,
     right: v.schema.projectionPadding.right + maxSize,
@@ -227,9 +227,10 @@ export function geomapPointSizeScale(
     }
   )
     .domain(
-      extent(pointData, (d: DataPoint, i: number) =>
-        v.schema.pointSize(d, i),
-      ) as unknown as [number, number],
+      extent(pointData, (d: DataPoint) => pointSizeOf(v, d) as number) as [
+        number,
+        number,
+      ],
     )
     .range([v.schema.pointSizeMin, v.schema.pointSizeMax]);
 }
@@ -245,8 +246,8 @@ export function visiblePointData(
   pointData: DataPoint[],
   path: GeoPathFn,
 ): DataPoint[] {
-  return pointData.filter((d: DataPoint, i: number) => {
-    const coord = toLonLat(v.schema.point(d, i));
+  return pointData.filter((d: DataPoint) => {
+    const coord = toLonLat(pointOf(v, d));
     return coord !== null && coordinateVisible(path, coord);
   });
 }
@@ -544,7 +545,7 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   ctx.geomapHeight = height;
   const featurePath = cachedPaths(v.schema.projection, path);
 
-  const pointR = (d: DataPoint, i: number) => r(v.schema.pointSize(d, i));
+  const pointR = (d: DataPoint) => r(pointSizeOf(v, d) as number);
   // A cartogram or tile grid draws its regions only: coordinate points have
   // no place on it.
   const cartogram = reshapeRegions(
@@ -589,11 +590,9 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     cluster,
     pointR,
     pointSort: (a: DataPoint, b: DataPoint) =>
-      v.schema.pointSize(b) - v.schema.pointSize(a),
-    pointX: (d: DataPoint, i: number) =>
-      v.schema.projection(v.schema.point(d, i))[0],
-    pointY: (d: DataPoint, i: number) =>
-      v.schema.projection(v.schema.point(d, i))[1],
+      (pointSizeOf(v, b) as number) - (pointSizeOf(v, a) as number),
+    pointX: (d: DataPoint) => v.schema.projection(pointOf(v, d))[0],
+    pointY: (d: DataPoint) => v.schema.projection(pointOf(v, d))[1],
   };
 
   return {shapeData: topoData};

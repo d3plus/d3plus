@@ -189,6 +189,7 @@ function emitSankeyNodes(
           width: d.x1 - d.x0,
           height: d.y1 - d.y0,
           datum,
+          index: d.i ?? i,
           paint,
           aria,
         } as SceneNode);
@@ -201,6 +202,7 @@ function emitSankeyNodes(
           cy: (d.y0 + d.y1) / 2,
           r,
           datum,
+          index: d.i ?? i,
           paint,
           aria,
         } as SceneNode);

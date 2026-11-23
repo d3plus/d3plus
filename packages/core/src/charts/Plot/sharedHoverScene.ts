@@ -26,6 +26,7 @@ import type {FacetPanelState} from "../facet/facetConfig.js";
 import {withFacetPanel} from "../facet/facetPanel.js";
 import {prefixKeys} from "../facet/facetScene.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {lineMarkerAccessors} from "./lineMarkerAccessors.js";
 
 type Parent = {key?: string | number; children?: SceneNode[]};
 type HoverState = NonNullable<VizInstance["_sharedHoverState"]>;
@@ -91,7 +92,7 @@ function hoverMarkers(viz: VizInstance, state: HoverState): SceneNode[] {
   const markers = makeShape("Circle")
     .renderMode("compute")
     .data(state.markers.map(m => m.datum))
-    .config(viz._lineMarkerConfig)
+    .config(lineMarkerAccessors(viz))
     .x((d: DataPoint) => at.get(d)!.x)
     .y((d: DataPoint) => at.get(d)!.y)
     .id((d: DataPoint) => `${d.id}_shared`);

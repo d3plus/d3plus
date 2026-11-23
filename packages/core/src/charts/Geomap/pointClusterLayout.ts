@@ -27,6 +27,7 @@ import {
 } from "./pointCluster.js";
 import type {ClusterLeaf, ClusterLevel, ClusterNode} from "./pointCluster.js";
 import type {ClusterDraw} from "./pointClusterEmit.js";
+import {pointOf, pointSizeOf} from "./pointAccessors.js";
 
 /** The `pointCluster` option. */
 export interface PointClusterConfig {
@@ -165,13 +166,13 @@ export function geomapPointClusters(
   const projection = viz.schema.projection as (
     c: [number, number],
   ) => [number, number] | null;
-  const sizes = rows.map((d, i) => Number(viz.schema.pointSize(d, i)));
+  const sizes = rows.map(d => Number(pointSizeOf(viz, d)));
   const weights = sizes.map(s => (Number.isFinite(s) && s > 0 ? s : 0));
   const weighed = weights.some(w => w > 0);
   const kept: DataPoint[] = [];
   const leaves: ClusterLeaf[] = [];
   rows.forEach((d, i) => {
-    const coord = toLonLat(viz.schema.point(d, i));
+    const coord = toLonLat(pointOf(viz, d));
     const p = coord ? projection(coord) : null;
     if (!p || !Number.isFinite(p[0]) || !Number.isFinite(p[1])) return;
     const r = pointR(d, i);
@@ -273,7 +274,7 @@ export function geoClusterTooltipRows(
   const state = viz.ctx.geomapCtx as {cluster?: GeoClusterState} | undefined;
   if (!meta) return [];
   const sized = state?.cluster?.sized ?? false;
-  const size = (row: DataPoint) => Number(viz.schema.pointSize(row));
+  const size = (row: DataPoint) => Number(pointSizeOf(viz, row));
   const listed = meta.rows.map((row, i) => ({row, i}));
   if (sized)
     listed.sort(

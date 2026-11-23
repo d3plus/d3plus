@@ -19,6 +19,7 @@ import type {DrillDownHistoryEntry, VizInstance} from "../viz/vizTypes.js";
 import {partitionLineage} from "./hierarchy.js";
 import type {PartitionKey, PartitionNode} from "./hierarchy.js";
 import {partitionFocus} from "./zoom.js";
+import {AGGREGATE_INDEX} from "../features/rowIndex.js";
 
 type Handler = (d: DataPoint, i: number, x?: unknown, event?: Event) => void;
 type HoverFn = (fn: ((h: DataPoint, i?: number) => boolean) | false) => unknown;
@@ -188,7 +189,11 @@ function partitionTooltip(
   const tooltip = viz._tooltipClass!;
   const config = viz.schema.tooltipConfig as Record<string, unknown>;
   if (config.title === undefined) {
-    const label = viz._drawLabel(node.datum, node.i ?? 0, node.level);
+    const label = viz._drawLabel(
+      node.datum,
+      node.i ?? AGGREGATE_INDEX,
+      node.level,
+    );
     leadTitleWithSwatch(
       tooltip.title(() => label),
       pickSwatch(
