@@ -40,6 +40,7 @@ import {
   timeRows,
 } from "../pipeline/preDrawData.js";
 import {classTimelineMode} from "../../components/Timeline/timelineMode.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -142,7 +143,7 @@ const VALID_POSITIONS: ReadonlySet<PanelPosition | string> = new Set([
     they are tall, the bottom otherwise.
 */
 export function autoPosition(viz: VizInstance): "right" | "bottom" {
-  return viz.schema.width > viz.schema.height * 1.5 ? "right" : "bottom";
+  return chartWidth(viz) > viz.schema.height * 1.5 ? "right" : "bottom";
 }
 
 /**
@@ -476,7 +477,7 @@ function textBlockLayout(
     layoutMargin.top,
     layoutMargin.left + padding.left,
     layoutMargin.right + padding.right,
-    viz.schema.width -
+    chartWidth(viz) -
       (layoutMargin.left + layoutMargin.right + padding.left + padding.right),
   );
   if (!boxes.length) return {panel: null, margin: {}};
@@ -641,7 +642,7 @@ export const timelineFeature: FeatureModule = {
       .select(timelineGroup)
       .ticks(ticks.sort((a: Date, b: Date) => +a - +b))
       .width(
-        viz.schema.width -
+        chartWidth(viz) -
           (layoutMargin.left +
             layoutMargin.right +
             padding.left +

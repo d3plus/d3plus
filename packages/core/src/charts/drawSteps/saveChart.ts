@@ -222,6 +222,23 @@ function saveFromVector(
 }
 
 /**
+    The html-to-image options a PNG or JPG is drawn with: `renderOptions` and
+    the background, plus, for a Canvas chart, no margin on the copied
+    `<canvas>`, which a `sizeRatio` letterbox centers with one (the margin
+    would shift the image inside its own frame).
+*/
+export function rasterOptions(
+  viz: Viz,
+  renderOptions: Record<string, unknown>,
+  backgroundColor: unknown,
+): Record<string, unknown> {
+  const raster: Record<string, unknown> = {...renderOptions, backgroundColor};
+  if (viz._renderer === "canvas")
+    raster.style = {...(renderOptions.style as object), margin: "0"};
+  return raster;
+}
+
+/**
     Saves the chart as a `format` file, named and styled by
     `saveControlConfig`. Errors go to its `callback`, or to the console.
 */
@@ -246,7 +263,7 @@ export function saveChart(viz: Viz, format: SaveFormat): void {
   // A JPG has no transparency: without a background its empty pixels are black.
   const backgroundColor =
     background || (format === "jpg" ? pageBackground(viz) : undefined);
-  const raster = {...renderOptions, backgroundColor};
+  const raster = rasterOptions(viz, renderOptions, backgroundColor);
   const options = {filename, type: format};
   // A Canvas chart's pixels are fixed at its own density, so a sharper
   // image comes from the scene re-rendered as SVG.

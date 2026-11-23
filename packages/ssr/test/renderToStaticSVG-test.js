@@ -204,6 +204,26 @@ it("renderToStaticSVG reads dimensions from the chart when omitted", async () =>
   assert.ok(svg.includes("0 0 320 240"), "viewBox matches chart size");
 });
 
+it("renderToStaticSVG takes the height from the chart's sizeRatio", async () => {
+  const svg = await renderToStaticSVG(
+    new Treemap().data(data).groupBy("id").sizeRatio(2),
+    {width: 400},
+  );
+  assert.ok(svg.includes("0 0 400 200"), "viewBox matches width / sizeRatio");
+});
+
+it("renderToStaticSVG applies the responsive breakpoints its width is in", async () => {
+  const viz = new Treemap()
+    .data(data)
+    .groupBy("id")
+    .title("Wide title")
+    .responsive([{maxWidth: 480, config: {title: "Narrow title"}}]);
+  const narrow = await renderToStaticSVG(viz, {width: 400, height: 300});
+  assert.ok(narrow.includes("Narrow title"), "the breakpoint's title");
+  const wide = await renderToStaticSVG(viz, {width: 800, height: 300});
+  assert.ok(wide.includes("Wide title"), "the chart's own title");
+});
+
 it("renderToStaticSVG throws without any dimensions", async () => {
   await assert.rejects(
     () => renderToStaticSVG(new Treemap().data(data).groupBy("id")),

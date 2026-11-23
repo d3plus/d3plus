@@ -1,0 +1,23 @@
+const config = {
+  data: [
+    {region: "Africa", year: 2020, value: 21},
+    {region: "Africa", year: 2021, value: 24},
+    {region: "Africa", year: 2022, value: 28},
+    {region: "Africa", year: 2023, value: 27},
+    {region: "Africa", year: 2024, value: 31},
+    {region: "Asia", year: 2020, value: 46},
+    {region: "Asia", year: 2021, value: 52},
+    {region: "Asia", year: 2022, value: 57},
+    {region: "Asia", year: 2023, value: 61},
+    {region: "Asia", year: 2024, value: 66},
+    {region: "Europe", year: 2020, value: 59},
+    {region: "Europe", year: 2021, value: 60},
+    {region: "Europe", year: 2022, value: 63},
+    {region: "Europe", year: 2023, value: 62},
+    {region: "Europe", year: 2024, value: 65},
+  ],
+  groupBy: "region",
+  x: "year",
+  y: "value",
+  sizeRatio: 2,
+};

@@ -30,6 +30,7 @@ import {
 import type {StackPositions} from "./stackLegendOrder.js";
 import {computePlotTrendFits} from "./trendLines.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** Whether an axis's domain is a list of values (a category axis) rather than an extent. */
 export function listAxis(viz: VizInstance, axis: string): boolean {
@@ -208,7 +209,7 @@ export function plotFacetInsets(viz: VizInstance): FacetSides {
     y = area.y + (t.y ?? 0);
   return {
     top: y - viz._margin.top,
-    right: viz.schema.width - viz._margin.right - (x + area.width),
+    right: chartWidth(viz) - viz._margin.right - (x + area.width),
     bottom: viz.schema.height - viz._margin.bottom - (y + area.height),
     left: x - viz._margin.left,
   };

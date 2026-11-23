@@ -35,6 +35,7 @@ import type Viz from "./Viz.js";
 import type {VizInstance} from "./vizTypes.js";
 import {initInsetDefaults} from "../features/insetState.js";
 import {themed} from "../../utils/theme.js";
+import {sizeRatioMoved} from "./sizeRatio.js";
 
 function debounce<A extends unknown[]>(
   func: (...args: A) => void,
@@ -250,12 +251,16 @@ function initEventDefaults(viz: Viz): void {
   };
   viz._queue = [];
   // Applies a detected container resize: re-sizes the SVG and re-renders when
-  // the observed size actually differs from what the chart last drew at.
+  // the observed size actually differs from what the chart last drew at. A
+  // height set by `sizeRatio` changes only when the height it fits to does.
   const applyResize = (entries: ResizeObserverEntry[]): void => {
     const {width, height} = entries[0]!.contentRect;
+    const heightChanged = viz._sizeRatioHeight
+      ? sizeRatioMoved(viz)
+      : height !== viz.schema.height;
     if (
       ((width !== viz.schema.width && viz._autoWidth) ||
-        (height !== viz.schema.height && viz._autoHeight)) &&
+        (heightChanged && viz._autoHeight)) &&
       width &&
       height
     ) {

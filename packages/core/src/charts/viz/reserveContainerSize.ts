@@ -17,8 +17,8 @@ function explicitSize(
     open the container it measures; but that leaves a container with no size of
     its own collapsed to its padding when the chart's size is set explicitly,
     and whatever follows it on the page draws over the chart. An invisible,
-    in-flow spacer sized to the explicit dimensions gives the container that
-    size. Being ordinary content, it never overrides a size the container gets
+    in-flow spacer sized to the explicit dimensions (and to a height
+    `sizeRatio` sets) gives the container that size. Being ordinary content, it never overrides a size the container gets
     from CSS or from its layout. The canvas renderer's `<canvas>` is already in
     flow, so it needs none. Runs on every render, so a new size updates the
     spacer and a size returned to automatic removes it.
@@ -33,7 +33,10 @@ export function reserveContainerSize(viz: Viz): void {
     child.classList.contains(SPACER_CLASS),
   ) as HTMLElement | undefined;
   const width = explicitSize(viz.schema.width, viz._autoWidth);
-  const height = explicitSize(viz.schema.height, viz._autoHeight);
+  // A height `sizeRatio` sets is the chart's own, not its container's.
+  const height = viz._sizeRatioHeight
+    ? viz.schema.height
+    : explicitSize(viz.schema.height, viz._autoHeight);
   if (
     viz._renderer === "canvas" ||
     (width === undefined && height === undefined)

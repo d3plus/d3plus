@@ -5,6 +5,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {Treemap} from "../../index.ts";
 import {
   canvasTooCoarse,
+  rasterOptions,
   resolveSaveConfig,
   SAVE_FORMATS,
   saveChart,
@@ -258,6 +259,19 @@ it("savePixelRatio is pixelRatio, else the screen's density", () => {
   const screen = window.devicePixelRatio || 1;
   assert.strictEqual(savePixelRatio({}), screen);
   assert.strictEqual(savePixelRatio({pixelRatio: 0}), screen);
+});
+
+it("rasterOptions drops a Canvas chart's margin, keeping the user's style", () => {
+  const svg = new Treemap();
+  assert.deepStrictEqual(rasterOptions(svg, {quality: 0.9}, "#fff"), {
+    quality: 0.9,
+    backgroundColor: "#fff",
+  });
+  const canvas = new Treemap().renderer("canvas");
+  assert.deepStrictEqual(
+    rasterOptions(canvas, {style: {opacity: "1"}}, undefined),
+    {style: {opacity: "1", margin: "0"}, backgroundColor: undefined},
+  );
 });
 
 it("canvasTooCoarse compares a canvas's backing density with the requested one", () => {

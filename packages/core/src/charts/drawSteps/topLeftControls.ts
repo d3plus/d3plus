@@ -21,6 +21,7 @@
 import type {FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
 import {backContribution} from "./backControl.js";
+import {showsNoData} from "../viz/noData.js";
 import {tableViewContribution} from "./tableViewControl.js";
 import {saveContribution} from "./saveControl.js";
 import {searchContribution} from "./searchControls.js";
@@ -47,7 +48,10 @@ export const TOP_LEFT_CONTRIBUTORS: Array<(viz: Viz) => Contribution | null> = [
 /** The current, non-null contributions for a chart — computed once per layout/measurement. */
 export function getTopLeftContributions(viz: Viz): Contribution[] {
   const contributions: Contribution[] = [];
+  // With nothing to draw, only the back button stays.
+  const empty = showsNoData(viz);
   for (const fn of TOP_LEFT_CONTRIBUTORS) {
+    if (empty && fn !== backContribution) continue;
     const c = fn(viz);
     if (c) contributions.push(c);
   }

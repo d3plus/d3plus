@@ -20,6 +20,7 @@ import type {PointVoronoi, VoronoiPoint} from "./pointVoronoi.js";
 import {nodeShapeType} from "./shapeClassTargets.js";
 import type {VizInstance} from "./vizTypes.js";
 import {vizDiscrete} from "./discrete.js";
+import {chartWidth} from "./letterbox.js";
 
 /** The shape classes that draw a point. */
 const POINT_SHAPES = ["Circle", "Rect"];
@@ -109,7 +110,7 @@ function pointIndex(viz: VizInstance, state: NearestHoverState): PointIndex {
   const bounds = {
     x: 0,
     y: 0,
-    width: Number(viz.schema.width) || 0,
+    width: Number(chartWidth(viz)) || 0,
     height: Number(viz.schema.height) || 0,
   };
   const panels = new Map(

@@ -27,6 +27,7 @@ import {
 } from "./binning.js";
 import {densityContours} from "./contours.js";
 import {hexbinRow, hexbinSettings, type HexbinSettings} from "./settings.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** The plot area in shape coordinates. */
 export interface PlotFrame {
@@ -296,7 +297,7 @@ export function estimatedColorRows(
   const frame: PlotFrame = {
     left: 0,
     top: 0,
-    width: (viz.schema.width * ESTIMATED_PLOT.width) / Math.sqrt(panels.length),
+    width: (chartWidth(viz) * ESTIMATED_PLOT.width) / Math.sqrt(panels.length),
     height:
       (viz.schema.height * ESTIMATED_PLOT.height) / Math.sqrt(panels.length),
   };

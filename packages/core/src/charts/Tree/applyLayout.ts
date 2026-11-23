@@ -29,6 +29,7 @@ import {
   radialLinkD,
   radialNodeReach,
 } from "./radialLayout.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 type TreeNode = DataPoint & {
   __d3plus__?: true;
@@ -414,7 +415,7 @@ function treeHeights(
     their spokes, stashed on `viz.ctx` as `radialLabels`.
 */
 function applyRadialTreeLayout(viz: VizInstance): TreeNode[] {
-  const width = viz.schema.width - viz._margin.left - viz._margin.right;
+  const width = chartWidth(viz) - viz._margin.left - viz._margin.right;
   const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
   const treeData = buildTreeData(viz, 2 * Math.PI, 1);
   const distances = rootDistances(treeData, treeHeights(viz, treeData));
@@ -487,10 +488,10 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
 
   const height = isVertical
     ? viz.schema.height - viz._margin.top - viz._margin.bottom
-    : viz.schema.width - viz._margin.left - viz._margin.right;
+    : chartWidth(viz) - viz._margin.left - viz._margin.right;
   const width = isHorizontal
     ? viz.schema.height - viz._margin.top - viz._margin.bottom
-    : viz.schema.width - viz._margin.left - viz._margin.right;
+    : chartWidth(viz) - viz._margin.left - viz._margin.right;
 
   const treeData = buildTreeData(viz, width, height);
   applyNodeHeights(viz, treeData, height);

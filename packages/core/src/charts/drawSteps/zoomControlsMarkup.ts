@@ -22,6 +22,8 @@ import {
   paintControlButton,
   type ControlButtonStyles,
 } from "./controlButtonStyle.js";
+import {chartWidth} from "../viz/letterbox.js";
+import {showsNoData} from "../viz/noData.js";
 export {kebab};
 
 /**
@@ -476,10 +478,13 @@ function syncToggle(viz: Viz, cls: string, pressed: boolean): void {
     });
 }
 
-/** Whether a chart shows the zoom-control panel: it zooms, and `zoomControls` isn't false. */
+/** Whether a chart shows the zoom-control panel: it zooms, `zoomControls` isn't false, and it has data to show (see `showsNoData`). */
 export function showsZoomControls(viz: Viz): boolean {
   return (
-    Boolean(viz.schema.zoom) && viz.schema.zoomControls !== false && !viz._ssr
+    Boolean(viz.schema.zoom) &&
+    viz.schema.zoomControls !== false &&
+    !viz._ssr &&
+    !showsNoData(viz)
   );
 }
 
@@ -562,7 +567,7 @@ export function zoomControlsBox(viz: Viz): ZoomControlsBox | null {
       .join("") + moreButtonHtml(viz);
   const {base} = buttonStyles(viz);
   const reserve = leftReserve(viz);
-  const width = viz.schema.width;
+  const width = chartWidth(viz);
   const signature = `${html}|${JSON.stringify(base)}|${reserve}|${width}`;
   const cached = viz._zoomControlsBox;
   if (cached && cached.signature === signature) return cached;

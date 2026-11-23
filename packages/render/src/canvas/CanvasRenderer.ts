@@ -407,7 +407,8 @@ export default class CanvasRenderer implements Renderer {
   private _reconcileOverlays(scene: Scene): void {
     if (!this._overlayHost) return;
     const collected = walkOverlays(scene);
-    if (collected.length) alignOverlayHost(this._overlayHost);
+    if (collected.length)
+      alignOverlayHost(this._overlayHost, this._canvas ?? undefined);
     const host = this._overlayHost;
     // Keyed reconcile against the cached map — no per-draw querySelectorAll.
     const existing = this._overlayMap;

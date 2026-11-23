@@ -10,7 +10,9 @@
     panel — a chart-sized `htmlOverlay` (the embedded toggle button, a
     scrollable sticky-header `<table>`, and pagination) — stacks above all
     three in the overlay host (siblings paint in scene order), covering them
-    while showing. Claims zero margin; contributes nothing while inactive.
+    while showing. Claims zero margin; contributes nothing while inactive,
+    or while the no-data message shows (the table stays open, to reappear
+    with the data).
     On a large "one big page" (`tableViewPageSize(false)`, or an equally
     large explicit size), `bindTableViewOverlay` switches the table into
     scroll-driven row virtualization (`tableViewMarkup.ts`) instead of
@@ -45,6 +47,8 @@ import {
   syncSharedTableViewButton,
   tableViewOverlayHtml,
 } from "./tableViewMarkup.js";
+import {chartWidth} from "../viz/letterbox.js";
+import {showsNoData} from "../viz/noData.js";
 
 const PANEL_KEY = "viz-table-view-overlay";
 
@@ -63,7 +67,7 @@ function buildOverlayPanel(viz: Viz): SceneNode {
     key: PANEL_KEY,
     x: 0,
     y: 0,
-    width: viz.schema.width,
+    width: chartWidth(viz),
     height: viz.schema.height,
     className: "d3plus-table-view",
     html: tableViewOverlayHtml(viz),
@@ -168,10 +172,34 @@ export function toggleTableViewDataSource(viz: Viz): void {
   refreshTableViewOverlay(viz);
 }
 
+/**
+    Moves keyboard focus out of the chart's table view, which is about to
+    close, so it isn't dropped on the page: to the chart's keyboard
+    navigation host, or else to the chart's root `<svg>` (focusable from
+    script only). Leaves focus anywhere else alone.
+*/
+export function moveFocusFromTableView(viz: Viz): void {
+  const container = viz._select?.node?.()?.parentNode as Element | null;
+  const active = container?.ownerDocument?.activeElement;
+  if (!container || !active || !container.contains(active)) return;
+  if (!active.closest(".d3plus-table-view")) return;
+  const host = viz._keyboardNav?.host as HTMLElement | undefined;
+  if (host?.isConnected) return host.focus();
+  const svg = viz._select.node() as SVGElement;
+  if (!svg.hasAttribute("tabindex")) svg.setAttribute("tabindex", "-1");
+  svg.focus();
+}
+
 export const tableViewFeature: FeatureModule = {
   name: "tableView",
   layout: ({viz}) => {
     if (!isTableView(viz)) return {panel: null, margin: {}};
+    // With nothing to show, the table closes, and reopens with the data.
+    if (showsNoData(viz)) {
+      moveFocusFromTableView(viz);
+      setTableViewPage(viz, 0);
+      return {panel: null, margin: {}};
+    }
     return {panel: buildOverlayPanel(viz), margin: {}};
   },
 };

@@ -4,6 +4,11 @@ description: "In v4 a visualization compiles to a serializable scene graph that 
 sidebar:
   order: 12
 ---
+
+import Playground from "~/components/Playground/Playground.astro";
+import sizeRatio from "~/examples/guides/rendering/size-ratio.js?raw";
+import responsiveBreakpoints from "~/examples/guides/rendering/responsive-breakpoints.js?raw";
+
 In v4 a visualization compiles to a serializable **scene graph** that is painted
 by a pluggable backend. Two backends ship today: **SVG** (the default) and
 **Canvas**.
@@ -57,6 +62,57 @@ visualization fills it:
 ```
 
 To pin a fixed size instead, set `width` and `height` in `config`.
+
+### Keeping a chart's shape: `sizeRatio`
+
+A container that only has a width (a column of text, a card in a grid) gives a
+chart nothing to take its height from. `sizeRatio` sets the height from the
+width instead, as width divided by height, so the chart keeps its shape as it
+resizes and the content after it moves with it:
+
+<Playground chart="LinePlot" code={sizeRatio} controls={["sizeRatio"]} height={420} />
+
+`16 / 9` makes a wide chart and `1` a square one. The ratio is used whenever the
+chart has no `height` of its own, in place of its container's height: a
+container without a height grows to hold the chart. In a container whose height
+is set (by CSS, a flex or grid layout, or a `max-height`) and lower than the
+ratio asks for, the chart takes the container's height and narrows to keep its
+ratio, centered with equal space on both sides, like `object-fit: contain`, so
+it never spills out of its box; its loading and no-data messages center over it
+too. A chart with an explicit `width` uses that width the same way: its height
+is the width divided by the ratio, or, in a shorter box, it narrows and centers
+inside the width you set. Either way `width` keeps the full width (the
+container's, or yours), and `chart.width()` and `config()` return it, while the
+chart draws narrower. An explicit `height` always wins. Not to be confused with a
+Plot's [`aspectRatio`](/core/charts/plot/), which keeps one unit of y as long as
+one unit of x inside the plot area.
+
+### Breakpoints: `responsive`
+
+`responsive` swaps in other settings when the chart is narrow (or wide). Each
+breakpoint gives a `minWidth` and/or `maxWidth` in pixels (both inclusive) and
+the `config` the chart takes while its own width, not the window's, is in that
+range. Narrow your window, or raise a `maxWidth` in the code, to see these
+shorten the title, move the legend below the chart, drop ticks, and finally
+hide the legend and the y-axis title:
+
+<Playground chart="BarChart" code={responsiveBreakpoints} panel="code" />
+
+- Every breakpoint in range applies, in list order, so a later one wins where
+  two set the same key. Config objects such as `xConfig` or `shapeConfig` merge
+  into the chart's own, as they do through `config()`.
+- When the width leaves a range, that breakpoint's settings come back off and
+  the chart's own return. The chart checks on every render, including the
+  redraw a container resize starts.
+- Setting a key while a breakpoint holds it (`chart.legend(true)`, or a
+  framework wrapper passing new config) changes the chart's own value: the
+  breakpoint keeps its value while it is in range, and yours returns after.
+- A breakpoint can set `sizeRatio`, for example to draw a square chart on
+  phones. It cannot set `data`, `select`, `width`, `height`, or `responsive`.
+- With small multiples (`facet`), breakpoints match the whole chart's width,
+  not each panel's. A chart `sizeRatio` narrowed to fit a container's height
+  matches the full width: the container's, or the `width` you set. Server-side rendering applies the breakpoints the width
+  you render at is in.
 
 ## Rendering without a browser
 

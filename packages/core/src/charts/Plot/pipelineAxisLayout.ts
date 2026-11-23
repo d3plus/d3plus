@@ -32,6 +32,7 @@ import {xAxisRounding} from "../features/xAxisConfig.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /** The viz a Plot pipeline stage reads. */
 type PlotViz = Parameters<TransformStage>[0]["viz"];
@@ -40,9 +41,9 @@ type PlotViz = Parameters<TransformStage>[0]["viz"];
 function plotAxisVisibility(viz: PlotViz): {showX: boolean; showY: boolean} {
   const showX =
     vizDiscrete(viz) === "x"
-      ? viz.schema.width > viz._discreteCutoff &&
-        viz.schema.width > viz.schema.xCutoff
-      : viz.schema.width > viz.schema.xCutoff && !swarmHidesAxis(viz, "x");
+      ? chartWidth(viz) > viz._discreteCutoff &&
+        chartWidth(viz) > viz.schema.xCutoff
+      : chartWidth(viz) > viz.schema.xCutoff && !swarmHidesAxis(viz, "x");
   const showY =
     vizDiscrete(viz) === "y"
       ? viz.schema.height > viz._discreteCutoff &&

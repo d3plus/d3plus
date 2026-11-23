@@ -38,6 +38,7 @@ import type {SelectTool} from "./selectRegion.js";
 import {syncSelectSurface} from "./selectGesture.js";
 import {clearSelection} from "./selectActions.js";
 import {zoomMenuEvents} from "./zoomControlsMenu.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /**
     Builds the four zoom-control buttons as an `htmlOverlay` scene-node
@@ -60,7 +61,7 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
     key: "viz-zoom-controls",
     x: 0,
     y: 0,
-    width: viz.schema.width,
+    width: chartWidth(viz),
     style: ZOOM_PANEL_STYLE,
     className: "d3plus-zoom-control",
     html: zoomControlsHtml(viz),

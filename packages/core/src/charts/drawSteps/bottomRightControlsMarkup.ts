@@ -26,6 +26,7 @@ import {
   insetPlacementFor,
   insetStyle,
 } from "../features/insetState.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 /**
     One item's contribution to the bottom-right panel: its size as reserved
@@ -248,7 +249,7 @@ export function buildBottomRightPanel(
   const zoom = viz._pointsHoldSize ? 1 : (viz._zoomTransform?.scale ?? 1);
   if (box.inset) return buildInsetPanel(viz, box, zoom);
   const children: SceneNode[] = [];
-  let right = viz.schema.width;
+  let right = chartWidth(viz);
   const baseline = viz.schema.height - box.bottom;
   box.items.forEach(item => {
     const painted = item.paint(zoom);

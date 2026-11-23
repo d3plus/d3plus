@@ -2677,6 +2677,23 @@ export type {
 export {goBack} from "./src/charts/drawSteps/backControl.js";
 export {forEachSceneRow, MARK_TYPES} from "./src/charts/viz/sceneRows.js";
 export {
+  applyResponsive,
+  matchBreakpoints,
+} from "./src/charts/viz/responsive.js";
+export {
+  applySizeRatio,
+  containerRoom,
+  ratioHeight,
+  ratioSize,
+} from "./src/charts/viz/sizeRatio.js";
+export {
+  chartWidth,
+  letterboxOffset,
+  placeCanvas,
+  placeMessage,
+} from "./src/charts/viz/letterbox.js";
+export type {Letterbox} from "./src/charts/viz/letterbox.js";
+export {
   effectiveDuration,
   motionReduced,
   prefersReducedMotion,

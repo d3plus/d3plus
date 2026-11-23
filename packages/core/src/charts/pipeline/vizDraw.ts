@@ -43,6 +43,7 @@ import {resolveSpec} from "./resolveSpec.js";
 import type {SceneNode} from "@d3plus/render";
 
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {chartWidth} from "../viz/letterbox.js";
 
 export interface VizDrawResult {
   marginDelta: {top: number; bottom: number; left: number; right: number};
@@ -142,7 +143,7 @@ export function vizDraw(viz: Viz): VizDrawResult {
   // timeline and against the area left so far, so the legend/colorScale
   // blocks below can inset around it (see `bottomRightControlsInset`).
   reserveBottomRight(viz, running.bottom, {
-    width: viz.schema.width - running.left - running.right,
+    width: chartWidth(viz) - running.left - running.right,
     height: viz.schema.height - running.top - running.bottom,
   });
 
