@@ -56,15 +56,3 @@ export function collectReferenceHighlight(
   const set = (viz._referenceHighlight ??= new Set<DataPoint>());
   rows.forEach(d => set.add(d));
 }
-
-/**
-    The predicate a chart's reference lines highlight with: whether a row
-    is one they emphasize. Null when none set `highlight`.
-    @param viz The chart.
-*/
-export function referenceHighlightPredicate(
-  viz: Pick<VizInstance, "_referenceHighlight">,
-): ((d: DataPoint) => boolean) | null {
-  const set = viz._referenceHighlight;
-  return set ? (d: DataPoint) => set.has(d) : null;
-}

@@ -20,9 +20,9 @@ import {
 } from "../../src/charts/features/referenceValues.ts";
 import {
   collectReferenceHighlight,
-  referenceHighlightPredicate,
   referenceHighlightRows,
 } from "../../src/charts/features/referenceHighlight.ts";
+import {referenceHighlightPredicate} from "../../src/charts/viz/referenceHighlightPredicate.ts";
 import {plotAnnotationList} from "../../src/charts/features/plotAnnotationList.ts";
 import {referenceDomainValues} from "../../src/charts/Plot/referenceDomains.ts";
 

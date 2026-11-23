@@ -19,7 +19,7 @@ import {activeBucketColors} from "../features/colorScaleBucket.js";
 import {hoveredSwatch} from "../features/colorScaleHover.js";
 import {SWATCH_OUTLINE} from "../features/swatchPaint.js";
 import {datumValues} from "../features/hoverTicks.js";
-import {referenceHighlightPredicate} from "../features/referenceHighlight.js";
+import {referenceHighlightPredicate} from "./referenceHighlightPredicate.js";
 import {STROKE_EMPHASIS} from "./emphasis.js";
 import type {EmphasisKind} from "./emphasis.js";
 import {sharesGroup} from "./groupRow.js";

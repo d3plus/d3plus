@@ -826,9 +826,9 @@ export {
 export type {DrawnRow} from "./src/charts/features/referenceValues.js";
 export {
   collectReferenceHighlight,
-  referenceHighlightPredicate,
   referenceHighlightRows,
 } from "./src/charts/features/referenceHighlight.js";
+export {referenceHighlightPredicate} from "./src/charts/viz/referenceHighlightPredicate.js";
 export {textHalo} from "./src/charts/features/textHalo.js";
 export {
   bindAccessors,
