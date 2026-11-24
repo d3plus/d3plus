@@ -324,6 +324,12 @@ To stop mirroring one interaction, set it to `false`:
 highlights. See the
 [linked charts example](/core/charts/viz/#linked-charts).
 
+Plots can share their zoom too: with `link: {group: "dashboard", zoom: true}`
+on each, zooming or panning one shows the same window of dates (or numbers)
+on the others, even when their data covers different spans. It's off unless
+both charts ask for it. See the
+[linked zoom example](/core/charts/line-plot/#linked-zoom).
+
 ## Timeline
 
 Adding a `time` accessor enables a timeline beneath the chart. Viewers can scrub
@@ -423,6 +429,12 @@ only; a scatter plot with two linear axes zooms in both directions. A brushed
 box fills the plot along the axes that zoom, so a LinePlot brushed across its
 width shows exactly the brushed y range, and a scatter plot shows the box's
 range on its tighter axis with the box centered on the other.
+
+`zoomAxes` picks which axes a Plot's zoom rescales: `"x"` zooms and pans
+the x axis alone and `"y"` the y axis alone, while the other axis refits to
+the data in view. `rangeSelector` adds buttons ("1M", "6M", "YTD", "1Y",
+"All") that zoom a time axis to a recent window. See the
+[LinePlot zoom examples](/core/charts/line-plot/#zooming-along-the-time-axis).
 
 How far you can zoom in adapts to what's drawn:
 by default, the limit is the scale at which the chart's smallest shape fills
