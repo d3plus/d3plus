@@ -144,7 +144,7 @@ for (const renderer of ["svg", "canvas"]) {
   });
 }
 
-it("labels follow the locale, and a button that would show all the data is disabled", async () => {
+it("labels follow the locale, and a button that would show all the data is hidden", async () => {
   await render(box, () => {});
   const rows = [];
   for (let i = 0; i < 120; i++)
@@ -170,15 +170,14 @@ it("labels follow the locale, and a button that would show all the data is disab
     buttons().map(b => [
       b.textContent,
       b.getAttribute("aria-label"),
-      b.disabled,
+      b.dataset.range,
     ]),
     [
-      ["2S", "Últimas 2 semanas", false],
-      ["1 m", "Último mes", false],
-      ["En el año", "En lo que va del año", true],
-      ["1 a", "Último año", true],
-      ["Todo", "Rango completo", false],
+      ["2S", "Últimas 2 semanas", "0"],
+      ["1 m", "Último mes", "1"],
+      ["Todo", "Rango completo", "4"],
     ],
+    "YTD and 1Y would show everything, so they're hidden",
   );
   assert.strictEqual(
     document
@@ -210,7 +209,7 @@ it("hides without a time axis or with zoom off; an explicit zoomAxes wins", asyn
   assert.strictEqual(buttons().length, 0, "no time axis");
   await draw("svg", {extra: {zoom: false}});
   assert.strictEqual(buttons().length, 0, "zoom off");
-  await draw("svg", {extra: {zoomAxes: "xy"}});
+  await draw("svg", {extra: {zoomAxes: ["x", "y"]}});
   assert.strictEqual(buttons().length, 5, "shows with zoomAxes set");
   assert.deepStrictEqual(
     Object.keys(window.chart._plotZoomBase.scales),
@@ -238,3 +237,84 @@ it("the minimap carries on from a button's window", async () => {
   assert.ok(Math.abs(span(nudged) - span(six)) < 1000, "at the same zoom");
   assert.deepStrictEqual(pressed(), [], "so 6M no longer reads as pressed");
 });
+
+it("hides altogether when only All would be left", async () => {
+  await draw("svg", {extra: {rangeSelector: ["1Y", "All"]}});
+  assert.strictEqual(buttons().length, 2, "1Y fits in 1000 days of data");
+  await render(box, () => {});
+  const rows = [];
+  for (let i = 0; i < 20; i++)
+    rows.push({id: "t", date: new Date(2024, 0, 1 + i), value: i});
+  await draw("svg", {data: rows, extra: {rangeSelector: ["1M", "1Y", "All"]}});
+  assert.strictEqual(buttons().length, 0);
+  assert.strictEqual(
+    document.querySelector("#viz .d3plus-range-selector"),
+    null,
+  );
+});
+
+/** Each small-multiples panel's line: the span of its points, and the panel's width. */
+const panelLines = () =>
+  window.chart._facetPanels.map(p => {
+    let pts = [];
+    const walk = n => {
+      if (n.interactionPoints && n.interactionPoints.length > pts.length)
+        pts = n.interactionPoints;
+      (n.children || []).forEach(walk);
+    };
+    p.scene.forEach(walk);
+    const xs = pts.map(q => q.x);
+    return {span: Math.max(...xs) - Math.min(...xs), width: p.area.width};
+  });
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`[${renderer}] small multiples apply a button to each panel's own data, and All resets them`, async () => {
+    await render(box, () => {});
+    const rows = [];
+    ["a", "b"].forEach((id, p) => {
+      // Panel b has 300 days of data, panel a 400.
+      for (let i = 0; i < 400 - p * 100; i++)
+        rows.push({
+          id,
+          date: new Date(2023, 0, 1 + i),
+          value: 50 + Math.sin(i / 9) * 10 + p * 30,
+        });
+    });
+    await draw(renderer, {
+      data: rows,
+      extra: {
+        facet: "id",
+        facetConfig: {scales: "independent"},
+        rangeSelector: ["1M", "All"],
+      },
+    });
+    assert.deepStrictEqual(pressed(), ["All"]);
+    const before = panelLines();
+    assert.ok(
+      before.every(l => l.span <= l.width + 1),
+      "unzoomed lines fit",
+    );
+    await realClick(buttons()[0]);
+    await frames();
+    await frames();
+    assert.deepStrictEqual(pressed(), ["1M"], "1M reads as pressed");
+    const [a, b] = panelLines();
+    // A month of each panel's own data fills its width: 400 and 300 days.
+    assert.ok(
+      a.span > a.width * 8,
+      `panel a zooms in (${a.span} / ${a.width})`,
+    );
+    assert.ok(
+      Math.abs(a.span / b.span - 400 / 300) < 0.15,
+      `each panel windows its own data (${a.span} vs ${b.span})`,
+    );
+    await realClick(buttons()[1]);
+    await frames();
+    await frames();
+    assert.deepStrictEqual(pressed(), ["All"]);
+    assert.ok(
+      panelLines().every(l => l.span <= l.width + 1),
+      "All resets them",
+    );
+  });
+}

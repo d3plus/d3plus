@@ -1,6 +1,9 @@
 import {it} from "vitest";
 import assert from "assert";
 import {
+  defaultZoomAxis,
+  isOverviewChart,
+  isOverviewLink,
   rangeSelectorAxis,
   refitDomain,
   splitZoomAxes,
@@ -13,19 +16,23 @@ import {
     to from the rows in view.
 */
 
-it("zoomDimensions: names the dimensions zoomAxes asks for", () => {
-  assert.deepStrictEqual(zoomDimensions("x"), {x: true, y: false});
-  assert.deepStrictEqual(zoomDimensions("y"), {x: false, y: true});
-  assert.deepStrictEqual(zoomDimensions("xy"), {x: true, y: true});
+it("zoomDimensions: names the dimensions zoomAxes lists", () => {
+  assert.deepStrictEqual(zoomDimensions(["x"]), {x: true, y: false});
+  assert.deepStrictEqual(zoomDimensions(["y"]), {x: false, y: true});
+  assert.deepStrictEqual(zoomDimensions(["x", "y"]), {x: true, y: true});
+  assert.deepStrictEqual(zoomDimensions(["y", "x", "x"]), {x: true, y: true});
 });
 
-it("zoomDimensions: unset, it follows the range selector's axis, else both", () => {
+it("zoomDimensions: unset, or listing neither axis, it follows the time axis, else both", () => {
   assert.deepStrictEqual(zoomDimensions(undefined), {x: true, y: true});
   assert.deepStrictEqual(zoomDimensions(undefined, "x"), {x: true, y: false});
   assert.deepStrictEqual(zoomDimensions(undefined, "y"), {x: false, y: true});
-  // An explicit setting wins over the range selector.
-  assert.deepStrictEqual(zoomDimensions("xy", "x"), {x: true, y: true});
-  assert.deepStrictEqual(zoomDimensions("nonsense"), {x: true, y: true});
+  assert.deepStrictEqual(zoomDimensions([], "x"), {x: true, y: false});
+  assert.deepStrictEqual(zoomDimensions(["z"]), {x: true, y: true});
+  // A string isn't the setting's form.
+  assert.deepStrictEqual(zoomDimensions("x"), {x: true, y: true});
+  // An explicit setting wins over the time axis.
+  assert.deepStrictEqual(zoomDimensions(["x", "y"], "x"), {x: true, y: true});
 });
 
 it("splitZoomAxes: rescales the named dimension's axes and refits the rest", () => {
@@ -40,7 +47,7 @@ it("splitZoomAxes: rescales the named dimension's axes and refits the rest", () 
 });
 
 it("splitZoomAxes: rescales every zoomable axis when none lies along the named dimension", () => {
-  // A category x axis isn't zoomable, so `zoomAxes: "x"` has nothing to rescale.
+  // A category x axis isn't zoomable, so `zoomAxes: ["x"]` has nothing to rescale.
   assert.deepStrictEqual(splitZoomAxes(["y"], {x: true, y: false}), {
     rescale: ["y"],
     refit: [],
@@ -203,4 +210,41 @@ it("rangeSelectorAxis: the time axis, when zoom and the range selector are on", 
     undefined,
   );
   assert.strictEqual(rangeSelectorAxis({}), undefined);
+});
+
+it('isOverviewLink: a link whose zoom is "overview"', () => {
+  assert.strictEqual(isOverviewLink({group: "g", zoom: "overview"}), true);
+  assert.strictEqual(isOverviewLink({group: "g", zoom: true}), false);
+  assert.strictEqual(isOverviewLink("g"), false);
+  assert.strictEqual(isOverviewLink(undefined), false);
+});
+
+it("defaultZoomAxis: the range selector's axis, else an overview's time axis", () => {
+  const viz = (schema, xTime) => ({
+    schema: {zoom: true, ...schema},
+    _xTime: xTime,
+  });
+  assert.strictEqual(defaultZoomAxis(viz({rangeSelector: true}, true)), "x");
+  assert.strictEqual(
+    defaultZoomAxis(viz({link: {group: "g", zoom: "overview"}}, true)),
+    "x",
+  );
+  assert.strictEqual(defaultZoomAxis(viz({link: "g"}, true)), undefined);
+  // An overview without a time axis zooms along x.
+  assert.strictEqual(
+    defaultZoomAxis(viz({link: {group: "g", zoom: "overview"}}, false)),
+    "x",
+  );
+});
+
+it("isOverviewChart: an overview link on a chart that zooms and isn't faceted", () => {
+  const link = {group: "g", zoom: "overview"};
+  assert.strictEqual(isOverviewChart({schema: {zoom: true, link}}), true);
+  assert.strictEqual(isOverviewChart({schema: {zoom: false, link}}), false);
+  assert.strictEqual(
+    isOverviewChart({schema: {zoom: true, link, facet: () => 1}}),
+    false,
+  );
+  assert.strictEqual(isOverviewChart({schema: {zoom: true, link: "g"}}), false);
+  assert.strictEqual(isOverviewChart({}), false);
 });

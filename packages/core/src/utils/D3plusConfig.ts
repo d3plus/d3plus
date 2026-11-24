@@ -2486,7 +2486,7 @@ export interface D3plusConfig {
       any other TextBox setting, such as `fontColor`.
   */
   linkLabelConfig?: LinkLabelConfig;
-  /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. Plots that set `zoom: true` also share their zoom: zooming or panning one shows the same window of dates or values on the others. */
+  /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. Plots also share their zoom: zooming or panning one shows the same window of dates or values on the others (set `zoom: false` to keep a chart's zoom its own, or `zoom: "overview"` to make it the group's overview, which keeps its whole view and shows the others' window as a band you drag). */
   link?: LinkOption;
   /**
       Network, Rings, ArcDiagram, and Geomap: each link's thickness, as a
@@ -2941,11 +2941,12 @@ export interface D3plusConfig {
       `W`, `M`, or `Y`, such as `"3M"`, or `"YTD"` or `"All"`) or an object
       `{step, count, label}`, where `step` is `"day"`, `"week"`, `"month"`,
       `"year"`, `"ytd"`, or `"all"`. They sit with the chart's other top-left
-      controls; the button showing the current window reads as pressed, and
-      one whose window takes in all the data is disabled. Unless `zoomAxes`
-      says otherwise, the zoom then runs along the time axis alone, and the
-      other axis fits the data in view. Needs `zoom` and a time axis.
-      Defaults to `false`.
+      controls; the button showing the current window reads as pressed. A
+      button whose window takes in all the data is hidden, and the selector
+      hides when only "All" would be left. Unless `zoomAxes` says otherwise,
+      the zoom then runs along the time axis alone, and the other axis fits
+      the data in view. Small multiples apply a button to each panel's own
+      data. Needs `zoom` and a time axis. Defaults to `false`.
   */
   rangeSelector?: boolean | RangeSelectorOption[];
   /** An additional CSS class name (or space-separated list) applied to each range-selector button, alongside the fixed `d3plus-range-button` class. Setting it drops the built-in `rangeSelectorStyle`, `rangeSelectorStyleActive`, and `rangeSelectorStyleHover` defaults you haven't customized, so a host page's own button styles apply. */
@@ -3740,14 +3741,15 @@ export interface D3plusConfig {
   */
   zoom?: boolean;
   /**
-      Plot: which axes a zoom rescales. `"x"` zooms and pans the x axis (and
-      x2) alone, and `"y"` the y axis (and y2) alone, while the other axis
-      refits to the data in view: the rows within the window, each line's
-      nearest rows past either edge, their confidence bounds, and the
+      Plot: which axes a zoom rescales. `["x"]` zooms and pans the x axis
+      (and x2) alone, and `["y"]` the y axis (and y2) alone, while the other
+      axis refits to the data in view: the rows within the window, each
+      line's nearest rows past either edge, their confidence bounds, and the
       baseline bars and areas start at. An axis with a domain you set stays
-      as it is. `"xy"` rescales both. Defaults to `"xy"`, or to the time
-      axis alone when `rangeSelector` shows. Ignored when the named axis is
-      a list of categories.
+      as it is. `["x", "y"]` rescales both. Defaults to `["x", "y"]`, or to
+      the time axis alone when `rangeSelector` shows or the chart is its
+      link group's overview. Ignored when the named axis is a list of
+      categories.
   */
   zoomAxes?: ZoomAxesSetting;
   /** The pixel stroke-width of the zoom brush area. */

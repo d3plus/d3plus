@@ -2703,15 +2703,41 @@ export {
 } from "./src/charts/viz/linkGroup.js";
 export type {LinkKind, ResolvedLink} from "./src/charts/viz/linkGroup.js";
 export {
+  broadcastWindows,
   broadcastZoom,
+  coversDims,
   followZoom,
   sharedWindows,
 } from "./src/charts/drawSteps/zoomLink.js";
+export {setFacetZoom} from "./src/charts/drawSteps/facetZoomRedraw.js";
+export {
+  facetDataWindow,
+  overlappingWindows,
+  panelWindows,
+  windowsOverlap,
+} from "./src/charts/Plot/facetZoom.js";
+export type {FacetZoom} from "./src/charts/Plot/facetZoom.js";
+export {
+  bandAxis,
+  bandWindow,
+  overviewFeature,
+  showWindow,
+} from "./src/charts/drawSteps/overview.js";
+export {
+  clampWindow,
+  keyWindow,
+  moveWindow,
+  resizeWindow,
+  scaleWindow,
+  spanWindow,
+} from "./src/charts/Plot/overviewWindow.js";
 export {
   activeRangeButton,
+  rangeExtent,
   rangeSelectorContribution,
   rangeTransform,
   selectRange,
+  shownRangeButtons,
   syncRangeButtons,
 } from "./src/charts/drawSteps/rangeSelector.js";
 export {
@@ -2729,6 +2755,9 @@ export type {
   RangeStep,
 } from "./src/charts/drawSteps/rangeSelectorButtons.js";
 export {
+  defaultZoomAxis,
+  isOverviewChart,
+  isOverviewLink,
   rangeSelectorAxis,
   refitDomain,
   splitZoomAxes,
@@ -2738,6 +2767,7 @@ export type {ZoomAxesSetting} from "./src/charts/Plot/zoomAxes.js";
 export {
   dataWindow,
   liveTransform,
+  valuesExtent,
   windowTransform,
   zoomedDomain,
   zoomWindows,

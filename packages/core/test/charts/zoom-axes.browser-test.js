@@ -64,12 +64,12 @@ const covers = (outer, inner) =>
   Math.max(...outer) >= inner[1] - 1e-9;
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`[${renderer}] zoomAxes "x": buttons, wheel and drag zoom the dates while y refits; reset restores`, async () => {
+  it(`[${renderer}] zoomAxes ["x"]: buttons, wheel and drag zoom the dates while y refits; reset restores`, async () => {
     const r = await page(
       `
       const chart = new d3plus.LinePlot()
         .data(daily).groupBy("id").x("date").time("date").y("value")
-        .timeline(false).legend(false).zoomAxes("x").renderer(arg);
+        .timeline(false).legend(false).zoomAxes(["x"]).renderer(arg);
       await done(chart);
       const state = () => ({x: domainOf(chart._xAxis), y: domainOf(chart._yAxis)});
       const base = state();
@@ -121,12 +121,12 @@ for (const renderer of ["svg", "canvas"]) {
     assert.deepStrictEqual(r.reset.y, r.base.y, "and y");
   });
 
-  it(`[${renderer}] zoomAxes "x" with zoomDrag "brush": the box spans the plot's height and zooms to its dates`, async () => {
+  it(`[${renderer}] zoomAxes ["x"] with zoomDrag "brush": the box spans the plot's height and zooms to its dates`, async () => {
     const r = await page(
       `
       const chart = new d3plus.LinePlot()
         .data(daily).groupBy("id").x("date").time("date").y("value")
-        .timeline(false).legend(false).zoomAxes("x").zoomDrag("brush").renderer(arg);
+        .timeline(false).legend(false).zoomAxes(["x"]).zoomDrag("brush").renderer(arg);
       await done(chart);
       const plot = chart._plotArea, ct = chart._chartTransform;
       const left = ct.x + plot.x, top = ct.y + plot.y;
@@ -156,12 +156,12 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
-  it(`[${renderer}] zoomAxes "y" on a horizontal plot zooms its dates and refits x`, async () => {
+  it(`[${renderer}] zoomAxes ["y"] on a horizontal plot zooms its dates and refits x`, async () => {
     const r = await page(
       `
       const chart = new d3plus.LinePlot()
         .data(daily.slice(0, 300)).groupBy("id").discrete("y").y("date").time("date").x("value")
-        .timeline(false).legend(false).zoomAxes("y").renderer(arg);
+        .timeline(false).legend(false).zoomAxes(["y"]).renderer(arg);
       await done(chart);
       const base = {x: domainOf(chart._xAxis), y: domainOf(chart._yAxis)};
       click("zoom-in");
@@ -185,7 +185,7 @@ for (const renderer of ["svg", "canvas"]) {
   });
 }
 
-it('zoomAxes "x" on a StackedArea refits the value axis to the stacks in view, from 0', async () => {
+it('zoomAxes ["x"] on a StackedArea refits the value axis to the stacks in view, from 0', async () => {
   const r = await page(`
     const rows = [];
     ["a", "b"].forEach((id, s) => {
@@ -194,7 +194,7 @@ it('zoomAxes "x" on a StackedArea refits the value axis to the stacks in view, f
     });
     const chart = new d3plus.StackedArea()
       .data(rows).groupBy("id").x("date").time("date").y("value")
-      .timeline(false).legend(false).zoomAxes("x");
+      .timeline(false).legend(false).zoomAxes(["x"]);
     await done(chart);
     const base = domainOf(chart._yAxis);
     // Zoom into the earliest dates, where the stacks are lowest.
@@ -220,12 +220,12 @@ it('zoomAxes "x" on a StackedArea refits the value axis to the stacks in view, f
   );
 });
 
-it('zoomAxes "x": a BarChart keeps its baseline, and a y domain the user set stays put', async () => {
+it('zoomAxes ["x"]: a BarChart keeps its baseline, and a y domain the user set stays put', async () => {
   const r = await page(`
     const monthly = daily.filter(d => d.date.getDate() === 1);
     const bars = new d3plus.BarChart()
       .data(monthly).groupBy("id").x("date").time("date").y("value")
-      .timeline(false).legend(false).zoomAxes("x");
+      .timeline(false).legend(false).zoomAxes(["x"]);
     await done(bars);
     click("zoom-in");
     await frames();
@@ -234,7 +234,7 @@ it('zoomAxes "x": a BarChart keeps its baseline, and a y domain the user set sta
     document.querySelector("#viz").innerHTML = "";
     const fixed = new d3plus.LinePlot()
       .data(daily).groupBy("id").x("date").time("date").y("value")
-      .timeline(false).legend(false).zoomAxes("x").yDomain([0, 500]);
+      .timeline(false).legend(false).zoomAxes(["x"]).yDomain([0, 500]);
     await done(fixed);
     const before = domainOf(fixed._yAxis);
     click("zoom-in");
@@ -246,22 +246,22 @@ it('zoomAxes "x": a BarChart keeps its baseline, and a y domain the user set sta
   assert.deepStrictEqual(r.after, r.before, "and stays as set");
 });
 
-it('zoomAxes "x" on a category BarChart zooms its value axis, as without it', async () => {
+it('zoomAxes ["x"] on a category BarChart zooms its value axis, as without it', async () => {
   const r = await page(`
     const chart = new d3plus.BarChart()
       .data([{id: "a", v: 3}, {id: "b", v: 8}, {id: "c", v: 5}]).groupBy("id").x("id").y("v")
-      .legend(false).zoomAxes("x");
+      .legend(false).zoomAxes(["x"]);
     await done(chart);
     return Object.keys(chart._plotZoomBase.scales);
   `);
   assert.deepStrictEqual(r, ["y"]);
 });
 
-it('zoomAxes "x": the minimap\'s viewport box spans its height', async () => {
+it('zoomAxes ["x"]: the minimap\'s viewport box spans its height', async () => {
   const r = await page(`
     const chart = new d3plus.LinePlot()
       .data(daily).groupBy("id").x("date").time("date").y("value")
-      .timeline(false).legend(false).zoomAxes("x");
+      .timeline(false).legend(false).zoomAxes(["x"]);
     await done(chart);
     click("zoom-in");
     await frames();

@@ -6,6 +6,7 @@ import {attrize} from "@d3plus/dom";
 import {chartBounds} from "../features/chartGeometry.js";
 import {ensureZoomDom} from "../features/ensureZoomDom.js";
 import {autoZoomMax} from "../features/zoomExtent.js";
+import {isOverviewChart} from "../Plot/zoomAxes.js";
 import type {FeatureLayout, FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -446,6 +447,8 @@ function isZoomedIn(viz: Viz): boolean {
     @private
 */
 function zoomGestureFilter(viz: Viz, event: MouseEvent & TouchEvent): boolean {
+  // An overview's band takes its gestures (see `overview.ts`).
+  if (isOverviewChart(viz)) return false;
   const modifier = viz.schema.zoomScroll === "modifier";
   if (event.type === "wheel")
     return !modifier || event.ctrlKey || event.metaKey;
@@ -608,6 +611,7 @@ function viewerReset(viz: Viz, event?: Event): void {
 
     Exported so `minimap.ts`'s drag-to-pan and Cmd/Ctrl+scroll-to-zoom can
     reuse the same scale/translate clamping instead of reimplementing it.
+    `clampTranslate: false` clamps the scale alone (see `clampScale`).
 */
 export function zoomTo(
   viz: Viz,
@@ -615,8 +619,15 @@ export function zoomTo(
   x: number,
   y: number,
   duration: number = effectiveDuration(viz),
+  clampTranslate = true,
 ): void {
-  const {k, x: tx, y: ty} = clampTransform(viz, scale, x, y);
+  const {
+    k,
+    x: tx,
+    y: ty,
+  } = clampTranslate
+    ? clampTransform(viz, scale, x, y)
+    : clampScale(viz, scale, x, y);
   // A fresh transform, never a mutation of `zoomTransform(node)`'s result —
   // for an element d3-zoom hasn't stored state on yet, that's d3's shared
   // `zoomIdentity` constant.
@@ -650,6 +661,30 @@ export function clampTransform(
     x: Math.max(x1 * (1 - k), Math.min(x0 * (1 - k), x)),
     y: Math.max(y1 * (1 - k), Math.min(y0 * (1 - k), y)),
   };
+}
+
+/**
+    A transform whose scale is clamped to `scaleExtent` about the center of
+    the zoom area, its translation otherwise left as given (so a linked
+    chart can show a window that runs past its data).
+    @param viz The chart.
+    @param scale The scale.
+    @param x The x translation.
+    @param y The y translation.
+*/
+export function clampScale(
+  viz: Viz,
+  scale: number,
+  x: number,
+  y: number,
+): {k: number; x: number; y: number} {
+  const [kMin, kMax] = viz._zoomBehavior.scaleExtent(),
+    [[x0, y0], [x1, y1]] = viz._zoomBehavior.extent().bind(document)(),
+    k = Math.max(kMin, Math.min(kMax, scale));
+  if (k === scale) return {k, x, y};
+  const cx = (x0 + x1) / 2,
+    cy = (y0 + y1) / 2;
+  return {k, x: cx - ((cx - x) / scale) * k, y: cy - ((cy - y) / scale) * k};
 }
 
 /**

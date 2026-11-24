@@ -22,6 +22,8 @@
 */
 
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
+import type {ZoomWindows} from "../Plot/zoomWindow.js";
+import type {FacetZoom} from "../Plot/facetZoom.js";
 import type {GestureHoverState, ZoomGesture} from "../drawSteps/zoomGesture.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {
@@ -310,6 +312,14 @@ export interface VizInstance {
   _facetStep?: "chrome" | "panel";
   /** The panels drawn this render when `facet` is set, in panel order. */
   _facetPanels?: FacetPanelState[];
+  /** The window each small-multiples panel shows (see `Plot/facetZoom.ts`). */
+  _facetZoom?: FacetZoom;
+  /** Paints the next draw without motion (it follows a gesture, or reloads a chart scrolled back into view). */
+  _instantNextDraw?: boolean;
+  /** A pending small-multiples redraw for a new window, by animation frame. */
+  _facetZoomFrame?: number;
+  /** The window an overview chart's band shows, kept across redraws (see `drawSteps/overview.ts`). */
+  _overviewWindows?: ZoomWindows | null;
   /** Pending repaint that drops a Plot's zoom clip once an animated reset settles. */
   _plotUnclipTimer?: ReturnType<typeof setTimeout>;
   /**

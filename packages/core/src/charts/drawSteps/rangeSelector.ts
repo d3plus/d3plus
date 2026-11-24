@@ -7,17 +7,21 @@
     so the wheel, a drag, the zoom buttons, and the minimap all carry on from
     the window it shows, and a button reads as pressed whenever the chart
     shows its window, however it got there. A button whose window would take
-    in all the data (a "1Y" on four months of data) is disabled, since it
-    would show the same as "All".
+    in all the data (a "1Y" on four months of data) is hidden, since it
+    would show the same as "All"; when only "All" would be left, the whole
+    selector hides. Small multiples apply a button to each panel's own data
+    (see `Plot/facetZoom.ts`).
 
     @module
 */
+import {facetDataWindow} from "../Plot/facetZoom.js";
 import {plotAxisUtc} from "../Plot/plotRangeBreaks.js";
 import {rangeSelectorAxis} from "../Plot/zoomAxes.js";
 import {
   dataWindow,
   liveTransform,
   windowTransform,
+  type ZoomWindow,
 } from "../Plot/zoomWindow.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -27,6 +31,7 @@ import {
   paintControlButton,
   type ControlButtonStyles,
 } from "./controlButtonStyle.js";
+import {setFacetZoom} from "./facetZoomRedraw.js";
 import {
   coversAll,
   rangeAriaLabel,
@@ -40,25 +45,67 @@ import {
 } from "./rangeSelectorButtons.js";
 import type {Contribution} from "./topLeftControlsMarkup.js";
 import {clampTransform, zoomTo} from "./zoomControls.js";
+import {broadcastWindows} from "./zoomLink.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 
-/** A range selector's axis and its buttons, when it shows. */
-interface RangeSelectorState {
-  axis: "x" | "y";
-  buttons: RangeButton[];
+/** A button the range selector shows, with its place in `rangeSelector`. */
+interface ShownButton {
+  button: RangeButton;
+  index: number;
 }
 
-/** The chart's range selector, or null when it doesn't show (see `rangeSelectorAxis`). */
-function rangeSelectorState(viz: Viz): RangeSelectorState | null {
-  if (viz.schema.facet) return null;
-  const axis = rangeSelectorAxis(viz as unknown as VizInstance);
-  if (!axis) return null;
-  const buttons = rangeButtons(viz.schema.rangeSelector);
-  return buttons.length ? {axis, buttons} : null;
+/** A range selector's axis and the buttons it shows. */
+interface RangeSelectorState {
+  axis: "x" | "y";
+  buttons: ShownButton[];
 }
 
 const utcAxis = (viz: Viz, axis: "x" | "y"): boolean =>
   plotAxisUtc(viz as never, axis);
+
+/**
+    The extent of the chart's data along the range selector's axis: every
+    panel's, in small multiples. Undefined before the chart has drawn it.
+    @param viz The chart.
+    @param axis The axis.
+*/
+export function rangeExtent(viz: Viz, axis: "x" | "y"): ZoomWindow | undefined {
+  if (viz._facetPanels) return facetDataWindow(viz as never, axis);
+  return viz._plotZoomBase ? dataWindow(viz, axis) : undefined;
+}
+
+/**
+    The buttons a range selector shows: each one whose window falls short
+    of the data's whole span, and "All" while any of those show. Every
+    button shows before the chart has drawn its data.
+    @param buttons The buttons `rangeSelector` asks for.
+    @param extent The data's extent along the axis, when known.
+    @param utc Whether the axis reads dates in UTC.
+*/
+export function shownRangeButtons(
+  buttons: RangeButton[],
+  extent: ZoomWindow | undefined,
+  utc = false,
+): ShownButton[] {
+  const all = buttons.map((button, index) => ({button, index}));
+  if (!extent) return all;
+  const shown = all.filter(
+    ({button}) => button.step === "all" || !coversAll(button, extent, utc),
+  );
+  return shown.some(({button}) => button.step !== "all") ? shown : [];
+}
+
+/** The chart's range selector, or null when it doesn't show (see `rangeSelectorAxis`). */
+function rangeSelectorState(viz: Viz): RangeSelectorState | null {
+  const axis = rangeSelectorAxis(viz as unknown as VizInstance);
+  if (!axis) return null;
+  const buttons = shownRangeButtons(
+    rangeButtons(viz.schema.rangeSelector),
+    rangeExtent(viz, axis),
+    utcAxis(viz, axis),
+  );
+  return buttons.length ? {axis, buttons} : null;
+}
 
 /**
     The transform a button zooms to, clamped like a gesture's, or null when
@@ -91,31 +138,64 @@ function sameView(
 }
 
 /**
-    The index of the button whose window the chart shows, or -1. "All" is
-    pressed at the natural view.
+    The `rangeSelector` index of the button whose window the chart shows,
+    or -1. "All" is pressed at the natural view; in small multiples, the
+    button last pressed until another window replaces it.
     @param viz The chart.
 */
 export function activeRangeButton(viz: Viz): number {
   const state = rangeSelectorState(viz);
   if (!state) return -1;
+  const all = state.buttons.find(({button}) => button.step === "all");
+  if (viz._facetPanels) {
+    const zoom = viz._facetZoom;
+    if (!zoom) return all ? all.index : -1;
+    return zoom.range ? zoom.range.index : -1;
+  }
   const live = liveTransform(viz);
-  return state.buttons.findIndex(button => {
+  const shown = state.buttons.find(({button}) => {
     if (button.step === "all") return live.k === 1;
     const t = rangeTransform(viz, state.axis, button);
     return Boolean(t && t.k > 1 && sameView(t, live, state.axis));
   });
+  return shown ? shown.index : -1;
+}
+
+/** Shows a button's window in each panel of small multiples, and in the charts linked with them. */
+function selectFacetRange(
+  viz: Viz,
+  axis: "x" | "y",
+  index: number,
+  button: RangeButton,
+): void {
+  const duration = effectiveDuration(viz);
+  const live = liveTransform(viz);
+  // The window replaces any zoom of the whole picture.
+  if (live.k !== 1 || live.x || live.y) zoomTo(viz, 1, 0, 0, 0);
+  const vi = viz as unknown as VizInstance;
+  if (button.step === "all") {
+    setFacetZoom(vi, undefined, duration);
+    return broadcastWindows(viz, null, duration);
+  }
+  const utc = utcAxis(viz, axis);
+  setFacetZoom(vi, {range: {axis, index, button, utc}}, duration);
+  const extent = rangeExtent(viz, axis);
+  const window = extent && rangeWindow(button, extent, utc);
+  if (window) broadcastWindows(viz, {[axis]: window}, duration);
 }
 
 /**
     Zooms the chart to a button's window, as a click on it does.
     @param viz The chart.
-    @param index The button's index.
+    @param index The button's index in `rangeSelector`.
 */
 export function selectRange(viz: Viz, index: number): void {
   const state = rangeSelectorState(viz);
-  const button = state?.buttons[index];
-  if (!state || !button) return;
-  const t = rangeTransform(viz, state.axis, button);
+  const shown = state?.buttons.find(b => b.index === index);
+  if (!state || !shown) return;
+  if (viz._facetPanels)
+    return selectFacetRange(viz, state.axis, index, shown.button);
+  const t = rangeTransform(viz, state.axis, shown.button);
   if (t) zoomTo(viz, t.k, t.x, t.y, effectiveDuration(viz));
 }
 
@@ -131,16 +211,13 @@ function buttonStyles(viz: Viz): ControlButtonStyles {
 /** The range selector's markup: a labelled group of buttons. */
 function rangeSelectorHtml(viz: Viz, state: RangeSelectorState): string {
   const translate = viz.schema.translate;
-  const extent = viz._plotZoomBase ? dataWindow(viz, state.axis) : undefined;
-  const utc = utcAxis(viz, state.axis);
   const extraClass = viz.schema.rangeSelectorClassName
     ? ` ${escapeHtml(viz.schema.rangeSelectorClassName)}`
     : "";
-  const buttons = state.buttons.map((button, i) => {
-    const disabled =
-      button.step !== "all" && extent && coversAll(button, extent, utc);
-    return `<button type="button" class="d3plus-range-button${extraClass}" data-range="${i}" aria-pressed="false" aria-label="${escapeHtml(rangeAriaLabel(button, translate))}"${disabled ? " disabled" : ""}>${escapeHtml(rangeLabel(button, translate))}</button>`;
-  });
+  const buttons = state.buttons.map(
+    ({button, index}) =>
+      `<button type="button" class="d3plus-range-button${extraClass}" data-range="${index}" aria-pressed="false" aria-label="${escapeHtml(rangeAriaLabel(button, translate))}">${escapeHtml(rangeLabel(button, translate))}</button>`,
+  );
   return `<div class="d3plus-range-selector" role="group" aria-label="${escapeHtml(translate("Zoom range"))}" style="display:inline-flex;gap:2px">${buttons.join("")}</div>`;
 }
 
@@ -162,7 +239,7 @@ export function syncRangeButtons(viz: Viz, host: ParentNode): void {
     });
 }
 
-/** Paints a button's style for its state; a disabled one fades. */
+/** Paints a button's style for its state. */
 function paintRangeButton(
   viz: Viz,
   btn: HTMLButtonElement,
@@ -171,10 +248,9 @@ function paintRangeButton(
   paintControlButton(
     btn,
     buttonStyles(viz),
-    hovered && !btn.disabled,
+    hovered,
     btn.classList.contains("active"),
   );
-  if (btn.disabled) btn.style.setProperty("opacity", "0.4");
 }
 
 /** Binds each button's hover styling once. */
@@ -210,7 +286,7 @@ export function rangeSelectorContribution(viz: Viz): Contribution | null {
           const btn = (e.target as Element | null)?.closest<HTMLButtonElement>(
             ".d3plus-range-button",
           );
-          if (btn && !btn.disabled) selectRange(viz, Number(btn.dataset.range));
+          if (btn) selectRange(viz, Number(btn.dataset.range));
         },
       },
     },

@@ -5,7 +5,7 @@
     <title>LinkedZoom · Plot</title>
     <meta
       name="description"
-      content="Zoom linked across charts: Plots that set link zoom show the same window of dates, from a gesture, the zoom buttons, the brush, or a range-selector button."
+      content="Zoom shared across a link group: Plots show the same window of dates, an overview chart drags a band that sets it, and small multiples follow per panel."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -16,18 +16,24 @@
       }
       .row {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 16px;
         margin-bottom: 24px;
       }
       .price {
-        height: 300px;
+        height: 280px;
       }
       .volume {
-        height: 180px;
+        height: 160px;
+      }
+      .overview {
+        height: 120px;
       }
       .chart {
-        height: 260px;
+        height: 240px;
+      }
+      .facets {
+        height: 360px;
       }
       h3 {
         margin: 0 0 4px;
@@ -42,42 +48,55 @@
   </head>
 
   <body>
-    <h3>Price and volume</h3>
+    <h3>Price, volume, and an overview</h3>
     <p>
-      The two charts share <code>link: {group: "market", zoom: true}</code> and
-      zoom along x. Zoom or pan either one, or use the range buttons, and the
-      other follows; hover is linked too.
+      The charts share <code>link: "market"</code>, so they share zoom. The
+      overview at the bottom (<code>zoom: "overview"</code>) keeps its whole
+      view: drag its band to move the window, drag an edge to resize it, drag
+      elsewhere to draw a new one, or focus it with Tab and use the arrow keys,
+      Home/End, and + / −. Double-click shows everything.
     </p>
     <div class="price" id="price"></div>
     <div class="volume" id="volume"></div>
+    <div class="overview" id="overview"></div>
 
     <div class="row">
       <div>
         <h3>2022–2024</h3>
-        <p>Linked to the chart beside it, which covers a different span.</p>
+        <p>Zoom here: the next chart, over 2023–2025, shows the same dates.</p>
         <div class="chart" id="early"></div>
       </div>
       <div>
         <h3>2023–2025</h3>
-        <p>
-          The same dates line up; past its data, the chart stops at its edge.
-        </p>
+        <p>Where only part of the window has data, it still shows its dates.</p>
         <div class="chart" id="late"></div>
+      </div>
+      <div>
+        <h3>2027–2028</h3>
+        <p>No data in the window: it keeps its own view.</p>
+        <div class="chart" id="later"></div>
       </div>
     </div>
 
     <div class="row">
       <div>
-        <h3>Linked with <code>zoom: true</code></h3>
-        <p>Zooms with the "market" charts above.</p>
+        <h3>Linked, sharing zoom</h3>
+        <p>An AreaPlot in the "market" group follows the charts above.</p>
         <div class="chart" id="follower"></div>
       </div>
       <div>
-        <h3>Same group, without <code>zoom</code></h3>
+        <h3>Linked with <code>zoom: false</code></h3>
         <p>Shares hover only: its zoom stays its own.</p>
         <div class="chart" id="independent"></div>
       </div>
     </div>
+
+    <h3>Small multiples in the "market" group</h3>
+    <p>
+      Each panel shows the group's window; a panel whose data doesn't reach it
+      keeps its view.
+    </p>
+    <div class="facets" id="facets"></div>
   </body>
 
   <script>
@@ -89,11 +108,16 @@
     for (let i = 0; i < 900; i++) {
       const date = new Date(2022, 0, 1 + i);
       close += Math.sin(i / 17) * 0.8 + Math.cos(i / 7.1) * 0.6 + 0.05;
-      days.push({
+      days.push({id: "ACME", date, close});
+    }
+    const weeks = [];
+    for (let i = 0; i < 129; i++) {
+      weeks.push({
         id: "ACME",
-        date,
-        close,
-        volume: 2000 + Math.abs(wobble(i)) * 300 + (i % 5) * 150,
+        date: new Date(2022, 0, 1 + i * 7),
+        volume: Math.round(
+          12000 + Math.abs(wobble(i * 3)) * 600 + (i % 4) * 900,
+        ),
       });
     }
 
@@ -106,60 +130,89 @@
       return rows;
     };
 
+    const products = [];
+    ["Widgets", "Gadgets", "Gizmos"].forEach((id, p) => {
+      const start = p === 2 ? 600 : 0;
+      for (let i = start; i < 900; i += 7) {
+        products.push({
+          id,
+          date: new Date(2022, 0, 1 + i),
+          sales: 40 + p * 20 + i / 15 + wobble(i / 7 + p * 9),
+        });
+      }
+    });
+
     const base = {
       timeline: false,
       legend: false,
-      zoomAxes: "x",
       groupBy: "id",
       x: "date",
       time: "date",
     };
-    const market = {group: "market", zoom: true};
+    const make = (Chart, select, config) =>
+      new d3plus[Chart]()
+        .select(select)
+        .config({...base, ...config})
+        .render();
 
-    new d3plus.LinePlot()
-      .select("#price")
-      .config({
-        ...base,
-        data: days,
-        y: "close",
-        link: market,
-        rangeSelector: ["1M", "3M", "6M", "1Y", "All"],
-      })
-      .render();
+    make("LinePlot", "#price", {
+      data: days,
+      y: "close",
+      link: "market",
+      rangeSelector: ["1M", "3M", "6M", "1Y", "All"],
+    });
+    make("BarChart", "#volume", {
+      data: weeks,
+      y: "volume",
+      link: "market",
+      zoomAxes: ["x"],
+    });
+    make("AreaPlot", "#overview", {
+      data: days,
+      y: "close",
+      link: {group: "market", zoom: "overview"},
+      zoomControls: false,
+      yConfig: {title: false, ticks: []},
+    });
 
-    new d3plus.BarChart()
-      .select("#volume")
-      .config({...base, data: days, y: "volume", link: market})
-      .render();
+    make("LinePlot", "#early", {
+      data: series(2022, 365),
+      y: "value",
+      link: "spans",
+      zoomAxes: ["x"],
+    });
+    make("LinePlot", "#late", {
+      data: series(2023, 365),
+      y: "value",
+      link: "spans",
+      zoomAxes: ["x"],
+    });
+    make("LinePlot", "#later", {
+      data: series(2027, 240),
+      y: "value",
+      link: "spans",
+      zoomAxes: ["x"],
+    });
 
-    new d3plus.LinePlot()
-      .select("#early")
-      .config({
-        ...base,
-        data: series(2022, 365),
-        y: "value",
-        link: {group: "spans", zoom: true},
-      })
-      .render();
+    make("AreaPlot", "#follower", {
+      data: weeks,
+      y: "volume",
+      link: "market",
+      zoomAxes: ["x"],
+    });
+    make("LinePlot", "#independent", {
+      data: days,
+      y: "close",
+      link: {group: "market", zoom: false},
+      zoomAxes: ["x"],
+    });
 
-    new d3plus.LinePlot()
-      .select("#late")
-      .config({
-        ...base,
-        data: series(2023, 365),
-        y: "value",
-        link: {group: "spans", zoom: true},
-      })
-      .render();
-
-    new d3plus.AreaPlot()
-      .select("#follower")
-      .config({...base, data: days, y: "volume", link: market})
-      .render();
-
-    new d3plus.LinePlot()
-      .select("#independent")
-      .config({...base, data: days, y: "close", link: "market"})
-      .render();
+    make("LinePlot", "#facets", {
+      data: products,
+      y: "sales",
+      facet: "id",
+      facetConfig: {columns: 3, scales: "independent"},
+      link: "market",
+    });
   </script>
 </html>

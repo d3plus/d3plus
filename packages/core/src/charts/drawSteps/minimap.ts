@@ -5,6 +5,7 @@ import {chartBounds} from "../features/chartGeometry.js";
 import type {FeatureLayout, FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
 import {zoomTo} from "./zoomControls.js";
+import {isOverviewChart} from "../Plot/zoomAxes.js";
 import {zoomedDims} from "./zoomFit.js";
 import {
   MINIMAP_GAP,
@@ -409,6 +410,7 @@ export const minimapFeature: FeatureModule = {
     if (
       !viz.schema.zoom ||
       !viz.schema.minimap ||
+      isOverviewChart(viz) ||
       !viz._container ||
       !viz._zoomBehavior
     )

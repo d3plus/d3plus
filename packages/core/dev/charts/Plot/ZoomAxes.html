@@ -42,12 +42,12 @@
       <div class="chart" id="daily"></div>
     </div>
     <div>
-      <h3>StackedArea, <code>zoomAxes: "x"</code></h3>
+      <h3>StackedArea, <code>zoomAxes: ["x"]</code></h3>
       <p>The value axis refits to the stacks in view, from 0.</p>
       <div class="chart" id="stacked"></div>
     </div>
     <div>
-      <h3>BarChart, <code>zoomAxes: "x"</code> with the brush</h3>
+      <h3>BarChart, <code>zoomAxes: ["x"]</code> with the brush</h3>
       <p>
         Drag a band to zoom into it (Shift + drag pans); bars keep their
         baseline.
@@ -55,17 +55,30 @@
       <div class="chart" id="bars"></div>
     </div>
     <div>
-      <h3>Horizontal LinePlot, <code>zoomAxes: "y"</code></h3>
+      <h3>Horizontal LinePlot, <code>zoomAxes: ["y"]</code></h3>
       <p>Dates run down the y axis; the x axis refits.</p>
       <div class="chart" id="horizontal"></div>
     </div>
     <div>
       <h3>Custom buttons on four months of data, in Spanish</h3>
       <p>
-        "1Y" and "YTD" would show everything, so they're disabled; "2W" is a
+        "1Y" and "YTD" would show everything, so they're hidden; "2S" is a
         custom range.
       </p>
       <div class="chart" id="custom"></div>
+    </div>
+    <div>
+      <h3>Small multiples with a range selector</h3>
+      <p>
+        Each panel shows the button's window of its own data, with its own y
+        axis refit.
+      </p>
+      <div class="chart" id="facets"></div>
+    </div>
+    <div>
+      <h3>One month of data</h3>
+      <p>Every button but "All" would show everything, so none shows.</p>
+      <div class="chart" id="tiny"></div>
     </div>
     <div>
       <h3>Both axes (the default) for comparison</h3>
@@ -139,7 +152,7 @@
       time: "date",
       y: "value",
       legend: true,
-      zoomAxes: "x",
+      zoomAxes: ["x"],
     });
 
     make("BarChart", "#bars", {
@@ -148,7 +161,7 @@
       x: "date",
       time: "date",
       y: "value",
-      zoomAxes: "x",
+      zoomAxes: ["x"],
       zoomDrag: "brush",
     });
 
@@ -159,7 +172,7 @@
       y: "date",
       time: "date",
       x: "value",
-      zoomAxes: "y",
+      zoomAxes: ["y"],
     });
 
     make("LinePlot", "#custom", {
@@ -176,6 +189,37 @@
         "1Y",
         "All",
       ],
+    });
+
+    const regions = [];
+    ["North", "South", "East", "West"].forEach((id, r) => {
+      for (let i = 0; i < 700 - r * 120; i++) {
+        regions.push({
+          id,
+          date: new Date(2022, 0, 1 + i),
+          value: 80 + r * 15 + i / 8 + wobble(i + r * 40) * (1 + r / 3),
+        });
+      }
+    });
+
+    make("LinePlot", "#facets", {
+      data: regions,
+      groupBy: "id",
+      facet: "id",
+      facetConfig: {scales: "independent"},
+      x: "date",
+      time: "date",
+      y: "value",
+      rangeSelector: ["1M", "3M", "6M", "All"],
+    });
+
+    make("LinePlot", "#tiny", {
+      data: daily.slice(0, 30),
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      rangeSelector: true,
     });
 
     make("LinePlot", "#both", {

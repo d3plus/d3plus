@@ -36,6 +36,7 @@
 import {attributionFeature, runLayout} from "../features/features.js";
 import {minimapFeature} from "../drawSteps/minimap.js";
 import {zoomFeature} from "../drawSteps/zoomControls.js";
+import {overviewFeature} from "../drawSteps/overview.js";
 import {resolveDrillMorph} from "./drillMorph.js";
 import {drawChart} from "../facet/drawFacets.js";
 import {topLeftControlsFeature} from "../drawSteps/topLeftControls.js";
@@ -103,6 +104,7 @@ function runVizStages(viz: Viz): void {
 export function runPostDrawFeatures(viz: Viz): void {
   const post = runLayout({viz}, [
     zoomFeature,
+    overviewFeature,
     minimapFeature,
     topLeftControlsFeature,
     bottomRightControlsFeature,

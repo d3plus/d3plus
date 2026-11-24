@@ -5,6 +5,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {LinePlot} from "../../index.ts";
 import {
   broadcastZoom,
+  coversDims,
   dispatchLinked,
   followZoom,
   linkMembers,
@@ -43,6 +44,16 @@ it("sharedWindows: passes a window only between axes of the same kind", () => {
   assert.deepStrictEqual(sharedWindows(time, numbers, {x: [1, 2]}), {});
 });
 
+it("coversDims: windows must cover every dimension a chart zooms", () => {
+  assert.strictEqual(coversDims({x: true, y: false}, {x: [0, 1]}), true);
+  assert.strictEqual(
+    coversDims({x: true, y: false}, {x: [0, 1], y: [0, 1]}),
+    true,
+  );
+  assert.strictEqual(coversDims({x: true, y: true}, {x: [0, 1]}), false);
+  assert.strictEqual(coversDims({x: false, y: true}, {x: [0, 1]}), false);
+});
+
 it("followZoom: leaves a chart that hasn't drawn its zoomable axes alone", () => {
   const viz = member(false);
   viz._zoomBehavior = undefined;
@@ -65,8 +76,8 @@ it("dispatchLinked: visits every other member of the group, once", () => {
   assert.strictEqual(linkMembers("dispatch").length, 0);
 });
 
-it("broadcastZoom: does nothing for a chart that doesn't link zoom, or hasn't drawn", () => {
-  const plain = member("plain", {drawn: true});
+it("broadcastZoom: does nothing for a chart that opts out of linked zoom, or hasn't drawn", () => {
+  const plain = member({group: "plain", zoom: false}, {drawn: true});
   plain._plotZoomBase = {};
   const other = member("plain");
   let followed = false;
@@ -77,7 +88,7 @@ it("broadcastZoom: does nothing for a chart that doesn't link zoom, or hasn't dr
     },
   };
   broadcastZoom(plain, {k: 2, x: 0, y: 0}, 0);
-  const undrawn = member({group: "plain", zoom: true});
+  const undrawn = member("plain");
   broadcastZoom(undrawn, {k: 2, x: 0, y: 0}, 0);
   assert.strictEqual(followed, false);
   [plain, other, undrawn].forEach(unregisterLink);

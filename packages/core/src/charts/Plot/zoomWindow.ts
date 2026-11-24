@@ -94,6 +94,23 @@ export function zoomWindows(
 }
 
 /**
+    The extent of a list of axis values (numbers and Dates), as numbers, or
+    undefined when none is finite.
+    @param values The values.
+*/
+export function valuesExtent(values: unknown[]): ZoomWindow | undefined {
+  let lo = Infinity,
+    hi = -Infinity;
+  for (const v of values) {
+    const n = typeof v === "number" ? v : v instanceof Date ? +v : NaN;
+    if (!Number.isFinite(n)) continue;
+    if (n < lo) lo = n;
+    if (n > hi) hi = n;
+  }
+  return lo <= hi ? [lo, hi] : undefined;
+}
+
+/**
     The extent of the data along a Plot's x or y axis, as numbers, or
     undefined when it has none.
     @param viz The chart.
@@ -101,16 +118,7 @@ export function zoomWindows(
 */
 export function dataWindow(viz: Viz, dim: "x" | "y"): ZoomWindow | undefined {
   const values = viz._plotZoomBase?.pCtx[`${dim}Data`];
-  if (!values) return undefined;
-  let lo = Infinity,
-    hi = -Infinity;
-  for (const v of values) {
-    const n = v === null || v === undefined ? NaN : +(v as number);
-    if (!Number.isFinite(n)) continue;
-    if (n < lo) lo = n;
-    if (n > hi) hi = n;
-  }
-  return lo <= hi ? [lo, hi] : undefined;
+  return values ? valuesExtent(values) : undefined;
 }
 
 /** Where a value on an axis sits in surface pixels, unzoomed. */

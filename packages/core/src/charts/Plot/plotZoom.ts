@@ -25,10 +25,19 @@ import {
 import {unwrapBreakMasks} from "./plotBreaks.js";
 import {unwrapDomainClips} from "./domainClip.js";
 import {hasUserDomain, plotBaseline} from "./baselineDomain.js";
-import {zoomedDomain} from "./zoomWindow.js";
-import {broadcastZoom} from "../drawSteps/zoomLink.js";
 import {
-  rangeSelectorAxis,
+  valuesExtent,
+  windowTransform,
+  zoomedDomain,
+  zoomWindows,
+  type ZoomWindows,
+} from "./zoomWindow.js";
+import {broadcastWindows, broadcastZoom} from "../drawSteps/zoomLink.js";
+import {setFacetZoom} from "../drawSteps/facetZoomRedraw.js";
+import {panelWindows} from "./facetZoom.js";
+import {
+  defaultZoomAxis,
+  isOverviewChart,
   refitDomain,
   splitZoomAxes,
   zoomDimensions,
@@ -139,9 +148,17 @@ export function paintZoomablePlot(
   const breaks: PlotZoomBase["breaks"] = {};
   const reversed: PlotZoomBase["reversed"] = {};
   const refit: PlotZoomBase["refit"] = {};
+  // A small-multiples panel zooms along the axes its window covers (see
+  // `facetZoom.ts`), refitting the others.
+  const panel = viz._facetStep === "panel";
+  const windows = panel
+    ? panelWindows(viz._facetZoom, d => valuesExtent(pCtx[`${d}Data`]))
+    : undefined;
   const split = splitZoomAxes(
     zoomableAxes(pCtx),
-    zoomDimensions(viz.schema.zoomAxes, rangeSelectorAxis(viz)),
+    windows
+      ? {x: Boolean(windows.x), y: Boolean(windows.y)}
+      : zoomDimensions(viz.schema.zoomAxes, defaultZoomAxis(viz)),
   );
   for (const axis of [...split.rescale, ...split.refit]) {
     const axisInstance = viz[`_${axis}Axis`];
@@ -171,11 +188,27 @@ export function paintZoomablePlot(
     refit,
     baseline: plotBaseline(viz),
   };
-  if (current && (current.k !== 1 || current.x || current.y)) {
-    const zoomed = rescalePlot(viz, current);
+  // A small-multiples panel shows its window (see `facetZoom.ts`); an
+  // overview always shows its whole view.
+  const t = panel
+    ? panelTransform(viz, windows)
+    : isOverviewChart(viz)
+      ? undefined
+      : current;
+  if (t && (t.k !== 1 || t.x || t.y)) {
+    const zoomed = rescalePlot(viz, t);
     if (zoomed) return zoomed;
   }
   return nodes;
+}
+
+/** The transform that shows a small-multiples panel's window, if it has one. */
+function panelTransform(
+  viz: Viz,
+  windows: ZoomWindows | undefined,
+): ZoomState | undefined {
+  const t = windows && windowTransform(viz as never, windows);
+  return t && t.k > 1 ? t : undefined;
 }
 
 /** The baseline, when the axis's unzoomed domain reaches it (bars and areas start there). */
@@ -329,9 +362,24 @@ export function zoomPlot(
   duration: number,
 ): SceneNode[] | undefined {
   clearTimeout(viz._plotUnclipTimer);
+  const identity = t.k === 1 && !t.x && !t.y;
+  // Small multiples zoom as one picture; a reset also drops their window.
+  if (viz._facetPanels) {
+    if (identity && viz._facetZoom) {
+      setFacetZoom(viz, undefined, duration);
+      broadcastWindows(viz as never, null, duration);
+    }
+    return undefined;
+  }
+  // An overview keeps its whole view: its zoom is the window its band shows.
+  if (isOverviewChart(viz)) {
+    viz._overviewWindows = identity ? null : zoomWindows(viz as never, t);
+    broadcastZoom(viz as never, t, duration);
+    return viz._chartScene ?? [];
+  }
   const content = viz._chartScene?.find(n => n.key === PLOT_ZOOM_CONTENT_KEY);
   const clipped = content?.type === "group" && !!content.clip;
-  const settling = clipped && duration > 0 && t.k === 1 && !t.x && !t.y;
+  const settling = clipped && duration > 0 && identity;
   const nodes = rescalePlot(viz, t, settling);
   if (nodes) broadcastZoom(viz as never, t, duration);
   if (nodes && settling) {

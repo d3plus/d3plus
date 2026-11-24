@@ -4,6 +4,7 @@ import {scaleLinear, scaleTime} from "d3-scale";
 import {
   dataWindow,
   liveTransform,
+  valuesExtent,
   windowTransform,
   zoomedDomain,
   zoomWindows,
@@ -123,4 +124,13 @@ it("dataWindow: the extent of the data along an axis", () => {
   assert.deepStrictEqual(dataWindow(viz, "y"), [-2, 9]);
   assert.strictEqual(dataWindow(plot(["x"]), "x"), undefined);
   assert.strictEqual(dataWindow({}, "x"), undefined);
+});
+
+it("valuesExtent: the extent of numbers and Dates, skipping anything else", () => {
+  assert.deepStrictEqual(
+    valuesExtent([3, new Date(5), "7", null, NaN, 1]),
+    [1, 5],
+  );
+  assert.strictEqual(valuesExtent(["a", undefined]), undefined);
+  assert.strictEqual(valuesExtent([]), undefined);
 });

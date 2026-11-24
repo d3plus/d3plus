@@ -26,6 +26,7 @@ import {
 import {setCursor} from "../viz/setCursor.js";
 import {startsOnBrush} from "./zoomGesture.js";
 import {spanUnzoomedDims} from "./zoomFit.js";
+import {isOverviewChart} from "../Plot/zoomAxes.js";
 
 /** A point in the zoom surface's coordinates. */
 export type Point = [number, number];
@@ -263,7 +264,7 @@ export function bindZoomGestures(
   tgt: NonNullable<Viz["_zoomEventTarget"]>,
   reset: (event: Event) => void,
 ): void {
-  const brush = viz.schema.zoomDrag === "brush";
+  const brush = viz.schema.zoomDrag === "brush" && !isOverviewChart(viz);
   tgt.on(`mousedown.${NS}`, brush ? (e: MouseEvent) => pressed(viz, e) : null);
   bindDoubleClick(viz, tgt, reset);
 }

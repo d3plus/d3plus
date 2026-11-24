@@ -230,5 +230,7 @@ export const plotFacetHooks: FacetHooks = {
     _trendFits: viz._trendFits,
     _plotOutliers: viz._plotOutliers,
     _barSpans: viz._barSpans,
+    // The panel's unzoomed draw, whose data a range button reads.
+    _plotZoomBase: viz._plotZoomBase,
   }),
 };

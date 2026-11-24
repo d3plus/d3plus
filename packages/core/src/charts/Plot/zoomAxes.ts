@@ -9,8 +9,8 @@
 /** One of a Plot's four axes. */
 export type AxisName = "x" | "x2" | "y" | "y2";
 
-/** The `zoomAxes` setting: the dimension(s) a Plot's zoom rescales. */
-export type ZoomAxesSetting = "x" | "y" | "xy";
+/** The `zoomAxes` setting: the axes a Plot's zoom rescales. */
+export type ZoomAxesSetting = ("x" | "y")[];
 
 /** Which screen dimensions a zoom rescales. */
 export interface ZoomDims {
@@ -19,20 +19,22 @@ export interface ZoomDims {
 }
 
 /**
-    The dimensions a Plot's zoom rescales: those `zoomAxes` names, or, when
-    it is unset, the range selector's axis alone (see `rangeSelector`), or
-    both.
+    The dimensions a Plot's zoom rescales: those `zoomAxes` lists, or, when
+    it is unset (or lists neither axis), the time axis alone for a chart
+    whose zoom runs along one (`timeAxis`: a range selector or an overview
+    chart), or both.
     @param setting The chart's `zoomAxes`.
-    @param rangeAxis The axis the range selector's buttons window, if it shows.
+    @param timeAxis The time axis the zoom runs along by default, if any.
 */
 export function zoomDimensions(
   setting: unknown,
-  rangeAxis?: "x" | "y",
+  timeAxis?: "x" | "y",
 ): ZoomDims {
-  if (setting === "x") return {x: true, y: false};
-  if (setting === "y") return {x: false, y: true};
-  if (setting === undefined && rangeAxis)
-    return {x: rangeAxis === "x", y: rangeAxis === "y"};
+  if (Array.isArray(setting)) {
+    const dims = {x: setting.includes("x"), y: setting.includes("y")};
+    if (dims.x || dims.y) return dims;
+  }
+  if (timeAxis) return {x: timeAxis === "x", y: timeAxis === "y"};
   return {x: true, y: true};
 }
 
@@ -170,9 +172,9 @@ export function refitDomain(input: RefitInput): [number, number] | undefined {
   return [min, max];
 }
 
-/** The parts of a chart `rangeSelectorAxis` reads. */
+/** The parts of a chart `rangeSelectorAxis` and `defaultZoomAxis` read. */
 interface RangeAxisSource {
-  schema: {rangeSelector?: unknown; zoom?: unknown};
+  schema: {rangeSelector?: unknown; zoom?: unknown; link?: unknown};
   _xTime?: boolean;
   _yTime?: boolean;
 }
@@ -188,4 +190,41 @@ export function rangeSelectorAxis(viz: RangeAxisSource): "x" | "y" | undefined {
   if (!zoom || !rangeSelector) return undefined;
   if (Array.isArray(rangeSelector) && !rangeSelector.length) return undefined;
   return viz._xTime ? "x" : viz._yTime ? "y" : undefined;
+}
+
+/**
+    Whether a chart's `link` makes it its group's overview: `{zoom:
+    "overview"}` (see `drawSteps/overview.ts`).
+    @param link The chart's `link`.
+*/
+export function isOverviewLink(link: unknown): boolean {
+  return Boolean(
+    link &&
+    typeof link === "object" &&
+    (link as {zoom?: unknown}).zoom === "overview",
+  );
+}
+
+/**
+    The axis a Plot zooms along alone when `zoomAxes` is unset: the range
+    selector's axis, or an overview chart's time axis (x when it has none).
+    @param viz The chart.
+*/
+export function defaultZoomAxis(viz: RangeAxisSource): "x" | "y" | undefined {
+  const range = rangeSelectorAxis(viz);
+  if (range || !isOverviewLink(viz.schema?.link) || !viz.schema.zoom)
+    return range;
+  return viz._yTime && !viz._xTime ? "y" : "x";
+}
+
+/**
+    Whether a chart draws as its link group's overview: a Plot whose `link`
+    sets `zoom: "overview"`, with zoom on and not drawn as small multiples.
+    @param viz The chart.
+*/
+export function isOverviewChart(viz: {
+  schema?: Record<string, unknown>;
+}): boolean {
+  const schema = viz.schema ?? {};
+  return Boolean(schema.zoom) && !schema.facet && isOverviewLink(schema.link);
 }

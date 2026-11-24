@@ -10,6 +10,7 @@ import {
   rangeWindow,
 } from "../../src/charts/drawSteps/rangeSelectorButtons.ts";
 import {LinePlot} from "../../index.ts";
+import {shownRangeButtons} from "../../src/charts/drawSteps/rangeSelector.ts";
 
 /**
     `rangeSelectorButtons.ts`: reading `rangeSelector` entries, the window
@@ -179,4 +180,25 @@ it("rangeLabel: a button's own label wins, and still has a spoken label", () => 
   const button = parseRangeButton({step: "week", count: 2, label: "Fortnight"});
   assert.strictEqual(rangeLabel(button, translate), "Fortnight");
   assert.strictEqual(rangeAriaLabel(button, translate), "Last 2 weeks");
+});
+
+it("shownRangeButtons: hides a button whose window takes in all the data", () => {
+  const buttons = rangeButtons(["1M", "6M", "YTD", "1Y", "All"]);
+  const short = [+new Date(2024, 2, 1), +new Date(2024, 6, 1)];
+  assert.deepStrictEqual(
+    shownRangeButtons(buttons, short).map(b => [b.button.step, b.index]),
+    [
+      ["month", 0],
+      ["all", 4],
+    ],
+  );
+  // Every button shows before the data's extent is known.
+  assert.strictEqual(shownRangeButtons(buttons, undefined).length, 5);
+});
+
+it("shownRangeButtons: none show when only All would be left", () => {
+  const buttons = rangeButtons(["1M", "1Y", "All"]);
+  const days = [+new Date(2024, 2, 1), +new Date(2024, 2, 20)];
+  assert.deepStrictEqual(shownRangeButtons(buttons, days), []);
+  assert.deepStrictEqual(shownRangeButtons(rangeButtons(["All"]), days), []);
 });

@@ -3,11 +3,13 @@ import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
 
 /**
-    Linked zoom (`link: {group, zoom: true}`): zooming, panning, a range
-    button, or a reset in one Plot shows the same window of dates on the
-    others, including charts over a different span; a chart that links
-    without `zoom`, or whose axis is of another kind, keeps its own zoom.
-    Both backends.
+    Linked zoom (on for every chart in a `link` group): zooming, panning, a
+    range button, or a reset in one Plot shows the same window of dates on
+    the others, including charts over a different span that the window
+    reaches. A chart with `zoom: false`, one whose axis is of another kind,
+    one the window doesn't reach, and one whose zoom scales a dimension the
+    window doesn't cover keep their view; small multiples show the window in
+    each panel it reaches. Both backends.
 */
 
 const box = `
@@ -27,7 +29,7 @@ const PRELUDE = `
   const plot = (sel, data, link, extra = {}) => {
     const chart = new d3plus.LinePlot()
       .data(data).groupBy("id").x("date").time("date").y("value")
-      .timeline(false).legend(false).duration(0).zoomAxes("x")
+      .timeline(false).legend(false).duration(0).zoomAxes(["x"])
       .link(link).config(extra).renderer(arg);
     return new Promise(resolve => chart.select(sel).render(() => resolve(chart)));
   };
@@ -64,7 +66,7 @@ for (const renderer of ["svg", "canvas"]) {
   it(`[${renderer}] zooming, panning, a range button and a reset in one chart show the same dates in the other`, async () => {
     const r = await page(
       `
-      const link = {group: "zl-" + arg, zoom: true};
+      const link = "zl-" + arg;
       const a = await plot("#a", series(2021, 900), link, {rangeSelector: ["3M", "All"]});
       const b = await plot("#b", series(2021, 900), link);
       const base = {a: x(a), b: x(b)};
@@ -101,27 +103,20 @@ for (const renderer of ["svg", "canvas"]) {
   });
 }
 
-it("a chart over a different span shows the same dates; one linked without zoom, or on numbers, keeps its own", async () => {
+it("a chart over a different span shows the same dates; zoom: false, or no data in the window, keep their view", async () => {
   const r = await page(
     `
-    const link = {group: "spans", zoom: true};
-    const a = await plot("#a", series(2021, 1000), link);
-    const b = await plot("#b", series(2022, 1000), link);
-    const c = await plot("#c", series(2021, 1000), "spans");
-    const numbers = series(2021, 200).map((d, i) => ({...d, date: undefined, n: i}));
-    const d = await new Promise(resolve => {
-      const chart = new d3plus.LinePlot()
-        .data(numbers).groupBy("id").x("n").y("value").legend(false).duration(0)
-        .zoomAxes("x").link(link).renderer(arg);
-      chart.select("#d").render(() => resolve(chart));
-    });
-    const before = {c: x(c), d: x(d)};
-    // Zoom into a stretch of 2022, which both a and b cover.
+    const a = await plot("#a", series(2021, 1000), "spans");
+    const b = await plot("#b", series(2022, 1000), "spans");
+    const c = await plot("#c", series(2021, 1000), {group: "spans", zoom: false});
+    const later = await plot("#d", series(2030, 300), "spans");
+    const before = {c: x(c), later: x(later)};
+    // Zoom into a stretch of 2022, which a and b cover.
     const scale = a._xAxis._d3Scale, ct = a._chartTransform;
     const px = date => scale(date) + ct.x;
     a._zoomToBounds([[px(new Date(2022, 3, 1)), 0], [px(new Date(2022, 8, 1)), 10]], 0);
     await frames();
-    return {a: x(a), b: x(b), before, c: x(c), d: x(d), kc: k(c), kd: k(d)};
+    return {a: x(a), b: x(b), before, c: x(c), later: x(later), kc: k(c), kl: k(later)};
   `,
     "svg",
   );
@@ -130,16 +125,119 @@ it("a chart over a different span shows the same dates; one linked without zoom,
     "a shows the window",
   );
   assert.ok(near(r.b, r.a), "b, over 2022–2024, shows the same dates");
-  assert.deepStrictEqual(
-    r.c,
-    r.before.c,
-    "a chart linked without zoom keeps its view",
-  );
+  assert.deepStrictEqual(r.c, r.before.c, "zoom: false keeps its view");
   assert.strictEqual(r.kc, 1);
   assert.deepStrictEqual(
-    r.d,
-    r.before.d,
-    "a number axis doesn't follow a time axis",
+    r.later,
+    r.before.later,
+    "a chart the window doesn't reach keeps its view",
   );
-  assert.strictEqual(r.kd, 1);
+  assert.strictEqual(r.kl, 1);
 });
+
+it("a number axis doesn't follow a time axis", async () => {
+  const r = await page(
+    `
+    const a = await plot("#a", series(2021, 1000), "kinds");
+    const numbers = series(2021, 200).map((d, i) => ({...d, date: undefined, n: i}));
+    const e = await new Promise(resolve => {
+      const chart = new d3plus.LinePlot()
+        .data(numbers).groupBy("id").x("n").y("value").legend(false).duration(0)
+        .zoomAxes(["x"]).link("kinds").renderer(arg);
+      chart.select("#b").render(() => resolve(chart));
+    });
+    const before = x(e);
+    click("#a", "zoom-in");
+    await frames();
+    return {before, after: x(e), ka: k(a), ke: k(e)};
+  `,
+    "svg",
+  );
+  assert.ok(r.ka > 1);
+  assert.deepStrictEqual(r.after, r.before);
+  assert.strictEqual(r.ke, 1);
+});
+
+it("a window that only partly reaches a chart's data still shows the same dates", async () => {
+  const r = await page(
+    `
+    const a = await plot("#a", series(2021, 1000), "partial");
+    const b = await plot("#b", series(2023, 300), "partial");
+    const scale = a._xAxis._d3Scale, ct = a._chartTransform;
+    const px = date => scale(date) + ct.x;
+    a._zoomToBounds([[px(new Date(2022, 9, 1)), 0], [px(new Date(2023, 2, 1)), 10]], 0);
+    await frames();
+    return {a: x(a), b: x(b), kb: k(b)};
+  `,
+    "svg",
+  );
+  assert.ok(r.kb > 1, "b zooms");
+  assert.ok(near(r.a, r.b, 40 * DAY), `to the same dates (${r.a} vs ${r.b})`);
+});
+
+it("a chart zooming both axes ignores a window along x alone", async () => {
+  const r = await page(
+    `
+    const a = await plot("#a", series(2021, 900), "dims");
+    const b = await plot("#b", series(2021, 900), "dims", {zoomAxes: ["x", "y"]});
+    document.querySelector("#a .zoom-in").click();
+    await frames();
+    return {ka: k(a), kb: k(b)};
+  `,
+    "svg",
+  );
+  assert.ok(r.ka > 1);
+  assert.strictEqual(
+    r.kb,
+    1,
+    "b would have to zoom y too, so it keeps its view",
+  );
+});
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`[${renderer}] small multiples show a linked window in each panel it reaches`, async () => {
+    const r = await page(
+      `
+      const a = await plot("#a", series(2021, 900), "facets");
+      const rows = [
+        ...series(2021, 900).map(d => ({...d, id: "early"})),
+        ...series(2026, 300).map(d => ({...d, id: "late"})),
+      ];
+      const f = await plot("#b", rows, "facets", {facet: "id", facetConfig: {scales: "independent"}, zoomAxes: undefined});
+      const spans = () => f._facetPanels.map(p => {
+        let pts = [];
+        const walk = n => {
+          if (n.interactionPoints && n.interactionPoints.length > pts.length) pts = n.interactionPoints;
+          (n.children || []).forEach(walk);
+        };
+        p.scene.forEach(walk);
+        const xs = pts.map(q => q.x);
+        return Math.max(...xs) - Math.min(...xs);
+      });
+      const before = spans();
+      click("#a", "zoom-in");
+      click("#a", "zoom-in");
+      await frames();
+      await frames();
+      await frames();
+      const after = spans();
+      click("#a", "zoom-reset");
+      await frames();
+      await frames();
+      await frames();
+      return {before, after, reset: spans(), facetZoom: f._facetZoom};
+    `,
+      renderer,
+    );
+    assert.ok(
+      r.after[0] > r.before[0] * 3,
+      "the panel the window reaches zooms",
+    );
+    assert.ok(
+      Math.abs(r.after[1] - r.before[1]) < 1,
+      "the other keeps its view",
+    );
+    assert.ok(Math.abs(r.reset[0] - r.before[0]) < 1, "a reset resets them");
+    assert.strictEqual(r.facetZoom, undefined);
+  });
+}

@@ -38,6 +38,7 @@ export interface TranslationStrings {
   Dots: string;
   Download: string;
   "Drag to Filter": string;
+  "Drag, or use the arrow keys, to move the window; + and \u2212 resize it": string;
   Duration: string;
   "Each dot": string;
   End: string;
@@ -159,6 +160,8 @@ export interface TranslationStrings {
   "Zoom In": string;
   "Zoom Out": string;
   "Zoom range": string;
+  "Zoom window": string;
+  "{0} to {1}": string;
   "{0}D": string;
   "{0}M": string;
   "{0}W": string;
@@ -237,6 +240,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "\u062a\u062d\u0645\u064a\u0644",
     "Drag to Filter":
       "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
+    "Drag, or use the arrow keys, to move the window; + and \u2212 resize it":
+      "\u0627\u0633\u062d\u0628 \u0623\u0648 \u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062d\u0631\u064a\u0643 \u0627\u0644\u0646\u0627\u0641\u0630\u0629\u061b \u0648+ \u0648\u2212 \u0644\u062a\u063a\u064a\u064a\u0631 \u062d\u062c\u0645\u0647\u0627",
     Duration: "\u0627\u0644\u0645\u062f\u0629",
     "Each dot": "\u0643\u0644 \u0646\u0642\u0637\u0629",
     End: "\u0627\u0644\u0646\u0647\u0627\u064a\u0629",
@@ -399,6 +404,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
     "Zoom range":
       "\u0646\u0637\u0627\u0642 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
+    "Zoom window":
+      "\u0646\u0627\u0641\u0630\u0629 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
+    "{0} to {1}": "{0} \u0625\u0644\u0649 {1}",
     "{0}D": "{0} \u064a",
     "{0}M": "{0} \u0634",
     "{0}W": "{0} \u0623",
@@ -457,6 +465,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Dots: "Puntos",
     Download: "Descargar",
     "Drag to Filter": "Arrastrar para Filtrar",
+    "Drag, or use the arrow keys, to move the window; + and \u2212 resize it":
+      "Arrastra o usa las flechas para mover la ventana; + y \u2212 cambian su tama\u00f1o",
     Duration: "Duraci\u00f3n",
     "Each dot": "Cada punto",
     End: "Fin",
@@ -582,6 +592,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
     "Zoom range": "Rango de zoom",
+    "Zoom window": "Ventana de zoom",
+    "{0} to {1}": "{0} a {1}",
     "{0}D": "{0} d",
     "{0}M": "{0} m",
     "{0}W": "{0} sem",
@@ -637,6 +649,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Dots: "Pontos",
     Download: "Baixar",
     "Drag to Filter": "Arraste para Filtrar",
+    "Drag, or use the arrow keys, to move the window; + and \u2212 resize it":
+      "Arraste ou use as setas para mover a janela; + e \u2212 mudam o tamanho",
     Duration: "Dura\u00e7\u00e3o",
     "Each dot": "Cada ponto",
     End: "Fim",
@@ -762,6 +776,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
     "Zoom range": "Intervalo de zoom",
+    "Zoom window": "Janela de zoom",
+    "{0} to {1}": "{0} a {1}",
     "{0}D": "{0} d",
     "{0}M": "{0} m",
     "{0}W": "{0} sem",
@@ -820,6 +836,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Dots: "\u70b9\u6570",
     Download: "\u4e0b\u8f7d",
     "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
+    "Drag, or use the arrow keys, to move the window; + and \u2212 resize it":
+      "\u62d6\u52a8\u6216\u4f7f\u7528\u65b9\u5411\u952e\u79fb\u52a8\u7a97\u53e3\uff1b\u6309 + \u548c \u2212 \u8c03\u6574\u5927\u5c0f",
     Duration: "\u6301\u7eed\u65f6\u95f4",
     "Each dot": "\u6bcf\u70b9",
     End: "\u7ed3\u675f",
@@ -945,6 +963,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
     "Zoom range": "\u7f29\u653e\u8303\u56f4",
+    "Zoom window": "\u7f29\u653e\u7a97\u53e3",
+    "{0} to {1}": "{0}\u81f3{1}",
     "{0}D": "{0}\u5929",
     "{0}M": "{0}\u4e2a\u6708",
     "{0}W": "{0}\u5468",
