@@ -1,4 +1,4 @@
-// Weekly trading volume; zooming either chart zooms both to the same dates.
+// Weekly trading volume; zooming any chart in the group zooms the others.
 const data = [];
 for (let i = 0; i < 100; i++) {
   data.push({
@@ -18,6 +18,6 @@ const config = {
   timeline: false,
   y: "volume",
   legend: false,
-  zoomAxes: "x",
-  link: {group: "line-plot-market", zoom: true},
+  zoomAxes: ["x"],
+  link: "line-plot-market",
 };

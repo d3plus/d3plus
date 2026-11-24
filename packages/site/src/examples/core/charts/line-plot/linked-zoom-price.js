@@ -19,5 +19,5 @@ const config = {
   y: "close",
   legend: false,
   rangeSelector: ["1M", "3M", "6M", "All"],
-  link: {group: "line-plot-market", zoom: true},
+  link: "line-plot-market",
 };

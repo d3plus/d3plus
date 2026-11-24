@@ -17,6 +17,6 @@ const config = {
   timeline: false,
   y: "value",
   legend: false,
-  zoomAxes: "x",
+  zoomAxes: ["x"],
   zoomDrag: "brush",
 };
