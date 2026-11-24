@@ -170,11 +170,17 @@ export function gatherRows(
 /**
     The charts whose entries the legend holds: those `pick` names (an index
     or a list of indices into `charts`), else every chart whose own legend
-    is on. A chart that is itself a dashboard draws its own legend and is
-    never one.
+    is on. A chart that is itself a dashboard draws its own legend, and a
+    chart colored by a `colorScale` is keyed by its colorScale, so neither
+    is ever one.
 */
 export function legendSources(
-  owns: {legend: unknown; eligible: boolean; dashboard: boolean}[],
+  owns: {
+    legend: unknown;
+    eligible: boolean;
+    dashboard: boolean;
+    scaled?: boolean;
+  }[],
   pick: unknown,
 ): number[] {
   const picked = (Array.isArray(pick) ? pick : [pick]).filter(
@@ -184,7 +190,7 @@ export function legendSources(
   const chosen = picked.length
     ? picked
     : all.filter(i => owns[i].eligible && !legendOff(owns[i].legend));
-  return chosen.filter(i => !owns[i].dashboard);
+  return chosen.filter(i => !owns[i].dashboard && !owns[i].scaled);
 }
 
 /** A chart's own `legend`, whether or not the dashboard is standing in for it. */
@@ -258,7 +264,12 @@ export function syncDashboardLegend(dashboard: LegendHost): void {
       child.ownLegend = undefined;
       child.dirty = true;
     }
-    return {legend: ownLegend(child), eligible: !pinned, dashboard: nested};
+    return {
+      legend: ownLegend(child),
+      eligible: !pinned,
+      dashboard: nested,
+      scaled: Boolean(child.chart.schema.colorScale),
+    };
   });
   const sources = on
     ? legendSources(owns, dashboard.schema.legendChart).map(i => children[i])

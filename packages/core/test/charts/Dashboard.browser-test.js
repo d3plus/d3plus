@@ -653,3 +653,53 @@ it("Dashboard: passes its theme, locale, and renderer down; a chart's own config
     ["light", "es-ES", "canvas"],
   ]);
 });
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`Dashboard ${renderer}: a chart colored by a colorScale is left out of the legend and keeps its colorScale`, async () => {
+    const result = await render(
+      box,
+      kind =>
+        new Promise(resolve => {
+          const data = [
+            {id: "a", group: "G1", value: 3},
+            {id: "b", group: "G2", value: 5},
+            {id: "c", group: "G2", value: 8},
+          ];
+          const dashboard = new window.d3plus.Dashboard()
+            .select("#dash")
+            .duration(0)
+            .renderer(kind)
+            .charts([
+              {
+                chart: "Treemap",
+                config: {
+                  data,
+                  groupBy: "id",
+                  sum: "value",
+                  colorScale: "value",
+                },
+              },
+              {chart: "Pie", config: {data, groupBy: "group", value: "value"}},
+            ]);
+          dashboard.render(() => {
+            const [treemap] = dashboard._dashboard.children.map(c => c.chart);
+            resolve({
+              sources: dashboard._dashboard.legend.sources.map(
+                c => c.chart.constructor.name,
+              ),
+              entries: (dashboard._legendClass?.data() ?? [])
+                .map(d => d.group)
+                .sort(),
+              colorScale: treemap._colorScaleClass?.data()?.length > 0,
+              renderer: treemap.renderer(),
+            });
+          });
+        }),
+      renderer,
+    );
+    assert.deepStrictEqual(result.sources, ["Pie"]);
+    assert.deepStrictEqual(result.entries, ["G1", "G2"]);
+    assert.ok(result.colorScale, "the treemap still draws its colorScale");
+    assert.strictEqual(result.renderer, renderer);
+  });
+}

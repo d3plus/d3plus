@@ -327,6 +327,13 @@ it("Dashboard: legendOff and legendSources pick the legend's charts", () => {
   ];
   assert.deepStrictEqual(legendSources(owns, undefined), [3, 4]);
   assert.deepStrictEqual(legendSources(owns, 0), [0], "a chart named outright");
+  const scaled = owns.map((o, i) => ({...o, scaled: i === 3}));
+  assert.deepStrictEqual(
+    legendSources(scaled, undefined),
+    [4],
+    "a chart colored by a colorScale is left out",
+  );
+  assert.deepStrictEqual(legendSources(scaled, [3]), [], "even when named");
   assert.deepStrictEqual(
     legendSources(owns, [4, 2, 9]),
     [4],

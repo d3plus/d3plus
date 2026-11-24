@@ -1659,7 +1659,8 @@ export interface D3plusConfig {
     /**
       Dashboard: which charts its one legend holds the entries of, as an
       index into `charts` or a list of them; by default every chart whose
-      own legend is on. Each entry is the value a chart colors by (its
+      own legend is on, leaving out charts colored by a `colorScale` (keyed
+      by their colorScale). Each entry is the value a chart colors by (its
       `color`, else its top `groupBy` level), shown once however many charts
       have it, in place of the charts' own legends and linked to every
       chart. Its swatches take the `shapeConfig`, `legendConfig`,

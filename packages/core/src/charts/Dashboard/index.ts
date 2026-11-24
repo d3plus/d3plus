@@ -112,7 +112,7 @@ export const dashboardDef: DataDrivenChartDefinition = {
     /**
         Which charts the dashboard's one legend holds the entries of: an
         index into `charts`, or a list of them. Every chart whose own legend
-        is on by default. The legend shows each entry (the value a chart
+        is on by default; a chart colored by a `colorScale` is left out. The legend shows each entry (the value a chart
         colors by: its `color`, else its top `groupBy` level) once, however
         many charts have it, in place of the charts' own legends, and is
         linked to every chart. `legend(false)` on the dashboard gives each
