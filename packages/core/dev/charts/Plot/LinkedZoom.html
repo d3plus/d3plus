@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LinkedZoom · Plot</title>
+    <meta
+      name="description"
+      content="Zoom linked across charts: Plots that set link zoom show the same window of dates, from a gesture, the zoom buttons, the brush, or a range-selector button."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        margin: 16px;
+        font-family: sans-serif;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .price {
+        height: 300px;
+      }
+      .volume {
+        height: 180px;
+      }
+      .chart {
+        height: 260px;
+      }
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+      p {
+        margin: 0 0 8px;
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>Price and volume</h3>
+    <p>
+      The two charts share <code>link: {group: "market", zoom: true}</code> and
+      zoom along x. Zoom or pan either one, or use the range buttons, and the
+      other follows; hover is linked too.
+    </p>
+    <div class="price" id="price"></div>
+    <div class="volume" id="volume"></div>
+
+    <div class="row">
+      <div>
+        <h3>2022–2024</h3>
+        <p>Linked to the chart beside it, which covers a different span.</p>
+        <div class="chart" id="early"></div>
+      </div>
+      <div>
+        <h3>2023–2025</h3>
+        <p>
+          The same dates line up; past its data, the chart stops at its edge.
+        </p>
+        <div class="chart" id="late"></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <h3>Linked with <code>zoom: true</code></h3>
+        <p>Zooms with the "market" charts above.</p>
+        <div class="chart" id="follower"></div>
+      </div>
+      <div>
+        <h3>Same group, without <code>zoom</code></h3>
+        <p>Shares hover only: its zoom stays its own.</p>
+        <div class="chart" id="independent"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const wobble = i =>
+      Math.sin(i / 23) * 7 + Math.sin(i / 5.3) * 3 + Math.cos(i / 61) * 11;
+
+    const days = [];
+    let close = 100;
+    for (let i = 0; i < 900; i++) {
+      const date = new Date(2022, 0, 1 + i);
+      close += Math.sin(i / 17) * 0.8 + Math.cos(i / 7.1) * 0.6 + 0.05;
+      days.push({
+        id: "ACME",
+        date,
+        close,
+        volume: 2000 + Math.abs(wobble(i)) * 300 + (i % 5) * 150,
+      });
+    }
+
+    const series = (from, count) => {
+      const rows = [];
+      for (let i = 0; i < count; i++) {
+        const date = new Date(from, 0, 1 + i * 3);
+        rows.push({id: "Index", date, value: 50 + wobble(i) + i / 20});
+      }
+      return rows;
+    };
+
+    const base = {
+      timeline: false,
+      legend: false,
+      zoomAxes: "x",
+      groupBy: "id",
+      x: "date",
+      time: "date",
+    };
+    const market = {group: "market", zoom: true};
+
+    new d3plus.LinePlot()
+      .select("#price")
+      .config({
+        ...base,
+        data: days,
+        y: "close",
+        link: market,
+        rangeSelector: ["1M", "3M", "6M", "1Y", "All"],
+      })
+      .render();
+
+    new d3plus.BarChart()
+      .select("#volume")
+      .config({...base, data: days, y: "volume", link: market})
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#early")
+      .config({
+        ...base,
+        data: series(2022, 365),
+        y: "value",
+        link: {group: "spans", zoom: true},
+      })
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#late")
+      .config({
+        ...base,
+        data: series(2023, 365),
+        y: "value",
+        link: {group: "spans", zoom: true},
+      })
+      .render();
+
+    new d3plus.AreaPlot()
+      .select("#follower")
+      .config({...base, data: days, y: "volume", link: market})
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#independent")
+      .config({...base, data: days, y: "close", link: "market"})
+      .render();
+  </script>
+</html>

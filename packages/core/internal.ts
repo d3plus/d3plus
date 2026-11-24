@@ -2690,6 +2690,7 @@ export {
 export {
   broadcastLegend,
   broadcastLink,
+  dispatchLinked,
   linkAs,
   linkKeys,
   linkedColorDefaults,
@@ -2701,6 +2702,47 @@ export {
   unregisterLink,
 } from "./src/charts/viz/linkGroup.js";
 export type {LinkKind, ResolvedLink} from "./src/charts/viz/linkGroup.js";
+export {
+  broadcastZoom,
+  followZoom,
+  sharedWindows,
+} from "./src/charts/drawSteps/zoomLink.js";
+export {
+  activeRangeButton,
+  rangeSelectorContribution,
+  rangeTransform,
+  selectRange,
+  syncRangeButtons,
+} from "./src/charts/drawSteps/rangeSelector.js";
+export {
+  RANGE_SELECTOR_DEFAULT,
+  coversAll,
+  parseRangeButton,
+  rangeAriaLabel,
+  rangeButtons,
+  rangeLabel,
+  rangeWindow,
+} from "./src/charts/drawSteps/rangeSelectorButtons.js";
+export type {
+  RangeButton,
+  RangeSelectorOption,
+  RangeStep,
+} from "./src/charts/drawSteps/rangeSelectorButtons.js";
+export {
+  rangeSelectorAxis,
+  refitDomain,
+  splitZoomAxes,
+  zoomDimensions,
+} from "./src/charts/Plot/zoomAxes.js";
+export type {ZoomAxesSetting} from "./src/charts/Plot/zoomAxes.js";
+export {
+  dataWindow,
+  liveTransform,
+  windowTransform,
+  zoomedDomain,
+  zoomWindows,
+} from "./src/charts/Plot/zoomWindow.js";
+export type {ZoomWindow, ZoomWindows} from "./src/charts/Plot/zoomWindow.js";
 export {
   dropLegendHistory,
   isLegendEntry,

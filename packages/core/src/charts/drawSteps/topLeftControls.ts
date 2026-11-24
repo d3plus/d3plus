@@ -4,7 +4,8 @@
     zoom-controls panel's "N buttons, one flex-row `htmlOverlay` panel"
     composition (`zoomControls.ts`/`zoomControlsMarkup.ts`), except fed by
     independent contributor functions (`backContribution`,
-    `tableViewContribution`, `saveContribution`, `searchContribution`) rather than one feature's
+    `tableViewContribution`, `saveContribution`, `searchContribution`,
+    `rangeSelectorContribution`) rather than one feature's
     own fixed button set. A downstream branch adding a new top-left control
     appends its own contributor function to `TOP_LEFT_CONTRIBUTORS` — a
     one-line diff, not a dynamic registry.
@@ -25,6 +26,7 @@ import {showsNoData} from "../viz/noData.js";
 import {tableViewContribution} from "./tableViewControl.js";
 import {saveContribution} from "./saveControl.js";
 import {searchContribution} from "./searchControls.js";
+import {rangeSelectorContribution} from "./rangeSelector.js";
 import {
   buildTopLeftPanel,
   topLeftControlsBox,
@@ -43,6 +45,7 @@ export const TOP_LEFT_CONTRIBUTORS: Array<(viz: Viz) => Contribution | null> = [
   tableViewContribution,
   saveContribution,
   searchContribution,
+  rangeSelectorContribution,
 ];
 
 /** The current, non-null contributions for a chart — computed once per layout/measurement. */

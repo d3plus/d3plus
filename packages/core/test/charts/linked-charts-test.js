@@ -106,6 +106,17 @@ it("resolveLink normalizes the string and object forms", () => {
   assert.strictEqual(resolveLink(viz), null, "an empty group isn't linked");
 });
 
+it("resolveLink: zoom is mirrored only when asked for", () => {
+  reset();
+  const viz = new Treemap();
+  viz.schema.link = "dash";
+  assert.strictEqual(resolveLink(viz).zoom, false, "off for the string form");
+  viz.schema.link = {group: "dash"};
+  assert.strictEqual(resolveLink(viz).zoom, false, "off by default");
+  viz.schema.link = {group: "dash", zoom: true};
+  assert.strictEqual(resolveLink(viz).zoom, true);
+});
+
 it("registers on `link`, re-registers on change, and leaves on false or destroy()", () => {
   reset();
   const a = make(Treemap, "one");

@@ -25,6 +25,7 @@ import {
 } from "./gestureHover.js";
 import {setCursor} from "../viz/setCursor.js";
 import {startsOnBrush} from "./zoomGesture.js";
+import {spanUnzoomedDims} from "./zoomFit.js";
 
 /** A point in the zoom surface's coordinates. */
 export type Point = [number, number];
@@ -119,9 +120,13 @@ function zoomArea(viz: Viz): Box {
   return viz._zoomBehavior.extent().bind(document)() as Box;
 }
 
-/** Shows `box` (surface coordinates) with the zoom brush, offset like it to the chart area. */
+/**
+    Shows `box` (surface coordinates) with the zoom brush, offset like it to
+    the chart area, spanning the plot along a dimension the zoom doesn't scale.
+*/
 function showBox(viz: Viz, box: Box): void {
   const {left, top} = viz._margin;
+  box = spanUnzoomedDims(viz, box);
   viz._brushGroup
     .style("display", "inline")
     .style("pointer-events", "none")

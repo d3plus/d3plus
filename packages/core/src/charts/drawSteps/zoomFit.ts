@@ -29,7 +29,7 @@ export function zoomedDims(viz: Viz): {x: boolean; y: boolean} {
     exact domain; any other chart's zoom area less `zoomPadding`.
     @param viz The chart.
 */
-function fitArea(viz: Viz): Bounds {
+export function fitArea(viz: Viz): Bounds {
   const base = viz._plotZoomBase;
   if (base) {
     const {layout, chartTransform: ct, pCtx} = base;
@@ -69,4 +69,22 @@ export function fitBounds(viz: Viz, bounds: Bounds): FitTransform {
     x: (ax0 + ax1) / 2 - (k * (bx0 + bx1)) / 2,
     y: (ay0 + ay1) / 2 - (k * (by0 + by1)) / 2,
   };
+}
+
+/**
+    A box stretched across the fit area (see `fitArea`) along each dimension
+    the zoom doesn't scale, so a box drawn on a plot that zooms along x alone
+    shows as the full-height band it zooms to.
+    @param viz The chart.
+    @param box The box, in surface coordinates.
+*/
+export function spanUnzoomedDims(viz: Viz, box: Bounds): Bounds {
+  const dims = zoomedDims(viz);
+  if (dims.x && dims.y) return box;
+  const [[ax0, ay0], [ax1, ay1]] = fitArea(viz),
+    [[bx0, by0], [bx1, by1]] = box;
+  return [
+    [dims.x ? bx0 : ax0, dims.y ? by0 : ay0],
+    [dims.x ? bx1 : ax1, dims.y ? by1 : ay1],
+  ];
 }

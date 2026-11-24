@@ -1,6 +1,7 @@
 export interface TranslationStrings {
   "% of First Stage": string;
   "% of Previous Stage": string;
+  All: string;
   and: string;
   Back: string;
   Band: string;
@@ -48,6 +49,7 @@ export interface TranslationStrings {
   Exponential: string;
   Forecast: string;
   From: string;
+  "Full range": string;
   High: string;
   "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.": string;
   "Hold Shift and use the arrow keys to rotate the globe.": string;
@@ -59,6 +61,14 @@ export interface TranslationStrings {
   "interactive chart": string;
   "JPG image": string;
   "Lasso Select": string;
+  "Last day": string;
+  "Last month": string;
+  "Last week": string;
+  "Last year": string;
+  "Last {0} days": string;
+  "Last {0} months": string;
+  "Last {0} weeks": string;
+  "Last {0} years": string;
   "Latest start": string;
   Linear: string;
   "Loading Visualization": string;
@@ -143,9 +153,16 @@ export interface TranslationStrings {
   "working day": string;
   "working days": string;
   year: string;
+  "Year to date": string;
   years: string;
+  YTD: string;
   "Zoom In": string;
   "Zoom Out": string;
+  "Zoom range": string;
+  "{0}D": string;
+  "{0}M": string;
+  "{0}W": string;
+  "{0}Y": string;
   "{node} cluster": string;
   "{0} moved": string;
   "{0} moved and pinned": string;
@@ -167,6 +184,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "% \u0645\u0646 \u0627\u0644\u0645\u0631\u062d\u0644\u0629 \u0627\u0644\u0623\u0648\u0644\u0649",
     "% of Previous Stage":
       "% \u0645\u0646 \u0627\u0644\u0645\u0631\u062d\u0644\u0629 \u0627\u0644\u0633\u0627\u0628\u0642\u0629",
+    All: "\u0627\u0644\u0643\u0644",
     and: "\u0648",
     Back: "\u0644\u0644\u062e\u0644\u0641",
     Band: "\u0646\u0637\u0627\u0642",
@@ -231,6 +249,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Exponential: "\u0623\u0633\u064a",
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     From: "\u0645\u0646",
+    "Full range":
+      "\u0627\u0644\u0646\u0637\u0627\u0642 \u0627\u0644\u0643\u0627\u0645\u0644",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
     "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.":
       "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062d\u0631\u064a\u0643 \u0627\u0644\u0639\u0642\u062f\u0629 \u0627\u0644\u0645\u062d\u062f\u062f\u0629\u060c \u0648Shift+Backspace \u0644\u0625\u0644\u063a\u0627\u0621 \u062a\u062b\u0628\u064a\u062a\u0647\u0627.",
@@ -247,6 +267,15 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0645\u062e\u0637\u0637 \u062a\u0641\u0627\u0639\u0644\u064a",
     "JPG image": "\u0635\u0648\u0631\u0629 JPG",
     "Lasso Select": "\u062a\u062d\u062f\u064a\u062f \u062d\u0631",
+    "Last day": "\u0622\u062e\u0631 \u064a\u0648\u0645",
+    "Last month": "\u0622\u062e\u0631 \u0634\u0647\u0631",
+    "Last week": "\u0622\u062e\u0631 \u0623\u0633\u0628\u0648\u0639",
+    "Last year": "\u0622\u062e\u0631 \u0633\u0646\u0629",
+    "Last {0} days": "\u0622\u062e\u0631 {0} \u0623\u064a\u0627\u0645",
+    "Last {0} months": "\u0622\u062e\u0631 {0} \u0623\u0634\u0647\u0631",
+    "Last {0} weeks":
+      "\u0622\u062e\u0631 {0} \u0623\u0633\u0627\u0628\u064a\u0639",
+    "Last {0} years": "\u0622\u062e\u0631 {0} \u0633\u0646\u0648\u0627\u062a",
     "Latest start":
       "\u0622\u062e\u0631 \u0645\u0648\u0639\u062f \u0644\u0644\u0628\u062f\u0621",
     Linear: "\u062e\u0637\u064a",
@@ -362,9 +391,18 @@ const translateLocale: Record<string, TranslationStrings> = {
     "working day": "\u064a\u0648\u0645 \u0639\u0645\u0644",
     "working days": "\u0623\u064a\u0627\u0645 \u0639\u0645\u0644",
     year: "\u0633\u0646\u0629",
+    "Year to date":
+      "\u0645\u0646\u0630 \u0628\u062f\u0627\u064a\u0629 \u0627\u0644\u0639\u0627\u0645 \u062d\u062a\u0649 \u0627\u0644\u0622\u0646",
     years: "\u0633\u0646\u0648\u0627\u062a",
+    YTD: "\u0645\u0646\u0630 \u0628\u062f\u0627\u064a\u0629 \u0627\u0644\u0639\u0627\u0645",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
+    "Zoom range":
+      "\u0646\u0637\u0627\u0642 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
+    "{0}D": "{0} \u064a",
+    "{0}M": "{0} \u0634",
+    "{0}W": "{0} \u0623",
+    "{0}Y": "{0} \u0633",
     "{node} cluster": "\u0645\u062c\u0645\u0648\u0639\u0629 {node}",
     "{0} moved": "\u062a\u0645 \u062a\u062d\u0631\u064a\u0643 {0}",
     "{0} moved and pinned":
@@ -382,6 +420,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "es-ES": {
     "% of First Stage": "% de la Primera Etapa",
     "% of Previous Stage": "% de la Etapa Anterior",
+    All: "Todo",
     and: "y",
     Back: "Atr\u00e1s",
     Band: "Banda",
@@ -429,6 +468,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Exponential: "Exponencial",
     Forecast: "Pron\u00f3stico",
     From: "Origen",
+    "Full range": "Rango completo",
     High: "M\u00e1ximo",
     "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.":
       "Mantenga pulsada May\u00fas y use las flechas para mover el nodo enfocado, y May\u00fas+Retroceso para soltarlo.",
@@ -443,6 +483,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart": "gr\u00e1fico interactivo",
     "JPG image": "Imagen JPG",
     "Lasso Select": "Selecci\u00f3n de Lazo",
+    "Last day": "\u00daltimo d\u00eda",
+    "Last month": "\u00daltimo mes",
+    "Last week": "\u00daltima semana",
+    "Last year": "\u00daltimo a\u00f1o",
+    "Last {0} days": "\u00daltimos {0} d\u00edas",
+    "Last {0} months": "\u00daltimos {0} meses",
+    "Last {0} weeks": "\u00daltimas {0} semanas",
+    "Last {0} years": "\u00daltimos {0} a\u00f1os",
     "Latest start": "Inicio m\u00e1s tard\u00edo",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
@@ -528,9 +576,16 @@ const translateLocale: Record<string, TranslationStrings> = {
     "working day": "d\u00eda laborable",
     "working days": "d\u00edas laborables",
     year: "a\u00f1o",
+    "Year to date": "En lo que va del a\u00f1o",
     years: "a\u00f1os",
+    YTD: "En el a\u00f1o",
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
+    "Zoom range": "Rango de zoom",
+    "{0}D": "{0} d",
+    "{0}M": "{0} m",
+    "{0}W": "{0} sem",
+    "{0}Y": "{0} a",
     "{node} cluster": "Grupo de {node}",
     "{0} moved": "{0} movido",
     "{0} moved and pinned": "{0} movido y fijado",
@@ -545,6 +600,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "pt-BR": {
     "% of First Stage": "% da Primeira Etapa",
     "% of Previous Stage": "% da Etapa Anterior",
+    All: "Tudo",
     and: "e",
     Back: "Voltar",
     Band: "Faixa",
@@ -592,6 +648,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Exponential: "Exponencial",
     Forecast: "Previs\u00e3o",
     From: "Origem",
+    "Full range": "Intervalo completo",
     High: "M\u00e1xima",
     "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.":
       "Mantenha Shift pressionada e use as setas para mover o n\u00f3 em foco, e Shift+Backspace para solt\u00e1-lo.",
@@ -606,6 +663,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart": "gr\u00e1fico interativo",
     "JPG image": "Imagem JPG",
     "Lasso Select": "Sele\u00e7\u00e3o de La\u00e7o",
+    "Last day": "\u00daltimo dia",
+    "Last month": "\u00daltimo m\u00eas",
+    "Last week": "\u00daltima semana",
+    "Last year": "\u00daltimo ano",
+    "Last {0} days": "\u00daltimos {0} dias",
+    "Last {0} months": "\u00daltimos {0} meses",
+    "Last {0} weeks": "\u00daltimas {0} semanas",
+    "Last {0} years": "\u00daltimos {0} anos",
     "Latest start": "In\u00edcio mais tardio",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
@@ -691,9 +756,16 @@ const translateLocale: Record<string, TranslationStrings> = {
     "working day": "dia \u00fatil",
     "working days": "dias \u00fateis",
     year: "ano",
+    "Year to date": "No acumulado do ano",
     years: "anos",
+    YTD: "No ano",
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
+    "Zoom range": "Intervalo de zoom",
+    "{0}D": "{0} d",
+    "{0}M": "{0} m",
+    "{0}W": "{0} sem",
+    "{0}Y": "{0} a",
     "{node} cluster": "Grupo de {node}",
     "{0} moved": "{0} movido",
     "{0} moved and pinned": "{0} movido e fixado",
@@ -710,6 +782,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u5360\u7b2c\u4e00\u9636\u6bb5\u7684\u767e\u5206\u6bd4",
     "% of Previous Stage":
       "\u5360\u4e0a\u4e00\u9636\u6bb5\u7684\u767e\u5206\u6bd4",
+    All: "\u5168\u90e8",
     and: "\u548c",
     Back: "\u540e\u9762",
     Band: "\u533a\u95f4",
@@ -758,6 +831,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Exponential: "\u6307\u6570",
     Forecast: "\u9884\u6d4b",
     From: "\u8d77\u70b9",
+    "Full range": "\u5168\u90e8\u8303\u56f4",
     High: "\u6700\u9ad8",
     "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.":
       "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u65b9\u5411\u952e\u79fb\u52a8\u5f53\u524d\u805a\u7126\u7684\u8282\u70b9\uff0c\u6309 Shift+Backspace \u53d6\u6d88\u56fa\u5b9a\u3002",
@@ -772,6 +846,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     "interactive chart": "\u4ea4\u4e92\u5f0f\u56fe\u8868",
     "JPG image": "JPG \u56fe\u7247",
     "Lasso Select": "\u5957\u7d22\u9009\u62e9",
+    "Last day": "\u6700\u8fd1\u4e00\u5929",
+    "Last month": "\u6700\u8fd1\u4e00\u4e2a\u6708",
+    "Last week": "\u6700\u8fd1\u4e00\u5468",
+    "Last year": "\u6700\u8fd1\u4e00\u5e74",
+    "Last {0} days": "\u6700\u8fd1{0}\u5929",
+    "Last {0} months": "\u6700\u8fd1{0}\u4e2a\u6708",
+    "Last {0} weeks": "\u6700\u8fd1{0}\u5468",
+    "Last {0} years": "\u6700\u8fd1{0}\u5e74",
     "Latest start": "\u6700\u665a\u5f00\u59cb",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
@@ -857,9 +939,16 @@ const translateLocale: Record<string, TranslationStrings> = {
     "working day": "\u5de5\u4f5c\u65e5",
     "working days": "\u5de5\u4f5c\u65e5",
     year: "\u5e74",
+    "Year to date": "\u5e74\u521d\u81f3\u4eca",
     years: "\u5e74",
+    YTD: "\u5e74\u521d\u81f3\u4eca",
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
+    "Zoom range": "\u7f29\u653e\u8303\u56f4",
+    "{0}D": "{0}\u5929",
+    "{0}M": "{0}\u4e2a\u6708",
+    "{0}W": "{0}\u5468",
+    "{0}Y": "{0}\u5e74",
     "{node} cluster": "{node}\u96c6\u7fa4",
     "{0} moved": "\u5df2\u79fb\u52a8{0}",
     "{0} moved and pinned": "\u5df2\u79fb\u52a8\u5e76\u56fa\u5b9a{0}",
