@@ -6,7 +6,7 @@
     `<canvas>` on the Canvas backend. The controls, the open menu, and
     tooltips live in HTML outside that element, so they never reach the
     file. An SVG file from a Canvas chart re-renders the retained scene
-    through the SVG backend (`viz.toSVGString()`), and a Figure is always
+    through the SVG backend (`viz.toSVGString()`), and a Dashboard is always
     saved from that scene, which holds its charts.
 
     @module
@@ -268,7 +268,7 @@ export function saveChart(viz: Viz, format: SaveFormat): void {
   const options = {filename, type: format};
   // A Canvas chart's pixels are fixed at its own density, so a sharper
   // image comes from the scene re-rendered as SVG.
-  // A chart drawn partly outside its own surface (a Figure) only has all of
+  // A chart drawn partly outside its own surface (a Dashboard) only has all of
   // itself in that scene.
   if (
     (viz._vectorSave ||

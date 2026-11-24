@@ -19,6 +19,7 @@ const latest = data.filter(d => d.year === 2024);
 
 const config = {
   title: "Revenue overview",
+  layoutConfig: {columns: [2, 1], rows: [1, 1], padding: 24},
   charts: [
     {
       chart: "Treemap",
@@ -28,17 +29,26 @@ const config = {
         sum: "revenue",
         title: "Share, 2024",
       },
+      rowSpan: 2,
     },
     {
-      chart: "LinePlot",
+      chart: "Donut",
       config: {
-        data,
+        data: latest,
+        groupBy: "region",
+        value: "revenue",
+        title: "By region",
+      },
+    },
+    {
+      chart: "BarChart",
+      config: {
+        data: latest,
         groupBy: "country",
         color: "region",
-        x: "year",
+        x: "country",
         y: "revenue",
-        legend: false,
-        title: "Over time",
+        title: "By country",
       },
     },
   ],

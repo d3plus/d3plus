@@ -16,12 +16,12 @@ import {
   Chord as ChordClass,
   ConnectedScatter as ConnectedScatterClass,
   CyclePlot as CyclePlotClass,
+  Dashboard as DashboardClass,
   DensityPlot as DensityPlotClass,
   Donut as DonutClass,
   DotPlot as DotPlotClass,
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
-  Figure as FigureClass,
   Funnel as FunnelClass,
   Gantt as GanttClass,
   Gauge as GaugeClass,
@@ -162,6 +162,10 @@ export const ConnectedScatter = (props: D3plusComponentProps) => (
 export const CyclePlot = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={CyclePlotClass} {...props} />
 );
+/** React component for rendering a d3plus Dashboard: several charts drawn together as one dashboard. */
+export const Dashboard = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={DashboardClass} {...props} />
+);
 /** React component for rendering a d3plus DensityPlot visualization. */
 export const DensityPlot = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={DensityPlotClass} {...props} />
@@ -181,10 +185,6 @@ export const Dumbbell = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus FanChart visualization. */
 export const FanChart = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={FanChartClass} {...props} />
-);
-/** React component for rendering a d3plus Figure: several charts drawn together as one figure. */
-export const Figure = (props: D3plusComponentProps) => (
-  <Renderer className="chart" constructor={FigureClass} {...props} />
 );
 /** React component for rendering a d3plus Funnel visualization. */
 export const Funnel = (props: D3plusComponentProps) => (

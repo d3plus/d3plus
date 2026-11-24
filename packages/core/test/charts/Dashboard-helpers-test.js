@@ -3,41 +3,45 @@ import assert from "assert";
 import {captureWarnings} from "~test/helpers.js";
 import {useJsdom} from "~test/jsdom.js";
 import {
-  FIGURE_ASPECT,
-  FIGURE_PADDING,
-  figureColumns,
-  figureGrid,
+  DASHBOARD_ASPECT,
+  DASHBOARD_PADDING,
+  dashboardColumns,
+  dashboardGrid,
   placeCharts,
-  resolveFigureLayout,
+  resolveDashboardLayout,
   trackCount,
   trackOffsets,
   trackWeights,
-} from "../../src/charts/Figure/figureGrid.ts";
+} from "../../src/charts/Dashboard/dashboardGrid.ts";
 import {
   alignCells,
   NO_SIDES,
   plotInsets,
   sidesChanged,
-} from "../../src/charts/Figure/figureAlign.ts";
+} from "../../src/charts/Dashboard/dashboardAlign.ts";
 import {
   applyChartConfig,
-  figureEntry,
+  dashboardEntry,
   isChartInstance,
   reuses,
+  sameValues,
   sourceClass,
-  syncFigureCharts,
-} from "../../src/charts/Figure/figureCharts.ts";
+  syncDashboardCharts,
+} from "../../src/charts/Dashboard/dashboardCharts.ts";
 import {
-  figureLinkGroup,
-  figureSettled,
-  figureState,
+  dashboardSettled,
+  dashboardState,
   insetBox,
-  isFigureLink,
-} from "../../src/charts/Figure/figureRender.ts";
+} from "../../src/charts/Dashboard/dashboardRender.ts";
 import {
-  composeFigureScene,
+  dashboardLinkGroup,
+  isDashboardLink,
+} from "../../src/charts/Dashboard/dashboardLink.ts";
+import {inheritedConfig} from "../../src/charts/Dashboard/dashboardPrepare.ts";
+import {
+  composeDashboardScene,
   sceneMarkup,
-} from "../../src/charts/Figure/figureScene.ts";
+} from "../../src/charts/Dashboard/dashboardScene.ts";
 import {
   chartClass,
   registerChart,
@@ -45,7 +49,7 @@ import {
 
 useJsdom();
 
-/** A stand-in chart: what the figure calls on one, recorded. */
+/** A stand-in chart: what the dashboard calls on one, recorded. */
 class FakeChart {
   constructor() {
     this.calls = [];
@@ -66,21 +70,37 @@ class FakeChart {
   }
 }
 
-it("Figure: resolveFigureLayout fills in defaults", () => {
-  assert.deepStrictEqual(resolveFigureLayout(undefined), {
+it("Dashboard: resolveDashboardLayout fills in defaults", () => {
+  assert.deepStrictEqual(resolveDashboardLayout(undefined), {
     columns: undefined,
     rows: undefined,
-    padding: FIGURE_PADDING,
+    padding: DASHBOARD_PADDING,
     align: true,
+    shareX: false,
+    shareY: false,
   });
+  assert.strictEqual(DASHBOARD_PADDING, 4);
   assert.deepStrictEqual(
-    resolveFigureLayout({columns: [2, 1], padding: 4, align: false}),
-    {columns: [2, 1], rows: undefined, padding: 4, align: false},
+    resolveDashboardLayout({
+      columns: [2, 1],
+      padding: 10,
+      align: false,
+      shareX: true,
+      shareY: "yes",
+    }),
+    {
+      columns: [2, 1],
+      rows: undefined,
+      padding: 10,
+      align: false,
+      shareX: true,
+      shareY: false,
+    },
   );
-  assert.strictEqual(resolveFigureLayout({padding: -3}).padding, 16);
+  assert.strictEqual(resolveDashboardLayout({padding: -3}).padding, 4);
 });
 
-it("Figure: trackCount reads a count or a list of sizes", () => {
+it("Dashboard: trackCount reads a count or a list of sizes", () => {
   assert.strictEqual(trackCount(3), 3);
   assert.strictEqual(trackCount(2.7), 2);
   assert.strictEqual(trackCount([2, 1, 1]), 3);
@@ -89,12 +109,12 @@ it("Figure: trackCount reads a count or a list of sizes", () => {
   assert.strictEqual(trackCount(undefined), undefined);
 });
 
-it("Figure: trackWeights pads missing and invalid weights with 1", () => {
+it("Dashboard: trackWeights pads missing and invalid weights with 1", () => {
   assert.deepStrictEqual(trackWeights([2, 0, -1], 4), [2, 1, 1, 1]);
   assert.deepStrictEqual(trackWeights(3, 3), [1, 1, 1]);
 });
 
-it("Figure: trackOffsets splits a length by weight, between gaps", () => {
+it("Dashboard: trackOffsets splits a length by weight, between gaps", () => {
   assert.deepStrictEqual(trackOffsets([2, 1], 310, 10), [
     {start: 0, size: 200},
     {start: 210, size: 100},
@@ -102,7 +122,7 @@ it("Figure: trackOffsets splits a length by weight, between gaps", () => {
   assert.deepStrictEqual(trackOffsets([1], 50, 10), [{start: 0, size: 50}]);
 });
 
-it("Figure: placeCharts fills rows and honors spans and fixed cells", () => {
+it("Dashboard: placeCharts fills rows and honors spans and fixed cells", () => {
   assert.deepStrictEqual(placeCharts([{rowSpan: 2}, {}, {}], 2), [
     {column: 0, row: 0, columnSpan: 1, rowSpan: 2},
     {column: 1, row: 0, columnSpan: 1, rowSpan: 1},
@@ -131,34 +151,37 @@ it("Figure: placeCharts fills rows and honors spans and fixed cells", () => {
   });
 });
 
-it("Figure: figureColumns fixes, derives, or chooses the column count", () => {
+it("Dashboard: dashboardColumns fixes, derives, or chooses the column count", () => {
   const area = {width: 900, height: 300};
   const layout = {padding: 0};
-  assert.strictEqual(figureColumns([{}, {}], area, {...layout, columns: 4}), 4);
   assert.strictEqual(
-    figureColumns([{}, {}, {}], area, {...layout, rows: 1}),
+    dashboardColumns([{}, {}], area, {...layout, columns: 4}),
+    4,
+  );
+  assert.strictEqual(
+    dashboardColumns([{}, {}, {}], area, {...layout, rows: 1}),
     3,
   );
   assert.strictEqual(
-    figureColumns([{}, {}, {}], area, layout),
+    dashboardColumns([{}, {}, {}], area, layout),
     3,
     "a wide area lays three charts in a row",
   );
   assert.strictEqual(
-    figureColumns([{}, {}, {}], {width: 300, height: 900}, layout),
+    dashboardColumns([{}, {}, {}], {width: 300, height: 900}, layout),
     1,
     "a tall one stacks them",
   );
   assert.strictEqual(
-    figureColumns([{column: 2}], area, layout),
+    dashboardColumns([{column: 2}], area, layout),
     3,
     "never fewer than a placed chart reaches",
   );
-  assert.ok(FIGURE_ASPECT > 1);
+  assert.ok(DASHBOARD_ASPECT > 1);
 });
 
-it("Figure: figureGrid sizes each cell from its tracks and spans", () => {
-  const cells = figureGrid(
+it("Dashboard: dashboardGrid sizes each cell from its tracks and spans", () => {
+  const cells = dashboardGrid(
     [{rowSpan: 2}, {}, {}],
     {x: 10, y: 20, width: 310, height: 210},
     {columns: [2, 1], padding: 10},
@@ -172,12 +195,12 @@ it("Figure: figureGrid sizes each cell from its tracks and spans", () => {
     ],
   );
   assert.deepStrictEqual(
-    figureGrid([], {x: 0, y: 0, width: 1, height: 1}, {padding: 0}),
+    dashboardGrid([], {x: 0, y: 0, width: 1, height: 1}, {padding: 0}),
     [],
   );
 });
 
-it("Figure: plotInsets measures a plot area from its surface's edges", () => {
+it("Dashboard: plotInsets measures a plot area from its surface's edges", () => {
   assert.deepStrictEqual(
     plotInsets({
       schema: {width: 400, height: 300},
@@ -202,7 +225,7 @@ it("Figure: plotInsets measures a plot area from its surface's edges", () => {
   );
 });
 
-it("Figure: alignCells grows every inset on a shared grid line to the largest", () => {
+it("Dashboard: alignCells grows every inset on a shared grid line to the largest", () => {
   const slots = [
     {column: 0, row: 0, columnSpan: 1, rowSpan: 1},
     {column: 0, row: 1, columnSpan: 1, rowSpan: 1},
@@ -238,21 +261,27 @@ it("Figure: alignCells grows every inset on a shared grid line to the largest", 
   assert.ok(!sidesChanged({...NO_SIDES, left: 0.4}, NO_SIDES));
 });
 
-it("Figure: isChartInstance and figureEntry read the charts config", () => {
+it("Dashboard: isChartInstance and dashboardEntry read the charts config", () => {
   const chart = new FakeChart();
   assert.ok(isChartInstance(chart));
   assert.ok(!isChartInstance({render() {}}));
-  assert.deepStrictEqual(figureEntry(chart), {source: chart, placement: {}});
+  assert.deepStrictEqual(dashboardEntry(chart), {source: chart, placement: {}});
   const config = {data: []};
   assert.deepStrictEqual(
-    figureEntry({chart: "BarChart", config, column: 1, rowSpan: 2, row: "x"}),
+    dashboardEntry({
+      chart: "BarChart",
+      config,
+      column: 1,
+      rowSpan: 2,
+      row: "x",
+    }),
     {source: "BarChart", config, placement: {column: 1, rowSpan: 2}},
   );
-  assert.strictEqual(figureEntry({config}), undefined);
-  assert.strictEqual(figureEntry(4), undefined);
+  assert.strictEqual(dashboardEntry({config}), undefined);
+  assert.strictEqual(dashboardEntry(4), undefined);
 });
 
-it("Figure: registerChart and chartClass name chart classes", () => {
+it("Dashboard: registerChart and chartClass name chart classes", () => {
   registerChart("FakeChart", FakeChart);
   assert.strictEqual(chartClass("FakeChart"), FakeChart);
   assert.strictEqual(sourceClass("FakeChart"), FakeChart);
@@ -261,7 +290,7 @@ it("Figure: registerChart and chartClass name chart classes", () => {
   assert.strictEqual(sourceClass({}), undefined);
 });
 
-it("Figure: reuses matches the same instance, or a made chart of the same class", () => {
+it("Dashboard: reuses matches the same instance, or a made chart of the same class", () => {
   registerChart("FakeChart", FakeChart);
   const chart = new FakeChart();
   const given = {chart, owned: false};
@@ -276,11 +305,15 @@ it("Figure: reuses matches the same instance, or a made chart of the same class"
   );
 });
 
-it("Figure: syncFigureCharts reuses, makes, and drops charts", () => {
+it("Dashboard: syncDashboardCharts reuses, makes, and drops charts", () => {
   registerChart("FakeChart", FakeChart);
   const owner = {};
   const a = new FakeChart();
-  const first = syncFigureCharts(owner, [a, {chart: "FakeChart", row: 1}], []);
+  const first = syncDashboardCharts(
+    owner,
+    [a, {chart: "FakeChart", row: 1}],
+    [],
+  );
   assert.strictEqual(first.children.length, 2);
   assert.strictEqual(first.children[0].chart, a);
   assert.strictEqual(first.children[0].owned, false);
@@ -289,7 +322,7 @@ it("Figure: syncFigureCharts reuses, makes, and drops charts", () => {
   assert.deepStrictEqual(first.children[1].placement, {row: 1});
 
   const made = first.children[1].chart;
-  const second = syncFigureCharts(
+  const second = syncDashboardCharts(
     owner,
     [{chart: "FakeChart"}, {chart: "FakeChart"}],
     first.children,
@@ -303,7 +336,7 @@ it("Figure: syncFigureCharts reuses, makes, and drops charts", () => {
   );
 
   const warnings = captureWarnings(() => {
-    const third = syncFigureCharts(owner, [{chart: "Missing"}, 7], []);
+    const third = syncDashboardCharts(owner, [{chart: "Missing"}, 7], []);
     assert.strictEqual(third.children.length, 0);
   });
   assert.strictEqual(warnings.length, 2);
@@ -311,24 +344,42 @@ it("Figure: syncFigureCharts reuses, makes, and drops charts", () => {
   assert.match(warnings[1], /charts\[1\]/);
 });
 
-it("Figure: applyChartConfig applies shared then own config, once per change", () => {
+it("Dashboard: applyChartConfig applies inherited, shared, then own config, once per change", () => {
   const chart = new FakeChart();
-  const own = {title: "Own"};
+  const own = {title: "Own", theme: "light"};
   const child = {chart, config: own};
-  const shared = {theme: "dark"};
-  applyChartConfig(child, shared);
-  assert.deepStrictEqual(chart.calls, [shared, own]);
-  applyChartConfig(child, shared);
+  const inherited = {renderer: "svg", theme: "dark", locale: "en-US"};
+  const shared = {tooltip: false};
+  applyChartConfig(child, inherited, shared);
+  assert.deepStrictEqual(chart.calls, [{...inherited, ...shared}, own]);
+  applyChartConfig(child, {...inherited}, shared);
   assert.strictEqual(chart.calls.length, 2, "nothing changed, nothing applied");
-  applyChartConfig(child, {});
+  applyChartConfig(child, {...inherited, locale: "es-ES"}, shared);
   assert.deepStrictEqual(
     chart.calls.slice(2),
-    [own],
-    "an empty shared config is skipped",
+    [{...inherited, locale: "es-ES", ...shared}, own],
+    "a new locale is passed down, and the chart's own config still wins",
   );
 });
 
-it("Figure: insetBox shrinks a cell, never below zero", () => {
+it("Dashboard: sameValues compares flat objects", () => {
+  assert.ok(sameValues({a: 1, b: "x"}, {b: "x", a: 1}));
+  assert.ok(!sameValues({a: 1}, {a: 1, b: 2}));
+  assert.ok(!sameValues({a: 1}, {a: 2}));
+});
+
+it("Dashboard: inheritedConfig passes down the renderer, theme, and locale", () => {
+  assert.deepStrictEqual(
+    inheritedConfig({
+      _renderer: "canvas",
+      schema: {theme: "dark", locale: "es-ES", title: "x"},
+    }),
+    {renderer: "canvas", theme: "dark", locale: "es-ES"},
+  );
+  assert.strictEqual(inheritedConfig({schema: {}}).renderer, "svg");
+});
+
+it("Dashboard: insetBox shrinks a cell, never below zero", () => {
   assert.deepStrictEqual(
     insetBox(
       {x: 10, y: 10, width: 100, height: 50},
@@ -343,31 +394,31 @@ it("Figure: insetBox shrinks a cell, never below zero", () => {
   );
 });
 
-it("Figure: figureLinkGroup and isFigureLink read link groups", () => {
-  assert.strictEqual(figureLinkGroup("dash"), "dash");
-  assert.strictEqual(figureLinkGroup({group: "g", by: "id"}), "g");
-  assert.strictEqual(figureLinkGroup(false), false);
-  assert.strictEqual(figureLinkGroup(""), false);
-  assert.ok(isFigureLink("d3plus-figure-12"));
-  assert.ok(!isFigureLink("d3plus-figure-x"));
-  assert.ok(!isFigureLink("dash"));
+it("Dashboard: dashboardLinkGroup and isDashboardLink read link groups", () => {
+  assert.strictEqual(dashboardLinkGroup("dash"), "dash");
+  assert.strictEqual(dashboardLinkGroup({group: "g", by: "id"}), "g");
+  assert.strictEqual(dashboardLinkGroup(false), false);
+  assert.strictEqual(dashboardLinkGroup(""), false);
+  assert.ok(isDashboardLink("d3plus-dashboard-12"));
+  assert.ok(!isDashboardLink("d3plus-dashboard-x"));
+  assert.ok(!isDashboardLink("dash"));
 });
 
-it("Figure: figureSettled waits for every pending chart render", async () => {
-  const state = figureState();
+it("Dashboard: dashboardSettled waits for every pending chart render", async () => {
+  const state = dashboardState();
   let settled = false;
   state.pending = 1;
-  const done = figureSettled(state).then(() => (settled = true));
+  const done = dashboardSettled(state).then(() => (settled = true));
   await Promise.resolve();
   assert.strictEqual(settled, false);
   state.pending = 0;
   state.waiters.splice(0).forEach(fn => fn());
   await done;
   assert.strictEqual(settled, true);
-  await figureSettled(figureState());
+  await dashboardSettled(dashboardState());
 });
 
-it("Figure: composeFigureScene places each chart's scene in its box", () => {
+it("Dashboard: composeDashboardScene places each chart's scene in its box", () => {
   const own = {
     width: 300,
     height: 200,
@@ -382,7 +433,7 @@ it("Figure: composeFigureScene places each chart's scene in its box", () => {
       children: [{type: "rect", key: "a", x: 0, y: 0, width: 5, height: 5}],
     },
   };
-  const scene = composeFigureScene(own, [
+  const scene = composeDashboardScene(own, [
     {scene: part, x: 10, y: 20},
     {scene: part, x: 150, y: 20},
   ]);
@@ -390,11 +441,11 @@ it("Figure: composeFigureScene places each chart's scene in its box", () => {
   const [mine, first, second] = scene.root.children;
   assert.strictEqual(mine, own.root);
   assert.deepStrictEqual(first.transform, {x: 10, y: 20});
-  assert.strictEqual(first.children[0].key, "figure-chart-0/viz-root");
-  assert.strictEqual(second.children[0].children[0].key, "figure-chart-1/a");
+  assert.strictEqual(first.children[0].key, "dashboard-chart-0/viz-root");
+  assert.strictEqual(second.children[0].children[0].key, "dashboard-chart-1/a");
 });
 
-it("Figure: sceneMarkup serializes a scene as SVG", () => {
+it("Dashboard: sceneMarkup serializes a scene as SVG", () => {
   const markup = sceneMarkup({
     width: 50,
     height: 40,

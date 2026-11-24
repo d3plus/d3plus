@@ -20,7 +20,8 @@ const data = channels.flatMap((channel, c) =>
 const config = {
   title: "Acquisition",
   theme: "dark",
-  chartConfig: {theme: "dark", locale: "es-ES"},
+  locale: "es-ES",
+  chartConfig: {tooltipConfig: {title: d => d.channel}},
   charts: [
     {
       chart: "StackedArea",
@@ -39,7 +40,6 @@ const config = {
         groupBy: "channel",
         x: "channel",
         y: "signups",
-        legend: false,
         title: "Registros, junio",
       },
     },

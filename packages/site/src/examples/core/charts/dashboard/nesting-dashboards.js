@@ -18,7 +18,7 @@ const data = Object.entries(countries).flatMap(([country, region], c) =>
 const latest = data.filter(d => d.year === 2024);
 
 const config = {
-  title: "A figure in a figure",
+  title: "A dashboard in a dashboard",
   layoutConfig: {columns: [1, 2]},
   charts: [
     {
@@ -27,11 +27,10 @@ const config = {
         data: latest,
         groupBy: "region",
         value: "revenue",
-        legend: false,
       },
     },
     {
-      chart: "Figure",
+      chart: "Dashboard",
       config: {
         layoutConfig: {columns: 1},
         charts: [
@@ -43,7 +42,6 @@ const config = {
               color: "region",
               x: "country",
               y: "revenue",
-              legend: false,
             },
           },
           {
@@ -54,7 +52,6 @@ const config = {
               color: "region",
               x: "year",
               y: "revenue",
-              legend: false,
             },
           },
         ],

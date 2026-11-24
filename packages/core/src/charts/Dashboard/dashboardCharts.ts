@@ -1,5 +1,5 @@
 /**
-    Figure: turning its `charts` config into chart instances, reusing the
+    Dashboard: turning its `charts` config into chart instances, reusing the
     instances it made for the same entries on an earlier render.
 
     @module
@@ -8,49 +8,61 @@ import {isPlainObject} from "../../fluent.js";
 import {warnConfigOnce} from "../../utils/configWarnings.js";
 import {chartClass} from "../definition/chartRegistry.js";
 import type Viz from "../viz/Viz.js";
-import {NO_SIDES} from "./figureAlign.js";
-import type {FigureSides} from "./figureAlign.js";
-import type {FigureCell} from "./figureGrid.js";
-import type {FigurePlacement} from "./figureTypes.js";
+import {NO_SIDES} from "./dashboardAlign.js";
+import type {DashboardSides} from "./dashboardAlign.js";
+import type {DashboardCell} from "./dashboardGrid.js";
+import type {AxisReading, ChartShare, ShareAxis} from "./dashboardShare.js";
+import type {DashboardPlacement} from "./dashboardTypes.js";
 
-/** One of a Figure's `charts`, read: where its chart comes from, its config, and its place. */
-export interface FigureEntry {
+/** One of a Dashboard's `charts`, read: where its chart comes from, its config, and its place. */
+export interface DashboardEntry {
   /** The instance, class, or class name the chart comes from. */
   source: unknown;
   config?: Record<string, unknown>;
-  placement: FigurePlacement;
+  placement: DashboardPlacement;
 }
 
-/** A chart the figure draws, and what it keeps between renders. */
-export interface FigureChild {
-  /** What the chart was made from (see `FigureEntry.source`). */
+/** A chart the dashboard draws, and what it keeps between renders. */
+export interface DashboardChild {
+  /** What the chart was made from (see `DashboardEntry.source`). */
   source: unknown;
   chart: Viz;
-  /** Whether the figure made the chart (from a class or name) rather than being handed it. */
+  /** Whether the dashboard made the chart (from a class or name) rather than being handed it. */
   owned: boolean;
-  placement: FigurePlacement;
+  placement: DashboardPlacement;
   /** The entry's config. */
   config?: Record<string, unknown>;
-  /** The entry config and `chartConfig` last applied, so they are applied again only once one changes. */
+  /** The settings passed down, `chartConfig`, and entry config last applied, so they are applied again only once one changes. */
   applied?: {
+    inherited: Record<string, unknown>;
     config?: Record<string, unknown>;
     shared?: Record<string, unknown>;
   };
-  /** The link group the figure put the chart in, if it did. */
+  /** The link group the dashboard put the chart in, if it did. */
   linked?: string;
   /** The chart's cell, once laid out. */
-  cell?: FigureCell;
+  cell?: DashboardCell;
   /** How far the chart's box is shrunk inside its cell, to line up plot areas. */
-  inset: FigureSides;
+  inset: DashboardSides;
   /** The element the chart draws into. */
   node?: HTMLDivElement;
-  /** Whether the chart has drawn since the figure last rendered it. */
+  /** Whether the chart has drawn since the dashboard last rendered it. */
   drawn: boolean;
-  /** How many times it has been redrawn to line up, since the figure last laid out. */
+  /** How many times it has been redrawn to line up, since the dashboard last laid out. */
   aligned: number;
+  /** How many times it has been redrawn to share axes, since the dashboard last laid out. */
+  shared: number;
+  /** Its own domains, read from a draw that didn't share them. */
+  readings: Partial<Record<ShareAxis, AxisReading>>;
+  /** The axes it shares with other charts, and which of their labels it hides. */
+  share?: ChartShare;
+  /** Its axis configs from before the dashboard hid their labels. */
+  axisConfig: Partial<Record<ShareAxis, Record<string, unknown> | undefined>>;
+  /** Its own `legend`, while the dashboard's legend stands in for it. */
+  ownLegend?: {value: unknown};
 }
 
-/** Whether `value` is a chart instance a figure can draw. */
+/** Whether `value` is a chart instance a dashboard can draw. */
 export function isChartInstance(value: unknown): value is Viz {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
@@ -69,10 +81,10 @@ const PLACEMENT_KEYS = ["column", "row", "columnSpan", "rowSpan"] as const;
     `chart` (instance, class, or class name) and optional `config` and
     placement. Undefined for anything else.
 */
-export function figureEntry(value: unknown): FigureEntry | undefined {
+export function dashboardEntry(value: unknown): DashboardEntry | undefined {
   if (isChartInstance(value)) return {source: value, placement: {}};
   if (!isPlainObject(value) || !("chart" in value)) return undefined;
-  const placement: FigurePlacement = {};
+  const placement: DashboardPlacement = {};
   for (const key of PLACEMENT_KEYS) {
     const v = value[key];
     if (typeof v === "number" && Number.isFinite(v)) placement[key] = v;
@@ -91,9 +103,9 @@ export function sourceClass(source: unknown): (new () => Viz) | undefined {
 
 /**
     Whether `child` can stand for `entry`: the same instance, or a chart the
-    figure made from the same class.
+    dashboard made from the same class.
 */
-export function reuses(child: FigureChild, entry: FigureEntry): boolean {
+export function reuses(child: DashboardChild, entry: DashboardEntry): boolean {
   if (isChartInstance(entry.source)) return child.chart === entry.source;
   const Chart = sourceClass(entry.source);
   return (
@@ -104,7 +116,10 @@ export function reuses(child: FigureChild, entry: FigureEntry): boolean {
 }
 
 /** A new chart for `entry`, or undefined (with a warning) when it names no chart. */
-function makeChild(owner: object, entry: FigureEntry): FigureChild | undefined {
+function makeChild(
+  owner: object,
+  entry: DashboardEntry,
+): DashboardChild | undefined {
   let chart: Viz | undefined;
   let owned = false;
   if (isChartInstance(entry.source)) chart = entry.source;
@@ -118,8 +133,8 @@ function makeChild(owner: object, entry: FigureEntry): FigureChild | undefined {
   if (!chart || !isChartInstance(chart)) {
     warnConfigOnce(
       owner,
-      `figureChart:${String(entry.source)}`,
-      `Figure: ${typeof entry.source === "string" ? `"${entry.source}" is not a d3plus chart` : "a chart in `charts` is not a d3plus chart instance, class, or class name"}; it is left out.`,
+      `dashboardChart:${String(entry.source)}`,
+      `Dashboard: ${typeof entry.source === "string" ? `"${entry.source}" is not a d3plus chart` : "a chart in `charts` is not a d3plus chart instance, class, or class name"}; it is left out.`,
     );
     return undefined;
   }
@@ -131,29 +146,32 @@ function makeChild(owner: object, entry: FigureEntry): FigureChild | undefined {
     inset: {...NO_SIDES},
     drawn: false,
     aligned: 0,
+    shared: 0,
+    readings: {},
+    axisConfig: {},
   };
 }
 
 /**
-    The figure's charts for `values` (its `charts` config), reusing what it
+    The dashboard's charts for `values` (its `charts` config), reusing what it
     can of `previous`: the same instance wherever it was, or a chart made
     from the same class at the same index. Returns the charts, and those of
     `previous` left out (for the caller to tear down).
 */
-export function syncFigureCharts(
+export function syncDashboardCharts(
   owner: object,
   values: unknown[],
-  previous: FigureChild[],
-): {children: FigureChild[]; removed: FigureChild[]} {
+  previous: DashboardChild[],
+): {children: DashboardChild[]; removed: DashboardChild[]} {
   const free = new Set(previous);
-  const children: FigureChild[] = [];
+  const children: DashboardChild[] = [];
   values.forEach((value, i) => {
-    const entry = figureEntry(value);
+    const entry = dashboardEntry(value);
     if (!entry) {
       warnConfigOnce(
         owner,
-        `figureEntry:${i}`,
-        `Figure: charts[${i}] is not a chart or a {chart, config} object; it is left out.`,
+        `dashboardEntry:${i}`,
+        `Dashboard: charts[${i}] is not a chart or a {chart, config} object; it is left out.`,
       );
       return;
     }
@@ -173,18 +191,39 @@ export function syncFigureCharts(
   return {children, removed: Array.from(free)};
 }
 
+/** Whether two flat objects hold the same values under the same keys. */
+export function sameValues(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
+): boolean {
+  const keys = Object.keys(a);
+  return (
+    keys.length === Object.keys(b).length && keys.every(k => a[k] === b[k])
+  );
+}
+
 /**
-    Applies `shared` (the figure's `chartConfig`) and then the chart's own
-    config to its chart, when either has changed since they were last
-    applied: its own config wins where the two set the same key.
+    Applies to `child`'s chart what the dashboard passes down (`inherited`:
+    its renderer, theme, and locale), then `shared` (the dashboard's
+    `chartConfig`), then the chart's own config, when any of them has
+    changed since they were last applied: the later ones win where they set
+    the same key.
 */
 export function applyChartConfig(
-  child: FigureChild,
+  child: DashboardChild,
+  inherited: Record<string, unknown>,
   shared: Record<string, unknown> | undefined,
 ): void {
   const last = child.applied;
-  if (last && last.shared === shared && last.config === child.config) return;
-  if (shared && Object.keys(shared).length) child.chart.config(shared);
+  if (
+    last &&
+    last.shared === shared &&
+    last.config === child.config &&
+    sameValues(last.inherited, inherited)
+  )
+    return;
+  const base = {...inherited, ...shared};
+  if (Object.keys(base).length) child.chart.config(base);
   if (child.config) child.chart.config(child.config);
-  child.applied = {config: child.config, shared};
+  child.applied = {inherited, config: child.config, shared};
 }

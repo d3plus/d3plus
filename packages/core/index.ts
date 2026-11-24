@@ -14,12 +14,12 @@ export {
   Chord,
   ConnectedScatter,
   CyclePlot,
+  Dashboard,
   DensityPlot,
   Donut,
   DotPlot,
   Dumbbell,
   FanChart,
-  Figure,
   Funnel,
   Gantt,
   Gauge,
@@ -193,11 +193,11 @@ export type {
 } from "./src/charts/facet/facetConfig.js";
 export type {FacetLayout} from "./src/charts/facet/facetLayout.js";
 export type {
-  FigureChart,
-  FigureChartEntry,
-  FigureLayoutConfig,
-  FigurePlacement,
-} from "./src/charts/Figure/figureTypes.js";
+  DashboardChart,
+  DashboardChartEntry,
+  DashboardLayoutConfig,
+  DashboardPlacement,
+} from "./src/charts/Dashboard/dashboardTypes.js";
 
 export type {
   AnyShapeConfig,

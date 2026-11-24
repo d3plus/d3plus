@@ -1,6 +1,6 @@
 /**
     The chart classes `makeChart` has built, by name, so a chart can be
-    named by a string where an instance can't be passed (a Figure's
+    named by a string where an instance can't be passed (a Dashboard's
     `charts` given as plain config).
 
     @module

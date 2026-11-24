@@ -1,29 +1,34 @@
 /**
-    Figure: the grid its charts are placed on. Pure layout math, no chart
+    Dashboard: the grid its charts are placed on. Pure layout math, no chart
     state: track sizes, CSS-grid-style placement with spans, and each
     chart's cell in pixels.
 
     @module
 */
 import {facetDimensions} from "../facet/facetGrid.js";
-import type {FigureLayoutConfig, FigurePlacement} from "./figureTypes.js";
+import type {
+  DashboardLayoutConfig,
+  DashboardPlacement,
+} from "./dashboardTypes.js";
 
 /** `layoutConfig` with every option resolved. */
-export interface ResolvedFigureLayout {
+export interface ResolvedDashboardLayout {
   columns?: number | number[];
   rows?: number | number[];
   padding: number;
   align: boolean;
+  shareX: boolean;
+  shareY: boolean;
 }
 
 /** The space between charts when `layoutConfig.padding` isn't set. */
-export const FIGURE_PADDING = 16;
+export const DASHBOARD_PADDING = 4;
 
 /** The width/height ratio the automatic column count aims each chart at. */
-export const FIGURE_ASPECT = 4 / 3;
+export const DASHBOARD_ASPECT = 4 / 3;
 
-/** A box in figure pixels. */
-export interface FigureArea {
+/** A box in dashboard pixels. */
+export interface DashboardArea {
   x: number;
   y: number;
   width: number;
@@ -31,29 +36,33 @@ export interface FigureArea {
 }
 
 /** A chart's placement on the grid, resolved to whole tracks. */
-export interface FigureSlot {
+export interface DashboardSlot {
   column: number;
   row: number;
   columnSpan: number;
   rowSpan: number;
 }
 
-/** A chart's cell: its slot and its box in figure pixels. */
-export interface FigureCell extends FigureSlot, FigureArea {
+/** A chart's cell: its slot and its box in dashboard pixels. */
+export interface DashboardCell extends DashboardSlot, DashboardArea {
   index: number;
 }
 
 /** `layoutConfig` with its defaults applied. */
-export function resolveFigureLayout(raw: unknown): ResolvedFigureLayout {
-  const c = (raw && typeof raw === "object" ? raw : {}) as FigureLayoutConfig;
+export function resolveDashboardLayout(raw: unknown): ResolvedDashboardLayout {
+  const c = (
+    raw && typeof raw === "object" ? raw : {}
+  ) as DashboardLayoutConfig;
   return {
     columns: c.columns,
     rows: c.rows,
     padding:
       typeof c.padding === "number" && c.padding >= 0
         ? c.padding
-        : FIGURE_PADDING,
+        : DASHBOARD_PADDING,
     align: c.align !== false,
+    shareX: c.shareX === true,
+    shareY: c.shareY === true,
   };
 }
 
@@ -119,18 +128,18 @@ function span(value: unknown, max: number): number {
     overlap only when two fix the same cell.
 */
 export function placeCharts(
-  placements: FigurePlacement[],
+  placements: DashboardPlacement[],
   columns: number,
-): FigureSlot[] {
+): DashboardSlot[] {
   const taken: boolean[][] = [];
-  const free = (s: FigureSlot): boolean => {
+  const free = (s: DashboardSlot): boolean => {
     if (s.column + s.columnSpan > columns) return false;
     for (let r = s.row; r < s.row + s.rowSpan; r++)
       for (let c = s.column; c < s.column + s.columnSpan; c++)
         if (taken[r]?.[c]) return false;
     return true;
   };
-  const take = (s: FigureSlot): FigureSlot => {
+  const take = (s: DashboardSlot): DashboardSlot => {
     for (let r = s.row; r < s.row + s.rowSpan; r++) {
       taken[r] ??= [];
       for (let c = s.column; c < s.column + s.columnSpan; c++)
@@ -138,7 +147,7 @@ export function placeCharts(
     }
     return s;
   };
-  const slots: (FigureSlot | undefined)[] = placements.map(() => undefined);
+  const slots: (DashboardSlot | undefined)[] = placements.map(() => undefined);
   const sized = placements.map(p => ({
     column: count((p.column ?? -1) + 1),
     row: count((p.row ?? -1) + 1),
@@ -173,19 +182,19 @@ export function placeCharts(
       if (slots[i]) break;
     }
   });
-  return slots as FigureSlot[];
+  return slots as DashboardSlot[];
 }
 
 /**
     The grid's column count: `columns` when it fixes one; otherwise enough
     for `rows` to hold every chart, or the count that draws `count` charts
-    of `FIGURE_ASPECT` largest in `area`. Never fewer than a placed chart's
+    of `DASHBOARD_ASPECT` largest in `area`. Never fewer than a placed chart's
     column and span reach.
 */
-export function figureColumns(
-  placements: FigurePlacement[],
+export function dashboardColumns(
+  placements: DashboardPlacement[],
   area: {width: number; height: number},
-  layout: Pick<ResolvedFigureLayout, "columns" | "rows" | "padding">,
+  layout: Pick<ResolvedDashboardLayout, "columns" | "rows" | "padding">,
 ): number {
   const reach = Math.max(
     1,
@@ -202,19 +211,19 @@ export function figureColumns(
     : facetDimensions(n, area, {
         padding: layout.padding,
         titleHeight: 0,
-        aspect: FIGURE_ASPECT,
+        aspect: DASHBOARD_ASPECT,
       }).columns;
   return Math.max(reach, auto || 1);
 }
 
 /** Lays the charts out in `area`: each one's grid slot and box. */
-export function figureGrid(
-  placements: FigurePlacement[],
-  area: FigureArea,
-  layout: Pick<ResolvedFigureLayout, "columns" | "rows" | "padding">,
-): FigureCell[] {
+export function dashboardGrid(
+  placements: DashboardPlacement[],
+  area: DashboardArea,
+  layout: Pick<ResolvedDashboardLayout, "columns" | "rows" | "padding">,
+): DashboardCell[] {
   if (!placements.length) return [];
-  const columns = figureColumns(placements, area, layout);
+  const columns = dashboardColumns(placements, area, layout);
   const slots = placeCharts(placements, columns);
   const rows = Math.max(
     trackCount(layout.rows) ?? 0,

@@ -1,5 +1,5 @@
 /**
-    Figure: the whole figure as one scene (its own chrome with every chart's
+    Dashboard: the whole dashboard as one scene (its own chrome with every chart's
     scene placed in its box), for saving and serializing it.
 
     @module
@@ -9,21 +9,24 @@ import type {Scene, SceneNode} from "@d3plus/render";
 
 import {prefixKeys} from "../facet/facetScene.js";
 
-/** One chart's scene and where it sits in the figure. */
-export interface FigurePart {
+/** One chart's scene and where it sits in the dashboard. */
+export interface DashboardPart {
   scene: Scene;
   x: number;
   y: number;
 }
 
 /**
-    Composes the figure's own scene (`own`) and each chart's (`parts`) into
+    Composes the dashboard's own scene (`own`) and each chart's (`parts`) into
     one: every chart's root goes in a group of its own, moved to its box and
     with its keys prefixed so charts drawing the same keys stay distinct.
 */
-export function composeFigureScene(own: Scene, parts: FigurePart[]): Scene {
+export function composeDashboardScene(
+  own: Scene,
+  parts: DashboardPart[],
+): Scene {
   const charts: SceneNode[] = parts.map((part, i) => {
-    const key = `figure-chart-${i}`;
+    const key = `dashboard-chart-${i}`;
     return {
       type: "group",
       key,
@@ -34,7 +37,11 @@ export function composeFigureScene(own: Scene, parts: FigurePart[]): Scene {
   return {
     width: own.width,
     height: own.height,
-    root: {type: "group", key: "figure-root", children: [own.root, ...charts]},
+    root: {
+      type: "group",
+      key: "dashboard-root",
+      children: [own.root, ...charts],
+    },
   };
 }
 

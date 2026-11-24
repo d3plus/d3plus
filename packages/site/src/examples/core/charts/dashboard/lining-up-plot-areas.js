@@ -21,7 +21,6 @@ const config = {
         x: "year",
         y: "revenue",
         yConfig: {title: "Revenue"},
-        legend: false,
       },
     },
     {
@@ -32,7 +31,6 @@ const config = {
         x: "year",
         y: "margin",
         yConfig: {title: "Margin", tickFormat: d => `${Math.round(d * 100)}%`},
-        legend: false,
       },
     },
   ],

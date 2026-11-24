@@ -1,12 +1,12 @@
 /**
-    Figure: lining up the plot areas of charts that share a grid line.
+    Dashboard: lining up the plot areas of charts that share a grid line.
 
     @module
 */
-import type {FigureSlot} from "./figureGrid.js";
+import type {DashboardSlot} from "./dashboardGrid.js";
 
 /** A distance from each side of a box. */
-export interface FigureSides {
+export interface DashboardSides {
   top: number;
   right: number;
   bottom: number;
@@ -14,7 +14,7 @@ export interface FigureSides {
 }
 
 /** No distance on any side. */
-export const NO_SIDES: FigureSides = {top: 0, right: 0, bottom: 0, left: 0};
+export const NO_SIDES: DashboardSides = {top: 0, right: 0, bottom: 0, left: 0};
 
 /** What `plotInsets` reads from a chart. */
 export interface PlotInsetHost {
@@ -29,7 +29,7 @@ export interface PlotInsetHost {
     undefined for a chart without one (anything outside the Plot family) or
     one that hasn't drawn yet.
 */
-export function plotInsets(viz: PlotInsetHost): FigureSides | undefined {
+export function plotInsets(viz: PlotInsetHost): DashboardSides | undefined {
   const area = viz._plotArea,
     t = viz._chartTransform;
   const height = viz.schema.height;
@@ -56,11 +56,11 @@ export function plotInsets(viz: PlotInsetHost): FigureSides | undefined {
     is and doesn't move the others.
 */
 export function alignCells(
-  slots: FigureSlot[],
-  insets: (FigureSides | undefined)[],
-): FigureSides[] {
+  slots: DashboardSlot[],
+  insets: (DashboardSides | undefined)[],
+): DashboardSides[] {
   const out = slots.map(() => ({...NO_SIDES}));
-  const lines: [keyof FigureSides, (s: FigureSlot) => number][] = [
+  const lines: [keyof DashboardSides, (s: DashboardSlot) => number][] = [
     ["left", s => s.column],
     ["right", s => s.column + s.columnSpan],
     ["top", s => s.row],
@@ -85,7 +85,7 @@ export function alignCells(
 }
 
 /** Whether two sets of sides differ by more than half a pixel anywhere. */
-export function sidesChanged(a: FigureSides, b: FigureSides): boolean {
+export function sidesChanged(a: DashboardSides, b: DashboardSides): boolean {
   return (["top", "right", "bottom", "left"] as const).some(
     k => Math.abs(a[k] - b[k]) > 0.5,
   );

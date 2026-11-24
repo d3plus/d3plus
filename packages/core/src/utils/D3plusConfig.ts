@@ -12,9 +12,9 @@ import type {
 } from "../charts/Plot/lineLabelSides.js";
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {
-  FigureChart,
-  FigureLayoutConfig,
-} from "../charts/Figure/figureTypes.js";
+  DashboardChart,
+  DashboardLayoutConfig,
+} from "../charts/Dashboard/dashboardTypes.js";
 import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
 import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
 import type {AlluvialDimensionInput} from "../charts/Alluvial/dimensions.js";
@@ -1537,25 +1537,28 @@ export interface D3plusConfig {
   */
   centerLabelConfig?: TextBoxConfig;
   /**
-      Figure: config applied to every chart in the figure (with
-      `.config()`), before each chart's own `config`. Use it for what the
-      charts share, such as a `theme`, `locale`, or `tooltipConfig`.
-      Defaults to `{saveControl: false}`: the figure's own download button
-      saves every chart. Merged into the current config.
+      Dashboard: config applied to every chart in the dashboard (with
+      `.config()`), after the dashboard's own `renderer`, `theme`, and
+      `locale` (which every chart takes) and before each chart's own
+      `config`. Use it for what the charts share, such as a
+      `tooltipConfig`. Defaults to turning off each chart's `saveControl`,
+      `tableView`, `search`, and `zoomControls` buttons: the dashboard's own
+      download button saves every chart. Merged into the current config.
   */
   chartConfig?: D3plusConfig;
   /**
-      Figure: the charts it draws, in reading order. Each is a chart
+      Dashboard: the charts it draws, in reading order. Each is a chart
       instance (`new BarChart().data(…)`), or an object placing one:
       `{chart, config, column, row, columnSpan, rowSpan}`, where `chart` is
       an instance, a chart class, or a chart class's name (`"BarChart"`)
       and `config` is applied to it. A chart without a `column` and `row`
-      takes the first free cell that fits its span. The figure sizes,
+      takes the first free cell that fits its span. The dashboard sizes,
       draws, and destroys its charts (setting each one's `width`, `height`,
-      `renderer`, `detectResize`, and `detectVisible`), and links those
-      without a `link` of their own (see `link`).
+      `detectResize`, and `detectVisible`), links those without a `link` of
+      their own (see `link`), and draws one legend for them (see
+      `legendChart`).
   */
-  charts?: FigureChart[];
+  charts?: DashboardChart[];
   /**
       Sankey: draws links that loop back to a node they left (A → B → A, or a
       node to itself) as bands that run in a lane above or below the nodes.
@@ -1653,6 +1656,15 @@ export interface D3plusConfig {
     /** Styles the hover mark (see `ColorScaleConfig.hoverMarkConfig`). */
     hoverMarkConfig?: ColorScaleHoverMarkConfig;
     /** Configures the Legend that draws a bucket-type scale as a swatch for each bucket. Along a side of the chart, the swatches, their labels and title take at most a third of the chart's width (a scale at the left or right) or height (top or bottom): the title and labels wrap onto more lines, and when they still don't fit, the title is left out and then the labels are cut short. Its `width` (left or right) or `height` (top or bottom) sets another limit. */
+    /**
+      Dashboard: the index (in `charts`) of the chart whose legend the
+      dashboard draws, in place of the charts' own: that chart's data,
+      grouping, and colors make its entries, and it is linked to every
+      chart. Defaults to the first chart whose own legend is on. Set
+      `legend` to `false` on the dashboard to give each chart its own legend
+      back.
+  */
+    legendChart?: number;
     legendConfig?: Record<string, unknown>;
     /** How many quantile bins a bivariate `colorScale` splits each variable into, from `2` to `4`. Defaults to `3`. */
     bivariateBuckets?: number;
@@ -2431,15 +2443,18 @@ export interface D3plusConfig {
   */
   layout?: "force" | "circle";
   /**
-      Figure: the grid its charts are placed on. `columns` and `rows` set
+      Dashboard: the grid its charts are placed on. `columns` and `rows` set
       the track count, or each track's size relative to the others
       (`columns: [2, 1]`); the column count is chosen to draw the charts as
       large as possible by default. `padding` is the space between charts
-      (`16` by default), and `align` (`true` by default) lines up the plot
+      (`4` by default), and `align` (`true` by default) lines up the plot
       areas of charts with axes that start or end on the same grid line.
-      Merged into the current config.
+      `shareX` gives the charts with axes stacked in a column one x domain,
+      labeled only on the lowest, and `shareY` the charts side by side in a
+      row one y domain, labeled only on the leftmost (both `false` by
+      default). Merged into the current config.
   */
-  layoutConfig?: FigureLayoutConfig;
+  layoutConfig?: DashboardLayoutConfig;
   /**
       Network's circle layout (`layout: "circle"`): how far links bow in
       toward the center, from `0` (straight lines) to `1` (each link curves

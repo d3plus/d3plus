@@ -2117,28 +2117,34 @@ export {
 } from "./src/charts/DotPlot/placements.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
-export {applyFigureLayout, figureDef} from "./src/charts/Figure/index.js";
+export {
+  applyDashboardLayout,
+  dashboardDef,
+} from "./src/charts/Dashboard/index.js";
 export {
   alignCells,
   plotInsets,
   sidesChanged,
-} from "./src/charts/Figure/figureAlign.js";
-export type {FigureSides} from "./src/charts/Figure/figureAlign.js";
+} from "./src/charts/Dashboard/dashboardAlign.js";
+export type {DashboardSides} from "./src/charts/Dashboard/dashboardAlign.js";
 export {
-  figureEntry,
+  dashboardEntry,
   isChartInstance,
-  syncFigureCharts,
-} from "./src/charts/Figure/figureCharts.js";
+  syncDashboardCharts,
+} from "./src/charts/Dashboard/dashboardCharts.js";
 export {
-  figureColumns,
-  figureGrid,
+  dashboardColumns,
+  dashboardGrid,
   placeCharts,
-  resolveFigureLayout,
+  resolveDashboardLayout,
   trackOffsets,
   trackWeights,
-} from "./src/charts/Figure/figureGrid.js";
-export type {FigureCell, FigureSlot} from "./src/charts/Figure/figureGrid.js";
-export {composeFigureScene} from "./src/charts/Figure/figureScene.js";
+} from "./src/charts/Dashboard/dashboardGrid.js";
+export type {
+  DashboardCell,
+  DashboardSlot,
+} from "./src/charts/Dashboard/dashboardGrid.js";
+export {composeDashboardScene} from "./src/charts/Dashboard/dashboardScene.js";
 export {
   chartClass,
   registerChart,

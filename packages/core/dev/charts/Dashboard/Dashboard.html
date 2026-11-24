@@ -2,10 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Figure</title>
+    <title>Dashboard</title>
     <meta
       name="description"
-      content="Figure: different charts placed together under one title and download button — a treemap spanning two rows beside a bar chart and line plot whose plot areas line up, linked hover across charts, a breakpoint that stacks them on narrow screens, relative column widths, charts given as config, a nested figure, and a dark theme shared through chartConfig."
+      content="Dashboard: different charts placed together under one title, legend, and download button — a treemap spanning two rows beside a bar chart and line plot whose plot areas line up, linked hover and legend clicks across charts, a breakpoint that stacks them on narrow screens, shared x and y axes labeled on the outer edge, relative column widths, charts given as config, and a nested dashboard taking the outer dark theme."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -49,11 +49,15 @@
     </div>
     <div class="wrap">
       <h3>Spans, aligned plot areas, and linked hover</h3>
-      <div class="viz" id="figure"></div>
+      <div class="viz" id="dashboard"></div>
       <h3>Charts given as config, with relative column widths</h3>
       <div class="viz short" id="config"></div>
-      <h3>A nested figure and a shared dark theme</h3>
+      <h3>A nested dashboard and a shared dark theme</h3>
       <div class="viz short dark" id="nested"></div>
+      <h3>
+        Shared axes: one x domain down each column, one y domain across each row
+      </h3>
+      <div class="viz" id="shared"></div>
     </div>
 
     <script>
@@ -78,8 +82,8 @@
       });
       const latest = data.filter(d => d.year === 2024);
 
-      const figure = new d3plus.Figure()
-        .select("#figure")
+      const dashboard = new d3plus.Dashboard()
+        .select("#dashboard")
         .title("Revenue overview")
         .subtitle("Eight countries, 2018–2024")
         .saveControl(true)
@@ -100,7 +104,6 @@
             .color("region")
             .x("country")
             .y("revenue")
-            .legend(false)
             .title("By country, 2024"),
           new d3plus.LinePlot()
             .data(data)
@@ -109,12 +112,11 @@
             .x("year")
             .y("revenue")
             .yConfig({tickFormat: d => `$${d}M`})
-            .legend(false)
             .title("Over time"),
         ])
         .render();
 
-      const configFigure = new d3plus.Figure()
+      const configDashboard = new d3plus.Dashboard()
         .select("#config")
         .title("Charts given as config")
         .layoutConfig({columns: [2, 1]})
@@ -135,17 +137,15 @@
               data: latest,
               groupBy: "region",
               value: "revenue",
-              legend: false,
               title: "Share, 2024",
             },
           },
         ])
         .render();
 
-      const nested = new d3plus.Figure()
+      const nested = new d3plus.Dashboard()
         .select("#nested")
-        .title("A figure in a figure")
-        .chartConfig({theme: "dark"})
+        .title("A dashboard in a dashboard")
         .theme("dark")
         .layoutConfig({columns: [1, 2]})
         .charts([
@@ -155,55 +155,104 @@
               data: latest,
               groupBy: "region",
               value: "revenue",
-              legend: false,
               title: "Share",
             },
           },
-          new d3plus.Figure()
-            .theme("dark")
-            .chartConfig({theme: "dark"})
-            .layoutConfig({columns: 1})
-            .charts([
-              {
-                chart: "BarChart",
-                config: {
-                  data: latest,
-                  groupBy: "country",
-                  color: "region",
-                  x: "country",
-                  y: "revenue",
-                  legend: false,
-                },
+          new d3plus.Dashboard().layoutConfig({columns: 1}).charts([
+            {
+              chart: "BarChart",
+              config: {
+                data: latest,
+                groupBy: "country",
+                color: "region",
+                x: "country",
+                y: "revenue",
               },
-              {
-                chart: "LinePlot",
-                config: {
-                  data,
-                  groupBy: "country",
-                  color: "region",
-                  x: "year",
-                  y: "margin",
-                  yConfig: {tickFormat: d => `${Math.round(d * 100)}%`},
-                  legend: false,
-                },
+            },
+            {
+              chart: "LinePlot",
+              config: {
+                data,
+                groupBy: "country",
+                color: "region",
+                x: "year",
+                y: "margin",
+                yConfig: {tickFormat: d => `${Math.round(d * 100)}%`},
               },
-            ]),
+            },
+          ]),
+        ])
+        .render();
+
+      const shared = new d3plus.Dashboard()
+        .select("#shared")
+        .title("Shared axes")
+        .layoutConfig({columns: 2, shareX: true, shareY: true})
+        .legendChart(2)
+        .charts([
+          {
+            chart: "LinePlot",
+            config: {
+              data: data.filter(d => d.region !== "Asia"),
+              groupBy: "country",
+              color: "region",
+              x: "year",
+              y: "revenue",
+              title: "Americas and Europe",
+            },
+          },
+          {
+            chart: "LinePlot",
+            config: {
+              data: data.filter(d => d.region === "Asia"),
+              groupBy: "country",
+              color: "region",
+              x: "year",
+              y: "revenue",
+              title: "Asia",
+            },
+          },
+          {
+            chart: "BarChart",
+            config: {
+              data: data.filter(d => d.year >= 2020 && d.region !== "Asia"),
+              groupBy: "country",
+              color: "region",
+              x: "year",
+              y: "margin",
+              stacked: false,
+              yConfig: {tickFormat: d => `${Math.round(d * 100)}%`},
+            },
+          },
+          {
+            chart: "BarChart",
+            config: {
+              data: data.filter(d => d.year >= 2020 && d.region === "Asia"),
+              groupBy: "country",
+              color: "region",
+              x: "year",
+              y: "margin",
+              yConfig: {tickFormat: d => `${Math.round(d * 100)}%`},
+            },
+          },
         ])
         .render();
 
       let wide = false;
       document.querySelector("#highlight").addEventListener("click", () => {
-        figure.charts()[0].chart.highlight(d => d.region === "Europe");
+        dashboard.charts()[0].chart.highlight(d => d.region === "Europe");
       });
       document.querySelector("#clear").addEventListener("click", () => {
-        figure.charts()[0].chart.highlight(false);
+        dashboard.charts()[0].chart.highlight(false);
       });
       document.querySelector("#columns").addEventListener("click", () => {
         wide = !wide;
-        figure.layoutConfig({columns: wide ? [2, 1] : [1, 1]}).render();
+        dashboard.layoutConfig({columns: wide ? [2, 1] : [1, 1]}).render();
       });
       document.querySelector("#save").addEventListener("click", () => {
-        const blob = new Blob([figure.toSVGString()], {type: "image/svg+xml"});
+        const blob = new Blob([dashboard.toSVGString()], {
+          type: "image/svg+xml",
+        });
         window.open(URL.createObjectURL(blob));
       });
     </script>
