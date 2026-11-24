@@ -21,15 +21,16 @@ export const start = ([type, json, renderer]) => {
     .on("click.shape", () => window.__clicks++);
   for (const what of ["referenceLine", "referenceBand", "quadrants"])
     for (const kind of ["drag", "end"])
-      viz.on(`${kind}.${what}`, (value, entry, index) =>
+      viz.on(`${kind}.${what}`, (value, entry, index, event, series) => {
+        if (series !== undefined) window.__seriesEvents = series;
         window.__events.push({
           kind,
           what,
           value: value instanceof Date ? +value : value,
           id: entry.id,
           index,
-        }),
-      );
+        });
+      });
   window.__viz = viz.render(() => (window.__drawn = true));
   return true;
 };

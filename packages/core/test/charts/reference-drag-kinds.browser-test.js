@@ -31,7 +31,7 @@ for (let i = 0; i <= 10; i++)
 const setting = name => window.__viz[name]();
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`[${renderer}] a band's edges drag, never past each other`, () =>
+  it(`[${renderer}] a band's edges drag, crossing and swapping ends`, () =>
     withPage(box, async page => {
       await page.evaluate(start, [
         "Plot",
@@ -47,7 +47,7 @@ for (const renderer of ["svg", "canvas"]) {
       await painted(page);
       const s = await page.evaluate(state);
       assert.strictEqual(s.handles.length, 2);
-      assert.strictEqual(s.grips, 2);
+      assert.strictEqual(s.grips, 3, "a grip per edge, and one for the body");
       assert.deepStrictEqual(
         s.handles.map(h => h.label),
         ["Start of Target", "End of Target"],
@@ -62,20 +62,101 @@ for (const renderer of ["svg", "canvas"]) {
       assert.strictEqual(events.at(-1).what, "referenceBand");
       assert.strictEqual(events.at(-1).kind, "end");
       assert.deepStrictEqual(events.at(-1).value, [35, 50]);
-      // Past the other edge, it stops a step short of it.
+      // Past the other edge, the two swap.
       const again = (await page.evaluate(state)).handles[0];
-      await drag(page, [again.x, again.y], -40 * unit);
+      await drag(page, [again.x, again.y], -30 * unit);
       assert.deepStrictEqual(
         (await page.evaluate(setting, "referenceBands"))[0].y,
-        [49, 50],
+        [50, 65],
       );
-      await key(page, "ArrowDown", 1);
+      const after = await page.evaluate(state);
+      assert.deepStrictEqual(
+        after.handles.map(h => [h.label, h.now]),
+        [
+          ["Start of Target", "50"],
+          ["End of Target", "65"],
+        ],
+      );
+      // The keyboard crosses too, never landing on the other end.
+      await key(page, "PageDown", 1);
+      await key(page, "PageDown", 1);
       await page.waitForTimeout(60);
       assert.deepStrictEqual(
         (await page.evaluate(setting, "referenceBands"))[0].y,
-        [49, 50],
-        "the upper edge can't go below the lower",
+        [45, 50],
       );
+    }));
+
+  it(`[${renderer}] a band's body moves the whole band; the marks under it still hover and click`, () =>
+    withPage(box, async page => {
+      await page.evaluate(start, [
+        "Plot",
+        JSON.stringify({
+          data: [{id: "in", x: 50, y: 40}, ...rows],
+          groupBy: "id",
+          referenceBands: [{y: [30, 50], draggable: {step: 1}}],
+        }),
+        renderer,
+      ]);
+      await painted(page);
+      await page.evaluate(() => {
+        window.__hovers = 0;
+        window.__viz.on("mousemove.shape", () => window.__hovers++);
+      });
+      // The point "in" sits inside the band, under its body.
+      const point = await page.evaluate(() => {
+        let found;
+        const walk = (n, x, y) => {
+          const t = n.transform || {};
+          const nx = x + (t.x || 0),
+            ny = y + (t.y || 0);
+          const d = n.datum && (n.datum.data || n.datum);
+          if (n.type === "circle" && d && d.id === "in")
+            found = [nx + (n.cx || 0), ny + (n.cy || 0)];
+          (n.children || []).forEach(c => walk(c, nx, ny));
+        };
+        walk(window.__viz._paintedScene.root, 0, 0);
+        const surface = document.querySelector("#viz canvas, #viz svg");
+        const r = surface.getBoundingClientRect();
+        return [r.left + found[0], r.top + found[1]];
+      });
+      await page.mouse.move(point[0] - 2, point[1]);
+      await page.mouse.move(point[0], point[1]);
+      await page.waitForTimeout(60);
+      assert.ok((await page.evaluate(() => window.__hovers)) > 0, "hovers");
+      await page.mouse.click(point[0], point[1]);
+      await page.waitForTimeout(60);
+      assert.strictEqual(await page.evaluate(() => window.__clicks), 1);
+      const unit = await page.evaluate(yUnit);
+      await drag(page, point, -10 * unit);
+      assert.deepStrictEqual(
+        (await page.evaluate(setting, "referenceBands"))[0].y,
+        [40, 60],
+        "both ends moved",
+      );
+      assert.strictEqual(await page.evaluate(() => window.__clicks), 1);
+      const {events} = await page.evaluate(state);
+      assert.deepStrictEqual(events.at(-1).value, [40, 60]);
+      assert.strictEqual(events.at(-1).kind, "end");
+      // The keyboard moves it too.
+      await page.evaluate(() => {
+        const el = document.querySelector(".d3plus-reference-drag-body");
+        el.focus();
+        for (const type of ["keydown", "keyup"])
+          el.dispatchEvent(
+            new KeyboardEvent(type, {
+              key: "End",
+              bubbles: true,
+              cancelable: true,
+            }),
+          );
+      });
+      await page.waitForTimeout(60);
+      const [, top] = (await page.evaluate(setting, "referenceBands"))[0].y;
+      const max = await page.evaluate(() =>
+        Math.max(...window.__viz._yAxis._getDomain()),
+      );
+      assert.ok(top <= max && top > 60, `moved to the top: ${top}`);
     }));
 
   it(`[${renderer}] the quadrant dividers each move the center's x or y`, () =>
@@ -101,13 +182,72 @@ for (const renderer of ["svg", "canvas"]) {
       const q = await page.evaluate(setting, "quadrants");
       assert.strictEqual(q.x, 51, "the mean (50) became a value, a step on");
       assert.strictEqual(q.y, undefined, "y still the mean");
-      const {events} = await page.evaluate(state);
+      const {events, texts} = await page.evaluate(state);
+      assert.ok(texts.includes("51"), "the divider shows its value");
       assert.strictEqual(events.at(-1).what, "quadrants");
       assert.strictEqual(events.at(-1).index, "x");
       assert.strictEqual(events.at(-1).value.x, 51);
       assert.ok(Number.isFinite(events.at(-1).value.y), "the center's y");
     }));
 }
+
+it("a rectangle's body moves it on both axes", () =>
+  withPage(box, async page => {
+    await page.evaluate(start, [
+      "Plot",
+      JSON.stringify({
+        data: rows,
+        groupBy: "id",
+        referenceBands: [{x: [20, 40], y: [20, 40], draggable: {step: 1}}],
+      }),
+      "svg",
+    ]);
+    await painted(page);
+    const [center, unit] = await page.evaluate(() => {
+      const el = document.querySelector(".d3plus-reference-drag-body");
+      const r = el.getBoundingClientRect();
+      const x = window.__viz._xAxis;
+      return [
+        [r.left + r.width / 2 + 7, r.top + r.height / 2 + 7],
+        Math.abs(x._getPosition(0) - x._getPosition(1)),
+      ];
+    });
+    await drag(page, center, [10 * unit, 0]);
+    const [band] = await page.evaluate(setting, "referenceBands");
+    assert.deepStrictEqual(band.x, [30, 50]);
+    assert.deepStrictEqual(band.y, [20, 40], "a level drag keeps y");
+    const {events} = await page.evaluate(state);
+    assert.deepStrictEqual(events.at(-1).value, {x: [30, 50], y: [20, 40]});
+  }));
+
+it("perSeries lines each drag on their own", () =>
+  withPage(box, async page => {
+    await page.evaluate(start, [
+      "LinePlot",
+      JSON.stringify({
+        data: rows,
+        groupBy: "g",
+        referenceLines: [{y: "mean", perSeries: true, draggable: {step: 1}}],
+      }),
+      "canvas",
+    ]);
+    await painted(page);
+    const s = await page.evaluate(state);
+    assert.deepStrictEqual(
+      s.handles.map(h => h.label),
+      ["even", "odd"],
+    );
+    await key(page, "PageUp", 1);
+    await page.waitForTimeout(60);
+    const [line] = await page.evaluate(setting, "referenceLines");
+    assert.deepStrictEqual(Object.keys(line.seriesValues), ["odd"]);
+    const after = await page.evaluate(state);
+    assert.strictEqual(after.handles[0].now, s.handles[0].now, "even unmoved");
+    assert.strictEqual(after.handles[1].now, `${line.seriesValues.odd}`);
+    assert.ok(Number(after.handles[1].now) > Number(s.handles[1].now));
+    const last = await page.evaluate(() => window.__seriesEvents);
+    assert.strictEqual(last, "odd");
+  }));
 
 it("a draggable line in annotations writes back to annotations", () =>
   withPage(box, async page => {
@@ -262,14 +402,5 @@ it("lines that can't move get no handle", () =>
       await count({data: rows, groupBy: "id", referenceLines: [{y: 20}]}),
       0,
       "not draggable",
-    );
-    assert.strictEqual(
-      await count({
-        data: rows,
-        groupBy: "g",
-        referenceLines: [{y: "mean", perSeries: true, draggable: true}],
-      }),
-      0,
-      "one line per series",
     );
   }));

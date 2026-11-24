@@ -187,10 +187,18 @@ export interface ReferenceLineConfig extends Omit<ReferenceStyle, "label"> {
       `referenceLines()` reads it back; the chart fires
       `drag.referenceLine` as it moves and `end.referenceLine` when it is
       let go, then redraws to refit its axes. Unlabeled, it is labeled with
-      its value. A grip at the end away from its label marks it. A
-      `perSeries` line can't be dragged. Defaults to `false`.
+      its value. A grip at the end away from its label marks it. Each
+      line of a `perSeries` entry drags on its own, its value kept in
+      `seriesValues`. Defaults to `false`.
   */
   draggable?: boolean | ReferenceDragConfig;
+  /**
+      With `perSeries`: the values series' lines have been dragged to, by
+      series id (the series' `groupBy` value), each in place of the
+      statistic for that series. A series not listed takes the statistic;
+      a listed series the chart no longer draws is kept and ignored.
+  */
+  seriesValues?: Record<string, AnnotationValue>;
   /** How the value is read. Defaults to `"data"`. */
   ref?: AnnotationRef;
   /**
@@ -249,10 +257,14 @@ export interface ReferenceBandConfig extends ReferenceStyle {
   /**
       Lets the reader drag each edge of the band along its axis, or move it
       with the arrow keys, as a `draggable` reference line moves: `true`, or
-      `{min, max, step}`. An edge can't pass the span's other end. The moved
-      end replaces its own in the span, and the chart fires
-      `drag.referenceBand` and `end.referenceBand` with the whole span.
-      Defaults to `false`.
+      `{min, max, step}`. An edge dragged past the span's other end
+      crosses it, the two ends swapping places. Dragging inside the band
+      (or the arrow keys on it once it has focus) moves the whole band,
+      both ends of each span together, a rectangle on both axes; the marks
+      under it keep their hover until a press there moves. The moved ends
+      replace their own in the span, and the chart fires
+      `drag.referenceBand` and `end.referenceBand` with the whole span (a
+      moved rectangle reports `{x, y}` spans). Defaults to `false`.
   */
   draggable?: boolean | ReferenceDragConfig;
   /** How the values are read. Defaults to `"data"`. */

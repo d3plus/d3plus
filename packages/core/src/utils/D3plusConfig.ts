@@ -2723,10 +2723,12 @@ export interface D3plusConfig {
       its new value (a Date on a time axis, the category on a category
       axis), its entry, its index in its list (`referenceLines` or
       `annotations`; for a chart's own line, the setting's name, such as
-      `"paretoThreshold"`), and the browser event. A band's edges fire
-      `drag.referenceBand` and `end.referenceBand` with the band's span, and
-      the quadrant dividers `drag.quadrants` and `end.quadrants` with the
-      center as `{x, y}` and the axis moved.
+      `"paretoThreshold"`), and the browser event; a `perSeries` line adds
+      its series' id, the value being that series' own. A band's edges and
+      body fire `drag.referenceBand` and `end.referenceBand` with the band's
+      span (a moved rectangle, `{x, y}` spans), and the quadrant dividers
+      `drag.quadrants` and `end.quadrants` with the center as `{x, y}` and
+      the axis moved.
       @example
 {on: {"end.referenceLine": (value, line) => console.log(line.id, value)}}
   */
@@ -2957,8 +2959,8 @@ export interface D3plusConfig {
       `fill`/`fillOpacity` (default the text color at `0.08`), `stroke`,
       `strokeWidth`, `strokeOpacity`, and `layer: "front"` to draw over the
       data. A band widens a continuous axis's domain to fit. `draggable:
-      true` (or `{min, max, step}`) lets the reader drag each edge (see
-      `on`), never past the other.
+      true` (or `{min, max, step}`) lets the reader drag each edge, or the
+      whole band by its body (see `on`).
   */
   referenceBands?: ReferenceBandConfig[];
   /**

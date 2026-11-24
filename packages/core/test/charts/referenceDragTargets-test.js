@@ -4,7 +4,6 @@ import {scaleLinear, scalePoint, scaleTime} from "d3-scale";
 import {useJsdom} from "~test/jsdom.js";
 import {LinePlot} from "../../index.ts";
 import {
-  bandDragTargets,
   dateText,
   dragAxisOf,
   dragLit,
@@ -44,7 +43,6 @@ import {
   expandReferenceLines,
   REFERENCE_BAND,
   REFERENCE_LINE,
-  referenceBandNodes,
   referenceLineNodes,
 } from "../../src/charts/features/referenceAnnotations.ts";
 import {
@@ -180,14 +178,14 @@ it("plotAnnotationList: lines, bands, and annotations get sources; quadrants too
   assert.strictEqual(viz.annotations()[1].shape, "Rect");
 });
 
-it("draggableEntry: draggable, and not one line per series", () => {
+it("draggableEntry: any entry that sets draggable", () => {
   assert.ok(draggableEntry({y: 5, draggable: true}));
   assert.ok(
     draggableEntry({y: "mean", draggable: {step: 1}}),
     "statistics too",
   );
   assert.ok(!draggableEntry({y: 5}));
-  assert.ok(!draggableEntry({y: "mean", perSeries: true, draggable: true}));
+  assert.ok(draggableEntry({y: "mean", perSeries: true, draggable: true}));
   assert.ok(!draggableEntry(undefined));
 });
 
@@ -291,49 +289,6 @@ it("dragTarget: a category line snaps between categories, its range by category"
   assert.strictEqual(viz.referenceLines()[0].x, "d", "stores the category");
 });
 
-it("bandDragTargets: an edge per end in the plot, kept from passing the other", () => {
-  const viz = chart({
-    referenceBands: [{y: [10, 30], label: "Target", draggable: true}],
-  });
-  const annotation = {
-    shape: REFERENCE_BAND,
-    ...viz.schema.referenceBands[0],
-    [DRAG_SOURCE]: listSource(
-      "referenceBand",
-      "referenceBands",
-      () => viz.schema.referenceBands,
-      l => (viz.schema.referenceBands = l),
-      0,
-    ),
-  };
-  const box = {
-    x: 40,
-    y: yScale(30),
-    width: 400,
-    height: yScale(10) - yScale(30),
-  };
-  const [low, high] = bandDragTargets(viz, annotation, frame, box);
-  assert.strictEqual(low.id, "referenceBands-0-y-0");
-  assert.strictEqual(low.handleAt, yScale(10), "the bottom edge");
-  assert.strictEqual(high.handleAt, yScale(30));
-  assert.strictEqual(low.name, "Start of Target");
-  assert.strictEqual(high.name, "End of Target");
-  assert.deepStrictEqual(low.span, [40, 440]);
-  // Two pixels' worth apart: a pixel is 1/6 of a unit.
-  assert.ok(Math.abs(low.options.max - (30 - 1 / 3)) < 1e-6);
-  assert.ok(Math.abs(high.options.min - (10 + 1 / 3)) < 1e-6);
-  assert.strictEqual(low.grip, "end", "away from the label at the start");
-  assert.ok(setReferenceValue(viz, high, 40));
-  assert.deepStrictEqual(viz.referenceBands()[0].y, [10, 40]);
-  // An end outside the plot has no handle.
-  const off = {...annotation, y: [10, 80]};
-  assert.strictEqual(bandDragTargets(viz, off, frame, box).length, 1);
-  assert.deepStrictEqual(
-    bandDragTargets(viz, {shape: REFERENCE_BAND, y: [1, 2]}, frame, box),
-    [],
-  );
-});
-
 it("quadrantSource and quadrant dividers: each divider moves the center's x or y", () => {
   const viz = chart({quadrants: {x: "mean", y: 25, draggable: true}});
   const source = quadrantSource(viz, {x: 50, y: 25});
@@ -353,9 +308,10 @@ it("quadrantSource and quadrant dividers: each divider moves the center's x or y
     handles.map(n => n.key),
     ["reference-drag-quadrants-x", "reference-drag-quadrants-y"],
   );
-  assert.ok(
-    !nodes.some(n => n.type === "text"),
-    "no value labels on the dividers",
+  assert.deepStrictEqual(
+    nodes.filter(n => n.type === "text").map(n => n.lines[0].text),
+    ["50", "25"],
+    "each divider labeled with its value",
   );
   const [x, y] = [...referenceDragState(viz).targets.values()];
   assert.strictEqual(x.name, "Vertical divider");
@@ -628,25 +584,4 @@ it("referenceLineNodes: a draggable line is labeled with its value and has a gri
   );
   assert.strictEqual(lit.paint.strokeWidth, 2, "lit while hovered");
   assert.strictEqual(lit.paint.strokeOpacity, 1);
-});
-
-it("referenceBandNodes: a draggable band has a grip and handle per edge", () => {
-  const viz = chart({referenceBands: [{y: [10, 30], draggable: true}]});
-  const annotation = {
-    shape: REFERENCE_BAND,
-    y: [10, 30],
-    draggable: true,
-    [DRAG_SOURCE]: listSource(
-      "referenceBand",
-      "referenceBands",
-      () => viz.schema.referenceBands,
-      l => (viz.schema.referenceBands = l),
-      0,
-    ),
-  };
-  const nodes = referenceBandNodes(viz, annotation, frame, "b");
-  assert.deepStrictEqual(
-    nodes.map(n => n.type),
-    ["rect", "group", "htmlOverlay", "group", "htmlOverlay"],
-  );
 });

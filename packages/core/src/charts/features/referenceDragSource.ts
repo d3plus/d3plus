@@ -28,6 +28,9 @@ export interface DragSource {
 /** The internal key an annotation carries its drag source under. */
 export const DRAG_SOURCE = "_dragSource";
 
+/** The internal key a `perSeries` line's annotation carries its series under. */
+export const DRAG_SERIES = "_dragSeries";
+
 /** A setting that holds a list (or one entry) as a list. */
 export const asList = (setting: unknown): unknown[] =>
   Array.isArray(setting) ? setting : setting ? [setting] : [];

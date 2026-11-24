@@ -16,22 +16,22 @@ import {timeDay, utcDay} from "d3-time";
 
 import {reportHandlerError} from "../viz/reportHandlerError.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import type {BandBody} from "./referenceDragBand.js";
 import {
   axisPixel,
   isVertical,
   type AnnotationAxis,
   type AnnotationFrame,
 } from "./annotationFrame.js";
-import type {
-  Annotation,
-  AnnotationRef,
-  AnnotationValue,
-} from "./annotationTypes.js";
-import {DRAG_SOURCE, type DragSource} from "./referenceDragSource.js";
+import type {Annotation, AnnotationValue} from "./annotationTypes.js";
+import {
+  DRAG_SERIES,
+  DRAG_SOURCE,
+  type DragSource,
+} from "./referenceDragSource.js";
 import {
   categoryDragAxis,
   dragOptions,
-  invertPixel,
   pixelOf,
   type DragAxis,
 } from "./referenceDragValue.js";
@@ -52,6 +52,12 @@ export interface ReferenceDragTarget {
   axis: AnnotationAxis;
   /** Which end of a band's span it is, by its position in the setting. */
   edge?: 0 | 1;
+  /** A band edge's other end's value, which it crosses rather than lands on (unless `meets`). */
+  other?: number;
+  /** Whether a band edge may share its other end's value (a category axis of bars, whose ends take whole slots). */
+  meets?: boolean;
+  /** The series a `perSeries` line is drawn for. */
+  series?: string;
   /** Whether its value is a fraction of the plot (`ref: "plot"`). */
   plot: boolean;
   /** How values map to pixels along its axis. */
@@ -78,6 +84,8 @@ export interface ReferenceDragTarget {
 /** A chart's draggable targets, and which is lit (hovered, focused, or dragged), by id. */
 export interface ReferenceDragState {
   targets: Map<string, ReferenceDragTarget>;
+  /** The draggable bands' bodies, by id. */
+  bodies: Map<string, BandBody>;
   hover?: string;
   focus?: string;
   dragging?: string;
@@ -94,7 +102,8 @@ export interface ReferenceDragState {
 export function referenceDragState(viz: VizInstance): ReferenceDragState {
   const ctx = viz.ctx ?? (viz.ctx = {});
   let state = ctx.referenceDrag as ReferenceDragState | undefined;
-  if (!state) ctx.referenceDrag = state = {targets: new Map()};
+  if (!state)
+    ctx.referenceDrag = state = {targets: new Map(), bodies: new Map()};
   return state;
 }
 
@@ -104,14 +113,13 @@ export function dragLit(state: ReferenceDragState, id: string): boolean {
 }
 
 /**
-    Whether a setting's entry can be dragged: it sets `draggable` and isn't
-    one line per series.
+    Whether a setting's entry can be dragged: it sets `draggable`.
     @param entry The entry.
 */
 export function draggableEntry(
   entry: Record<string, unknown> | undefined,
 ): boolean {
-  return !!entry && !!dragOptions(entry.draggable) && !entry.perSeries;
+  return !!entry && !!dragOptions(entry.draggable);
 }
 
 /**
@@ -196,6 +204,7 @@ function optionsOf(axis: DragAxis, setting: unknown): DragOptions {
 export interface TargetSpot {
   axis: AnnotationAxis;
   edge?: 0 | 1;
+  series?: string;
   value: unknown;
   ref?: unknown;
   at: number;
@@ -227,16 +236,15 @@ export function dragTarget(
   if (!dragAxis) return null;
   const value = dragValue(dragAxis, spot.value);
   if (!Number.isFinite(value)) return null;
-  const axisFormat = !plot && axisOf(viz, axis)?._labelFormat;
-  const format = axisFormat || String;
-  const stored = storedValue(dragAxis, value);
   const {plot: p} = frame;
   const edge = spot.edge === undefined ? "" : `-${spot.edge}`;
+  const series = spot.series === undefined ? "" : `-s${spot.series}`;
   const target: ReferenceDragTarget = {
-    id: `${source.key}-${axis}${edge}`,
+    id: `${source.key}-${axis}${edge}${series}`,
     source,
     axis,
     ...(spot.edge === undefined ? {} : {edge: spot.edge}),
+    ...(spot.series === undefined ? {} : {series: spot.series}),
     plot,
     dragAxis,
     options: optionsOf(dragAxis, entry!.draggable),
@@ -247,7 +255,7 @@ export function dragTarget(
     grip: spot.grip,
     length: isVertical(axis) ? p.y1 - p.y0 : p.x1 - p.x0,
     name: spot.name,
-    text: dragAxis.time ? dateText(value, dragAxis.utc) : format(stored),
+    text: valueText(viz, axis, dragAxis, plot)(value),
   };
   referenceDragState(viz).targets.set(target.id, target);
   return target;
@@ -257,8 +265,27 @@ export function dragTarget(
 const axisOf = (viz: VizInstance, axis: AnnotationAxis) =>
   ({x: viz._xAxis, y: viz._yAxis, x2: viz._x2Axis, y2: viz._y2Axis})[axis];
 
+/**
+    How a value on a drag axis reads: a date with its year, or the value
+    (or category) as the axis writes it.
+    @param viz The chart.
+    @param axis The annotation axis.
+    @param dragAxis The drag axis.
+    @param plot Whether values are fractions of the plot.
+*/
+export function valueText(
+  viz: VizInstance,
+  axis: AnnotationAxis,
+  dragAxis: DragAxis,
+  plot: boolean,
+): (value: number) => string {
+  if (dragAxis.time) return v => dateText(v, dragAxis.utc);
+  const format = (!plot && axisOf(viz, axis)?._labelFormat) || String;
+  return v => format(storedValue(dragAxis, v));
+}
+
 /** A label that names something: a non-empty string. */
-const named = (label: unknown): string | undefined =>
+export const named = (label: unknown): string | undefined =>
   typeof label === "string" && label ? label : undefined;
 
 /**
@@ -281,8 +308,10 @@ export function lineDragTarget(
     source?.kind === "quadrants"
       ? t(isVertical(axis) ? "Horizontal divider" : "Vertical divider")
       : (named(annotation.label) ?? t("Reference line"));
+  const series = annotation[DRAG_SERIES];
   return dragTarget(viz, source, frame, {
     axis,
+    ...(typeof series === "string" ? {series} : {}),
     value: annotation[axis],
     ref: annotation.ref,
     at: line.at,
@@ -294,108 +323,40 @@ export function lineDragTarget(
   });
 }
 
-const AXES: AnnotationAxis[] = ["x", "y", "x2", "y2"];
-
 /**
-    The drag targets of a painted reference band's edges: each end of each
-    span it sets that lies in the plot, kept from passing the span's other
-    end (by a step, a category on a category axis of points, or two
-    pixels' worth).
-    @param viz The chart.
-    @param annotation The resolved band annotation.
-    @param frame The plot area and its axes.
-    @param box The band's rect.
+    Runs the chart's `drag.<kind>` or `end.<kind>` handler for a source with
+    a value, the setting's entry, an index, the browser event, and (for a
+    `perSeries` line) the series.
 */
-export function bandDragTargets(
+export function fireDragEvent(
   viz: VizInstance,
-  annotation: Annotation,
-  frame: AnnotationFrame,
-  box: {x: number; y: number; width: number; height: number},
-): ReferenceDragTarget[] {
-  const source = annotation[DRAG_SOURCE] as DragSource | undefined;
-  if (!source) return [];
-  const t = viz.schema.translate;
-  const band = named(annotation.label) ?? t("Reference band");
-  const out: ReferenceDragTarget[] = [];
-  for (const axis of AXES) {
-    const values = annotation[axis];
-    if (!Array.isArray(values) || values.length < 2) continue;
-    const vertical = isVertical(axis);
-    const ref = annotation.ref as AnnotationRef | undefined;
-    const px = [0, 1].map(e => axisPixel(frame, axis, values[e], ref));
-    const lo = vertical ? box.y : box.x;
-    const hi = lo + (vertical ? box.height : box.width);
-    const span: [number, number] = vertical
-      ? [box.x, box.x + box.width]
-      : [box.y, box.y + box.height];
-    const {plot} = frame;
-    const [p0, p1] = vertical ? [plot.y0, plot.y1] : [plot.x0, plot.x1];
-    for (const edge of [0, 1] as const) {
-      const at = px[edge],
-        other = px[1 - edge];
-      if (!Number.isFinite(at) || at < p0 - 0.5 || at > p1 + 0.5) continue;
-      const near = at < other || (at === other && edge === 0);
-      const target = dragTarget(viz, source, frame, {
-        axis,
-        edge,
-        value: values[edge],
-        ref,
-        at,
-        handleAt: near ? lo : hi,
-        span,
-        grip: annotation.labelPosition === "end" ? "start" : "end",
-        name: "",
-      });
-      if (!target) continue;
-      const otherValue = dragValue(target.dragAxis, values[1 - edge]);
-      const start =
-        target.value < otherValue ||
-        (target.value === otherValue && edge === 0);
-      keepApart(target, otherValue, start, frame);
-      target.name = t(start ? "Start of {0}" : "End of {0}", undefined, band);
-      out.push(target);
-    }
-  }
-  return out;
-}
-
-/**
-    Narrows a band edge's range so it can't pass the span's other end.
-    @param target The edge.
-    @param other The other end's value.
-    @param start Whether the edge is the span's lower end.
-    @param frame The plot area and its axes.
-*/
-function keepApart(
-  target: ReferenceDragTarget,
-  other: number,
-  start: boolean,
-  frame: AnnotationFrame,
+  type: "drag" | "end",
+  source: DragSource,
+  value: (entry: Record<string, unknown>) => unknown,
+  index: unknown,
+  event?: Event,
+  series?: string,
 ): void {
-  const {dragAxis: axis, options, value} = target;
-  if (!Number.isFinite(other)) return;
-  const slots = !!frame.axes[target.axis]?.slots;
-  const gap = axis.categories
-    ? slots
-      ? 0
-      : 1
-    : (options.step ??
-      Math.abs(
-        invertPixel(axis, target.at + 2) - invertPixel(axis, target.at),
-      ));
-  if (start)
-    options.max = Math.max(value, Math.min(options.max ?? other, other - gap));
-  else
-    options.min = Math.min(value, Math.max(options.min ?? other, other + gap));
+  const handler = viz.schema.on?.[`${type}.${source.kind}`] as unknown;
+  const entry = source.entry();
+  if (typeof handler !== "function" || !entry) return;
+  const args = [value(entry), entry, index, event];
+  if (series !== undefined) args.push(series);
+  try {
+    handler.call(viz, ...args);
+  } catch (error) {
+    reportHandlerError(error);
+  }
 }
 
 /**
     Runs the chart's handler for a target's `drag.<kind>` or `end.<kind>`
     event with its value (a Date on a time axis, a category on a category
-    axis; a band's whole span; the quadrants' `{x, y}` center), its
-    setting's entry, its index (its position in its list, the setting's
-    name, or the axis a quadrant divider moved), and the browser event
-    behind it.
+    axis; a band's whole span; the quadrants' `{x, y}` center; a
+    `perSeries` line's own series' value), its setting's entry, its index
+    (its position in its list, the setting's name, or the axis a quadrant
+    divider moved), the browser event behind it, and a `perSeries` line's
+    series.
 */
 export function fireReferenceEvent(
   viz: VizInstance,
@@ -403,20 +364,17 @@ export function fireReferenceEvent(
   target: ReferenceDragTarget,
   event?: Event,
 ): void {
-  const {source} = target;
-  const handler = viz.schema.on?.[`${type}.${source.kind}`] as unknown;
-  const entry = source.entry();
-  if (typeof handler !== "function" || !entry) return;
-  const value = source.payload
-    ? source.payload(entry, target.axis)
-    : entry[target.axis];
+  const {axis, series, source} = target;
+  const value = (entry: Record<string, unknown>) => {
+    if (series !== undefined)
+      return (entry.seriesValues as Record<string, unknown> | undefined)?.[
+        series
+      ];
+    return source.payload ? source.payload(entry, axis) : entry[axis];
+  };
   // A quadrant divider reports the axis it moved.
-  const index = source.kind === "quadrants" ? target.axis : source.index;
-  try {
-    handler.call(viz, value, entry, index, event);
-  } catch (error) {
-    reportHandlerError(error);
-  }
+  const index = source.kind === "quadrants" ? axis : source.index;
+  fireDragEvent(viz, type, source, value, index, event, series);
 }
 
 /**
@@ -466,13 +424,24 @@ export function setReferenceValue(
 ): boolean {
   const entry = target.source.entry();
   if (!entry || !Number.isFinite(value) || value === target.value) return false;
+  // A band edge crosses its other end rather than landing on it.
+  if (value === target.other && !target.meets) return false;
   const stored = storedValue(target.dragAxis, value);
   const next: Record<string, unknown> = {...entry};
   if (target.edge !== undefined) {
     const span = entry[target.axis];
     const pair = Array.isArray(span) ? span.slice() : [];
     pair[target.edge] = stored;
+    // Crossing its other end, the edge takes that end's place in the span.
+    const other = target.other ?? NaN;
+    if ((target.value - other) * (value - other) < 0) {
+      pair.reverse();
+      target.edge = target.edge ? 0 : 1;
+    }
     next[target.axis] = pair;
+  } else if (target.series !== undefined) {
+    const own = (entry.seriesValues ?? {}) as Record<string, unknown>;
+    next.seriesValues = {...own, [target.series]: stored};
   } else next[target.axis] = stored;
   target.source.write(next);
   const at = pixelOf(target.dragAxis, value);

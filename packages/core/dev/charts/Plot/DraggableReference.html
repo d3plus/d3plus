@@ -5,7 +5,7 @@
     <title>Draggable Reference Lines · Plot</title>
     <meta
       name="description"
-      content="Reference lines, band edges, and quadrant dividers the reader drags (or moves with the arrow keys), each marked by a grip: a target that recolors bars through a valueColors threshold, a line that highlights the points above it, a date line kept inside a range, a zoomable plot, a mean that becomes a fixed value, a line snapping between categories, a target range, quadrants, Pareto's threshold, Gantt's today line, small multiples, and the drag and end events they fire."
+      content="Reference lines, band edges, and quadrant dividers the reader drags (or moves with the arrow keys), each marked by a grip: a target that recolors bars through a valueColors threshold, a line that highlights the points above it, a date line kept inside a range, a zoomable plot, a mean that becomes a fixed value, a mean per series dragged on its own, a line snapping between categories, a target range whose edges cross and whose body moves it whole, a rectangle moved on both axes, quadrants labeled with their values, Pareto's threshold, Gantt's today line, small multiples, and the drag and end events they fire."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -76,6 +76,14 @@
       <div>
         <h3>Gantt: drag the "today" line</h3>
         <div class="viz" id="gantt"></div>
+      </div>
+      <div>
+        <h3>LinePlot: each series' mean drags on its own (perSeries)</h3>
+        <div class="viz" id="series"></div>
+      </div>
+      <div>
+        <h3>Scatter: drag inside the rectangle to move it, or its edges</h3>
+        <div class="viz" id="rect"></div>
       </div>
       <div class="wide">
         <h3>Small multiples: one line, dragged in any panel</h3>
@@ -212,6 +220,36 @@
         .quadrants({draggable: {step: 1}, topRight: {label: "Leaders"}})
         .on("end.referenceBand", report("end", "referenceBand"))
         .on("end.quadrants", report("end", "quadrants"))
+        .render();
+
+      new d3plus.LinePlot()
+        .select("#series")
+        .data(series)
+        .groupBy("id")
+        .referenceLines([
+          {y: "mean", perSeries: true, draggable: {step: 1}, dash: true},
+        ])
+        .on("end.referenceLine", (value, entry, index, event, id) => {
+          log.textContent = `end.referenceLine ${index} (${id}): ${value} — seriesValues ${JSON.stringify(entry.seriesValues)}`;
+        })
+        .render();
+
+      new d3plus.Plot()
+        .select("#rect")
+        .data(points)
+        .groupBy("id")
+        .legend(false)
+        .referenceBands([
+          {
+            x: [20, 50],
+            y: [30, 60],
+            label: "Focus",
+            fill: "#1c7ed6",
+            draggable: {step: 1},
+          },
+        ])
+        .on("drag.referenceBand", report("drag", "referenceBand"))
+        .on("end.referenceBand", report("end", "referenceBand"))
         .render();
 
       new d3plus.Pareto()

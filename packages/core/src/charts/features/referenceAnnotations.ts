@@ -28,12 +28,9 @@ import {
 } from "./annotationText.js";
 import type {Annotation, AnnotationRef} from "./annotationTypes.js";
 import type {Box} from "./calloutLayout.js";
-import {
-  bandDragTargets,
-  dragLit,
-  lineDragTarget,
-  referenceDragState,
-} from "./referenceDrag.js";
+import {dragLit, lineDragTarget, referenceDragState} from "./referenceDrag.js";
+import {bandBody, bandDragTargets} from "./referenceDragBand.js";
+import {bodyNodes} from "./referenceDragBody.js";
 import {dragNodes} from "./referenceDragGrip.js";
 import {DRAG_SOURCE, type DragSource} from "./referenceDragSource.js";
 import {registerLabelSpots, type LabelSpot} from "./referenceLabelPlacement.js";
@@ -274,12 +271,8 @@ export function referenceLineNodes(
   const line = referenceLinePoints(frame, annotation);
   if (!line) return [];
   const drag = lineDragTarget(viz, annotation, frame, line);
-  // A draggable reference line is labeled with its value unless it has a label.
-  if (
-    drag?.source.kind === "referenceLine" &&
-    annotation.label === undefined &&
-    !drag.plot
-  )
+  // A draggable line (or quadrant divider) is labeled with its value unless it has a label.
+  if (drag && annotation.label === undefined && !drag.plot)
     annotation = {...annotation, label: drag.text};
   const lit = drag && dragLit(referenceDragState(viz), drag.id);
   const style = annotationTextStyle(viz, k => annotation[k]);
@@ -337,10 +330,13 @@ export function referenceBandNodes(
 ): SceneNode[] {
   const band = referenceBandRect(frame, annotation);
   if (!band) return [];
+  const body = bandBody(viz, annotation, frame, band.box);
+  // A band moved whole (or focused to be) shades a little deeper.
+  const lit = !!body && dragLit(referenceDragState(viz), body.id);
   const style = annotationTextStyle(viz, k => annotation[k]);
   const paint: Paint = {
     fill: (annotation.fill as string) || style.fontColor,
-    fillOpacity: num(annotation.fillOpacity, 0.08),
+    fillOpacity: num(annotation.fillOpacity, 0.08) * (lit ? 2 : 1),
   };
   if (annotation.stroke) {
     paint.stroke = annotation.stroke as string;
@@ -366,6 +362,7 @@ export function referenceBandNodes(
   );
   if (label) out.push(label);
   const edge = (annotation.stroke as string) || paint.fill!;
+  if (body) out.push(...bodyNodes(viz, body, edge, key));
   for (const target of bandDragTargets(viz, annotation, frame, band.box))
     out.push(...dragNodes(viz, target, edge, key));
   return out;

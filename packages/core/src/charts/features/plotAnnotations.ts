@@ -182,7 +182,9 @@ export function emitAnnotations(
   const all = plotAnnotationList(viz);
   collectReferenceHighlight(viz, all);
   // The draggable lines register again as they paint.
-  referenceDragState(viz).targets.clear();
+  const drag = referenceDragState(viz);
+  drag.targets.clear();
+  drag.bodies.clear();
 
   Object.keys(viz._previousAnnotations!).forEach(layer => {
     const annotationData = all.filter(d => annotationLayer(d) === layer);
