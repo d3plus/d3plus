@@ -1,49 +1,23 @@
 import {it} from "vitest";
 import assert from "assert";
 import {scaleLinear, scaleLog, scaleTime} from "d3-scale";
-import {useJsdom} from "~test/jsdom.js";
-import {LinePlot} from "../../index.ts";
 import {
+  categoryDragAxis,
   clampValue,
   dragOptions,
   dragRange,
   invertPixel,
   keyValue,
+  pixelOf,
   pixelPrecision,
   roundToPixel,
   snapToStep,
   valueAtPixel,
 } from "../../src/charts/features/referenceDragValue.ts";
-import {
-  dateText,
-  DRAG_INDEX,
-  dragLit,
-  draggableEntry,
-  fireReferenceEvent,
-  referenceDragState,
-  referenceDragTarget,
-  scheduleDragRepaint,
-  setReferenceValue,
-} from "../../src/charts/features/referenceDrag.ts";
-import {
-  HANDLE_CLASS,
-  HANDLE_SIZE,
-  pressStartsDrag,
-  referenceDragHandle,
-  syncHandle,
-} from "../../src/charts/features/referenceDragHandle.ts";
-import {
-  expandReferenceLines,
-  REFERENCE_LINE,
-  referenceLineNodes,
-} from "../../src/charts/features/referenceAnnotations.ts";
 import {linkedValues} from "../../src/charts/Plot/valueColors.ts";
 
-useJsdom();
-
-// Draggable reference lines: the values a pixel or a key moves a line to,
-// the drag target a painted line registers, writing a moved value back,
-// and the handle it is moved by.
+// Draggable reference annotations: the values a pixel or a key moves a
+// line to, and the valueColors thresholds that name a line.
 
 // y 0..50 drawn from 310 (bottom) up to 10.
 const yScale = scaleLinear().domain([0, 50]).range([310, 10]);
@@ -140,298 +114,48 @@ it("keyValue: arrows step, Page keys ten steps, Home and End the ends", () => {
   );
 });
 
-it("expandReferenceLines: indexed, a draggable entry keeps its place", () => {
-  const lines = expandReferenceLines(
-    [{y: 1}, null, {y: 2, draggable: true}],
-    true,
+it("pixelOf: a value's pixel, a date's time read as a date", () => {
+  assert.strictEqual(pixelOf(yAxis, 25), 160);
+  const t0 = Date.UTC(2020, 0, 1);
+  const time = scaleTime()
+    .domain([t0, t0 + 100])
+    .range([0, 100]);
+  const seen = [];
+  pixelOf(
+    {scale: v => (seen.push(v), time(v)), domain: [t0, t0 + 100], time: true},
+    t0 + 50,
   );
-  assert.strictEqual(lines.length, 2);
-  assert.strictEqual(lines[0][DRAG_INDEX], undefined);
-  assert.strictEqual(lines[1][DRAG_INDEX], 2);
+  assert.ok(seen[0] instanceof Date);
+});
+
+it("categoryDragAxis: categories ordered so a rising value moves right or up", () => {
+  const px = {a: 100, b: 200, c: 300};
+  const across = categoryDragAxis(
+    ["c", "a", "b", "z"],
+    c => px[c] ?? NaN,
+    false,
+  );
+  assert.deepStrictEqual(
+    across.categories,
+    ["a", "b", "c"],
+    "unplaced dropped",
+  );
+  assert.deepStrictEqual(across.domain, [0, 2]);
+  assert.strictEqual(across.scale(1), 200);
+  assert.strictEqual(across.scale(1.5), 250, "between neighbors");
+  assert.strictEqual(across.scale(9), 300, "clamped");
+  // On a vertical axis pixels run down, so up is the smaller pixel.
+  const up = categoryDragAxis(["a", "b", "c"], c => px[c], true);
+  assert.deepStrictEqual(up.categories, ["c", "b", "a"]);
+  assert.strictEqual(valueAtPixel(up, 190, {step: 1}), 1, "snaps to b");
   assert.strictEqual(
-    expandReferenceLines([{y: 2, draggable: true}])[0][DRAG_INDEX],
-    undefined,
-    "not the chart's own lines",
+    keyValue("ArrowUp", up, {value: 1, px: 200}, 300, {step: 1}),
+    2,
   );
-});
-
-it("draggableEntry: a value of its own, not a statistic, function, or per-series line", () => {
-  assert.ok(draggableEntry({y: 5, draggable: true}, "y"));
-  assert.ok(!draggableEntry({y: 5}, "y"));
-  assert.ok(!draggableEntry({y: "mean", draggable: true}, "y"));
-  assert.ok(!draggableEntry({y: () => 3, draggable: true}, "y"));
-  assert.ok(!draggableEntry({y: 3, perSeries: true, draggable: true}, "y"));
-  assert.ok(!draggableEntry(undefined, "y"));
-});
-
-it("dateText: a day's start without its time, anything else with it", () => {
-  assert.strictEqual(dateText(Date.UTC(2022, 6, 26), true), "Jul 26, 2022");
-  assert.match(dateText(Date.UTC(2022, 6, 26, 15, 30), true), /3:30/);
-});
-
-// A 400×300 plot at (40, 10): x 0..100 → 40..440, y 0..50 → 310..10.
-const frame = {
-  plot: {x0: 40, y0: 10, x1: 440, y1: 310},
-  axes: {
-    x: {
-      scale: scaleLinear().domain([0, 100]).range([40, 440]),
-      domain: [0, 100],
-    },
-    y: {scale: v => yScale(v), domain: [0, 50]},
-  },
-};
-const line = {axis: "y", at: 160, span: [40, 440]};
-
-/** A LinePlot whose `referenceLines` are `lines`, its handlers `on`. */
-function chart(lines, on = {}) {
-  const viz = new LinePlot().referenceLines(lines);
-  for (const [k, fn] of Object.entries(on)) viz.on(k, fn);
-  viz._repaints = 0;
-  viz._repaintPlot = () => ++viz._repaints;
-  return viz;
-}
-
-it("referenceDragTarget: registers a draggable line's place, value, and name", () => {
-  const viz = chart([{y: 25, draggable: {step: 1}, label: "Goal"}]);
-  const annotation = {
-    shape: REFERENCE_LINE,
-    y: 25,
-    label: "Goal",
-    [DRAG_INDEX]: 0,
-  };
-  const target = referenceDragTarget(viz, annotation, frame, line);
-  assert.strictEqual(target.index, 0);
-  assert.strictEqual(target.value, 25);
-  assert.strictEqual(target.length, 300);
-  assert.strictEqual(target.name, "Goal");
-  assert.deepStrictEqual(target.options, {
-    min: undefined,
-    max: undefined,
-    step: 1,
-  });
-  assert.strictEqual(referenceDragState(viz).targets.get(0), target);
-  const unnamed = referenceDragTarget(
-    viz,
-    {...annotation, label: undefined},
-    frame,
-    line,
-  );
-  assert.strictEqual(unnamed.name, "Reference line");
-  // Not one of the chart's own draggable lines, a category axis, or a facet panel.
   assert.strictEqual(
-    referenceDragTarget(viz, {shape: REFERENCE_LINE, y: 25}, frame, line),
+    categoryDragAxis(["a"], () => NaN, false),
     null,
   );
-  const categories = {...frame, axes: {y: {scale: () => 0, categories: ["a"]}}};
-  assert.strictEqual(
-    referenceDragTarget(viz, annotation, categories, line),
-    null,
-  );
-  viz._facetStep = "panel";
-  assert.strictEqual(referenceDragTarget(viz, annotation, frame, line), null);
-});
-
-it("referenceDragTarget: a plot-relative line moves over 0 to 1", () => {
-  const viz = chart([{y: 0.5, ref: "plot", draggable: true}]);
-  const target = referenceDragTarget(
-    viz,
-    {shape: REFERENCE_LINE, y: 0.5, ref: "plot", [DRAG_INDEX]: 0},
-    frame,
-    line,
-  );
-  assert.ok(target.plot);
-  assert.deepStrictEqual(target.dragAxis.domain, [0, 1]);
-  assert.strictEqual(target.dragAxis.scale(0.5), 160);
-});
-
-it("setReferenceValue: writes the entry, fires drag, and repaints", () => {
-  const events = [];
-  const viz = chart([{y: 1}, {y: 25, id: "goal", draggable: true}], {
-    "drag.referenceLine": (...args) => events.push(["drag", ...args]),
-    "end.referenceLine": (...args) => events.push(["end", ...args]),
-  });
-  const original = viz.referenceLines();
-  referenceDragTarget(
-    viz,
-    {shape: REFERENCE_LINE, y: 25, [DRAG_INDEX]: 1},
-    frame,
-    line,
-  );
-  assert.ok(setReferenceValue(viz, 1, 30));
-  assert.strictEqual(viz.referenceLines()[1].y, 30);
-  assert.strictEqual(viz.referenceLines()[1].id, "goal");
-  assert.strictEqual(original[1].y, 25, "the given entry is left alone");
-  assert.strictEqual(referenceDragState(viz).targets.get(1).at, yScale(30));
-  assert.strictEqual(events.length, 1);
-  assert.strictEqual(events[0][0], "drag");
-  assert.strictEqual(events[0][1], 30);
-  assert.strictEqual(events[0][2].id, "goal");
-  assert.strictEqual(events[0][3], 1);
-  assert.strictEqual(viz._repaints, 1, "no animation frame here: at once");
-  assert.ok(!setReferenceValue(viz, 1, 30), "the same value");
-  assert.ok(!setReferenceValue(viz, 1, NaN));
-  assert.ok(!setReferenceValue(viz, 0, 3), "not a draggable line");
-  fireReferenceEvent(viz, "end", 1);
-  assert.strictEqual(events[1][0], "end");
-  assert.strictEqual(events[1][1], 30);
-});
-
-it("setReferenceValue: a time axis line stores a Date", () => {
-  const t0 = Date.UTC(2020, 0, 1),
-    t1 = Date.UTC(2021, 0, 1);
-  const time = scaleTime().domain([t0, t1]).range([40, 440]);
-  const timeFrame = {
-    ...frame,
-    axes: {x: {scale: time, domain: [t0, t1], time: true, utc: true}},
-  };
-  const viz = chart([{x: "2020-06-01", draggable: true}]);
-  const target = referenceDragTarget(
-    viz,
-    {shape: REFERENCE_LINE, x: "2020-06-01", [DRAG_INDEX]: 0},
-    timeFrame,
-    {axis: "x", at: 200, span: [10, 310]},
-  );
-  assert.strictEqual(target.value, Date.UTC(2020, 5, 1));
-  assert.strictEqual(target.text, "Jun 1, 2020");
-  setReferenceValue(viz, 0, Date.UTC(2020, 6, 1));
-  assert.ok(viz.referenceLines()[0].x instanceof Date);
-  assert.strictEqual(+viz.referenceLines()[0].x, Date.UTC(2020, 6, 1));
-});
-
-it("fireReferenceEvent: a throwing handler doesn't stop the drag", () => {
-  const viz = chart([{y: 25, draggable: true}], {
-    "drag.referenceLine": () => {
-      throw new Error("handler");
-    },
-  });
-  referenceDragTarget(
-    viz,
-    {shape: REFERENCE_LINE, y: 25, [DRAG_INDEX]: 0},
-    frame,
-    line,
-  );
-  const report = console.error;
-  console.error = () => {};
-  try {
-    assert.ok(setReferenceValue(viz, 0, 20));
-  } finally {
-    console.error = report;
-  }
-  assert.strictEqual(viz.referenceLines()[0].y, 20);
-});
-
-it("scheduleDragRepaint: one repaint per animation frame", async () => {
-  const viz = chart([]);
-  const raf = globalThis.requestAnimationFrame;
-  const frames = [];
-  globalThis.requestAnimationFrame = fn => frames.push(fn);
-  try {
-    scheduleDragRepaint(viz);
-    scheduleDragRepaint(viz);
-    assert.strictEqual(frames.length, 1);
-    assert.strictEqual(viz._repaints, 0);
-    frames[0]();
-    assert.strictEqual(viz._repaints, 1);
-    scheduleDragRepaint(viz);
-    assert.strictEqual(frames.length, 2, "a new frame once it ran");
-  } finally {
-    globalThis.requestAnimationFrame = raf;
-  }
-});
-
-it("dragLit: hovered, focused, or dragged", () => {
-  const state = {targets: new Map()};
-  assert.ok(!dragLit(state, 0));
-  assert.ok(dragLit({...state, hover: 0}, 0));
-  assert.ok(dragLit({...state, focus: 0}, 0));
-  assert.ok(dragLit({...state, dragging: 0}, 0));
-  assert.ok(!dragLit({...state, dragging: 1}, 0));
-});
-
-it("pressStartsDrag: one finger, or the primary button without modifiers", () => {
-  const mouse = (o = {}) => new MouseEvent("mousedown", o);
-  assert.ok(pressStartsDrag(mouse()));
-  assert.ok(!pressStartsDrag(mouse({button: 2})));
-  assert.ok(!pressStartsDrag(mouse({shiftKey: true})));
-  const touch = n => ({type: "touchstart", touches: {length: n}});
-  assert.ok(pressStartsDrag(touch(1)));
-  assert.ok(!pressStartsDrag(touch(2)));
-});
-
-it("referenceDragHandle: a slider strip centered on the line", () => {
-  const viz = chart([{y: 25, draggable: true}]);
-  const target = referenceDragTarget(
-    viz,
-    {shape: REFERENCE_LINE, y: 25, [DRAG_INDEX]: 0},
-    frame,
-    line,
-  );
-  const node = referenceDragHandle(viz, target);
-  assert.strictEqual(node.type, "htmlOverlay");
-  assert.strictEqual(node.key, "reference-drag-0");
-  assert.deepStrictEqual(
-    [node.x, node.y, node.width, node.height],
-    [40, 160 - HANDLE_SIZE / 2, 400, HANDLE_SIZE],
-  );
-  assert.match(node.html, /role="slider"/);
-  assert.match(node.html, /aria-orientation="vertical"/);
-  assert.match(node.html, /cursor:ns-resize/);
-  const vertical = referenceDragHandle(viz, {
-    ...target,
-    axis: "x",
-    at: 200,
-    span: [10, 310],
-  });
-  assert.deepStrictEqual(
-    [vertical.x, vertical.y, vertical.width, vertical.height],
-    [200 - HANDLE_SIZE / 2, 10, HANDLE_SIZE, 300],
-  );
-  assert.match(vertical.html, /aria-orientation="horizontal"/);
-});
-
-it("syncHandle: writes the slider's name, range, and value", () => {
-  const viz = chart([{y: 25, draggable: {min: 5}}]);
-  const target = referenceDragTarget(
-    viz,
-    {shape: REFERENCE_LINE, y: 25, label: "Goal", [DRAG_INDEX]: 0},
-    frame,
-    line,
-  );
-  const el = document.createElement("div");
-  el.innerHTML = `<div class="${HANDLE_CLASS}"></div>`;
-  syncHandle(el, target);
-  const handle = el.firstChild;
-  assert.strictEqual(handle.getAttribute("aria-label"), "Goal");
-  assert.strictEqual(handle.getAttribute("aria-valuemin"), "5");
-  assert.strictEqual(handle.getAttribute("aria-valuemax"), "50");
-  assert.strictEqual(handle.getAttribute("aria-valuenow"), "25");
-  assert.strictEqual(handle.getAttribute("aria-valuetext"), "25");
-  syncHandle(document.createElement("div"), target);
-});
-
-it("referenceLineNodes: a draggable line is labeled with its value and has a handle", () => {
-  const viz = chart([{y: 25, draggable: true}]);
-  const nodes = referenceLineNodes(
-    viz,
-    {shape: REFERENCE_LINE, y: 25, [DRAG_INDEX]: 0},
-    frame,
-    "r",
-  );
-  assert.deepStrictEqual(
-    nodes.map(n => n.type),
-    ["line", "text", "htmlOverlay"],
-  );
-  assert.strictEqual(nodes[1].lines[0].text, "25");
-  assert.strictEqual(nodes[0].paint.strokeWidth, 1);
-  referenceDragState(viz).hover = 0;
-  const [lit] = referenceLineNodes(
-    viz,
-    {shape: REFERENCE_LINE, y: 25, label: false, [DRAG_INDEX]: 0},
-    frame,
-    "r",
-  );
-  assert.strictEqual(lit.paint.strokeWidth, 2, "lit while hovered");
-  assert.strictEqual(lit.paint.strokeOpacity, 1);
 });
 
 it("linkedValues: a line's id stands for its value", () => {

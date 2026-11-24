@@ -1,11 +1,12 @@
 /**
-    The handle a draggable reference line is moved by: a strip of HTML laid
-    over the line (so SVG and Canvas charts take it alike), a slider to
-    assistive technology. A press on it drags the line with the mouse or
-    one finger, never panning the chart; the arrow keys move a focused line
-    a step, Page Up and Page Down ten, and Home and End to the ends of its
-    range, each announced as the slider's new value. Hovering, focusing, or
-    dragging the line lights it.
+    The handle a draggable reference line, band edge, or quadrant divider
+    is moved by: a strip of HTML laid over it (so SVG and Canvas charts
+    take it alike), a slider to assistive technology. A press on it drags
+    with the mouse or one finger, never panning the chart; the arrow keys
+    move a focused one a step, Page Up and Page Down ten, and Home and End
+    to the ends of its range, each announced as the slider's new value.
+    Letting go (of the pointer, or the key) fires `end.<kind>` and redraws
+    the chart. Hovering, focusing, or dragging lights it.
 */
 import {zoomIdentity} from "d3-zoom";
 import type {HtmlOverlayNode} from "@d3plus/render";
@@ -21,6 +22,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {isVertical} from "./annotationFrame.js";
 import {
   fireReferenceEvent,
+  redrawAfterDrag,
   referenceDragState,
   scheduleDragRepaint,
   setReferenceValue,
@@ -42,26 +44,39 @@ export function pressStartsDrag(event: Event): boolean {
   return !e.button && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey;
 }
 
-/** Lights or unlights a line, repainting when that changes. */
+/** Lights or unlights a target, repainting when that changes. */
 function light(
   viz: VizInstance,
   key: "hover" | "focus",
-  index: number | undefined,
+  id: string | undefined,
 ): void {
   const state = referenceDragState(viz);
-  if (state[key] === index) return;
-  state[key] = index;
+  if (state[key] === id) return;
+  state[key] = id;
   scheduleDragRepaint(viz);
 }
 
-/** Follows a press on a line's handle until it lets go. */
-function press(viz: VizInstance, index: number, event: Event): void {
+/** A target settles: fires `end.<kind>` and redraws the chart, refitting its axes. */
+function settle(
+  viz: VizInstance,
+  target: ReferenceDragTarget,
+  event?: Event,
+): void {
+  fireReferenceEvent(viz, "end", target, event);
+  redrawAfterDrag(viz);
+}
+
+/** Follows a press on a target's handle until it lets go. */
+function press(
+  viz: VizInstance,
+  target: ReferenceDragTarget,
+  event: Event,
+): void {
   const state = referenceDragState(viz);
-  const target = state.targets.get(index);
   const origin = clientPoint(event);
-  if (!target || !origin || state.dragging !== undefined) return;
+  if (!origin || state.dragging !== undefined) return;
   if (!pressStartsDrag(event)) return;
-  // The press is the line's: no text selection, focus, zoom, or scroll.
+  // The press is the target's: no text selection, focus, zoom, or scroll.
   event.preventDefault();
   event.stopPropagation();
   const touch = event.type === "touchstart";
@@ -69,7 +84,7 @@ function press(viz: VizInstance, index: number, event: Event): void {
   const from = target.at;
   const vertical = isVertical(target.axis);
   let moved = false;
-  state.dragging = index;
+  state.dragging = target.id;
   scheduleDragRepaint(viz);
   gestureHoverStart(viz, {transform: zoomIdentity, sourceEvent: event});
   const move = (e: Event): void => {
@@ -78,7 +93,7 @@ function press(viz: VizInstance, index: number, event: Event): void {
     if (e.cancelable) e.preventDefault();
     const px = from + (vertical ? at[1] - origin[1] : at[0] - origin[0]);
     const value = valueAtPixel(target.dragAxis, px, target.options);
-    if (!setReferenceValue(viz, index, value, e)) return;
+    if (!setReferenceValue(viz, target, value, e)) return;
     if (!moved)
       gestureHoverMove(viz, {transform: zoomIdentity, sourceEvent: e});
     moved = true;
@@ -90,20 +105,25 @@ function press(viz: VizInstance, index: number, event: Event): void {
     for (const type of endTypes) view.removeEventListener(type, end, true);
     state.dragging = undefined;
     gestureHoverEnd(viz);
-    scheduleDragRepaint(viz);
-    if (!moved) return;
-    fireReferenceEvent(viz, "end", index, e);
+    if (!moved) {
+      scheduleDragRepaint(viz);
+      return;
+    }
+    settle(viz, target, e);
     if (!touch) suppressClick(view);
   };
   view.addEventListener(moveType, move, {capture: true, passive: false});
   for (const type of endTypes) view.addEventListener(type, end, true);
 }
 
-/** Moves a focused line for a key press. */
-function keydown(viz: VizInstance, index: number, event: Event): void {
-  const target = referenceDragState(viz).targets.get(index);
+/** Moves a focused target for a key press. */
+function keydown(
+  viz: VizInstance,
+  target: ReferenceDragTarget,
+  event: Event,
+): void {
   const e = event as KeyboardEvent;
-  if (!target || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
   const next = keyValue(
     e.key,
     target.dragAxis,
@@ -114,14 +134,26 @@ function keydown(viz: VizInstance, index: number, event: Event): void {
   if (next === null) return;
   e.preventDefault();
   e.stopPropagation();
-  if (setReferenceValue(viz, index, next, e))
-    fireReferenceEvent(viz, "end", index, e);
+  if (setReferenceValue(viz, target, next, e))
+    referenceDragState(viz).keyed = target.id;
+}
+
+/** Settles a target the keys moved, once the key is let go (or focus leaves it). */
+function keyup(
+  viz: VizInstance,
+  target: ReferenceDragTarget,
+  event: Event,
+): void {
+  const state = referenceDragState(viz);
+  if (state.keyed !== target.id) return;
+  state.keyed = undefined;
+  settle(viz, target, event);
 }
 
 /**
-    Writes a line's current value and name onto its handle's slider.
+    Writes a target's current value and name onto its handle's slider.
     @param el The overlay's host element.
-    @param target The line.
+    @param target The target.
 */
 export function syncHandle(el: HTMLElement, target: ReferenceDragTarget): void {
   const handle = el.querySelector(`.${HANDLE_CLASS}`);
@@ -139,17 +171,17 @@ export function syncHandle(el: HTMLElement, target: ReferenceDragTarget): void {
 }
 
 /**
-    The handle of a draggable line: a strip `HANDLE_SIZE` pixels across,
-    centered on the line and as long as it.
+    The handle of a draggable target: a strip `HANDLE_SIZE` pixels across,
+    centered on it and as long as it.
     @param viz The chart.
-    @param target The line.
+    @param target The target.
 */
 export function referenceDragHandle(
   viz: VizInstance,
   target: ReferenceDragTarget,
 ): HtmlOverlayNode {
-  const {index, at, span} = target;
-  // A line on a vertical axis runs across the plot and moves up and down.
+  const {handleAt: at, span} = target;
+  // A target on a vertical axis runs across the plot and moves up and down.
   const across = isVertical(target.axis);
   const half = HANDLE_SIZE / 2;
   const box = across
@@ -163,18 +195,22 @@ export function referenceDragHandle(
   ].join(";");
   return {
     type: "htmlOverlay",
-    key: `reference-drag-${index}`,
+    key: `reference-drag-${target.id}`,
     ...box,
     html: `<div class="${HANDLE_CLASS}" role="slider" tabindex="0" aria-orientation="${across ? "vertical" : "horizontal"}" style="${style}"></div>`,
     events: {
       [`.${HANDLE_CLASS}`]: {
-        mousedown: e => press(viz, index, e),
-        touchstart: e => press(viz, index, e),
-        keydown: e => keydown(viz, index, e),
-        mouseover: () => light(viz, "hover", index),
+        mousedown: e => press(viz, target, e),
+        touchstart: e => press(viz, target, e),
+        keydown: e => keydown(viz, target, e),
+        keyup: e => keyup(viz, target, e),
+        mouseover: () => light(viz, "hover", target.id),
         mouseout: () => light(viz, "hover", undefined),
-        focusin: () => light(viz, "focus", index),
-        focusout: () => light(viz, "focus", undefined),
+        focusin: () => light(viz, "focus", target.id),
+        focusout: e => {
+          keyup(viz, target, e);
+          light(viz, "focus", undefined);
+        },
       },
     },
     onUpdate: el => syncHandle(el, target),

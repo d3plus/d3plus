@@ -29,12 +29,13 @@ import {
 import type {Annotation, AnnotationRef} from "./annotationTypes.js";
 import type {Box} from "./calloutLayout.js";
 import {
-  DRAG_INDEX,
+  bandDragTargets,
   dragLit,
+  lineDragTarget,
   referenceDragState,
-  referenceDragTarget,
 } from "./referenceDrag.js";
-import {referenceDragHandle} from "./referenceDragHandle.js";
+import {dragNodes} from "./referenceDragGrip.js";
+import {DRAG_SOURCE, type DragSource} from "./referenceDragSource.js";
 import {registerLabelSpots, type LabelSpot} from "./referenceLabelPlacement.js";
 import {
   referenceBandLabelSpots,
@@ -51,47 +52,51 @@ const AXES: AnnotationAxis[] = ["x", "y", "x2", "y2"];
 const num = (v: unknown, fallback: number): number =>
   typeof v === "number" && Number.isFinite(v) ? v : fallback;
 
-/** The entries of a `referenceLines`/`referenceBands` setting: a list, one entry, or nothing. */
-function entries(setting: unknown): Record<string, unknown>[] {
-  const list = Array.isArray(setting) ? setting : setting ? [setting] : [];
-  return list.filter(
-    (d): d is Record<string, unknown> => !!d && typeof d === "object",
-  );
-}
-
 /**
-    Expands `referenceLines` into `"ReferenceLine"` annotations, in the back
-    layer unless an entry sets its own. With `indexed`, each draggable
-    entry's annotation keeps its position in the setting (see
-    `referenceDrag.ts`).
-    @param setting The `referenceLines` setting.
-    @param indexed Whether the setting is the chart's own `referenceLines`.
+    Expands a `referenceLines` or `referenceBands` setting (a list, one
+    entry, or nothing) into annotations of `shape`, in the back layer unless
+    an entry sets its own. Given `source`, each draggable entry's annotation
+    carries where its setting lives (see `referenceDragSource.ts`).
 */
-export function expandReferenceLines(
+function expand(
   setting: unknown,
-  indexed = false,
+  shape: string,
+  source?: (i: number) => DragSource,
 ): Annotation[] {
   const list = Array.isArray(setting) ? setting : setting ? [setting] : [];
   return list.flatMap((d: unknown, i: number) => {
     if (!d || typeof d !== "object") return [];
     const entry = d as Record<string, unknown>;
-    const out: Annotation = {layer: "back", ...entry, shape: REFERENCE_LINE};
-    if (indexed && entry.draggable) out[DRAG_INDEX] = i;
+    const out: Annotation = {layer: "back", ...entry, shape};
+    if (source && entry.draggable) out[DRAG_SOURCE] = source(i);
     return [out];
   });
+}
+
+/**
+    Expands `referenceLines` into `"ReferenceLine"` annotations, in the back
+    layer unless an entry sets its own.
+    @param setting The `referenceLines` setting.
+    @param source Where each draggable entry lives, by its position.
+*/
+export function expandReferenceLines(
+  setting: unknown,
+  source?: (i: number) => DragSource,
+): Annotation[] {
+  return expand(setting, REFERENCE_LINE, source);
 }
 
 /**
     Expands `referenceBands` into `"ReferenceBand"` annotations, in the back
     layer unless an entry sets its own.
     @param setting The `referenceBands` setting.
+    @param source Where each draggable entry lives, by its position.
 */
-export function expandReferenceBands(setting: unknown): Annotation[] {
-  return entries(setting).map(d => ({
-    layer: "back",
-    ...d,
-    shape: REFERENCE_BAND,
-  }));
+export function expandReferenceBands(
+  setting: unknown,
+  source?: (i: number) => DragSource,
+): Annotation[] {
+  return expand(setting, REFERENCE_BAND, source);
 }
 
 /**
@@ -268,11 +273,15 @@ export function referenceLineNodes(
 ): SceneNode[] {
   const line = referenceLinePoints(frame, annotation);
   if (!line) return [];
-  const drag = referenceDragTarget(viz, annotation, frame, line);
-  // A draggable line is labeled with its value unless it has a label.
-  if (drag && annotation.label === undefined && !drag.plot)
+  const drag = lineDragTarget(viz, annotation, frame, line);
+  // A draggable reference line is labeled with its value unless it has a label.
+  if (
+    drag?.source.kind === "referenceLine" &&
+    annotation.label === undefined &&
+    !drag.plot
+  )
     annotation = {...annotation, label: drag.text};
-  const lit = drag && dragLit(referenceDragState(viz), drag.index);
+  const lit = drag && dragLit(referenceDragState(viz), drag.id);
   const style = annotationTextStyle(viz, k => annotation[k]);
   const paint: Paint = {
     fill: "none",
@@ -309,7 +318,7 @@ export function referenceLineNodes(
     ),
   );
   if (label) out.push(label);
-  if (drag) out.push(referenceDragHandle(viz, drag));
+  if (drag) out.push(...dragNodes(viz, drag, paint.stroke as string, key));
   return out;
 }
 
@@ -356,5 +365,8 @@ export function referenceBandNodes(
     ),
   );
   if (label) out.push(label);
+  const edge = (annotation.stroke as string) || paint.fill!;
+  for (const target of bandDragTargets(viz, annotation, frame, band.box))
+    out.push(...dragNodes(viz, target, edge, key));
   return out;
 }

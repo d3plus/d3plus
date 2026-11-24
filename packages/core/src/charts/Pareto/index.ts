@@ -119,7 +119,8 @@ export const paretoDef: ChartDefinition = {
         `labelPosition` (defaults to the end of the line over the smallest
         bars: `"end"` for upright bars, `"start"` for horizontal ones), font
         keys, `stroke`, `strokeOpacity`, `strokeWidth`, `dash` (`true` by
-        default), and `layer`.
+        default), and `layer`. `draggable: true` lets the reader drag the
+        line, setting `paretoThreshold`.
         @type {ReferenceLineConfig}
     */
     {key: "paretoThresholdConfig", merge: true, default: {}},

@@ -36,6 +36,12 @@ export interface DragAxis {
   time?: boolean;
   /** Whether its dates round in UTC. */
   utc?: boolean;
+  /**
+      A category axis's categories, in the order a rising value moves
+      through them (left to right, or bottom to top): its values are their
+      positions in this list.
+  */
+  categories?: unknown[];
 }
 
 const finite = (v: unknown): v is number =>
@@ -77,8 +83,7 @@ export function dragOptions(setting: unknown): {
 export function invertPixel(axis: DragAxis, px: number): number {
   const [lo, hi] = axis.domain;
   if (!finite(lo) || !finite(hi) || !finite(px)) return NaN;
-  const at = (v: number): number =>
-    axis.scale(axis.time ? new Date(v) : v) as number;
+  const at = (v: number): number => pixelOf(axis, v);
   const pLo = at(lo),
     pHi = at(hi);
   if (!finite(pLo) || !finite(pHi) || pLo === pHi) return lo;
@@ -95,6 +100,45 @@ export function invertPixel(axis: DragAxis, px: number): number {
     else b = mid;
   }
   return (a + b) / 2;
+}
+
+/**
+    The pixel position of a value on an axis.
+    @param axis The axis.
+    @param value The value (a date's time on a time axis, a category's
+    position on a category axis).
+*/
+export function pixelOf(axis: DragAxis, value: number): number {
+  return axis.scale(axis.time ? new Date(value) : value);
+}
+
+/**
+    A category axis as a drag axis: its categories ordered so a rising value
+    moves right (or, on a vertical axis, up), each at its position in that
+    order, with the pixels between neighbors spread evenly. Null when no
+    category has a position.
+    @param categories The axis's categories.
+    @param pixel Maps a category to its pixel position.
+    @param vertical Whether the axis runs vertically.
+*/
+export function categoryDragAxis(
+  categories: unknown[],
+  pixel: (category: unknown) => number,
+  vertical: boolean,
+): DragAxis | null {
+  const placed = categories
+    .map(c => ({c, px: pixel(c)}))
+    .filter(d => finite(d.px))
+    .sort((a, b) => (vertical ? b.px - a.px : a.px - b.px));
+  if (!placed.length) return null;
+  const last = placed.length - 1;
+  const scale = (v: unknown): number => {
+    const i = Math.max(0, Math.min(last, Number(v)));
+    const lo = Math.floor(i),
+      hi = Math.ceil(i);
+    return placed[lo].px + (placed[hi].px - placed[lo].px) * (i - lo);
+  };
+  return {scale, domain: [0, last], categories: placed.map(d => d.c)};
 }
 
 /** The decimal places a number is written with. */

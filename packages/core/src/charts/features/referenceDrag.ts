@@ -1,12 +1,14 @@
 /**
-    Draggable reference lines: a `referenceLines` entry with `draggable` set
-    can be moved along its axis by the pointer or the keyboard (see
-    `referenceDragHandle.ts`). Each move writes the new value into the
-    entry, so it lasts through redraws and `referenceLines()` reads it back,
-    fires the chart's `drag.referenceLine` event (and `end.referenceLine`
-    when it settles), and repaints the plot at its current layout, so the
-    line, its label, its `highlight`, and any `valueColors` threshold linked
-    to it by `id` follow it without the axes moving.
+    Draggable reference annotations: a reference line, a reference band's
+    edges, or the quadrant dividers, set `draggable`, can be moved along
+    their axis by the pointer or the keyboard (see `referenceDragHandle.ts`).
+    Each move writes the new value into the setting it came from (see
+    `referenceDragSource.ts`), so it lasts through redraws and reads back
+    from the chart, fires the chart's `drag.<kind>` event, and repaints the
+    plot at its current layout, so the line, its label, its `highlight`, and
+    any `valueColors` threshold linked to it by `id` follow it; letting go
+    fires `end.<kind>` and redraws the chart, refitting its axes. A chart
+    without a plot to repaint (small multiples, Gantt) redraws on each move.
 */
 import {date} from "@d3plus/dom";
 import {formatDateFull} from "@d3plus/format";
@@ -20,26 +22,51 @@ import {
   type AnnotationAxis,
   type AnnotationFrame,
 } from "./annotationFrame.js";
-import type {Annotation, AnnotationValue} from "./annotationTypes.js";
-import {dragOptions, type DragAxis} from "./referenceDragValue.js";
-import {isStatistic, numericValue} from "./referenceValues.js";
+import type {
+  Annotation,
+  AnnotationRef,
+  AnnotationValue,
+} from "./annotationTypes.js";
+import {DRAG_SOURCE, type DragSource} from "./referenceDragSource.js";
+import {
+  categoryDragAxis,
+  dragOptions,
+  invertPixel,
+  pixelOf,
+  type DragAxis,
+} from "./referenceDragValue.js";
+import {numericValue} from "./referenceValues.js";
 
-/** A draggable line as last painted: where it is and how it moves. */
+/** The range and step a target moves in, in its axis's values. */
+export interface DragOptions {
+  min?: number;
+  max?: number;
+  step?: number;
+}
+
+/** A draggable line or band edge as last painted: where it is and how it moves. */
 export interface ReferenceDragTarget {
-  /** Its position in `referenceLines`. */
-  index: number;
+  /** Unique among the chart's targets (shared by the same line in every panel). */
+  id: string;
+  source: DragSource;
   axis: AnnotationAxis;
+  /** Which end of a band's span it is, by its position in the setting. */
+  edge?: 0 | 1;
   /** Whether its value is a fraction of the plot (`ref: "plot"`). */
   plot: boolean;
   /** How values map to pixels along its axis. */
   dragAxis: DragAxis;
-  options: {min?: number; max?: number; step?: number};
-  /** Its value, as a number (a date's time). */
+  options: DragOptions;
+  /** Its value: a number, a date's time, or a category's position. */
   value: number;
-  /** Its pixel position along its axis. */
+  /** The pixel position of its value along its axis. */
   at: number;
+  /** The pixel position its handle sits at (a band's edge, off its value by half a category). */
+  handleAt: number;
   /** The extent it spans along the other axis, in pixels. */
   span: [number, number];
+  /** Which end of the span its grip sits at: the left or bottom (`"start"`), or the other. */
+  grip: "start" | "end";
   /** The plot's length along its axis, in pixels. */
   length: number;
   /** Its accessible name. */
@@ -48,21 +75,20 @@ export interface ReferenceDragTarget {
   text: string;
 }
 
-/** A chart's draggable lines and which of them is lit (hovered, focused, or dragged). */
+/** A chart's draggable targets, and which is lit (hovered, focused, or dragged), by id. */
 export interface ReferenceDragState {
-  targets: Map<number, ReferenceDragTarget>;
-  hover?: number;
-  focus?: number;
-  dragging?: number;
+  targets: Map<string, ReferenceDragTarget>;
+  hover?: string;
+  focus?: string;
+  dragging?: string;
+  /** The target moved by keys since the last key was let go. */
+  keyed?: string;
   /** The pending repaint's animation frame. */
   frame?: number;
 }
 
-/** The internal key a `referenceLines` entry's annotation carries its position in under. */
-export const DRAG_INDEX = "_dragIndex";
-
 /**
-    A chart's draggable-line state, created on first use.
+    A chart's draggable-annotation state, created on first use.
     @param viz The chart.
 */
 export function referenceDragState(viz: VizInstance): ReferenceDragState {
@@ -72,34 +98,20 @@ export function referenceDragState(viz: VizInstance): ReferenceDragState {
   return state;
 }
 
-/** Whether a line is lit: hovered, focused, or being dragged. */
-export function dragLit(state: ReferenceDragState, index: number): boolean {
-  return (
-    state.dragging === index || state.hover === index || state.focus === index
-  );
-}
-
-/** The `referenceLines` setting as a list. */
-function lineList(viz: VizInstance): Record<string, unknown>[] {
-  const setting = viz.schema?.referenceLines as unknown;
-  const list = Array.isArray(setting) ? setting : setting ? [setting] : [];
-  return list as Record<string, unknown>[];
+/** Whether a target is lit: hovered, focused, or being dragged. */
+export function dragLit(state: ReferenceDragState, id: string): boolean {
+  return state.dragging === id || state.hover === id || state.focus === id;
 }
 
 /**
-    Whether a `referenceLines` entry can be dragged: it sets `draggable`
-    and a value of its own on one axis, not a statistic, a function, or one
-    line per series.
+    Whether a setting's entry can be dragged: it sets `draggable` and isn't
+    one line per series.
     @param entry The entry.
-    @param axis Its axis.
 */
 export function draggableEntry(
   entry: Record<string, unknown> | undefined,
-  axis: AnnotationAxis,
 ): boolean {
-  if (!entry || !dragOptions(entry.draggable) || entry.perSeries) return false;
-  const raw = entry[axis];
-  return typeof raw !== "function" && !isStatistic(raw);
+  return !!entry && !!dragOptions(entry.draggable) && !entry.perSeries;
 }
 
 /**
@@ -116,16 +128,18 @@ export function dateText(value: number, utc?: boolean): string {
   return formatDateFull(d, [d, next], {utc});
 }
 
-/** The rendered axis behind an annotation axis. */
-const axisOf = (viz: VizInstance, axis: AnnotationAxis) =>
-  ({x: viz._xAxis, y: viz._yAxis, x2: viz._x2Axis, y2: viz._y2Axis})[axis];
+/** A comparable key for an axis value. */
+const valueKey = (v: unknown): string => (v instanceof Date ? `${+v}` : `${v}`);
 
 /**
-    How a line's values map to pixels: a fraction of the plot for
-    `ref: "plot"`, else its axis, when that axis is continuous (a number
-    or time axis; a category axis has no values between its categories).
+    How values map to pixels on a target's axis: a fraction of the plot for
+    `ref: "plot"`, its categories on a category axis, else its continuous
+    domain. Null when the axis has none of these.
+    @param frame The plot area and its axes.
+    @param axis The axis.
+    @param plot Whether values are fractions of the plot.
 */
-function dragAxisOf(
+export function dragAxisOf(
   frame: AnnotationFrame,
   axis: AnnotationAxis,
   plot: boolean,
@@ -133,132 +147,339 @@ function dragAxisOf(
   if (plot)
     return {scale: v => axisPixel(frame, axis, v, "plot"), domain: [0, 1]};
   const a = frame.axes[axis];
-  if (!a || a.categories || !a.domain) return null;
+  if (a?.categories)
+    return categoryDragAxis(a.categories, a.scale, isVertical(axis));
+  if (!a || !a.domain) return null;
   return {scale: a.scale, domain: a.domain, time: a.time, utc: a.utc};
 }
 
 /**
-    The drag target of a painted reference line, registered with the
-    chart's state; null when the line isn't one of the chart's draggable
-    `referenceLines` or can't move (a category axis, or small multiples).
+    A setting's value as a number on a drag axis: a date's time, a
+    category's position, or the number. NaN when it has none.
+    @param axis The drag axis.
+    @param value The value.
+*/
+export function dragValue(axis: DragAxis, value: unknown): number {
+  if (axis.categories) {
+    const i = axis.categories.findIndex(c => valueKey(c) === valueKey(value));
+    return i < 0 ? NaN : i;
+  }
+  if (axis.time)
+    return +(date(value as string | number, {utc: axis.utc}) || NaN);
+  return numericValue(value);
+}
+
+/**
+    The value a setting stores for a number on a drag axis: a Date on a
+    time axis, the category on a category axis, else the number.
+    @param axis The drag axis.
+    @param value The number.
+*/
+export function storedValue(axis: DragAxis, value: number): AnnotationValue {
+  if (axis.categories)
+    return axis.categories[Math.round(value)] as AnnotationValue;
+  return axis.time ? new Date(value) : value;
+}
+
+/** A drag setting's range and step on a drag axis: categories by position, snapping to whole ones. */
+function optionsOf(axis: DragAxis, setting: unknown): DragOptions {
+  if (!axis.categories) return dragOptions(setting) ?? {};
+  const {min, max} = (setting ?? {}) as Record<string, unknown>;
+  const at = (v: unknown) => {
+    const i = v === undefined ? -1 : dragValue(axis, v);
+    return Number.isFinite(i) && i >= 0 ? i : undefined;
+  };
+  return {min: at(min), max: at(max), step: 1};
+}
+
+/** Where a target is painted, and what it is. */
+export interface TargetSpot {
+  axis: AnnotationAxis;
+  edge?: 0 | 1;
+  value: unknown;
+  ref?: unknown;
+  at: number;
+  handleAt: number;
+  span: [number, number];
+  grip: "start" | "end";
+  name: string;
+}
+
+/**
+    The drag target of a painted annotation, registered with the chart's
+    state; null when its setting isn't draggable or its axis can't move it.
     @param viz The chart.
-    @param annotation The resolved `"ReferenceLine"` annotation.
+    @param source Where its setting lives.
+    @param frame The plot area and its axes.
+    @param spot Where it is painted.
+*/
+export function dragTarget(
+  viz: VizInstance,
+  source: DragSource | undefined,
+  frame: AnnotationFrame,
+  spot: TargetSpot,
+): ReferenceDragTarget | null {
+  const entry = source?.entry();
+  if (!source || !draggableEntry(entry)) return null;
+  const {axis} = spot;
+  const plot = spot.ref === "plot";
+  const dragAxis = dragAxisOf(frame, axis, plot);
+  if (!dragAxis) return null;
+  const value = dragValue(dragAxis, spot.value);
+  if (!Number.isFinite(value)) return null;
+  const axisFormat = !plot && axisOf(viz, axis)?._labelFormat;
+  const format = axisFormat || String;
+  const stored = storedValue(dragAxis, value);
+  const {plot: p} = frame;
+  const edge = spot.edge === undefined ? "" : `-${spot.edge}`;
+  const target: ReferenceDragTarget = {
+    id: `${source.key}-${axis}${edge}`,
+    source,
+    axis,
+    ...(spot.edge === undefined ? {} : {edge: spot.edge}),
+    plot,
+    dragAxis,
+    options: optionsOf(dragAxis, entry!.draggable),
+    value,
+    at: spot.at,
+    handleAt: spot.handleAt,
+    span: spot.span,
+    grip: spot.grip,
+    length: isVertical(axis) ? p.y1 - p.y0 : p.x1 - p.x0,
+    name: spot.name,
+    text: dragAxis.time ? dateText(value, dragAxis.utc) : format(stored),
+  };
+  referenceDragState(viz).targets.set(target.id, target);
+  return target;
+}
+
+/** The rendered axis behind an annotation axis. */
+const axisOf = (viz: VizInstance, axis: AnnotationAxis) =>
+  ({x: viz._xAxis, y: viz._yAxis, x2: viz._x2Axis, y2: viz._y2Axis})[axis];
+
+/** A label that names something: a non-empty string. */
+const named = (label: unknown): string | undefined =>
+  typeof label === "string" && label ? label : undefined;
+
+/**
+    The drag target of a painted reference line or quadrant divider.
+    @param viz The chart.
+    @param annotation The resolved line annotation.
     @param frame The plot area and its axes.
     @param line Where the line was drawn.
 */
-export function referenceDragTarget(
+export function lineDragTarget(
   viz: VizInstance,
   annotation: Annotation,
   frame: AnnotationFrame,
   line: {axis: AnnotationAxis; at: number; span: [number, number]},
 ): ReferenceDragTarget | null {
-  const index = annotation[DRAG_INDEX];
-  if (typeof index !== "number" || viz._facetStep || viz._facetPanels?.length)
-    return null;
+  const source = annotation[DRAG_SOURCE] as DragSource | undefined;
   const {axis} = line;
-  const entry = lineList(viz)[index];
-  if (!draggableEntry(entry, axis)) return null;
-  const plot = annotation.ref === "plot";
-  const dragAxis = dragAxisOf(frame, axis, plot);
-  if (!dragAxis) return null;
-  const raw = annotation[axis];
-  const value = dragAxis.time
-    ? +(date(raw as string | number, {utc: dragAxis.utc}) || NaN)
-    : numericValue(raw);
-  if (!Number.isFinite(value)) return null;
-  const format = (!plot && axisOf(viz, axis)?._labelFormat) || String;
-  const {plot: p} = frame;
-  const label = annotation.label;
-  const target: ReferenceDragTarget = {
-    index,
+  const t = viz.schema.translate;
+  const name =
+    source?.kind === "quadrants"
+      ? t(isVertical(axis) ? "Horizontal divider" : "Vertical divider")
+      : (named(annotation.label) ?? t("Reference line"));
+  return dragTarget(viz, source, frame, {
     axis,
-    plot,
-    dragAxis,
-    options: dragOptions(entry.draggable)!,
-    value,
+    value: annotation[axis],
+    ref: annotation.ref,
     at: line.at,
+    handleAt: line.at,
     span: line.span,
-    length: isVertical(axis) ? p.y1 - p.y0 : p.x1 - p.x0,
-    name:
-      typeof label === "string" && label
-        ? label
-        : viz.schema.translate("Reference line"),
-    text: dragAxis.time ? dateText(value, dragAxis.utc) : format(value),
-  };
-  referenceDragState(viz).targets.set(index, target);
-  return target;
+    // The grip sits at the end away from the label.
+    grip: annotation.labelPosition === "start" ? "end" : "start",
+    name,
+  });
+}
+
+const AXES: AnnotationAxis[] = ["x", "y", "x2", "y2"];
+
+/**
+    The drag targets of a painted reference band's edges: each end of each
+    span it sets that lies in the plot, kept from passing the span's other
+    end (by a step, a category on a category axis of points, or two
+    pixels' worth).
+    @param viz The chart.
+    @param annotation The resolved band annotation.
+    @param frame The plot area and its axes.
+    @param box The band's rect.
+*/
+export function bandDragTargets(
+  viz: VizInstance,
+  annotation: Annotation,
+  frame: AnnotationFrame,
+  box: {x: number; y: number; width: number; height: number},
+): ReferenceDragTarget[] {
+  const source = annotation[DRAG_SOURCE] as DragSource | undefined;
+  if (!source) return [];
+  const t = viz.schema.translate;
+  const band = named(annotation.label) ?? t("Reference band");
+  const out: ReferenceDragTarget[] = [];
+  for (const axis of AXES) {
+    const values = annotation[axis];
+    if (!Array.isArray(values) || values.length < 2) continue;
+    const vertical = isVertical(axis);
+    const ref = annotation.ref as AnnotationRef | undefined;
+    const px = [0, 1].map(e => axisPixel(frame, axis, values[e], ref));
+    const lo = vertical ? box.y : box.x;
+    const hi = lo + (vertical ? box.height : box.width);
+    const span: [number, number] = vertical
+      ? [box.x, box.x + box.width]
+      : [box.y, box.y + box.height];
+    const {plot} = frame;
+    const [p0, p1] = vertical ? [plot.y0, plot.y1] : [plot.x0, plot.x1];
+    for (const edge of [0, 1] as const) {
+      const at = px[edge],
+        other = px[1 - edge];
+      if (!Number.isFinite(at) || at < p0 - 0.5 || at > p1 + 0.5) continue;
+      const near = at < other || (at === other && edge === 0);
+      const target = dragTarget(viz, source, frame, {
+        axis,
+        edge,
+        value: values[edge],
+        ref,
+        at,
+        handleAt: near ? lo : hi,
+        span,
+        grip: annotation.labelPosition === "end" ? "start" : "end",
+        name: "",
+      });
+      if (!target) continue;
+      const otherValue = dragValue(target.dragAxis, values[1 - edge]);
+      const start =
+        target.value < otherValue ||
+        (target.value === otherValue && edge === 0);
+      keepApart(target, otherValue, start, frame);
+      target.name = t(start ? "Start of {0}" : "End of {0}", undefined, band);
+      out.push(target);
+    }
+  }
+  return out;
 }
 
 /**
-    Runs the chart's handler for a draggable line's `drag.referenceLine` or
-    `end.referenceLine` event with the line's value (a Date on a time axis),
-    its `referenceLines` entry, its position in the list, and the browser
-    event behind it.
+    Narrows a band edge's range so it can't pass the span's other end.
+    @param target The edge.
+    @param other The other end's value.
+    @param start Whether the edge is the span's lower end.
+    @param frame The plot area and its axes.
+*/
+function keepApart(
+  target: ReferenceDragTarget,
+  other: number,
+  start: boolean,
+  frame: AnnotationFrame,
+): void {
+  const {dragAxis: axis, options, value} = target;
+  if (!Number.isFinite(other)) return;
+  const slots = !!frame.axes[target.axis]?.slots;
+  const gap = axis.categories
+    ? slots
+      ? 0
+      : 1
+    : (options.step ??
+      Math.abs(
+        invertPixel(axis, target.at + 2) - invertPixel(axis, target.at),
+      ));
+  if (start)
+    options.max = Math.max(value, Math.min(options.max ?? other, other - gap));
+  else
+    options.min = Math.min(value, Math.max(options.min ?? other, other + gap));
+}
+
+/**
+    Runs the chart's handler for a target's `drag.<kind>` or `end.<kind>`
+    event with its value (a Date on a time axis, a category on a category
+    axis; a band's whole span; the quadrants' `{x, y}` center), its
+    setting's entry, its index (its position in its list, the setting's
+    name, or the axis a quadrant divider moved), and the browser event
+    behind it.
 */
 export function fireReferenceEvent(
   viz: VizInstance,
   type: "drag" | "end",
-  index: number,
+  target: ReferenceDragTarget,
   event?: Event,
 ): void {
-  const handler = viz.schema.on?.[`${type}.referenceLine`] as unknown;
-  const target = referenceDragState(viz).targets.get(index);
-  const entry = lineList(viz)[index];
-  if (typeof handler !== "function" || !target || !entry) return;
+  const {source} = target;
+  const handler = viz.schema.on?.[`${type}.${source.kind}`] as unknown;
+  const entry = source.entry();
+  if (typeof handler !== "function" || !entry) return;
+  const value = source.payload
+    ? source.payload(entry, target.axis)
+    : entry[target.axis];
+  // A quadrant divider reports the axis it moved.
+  const index = source.kind === "quadrants" ? target.axis : source.index;
   try {
-    handler.call(viz, entry[target.axis], entry, index, event);
+    handler.call(viz, value, entry, index, event);
   } catch (error) {
     reportHandlerError(error);
   }
 }
 
 /**
+    Redraws the chart, refitting its axes; `instant` skips the transition
+    (a redraw on each move).
+    @param viz The chart.
+    @param instant Whether to draw without a transition.
+*/
+export function redrawAfterDrag(viz: VizInstance, instant = false): void {
+  if (typeof viz.render !== "function") return;
+  if (instant) viz._instantNextDraw = true;
+  viz.render();
+}
+
+/**
     Repaints the plot at its current layout on the next animation frame
-    (now, without one), once however many moves come before it.
+    (now, without one), once however many moves come before it; a chart
+    that can't repaint redraws instead.
     @param viz The chart.
 */
 export function scheduleDragRepaint(viz: VizInstance): void {
   const state = referenceDragState(viz);
   if (state.frame !== undefined) return;
-  if (typeof requestAnimationFrame !== "function") {
-    viz._repaintPlot?.();
-    return;
-  }
-  state.frame = requestAnimationFrame(() => {
+  const run = () => {
     state.frame = undefined;
-    viz._repaintPlot?.();
-  });
+    if (!viz._repaintPlot?.()) redrawAfterDrag(viz, true);
+  };
+  if (typeof requestAnimationFrame !== "function") return run();
+  state.frame = requestAnimationFrame(run);
 }
 
 /**
-    Moves a draggable line to `value`: writes it into the line's
-    `referenceLines` entry (a Date on a time axis), fires
-    `drag.referenceLine`, and repaints. Returns false when the value is
-    the line's own already, or not a number.
+    Moves a target to `value`: writes it into its setting (a Date on a time
+    axis, the category on a category axis), fires `drag.<kind>`, and
+    repaints. Returns false when the value is the target's own already, or
+    not a number.
     @param viz The chart.
-    @param index The line's position in `referenceLines`.
+    @param target The target.
     @param value The new value, as a number.
     @param event The browser event behind the move.
 */
 export function setReferenceValue(
   viz: VizInstance,
-  index: number,
+  target: ReferenceDragTarget,
   value: number,
   event?: Event,
 ): boolean {
-  const target = referenceDragState(viz).targets.get(index);
-  const list = lineList(viz).slice();
-  const entry = list[index];
-  if (!target || !entry || !Number.isFinite(value) || value === target.value)
-    return false;
-  const stored: AnnotationValue = target.dragAxis.time
-    ? new Date(value)
-    : value;
-  list[index] = {...entry, [target.axis]: stored};
-  viz.schema.referenceLines = list as typeof viz.schema.referenceLines;
+  const entry = target.source.entry();
+  if (!entry || !Number.isFinite(value) || value === target.value) return false;
+  const stored = storedValue(target.dragAxis, value);
+  const next: Record<string, unknown> = {...entry};
+  if (target.edge !== undefined) {
+    const span = entry[target.axis];
+    const pair = Array.isArray(span) ? span.slice() : [];
+    pair[target.edge] = stored;
+    next[target.axis] = pair;
+  } else next[target.axis] = stored;
+  target.source.write(next);
+  const at = pixelOf(target.dragAxis, value);
+  target.handleAt += at - target.at;
+  target.at = at;
   target.value = value;
-  target.at = target.dragAxis.scale(target.dragAxis.time ? stored : value);
-  fireReferenceEvent(viz, "drag", index, event);
+  fireReferenceEvent(viz, "drag", target, event);
   scheduleDragRepaint(viz);
   return true;
 }

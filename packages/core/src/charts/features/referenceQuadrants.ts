@@ -18,6 +18,11 @@ import {
 } from "./referenceAnnotations.js";
 import {LABEL_PAD as PAD, type LabelSpot} from "./referenceLabelPlacement.js";
 import {drawnRows, resolveValue, stackAxis} from "./referenceValues.js";
+import {
+  DRAG_SOURCE,
+  settingSource,
+  type DragSource,
+} from "./referenceDragSource.js";
 
 /** The annotation shape a `quadrants` setting expands into. */
 export const QUADRANTS = "Quadrants";
@@ -64,7 +69,29 @@ export function expandQuadrants(
   const x = center("x"),
     y = center("y");
   if (x === null || y === null) return [];
-  return [{layer: "back", ...config, shape: QUADRANTS, x, y}];
+  const out: Annotation = {layer: "back", ...config, shape: QUADRANTS, x, y};
+  if (config.draggable) out[DRAG_SOURCE] = quadrantSource(viz, {x, y});
+  return [out];
+}
+
+/**
+    Where a draggable `quadrants` setting lives: a move writes the divider's
+    value as the center's `x` or `y`, and its events report the whole center.
+    @param viz The chart.
+    @param center The center as drawn.
+*/
+export function quadrantSource(
+  viz: VizInstance,
+  center: {x: unknown; y: unknown},
+): DragSource {
+  const schema = viz.schema as unknown as Record<string, unknown>;
+  return settingSource(
+    "quadrants",
+    "quadrants",
+    () => schema.quadrants,
+    entry => (schema.quadrants = entry),
+    (entry, axis) => ({...center, [axis]: entry[axis]}),
+  );
 }
 
 /**
@@ -160,7 +187,10 @@ export function quadrantNodes(
       paint,
     } as RectNode);
   });
-  const line: Annotation = {shape: REFERENCE_LINE};
+  const line: Annotation = {
+    shape: REFERENCE_LINE,
+    [DRAG_SOURCE]: annotation[DRAG_SOURCE],
+  };
   LINE_KEYS.forEach(k => {
     if (annotation[k] !== undefined) line[k] = annotation[k];
   });

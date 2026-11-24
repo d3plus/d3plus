@@ -312,6 +312,8 @@ export interface VizInstance {
       again (a dragged reference line moving); false when it can't.
   */
   _repaintPlot?: () => boolean;
+  /** Whether the next draw skips its transition (a redraw on each move of a drag). */
+  _instantNextDraw?: boolean;
   /**
       Which part of a small-multiples draw `_draw()` is running: `"chrome"`
       lays out the shared chart chrome and skips the chart body; `"panel"`

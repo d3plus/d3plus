@@ -9,6 +9,7 @@ import type {LineNode, PathNode, SceneNode, TextNode} from "@d3plus/render";
 
 import {arrowNode} from "../features/edgeArrows.js";
 import {referenceLineNodes} from "../features/referenceAnnotations.js";
+import {DRAG_SOURCE, settingSource} from "../features/referenceDragSource.js";
 import type {Annotation} from "../features/annotationTypes.js";
 import {isUtcAxis} from "../Priestley/timeAxis.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
@@ -352,6 +353,14 @@ export function todayNodes(viz: VizInstance, layout: GanttLayout): SceneNode[] {
     shape: "ReferenceLine",
     x: value,
   };
+  // Dragged, the line moves `today`.
+  if (cfg.draggable)
+    annotation[DRAG_SOURCE] = settingSource(
+      "referenceLine",
+      "today",
+      () => ({...cfg, x: todayValue(viz.schema.today)}),
+      entry => (viz.schema.today = entry.x as Date),
+    );
   return referenceLineNodes(
     viz,
     annotation,
@@ -362,6 +371,7 @@ export function todayNodes(viz: VizInstance, layout: GanttLayout): SceneNode[] {
           scale: v => layout.x(v as number | Date),
           time: layout.time,
           utc: isUtcAxis(viz),
+          domain: layout.domain,
         },
       },
     },

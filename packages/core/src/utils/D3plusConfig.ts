@@ -2717,11 +2717,16 @@ export interface D3plusConfig {
       Event listeners keyed by event name. Besides pointer events (`click`,
       `mousemove`, … scoped as `click.shape` or `click.legend`), a chart
       fires `select` with the rows a box or lasso selection holds (see
-      `selectMode`), and with no rows when it is cleared. A Plot with a
-      `draggable` reference line fires `drag.referenceLine` as the reader
-      moves it and `end.referenceLine` when they let go (or after each key
-      press), each given the line's new value (a Date on a time axis), its
-      `referenceLines` entry, its index in that list, and the browser event.
+      `selectMode`), and with no rows when it is cleared. A `draggable`
+      reference line fires `drag.referenceLine` as the reader moves it and
+      `end.referenceLine` when they let go of the pointer or key, each given
+      its new value (a Date on a time axis, the category on a category
+      axis), its entry, its index in its list (`referenceLines` or
+      `annotations`; for a chart's own line, the setting's name, such as
+      `"paretoThreshold"`), and the browser event. A band's edges fire
+      `drag.referenceBand` and `end.referenceBand` with the band's span, and
+      the quadrant dividers `drag.quadrants` and `end.quadrants` with the
+      center as `{x, y}` and the axis moved.
       @example
 {on: {"end.referenceLine": (value, line) => console.log(line.id, value)}}
   */
@@ -2814,7 +2819,8 @@ export interface D3plusConfig {
       `labelPosition` (defaults to the end of the line over the smallest
       bars: `"end"` for upright bars, `"start"` for horizontal ones), font
       keys, `stroke`, `strokeOpacity`, `strokeWidth`, `dash` (`true` by
-      default), and `layer`.
+      default), and `layer`. `draggable: true` lets the reader drag the line,
+      setting `paretoThreshold`.
   */
   paretoThresholdConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2">;
   /** With `order`: draws an arrowhead on each segment of a series' path, pointing along it, wherever the segment has room for one (default `true`). */
@@ -2921,6 +2927,7 @@ export interface D3plusConfig {
       defaults to `0.08`). The dividers take `stroke`, `strokeOpacity`,
       `strokeWidth`, and `dash`, and the labels the font keys and
       `maxWidth`. A given center widens a continuous axis's domain to fit.
+      `draggable: true` lets the reader drag each divider (see `on`).
       Defaults to `false`.
   */
   quadrants?: boolean | QuadrantsConfig;
@@ -2949,7 +2956,9 @@ export interface D3plusConfig {
       `labelPosition: "end"` for top-right) with font keys and `maxWidth`,
       `fill`/`fillOpacity` (default the text color at `0.08`), `stroke`,
       `strokeWidth`, `strokeOpacity`, and `layer: "front"` to draw over the
-      data. A band widens a continuous axis's domain to fit.
+      data. A band widens a continuous axis's domain to fit. `draggable:
+      true` (or `{min, max, step}`) lets the reader drag each edge (see
+      `on`), never past the other.
   */
   referenceBands?: ReferenceBandConfig[];
   /**
@@ -2969,11 +2978,10 @@ export interface D3plusConfig {
       `strokeWidth` (`1`), `dash` (`true` or a dash pattern), and
       `layer: "front"` to draw over the data. A line widens a continuous
       axis's domain to fit. `draggable: true` (or `{min, max, step}`) lets
-      the reader drag a line at a value of its own along a number or time
-      axis, or move it with the arrow keys: the new value replaces the
-      entry's, `drag.referenceLine` and `end.referenceLine` fire with it
-      (see `on`), and its `highlight` and any `valueColors` threshold that
-      names its `id` follow it as it moves.
+      the reader drag a line along its axis, or move it with the arrow keys:
+      the new value replaces the entry's, `drag.referenceLine` and
+      `end.referenceLine` fire with it (see `on`), and its `highlight` and
+      any `valueColors` threshold that names its `id` follow it as it moves.
   */
   referenceLines?: ReferenceLineConfig[];
   /**
@@ -3482,7 +3490,8 @@ export interface D3plusConfig {
       Gantt: styles the "today" line like a `referenceLines` entry: `stroke`,
       `strokeWidth` (1.5), `strokeOpacity` (0.85), `dash`, and its `label`
       (the translated "Today"; `false` for none), with the label's font and
-      `labelPosition`.
+      `labelPosition`. `draggable: true` lets the reader drag the line,
+      setting `today`.
   */
   todayConfig?: Omit<ReferenceLineConfig, "x" | "y" | "x2" | "y2" | "ref">;
   /**

@@ -5,7 +5,7 @@
     <title>Draggable Reference Lines · Plot</title>
     <meta
       name="description"
-      content="Reference lines the reader drags (or moves with the arrow keys): a target that recolors the bars above and below it through a valueColors threshold, a line that highlights the points above it, a date line kept inside a range, a zoomable plot, and the drag and end events they fire."
+      content="Reference lines, band edges, and quadrant dividers the reader drags (or moves with the arrow keys), each marked by a grip: a target that recolors bars through a valueColors threshold, a line that highlights the points above it, a date line kept inside a range, a zoomable plot, a mean that becomes a fixed value, a line snapping between categories, a target range, quadrants, Pareto's threshold, Gantt's today line, small multiples, and the drag and end events they fire."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -21,6 +21,9 @@
       }
       .viz {
         height: 320px;
+      }
+      .wide {
+        grid-column: 1 / -1;
       }
       h3 {
         font-size: 14px;
@@ -55,17 +58,44 @@
         <h3>LinePlot with zoom (scroll to zoom, then drag the line)</h3>
         <div class="viz" id="zoom"></div>
       </div>
+      <div>
+        <h3>
+          BarChart: the mean becomes a fixed value once dragged; a line on the
+          category axis snaps between months
+        </h3>
+        <div class="viz" id="categories"></div>
+      </div>
+      <div>
+        <h3>Scatter: a target band with draggable edges, and quadrants</h3>
+        <div class="viz" id="band"></div>
+      </div>
+      <div>
+        <h3>Pareto: drag the threshold</h3>
+        <div class="viz" id="pareto"></div>
+      </div>
+      <div>
+        <h3>Gantt: drag the "today" line</h3>
+        <div class="viz" id="gantt"></div>
+      </div>
+      <div class="wide">
+        <h3>Small multiples: one line, dragged in any panel</h3>
+        <div class="viz" id="facet"></div>
+      </div>
     </div>
     <h3>Events</h3>
     <pre id="log"></pre>
 
     <script>
       const log = document.querySelector("#log");
-      const report = type => (value, line, index) => {
-        const v =
-          value instanceof Date ? value.toISOString().slice(0, 10) : value;
-        log.textContent = `${type}.referenceLine #${index} (${line.id || "line"}): ${v}`;
-      };
+      const report =
+        (type, kind = "referenceLine") =>
+        (value, entry, index) => {
+          const v =
+            value instanceof Date
+              ? value.toISOString().slice(0, 10)
+              : JSON.stringify(value);
+          log.textContent = `${type}.${kind} ${index} (${entry.id || kind}): ${v}`;
+        };
 
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"];
       const sales = months.map((month, i) => ({
@@ -155,6 +185,69 @@
           {y: 40, id: "goal", label: "Goal", draggable: true, dash: true},
         ])
         .on("drag.referenceLine", report("drag"))
+        .render();
+
+      new d3plus.BarChart()
+        .select("#categories")
+        .data(sales)
+        .groupBy("month")
+        .x("month")
+        .y("sales")
+        .legend(false)
+        .referenceLines([
+          {y: "mean", draggable: {step: 1}, dash: true},
+          {x: "Mar", id: "launch", label: "Launch", draggable: true},
+        ])
+        .on("end.referenceLine", report("end"))
+        .render();
+
+      new d3plus.Plot()
+        .select("#band")
+        .data(points)
+        .groupBy("id")
+        .legend(false)
+        .referenceBands([
+          {y: [40, 60], label: "Target range", draggable: {step: 1}},
+        ])
+        .quadrants({draggable: {step: 1}, topRight: {label: "Leaders"}})
+        .on("end.referenceBand", report("end", "referenceBand"))
+        .on("end.quadrants", report("end", "quadrants"))
+        .render();
+
+      new d3plus.Pareto()
+        .select("#pareto")
+        .data(
+          ["Late", "Damaged", "Wrong item", "Missing", "Other"].map(
+            (id, i) => ({id, count: 60 - i * 12}),
+          ),
+        )
+        .groupBy("id")
+        .x("id")
+        .y("count")
+        .paretoThresholdConfig({draggable: {step: 0.05}})
+        .on("end.referenceLine", report("end"))
+        .render();
+
+      new d3plus.Gantt()
+        .select("#gantt")
+        .data([
+          {id: "Plan", start: "2024-01-01", end: "2024-01-20"},
+          {id: "Build", start: "2024-01-15", end: "2024-02-20"},
+          {id: "Launch", start: "2024-02-18", end: "2024-03-01"},
+        ])
+        .today("2024-01-25")
+        .todayConfig({draggable: true})
+        .on("end.referenceLine", report("end"))
+        .render();
+
+      new d3plus.Plot()
+        .select("#facet")
+        .data(points.map((d, i) => ({...d, group: i % 2 ? "Odd" : "Even"})))
+        .groupBy("id")
+        .facet("group")
+        .legend(false)
+        .referenceLines([{y: 50, draggable: {step: 1}, highlight: "above"}])
+        .on("end.referenceLine", report("end"))
         .render();
     </script>
   </body>

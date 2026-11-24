@@ -405,7 +405,7 @@ export default class Plot extends Viz {
   }
 
   /**
-      Custom shapes drawn as annotations on the plot: a [Shape](http://d3plus.org/docs/#Shape) config object, or an array of them, each with a `shape` key naming the Shape class to use (`"Rect"`, `"Line"`, …) and an optional `layer`, `"back"` (the default) or `"front"`. Three more kinds draw chart notes: `"Callout"` (wrapped text joined to a data point by a connector; see `CalloutAnnotation`), and `"ReferenceLine"` and `"ReferenceBand"` (what `referenceLines` and `referenceBands` expand into).
+      Custom shapes drawn as annotations on the plot: a [Shape](http://d3plus.org/docs/#Shape) config object, or an array of them, each with a `shape` key naming the Shape class to use (`"Rect"`, `"Line"`, …) and an optional `layer`, `"back"` (the default) or `"front"`. Three more kinds draw chart notes: `"Callout"` (wrapped text joined to a data point by a connector; see `CalloutAnnotation`), and `"ReferenceLine"` and `"ReferenceBand"` (what `referenceLines` and `referenceBands` expand into, `draggable` included).
 */
   annotations(_?: unknown): this | unknown[] {
     return arguments.length

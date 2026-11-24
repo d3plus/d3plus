@@ -1,16 +1,25 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {withPage} from "~test/browser/page.js";
+import {
+  box,
+  drag,
+  key,
+  painted,
+  press,
+  start,
+  state,
+  yUnit,
+} from "./referenceDragPage.js";
 
 /**
     Draggable reference lines in Chromium, on SVG and Canvas: a real mouse
-    drags the line (firing drag and end events, without clicking), the
-    value lasts through a redraw, a linked valueColors threshold and the
-    line's highlight follow it, the keyboard moves a focused line, one
-    finger drags it, and lines that can't move get no handle.
+    drags the line (firing drag and end events, without clicking, and
+    redrawing on release to refit the axes), the value lasts through a
+    redraw, a linked valueColors threshold and the line's highlight follow
+    it, the keyboard moves a focused line, one finger drags it, a grip marks
+    it, and statistic, category, time, and zoomed lines move too.
 */
-
-const box = "<div id='viz' style='width:640px;height:400px'></div>";
 
 const sales = [
   {month: "Jan", sales: 30},
@@ -18,94 +27,6 @@ const sales = [
   {month: "Mar", sales: 60},
   {month: "Apr", sales: 52},
 ];
-
-/** Runs in the page: draws a chart of `type` with `config`, logging its events. */
-const start = ([type, json, renderer]) => {
-  window.__drawn = false;
-  window.__events = [];
-  window.__clicks = 0;
-  const log = kind => (value, line, index) =>
-    window.__events.push({
-      kind,
-      value: value instanceof Date ? +value : value,
-      id: line.id,
-      index,
-    });
-  window.__viz = new window.d3plus[type]()
-    .select("#viz")
-    .renderer(renderer)
-    .duration(0)
-    .legend(false)
-    .config(JSON.parse(json))
-    .on("drag.referenceLine", log("drag"))
-    .on("end.referenceLine", log("end"))
-    .on("click.shape", () => window.__clicks++)
-    .render(() => (window.__drawn = true));
-  return true;
-};
-
-async function painted(page) {
-  for (let i = 0; i < 100 && !(await page.evaluate(() => window.__drawn)); i++)
-    await page.waitForTimeout(16);
-  assert.ok(await page.evaluate(() => window.__drawn), "drawn");
-  await page.waitForTimeout(32);
-}
-
-/** Runs in the page: the handles, the reference line nodes, and the bars' fills. */
-const state = () => {
-  const viz = window.__viz;
-  const handles = [...document.querySelectorAll(".d3plus-reference-drag")].map(
-    el => {
-      const r = el.getBoundingClientRect();
-      return {
-        x: r.left + r.width / 2,
-        y: r.top + r.height / 2,
-        focused: document.activeElement === el,
-        now: el.getAttribute("aria-valuenow"),
-        text: el.getAttribute("aria-valuetext"),
-        label: el.getAttribute("aria-label"),
-      };
-    },
-  );
-  const lines = [];
-  const texts = [];
-  const bars = {};
-  const fills = {};
-  const walk = (n, inAnnotation) => {
-    const annotation = inAnnotation || String(n.key).includes("annotation-");
-    if (annotation && n.type === "line")
-      lines.push({y: n.points[0][1], width: n.paint.strokeWidth});
-    if (annotation && n.type === "text")
-      texts.push(...n.lines.map(l => l.text));
-    const d = n.datum && (n.datum.data || n.datum);
-    if (n.type === "rect" && d && d.month && !String(n.key).endsWith("::hit"))
-      bars[d.month] = n.paint.fill;
-    if (n.type === "circle" && d && d.id) fills[d.id] = n.paint.fill;
-    (n.children || []).forEach(c => walk(c, annotation));
-  };
-  walk(viz._paintedScene.root, false);
-  return {
-    handles,
-    lines,
-    texts,
-    bars,
-    fills,
-    value: (viz.referenceLines()[0] || {}).y,
-    events: window.__events,
-    clicks: window.__clicks,
-  };
-};
-
-async function drag(page, [x, y], dy, steps = 6) {
-  await page.mouse.move(x, y);
-  await page.mouse.down();
-  for (let i = 1; i <= steps; i++) {
-    await page.mouse.move(x, y + (dy * i) / steps);
-    await page.waitForTimeout(20);
-  }
-  await page.mouse.up();
-  await page.waitForTimeout(50);
-}
 
 const target = {
   data: sales,
@@ -127,17 +48,13 @@ for (const renderer of ["svg", "canvas"]) {
       await painted(page);
       const before = await page.evaluate(state);
       assert.strictEqual(before.handles.length, 1);
+      assert.strictEqual(before.grips, 1, "a grip marks the line");
       assert.ok(before.texts.includes("50"), "labeled with its value");
-      assert.strictEqual(before.bars.Mar, "#00ff00");
       assert.strictEqual(before.bars.Apr, "#00ff00");
       assert.strictEqual(before.bars.Feb, "#ff0000");
       const [handle] = before.handles;
-      // Up past 52 (Apr), not 60 (Mar).
-      const pxPerUnit = await page.evaluate(() => {
-        const y = window.__viz._yAxis;
-        return Math.abs(y._getPosition(0) - y._getPosition(1));
-      });
-      // A drag repaints at the drawn layout: nothing is measured again.
+      const unit = await page.evaluate(yUnit);
+      // A drag repaints at the drawn layout; letting go redraws once.
       await page.evaluate(() => {
         const viz = window.__viz;
         const draw = viz._draw;
@@ -147,8 +64,14 @@ for (const renderer of ["svg", "canvas"]) {
           return draw.apply(this, args);
         };
       });
-      await drag(page, [handle.x - 100, handle.y], -5.4 * pxPerUnit);
+      // Up past 52 (Apr), not 60 (Mar).
+      await press(page, [handle.x - 100, handle.y], [0, -5.4 * unit]);
       assert.strictEqual(await page.evaluate(() => window.__draws), 0);
+      const mid = await page.evaluate(state);
+      assert.ok(mid.lines[0].width > 1, "lit while dragged");
+      await page.mouse.up();
+      await page.waitForTimeout(60);
+      assert.strictEqual(await page.evaluate(() => window.__draws), 1);
       const after = await page.evaluate(state);
       assert.ok(after.value >= 54 && after.value <= 56, `value ${after.value}`);
       assert.ok(Number.isInteger(after.value), "snaps to whole units");
@@ -159,12 +82,10 @@ for (const renderer of ["svg", "canvas"]) {
       assert.strictEqual(after.handles[0].now, `${after.value}`);
       const kinds = after.events.map(e => e.kind);
       assert.ok(kinds.filter(k => k === "drag").length >= 2, "drag events");
-      assert.strictEqual(kinds[kinds.length - 1], "end");
-      assert.strictEqual(
-        after.events[after.events.length - 1].value,
-        after.value,
-      );
+      assert.deepStrictEqual(kinds.slice(-1), ["end"]);
+      assert.strictEqual(after.events.at(-1).value, after.value);
       assert.strictEqual(after.events[0].id, "target");
+      assert.strictEqual(after.events[0].index, 0);
       assert.strictEqual(after.clicks, 0, "the drag doesn't click");
 
       // The value lasts through a redraw.
@@ -178,7 +99,7 @@ for (const renderer of ["svg", "canvas"]) {
       assert.strictEqual(redrawn.bars.Apr, "#ff0000");
     }));
 
-  it(`[${renderer}] the keyboard moves a focused line, announced as the slider's value`, () =>
+  it(`[${renderer}] the keyboard moves a focused line, settling when the key is let go`, () =>
     withPage(box, async page => {
       await page.evaluate(start, [
         "BarChart",
@@ -186,50 +107,117 @@ for (const renderer of ["svg", "canvas"]) {
         renderer,
       ]);
       await painted(page);
-      const key = k =>
-        page.evaluate(name => {
-          const el = document.querySelector(".d3plus-reference-drag");
-          el.focus();
-          el.dispatchEvent(
-            new KeyboardEvent("keydown", {
-              key: name,
-              bubbles: true,
-              cancelable: true,
-            }),
-          );
-        }, k);
-      await key("ArrowUp");
-      await key("ArrowUp");
-      await page.waitForTimeout(50);
+      await key(page, "ArrowUp");
+      await key(page, "ArrowUp");
+      await page.waitForTimeout(60);
       let s = await page.evaluate(state);
       assert.strictEqual(s.value, 52);
       assert.strictEqual(s.handles[0].now, "52");
       assert.strictEqual(s.handles[0].text, "52");
       assert.strictEqual(s.handles[0].label, "Reference line");
-      assert.ok(s.handles[0].focused, "keeps focus through the repaint");
+      assert.ok(s.handles[0].focused, "keeps focus through the redraw");
       assert.ok(s.lines[0].width > 1, "lit while focused");
       assert.deepStrictEqual(
         s.events.map(e => e.kind),
         ["drag", "end", "drag", "end"],
       );
-      await key("PageDown");
-      await page.waitForTimeout(50);
+      await key(page, "PageDown");
+      await page.waitForTimeout(60);
       assert.strictEqual((await page.evaluate(state)).value, 42);
-      await key("End");
-      await page.waitForTimeout(50);
+      await key(page, "End");
+      await page.waitForTimeout(60);
       s = await page.evaluate(state);
-      assert.strictEqual(s.value, Number(s.handles[0].now));
-      assert.strictEqual(
-        s.handles[0].now,
-        await page.evaluate(() => {
-          const el = document.querySelector(".d3plus-reference-drag");
-          return el.getAttribute("aria-valuemax");
-        }),
-      );
-      await key("Escape");
+      assert.strictEqual(s.handles[0].now, s.handles[0].max);
+      await key(page, "Escape");
       assert.strictEqual((await page.evaluate(state)).events.length, 8);
     }));
 }
+
+it("letting go redraws, refitting the axis the line had widened", () =>
+  withPage(box, async page => {
+    const rows = [];
+    for (let i = 0; i <= 10; i++) rows.push({id: "a", x: i, y: 20 + i * 2});
+    await page.evaluate(start, [
+      "LinePlot",
+      JSON.stringify({
+        data: rows,
+        groupBy: "id",
+        referenceLines: [{y: 100, draggable: true}],
+      }),
+      "svg",
+    ]);
+    await painted(page);
+    const top = () =>
+      page.evaluate(() => Math.max(...window.__viz._yAxis._getDomain()));
+    assert.ok((await top()) >= 100, "widened to the line");
+    const {handles} = await page.evaluate(state);
+    const unit = await page.evaluate(yUnit);
+    await press(page, [handles[0].x, handles[0].y], [0, 60 * unit]);
+    assert.ok((await top()) >= 100, "held while dragging");
+    await page.mouse.up();
+    await page.waitForTimeout(60);
+    const value = (await page.evaluate(state)).value;
+    assert.ok(value < 45, `dragged to ${value}`);
+    assert.ok((await top()) < 100, "refit on release");
+  }));
+
+it("a statistic line drags to a fixed value, dropping its name", () =>
+  withPage(box, async page => {
+    await page.evaluate(start, [
+      "BarChart",
+      JSON.stringify({
+        ...target,
+        referenceLines: [{y: "mean", draggable: true}],
+      }),
+      "svg",
+    ]);
+    await painted(page);
+    const before = await page.evaluate(state);
+    assert.ok(before.texts.includes("Mean"));
+    const unit = await page.evaluate(yUnit);
+    await drag(page, [before.handles[0].x, before.handles[0].y], -10 * unit);
+    const after = await page.evaluate(state);
+    assert.strictEqual(typeof after.value, "number");
+    assert.ok(after.value > 50, `the mean (46.75) moved up to ${after.value}`);
+    assert.ok(!after.texts.includes("Mean"));
+    assert.ok(after.texts.includes(`${after.value}`));
+  }));
+
+it("a category axis line snaps to the categories it is dragged across", () =>
+  withPage(box, async page => {
+    await page.evaluate(start, [
+      "BarChart",
+      JSON.stringify({
+        ...target,
+        referenceLines: [{x: "Feb", draggable: true}],
+      }),
+      "canvas",
+    ]);
+    await painted(page);
+    const before = await page.evaluate(state);
+    assert.strictEqual(before.handles[0].text, "Feb");
+    const step = await page.evaluate(
+      () =>
+        window.__viz._xAxis._getPosition("Mar") -
+        window.__viz._xAxis._getPosition("Feb"),
+    );
+    await drag(
+      page,
+      [before.handles[0].x, before.handles[0].y - 50],
+      [step * 1.3, 0],
+    );
+    let s = await page.evaluate(() => window.__viz.referenceLines()[0].x);
+    assert.strictEqual(s, "Mar");
+    await key(page, "ArrowRight");
+    await page.waitForTimeout(60);
+    s = await page.evaluate(state);
+    assert.strictEqual(
+      await page.evaluate(() => window.__viz.referenceLines()[0].x),
+      "Apr",
+    );
+    assert.strictEqual(s.handles[0].text, "Apr");
+    assert.deepStrictEqual(s.events.map(e => e.value).slice(-1), ["Apr"]);
+  }));
 
 it("a zoomed plot's line drags along its zoomed axis", () =>
   withPage(box, async page => {
@@ -246,17 +234,12 @@ it("a zoomed plot's line drags along its zoomed axis", () =>
       "svg",
     ]);
     await painted(page);
-    const unit = () =>
-      page.evaluate(() => {
-        const y = window.__viz._yAxis;
-        return Math.abs(y._getPosition(0) - y._getPosition(1));
-      });
-    const unzoomed = await unit();
+    const unzoomed = await page.evaluate(yUnit);
     await page.evaluate(() =>
       document.querySelector("button[aria-label='Zoom In']").click(),
     );
     await page.waitForTimeout(900);
-    const zoomed = await unit();
+    const zoomed = await page.evaluate(yUnit);
     assert.ok(zoomed > unzoomed * 1.2, "the y axis rescaled");
     const {handles} = await page.evaluate(state);
     assert.strictEqual(handles.length, 1, "still in view");
@@ -295,10 +278,10 @@ it("one finger drags the line", () =>
       fire("touchmove", 40);
       fire("touchend", 40);
     });
-    await page.waitForTimeout(50);
+    await page.waitForTimeout(60);
     const s = await page.evaluate(state);
     assert.ok(s.value < 50, `moved down to ${s.value}`);
-    assert.strictEqual(s.events[s.events.length - 1].kind, "end");
+    assert.strictEqual(s.events.at(-1).kind, "end");
   }));
 
 it("highlight follows a dragged line", () =>
@@ -323,15 +306,8 @@ it("highlight follows a dragged line", () =>
     const before = await page.evaluate(state);
     assert.ok(gray(before.fills.a) && gray(before.fills.b), "a and b grayed");
     assert.ok(!gray(before.fills.c), "c lit");
-    const pxPerUnit = await page.evaluate(() => {
-      const y = window.__viz._yAxis;
-      return Math.abs(y._getPosition(0) - y._getPosition(1));
-    });
-    await drag(
-      page,
-      [before.handles[0].x, before.handles[0].y],
-      20 * pxPerUnit,
-    );
+    const unit = await page.evaluate(yUnit);
+    await drag(page, [before.handles[0].x, before.handles[0].y], 20 * unit);
     const after = await page.evaluate(state);
     assert.ok(after.value < 40 && after.value > 10, `value ${after.value}`);
     assert.ok(!gray(after.fills.b), "b lit too");
@@ -360,21 +336,14 @@ it("a time axis line drags to dates inside its range", () =>
       }),
       "svg",
     ]);
-    await page.evaluate(() => window.__viz.time("date"));
     await page.evaluate(() => {
       window.__drawn = false;
-      window.__viz.render(() => (window.__drawn = true));
+      window.__viz.time("date").render(() => (window.__drawn = true));
     });
     await painted(page);
     const before = await page.evaluate(state);
     assert.strictEqual(before.handles[0].text, "Jul 1, 2021");
-    const {x, y} = before.handles[0];
-    await page.mouse.move(x, y);
-    await page.mouse.down();
-    await page.mouse.move(x + 400, y);
-    await page.waitForTimeout(30);
-    await page.mouse.up();
-    await page.waitForTimeout(50);
+    await drag(page, [before.handles[0].x, before.handles[0].y], [400, 0], 2);
     const after = await page.evaluate(() => ({
       x: +window.__viz.referenceLines()[0].x,
       date: window.__viz.referenceLines()[0].x instanceof Date,
@@ -382,53 +351,5 @@ it("a time axis line drags to dates inside its range", () =>
     }));
     assert.ok(after.date, "stored as a Date");
     assert.strictEqual(after.x, Date.UTC(2021, 9, 1), "kept at its max");
-    assert.strictEqual(after.events[after.events.length - 1].value, after.x);
-  }));
-
-it("lines that can't move get no handle", () =>
-  withPage(box, async page => {
-    const rows = [
-      {id: "a", x: 1, y: 10, g: "one"},
-      {id: "b", x: 2, y: 40, g: "two"},
-    ];
-    const count = async config => {
-      await page.evaluate(start, ["Plot", JSON.stringify(config), "svg"]);
-      await painted(page);
-      return (await page.evaluate(state)).handles.length;
-    };
-    assert.strictEqual(
-      await count({data: rows, groupBy: "id", referenceLines: [{y: 20}]}),
-      0,
-      "not draggable",
-    );
-    assert.strictEqual(
-      await count({
-        data: rows,
-        groupBy: "id",
-        referenceLines: [{y: "mean", draggable: true}],
-      }),
-      0,
-      "a statistic",
-    );
-    assert.strictEqual(
-      await count({
-        data: rows,
-        groupBy: "id",
-        facet: "g",
-        referenceLines: [{y: 20, draggable: true}],
-      }),
-      0,
-      "small multiples",
-    );
-    assert.strictEqual(
-      await count({
-        data: sales,
-        groupBy: "month",
-        x: "month",
-        y: "sales",
-        referenceLines: [{x: "Feb", draggable: true}],
-      }),
-      0,
-      "a category axis",
-    );
+    assert.strictEqual(after.events.at(-1).value, after.x);
   }));

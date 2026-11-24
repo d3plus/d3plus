@@ -180,13 +180,15 @@ export interface ReferenceLineConfig extends Omit<ReferenceStyle, "label"> {
       Lets the reader drag the line along its axis with the pointer, or move
       it with the arrow keys once it has focus: `true`, or the range it can
       move in (`min`, `max`; the axis's by default) and the `step` its
-      value snaps to (without one, about a pixel's worth). The value it is
-      moved to replaces its own, so it lasts through redraws and
+      value snaps to (without one, about a pixel's worth; on a category
+      axis it snaps to the categories, and `min`/`max` are categories). The
+      value it is moved to replaces its own (a statistic or function
+      becomes that fixed value), so it lasts through redraws and
       `referenceLines()` reads it back; the chart fires
       `drag.referenceLine` as it moves and `end.referenceLine` when it is
-      let go. Unlabeled, it is labeled with its value. Only a line at a
-      value of its own (not a statistic or a function) on a number or time
-      axis, outside small multiples, can be dragged. Defaults to `false`.
+      let go, then redraws to refit its axes. Unlabeled, it is labeled with
+      its value. A grip at the end away from its label marks it. A
+      `perSeries` line can't be dragged. Defaults to `false`.
   */
   draggable?: boolean | ReferenceDragConfig;
   /** How the value is read. Defaults to `"data"`. */
@@ -244,6 +246,15 @@ export interface ReferenceBandConfig extends ReferenceStyle {
   y?: [ReferenceValue, ReferenceValue];
   x2?: [ReferenceValue, ReferenceValue];
   y2?: [ReferenceValue, ReferenceValue];
+  /**
+      Lets the reader drag each edge of the band along its axis, or move it
+      with the arrow keys, as a `draggable` reference line moves: `true`, or
+      `{min, max, step}`. An edge can't pass the span's other end. The moved
+      end replaces its own in the span, and the chart fires
+      `drag.referenceBand` and `end.referenceBand` with the whole span.
+      Defaults to `false`.
+  */
+  draggable?: boolean | ReferenceDragConfig;
   /** How the values are read. Defaults to `"data"`. */
   ref?: AnnotationRef;
   /** Which corner the label sits in: `"start"` (the default: the top left) or `"end"` (the top right). */
@@ -282,6 +293,15 @@ export interface QuadrantsConfig extends AnnotationTextStyle {
   y?: ReferenceValue;
   /** How the center is read. Defaults to `"data"`. */
   ref?: AnnotationRef;
+  /**
+      Lets the reader drag each divider along its axis, or move it with the
+      arrow keys, as a `draggable` reference line moves: `true`, or
+      `{min, max, step}`. A moved divider sets the center's `x` or `y`, and
+      the chart fires `drag.quadrants` and `end.quadrants` with the center
+      as `{x, y}` and the axis moved in place of an index. Defaults to
+      `false`.
+  */
+  draggable?: boolean | ReferenceDragConfig;
   /** The top-left quadrant. */
   topLeft?: QuadrantStyle;
   /** The top-right quadrant. */
