@@ -11,6 +11,10 @@ import type {
   LineLabelsSetting,
 } from "../charts/Plot/lineLabelSides.js";
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
+import type {
+  FigureChart,
+  FigureLayoutConfig,
+} from "../charts/Figure/figureTypes.js";
 import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
 import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
 import type {AlluvialDimensionInput} from "../charts/Alluvial/dimensions.js";
@@ -1533,6 +1537,26 @@ export interface D3plusConfig {
   */
   centerLabelConfig?: TextBoxConfig;
   /**
+      Figure: config applied to every chart in the figure (with
+      `.config()`), before each chart's own `config`. Use it for what the
+      charts share, such as a `theme`, `locale`, or `tooltipConfig`.
+      Defaults to `{saveControl: false}`: the figure's own download button
+      saves every chart. Merged into the current config.
+  */
+  chartConfig?: D3plusConfig;
+  /**
+      Figure: the charts it draws, in reading order. Each is a chart
+      instance (`new BarChart().data(…)`), or an object placing one:
+      `{chart, config, column, row, columnSpan, rowSpan}`, where `chart` is
+      an instance, a chart class, or a chart class's name (`"BarChart"`)
+      and `config` is applied to it. A chart without a `column` and `row`
+      takes the first free cell that fits its span. The figure sizes,
+      draws, and destroys its charts (setting each one's `width`, `height`,
+      `renderer`, `detectResize`, and `detectVisible`), and links those
+      without a `link` of their own (see `link`).
+  */
+  charts?: FigureChart[];
+  /**
       Sankey: draws links that loop back to a node they left (A → B → A, or a
       node to itself) as bands that run in a lane above or below the nodes.
       `false` leaves them out, with a warning. Defaults to `true`.
@@ -2406,6 +2430,16 @@ export interface D3plusConfig {
       node's spoke past the circle.
   */
   layout?: "force" | "circle";
+  /**
+      Figure: the grid its charts are placed on. `columns` and `rows` set
+      the track count, or each track's size relative to the others
+      (`columns: [2, 1]`); the column count is chosen to draw the charts as
+      large as possible by default. `padding` is the space between charts
+      (`16` by default), and `align` (`true` by default) lines up the plot
+      areas of charts with axes that start or end on the same grid line.
+      Merged into the current config.
+  */
+  layoutConfig?: FigureLayoutConfig;
   /**
       Network's circle layout (`layout: "circle"`): how far links bow in
       toward the center, from `0` (straight lines) to `1` (each link curves

@@ -19,6 +19,7 @@ export {
   DotPlot,
   Dumbbell,
   FanChart,
+  Figure,
   Funnel,
   Gantt,
   Gauge,
@@ -191,6 +192,12 @@ export type {
   FacetValue,
 } from "./src/charts/facet/facetConfig.js";
 export type {FacetLayout} from "./src/charts/facet/facetLayout.js";
+export type {
+  FigureChart,
+  FigureChartEntry,
+  FigureLayoutConfig,
+  FigurePlacement,
+} from "./src/charts/Figure/figureTypes.js";
 
 export type {
   AnyShapeConfig,

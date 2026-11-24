@@ -18,6 +18,7 @@ export {default as Donut} from "./Donut/index.js";
 export {default as DotPlot} from "./DotPlot/index.js";
 export {default as Dumbbell} from "./Dumbbell/index.js";
 export {default as FanChart} from "./FanChart/index.js";
+export {default as Figure} from "./Figure/index.js";
 export {default as Funnel} from "./Funnel/index.js";
 export {default as Gantt} from "./Gantt/index.js";
 export {default as Gauge} from "./Gauge/index.js";

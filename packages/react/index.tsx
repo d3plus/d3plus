@@ -21,6 +21,7 @@ import {
   DotPlot as DotPlotClass,
   Dumbbell as DumbbellClass,
   FanChart as FanChartClass,
+  Figure as FigureClass,
   Funnel as FunnelClass,
   Gantt as GanttClass,
   Gauge as GaugeClass,
@@ -180,6 +181,10 @@ export const Dumbbell = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus FanChart visualization. */
 export const FanChart = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={FanChartClass} {...props} />
+);
+/** React component for rendering a d3plus Figure: several charts drawn together as one figure. */
+export const Figure = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={FigureClass} {...props} />
 );
 /** React component for rendering a d3plus Funnel visualization. */
 export const Funnel = (props: D3plusComponentProps) => (

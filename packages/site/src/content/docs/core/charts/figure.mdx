@@ -1,0 +1,46 @@
+---
+title: Figure
+description: "Places several different charts together as one figure, under one title and saved as one image, with their plot areas lined up and their hover and highlight linked."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/figure/basic-example.js?raw";
+import placingCharts from "~/examples/core/charts/figure/placing-charts.js?raw";
+import liningUpPlotAreas from "~/examples/core/charts/figure/lining-up-plot-areas.js?raw";
+import sharedConfig from "~/examples/core/charts/figure/shared-config.js?raw";
+import nestingFigures from "~/examples/core/charts/figure/nesting-figures.js?raw";
+
+Places several different charts together as one figure: one title and subtitle above them, one download button that saves them all as one image, and a grid that sizes each chart. Where `facet` repeats one chart for each value of a key, a Figure combines charts of any kind.
+
+## Basic example
+
+List the `charts`: each is a chart instance (`new d3plus.BarChart().data(…)`), or an object naming a chart class with the `config` to give it. Every chart keeps its own axes, tooltips, legend, zoom, and keyboard navigation, and draws its own data. The charts are linked: hovering a country in one highlights it in the other, and a value takes the same color in both.
+
+<Playground chart="Figure" code={basicExample} controls={["title","link"]} />
+
+## Placing charts
+
+`layoutConfig` sets the grid: `columns` and `rows` are a count, or each track's size relative to the others (`[2, 1]` makes the first column twice as wide), and `padding` the space between charts. Charts fill the grid left to right, top to bottom; `columnSpan` and `rowSpan` stretch one over several cells, and `column` and `row` (from 0) pin it to one. Without `columns`, the figure picks the column count that draws its charts largest.
+
+<Playground chart="Figure" code={placingCharts} controls={["layoutConfig"]} />
+
+## Lining up plot areas
+
+Charts with axes that start or end on the same grid line have their plot areas lined up, so stacked charts read against one x axis and charts side by side share their top and bottom, however wide each one's axis labels are. `layoutConfig.align: false` gives each chart its whole cell instead.
+
+<Playground chart="Figure" code={liningUpPlotAreas} controls={["layoutConfig"]} />
+
+## Shared config
+
+`chartConfig` is config every chart gets before its own, for what they share: a `theme`, a `locale`, a `tooltipConfig`. It turns off each chart's own download button by default, since the figure's saves them all. Set `link` to a group name to link the charts with others on the page, or to `false` to unlink them; a chart with a `link` of its own keeps it.
+
+<Playground chart="Figure" code={sharedConfig} controls={["link"]} />
+
+## Nesting figures
+
+A chart in a figure can be another Figure, which lays its own charts out in its cell: here a pie beside a bar chart stacked over an area plot. The nested figure's charts join the outer figure's link group.
+
+<Playground chart="Figure" code={nestingFigures} controls={["layoutConfig"]} />
+
+<ApiReference name="Figure" pkg="core" />

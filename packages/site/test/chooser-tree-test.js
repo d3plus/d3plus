@@ -28,7 +28,8 @@ describe("TREE", () => {
     );
     const exported = [...source.matchAll(/export \{default as (\w+)\}/g)]
       .map(m => m[1])
-      .filter(name => !["Plot", "Viz"].includes(name))
+      // Figure composes charts rather than being one to choose.
+      .filter(name => !["Figure", "Plot", "Viz"].includes(name))
       .sort();
     const charted = [...new Set(leaves(TREE).map(l => l.node.chart))].sort();
     assert.deepEqual(charted, exported);

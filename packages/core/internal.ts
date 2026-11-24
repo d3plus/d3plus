@@ -2117,6 +2117,32 @@ export {
 } from "./src/charts/DotPlot/placements.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
+export {applyFigureLayout, figureDef} from "./src/charts/Figure/index.js";
+export {
+  alignCells,
+  plotInsets,
+  sidesChanged,
+} from "./src/charts/Figure/figureAlign.js";
+export type {FigureSides} from "./src/charts/Figure/figureAlign.js";
+export {
+  figureEntry,
+  isChartInstance,
+  syncFigureCharts,
+} from "./src/charts/Figure/figureCharts.js";
+export {
+  figureColumns,
+  figureGrid,
+  placeCharts,
+  resolveFigureLayout,
+  trackOffsets,
+  trackWeights,
+} from "./src/charts/Figure/figureGrid.js";
+export type {FigureCell, FigureSlot} from "./src/charts/Figure/figureGrid.js";
+export {composeFigureScene} from "./src/charts/Figure/figureScene.js";
+export {
+  chartClass,
+  registerChart,
+} from "./src/charts/definition/chartRegistry.js";
 export {funnelDef} from "./src/charts/Funnel/index.js";
 export {ganttDef, progressAgg, taskAccessor} from "./src/charts/Gantt/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";

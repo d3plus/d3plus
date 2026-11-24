@@ -31,6 +31,7 @@ import {
   elementNode,
   SVG_NS,
   tagFor,
+  XLINK_NS,
 } from "./svgNodeAttrs.js";
 import type {
   DrawOptions,
@@ -40,6 +41,9 @@ import type {
   RenderTarget,
   SceneEvent,
 } from "../Renderer.js";
+
+/** The namespace of `xmlns:` declarations. */
+const XMLNS_NS = "http://www.w3.org/2000/xmlns/";
 
 /** One walked overlay row: its node plus accumulated ancestor offset. */
 type OverlayItem = ReturnType<typeof walkOverlays>[number];
@@ -136,6 +140,9 @@ export default class SvgRenderer implements Renderer {
     // valid standalone SVG. Browsers infer it from the DOM namespace, but the
     // HTML serializer doesn't always emit it; a redundant attribute is harmless.
     svg.setAttribute("xmlns", SVG_NS);
+    // Text along a path links to it with `xlink:href`, which a standalone
+    // file only parses with the prefix declared.
+    svg.setAttributeNS(XMLNS_NS, "xmlns:xlink", XLINK_NS);
     svg.style.display = "block";
     // Transparent background — without this, default UA stylesheet may
     // give the svg a white background, which briefly bleeds through

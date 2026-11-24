@@ -290,6 +290,10 @@ export interface VizInstance {
   _chartScene?: SceneNode[];
   /** The whole scene last painted (chart, legend, colorScale, chrome). */
   _paintedScene?: Scene;
+  /** Called each time the chart's pipeline has run and painted (a Figure listens on its charts). */
+  _onDrawn?: () => void;
+  /** Whether the chart saves from `toSVGString()` on either renderer (a Figure, whose charts draw outside its own surface). */
+  _vectorSave?: boolean;
   _chartTransform?: Transform;
   _chartClip?: ClipShape;
   _featurePanels?: SceneNode[];
