@@ -1,14 +1,17 @@
 /**
-    Dashboard: one legend for every chart. The dashboard draws the legend of
-    one of its charts (`legendChart`, or the first whose legend is on), from
-    that chart's data, grouping, and colors, and hides the charts' own. It
-    joins the charts' link group, so clicking or hovering its entries hides,
-    solos, or highlights them in every chart, and their colors match.
+    Dashboard: one legend for every chart. The dashboard gathers the rows of
+    its charts (all of them, or those `legendChart` names) and draws one
+    legend of their entries: each row's entry is the value it is colored by
+    (its `color`, else its top `groupBy` level), so an entry two charts share
+    shows once. It hides the charts' own legends, and joins their link
+    group, so clicking or hovering an entry hides, solos, or highlights it in
+    every chart, and its colors match theirs.
 
     @module
 */
 import type {DataPoint} from "@d3plus/data";
 
+import {isPlainObject, mergeConfig} from "../../fluent.js";
 import {constantValue} from "../../utils/constant.js";
 import {registerLink, unregisterLink} from "../viz/linkGroup.js";
 import type Viz from "../viz/Viz.js";
@@ -16,38 +19,44 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import type {DashboardChild} from "./dashboardCharts.js";
 import {dashboardLinkGroup} from "./dashboardLink.js";
 
-/** A legend rule: whether the legend shows, given its entries. */
-type LegendRule = (config: unknown, arr: DataPoint[]) => unknown;
+/** The field holding each gathered row's legend entry. */
+export const ENTRY_KEY = "__d3plusLegendEntry";
+
+/** The field holding each gathered row's id in its own chart. */
+export const ID_KEY = "__d3plusLegendId";
+
+/** The style keys the dashboard takes from its charts when they set them. */
+export const STYLE_KEYS = [
+  "legendConfig",
+  "legendTooltip",
+  "shape",
+  "shapeConfig",
+] as const;
+
+type RowFn = (d: DataPoint, i: number) => unknown;
 
 /** What the shared legend keeps between renders. */
 export interface DashboardLegendState {
-  /** The chart whose legend the dashboard draws. */
-  source?: DashboardChild;
-  /** The source's own legend rule, when it isn't the chart default. */
-  rule?: LegendRule;
-  /** The data and grouping last taken from the source. */
-  data?: unknown;
-  groupBy?: unknown;
-  /** Set on a dashboard inside another that draws one legend for both: its charts' legends stay hidden, and it draws none. */
-  collected?: boolean;
+  /** The charts whose entries the legend holds. */
+  sources: DashboardChild[];
+  /** What the gathered rows were made from, so they are made again only once it changes. */
+  signature: unknown[];
+  /** The style values the dashboard last wrote, to tell them from the user's own. */
+  written: Record<string, unknown>;
+  /** The user's own style values on the dashboard. */
+  own: Record<string, unknown>;
 }
 
 /** The dashboard, as the shared legend reads and writes it. */
 export type LegendHost = Viz & {
   _dashboard: {children: DashboardChild[]; legend: DashboardLegendState};
+  _linkBy?: RowFn;
 };
 
-/** The config keys the dashboard takes from its legend's chart when that chart sets them. */
-export const ADOPTED_KEYS = [
-  "color",
-  "depth",
-  "label",
-  "legendFilterInvert",
-  "legendSort",
-  "threshold",
-  "thresholdKey",
-  "thresholdName",
-];
+/** A new, empty shared legend state. */
+export function legendState(): DashboardLegendState {
+  return {sources: [], signature: [], written: {}, own: {}};
+}
 
 /** Whether a `legend` value never shows a legend (`false`, or a constant false). */
 export function legendOff(value: unknown): boolean {
@@ -67,25 +76,115 @@ function isDashboard(chart: unknown): boolean {
 }
 
 /**
-    The index of the chart whose legend the dashboard draws: `pick` when it
-    names a chart that isn't itself a dashboard, else the first chart whose
-    legend the dashboard may take (`eligible`) and whose own legend is on.
-    -1 for none.
+    The parts of `value` that differ from `base`: plain objects compared key
+    by key at every depth, anything else by identity. Undefined when nothing
+    differs.
 */
-export function legendSourceIndex(
+export function userSet(value: unknown, base: unknown): unknown {
+  if (isPlainObject(value) && isPlainObject(base)) {
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(value)) {
+      const diff = userSet(value[key], base[key]);
+      if (diff !== undefined) out[key] = diff;
+    }
+    return Object.keys(out).length ? out : undefined;
+  }
+  return value === base ? undefined : value;
+}
+
+/**
+    One style value from what each chart set (`sets`, in reading order) over
+    the dashboard's default: an object merges key by key with the earlier
+    chart winning where two set the same key; anything else is the first
+    chart's. The dashboard's own (`own`) wins over every chart's.
+*/
+export function combineStyle(
+  base: unknown,
+  sets: unknown[],
+  own: unknown,
+): unknown {
+  const given = sets.filter(v => v !== undefined);
+  if (isPlainObject(base)) {
+    let out = mergeConfig(base, {});
+    for (const v of given.slice().reverse())
+      if (isPlainObject(v)) out = mergeConfig(out, v);
+    return isPlainObject(own) ? mergeConfig(out, own) : out;
+  }
+  return own !== undefined ? own : given.length ? given[0] : base;
+}
+
+/**
+    The value each of a chart's rows is a legend entry for: the chart's
+    `color` when it sets one (and colors by category, not a colorScale),
+    else its top `groupBy` level.
+*/
+export function entryAccessor(chart: {schema: Record<string, unknown>}): RowFn {
+  const {color, groupBy} = chart.schema;
+  if (typeof color === "function") return color as RowFn;
+  const levels = Array.isArray(groupBy) ? (groupBy as RowFn[]) : [];
+  return levels[0] ?? ((d: DataPoint) => d.id);
+}
+
+/** A chart's id for each of its rows: its deepest `groupBy` level. */
+export function idAccessor(chart: {schema: Record<string, unknown>}): RowFn {
+  const levels = Array.isArray(chart.schema.groupBy)
+    ? (chart.schema.groupBy as RowFn[])
+    : [];
+  return levels[levels.length - 1] ?? ((d: DataPoint) => d.id);
+}
+
+/** The rows a chart draws from: its data as given, or as loaded when it was given a URL. */
+export function chartRows(chart: {_userData?: unknown; _data?: unknown}) {
+  if (Array.isArray(chart._userData)) return chart._userData as DataPoint[];
+  return Array.isArray(chart._data) ? (chart._data as DataPoint[]) : [];
+}
+
+/**
+    Every chart's rows, each with its legend entry (`ENTRY_KEY`) and its id
+    in its own chart (`ID_KEY`). Rows without an entry are left out.
+*/
+export function gatherRows(
+  charts: {
+    schema: Record<string, unknown>;
+    _userData?: unknown;
+    _data?: unknown;
+  }[],
+): DataPoint[] {
+  const out: DataPoint[] = [];
+  for (const chart of charts) {
+    const entry = entryAccessor(chart),
+      id = idAccessor(chart);
+    chartRows(chart).forEach((d, i) => {
+      const value = entry(d, i);
+      if (value === undefined || value === null) return;
+      out.push({
+        ...d,
+        [ENTRY_KEY]: value,
+        [ID_KEY]: id(d, i),
+      } as unknown as DataPoint);
+    });
+  }
+  return out;
+}
+
+/**
+    The charts whose entries the legend holds: those `pick` names (an index
+    or a list of indices into `charts`), else every chart whose own legend
+    is on. A chart that is itself a dashboard draws its own legend and is
+    never one.
+*/
+export function legendSources(
   owns: {legend: unknown; eligible: boolean; dashboard: boolean}[],
   pick: unknown,
-): number {
-  if (
-    typeof pick === "number" &&
-    Number.isInteger(pick) &&
-    owns[pick] &&
-    !owns[pick].dashboard
-  )
-    return pick;
-  return owns.findIndex(
-    o => o.eligible && !o.dashboard && !legendOff(o.legend),
+): number[] {
+  const picked = (Array.isArray(pick) ? pick : [pick]).filter(
+    (i): i is number => typeof i === "number" && !!owns[i],
   );
+  const all = owns.map((_, i) => i);
+  const chosen = picked.length
+    ? picked
+    : all.filter(i => owns[i].eligible && !legendOff(owns[i].legend));
+  return chosen.filter(i => !owns[i].dashboard);
 }
 
 /** A chart's own `legend`, whether or not the dashboard is standing in for it. */
@@ -94,105 +193,96 @@ function ownLegend(child: DashboardChild): unknown {
 }
 
 /**
-    Takes the source chart's data, grouping, and the config it sets of
-    `ADOPTED_KEYS`, so the dashboard's legend rolls up and colors the same
-    entries; keys the source leaves at their default go back to the
-    dashboard's.
+    Takes the style the source charts set (`STYLE_KEYS`) onto the dashboard,
+    under any the user set on the dashboard itself.
 */
-function adoptSource(dashboard: LegendHost, source: Viz): void {
+function adoptStyle(dashboard: LegendHost, sources: Viz[]): void {
   const state = dashboard._dashboard.legend;
-  const own = source._defaultConfig() as Record<string, unknown>;
-  const mine = dashboard._defaultConfig() as Record<string, unknown>;
   const schema = dashboard.schema as Record<string, unknown>;
-  for (const key of ADOPTED_KEYS) {
-    if (!(key in source.schema)) continue;
-    const value = source.schema[key];
-    schema[key] = value === own[key] ? mine[key] : value;
+  const mine = dashboard._defaultConfig() as Record<string, unknown>;
+  for (const key of STYLE_KEYS) {
+    if (key in state.written && schema[key] !== state.written[key])
+      state.own[key] = schema[key];
+    else if (!(key in state.written)) state.own[key] = schema[key];
+    const own = userSet(state.own[key], mine[key]);
+    const sets = sources.map(chart =>
+      userSet(
+        chart.schema[key],
+        (chart._defaultConfig() as Record<string, unknown>)[key],
+      ),
+    );
+    const value = combineStyle(mine[key], sets, own);
+    schema[key] = value;
+    state.written[key] = schema[key];
   }
-  schema.aggs = {...(source.schema.aggs as object)};
-  schema.dataFormat = source.schema.dataFormat;
-  const groupBy = (source as {_groupByRaw?: unknown})._groupByRaw;
-  if (groupBy !== state.groupBy) {
-    state.groupBy = groupBy;
-    dashboard.groupBy((groupBy ?? mine.groupBy) as never);
-  }
-  const data = (source as {_userData?: unknown})._userData ?? [];
-  if (data !== state.data) {
-    state.data = data;
-    dashboard.data(data as DataPoint[]);
-  }
+}
+
+/** Gives the dashboard `rows` when what they are made from has changed. */
+function adoptRows(dashboard: LegendHost, sources: Viz[]): void {
+  const state = dashboard._dashboard.legend;
+  const signature = sources.flatMap(chart => [
+    chartRows(chart as never),
+    entryAccessor(chart),
+    idAccessor(chart),
+  ]);
+  const same =
+    signature.length === state.signature.length &&
+    signature.every((v, i) => v === state.signature[i]);
+  if (same) return;
+  state.signature = signature;
+  dashboard.data(gatherRows(sources));
 }
 
 /**
     Readies the shared legend for a render: hides the charts' own legends
     (unless their own config or `chartConfig` sets `legend`, or the
-    dashboard's `legend` is off), picks the chart whose legend it draws,
-    takes that chart's data and grouping, and joins the charts' link group.
+    dashboard's `legend` is off), gathers the source charts' rows and the
+    style they set, and joins the charts' link group, matching rows on their
+    entry and on their chart's id.
 */
 export function syncDashboardLegend(dashboard: LegendHost): void {
   const state = dashboard._dashboard.legend;
   const on = !legendOff(dashboard.schema.legend);
-  const hide = on || !!state.collected;
   const shared = dashboard.schema.chartConfig;
   const children = dashboard._dashboard.children;
   const owns = children.map(child => {
     const pinned = setsLegend(child.config) || setsLegend(shared);
     const nested = isDashboard(child.chart);
-    if (nested)
-      (child.chart as unknown as LegendHost)._dashboard.legend.collected = hide;
-    if (hide && !pinned && !child.ownLegend) {
+    const hide = on && !pinned && !nested;
+    if (hide && !child.ownLegend) {
       child.ownLegend = {value: child.chart.schema.legend};
       child.chart.legend(false);
-    } else if ((!hide || pinned) && child.ownLegend) {
+      child.dirty = true;
+    } else if (!hide && child.ownLegend) {
       child.chart.legend(child.ownLegend.value as never);
       child.ownLegend = undefined;
+      child.dirty = true;
     }
     return {legend: ownLegend(child), eligible: !pinned, dashboard: nested};
   });
-  const index = on ? legendSourceIndex(owns, dashboard.schema.legendChart) : -1;
-  const source = children[index];
-  state.source = source;
-  if (!source) {
-    state.rule = undefined;
-    if (state.data !== undefined && (state.data as unknown[]).length !== 0) {
-      state.data = [];
-      dashboard.data([]);
-    }
-    unregisterLink(dashboard as unknown as VizInstance);
-    return;
-  }
-  // A chart's default rule reads the chart as it last drew, so only a rule
-  // of the user's own carries over (not one turning the legend off, when
-  // `legendChart` names the chart outright).
-  const rule = owns[index].legend;
-  const chartDefault = (source.chart._defaultConfig() as {legend?: unknown})
-    .legend;
-  state.rule =
-    typeof rule === "function" &&
-    !legendOff(rule) &&
-    rule !== chartDefault &&
-    rule !== source.chart._defaultLegend
-      ? (rule as LegendRule)
-      : undefined;
-  adoptSource(dashboard, source.chart);
+  const sources = on
+    ? legendSources(owns, dashboard.schema.legendChart).map(i => children[i])
+    : [];
+  state.sources = sources;
+  const charts = sources.map(c => c.chart);
+  adoptRows(dashboard, charts);
+  adoptStyle(dashboard, charts);
+  dashboard._linkBy = (d: DataPoint) => [d[ENTRY_KEY], d[ID_KEY]];
   const group = dashboardLinkGroup(dashboard.schema.link);
-  if (group && dashboard._linkGroup !== group)
+  if (group && sources.length && dashboard._linkGroup !== group)
     registerLink(dashboard as unknown as VizInstance);
-  else if (!group) unregisterLink(dashboard as unknown as VizInstance);
+  else if (!group || !sources.length)
+    unregisterLink(dashboard as unknown as VizInstance);
 }
 
 /**
-    The dashboard's `legend` rule: the rule the user gave the legend's chart,
-    if any, else the default rule, which shows a legend of two or more
-    entries (a chart's own default rule reads that chart's draw, so the
-    dashboard doesn't borrow it).
+    Sets up the dashboard to draw its gathered rows as legend entries:
+    grouped by entry, then by each chart's id, and colored by entry.
 */
-export function dashboardLegendRule(viz: VizInstance): LegendRule {
-  return function (config: unknown, arr: DataPoint[]) {
-    const state = (viz as unknown as Partial<LegendHost>)._dashboard?.legend;
-    const rule = state?.rule;
-    const fallback = viz._defaultLegend as LegendRule | undefined;
-    if (rule) return rule.call(viz, config, arr);
-    return fallback ? fallback.call(viz, config, arr) : arr.length > 1;
-  };
+export function legendGrouping(dashboard: {
+  groupBy(_: string[]): unknown;
+  color(_: string): unknown;
+}): void {
+  dashboard.groupBy([ENTRY_KEY, ID_KEY]);
+  dashboard.color(ENTRY_KEY);
 }

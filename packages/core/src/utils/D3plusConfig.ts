@@ -1657,14 +1657,18 @@ export interface D3plusConfig {
     hoverMarkConfig?: ColorScaleHoverMarkConfig;
     /** Configures the Legend that draws a bucket-type scale as a swatch for each bucket. Along a side of the chart, the swatches, their labels and title take at most a third of the chart's width (a scale at the left or right) or height (top or bottom): the title and labels wrap onto more lines, and when they still don't fit, the title is left out and then the labels are cut short. Its `width` (left or right) or `height` (top or bottom) sets another limit. */
     /**
-      Dashboard: the index (in `charts`) of the chart whose legend the
-      dashboard draws, in place of the charts' own: that chart's data,
-      grouping, and colors make its entries, and it is linked to every
-      chart. Defaults to the first chart whose own legend is on. Set
+      Dashboard: which charts its one legend holds the entries of, as an
+      index into `charts` or a list of them; by default every chart whose
+      own legend is on. Each entry is the value a chart colors by (its
+      `color`, else its top `groupBy` level), shown once however many charts
+      have it, in place of the charts' own legends and linked to every
+      chart. Its swatches take the `shapeConfig`, `legendConfig`,
+      `legendTooltip`, and `shape` the charts set (the earlier chart's where
+      two set the same key, and the dashboard's own over both). Set
       `legend` to `false` on the dashboard to give each chart its own legend
       back.
   */
-    legendChart?: number;
+    legendChart?: number | number[];
     legendConfig?: Record<string, unknown>;
     /** How many quantile bins a bivariate `colorScale` splits each variable into, from `2` to `4`. Defaults to `3`. */
     bivariateBuckets?: number;
@@ -2449,10 +2453,12 @@ export interface D3plusConfig {
       large as possible by default. `padding` is the space between charts
       (`4` by default), and `align` (`true` by default) lines up the plot
       areas of charts with axes that start or end on the same grid line.
-      `shareX` gives the charts with axes stacked in a column one x domain,
-      labeled only on the lowest, and `shareY` the charts side by side in a
-      row one y domain, labeled only on the leftmost (both `false` by
-      default). Merged into the current config.
+      `shareX` gives the charts with axes whose columns overlap one x
+      domain, labeled only where no sharing chart sits below, and `shareY`
+      the charts whose rows overlap one y domain, labeled only where no
+      sharing chart sits to the left (both `false` by default); a domain a
+      chart sets itself becomes the shared one. Merged into the current
+      config.
   */
   layoutConfig?: DashboardLayoutConfig;
   /**

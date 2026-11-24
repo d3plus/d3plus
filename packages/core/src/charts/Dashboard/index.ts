@@ -23,7 +23,7 @@ import {teardownKeyboardNav} from "../viz/keyboardNav.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {dashboardGrid, resolveDashboardLayout} from "./dashboardGrid.js";
 import type {DashboardCell} from "./dashboardGrid.js";
-import {dashboardLegendRule} from "./dashboardLegend.js";
+import {legendGrouping} from "./dashboardLegend.js";
 import type {LegendHost} from "./dashboardLegend.js";
 import {DASHBOARD_LINK_PREFIX} from "./dashboardLink.js";
 import {prepareDashboard} from "./dashboardPrepare.js";
@@ -104,23 +104,20 @@ export const dashboardDef: DataDrivenChartDefinition = {
         The grid the charts are placed on: `columns` and `rows` (a count, or
         each track's relative size), `padding` (4 by default), `align`
         (lines up plot areas on shared grid lines, `true` by default), and
-        `shareX` / `shareY` (one domain for the charts stacked in a column /
-        side by side in a row, labeled on the outer edge only).
+        `shareX` / `shareY` (one domain for the charts whose columns / rows
+        overlap, labeled on the outer edge only).
         @type {{columns, rows, padding, align, shareX, shareY}}
     */
     {key: "layoutConfig", merge: true, default: {}},
     /**
-        Draws one legend for every chart: the legend of `legendChart` (the
-        first chart whose legend is on, by default), linked to every chart,
-        in place of the charts' own. It shows by that chart's own rule;
-        `false` turns it off and gives each chart its own legend back. A
-        chart whose config (or `chartConfig`) sets `legend` keeps its own.
-    */
-    {key: "legend", coerce: "const", factory: dashboardLegendRule},
-    /**
-        The index (in `charts`) of the chart whose legend the dashboard
-        draws: its data, grouping, and colors make the legend's entries.
-        Defaults to the first chart whose own legend is on.
+        Which charts the dashboard's one legend holds the entries of: an
+        index into `charts`, or a list of them. Every chart whose own legend
+        is on by default. The legend shows each entry (the value a chart
+        colors by: its `color`, else its top `groupBy` level) once, however
+        many charts have it, in place of the charts' own legends, and is
+        linked to every chart. `legend(false)` on the dashboard gives each
+        chart its own legend back.
+        @type {number | number[]}
     */
     {key: "legendChart"},
     /**
@@ -167,6 +164,7 @@ export default class Dashboard extends DashboardChart {
   */
   constructor() {
     super();
+    legendGrouping(this as unknown as LegendHost);
     this._constructed(new.target, Dashboard);
   }
 

@@ -377,6 +377,8 @@ export interface VizInstance {
   _referenceHighlight?: Set<DataPoint> | null;
   /** The `link` group this chart is registered under (see `linkGroup.ts`). */
   _linkGroup?: string;
+  /** The value a row matches other linked charts' rows on, when it isn't the chart's id (a Dashboard's legend rows match on their entry and every chart's id). */
+  _linkBy?: (d: DataPoint, i: number) => unknown;
   /** The categorical scale `initColorDefaults` created; linked charts still using it share their group's instead. */
   _autoColorScale?: unknown;
   /** Whether the search control's input is currently open. */

@@ -45,8 +45,10 @@ export function linkChild(
   if (group && own !== group) {
     chart.link(group);
     child.linked = group;
+    child.dirty = true;
   } else if (!group && child.linked) {
     chart.link(false);
     child.linked = undefined;
+    child.dirty = true;
   }
 }

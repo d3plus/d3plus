@@ -70,7 +70,12 @@ type LinkTarget = Pick<VizInstance, "schema"> &
   Partial<
     Pick<
       VizInstance,
-      "_id" | "_linkGroup" | "_autoColorScale" | "_theme" | "_ownColorDefaults"
+      | "_id"
+      | "_linkBy"
+      | "_linkGroup"
+      | "_autoColorScale"
+      | "_theme"
+      | "_ownColorDefaults"
     >
   >;
 
@@ -85,7 +90,7 @@ export function resolveLink(viz: LinkTarget): ResolvedLink | null {
       ? cfg.by
       : typeof cfg.by === "string"
         ? (accessor(cfg.by) as (d: DataPoint, i: number) => unknown)
-        : (d: DataPoint, i: number) => viz._id?.(d, i);
+        : (d: DataPoint, i: number) => (viz._linkBy ?? viz._id)?.(d, i);
   return {
     group: cfg.group,
     by,

@@ -11,6 +11,7 @@ import type Viz from "../viz/Viz.js";
 import {NO_SIDES} from "./dashboardAlign.js";
 import type {DashboardSides} from "./dashboardAlign.js";
 import type {DashboardChild} from "./dashboardCharts.js";
+import {chartRows, legendState} from "./dashboardLegend.js";
 import type {DashboardLegendState} from "./dashboardLegend.js";
 import {resolveDashboardLayout} from "./dashboardGrid.js";
 import type {DashboardArea, DashboardCell} from "./dashboardGrid.js";
@@ -49,13 +50,27 @@ export interface DashboardHost {
   _select?: Viz["_select"];
   _renderer?: "svg" | "canvas";
   schema: Viz["schema"];
+  render?: () => unknown;
+}
+
+/**
+    Whether `child` is one of the legend's charts, loaded from a URL, whose
+    rows the legend hasn't gathered yet.
+*/
+export function staleLegendRows(
+  legend: DashboardLegendState,
+  child: DashboardChild,
+): boolean {
+  if (!legend.sources.includes(child)) return false;
+  if (typeof child.chart._userData !== "string") return false;
+  return !legend.signature.includes(chartRows(child.chart as never));
 }
 
 /** A new, empty dashboard state. */
 export function dashboardState(): DashboardState {
   return {
     children: [],
-    legend: {},
+    legend: legendState(),
     queued: false,
     settling: false,
     pending: 0,
@@ -127,6 +142,17 @@ export function dashboardSettled(state: DashboardState): Promise<void> {
   });
 }
 
+/** Whether `child` has drawn at its box's size, with nothing it is given changed since. */
+export function unchanged(child: DashboardChild): boolean {
+  const size = child.drawnSize;
+  if (child.dirty || !size || !child.cell || !child.node) return false;
+  const box = insetBox(child.cell, child.inset);
+  return (
+    Math.abs(size.width - box.width) < 0.5 &&
+    Math.abs(size.height - box.height) < 0.5
+  );
+}
+
 /** Sizes `child`'s element and chart to its cell (less its inset), and renders it. */
 function drawChild(dashboard: DashboardHost, child: DashboardChild): void {
   const state = dashboard._dashboard;
@@ -135,6 +161,8 @@ function drawChild(dashboard: DashboardHost, child: DashboardChild): void {
   place(child.node, box);
   const chart = child.chart;
   chart.width(box.width).height(box.height);
+  child.drawnSize = {width: box.width, height: box.height};
+  child.dirty = false;
   child.drawn = false;
   state.pending++;
   let done = false;
@@ -175,6 +203,9 @@ function prepareChild(
     child.drawn = true;
     recordReadings(child);
     queueSettle(dashboard);
+    // A legend chart that loaded its data from a URL has rows for the legend now.
+    if (staleLegendRows(dashboard._dashboard.legend, child))
+      dashboard.render?.();
   };
 }
 
@@ -204,7 +235,13 @@ export function drawDashboardCharts(
     if (!align) child.inset = {...NO_SIDES};
     prepareChild(dashboard, child, host);
   });
-  for (const child of state.children) drawChild(dashboard, child);
+  // A chart whose size and config haven't changed keeps its draw (a legend
+  // click on the dashboard has already redrawn it through the link group).
+  for (const child of state.children) {
+    if (unchanged(child))
+      place(child.node!, insetBox(child.cell!, child.inset));
+    else drawChild(dashboard, child);
+  }
 }
 
 /** Queues `drawDashboardCharts` after the current draw, once however often it is asked for. */

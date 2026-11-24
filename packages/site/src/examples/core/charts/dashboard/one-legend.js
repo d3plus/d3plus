@@ -19,7 +19,6 @@ const latest = data.filter(d => d.year === 2024);
 
 const config = {
   title: "Revenue by region",
-  legendChart: 1,
   legendPosition: "top",
   charts: [
     {
@@ -34,7 +33,14 @@ const config = {
     },
     {
       chart: "StackedArea",
-      config: {data, groupBy: "region", x: "year", y: "revenue"},
+      config: {
+        data,
+        groupBy: "region",
+        x: "year",
+        y: "revenue",
+        // Wide swatches, which the dashboard's legend takes.
+        legendConfig: {shapeConfig: {width: 24, height: 10}},
+      },
     },
   ],
 };

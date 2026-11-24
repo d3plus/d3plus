@@ -49,8 +49,8 @@ export type DashboardLayoutConfig = {
   padding?: number;
   /** Lines up the plot areas of charts with axes (BarChart, LinePlot, …) that start or end on the same grid line, so stacked charts share their left and right edges and charts side by side share their top and bottom. Defaults to `true`. */
   align?: boolean;
-  /** Charts with axes stacked in the same column share one x domain, and only the lowest labels its x axis. A chart that sets its own `xDomain` keeps it, and charts whose x axes differ in kind (categories, numbers, dates, log) don't share. Defaults to `false`. */
+  /** Charts with axes whose columns overlap share one x domain, labeled only on charts with no sharing chart below them. The domain is the one charts set themselves with `xDomain` (merged, when several do), else every chart's merged. Charts whose x axes differ in kind (categories, numbers, dates, log) don't share. Defaults to `false`. */
   shareX?: boolean;
-  /** Charts with axes side by side in the same row share one y domain, and only the leftmost labels its y axis. A chart that sets its own `yDomain` keeps it, and charts whose y axes differ in kind don't share. Defaults to `false`. */
+  /** Charts with axes whose rows overlap share one y domain, labeled only on charts with no sharing chart to their left. The domain is the one charts set themselves with `yDomain` (merged, when several do), else every chart's merged. Charts whose y axes differ in kind don't share. Defaults to `false`. */
   shareY?: boolean;
 };

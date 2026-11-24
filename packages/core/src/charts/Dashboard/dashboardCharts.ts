@@ -48,6 +48,10 @@ export interface DashboardChild {
   node?: HTMLDivElement;
   /** Whether the chart has drawn since the dashboard last rendered it. */
   drawn: boolean;
+  /** Whether something the dashboard gives the chart (config, link, legend) changed since it last drew. */
+  dirty?: boolean;
+  /** The size it last drew at. */
+  drawnSize?: {width: number; height: number};
   /** How many times it has been redrawn to line up, since the dashboard last laid out. */
   aligned: number;
   /** How many times it has been redrawn to share axes, since the dashboard last laid out. */
@@ -226,4 +230,5 @@ export function applyChartConfig(
   if (Object.keys(base).length) child.chart.config(base);
   if (child.config) child.chart.config(child.config);
   child.applied = {inherited, config: child.config, shared};
+  child.dirty = true;
 }

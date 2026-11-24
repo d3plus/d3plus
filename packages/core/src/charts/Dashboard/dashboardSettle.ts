@@ -82,6 +82,7 @@ export function applyShare(
   }
   chart._plotFacetScales = share ? shareScales(share) : undefined;
   child.share = share;
+  child.dirty = true;
 }
 
 /**

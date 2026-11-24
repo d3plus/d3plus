@@ -1,8 +1,8 @@
 /**
     Dashboard: shared axes (`layoutConfig.shareX` / `shareY`). Charts with
-    axes stacked in the same column share one x domain, labeled only on the
-    lowest of them; charts side by side in the same row share one y domain,
-    labeled only on the leftmost.
+    axes whose columns overlap share one x domain, labeled only where no
+    sharing chart sits below; charts whose rows overlap share one y domain,
+    labeled only where no sharing chart sits to the left.
 
     @module
 */
@@ -25,6 +25,8 @@ export interface AxisReading {
   domain: DomainValue[];
   /** The chart's data when it was read, so a change in it is noticed. */
   data: unknown;
+  /** Whether the domain is one the chart set itself (`xDomain` / `yDomain`). */
+  own?: boolean;
 }
 
 /** What one chart takes from the charts it shares axes with. */
@@ -42,24 +44,32 @@ export function ownDomain(viz: Pick<VizInstance, "schema">, axis: ShareAxis) {
 }
 
 /**
-    The domain a chart drew `axis` with, and its kind, or undefined for a
-    chart that can't share it: one outside the Plot family, faceted, with a
-    domain of its own, or not drawn yet.
+    The domain a chart drew `axis` with at its natural scale (the zoom
+    base, when it is zoomed), and its kind, or undefined for a chart that
+    can't share it: one outside the Plot family, faceted, or not drawn yet.
 */
 export function readAxis(
   viz: VizInstance,
   axis: ShareAxis,
 ): AxisReading | undefined {
-  const drawn = viz._plotAxisDomains?.[axis] as DomainValue[] | undefined;
+  const base = viz._plotZoomBase?.scales?.[axis];
+  const drawn = (base?.domain() ?? viz._plotAxisDomains?.[axis]) as
+    DomainValue[] | undefined;
   const scaleAxis = viz[`_${axis}Axis`] as Axis | undefined;
   if (!drawn || !drawn.length || !scaleAxis) return undefined;
-  if (viz._facetPanels?.length || ownDomain(viz, axis)) return undefined;
+  if (viz._facetPanels?.length) return undefined;
   const kind = listAxis(viz, axis)
     ? "list"
     : drawn[0] instanceof Date
       ? "time"
       : `${scaleAxis.scale?.() ?? "linear"}`;
-  return {kind, domain: drawn.slice(), data: viz._userData};
+  const reading: AxisReading = {
+    kind,
+    domain: drawn.slice(),
+    data: viz._userData,
+  };
+  if (ownDomain(viz, axis)) reading.own = true;
+  return reading;
 }
 
 /**
@@ -90,13 +100,69 @@ export function mergeDomains(
   return out;
 }
 
+/** Whether two spans of tracks (`start`, `count`) overlap. */
+function overlaps(a: number, an: number, b: number, bn: number): boolean {
+  return a < b + bn && b < a + an;
+}
+
+/**
+    Groups the charts in `members` whose spans along the other axis overlap,
+    directly or through other charts (a chart spanning two columns joins
+    both columns' charts).
+*/
+export function overlapGroups(
+  slots: DashboardSlot[],
+  members: number[],
+  axis: ShareAxis,
+): number[][] {
+  const span = (i: number): [number, number] =>
+    axis === "x"
+      ? [slots[i].column, slots[i].columnSpan]
+      : [slots[i].row, slots[i].rowSpan];
+  const groups: number[][] = [];
+  for (const i of members) {
+    const joined = groups.filter(g =>
+      g.some(j => overlaps(...span(i), ...span(j))),
+    );
+    const merged = [i, ...joined.flat()];
+    for (const g of joined) groups.splice(groups.indexOf(g), 1);
+    groups.push(merged.sort((a, b) => a - b));
+  }
+  return groups;
+}
+
+/**
+    Whether chart `i` leaves a shared axis's labels to another member: on x,
+    one starting at or below its bottom in an overlapping column; on y, one
+    ending at or left of its left edge in an overlapping row.
+*/
+function labelsElsewhere(
+  slots: DashboardSlot[],
+  members: number[],
+  i: number,
+  axis: ShareAxis,
+): boolean {
+  const s = slots[i];
+  return members.some(j => {
+    if (j === i) return false;
+    const o = slots[j];
+    return axis === "x"
+      ? o.row >= s.row + s.rowSpan &&
+          overlaps(s.column, s.columnSpan, o.column, o.columnSpan)
+      : o.column + o.columnSpan <= s.column &&
+          overlaps(s.row, s.rowSpan, o.row, o.rowSpan);
+  });
+}
+
 /**
     What each chart shares (see `ChartShare`): for each axis in `axes`,
-    charts in the same column (x) or row (y), span included, whose readings
-    are of the same kind share their merged domain, and all but the lowest
-    (x) or leftmost (y) leave their labels to it. A group whose charts read
-    different kinds (categories beside numbers, dates beside numbers, log
-    beside linear) doesn't share. A chart without a reading is left out.
+    charts whose columns (x) or rows (y) overlap, and whose readings are of
+    the same kind, share one domain: the merged domains the charts set
+    themselves (`xDomain` / `yDomain`) when any do, else every chart's
+    merged. A chart leaves the shared axis's labels to the members below
+    (x) or to its left (y). A group whose charts read different kinds
+    (categories beside numbers, dates beside numbers, log beside linear)
+    doesn't share. A chart without a reading is left out.
 */
 export function planShares(
   slots: DashboardSlot[],
@@ -106,31 +172,22 @@ export function planShares(
   const out: (ChartShare | undefined)[] = slots.map(() => undefined);
   for (const axis of SHARE_AXES) {
     if (!axes[axis]) continue;
-    const groups = new Map<string, number[]>();
-    slots.forEach((s, i) => {
-      if (!readings[i]?.[axis]) return;
-      const key =
-        axis === "x" ? `${s.column}/${s.columnSpan}` : `${s.row}/${s.rowSpan}`;
-      groups.set(key, [...(groups.get(key) ?? []), i]);
-    });
-    for (const members of groups.values()) {
+    const read = slots.map((_, i) => i).filter(i => readings[i]?.[axis]);
+    for (const members of overlapGroups(slots, read, axis)) {
       if (members.length < 2) continue;
-      const kinds = new Set(members.map(i => readings[i][axis]!.kind));
+      const of = (i: number) => readings[i][axis]!;
+      const kinds = new Set(members.map(i => of(i).kind));
       if (kinds.size > 1) continue;
-      const kind = readings[members[0]][axis]!.kind;
+      const own = members.filter(i => of(i).own);
       const domain = mergeDomains(
-        kind,
-        members.map(i => readings[i][axis]!.domain),
+        of(members[0]).kind,
+        (own.length ? own : members).map(i => of(i).domain),
       );
       if (!domain) continue;
-      // The lowest chart labels a shared x axis, the leftmost a shared y.
-      const edge = (i: number): number =>
-        axis === "x" ? slots[i].row + slots[i].rowSpan : -slots[i].column;
-      const labeled = members.reduce((a, b) => (edge(b) > edge(a) ? b : a));
       for (const i of members) {
         const share = (out[i] ??= {domains: {}, hidden: {}});
         share.domains[axis] = domain;
-        if (i !== labeled) share.hidden[axis] = true;
+        if (labelsElsewhere(slots, members, i, axis)) share.hidden[axis] = true;
       }
     }
   }

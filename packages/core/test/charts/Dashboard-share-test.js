@@ -4,6 +4,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {
   hiddenAxisConfig,
   mergeDomains,
+  overlapGroups,
   ownDomain,
   planShares,
   readAxis,
@@ -17,10 +18,21 @@ import {
   settleDashboardCharts,
 } from "../../src/charts/Dashboard/dashboardSettle.ts";
 import {
-  dashboardLegendRule,
+  chartRows,
+  combineStyle,
+  ENTRY_KEY,
+  entryAccessor,
+  gatherRows,
+  ID_KEY,
+  idAccessor,
   legendOff,
-  legendSourceIndex,
+  legendSources,
+  userSet,
 } from "../../src/charts/Dashboard/dashboardLegend.ts";
+import {
+  staleLegendRows,
+  unchanged,
+} from "../../src/charts/Dashboard/dashboardRender.ts";
 import {linkChild} from "../../src/charts/Dashboard/dashboardLink.ts";
 import constant from "../../src/utils/constant.ts";
 
@@ -83,9 +95,20 @@ it("Dashboard: readAxis reads a drawn Plot axis's domain and kind", () => {
   assert.strictEqual(readAxis(chart, "y").kind, "linear");
   assert.strictEqual(readAxis({schema: {}}, "x"), undefined, "not a Plot");
   assert.strictEqual(
-    readAxis(plot(undefined, {schema: {xDomain: [0, 1]}}), "x"),
-    undefined,
-    "a domain of its own",
+    readAxis(plot(undefined, {schema: {xDomain: [0, 1]}}), "x").own,
+    true,
+    "a domain of its own is marked",
+  );
+  assert.deepStrictEqual(
+    readAxis(
+      plot(
+        {x: [2, 3], y: [5, 0]},
+        {_plotZoomBase: {scales: {x: {domain: () => [0, 10]}}}},
+      ),
+      "x",
+    ).domain,
+    [0, 10],
+    "a zoomed chart reads its unzoomed domain",
   );
   assert.strictEqual(
     readAxis(plot(undefined, {_facetPanels: [{}]}), "x"),
@@ -152,6 +175,56 @@ it("Dashboard: planShares shares x down a column and y across a row, labeling th
     [undefined, undefined],
     "a chart without axes doesn't count",
   );
+});
+
+it("Dashboard: planShares shares across overlapping spans, labeling each chart with none below", () => {
+  // A wide chart over two side by side.
+  const slots = [slot(0, 0, 2), slot(0, 1), slot(1, 1)];
+  const readings = [
+    {x: reading("linear", [0, 10])},
+    {x: reading("linear", [5, 20])},
+    {x: reading("linear", [-5, 1])},
+  ];
+  const shares = planShares(slots, readings, {x: true});
+  assert.deepStrictEqual(
+    shares.map(s => s.domains.x),
+    [
+      [-5, 20],
+      [-5, 20],
+      [-5, 20],
+    ],
+  );
+  assert.deepStrictEqual(
+    shares.map(s => !!s.hidden.x),
+    [true, false, false],
+  );
+  assert.deepStrictEqual(overlapGroups(slots, [1, 2], "x"), [[1], [2]]);
+  assert.deepStrictEqual(overlapGroups(slots, [1, 2, 0], "x"), [[0, 1, 2]]);
+});
+
+it("Dashboard: planShares takes the domains charts set themselves", () => {
+  const slots = [slot(0, 0), slot(0, 1), slot(0, 2)];
+  const own = domain => ({...reading("linear", domain), own: true});
+  const one = planShares(
+    slots,
+    [
+      {x: reading("linear", [0, 50])},
+      {x: own([0, 10])},
+      {x: reading("linear", [2, 3])},
+    ],
+    {x: true},
+  );
+  assert.deepStrictEqual(
+    one[0].domains.x,
+    [0, 10],
+    "the chart's own domain is everyone's",
+  );
+  const two = planShares(
+    slots,
+    [{x: own([0, 10])}, {x: own([5, 30])}, {x: reading("linear", [2, 3])}],
+    {x: true},
+  );
+  assert.deepStrictEqual(two[2].domains.x, [0, 30], "two own domains merge");
 });
 
 it("Dashboard: sameShare, shareScales, and hiddenAxisConfig", () => {
@@ -240,7 +313,7 @@ it("Dashboard: settleDashboardCharts shares first, then lines up", () => {
   assert.deepStrictEqual(redrawn, [], "waits for every chart to draw");
 });
 
-it("Dashboard: legendOff and legendSourceIndex pick the legend's chart", () => {
+it("Dashboard: legendOff and legendSources pick the legend's charts", () => {
   assert.ok(legendOff(false));
   assert.ok(legendOff(constant(false)));
   assert.ok(!legendOff(constant(true)));
@@ -250,25 +323,62 @@ it("Dashboard: legendOff and legendSourceIndex pick the legend's chart", () => {
     {legend: () => true, eligible: false, dashboard: false},
     {legend: () => true, eligible: true, dashboard: true},
     {legend: () => true, eligible: true, dashboard: false},
+    {legend: () => true, eligible: true, dashboard: false},
   ];
-  assert.strictEqual(legendSourceIndex(owns, undefined), 3);
-  assert.strictEqual(legendSourceIndex(owns, 0), 0, "a chart named outright");
-  assert.strictEqual(legendSourceIndex(owns, 2), 3, "never a dashboard");
-  assert.strictEqual(legendSourceIndex(owns.slice(0, 3), undefined), -1);
+  assert.deepStrictEqual(legendSources(owns, undefined), [3, 4]);
+  assert.deepStrictEqual(legendSources(owns, 0), [0], "a chart named outright");
+  assert.deepStrictEqual(
+    legendSources(owns, [4, 2, 9]),
+    [4],
+    "never a dashboard",
+  );
 });
 
-it("Dashboard: dashboardLegendRule borrows the user's rule, else the default", () => {
-  const viz = {
-    _defaultLegend: (config, arr) => arr.length > 1,
-    _dashboard: {legend: {}},
+it("Dashboard: userSet and combineStyle take what charts set, earlier first, the dashboard's own over all", () => {
+  const fill = () => "red";
+  const base = {fill, Rect: {width: 10}};
+  assert.strictEqual(userSet({fill, Rect: {width: 10}}, base), undefined);
+  assert.deepStrictEqual(userSet({fill, Rect: {width: 12}}, base), {
+    Rect: {width: 12},
+  });
+  assert.strictEqual(userSet("Circle", "Rect"), "Circle");
+  const style = combineStyle(
+    {padding: 5, align: "center"},
+    [{padding: 1}, undefined, {padding: 9, title: "T"}],
+    {align: "left"},
+  );
+  assert.deepStrictEqual(style, {padding: 1, align: "left", title: "T"});
+  assert.strictEqual(
+    combineStyle("Rect", [undefined, "Circle", "Line"], undefined),
+    "Circle",
+  );
+  assert.strictEqual(combineStyle("Rect", ["Circle"], "Square"), "Square");
+  assert.strictEqual(combineStyle("Rect", [], undefined), "Rect");
+});
+
+it("Dashboard: entryAccessor, idAccessor, chartRows, and gatherRows read each chart's entries", () => {
+  const byRegion = {
+    schema: {color: d => d.region, groupBy: [d => d.country]},
+    _userData: [{country: "Chile", region: "Americas"}, {country: "Peru"}],
   };
-  const rule = dashboardLegendRule(viz);
-  assert.strictEqual(rule({}, [1]), false);
-  assert.strictEqual(rule({}, [1, 2]), true);
-  viz._dashboard.legend.rule = function (config, arr) {
-    return this === viz && arr.length === 1;
+  const byLevel = {
+    schema: {groupBy: [d => d.region, d => d.country]},
+    _userData: "data.csv",
+    _data: [{country: "France", region: "Europe"}],
   };
-  assert.strictEqual(rule({}, [1]), true);
+  assert.strictEqual(entryAccessor(byRegion)({region: "X"}), "X");
+  assert.strictEqual(entryAccessor(byLevel)({region: "Y"}), "Y");
+  assert.strictEqual(idAccessor(byLevel)({country: "Z"}), "Z");
+  assert.strictEqual(chartRows(byLevel), byLevel._data, "loaded from a URL");
+  assert.strictEqual(chartRows(byRegion), byRegion._userData);
+  assert.deepStrictEqual(
+    gatherRows([byRegion, byLevel]).map(d => [d[ENTRY_KEY], d[ID_KEY]]),
+    [
+      ["Americas", "Chile"],
+      ["Europe", "France"],
+    ],
+    "a row without an entry is left out",
+  );
 });
 
 it("Dashboard: linkChild links a chart unless it has a link of its own", () => {
@@ -284,4 +394,40 @@ it("Dashboard: linkChild links a chart unless it has a link of its own", () => {
   assert.strictEqual(own.chart.schema.link, "mine");
   linkChild({schema: {link: false}}, free);
   assert.strictEqual(free.chart.schema.link, false);
+});
+
+it("Dashboard: unchanged tells a chart that can keep its draw", () => {
+  const c = {
+    cell: {x: 0, y: 0, width: 100, height: 50},
+    inset: {top: 0, right: 10, bottom: 0, left: 0},
+    node: {},
+    drawnSize: {width: 90, height: 50},
+  };
+  assert.ok(unchanged(c));
+  assert.ok(!unchanged({...c, dirty: true}), "something it's given changed");
+  assert.ok(!unchanged({...c, drawnSize: {width: 100, height: 50}}), "resized");
+  assert.ok(!unchanged({...c, drawnSize: undefined}), "never drawn");
+});
+
+it("Dashboard: staleLegendRows notices a legend chart's URL data arriving", () => {
+  const chart = {_userData: "data.csv", _data: [{a: 1}]};
+  const child = {chart};
+  const legend = {sources: [child], signature: []};
+  assert.ok(staleLegendRows(legend, child));
+  legend.signature = [chart._data];
+  assert.ok(!staleLegendRows(legend, child));
+  assert.ok(!staleLegendRows({sources: [], signature: []}, child));
+  assert.ok(
+    !staleLegendRows(legend, {chart: {_userData: [], _data: []}}),
+    "not a legend chart",
+  );
+});
+
+it("Dashboard: a chart's _linkBy is what its rows link on", async () => {
+  const {resolveLink} = await import("../../src/charts/viz/linkGroup.ts");
+  const row = {entry: "Europe", id: "France"};
+  const viz = {schema: {link: "g"}, _id: d => d.id};
+  assert.strictEqual(resolveLink(viz).by(row, 0), "France");
+  viz._linkBy = d => [d.entry, d.id];
+  assert.deepStrictEqual(resolveLink(viz).by(row, 0), ["Europe", "France"]);
 });

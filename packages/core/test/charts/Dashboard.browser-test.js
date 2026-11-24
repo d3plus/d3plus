@@ -276,6 +276,9 @@ it("Dashboard: a nested dashboard's charts join the outer dashboard's link group
           .charts([{chart: "Pie", config: {data, value: "value"}}, inner]);
         outer.render(() => {
           resolve({
+            legends: [outer, inner].map(
+              d => d._legendClass?.data()?.length ?? 0,
+            ),
             outer: outer.link(),
             inner: inner._dashboard.children.map(c => c.chart.link()),
             nested: document.querySelectorAll(
@@ -293,6 +296,11 @@ it("Dashboard: a nested dashboard's charts join the outer dashboard's link group
   );
   assert.deepStrictEqual(result.inner, [result.outer, result.outer]);
   assert.strictEqual(result.nested, 2);
+  assert.deepStrictEqual(
+    result.legends,
+    [2, 2],
+    "each dashboard draws its own legend",
+  );
   assert.ok(
     result.markup,
     "the saved markup holds the nested dashboard's charts",
@@ -429,11 +437,17 @@ it("Dashboard: draws one legend for its charts, and a click on it hides the entr
       own: [treemap, bars, lines].map(c => c._legendClass?.data()?.length ?? 0),
       member: dashboard._linkGroup === dashboard.link(),
     };
+    const counts = [treemap, bars, lines].map(() => 0);
+    [treemap, bars, lines].forEach((c, i) => {
+      const render = c.render.bind(c);
+      c.render = (...args) => (counts[i]++, render(...args));
+    });
     const europe = dashboard._legendClass.data().find(d => d.region === "Europe");
     dashboard.schema.on["click.legend"](europe, 0, undefined, {shiftKey: false});
     await new Promise(r => setTimeout(r, 300));
     return {
       before,
+      counts,
       bars: bars._filteredData.map(d => d.country).sort(),
       lines: Array.from(new Set(lines._filteredData.map(d => d.country))).sort(),
     };`,
@@ -447,9 +461,10 @@ it("Dashboard: draws one legend for its charts, and a click on it hides the entr
   assert.ok(result.before.member, "the dashboard joins the charts' link group");
   assert.deepStrictEqual(result.bars, ["Brazil", "Chile"]);
   assert.deepStrictEqual(result.lines, ["Brazil", "Chile"]);
+  assert.deepStrictEqual(result.counts, [1, 1, 1], "each chart redraws once");
 });
 
-it("Dashboard: legend(false) gives the charts their legends back; legendChart picks the chart", async () => {
+it("Dashboard: legend(false) gives the charts their legends back; legendChart picks the charts", async () => {
   const result = await run(
     "svg",
     `dashboard.legend(false);
@@ -463,7 +478,9 @@ it("Dashboard: legend(false) gives the charts their legends back; legendChart pi
     await new Promise(r => dashboard.render(r));
     return {
       off,
-      picked: dashboard._dashboard.legend.source.chart === lines,
+      picked:
+        dashboard._dashboard.legend.sources.length === 1 &&
+        dashboard._dashboard.legend.sources[0].chart === lines,
       entries: dashboard._legendClass.data().length,
       treemap: treemap._legendClass?.data()?.length ?? 0,
     };`.replace("RESET_LEGEND", "d3plus.RESET"),
@@ -503,7 +520,9 @@ it("Dashboard: a chart whose config sets legend keeps its own", async () => {
           resolve({
             pie: pie._legendClass.data().length,
             treemap: treemap._legendClass?.data()?.length ?? 0,
-            source: dashboard._dashboard.legend.source.chart === treemap,
+            source:
+              dashboard._dashboard.legend.sources.length === 1 &&
+              dashboard._dashboard.legend.sources[0].chart === treemap,
           });
         });
       }),
@@ -511,30 +530,27 @@ it("Dashboard: a chart whose config sets legend keeps its own", async () => {
   assert.deepStrictEqual(result, {pie: 2, treemap: 0, source: true});
 });
 
-it("Dashboard: shareX gives stacked charts one x domain, labeled on the lowest only", async () => {
+it("Dashboard: shareX and shareY give overlapping charts one domain, labeled on the outer edge", async () => {
   const result = await render(
     box,
     () =>
       new Promise(resolve => {
         const d3plus = window.d3plus;
         const rows = (lo, hi) =>
-          [lo, hi].flatMap(x => [
-            {id: "a", x, y: x * 2},
-            {id: "b", x, y: x},
-          ]);
+          [lo, (lo + hi) / 2, hi].map((x, i) => ({id: `p${i}`, x, y: x * 2}));
+        const scatter = (data, extra = {}) => ({
+          chart: "Scatter",
+          config: {data, x: "x", y: "y", ...extra},
+        });
         const dashboard = new d3plus.Dashboard()
           .select("#dash")
           .duration(0)
           .chartConfig({duration: 0})
           .layoutConfig({columns: 2, shareX: true, shareY: true})
           .charts([
-            {chart: "LinePlot", config: {data: rows(0, 10), x: "x", y: "y"}},
-            {chart: "LinePlot", config: {data: rows(5, 40), x: "x", y: "y"}},
-            {chart: "LinePlot", config: {data: rows(20, 30), x: "x", y: "y"}},
-            {
-              chart: "LinePlot",
-              config: {data: rows(0, 5), x: "x", y: "y", xDomain: [0, 6]},
-            },
+            {...scatter(rows(0, 10)), columnSpan: 2},
+            scatter(rows(5, 40)),
+            scatter(rows(20, 30), {xDomain: [-10, 100]}),
           ]);
         dashboard.render(() => {
           const charts = dashboard._dashboard.children.map(c => c.chart);
@@ -547,17 +563,59 @@ it("Dashboard: shareX gives stacked charts one x domain, labeled on the lowest o
         });
       }),
   );
-  // Column 0: charts 0 and 2; column 1: chart 1 and chart 3 (its own domain).
-  assert.deepStrictEqual(result.x[0], result.x[2], "a column shares x");
-  assert.ok(
-    result.x[0].includes(0) && result.x[0].includes(30),
-    "every value in the column",
+  // The wide chart overlaps both charts below it, so all three share x: the
+  // domain the third chart sets.
+  assert.deepStrictEqual(result.x[0], [-10, 100]);
+  assert.deepStrictEqual(result.x[1], [-10, 100]);
+  assert.deepStrictEqual(result.x[2], [-10, 100]);
+  assert.deepStrictEqual(result.xLabels, [false, true, true]);
+  // The bottom row shares y; the wide chart is alone in its row.
+  assert.deepStrictEqual(result.y[1], result.y[2]);
+  assert.deepStrictEqual(result.yLabels, [true, true, false]);
+});
+
+it("Dashboard: the legend takes the style its charts set, the earlier chart's first", async () => {
+  const result = await render(
+    box,
+    () =>
+      new Promise(resolve => {
+        const data = [
+          {id: "a", value: 3},
+          {id: "b", value: 5},
+        ];
+        const dashboard = new window.d3plus.Dashboard()
+          .select("#dash")
+          .duration(0)
+          .legendConfig({padding: 7})
+          .charts([
+            {
+              chart: "Pie",
+              config: {
+                data,
+                value: "value",
+                legendConfig: {shapeConfig: {width: 21}},
+              },
+            },
+            {
+              chart: "Treemap",
+              config: {
+                data,
+                sum: "value",
+                legendConfig: {shapeConfig: {width: 9, height: 13}},
+              },
+            },
+          ]);
+        dashboard.render(() => {
+          const c = dashboard.legendConfig();
+          resolve({
+            width: c.shapeConfig.width,
+            height: c.shapeConfig.height,
+            padding: c.padding,
+          });
+        });
+      }),
   );
-  assert.deepStrictEqual(result.x[3], [0, 6], "a chart's own domain is kept");
-  assert.deepStrictEqual(result.xLabels, [false, true, true, true]);
-  assert.deepStrictEqual(result.y[0], result.y[1], "a row shares y");
-  assert.deepStrictEqual(result.y[2], result.y[3]);
-  assert.deepStrictEqual(result.yLabels, [true, false, true, false]);
+  assert.deepStrictEqual(result, {width: 21, height: 13, padding: 7});
 });
 
 it("Dashboard: passes its theme, locale, and renderer down; a chart's own config wins", async () => {
