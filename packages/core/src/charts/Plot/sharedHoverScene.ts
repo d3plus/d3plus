@@ -96,6 +96,12 @@ function hoverMarkers(viz: VizInstance, state: HoverState): SceneNode[] {
     .x((d: DataPoint) => at.get(d)!.x)
     .y((d: DataPoint) => at.get(d)!.y)
     .id((d: DataPoint) => `${d.id}_shared`);
+  // A line colored along its values marks each point in its color.
+  const color = viz._datumColor;
+  if (color) {
+    const fill = markers.fill() as (d: DataPoint, i: number) => string;
+    markers.fill((d: DataPoint, i: number) => color(d) ?? fill(d, i));
+  }
   markers.render();
   return [
     {

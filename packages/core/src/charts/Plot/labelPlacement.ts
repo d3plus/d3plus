@@ -7,6 +7,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {growFromValue} from "./baselineDomain.js";
 
 /**
     Default shape size, routed through the chart's internal sizeScale.
@@ -20,8 +21,9 @@ export function defaultSize(this: VizInstance, d: DataPoint): number {
 }
 
 /**
-    Whether a bar grows back along its value axis: a negative value, or a
-    positive one on a `reverse` axis (down a y axis, left along an x axis).
+    Whether a bar grows back along its value axis: a value below where bars
+    grow from (`0`, or `growFrom`), or one above it on a `reverse` axis (down
+    a y axis, left along an x axis).
 */
 export function growsBack(
   viz: VizInstance,
@@ -31,7 +33,9 @@ export function growsBack(
 ): boolean {
   const value = (valueAxis === "y" ? viz._y! : viz._x!)(d, i) as number;
   const axis = valueAxis === "y" ? viz._yAxis : viz._xAxis;
-  return value < 0 !== Boolean(axis?.schema?.reverse);
+  // A stacked band grows from the band below it, so only its sign counts.
+  const from = viz.schema?.stacked ? 0 : (growFromValue(viz) ?? 0);
+  return value < from !== Boolean(axis?.schema?.reverse);
 }
 
 /**
@@ -57,7 +61,7 @@ export function outside(this: VizInstance, d: DataPoint, i: number): boolean {
   const range = axis._d3Scale!.range();
   const value = accessor(d, i) as number;
   const negative = growsBack(this, nonDiscrete, d, i);
-  const zero = axis._getPosition(0);
+  const zero = axis._getPosition(growFromValue(this) ?? 0);
   const space =
     nonDiscrete === "y"
       ? negative

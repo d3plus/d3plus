@@ -14,9 +14,9 @@ import type {RenderTransition} from "./svgClock.js";
 import {markEntering} from "./svgWindow.js";
 import {svgChildOrder, updateNode} from "./svgUpdate.js";
 import {TextPathDefs} from "./svgTextPaths.js";
+import {GradientDefs} from "./svgGradients.js";
 import type {UpdateContext} from "./svgUpdate.js";
 import type {GroupNode, Scene, SceneNode} from "../scene.js";
-import {parseGradient} from "../scene.js";
 import {configureTexture} from "../textureConfig.js";
 import {
   applyOverlayToElement,
@@ -106,9 +106,11 @@ export default class SvgRenderer implements Renderer {
   /** The nodes of `_index` that share a key with another. */
   private _sharedKeys = new Map<string, SceneNode[]>();
   private _textureDefs = new Map<string, {url: () => string}>();
-  /** Cache of `gradient:<json>` token → `url(#id)`, materialized in <defs>. */
-  private _gradientDefs = new Map<string, string>();
-  private _gradientSeq = 0;
+  /** The `<linearGradient>`s that `gradient:<json>` tokens paint with. */
+  private _gradients = new GradientDefs(
+    () => this._ensureDefs(),
+    () => this._uid,
+  );
   /** Reused per-mark userSpaceOnUse gradients for persistent trails. */
   private _trailGrads = new TrailGradients(
     () => this._ensureDefs(),
@@ -188,6 +190,7 @@ export default class SvgRenderer implements Renderer {
     // Mirrors CanvasRenderer's `if (this._cancelAnim) this._cancelAnim();`
     // at the top of its drawScene.
     if (this._cancelDraw) this._cancelDraw();
+    this._gradients.nextDraw();
 
     const duration = opts?.duration ?? 0;
     // Lazy `_index` rebuild: only walk the tree when the scene object
@@ -259,49 +262,15 @@ export default class SvgRenderer implements Renderer {
   }
 
   /**
-      Materializes a `gradient:<json>` token into a <linearGradient> under
-      <defs>, cached by token string, and returns its `url(#id)`. Coordinates
-      are objectBoundingBox units, so the gradient scales to whatever node
-      references it (no per-node geometry needed).
-  */
-  private _resolveGradient(fill: string): string {
-    const cached = this._gradientDefs.get(fill);
-    if (cached) return cached;
-    const g = parseGradient(fill);
-    const defs = this._ensureDefs();
-    if (!g || !defs) return "none";
-    const id = `d3plus-gradient-${this._uid}-${++this._gradientSeq}`;
-    const lg = document.createElementNS(SVG_NS, "linearGradient");
-    lg.setAttribute("id", id);
-    // userSpaceOnUse anchors the gradient to absolute scene coords (motion
-    // trails), so it stays put as the path's box grows; the default is
-    // objectBoundingBox (from/to in 0–1, relative to the painted node).
-    if (g.units === "userSpaceOnUse")
-      lg.setAttribute("gradientUnits", "userSpaceOnUse");
-    lg.setAttribute("x1", String(g.from[0]));
-    lg.setAttribute("y1", String(g.from[1]));
-    lg.setAttribute("x2", String(g.to[0]));
-    lg.setAttribute("y2", String(g.to[1]));
-    for (const {offset, color} of g.stops) {
-      const stop = document.createElementNS(SVG_NS, "stop");
-      stop.setAttribute("offset", String(offset));
-      stop.setAttribute("stop-color", color);
-      lg.appendChild(stop);
-    }
-    defs.appendChild(lg);
-    const url = `url(#${id})`;
-    this._gradientDefs.set(fill, url);
-    return url;
-  }
-
-  /**
       Resolves a scene fill to an SVG paint value. A "pattern:<json>" token is
       materialized into a textures.js <pattern> in the svg, cached by its key;
-      a "gradient:<json>" token into a <linearGradient> in <defs>.
+      a "gradient:<json>" token into a <linearGradient> in <defs> (see
+      `GradientDefs`), kept under `owner` when it is the node's own.
   */
-  private _resolveFill(fill?: string): string | null {
+  private _resolveFill(fill?: string, owner?: string): string | null {
     if (fill == null) return null;
-    if (fill.startsWith("gradient:")) return this._resolveGradient(fill);
+    if (fill.startsWith("gradient:"))
+      return this._gradients.resolve(fill, owner);
     if (!fill.startsWith("pattern:") || !this._svg) return fill;
     const key = fill.slice("pattern:".length);
     let def = this._textureDefs.get(key);
@@ -334,7 +303,8 @@ export default class SvgRenderer implements Renderer {
       // enter the join (a stray one would break the key function).
       .selectChildren<Element, SceneNode>("*:not(.d3plus-trail)")
       .data(ordered, (d: SceneNode) => d.key);
-    const resolveFill = (f?: string): string | null => this._resolveFill(f);
+    const resolveFill = (f?: string, owner?: string): string | null =>
+      this._resolveFill(f, owner);
     const ctx: UpdateContext = {
       duration,
       t,
@@ -655,9 +625,8 @@ export default class SvgRenderer implements Renderer {
     this._index = new Map();
     this._sharedKeys = new Map();
     this._textureDefs = new Map();
-    this._gradientDefs.clear();
+    this._gradients.clear();
     this._trailGrads.clear();
-    this._gradientSeq = 0;
     this._target = undefined;
   }
 }

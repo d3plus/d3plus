@@ -161,7 +161,7 @@ const draw = async ({chart, config, renderer}) => {
     scaleType: cs._scaleType,
     domain: cs._colorScale.domain(),
     range: cs._colorScale.range().map(String),
-    mid: String(cs.schema.colorMid ?? cs.schema.colorDefaults.light),
+    mid: String(cs.schema.colorMid ?? cs.schema.colorDefaults.neutral),
     expected: [...new Set(config.data.map(scoreOf))].map(v => ({
       score: v,
       color: String(cs._colorScale(v)),

@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Threshold Colors · Plot</title>
+    <meta
+      name="description"
+      content="valueColors and growFrom: lines, areas, bars and lollipops colored by their values, split into bands at thresholds or blended along the value axis, and bars, areas and stacks grown from a target instead of 0."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 280px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid" id="grid"></div>
+
+    <script>
+      const months = Array.from({length: 24}, (_, i) => i + 1);
+      // Two series wandering around a target of 50.
+      const wave = months.flatMap(month => [
+        {
+          month,
+          series: "Revenue",
+          value: 50 + 30 * Math.sin(month / 3) + (month % 4) * 2,
+        },
+        {
+          month,
+          series: "Costs",
+          value: 45 + 18 * Math.cos(month / 4),
+        },
+      ]);
+      const revenue = wave.filter(d => d.series === "Revenue");
+      const temps = months.map(month => ({
+        month,
+        series: "Temperature",
+        value: Math.round(10 + 14 * Math.sin((month - 4) / 2) + month / 3),
+      }));
+      const scores = ["A", "B", "C", "D", "E", "F", "G", "H"].map(
+        (team, i) => ({team, score: [62, 41, 55, 38, 70, 49, 58, 33][i]}),
+      );
+
+      const base = c =>
+        c.x("month").y("value").groupBy("series").lineLabels(false);
+
+      const charts = [
+        [
+          "LinePlot",
+          "{values: [50]}: green above, red below",
+          c => base(c.data(wave)).valueColors({values: [50]}),
+        ],
+        [
+          "LinePlot",
+          '{values: [50], colors: ["#c92a2a", null]}: red below, series colors above',
+          c =>
+            base(c.data(wave))
+              .valueColors({values: [50], colors: ["#c92a2a", null]})
+              .lineMarkers(true),
+        ],
+        [
+          "AreaPlot",
+          "{values: [50]} + growFrom(50): fill above and below a target",
+          c =>
+            base(c.data(revenue))
+              .valueColors({values: [50]})
+              .growFrom(50),
+        ],
+        [
+          "AreaPlot",
+          "{values: [35, 65]}: three bands, red / amber / green",
+          c => base(c.data(revenue)).valueColors({values: [35, 65]}),
+        ],
+        [
+          "LinePlot",
+          '{type: "gradient"}: the color scale\'s poles across the data',
+          c =>
+            base(c.data(temps))
+              .valueColors({type: "gradient"})
+              .shapeConfig({Line: {strokeWidth: 4}}),
+        ],
+        [
+          "AreaPlot",
+          '{type: "gradient", values: [0, 15, 30]} with three colors, growFrom(15)',
+          c =>
+            base(c.data(temps))
+              .valueColors({
+                type: "gradient",
+                values: [0, 15, 30],
+                colors: ["#1c7ed6", "#fab005", "#e03131"],
+              })
+              .growFrom(15),
+        ],
+        [
+          "BarChart",
+          "growFrom(50) + {values: [50]}: bars up or down from a target",
+          c =>
+            c
+              .data(scores)
+              .x("team")
+              .y("score")
+              .groupBy("team")
+              .growFrom(50)
+              .valueColors({values: [50]})
+              .legend(false),
+        ],
+        [
+          "BarChart",
+          'horizontal, growFrom(50), {type: "gradient"}',
+          c =>
+            c
+              .data(scores)
+              .discrete("y")
+              .y("team")
+              .x("score")
+              .groupBy("team")
+              .growFrom(50)
+              .valueColors({type: "gradient"})
+              .legend(false),
+        ],
+        [
+          "Lollipop",
+          "growFrom(50) + {values: [50]}",
+          c =>
+            c
+              .data(scores)
+              .x("team")
+              .y("score")
+              .groupBy("team")
+              .growFrom(50)
+              .valueColors({values: [50]})
+              .legend(false),
+        ],
+        [
+          "LinePlot",
+          "log scale, {values: [40, 1000]}: red below 40, green above (1000 is past the axis, so blue never shows)",
+          c =>
+            base(c.data(revenue))
+              .valueColors({
+                values: [40, 1000],
+                colors: ["#c92a2a", "#2b8a3e", "#1c7ed6"],
+              })
+              .yConfig({scale: "log"}),
+        ],
+        [
+          "StackedArea",
+          "growFrom(20): the stack starts at 20, in series colors",
+          c =>
+            base(c.data(wave))
+              .valueColors({values: [50]})
+              .growFrom(20),
+        ],
+        [
+          "BarChart",
+          "stacked, growFrom(100)",
+          c =>
+            c
+              .data(wave.filter(d => d.month <= 8))
+              .x("month")
+              .y("value")
+              .groupBy("series")
+              .stacked(true)
+              .growFrom(100),
+        ],
+        [
+          "LinePlot",
+          "highlight: the other series in gray",
+          c =>
+            base(c.data(wave))
+              .valueColors({values: [50]})
+              .highlight(d => d.series === "Revenue"),
+        ],
+        [
+          "AreaPlot",
+          'theme("dark"), {values: [35, 65]}: the amber on a dark background',
+          c =>
+            base(c.data(revenue))
+              .valueColors({values: [35, 65]})
+              .theme("dark"),
+        ],
+      ];
+
+      const grid = document.getElementById("grid");
+      charts.forEach(([type, label, setup]) => {
+        const cell = document.createElement("div");
+        const title = document.createElement("h3");
+        title.textContent = `${type}: ${label}`;
+        const el = document.createElement("div");
+        el.className = "viz";
+        cell.append(title, el);
+        grid.appendChild(cell);
+        setup(new d3plus[type]().select(el)).render();
+      });
+    </script>
+  </body>
+</html>

@@ -111,7 +111,25 @@ it("linear — 3 values crossing zero span both poles and the midpoint", () => {
   assert.deepStrictEqual(cs._colorScale.domain(), [-2, 0, 3]);
   const [low, mid, high] = [-2, 0, 3].map(v => colorOf(cs, v));
   assert.ok(reddish(low) && bluish(high));
-  assert.strictEqual(mid, d3Color(cs.schema.colorDefaults.light).formatRgb());
+  assert.strictEqual(mid, d3Color(cs.schema.colorDefaults.neutral).formatRgb());
+});
+
+it("linear — the midpoint is colorDefaults.neutral, never the light text color", () => {
+  const text = solve([-2, 0, 3], {
+    scale: "linear",
+    colorDefaults: {light: "#123456"},
+  });
+  assert.strictEqual(text.schema.colorDefaults.light, "#123456");
+  assert.strictEqual(
+    colorOf(text, 0),
+    d3Color("#f8f9fa").formatRgb(),
+    "setting light leaves the midpoint",
+  );
+  const fill = solve([-2, 0, 3], {
+    scale: "linear",
+    colorDefaults: {neutral: "#654321"},
+  });
+  assert.strictEqual(colorOf(fill, 0), d3Color("#654321").formatRgb());
 });
 
 it("linear — 2 values crossing zero, or a midpoint, take opposite poles", () => {

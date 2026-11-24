@@ -19,6 +19,7 @@ import {
   type DumbbellDirection,
 } from "./changes.js";
 import {vizDiscrete} from "../viz/discrete.js";
+import {signalColor, themedColorDefaults} from "../../utils/theme.js";
 
 type Accessor = (d: DataPoint, i: number) => unknown;
 
@@ -160,7 +161,7 @@ export function lineColor(
     rowDirection(viz, row),
     viz.schema,
     gray,
-    viz.schema.colorDefaults,
+    themedColorDefaults(viz),
   );
 }
 
@@ -169,13 +170,13 @@ export function lineColor(
     color with `arrows`, else the color defaults' `sequential`.
 */
 export function barColor(viz: VizInstance, row: DataPoint): string {
-  const sequential = viz.schema.colorDefaults?.sequential as string;
+  const sequential = signalColor(viz, "sequential");
   if (!viz.schema.arrows) return sequential;
   return directionColor(
     rowDirection(viz, row),
     viz.schema,
     sequential,
-    viz.schema.colorDefaults,
+    themedColorDefaults(viz),
   );
 }
 

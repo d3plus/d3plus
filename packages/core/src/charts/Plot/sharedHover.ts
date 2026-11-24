@@ -185,6 +185,9 @@ function collectColumns(
     }
     const id = String(wrapped.id);
     const member = column.members.get(id);
+    // A mark colored along its values takes each point's color.
+    const color = viz._datumColor?.(wrapped);
+    if (color) swatch = {...swatch, color};
     if (!member)
       column.members.set(id, {
         wrapped,

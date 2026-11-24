@@ -272,12 +272,22 @@ function markFor(
 export function pickSwatch(
   viz: VizInstance,
   pick:
-    | {node?: PickResult["node"]; d?: unknown; isLegend?: boolean}
+    | {node?: PickResult["node"]; d?: unknown; x?: unknown; isLegend?: boolean}
     | null
     | undefined,
 ): string {
   if (!pick || !pick.node) return "";
   const node = pick.node as PickedNode;
+  // A mark colored along its values takes the hovered point's color.
+  const pointColor =
+    !pick.isLegend && isMark(node)
+      ? (viz._datumColor?.(pick.x) ?? viz._datumColor?.(node.datum))
+      : undefined;
+  if (pointColor)
+    return tooltipSwatch(
+      {...nodeSwatch(viz, node), color: pointColor},
+      shapeOf(node),
+    );
   const own = isMark(node) ? nodeSwatch(viz, node) : undefined;
   if (own?.color && !pick.isLegend) return tooltipSwatch(own, shapeOf(node));
   const root = viz._paintedScene?.root;

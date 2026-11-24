@@ -36,6 +36,7 @@ import {chartGridline} from "../viz/backgroundInk.js";
 import {themed} from "../../utils/theme.js";
 import {vizDiscrete} from "../viz/discrete.js";
 import {plotShapeAccessors} from "./shapeAccessors.js";
+import {legendSwatchFill} from "./valueColorsScene.js";
 
 /**
     Plot's identity-coerce accessor schema. `installFluent` installs it on
@@ -54,6 +55,7 @@ export const plotSchema = [
   {key: "jitter", coerce: "identity" as const, default: false},
   {key: "forecast", coerce: "identity" as const},
   {key: "forecastConfig", merge: true, factory: forecastDefaults},
+  {key: "growFrom", coerce: "identity" as const},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "lineLabelConfig", merge: true, factory: () => ({value: false})},
   {key: "marginals", coerce: "identity" as const, default: false},
@@ -79,6 +81,7 @@ export const plotSchema = [
     factory: () => ({padding: 1, overflow: "shrink"}),
   },
   {key: "tooltipShared", coerce: "identity" as const},
+  {key: "valueColors", coerce: "identity" as const},
   {key: "xBreak", coerce: "identity" as const},
   {key: "xCutoff", coerce: "identity" as const},
   {key: "xDomain", coerce: "identity" as const},
@@ -133,6 +136,8 @@ export function initPlotDefaults(viz: Plot): void {
     r: constant(3),
   };
   viz._lineMarkers = defaults.lineMarkers as boolean;
+  viz._legendSwatchFill = (d: DataPoint, i: number, fill: string) =>
+    legendSwatchFill(viz as unknown as VizInstance, d, i, fill);
   viz._previousAnnotations = {back: [], front: []};
   viz._previousShapes = [];
   // Shapes that each show their legend entry's name stand in for the

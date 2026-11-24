@@ -258,3 +258,18 @@ export function resolveStackOffset(
   );
   return stackOffsetDiverging as unknown as StackOffsetFn;
 }
+
+/**
+    Moves every band of a stack along the value axis by `by`, in place, so
+    the stack starts at `growFrom` rather than `0`.
+    @param stackData The d3-stack output, `[series][group] = [start, end]`.
+    @param by How far to move each band.
+*/
+export function shiftStack(stackData: number[][][], by: number): void {
+  if (!by) return;
+  for (const series of stackData)
+    for (const band of series) {
+      band[0] += by;
+      band[1] += by;
+    }
+}

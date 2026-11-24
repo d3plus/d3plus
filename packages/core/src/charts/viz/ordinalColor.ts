@@ -1,9 +1,8 @@
 import {scaleOrdinal} from "d3-scale";
 
-import {colorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 
-import {themeRamp, themeScaleColor} from "../../utils/theme.js";
+import {scalePole, themeRamp} from "../../utils/theme.js";
 
 import type {VizInstance} from "./vizTypes.js";
 
@@ -17,8 +16,9 @@ import type {VizInstance} from "./vizTypes.js";
     in a stable order — numeric values sort ascending; everything else keeps
     the order it first appears in the data (pre-sort your data, or drive it
     with the existing ordering config, to control non-numeric ramps) — then
-    maps them onto an OKLab ramp of the default sequential hue (the theme's
-    `colorScale.max` on a dark or custom theme). Clears the scale when the
+    maps them onto an OKLab ramp of the color scale's high pole (see
+    `scalePole`: the sequential hue, from the chart's `colorDefaults` or its
+    theme). Clears the scale when the
     mode is off.
 */
 export function configureOrdinalColor(viz: VizInstance): void {
@@ -48,11 +48,7 @@ export function configureOrdinalColor(viz: VizInstance): void {
     typeof v === "string" ? v : JSON.stringify(v),
   );
 
-  const base = themeScaleColor(
-    viz._theme,
-    "max",
-    (viz.schema.colorDefaults ?? colorDefaults).sequential,
-  );
+  const base = scalePole(viz, "max");
   const range = themeRamp(viz._theme, base, keys.length || 1, true);
   viz._ordinalColorScale = scaleOrdinal<string, string>()
     .domain(keys)

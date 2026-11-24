@@ -19,6 +19,7 @@ import type {ColorDefaults} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 
 import {accessor} from "../../utils/index.js";
+import {themedColorDefaults} from "../../utils/theme.js";
 import {forEachSceneRow} from "./sceneRows.js";
 import type {VizInstance} from "./vizTypes.js";
 
@@ -66,7 +67,12 @@ const linkAsPredicates = new WeakMap<VizInstance, Predicate>();
 
 /** The parts of a chart `resolveLink` and `linkedColorDefaults` read. */
 type LinkTarget = Pick<VizInstance, "schema"> &
-  Partial<Pick<VizInstance, "_id" | "_linkGroup" | "_autoColorScale">>;
+  Partial<
+    Pick<
+      VizInstance,
+      "_id" | "_linkGroup" | "_autoColorScale" | "_theme" | "_ownColorDefaults"
+    >
+  >;
 
 /** Normalizes a chart's `link` config, or returns null when it isn't linked. */
 export function resolveLink(viz: LinkTarget): ResolvedLink | null {
@@ -131,7 +137,10 @@ export function linkMembers(group: string): VizInstance[] {
     with `color: false`, keeps its own.
 */
 export function linkedColorDefaults(viz: LinkTarget): ColorDefaults {
-  const defaults = viz.schema.colorDefaults as ColorDefaults;
+  const defaults = themedColorDefaults(
+    viz,
+    viz.schema.colorDefaults as ColorDefaults,
+  );
   const group = viz._linkGroup;
   if (group === undefined || defaults.scale !== viz._autoColorScale)
     return defaults;

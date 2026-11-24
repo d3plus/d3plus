@@ -12,7 +12,6 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
-import {colorDefaults} from "@d3plus/color";
 import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
@@ -28,6 +27,7 @@ import {applyKpiLayout} from "./applyLayout.js";
 import type {KpiShared} from "./applyLayout.js";
 import {deltaText} from "./delta.js";
 import {deltaFormats, kpiEmit} from "./emit.js";
+import {signalColor} from "../../utils/theme.js";
 
 type RowFn = (d: DataPoint, i: number) => unknown;
 
@@ -83,8 +83,7 @@ export const kpiDef: DataDrivenChartDefinition = {
     {
       key: "color",
       coerce: optionalAccessor,
-      factory: (viz: VizInstance) => () =>
-        ({...colorDefaults, ...viz.schema.colorDefaults}).sequential,
+      factory: (viz: VizInstance) => () => signalColor(viz, "sequential"),
     },
     /**
         The words after each tile's delta: a string, a `(d, i)` accessor, or

@@ -111,10 +111,12 @@ function barLabelConfig() {
         ) as string;
         return colorContrast(bg, this.schema.colorDefaults);
       }
+      // A bar colored by its value reads against that color.
       return colorContrast(
-        typeof this.schema.shapeConfig.fill === "function"
-          ? this.schema.shapeConfig.fill(d, i)
-          : this.schema.shapeConfig.fill,
+        this._datumColor?.(d) ??
+          (typeof this.schema.shapeConfig.fill === "function"
+            ? this.schema.shapeConfig.fill(d, i)
+            : this.schema.shapeConfig.fill),
         this.schema.colorDefaults,
       );
     },

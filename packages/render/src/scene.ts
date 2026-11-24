@@ -68,7 +68,11 @@ export interface SceneGradient {
       Coordinate space for `from`/`to`. Default (omitted) is objectBoundingBox
       (0–1, scaled to the node's bounds). `"userSpaceOnUse"` treats them as
       absolute scene coordinates — used by motion trails so the gradient stays
-      put as the path's bounding box grows, instead of remapping (and snapping).
+      put as the path's bounding box grows, instead of remapping (and snapping),
+      and by marks colored by their values. On a node, they are the node's own
+      coordinates (inside its `transform`), so the SVG backend keeps one
+      `<linearGradient>` per node and paint, rewritten as the node's gradient
+      changes from draw to draw.
   */
   units?: "userSpaceOnUse";
   /** Start point — objectBoundingBox units (0–1), or absolute for userSpaceOnUse. */

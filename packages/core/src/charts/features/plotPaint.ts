@@ -49,6 +49,7 @@ import {markSharedConfig} from "../../utils/configWarnings.js";
 import {effectiveDuration} from "../viz/reducedMotion.js";
 import {vizDiscrete} from "../viz/discrete.js";
 import {plotBaseline} from "../Plot/baselineDomain.js";
+import {plotValueScale, setDatumColor} from "../Plot/valueColorsScene.js";
 
 /** An axis position function: maps a domain value to a pixel coordinate. */
 export type PlotAxisFn = (d: unknown, axis?: string) => number;
@@ -406,7 +407,12 @@ function emitShapeLoop(
     x2Height: pCtx.x2Height,
     zoomRanges: pCtx.zoomRanges,
     missingRows: pCtx.missingRows,
+    valueScale: plotValueScale(
+      viz,
+      shapeData.flatMap(([, rows]) => rows) as unknown as PlotDatum[],
+    ),
   };
+  setDatumColor(viz, shapeCtx.valueScale);
   // `order` joins each series' points along its path (see `Plot/orderPath.ts`).
   const order = orderOf(viz);
   if (order) {

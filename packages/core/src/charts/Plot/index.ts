@@ -423,7 +423,7 @@ export default class Plot extends Viz {
   }
 
   /**
-      Starts the value axis at a value, like `yDomain([n])` (or `xDomain([n])` for horizontal charts); the far end comes from the data. Bars, areas, and stems still grow from `0`, so with `baselineBreak` on the axis breaks back to a `0` tick. A bound in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
+      Starts the value axis at a value, like `yDomain([n])` (or `xDomain([n])` for horizontal charts); the far end comes from the data. Bars, areas, and stems still grow from `0` (or `growFrom`, which sets where they start), so with `baselineBreak` on the axis breaks back to that tick. A bound in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
 */
   baseline(_?: number): this | number | undefined {
     return arguments.length

@@ -46,6 +46,7 @@ import {
   waterfallStackOffset,
   type RowAccessor,
 } from "./steps.js";
+import {themedColorDefaults} from "../../utils/theme.js";
 
 type Handler = (
   this: unknown,
@@ -78,7 +79,7 @@ function configureBars(viz: VizInstance): void {
   viz.schema.shapeConfig.fill = (d: DataPoint, i: number) => {
     const kind = kindOf(viz, d);
     return kind
-      ? kindColor(kind, viz.schema, viz.schema.colorDefaults)
+      ? kindColor(kind, viz.schema, themedColorDefaults(viz))
       : baseFill(d, i);
   };
   const align = (
@@ -213,12 +214,12 @@ export const waterfallDef: ChartDefinition = {
     /** Draws a thin line from the end of each bar to the start of the next. */
     {key: "connectors", default: true},
     /**
-        Fill for bars that lower the running total. Defaults to `colorDefaults.off`.
+        Fill for bars that lower the running total. Defaults to `colorDefaults.off` (or the theme's `off`).
         @type {CssColor | function}
     */
     {key: "decreaseColor"},
     /**
-        Fill for bars that raise the running total. Defaults to `colorDefaults.on`.
+        Fill for bars that raise the running total. Defaults to `colorDefaults.on` (or the theme's `on`).
         @type {CssColor | function}
     */
     {key: "increaseColor"},
@@ -244,7 +245,7 @@ export const waterfallDef: ChartDefinition = {
             : undefined,
     },
     /**
-        Fill for subtotal bars. Defaults to `colorDefaults.sequential`.
+        Fill for subtotal bars. Defaults to `colorDefaults.sequential` (or the theme's `sequential`).
         @type {CssColor | function}
     */
     {key: "totalColor"},

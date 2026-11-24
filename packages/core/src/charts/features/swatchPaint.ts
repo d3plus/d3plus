@@ -22,9 +22,17 @@ export interface SwatchPaint {
   outline?: SwatchOutline;
 }
 
-/** A paint color that actually shows: not unset, "none", or transparent. */
+/**
+    A paint color that actually shows: not unset, "none", or transparent. A
+    gradient (a `gradient:<json>` token) is no one color, so it has none.
+*/
 export const visibleColor = (s: unknown): string | undefined =>
-  typeof s === "string" && s !== "none" && s !== "transparent" ? s : undefined;
+  typeof s === "string" &&
+  s !== "none" &&
+  s !== "transparent" &&
+  !s.startsWith("gradient:")
+    ? s
+    : undefined;
 
 /** Whether a fill is a texture: a `pattern:<json>` token. */
 export const isTexture = (fill: unknown): fill is string =>

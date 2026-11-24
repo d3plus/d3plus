@@ -230,8 +230,11 @@ function paintLegend(
       ),
     )
     .shapeConfig({
-      fill: (d: DataPoint, i: number) =>
-        hidden(d, i) ? viz.schema.hiddenColor(d, i) : getAttr(d, i, "fill"),
+      fill: (d: DataPoint, i: number) => {
+        if (hidden(d, i)) return viz.schema.hiddenColor(d, i);
+        const fill = getAttr(d, i, "fill");
+        return viz._legendSwatchFill?.(d, i, fill) ?? fill;
+      },
       // Resolved like the fill, so a texture draws its lines in the marks'
       // stroke even where the swatch takes no outline.
       stroke: (d: DataPoint, i: number) =>
