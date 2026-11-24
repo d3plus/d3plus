@@ -102,6 +102,7 @@ export interface TranslationStrings {
   Progress: string;
   Projected: string;
   Range: string;
+  "Reference line": string;
   "Relative Density": string;
   "Relative Frequency": string;
   "Reset Zoom": string;
@@ -305,6 +306,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Progress: "\u0627\u0644\u062a\u0642\u062f\u0645",
     Projected: "\u0645\u062a\u0648\u0642\u0639",
     Range: "\u0627\u0644\u0646\u0637\u0627\u0642",
+    "Reference line": "\u062e\u0637 \u0645\u0631\u062c\u0639\u064a",
     "Relative Density":
       "\u0627\u0644\u0643\u062b\u0627\u0641\u0629 \u0627\u0644\u0646\u0633\u0628\u064a\u0629",
     "Relative Frequency":
@@ -486,6 +488,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Progress: "Progreso",
     Projected: "Proyectado",
     Range: "Rango",
+    "Reference line": "L\u00ednea de referencia",
     "Relative Density": "Densidad Relativa",
     "Relative Frequency": "Frecuencia Relativa",
     "Reset Zoom": "Restablecer Zoom",
@@ -649,6 +652,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Progress: "Progresso",
     Projected: "Projetado",
     Range: "Intervalo",
+    "Reference line": "Linha de refer\u00eancia",
     "Relative Density": "Densidade Relativa",
     "Relative Frequency": "Frequ\u00eancia Relativa",
     "Reset Zoom": "Redefinir Zoom",
@@ -815,6 +819,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Progress: "\u8fdb\u5ea6",
     Projected: "\u9884\u6d4b",
     Range: "\u8303\u56f4",
+    "Reference line": "\u53c2\u8003\u7ebf",
     "Relative Density": "\u76f8\u5bf9\u5bc6\u5ea6",
     "Relative Frequency": "\u76f8\u5bf9\u9891\u7387",
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",

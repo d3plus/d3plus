@@ -28,6 +28,13 @@ import {
 } from "./annotationText.js";
 import type {Annotation, AnnotationRef} from "./annotationTypes.js";
 import type {Box} from "./calloutLayout.js";
+import {
+  DRAG_INDEX,
+  dragLit,
+  referenceDragState,
+  referenceDragTarget,
+} from "./referenceDrag.js";
+import {referenceDragHandle} from "./referenceDragHandle.js";
 import {registerLabelSpots, type LabelSpot} from "./referenceLabelPlacement.js";
 import {
   referenceBandLabelSpots,
@@ -54,15 +61,24 @@ function entries(setting: unknown): Record<string, unknown>[] {
 
 /**
     Expands `referenceLines` into `"ReferenceLine"` annotations, in the back
-    layer unless an entry sets its own.
+    layer unless an entry sets its own. With `indexed`, each draggable
+    entry's annotation keeps its position in the setting (see
+    `referenceDrag.ts`).
     @param setting The `referenceLines` setting.
+    @param indexed Whether the setting is the chart's own `referenceLines`.
 */
-export function expandReferenceLines(setting: unknown): Annotation[] {
-  return entries(setting).map(d => ({
-    layer: "back",
-    ...d,
-    shape: REFERENCE_LINE,
-  }));
+export function expandReferenceLines(
+  setting: unknown,
+  indexed = false,
+): Annotation[] {
+  const list = Array.isArray(setting) ? setting : setting ? [setting] : [];
+  return list.flatMap((d: unknown, i: number) => {
+    if (!d || typeof d !== "object") return [];
+    const entry = d as Record<string, unknown>;
+    const out: Annotation = {layer: "back", ...entry, shape: REFERENCE_LINE};
+    if (indexed && entry.draggable) out[DRAG_INDEX] = i;
+    return [out];
+  });
 }
 
 /**
@@ -252,12 +268,17 @@ export function referenceLineNodes(
 ): SceneNode[] {
   const line = referenceLinePoints(frame, annotation);
   if (!line) return [];
+  const drag = referenceDragTarget(viz, annotation, frame, line);
+  // A draggable line is labeled with its value unless it has a label.
+  if (drag && annotation.label === undefined && !drag.plot)
+    annotation = {...annotation, label: drag.text};
+  const lit = drag && dragLit(referenceDragState(viz), drag.index);
   const style = annotationTextStyle(viz, k => annotation[k]);
   const paint: Paint = {
     fill: "none",
     stroke: (annotation.stroke as string) || style.fontColor,
-    strokeWidth: num(annotation.strokeWidth, 1),
-    strokeOpacity: num(annotation.strokeOpacity, 0.6),
+    strokeWidth: num(annotation.strokeWidth, 1) + (lit ? 1 : 0),
+    strokeOpacity: lit ? 1 : num(annotation.strokeOpacity, 0.6),
   };
   const dash = dashOf(annotation);
   if (dash) paint.strokeDasharray = dash;
@@ -288,6 +309,7 @@ export function referenceLineNodes(
     ),
   );
   if (label) out.push(label);
+  if (drag) out.push(referenceDragHandle(viz, drag));
   return out;
 }
 

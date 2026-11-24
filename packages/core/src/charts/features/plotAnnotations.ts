@@ -22,6 +22,7 @@ import {
 } from "./referenceAnnotations.js";
 import {QUADRANTS, quadrantNodes} from "./referenceQuadrants.js";
 import {collectReferenceHighlight} from "./referenceHighlight.js";
+import {referenceDragState} from "./referenceDrag.js";
 import {plotAnnotationList} from "./plotAnnotationList.js";
 
 import type {Annotation} from "./annotationTypes.js";
@@ -179,6 +180,8 @@ export function emitAnnotations(
   const front: SceneNode[] = [];
   const all = plotAnnotationList(viz);
   collectReferenceHighlight(viz, all);
+  // The draggable lines register again as they paint.
+  referenceDragState(viz).targets.clear();
 
   Object.keys(viz._previousAnnotations!).forEach(layer => {
     const annotationData = all.filter(d => annotationLayer(d) === layer);

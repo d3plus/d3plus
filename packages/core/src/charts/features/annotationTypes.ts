@@ -4,6 +4,8 @@
 */
 import type {DataPoint} from "@d3plus/data";
 
+import type {ReferenceDragConfig} from "./referenceDragValue.js";
+
 /**
     How an annotation position is read on one axis: `"data"` (the default)
     maps it through the axis scale, in data units (a number, a date, or a
@@ -172,6 +174,21 @@ export interface ReferenceLineConfig extends Omit<ReferenceStyle, "label"> {
   y?: ReferenceValue;
   x2?: ReferenceValue;
   y2?: ReferenceValue;
+  /** A name for the line, which a `valueColors` threshold can give in `values` to follow it. */
+  id?: string;
+  /**
+      Lets the reader drag the line along its axis with the pointer, or move
+      it with the arrow keys once it has focus: `true`, or the range it can
+      move in (`min`, `max`; the axis's by default) and the `step` its
+      value snaps to (without one, about a pixel's worth). The value it is
+      moved to replaces its own, so it lasts through redraws and
+      `referenceLines()` reads it back; the chart fires
+      `drag.referenceLine` as it moves and `end.referenceLine` when it is
+      let go. Unlabeled, it is labeled with its value. Only a line at a
+      value of its own (not a statistic or a function) on a number or time
+      axis, outside small multiples, can be dragged. Defaults to `false`.
+  */
+  draggable?: boolean | ReferenceDragConfig;
   /** How the value is read. Defaults to `"data"`. */
   ref?: AnnotationRef;
   /**

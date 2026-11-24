@@ -2717,7 +2717,13 @@ export interface D3plusConfig {
       Event listeners keyed by event name. Besides pointer events (`click`,
       `mousemove`, … scoped as `click.shape` or `click.legend`), a chart
       fires `select` with the rows a box or lasso selection holds (see
-      `selectMode`), and with no rows when it is cleared.
+      `selectMode`), and with no rows when it is cleared. A Plot with a
+      `draggable` reference line fires `drag.referenceLine` as the reader
+      moves it and `end.referenceLine` when they let go (or after each key
+      press), each given the line's new value (a Date on a time axis), its
+      `referenceLines` entry, its index in that list, and the browser event.
+      @example
+{on: {"end.referenceLine": (value, line) => console.log(line.id, value)}}
   */
   on?: Record<string, (event: Event) => void>;
   /** Candlestick: accessor or data key for each period's opening value (default `"open"`). */
@@ -2962,7 +2968,12 @@ export interface D3plusConfig {
       `stroke`/`strokeOpacity` (default the text color at `0.6`),
       `strokeWidth` (`1`), `dash` (`true` or a dash pattern), and
       `layer: "front"` to draw over the data. A line widens a continuous
-      axis's domain to fit.
+      axis's domain to fit. `draggable: true` (or `{min, max, step}`) lets
+      the reader drag a line at a value of its own along a number or time
+      axis, or move it with the arrow keys: the new value replaces the
+      entry's, `drag.referenceLine` and `end.referenceLine` fire with it
+      (see `on`), and its `highlight` and any `valueColors` threshold that
+      names its `id` follow it as it moves.
   */
   referenceLines?: ReferenceLineConfig[];
   /**
@@ -3590,12 +3601,14 @@ export interface D3plusConfig {
       between them when there are three or more bands; a gradient defaults to `colorScaleConfig.color`,
       or else runs from `colorScaleConfig.colorMin` to `colorMax` (the
       theme's color scale poles). Pair a threshold with `growFrom` at the
-      same value to fill above and below a target. Stacked areas and bars
+      same value to fill above and below a target. A string in `values`
+      names a reference line by its `id` and takes that line's value, so a
+      `draggable` line recolors the marks as it moves. Stacked areas and bars
       keep their series colors. Unset by default.
   */
   valueColors?: {
     type?: "threshold" | "gradient";
-    values?: number | number[] | boolean;
+    values?: number | string | (number | string)[] | boolean;
     colors?: (string | null)[];
   };
   /** Funnel, Gauge, KPI, and Venn: formats each value shown in labels and tooltips, as `(value, datum) => string`. */

@@ -21,6 +21,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {valueAxis} from "./baselineDomain.js";
 import {FILL_BETWEEN_KEY} from "./fillBetween.js";
 import {
+  linkedValues,
   swatchGradient,
   valueColorAt,
   valuePixelStops,
@@ -75,7 +76,11 @@ export function plotValueScale(
   const values = rows.map(d => rowValue(d, axis)).filter(Number.isFinite);
   const range = extent(values) as [number, number] | [undefined, undefined];
   const cs = (viz.schema.colorScaleConfig ?? {}) as ColorScaleColors;
-  const setting = viz.schema.valueColors as ValueColorsSetting;
+  const given = viz.schema.valueColors as ValueColorsSetting;
+  const setting = {
+    ...given,
+    values: linkedValues(given.values, viz.schema.referenceLines),
+  } as ValueColorsSetting;
   return valueScale(
     setting.type === "gradient" &&
       setting.colors === undefined &&

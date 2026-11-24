@@ -49,7 +49,7 @@ export function plotAnnotationList(viz: VizInstance): Annotation[] {
       expandReferenceBands(viz.schema.referenceBands),
     ),
     ...resolveReferenceLines(viz, [
-      ...expandReferenceLines(viz.schema.referenceLines),
+      ...expandReferenceLines(viz.schema.referenceLines, true),
       ...expandReferenceLines(viz._plotReferenceLines?.()),
     ]),
     ...own
