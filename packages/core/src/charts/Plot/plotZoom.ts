@@ -30,10 +30,10 @@ import {
   windowTransform,
   zoomedDomain,
   zoomWindows,
+  type ZoomWindow,
   type ZoomWindows,
 } from "./zoomWindow.js";
-import {broadcastWindows, broadcastZoom} from "../drawSteps/zoomLink.js";
-import {setFacetZoom} from "../drawSteps/facetZoomRedraw.js";
+import {broadcastZoom} from "../drawSteps/zoomLink.js";
 import {panelWindows} from "./facetZoom.js";
 import {
   defaultZoomAxis,
@@ -152,7 +152,11 @@ export function paintZoomablePlot(
   // `facetZoom.ts`), refitting the others.
   const panel = viz._facetStep === "panel";
   const windows = panel
-    ? panelWindows(viz._facetZoom, d => valuesExtent(pCtx[`${d}Data`]))
+    ? panelWindows(
+        viz._facetZoom,
+        d => panelExtent(viz, pCtx, d),
+        viz._facetPanelKey,
+      )
     : undefined;
   const split = splitZoomAxes(
     zoomableAxes(pCtx),
@@ -200,6 +204,16 @@ export function paintZoomablePlot(
     if (zoomed) return zoomed;
   }
   return nodes;
+}
+
+/** A small-multiples panel's data extent: every panel's, when they share scales. */
+function panelExtent(
+  viz: Viz,
+  pCtx: PlotPaintContext,
+  dim: "x" | "y",
+): ZoomWindow | undefined {
+  const shared = viz._plotFacetScales?.domains?.[dim];
+  return valuesExtent(shared ?? pCtx[`${dim}Data`]);
 }
 
 /** The transform that shows a small-multiples panel's window, if it has one. */
@@ -363,14 +377,8 @@ export function zoomPlot(
 ): SceneNode[] | undefined {
   clearTimeout(viz._plotUnclipTimer);
   const identity = t.k === 1 && !t.x && !t.y;
-  // Small multiples zoom as one picture; a reset also drops their window.
-  if (viz._facetPanels) {
-    if (identity && viz._facetZoom) {
-      setFacetZoom(viz, undefined, duration);
-      broadcastWindows(viz as never, null, duration);
-    }
-    return undefined;
-  }
+  // Small multiples zoom panel by panel (see `facetGestures.ts`).
+  if (viz._facetPanels) return undefined;
   // An overview keeps its whole view: its zoom is the window its band shows.
   if (isOverviewChart(viz)) {
     viz._overviewWindows = identity ? null : zoomWindows(viz as never, t);

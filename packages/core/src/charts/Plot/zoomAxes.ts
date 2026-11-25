@@ -9,8 +9,11 @@
 /** One of a Plot's four axes. */
 export type AxisName = "x" | "x2" | "y" | "y2";
 
-/** The `zoomAxes` setting: the axes a Plot's zoom rescales. */
-export type ZoomAxesSetting = ("x" | "y")[];
+/**
+    The `zoomAxes` setting: the axes a Plot's zoom rescales, as a list, or
+    the shorthand `"x"`, `"y"`, or `"xy"`.
+*/
+export type ZoomAxesSetting = ("x" | "y")[] | "x" | "y" | "xy";
 
 /** Which screen dimensions a zoom rescales. */
 export interface ZoomDims {
@@ -19,8 +22,8 @@ export interface ZoomDims {
 }
 
 /**
-    The dimensions a Plot's zoom rescales: those `zoomAxes` lists, or, when
-    it is unset (or lists neither axis), the time axis alone for a chart
+    The dimensions a Plot's zoom rescales: those `zoomAxes` lists (or names
+    with `"x"`, `"y"`, or `"xy"`), or, when it is unset (or names neither), the time axis alone for a chart
     whose zoom runs along one (`timeAxis`: a range selector or an overview
     chart), or both.
     @param setting The chart's `zoomAxes`.
@@ -30,8 +33,14 @@ export function zoomDimensions(
   setting: unknown,
   timeAxis?: "x" | "y",
 ): ZoomDims {
-  if (Array.isArray(setting)) {
-    const dims = {x: setting.includes("x"), y: setting.includes("y")};
+  const list =
+    setting === "x" || setting === "y"
+      ? [setting]
+      : setting === "xy"
+        ? ["x", "y"]
+        : setting;
+  if (Array.isArray(list)) {
+    const dims = {x: list.includes("x"), y: list.includes("y")};
     if (dims.x || dims.y) return dims;
   }
   if (timeAxis) return {x: timeAxis === "x", y: timeAxis === "y"};

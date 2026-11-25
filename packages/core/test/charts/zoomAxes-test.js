@@ -23,14 +23,20 @@ it("zoomDimensions: names the dimensions zoomAxes lists", () => {
   assert.deepStrictEqual(zoomDimensions(["y", "x", "x"]), {x: true, y: true});
 });
 
+it('zoomDimensions: "x", "y", and "xy" are shorthand for the lists', () => {
+  assert.deepStrictEqual(zoomDimensions("x"), {x: true, y: false});
+  assert.deepStrictEqual(zoomDimensions("y"), {x: false, y: true});
+  assert.deepStrictEqual(zoomDimensions("xy", "x"), {x: true, y: true});
+});
+
 it("zoomDimensions: unset, or listing neither axis, it follows the time axis, else both", () => {
   assert.deepStrictEqual(zoomDimensions(undefined), {x: true, y: true});
   assert.deepStrictEqual(zoomDimensions(undefined, "x"), {x: true, y: false});
   assert.deepStrictEqual(zoomDimensions(undefined, "y"), {x: false, y: true});
   assert.deepStrictEqual(zoomDimensions([], "x"), {x: true, y: false});
   assert.deepStrictEqual(zoomDimensions(["z"]), {x: true, y: true});
-  // A string isn't the setting's form.
-  assert.deepStrictEqual(zoomDimensions("x"), {x: true, y: true});
+  assert.deepStrictEqual(zoomDimensions("z"), {x: true, y: true});
+  assert.deepStrictEqual(zoomDimensions("yx"), {x: true, y: true});
   // An explicit setting wins over the time axis.
   assert.deepStrictEqual(zoomDimensions(["x", "y"], "x"), {x: true, y: true});
 });

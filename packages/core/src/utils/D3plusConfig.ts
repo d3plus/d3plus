@@ -2945,8 +2945,8 @@ export interface D3plusConfig {
       button whose window takes in all the data is hidden, and the selector
       hides when only "All" would be left. Unless `zoomAxes` says otherwise,
       the zoom then runs along the time axis alone, and the other axis fits
-      the data in view. Small multiples apply a button to each panel's own
-      data. Needs `zoom` and a time axis. Defaults to `false`.
+      the data in view. Small multiples with independent scales apply a
+      button to each panel's own data. Needs `zoom` and a time axis. Defaults to `false`.
   */
   rangeSelector?: boolean | RangeSelectorOption[];
   /** An additional CSS class name (or space-separated list) applied to each range-selector button, alongside the fixed `d3plus-range-button` class. Setting it drops the built-in `rangeSelectorStyle`, `rangeSelectorStyleActive`, and `rangeSelectorStyleHover` defaults you haven't customized, so a host page's own button styles apply. */
@@ -3746,7 +3746,8 @@ export interface D3plusConfig {
       axis refits to the data in view: the rows within the window, each
       line's nearest rows past either edge, their confidence bounds, and the
       baseline bars and areas start at. An axis with a domain you set stays
-      as it is. `["x", "y"]` rescales both. Defaults to `["x", "y"]`, or to
+      as it is. `["x", "y"]` rescales both. `"x"`, `"y"`, and `"xy"` are
+      shorthand for the same lists. Defaults to `["x", "y"]`, or to
       the time axis alone when `rangeSelector` shows or the chart is its
       link group's overview. Ignored when the named axis is a list of
       categories.

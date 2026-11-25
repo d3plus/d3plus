@@ -158,7 +158,7 @@ it("a number axis doesn't follow a time axis", async () => {
   assert.strictEqual(r.ke, 1);
 });
 
-it("a window that only partly reaches a chart's data still shows the same dates", async () => {
+it("a window that only partly reaches a chart's data is cut to it", async () => {
   const r = await page(
     `
     const a = await plot("#a", series(2021, 1000), "partial");
@@ -167,12 +167,15 @@ it("a window that only partly reaches a chart's data still shows the same dates"
     const px = date => scale(date) + ct.x;
     a._zoomToBounds([[px(new Date(2022, 9, 1)), 0], [px(new Date(2023, 2, 1)), 10]], 0);
     await frames();
-    return {a: x(a), b: x(b), kb: k(b)};
+    return {a: x(a), b: x(b), kb: k(b), start: +new Date(2023, 0, 1)};
   `,
     "svg",
   );
   assert.ok(r.kb > 1, "b zooms");
-  assert.ok(near(r.a, r.b, 40 * DAY), `to the same dates (${r.a} vs ${r.b})`);
+  assert.ok(
+    near(r.b, [r.start, r.a[1]], 2 * DAY),
+    `to the window from its first date (${r.b.map(d => new Date(d).toISOString())})`,
+  );
 });
 
 it("a chart zooming both axes ignores a window along x alone", async () => {

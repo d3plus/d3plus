@@ -2711,6 +2711,15 @@ export {
 } from "./src/charts/drawSteps/zoomLink.js";
 export {setFacetZoom} from "./src/charts/drawSteps/facetZoomRedraw.js";
 export {
+  bindFacetGestures,
+  clampToArea,
+  facetZoomable,
+  resetFacets,
+  scaleAbout,
+  zoomFacets,
+  zoomFacetToBounds,
+} from "./src/charts/drawSteps/facetGestures.js";
+export {
   facetDataWindow,
   overlappingWindows,
   panelWindows,

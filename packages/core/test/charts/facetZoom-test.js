@@ -20,11 +20,15 @@ it("windowsOverlap: whether two windows share any values, edges included", () =>
   assert.strictEqual(windowsOverlap([30, 40], [0, 20]), false);
 });
 
-it("overlappingWindows: keeps the windows that reach the data, or undefined", () => {
+it("overlappingWindows: cuts the windows to the data, dropping those that miss it", () => {
   const extent = {x: [0, 100], y: [10, 20]};
   assert.deepStrictEqual(
     overlappingWindows({x: [50, 150], y: [30, 40]}, d => extent[d]),
-    {x: [50, 150]},
+    {x: [50, 100]},
+  );
+  assert.deepStrictEqual(
+    overlappingWindows({x: [-20, 30], y: [12, 15]}, d => extent[d]),
+    {x: [0, 30], y: [12, 15]},
   );
   assert.strictEqual(
     overlappingWindows({x: [200, 300]}, d => extent[d]),
@@ -75,6 +79,18 @@ it("panelWindows: a linked window shows where it reaches the panel's data", () =
     panelWindows(undefined, () => [0, 100]),
     undefined,
   );
+});
+
+it("panelWindows: a panel's own window wins over the chart's", () => {
+  const zoom = {
+    windows: {x: [50, 60]},
+    panels: {"facet-a": {x: [10, 20]}, "facet-b": null},
+  };
+  const extent = () => [0, 100];
+  assert.deepStrictEqual(panelWindows(zoom, extent, "facet-a"), {x: [10, 20]});
+  assert.strictEqual(panelWindows(zoom, extent, "facet-b"), undefined);
+  assert.deepStrictEqual(panelWindows(zoom, extent, "facet-c"), {x: [50, 60]});
+  assert.deepStrictEqual(panelWindows(zoom, extent), {x: [50, 60]});
 });
 
 it("facetDataWindow: spans every panel's data", () => {

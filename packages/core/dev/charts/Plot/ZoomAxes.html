@@ -76,6 +76,14 @@
       <div class="chart" id="facets"></div>
     </div>
     <div>
+      <h3>Small multiples with shared scales</h3>
+      <p>
+        Zooming one panel (wheel, drag, double-click, or the zoom buttons) zooms
+        them all, so they stay comparable.
+      </p>
+      <div class="chart" id="sharedFacets"></div>
+    </div>
+    <div>
       <h3>One month of data</h3>
       <p>Every button but "All" would show everything, so none shows.</p>
       <div class="chart" id="tiny"></div>
@@ -211,6 +219,16 @@
       time: "date",
       y: "value",
       rangeSelector: ["1M", "3M", "6M", "All"],
+    });
+
+    make("LinePlot", "#sharedFacets", {
+      data: regions,
+      groupBy: "id",
+      facet: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      zoomAxes: "x",
     });
 
     make("LinePlot", "#tiny", {

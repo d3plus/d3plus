@@ -316,6 +316,10 @@ export interface VizInstance {
   _facetZoom?: FacetZoom;
   /** Paints the next draw without motion (it follows a gesture, or reloads a chart scrolled back into view). */
   _instantNextDraw?: boolean;
+  /** The key of the small-multiples panel drawing, while one draws. */
+  _facetPanelKey?: string;
+  /** Whether the small-multiples panels last drawn share scales. */
+  _facetShared?: boolean;
   /** A pending small-multiples redraw for a new window, by animation frame. */
   _facetZoomFrame?: number;
   /** The window an overview chart's band shows, kept across redraws (see `drawSteps/overview.ts`). */

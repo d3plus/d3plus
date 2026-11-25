@@ -9,8 +9,8 @@
     shows its window, however it got there. A button whose window would take
     in all the data (a "1Y" on four months of data) is hidden, since it
     would show the same as "All"; when only "All" would be left, the whole
-    selector hides. Small multiples apply a button to each panel's own data
-    (see `Plot/facetZoom.ts`).
+    selector hides. Small multiples with independent scales apply a button
+    to each panel's own data (see `Plot/facetZoom.ts`).
 
     @module
 */
@@ -150,7 +150,9 @@ export function activeRangeButton(viz: Viz): number {
   if (viz._facetPanels) {
     const zoom = viz._facetZoom;
     if (!zoom) return all ? all.index : -1;
-    return zoom.range ? zoom.range.index : -1;
+    // A panel zoomed on its own leaves no button showing every panel's window.
+    const own = Object.values(zoom.panels ?? {}).length > 0;
+    return zoom.range && !own ? zoom.range.index : -1;
   }
   const live = liveTransform(viz);
   const shown = state.buttons.find(({button}) => {
@@ -169,9 +171,6 @@ function selectFacetRange(
   button: RangeButton,
 ): void {
   const duration = effectiveDuration(viz);
-  const live = liveTransform(viz);
-  // The window replaces any zoom of the whole picture.
-  if (live.k !== 1 || live.x || live.y) zoomTo(viz, 1, 0, 0, 0);
   const vi = viz as unknown as VizInstance;
   if (button.step === "all") {
     setFacetZoom(vi, undefined, duration);

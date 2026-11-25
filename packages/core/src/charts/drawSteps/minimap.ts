@@ -6,6 +6,7 @@ import type {FeatureLayout, FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
 import {zoomTo} from "./zoomControls.js";
 import {isOverviewChart} from "../Plot/zoomAxes.js";
+import {facetZoomable} from "./facetGestures.js";
 import {zoomedDims} from "./zoomFit.js";
 import {
   MINIMAP_GAP,
@@ -411,6 +412,7 @@ export const minimapFeature: FeatureModule = {
       !viz.schema.zoom ||
       !viz.schema.minimap ||
       isOverviewChart(viz) ||
+      facetZoomable(viz) ||
       !viz._container ||
       !viz._zoomBehavior
     )

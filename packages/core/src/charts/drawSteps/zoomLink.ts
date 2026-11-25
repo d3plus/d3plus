@@ -10,8 +10,9 @@
     over different spans of data, line up on the same dates. A window passes
     only between axes of the same kind (time to time, number to number); a
     chart follows only when the windows cover every dimension its zoom
-    scales, and keeps its view when none of them reaches its data. A return
-    to the natural view resets the others.
+    scales, shows each window cut to its own data, and keeps its view when
+    none of them reaches its data. A return to the natural view resets the
+    others.
 
     @module
 */
@@ -74,8 +75,9 @@ export function coversDims(
 
 /**
     Zooms a linked chart to windows from another, or back to its natural
-    view for `null`. A chart keeps its view when the windows miss a
-    dimension its zoom scales, or reach none of its data.
+    view for `null`. A chart shows the windows cut to its data, and keeps
+    its view when they miss a dimension its zoom scales or reach none of its
+    data.
     @param target The chart.
     @param windows The windows, or null to reset.
     @param duration The transition's length.
@@ -97,11 +99,11 @@ export function followZoom(
   if (!windows) return zoomTo(target, 1, 0, 0, duration);
   const dims = zoomedDims(target);
   if (!coversDims(dims, windows)) return;
+  // The window cut to this chart's data.
   const reach = overlappingWindows(windows, d => dataWindow(target, d));
   if (!reach || !coversDims(dims, reach)) return;
-  // The window's dates, even where they run past this chart's data.
-  const t = windowTransform(target, windows);
-  if (t) zoomTo(target, t.k, t.x, t.y, duration, false);
+  const t = windowTransform(target, reach);
+  if (t) zoomTo(target, t.k, t.x, t.y, duration);
 }
 
 /**
