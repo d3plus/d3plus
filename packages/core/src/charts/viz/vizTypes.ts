@@ -304,6 +304,8 @@ export interface VizInstance {
   _zoomShapes?: SceneNode[];
   /** The unzoomed Plot draw an axis-rescaling zoom rescales from. */
   _plotZoomBase?: PlotZoomBase;
+  /** Paints the next draw without motion (it follows a gesture, or reloads a chart scrolled back into view). */
+  _instantNextDraw?: boolean;
   /**
       Which part of a small-multiples draw `_draw()` is running: `"chrome"`
       lays out the shared chart chrome and skips the chart body; `"panel"`
@@ -314,8 +316,6 @@ export interface VizInstance {
   _facetPanels?: FacetPanelState[];
   /** The window each small-multiples panel shows (see `Plot/facetZoom.ts`). */
   _facetZoom?: FacetZoom;
-  /** Paints the next draw without motion (it follows a gesture, or reloads a chart scrolled back into view). */
-  _instantNextDraw?: boolean;
   /** The key of the small-multiples panel drawing, while one draws. */
   _facetPanelKey?: string;
   /** Whether the small-multiples panels last drawn share scales. */
