@@ -312,8 +312,6 @@ export interface VizInstance {
       again (a dragged reference line moving); false when it can't.
   */
   _repaintPlot?: () => boolean;
-  /** Paints the next draw without motion (it follows a gesture, or reloads a chart scrolled back into view). */
-  _instantNextDraw?: boolean;
   /**
       Which part of a small-multiples draw `_draw()` is running: `"chrome"`
       lays out the shared chart chrome and skips the chart body; `"panel"`
@@ -346,6 +344,8 @@ export interface VizInstance {
   _select?: D3Selection;
   _sceneRenderer?: VizRenderer;
   _duration: number;
+  /** Paints the next draw without motion (it follows a gesture, or reloads a chart scrolled back into view). */
+  _instantNextDraw?: boolean;
   _renderer?: "svg" | "canvas";
   _focus?: string | number | undefined;
   /**
