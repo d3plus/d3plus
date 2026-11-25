@@ -53,6 +53,8 @@ export interface GanttLayout {
   column: number;
   /** Maps a start or end to its x position. */
   x: (v: TimeValue) => number;
+  /** The time axis's first and last values, as numbers. */
+  domain: [number, number];
   /** Each row's center, by row. */
   cy: number[];
   /** The distance between neighboring row centers. */
@@ -243,12 +245,15 @@ export const applyGanttLayout: TransformStage = ({viz}) => {
     0,
     frame.width,
   ];
+  const drawn = (scale as unknown as {domain?: () => unknown[]}).domain?.();
+  const ends = (drawn ?? frame.domain).map(Number).filter(Number.isFinite);
   v.ctx.gantt = {
     rows,
     labels: fitLabels(rows, column, step, font),
     font,
     column,
     x,
+    domain: [Math.min(...ends), Math.max(...ends)],
     cy,
     step,
     band,

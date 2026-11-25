@@ -235,7 +235,8 @@ export const ganttDef: DataDrivenChartDefinition = {
         Styles the "today" line like a `referenceLines` entry: `stroke`,
         `strokeWidth` (1.5), `strokeOpacity` (0.85), `dash`, and its `label`
         (the translated "Today"; `false` for none), with the label's font
-        settings and `labelPosition`.
+        settings and `labelPosition`. `draggable: true` lets the reader drag
+        the line, setting `today`.
         @type {ReferenceLineConfig}
     */
     {key: "todayConfig", merge: true, default: {}},

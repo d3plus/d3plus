@@ -24,6 +24,7 @@ import {forecastDefaults} from "./forecast.js";
 import {coerceOrder} from "./orderPath.js";
 import {outlierDefaults} from "./outlierScene.js";
 import {plotDef} from "./pipeline.js";
+import {repaintPlot} from "./plotZoom.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
 import {shapeLabelsPossible} from "./shapeLabelLegend.js";
 import {axisValue} from "./sharedTooltip.js";
@@ -140,6 +141,8 @@ export function initPlotDefaults(viz: Plot): void {
     legendSwatchFill(viz as unknown as VizInstance, d, i, fill);
   viz._previousAnnotations = {back: [], front: []};
   viz._previousShapes = [];
+  // A dragged reference line repaints the plot at its drawn layout.
+  viz._repaintPlot = () => repaintPlot(viz as unknown as VizInstance);
   // Shapes that each show their legend entry's name stand in for the
   // legend, as along-line labels do (see `shapeLabelLegend.ts`).
   viz._alongLabelsPossible = shapeLabelsPossible;

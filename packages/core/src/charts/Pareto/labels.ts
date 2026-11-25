@@ -12,6 +12,7 @@ import {formatAbbreviate} from "@d3plus/format";
 import {fieldNameOf} from "../../utils/fieldAccessor.js";
 import {autoTitle} from "../helpers/valueTitle.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {DRAG_SOURCE, settingSource} from "../features/referenceDragSource.js";
 import {
   barRows,
   categoryAxis,
@@ -91,17 +92,25 @@ export function thresholdLines(viz: VizInstance): Record<string, unknown>[] {
     string,
     unknown
   >;
-  return [
-    {
-      dash: true,
-      label: percentFormat(viz)(at),
-      // The label sits at the line's end over the smallest bars: the right
-      // of upright bars, the bottom of horizontal ones.
-      labelPosition: categoryAxis(viz) === "y" ? "start" : "end",
-      ...config,
-      [shareAxis(viz)]: at,
-    },
-  ];
+  const axis = shareAxis(viz);
+  const line: Record<string, unknown> = {
+    dash: true,
+    label: percentFormat(viz)(at),
+    // The label sits at the line's end over the smallest bars: the right
+    // of upright bars, the bottom of horizontal ones.
+    labelPosition: categoryAxis(viz) === "y" ? "start" : "end",
+    ...config,
+    [axis]: at,
+  };
+  // Dragged, the line moves `paretoThreshold`.
+  if (config.draggable)
+    line[DRAG_SOURCE] = settingSource(
+      "referenceLine",
+      "paretoThreshold",
+      () => ({...config, [axis]: viz.schema.paretoThreshold}),
+      entry => (viz.schema.paretoThreshold = entry[axis] as number),
+    );
+  return [line];
 }
 
 /**

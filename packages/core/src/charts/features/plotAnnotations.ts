@@ -22,6 +22,8 @@ import {
 } from "./referenceAnnotations.js";
 import {QUADRANTS, quadrantNodes} from "./referenceQuadrants.js";
 import {collectReferenceHighlight} from "./referenceHighlight.js";
+import {referenceDragState} from "./referenceDrag.js";
+import {GRIP_KEY} from "./referenceDragGrip.js";
 import {plotAnnotationList} from "./plotAnnotationList.js";
 
 import type {Annotation} from "./annotationTypes.js";
@@ -179,6 +181,10 @@ export function emitAnnotations(
   const front: SceneNode[] = [];
   const all = plotAnnotationList(viz);
   collectReferenceHighlight(viz, all);
+  // The draggable lines register again as they paint.
+  const drag = referenceDragState(viz);
+  drag.targets.clear();
+  drag.bodies.clear();
 
   Object.keys(viz._previousAnnotations!).forEach(layer => {
     const annotationData = all.filter(d => annotationLayer(d) === layer);
@@ -197,16 +203,12 @@ export function emitAnnotations(
       // A reference line, band, or quadrant behind the data keeps its label above it.
       const lift = layer === "back" && annotation.shape !== "Callout";
       const group = annotationSceneGroup(
-        lift ? nodes.filter(n => n.type !== "text") : nodes,
+        lift ? nodes.filter(n => !above(n)) : nodes,
         key,
       );
       if (group) (layer === "front" ? front : out).push(group);
       const labels =
-        lift &&
-        annotationSceneGroup(
-          nodes.filter(n => n.type === "text"),
-          `${key}-labels`,
-        );
+        lift && annotationSceneGroup(nodes.filter(above), `${key}-labels`);
       if (labels) front.push(labels);
     });
     const annotationShapes = annotationData
@@ -226,6 +228,10 @@ export function emitAnnotations(
 
   return front;
 }
+
+/** Whether a lifted annotation node draws above the data: a label, or a drag grip. */
+const above = (n: SceneNode): boolean =>
+  n.type === "text" || String(n.key).endsWith(GRIP_KEY);
 
 /** Wraps scene-built annotation nodes in their own inert, stably-keyed group, or null when there are none. */
 function annotationSceneGroup(

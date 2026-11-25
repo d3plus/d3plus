@@ -35,6 +35,8 @@ export interface AxisFrame {
   categories?: unknown[];
   /** Whether each category fills a slot along the axis (bars), which spans take in whole. */
   slots?: boolean;
+  /** A continuous axis's lowest and highest values, as numbers (a date's time). */
+  domain?: [number, number];
 }
 
 /** The plot area and its axes, as annotations position against them. */
@@ -241,6 +243,10 @@ function axisFrame(
   if (CATEGORY_SCALES.has(type)) {
     frame.categories = axis._d3Scale.domain();
     if (slots) frame.slots = true;
+  } else if (typeof axis._getDomain === "function") {
+    const values = axis._getDomain().map(Number).filter(Number.isFinite);
+    if (values.length)
+      frame.domain = [Math.min(...values), Math.max(...values)];
   }
   return frame;
 }

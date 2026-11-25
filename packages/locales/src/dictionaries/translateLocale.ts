@@ -40,6 +40,7 @@ export interface TranslationStrings {
   Duration: string;
   "Each dot": string;
   End: string;
+  "End of {0}": string;
   "Enter to Hide": string;
   "Enter to Highlight": string;
   "Enter to Show": string;
@@ -52,6 +53,7 @@ export interface TranslationStrings {
   "Hold Shift and use the arrow keys to move the focused node, and Shift+Backspace to unpin it.": string;
   "Hold Shift and use the arrow keys to rotate the globe.": string;
   "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.": string;
+  "Horizontal divider": string;
   hour: string;
   hours: string;
   "In-degree": string;
@@ -81,6 +83,7 @@ export interface TranslationStrings {
   months: string;
   more: string;
   "More Controls": string;
+  "Move {0}": string;
   "Moving Average": string;
   "No Data": string;
   "No Data Available": string;
@@ -102,6 +105,8 @@ export interface TranslationStrings {
   Progress: string;
   Projected: string;
   Range: string;
+  "Reference band": string;
+  "Reference line": string;
   "Relative Density": string;
   "Relative Frequency": string;
   "Reset Zoom": string;
@@ -120,6 +125,7 @@ export interface TranslationStrings {
   "Shift+Enter to Highlight": string;
   Slack: string;
   Start: string;
+  "Start of {0}": string;
   "SVG vector": string;
   Target: string;
   to: string;
@@ -134,6 +140,7 @@ export interface TranslationStrings {
   "Use arrow keys to move between data points, Enter to select, and Escape to exit.": string;
   Value: string;
   Values: string;
+  "Vertical divider": string;
   Volume: string;
   "vs. previous": string;
   week: string;
@@ -222,6 +229,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Duration: "\u0627\u0644\u0645\u062f\u0629",
     "Each dot": "\u0643\u0644 \u0646\u0642\u0637\u0629",
     End: "\u0627\u0644\u0646\u0647\u0627\u064a\u0629",
+    "End of {0}": "\u0646\u0647\u0627\u064a\u0629 {0}",
     "Enter to Hide": "Enter \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Enter to Highlight": "Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f",
     "Enter to Show": "Enter \u0644\u0644\u0639\u0631\u0636",
@@ -238,6 +246,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u062a\u062f\u0648\u064a\u0631 \u0627\u0644\u0643\u0631\u0629 \u0627\u0644\u0623\u0631\u0636\u064a\u0629.",
     "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.":
       "\u0627\u0636\u063a\u0637 \u0645\u0639 \u0627\u0644\u0627\u0633\u062a\u0645\u0631\u0627\u0631 \u0639\u0644\u0649 Shift \u0648\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u062a\u0627\u062d\u064a \u0627\u0644\u0633\u0647\u0645 \u0644\u0623\u0639\u0644\u0649 \u0648\u0644\u0623\u0633\u0641\u0644 \u0644\u062a\u062d\u0631\u064a\u0643 \u0627\u0644\u0639\u0642\u062f\u0629 \u0627\u0644\u0645\u062d\u062f\u062f\u0629\u060c \u0648Shift+Backspace \u0644\u0625\u0639\u0627\u062f\u062a\u0647\u0627 \u0625\u0644\u0649 \u0645\u0643\u0627\u0646\u0647\u0627.",
+    "Horizontal divider": "\u0641\u0627\u0635\u0644 \u0623\u0641\u0642\u064a",
     hour: "\u0633\u0627\u0639\u0629",
     hours: "\u0633\u0627\u0639\u0627\u062a",
     "In-degree":
@@ -264,6 +273,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     minutes: "\u062f\u0642\u0627\u0626\u0642",
     month: "\u0634\u0647\u0631",
     months: "\u0623\u0634\u0647\u0631",
+    "Move {0}": "\u062a\u062d\u0631\u064a\u0643 {0}",
     "No Data":
       "\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Data Available":
@@ -305,6 +315,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Progress: "\u0627\u0644\u062a\u0642\u062f\u0645",
     Projected: "\u0645\u062a\u0648\u0642\u0639",
     Range: "\u0627\u0644\u0646\u0637\u0627\u0642",
+    "Reference band": "\u0646\u0637\u0627\u0642 \u0645\u0631\u062c\u0639\u064a",
+    "Reference line": "\u062e\u0637 \u0645\u0631\u062c\u0639\u064a",
     "Relative Density":
       "\u0627\u0644\u0643\u062b\u0627\u0641\u0629 \u0627\u0644\u0646\u0633\u0628\u064a\u0629",
     "Relative Frequency":
@@ -334,6 +346,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Slack:
       "\u0627\u0644\u0648\u0642\u062a \u0627\u0644\u0641\u0627\u0626\u0636",
     Start: "\u0627\u0644\u0628\u062f\u0627\u064a\u0629",
+    "Start of {0}": "\u0628\u062f\u0627\u064a\u0629 {0}",
     "SVG vector": "\u0631\u0633\u0645 \u0645\u062a\u062c\u0647 SVG",
     Target: "\u0627\u0644\u0647\u062f\u0641",
     to: "\u0625\u0644\u0649",
@@ -352,6 +365,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0633\u062a\u062e\u062f\u0645 \u0645\u0641\u0627\u062a\u064a\u062d \u0627\u0644\u0623\u0633\u0647\u0645 \u0644\u0644\u062a\u0646\u0642\u0644 \u0628\u064a\u0646 \u0646\u0642\u0627\u0637 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a\u060c \u0648Enter \u0644\u0644\u062a\u062d\u062f\u064a\u062f\u060c \u0648Escape \u0644\u0644\u062e\u0631\u0648\u062c.",
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
+    "Vertical divider":
+      "\u0641\u0627\u0635\u0644 \u0639\u0645\u0648\u062f\u064a",
     Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
     "vs. previous":
       "\u0645\u0642\u0627\u0631\u0646\u0629 \u0628\u0627\u0644\u0633\u0627\u0628\u0642",
@@ -421,6 +436,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Duration: "Duraci\u00f3n",
     "Each dot": "Cada punto",
     End: "Fin",
+    "End of {0}": "Fin de {0}",
     "Enter to Hide": "Enter para Ocultar",
     "Enter to Highlight": "Enter para Resaltar",
     "Enter to Show": "Enter para Mostrar",
@@ -436,6 +452,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Mantenga pulsada May\u00fas y use las flechas para girar el globo.",
     "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.":
       "Mantenga pulsada May\u00fas y use las flechas arriba y abajo para mover el nodo enfocado, y May\u00fas+Retroceso para devolverlo a su sitio.",
+    "Horizontal divider": "Divisor horizontal",
     hour: "hora",
     hours: "horas",
     "In-degree": "Grado de entrada",
@@ -457,6 +474,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "M\u00e1ximo",
     Mean: "Media",
     Median: "Mediana",
+    "Move {0}": "Mover {0}",
     Notch: "Muesca",
     Milestone: "Hito",
     Minimum: "M\u00ednimo",
@@ -486,6 +504,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Progress: "Progreso",
     Projected: "Proyectado",
     Range: "Rango",
+    "Reference band": "Banda de referencia",
+    "Reference line": "L\u00ednea de referencia",
     "Relative Density": "Densidad Relativa",
     "Relative Frequency": "Frecuencia Relativa",
     "Reset Zoom": "Restablecer Zoom",
@@ -504,6 +524,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Enter to Highlight": "May\u00fas+Enter para Resaltar",
     Slack: "Holgura",
     Start: "Inicio",
+    "Start of {0}": "Inicio de {0}",
     "SVG vector": "Vector SVG",
     Target: "Objetivo",
     to: "a",
@@ -519,6 +540,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Use las flechas para moverse entre los puntos de datos, Intro para seleccionar y Escape para salir.",
     Value: "Valor",
     Values: "Valores",
+    "Vertical divider": "Divisor vertical",
     Volume: "Volumen",
     "vs. previous": "vs. anterior",
     week: "semana",
@@ -584,6 +606,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Duration: "Dura\u00e7\u00e3o",
     "Each dot": "Cada ponto",
     End: "Fim",
+    "End of {0}": "Fim de {0}",
     "Enter to Hide": "Enter para Ocultar",
     "Enter to Highlight": "Enter para Destacar",
     "Enter to Show": "Enter para Mostrar",
@@ -599,6 +622,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Mantenha Shift pressionada e use as setas para girar o globo.",
     "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.":
       "Mantenha Shift pressionada e use as setas para cima e para baixo para mover o n\u00f3 em foco, e Shift+Backspace para devolv\u00ea-lo ao lugar.",
+    "Horizontal divider": "Divisor horizontal",
     hour: "hora",
     hours: "horas",
     "In-degree": "Grau de entrada",
@@ -620,6 +644,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "M\u00e1ximo",
     Mean: "M\u00e9dia",
     Median: "Mediana",
+    "Move {0}": "Mover {0}",
     Notch: "Entalhe",
     Milestone: "Marco",
     Minimum: "M\u00ednimo",
@@ -649,6 +674,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Progress: "Progresso",
     Projected: "Projetado",
     Range: "Intervalo",
+    "Reference band": "Faixa de refer\u00eancia",
+    "Reference line": "Linha de refer\u00eancia",
     "Relative Density": "Densidade Relativa",
     "Relative Frequency": "Frequ\u00eancia Relativa",
     "Reset Zoom": "Redefinir Zoom",
@@ -667,6 +694,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Enter to Highlight": "Shift+Enter para Destacar",
     Slack: "Folga",
     Start: "In\u00edcio",
+    "Start of {0}": "In\u00edcio de {0}",
     "SVG vector": "Vetor SVG",
     Target: "Meta",
     to: "para",
@@ -682,6 +710,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Use as setas para mover-se entre os pontos de dados, Enter para selecionar e Esc para sair.",
     Value: "Valor",
     Values: "Valores",
+    "Vertical divider": "Divisor vertical",
     Volume: "Volume",
     "vs. previous": "vs. anterior",
     week: "semana",
@@ -750,6 +779,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Duration: "\u6301\u7eed\u65f6\u95f4",
     "Each dot": "\u6bcf\u70b9",
     End: "\u7ed3\u675f",
+    "End of {0}": "{0}\u7ec8\u70b9",
     "Enter to Hide": "\u6309 Enter \u9690\u85cf",
     "Enter to Highlight": "\u6309 Enter \u7a81\u51fa\u663e\u793a",
     "Enter to Show": "\u6309 Enter \u663e\u793a",
@@ -765,6 +795,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u65b9\u5411\u952e\u65cb\u8f6c\u5730\u7403\u4eea\u3002",
     "Hold Shift and use the up and down arrow keys to move the focused node, and Shift+Backspace to move it back.":
       "\u6309\u4f4f Shift \u5e76\u4f7f\u7528\u4e0a\u4e0b\u65b9\u5411\u952e\u79fb\u52a8\u5f53\u524d\u805a\u7126\u7684\u8282\u70b9\uff0c\u6309 Shift+Backspace \u5c06\u5176\u79fb\u56de\u539f\u4f4d\u3002",
+    "Horizontal divider": "\u6c34\u5e73\u5206\u9694\u7ebf",
     hour: "\u5c0f\u65f6",
     hours: "\u5c0f\u65f6",
     "In-degree": "\u5165\u5ea6",
@@ -786,6 +817,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Maximum: "\u6700\u5927\u503c",
     Mean: "\u5e73\u5747\u503c",
     Median: "\u4e2d\u4f4d\u6570",
+    "Move {0}": "\u79fb\u52a8{0}",
     Notch: "\u51f9\u53e3",
     Milestone: "\u91cc\u7a0b\u7891",
     Minimum: "\u6700\u5c0f\u503c",
@@ -815,6 +847,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     Progress: "\u8fdb\u5ea6",
     Projected: "\u9884\u6d4b",
     Range: "\u8303\u56f4",
+    "Reference band": "\u53c2\u8003\u5e26",
+    "Reference line": "\u53c2\u8003\u7ebf",
     "Relative Density": "\u76f8\u5bf9\u5bc6\u5ea6",
     "Relative Frequency": "\u76f8\u5bf9\u9891\u7387",
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
@@ -833,6 +867,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Enter to Highlight": "Shift+Enter \u7a81\u51fa\u663e\u793a",
     Slack: "\u6d6e\u52a8\u65f6\u95f4",
     Start: "\u5f00\u59cb",
+    "Start of {0}": "{0}\u8d77\u70b9",
     "SVG vector": "SVG \u77e2\u91cf\u56fe",
     Target: "\u76ee\u6807",
     to: "\u5230",
@@ -848,6 +883,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u4f7f\u7528\u65b9\u5411\u952e\u5728\u6570\u636e\u70b9\u4e4b\u95f4\u79fb\u52a8\uff0c\u6309 Enter \u9009\u62e9\uff0c\u6309 Esc \u9000\u51fa\u3002",
     Value: "\u503c",
     Values: "\u503c",
+    "Vertical divider": "\u5782\u76f4\u5206\u9694\u7ebf",
     Volume: "\u6210\u4ea4\u91cf",
     "vs. previous": "\u8f83\u4e0a\u671f",
     week: "\u5468",

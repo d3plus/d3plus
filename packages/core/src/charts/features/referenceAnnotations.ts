@@ -28,6 +28,11 @@ import {
 } from "./annotationText.js";
 import type {Annotation, AnnotationRef} from "./annotationTypes.js";
 import type {Box} from "./calloutLayout.js";
+import {dragLit, lineDragTarget, referenceDragState} from "./referenceDrag.js";
+import {bandBody, bandDragTargets} from "./referenceDragBand.js";
+import {bodyNodes} from "./referenceDragBody.js";
+import {dragNodes} from "./referenceDragGrip.js";
+import {DRAG_SOURCE, type DragSource} from "./referenceDragSource.js";
 import {registerLabelSpots, type LabelSpot} from "./referenceLabelPlacement.js";
 import {
   referenceBandLabelSpots,
@@ -44,38 +49,51 @@ const AXES: AnnotationAxis[] = ["x", "y", "x2", "y2"];
 const num = (v: unknown, fallback: number): number =>
   typeof v === "number" && Number.isFinite(v) ? v : fallback;
 
-/** The entries of a `referenceLines`/`referenceBands` setting: a list, one entry, or nothing. */
-function entries(setting: unknown): Record<string, unknown>[] {
+/**
+    Expands a `referenceLines` or `referenceBands` setting (a list, one
+    entry, or nothing) into annotations of `shape`, in the back layer unless
+    an entry sets its own. Given `source`, each draggable entry's annotation
+    carries where its setting lives (see `referenceDragSource.ts`).
+*/
+function expand(
+  setting: unknown,
+  shape: string,
+  source?: (i: number) => DragSource,
+): Annotation[] {
   const list = Array.isArray(setting) ? setting : setting ? [setting] : [];
-  return list.filter(
-    (d): d is Record<string, unknown> => !!d && typeof d === "object",
-  );
+  return list.flatMap((d: unknown, i: number) => {
+    if (!d || typeof d !== "object") return [];
+    const entry = d as Record<string, unknown>;
+    const out: Annotation = {layer: "back", ...entry, shape};
+    if (source && entry.draggable) out[DRAG_SOURCE] = source(i);
+    return [out];
+  });
 }
 
 /**
     Expands `referenceLines` into `"ReferenceLine"` annotations, in the back
     layer unless an entry sets its own.
     @param setting The `referenceLines` setting.
+    @param source Where each draggable entry lives, by its position.
 */
-export function expandReferenceLines(setting: unknown): Annotation[] {
-  return entries(setting).map(d => ({
-    layer: "back",
-    ...d,
-    shape: REFERENCE_LINE,
-  }));
+export function expandReferenceLines(
+  setting: unknown,
+  source?: (i: number) => DragSource,
+): Annotation[] {
+  return expand(setting, REFERENCE_LINE, source);
 }
 
 /**
     Expands `referenceBands` into `"ReferenceBand"` annotations, in the back
     layer unless an entry sets its own.
     @param setting The `referenceBands` setting.
+    @param source Where each draggable entry lives, by its position.
 */
-export function expandReferenceBands(setting: unknown): Annotation[] {
-  return entries(setting).map(d => ({
-    layer: "back",
-    ...d,
-    shape: REFERENCE_BAND,
-  }));
+export function expandReferenceBands(
+  setting: unknown,
+  source?: (i: number) => DragSource,
+): Annotation[] {
+  return expand(setting, REFERENCE_BAND, source);
 }
 
 /**
@@ -252,12 +270,17 @@ export function referenceLineNodes(
 ): SceneNode[] {
   const line = referenceLinePoints(frame, annotation);
   if (!line) return [];
+  const drag = lineDragTarget(viz, annotation, frame, line);
+  // A draggable line (or quadrant divider) is labeled with its value unless it has a label.
+  if (drag && annotation.label === undefined && !drag.plot)
+    annotation = {...annotation, label: drag.text};
+  const lit = drag && dragLit(referenceDragState(viz), drag.id);
   const style = annotationTextStyle(viz, k => annotation[k]);
   const paint: Paint = {
     fill: "none",
     stroke: (annotation.stroke as string) || style.fontColor,
-    strokeWidth: num(annotation.strokeWidth, 1),
-    strokeOpacity: num(annotation.strokeOpacity, 0.6),
+    strokeWidth: num(annotation.strokeWidth, 1) + (lit ? 1 : 0),
+    strokeOpacity: lit ? 1 : num(annotation.strokeOpacity, 0.6),
   };
   const dash = dashOf(annotation);
   if (dash) paint.strokeDasharray = dash;
@@ -288,6 +311,7 @@ export function referenceLineNodes(
     ),
   );
   if (label) out.push(label);
+  if (drag) out.push(...dragNodes(viz, drag, paint.stroke as string, key));
   return out;
 }
 
@@ -306,10 +330,13 @@ export function referenceBandNodes(
 ): SceneNode[] {
   const band = referenceBandRect(frame, annotation);
   if (!band) return [];
+  const body = bandBody(viz, annotation, frame, band.box);
+  // A band moved whole (or focused to be) shades a little deeper.
+  const lit = !!body && dragLit(referenceDragState(viz), body.id);
   const style = annotationTextStyle(viz, k => annotation[k]);
   const paint: Paint = {
     fill: (annotation.fill as string) || style.fontColor,
-    fillOpacity: num(annotation.fillOpacity, 0.08),
+    fillOpacity: num(annotation.fillOpacity, 0.08) * (lit ? 2 : 1),
   };
   if (annotation.stroke) {
     paint.stroke = annotation.stroke as string;
@@ -334,5 +361,9 @@ export function referenceBandNodes(
     ),
   );
   if (label) out.push(label);
+  const edge = (annotation.stroke as string) || paint.fill!;
+  if (body) out.push(...bodyNodes(viz, body, edge, key));
+  for (const target of bandDragTargets(viz, annotation, frame, band.box))
+    out.push(...dragNodes(viz, target, edge, key));
   return out;
 }

@@ -77,7 +77,10 @@ import type {
 } from "../features/insetState.js";
 import type Shape from "../../shapes/Shape.js";
 import type {D3plusConfig, D3Scale} from "../../utils/index.js";
-import type {PlotPaintContext} from "../features/plotPaint.js";
+import type {
+  PlotMeasureResult,
+  PlotPaintContext,
+} from "../features/plotPaint.js";
 import type {FacetHooks, FacetPanelState} from "../facet/facetConfig.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type {ResolvedSpec} from "../pipeline/resolveSpec.js";
@@ -302,6 +305,13 @@ export interface VizInstance {
   _zoomShapes?: SceneNode[];
   /** The unzoomed Plot draw an axis-rescaling zoom rescales from. */
   _plotZoomBase?: PlotZoomBase;
+  /** The paint context and axis layout of a Plot's last draw, which `_repaintPlot` repaints at. */
+  _plotPaintBase?: {pCtx: PlotPaintContext; layout: PlotMeasureResult};
+  /**
+      Repaints a Plot at its last layout and current zoom without measuring
+      again (a dragged reference line moving); false when it can't.
+  */
+  _repaintPlot?: () => boolean;
   /**
       Which part of a small-multiples draw `_draw()` is running: `"chrome"`
       lays out the shared chart chrome and skips the chart body; `"panel"`
@@ -334,6 +344,8 @@ export interface VizInstance {
   _select?: D3Selection;
   _sceneRenderer?: VizRenderer;
   _duration: number;
+  /** Paints the next draw without motion (it follows a gesture, or reloads a chart scrolled back into view). */
+  _instantNextDraw?: boolean;
   _renderer?: "svg" | "canvas";
   _focus?: string | number | undefined;
   /**

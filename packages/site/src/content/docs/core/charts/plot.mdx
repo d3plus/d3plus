@@ -16,6 +16,7 @@ import shapeBackgroundImages from "~/examples/core/charts/plot/shape-background-
 import annotations from "~/examples/core/charts/plot/annotations.js?raw";
 import calloutsAndReferenceLines from "~/examples/core/charts/plot/callouts-and-reference-lines.js?raw";
 import referenceStatistics from "~/examples/core/charts/plot/reference-statistics.js?raw";
+import draggableReferenceLines from "~/examples/core/charts/plot/draggable-reference-lines.js?raw";
 import quadrants from "~/examples/core/charts/plot/quadrants.js?raw";
 import trendLine from "~/examples/core/charts/plot/trend-line.js?raw";
 import trendLineConfidence from "~/examples/core/charts/plot/trend-line-confidence.js?raw";
@@ -101,6 +102,12 @@ The same notes as above, without hand-built shapes. `referenceLines` draws a lin
 A reference line's value can be a statistic of the rows the chart draws: `"mean"`, `"median"`, `"min"`, or `"max"` (labeled with the statistic's name, in the chart's locale), or a function given those rows. `highlight: "above"` (or `"below"`) grays the points on the other side of the line, and `from`/`to` draw only part of it. A callout's `select` picks its own rows (`"max"`, `"min"`, `"first"`, `"last"`, or a function), and `dropline: true` draws a line from the point down to the x axis (`"y"` across to the y axis, `"both"` for both).
 
 <Playground chart="Plot" code={referenceStatistics} controls={["referenceLines","annotations"]} />
+
+## Draggable reference lines
+
+`draggable: true` lets the reader drag a reference line along its axis by the grip drawn at its end (or anywhere along it), or tab to it and move it with the arrow keys (Page Up and Page Down move ten steps, Home and End to its ends). `min` and `max` keep it inside a range, and `step` snaps its value; on a category axis it snaps to the categories. A statistic line (`"mean"`, …) becomes the fixed value it is dragged to, and without a label a line shows its value. Give the line an `id` and name it in `valueColors` `values` to color the points above and below it as it moves, or set `highlight: "above"` to gray the rest. The chart fires `drag.referenceLine` as the line moves and `end.referenceLine` when it is let go, then redraws to refit its axes; `referenceLines()` reads the value back. A `perSeries` line drags each series' line on its own, keeping their values in `seriesValues`. `referenceBands` take `draggable` too: each edge moves (crossing the other swaps them), and dragging inside the band moves it whole, while the points under it keep their tooltips; they fire `drag.referenceBand`. So do `quadrants` (each divider moves the center, labeled with its value, firing `drag.quadrants`), `annotations` reference lines, Pareto's `paretoThresholdConfig`, and Gantt's `todayConfig`.
+
+<Playground chart="Plot" code={draggableReferenceLines} controls={["referenceLines","valueColors"]} />
 
 ## Quadrants
 

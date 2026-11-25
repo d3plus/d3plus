@@ -4,6 +4,8 @@
 */
 import type {DataPoint} from "@d3plus/data";
 
+import type {ReferenceDragConfig} from "./referenceDragValue.js";
+
 /**
     How an annotation position is read on one axis: `"data"` (the default)
     maps it through the axis scale, in data units (a number, a date, or a
@@ -172,6 +174,31 @@ export interface ReferenceLineConfig extends Omit<ReferenceStyle, "label"> {
   y?: ReferenceValue;
   x2?: ReferenceValue;
   y2?: ReferenceValue;
+  /** A name for the line, which a `valueColors` threshold can give in `values` to follow it. */
+  id?: string;
+  /**
+      Lets the reader drag the line along its axis with the pointer, or move
+      it with the arrow keys once it has focus: `true`, or the range it can
+      move in (`min`, `max`; the axis's by default) and the `step` its
+      value snaps to (without one, about a pixel's worth; on a category
+      axis it snaps to the categories, and `min`/`max` are categories). The
+      value it is moved to replaces its own (a statistic or function
+      becomes that fixed value), so it lasts through redraws and
+      `referenceLines()` reads it back; the chart fires
+      `drag.referenceLine` as it moves and `end.referenceLine` when it is
+      let go, then redraws to refit its axes. Unlabeled, it is labeled with
+      its value. A grip at the end away from its label marks it. Each
+      line of a `perSeries` entry drags on its own, its value kept in
+      `seriesValues`. Defaults to `false`.
+  */
+  draggable?: boolean | ReferenceDragConfig;
+  /**
+      With `perSeries`: the values series' lines have been dragged to, by
+      series id (the series' `groupBy` value), each in place of the
+      statistic for that series. A series not listed takes the statistic;
+      a listed series the chart no longer draws is kept and ignored.
+  */
+  seriesValues?: Record<string, AnnotationValue>;
   /** How the value is read. Defaults to `"data"`. */
   ref?: AnnotationRef;
   /**
@@ -227,6 +254,19 @@ export interface ReferenceBandConfig extends ReferenceStyle {
   y?: [ReferenceValue, ReferenceValue];
   x2?: [ReferenceValue, ReferenceValue];
   y2?: [ReferenceValue, ReferenceValue];
+  /**
+      Lets the reader drag each edge of the band along its axis, or move it
+      with the arrow keys, as a `draggable` reference line moves: `true`, or
+      `{min, max, step}`. An edge dragged past the span's other end
+      crosses it, the two ends swapping places. Dragging inside the band
+      (or the arrow keys on it once it has focus) moves the whole band,
+      both ends of each span together, a rectangle on both axes; the marks
+      under it keep their hover until a press there moves. The moved ends
+      replace their own in the span, and the chart fires
+      `drag.referenceBand` and `end.referenceBand` with the whole span (a
+      moved rectangle reports `{x, y}` spans). Defaults to `false`.
+  */
+  draggable?: boolean | ReferenceDragConfig;
   /** How the values are read. Defaults to `"data"`. */
   ref?: AnnotationRef;
   /** Which corner the label sits in: `"start"` (the default: the top left) or `"end"` (the top right). */
@@ -265,6 +305,15 @@ export interface QuadrantsConfig extends AnnotationTextStyle {
   y?: ReferenceValue;
   /** How the center is read. Defaults to `"data"`. */
   ref?: AnnotationRef;
+  /**
+      Lets the reader drag each divider along its axis, or move it with the
+      arrow keys, as a `draggable` reference line moves: `true`, or
+      `{min, max, step}`. A moved divider sets the center's `x` or `y`, and
+      the chart fires `drag.quadrants` and `end.quadrants` with the center
+      as `{x, y}` and the axis moved in place of an index. Defaults to
+      `false`.
+  */
+  draggable?: boolean | ReferenceDragConfig;
   /** The top-left quadrant. */
   topLeft?: QuadrantStyle;
   /** The top-right quadrant. */

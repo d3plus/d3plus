@@ -39,7 +39,7 @@ export interface ValueScale {
 */
 export interface ValueColorsSetting {
   type?: "threshold" | "gradient";
-  values?: number | number[] | boolean;
+  values?: number | string | (number | string)[] | boolean;
   colors?: ValueColor[] | string;
 }
 
@@ -68,6 +68,39 @@ const isNumber = (v: unknown): v is number =>
 export function valueThresholds(setting: unknown): number[] {
   const list = Array.isArray(setting) ? setting : [setting];
   return Array.from(new Set(list.filter(isNumber))).sort((a, b) => a - b);
+}
+
+/** A reference line's value on its axis, as a number (a date's time). */
+function lineValue(line: Record<string, unknown>): number | undefined {
+  for (const axis of ["x", "y", "x2", "y2"]) {
+    const v = line[axis];
+    if (v === undefined || v === null) continue;
+    const n = v instanceof Date ? +v : v;
+    return isNumber(n) ? n : undefined;
+  }
+  return undefined;
+}
+
+/**
+    A `valueColors` setting's `values` with each string swapped for the
+    value of the reference line whose `id` it names, so the colors follow
+    that line when it is dragged. A name with no line, or a line whose value
+    isn't a number or date (a statistic), drops out.
+    @param values The setting's `values`.
+    @param lines The chart's `referenceLines`.
+*/
+export function linkedValues(values: unknown, lines: unknown): unknown {
+  const list = Array.isArray(values) ? values : [values];
+  if (!list.some(v => typeof v === "string")) return values;
+  const entries = (Array.isArray(lines) ? lines : lines ? [lines] : []).filter(
+    (d): d is Record<string, unknown> => !!d && typeof d === "object",
+  );
+  return list.flatMap(v => {
+    if (typeof v !== "string") return [v];
+    const line = entries.find(d => d.id === v);
+    const n = line && lineValue(line);
+    return n === undefined ? [] : [n];
+  });
 }
 
 /**

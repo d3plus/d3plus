@@ -8,6 +8,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {vizDiscrete} from "../viz/discrete.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {DRAG_SERIES} from "./referenceDragSource.js";
 import type {AnnotationAxis} from "./annotationFrame.js";
 import type {
   Annotation,
@@ -261,10 +262,18 @@ export function resolveReferenceLine(
     return [out];
   };
   if (!isComputed(raw, rows, axis)) return make(raw as AnnotationValue, rows);
-  if (entry.perSeries)
-    return seriesRows(rows).flatMap(group =>
-      make(resolveValue(raw, group, axis), group, group[0]),
-    );
+  if (entry.perSeries) {
+    // A series' line dragged to a value of its own keeps it.
+    const own = (entry.seriesValues ?? {}) as Record<string, unknown>;
+    return seriesRows(rows).flatMap(group => {
+      const {id} = group[0];
+      const value =
+        own[id] !== undefined
+          ? (own[id] as AnnotationValue)
+          : resolveValue(raw, group, axis);
+      return make(value, group, group[0]).map(d => ({...d, [DRAG_SERIES]: id}));
+    });
+  }
   return make(resolveValue(raw, rows, axis, stackAxis(viz, axis)), rows);
 }
 

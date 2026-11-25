@@ -14,6 +14,7 @@
     @module
 */
 
+import {zoomTransform} from "d3-zoom";
 import type {ClipShape, SceneNode} from "@d3plus/render";
 
 import {
@@ -101,6 +102,7 @@ export function paintZoomablePlot(
   current?: ZoomState,
 ): SceneNode[] {
   const {nodes, layout} = plotPaintMeasured(viz, pCtx);
+  viz._plotPaintBase = {pCtx, layout};
   clearTimeout(viz._plotUnclipTimer);
   viz._plotZoomBase = undefined;
   viz._zoomShapes = undefined;
@@ -272,4 +274,28 @@ export function zoomPlot(
     }, duration);
   }
   return nodes;
+}
+
+/**
+    Repaints the plot at its last layout, under the zoom in effect, without
+    measuring anything again: what a dragged reference line moving needs.
+    Returns false when the plot has no layout to repaint at (or draws small
+    multiples).
+    @param viz The chart.
+*/
+export function repaintPlot(viz: Viz): boolean {
+  const base = viz._plotPaintBase;
+  if (!base || viz._facetPanels?.length) return false;
+  const surface = (viz._zoomEventTarget || viz._container)?.node();
+  const current = surface ? zoomTransform(surface) : undefined;
+  // Reference lines collect the rows they highlight again as they paint.
+  viz._referenceHighlight = null;
+  const nodes =
+    viz._plotZoomBase && current
+      ? rescalePlot(viz, current)
+      : plotPaintMeasured(viz, base.pCtx, base.layout).nodes;
+  if (!nodes) return false;
+  viz._chartScene = nodes;
+  viz._drawSceneToTarget(0);
+  return true;
 }
