@@ -45,11 +45,14 @@ import {tableViewFeature} from "../drawSteps/tableView.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {applyOverlayColorScheme, applyVizTheme} from "../viz/vizTheme.js";
 import {labelSizeSession} from "../../components/Axis/labelSizeSession.js";
+import {registerFacetZoomPipeline} from "../drawSteps/facetZoomRedraw.js";
 
 export function runVizPipeline(viz: Viz): void {
   // Every axis laid out in this draw shares its label measurements.
   labelSizeSession(() => runVizStages(viz));
 }
+
+registerFacetZoomPipeline(runVizPipeline);
 
 /** `runVizPipeline` inside a label measurement session. */
 function runVizStages(viz: Viz): void {
