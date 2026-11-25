@@ -312,7 +312,7 @@ export interface VizInstance {
       again (a dragged reference line moving); false when it can't.
   */
   _repaintPlot?: () => boolean;
-  /** Whether the next draw skips its transition (a redraw on each move of a drag). */
+  /** Paints the next draw without motion (it follows a gesture, or reloads a chart scrolled back into view). */
   _instantNextDraw?: boolean;
   /**
       Which part of a small-multiples draw `_draw()` is running: `"chrome"`
