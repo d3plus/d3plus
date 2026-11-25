@@ -431,13 +431,14 @@ function drawPanels(
   plan.panels.forEach((panel, i) => {
     const cell = cells[i];
     const area = aligned[i] ? expandArea(areas[i], aligned[i]) : areas[i];
+    const key = `facet-${panel.key}`;
     const drawn = drawPanel(viz, plan, panel.data, area, {
       cell,
+      key,
       shared: plan.shared,
       labels: labels[i],
       scales: plan.scales,
     });
-    const key = `facet-${panel.key}`;
     const title = texts[i] ? titles[t++] : undefined;
     const body = drawn.scene.length
       ? facetBodyNode(

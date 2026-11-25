@@ -6,6 +6,8 @@ import {attrize} from "@d3plus/dom";
 import {chartBounds} from "../features/chartGeometry.js";
 import {ensureZoomDom} from "../features/ensureZoomDom.js";
 import {autoZoomMax} from "../features/zoomExtent.js";
+import {isOverviewChart} from "../Plot/zoomAxes.js";
+import {facetZoomable, zoomFacets, zoomFacetToBounds} from "./facetGestures.js";
 import type {FeatureLayout, FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -23,7 +25,7 @@ import {
 } from "./zoomControlsMarkup.js";
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 import {startsOnBrush} from "./zoomGesture.js";
-import {fitBounds} from "./zoomFit.js";
+import {fitBounds, spanUnzoomedDims, zoomedDims} from "./zoomFit.js";
 import type {Bounds} from "./zoomFit.js";
 import {bindZoomGestures, unbindZoomGestures} from "./zoomDrag.js";
 import {
@@ -228,10 +230,12 @@ export const zoomFeature: FeatureModule = {
 */
 function zoomMax(viz: Viz, width: number, height: number): number {
   if (typeof viz.schema.zoomMax === "number") return viz.schema.zoomMax;
+  // A dimension the zoom doesn't scale (a Plot's discrete or refit axis) sets no limit.
+  const dims = zoomedDims(viz);
   return autoZoomMax(
     viz._zoomShapes || viz._chartScene || [],
-    width,
-    height,
+    dims.x ? width : Infinity,
+    dims.y ? height : Infinity,
     viz.schema.zoomPadding,
     viz._chartTransform?.scale ?? 1,
   );
@@ -444,6 +448,9 @@ function isZoomedIn(viz: Viz): boolean {
     @private
 */
 function zoomGestureFilter(viz: Viz, event: MouseEvent & TouchEvent): boolean {
+  // An overview's band takes its gestures (see `overview.ts`), and small
+  // multiples zoom the panel under the pointer (see `facetGestures.ts`).
+  if (isOverviewChart(viz) || facetZoomable(viz)) return false;
   const modifier = viz.schema.zoomScroll === "modifier";
   if (event.type === "wheel")
     return !modifier || event.ctrlKey || event.metaKey;
@@ -572,6 +579,7 @@ function zoomed(
 */
 export function zoomMath(this: Viz, factor: number = 0): void {
   if (!this._container) return;
+  if (facetZoomable(this)) return zoomFacets(this, factor);
 
   const [[x0, y0], [x1, y1]] = this._zoomBehavior.extent().bind(document)(),
     cx = (x0 + x1) / 2,
@@ -614,19 +622,40 @@ export function zoomTo(
   y: number,
   duration: number = effectiveDuration(viz),
 ): void {
-  const [kMin, kMax] = viz._zoomBehavior.scaleExtent(),
-    [[x0, y0], [x1, y1]] = viz._zoomBehavior.translateExtent(),
-    k = Math.max(kMin, Math.min(kMax, scale));
-  // Content must still cover the whole area: its left edge (x0·k + tx) can't
-  // move right of x0, nor its right edge (x1·k + tx) left of x1.
-  const tx = Math.max(x1 * (1 - k), Math.min(x0 * (1 - k), x)),
-    ty = Math.max(y1 * (1 - k), Math.min(y0 * (1 - k), y));
+  const {k, x: tx, y: ty} = clampTransform(viz, scale, x, y);
   // A fresh transform, never a mutation of `zoomTransform(node)`'s result —
   // for an element d3-zoom hasn't stored state on yet, that's d3's shared
   // `zoomIdentity` constant.
   const t = zoomIdentity.translate(tx, ty).scale(k);
   (viz._zoomEventTarget || viz._container).property("__zoom", t);
   zoomed.bind(viz)(t, duration);
+}
+
+/**
+    A transform clamped the way d3-zoom clamps a gesture's: the scale to
+    `scaleExtent`, and the translation so the content still covers the
+    whole `translateExtent`.
+    @param viz The chart.
+    @param scale The scale.
+    @param x The x translation.
+    @param y The y translation.
+*/
+export function clampTransform(
+  viz: Viz,
+  scale: number,
+  x: number,
+  y: number,
+): {k: number; x: number; y: number} {
+  const [kMin, kMax] = viz._zoomBehavior.scaleExtent(),
+    [[x0, y0], [x1, y1]] = viz._zoomBehavior.translateExtent(),
+    k = Math.max(kMin, Math.min(kMax, scale));
+  // Content must still cover the whole area: its left edge (x0·k + tx) can't
+  // move right of x0, nor its right edge (x1·k + tx) left of x1.
+  return {
+    k,
+    x: Math.max(x1 * (1 - k), Math.min(x0 * (1 - k), x)),
+    y: Math.max(y1 * (1 - k), Math.min(y0 * (1 - k), y)),
+  };
 }
 
 /**
@@ -641,6 +670,7 @@ function zoomToBounds(
   bounds: number[][] | null,
   duration: number = effectiveDuration(this),
 ): void {
+  if (facetZoomable(this)) return zoomFacetToBounds(this, bounds);
   if (!bounds) return zoomTo(this, 1, 0, 0, duration);
 
   const t = zoomTransform((this._zoomEventTarget || this._container).node());
@@ -653,11 +683,29 @@ function zoomToBounds(
 }
 
 /**
-    Triggered on brush "brush".
+    Triggered on brush "brush": a plot that zooms along one dimension shows
+    the selection as the band it zooms to (see `spanUnzoomedDims`).
     @private
 */
-function brushBrush(this: Viz): void {
+function brushBrush(this: Viz, event: {selection: number[][] | null}): void {
   brushStyle.bind(this)();
+  const dims = zoomedDims(this);
+  if (!event?.selection || (dims.x && dims.y)) return;
+  const {left, top} = this._margin;
+  const [[x0, y0], [x1, y1]] = spanUnzoomedDims(
+    this,
+    event.selection.map(([x, y]) => [x + left, y + top]) as [
+      [number, number],
+      [number, number],
+    ],
+  );
+  this._brushGroup
+    .selectAll(".selection")
+    .attr("x", x0 - left)
+    .attr("y", y0 - top)
+    .attr("width", x1 - x0)
+    .attr("height", y1 - y0);
+  this._brushGroup.selectAll(".handle").style("display", "none");
 }
 
 /**

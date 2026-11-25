@@ -43,6 +43,11 @@ import rangeBreaksMarkedRange from "~/examples/core/charts/line-plot/range-break
 import utcAxis from "~/examples/core/charts/line-plot/utc-axis.js?raw";
 import periodLabels from "~/examples/core/charts/line-plot/period-labels.js?raw";
 import outliers from "~/examples/core/charts/line-plot/outliers.js?raw";
+import zoomAlongX from "~/examples/core/charts/line-plot/zoom-along-x.js?raw";
+import rangeSelector from "~/examples/core/charts/line-plot/range-selector.js?raw";
+import linkedZoomPrice from "~/examples/core/charts/line-plot/linked-zoom-price.js?raw";
+import linkedZoomVolume from "~/examples/core/charts/line-plot/linked-zoom-volume.js?raw";
+import linkedZoomOverview from "~/examples/core/charts/line-plot/linked-zoom-overview.js?raw";
 
 Creates a line plot based on an array of data.
 
@@ -281,5 +286,48 @@ stretch that shows, bringing back its detail. A number sets how many points
 each series draws, and `false` draws them all.
 
 <Playground chart="LinePlot" code={downsampling} controls={["downsample"]} />
+
+## Zooming along the time axis
+
+`zoomAxes: ["x"]` zooms and pans the dates alone, while the y axis refits to
+the values in view, so a stretch of a long series fills the plot's height.
+Drag across the chart to zoom into the dates under the band
+(`zoomDrag: "brush"`), Ctrl/⌘ + scroll to zoom, or use the zoom buttons;
+Shift + drag pans.
+
+<Playground chart="LinePlot" code={zoomAlongX} controls={["zoomAxes","zoomDrag"]} />
+
+## Range selector
+
+`rangeSelector` adds buttons beside the chart's top-left controls that zoom
+to the last month, six months, year to date, and so on, ending at the data's
+last date. The button showing the current window reads as pressed, and the
+zoom runs along the time axis alone. A button whose window would take in all
+the data is hidden. Small multiples with independent scales show each
+panel's button window over its own data. Pick the buttons with short forms
+(`"3M"`, `"2W"`, `"5Y"`, `"YTD"`, `"All"`) or objects such as
+`{step: "week", count: 2, label: "2W"}`.
+
+<Playground chart="LinePlot" code={rangeSelector} controls={["rangeSelector"]} />
+
+## Linked zoom
+
+Charts in the same `link` group share their zoom: zooming, panning, a range
+button, or a reset in one shows the same dates in the others (set
+`link: {group, zoom: false}` to keep a chart's zoom its own). A chart whose
+data the window only partly reaches shows that part, and one it doesn't
+reach keeps its view.
+
+The third chart is the group's overview (`link: {group, zoom: "overview"}`):
+it always shows the whole history, with the others' window as a band. Drag
+the band to move it, drag an edge to resize it, or drag elsewhere to draw a
+new one; with the keyboard, Tab to the band and use the arrow keys,
+Home/End, and + / −. Double-click it to show everything.
+
+<Playground chart="LinePlot" code={linkedZoomPrice} controls={[]} height={300} />
+
+<Playground chart="BarChart" code={linkedZoomVolume} controls={[]} height={200} />
+
+<Playground chart="AreaPlot" code={linkedZoomOverview} controls={[]} height={140} />
 
 <ApiReference name="LinePlot" pkg="core" />

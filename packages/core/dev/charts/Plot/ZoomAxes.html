@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ZoomAxes · Plot</title>
+    <meta
+      name="description"
+      content="Zooming along one axis (zoomAxes) while the other refits to the data in view, and range-selector buttons (1M, 6M, YTD, 1Y, All) on a time axis."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin: 16px;
+        font-family: sans-serif;
+      }
+      .chart {
+        height: 340px;
+      }
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+      p {
+        margin: 0 0 8px;
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>LinePlot with a range selector</h3>
+      <p>
+        The buttons window the dates; wheel, drag, brush and the zoom buttons
+        move along x only, and y refits to the days in view.
+      </p>
+      <div class="chart" id="daily"></div>
+    </div>
+    <div>
+      <h3>StackedArea, <code>zoomAxes: ["x"]</code></h3>
+      <p>The value axis refits to the stacks in view, from 0.</p>
+      <div class="chart" id="stacked"></div>
+    </div>
+    <div>
+      <h3>BarChart, <code>zoomAxes: ["x"]</code> with the brush</h3>
+      <p>
+        Drag a band to zoom into it (Shift + drag pans); bars keep their
+        baseline.
+      </p>
+      <div class="chart" id="bars"></div>
+    </div>
+    <div>
+      <h3>Horizontal LinePlot, <code>zoomAxes: ["y"]</code></h3>
+      <p>Dates run down the y axis; the x axis refits.</p>
+      <div class="chart" id="horizontal"></div>
+    </div>
+    <div>
+      <h3>Custom buttons on four months of data, in Spanish</h3>
+      <p>
+        "1Y" and "YTD" would show everything, so they're hidden; "2S" is a
+        custom range.
+      </p>
+      <div class="chart" id="custom"></div>
+    </div>
+    <div>
+      <h3>Small multiples with a range selector</h3>
+      <p>
+        Each panel shows the button's window of its own data, with its own y
+        axis refit.
+      </p>
+      <div class="chart" id="facets"></div>
+    </div>
+    <div>
+      <h3>Small multiples with shared scales</h3>
+      <p>
+        Zooming one panel (wheel, drag, double-click, or the zoom buttons) zooms
+        them all, so they stay comparable.
+      </p>
+      <div class="chart" id="sharedFacets"></div>
+    </div>
+    <div>
+      <h3>One month of data</h3>
+      <p>Every button but "All" would show everything, so none shows.</p>
+      <div class="chart" id="tiny"></div>
+    </div>
+    <div>
+      <h3>Both axes (the default) for comparison</h3>
+      <p>Without <code>zoomAxes</code>, a zoom rescales x and y together.</p>
+      <div class="chart" id="both"></div>
+    </div>
+  </body>
+
+  <script>
+    // A deterministic wobble, so every load draws the same data.
+    const wobble = i =>
+      Math.sin(i / 23) * 7 + Math.sin(i / 5.3) * 3 + Math.cos(i / 61) * 11;
+
+    const daily = [];
+    for (let i = 0; i < 1100; i++) {
+      daily.push({
+        id: "Visitors",
+        date: new Date(2022, 0, 1 + i),
+        value: 120 + i / 6 + wobble(i) * (1 + i / 400),
+      });
+    }
+
+    const stacked = [];
+    ["Search", "Social", "Direct"].forEach((id, s) => {
+      for (let i = 0; i < 60; i++) {
+        stacked.push({
+          id,
+          date: new Date(2020, i, 1),
+          value: 20 + s * 8 + i * (s + 1) * 0.6 + wobble(i * 3 + s * 10),
+        });
+      }
+    });
+
+    const monthly = [];
+    for (let i = 0; i < 48; i++) {
+      monthly.push({
+        id: "Sales",
+        date: new Date(2021, i, 1),
+        value: 40 + ((i * 7) % 17) + i * 1.5,
+      });
+    }
+
+    const short = [];
+    for (let i = 0; i < 120; i++) {
+      short.push({
+        id: "Temperatura",
+        date: new Date(2024, 6, 1 + i),
+        value: 24 - i / 12 + Math.sin(i / 4) * 2,
+      });
+    }
+
+    const make = (Chart, select, config) =>
+      new d3plus[Chart]()
+        .select(select)
+        .config({timeline: false, legend: false, ...config})
+        .render();
+
+    make("LinePlot", "#daily", {
+      data: daily,
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      rangeSelector: true,
+    });
+
+    make("StackedArea", "#stacked", {
+      data: stacked,
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      legend: true,
+      zoomAxes: ["x"],
+    });
+
+    make("BarChart", "#bars", {
+      data: monthly,
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      zoomAxes: ["x"],
+      zoomDrag: "brush",
+    });
+
+    make("LinePlot", "#horizontal", {
+      data: daily.slice(0, 400),
+      groupBy: "id",
+      discrete: "y",
+      y: "date",
+      time: "date",
+      x: "value",
+      zoomAxes: ["y"],
+    });
+
+    make("LinePlot", "#custom", {
+      data: short,
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      locale: "es-ES",
+      rangeSelector: [
+        {step: "week", count: 2, label: "2S"},
+        "1M",
+        "YTD",
+        "1Y",
+        "All",
+      ],
+    });
+
+    const regions = [];
+    ["North", "South", "East", "West"].forEach((id, r) => {
+      for (let i = 0; i < 700 - r * 120; i++) {
+        regions.push({
+          id,
+          date: new Date(2022, 0, 1 + i),
+          value: 80 + r * 15 + i / 8 + wobble(i + r * 40) * (1 + r / 3),
+        });
+      }
+    });
+
+    make("LinePlot", "#facets", {
+      data: regions,
+      groupBy: "id",
+      facet: "id",
+      facetConfig: {scales: "independent"},
+      x: "date",
+      time: "date",
+      y: "value",
+      rangeSelector: ["1M", "3M", "6M", "All"],
+    });
+
+    make("LinePlot", "#sharedFacets", {
+      data: regions,
+      groupBy: "id",
+      facet: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      zoomAxes: "x",
+    });
+
+    make("LinePlot", "#tiny", {
+      data: daily.slice(0, 30),
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+      rangeSelector: true,
+    });
+
+    make("LinePlot", "#both", {
+      data: daily,
+      groupBy: "id",
+      x: "date",
+      time: "date",
+      y: "value",
+    });
+  </script>
+</html>

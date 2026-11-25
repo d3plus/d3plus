@@ -189,9 +189,14 @@ export function plotFacetPanel(
   viz._plotFacetScales = ctx.shared
     ? (ctx.scales as PlotFacetScales | undefined)
     : undefined;
+  // Which panel is drawing, and whether the panels share scales, for the
+  // window each panel shows (see `facetZoom.ts`).
+  viz._facetPanelKey = ctx.key;
+  viz._facetShared = ctx.shared;
   viz._xConfig = panelAxisConfig(saved.x, ctx.labels.x);
   viz._yConfig = panelAxisConfig(saved.y, ctx.labels.y);
   return () => {
+    viz._facetPanelKey = undefined;
     viz._plotFacetScales = saved.scales;
     viz._xConfig = saved.x;
     viz._yConfig = saved.y;
@@ -230,5 +235,7 @@ export const plotFacetHooks: FacetHooks = {
     _trendFits: viz._trendFits,
     _plotOutliers: viz._plotOutliers,
     _barSpans: viz._barSpans,
+    // The panel's unzoomed draw, whose data a range button reads.
+    _plotZoomBase: viz._plotZoomBase,
   }),
 };

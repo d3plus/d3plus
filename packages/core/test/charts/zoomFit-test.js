@@ -1,6 +1,11 @@
 import {it} from "vitest";
 import assert from "assert";
-import {fitBounds, zoomedDims} from "../../src/charts/drawSteps/zoomFit.ts";
+import {
+  fitArea,
+  fitBounds,
+  spanUnzoomedDims,
+  zoomedDims,
+} from "../../src/charts/drawSteps/zoomFit.ts";
 
 /**
     `zoomFit.ts`: which dimensions a chart's zoom scales, and the transform
@@ -107,4 +112,35 @@ it("fitBounds: a Plot's y rect sits below its x2 axis", () => {
   ];
   const [[, y0], [, y1]] = land(fitBounds(plot(["y"], 25), box), box);
   assert.deepStrictEqual([y0, y1], [40, 240]);
+});
+
+it("fitArea: a Plot's area is its plot rect on the surface", () => {
+  assert.deepStrictEqual(fitArea(plot(["x"])), [
+    [60, 40],
+    [360, 240],
+  ]);
+});
+
+it("spanUnzoomedDims: a box on a Plot zooming x alone spans the plot's height", () => {
+  const box = [
+    [100, 90],
+    [180, 120],
+  ];
+  assert.deepStrictEqual(spanUnzoomedDims(plot(["x"]), box), [
+    [100, 40],
+    [180, 240],
+  ]);
+  assert.deepStrictEqual(spanUnzoomedDims(plot(["y"]), box), [
+    [60, 90],
+    [360, 120],
+  ]);
+});
+
+it("spanUnzoomedDims: a box on a chart zooming both dimensions stays as drawn", () => {
+  const box = [
+    [100, 90],
+    [180, 120],
+  ];
+  assert.strictEqual(spanUnzoomedDims(plot(["x", "y"]), box), box);
+  assert.strictEqual(spanUnzoomedDims(picture(), box), box);
 });

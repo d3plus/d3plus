@@ -37,6 +37,11 @@ import {themed} from "../../utils/theme.js";
 import {vizDiscrete} from "../viz/discrete.js";
 import {plotShapeAccessors} from "./shapeAccessors.js";
 import {legendSwatchFill} from "./valueColorsScene.js";
+import {
+  rangeSelectorStyleActiveDefault,
+  rangeSelectorStyleDefault,
+  rangeSelectorStyleHoverDefault,
+} from "../drawSteps/rangeSelectorButtons.js";
 
 /**
     Plot's identity-coerce accessor schema. `installFluent` installs it on
@@ -66,6 +71,23 @@ export const plotSchema = [
   {key: "pathArrows", coerce: "identity" as const, default: true},
   {key: "pathLabels", coerce: "identity" as const, default: true},
   {key: "quadrants", coerce: "identity" as const, default: false},
+  {key: "rangeSelector", coerce: "identity" as const, default: false},
+  {key: "rangeSelectorClassName", coerce: "identity" as const},
+  {
+    key: "rangeSelectorStyle",
+    coerce: "identity" as const,
+    default: rangeSelectorStyleDefault,
+  },
+  {
+    key: "rangeSelectorStyleActive",
+    coerce: "identity" as const,
+    default: rangeSelectorStyleActiveDefault,
+  },
+  {
+    key: "rangeSelectorStyleHover",
+    coerce: "identity" as const,
+    default: rangeSelectorStyleHoverDefault,
+  },
   {key: "referenceBands", coerce: "identity" as const, factory: () => []},
   {key: "referenceLines", coerce: "identity" as const, factory: () => []},
   {key: "shapeSort", coerce: "identity" as const},
@@ -94,6 +116,7 @@ export const plotSchema = [
   {key: "y2Domain", coerce: "identity" as const},
   {key: "ySort", coerce: "identity" as const},
   {key: "y2Sort", coerce: "identity" as const},
+  {key: "zoomAxes", coerce: "identity" as const},
 ];
 
 /** Sets Plot's scalar and config defaults on a new instance. */

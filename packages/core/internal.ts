@@ -2690,6 +2690,7 @@ export {
 export {
   broadcastLegend,
   broadcastLink,
+  dispatchLinked,
   linkAs,
   linkKeys,
   linkedColorDefaults,
@@ -2701,6 +2702,86 @@ export {
   unregisterLink,
 } from "./src/charts/viz/linkGroup.js";
 export type {LinkKind, ResolvedLink} from "./src/charts/viz/linkGroup.js";
+export {
+  broadcastWindows,
+  broadcastZoom,
+  coversDims,
+  followZoom,
+  sharedWindows,
+} from "./src/charts/drawSteps/zoomLink.js";
+export {setFacetZoom} from "./src/charts/drawSteps/facetZoomRedraw.js";
+export {
+  bindFacetGestures,
+  clampToArea,
+  facetZoomable,
+  resetFacets,
+  scaleAbout,
+  zoomFacets,
+  zoomFacetToBounds,
+} from "./src/charts/drawSteps/facetGestures.js";
+export {
+  facetDataWindow,
+  overlappingWindows,
+  panelWindows,
+  windowsOverlap,
+} from "./src/charts/Plot/facetZoom.js";
+export type {FacetZoom} from "./src/charts/Plot/facetZoom.js";
+export {
+  bandAxis,
+  bandWindow,
+  overviewFeature,
+  showWindow,
+} from "./src/charts/drawSteps/overview.js";
+export {
+  clampWindow,
+  keyWindow,
+  moveWindow,
+  resizeWindow,
+  scaleWindow,
+  spanWindow,
+} from "./src/charts/Plot/overviewWindow.js";
+export {
+  activeRangeButton,
+  rangeExtent,
+  rangeSelectorContribution,
+  rangeTransform,
+  selectRange,
+  shownRangeButtons,
+  syncRangeButtons,
+} from "./src/charts/drawSteps/rangeSelector.js";
+export {
+  RANGE_SELECTOR_DEFAULT,
+  coversAll,
+  parseRangeButton,
+  rangeAriaLabel,
+  rangeButtons,
+  rangeLabel,
+  rangeWindow,
+} from "./src/charts/drawSteps/rangeSelectorButtons.js";
+export type {
+  RangeButton,
+  RangeSelectorOption,
+  RangeStep,
+} from "./src/charts/drawSteps/rangeSelectorButtons.js";
+export {
+  defaultZoomAxis,
+  isOverviewChart,
+  isOverviewLink,
+  rangeSelectorAxis,
+  refitDomain,
+  splitZoomAxes,
+  zoomDimensions,
+} from "./src/charts/Plot/zoomAxes.js";
+export type {ZoomAxesSetting} from "./src/charts/Plot/zoomAxes.js";
+export {
+  dataWindow,
+  liveTransform,
+  valuesExtent,
+  windowTransform,
+  zoomedDomain,
+  zoomWindows,
+} from "./src/charts/Plot/zoomWindow.js";
+export type {ZoomWindow, ZoomWindows} from "./src/charts/Plot/zoomWindow.js";
 export {
   dropLegendHistory,
   isLegendEntry,

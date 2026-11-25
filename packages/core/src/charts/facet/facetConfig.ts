@@ -110,6 +110,8 @@ export interface FacetCell {
 /** What a chart's per-panel hook is told about the panel about to draw. */
 export interface FacetPanelContext {
   cell: FacetCell;
+  /** The panel's key (its `FacetPanelState.key`). */
+  key?: string;
   /** Whether panels share scales this draw. */
   shared: boolean;
   /** Whether this panel labels its axes (see `FacetConfig.axes`). */

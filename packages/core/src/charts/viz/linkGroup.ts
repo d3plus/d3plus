@@ -1,6 +1,7 @@
 /**
     Linked charts: every chart sharing a `link` group mirrors the others'
-    hover, active, highlight, and legend hide/solo state.
+    hover, active, highlight, and legend hide/solo state, and their Plots'
+    zoom (see `drawSteps/zoomLink.ts`) unless a chart opts out.
 
     Charts are matched by data value, not by predicate: a predicate closes over
     its own chart's ids and aggregated rows, so it means nothing to another
@@ -44,6 +45,14 @@ export interface LinkConfig {
   legend?: boolean;
   /** Share categorical color assignments, so a value gets the same color in every linked chart. Defaults to `true`; a chart that sets its own `colorDefaults.scale` keeps it. */
   color?: boolean;
+  /**
+      Mirror a Plot's zoom: zooming or panning one shows the same window of
+      dates or values on the others' matching axes. Defaults to `true`;
+      `false` keeps this chart's zoom its own. `"overview"` makes the chart
+      the group's overview: it keeps its whole view and shows the others'
+      window as a band you drag to move it (see `drawSteps/overview.ts`).
+  */
+  zoom?: boolean | "overview";
 }
 
 /** `link` as a group name, the full object form, or `false` for unlinked. */
@@ -58,6 +67,10 @@ export interface ResolvedLink {
   highlight: boolean;
   legend: boolean;
   color: boolean;
+  /** Shares zoom with the group (an overview does too). */
+  zoom: boolean;
+  /** The chart is the group's overview. */
+  overview: boolean;
 }
 
 const groups = new Map<string, Set<VizInstance>>();
@@ -94,6 +107,8 @@ export function resolveLink(viz: LinkTarget): ResolvedLink | null {
     highlight: cfg.highlight !== false,
     legend: cfg.legend !== false,
     color: cfg.color !== false,
+    zoom: cfg.zoom !== false,
+    overview: cfg.zoom === "overview",
   };
 }
 
@@ -215,7 +230,7 @@ export function linkAs(viz: VizInstance, predicate: Predicate): void {
 }
 
 /** Runs `fn` for each other linked member of `viz`'s group, with echoes suppressed. */
-function dispatch(
+export function dispatchLinked(
   viz: VizInstance,
   link: ResolvedLink,
   fn: (target: VizInstance, targetLink: ResolvedLink) => void,
@@ -255,7 +270,7 @@ export function broadcastLink(
       ? (override ?? (predicate as Predicate))
       : null;
   let values: Set<string> | null = null;
-  dispatch(viz, link, (target, targetLink) => {
+  dispatchLinked(viz, link, (target, targetLink) => {
     if (!targetLink[kind]) return;
     const setter = target[kind] as
       ((_: Predicate | false) => unknown) | undefined;
@@ -303,7 +318,7 @@ export function broadcastLegend(viz: VizInstance): void {
   if (!link || !link.legend) return;
   const hiddenKeys = legendKeys(viz, link, viz._hidden);
   const soloKeys = legendKeys(viz, link, viz._solo);
-  dispatch(viz, link, (target, targetLink) => {
+  dispatchLinked(viz, link, (target, targetLink) => {
     if (!targetLink.legend || !target._legendData?.length) return;
     const hidden: (string | number)[] = [];
     const solo: (string | number)[] = [];

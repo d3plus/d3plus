@@ -25,6 +25,9 @@ import {
 } from "./gestureHover.js";
 import {setCursor} from "../viz/setCursor.js";
 import {startsOnBrush} from "./zoomGesture.js";
+import {spanUnzoomedDims} from "./zoomFit.js";
+import {isOverviewChart} from "../Plot/zoomAxes.js";
+import {bindFacetGestures, facetZoomable} from "./facetGestures.js";
 
 /** A point in the zoom surface's coordinates. */
 export type Point = [number, number];
@@ -119,9 +122,13 @@ function zoomArea(viz: Viz): Box {
   return viz._zoomBehavior.extent().bind(document)() as Box;
 }
 
-/** Shows `box` (surface coordinates) with the zoom brush, offset like it to the chart area. */
+/**
+    Shows `box` (surface coordinates) with the zoom brush, offset like it to
+    the chart area, spanning the plot along a dimension the zoom doesn't scale.
+*/
 function showBox(viz: Viz, box: Box): void {
   const {left, top} = viz._margin;
+  box = spanUnzoomedDims(viz, box);
   viz._brushGroup
     .style("display", "inline")
     .style("pointer-events", "none")
@@ -258,9 +265,11 @@ export function bindZoomGestures(
   tgt: NonNullable<Viz["_zoomEventTarget"]>,
   reset: (event: Event) => void,
 ): void {
-  const brush = viz.schema.zoomDrag === "brush";
+  const brush = viz.schema.zoomDrag === "brush" && !isOverviewChart(viz);
   tgt.on(`mousedown.${NS}`, brush ? (e: MouseEvent) => pressed(viz, e) : null);
-  bindDoubleClick(viz, tgt, reset);
+  // Small multiples zoom the panel under the pointer (see `facetGestures.ts`).
+  bindFacetGestures(viz, tgt);
+  if (!facetZoomable(viz)) bindDoubleClick(viz, tgt, reset);
 }
 
 /**
@@ -272,4 +281,5 @@ export function unbindZoomGestures(
   tgt: NonNullable<Viz["_zoomEventTarget"]>,
 ): void {
   tgt.on(`.${NS}`, null);
+  tgt.on(".facetzoom", null);
 }

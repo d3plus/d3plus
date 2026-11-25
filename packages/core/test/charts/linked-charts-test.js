@@ -106,6 +106,21 @@ it("resolveLink normalizes the string and object forms", () => {
   assert.strictEqual(resolveLink(viz), null, "an empty group isn't linked");
 });
 
+it('resolveLink: zoom is shared unless a chart opts out, and "overview" marks the overview', () => {
+  reset();
+  const viz = new Treemap();
+  viz.schema.link = "dash";
+  assert.strictEqual(resolveLink(viz).zoom, true, "on for the string form");
+  assert.strictEqual(resolveLink(viz).overview, false);
+  viz.schema.link = {group: "dash"};
+  assert.strictEqual(resolveLink(viz).zoom, true, "on by default");
+  viz.schema.link = {group: "dash", zoom: false};
+  assert.strictEqual(resolveLink(viz).zoom, false);
+  viz.schema.link = {group: "dash", zoom: "overview"};
+  assert.strictEqual(resolveLink(viz).zoom, true, "an overview shares zoom");
+  assert.strictEqual(resolveLink(viz).overview, true);
+});
+
 it("registers on `link`, re-registers on change, and leaves on false or destroy()", () => {
   reset();
   const a = make(Treemap, "one");

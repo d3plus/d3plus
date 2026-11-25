@@ -154,6 +154,7 @@ describe("Plot facet helpers", () => {
       _trendFits: 5,
       _plotOutliers: 8,
       _barSpans: 7,
+      _plotZoomBase: 9,
       _other: 6,
     };
     assert.deepStrictEqual(plotFacetHooks.capture(viz), {
@@ -164,6 +165,7 @@ describe("Plot facet helpers", () => {
       _trendFits: 5,
       _plotOutliers: 8,
       _barSpans: 7,
+      _plotZoomBase: 9,
     });
   });
 

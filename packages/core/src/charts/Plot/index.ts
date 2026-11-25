@@ -396,8 +396,7 @@ export default class Plot extends Viz {
       @private
 */
   _zoomRescale(t: ZoomState, duration = 0): boolean {
-    // Small multiples zoom as one picture: there's no single set of axes to rescale.
-    if (this._facetPanels) return false;
+    // Small multiples zoom as one picture (see `zoomPlot`).
     const nodes = zoomPlot(this as unknown as VizInstance, t, duration);
     if (!nodes) return false;
     this._chartScene = nodes;

@@ -7,7 +7,9 @@
     axis re-ticks for the window it shows, so zooming in steps its ticks down
     from years to months to days. Discrete (point/band) and log axes stay
     fixed — a bar chart with category bars zooms and pans along its value
-    axis only. The d3-zoom behavior and controls are shared with every other chart
+    axis only. `zoomAxes` limits the rescale to one dimension, and the
+    other continuous axis refits to the rows in view (see `zoomAxes.ts`).
+    The d3-zoom behavior and controls are shared with every other chart
     (`drawSteps/zoomControls.ts`); `zoomed()` hands each transform to
     `Plot._zoomRescale`, which lands here.
 
@@ -22,19 +24,36 @@ import {
 } from "../features/plotPaint.js";
 import {unwrapBreakMasks} from "./plotBreaks.js";
 import {unwrapDomainClips} from "./domainClip.js";
+import {hasUserDomain, plotBaseline} from "./baselineDomain.js";
+import {
+  valuesExtent,
+  windowTransform,
+  zoomedDomain,
+  zoomWindows,
+  type ZoomWindow,
+  type ZoomWindows,
+} from "./zoomWindow.js";
+import {broadcastZoom} from "../drawSteps/zoomLink.js";
+import {panelWindows} from "./facetZoom.js";
+import {
+  defaultZoomAxis,
+  isOverviewChart,
+  refitDomain,
+  splitZoomAxes,
+  zoomDimensions,
+  type AxisName,
+} from "./zoomAxes.js";
 import type {
   PlotMeasureResult,
   PlotPaintContext,
 } from "../features/plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
-type AxisName = "x" | "x2" | "y" | "y2";
-
 /** A value on a zoomable axis: a number, or a Date on a time axis. */
-type AxisValue = number | Date;
+export type AxisValue = number | Date;
 
 /** The invertible piece of an axis's d3 scale (linear or time) the rescale needs. */
-interface LinearScale {
+export interface LinearScale {
   (value: AxisValue): number;
   domain(): AxisValue[];
   range(): number[];
@@ -59,6 +78,13 @@ export interface PlotZoomBase {
   breaks: Partial<Record<AxisName, boolean>>;
   /** Axes drawn `reverse`d, whose scales run the other way to their domains. */
   reversed: Partial<Record<AxisName, boolean>>;
+  /**
+      Continuous axes a zoom leaves unscaled (see `zoomAxes`), which refit to
+      the rows in view, with their unzoomed scales.
+  */
+  refit: Partial<Record<AxisName, LinearScale>>;
+  /** Where bars and areas start, which a refit axis always reaches. */
+  baseline?: number;
 }
 
 /**
@@ -79,6 +105,17 @@ function zoomableAxes(pCtx: PlotPaintContext): AxisName[] {
   if (pCtx.y2Exists && zoomable(pCtx.yScale, pCtx.y2ConfigScale))
     axes.push("y2");
   return axes;
+}
+
+/**
+    Whether the chart's user set an axis's domain (an `xDomain`, an axis
+    config `domain`, or a `baseline`), which a refit leaves alone.
+*/
+function userFixedDomain(viz: Viz, axis: AxisName): boolean {
+  if (viz.schema[`${axis}Domain`]) return true;
+  const config = viz[`_${axis}Config`] as {domain?: unknown} | undefined;
+  if (Array.isArray(config?.domain)) return true;
+  return (axis === "x" || axis === "y") && hasUserDomain(viz, axis);
 }
 
 /** The content group `plotEmit` wraps a zoomable plot's shapes in. */
@@ -110,16 +147,34 @@ export function paintZoomablePlot(
   const labelSpace: PlotZoomBase["labelSpace"] = {};
   const breaks: PlotZoomBase["breaks"] = {};
   const reversed: PlotZoomBase["reversed"] = {};
-  for (const axis of zoomableAxes(pCtx)) {
+  const refit: PlotZoomBase["refit"] = {};
+  // A small-multiples panel zooms along the axes its window covers (see
+  // `facetZoom.ts`), refitting the others.
+  const panel = viz._facetStep === "panel";
+  const windows = panel
+    ? panelWindows(
+        viz._facetZoom,
+        d => panelExtent(viz, pCtx, d),
+        viz._facetPanelKey,
+      )
+    : undefined;
+  const split = splitZoomAxes(
+    zoomableAxes(pCtx),
+    windows
+      ? {x: Boolean(windows.x), y: Boolean(windows.y)}
+      : zoomDimensions(viz.schema.zoomAxes, defaultZoomAxis(viz)),
+  );
+  for (const axis of [...split.rescale, ...split.refit]) {
     const axisInstance = viz[`_${axis}Axis`];
     const d3Scale = axisInstance?._d3Scale as
       (LinearScale & {copy(): LinearScale}) | undefined;
-    if (d3Scale && typeof d3Scale.invert === "function") {
-      scales[axis] = d3Scale.copy();
-      labelSpace[axis] = axisInstance?._labelSpace;
-      breaks[axis] = Boolean(axisInstance?._baselineBreak);
-      reversed[axis] = Boolean(axisInstance?.schema.reverse);
-    }
+    if (!d3Scale || typeof d3Scale.invert !== "function") continue;
+    const rescaled = split.rescale.includes(axis);
+    if (!rescaled && userFixedDomain(viz, axis)) continue;
+    (rescaled ? scales : refit)[axis] = d3Scale.copy();
+    labelSpace[axis] = axisInstance?._labelSpace;
+    breaks[axis] = Boolean(axisInstance?._baselineBreak);
+    reversed[axis] = Boolean(axisInstance?.schema.reverse);
   }
   // Shape sizes for the automatic `zoomMax` come from the unzoomed paint.
   viz._zoomShapes = contentNodes(nodes);
@@ -134,17 +189,89 @@ export function paintZoomablePlot(
     labelSpace,
     breaks,
     reversed,
+    refit,
+    baseline: plotBaseline(viz),
   };
-  if (current && (current.k !== 1 || current.x || current.y)) {
-    const zoomed = rescalePlot(viz, current);
+  // A small-multiples panel shows its window (see `facetZoom.ts`); an
+  // overview always shows its whole view.
+  const t = panel
+    ? panelTransform(viz, windows)
+    : isOverviewChart(viz)
+      ? undefined
+      : current;
+  if (t && (t.k !== 1 || t.x || t.y)) {
+    const zoomed = rescalePlot(viz, t);
     if (zoomed) return zoomed;
   }
   return nodes;
 }
 
+/** A small-multiples panel's data extent: every panel's, when they share scales. */
+function panelExtent(
+  viz: Viz,
+  pCtx: PlotPaintContext,
+  dim: "x" | "y",
+): ZoomWindow | undefined {
+  const shared = viz._plotFacetScales?.domains?.[dim];
+  return valuesExtent(shared ?? pCtx[`${dim}Data`]);
+}
+
+/** The transform that shows a small-multiples panel's window, if it has one. */
+function panelTransform(
+  viz: Viz,
+  windows: ZoomWindows | undefined,
+): ZoomState | undefined {
+  const t = windows && windowTransform(viz as never, windows);
+  return t && t.k > 1 ? t : undefined;
+}
+
+/** The baseline, when the axis's unzoomed domain reaches it (bars and areas start there). */
+function reachedBaseline(
+  base: PlotZoomBase,
+  axis: AxisName,
+): number | undefined {
+  const b = base.baseline;
+  if (b === undefined) return undefined;
+  const [d0, d1] = base.refit[axis]!.domain().map(Number);
+  return b >= Math.min(d0, d1) && b <= Math.max(d0, d1) ? b : undefined;
+}
+
+/**
+    The domain a refit axis shows for a zoom transform: the extent of the
+    rows within the rescaled axes' window (see `refitDomain`), in the
+    orientation its unzoomed scale reads, or undefined when no rows are in
+    view.
+*/
+function refitAxisDomain(
+  base: PlotZoomBase,
+  t: ZoomState,
+  axis: AxisName,
+): number[] | undefined {
+  const along = axis[0] === "x" ? "y" : "x";
+  if (!base.scales[along]) return undefined;
+  const window = zoomedDomain(base, t, along).map(Number) as [number, number];
+  const {pCtx} = base;
+  const stacked = pCtx.stackData.length > 0 && axis === pCtx.opp;
+  const extent = refitDomain({
+    rows: pCtx.data as Record<string, unknown>[],
+    along,
+    window,
+    axis,
+    confidence: axis === pCtx.opp,
+    stack: stacked ? pCtx.stackData : undefined,
+    discrete: along,
+    baseline: axis === pCtx.opp ? reachedBaseline(base, axis) : undefined,
+  });
+  if (!extent) return undefined;
+  const [b0, b1] = base.refit[axis]!.domain();
+  const out = +b1 < +b0 ? [extent[1], extent[0]] : extent;
+  return base.reversed[axis] ? out.reverse() : out;
+}
+
 /**
     The paint-context overrides a zoom transform makes: each rescaled axis's
-    domain and axis config, and where the unzoomed plot ranges land.
+    domain and axis config, each refit axis's domain, and where the
+    unzoomed plot ranges land.
 */
 function zoomedContext(
   base: PlotZoomBase,
@@ -152,31 +279,9 @@ function zoomedContext(
 ): Partial<PlotPaintContext> {
   const {pCtx, layout, chartTransform: ct, scales} = base;
 
-  // Surface point s shows unzoomed surface point (s - t) / k. Axis positions
-  // live in the plot body (`ct` from the surface origin), and y positions are
-  // additionally offset by the x2 axis height (see `renderYAxes`).
-  // A time axis's domain comes back as Dates, which the axis reads as given.
-  const rescale = (axis: AxisName): AxisValue[] => {
-    const scale = scales[axis]!;
-    const vertical = axis[0] === "y";
-    const origin = vertical ? ct.y : ct.x;
-    const shift = vertical ? t.y : t.x;
-    const offset = vertical ? -pCtx.x2Height : 0;
-    const domain = scale
-      .range()
-      .map(r =>
-        scale.invert((r + offset + origin - shift) / t.k - origin - offset),
-      );
-    // Keep the base domain's orientation, handing a reversed axis its
-    // domain the way round the axis reverses.
-    const [b0, b1] = scale.domain();
-    const flip = (+b1 - +b0) * (+domain[1] - +domain[0]) < 0;
-    return flip !== Boolean(base.reversed[axis]) ? domain.reverse() : domain;
-  };
-
   const zoomed: Partial<PlotPaintContext> = {};
   for (const axis of Object.keys(scales) as AxisName[])
-    zoomed[`${axis}Domain`] = rescale(axis) as number[];
+    zoomed[`${axis}Domain`] = zoomedDomain(base, t, axis) as number[];
   // Per rescaled axis: show the exact rescaled domain (the default "outside"
   // rounding would snap it back out to nice values on every tick), label only
   // the scale's nice ticks (forcing in the arbitrary domain endpoints would
@@ -194,6 +299,17 @@ function zoomedContext(
       domain: zoomed[`${axis}Domain`],
       ...(base.breaks[axis] ? {} : {baselineBreak: false}),
     };
+  // A refit axis rounds its domain as usual, at its unzoomed label size.
+  for (const axis of Object.keys(base.refit) as AxisName[]) {
+    const domain = refitAxisDomain(base, t, axis);
+    if (!domain) continue;
+    zoomed[`${axis}Domain`] = domain;
+    zoomed.zoomAxes[axis] = {
+      fixedSize: base.labelSpace[axis],
+      domain,
+      ...(base.breaks[axis] ? {} : {baselineBreak: false}),
+    };
+  }
 
   // Where the unzoomed plot's x and y ranges land under the zoom: bars on a
   // zoomed time axis size themselves against it (see `barEmit`).
@@ -247,7 +363,8 @@ export function rescalePlot(
 }
 
 /**
-    Repaints the plot for a zoom transform, animated over `duration`. An
+    Repaints the plot for a zoom transform, animated over `duration`, and
+    passes the zoom to the charts linked with it (see `zoomLink.ts`). An
     animated return to the natural scale from a zoomed view keeps the clip until the transition
     settles, so shapes tweening back in from outside the plot don't paint
     over the axes on the way; the clip is then dropped with an instant
@@ -259,10 +376,20 @@ export function zoomPlot(
   duration: number,
 ): SceneNode[] | undefined {
   clearTimeout(viz._plotUnclipTimer);
+  const identity = t.k === 1 && !t.x && !t.y;
+  // Small multiples zoom panel by panel (see `facetGestures.ts`).
+  if (viz._facetPanels) return undefined;
+  // An overview keeps its whole view: its zoom is the window its band shows.
+  if (isOverviewChart(viz)) {
+    viz._overviewWindows = identity ? null : zoomWindows(viz as never, t);
+    broadcastZoom(viz as never, t, duration);
+    return viz._chartScene ?? [];
+  }
   const content = viz._chartScene?.find(n => n.key === PLOT_ZOOM_CONTENT_KEY);
   const clipped = content?.type === "group" && !!content.clip;
-  const settling = clipped && duration > 0 && t.k === 1 && !t.x && !t.y;
+  const settling = clipped && duration > 0 && identity;
   const nodes = rescalePlot(viz, t, settling);
+  if (nodes) broadcastZoom(viz as never, t, duration);
   if (nodes && settling) {
     viz._plotUnclipTimer = setTimeout(() => {
       const settled = rescalePlot(viz, t);
