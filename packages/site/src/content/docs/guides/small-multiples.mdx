@@ -27,7 +27,11 @@ The panels make up one chart, not several:
 - **Interactions across panels.** Hovering a mark highlights its series in every panel. Clicking a legend entry hides or solos that series everywhere, and drilling into a group drills every panel. Tooltips describe the mark under the pointer, and a Plot's shared tooltip and crosshair follow the panel the pointer is over.
 - **One timeline.** Every panel shows the same period. The grid stays the same as the timeline moves or legend entries are toggled, so a panel with no rows in the current period stays in place, showing only its title.
 
-Zooming magnifies the whole grid as one picture.
+Zooming a Plot's panels (BarChart, LinePlot, and the rest of the Plot family)
+rescales their axes: Ctrl/⌘ + wheel, a drag, a double-click, or a drawn box
+zooms the panel under the pointer, and every panel with it when they share
+scales; the zoom buttons zoom every panel, and reset returns them all. Other
+charts' small multiples magnify the whole grid as one picture.
 
 ## Layout
 

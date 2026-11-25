@@ -303,8 +303,8 @@ Shift + drag pans.
 to the last month, six months, year to date, and so on, ending at the data's
 last date. The button showing the current window reads as pressed, and the
 zoom runs along the time axis alone. A button whose window would take in all
-the data is hidden. In small multiples, each panel shows the button's window
-of its own data. Pick the buttons with short forms
+the data is hidden. Small multiples with independent scales show each
+panel's button window over its own data. Pick the buttons with short forms
 (`"3M"`, `"2W"`, `"5Y"`, `"YTD"`, `"All"`) or objects such as
 `{step: "week", count: 2, label: "2W"}`.
 
@@ -315,7 +315,8 @@ of its own data. Pick the buttons with short forms
 Charts in the same `link` group share their zoom: zooming, panning, a range
 button, or a reset in one shows the same dates in the others (set
 `link: {group, zoom: false}` to keep a chart's zoom its own). A chart whose
-data the window doesn't reach keeps its view.
+data the window only partly reaches shows that part, and one it doesn't
+reach keeps its view.
 
 The third chart is the group's overview (`link: {group, zoom: "overview"}`):
 it always shows the whole history, with the others' window as a band. Drag
