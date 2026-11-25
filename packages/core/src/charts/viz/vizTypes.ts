@@ -290,6 +290,10 @@ export interface VizInstance {
   _chartScene?: SceneNode[];
   /** The whole scene last painted (chart, legend, colorScale, chrome). */
   _paintedScene?: Scene;
+  /** Called each time the chart's pipeline has run and painted (a Dashboard listens on its charts). */
+  _onDrawn?: () => void;
+  /** Whether the chart saves from `toSVGString()` on either renderer (a Dashboard, whose charts draw outside its own surface). */
+  _vectorSave?: boolean;
   _chartTransform?: Transform;
   _chartClip?: ClipShape;
   _featurePanels?: SceneNode[];
@@ -373,6 +377,8 @@ export interface VizInstance {
   _referenceHighlight?: Set<DataPoint> | null;
   /** The `link` group this chart is registered under (see `linkGroup.ts`). */
   _linkGroup?: string;
+  /** The value a row matches other linked charts' rows on, when it isn't the chart's id (a Dashboard's legend rows match on their entry and every chart's id). */
+  _linkBy?: (d: DataPoint, i: number) => unknown;
   /** The categorical scale `initColorDefaults` created; linked charts still using it share their group's instead. */
   _autoColorScale?: unknown;
   /** Whether the search control's input is currently open. */

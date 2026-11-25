@@ -14,6 +14,7 @@ export {
   Chord,
   ConnectedScatter,
   CyclePlot,
+  Dashboard,
   DensityPlot,
   Donut,
   DotPlot,
@@ -191,6 +192,12 @@ export type {
   FacetValue,
 } from "./src/charts/facet/facetConfig.js";
 export type {FacetLayout} from "./src/charts/facet/facetLayout.js";
+export type {
+  DashboardChart,
+  DashboardChartEntry,
+  DashboardLayoutConfig,
+  DashboardPlacement,
+} from "./src/charts/Dashboard/dashboardTypes.js";
 
 export type {
   AnyShapeConfig,

@@ -16,6 +16,7 @@ import {
   Chord as ChordClass,
   ConnectedScatter as ConnectedScatterClass,
   CyclePlot as CyclePlotClass,
+  Dashboard as DashboardClass,
   DensityPlot as DensityPlotClass,
   Donut as DonutClass,
   DotPlot as DotPlotClass,
@@ -160,6 +161,10 @@ export const ConnectedScatter = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus CyclePlot visualization. */
 export const CyclePlot = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={CyclePlotClass} {...props} />
+);
+/** React component for rendering a d3plus Dashboard: several charts drawn together as one dashboard. */
+export const Dashboard = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={DashboardClass} {...props} />
 );
 /** React component for rendering a d3plus DensityPlot visualization. */
 export const DensityPlot = (props: D3plusComponentProps) => (

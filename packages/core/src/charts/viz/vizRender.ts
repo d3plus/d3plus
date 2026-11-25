@@ -365,6 +365,7 @@ function finishDraw(viz: Viz, callback?: () => void): void {
   // inherently instance-bound.
   runVizPipeline(viz as unknown as VizInstance);
   viz._instantNextDraw = false;
+  viz._onDrawn?.();
   syncUnloadObserver(viz);
   syncDataPolling(viz);
 

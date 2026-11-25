@@ -19,6 +19,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {Scene, SceneNode} from "@d3plus/render";
 
 import {applyDefinition} from "./applyDefinition.js";
+import {registerChart} from "./chartRegistry.js";
 import {runChartDraw} from "../pipeline/runChartDraw.js";
 import Viz from "../viz/Viz.js";
 import type {ChartDefinition} from "./ChartDefinition.js";
@@ -141,5 +142,6 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
     }
   }
   Object.defineProperty(Chart, "name", {value: def.name});
+  registerChart(def.name, Chart);
   return Chart;
 }

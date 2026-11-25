@@ -1,0 +1,60 @@
+---
+title: Dashboard
+description: "Places several different charts together as one dashboard, under one title and one legend and saved as one image, with their plot areas lined up, their axes shared, and their hover and highlight linked."
+---
+
+import Playground from "~/components/Playground/Playground.astro";
+import ApiReference from "~/components/ApiReference.astro";
+import basicExample from "~/examples/core/charts/dashboard/basic-example.js?raw";
+import placingCharts from "~/examples/core/charts/dashboard/placing-charts.js?raw";
+import liningUpPlotAreas from "~/examples/core/charts/dashboard/lining-up-plot-areas.js?raw";
+import oneLegend from "~/examples/core/charts/dashboard/one-legend.js?raw";
+import sharingAxes from "~/examples/core/charts/dashboard/sharing-axes.js?raw";
+import sharedConfig from "~/examples/core/charts/dashboard/shared-config.js?raw";
+import nestingDashboards from "~/examples/core/charts/dashboard/nesting-dashboards.js?raw";
+
+Places several different charts together as one dashboard: one title and subtitle above them, one legend for all of them, one download button that saves them all as one image, and a grid that sizes each chart. Where `facet` repeats one chart for each value of a key, a Dashboard combines charts of any kind.
+
+## Basic example
+
+List the `charts`: each is a chart instance (`new d3plus.BarChart().data(…)`), or an object naming a chart class with the `config` to give it. Every chart keeps its own axes, tooltips, zoom, and keyboard navigation, and draws its own data. The charts are linked: hovering a country in one highlights it in the other, and a value takes the same color in both. The dashboard draws one legend, the treemap's, in place of theirs; clicking an entry hides it in every chart.
+
+<Playground chart="Dashboard" code={basicExample} controls={["title","link"]} />
+
+## Placing charts
+
+`layoutConfig` sets the grid: `columns` and `rows` are a count, or each track's size relative to the others (`[2, 1]` makes the first column twice as wide), and `padding` the space between charts (`4` pixels by default). Charts fill the grid left to right, top to bottom; `columnSpan` and `rowSpan` stretch one over several cells, and `column` and `row` (from 0) pin it to one. Without `columns`, the dashboard picks the column count that draws its charts largest.
+
+<Playground chart="Dashboard" code={placingCharts} controls={["layoutConfig"]} />
+
+## Lining up plot areas
+
+Charts with axes that start or end on the same grid line have their plot areas lined up, so stacked charts read against one x axis and charts side by side share their top and bottom, however wide each one's axis labels are. `layoutConfig.align: false` gives each chart its whole cell instead.
+
+<Playground chart="Dashboard" code={liningUpPlotAreas} controls={["layoutConfig"]} />
+
+## Sharing axes
+
+`layoutConfig.shareX` gives the charts with axes whose columns overlap one x domain (a chart spanning two columns shares with the charts under both), labeled only on the charts with none of the others below them; `shareY` does the same for the y domain of charts whose rows overlap, labeled only on the charts with none of the others to their left. A domain a chart sets itself (`xDomain` or `yDomain`) becomes the shared one, merged with any other chart's own. Charts whose axes differ in kind (categories beside numbers, dates beside numbers, a log scale beside a linear one) don't share.
+
+<Playground chart="Dashboard" code={sharingAxes} controls={["layoutConfig"]} />
+
+## One legend
+
+The dashboard draws one legend for all of its charts, in place of theirs. Each entry is the value a chart colors by (its `color`, else its top `groupBy` level), shown once however many charts have it, so a bar chart colored by region and a treemap grouped by region share their entries. The legend is linked to every chart: clicking or hovering an entry hides, solos, or highlights it everywhere. Its swatches take the `shapeConfig`, `legendConfig`, `legendTooltip`, and `shape` the charts set, the earlier chart's where two disagree, and the dashboard's own over both. A chart colored by a `colorScale` keeps its colorScale as its key and is left out of the legend. `legendChart` keeps the legend to the charts it names (an index into `charts`, or a list of them). `legend: false` gives each chart its own legend back, and a chart whose config sets `legend` keeps its own.
+
+<Playground chart="Dashboard" code={oneLegend} controls={["legendPosition","legendChart"]} />
+
+## Shared config
+
+Every chart takes the dashboard's `theme`, `locale`, and renderer. `chartConfig` is config every chart gets after those and before its own, for what else they share, such as a `tooltipConfig`; by default it turns off each chart's download, table view, search, and zoom buttons, since the dashboard's download button saves them all. A chart's own config wins over both. Set `link` to a group name to link the charts with others on the page, or to `false` to unlink them; a chart with a `link` of its own keeps it.
+
+<Playground chart="Dashboard" code={sharedConfig} controls={["link"]} />
+
+## Nesting dashboards
+
+A chart in a dashboard can be another Dashboard, which lays its own charts out in its cell: here a pie beside a bar chart stacked over an area plot. The nested dashboard's charts join the outer dashboard's link group, and it draws its own legend for its own charts.
+
+<Playground chart="Dashboard" code={nestingDashboards} controls={["layoutConfig"]} />
+
+<ApiReference name="Dashboard" pkg="core" />

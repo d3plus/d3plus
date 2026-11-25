@@ -13,6 +13,7 @@ export {default as Candlestick} from "./Candlestick/index.js";
 export {default as Chord} from "./Chord/index.js";
 export {default as ConnectedScatter} from "./ConnectedScatter/index.js";
 export {default as CyclePlot} from "./CyclePlot/index.js";
+export {default as Dashboard} from "./Dashboard/index.js";
 export {default as DensityPlot} from "./DensityPlot/index.js";
 export {default as Donut} from "./Donut/index.js";
 export {default as DotPlot} from "./DotPlot/index.js";

@@ -2117,6 +2117,38 @@ export {
 } from "./src/charts/DotPlot/placements.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
+export {
+  applyDashboardLayout,
+  dashboardDef,
+} from "./src/charts/Dashboard/index.js";
+export {
+  alignCells,
+  plotInsets,
+  sidesChanged,
+} from "./src/charts/Dashboard/dashboardAlign.js";
+export type {DashboardSides} from "./src/charts/Dashboard/dashboardAlign.js";
+export {
+  dashboardEntry,
+  isChartInstance,
+  syncDashboardCharts,
+} from "./src/charts/Dashboard/dashboardCharts.js";
+export {
+  dashboardColumns,
+  dashboardGrid,
+  placeCharts,
+  resolveDashboardLayout,
+  trackOffsets,
+  trackWeights,
+} from "./src/charts/Dashboard/dashboardGrid.js";
+export type {
+  DashboardCell,
+  DashboardSlot,
+} from "./src/charts/Dashboard/dashboardGrid.js";
+export {composeDashboardScene} from "./src/charts/Dashboard/dashboardScene.js";
+export {
+  chartClass,
+  registerChart,
+} from "./src/charts/definition/chartRegistry.js";
 export {funnelDef} from "./src/charts/Funnel/index.js";
 export {ganttDef, progressAgg, taskAccessor} from "./src/charts/Gantt/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
