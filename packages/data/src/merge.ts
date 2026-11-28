@@ -65,7 +65,9 @@ function objectMerge(
       const values: DataValue[] = objects.map(o => o[k]);
       const types = values
         .map(v =>
-          v || v === false ? (v as string | number | boolean).constructor : v,
+          v || v === false || v === 0
+            ? (v as string | number | boolean).constructor
+            : v,
         )
         .filter(v => v !== void 0);
       if (!types.length) value = undefined as unknown as MergedValue;

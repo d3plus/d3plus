@@ -111,3 +111,11 @@ it("merge: arrays that differ, or hold one item, still flatten to their unique i
   assert.strictEqual(merge([{p: [7]}, {p: 7}]).p, 7, "an array and a scalar");
   assert.deepStrictEqual(merge([{p: [2, 2]}, {p: 2}]).p, 2, "with a scalar");
 });
+
+it("merge: a zero beside null, NaN, false or an empty string still sums", () => {
+  assert.strictEqual(merge([{v: 5}, {v: null}]).v, 5, "five and null");
+  assert.strictEqual(merge([{v: 0}, {v: null}]).v, 0, "zero and null");
+  assert.strictEqual(merge([{v: 0}, {v: NaN}]).v, 0, "zero and NaN");
+  assert.strictEqual(merge([{v: 0}, {v: false}]).v, 0, "zero and false");
+  assert.strictEqual(merge([{v: 0}, {v: ""}]).v, 0, "zero and empty string");
+});
